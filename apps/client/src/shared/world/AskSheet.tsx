@@ -103,6 +103,13 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
       </div>
       <div className="p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
         <p className="text-[15px] leading-snug text-text-2">{ask.line}</p>
+        {/* R-ACTIVITY-018: an act done at once says the time it takes in words, beside its price. */}
+        {ask.time === undefined ? null : (
+          <div className="mt-3 flex items-baseline justify-between border-t border-sheet-line pt-2.5" data-ask-time>
+            <span className="text-[14px] font-semibold">{say("ui.world.takes")}</span>
+            <span className="text-[16px] font-bold">{ask.time}</span>
+          </div>
+        )}
         {ask.cost === null ? null : (
           <div className="mt-3 flex items-baseline justify-between border-y border-sheet-line py-2.5">
             <span className="text-[14px] font-semibold">{say("ui.world.costs")}</span>

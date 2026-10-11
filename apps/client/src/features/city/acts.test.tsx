@@ -21,6 +21,9 @@ const PASSPORT = "activity.get-passport" as Id<"activity">;
 const MEETUP = "activity.meetup" as Id<"activity">;
 const HUNT = "activity.job-hunt" as Id<"activity">;
 const LEARN = "activity.learn-tech" as Id<"activity">;
+// Decision 0035 (R-ACTIVITY-019): the coding course now answers at once and repeats; the course that fills a slot of the
+// month is a master's at home.
+const COURSE = "activity.masters-at-home" as Id<"activity">;
 
 async function played(): Promise<{ store: GameStore; sent: ReturnType<typeof gameAuthority>["sent"]; game: ReturnType<typeof newGame> }> {
   const game = newGame("scenario.ada");
@@ -96,9 +99,17 @@ describe("a card's button", () => {
   test("[R-ACTIVITY-015] given a month-act, when its button is pressed, then it fills the next free slot and nothing is sent", async () => {
     const { store, sent } = await played();
     const before = sent.length;
-    expect(await actOnCard({ activity: LEARN, param: null }, store.getState())).toBe("planned");
+    expect(await actOnCard({ activity: COURSE, param: null }, store.getState())).toBe("planned");
     expect(sent.length).toBe(before);
-    expect(store.getState().plan).toContainEqual({ activity: LEARN, param: null });
+    expect(store.getState().plan).toContainEqual({ activity: COURSE, param: null });
+    // Decision 0035: the coding course is sent at once, as often as wanted, and never fills a slot.
+    for (let time = 0; time < 2; time += 1) {
+      await act(async () => {
+        expect(await actOnCard({ activity: LEARN, param: null }, store.getState())).toBe("answered");
+      });
+    }
+    expect(sent.slice(before)).toEqual([expect.objectContaining({ type: "activity/now", activity: LEARN }), expect.objectContaining({ type: "activity/now", activity: LEARN })]);
+    expect(store.getState().plan).not.toContainEqual({ activity: LEARN, param: null });
   });
 });
 
@@ -123,7 +134,12 @@ describe("the thing's chip", () => {
       await actOnCard({ activity: HUNT, param: job }, store.getState());
       await actOnCard({ activity: LOTTO, param: "1" }, store.getState());
     });
+    // Decision 0035 (R-ACTIVITY-019): an act that repeats is never done for the month, so it stays offered, as a purchase does.
+    await act(async () => {
+      await actOnCard({ activity: LEARN, param: null }, store.getState());
+    });
     const after = actsOffered(store.getState().view!);
+    expect(after).toContain(LEARN);
     expect(after).not.toContain(MEETUP);
     expect(after).not.toContain(HUNT);
     expect(after).not.toContain(job);

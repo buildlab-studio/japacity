@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { bp } from "../../../../../../packages/sim/src/engine/int";
 import { draw, slot } from "../../../../../../packages/sim/src/route/route.journey";
-import { abroadGame, newGame, viewAfter } from "../../../shared/testing/fixtures";
+import { abroadGame, newGame, setPockets, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
@@ -17,7 +17,13 @@ const HUNT = "activity.job-hunt" as Id<"activity">;
 /** Ada in the UK, hunting the shop job month after month until it is offered. */
 function shopOffered() {
   const game = abroadGame();
-  for (let month = 0; month < 24 && !game.view().offers.some((offer) => offer.terms.job === SHOP); month += 1) game.endTurn([{ activity: HUNT, param: SHOP }]);
+  // Decision 0035: in the re-recorded life the hunt misses its first months, and landed with no pounds the unpaid dues
+  // would take her student status, and the shop job with it, before an offer comes. So each month's pound dues are
+  // covered before she hunts, and she stays a student who may work part time.
+  for (let month = 0; month < 24 && !game.view().offers.some((offer) => offer.terms.job === SHOP); month += 1) {
+    setPockets(game, { GBP: game.view().obligations.reduce((sum, owed) => sum + owed.due, 0) });
+    game.endTurn([{ activity: HUNT, param: SHOP }]);
+  }
   const view = game.view();
   if (!view.offers.some((offer) => offer.terms.job === SHOP)) throw new Error("The shop job was never offered.");
   return { game, view };

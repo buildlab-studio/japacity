@@ -46,6 +46,13 @@ export const worldText: Record<string, string> = {
   // R-ACTIVITY-015: the button that closes the place's answer to an act done at once.
   "ui.world.done": "Done",
   "ui.world.counts-at-end": "Counts when the month ends",
+  // R-ACTIVITY-018: the time an act done at once takes, in a person's words, never a number of days.
+  "ui.world.takes": "Takes",
+  "ui.world.time.morning": "A morning",
+  "ui.world.time.day": "A day",
+  "ui.world.time.weekend": "A weekend",
+  "ui.world.time.half-week": "Half a week",
+  "ui.world.time.week": "A week",
   "ui.world.depart-line": "The visa is in your passport. Board, and the next place is {country}.",
   "ui.world.deposit-line": "{school} holds your place on {route} once the deposit is paid. It goes from the naira in the bank.",
   "ui.world.full": "Free time all used: stop one in the Calendar",

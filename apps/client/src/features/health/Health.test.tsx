@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 
 import { App } from "../../App";
 import { createGameStore } from "../../authority/store";
-import { engineView, fakeAuthority, newGame, viewAfter } from "../../shared/testing/fixtures";
+import { chargedLivingGame, engineView, fakeAuthority, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nameOf, say } from "../../shared/words/text";
 import { RunDownBanner } from "./RunDownBanner";
@@ -16,10 +16,12 @@ const health = content.tuning.health;
 
 /**
  * Ada with wellbeing pushed under the run-down line, played until the warning stands. Resting lifts her over the
- * line until her four months of living run out and the unpaid upkeep pulls her under.
+ * line until her four months of living run out and the unpaid upkeep pulls her under. Decision
+ * 0035 (R-HOME-012): at home the living is no longer charged as the month turns, so her months are played with it
+ * charged whole, as the simulation's relief tests charge it, for the unpaid months to pull her under.
  */
 function runDownView(): PlayerView {
-  const game = newGame();
+  const game = chargedLivingGame();
   for (let month = 0; month < 6 && !game.view().runDown; month += 1) {
     const wellbeing = game.state.quality[WELLBEING] ?? 0;
     viewAfter(game, [{ type: "quality/add", quality: WELLBEING, amount: 5 - wellbeing }]);

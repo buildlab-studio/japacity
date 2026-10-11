@@ -1,12 +1,12 @@
 // The Bank abroad (docs/rules/world.md R-WORLD-002, R-WORLD-019): on
-// Ada's recorded life, landed in London with £746 (the figure follows the recording as it is re-cut; re-recorded for decision 0022) while rent, living costs and a tuition instalment
+// Ada's recorded life, landed in London with £1,946 (the figure follows the recording as it is re-cut; re-recorded for decision 0022, then for decision 0035) while rent, living costs and a tuition instalment
 // of £4,687 fall due, the app leads with the gap and the way to close it, then the pounds, then the
 // naira and the dollars each with Change money. Once flown, the move's target is gone.
 import type { Command, PlayerView } from "@japacity/sim";
 import { fireEvent, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { recordedGame, setPockets } from "../../../shared/testing/fixtures";
+import { recordedGame, setPockets, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { bandMoney } from "../../../shared/world/Band";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
@@ -35,13 +35,14 @@ function sent(authority: { sent: Command[] }): unknown[] {
 }
 
 describe("the month's dues abroad", () => {
-  test("[R-WORLD-019] given Ada landed in London holding £746 with rent, living costs and tuition due, when the dues are read, then the gap is the pounds due against the pounds held, and the naira and dollars are the way", () => {
+  // Decision 0035: the lives were re-recorded; Ada lands holding £1,946.
+  test("[R-WORLD-019] given Ada landed in London holding £1,946 with rent, living costs and tuition due, when the dues are read, then the gap is the pounds due against the pounds held, and the naira and dollars are the way", () => {
     const view = landed();
     expect(view.place.where).toBe("abroad");
     const gap = duesGap(view);
     expect(gap).toEqual({ currency: "GBP", due: dueOf(view), held: view.pockets.GBP.bank + view.pockets.GBP.cash, from: ["NGN", "USD"] });
     expect(formatMoney(gap?.due ?? 0, "GBP")).toBe("£4,687");
-    expect(formatMoney(gap?.held ?? 0, "GBP")).toBe("£746");
+    expect(formatMoney(gap?.held ?? 0, "GBP")).toBe("£1,946");
   });
 
   test("[R-WORLD-019] given the pounds held equal to the month's dues, when the dues are read, then there is no gap; a penny less and the gap shows", () => {
@@ -70,7 +71,8 @@ describe("the month's dues abroad", () => {
     expect(duesGap(view)).not.toBeNull();
     const band = bandMoney(view);
     expect(band.money).toBe(view.pockets.GBP.bank + view.pockets.GBP.cash);
-    expect(band.formatMoney(band.money)).toBe("£746");
+    // Decision 0035: the re-recorded life lands with £1,946.
+    expect(band.formatMoney(band.money)).toBe("£1,946");
   });
 
   test("[R-WORLD-019] given money held in naira and dollars, when the other money is listed, then the naira comes first and a currency with nothing in it is left out", () => {
@@ -86,21 +88,24 @@ describe("the Bank abroad", () => {
     const app = document.querySelector<HTMLElement>('[data-phone-app="bank"]');
     const first = app?.firstElementChild as HTMLElement | null;
     expect(first?.hasAttribute("data-dues-gap")).toBe(true);
-    expect(first?.textContent).toContain(abroadWords("phone.bank.dues", { due: "£4,687", held: "£746" }));
-    expect(abroadWords("phone.bank.dues", { due: "£4,687", held: "£746" })).toBe("Due this month: £4,687. You hold £746.");
+    // Decision 0035: the re-recorded life lands with £1,946.
+    expect(first?.textContent).toContain(abroadWords("phone.bank.dues", { due: "£4,687", held: "£1,946" }));
+    expect(abroadWords("phone.bank.dues", { due: "£4,687", held: "£1,946" })).toBe("Due this month: £4,687. You hold £1,946.");
     // The way names the pair only: Change money is said once on the screen.
     expect(within(first ?? document.body).getByRole("button").textContent).toBe("Naira or dollars to pounds");
   });
 
   test("[R-WORLD-019] given Ada abroad, when the Bank opens, then the pounds stand first as the balance, and the naira and the dollars follow under Change money, each with its pair", async () => {
-    const view = landed();
+    // Decision 0035: the re-recorded life flies with no naira cash on her, so a little is put in her pocket by the
+    // wallet's own effect, and the row is still read as bank and cash together.
+    const view = viewAfter(recordedGame("ada-careful"), [{ type: "money/add", currency: "NGN", pocket: "cash", amount: 500_000, reason: "gift" }]);
     await renderWithView(<Bank />, view);
     const balance = document.querySelector<HTMLElement>("[data-bank-balance]");
     expect(balance?.getAttribute("data-bank-balance")).toBe("GBP");
     expect(balance?.querySelector("[data-counter]")?.getAttribute("data-counter")).toBe(String(view.pockets.GBP.bank));
     const rows = [...document.querySelectorAll<HTMLElement>("[data-held]")];
     expect(rows.map((row) => row.getAttribute("data-held"))).toEqual(["NGN", "USD"]);
-    // Each row is the money held there, bank and cash: since decision 0022 Ada flies with small naira cash on her.
+    // Each row is the money held there, bank and cash.
     expect(view.pockets.NGN.cash).toBeGreaterThan(0);
     expect(rows[0]?.textContent).toContain(formatMoney(view.pockets.NGN.bank + view.pockets.NGN.cash, "NGN"));
     expect(rows[1]?.textContent).toContain(formatMoney(view.pockets.USD.bank + view.pockets.USD.cash, "USD"));

@@ -12,7 +12,7 @@ import { plannable } from "../../shared/words/acts";
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, MONTH_KEY } from "../../authority/store";
 import { PhoneNav } from "../../shared/phone/nav";
-import { engineView, gameAuthority, newGame, richView } from "../../shared/testing/fixtures";
+import { chargedLivingGame, engineView, gameAuthority, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf, say, words } from "../../shared/words/text";
@@ -21,7 +21,9 @@ import { turnWords } from "./turn.words";
 import { carriedPlan } from "./carried";
 
 const LEARN = "activity.learn-tech" as Id<"activity">;
-const PORTFOLIO = "activity.build-portfolio" as Id<"activity">;
+// Decision 0035 (R-ACTIVITY-019): the coding course and the portfolio now answer at once and repeat, so they are never
+// planned; the course that carries on as a commitment is a master's at home.
+const COURSE = "activity.masters-at-home" as Id<"activity">;
 const MEETUP = "activity.meetup" as Id<"activity">;
 const COOK = "activity.cook-at-home" as Id<"activity">;
 const WATER = "activity.fetch-water" as Id<"activity">;
@@ -55,9 +57,9 @@ describe("the Calendar's month", () => {
     };
     nothingOfThePlan();
     act(() => {
-      store.getState().addToPlan({ activity: LEARN, param: null });
+      store.getState().addToPlan({ activity: COURSE, param: null });
     });
-    expect(shown()).toContain(nameOf(LEARN));
+    expect(shown()).toContain(nameOf(COURSE));
     nothingOfThePlan();
     expect(shown()).not.toMatch(/slot|takes no|\d+ of \d+|Same again/i);
     expect(authority.sent).toEqual([]);
@@ -67,12 +69,12 @@ describe("the Calendar's month", () => {
     const view = engineView();
     const { store } = await renderWithView(<Calendar />, view);
     act(() => {
-      store.getState().addToPlan({ activity: LEARN, param: null });
+      store.getState().addToPlan({ activity: COURSE, param: null });
     });
     expect(slots("planned")).toHaveLength(1);
-    expect(slots("planned")[0]?.textContent).toContain(nameOf(LEARN));
+    expect(slots("planned")[0]?.textContent).toContain(nameOf(COURSE));
     expect(slots("planned")[0]?.textContent).toContain("Ongoing");
-    fireEvent.click(screen.getByRole("button", { name: say("ui.world.stop-act", { what: nameOf(LEARN) }) }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.world.stop-act", { what: nameOf(COURSE) }) }));
     expect(slots("planned")).toHaveLength(0);
     expect(store.getState().plan.every((pick) => pick === null)).toBe(true);
   });
@@ -80,7 +82,8 @@ describe("the Calendar's month", () => {
   test("[R-WORLD-007] [R-TURN-006] given every free slot taken, when another thing is started, then it is not taken until something stops", async () => {
     const view = engineView();
     const { store } = await renderWithView(<Calendar />, view);
-    const picks = [LEARN, PORTFOLIO, "activity.study-english" as Id<"activity">, "activity.family-time" as Id<"activity">].slice(0, view.freeSlots);
+    // Decision 0035: the study and time with family answer at once now, so the month is filled with commitments that carry on.
+    const picks = [COURSE, "activity.apprentice-repair" as Id<"activity">, "activity.sleep-rough" as Id<"activity">, "activity.sleep-at-office" as Id<"activity">].slice(0, view.freeSlots);
     act(() => {
       for (const activity of picks) store.getState().addToPlan({ activity, param: null });
     });
@@ -94,7 +97,8 @@ describe("the Calendar's month", () => {
 
   test("[R-TURN-006] [R-ACTIVITY-015] given rest, a now-act and cooking, when each is offered to the plan, then none is taken: an empty slot rests and the others are done at once", async () => {
     const { store } = await renderWithView(<Calendar />, engineView());
-    for (const activity of [REST, MEETUP, COOK, WATER]) {
+    // Decision 0035 (R-ACTIVITY-019): the study and time with family are now acts too, done at once and never planned.
+    for (const activity of [REST, MEETUP, COOK, WATER, LEARN, "activity.family-time" as Id<"activity">]) {
       let added = true;
       act(() => {
         added = store.getState().addToPlan({ activity, param: null });
@@ -132,23 +136,23 @@ describe("commitments carry on", () => {
     const store = createGameStore(authority);
     await store.getState().refresh();
     act(() => {
-      store.getState().addToPlan({ activity: LEARN, param: null });
+      store.getState().addToPlan({ activity: COURSE, param: null });
     });
     await act(async () => {
       await store.getState().endMonth();
     });
-    expect(authority.sent.at(-1)).toMatchObject({ type: "turn/end", slots: [{ activity: LEARN, param: null }] });
-    expect(store.getState().plan).toContainEqual({ activity: LEARN, param: null });
+    expect(authority.sent.at(-1)).toMatchObject({ type: "turn/end", slots: [{ activity: COURSE, param: null }] });
+    expect(store.getState().plan).toContainEqual({ activity: COURSE, param: null });
     await act(async () => {
       await store.getState().endMonth();
     });
-    expect(authority.sent.at(-1)).toMatchObject({ type: "turn/end", slots: [{ activity: LEARN, param: null }] });
+    expect(authority.sent.at(-1)).toMatchObject({ type: "turn/end", slots: [{ activity: COURSE, param: null }] });
     render(
       <GameProvider store={store}>
         <Calendar />
       </GameProvider>,
     );
-    fireEvent.click(screen.getByRole("button", { name: say("ui.world.stop-act", { what: nameOf(LEARN) }) }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.world.stop-act", { what: nameOf(COURSE) }) }));
     expect(store.getState().plan.some((pick) => pick !== null)).toBe(false);
   });
 
@@ -168,15 +172,17 @@ describe("commitments carry on", () => {
   test("[R-ACTIVITY-015] [R-WORLD-007] given a month kept on the device from before holding a now-act and cooking, when the game loads, then the plan holds only what takes the month and Next month is accepted", async () => {
     const game = newGame("scenario.ada");
     const authority = gameAuthority(game);
-    localStorage.setItem(MONTH_KEY, JSON.stringify({ v: game.view().v, scenario: game.view().scenario, plan: [{ activity: MEETUP, param: null }, { activity: LEARN, param: null }, { activity: COOK, param: null }], monthLines: [], lastMonthLines: [], cardClosed: null }));
+    // Decision 0035 (R-ACTIVITY-019): a month kept from before may hold the coding course as it was planned then; it now
+    // answers at once, so it is dropped with the other now-acts, and the commitment that carries on stays.
+    localStorage.setItem(MONTH_KEY, JSON.stringify({ v: game.view().v, scenario: game.view().scenario, plan: [{ activity: MEETUP, param: null }, { activity: LEARN, param: null }, { activity: COOK, param: null }, { activity: COURSE, param: null }], monthLines: [], lastMonthLines: [], cardClosed: null }));
     const store = createGameStore(authority, { rememberMonth: true });
     await store.getState().refresh();
     const planned = store.getState().plan.filter((pick) => pick !== null);
-    expect(planned).toEqual([{ activity: LEARN, param: null }]);
+    expect(planned).toEqual([{ activity: COURSE, param: null }]);
     await act(async () => {
       await store.getState().endMonth();
     });
-    expect(authority.sent.at(-1)).toMatchObject({ type: "turn/end", slots: [{ activity: LEARN, param: null }] });
+    expect(authority.sent.at(-1)).toMatchObject({ type: "turn/end", slots: [{ activity: COURSE, param: null }] });
     expect(store.getState().rejection).toBeNull();
     localStorage.removeItem(MONTH_KEY);
   });
@@ -184,7 +190,14 @@ describe("commitments carry on", () => {
 
 describe("the Calendar's other sections", () => {
   test("[R-OBLIGATION-014] given Ada cooking and fetching water now, when the Calendar shows, then the chores done say what they took off this month, from the relief held on the upkeep", async () => {
-    const game = newGame("scenario.ada");
+    // Decision 0035 (R-HOME-012): at home nothing of the living is charged as the month turns, so the chores take nothing
+    // off and the Calendar says no saving.
+    const lived = newGame("scenario.ada");
+    lived.accept({ type: "activity/now", activity: COOK, param: null });
+    lived.accept({ type: "activity/now", activity: WATER, param: null });
+    expect(choresWords(lived.view())).toBeNull();
+    // The saving's words are tested on the living charged whole, as the simulation's relief tests charge it.
+    const game = chargedLivingGame("scenario.ada");
     const before = game.view();
     expect(choresWords(before)).toBeNull();
     game.accept({ type: "activity/now", activity: COOK, param: null });

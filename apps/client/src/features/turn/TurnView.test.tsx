@@ -37,12 +37,14 @@ describe("the month", () => {
     const view = engineView();
     const { authority, store } = await renderWithView(<Turn />, view);
     expect(screen.queryByRole("button", { name: "Same again" })).toBeNull();
+    // Decision 0035 (R-ACTIVITY-019): the coding course now answers at once and is never planned; the course that carries
+    // on is a master's at home.
     act(() => {
-      store.getState().addToPlan({ activity: "activity.learn-tech", param: null });
+      store.getState().addToPlan({ activity: "activity.masters-at-home", param: null });
     });
     expect(screen.getByText(freeTimeWords(1, view.freeSlots))).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: say("ui.month.end") }));
-    await waitFor(() => expect(authority.sent).toEqual([{ type: "turn/end", slots: [{ activity: "activity.learn-tech", param: null }], basedOn: view.v }]));
+    await waitFor(() => expect(authority.sent).toEqual([{ type: "turn/end", slots: [{ activity: "activity.masters-at-home", param: null }], basedOn: view.v }]));
   });
 
   test("given the authority rejects the month, then the rejection's words from content are shown", async () => {

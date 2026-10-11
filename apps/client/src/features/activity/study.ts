@@ -27,14 +27,24 @@ function gainFrom(english: number, sideJob: boolean): number {
   return int.clamp(english + asked, entry.min, entry.max) - english;
 }
 
+/**
+ * The study a month holds: an act that repeats is done a day at a time, and a month of it is the times a slot runs it
+ * (R-ACTIVITY-019, decision 0035: three of them a month give what the month's slot gave); one that fills the month, once.
+ */
+function studiesAMonth(): number {
+  return content.activity[STUDY_ENGLISH]?.repeat === true ? content.tuning.turn.repeatPerSlot : 1;
+}
+
 /** The months of study before one sitting is no longer a long shot, or null when a year of it does not get there. */
 export function studyMonths(view: Pick<PlayerView, "qualities" | "job"> & BandView): number | null {
   const needed = bandNeeded(view);
   let english = englishOf(view);
   for (let months = 1; months <= STUDY_MONTHS_MAX; months += 1) {
-    const gain = gainFrom(english, view.job.side !== null);
-    if (gain <= 0) return null;
-    english += gain;
+    for (let time = 0; time < studiesAMonth(); time += 1) {
+      const gain = gainFrom(english, view.job.side !== null);
+      if (gain <= 0) return null;
+      english += gain;
+    }
     if (chanceBand(bandChanceBp(english, needed)) !== "long") return months;
   }
   return null;

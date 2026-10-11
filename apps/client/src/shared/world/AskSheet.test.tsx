@@ -6,6 +6,7 @@ import { act, fireEvent, render } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
 import { engineView } from "../testing/fixtures";
+import { plannable } from "../words/acts";
 import { renderWithView } from "../testing/render";
 import { formatMoney } from "../words/format";
 import { say } from "../words/text";
@@ -31,7 +32,9 @@ function naira(view: PlayerView): number {
 
 /** A paid activity the view prices, for the plan to hold. */
 function paidOption(view: PlayerView): { id: PlayerView["activities"][number]["id"]; amount: number } {
-  const option = view.activities.find((candidate) => candidate.cost.length === 1 && candidate.cost[0]?.currency === "NGN" && candidate.params === null);
+  // Decision 0035 (R-ACTIVITY-019): the study and the meals answer at once and are never planned, so the paid thing
+  // the plan holds is a month-act.
+  const option = view.activities.find((candidate) => candidate.cost.length === 1 && candidate.cost[0]?.currency === "NGN" && candidate.params === null && plannable(candidate.id));
   if (option === undefined) throw new Error("The view prices no paid activity.");
   return { id: option.id, amount: option.cost[0]?.amount ?? 0 };
 }

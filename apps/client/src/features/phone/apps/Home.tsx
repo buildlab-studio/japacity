@@ -47,6 +47,8 @@ export function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
  */
 export function chargeWords(home: PlayerView["home"]): string {
   if (home.rent === null) return phoneWords("phone.home.charge.none");
+  // R-HOME-012 (decision 0035): nothing of the living is charged as the month turns, so no figure a month is said for it.
+  if (home.rent.amount === 0) return phoneWords("phone.home.charge.by-hand");
   const own = home.place === null ? null : `phone.home.charge.${home.place}`;
   return phoneWords(own !== null && hasWords(own) ? own : "phone.home.charge", { amount: home.rent });
 }
@@ -57,10 +59,15 @@ export function roomRentWords(home: PlayerView["home"]): string | null {
   return sayCount("phone.home.rent-year", home.roomRent.dueIn, { amount: formatMoney(home.roomRent.year, "NGN"), count: home.roomRent.dueIn });
 }
 
-/** The move's line: from the room, the move back says the year paid stays with the landlord (R-HOME-010). */
-export function moveLineKey(from: HomePlace | null, to: HomePlace): string {
-  const own = from === null ? null : `phone.home.move.line.from.${from}.${to}`;
-  return own !== null && hasWords(own) ? own : `phone.home.move.line.${to}`;
+/**
+ * The move's line: from the room, the move back says the year paid stays with the landlord (R-HOME-010, the twelfth
+ * review). Where living there charges nothing a month (R-HOME-012, decision 0035), the line says it is bought as
+ * you go and names no figure a month.
+ */
+export function moveLineKey(from: HomePlace | null, to: HomePlace, monthly: number): string {
+  const tail = monthly === 0 ? ".by-hand" : "";
+  const own = from === null ? null : `phone.home.move.line.from.${from}.${to}${tail}`;
+  return own !== null && hasWords(own) ? own : `phone.home.move.line.${to}${tail}`;
 }
 
 /** Who took the character in, as words: a friend by the words for one, someone of the story by name. */
@@ -81,7 +88,7 @@ export function HomeCard() {
       icon: "house",
       who: phoneWords("phone.home.title"),
       title: phoneWords(`phone.home.move.${move.to}`),
-      line: phoneWords(moveLineKey(home.place, move.to), { amount: { currency: "NGN", amount: move.monthly }, now: { currency: "NGN", amount: move.now } }),
+      line: phoneWords(moveLineKey(home.place, move.to, move.monthly), { amount: { currency: "NGN", amount: move.monthly }, now: { currency: "NGN", amount: move.now } }),
       cost: move.now > 0 ? { amount: move.now, currency: "NGN" } : null,
       button: phoneWords("phone.home.move.button"),
       have: view.pockets.NGN.cash + view.pockets.NGN.bank,

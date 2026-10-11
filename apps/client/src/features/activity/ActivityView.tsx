@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { plannedShut } from "../../authority/store";
 import { bondName, timeWith } from "../../shared/sim/people";
-import { actOnCard, answersNow, pickable } from "../../shared/words/acts";
+import { actOnCard, answersNow, pickable, timeWordsOf } from "../../shared/words/acts";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
 import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } from "../../shared/words/cost";
@@ -294,6 +294,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const name = nameOf(option.id);
   const blurb = blurbOf(option.id);
   const counts = countsWords(option.id);
+  const time = timeWordsOf(option.id);
   // R-TURN-006: an activity that fills no slot can be planned however full the month is.
   // R-ACTIVITY-015: an act done at once fills no slot either, so a full month never shuts it.
   const now = answersNow(option.id);
@@ -338,6 +339,12 @@ function ActivityCard({ option }: { option: ActivityOption }) {
           )}
         </div>
         {blurb === null ? null : <p className="text-sm text-text-2">{blurb}</p>}
+        {/* R-ACTIVITY-018: an act done at once says the time it takes in words, never a number of days. */}
+        {time === null ? null : (
+          <p className="text-sm font-medium" data-time>
+            {time}
+          </p>
+        )}
         {counts === null ? null : (
           <p className="text-sm font-medium" data-counts>
             {counts}

@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../../authority/GameProvider";
 import { createGameStore } from "../../../authority/store";
-import { gameAuthority, newGame } from "../../../shared/testing/fixtures";
+import { chargedLivingGame, gameAuthority, newGame } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
 import { tidyLines } from "../../../shared/words/lines";
 import { words } from "../../../shared/words/text";
@@ -18,7 +18,17 @@ function lately(): string[] {
 
 describe("Bank, Lately", () => {
   test("[R-WORLD-019] given a month that paid the living costs and then a danfo fare, when Bank opens, then the living costs show once and the fare shows", async () => {
-    const game = newGame("scenario.ada");
+    // Decision 0035 (R-HOME-012): at home nothing of the living is charged as the month turns, so a month at the family
+    // house moves no money for it at all.
+    const byHand = createGameStore(gameAuthority(newGame("scenario.ada")));
+    await byHand.getState().refresh();
+    await act(async () => {
+      await byHand.getState().endMonth();
+    });
+    const lived = byHand.getState().view?.report?.lines ?? [];
+    expect(lived.some((line) => line.key === "line.wallet.upkeep" || (line.key === "line.obligation.charged" && line.params.obligation === "obligation.upkeep"))).toBe(false);
+    // The once-only listing is tested on a charge that is made: the living charged whole, as the simulation's relief tests do.
+    const game = chargedLivingGame("scenario.ada");
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
     await act(async () => {

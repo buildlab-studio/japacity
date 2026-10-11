@@ -10,6 +10,7 @@ import type { ComponentType } from "react";
 
 import type { MarkState } from "../../shared/ui/Mark";
 import { formatMoney } from "../../shared/words/format";
+import { nextMonthWords } from "../../shared/words/living";
 import { gradeShort, sixteenPath } from "../../shared/words/sixteen";
 import { hasWords, say, sayCount, words } from "../../shared/words/text";
 import { TRAIL_KEY } from "../../shared/datapage/family";
@@ -216,7 +217,7 @@ export function storyChips(view: PlayerView): YearChip[] {
   const told: YearChip[] = [];
   const home = homeChosen(view);
   if (home !== null) {
-    const note = home.prepaid === null ? say("ui.page.home.costs", { amount: formatMoney(home.amount, "NGN") }) : say("ui.page.home.costs.prepaid", { count: home.prepaid });
+    const note = home.prepaid === null ? nextMonthWords(home.amount) : say("ui.page.home.costs.prepaid", { count: home.prepaid });
     told.push({ id: "home", icon: House, label: say(`ui.page.home.${home.answer}`), note, state: null });
   }
   if (sixteenPath(view) === "capital") told.push({ id: "capital", icon: Wallet, label: say("ui.page.capital"), note: formatMoney(view.pockets.NGN.bank + view.pockets.NGN.cash, "NGN"), state: null });

@@ -30,6 +30,8 @@ export const homeText: Record<string, string> = {
   "phone.home.rent-year.one": "Rent {amount} a year, next due next month",
   "phone.home.rent-year.zero": "Rent {amount} a year, due this month",
   "phone.home.charge.none": "No rent while you stay.",
+  // R-HOME-012 (decision 0035): where nothing of the living is charged as the month turns, the card says it is bought as you go.
+  "phone.home.charge.by-hand": "Living is bought as you go: food, water, fares.",
   "phone.home.risk": "Some months the settlement is cleared.",
   "phone.home.move.place.makoko": "Move to Makoko",
   "phone.home.move.place.family-house": "Move back to the family house",
@@ -39,6 +41,11 @@ export const homeText: Record<string, string> = {
   // R-HOME-010: from the room, the year paid is gone.
   "phone.home.move.line.from.place.compound-room.place.family-house": "Back home: living costs {amount} a month, food and light included. The year's rent stays with the landlord. Your people will talk.",
   "phone.home.move.line.place.compound-room": "A room of your own. {now} now for the year's rent and fees, then {amount} a month to live.",
+  // R-HOME-012 (decision 0035): the same moves where the living is bought as you go, with no figure a month for it.
+  "phone.home.move.line.place.makoko.by-hand": "A room on the water. {now} now for the room. Living is bought as you go.",
+  "phone.home.move.line.place.family-house.by-hand": "Back home. Living is bought as you go: food, water, fares. Your people will talk.",
+  "phone.home.move.line.from.place.compound-room.place.family-house.by-hand": "Back home. Living is bought as you go: food, water, fares. The year's rent stays with the landlord. Your people will talk.",
+  "phone.home.move.line.place.compound-room.by-hand": "A room of your own. {now} now for the year's rent and fees. Living is bought as you go.",
   "phone.home.move.button": "Move",
   "phone.home.moved": "Moved.",
   "phone.home.shut.moved": "You moved this month. You can move again next month.",

@@ -20,6 +20,7 @@ import { useScreenCount } from "../../useScreenCount";
 import { authorityMode } from "../../authority/mode";
 import { keepPerson } from "../../authority/person";
 import { formatMoney } from "../../shared/words/format";
+import { nextMonthWords } from "../../shared/words/living";
 import { blurbOf, hometownWords, say, words } from "../../shared/words/text";
 import { agePointsCount, type Archetype, ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf, homesFor, moneyDrawn, opensChips, savingsOf, throughUniversity } from "../../shared/frontdoor/archetypes";
 import { DoorHead } from "../../shared/frontdoor/DoorHead";
@@ -231,7 +232,7 @@ function homeDue(home: Home): string {
     const entry = content.obligation[effect.obligation];
     if (entry?.prepaid === true) return say("ui.page.home.costs.prepaid", { count: entry.everyMonths ?? 12 });
   }
-  return say("ui.page.home.costs", { amount: formatMoney(homeFigures(home).monthly, "NGN") });
+  return nextMonthWords(homeFigures(home).monthly);
 }
 
 /** The one main button at the sheet's foot: its word, and a smaller word for where it goes. */

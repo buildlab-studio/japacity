@@ -57,7 +57,8 @@ export function rentShortWords(view: Pick<PlayerView, "home" | "pockets">): stri
 /**
  * The chores done this month and what they saved (R-OBLIGATION-014; d9741d1f's foot): cooking and the water answer now,
  * and their share is held on the upkeep for its next charge, so the line reads the relief the view carries. The drum
- * filled from the yard's tap saves nothing and says so plainly. Null when nothing was done.
+ * filled from the yard's tap saves nothing and says so plainly. Null when nothing was done, and no saving is said where
+ * nothing of the living is charged (R-HOME-012, decision 0035): the relief takes nothing off nothing.
  */
 export function choresWords(view: Pick<PlayerView, "obligations" | "activities">): string | null {
   const done = (id: string): boolean => view.activities.some((option) => option.id === id && option.done === true);
@@ -69,7 +70,7 @@ export function choresWords(view: Pick<PlayerView, "obligations" | "activities">
     const share = reliefs.reduce((sum, relief) => sum + relief.bp, 0);
     const amount = Math.min(upkeep.due, int.bp(upkeep.due, Math.min(share, 10000)));
     const currency = content.obligation[upkeep.entry]?.currency ?? "NGN";
-    return turnWords(`turn.calendar.chores.${cooked && water ? "both" : cooked ? "cook" : "water"}`, { amount: formatMoney(amount, currency) });
+    if (amount > 0) return turnWords(`turn.calendar.chores.${cooked && water ? "both" : cooked ? "cook" : "water"}`, { amount: formatMoney(amount, currency) });
   }
   if (done(DRUM)) return turnWords("turn.calendar.chores.drum");
   if (done(COOK)) return turnWords("turn.calendar.chores.cooked");

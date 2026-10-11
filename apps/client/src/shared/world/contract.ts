@@ -127,6 +127,8 @@ export interface Ask {
   rows?: { label: string; value: string; strong?: boolean }[];
   /** "now" when the act happens at once (a ride, the deposit, the plane); the default counts when the month ends. */
   when?: "now" | "month";
+  /** The month's free time the act takes, in words ("A morning", "A day"), for an act done at once (R-ACTIVITY-018). */
+  time?: string;
   /** A reason the act cannot happen yet, in words; the main button is shut and says it (R-WORLD-006). */
   blocked?: string;
   /** A second line for the main button in place of what is left after, when the cost does not come from the pockets. */

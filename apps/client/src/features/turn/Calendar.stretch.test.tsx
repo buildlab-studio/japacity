@@ -1,5 +1,5 @@
 // The Calendar says when the plan stretches the character (docs/rules/world.md R-WORLD-030): a
-// job with a class and a side job, or a job with two month-acts beside it; one line, no figure.
+// job with a commitment and a side job, or a job with two commitments beside it; one line, no figure.
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 import { act } from "@testing-library/react";
@@ -15,8 +15,12 @@ import { restores, stretchedWords } from "../../shared/days/stretch";
 
 const TEACHER = "activity.job-teacher" as Id<"activity">;
 const TUTORING = "activity.weekend-tutoring" as Id<"activity">;
-const COURSE = "activity.learn-tech" as Id<"activity">;
-const PORTFOLIO = "activity.build-portfolio" as Id<"activity">;
+// Decision 0035 (R-ACTIVITY-019): the coding class and the portfolio now answer at once and carry nothing on, so the
+// commitments that stretch the day are a master's at home and open source.
+const COURSE = "activity.masters-at-home" as Id<"activity">;
+const PORTFOLIO = "activity.open-source" as Id<"activity">;
+const CLASS = "activity.learn-tech" as Id<"activity">;
+const PROJECT = "activity.build-portfolio" as Id<"activity">;
 const REST = "activity.rest" as Id<"activity">;
 
 /** Ada with the jobs named held, through the activity kind's own effect. */
@@ -34,21 +38,30 @@ function stretchedLine(): string | null {
 }
 
 describe("the stretched line", () => {
-  test("[R-WORLD-030] given work, a side job and a class planned, when the Calendar shows, then its foot says the day runs work, class, then the tutoring", async () => {
+  test("[R-WORLD-030] given work, a side job and a master's course carrying on, when the Calendar shows, then its foot says the day runs work, the reading, then the tutoring", async () => {
+    // Decision 0035: the line reads the commitments that carry on; the class done act by act is not one, so it is never planned.
     const view = adaWorking([TEACHER, TUTORING]);
     expect(view.job).toMatchObject({ id: TEACHER, side: TUTORING });
     const { store } = await renderWithView(<Calendar />, view);
     expect(stretchedLine()).toBeNull();
+    let added = true;
+    act(() => {
+      added = store.getState().addToPlan({ activity: CLASS, param: null });
+    });
+    expect(added).toBe(false);
+    expect(stretchedLine()).toBeNull();
     act(() => {
       store.getState().addToPlan({ activity: COURSE, param: null });
     });
-    expect(stretchedLine()).toBe("Work, then class, then the tutoring. You will be tired.");
+    expect(stretchedLine()).toBe("Work, then the reading, then the tutoring. You will be tired.");
     expect(stretchedLine()).not.toMatch(/\d/);
   });
 
   test("[R-WORLD-030] given work and two month-acts beside it, when the plan is read, then it stretches; with one, or with rest as the second, it does not", () => {
     const view = adaWorking([TEACHER]);
-    expect(stretchedWords(view, [{ activity: COURSE, param: null }, { activity: PORTFOLIO, param: null }])).toBe("Work, then class, then your project. You will be tired.");
+    // Decision 0035: two commitments that carry on stretch the day; the class and the project done act by act do not.
+    expect(stretchedWords(view, [{ activity: COURSE, param: null }, { activity: PORTFOLIO, param: null }])).toBe("Work, then the reading, then open source. You will be tired.");
+    expect(stretchedWords(view, [{ activity: CLASS, param: null }, { activity: PROJECT, param: null }])).toBeNull();
     expect(stretchedWords(view, [{ activity: COURSE, param: null }, null])).toBeNull();
     expect(stretchedWords(view, [{ activity: COURSE, param: null }, { activity: REST, param: null }])).toBeNull();
     expect(stretchedWords(view, [{ activity: "activity.family-time", param: null }, { activity: "activity.morning-run", param: null }])).toBeNull();

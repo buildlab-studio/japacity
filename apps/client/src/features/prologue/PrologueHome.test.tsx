@@ -54,7 +54,7 @@ describe("the page's home", () => {
     expect(home?.textContent).toBe("You start in your own room, OjuelegbaRent in 12 months");
   });
 
-  test("[R-PROLOGUE-012] [R-PROLOGUE-014] given a life that closed on a room in Makoko, when the page tells where it sleeps, then the page says it starts in the room on the water in Makoko, with the rent next month", async () => {
+  test("[R-PROLOGUE-012] [R-PROLOGUE-014] given a life that closed on a room in Makoko, when the page tells where it sleeps, then the page says it starts in the room on the water in Makoko, with what next month takes for its living", async () => {
     const base = engineView();
     const rent = upkeepOf("makoko");
     const family = base.obligations[0];
@@ -66,7 +66,10 @@ describe("the page's home", () => {
     };
     await renderWithView(<PageHandover onDone={() => undefined} />, view);
     const home = document.querySelector("[data-handover-story] [data-fact='home']");
-    expect(home?.textContent).toBe(`${say("ui.page.home.makoko")}${say("ui.page.home.costs", { amount: formatMoney(rent, "NGN") })}`);
-    expect(home?.textContent).toBe("You start in a room on the water, MakokoNext month: ₦25,000");
+    // Decision 0035 (R-HOME-012): nothing of the room's upkeep is taken as the month turns, so the page names no figure
+    // for next month and says the living is bought as you go.
+    expect(home?.textContent).toBe(`${say("ui.page.home.makoko")}${say("ui.page.home.by-hand")}`);
+    expect(home?.textContent).toBe("You start in a room on the water, MakokoFood, water and fares as you go");
+    expect(home?.textContent).not.toContain(formatMoney(rent, "NGN"));
   });
 });

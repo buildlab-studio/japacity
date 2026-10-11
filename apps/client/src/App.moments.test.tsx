@@ -16,6 +16,9 @@ import { renderWithView } from "./shared/testing/render";
 import { cardKey } from "./shared/ui/stage";
 import { say } from "./shared/words/text";
 
+// Decision 0035: the lives were re-recorded; Ada's month that closes her chapter on building the file is now her 228th command.
+const CLOSE = 227;
+
 const REFUSED: ReportLine = { key: "line.route.refused", params: { route: "route.uk-masters", reason: "interview" }, tone: "bad", attention: true, counts: [] };
 
 /** A recorded command as the screen sends it: the store fills in the version it is based on. */
@@ -55,7 +58,7 @@ describe("the moment card over the results", () => {
   // Review 14, X9: the results line, the moment card and the old chapter card told one close three times.
   test("[R-MOMENT-006] [R-SHARE-001] given Ada's month that closes a chapter (her recorded life), when the moment card has told it over the results, then the chapter's share card never opens after it, and it is kept in the gallery", async () => {
     const save = recordedSave("ada-careful");
-    const game = recordedGame("ada-careful", save.commands.length - 31);
+    const game = recordedGame("ada-careful", save.commands.length - CLOSE);
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
     gallery.getState().clear();
@@ -66,7 +69,7 @@ describe("the moment card over the results", () => {
         <CardView />
       </GameProvider>,
     );
-    const command = recordedCommand(save.commands[31]!.command);
+    const command = recordedCommand(save.commands[CLOSE]!.command);
     await act(async () => {
       await store.getState().send(command);
       store.getState().setReportOpen(true);
@@ -89,7 +92,7 @@ describe("the moment card over the results", () => {
 
   test("[R-MOMENT-006] given the same close where no moment card stands (the old month page keeps none), then the chapter's share card opens as before", async () => {
     const save = recordedSave("ada-careful");
-    const game = recordedGame("ada-careful", save.commands.length - 31);
+    const game = recordedGame("ada-careful", save.commands.length - CLOSE);
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
     render(
@@ -97,7 +100,7 @@ describe("the moment card over the results", () => {
         <CardView />
       </GameProvider>,
     );
-    const command = recordedCommand(save.commands[31]!.command);
+    const command = recordedCommand(save.commands[CLOSE]!.command);
     await act(async () => {
       await store.getState().send(command);
       store.getState().setReportOpen(false);
