@@ -5,6 +5,8 @@
 import { describe, expect, test } from "vitest";
 
 import parlourRaw from "../../../public/assets/places/family-house-parlour/place.json";
+import { chipNode } from "./chip";
+import { withMeetings } from "./meetings";
 import { sceneWords } from "./scene.words";
 import { isPerson, markNode, namedThings, showMark } from "./mark";
 import { type PlaceFile, stageOf } from "./placeFile";
@@ -66,5 +68,22 @@ describe("a thing's mark", () => {
     expect(namedThings(quiet, "papa")).toEqual(["papa"]);
     // A thing the nudge points at pulses, but keeps no name: only people are named.
     expect(namedThings(quiet, "bed")).toEqual([]);
+  });
+});
+
+describe("a person met in a place", () => {
+  test("[R-PEOPLE-054] [R-WORLD-005] given Tobi standing in the parlour, when his mark is built, then no name floats over him until a tap or a place's first entry, and then his name carries the computer tag, on his chip as on his mark", () => {
+    const [tobi] = withMeetings(things, "place.family-house", [{ thing: "after-service", person: "person.tobi-bank" }]).filter((thing) => thing.id === "after-service");
+    expect(tobi?.mark).toBe("computer");
+    const node = markNode(tobi!, () => undefined);
+    showMark(node, { named: false, teaching: false, pulse: false });
+    const name = node.querySelector<HTMLElement>("[data-mark-name]");
+    expect(name?.hidden).toBe(true);
+    showMark(node, { named: false, teaching: true, pulse: false });
+    expect(name?.hidden).toBe(false);
+    expect(name?.textContent).toContain("Tobi");
+    expect(name?.querySelector("[data-person-mark]")?.textContent).toBe(sceneWords("ui.people.mark.computer"));
+    const chip = chipNode(tobi!, () => undefined);
+    expect(chip.querySelector("[data-person-mark]")?.textContent).toBe(sceneWords("ui.people.mark.computer"));
   });
 });

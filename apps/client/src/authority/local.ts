@@ -41,6 +41,8 @@ export interface LocalAuthority extends Authority {
   readonly start: LifeStart;
   /** When the next month comes, from the refill's anchor (R-WORLD-027); null while the bank is full. */
   clock(): ClockView;
+  /** The stand-in world's numbers at this tick: the season the meetings read (R-WORLD-020). */
+  vars(): Readonly<Record<string, number>>;
   /**
    * Throws the current life away and starts another, on the named seed when one is given. Without one, a life from
    * sixteen through a tile kept beside the save starts on the front door's seed for that tile (R-PROLOGUE-011).
@@ -260,6 +262,9 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       earnTurns();
       persist();
       return Promise.resolve({ ok: true, view: currentView(), lines: result.lines });
+    },
+    vars() {
+      return worldAt(tick).vars;
     },
     newLife(scenario, seed) {
       begin(scenario, seed);

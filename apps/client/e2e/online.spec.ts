@@ -13,7 +13,8 @@ import { passOpeningWords } from "./door";
 
 /** The second dev server, built with VITE_SERVER_URL pointing at itself, so every /api request is same-origin and faked here. */
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
-test.use({ baseURL: ONLINE });
+// The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
+test.use({ baseURL: ONLINE, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
 const PREVIEW = process.env.PREVIEW_DIR;
 const CODE = "4f1e2d3c4b5a69788796a5b4";
@@ -326,4 +327,94 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
     expect(sent.filter((command) => command.type === "lottery/buy")).toEqual([expect.objectContaining({ type: "lottery/buy", tickets: 1 })]);
     expect(sent.some((command) => command.type === "activity/now")).toBe(false);
   });
+});
+
+test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi stands in the family house's parlour with the computer mark; his card's button courts him, and his thread in Chats opens with the bond's head", async ({ page }, info) => {
+  test.skip(info.project.name !== "Pixel 7", "The world is checked at phone size.");
+  test.setTimeout(120_000);
+  const TOBI = "person.tobi-bank";
+  const game = start({ scenario: "scenario.tunde", content });
+  game.grant(1);
+  game.endTurn([]);
+  const before = viewOf(game);
+  expect(game.view().people.candidates.map((candidate) => candidate.person)).toContain(TOBI);
+  const result = game.accept({ type: "people/court", with: TOBI });
+  const after = { ok: true, view: game.view(), lines: result.lines, clock: CLOCK };
+  const bond = after.view.people.bonds.find((one) => one.person === TOBI)?.id ?? "";
+  const sent: unknown[] = [];
+  let courted = false;
+  await fakeServer(page, {
+    "GET /api/view": () => (courted ? { body: after } : before),
+    "GET /api/moderation/standing": { body: { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } } },
+    "POST /api/command": () => {
+      courted = true;
+      return { body: after };
+    },
+  });
+  page.on("request", (request) => {
+    if (request.method() === "POST" && new URL(request.url()).pathname === "/api/command") sent.push(request.postDataJSON());
+  });
+  // The world opens at home, the family house, where the people met after the service come home with the family.
+  await page.addInitScript(() => {
+    localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
+    localStorage.setItem("japacity.walkthrough", "1");
+  });
+  await page.goto("/");
+  await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
+  await passOpeningWords(page);
+  // The home's teach card, once in a life (R-HOME-008), is put away so the parlour is clear.
+  const teach = page.locator("[data-home-teach-ok]");
+  if (await teach.waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await teach.click();
+  await page.waitForFunction(() => (window as unknown as { __city?: { ready?: boolean } }).__city?.ready === true, null, { timeout: 90_000 });
+  // Into the parlour through the house's door.
+  await page.locator('[data-mark="house"]').click({ timeout: 30_000 });
+  await page.locator('[data-thing-chip="house"] [data-act="enter"]').click();
+  await page.waitForFunction(() => (window as unknown as { __city?: { ready?: boolean; place?: string } }).__city?.ready === true, null, { timeout: 90_000 });
+  const mark = page.locator('[data-mark="after-service"]');
+  await expect(mark).toBeVisible({ timeout: 30_000 });
+  // The names every thing shows on a first entry fade before the picture (R-WORLD-005).
+  await page.waitForTimeout(2600);
+  // A friend of the family visiting stands there too.
+  await expect(page.locator('[data-mark="friend-guest"]')).toHaveCount(1);
+  await mark.click();
+  const chip = page.locator('[data-thing-chip="after-service"]');
+  await expect(chip).toContainText("Tobi");
+  await expect(chip.locator("[data-person-mark]")).toHaveText("Computer");
+  await page.waitForTimeout(400);
+  await shoot(page, "m68-1-parlour-tobi", info.project.name);
+
+  await chip.locator('[data-act="talk"]').click();
+  const card = page.getByRole("dialog");
+  await expect(card.getByRole("button", { name: /Start seeing Tobi/ })).toBeVisible({ timeout: 20_000 });
+  await expect(card).toContainText("After service, by the car park.");
+  // The sheet settles before the picture.
+  await page.waitForTimeout(800);
+  await shoot(page, "m68-2-talk-sheet", info.project.name);
+  await card.getByRole("button", { name: /Start seeing Tobi/ }).click();
+  await expect.poll(() => sent.length).toBe(1);
+  expect(sent[0]).toMatchObject({ command: { type: "people/court", with: TOBI } });
+  // Courted, he stands there no more.
+  await expect(mark).toHaveCount(0, { timeout: 20_000 });
+
+  await page.locator('[data-thumb="phone"]').click();
+  await page.locator('[data-app="chats"]').click();
+  await page.locator(`[data-chat-row="${bond}"]`).click();
+  const head = page.locator(`[data-bond-head="${bond}"]`);
+  await expect(head.locator('[data-head-row="stage"] summary')).toContainText("Seeing each other");
+  await expect(head.locator('[data-head-row="ask"]')).toBeVisible();
+  await expect(head.locator('[data-head-row="end"]')).toBeVisible();
+  // The handset settles before the picture.
+  await page.waitForTimeout(800);
+  await shoot(page, "m68-3-thread-head", info.project.name);
+
+  await page.locator("[data-chats-back]").click();
+  await page.locator('[data-chat-row="people"]').click();
+  const slots = page.locator("[data-people-slots]");
+  await expect(slots.locator('[data-slot="partner"]')).toBeVisible();
+  await expect(slots.locator('[data-slot="mother"]')).toBeVisible();
+  await shoot(page, "m68-4-people-slots", info.project.name);
+  await page.getByRole("button", { name: "Ask a friend to be your partner" }).click();
+  await expect(page.locator("[data-invite-card]")).toContainText("Japacity is a game");
+  await page.locator('[data-slot="partner"]').evaluate((element) => element.scrollIntoView({ block: "start" }));
+  await shoot(page, "m68-5-invite-card", info.project.name);
 });

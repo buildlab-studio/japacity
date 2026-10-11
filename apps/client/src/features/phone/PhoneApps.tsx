@@ -10,7 +10,7 @@ import type { PhoneApp } from "../../shared/world/contract";
 import { Refused } from "./act";
 import { Bank } from "./apps/Bank";
 import { Bills } from "./apps/Bills";
-import { Chats, PhoneTalk, type PairTalk } from "./apps/Chats";
+import { Chats, PhonePeople, PhoneTalk, type PairTalk, type PhonePeopleScreens } from "./apps/Chats";
 import { Japa } from "./apps/Japa";
 import { Jobs } from "./apps/Jobs";
 import { Lotto } from "./apps/Lotto";
@@ -114,6 +114,8 @@ export interface PhoneAppsProps {
   account?: ReactNode;
   /** The pair routes online, or null offline, for Chats. */
   talk?: PairTalk | null;
+  /** The people feature's screens for Chats, from the shell: a bond's head and the slots (R-WORLD-020). */
+  people?: PhonePeopleScreens | null;
   now?: () => Date;
   /** An app to open on; `bank:send` opens the Bank on its send chooser, `calendar:coming` the Calendar on what is coming. */
   start?: string | null;
@@ -126,26 +128,28 @@ export interface PhoneAppsProps {
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, talk = null, now, start = null, calendar = null, cards = null, onMap }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap }: PhoneAppsProps) {
   const view = useView();
   const [app, act] = start === null ? [null, null] : start.split(":");
   const apps = usePhoneApps({ account, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards });
   const marks = marksOf(view);
   return (
     <PhoneTalk value={talk}>
-      <Phone
-        apps={apps}
-        onClose={onClose}
-        area={area}
-        when={todayWords(now?.())}
-        start={app ?? null}
-        notices={<Notices />}
-        onOpen={(id) => {
-          if ((APP_IDS as readonly string[]).includes(id)) markSeen(id as AppId, marks[id as AppId]);
-        }}
-        {...(now === undefined ? {} : { now })}
-        {...(onMap === undefined ? {} : { onMap })}
-      />
+      <PhonePeople value={people}>
+        <Phone
+          apps={apps}
+          onClose={onClose}
+          area={area}
+          when={todayWords(now?.())}
+          start={app ?? null}
+          notices={<Notices />}
+          onOpen={(id) => {
+            if ((APP_IDS as readonly string[]).includes(id)) markSeen(id as AppId, marks[id as AppId]);
+          }}
+          {...(now === undefined ? {} : { now })}
+          {...(onMap === undefined ? {} : { onMap })}
+        />
+      </PhonePeople>
     </PhoneTalk>
   );
 }

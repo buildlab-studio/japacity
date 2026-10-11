@@ -19,6 +19,8 @@ export function chipNode(thing: Thing, onAct: (act: Act) => void, onStop: (act: 
   const name = document.createElement("p");
   name.className = "title text-[15px] leading-tight whitespace-nowrap";
   name.textContent = sceneWords(thing.label);
+  // A person the game plays carries its quiet mark beside the name, as on every screen (people.md R-PEOPLE-009, R-PEOPLE-054).
+  if (thing.mark !== undefined) name.append(markTag(thing.mark));
   const acts = document.createElement("div");
   acts.className = "flex gap-1.5";
   for (const act of thing.acts) {
@@ -54,4 +56,13 @@ export function chipNode(thing: Thing, onAct: (act: Act) => void, onStop: (act: 
   body.append(name, acts);
   chip.append(body, arrow);
   return chip;
+}
+
+/** The small `computer` tag beside a person's name, in the words the people's cards use. */
+export function markTag(mark: NonNullable<Thing["mark"]>): HTMLSpanElement {
+  const tag = document.createElement("span");
+  tag.dataset.personMark = mark;
+  tag.className = "ml-1.5 rounded-[3px] border border-sheet-line px-1.5 py-px align-[2px] text-[10px] font-extrabold uppercase text-text-2";
+  tag.textContent = sceneWords(`ui.people.mark.${mark}`);
+  return tag;
 }

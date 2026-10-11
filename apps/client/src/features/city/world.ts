@@ -42,6 +42,8 @@ export interface World {
   crowd: Placed[];
   /** People on a dance loop, posed by `danceFigure` in the scene's one frame loop. */
   dancers: { figure: Figure; dance: DanceName }[];
+  /** People standing still at a thing of their own (R-WORLD-020), idling where they stand. */
+  standers: Figure[];
   own: Figure;
   indicator: Mesh;
   /**
@@ -241,6 +243,8 @@ function stayPut(seed: string, stage: Pick<Stage, "people">): Strolls {
 /** Every phase of the crowd differs, from the slot, so no two people breathe together. */
 const phaseOf = (slot: number): number => slot * 1.7;
 const OWN_PHASE = 99;
+/** The phases of those standing at a thing start past every crowd slot's. */
+const STANDER_PHASE = 60;
 
 /** A building's sign anchors with each key replaced by this copy's own, in the anchors' order. */
 export function copySigns(anchors: readonly SignAnchor[], keys: readonly string[] | undefined): SignAnchor[] {
@@ -359,6 +363,22 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     root.add(figure.root);
     dancers.push({ figure, dance: dancer.dance });
   });
+  // A person met in a place stands still at their thing, idling, and a tap on them is a tap on the thing (R-WORLD-020).
+  const standers: Figure[] = [];
+  (stage.standing ?? []).forEach((stander, index) => {
+    const loaded = models.get(stander.file);
+    if (loaded === undefined) return;
+    const figure = figureOf(loaded, "stand", phaseOf(STANDER_PHASE + index));
+    figure.root.position.set(stander.at[0], 0, stander.at[1]);
+    figure.root.rotation.y = stander.at[2];
+    figure.root.userData = { stander: stander.thing };
+    figure.root.traverse((object) => {
+      object.castShadow = settings.shadows;
+    });
+    cullAsPerson(figure.root);
+    root.add(figure.root);
+    standers.push(figure);
+  });
   // the player's own character is drawn beside the sample, not in one of its slots, so a place shows the sample plus one.
   const ownModel = models.get(ownFile);
   if (ownModel === undefined) throw new Error(`${ownFile} did not load`);
@@ -373,7 +393,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
   own.root.add(indicator);
   root.add(own.root);
   for (const motion of stage.motion) root.add(motionOf(motion, settings.mesh));
-  return { root, crowd, dancers, own, indicator, routes, strolls };
+  return { root, crowd, dancers, standers, own, indicator, routes, strolls };
 }
 
 /**
@@ -403,6 +423,7 @@ export function animateWorld(world: World, time: number, seconds: number): void 
     else poseFigure(figure, time, walk, strideOf(walker));
   }
   for (const { figure, dance } of world.dancers) danceFigure(figure, time, dance);
+  for (const figure of world.standers) poseFigure(figure, time);
   world.indicator.position.y = INDICATOR_Y + Math.sin(time * 2.4) * 0.05;
   world.indicator.rotation.y = time * 1.5;
 }

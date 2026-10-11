@@ -31,6 +31,7 @@ import { HeldShareCard } from "./features/notify/held";
 import { NotifySetting } from "./features/notify/NotifySetting";
 import { OfferView } from "./features/offer/OfferView";
 import { usePairApi } from "./features/people/pairApi";
+import { BondHead, PeopleSlots } from "./features/people/PeopleOnPhone";
 import { iconFor } from "./features/phone/icons";
 import { useSignalsWaiting } from "./features/phone/Notices";
 import { PhoneApps, usePhoneWaiting } from "./features/phone/PhoneApps";
@@ -106,7 +107,7 @@ function WorldPlaying() {
             <ReadyEntry />
             <CreditsRow />
           </>
-        } talk={talk} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
+        } talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <PeopleSlots api={talk} /> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}

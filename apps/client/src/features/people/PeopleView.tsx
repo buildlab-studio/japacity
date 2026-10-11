@@ -36,7 +36,8 @@ function siblingWhere(bond: BondView): string | null {
   return say("ui.people.sibling.facts.abroad", { country: countryWords(facts.country), status: runningName(facts.status) });
 }
 
-function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotView; bond: BondView | null; api: PairApi | null }) {
+/** One slot as the family is told. `partnerInvite`: an empty partner slot offers the invite card behind a tap, as a computer sibling's does (R-PEOPLE-010). */
+export function SlotCard({ slotKey, slot, bond, api, partnerInvite = false }: { slotKey: string; slot: SlotView; bond: BondView | null; api: PairApi | null; partnerInvite?: boolean }) {
   const view = useView();
   const [inviting, setInviting] = useState(false);
   const kind = slotKind(slotKey);
@@ -65,6 +66,19 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
         {kind === "sibling" && slot.state === "player" && bond !== null ? <Facts bond={bond} /> : null}
         {pair === null || api === null || bond === null ? null : <BlockReport who={{ pair, name: bondName(bond, view.people.bonds) }} cites={{ pair }} surface="pair" />}
         {slot.state === "invited" && slot.invite !== null ? <InviteOut slot={slotKey} invite={slot.invite} api={api} /> : null}
+        {partnerInvite && kind === "partner" && slot.state === "empty" && !view.ended ? (
+          <AfterEarlyWin>
+            {inviting ? (
+              <InviteMaker slot={slotKey} />
+            ) : (
+              <div>
+                <Button small variant="quiet" onClick={() => setInviting(true)} data-invite-open={slotKey}>
+                  {say("ui.people.partner.invite")}
+                </Button>
+              </div>
+            )}
+          </AfterEarlyWin>
+        ) : null}
         {kind === "sibling" && slot.state === "computer" && !view.ended ? (
           <AfterEarlyWin>
             {inviting ? (
@@ -139,7 +153,7 @@ function Candidates() {
   );
 }
 
-function Sponsoring() {
+export function Sponsoring() {
   const { people } = useView();
   if (people.sponsoring === null && people.barUntilMonth === null) return null;
   return (

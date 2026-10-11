@@ -99,7 +99,7 @@ function stepWords(proposal: NonNullable<BondView["pending"]["mine"]>): string {
   return say(`ui.people.step.${proposal.step}`);
 }
 
-function Pending({ bond }: { bond: BondView }) {
+export function Pending({ bond }: { bond: BondView }) {
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   const { mine, theirs } = bond.pending;
@@ -188,7 +188,7 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
 }
 
 /** Moments still needed before the partner step may be asked (R-PEOPLE-016). */
-function momentsLeft(bond: BondView): number {
+export function momentsLeft(bond: BondView): number {
   return Math.max(0, content.tuning.people.partnerMoments - (bond.moments?.length ?? 0));
 }
 
@@ -198,7 +198,7 @@ function coolingUntil(view: PlayerView, bond: BondView): number | null {
 }
 
 /** Why no question can be asked yet, said once: the moments still short, or the cooldown after a no. */
-function Held({ bond }: { bond: BondView }) {
+export function Held({ bond }: { bond: BondView }) {
   const view = useView();
   if (bond.pending.theirs !== null || bond.pending.mine !== null || view.ended) return null;
   const left = momentsLeft(bond);
@@ -208,7 +208,7 @@ function Held({ bond }: { bond: BondView }) {
   return null;
 }
 
-function Proposals({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLine[]) => void }) {
+export function Proposals({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLine[]) => void }) {
   const view = useView();
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
@@ -246,7 +246,7 @@ function Proposals({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
 }
 
 /** The joint resting on this bond, its scores, and what it may count of this life (R-PEOPLE-004, R-PEOPLE-030, R-PEOPLE-044). */
-function Joint({ bond }: { bond: BondView }) {
+export function Joint({ bond }: { bond: BondView }) {
   const { people } = useView();
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
@@ -293,11 +293,12 @@ function Joint({ bond }: { bond: BondView }) {
   );
 }
 
-function End({ bond }: { bond: BondView }) {
+/** Ending the bond, its cost said first; `asked` opens on the cost, for a row that already said "End it" (R-WORLD-006). */
+export function End({ bond, asked = false, onKeep }: { bond: BondView; asked?: boolean; onKeep?: () => void }) {
   const view = useView();
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
-  const [asking, setAsking] = useState(false);
+  const [asking, setAsking] = useState(asked);
   if (view.ended) return null;
   const cost = endCost(view, bond);
   const costWords = cost.absence
@@ -322,7 +323,14 @@ function End({ bond }: { bond: BondView }) {
         <Button small disabled={busy} onClick={() => void send({ type: "people/end", bond: bond.id }).then(() => setAsking(false))}>
           {say("ui.people.end.confirm")}
         </Button>
-        <Button small variant="quiet" onClick={() => setAsking(false)}>
+        <Button
+          small
+          variant="quiet"
+          onClick={() => {
+            setAsking(asked);
+            onKeep?.();
+          }}
+        >
           {say("ui.people.end.keep")}
         </Button>
       </div>
@@ -331,7 +339,7 @@ function End({ bond }: { bond: BondView }) {
 }
 
 /** The warnings that stand on a bond: the stand-in, gossip while partnered, a computer drifting (R-PEOPLE-041 to 043). */
-function Warnings({ bond, view }: { bond: BondView; view: PlayerView }) {
+export function Warnings({ bond, view }: { bond: BondView; view: PlayerView }) {
   const warnings: string[] = [];
   if (bond.standIn !== null) warnings.push(say(`ui.people.stand-in.${bond.standIn}`, { piece: interviewName() }));
   const partnered = view.people.bonds.some((other) => other.id !== bond.id && TOGETHER.includes(other.stage));
@@ -361,7 +369,7 @@ function Warnings({ bond, view }: { bond: BondView; view: PlayerView }) {
 const DECLINED = "line.people.declined";
 
 /** What the last proposal did, with the cooldown said when they said no (R-PEOPLE-016). */
-function Answered({ lines }: { lines: ReportLine[] }) {
+export function Answered({ lines }: { lines: ReportLine[] }) {
   if (lines.length === 0) return null;
   const declined = lines.some((line) => line.key === DECLINED);
   const months = content.tuning.people.proposeCooldown;

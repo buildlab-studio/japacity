@@ -98,8 +98,13 @@ export function thingsOf(stage: Pick<Stage, "models" | "things">): Thing[] {
   return (stage.things ?? tableThings(stage)).map((thing) => ({ ...thing, acts: thing.acts.slice(0, MAX_ACTS).map(withOwnChoice) }));
 }
 
-/** Where a thing stands: its model's copy, or the spot it names when its model is not in the place. Null when it has neither. */
-export function thingSpot(stage: Pick<Stage, "models">, thing: Pick<Thing, "file" | "copy" | "at">): [number, number] | null {
+/**
+ * Where a thing stands: where the person standing as it stands (world.md R-WORLD-020), so their mark is over them; else its
+ * model's copy, or the spot it names when its model is not in the place. Null when it has none.
+ */
+export function thingSpot(stage: Pick<Stage, "models"> & Partial<Pick<Stage, "standing">>, thing: Pick<Thing, "file" | "copy" | "at"> & Partial<Pick<Thing, "id">>): [number, number] | null {
+  const stander = thing.id === undefined ? undefined : stage.standing?.find((one) => one.thing === thing.id);
+  if (stander !== undefined) return [stander.at[0], stander.at[1]];
   const copy = stage.models.find((model) => model.file === thing.file)?.at[thing.copy];
   if (copy !== undefined) return [copy[0], copy[1]];
   return thing.at ?? null;

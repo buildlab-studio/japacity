@@ -29,9 +29,10 @@ describe("the partner met in a place", () => {
     expect(placesWanted.filter((place) => place in content.place)).toEqual([]);
   });
 
-  test("[R-WORLD-020] given the meetings, when where they happen is read, then partners are met at the meetup, the church and a friend's room", () => {
+  // the meetup's two at the hub's meetup; after the service and a friend of the family at the family house, until the church is a built place.
+  test("[R-WORLD-020] given the meetings, when where they happen is read, then partners are met at the hub's meetup and at the family house, never in their room", () => {
     const where = new Set(partnerMeetings.map((meeting) => meeting.met.place));
-    expect([...where].sort()).toEqual(["place.church", "place.their-room", "place.yaba-hub"]);
+    expect([...where].sort()).toEqual(["place.family-house", "place.yaba"]);
   });
 
   test("[R-WORLD-020] given a partner who lives abroad, when the meeting is read, then they can be met only in December, when they are home, and their home sits near no place in Lagos", () => {
