@@ -25,6 +25,7 @@ import { EndingView } from "./features/card/EndingView";
 import { CardView } from "./features/card/ShareCard";
 import { ChapterView } from "./features/chapter/ChapterView";
 import { City } from "./features/city/City";
+import { CreditsRow } from "./features/city/Credits";
 import { Map } from "./features/map/Map";
 import { HeldShareCard } from "./features/notify/held";
 import { NotifySetting } from "./features/notify/NotifySetting";
@@ -102,6 +103,7 @@ function WorldPlaying() {
           <>
             <AccountButton more={<NotifySetting />} />
             <ReadyEntry />
+            <CreditsRow />
           </>
         } talk={talk} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}

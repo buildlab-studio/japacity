@@ -99,11 +99,13 @@ export default defineConfig(
     "**/node_modules/**",
     "**/dist/**",
     "**/coverage/**",
-    // The docs are prose, except the documentation site's config, which is linted like any other code.
+    // The docs are prose, except the documentation site's config and its data loader, which are linted like any other code.
     "docs/**/*",
     "!docs/site/",
     "!docs/site/.vitepress/",
     "!docs/site/.vitepress/config.ts",
+    "!docs/site/plays/",
+    "!docs/site/plays/sources.data.ts",
     "prototypes/**",
     "tools/lint-fixtures/**",
     "tools/__fixtures__/**",

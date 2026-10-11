@@ -1,5 +1,6 @@
-// The guides from inside the game (R-GUIDE-005, R-GUIDE-008): the header's way to the guide
-// for the route in view, every guide, the sources, the credits and how the game was made.
+// The guides from inside the game (R-GUIDE-005, R-GUIDE-011): the header's way to the guide
+// for the route in view, every guide, the numbers and how the game was made. The credits are a
+// screen of the game itself (R-GUIDE-008), not a page here.
 // The pages are the prerendered ones, opened beside the game so the life stays where it is.
 import { content, guideForRoute } from "@japacity/content";
 import { BookOpen } from "lucide-react";
@@ -11,7 +12,7 @@ import { counting } from "../../shared/analytics/start";
 import { Sheet } from "../../shared/ui/Sheet";
 import { nameOf, say } from "../../shared/words/text";
 import { LEGAL_LINKS } from "../../shared/ui/LegalLinks";
-import { CREDITS_PATH, GUIDES_ROOT, guidePath, MADE_PATH, NUMBERS_PATH, SOURCES_PATH } from "./paths";
+import { GUIDES_ROOT, guidePath, MADE_PATH, NUMBERS_PATH } from "./paths";
 
 function PageLink({ href, children }: { href: string; children: string }) {
   return (
@@ -58,8 +59,6 @@ export function GuidesMenu() {
           <ul className="flex flex-col gap-2 border-t border-sheet-line pt-4">
             <PageLink href={GUIDES_ROOT}>{say("guide.page.all-guides")}</PageLink>
             <PageLink href={NUMBERS_PATH}>{say("guide.page.numbers.index")}</PageLink>
-            <PageLink href={SOURCES_PATH}>{say("guide.page.sources-page")}</PageLink>
-            <PageLink href={CREDITS_PATH}>{say("guide.page.credits")}</PageLink>
             <PageLink href={MADE_PATH}>{say("guide.page.made")}</PageLink>
             {LEGAL_LINKS.map((link) => (
               <PageLink key={link.href} href={link.href}>

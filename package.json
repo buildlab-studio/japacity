@@ -21,6 +21,7 @@
     "assets:outline": "tsx tools/assets/outline.ts",
     "assets:credits": "tsx tools/assets/credits.ts",
     "assets:publish": "tsx tools/assets/publish.ts",
+    "notices": "tsx tools/notices.ts",
     "bless": "tsx tools/bless.ts",
     "record:lives": "tsx tools/record-lives.ts",
     "play": "tsx tools/play/play.ts",

@@ -76,4 +76,15 @@ describe("the terms and the privacy notice from the account screens", () => {
     );
     expect(legalLinks(container)).toEqual(BOTH);
   });
+
+  test("[R-CITY-021] given the account's settings sheet, when it shows, then it holds no Credits row: the row is in the phone's Settings, for every player", () => {
+    const api = account();
+    const { container } = render(
+      <GameProvider store={storeFor(api)}>
+        <AccountSettings account={api} />
+      </GameProvider>,
+    );
+    expect(within(container).queryByRole("button", { name: /^Credits/ })).toBeNull();
+    expect(container.querySelector("[data-credits-row]")).toBeNull();
+  });
 });

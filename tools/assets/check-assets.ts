@@ -419,8 +419,9 @@ export interface Credits {
 }
 
 export const OSM_CREDIT = "Map data from OpenStreetMap, available under the Open Database Licence";
+/** Where generated media is used, said once and plainly; the voice's own row says its tool and licence, so this does not repeat it. */
 export const GENERATED =
-  "The city's models and people are written as code by an AI agent working for the studio, and each is reviewed against the style rules by a reviewer that did not build it before it ships. The visa officer's voice is generated (Kokoro-82M, Apache 2.0), and every line is also shown as text. No image or music in the game is generated.";
+  "The city's models and people are written as code by an AI agent working for the studio, and each is checked against the style rules by a reviewer that did not build it before it ships. The one generated voice is the visa officer's. No image or music in the game is generated.";
 
 /** What credits.json must hold (R-CITY-021): the map data credit with every source, each register attribution, the fonts, and where generated media is used. */
 export function expectedCredits(register: Register, mapSources: readonly string[]): Credits {

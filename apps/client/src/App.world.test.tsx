@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { App, classicAsked } from "./App";
@@ -41,6 +41,18 @@ describe("the world is the game", () => {
     expect(document.querySelector("[data-thumb='phone']")).not.toBeNull();
     expect(document.querySelector("header, [data-tab], [data-where]")).toBeNull();
     expect(screen.queryByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeNull();
+  });
+
+  test("[R-CITY-021] given a life played on this device with no account, when the phone's Settings is opened, then the Credits row stands beside the ready lives and opens the credits sheet", async () => {
+    history.replaceState(null, "", "/");
+    await startLife();
+    fireEvent.click(await waitFor(() => document.querySelector<HTMLElement>("[data-thumb='phone']")!));
+    fireEvent.click(await waitFor(() => document.querySelector<HTMLElement>('[data-app="settings"]')!));
+    const row = await waitFor(() => document.querySelector<HTMLElement>("[data-credits-row]")!);
+    expect(row.previousElementSibling?.hasAttribute("data-ready-entry")).toBe(true);
+    expect(document.querySelector("[data-account] [data-credits-row]")).toBe(row);
+    fireEvent.click(row);
+    expect(await screen.findByRole("dialog", { name: "Credits" })).toBeTruthy();
   });
 
   test("[R-WORLD-024] given ?classic, when a life starts, then the old month page opens with its header and tabs", async () => {

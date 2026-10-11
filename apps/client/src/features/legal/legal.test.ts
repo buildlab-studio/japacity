@@ -53,7 +53,7 @@ describe("the two legal pages", () => {
       expect(legalRoute(`/${file}`)).toEqual({ redirect: path });
       expect(legalRoute(`${path}/`)).toEqual({ redirect: path });
     }
-    for (const other of ["/", "/official", "/legal/terms.html", "/guides/credits/", "/termsx", "/privacy.htm"]) expect(legalRoute(other)).toBeNull();
+    for (const other of ["/", "/official", "/legal/terms.html", "/guides/numbers/", "/termsx", "/privacy.htm"]) expect(legalRoute(other)).toBeNull();
   });
 
   test("[R-SHARE-014] given the two pages, when they are read, then each links to the other, back to the game and to the official accounts page", () => {
@@ -118,6 +118,13 @@ describe("the terms of play", () => {
 
   test("[R-CITY-041] given the terms, when they are read, then they carry the notice on real names in the about page's own words", () => {
     expect(words(terms().querySelector("[data-names]"))).toContain(text["guide.page.about.names"]);
+  });
+
+  test("[R-GUIDE-010] given the terms, when their licences are read, then they point to the repository's full list and the game's Credits, and keep the name and logo out of every licence", () => {
+    expect(words(terms().querySelector("[data-licences]"))).toBe(
+      "The game's code, writing and art are shared under open licences: the full list is in the game's repository, and the game's Credits (in Settings) say them in short. The name Japacity and its logo are not licensed.",
+    );
+    expect(terms().querySelector('a[href^="/guides/credits"]')).toBeNull();
   });
 
   test("given the terms, when they are read, then the law of Nigeria governs them and the courts of Lagos State settle disputes", () => {
