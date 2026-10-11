@@ -17,6 +17,7 @@ import { gateLook } from "../frontdoor/Gate";
 import { lookOf } from "../frontdoor/looks";
 import { AGE, clockWords, yearsOf } from "../words/quality";
 import { typeWords } from "../words/japaType";
+import { readyPercent } from "../words/ready";
 import { hasWords, say } from "../words/text";
 import { DataPage, type PageFields } from "./DataPage";
 import { familyCard, keptDraw } from "./family";
@@ -52,7 +53,8 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
   const lived = archetype === null ? null : livedOtherwise(archetype, view);
   const draw = keptDraw();
   const months = view.qualities.find((quality) => quality.id === AGE)?.value ?? 0;
-  const percent = view.japacity.percent ?? 0;
+  // READY is Japa's own figure, one source.
+  const percent = readyPercent(view) ?? 0;
   return {
     ...(type === null ? {} : { type: typeWords(type) }),
     name: nameOf(person, view),
