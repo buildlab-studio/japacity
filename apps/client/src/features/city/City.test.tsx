@@ -94,10 +94,10 @@ describe("credits", () => {
     }
   });
 
-  test("[R-CITY-021] given Settings, when its Credits row is pressed, then the same credits sheet opens", () => {
+  test("[R-CITY-021] given the phone's Settings, when its Credits row is pressed, then the same credits sheet opens", () => {
     render(<CreditsRow />);
     expect(screen.queryByRole("dialog")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: cityWords("city.credits") }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${cityWords("city.credits")}`) }));
     const sheet = screen.getByRole("dialog", { name: cityWords("city.credits") });
     expect(within(sheet).getByText(cityWords("city.credits.loading"))).toBeDefined();
   });

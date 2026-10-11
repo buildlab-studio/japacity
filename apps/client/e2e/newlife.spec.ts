@@ -129,14 +129,15 @@ test("[R-ACCOUNT-030] a guest ends the life from Settings by a hold, the door op
   expect(faked.sent).not.toContain("turnstile");
 });
 
-test("[R-CITY-021] a guest opens the Credits from Settings: the same sheet as the city's menu, with the map data linked", async ({ page }) => {
+test("[R-CITY-021] a guest opens the Credits from the phone's Settings: the same sheet as the city's menu, with the map data linked", async ({ page }) => {
   await fakeServer(page);
   await page.goto("/");
   await passOpeningWords(page, 20_000);
   await page.locator('[data-thumb="phone"]').click({ timeout: 30_000 });
   await page.locator('[data-app="settings"]').click();
-  await page.getByRole("button", { name: "Account" }).click();
-  await page.getByRole("dialog", { name: "Account" }).getByRole("button", { name: "Credits" }).click();
+  const row = page.locator("[data-credits-row]");
+  await row.scrollIntoViewIfNeeded();
+  await row.click();
   const sheet = page.getByRole("dialog", { name: "Credits" });
   await expect(sheet.getByRole("link", { name: "OpenStreetMap" })).toHaveAttribute("href", "https://www.openstreetmap.org/copyright");
   await expect(sheet.getByText("Sound and art from others")).toBeVisible();

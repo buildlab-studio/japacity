@@ -77,14 +77,14 @@ describe("the terms and the privacy notice from the account screens", () => {
     expect(legalLinks(container)).toEqual(BOTH);
   });
 
-  test("[R-CITY-021] given the settings sheet and the Credits row the shell hands in, when it shows, then the row stands just above the two pages", () => {
+  test("[R-CITY-021] given the account's settings sheet, when it shows, then it holds no Credits row: the row is in the phone's Settings, for every player", () => {
     const api = account();
     const { container } = render(
       <GameProvider store={storeFor(api)}>
-        <AccountSettings account={api} credits={<button type="button">Credits</button>} />
+        <AccountSettings account={api} />
       </GameProvider>,
     );
-    const row = within(container).getByRole("button", { name: "Credits" });
-    expect(row.nextElementSibling?.getAttribute("aria-label")).toBe(say("ui.legal.label"));
+    expect(within(container).queryByRole("button", { name: /^Credits/ })).toBeNull();
+    expect(container.querySelector("[data-credits-row]")).toBeNull();
   });
 });

@@ -1,12 +1,12 @@
 // The credits screen (city.md R-CITY-021, guides.md R-GUIDE-008 to R-GUIDE-010): the map data
 // credit with its link, each register row's attribution, the fonts, where generated media is used,
 // all from credits.json, and the game's own licences with the way to the repository's full list.
-// Reached from the city's menu and, through the shell, from Settings (CreditsRow).
+// Reached from the city's menu and, through the shell, from the phone's Settings (CreditsRow), online or not.
 import { LICENCES_URL } from "@japacity/content";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { loadJson, loadManifest } from "../../shared/three/manifest";
-import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cityWords } from "./city.words";
 
@@ -101,15 +101,24 @@ export function CreditsSheet({ open, onOpenChange }: { open: boolean; onOpenChan
   );
 }
 
-/** The Credits row the shell places in Settings: the same sheet as the city's menu opens (R-CITY-021). */
+/** The Credits row the shell places in the phone's Settings, beside the ready lives: the same sheet as the city's menu opens (R-CITY-021). */
 export function CreditsRow() {
   const [open, setOpen] = useState(false);
   return (
-    <div>
-      <Button onClick={() => setOpen(true)} data-credits-row>
-        {cityWords("city.credits")}
-      </Button>
+    <>
+      <button
+        type="button"
+        className="press mt-3 flex w-full items-center justify-between gap-2 rounded-[5px] border border-sheet-line px-3 py-2 text-left"
+        onClick={() => setOpen(true)}
+        data-credits-row
+      >
+        <span className="min-w-0">
+          <span className="block text-[14px] font-extrabold">{cityWords("city.credits")}</span>
+          <span className="block text-[12px] text-text-2">{cityWords("city.credits.hint")}</span>
+        </span>
+        <ArrowRight size={16} className="shrink-0" aria-hidden />
+      </button>
       <CreditsSheet open={open} onOpenChange={setOpen} />
-    </div>
+    </>
   );
 }

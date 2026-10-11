@@ -101,8 +101,9 @@ function WorldPlaying() {
         asksHold={closing}
         phone={(close, area, app, toMap) => <PhoneApps onClose={close} area={area} account={
           <>
-            <AccountButton more={<NotifySetting />} credits={<CreditsRow />} />
+            <AccountButton more={<NotifySetting />} />
             <ReadyEntry />
+            <CreditsRow />
           </>
         } talk={talk} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}

@@ -5,9 +5,7 @@
 // `DELETE /api/account`. Deleting needs a session signed in within the last 10
 // minutes; when the server says it is older, the player signs in again or
 // sends the code the server's email carries along with the deletion. A guest
-// has no other way in, so its own session confirms it. Last, the Credits row
-// (city.md R-CITY-021), which the shell hands in because the screen is the
-// city's, and the terms and privacy links.
+// has no other way in, so its own session confirms it.
 import { UserRoundCog } from "lucide-react";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 
@@ -144,7 +142,7 @@ function dayOf(at: number): string {
 
 type Step = "idle" | "warn" | "confirm";
 
-export function AccountSettings({ account, more = null, credits = null }: { account: AccountApi; more?: ReactNode; credits?: ReactNode }) {
+export function AccountSettings({ account, more = null }: { account: AccountApi; more?: ReactNode }) {
   const leave = useGame((state) => state.leave);
   const guest = useAccountView()?.state === "guest";
   const [leaving, setLeaving] = useState(false);
@@ -288,15 +286,13 @@ export function AccountSettings({ account, more = null, credits = null }: { acco
         </p>
       )}
 
-      {credits}
-
       <LegalLinks />
     </div>
   );
 }
 
-/** The header's way into the settings. Nothing offline. `more`: another feature's settings, placed by the shell; `credits`: the Credits row, placed by the shell. */
-export function AccountButton({ more = null, credits = null }: { more?: ReactNode; credits?: ReactNode }) {
+/** The header's way into the settings. Nothing offline. `more`: another feature's settings, placed by the shell. */
+export function AccountButton({ more = null }: { more?: ReactNode }) {
   const account = useGame((state) => state.account);
   const [open, setOpen] = useState(false);
   if (account === null) return null;
@@ -316,7 +312,7 @@ export function AccountButton({ more = null, credits = null }: { more?: ReactNod
         <UserRoundCog size={18} />
       </Button>
       <Sheet open={open} onOpenChange={setOpen} title={say("ui.account.settings")}>
-        <AccountSettings account={account} more={more} credits={credits} />
+        <AccountSettings account={account} more={more} />
       </Sheet>
     </>
   );

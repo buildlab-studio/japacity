@@ -304,6 +304,7 @@ export const cityText: Record<string, string> = {
   "city.credits.assets": "Sound and art from others",
   "city.credits.generated": "Generated media",
   "city.credits.loading": "Reading the credits...",
+  "city.credits.hint": "Map data, art from others, fonts and the game's licences",
   // The game's own licences (guides.md R-GUIDE-010); the full list is the repository's LICENSES.md.
   "city.credits.licences": "Licences",
   "city.credits.licences.line": "Code: MIT. Docs: CC BY 4.0. Game content and art: CC BY-SA 4.0. The name Japacity and its logo are reserved.",
