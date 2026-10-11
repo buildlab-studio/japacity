@@ -19,6 +19,7 @@ import { say, sayCount } from "../shared/words/text";
 import { uiText } from "../shared/words/ui";
 import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";
+import { swapsFor } from "./others";
 import { playerName } from "./person";
 import type { AuthorityEvent } from "./remote";
 
@@ -362,7 +363,7 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
   // R-WORLD-002: the words tell a stamped month as months away from the view's month, kept beside them; and
   // R-PROLOGUE-002: a line's `{hometown}` names where this life is from.
   store.subscribe((state, before) => {
-    if (state.view !== before.view) setNow(state.view?.month ?? null, state.view?.hometown ?? null, playerName(state.view));
+    if (state.view !== before.view) setNow(state.view?.month ?? null, state.view?.hometown ?? null, swapsFor(playerName(state.view)));
   });
   return store;
 }

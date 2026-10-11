@@ -2,16 +2,28 @@
 // 11 Oct 2026). The player names the character at the
 // door from the same pool the game's people are named from, so a name can meet itself. Where it does, the person in the
 // game's words takes another name of their own people and sex from the pool, the first in the pool's order that is
-// nobody else's: deterministic, whole numbers only, and nothing of it reaches the simulation.
+// nobody else's: deterministic, whole numbers only, and nothing of it reaches the simulation. Worked out here, once for a
+// name, and handed to the words as the lines to say otherwise (`shared/words/now.ts`), so the pool is never in the words
+// every screen loads.
 import { lifePeople, namedPeople, namePool, text } from "@japacity/content";
 
-import { nowPlayer } from "./now";
+import type { NameSwaps } from "../shared/words/now";
+import { uiText } from "../shared/words/ui";
 
 /** A pool name's words and who it suits. */
 interface Pooled {
   name: string;
   people: string;
   sex: "f" | "m" | "either";
+}
+
+function same(name: string): string {
+  return name.trim().toLowerCase();
+}
+
+/** The player's first name, as it is compared. */
+function firstOf(name: string): string {
+  return same(name.split(/\s+/)[0] ?? "");
 }
 
 const POOL: readonly Pooled[] = namePool.flatMap((entry) => {
@@ -22,24 +34,8 @@ const POOL: readonly Pooled[] = namePool.flatMap((entry) => {
 /** Every name a person in the game's own words carries, and the fixed lives' own: none is given out again. */
 const TAKEN: ReadonlySet<string> = new Set([...namedPeople, ...Object.values(lifePeople)].map((person) => same(person.name)));
 
-/** The text keys that carry a computer person's name, and whose name it is (the fixed lives' keys are the player's own). */
-const CARRIED: ReadonlyMap<string, readonly string[]> = (() => {
-  const carried = new Map<string, string[]>();
-  for (const person of namedPeople) for (const key of person.keys) carried.set(key, [...(carried.get(key) ?? []), person.name]);
-  return carried;
-})();
-
-/** The player's own words for their character: the keys that must keep the player's name. */
+/** The player's own words for their character: the keys that keep the player's name. */
 const PLAYERS_OWN = ["scenario.", "share.first-name.", "person.name."];
-
-function same(name: string): string {
-  return name.trim().toLowerCase();
-}
-
-/** The player's first name, as it is compared. */
-function firstOf(name: string): string {
-  return same(name.split(/\s+/)[0] ?? "");
-}
 
 /**
  * The other name a person whose name is the player's goes by: of their own people and sex where the pool has one (a
@@ -55,21 +51,24 @@ export function otherName(name: string, player: string): string {
   return found?.name ?? name;
 }
 
-function escaped(name: string): string {
-  return name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+let kept: { player: string; swaps: NameSwaps } | null = null;
 
 /**
- * A line of content's as it stands for the life on screen: a computer person's name that is the player's own first name
- * is said as their other name, in a line that names them (`namedPeople`'s keys) and in any name of an entry that is the
- * player's name whole. The player's own words keep it.
+ * The lines that say a computer person otherwise for a player of this name: a line that names a person of the game's
+ * words (`namedPeople`'s keys) whose name it is, and any entry's name that is the player's name whole. The player's own
+ * words keep it. None for no name.
  */
-export function notThePlayers(key: string, line: string, player: string | null = nowPlayer()): string {
-  if (player === null || firstOf(player) === "" || PLAYERS_OWN.some((own) => key.startsWith(own))) return line;
-  const first = firstOf(player);
-  const carried = CARRIED.get(key);
-  if (carried !== undefined) {
-    return carried.filter((name) => same(name) === first).reduce((said, name) => said.replace(new RegExp(`\\b${escaped(name)}\\b`, "g"), otherName(name, player)), line);
-  }
-  return key.endsWith(".name") && same(line) === first ? otherName(line.trim(), player) : line;
+export function swapsFor(player: string | null): NameSwaps {
+  const first = player === null ? "" : firstOf(player);
+  if (player === null || first === "") return new Map();
+  if (kept?.player === first) return kept.swaps;
+  const swaps = new Map<string, (readonly [string, string])[]>();
+  const add = (key: string, name: string): void => {
+    if (PLAYERS_OWN.some((own) => key.startsWith(own))) return;
+    swaps.set(key, [...(swaps.get(key) ?? []), [name, otherName(name, player)]]);
+  };
+  for (const person of namedPeople) if (same(person.name) === first) for (const key of person.keys) add(key, person.name);
+  for (const [key, line] of Object.entries({ ...uiText, ...text })) if (key.endsWith(".name") && same(line) === first && !swaps.has(key)) add(key, line.trim());
+  kept = { player: first, swaps };
+  return swaps;
 }

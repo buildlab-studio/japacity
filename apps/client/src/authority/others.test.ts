@@ -3,12 +3,12 @@
 import { lifePeople, namedPeople, namePool, text } from "@japacity/content";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { keepPerson } from "../../authority/person";
-import { createGameStore } from "../../authority/store";
-import { engineView, fakeAuthority } from "../testing/fixtures";
-import { setNow } from "./now";
-import { otherName } from "./others";
-import { nameOf, say, words } from "./text";
+import { keepPerson } from "./person";
+import { createGameStore } from "./store";
+import { engineView, fakeAuthority } from "../shared/testing/fixtures";
+import { setNow } from "../shared/words/now";
+import { otherName, swapsFor } from "./others";
+import { nameOf, say, words } from "../shared/words/text";
 
 afterEach(() => {
   setNow(null);
@@ -21,7 +21,7 @@ const TAKEN = new Set([...namedPeople, ...Object.values(lifePeople)].map((person
 describe("a computer person never carries the player's name", () => {
   test("[R-PEOPLE-061] [R-PROLOGUE-009] given the player named Hauwa, when the friend of the family is named, then she is another Hausa-Fulani woman of the pool, the same every time, and nobody else's name", () => {
     expect(text[`${FRIEND}.name`]).toBe("Hauwa");
-    setNow(4, null, "Hauwa");
+    setNow(4, null, swapsFor("Hauwa"));
     const other = nameOf(FRIEND);
     expect(other).not.toBe("Hauwa");
     expect(TAKEN.has(other)).toBe(false);
@@ -31,7 +31,7 @@ describe("a computer person never carries the player's name", () => {
     expect(nameOf(FRIEND)).toBe(other);
     expect(otherName("Hauwa", "hauwa")).toBe(other);
     // A typed name in another case, or with a second word, is the same name.
-    setNow(4, null, "HAUWA Bello");
+    setNow(4, null, swapsFor("HAUWA Bello"));
     expect(nameOf(FRIEND)).toBe(other);
     // The people's lines name her the same way.
     expect(words("line.people.courted", { who: FRIEND })).toBe(`You started seeing ${other}.`);
@@ -39,16 +39,16 @@ describe("a computer person never carries the player's name", () => {
 
   test("[R-PEOPLE-061] given a player whose name a line carries inside it, when the line is said, then the person in it goes by the other name, and the player's own words keep the player's", () => {
     const terna = namedPeople.find((person) => person.name === "Terna")!;
-    setNow(4, null, "Terna");
+    setNow(4, null, swapsFor("Terna"));
     for (const key of terna.keys) expect(say(key)).not.toMatch(/\bTerna\b/);
     expect(say("offer.send-off-party.title")).toContain(otherName("Terna", "Terna"));
     // The fixed lives' own names are the player's own words, never swapped.
-    setNow(4, null, "Ada");
+    setNow(4, null, swapsFor("Ada"));
     expect(say("share.first-name.scenario.ada")).toBe(text["share.first-name.scenario.ada"]);
   });
 
   test("[R-PEOPLE-061] given a player of another name, or no life on screen, then every person keeps the name content gives", () => {
-    setNow(4, null, "Kemi");
+    setNow(4, null, swapsFor("Kemi"));
     expect(nameOf(FRIEND)).toBe("Hauwa");
     setNow(null);
     expect(nameOf(FRIEND)).toBe("Hauwa");
