@@ -16,7 +16,7 @@ export interface KeptPerson {
   archetype: string | null;
   /** The player's own colours on the look (R-PROLOGUE-015); absent as made. Paint only, never a stat. */
   style?: LookStyle;
-  /** The page's photo: the figure rendered in its colours, as an image's data address; absent as made or where nothing could draw it. */
+  /** The page's photo: the figure rendered in its colours, or as made, as an image's data address; absent where nothing could draw it. */
   photo?: string;
   /** The photo's width in pixels as drawn. A photo kept without it was drawn small and is drawn again, sharper. */
   photoPx?: number;
@@ -52,7 +52,9 @@ export function readPerson(storage: Read | null = browserStorage()): KeptPerson 
     if (!isPerson(parsed)) return null;
     const { look, name, archetype } = parsed;
     const style = readStyle(parsed.style);
-    const photo = style !== undefined && typeof parsed.photo === "string" && PHOTO.test(parsed.photo) ? parsed.photo : undefined;
+    // A photo is kept as made too; one drawn in a style that no longer reads is not the figure's.
+    const drawnAs = style !== undefined || parsed.style === undefined;
+    const photo = drawnAs && typeof parsed.photo === "string" && PHOTO.test(parsed.photo) ? parsed.photo : undefined;
     const photoPx = photo !== undefined && typeof parsed.photoPx === "number" && Number.isInteger(parsed.photoPx) && parsed.photoPx > 0 ? parsed.photoPx : undefined;
     return { look, name, archetype, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo }), ...(photoPx === undefined ? {} : { photoPx }) };
   } catch {

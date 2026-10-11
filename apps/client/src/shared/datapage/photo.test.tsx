@@ -10,7 +10,7 @@ import { createGameStore } from "../../authority/store";
 import { lookOf } from "../frontdoor/looks";
 import { DataPage } from "./DataPage";
 import { pageOf } from "./PageSheet";
-import { PHOTO_MIN_PX, photoHeight, photoWidth, sharpEnough } from "./photo.size";
+import { PHOTO_BOX, PHOTO_MIN_PX, photoHeight, photoWidth, sharpEnough } from "./photo.size";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
 
@@ -38,7 +38,7 @@ describe("the page's photo", () => {
     expect(document.querySelector("[data-photo-made]")).not.toBeNull();
   });
 
-  test("[R-PROLOGUE-015] given the look as made, or a style where WebGL is missing, then the photo is the look's own picture", () => {
+  test("[R-PROLOGUE-015] given WebGL missing, as made or in a style, then the photo is the look's own picture (amended 11 Oct 2026: only there)", () => {
     const picture = lookOf("chr_tunde")!.picture;
     const fields = { name: "Kola", age: "", path: "", ready: "", photo: picture };
     const { unmount } = render(<DataPage page={{ ...fields, wear: { look: "chr_tunde" } }} />);
@@ -54,18 +54,21 @@ describe("the page's photo", () => {
 });
 
 describe("the photo's size", () => {
-  test("[R-PROLOGUE-015] given a screen's pixel ratio, when the photo is drawn, then it is the box's 160 px times the ratio, never under 320 px nor over 480 px across, in the box's shape", () => {
-    expect([1, 2, 2.5, 3, 4].map(photoWidth)).toEqual([320, 320, 400, 480, 480]);
+  test("[R-PROLOGUE-015] given a screen's pixel ratio, when the photo is drawn, then it is the box's displayed 98 by 128 px times the ratio held to 2 to 3, so a Pixel 7 at 2.625 gets 258 by 337", () => {
+    expect(PHOTO_BOX).toEqual({ width: 98, height: 128 });
+    expect([1, 2, 2.5, 2.625, 3, 4].map(photoWidth)).toEqual([196, 196, 245, 258, 294, 294]);
     expect(photoWidth(Number.NaN)).toBe(PHOTO_MIN_PX);
-    expect(photoHeight(320)).toBe(417);
-    expect(photoHeight(480)).toBe(625);
+    expect(PHOTO_MIN_PX).toBe(196);
+    expect([196, 258, 294].map(photoHeight)).toEqual([256, 337, 384]);
   });
 
   test("[R-PROLOGUE-015] given a photo kept without its width, or narrower than the screen wants, then it is drawn again; one as wide is kept", () => {
     expect(sharpEnough(undefined, 2)).toBe(false);
     expect(sharpEnough(172, 2)).toBe(false);
-    expect(sharpEnough(320, 3)).toBe(false);
-    expect(sharpEnough(320, 2)).toBe(true);
+    expect(sharpEnough(196, 3)).toBe(false);
+    expect(sharpEnough(196, 2)).toBe(true);
+    expect(sharpEnough(294, 3)).toBe(true);
+    // A photo kept at the old, larger width is sharp enough already.
     expect(sharpEnough(480, 3)).toBe(true);
   });
 

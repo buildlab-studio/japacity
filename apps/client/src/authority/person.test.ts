@@ -28,6 +28,12 @@ describe("the person's own colours, kept", () => {
     expect(keptStyleOf("shared/chr/chr_ada.glb", storage)).toBeUndefined();
   });
 
+  test("[R-PROLOGUE-015] given a person kept as made with the photo drawn as made, when it is read back, then the photo and its width come back with no style", () => {
+    const storage = memoryStorage();
+    keepPerson({ look: "chr_ada", name: "Ada", archetype: null, photo: PHOTO, photoPx: 258 }, storage);
+    expect(readPerson(storage)).toEqual({ look: "chr_ada", name: "Ada", archetype: null, photo: PHOTO, photoPx: 258 });
+  });
+
   test("[R-PROLOGUE-015] given a style that is not the palette's, or a photo that is not an image of its own, when it is read back, then those are dropped and the person stands", () => {
     const storage = memoryStorage();
     storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Ada", archetype: null, style: { skin: "#ff00ff", hair: "gold", fabric: "silk", strength: 9 }, photo: "https://example.com/face.png" }));

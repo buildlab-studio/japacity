@@ -1,11 +1,12 @@
 // The page's photo in the player's own colours (prologue.md R-PROLOGUE-015): the figure rendered once to a small
-// image when the page prints, and kept with the person, so the page in the world shows the same face. As made the
-// look's own picture stands; where WebGL is missing, so does the picture. The drawing is loaded only when needed.
+// image when the page prints, and kept with the person, so the page in the world shows the same face. As made it is
+// drawn too (amended 11 Oct 2026: the look's own picture is a small whole-figure render, and cropped to the face it
+// was blurry on a phone); only where WebGL is missing does the picture stand. The drawing is loaded only when needed.
 import { useEffect, useState } from "react";
 
 import { keepPerson, readPerson } from "../../authority/person";
 import { canDraw } from "../frontdoor/Gate";
-import { isMade, type LookStyle, styleKey } from "../frontdoor/style";
+import { type LookStyle, styleKey } from "../frontdoor/style";
 import { photoWidth, sharpEnough } from "./photo.size";
 
 /** A photo drawn and its width in pixels. */
@@ -33,7 +34,7 @@ function keepWithPerson(look: string, style: LookStyle | undefined, drawn: Drawn
   keepPerson({ ...person, photo: drawn.photo, photoPx: drawn.px });
 }
 
-function draw(look: string, style: LookStyle): Promise<Drawn | null> {
+function draw(look: string, style: LookStyle | undefined): Promise<Drawn | null> {
   const key = keyOf(look, style);
   const held = drawing.get(key);
   if (held !== undefined) return held;
@@ -53,16 +54,16 @@ function draw(look: string, style: LookStyle): Promise<Drawn | null> {
 }
 
 /**
- * The photo for a look in a style: one drawn this visit, else the one given (kept with the person), else null while
- * it draws, as made, or where nothing can draw it. A given photo kept without its width, or narrower than this screen
- * wants, is shown while a sharper one draws. A photo drawn for the kept person is kept with them.
+ * The photo for a look in a style, as made included: one drawn this visit, else the one given (kept with the person),
+ * else null while it draws or where nothing can draw it. A given photo kept without its width, or narrower than this
+ * screen wants, is shown while a sharper one draws. A photo drawn for the kept person is kept with them.
  */
 export function usePhoto(look: string | undefined, style: LookStyle | undefined, given?: string, givenPx?: number): string | null {
-  const key = look === undefined || isMade(style) ? null : keyOf(look, style);
+  const key = look === undefined ? null : keyOf(look, style);
   const [photo, setPhoto] = useState<{ key: string; photo: string } | null>(null);
   const sharp = given !== undefined && sharpEnough(givenPx, ratio());
   useEffect(() => {
-    if (key === null || look === undefined || style === undefined || sharp || !canDraw()) return;
+    if (key === null || look === undefined || sharp || !canDraw()) return;
     let alive = true;
     void draw(look, style).then((drawn) => {
       if (drawn === null) return;
