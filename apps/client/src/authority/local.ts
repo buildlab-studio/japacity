@@ -54,6 +54,8 @@ export interface LocalAuthority extends Authority {
    * The client shows them on the lock screen and tells their lines.
    */
   morning(): Envelope[];
+  /** The real time this life began, so the band can name the month of the year the life is in (R-WORLD-002). */
+  beganAt(): number;
   /**
    * R-ACCOUNT-030: ends this life for good. The save and the person kept beside it are cleared, and nothing is
    * written again until a new life is chosen, so a reload opens the front door.
@@ -64,7 +66,7 @@ export interface LocalAuthority extends Authority {
 /** What is kept under SAVE_KEY: the save, when real time last earned a turn, and the results sealed until their morning (R-CLOCK-032). */
 interface Stored {
   save: Save;
-  clock: { anchor: number };
+  clock: { anchor: number; beganAt?: number };
   envelopes?: Envelope[];
 }
 
@@ -128,6 +130,8 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   let worldSeed: string;
   let tick: number;
   let anchor: number;
+  /** When this life began, in real time: month 0 is that month of the year. */
+  let began: number;
   /** The results sealed until their morning (R-CLOCK-032). */
   let envelopes: Envelope[] = [];
 
@@ -156,7 +160,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   /** False when the save was not written: a full or blocked storage loses it on reload, but play goes on. */
   function persist(): boolean {
     if (storage === null || !chosen) return false;
-    const stored: Stored = { save, clock: { anchor }, envelopes };
+    const stored: Stored = { save, clock: { anchor, beganAt: began }, envelopes };
     try {
       storage.setItem(SAVE_KEY, JSON.stringify(stored));
       return true;
@@ -174,6 +178,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
     save = newSave(scenario, seed, worldSeed, content);
     tick = 0;
     anchor = now();
+    began = anchor;
     envelopes = [];
   }
 
@@ -209,6 +214,8 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       state = replay(save, content, worldAt).state;
       tick = tickAfter(save);
       anchor = parsed.clock.anchor;
+      // A save from before the lived month began at its anchor, near enough.
+      began = typeof parsed.clock.beganAt === "number" ? parsed.clock.beganAt : anchor;
       envelopes = isEnvelopes(parsed.envelopes) ? parsed.envelopes : [];
       return { kind: "loaded" };
     } catch {
@@ -275,6 +282,9 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       earnTurns();
       persist();
       return Promise.resolve(shownView());
+    },
+    beganAt() {
+      return began;
     },
     morning() {
       const { opened } = withhold(currentView(), envelopes, morningNow());
