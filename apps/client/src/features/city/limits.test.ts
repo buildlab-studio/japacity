@@ -30,8 +30,9 @@ describe("the crowd a place may show", () => {
         const shown = sampleCrowd(entry, poolOf(file.people.sample), date, mode, crowdTuning(city, file.scope, false)).people.length;
         expect(shown, `${file.place} in ${mode}`).toBeLessThanOrEqual(WORLD_LIMITS.people[file.scope][mode]);
       }
-      const dressing = stageOf(file).dressings?.[0];
-      if (dressing === undefined) continue;
+      // The party is the dressing an offer opens; a room dressed for a person keeps the entry's crowd (R-WORLD-020).
+      const dressing = stageOf(file).dressings?.find((one) => one.offer !== undefined);
+      if (dressing?.offer === undefined) continue;
       const dressed = dressPlace(file, [dressing.offer]);
       const guests = crowdSize({ crowd: dressed.crowd ?? entry.crowd }, "high", crowdTuning(city, file.scope, true));
       expect(guests + (stageOf(dressed.file).dancers ?? []).length, `${file.place} dressed for ${dressing.offer}`).toBe(WORLD_LIMITS.party);

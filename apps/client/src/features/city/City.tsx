@@ -68,7 +68,7 @@ import { stopReached } from "./stops";
 import { opensKiosk, withKiosk } from "./kiosk";
 import { namedThings } from "./mark";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
-import { COURT, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
+import { COURT, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
 
 /** Acts the scene shows (R-WORLD-005): the pot steams, the drum fills; the place says no answer for them (R-OBLIGATION-014). */
 const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]);
@@ -603,8 +603,10 @@ export function City({
   const monthLines = useGame((state) => state.monthLines);
   const partied = world && partyThrown(monthLines);
   const openKey = dressedBy(offers, partied ? monthLines : []).join("|");
-  // An open offer the place stages dresses it (R-CITY-011): the party set and its guests at the family house.
-  const dressed = useMemo(() => (plainFile === null ? null : dressPlace(plainFile, openKey === "" ? [] : openKey.split("|"))), [plainFile, openKey]);
+  // An open offer the place stages dresses it (R-CITY-011): the party set and its guests at the family house. Their room is
+  // dressed for the person whose room it is, who stands in it (R-WORLD-020); with no such bond it is the plain room.
+  const roomPerson = entry?.id === THEIR_ROOM ? roomPartner(view) : null;
+  const dressed = useMemo(() => (plainFile === null ? null : dressPlace(plainFile, openKey === "" ? [] : openKey.split("|"), roomPerson)), [plainFile, openKey, roomPerson]);
   const outsideFile = dressed?.file ?? null;
   // Inside, the scene is the room the place's door opens into: the file's `inside` names its folder under
   // places/, fetched with the place so the cut is quick (R-WORLD-013); the room's own file names the entry
@@ -740,7 +742,8 @@ export function City({
     if (!world || file === null) return undefined;
     const offered = new Set(activityKey.split("|"));
     const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? []), ...homeStagesAt(placeId, home, here, PLACES)]);
-    return thingsNow(withMoreAt(withMeetings(thingsOf(stageOf(file)), meetPlace, standing), meetPlace), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow));
+    // Someone standing as themselves (their room's partner) has no act, so is kept past the acts' filter: a tap shows their name (R-PEOPLE-054).
+    return [...thingsNow(withMoreAt(withMeetings(thingsOf(stageOf(file)), meetPlace, standing), meetPlace), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow)), ...standingAsThemselves(stageOf(file))];
   }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing]);
   // The chosen thing's acts already in this month's plan say Planned and are shut.
   const pickedThing = picked?.kind === "thing" ? picked.thing : null;

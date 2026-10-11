@@ -15,7 +15,7 @@ interface StagedModels {
 export interface StagedGround extends StagedModels {
   start: At;
   walkable?: unknown;
-  dressings?: (StagedModels & { offer: string; hide?: string[] })[];
+  dressings?: (StagedModels & { offer?: string; person?: string; hide?: string[] })[];
 }
 
 /** 12. Every model under public/assets carries a footprint in its root's extras: boxes, or `none`. */
@@ -61,7 +61,7 @@ export function checkWalkable(place: string, stage: StagedGround | undefined, fo
   check(stage.models, [{ name: "the start", at: stage.start }, ...spots(stage.people)], "");
   for (const dressing of stage.dressings ?? []) {
     const hidden = new Set(dressing.hide ?? []);
-    check([...stage.models.filter((model) => !hidden.has(model.file)), ...dressing.models], [{ name: "the start", at: stage.start }, ...spots(dressing.people)], ` dressed for ${dressing.offer}`);
+    check([...stage.models.filter((model) => !hidden.has(model.file)), ...dressing.models], [{ name: "the start", at: stage.start }, ...spots(dressing.people)], ` dressed for ${dressing.offer ?? dressing.person ?? ""}`);
   }
   for (const file of missing) problems.push(`R-ASSET-030: ${place} places ${file}, which carries no footprint`);
   return problems;
