@@ -24,6 +24,27 @@ export function accessHeaders(env: Readonly<Record<string, string | undefined>>,
   return { "CF-Access-Client-Id": id, "CF-Access-Client-Secret": secret };
 }
 
+/** The requests that carry the token: the target's origin alone, so a beacon or any other origin never sees it. */
+export function accessRoutePattern(url: string): string {
+  return `${new URL(url).origin}/**`;
+}
+
+/** The part of a Playwright context the token is put on. */
+export interface Routable {
+  route(pattern: string, handler: (route: { request(): { headers(): Record<string, string> }; continue(options: { headers: Record<string, string> }): Promise<void> }) => Promise<void>): Promise<void>;
+}
+
+/**
+ * Puts the Access headers on every request the context makes to the target's origin, and on no other: a context-wide
+ * header would travel to the analytics beacon's origin too, where its preflight refuses it. Nothing is installed
+ * without both variables.
+ */
+export async function withAccess(context: Routable, env: Readonly<Record<string, string | undefined>>, url: string): Promise<void> {
+  const headers = accessHeaders(env, url);
+  if (Object.keys(headers).length === 0) return;
+  await context.route(accessRoutePattern(url), (route) => route.continue({ headers: { ...route.request().headers(), ...headers } }));
+}
+
 export interface RealTarget {
   /** The address the tests open. */
   baseUrl: string;

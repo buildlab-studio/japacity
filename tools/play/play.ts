@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import { text } from "@japacity/content";
 import { type Browser, chromium, type Locator, type Page } from "@playwright/test";
 
-import { accessHeaders } from "../local/access";
+import { accessHeaders, withAccess } from "../local/access";
 import { doorButton, livesFrom, localCertificate, parseOptions, type PlayOptions, shotName, USAGE } from "./options";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
@@ -25,6 +25,8 @@ const SHORT = 5_000;
 const LONG = 30_000;
 
 interface Run {
+  /** True once staging's bot check refused the browser at Begin: the run ends there by design (R-SERVER-038). */
+  stoppedAtTheCheck: boolean;
   readonly page: Page;
   readonly options: PlayOptions;
   readonly started: number;
@@ -172,7 +174,18 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   }
   await shot(run, "your page");
   if (!(await tap(run, page.getByRole("button", { name: /^Begin/ }), "Begin"))) return false;
-  await page.locator("[data-gate='page'], [data-gate='begun']").first().waitFor({ state: "detached", timeout: LONG }).catch(() => undefined);
+  const gate = page.locator("[data-gate='page'], [data-gate='begun']").first();
+  // Staging's managed bot check refuses an automated browser (R-SERVER-038, R-ACCOUNT-013): the game says so on the
+  // page, and the run stops there by design. The whole life is played on the local stack, where the test key passes.
+  const refused = page.getByRole("alert").filter({ hasText: "The quick check did not go through." });
+  const until = Date.now() + LONG;
+  while (Date.now() < until && (await shown(gate)) && !(await shown(refused))) await page.waitForTimeout(300);
+  if (await shown(refused)) {
+    log(run, "stopped at the bot check: it refuses an automated browser here, by design; the way in up to Begin was played");
+    await shot(run, "bot check");
+    run.stoppedAtTheCheck = true;
+    return false;
+  }
   log(run, "begun");
   return true;
 }
@@ -701,13 +714,25 @@ async function play(options: PlayOptions, button: string): Promise<number> {
   let browser: Browser | null = null;
   try {
     browser = await chromium.launch({ headless: !options.headed, args: CHROMIUM_ARGS });
-    const context = await browser.newContext({ ...PHONE, baseURL: served.base, ignoreHTTPSErrors: localCertificate(served.base), extraHTTPHeaders: accessHeaders(process.env, served.base) });
+    const context = await browser.newContext({ ...PHONE, baseURL: served.base, ignoreHTTPSErrors: localCertificate(served.base) });
+    // Staging is behind Access: the token goes on by route, to staging's origin alone (tools/local/access.ts).
+    await withAccess(context, process.env, served.base);
     const page = await context.newPage();
-    const run: Run = { page, options, started, shots: 0, monthsEnded: 0, problems: [] };
+    const run: Run = { page, options, started, shots: 0, monthsEnded: 0, problems: [], stoppedAtTheCheck: false };
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(`page error: ${oneLine(error.message, 200)}`));
     page.on("console", (message) => {
-      if (message.type() === "error") errors.push(`console error: ${oneLine(message.text(), 200)}`);
+      // The bot check's own widget logs from Cloudflare's origin; that is not the game's doing.
+      if (message.type() === "error" && !message.location().url.startsWith("https://challenges.cloudflare.com/")) errors.push(`console error: ${oneLine(message.text(), 200)}`);
+    });
+    // A refusal from the game's own routes, with what it said: a 401 to a signed-out visitor is the way in, not a problem.
+    page.on("response", (response) => {
+      const path = new URL(response.url()).pathname;
+      if (response.status() < 403 || !path.startsWith("/api/")) return;
+      void response
+        .text()
+        .catch(() => "")
+        .then((body) => errors.push(`refused: ${String(response.status())} ${path} ${oneLine(body, 200)}`));
     });
 
     const reached = (await frontDoor(run, button)) && (await intoTheWorld(run));
@@ -727,7 +752,9 @@ async function play(options: PlayOptions, button: string): Promise<number> {
 
     for (const error of errors) log(run, error);
     log(run, `done: ${String(run.monthsEnded)} of ${String(options.months)} months ended, ${String(run.shots)} pictures, ${String(run.problems.length)} problems, ${String(errors.length)} browser errors`);
-    return reached && run.monthsEnded === options.months ? 0 : 1;
+    if (reached && run.monthsEnded === options.months) return 0;
+    // A run that staging's bot check stopped, with nothing else wrong, did what it could.
+    return run.stoppedAtTheCheck && run.problems.length === 0 ? 0 : 1;
   } catch (error) {
     const message = String(error);
     log(head, `stopped: ${oneLine(message, 400)}`);

@@ -11,7 +11,7 @@ import { devices, expect, test, type Browser, type BrowserContext, type Page } f
 // kiosk, the Credits, sign out and back in, and the invite link's page. Each test fails on any
 // console error, any failed request and any refusal it did not ask for. With --staging (REAL_BASE_URL)
 // the same tests run against staging behind Access; those that need Mailpit or the local database are skipped.
-import { realTarget } from "../../../../tools/local/access";
+import { realTarget, withAccess } from "../../../../tools/local/access";
 import { cronUrl, readLocalStack } from "../../../../tools/local/env";
 import { passOpeningWords, passThePage } from "../door";
 
@@ -46,6 +46,8 @@ function watch(page: Page): Watch {
   page.on("console", (message) => {
     if (message.type() !== "error") return;
     const from = message.location().url;
+    // The bot check's own widget logs to the console from Cloudflare's origin; that is not the game's doing.
+    if (from.startsWith("https://challenges.cloudflare.com/")) return;
     // The browser logs every 4xx as an error; an allowed refusal's line is not a problem.
     if (message.text().startsWith("Failed to load resource") && from !== "" && [...refused].some((one) => one.endsWith(` ${new URL(from).pathname}`))) return;
     seen.push(`console: ${message.text()} (${from})`);
@@ -57,7 +59,8 @@ function watch(page: Page): Watch {
     seen.push(`failed: ${request.method()} ${request.url()} ${request.failure()?.errorText ?? ""}`);
   });
   page.on("response", (response) => {
-    if (response.status() < 400) return;
+    // Cloudflare's own paths (the bot check's challenge platform) answer for themselves, not for the game.
+    if (response.status() < 400 || new URL(response.url()).pathname.startsWith("/cdn-cgi/")) return;
     const said = answer(response.status(), response.request().method(), response.url());
     if (allowed.has(said)) refused.add(said);
     else seen.push(`refused: ${said}`);
@@ -77,7 +80,9 @@ function watch(page: Page): Watch {
 
 /** A Pixel 7 of its own: cookies and storage apart from every other phone. */
 async function newPhone(browser: Browser): Promise<BrowserContext> {
-  return browser.newContext({ ...devices["Pixel 7"], baseURL: target.baseUrl, ignoreHTTPSErrors: target.local, extraHTTPHeaders: target.headers });
+  const context = await browser.newContext({ ...devices["Pixel 7"], baseURL: target.baseUrl, ignoreHTTPSErrors: target.local });
+  await withAccess(context, process.env, target.baseUrl);
+  return context;
 }
 
 /** The newest code Mailpit holds for the address, read from its API (GET /api/v1/messages). */
@@ -116,6 +121,10 @@ async function closePhone(page: Page): Promise<void> {
   await page.keyboard.press("Escape");
 }
 
+/** Staging's managed bot check refuses an automated browser (R-SERVER-038, R-ACCOUNT-013): true once it did, and the life's later tests do not run. */
+let stoppedAtTheCheck = false;
+const STOPPED = "Staging's bot check refused the automated browser at Begin, by design: the rest of the life is played on the local stack, or on staging by a person.";
+
 test.describe("one new player, played in order on one phone", () => {
   test.describe.configure({ mode: "serial" });
 
@@ -134,6 +143,7 @@ test.describe("one new player, played in order on one phone", () => {
   });
 
   test.beforeEach(() => {
+    test.skip(stoppedAtTheCheck, STOPPED);
     seen.reset();
   });
 
@@ -160,8 +170,18 @@ test.describe("one new player, played in order on one phone", () => {
     await page.getByRole("button", { name: /^Print my page/ }).first().click();
     await page.getByLabel("Username").fill(USERNAME);
     const guest = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/guest");
+    // Staging's bot check may refuse this browser (below); locally the status is still checked.
+    if (!target.local) seen.allow("403 POST /api/guest");
     await page.getByRole("button", { name: /^Begin/ }).click();
     const started = await guest;
+    if (!target.local && started.status() === 403 && (await started.text()).includes('"bot-check"')) {
+      // The game says so on the page, in its own words, and the life goes no further here.
+      await expect(page.getByRole("alert")).toContainText("The quick check did not go through.");
+      await shoot(page, "real-03-bot-check");
+      expect(seen.problems()).toEqual([]);
+      stoppedAtTheCheck = true;
+      test.skip(true, STOPPED);
+    }
     expect(started.status(), `the guest start was refused: ${await started.text()}`).toBe(200);
     await passThePage(page, 60_000);
     await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });

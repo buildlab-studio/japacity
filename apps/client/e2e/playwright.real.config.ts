@@ -28,8 +28,7 @@ export default defineConfig({
     baseURL: target.baseUrl,
     // wrangler serves the local address with its own self-signed certificate; staging's is real.
     ignoreHTTPSErrors: target.local,
-    // Staging's Access headers, when the two variables are set; none locally.
-    extraHTTPHeaders: target.headers,
+    // Staging's Access headers go on by route, to staging's origin alone (withAccess in tools/local/access.ts).
     // A trace keeps every request's headers, so none is written where the Access token travels.
     trace: target.local ? "retain-on-failure" : "off",
     // The world's scene needs WebGL, drawn in software where the machine has no GPU.
