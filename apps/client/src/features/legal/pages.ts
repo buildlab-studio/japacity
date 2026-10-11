@@ -1,5 +1,5 @@
 // The terms of play and the privacy notice: plain pages served beside the game
-// under /legal/, read with no game, no sign-in and no script. Their words live
+// at /terms and /privacy, read with no game, no sign-in and no script. Their words live
 // in the two templates beside this file; who runs the game comes from content's
 // one constant (docs/rules/region.md, "Who runs the game"), so these pages
 // never spell it themselves.
@@ -8,17 +8,17 @@ import { join } from "node:path";
 
 import { OPERATOR, type Operator } from "@japacity/content";
 
+import { LEGAL_TEMPLATES } from "./addresses";
+
+export { LEGAL_TEMPLATES } from "./addresses";
+
 export interface LegalPage {
-  /** Where the page is served, from the site's root. */
+  /** Where the page is served, from the site's root: the clean address every link uses. */
   readonly path: string;
+  /** The built file, at the top of the client's output. The platform serves it at `path`. */
+  readonly file: string;
   readonly html: string;
 }
-
-/** Each page's address and its template, in this folder. */
-export const LEGAL_TEMPLATES = [
-  { path: "/legal/terms.html", template: "terms.html" },
-  { path: "/legal/privacy.html", template: "privacy.html" },
-] as const;
 
 /** The folder of the templates, from the client's root (Vite's `root`). */
 export const TEMPLATE_FOLDER = "src/features/legal";
@@ -39,8 +39,9 @@ export function fillOperator(template: string, operator: Operator = OPERATOR): s
 
 /** Both pages as served, read from the client's root. */
 export function legalPages(clientRoot: string, operator: Operator = OPERATOR): LegalPage[] {
-  return LEGAL_TEMPLATES.map(({ path, template }) => ({
+  return LEGAL_TEMPLATES.map(({ path, file, template }) => ({
     path,
+    file,
     html: fillOperator(readFileSync(join(clientRoot, TEMPLATE_FOLDER, template), "utf8"), operator),
   }));
 }

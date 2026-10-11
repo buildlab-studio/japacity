@@ -5,6 +5,7 @@ import { describe, expect, test } from "vitest";
 
 import { LEGAL_LINKS, PRIVACY_PATH, TERMS_PATH } from "../../shared/ui/LegalLinks";
 import { say } from "../../shared/words/text";
+import { legalRoute } from "./addresses";
 import { fillOperator, LEGAL_TEMPLATES, legalPages } from "./pages";
 
 const CLIENT = join(process.cwd(), "apps/client");
@@ -36,6 +37,23 @@ describe("the two legal pages", () => {
       expect(page.querySelector('meta[name="viewport"]')).not.toBeNull();
       expect(page.querySelectorAll("script, img, iframe, form")).toHaveLength(0);
     }
+  });
+
+  test("[R-REGION-010] given the two pages, when they are built, then each is a file at the top of the client's output named after its clean address", () => {
+    expect(LEGAL_LINKS.map((link) => link.href)).toEqual(["/terms", "/privacy"]);
+    expect(legalPages(CLIENT).map((page) => [page.path, page.file])).toEqual([
+      ["/terms", "terms.html"],
+      ["/privacy", "privacy.html"],
+    ]);
+  });
+
+  test("[R-REGION-010] given the dev server, when a page is asked for, then the clean address serves it and the .html form or a trailing slash goes on to the clean address, as the platform does", () => {
+    for (const { path, file } of LEGAL_TEMPLATES) {
+      expect(legalRoute(path)).toEqual({ serve: path });
+      expect(legalRoute(`/${file}`)).toEqual({ redirect: path });
+      expect(legalRoute(`${path}/`)).toEqual({ redirect: path });
+    }
+    for (const other of ["/", "/official", "/legal/terms.html", "/guides/credits/", "/termsx", "/privacy.htm"]) expect(legalRoute(other)).toBeNull();
   });
 
   test("[R-SHARE-014] given the two pages, when they are read, then each links to the other, back to the game and to the official accounts page", () => {
