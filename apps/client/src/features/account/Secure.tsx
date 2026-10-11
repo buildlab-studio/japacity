@@ -15,6 +15,7 @@ import { countAsk } from "../../shared/analytics/start";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { onGuestOnly } from "../../shared/net/guest";
 import { Button } from "../../shared/ui/Button";
+import { GoogleButton } from "../../shared/ui/GoogleButton";
 import { Sheet } from "../../shared/ui/Sheet";
 import { Wordmark } from "../../shared/ui/Wordmark";
 import { say } from "../../shared/words/text";
@@ -65,7 +66,11 @@ export interface SecureSheetProps {
   agent?: string;
 }
 
-/** R-ACCOUNT-023: Google first, then the emailed code; a passkey waits for the settings once the life is kept. */
+/**
+ * R-ACCOUNT-023: Google first, on Google's own button, then the emailed code; a passkey waits for the settings once the
+ * life is kept. Once kept, the sheet says only that: the kept heading, the one line and its close; the reason, the ways
+ * to keep and Not now are gone.
+ */
 export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, agent }: SecureSheetProps) {
   const earlyWin = useGame((state) => state.earlyWin);
   const [problem, setProblem] = useState<string | null>(given);
@@ -91,9 +96,17 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} title={say("ui.secure.title")} description={reason ?? say("ui.secure.why")} top={<Wordmark ground="light" />}>
+    <Sheet
+      open={open}
+      onOpenChange={onOpenChange}
+      title={say(done ? "ui.secure.done.title" : "ui.secure.title")}
+      {...(done ? {} : { description: reason ?? say("ui.secure.why") })}
+      top={<Wordmark ground="light" />}
+    >
       {done ? (
-        <p role="status">{say("ui.secure.done")}</p>
+        <p role="status" data-secure-kept>
+          {say("ui.secure.done")}
+        </p>
       ) : (
         <div className="flex flex-col gap-4" data-secure-sheet>
           {inApp ? (
@@ -102,9 +115,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
               <OpenInBrowser agent={browser} />
             </div>
           ) : (
-            <Button variant="primary" disabled={busy} onClick={() => void google()}>
-              {say("ui.secure.google")}
-            </Button>
+            <GoogleButton label={say("ui.secure.google")} disabled={busy} onClick={() => void google()} />
           )}
           <div className="flex flex-col gap-2">
             {inApp ? null : <p className="text-sm text-text-2">{say("ui.secure.or")}</p>}

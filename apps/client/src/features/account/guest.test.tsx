@@ -1,5 +1,5 @@
 import type { Id, PlayerView } from "@japacity/sim";
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
@@ -92,6 +92,41 @@ describe("the securing sheet", () => {
     fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.go") }));
     expect(await screen.findByText(say("ui.secure.done"))).toBeDefined();
     expect(account.calls).toEqual(['sendCode("ada@example.test")', 'signInWithCode("ada@example.test","123456")', "view()"]);
+    // kept, the sheet says only that. The kept heading, the one line and the
+    // close; the reason, Google, the email and Not now are gone.
+    const sheet = screen.getByRole("dialog");
+    expect(within(sheet).getByRole("heading", { name: say("ui.secure.done.title") })).toBeDefined();
+    expect(within(sheet).queryByText(say("ui.secure.title"))).toBeNull();
+    expect(within(sheet).queryByText(say("ui.secure.why"))).toBeNull();
+    expect(within(sheet).queryByRole("button", { name: say("ui.secure.google") })).toBeNull();
+    expect(within(sheet).queryByLabelText(say("ui.account.email.label"))).toBeNull();
+    expect(within(sheet).queryByRole("button", { name: say("ui.secure.later") })).toBeNull();
+    expect(within(sheet).getAllByRole("button").map((button) => button.getAttribute("aria-label"))).toEqual([say("ui.report.close")]);
+  });
+
+  test("[R-ACCOUNT-023] given the first-chapter ask, when the life is kept by the emailed code, then the ask's reason goes with the rest and the kept state stands alone", async () => {
+    const account = fakeAccount(me("guest"));
+    await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={say("ui.secure.ask.first-chapter")} agent={PLAIN_CHROME} />);
+    expect(screen.getByText(say("ui.secure.ask.first-chapter"))).toBeDefined();
+    fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.test" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.send") }));
+    fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "123456" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.go") }));
+    expect(await screen.findByText(say("ui.secure.done"))).toBeDefined();
+    expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
+    expect(screen.getByRole("heading", { name: say("ui.secure.done.title") })).toBeDefined();
+  });
+
+  test("[R-ACCOUNT-023] given a guest in the phone's own browser, then Google is offered on Google's own button: the G as Google gives it at the left, one of Google's texts, and the game's voice kept for the sheet", async () => {
+    const account = fakeAccount(me("guest"));
+    await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={PLAIN_CHROME} />);
+    const google = screen.getByRole("button", { name: say("ui.secure.google") });
+    expect(google.getAttribute("data-google-button")).not.toBeNull();
+    expect(google.className).toContain("google-button");
+    expect(google.firstElementChild?.getAttribute("src")).toBe("/brand/google-g.svg");
+    expect(say("ui.secure.google")).toBe("Continue with Google");
+    expect(screen.getByText(say("ui.secure.title"))).toBeDefined();
+    expect(screen.getByText(say("ui.secure.or"))).toBeDefined();
   });
 
   test("[R-ACCOUNT-029] [R-ACCOUNT-023] given the keep-this-life sheet, then the wordmark tops it once, above the sheet's title, its words the game's name", async () => {
