@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img">
+  <title>Japacity</title>
+  <!-- The stamp's ring, open where the arrow leaves. -->
+  <path d="M93.64 44.41A44 44 0 1 1 85.9 24.6" fill="none" stroke="#1c2a5e" stroke-width="6"/>
+  <!-- The danfo yellow disc. -->
+  <circle cx="50" cy="50" r="36" fill="#f2b705"/>
+  <!-- The J, its top an exit arrow. -->
+  <path d="M26 28H62V19L82 34 62 49V62A19 19 0 0 1 24 62V54H36V62A7 7 0 0 0 50 62V40H26Z" fill="#1c2a5e"/>
+</svg>

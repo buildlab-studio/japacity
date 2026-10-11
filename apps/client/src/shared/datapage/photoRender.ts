@@ -18,10 +18,10 @@ const FOV = 18;
 const QUALITIES = [0.9, 0.8, 0.7] as const;
 
 /**
- * The figure drawn to a photo `width` pixels across (`photoWidth`), in the page's photo box's shape, as an image's
- * data address that fits `PHOTO_MAX_CHARS`; null when it cannot be drawn or never fits.
+ * The figure, as made or in a style, drawn to a photo `width` pixels across (`photoWidth`), in the page's photo box's
+ * shape, as an image's data address that fits `PHOTO_MAX_CHARS`; null when it cannot be drawn or never fits.
  */
-export async function renderPhoto(file: string, style: LookStyle, width: number): Promise<string | null> {
+export async function renderPhoto(file: string, style: LookStyle | undefined, width: number): Promise<string | null> {
   const height = photoHeight(width);
   const manifest = await loadManifest();
   const model = await loadModel(manifest, file, (key) => text[key]);

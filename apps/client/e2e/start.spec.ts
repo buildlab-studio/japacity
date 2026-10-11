@@ -122,7 +122,9 @@ test("[R-ACCOUNT-029] [R-ACCOUNT-021] Play leads to the age screen, the three-sc
   await page.locator("[data-front-scene] canvas").waitFor({ timeout: 15_000 }).catch(() => undefined);
   await page.waitForTimeout(800);
   await expect(page.getByRole("button", { name: "I already have a life here" })).toBeVisible();
-  await expect(page.locator("[data-start-name]")).toHaveText("Japacity");
+  // No title over the figure on the door's first screen: neither the name nor the wordmark.
+  await expect(page.getByRole("img", { name: "Japacity" })).toHaveCount(0);
+  await expect(page.getByText("Japacity", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("combobox", { name: "Day" })).toHaveCount(0);
   await shoot(page, "screen", info.project.name);
 
@@ -206,6 +208,9 @@ test("[R-ACCOUNT-029] I already have a life here shows the ways back in, Google 
   await expect(page.getByLabel("Email")).toBeVisible();
   await expect(page.getByRole("button", { name: "Use a passkey" })).toBeVisible();
   await expect(page.getByRole("combobox", { name: "Day" })).toHaveCount(0);
+  // The wordmark tops the ways back in, once.
+  await expect(page.getByRole("img", { name: "Japacity" })).toHaveCount(1);
+  await expect(page.getByRole("img", { name: "Japacity" })).toBeVisible();
   await shoot(page, "returning", info.project.name);
   expect(faked.sent.some((request) => request.route === "POST /api/age")).toBe(false);
 

@@ -95,19 +95,20 @@ export function Gate({ look, children, mark, over, style }: GateProps) {
       </div>
       {/* "Your page" keeps the compound dimmed under the same scrim as the screens before it (R-PROLOGUE-016). */}
       {backdropOf(mark) === "compound" ? <div className="band-2 pointer-events-none absolute inset-0" style={{ opacity: SCRIM, outline: "none" }} data-scrim aria-hidden /> : null}
-      {over === undefined ? null : <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col px-3 pt-[max(10px,env(safe-area-inset-top))]">{over}</div>}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex max-h-full flex-col justify-end">{children}</div>
+      {over === undefined ? null : <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col px-3 pt-[max(10px,env(safe-area-inset-top))]" data-gate-over>{over}</div>}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex max-h-full flex-col justify-end" data-gate-foot>{children}</div>
     </div>
   );
 }
 
 /**
  * The sheet over the compound, or under the figure on its turntable: one panel rising from the bottom, at most half the
- * screen, its body scrolling inside it, and the one main button at its foot (the design's panel).
+ * screen, its body scrolling inside it, and the one main button at its foot (the design's panel). `low` holds it to
+ * about a third, where the page docks over it and the figure's head must stay in view (R-PROLOGUE-014).
  */
-export function GateSheet({ children, foot, mark, label }: { children: ReactNode; foot?: ReactNode; mark?: string; label?: string }) {
+export function GateSheet({ children, foot, mark, label, low = false }: { children: ReactNode; foot?: ReactNode; mark?: string; label?: string; low?: boolean }) {
   return (
-    <section aria-label={label} className="panel rise pointer-events-auto mx-2 mb-2 flex max-h-[50dvh] min-h-0 flex-col overflow-hidden pb-[max(10px,env(safe-area-inset-bottom))]" data-gate-sheet={mark ?? ""}>
+    <section aria-label={label} className={`panel rise pointer-events-auto mx-2 mb-2 flex ${low ? "max-h-[34dvh]" : "max-h-[50dvh]"} min-h-0 flex-col overflow-hidden pb-[max(10px,env(safe-area-inset-bottom))]`} data-gate-sheet={mark ?? ""}>
       <div className={`min-h-0 flex-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden overflow-y-auto px-4 pt-4 ${foot === undefined ? "pb-2" : ""}`}>{children}</div>
       {foot === undefined ? null : <div className="shrink-0 px-4 pt-3">{foot}</div>}
     </section>

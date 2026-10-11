@@ -1,5 +1,5 @@
-// The start screen online (R-ACCOUNT-029): over the compound as the door draws it, the game's name, one line
-// about the game (R-TEXT-006's line), Play, and "I already have a life here" for an account kept before.
+// The start screen online (R-ACCOUNT-029): over the compound as the door draws it, with no title over the figure,
+// one line about the game (R-TEXT-006's line), Play, and "I already have a life here" for an account kept before.
 import { say } from "../../shared/words/text";
 
 export interface StartScreenProps {

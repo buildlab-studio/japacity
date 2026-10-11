@@ -3,13 +3,15 @@
 import { act, fireEvent, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { engineView } from "../../shared/testing/fixtures";
+import { keepPerson } from "../../authority/person";
+import { engineView, newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { PageHandover, TURN_MS } from "./PrologueView";
+import { PageHandover, PrologueView, TURN_MS } from "./PrologueView";
 
 afterEach(() => {
   vi.useRealTimers();
+  localStorage.clear();
 });
 
 describe("the page as the handover", () => {
@@ -26,5 +28,29 @@ describe("the page as the handover", () => {
     expect(done).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: say("ui.prologue.start") }));
     expect(done).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("the page while the years go by", () => {
+  test("[R-PROLOGUE-014] given a tile's life whose years are going by, then the page keeps its size and docks at the foot, just above the sheet, never at the top over the figure's face", async () => {
+    keepPerson({ look: "chr_ada", name: "Ada", archetype: "developer" });
+    await renderWithView(<PrologueView />, newGame("scenario.prologue").view());
+    expect(document.querySelector("[data-page-running]")).not.toBeNull();
+    const page = document.querySelector("[data-page]");
+    const sheet = document.querySelector('[data-gate-sheet="years"]');
+    expect(page).not.toBeNull();
+    // At the foot of the screen, with the sheet, and nothing over the top of the scene.
+    expect(page?.closest("[data-gate-foot]")).not.toBeNull();
+    expect(document.querySelector("[data-gate-over]")).toBeNull();
+    // Just above the sheet: the docked page is the sheet's elder sibling.
+    expect(page?.closest("[data-page-docked]")?.nextElementSibling).toBe(sheet);
+    // The sheet under it is held to about a third of the screen, so the page never climbs over the figure's head.
+    expect(sheet?.className).toContain("max-h-[34dvh]");
+  });
+
+  test("[R-PROLOGUE-014] given the handover, then the page stands at the top under the header as before", async () => {
+    await renderWithView(<PageHandover onDone={() => undefined} />, engineView());
+    expect(document.querySelector("[data-gate-over] [data-page]")).not.toBeNull();
+    expect(document.querySelector("[data-page-docked]")).toBeNull();
   });
 });

@@ -71,8 +71,8 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
     ready: say("prologue.page.ready.figure", { percent }),
     strip: { district: districtOf(view), years: yearsOf(months), months: months - yearsOf(months) * 12, percent },
     photo: lookOf(gateLook(person?.look))?.picture ?? "",
-    // The player's own colours, and the photo drawn in them, kept with the person (R-PROLOGUE-015).
-    ...(person?.style === undefined ? {} : { wear: { look: person.look, style: person.style, ...(person.photo === undefined ? {} : { photo: person.photo }), ...(person.photoPx === undefined ? {} : { photoPx: person.photoPx }) } }),
+    // The player's own colours, or the look as made, and the photo drawn in them, kept with the person (R-PROLOGUE-015).
+    ...(person === null ? {} : { wear: { look: person.look, ...(person.style === undefined ? {} : { style: person.style }), ...(person.photo === undefined ? {} : { photo: person.photo }), ...(person.photoPx === undefined ? {} : { photoPx: person.photoPx }) } }),
     stamps: stampsOf(view),
   };
 }

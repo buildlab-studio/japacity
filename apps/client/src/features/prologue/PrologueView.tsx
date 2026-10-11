@@ -412,17 +412,22 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   const step = handover ? firstStep(view) : null;
   const naira = view.pockets.NGN.bank + view.pockets.NGN.cash;
   // The page after Begin reads as the door's page screen (the design's layout): the header on the band, the data page under it.
-  const over: ReactNode = (
+  // While the years go by the page keeps its size and docks just above the sheet instead, so the face and the yard stay in
+  // view and only the legs are covered; the handover keeps the page at the top.
+  const over: ReactNode = handover ? (
     <>
-      {handover ? (
-        <div className="band-2 pointer-events-auto -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(12px,env(safe-area-inset-top))] pb-2">
-          <DoorHead title={say("prologue.door.page.title")} at={2} count={3} onBack={null} onShuffle={null} onSkip={null} />
-        </div>
-      ) : null}
+      <div className="band-2 pointer-events-auto -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(12px,env(safe-area-inset-top))] pb-2">
+        <DoorHead title={say("prologue.door.page.title")} at={2} count={3} onBack={null} onShuffle={null} onSkip={null} />
+      </div>
       <div className="pointer-events-auto mx-auto mt-2 w-full max-w-[420px]">
         <DataPage page={page} print />
       </div>
     </>
+  ) : undefined;
+  const docked: ReactNode = handover ? null : (
+    <div className="pointer-events-auto mx-auto mb-2 w-full max-w-[420px] shrink-0 px-3" data-page-docked>
+      <DataPage page={page} print />
+    </div>
   );
   const foot = handover ? (
     <>
@@ -439,8 +444,9 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   ) : undefined;
   return (
     <div onClick={handover ? finish : undefined} data-page-handover={handover ? "" : undefined} data-page-running={handover ? undefined : ""} data-v={view.v}>
-      <Gate mark={handover ? "handover" : "years"} over={over}>
-        <GateSheet mark={handover ? "handover" : "years"} label={say("prologue.door.page.title")} {...(foot === undefined ? {} : { foot })}>
+      <Gate mark={handover ? "handover" : "years"} {...(over === undefined ? {} : { over })}>
+        {docked}
+        <GateSheet mark={handover ? "handover" : "years"} label={say("prologue.door.page.title")} low={!handover} {...(foot === undefined ? {} : { foot })}>
           <div className="flex flex-col" data-prologue-handover={handover ? "" : undefined}>
             {/* The page over the sheet already prints the name, the age and the path (the design's page screen); the sheet carries the rest. */}
             {handover && person !== null && person.name !== "" ? null : (
