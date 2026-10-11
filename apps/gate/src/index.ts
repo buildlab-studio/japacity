@@ -38,8 +38,9 @@ const INVITE = /^\/invite\/([^/]+)\/?$/;
 
 /**
  * The pages anyone may read before launch: the terms, the privacy notice
- * (and their .html forms, which the game sends on to the clean path), the official accounts and
- * the credits page the terms link to. Each is a plain page; the game's code and routes stay shut.
+ * (and their .html forms, which the game sends on to the clean path) and the official accounts.
+ * Each is a plain page; the game's code and routes stay shut. The credits are a screen inside the
+ * game, not a page, and the terms name the repository for the full list of licences.
  */
 const PUBLIC = new Set(["/terms", "/terms.html", "/privacy", "/privacy.html", "/official"]);
 
