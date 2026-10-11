@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { checkInvariants } from "../engine/invariants";
 import { registry } from "../kinds";
-import { freeSlots } from "./turn.logic";
+import { freeHalfDays, freeSlots } from "./turn.logic";
 import { stepWith } from "../engine/step";
 import type { BaseEvent, Command, Ctx, Effect, Rejection, State } from "../engine/types";
 import { miniContent } from "../testing/miniContent";
@@ -50,9 +50,9 @@ function sendWith(kinds: ReturnType<typeof registry>, state: State, command: Loo
 }
 
 describe("turns", () => {
-  test("[R-TURN-001] given a new character, when the state is built, then 24 turns are banked and the month is 0", () => {
+  test("[R-TURN-001] [R-TURN-010] given a new character, when the state is built, then 24 turns are banked, the month is 0 and no time is spent", () => {
     const game = start();
-    expect(game.state.turn).toEqual({ month: 0, banked: tuning.start, ended: false, report: null, locks: [] });
+    expect(game.state.turn).toEqual({ month: 0, banked: tuning.start, spent: 0, ended: false, report: null, locks: [] });
     expect(tuning.start).toBe(24);
   });
 
@@ -80,12 +80,48 @@ describe("turns", () => {
     expect(game.state.turn.month).toBe(2);
   });
 
-  test("[R-TURN-003] given no turn banked, when the turn is ended, then it is rejected with no-turns", () => {
+  test("[R-TURN-003] given no turn banked, when the turn is ended, then the month still turns, since the bank gates nothing (decision 0034)", () => {
     const game = start();
     for (let i = 0; i < tuning.start; i += 1) game.endTurn();
     expect(game.state.turn.banked).toBe(0);
-    game.expectRejected({ type: "turn/end", slots: [] }, "no-turns");
-    expect(game.state.turn.month).toBe(tuning.start);
+    game.endTurn();
+    expect(game.state.turn.banked).toBe(0);
+    expect(game.state.turn.month).toBe(tuning.start + 1);
+  });
+
+  test("[R-TURN-010] given a life with no job, when the month's free time is read, then it is the whole month, and with a job what the job leaves", () => {
+    const game = start();
+    expect(freeHalfDays(game.state, miniContent)).toBe(tuning.halfDays.noJob);
+    expect(tuning.halfDays.noJob).toBe(60);
+    expect(tuning.halfDays.withJob).toBe(20);
+  });
+
+  test("[R-TURN-010] given time spent this month, when the turn is ended, then the new month starts with none spent", () => {
+    const game = start();
+    const result = sendWith(
+      registryWithEffectCommand({ type: "turn/spend-days", halfDays: 3 }),
+      game.state,
+      { type: "offer/choose", offer: "x", choice: "y" },
+      game.tick,
+    );
+    if (!result.ok) throw new Error(result.detail);
+    expect(result.state.turn.spent).toBe(3);
+    expect(result.events).toContainEqual({ type: "turn/days-spent", halfDays: 3, spent: 3 });
+    game.state = result.state;
+    game.endTurn();
+    expect(game.state.turn.spent).toBe(0);
+  });
+
+  test("[R-TURN-010] given time spent up to the month, when more is spent, then it never passes the month's free time", () => {
+    const game = start();
+    const spend = (state: State, halfDays: number) => {
+      const result = sendWith(registryWithEffectCommand({ type: "turn/spend-days", halfDays }), state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);
+      if (!result.ok) throw new Error(result.detail);
+      return result.state;
+    };
+    const state = spend(spend(game.state, 59), 5);
+    expect(state.turn.spent).toBe(tuning.halfDays.noJob);
+    expect(checkInvariants(state, miniContent)).toEqual([]);
   });
 
   test("[R-TURN-004] given a part-spent bank, when the effect turn/refill is carried out, then the bank is full", () => {

@@ -29,6 +29,7 @@ export const ActivityEntrySchema = z.strictObject({
   tiers: z.array(z.strictObject({ min: z.strictObject({ quality: idOf("quality"), value: z.int() }), pay: MoneySchema })).exactOptional(),
   once: z.literal(true).exactOptional(),
   when: z.enum(["now", "month"]).exactOptional(),
+  halfDays: CountSchema.exactOptional(),
   purchase: z.literal(true).exactOptional(),
   onMonth: z.array(z.strictObject({ at: z.int().positive(), repeat: z.literal(true).exactOptional(), effects: z.array(EffectSchema) })).exactOptional(),
   exam: z.strictObject({ setpiece: idOf("setpiece"), pass: z.int().positive(), effects: z.array(EffectSchema) }).exactOptional(),

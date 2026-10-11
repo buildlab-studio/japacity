@@ -4,6 +4,8 @@
 // often as money allows; any other now-act once a month.
 import type { ActivityEntry, Id } from "@japacity/sim";
 
+import { NOW_HALF_DAYS } from "./activity.days.data";
+
 type Now = "once" | "purchase";
 
 const NOW_ACTS: Record<string, Now> = {
@@ -88,7 +90,11 @@ export function withWhen(table: Record<Id<"activity">, ActivityEntry>): Record<I
       continue;
     }
     const now = NOW_ACTS[id];
-    sorted[id] = now === undefined ? { ...entry, when: "month" } : { ...entry, when: "now", ...(now === "purchase" ? { purchase: true as const } : {}) };
+    // A purchase spends no time; any other now-act spends its half-days from the table, a morning without one (R-ACTIVITY-018).
+    sorted[id] =
+      now === undefined
+        ? { ...entry, when: "month" }
+        : { ...entry, when: "now", ...(now === "purchase" ? { purchase: true as const } : { halfDays: NOW_HALF_DAYS[id] ?? 1 }) };
   }
   return sorted;
 }

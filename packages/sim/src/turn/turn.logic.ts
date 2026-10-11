@@ -1,4 +1,5 @@
-// Turns: docs/rules/turn.md. A turn is one month, and turns are banked.
+// Turns: docs/rules/turn.md. A turn is one month. Since decision 0034 the month is lived: now-acts spend its
+// free days (R-TURN-010) and the bank gates nothing (it goes at the online step).
 import { reject } from "../engine/reject";
 import type { RegisteredKind } from "../engine/kind";
 import { turnInProgress } from "../engine/kind";
@@ -33,11 +34,16 @@ export function freeSlots(state: State, content: Content): number {
   return Math.max(0, (burnt ? base - 1 : base) - locked);
 }
 
-/** Validates `turn/end` before any phase runs (R-TURN-003, R-SETPIECE-002, R-TURN-006). */
+/** The month's free time in half-days (R-TURN-010): the whole month with no job, what a job leaves with one. */
+export function freeHalfDays(state: State, content: Content): number {
+  const { halfDays } = content.tuning.turn;
+  return state.activity.job === null ? halfDays.noJob : halfDays.withJob;
+}
+
+/** Validates `turn/end` before any phase runs (R-SETPIECE-002, R-TURN-006). The bank no longer gates it (R-TURN-003 as amended by decision 0034). */
 function validateEnd(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "turn/end") throw new Error(`The turn kind cannot validate ${command.type}.`);
   const { state, content } = ctx;
-  if (state.turn.banked < 1) return reject("no-turns", "No turn is banked.");
   if (state.setpiece.open !== null) return reject("setpiece-open", "Finish the open set piece first.");
   if (!Array.isArray(command.slots)) return reject("not-legal", "The slots must be a list.");
   const allowed = freeSlots(state, content);
@@ -61,7 +67,7 @@ function grant(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 
 function spend(ctx: Ctx): BaseEvent[] {
   const { month, banked, locks } = ctx.state.turn;
-  const events: TurnEvent[] = [{ type: "turn/spent", month: month + 1, banked: banked - 1 }];
+  const events: TurnEvent[] = [{ type: "turn/spent", month: month + 1, banked: Math.max(0, banked - 1) }];
   // A lock holds through its last month and is dropped as the next one begins.
   const spent = locks.filter((lock) => lock.untilMonth < month + 1);
   if (spent.length > 0) events.push({ type: "turn/unlocked", why: spent.map((lock) => lock.why) });
@@ -92,7 +98,10 @@ function evolve(slice: TurnSlice, event: TurnEvent): TurnSlice {
     case "turn/granted":
       return { ...slice, banked: event.banked };
     case "turn/spent":
-      return { ...slice, month: event.month, banked: event.banked };
+      // The new month starts with no days spent (R-TURN-010).
+      return { ...slice, month: event.month, banked: event.banked, spent: 0 };
+    case "turn/days-spent":
+      return { ...slice, spent: event.spent };
     case "turn/refilled":
       return { ...slice, banked: event.banked };
     case "turn/finished":
@@ -113,12 +122,22 @@ function evolve(slice: TurnSlice, event: TurnEvent): TurnSlice {
 export const turnKind: RegisteredKind<TurnSlice, TurnEvent> = {
   kind: "turn",
   // R-TURN-001.
-  initial: (_scenario, content) => ({ month: 0, banked: content.tuning.turn.start, ended: false, report: null, locks: [] }),
+  initial: (_scenario, content) => ({ month: 0, banked: content.tuning.turn.start, spent: 0, ended: false, report: null, locks: [] }),
   commands: {
     "turn/end": validateEnd,
     "turns/grant": grant,
   },
   effects: {
+    // R-TURN-010: a now-act spends free time, never past the month's; a spend past it is simply the month lived.
+    "turn/spend-days": (ctx, effect) => {
+      if (effect.type !== "turn/spend-days") throw new Error(`The turn kind cannot spend days from ${effect.type}.`);
+      if (!(effect.halfDays > 0)) return [];
+      const free = freeHalfDays(ctx.state, ctx.content);
+      const spent = Math.min(free, ctx.state.turn.spent + effect.halfDays);
+      if (spent === ctx.state.turn.spent) return [];
+      const event: TurnEvent = { type: "turn/days-spent", halfDays: spent - ctx.state.turn.spent, spent };
+      return [event];
+    },
     // R-TURN-004.
     "turn/refill": (ctx) => {
       const event: TurnEvent = { type: "turn/refilled", banked: ctx.content.tuning.turn.cap };
@@ -152,6 +171,7 @@ export const turnKind: RegisteredKind<TurnSlice, TurnEvent> = {
         return [{ key: "line.turn.unlocked", params: { why: event.why.join(", ") }, tone: "good", attention: false, counts: [] }];
       case "turn/granted":
       case "turn/spent":
+      case "turn/days-spent":
       case "turn/refilled":
       case "turn/finished":
       case "turn/ended":
@@ -164,8 +184,9 @@ export const turnKind: RegisteredKind<TurnSlice, TurnEvent> = {
   },
   invariants(state) {
     const problems: string[] = [];
-    const { month, report } = state.turn;
+    const { month, report, spent } = state.turn;
     if (!Number.isSafeInteger(month) || month < 0) problems.push(`The month is ${String(month)}, not a whole number from 0.`);
+    if (!Number.isSafeInteger(spent) || spent < 0 || spent > 62) problems.push(`The half-days spent this month are ${String(spent)}, not a whole number within a month.`);
     if (report !== null && report.month !== month) {
       problems.push(`The stored report is for month ${String(report.month)}, but the month is ${String(month)}.`);
     }
@@ -177,6 +198,7 @@ export const turnKind: RegisteredKind<TurnSlice, TurnEvent> = {
     month: state.turn.month,
     ended: state.turn.ended,
     turns: { banked: state.turn.banked, cap: content.tuning.turn.cap },
+    halfDays: { spent: state.turn.spent, free: freeHalfDays(state, content) },
     locks: activeLocks(state.turn.locks, state.turn.month),
     freeSlots: freeSlots(state, content),
     report: state.turn.report,

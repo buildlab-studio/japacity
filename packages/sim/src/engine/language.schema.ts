@@ -360,6 +360,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("goal/open"), goal: idOf("goal") }),
   z.strictObject({ type: z.literal("goal/done"), goal: idOf("goal") }),
   z.strictObject({ type: z.literal("turn/refill") }),
+  z.strictObject({ type: z.literal("turn/spend-days"), halfDays: CountSchema }),
   z.strictObject({ type: z.literal("turn/lock"), slots: CountSchema, months: z.int().positive(), why: z.string().min(1) }),
   z.strictObject({ type: z.literal("turn/finish") }),
   z.strictObject({ type: z.literal("home/move"), place: HomePlaceSchema }),
@@ -390,7 +391,15 @@ export type TermSpecMatches = Proof<Same<z.infer<typeof TermSpecSchema>, TermSpe
 // ---------------------------------------------------------------------------
 
 export const TuningSchema = z.strictObject({
-  turn: z.strictObject({ cap: CountSchema, start: CountSchema, freeSlots: CountSchema, freeSlotsNoJob: CountSchema, maxLocked: CountSchema, quietAskCap: CountSchema }),
+  turn: z.strictObject({
+    cap: CountSchema,
+    start: CountSchema,
+    freeSlots: CountSchema,
+    freeSlotsNoJob: CountSchema,
+    maxLocked: CountSchema,
+    quietAskCap: CountSchema,
+    halfDays: z.strictObject({ noJob: CountSchema, withJob: CountSchema }),
+  }),
   quality: z.strictObject({
     wellbeingRest: CountSchema,
     wellbeingDriftTo: CountSchema,

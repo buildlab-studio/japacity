@@ -16,6 +16,8 @@ export const tuning: Tuning = {
     maxLocked: 2,
     // world.md R-WORLD-028: an ask abroad that may cost more than £50 stops an Until news run.
     quietAskCap: pounds(50),
+    // R-TURN-010 (decision 0034): a life with no job lives the whole month by hand; a job takes its days and leaves ten.
+    halfDays: { noJob: 60, withJob: 20 },
   },
 
   // quality.md, and activity.md for the hiring figures.

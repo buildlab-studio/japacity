@@ -379,6 +379,8 @@ export type Effect =
   | { type: "goal/done"; goal: Id<"goal"> }
   // turn
   | { type: "turn/refill" }
+  /** A now-act spends free time of the month, in half-days (R-TURN-010, R-ACTIVITY-018). */
+  | { type: "turn/spend-days"; halfDays: number }
   /** Locks free slots for some months (R-TURN-009). */
   | { type: "turn/lock"; slots: number; months: number; why: string }
   /** The one final ending: the road's `lost` (R-ROAD-008). Departure no longer ends the life. */
@@ -445,6 +447,8 @@ export interface ActivityEntry {
   once?: true;
   /** When it answers (docs/rules/activity.md R-ACTIVITY-015): `now` runs at once by `activity/now`, `month` stays a slot pick. Missing: `month`. */
   when?: "now" | "month";
+  /** The month's free time a now-act spends, in half-days (R-ACTIVITY-018): 1 a morning, 2 a day, 4 a weekend, 10 a week. Missing: a morning for a now-act, none for a purchase or a month-act. */
+  halfDays?: number;
   /** A now-act that is a purchase runs as often as money allows; any other now-act once a month (R-ACTIVITY-015). Missing: no. */
   purchase?: true;
   /** Effects applied in the month the activity fills a slot for the `at`th time, and every `at`th time with `repeat` (R-ACTIVITY-013). Missing: none. */
@@ -1138,7 +1142,16 @@ export interface ScenarioEntry {
 /** Numbers that are rules more than entries. Each is named in a rule page. */
 export interface Tuning {
   /** `quietAskCap`: in pence; an ask that may cost more than this stays news on an Until news run (docs/rules/world.md R-WORLD-028). */
-  turn: { cap: number; start: number; freeSlots: number; freeSlotsNoJob: number; maxLocked: number; quietAskCap: number };
+  turn: {
+    cap: number;
+    start: number;
+    freeSlots: number;
+    freeSlotsNoJob: number;
+    maxLocked: number;
+    quietAskCap: number;
+    /** The month's free time in half-days (R-TURN-010): the whole month lived by hand with no job; a job takes its own days and leaves the rest. */
+    halfDays: { noJob: number; withJob: number };
+  };
   quality: {
     wellbeingRest: number;
     wellbeingDriftTo: number;
@@ -1482,6 +1495,8 @@ export interface SlotLock {
 export interface TurnSlice {
   month: number;
   banked: number;
+  /** The month's free time spent by now-acts so far, in half-days (R-TURN-010, decision 0034). */
+  spent: number;
   /** True once the character has left. Only `turns/grant` is accepted after that. */
   ended: boolean;
   report: TurnReport | null;
@@ -2155,6 +2170,8 @@ export interface PlayerView {
   month: number;
   ended: boolean;
   turns: { banked: number; cap: number };
+  /** The month's free time in half-days: spent so far and the month's total (R-TURN-010). */
+  halfDays: { spent: number; free: number };
   /** Locks on free slots now, with their reasons (R-TURN-009). */
   locks: SlotLock[];
   japacity: { percent: number | null; route: Id<"route"> | null };

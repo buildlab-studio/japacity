@@ -130,6 +130,18 @@ describe("when an act answers", () => {
 });
 
 describe("a now-act", () => {
+  test("[R-ACTIVITY-018] [R-TURN-010] given the month in hand, when a ticket is bought and the motor park is asked, then the ticket spends no time and asking spends a morning, told in the view", () => {
+    const game = ada();
+    expect(game.view().halfDays).toEqual({ spent: 0, free: content.tuning.turn.halfDays.noJob });
+    now(game, LOTTO, "1");
+    expect(game.state.turn.spent).toBe(0);
+    const asked = now(game, ASK_AROUND);
+    expect(asked.events).toContainEqual({ type: "turn/days-spent", halfDays: content.activity[ASK_AROUND]?.halfDays, spent: 1 });
+    expect(game.view().halfDays).toEqual({ spent: 1, free: content.tuning.turn.halfDays.noJob });
+    game.endTurn();
+    expect(game.state.turn.spent).toBe(0);
+  });
+
   test("[R-ACTIVITY-015] [R-LUCK-005] given the kiosk, when a ticket is bought now, then the slip is paid now from cash and said by the kiosk, no ticket is drawn yet, and the draw lands as the month ends", () => {
     const game = ada();
     const cash = game.state.wallet.pockets.NGN.cash;

@@ -939,6 +939,8 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const events = record(ctx, { type: "activity/now-played", activity: entry.id, param: pick.param });
   const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
   payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
+  // R-ACTIVITY-018 (decision 0034): the act spends its time of the month, a morning without a figure; a purchase spends none.
+  if (entry.purchase !== true) ctx.apply([{ type: "turn/spend-days", halfDays: entry.halfDays ?? 1 }], cause);
   if (!DRAWN_LATER.includes(entry.id)) events.push(...runById(ctx, entry, pick, cause));
   ctx.apply(
     entry.effects.filter((effect) => !LATER_EFFECTS.includes(effect.type)),

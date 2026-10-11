@@ -300,7 +300,7 @@ export const miniContent: Content = {
     },
   },
   tuning: {
-    turn: { cap: 24, start: 24, freeSlots: 2, freeSlotsNoJob: 3, maxLocked: 2, quietAskCap: 5000 },
+    turn: { cap: 24, start: 24, freeSlots: 2, freeSlotsNoJob: 3, maxLocked: 2, quietAskCap: 5000, halfDays: { noJob: 60, withJob: 20 } },
     quality: {
       wellbeingRest: 12,
       wellbeingDriftTo: 60,
