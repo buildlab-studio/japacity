@@ -52,9 +52,28 @@ export const onlineText: Record<string, string> = {
   "ui.clock.minutes": "{minutes} min",
   "ui.clock.under-minute": "under a minute",
 
-  // The start screen online (R-ACCOUNT-029): the line under the game's name is ui.life.intro (R-TEXT-006)
+  // The start screen online (R-ACCOUNT-029): a hook, the whole game in three steps, then Play
   "ui.account.start.play": "Play",
+  "ui.account.start.play.then": "Free · no sign-up",
   "ui.account.start.returning": "I already have a life here",
+  "ui.account.start.steps": "How it goes",
+  "ui.account.start.step.hustle": "Hustle",
+  "ui.account.start.step.papers": "Papers",
+  "ui.account.start.step.fly": "Fly",
+  // The start screen's hook (R-TEXT-006, R-ACCOUNT-031): one of three lines, two rows each, picked once per visit.
+  // The first is the owner's pick; the second answers it for those who stay.
+  "ui.wink.start.1.a": "Last one out,",
+  "ui.wink.start.1.b": "off the light.",
+  "ui.wink.start.2.a": "Not going?",
+  "ui.wink.start.2.b": "Keep the light on.",
+  "ui.wink.start.3.a": "Japa is not by force.",
+  "ui.wink.start.3.b": "How ready are you?",
+  // The two lights over the start screen (R-ACCOUNT-031): a picture of everyone, never a task.
+  "ui.lights.home": "Home",
+  "ui.lights.abroad": "Abroad",
+  "ui.lights.everyone": "Everyone playing, now",
+  "ui.lights.said": "{home} lives at home, {abroad} abroad",
+  "ui.lights.unsaid": "The two lights, home and abroad",
   "ui.account.back": "Back",
 
   // The age screen (R-ACCOUNT-012)

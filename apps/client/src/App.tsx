@@ -12,6 +12,7 @@ import { TroubleCard, TroubleFace } from "./shared/ui/Trouble";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { AccountGate } from "./features/account/AccountGate";
+import { canDraw } from "./shared/frontdoor/Gate";
 import { AgentSheets } from "./features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
 import { GuestReminder, SecureAsk } from "./features/account/Secure";
@@ -51,6 +52,23 @@ import { useScreenCount } from "./useScreenCount";
 
 /** R-WORLD-024: the old month page, its own chunk, fetched only when `?classic` asks for it. */
 const Classic = lazy(() => import("./Classic"));
+const StartCity = lazy(() => import("./features/map/StartCity"));
+
+/** Whether WebGL draws here, asked once: each ask makes a context. */
+let drawsHere: boolean | null = null;
+function draws(): boolean {
+  drawsHere ??= canDraw();
+  return drawsHere;
+}
+
+/** The live city behind the start screen (account.md R-ACCOUNT-029), loaded apart from the first screen's code. */
+function StartCityBehind() {
+  return (
+    <Suspense fallback={null}>
+      <StartCity />
+    </Suspense>
+  );
+}
 
 /** R-MODERATION-012: the admin page, its own chunk, fetched only at /admin, so a player never downloads it. */
 const AdminRoute = lazy(() => import("./features/admin/AdminRoute").then((admin) => ({ default: admin.AdminRoute })));
@@ -185,7 +203,8 @@ function Screen() {
   useScreenCount(choosingLife ? "scenario" : view !== null && view.prologue !== null ? "prologue" : view?.place.where === "road" ? "road" : null);
   if (failed !== null) return <p className="p-4 text-bad">{say("ui.failed", { why: failed })}</p>;
   // Online and signed out: the start screen, the age screen, then the door, whose Begin makes the guest life (R-ACCOUNT-029).
-  if (signedOut) return <AccountGate door={(guest) => <ScenarioView guest={guest} />} />;
+  // The live city stands behind it, as designed, where WebGL draws; the compound comes back at the door.
+  if (signedOut) return <AccountGate door={(guest) => <ScenarioView guest={guest} />} {...(draws() ? { behind: <StartCityBehind /> } : {})} />;
   if (choosingLife) return <ScenarioView />;
   if (view === null) return <Opening />;
   if (view.prologue !== null) return <PrologueView />;

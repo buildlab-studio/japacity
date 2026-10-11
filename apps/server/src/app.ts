@@ -14,6 +14,7 @@ import { notifyRoutes } from "./routes/notify";
 import { placeRoutes } from "./routes/place";
 import { viewRoute } from "./routes/view";
 import { worldRoute } from "./routes/world";
+import { lightsRoute } from "./routes/lights";
 import { adminRoutes } from "./routes/admin";
 import { switchRoutes } from "./routes/admin-switches";
 import { adminAnalyticsRoutes } from "./routes/admin-analytics";
@@ -56,6 +57,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", commandRoute(deps));
   app.route("/", viewRoute(deps));
   app.route("/", worldRoute(deps));
+  app.route("/", lightsRoute(deps));
   app.route("/", characterRoute(deps));
   app.route("/", placeRoutes(deps));
   app.route("/", notifyRoutes(deps));

@@ -270,9 +270,12 @@ describe("the run through the front door", () => {
     expect(over.children[0]?.textContent).toBe(name);
     expect(over.children[1]?.textContent).toBe(say("ui.door.caption", { path: say(`prologue.archetype.${ARCHETYPES[0]!.id}.name`), age: say("ui.profile.age", { years: startYearFor(ARCHETYPES[0]!, 0) }) }));
     expect(document.querySelector("[data-stand-drag]")?.textContent).toBe(say("prologue.door.drag"));
-    // The question is the header's title; the one line about the game stands in the sheet (R-TEXT-006).
+    // The question is the header's title. offline the sheet opens with the start
+    // screen's hook and three steps, a line and not a second heading, where the sentence about the game stood.
     expect(screen.getByRole("heading", { name: say("ui.life.title") }).closest("[data-door-progress]")).not.toBeNull();
-    expect(document.querySelector("[data-gate-sheet] [data-door-intro]")?.textContent).toBe(say("ui.life.intro"));
+    expect(document.querySelector("[data-gate-sheet] [data-door-intro] p[data-start-hook]")).not.toBeNull();
+    expect(document.querySelector("[data-gate-sheet] [data-door-intro] [data-start-steps]")).not.toBeNull();
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     fireEvent.click(next(say("ui.door.next")));
     expect(document.querySelector("[data-gate] [data-turntable]")).not.toBeNull();
     fireEvent.click(next(say("prologue.door.print")));
