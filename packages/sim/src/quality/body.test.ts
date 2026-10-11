@@ -51,7 +51,7 @@ describe("the body", () => {
     expect(energy).toBeLessThan(body.lowBelow);
     const turned = game.endTurn();
     const energyMoves = turned.events.filter((event) => event.type === "quality/changed" && (event as { quality?: string }).quality === ENERGY);
-    expect(energyMoves, JSON.stringify(energyMoves)).toHaveLength(1);
+    expect(energyMoves).toHaveLength(1);
     expect(game.state.quality[BELLY]).toBe(Math.min(body.restTo, belly + body.restBy));
     expect(game.state.quality[ENERGY]).toBe(Math.min(body.restTo, energy + body.restBy));
     // The two hits land on wellbeing with the month's own source, beside its drift.
