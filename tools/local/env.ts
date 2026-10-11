@@ -18,6 +18,9 @@ export const WORKER_KEYS = [
   "GOOGLE_CLIENT_SECRET",
 ] as const;
 
+/** What the Worker is given only when it has a value: the admin accounts (R-SERVER-012), empty in .env.example. */
+export const OPTIONAL_WORKER_KEYS = ["ADMIN_ACCOUNTS"] as const;
+
 /** The Worker's name in wrangler.jsonc, which wrangler's local explorer dispatches a cron to. */
 export const WORKER_NAME = "japacity-server";
 
@@ -86,6 +89,11 @@ export function localStack(example: Record<string, string>, local: Record<string
 
   const worker: Record<string, string> = {};
   for (const name of WORKER_KEYS) worker[name] = need(name);
+  // server.md R-SERVER-012: the admin accounts reach the Worker only when .env.local names some; empty, nobody is an admin.
+  for (const name of OPTIONAL_WORKER_KEYS) {
+    const value = values[name];
+    if (value !== undefined && value !== "") worker[name] = value;
+  }
   return {
     siteUrl,
     port: Number(site.port),

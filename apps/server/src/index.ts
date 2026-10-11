@@ -13,7 +13,7 @@ import type { AuthKeys } from "./auth/auth";
 import { drizzleAuthAdapter } from "./auth/drizzle";
 import { sessionReader } from "./auth/session";
 import { contentsFor } from "./authority/overlay";
-import { productionConfig } from "./config";
+import { deployedConfig, productionConfig } from "./config";
 import { webRandomBytes } from "./deps";
 import { quicknet } from "./draw/beacon";
 import { countFromGate } from "./analytics/gate";
@@ -80,6 +80,8 @@ export interface Env {
   MAIL_TRANSPORT?: string;
   /** Mailpit's address on this machine, for MAIL_TRANSPORT=mailpit. */
   MAILPIT_URL?: string;
+  /** R-SERVER-012: the admin accounts, comma-separated account ids. Empty in wrangler.jsonc; the deploy supplies the value. */
+  ADMIN_ACCOUNTS?: string;
 }
 
 let isolate: Isolate | null = null;
@@ -89,7 +91,7 @@ function isolateOf(env: Env): Isolate {
   isolate ??= isolateFor(
     { connectionString: env.GAME_DB.connectionString, place: env.PLACE },
     {
-      config: productionConfig,
+      config: deployedConfig(env.ADMIN_ACCOUNTS),
       contents: contentsFor(content, env.OVERLAY),
       secrets: { worldSeed: env.WORLD_SEED, banSalt: env.BAN_SALT, drawTokenKey: env.DRAW_TOKEN_KEY },
       limits: { commands10s: env.COMMANDS_10S, commands60s: env.COMMANDS_60S, reads60s: env.READS_60S, anon60s: env.ANON_60S, socket10s: env.SOCKET_10S },
