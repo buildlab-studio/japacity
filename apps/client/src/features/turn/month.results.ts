@@ -8,6 +8,7 @@ import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines } from "../../shared
 import { BANK_CHARGE, CHANGED, CHANGED_OUT, CHANGED_QUEUED, CHANGED_SMALL, CHANGED_STREET, CHANGED_STREET_OUT, CONVERT_PAID, CONVERTED, LOTTO_PAID, LOTTO_TICKETS, type MoneyLine, moneyLines } from "../../shared/words/money";
 import { moneyParam } from "../../shared/words/text";
 import type { PayView } from "../../shared/words/cost";
+import { expiringSoon } from "../../shared/words/expiry";
 import { savingsOf } from "../../shared/words/savings";
 import { EXAM_MARKED, PIECE, PIECE_MORE, asPiece, toldOnResults } from "../../shared/words/told";
 
@@ -130,6 +131,22 @@ export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
     // The cash warning is said once in a life with attention (R-WALLET-019): a full month never drops it.
     .filter((entry, at, ranked) => CHORES.has(entry.line.key) || entry.line.key === CASH_WARNING || ranked.slice(0, at).filter((before) => !CHORES.has(before.line.key) && before.line.key !== CASH_WARNING).length < STORY_MAX)
     .map((entry) => entry.line);
+}
+
+/** A route whose application has gone in: its papers no longer need warning of. */
+const SENT: ReadonlySet<string> = new Set(["applying", "granted", "departed"]);
+
+/**
+ * The papers the plan's way out reads that run out within two months while its application is not sent (the thirteenth
+ * review, Z10: the TB certificate ran out unseen, ₦120,000 gone): one line each on the results, the soonest first.
+ */
+export function runningOut(view: Pick<PlayerView, "documents" | "month" | "routes" | "plan" | "japacity" | "place">): { document: string; expiresMonth: number }[] {
+  if (view.place.where !== "home") return [];
+  const plan = view.plan.route ?? view.japacity.route;
+  const route = view.routes.find((candidate) => candidate.id === plan);
+  if (route === undefined || SENT.has(route.state)) return [];
+  const reads = new Set((content.route[route.id]?.checklist ?? []).flatMap((item) => (item.requirement.type === "document/held" ? [item.requirement.document] : [])));
+  return expiringSoon(view).flatMap(({ paper }) => (reads.has(paper.id) && paper.expiresMonth !== null ? [{ document: paper.id, expiresMonth: paper.expiresMonth }] : []));
 }
 
 /** True for the line that leads the results alone: the visa granted. */

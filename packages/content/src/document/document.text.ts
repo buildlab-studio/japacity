@@ -49,4 +49,6 @@ export const documentText: Record<string, string> = {
   "document.passport.reminder.expired": "Your passport has run out. Renew it before anything else.",
   "document.english-test.reminder.expired": "Your English result has run out. Sit the test again.",
   "document.tb-certificate.reminder.expired": "Your TB certificate has run out. Get another before you apply.",
+  // A paper the plan needs, running out before the application is sent.
+  "document.reminder.runs-out": "Your {document} runs out {when}.",
 };
