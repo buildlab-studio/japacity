@@ -69,7 +69,7 @@ describe("a quality's move in a person's words", () => {
       line("line.quality.gain", { quality: "quality.standing", points: 3, value: 50, source: "offer.harvest.give" }, "good"),
       line("line.quality.gain", { quality: "quality.wellbeing", points: 2, value: 62, source: "offer.harvest.give" }, "good"),
       line("line.activity.rested", { slots: 1 }),
-      line("line.quality.gain", { quality: "quality.wellbeing", points: 4, value: 66, source: "activity.rest" }, "good"),
+      line("line.quality.gain", { quality: "quality.wellbeing", points: 4, value: 66, source: "rest" }, "good"),
       line("line.quality.gain", { quality: "quality.network", points: 2, value: 40, source: "offer.aso-ebi.plain" }, "good"),
     ];
     const tidy = tidyLines(lines);

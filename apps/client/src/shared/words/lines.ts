@@ -302,8 +302,11 @@ export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
 const MOVES: ReadonlySet<string> = new Set(["line.quality.gain", "line.quality.loss", "line.quality.worn", "line.quality.drift"]);
 /** The portfolio's gain is told as a piece for it (told.ts, `asPiece`), so it is never folded into its act's line. */
 const PIECES = "quality.portfolio";
-/** Acts whose own line already says what they did to the person: the rest taken, the talk and how it went. */
-const TOLD_BY_OWN_LINE: ReadonlySet<string> = new Set(["activity.rest", "activity.conference-talk"]);
+/**
+ * Causes whose own line already says what they did to the person: the free time rested ("You rested when you had the
+ * time", the source `rest`), the rest planned, the talk and how it went.
+ */
+const TOLD_BY_OWN_LINE: ReadonlySet<string> = new Set(["rest", "activity.rest", "activity.conference-talk"]);
 
 /**
  * What an act did to the person, told once (R-TEXT-005): the moves a line's `source` caused
