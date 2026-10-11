@@ -121,11 +121,13 @@ function month(ctx: Ctx): QualityEvent[] {
     const toward = gap > 0 ? Math.min(wellbeingDrift, gap) : -Math.min(wellbeingDrift, -gap);
     const drift = change(ctx, WELLBEING, toward, MONTH_SOURCE);
     events.push(...drift);
-    // The returned events are applied after the phase, so the drift is added here.
-    const after = valueOf(ctx.state, WELLBEING) + drift.reduce((sum, event) => sum + event.amount, 0);
+    // The returned events are applied after the phase, so the drift is added here, and the body's hits land on it.
+    const afterDrift = valueOf(ctx.state, WELLBEING) + drift.reduce((sum, event) => sum + event.amount, 0);
+    const hits = body(ctx, afterDrift);
+    events.push(...hits);
+    const after = afterDrift + hits.filter((event) => event.quality === WELLBEING).reduce((sum, event) => sum + event.amount, 0);
     events.push(...runDown(ctx, after));
-  }
-  events.push(...body(ctx));
+  } else events.push(...body(ctx, null));
   events.push(...forcedWait(ctx));
   return events;
 }
@@ -137,13 +139,21 @@ const ENERGY: Id<"quality"> = "quality.energy";
  * R-QUALITY-007 (decision 0035): the body at the month's turn. A month that ends hungry or spent takes it out of
  * wellbeing; then the night's rest and the family's pot bring the belly and the energy back toward their resting point.
  */
-function body(ctx: Ctx): QualityEvent[] {
+function body(ctx: Ctx, wellbeing: number | null): QualityEvent[] {
   const events: QualityEvent[] = [];
   const { body: rule } = ctx.content.tuning.turn;
+  // The phase's events land after it, so each hit on wellbeing is clamped against the running figure, never a stale one.
+  let running = wellbeing;
   for (const [quality, cost] of [[BELLY, rule.hungryWellbeing], [ENERGY, rule.spentWellbeing]] as const) {
     if (ctx.content.quality[quality] === undefined) continue;
     const have = valueOf(ctx.state, quality);
-    if (have < rule.lowBelow && ctx.content.quality[WELLBEING] !== undefined) events.push(...change(ctx, WELLBEING, -cost, MONTH_SOURCE));
+    if (have < rule.lowBelow && running !== null) {
+      const hit = Math.min(cost, Math.max(0, running - entryOf(ctx.content, WELLBEING).min));
+      if (hit > 0) {
+        events.push({ type: "quality/changed", quality: WELLBEING, amount: -hit, source: MONTH_SOURCE });
+        running -= hit;
+      }
+    }
     const gap = rule.restTo - have;
     const toward = gap > 0 ? Math.min(rule.restBy, gap) : -Math.min(rule.restBy, -gap);
     if (toward !== 0) events.push(...change(ctx, quality, toward, MONTH_SOURCE));

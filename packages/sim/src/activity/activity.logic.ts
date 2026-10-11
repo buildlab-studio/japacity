@@ -8,6 +8,7 @@ import { bp, valueInKobo } from "../engine/int";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, turnInProgress, turnSlots } from "../engine/kind";
+import { freeHalfDays } from "../turn/turn.logic";
 import { reject } from "../engine/reject";
 import type {
   ActivityEntry,
@@ -926,6 +927,10 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (entry === undefined) return reject("unknown-id", `${pick.activity} is not an activity in content.`);
   if ((entry.slot !== "free" && entry.slot !== "none") || !answersNow(entry)) return reject("not-legal", `${entry.id} fills the month: it is a slot pick, not an act now.`);
   if (doneThisMonth(ctx.state, entry)) return reject("not-legal", `${entry.id} was done this month already. It runs once a month.`);
+  // R-ACTIVITY-019: an act that takes time needs time left in the month; what takes none (talking, looking, buying) is always open.
+  if (entry.purchase !== true && (entry.halfDays ?? 1) > 0 && ctx.state.turn.spent >= freeHalfDays(ctx.state, ctx.content)) {
+    return reject("not-legal", `${entry.id} takes time, and the month's time is spent.`);
+  }
   // R-LUCK-005: the kiosk sells at most `maxTickets` a month across visits; past it the
   // sixth is refused, and the kiosk says so in its own voice on the screen.
   if (entry.id === LOTTO) {
