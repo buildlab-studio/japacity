@@ -126,8 +126,8 @@ export function numbersTotals(facts: NumbersFacts): CounterTotal[] {
       for (const event of played.events as Counted[]) {
         if (event.type === "route/moved" && event.to === "departed") add(region, "japa/departed", region);
         if (event.type === "wallet/credited" && event.reason === TOP_UP && event.currency === "NGN") {
-          add(region, "wallet/top-up", "count");
-          add(region, "wallet/top-up", "kobo", event.amount);
+          add(region, "wallet/topped-up", "count");
+          add(region, "wallet/topped-up", "kobo", event.amount);
         }
       }
     }

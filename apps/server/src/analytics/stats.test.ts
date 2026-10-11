@@ -52,7 +52,7 @@ function everything(): CounterTotal[] {
     for (const name of ["players/active", "players/new", "players/guest", "players/secured", "players/secured-by-signup", "lives/started", "lives/secured", "japa/departed", "turns/ended", "sessions/count", "client/error", "feedback/sent", "moderation/open", "players/weekly", "players/monthly", "players/total", "players/online-peak"]) rows.push(row(day, name, "NG", minShown));
     for (const key of ["d1", "d3", "d7", "d14", "d30"]) rows.push(row(day, "players/returned", key, minShown));
     rows.push(row(day, "players/online-peak", "peak", minShown, "all"));
-    rows.push(row(day, "wallet/top-up", "count", minShown), row(day, "wallet/top-up", "kobo", 1000), row(day, "advert/revenue", "kobo", 5000));
+    rows.push(row(day, "wallet/topped-up", "count", minShown), row(day, "wallet/topped-up", "kobo", 1000), row(day, "advert/revenue", "kobo", 5000));
     for (const key of ["under-2", "2-5", "5-15", "15-30", "over-30"]) rows.push(row(day, "sessions/length", key, minShown));
     for (const name of ["share/pressed", "share/completed", "share/arrival"]) rows.push(row(day, name, "chapter", minShown));
     for (const step of ["holding", "invited", "begin", "world", "month-1", "chapter-1", "secured"]) rows.push(row(day, "funnel/step", step, minShown));
@@ -130,8 +130,8 @@ describe("the admin's numbers", () => {
       row(YESTERDAY, "funnel/step", "invited", 100),
       row(YESTERDAY, "screen/opened", "door-1", 80),
       row(YESTERDAY, "advert/revenue", "kobo", 1_200_000),
-      row(YESTERDAY, "wallet/top-up", "count", 3),
-      row(YESTERDAY, "wallet/top-up", "kobo", 7_500_000),
+      row(YESTERDAY, "wallet/topped-up", "count", 3),
+      row(YESTERDAY, "wallet/topped-up", "kobo", 7_500_000),
     );
     const stats = buildStats(content, input(totals));
     expect(stats.last30.rates).toEqual({ dailyOverPeriodBp: 2000, sessionsPerPlayerBp: 15000, errorsPerThousandSessions: 50, departedPerNewBp: 2500, securedPerGuestBp: null });

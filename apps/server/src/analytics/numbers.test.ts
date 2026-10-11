@@ -127,8 +127,8 @@ describe("the funnel's server steps and the lives", () => {
     expect(count(rows, "japa/departed", "GB")).toBe(1);
     expect(count(rows, "japa/departed", "NG", "NG")).toBe(1);
     expect(count(rows, "lives/secured", "GB")).toBe(1);
-    expect(count(rows, "wallet/top-up", "count")).toBe(2);
-    expect(count(rows, "wallet/top-up", "kobo")).toBe(750_000);
+    expect(count(rows, "wallet/topped-up", "count")).toBe(2);
+    expect(count(rows, "wallet/topped-up", "kobo")).toBe(750_000);
   });
 });
 

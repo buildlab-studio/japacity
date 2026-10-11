@@ -86,7 +86,7 @@ function period(input: StatsInput, window: Window, players: ReadonlyMap<string, 
   const { sum, byRegion } = within(input.totals, window);
   const dailyPlayers = sum("players/active");
   const sessions = sum("sessions/count");
-  const topUps = sum("wallet/top-up", "count");
+  const topUps = sum("wallet/topped-up", "count");
   const guests = sum("players/guest");
   const rates: PeriodRates = {
     dailyOverPeriodBp: periodPlayers === null ? null : ratio(dailyPlayers, periodPlayers * (window.last - window.first + 1), BP, minShown),
@@ -111,7 +111,7 @@ function period(input: StatsInput, window: Window, players: ReadonlyMap<string, 
     feedbackSent: shown(sum("feedback/sent"), minShown),
     reportsOpen: shown(within(input.totals, { first: window.last, last: window.last }).sum("moderation/open"), minShown),
     topUps: shown(topUps, minShown),
-    topUpKobo: topUps < minShown ? null : sum("wallet/top-up", "kobo"),
+    topUpKobo: topUps < minShown ? null : sum("wallet/topped-up", "kobo"),
     rates,
   };
 }

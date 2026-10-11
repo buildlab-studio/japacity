@@ -189,7 +189,7 @@ export const counterTable: CounterDef[] = [
   { name: "lives/secured", keys: "region", source: "server" },
   { name: "japa/departed", keys: "region", source: "server" },
   { name: "economy/held", keys: ECONOMY_KEYS, source: "server" },
-  { name: "wallet/top-up", keys: ["count", "kobo"], source: "server" },
+  { name: "wallet/topped-up", keys: ["count", "kobo"], source: "server" },
   { name: "advert/revenue", keys: ["kobo"], source: "server" },
   { name: "moderation/open", keys: REPORT_REASONS, source: "server" },
   { name: "feedback/sent", keys: "region", source: "server" },

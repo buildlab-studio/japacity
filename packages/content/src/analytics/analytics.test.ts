@@ -19,7 +19,7 @@ const LAUNCH = [
   "lives/secured",
   "japa/departed",
   "economy/held",
-  "wallet/top-up",
+  "wallet/topped-up",
   "advert/revenue",
   "moderation/open",
   "feedback/sent",
@@ -47,7 +47,7 @@ describe("the counter list", () => {
     expect(named("sessions/length")?.keys).toEqual(["under-2", "2-5", "5-15", "15-30", "over-30"]);
     expect(named("funnel/step")?.keys).toEqual(["holding", "invited", "begin", "world", "month-1", "chapter-1", "secured"]);
     expect(named("share/arrival")?.keys).toEqual(named("share/pressed")?.keys);
-    expect(named("wallet/top-up")?.keys).toEqual(["count", "kobo"]);
+    expect(named("wallet/topped-up")?.keys).toEqual(["count", "kobo"]);
     expect(named("advert/revenue")?.keys).toEqual(["kobo"]);
     expect(named("economy/held")?.keys).toHaveLength(12);
     expect(named("economy/held")?.keys).toContain("1-3:0");
