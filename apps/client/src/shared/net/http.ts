@@ -34,7 +34,7 @@ export const COMMAND_TIMEOUT_MS = 15_000;
 /**
  * R-ENGINE-015: what went wrong with a request that brought no answer the game can read. `network`: the fetch threw or
  * timed out. `wall`: something stands between the page and the game (a login wall, an expired session): a redirect, a
- * 401 or 403 without the game's own refusal, or a page where JSON was expected. `server`: a 5xx, or a body nobody can read.
+ * 401 or 403 without the game's own refusal, or a page where JSON was expected. `server`: a 5xx, the server's own `unavailable`, or a body nobody can read.
  */
 export type FailureKind = "network" | "wall" | "server";
 
@@ -88,6 +88,11 @@ function isRefusal(body: unknown): body is ServerRejection {
   return typeof body === "object" && body !== null && (body as Partial<ServerRejection>).ok === false && typeof (body as Partial<ServerRejection>).code === "string";
 }
 
+/** R-SERVER-040: the server's own failure, `{ ok: false, code: "unavailable" }` with a 503 or a 500: no refusal of the game's. */
+function isServerFailure(body: object): boolean {
+  return (body as { ok?: unknown }).ok === false && (body as { code?: unknown }).code === "unavailable";
+}
+
 function parsed(text: string): unknown {
   try {
     return JSON.parse(text) as unknown;
@@ -112,6 +117,8 @@ export function classify<T>(response: Pick<Response, "status" | "type" | "redire
   const body = page ? undefined : parsed(text);
   if (typeof body === "object" && body !== null) {
     if (status >= 200 && status < 300) return { kind: "ok", body: body as T };
+    // R-SERVER-040: the server's own failure (`unavailable`) is no refusal the game can act on: the trouble card shows.
+    if (status >= 500 && isServerFailure(body)) return { kind: "server", detail: `${String(status)} unavailable` };
     if (isRefusal(body)) return { kind: "rejected", body: body as T };
     if (status >= 500) return { kind: "server", detail: `${String(status)}` };
     return { kind: "rejected", body: body as T };

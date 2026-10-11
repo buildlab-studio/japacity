@@ -129,6 +129,15 @@ describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
     expect(await kindOf(() => Promise.resolve(answered(503, off, { contentType: JSON_TYPE })))).toBe("rejected");
   });
 
+  test("[R-ENGINE-015] [R-SERVER-040] given the server's own failure (unavailable) with a 503 and its wait, or with a 500, then it is server, never a refusal the game would show as one", async () => {
+    const down = JSON.stringify({ ok: false, code: "unavailable", detail: "The game's server could not reach its database. Try again shortly.", retryAfter: 5 });
+    const broke = JSON.stringify({ ok: false, code: "unavailable", detail: "Something broke on the game's server." });
+    const reply503 = { ...answered(503, down, { contentType: JSON_TYPE }), headers: new Headers({ "content-type": JSON_TYPE, "Retry-After": "5" }) } as Response;
+    expect(classify(reply503, down)).toEqual({ kind: "server", detail: "503 unavailable" });
+    expect(await kindOf(() => Promise.resolve(answered(503, down, { contentType: JSON_TYPE })))).toBe("server");
+    expect(await kindOf(() => Promise.resolve(answered(500, broke, { contentType: JSON_TYPE })))).toBe("server");
+  });
+
   test("[R-ENGINE-015] given the game's own 409 with its code, then it is rejected and the body comes back as the server sent it", async () => {
     const stale = { ok: false, code: "stale", detail: "The state moved on." };
     const body = await api({ baseUrl: BASE, fetch: () => Promise.resolve(answered(409, JSON.stringify(stale), { contentType: JSON_TYPE })), wall: noWall }).post("/api/command", {});
