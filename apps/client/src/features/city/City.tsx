@@ -35,7 +35,7 @@ import { Cut, useCut } from "../../shared/world/Cut";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
 import { Corner, hear, hush, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
-import { MonthCount } from "../../shared/world/MonthCount";
+import { FLIP_MS, MonthCount } from "../../shared/world/MonthCount";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
@@ -475,8 +475,13 @@ export function City({
   // R-WORLD-025: the scene goes dark, then the results sheet (which reads the report's state itself).
   const [resultsShown, setResultsShown] = useState(false);
   useEffect(() => {
-    if (world && reportOpen) cutTo(() => setResultsShown(true));
-    else setResultsShown(false);
+    if (!world || !reportOpen) {
+      setResultsShown(false);
+      return;
+    }
+    // R-WORLD-002, R-WORLD-027: the page turns on the spot first, the glyph flipping on the band, then the cut and the results.
+    const timer = window.setTimeout(() => cutTo(() => setResultsShown(true)), FLIP_MS);
+    return () => window.clearTimeout(timer);
     // The cut runs once as the report opens.
   }, [world, reportOpen]);
   const [zoomed, setZoomed] = useState(false);
@@ -1344,7 +1349,8 @@ export function City({
             onEndMonth={nextMonth}
             count={<MonthCount onOpen={() => openCalendar(null)} />}
             endBlocked={endBlocked}
-            hidden={map || resultsOpen}
+            // The band stays while its page flips on the spot, and steps back once the results are up (R-WORLD-002, R-WORLD-027).
+            hidden={map || (resultsOpen && resultsShown)}
             open={bandOpen}
             {...(coming === null ? {} : { onToggle: () => setBandOpen((open) => !open) })}
             more={

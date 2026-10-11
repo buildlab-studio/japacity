@@ -300,7 +300,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
         </ul>
       </Section>
       <Rejection />
-      <div className="sticky -bottom-3 -mx-3 -mb-3 flex flex-col gap-1.5 bg-sheet px-3 pt-2 pb-3">
+      <div className="sticky -bottom-3 -mx-3 -mb-3 flex flex-col gap-1.5 border-t border-sheet-line bg-sheet px-3 pt-2 pb-3">
         {stretched === null ? null : (
           <p className="text-[13px] font-semibold text-text-2" data-month-stretched>
             {stretched}

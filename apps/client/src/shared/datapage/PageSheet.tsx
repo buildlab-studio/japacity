@@ -117,21 +117,23 @@ function Opener({ store, when, place }: { store: GameStore; when: string; place:
   return (
     <div className="min-w-0 flex-1 leading-none" data-band-person>
       {/* The design's bar: the name with the place small, over the age. The name and the age open the page; the place's name does nothing (R-WORLD-002). */}
-      <div className="label label-strong flex min-w-0 items-baseline text-[9px]">
+      {/* The name and the place run on as one line of text that wraps to a second, never a column of words: a home's
+          place line ("Your room, a compound in Ojuelegba", R-WORLD-002) fits in up to three short lines beside the clock, the place in sentence case so it reads as a line, not a label (the twelfth
+          review). */}
+      <div className="label label-strong line-clamp-3 min-w-0 text-[9px] leading-none">
         {name === "" ? null : (
           <>
-            <button type="button" tabIndex={-1} aria-hidden className="max-w-[55%] shrink-0 truncate text-left uppercase" onClick={show}>
+            <button type="button" tabIndex={-1} aria-hidden className="inline text-left uppercase" onClick={show}>
               {name}
             </button>
-            <span aria-hidden className="shrink-0 px-1">
+            <span aria-hidden className="px-1">
               ·
             </span>
           </>
         )}
-        {/* The place wraps to a second line rather than being cut. */}
-        <h2 className="min-w-0 leading-tight">{place}</h2>
+        <h2 className="inline text-[10px] tracking-normal normal-case">{place}</h2>
       </div>
-      <button type="button" className="press title num mt-0.5 block max-w-full truncate text-left text-[16px] leading-tight" onClick={show} aria-label={say("prologue.page.open")} data-page-open>
+      <button type="button" className="press title num mt-0.5 block max-w-full truncate text-left text-[16px] leading-[1.1]" onClick={show} aria-label={say("prologue.page.open")} data-page-open>
         {when}
       </button>
       {open ? <PageSheet view={view} onClose={() => setOpen(false)} /> : null}

@@ -7,6 +7,7 @@ import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { inMonths, nameOf, say, words } from "../../shared/words/text";
+import { FLIP_MS } from "../../shared/world/MonthCount";
 import { forgetTaught, wasTaught } from "../../shared/world/taught";
 import { calendarFirst, City, type CityMapSlot, homeLine, TITLE_MS } from "./City";
 import { cityWords } from "./city.words";
@@ -160,11 +161,13 @@ describe("the band and the thumb buttons", () => {
     expect(document.querySelector("[data-thing-chip]")).toBeNull();
   });
 
-  test("[R-WORLD-002] given the results showing, when the band renders, then it hides, and it shows again once the player goes back", async () => {
+  test("[R-WORLD-002] [R-WORLD-027] given the results showing, when the band renders, then it hides once they are up, and it shows again once the player goes back", async () => {
     const { store } = await opened(world(), richView());
     expect(band().getAttribute("aria-hidden")).toBe("false");
     act(() => store.setState({ reportOpen: true }));
-    expect(band().getAttribute("aria-hidden")).toBe("true");
+    // the band stays while its page flips on the spot, and steps back once the results are up (R-WORLD-027).
+    expect(band().getAttribute("aria-hidden")).toBe("false");
+    await waitFor(() => expect(band().getAttribute("aria-hidden")).toBe("true"), { timeout: FLIP_MS + 1500 });
     act(() => store.setState({ reportOpen: false }));
     expect(band().getAttribute("aria-hidden")).toBe("false");
   });
@@ -183,11 +186,13 @@ describe("the band and the thumb buttons", () => {
     expect(thumbs().getAttribute("aria-hidden")).toBe("true");
   });
 
-  test("[R-WORLD-008] [R-WORLD-025] given the month ended, when the shell shows, then the scene goes dark first, and the results are handed the name of where the player is", async () => {
+  test("[R-WORLD-008] [R-WORLD-025] [R-WORLD-027] given the month ended, when the shell shows, then the page turns on the spot first, the scene goes dark after it, and the results are handed the name of where the player is", async () => {
     const { store } = await opened(world(), engineView());
     const shown = band().querySelector("h2")?.textContent ?? "";
     act(() => store.setState({ reportOpen: true }));
-    expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("true");
+    // the glyph's page flips on the band before the cut (R-WORLD-002), so the dark comes after it.
+    expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("false");
+    await waitFor(() => expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("true"), { timeout: FLIP_MS + 1000 });
     expect(document.querySelector("[data-results-for]")).toBeNull();
     // The band starts the name with a capital; the results' "Back to ..." keeps content's casing.
     await waitFor(() => expect(document.querySelector("[data-results-for]")).not.toBeNull());
