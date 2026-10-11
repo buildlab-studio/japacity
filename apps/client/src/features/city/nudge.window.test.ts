@@ -6,14 +6,17 @@ import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { hearCare, month, readCare, readyNurse, until } from "../../shared/testing/nurse";
+import { earlyStops } from "../../shared/words/sixteen";
 import { say } from "../../shared/words/text";
 import { MEANWHILE_WAYS, nudgeOf, stepWayOf } from "./nudge";
+import { stopReached } from "./stops";
 
 const FILE = "chapter.build-the-file-care";
 const SHUT = `${FILE}.item.sponsor.shut`;
 const CARE = "route.uk-care";
 const CERTIFY = "activity.nurse-certification";
 const POLICE = "activity.get-police-certificate";
+const ENGLISH = "activity.sit-english-test";
 const NUDGE_WORDS = 8;
 const MONTH_END = { go: null, at: [] };
 
@@ -56,20 +59,24 @@ describe("the sponsor step while the care window is shut", () => {
     expect(nudge.way).toEqual(stepWayOf(view));
   });
 
-  test("[R-WORLD-003] [R-SPONSOR-005] given the shut sponsor step with the police paper still to get, when its tap is followed, then it goes to the police paper's notice; with every paper in hand it goes to the certification's card while she can pay it, else to the month's end", () => {
+  test("[R-WORLD-003] [R-WORLD-015] [R-SPONSOR-005] given the shut sponsor step with the English test still to sit, when its tap is followed, then it goes to the test centre; with the file's own papers in hand it goes to the certification's card while she can pay it, else to the month's end, never to the decision day's papers, and every stop it names is open on the map", () => {
     const allowed = { allowed: true, affordable: true };
-    const police = standing(view, ["sponsor", "salary", "tb", "applied", "police", "certificate"], { [POLICE]: allowed, [CERTIFY]: allowed });
-    expect(nudgeOf(police)).toMatchObject({ key: SHUT, way: { go: "place.visa-centre", at: ["place.visa-centre:police-notice"] } });
-    // The TB test is never the way: it is taken last. The salary waits on a sponsor.
-    const certify = standing(view, ["sponsor", "salary", "tb", "applied", "certificate"], { [POLICE]: allowed, [CERTIFY]: allowed });
+    const english = standing(view, ["sponsor", "salary", "tb", "applied", "police", "certificate", "english"], { [ENGLISH]: allowed, [POLICE]: allowed, [CERTIFY]: allowed });
+    expect(nudgeOf(english)).toMatchObject({ key: SHUT, way: { go: "place.english-test-centre" } });
+    // The police paper and the TB test run out and wait for the decision day's visa centre (R-WORLD-015).
+    const certify = standing(view, ["sponsor", "salary", "tb", "applied", "police", "certificate"], { [POLICE]: allowed, [CERTIFY]: allowed });
     expect(nudgeOf(certify)).toEqual({ key: SHUT, about: "step", way: MEANWHILE_WAYS["nurse-certification"] });
+    for (const shown of [english, certify]) {
+      const go = nudgeOf(shown).way?.go ?? null;
+      expect(go !== null && stopReached(shown.chapter, shown.place.where, go, earlyStops(shown))).toBe(true);
+    }
     expect(MEANWHILE_WAYS["nurse-certification"]?.opens).toBe(CERTIFY);
     const unpaid = standing(view, ["sponsor", "salary", "tb", "applied", "certificate"], { [CERTIFY]: { allowed: true, affordable: false } });
     expect(nudgeOf(unpaid)).toEqual({ key: SHUT, about: "step", way: MONTH_END });
     const certified = standing(view, ["sponsor", "salary", "tb", "applied"], { [CERTIFY]: { allowed: false, affordable: true } });
     expect(nudgeOf(certified)).toEqual({ key: SHUT, about: "step", way: MONTH_END });
-    // The police paper planned this month is not asked for again.
-    expect(nudgeOf(police, undefined, [POLICE]).way).toEqual(MEANWHILE_WAYS["nurse-certification"]);
+    // The English test planned this month is not asked for again.
+    expect(nudgeOf(english, undefined, [ENGLISH]).way).toEqual(MEANWHILE_WAYS["nurse-certification"]);
   });
 
   test("[R-WORLD-003] [R-SPONSOR-005] given the shut sponsor step, when the window opens, then the sponsor step reads as it did: find a sponsor at the hub's desk", () => {

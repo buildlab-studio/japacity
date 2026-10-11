@@ -458,21 +458,27 @@ function carePapers(view: CareView, care: PlayerView["routes"][number]): { unmet
 }
 
 const SPONSOR = "sponsor";
+/** The care file's own papers, in the route's order: what the shut sponsor step can still send her to. */
+const FILE_PAPERS: readonly { item: string; step: string }[] = [
+  { item: "passport", step: PASSPORT_STEP },
+  { item: "english", step: ENGLISH_STEP },
+];
 /** The sponsor step's words while the care window is shut (R-WORLD-003 as amended 11 Oct 2026). */
 const SPONSOR_SHUT = "chapter.build-the-file-care.item.sponsor.shut";
 
 /**
  * The way the shut sponsor step's nudge opens: no sponsor takes a nurse from abroad while the care
- * window is shut, so the tap goes to the file's next paper that can be got now, in the route's order (the TB test never: it is
- * taken last; the salary needs a sponsor), else the waiting-month act she can pay, else the month's end. Null: the
- * sponsor step is not shut, or this is not the care file.
+ * window is shut, so the tap goes to the file's own next paper that can be got now, the passport, then the English test;
+ * never the decision day's papers, which run out (the TB test lasts six months, the police paper twelve: taken last)
+ * and wait at the visa centre the map opens with that chapter (R-WORLD-015); else the waiting-month act she can pay, else
+ * the month's end. Null: the sponsor step is not shut, or this is not the care file.
  */
 function sponsorShutWay(view: CareView & MeanwhileView & Partial<Pick<PlayerView, "pockets">>, step: string, planned: readonly string[]): StepWay | null {
   if (view.chapter.current !== "chapter.build-the-file-care" || step !== SPONSOR) return null;
   const care = view.routes?.find((route) => route.id === CARE_ROUTE);
   if (care === undefined || care.window !== "closed") return null;
   const { now } = carePapers(view, care);
-  const paper = CARE_PAPERS.find((one) => one.item !== "salary" && now(one.item, one.step) && !planned.includes(STEP_ACTIVITY[one.step] ?? ""));
+  const paper = FILE_PAPERS.find((one) => now(one.item, one.step) && !planned.includes(STEP_ACTIVITY[one.step] ?? ""));
   if (paper !== undefined) return STEP_WAYS[paper.step] ?? MONTH_END;
   const act = meanwhileOf(view, planned);
   const affordable = view.activities?.find((option) => option.id === `activity.${act ?? ""}`)?.affordable === true;
