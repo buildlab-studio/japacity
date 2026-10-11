@@ -58,11 +58,17 @@ function less(now: Totals["in"], before: Totals["in"] | undefined): ByReason {
  */
 export async function markAfterCommit(deps: Pick<ServerDeps, "contents" | "stores">, character: string, state: State, day: number): Promise<void> {
   noteActive(deps, character, day);
-  const mark = await deps.stores.ledger.mark(character);
-  if (mark !== null && mark.day >= day) return;
-  const totals = accounted(state, contentOf(deps, state));
-  await deps.stores.ledger.addDay(mark?.day ?? day, less(totals.in, mark?.totals.in), less(totals.out, mark?.totals.out));
-  await deps.stores.ledger.setMark(character, totals, day);
+  // Most commits are not a day's first: one read settles them, and only a day's first opens a transaction.
+  const seen = await deps.stores.ledger.mark(character);
+  if (seen !== null && seen.day >= day) return;
+  // R-SERVER-011: the day's totals and the mark move in one transaction, read again inside it.
+  await deps.stores.ledger.transaction(async (ledger) => {
+    const mark = await ledger.mark(character);
+    if (mark !== null && mark.day >= day) return;
+    const totals = accounted(state, contentOf(deps, state));
+    await ledger.addDay(mark?.day ?? day, less(totals.in, mark?.totals.in), less(totals.out, mark?.totals.out));
+    await ledger.setMark(character, totals, day);
+  });
 }
 
 export interface MoneyDay {
@@ -103,12 +109,17 @@ export async function moneyReport(deps: MoneyDeps, day: number, active: readonly
     const report = ledgerReport(now.value.state, now.value.content);
     for (const alarm of report.alarms) result.alarms.push({ kind: "suspect", day, character, ...alarm });
 
-    const mark = await deps.stores.ledger.mark(character);
-    if (mark !== null && mark.day > day) continue;
+    // R-SERVER-011: the day's totals and the mark move in one transaction, so a failure between the
+    // two writes keeps neither and a rerun of the job adds the day once.
     const totals: Totals = { in: report.created, out: report.destroyed };
-    await deps.stores.ledger.addDay(day, less(totals.in, mark?.totals.in), less(totals.out, mark?.totals.out));
-    await deps.stores.ledger.setMark(character, totals, day + 1);
-    result.closed.push(character);
+    const closed = await deps.stores.ledger.transaction(async (ledger) => {
+      const mark = await ledger.mark(character);
+      if (mark !== null && mark.day > day) return false;
+      await ledger.addDay(day, less(totals.in, mark?.totals.in), less(totals.out, mark?.totals.out));
+      await ledger.setMark(character, totals, day + 1);
+      return true;
+    });
+    if (closed) result.closed.push(character);
   }
   return result;
 }

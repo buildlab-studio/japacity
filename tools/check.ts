@@ -3,7 +3,8 @@
 // that says whether everything passed.
 import { spawnSync } from "node:child_process";
 
-const STEPS = ["typecheck", "lint", "test", "check:rules", "check:assets", "check:scrub"] as const;
+// check:types first: the Workers' typecheck reads the files `wrangler types` generated, so a stale one is named before it misleads.
+const STEPS = ["check:types", "typecheck", "lint", "test", "check:rules", "check:assets", "check:scrub"] as const;
 
 for (const step of STEPS) {
   console.log(`\n> ${step}`);

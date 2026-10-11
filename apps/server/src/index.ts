@@ -24,12 +24,11 @@ import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
 import { standInJob } from "./jobs/stand-in";
 import { notifyJob } from "./jobs/notify";
-import { jobCron, ticksJob, TICKS_CRON } from "./jobs/ticks";
+import { jobCron, tickPeriodMs, ticksJob, TICKS_CRON } from "./jobs/ticks";
 import { MONEY_CRON, moneyJob } from "./jobs/money";
 import { dropOldFeedback } from "./moderation/feedback";
 import { advertLinksJob } from "./adverts/job";
 import { boardsWeekJob } from "./boards/job";
-import type { Place } from "./place/place.object";
 import type { PushKeys } from "./notify/webpush";
 import { isolateFor, openRequest, placeOfIn, profileOfIn } from "./production";
 import type { Isolate, RequestScope } from "./production";
@@ -41,48 +40,12 @@ import { served } from "./security/noindex";
 
 export { Place } from "./place/place.object";
 
-export interface Env {
-  SITE_URL: string;
-  /** R-SERVER-016: secrets of the deployment, set once with `wrangler secret put`. */
-  WORLD_SEED: string;
-  /** R-MODERATION-018: the salt of the banned identities' hashes. */
-  BAN_SALT: string;
-  /** R-LOTTERY-008: the HMAC key of the draw's ticket tokens. */
-  DRAW_TOKEN_KEY: string;
-  OVERLAY?: string;
-  COMMANDS_10S: RateLimit;
-  COMMANDS_60S: RateLimit;
-  READS_60S: RateLimit;
-  ANON_60S: RateLimit;
-  SOCKET_10S: RateLimit;
-  /** Decision 0004: game state, the auth library and every store, caching off. */
-  GAME_DB: Hyperdrive;
-  /** The configuration with caching on, for reads that may be stale; nothing uses it yet. */
-  CACHED_DB: Hyperdrive;
-  /** R-CLOCK-025: the place objects. */
-  PLACE: DurableObjectNamespace<Place>;
-  /** Secrets the maintainer sets with `wrangler secret put` (R-ACCOUNT-001, 013). */
-  BETTER_AUTH_SECRET: string;
-  GOOGLE_CLIENT_ID: string;
-  GOOGLE_CLIENT_SECRET: string;
-  TURNSTILE_SECRET_KEY: string;
-  /** R-CLOCK-031: the VAPID pair, base64url, and the address the push services can reach the maintainer at. No notice is sent without all three. */
-  VAPID_PUBLIC_KEY?: string;
-  VAPID_PRIVATE_KEY?: string;
-  VAPID_SUBJECT?: string;
-  /** R-CLOCK-012, R-SERVER-038: the deployment's tick cron when it is not the five-minute one (staging's thirty minutes). */
-  TICK_CRON?: string;
-  /** R-SERVER-038: set on staging only; every reply carries the noindex tag and robots.txt disallows all. */
-  NOINDEX?: string;
-  /** R-SERVER-038: the client's files, bound on staging only, where the Worker runs first for every path. */
-  ASSETS?: Fetcher;
-  /** R-ACCOUNT-014, R-SERVER-038: `mailpit` on the local stack only; unset on every deployment, where no mail is sent. */
-  MAIL_TRANSPORT?: string;
-  /** Mailpit's address on this machine, for MAIL_TRANSPORT=mailpit. */
-  MAILPIT_URL?: string;
-  /** R-SERVER-012: the admin accounts, comma-separated account ids. Empty in wrangler.jsonc; the deploy supplies the value. */
-  ADMIN_ACCOUNTS?: string;
-}
+/**
+ * The Worker's bindings: what `wrangler types` generates from wrangler.jsonc for both environments
+ * (worker-configuration.d.ts; a binding only staging has is optional), with the secrets and the local
+ * stack's values merged in by src/env.d.ts.
+ */
+export type Env = Cloudflare.Env;
 
 let isolate: Isolate | null = null;
 
@@ -187,7 +150,7 @@ export default {
     job(({ deps }) => ticksJob(deps, cron));
     job(({ deps }) => drawJob(deps, { beacon }, cron));
     job(({ deps }) => notifyJob(deps, pushKeys(env), cron));
-    job(({ deps }) => advertLinksJob(deps, cron, (input, init) => fetch(input, init)));
+    job(({ deps }) => advertLinksJob(deps, cron, (input, init) => fetch(input, init), tickPeriodMs(env.TICK_CRON ?? TICKS_CRON)));
     // city.md R-CITY-039: the board figures' week turns on the five-minute cron.
     job(({ deps }) => boardsWeekJob(deps, cron));
     if (cron === "0 0 * * *") job(({ deps }, auth) => runDeletions(deps, auth));
@@ -199,4 +162,4 @@ export default {
     if (cron === "0 0 * * *") job(({ deps }) => dropOldFeedback(deps));
     if (cron === "0 0 * * *") job(({ deps }) => standInJob(deps));
   },
-};
+} satisfies ExportedHandler<Env>;

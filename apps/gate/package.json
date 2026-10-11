@@ -6,6 +6,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "wrangler dev",
+    "types": "wrangler types --env-file=/dev/null --strict-vars=false",
+    "types:check": "wrangler types --check --env-file=/dev/null --strict-vars=false",
     "deploy": "wrangler deploy",
     "typecheck": "tsc -p tsconfig.json && tsc -p e2e/tsconfig.json",
     "test:browser": "playwright test -c e2e/playwright.config.ts"

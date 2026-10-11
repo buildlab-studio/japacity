@@ -27,12 +27,21 @@ function sources(folder: string): string[] {
     .map((path) => join(folder, path));
 }
 
-/** The keys of a Worker's `Env` whose type is a string: its variables and secrets, not its bindings. */
-function envStrings(path: string): string[] {
+/** The keys of one interface in a file whose type is a string. */
+function stringKeys(path: string, opening: string): string[] {
   const text = read(path);
-  const start = text.indexOf("export interface Env {");
+  const start = text.indexOf(opening);
+  if (start < 0) throw new Error(`${path} has no ${opening}`);
   const body = text.slice(start, text.indexOf("\n}", start));
   return [...body.matchAll(/^\s+([A-Z][A-Z0-9_]*)\??:\s*([^;]+);/gm)].filter((match) => /\bstring\b/.test(match[2] ?? "")).map((match) => match[1] ?? "");
+}
+
+/**
+ * The keys of a Worker's `Env` whose type is a string: its variables and secrets, not its bindings. Since 11 Oct 2026
+ * `Env` is what `wrangler types` generates from wrangler.jsonc (worker-configuration.d.ts) with src/env.d.ts merged in.
+ */
+function envStrings(folder: string): string[] {
+  return [...stringKeys(`${folder}/worker-configuration.d.ts`, "interface __BaseEnv_Env {"), ...stringKeys(`${folder}/src/env.d.ts`, "interface Env {")];
 }
 
 describe("the example settings", () => {
@@ -44,11 +53,11 @@ describe("the example settings", () => {
   });
 
   test("[R-SERVER-012] given each Worker's Env, when its string keys are listed, then its .dev.vars.example names exactly those, the admin accounts among the server's", () => {
-    const server = envStrings("apps/server/src/index.ts");
+    const server = envStrings("apps/server");
     expect(server).toContain("ADMIN_ACCOUNTS");
     expect(server).toContain("BETTER_AUTH_SECRET");
     expect([...named(read("apps/server/.dev.vars.example"))].sort()).toEqual([...server].sort());
-    const gate = envStrings("apps/gate/src/index.ts");
+    const gate = envStrings("apps/gate");
     expect(gate).toContain("GATE_SECRET");
     expect([...named(read("apps/gate/.dev.vars.example"))].sort()).toEqual([...gate].sort());
   });

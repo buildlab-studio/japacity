@@ -8,7 +8,7 @@ import type { TestHelpers } from "better-auth/plugins";
 import { splitSetCookieHeader } from "better-auth/cookies";
 import type { Hono } from "hono";
 
-import { TURNSTILE_TEST } from "../account/turnstile";
+import { TURNSTILE_ACTION, TURNSTILE_TEST } from "../account/turnstile";
 import { makeApp } from "../app";
 import { testConfig } from "../config";
 import type { ServerConfig } from "../config";
@@ -24,11 +24,14 @@ export const SITE = "https://japacity.test";
 export const SECRET = "test-secret-that-is-long-enough-for-the-library-0123456789";
 export const STUB_SITEVERIFY = "https://turnstile.stub/siteverify";
 
-/** Cloudflare's three test secrets, answered as Cloudflare documents them, a pass naming `hostname` as where the token was solved. */
-export function turnstileStub(hostname: string): typeof fetch {
+/**
+ * Cloudflare's three test secrets, answered as Cloudflare documents them, a pass naming `hostname` as where the
+ * token was solved and `action` as the widget's action (R-ACCOUNT-013: the guest start's, unless a test names another).
+ */
+export function turnstileStub(hostname: string, action: string = TURNSTILE_ACTION): typeof fetch {
   return async (_input, init) => {
     const body = JSON.parse(typeof init?.body === "string" ? init.body : "{}") as { secret?: string; response?: string };
-    const answer = (success: boolean, codes: string[]) => new Response(JSON.stringify({ success, "error-codes": codes, ...(success ? { hostname } : {}) }), { headers: { "content-type": "application/json" } });
+    const answer = (success: boolean, codes: string[]) => new Response(JSON.stringify({ success, "error-codes": codes, ...(success ? { hostname, action } : {}) }), { headers: { "content-type": "application/json" } });
     if (body.secret === TURNSTILE_TEST.passSecret) return Promise.resolve(answer(true, []));
     if (body.secret === TURNSTILE_TEST.spentSecret) return Promise.resolve(answer(false, ["timeout-or-duplicate"]));
     return Promise.resolve(answer(false, ["invalid-input-response"]));
@@ -100,6 +103,8 @@ export interface HarnessOptions {
   limits?: Limiters;
   /** The host the Turnstile stand-in says a passed token was solved on; the site's own unless a test names another. */
   turnstileHost?: string;
+  /** The action the Turnstile stand-in says a passed token was made for; the guest start's unless a test names another. */
+  turnstileAction?: string;
   /** The server's clock; the machine's unless a test moves it. */
   now?: () => number;
 }
@@ -125,7 +130,7 @@ export function harness(options: HarnessOptions = {}): Harness {
     secret: SECRET,
     siteUrl: SITE,
     google: { clientId: "test-google-client", clientSecret: "test-google-secret" },
-    turnstile: { secretKey: options.turnstileSecret ?? TURNSTILE_TEST.passSecret, siteVerifyUrl: STUB_SITEVERIFY, fetch: turnstileStub(options.turnstileHost ?? new URL(SITE).hostname) },
+    turnstile: { secretKey: options.turnstileSecret ?? TURNSTILE_TEST.passSecret, siteVerifyUrl: STUB_SITEVERIFY, fetch: turnstileStub(options.turnstileHost ?? new URL(SITE).hostname, options.turnstileAction) },
     // R-ACCOUNT-005: every code is kept as it is sent, the only place a test can read it.
     sendOtp: (message) => {
       sent.push(message);

@@ -7,20 +7,11 @@ import { cleanEmail, INSERT } from "./join";
 import { renderPage } from "./page";
 import type { PageState, PageSettings } from "./page";
 
-export interface Env {
-  /** Bound only while the waitlist is on; wrangler.jsonc keeps both bindings commented out. */
-  DB?: D1Database | undefined;
-  JOIN_LIMIT?: RateLimit | undefined;
-  ANALYTICS_TOKEN: string;
-  SITE_URL: string;
-  /** "true" on launch day: the page shows the play link. */
-  LANDING_LIVE: string;
-  LANDING_PLAY_URL: string;
-  /** The game's X handle without the @. Empty: no X link. */
-  LANDING_X_HANDLE: string;
-  /** "true" turns the waitlist back on. Off for launch. */
-  LANDING_WAITLIST: string;
-}
+/**
+ * The page's bindings: what `wrangler types` generates from wrangler.jsonc (worker-configuration.d.ts), with the
+ * waitlist's two bindings, commented out there, merged in by src/env.d.ts.
+ */
+export type Env = Cloudflare.Env;
 
 interface Waitlist {
   db: D1Database;

@@ -1,7 +1,8 @@
-import type { ByReason, DayRow, LedgerStore } from "@japacity/store";
+import type { ByReason, DayRow, LedgerRows, LedgerStore } from "@japacity/store";
 import { eq, sql } from "drizzle-orm";
 
 import type { Handle } from "../handle";
+import { oneConnection } from "../handle";
 import { ledgerDays, ledgerMarks } from "../schema";
 
 type Side = "created" | "destroyed";
@@ -16,8 +17,8 @@ function rowsOf(day: number, side: Side, amounts: ByReason): (typeof ledgerDays.
   return rows;
 }
 
-/** R-SERVER-011: marks by character, and day totals one row per side, reason and currency. */
-export function pgLedgerStore(handle: Handle): LedgerStore {
+/** The ledger's reads and writes through one handle: the store's own, or a transaction's. */
+function ledgerRows(handle: Handle): LedgerRows {
   return {
     mark: (character) =>
       handle.read(async (db) => {
@@ -58,5 +59,17 @@ export function pgLedgerStore(handle: Handle): LedgerStore {
       handle.read(async (db) => {
         await db.delete(ledgerMarks).where(eq(ledgerMarks.character, character));
       }),
+  };
+}
+
+/**
+ * R-SERVER-011: marks by character, and day totals one row per side, reason and currency. A transaction's work
+ * is handed the rows on the transaction's own client, with a lock of their own (R-SERVER-002, decision 0030):
+ * the handle's lock is held for the whole transaction and is never taken again inside it.
+ */
+export function pgLedgerStore(handle: Handle): LedgerStore {
+  return {
+    ...ledgerRows(handle),
+    transaction: (work) => handle.transaction((tx) => work(ledgerRows(oneConnection(tx)))),
   };
 }

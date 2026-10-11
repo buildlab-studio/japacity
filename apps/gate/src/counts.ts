@@ -17,6 +17,15 @@ export interface GameCounters {
   count: (rows: CountRow[], country: string) => Promise<unknown>;
 }
 
+/**
+ * The game's binding as the gate calls it. `wrangler types` gives a service binding to another Worker the plain
+ * `Service` type, since it cannot see that Worker's entrypoint from here; this names the one method the gate calls.
+ * A binding without it refuses the call, which `report` swallows.
+ */
+export function gameOf(binding: Service | undefined): GameCounters | undefined {
+  return binding === undefined ? undefined : (binding as Service & GameCounters);
+}
+
 /** What the gate did with the request. */
 export type Seen = "holding" | "invited" | "passed";
 

@@ -1,6 +1,6 @@
 import { time } from "@japacity/sim";
 import type { State } from "@japacity/sim";
-import type { AuditStore, ByReason } from "@japacity/store";
+import type { AuditStore, ByReason, LedgerStore } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
 import { ledgerReport } from "../../../../packages/sim/src/wallet/report";
@@ -95,6 +95,40 @@ describe("the money report", () => {
     expect((await deps.stores.ledger.day(DAY)).created).toEqual(ledgerReport(start, deps.contents.current).created);
     expect(activeOn(deps, DAY)).toEqual([ID]);
     expect(activeOn(deps, DAY - 1)).toEqual([]);
+  });
+
+  test("[R-SERVER-011] given the job's second write failing after its first, when it runs and is run again, then the failed run kept nothing and the day is added once", async () => {
+    const deps = testDeps();
+    const start = await begin(deps);
+    const first = await day(deps, ID, start, SAVE.commands.slice(0, HALF), DAY);
+    const before = { day: await deps.stores.ledger.day(DAY), mark: await deps.stores.ledger.mark(ID) };
+    const ledger = deps.stores.ledger;
+    // The mark's write fails once the day's totals are written, inside the same transaction.
+    const failing: LedgerStore = { ...ledger, transaction: (work) => ledger.transaction((rows) => work({ ...rows, setMark: () => Promise.reject(new Error("The connection was lost.")) })) };
+
+    await expect(moneyReport({ ...deps, stores: { ...deps.stores, ledger: failing } }, DAY, [ID])).rejects.toThrow("The connection was lost.");
+    expect({ day: await ledger.day(DAY), mark: await ledger.mark(ID) }).toEqual(before);
+
+    expect((await moneyReport(deps, DAY, [ID])).closed).toEqual([ID]);
+    expect((await moneyReport(deps, DAY, [ID])).closed).toEqual([]);
+    expect((await ledger.day(DAY)).created).toEqual(ledgerReport(first, deps.contents.current).created);
+    expect(await ledger.mark(ID)).toMatchObject({ day: DAY + 1 });
+  });
+
+  test("[R-SERVER-011] given a day's first commit whose mark fails to move after its totals were added, when the hook is run again, then the earlier day holds its money once", async () => {
+    const deps = testDeps();
+    const start = await begin(deps);
+    const first = await day(deps, ID, start, SAVE.commands.slice(0, HALF), DAY);
+    const ledger = deps.stores.ledger;
+    const failing: LedgerStore = { ...ledger, transaction: (work) => ledger.transaction((rows) => work({ ...rows, setMark: () => Promise.reject(new Error("The connection was lost.")) })) };
+
+    await expect(markAfterCommit({ ...deps, stores: { ...deps.stores, ledger: failing } }, ID, first, DAY + 1)).rejects.toThrow("The connection was lost.");
+    expect(await ledger.mark(ID)).toMatchObject({ day: DAY });
+
+    await markAfterCommit(deps, ID, first, DAY + 1);
+    await markAfterCommit(deps, ID, first, DAY + 1);
+    expect((await ledger.day(DAY)).created).toEqual(ledgerReport(first, deps.contents.current).created);
+    expect(await ledger.mark(ID)).toMatchObject({ day: DAY + 1 });
   });
 
   test("[R-SERVER-011] given the job at 00:00 UTC, when it runs, then it reports the day that has just ended and no character idle that day", async () => {

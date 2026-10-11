@@ -212,6 +212,15 @@ describe("the guest start at Begin", () => {
     expect(account.bots).toEqual([TOKEN]);
   });
 
+  test("[R-ACCOUNT-013] given the guest start's page, when the widget is rendered, then it carries the action guest, the one the server asks siteverify's pass to name", async () => {
+    const turnstile = fakeTurnstile({ passAtOnce: false });
+    online(fakeAccount(), turnstile);
+    await toTheDoor();
+    toThePage();
+    await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
+    expect(turnstile.rendered[0]?.action).toBe("guest");
+  });
+
   test("[R-ACCOUNT-029] given a script that never loads, when Begin is pressed, then the guest start goes at once without a token, for the server to judge", async () => {
     const account = fakeAccount();
     const { store } = online(account, { load: () => new Promise(() => undefined) });
