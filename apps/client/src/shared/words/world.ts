@@ -80,7 +80,7 @@ export const worldText: Record<string, string> = {
   "ui.nudge.chapter-done": "The chapter is done. Live the month.",
   // A set piece staged elsewhere waits there; the player goes to it.
   "ui.nudge.setpiece-away": "{what} is at {place}.",
-  "ui.nudge.end": "Live the month, or sleep to end it",
+  "ui.nudge.end": "Live the month, or sleep",
   // The news has closed every way out at once, as the pandemic does. Japa says when it opens.
   "ui.nudge.closed.every": "Every route is closed for now",
 };
