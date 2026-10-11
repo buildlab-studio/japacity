@@ -372,7 +372,9 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
       examQuestion("sponsorship", ["nurse", "nobody", "employer"], "employer", true),
     ],
   },
-  // R-ACTIVITY-013: the talk is one question, how it opens; the activity carries what the talk gives.
+  // R-ACTIVITY-013: the talk is one question, how it opens; the activity carries what the talk gives. The answer marks
+  // how it went: the code run live or the bug's story holds the room, the slides read out do
+  // not. Opened with no route, so nothing is scored on the state; the act reads these scores, as the exam does.
   [TALK]: {
     id: TALK,
     ask: 1,
@@ -380,7 +382,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
       {
         id: "open",
         when: [],
-        answers: ["demo", "story", "slides"].map((id) => ({ id, score: 0, when: [], thenScore: null, effects: [] })),
+        answers: ["demo", "story", "slides"].map((id) => ({ id, score: id === "slides" ? 0 : 1, when: [], thenScore: null, effects: [{ type: "activity/exam", activity: "activity.conference-talk" }] })),
       },
     ],
   },

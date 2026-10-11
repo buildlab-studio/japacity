@@ -141,8 +141,9 @@ describe("the nurse's way never opens a shut place", () => {
     expect(care.checklist.filter((item) => !item.met).map((item) => item.id)).toEqual(["applied"]);
     expect(stepWayOf(view)?.go).toBe(VISA_CENTRE);
     expect(reached(view, VISA_CENTRE)).toBe(true);
-    // On the way, each missing thing was named before the application, in the route's order: the English test, the TB test, the police paper.
-    const order = ["chapter.build-the-file.item.english", "chapter.decision-day-care.item.tb", "chapter.decision-day-care.item.police"].map((own) => seen.findIndex((key) => key.startsWith(own)));
+    // On the way, each missing thing was named before the application, in the route's order: the English test, the police
+    // paper, and the TB test last, since it lasts six months (restated for the thirteenth review).
+    const order = ["chapter.build-the-file.item.english", "chapter.decision-day-care.item.police", "chapter.decision-day-care.item.tb"].map((own) => seen.findIndex((key) => key.startsWith(own)));
     expect(order.every((at) => at >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
     expect(seen.indexOf(`${FILE}.item.applied.nudge`)).toBeGreaterThan(Math.max(...order));

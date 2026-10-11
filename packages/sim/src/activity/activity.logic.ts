@@ -1341,8 +1341,9 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
         : [line("line.activity.not-noticed", { job: event.job }, "plain")];
     case "activity/exam-marked":
       return event.passed
-        ? [line("line.activity.exam-passed", { right: event.right, asked: event.asked }, "good", true)]
-        : [line("line.activity.exam-failed", { right: event.right, asked: event.asked, pass: event.pass }, "bad", true)];
+        // The act rides with the line, so a talk is told as a talk and the exam as an exam.
+        ? [line("line.activity.exam-passed", { right: event.right, asked: event.asked, activity: event.activity }, "good", true)]
+        : [line("line.activity.exam-failed", { right: event.right, asked: event.asked, pass: event.pass, activity: event.activity }, "bad", true)];
     case "activity/contributed":
       return [line(event.first ? "line.activity.first-merged" : "line.activity.contributed", {}, event.first ? "good" : "plain")];
     case "activity/word-of-mouth":

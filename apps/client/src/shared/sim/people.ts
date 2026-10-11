@@ -3,7 +3,7 @@
 // moment, an interview option and a phrase. The people tab, the month plan,
 // the route gates and the interview all read these, so they live here.
 import { content, text } from "@japacity/content";
-import type { BondStage, Id, Moment, PersonFacts, PhraseEntry, PlayerView } from "@japacity/sim";
+import type { BondStage, Id, Moment, PersonFacts, PhraseEntry, PlayerView, ReportLine } from "@japacity/sim";
 
 import { lowerFirst, nameOf, say } from "../words/text";
 
@@ -157,6 +157,43 @@ export function monthsWithout(view: PlayerView, bond: BondView): number | null {
   if (tick < 0) return null;
   const month = monthOfTick(view, tick);
   return month === null ? null : Math.max(0, view.month - month);
+}
+
+/**
+ * The month a bond ended, read back from its cooldown (R-PEOPLE-039 sets it to the end's month plus
+ * `tuning.people.recourtMonths`), or null for a bond not ended. The view carries no end of its own (R-PEOPLE-051).
+ */
+export function endedMonth(bond: Pick<BondView, "stage" | "cooldownUntil">): number | null {
+  if (bond.stage !== "ended" || bond.cooldownUntil === null) return null;
+  return bond.cooldownUntil - content.tuning.people.recourtMonths;
+}
+
+/**
+ * True while an ended bond's thread stays in Chats (R-PEOPLE-042): through the
+ * month it ended in, with the line that says so in its head, and gone once that month ends.
+ */
+export function endStillTold(view: Pick<PlayerView, "month">, bond: Pick<BondView, "stage" | "cooldownUntil">): boolean {
+  const month = endedMonth(bond);
+  return month !== null && month >= view.month;
+}
+
+/** How a bond ended, as its thread's head tells it: they stopped waiting, they left, you ended it, or it is over. */
+export type EndedHow = "drift" | "them" | "me" | "other";
+
+const END_LINES: Readonly<Record<string, EndedHow>> = {
+  "line.people.drifted": "drift",
+  "line.people.left": "them",
+  "line.people.ended": "me",
+};
+
+/**
+ * How a bond ended, read from the lines that told it (the month's report and the lines of the month in hand and the
+ * last): the line whose `who` is this bond's person, or `player` for a friend. `other` when no such line is held.
+ */
+export function endedHow(bond: Pick<BondView, "person">, lines: readonly ReportLine[]): EndedHow {
+  const who = bond.person ?? "player";
+  const told = lines.filter((line) => line.key.startsWith("line.people.") && line.params["who"] === who).map((line) => END_LINES[line.key]);
+  return told.findLast((how) => how !== undefined) ?? "other";
 }
 
 /** The routes a joint may be asked on: known or later, and bringing a partner (R-PEOPLE-021, R-PEOPLE-025). */

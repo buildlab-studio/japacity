@@ -58,7 +58,8 @@ const AGENT_DESK: StepWay = { go: "place.agent-office", at: ["place.agent-office
 const STEP_WAYS: Record<string, StepWay> = {
   "chapter.find-your-feet.job": { go: "place.yaba", at: ["place.yaba:jobs", "place.ojuelegba:hub"] },
   "chapter.find-your-feet.pay": MONTH_END,
-  "chapter.find-your-feet.heard": { go: "place.yaba", at: ["place.yaba:meetup", "place.ojuelegba:hub"] },
+  // The meetup's own act, one tap, not its thing's chips.
+  "chapter.find-your-feet.heard": { go: "place.yaba", at: ["place.yaba:meetup", "place.ojuelegba:hub"], opens: "activity.meetup" },
   "chapter.find-your-feet.known": HUB_DESK,
   "chapter.build-the-file.passport": PASSPORT_DESK,
   "chapter.build-the-file.transcript": onThePhone("activity.get-transcript"),
@@ -79,7 +80,8 @@ const STEP_WAYS: Record<string, StepWay> = {
   "chapter.build-the-file-care.window": MONTH_END,
   "chapter.build-the-file-care.applied": VISA_DESK,
   "chapter.build-the-file-talent.portfolio": HUB_DESK,
-  "chapter.build-the-file-talent.endorsement": HUB_DESK,
+  // The endorsement's own card at the desk, not the fifth thing under "Ask about routes".
+  "chapter.build-the-file-talent.endorsement": { ...HUB_DESK, opens: "activity.apply-endorsement" },
   "chapter.build-the-file-talent.applied": VISA_DESK,
   "chapter.build-the-file-points.eca": onThePhone("activity.get-eca"),
   "chapter.build-the-file-points.english": { go: "place.english-test-centre", at: ["place.english-test-centre:desk"] },
@@ -132,8 +134,8 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   if (own !== null) return { go: own.place, at: [`${own.place}:${own.thing}`] };
   // The plane blocked by held funds: the way is the bank's counter that takes them back.
   if (view.chapter.current === "chapter.send-off" && step === "departed" && heldFundsOpen({ ...view, setpiece: null, interview: null, offers: [], report: null })) return HELD_FUNDS_WAY;
-  // The care file's detour, where the nudge names one.
-  const detour = careDetour(view, step);
+  // The file's detour, where the nudge names one.
+  const detour = fileDetour(view, step);
   return STEP_WAYS[detour ?? `${view.chapter.current}.${step}`] ?? null;
 }
 
@@ -221,11 +223,32 @@ function refusalWait(view: NudgeView, stepKey: string): number | null {
   return gate.cooledFromMonth > (view.month ?? 0) ? gate.cooledFromMonth : null;
 }
 
+/**
+ * The act that moves each quality a shut step needs, and where it is taken: the coding course
+ * at the hub's desk for tech, the portfolio's work there for the pieces, the hub's meetup for the people who will write.
+ */
+const NEED_WAYS: Readonly<Record<string, StepWay>> = {
+  "quality.tech": { go: "place.yaba", at: ["place.yaba:desk"], opens: "activity.learn-tech" },
+  "quality.portfolio": { go: "place.yaba", at: ["place.yaba:desk"], opens: "activity.build-portfolio" },
+  "quality.network": { go: "place.yaba", at: ["place.yaba:meetup"], opens: "activity.meetup" },
+};
+
+/** The first need a shut step's act is missing that has its own words and way (`<own>.needs.<quality>`), or null. */
+function needOf(missing: NonNullable<NudgeView["activities"]>[number]["missing"], own: string, has: (key: string) => boolean): { key: string; way: StepWay } | null {
+  for (const requirement of missing) {
+    if (requirement.type !== "quality/min") continue;
+    const key = `${own}.needs.${requirement.quality}`;
+    const way = NEED_WAYS[requirement.quality];
+    if (way !== undefined && has(key)) return { key, way };
+  }
+  return null;
+}
+
 /** The route the chapters follow, for the school's answer and the funds (chapter.md). */
 const STORY_ROUTE = "route.uk-masters";
 
 /** The activity that does a step, so a step planned this month or short of money can say so. */
-const STEP_ACTIVITY: Record<string, string> = {
+export const STEP_ACTIVITY: Readonly<Record<string, string>> = {
   "chapter.find-your-feet.known": "activity.look-into-route",
   "chapter.find-your-feet.heard": "activity.meetup",
   "chapter.build-the-file.passport": "activity.get-passport",
@@ -276,9 +299,13 @@ const HELD_FUNDS = "held-funds";
 
 const NURSE_JOB = "activity.job-nurse";
 
-/** The waiting months' acts by profile (R-ACTIVITY-013): the act a life with nothing else to do is pointed at, where it is offered and not yet planned. */
+/**
+ * The waiting months' acts by profile (R-ACTIVITY-013): the act a life with nothing else to do is pointed at, where it is
+ * offered and not yet planned. Never the nurse's certification: the care file reads neither the certificate nor the care
+ * it adds, so it is no step of the file and the nudge never names it. It stays on the
+ * clinic's notice.
+ */
 const MEANWHILE: readonly { act: string; fits: (view: NudgeView) => boolean }[] = [
-  { act: "nurse-certification", fits: (view) => qualityOf(view, "quality.care") >= 50 && (view.documents ?? []).some((paper) => paper.id === "document.nursing-licence" && paper.state === "held") },
   { act: "open-source", fits: (view) => qualityOf(view, "quality.tech") >= 40 },
   { act: "tech-posts", fits: (view) => qualityOf(view, "quality.tech") >= 30 },
   // Not for the staff nurse: getting noticed counts toward the study visa and Canada's points, never care work, and her
@@ -288,7 +315,6 @@ const MEANWHILE: readonly { act: string; fits: (view: NudgeView) => boolean }[] 
 
 /** Where each waiting-month act is taken (the m18 builders' stagings). */
 export const MEANWHILE_WAYS: Readonly<Record<string, StepWay>> = {
-  "nurse-certification": { go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"] },
   "open-source": { go: "place.yaba", at: ["place.yaba:desk"] },
   "tech-posts": { go: "place.yaba-hub", at: ["place.yaba-hub:laptops"] },
   "be-noticed": { go: "place.yaba", at: ["place.yaba:jobs"] },
@@ -317,11 +343,15 @@ const WINDOW_STEP = "chapter.build-the-file-care.window";
 const PASSPORT_STEP = "chapter.build-the-file.passport";
 const ENGLISH_STEP = "chapter.build-the-file.english";
 const VERIFICATION_STEP = "chapter.build-the-file-care.verification";
-/** What the care visa needs before it is sent, in the route's checklist order (route.data.ts), each as the tables' step that gets it. */
+const CARE_TB_STEP = "chapter.decision-day-care.tb";
+/**
+ * What the care visa needs before it is sent, in the route's checklist order (route.data.ts), each as the tables' step
+ * that gets it. The TB certificate is not among them: it lasts six months, so it is taken last, once nothing else is
+ * missing and the window is open.
+ */
 const CARE_PAPERS: readonly { item: string; step: string }[] = [
   { item: "passport", step: PASSPORT_STEP },
   { item: "english", step: ENGLISH_STEP },
-  { item: "tb", step: "chapter.decision-day-care.tb" },
   { item: "police", step: "chapter.decision-day-care.police" },
   { item: "salary", step: "chapter.build-the-file-care.salary" },
 ];
@@ -335,10 +365,27 @@ function wordsOf(stepKey: string): string {
 }
 
 /**
+ * The step the nudge names in place of the chapter's own, as the tables' step key, or null for the chapter's own: the
+ * care file's (`careDetour`), and the talent file's passport before its TB test, which the test needs (the thirteenth
+ * review, Z10: the TB test is never pointed at before the file's other steps are met).
+ */
+function fileDetour(view: CareView, step: string): string | null {
+  if (view.chapter.current === TALENT_DAY && step === "tb") {
+    const talent = view.routes?.find((route) => route.id === TALENT_ROUTE);
+    return talent?.checklist.find((item) => item.id === "passport")?.met === false ? PASSPORT_STEP : null;
+  }
+  return careDetour(view, step);
+}
+
+const TALENT_ROUTE = "route.uk-talent";
+const TALENT_DAY = "chapter.decision-day-talent";
+
+/**
  * The care file's step the nudge names in place of the chapter's own, as the tables'
  * step key, or null for the chapter's own. A lapsed licence's renewal comes first in any month of the file. In the months
- * on the ward, the passport. While the council works, the passport, then the English test. At the application, each thing
- * the visa needs in the route's order: the first that can be got now, else the first on its way, else the window's wait.
+ * on the ward, the passport. While the council works, the passport, then the English test. At the application, and at
+ * the decision day's TB step, each thing the visa needs in the route's order: the first that can be got now, else the
+ * first on its way, else the window's wait, and only then the TB test.
  */
 function careDetour(view: CareView, step: string): string | null {
   if (!CARE_CHAPTERS.has(view.chapter.current ?? "")) return null;
@@ -354,11 +401,12 @@ function careDetour(view: CareView, step: string): string | null {
   if (unmet("licence")) return LICENCE_STEP;
   if (step === TENURE) return now("passport", PASSPORT_STEP) ? PASSPORT_STEP : null;
   if (step === "verification" && pending(VERIFICATION_STEP)) return [{ item: "passport", step: PASSPORT_STEP }, { item: "english", step: ENGLISH_STEP }].find((paper) => now(paper.item, paper.step))?.step ?? null;
-  if (step !== "applied") return null;
+  if (step !== "applied" && step !== "tb") return null;
   const missing = CARE_PAPERS.filter((paper) => unmet(paper.item));
   const first = missing.find((paper) => now(paper.item, paper.step)) ?? missing.find((paper) => pending(paper.step)) ?? missing[0];
   if (first !== undefined) return first.step;
-  return care.window === "closed" ? WINDOW_STEP : null;
+  if (care.window === "closed") return WINDOW_STEP;
+  return step === "applied" && unmet("tb") ? CARE_TB_STEP : null;
 }
 
 /** True while funds held for the visa are still to be given back. */
@@ -393,7 +441,7 @@ function nairaDues(view: NudgeView): number {
  * says to end the month, funds short of the line say how much more to show, and a step refused says when it can be
  * asked for again. Null: not started.
  */
-function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: readonly string[], has: (key: string) => boolean): { key: string; params?: Record<string, string | number> } | null {
+function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: readonly string[], has: (key: string) => boolean): { key: string; params?: Record<string, string | number>; way?: StepWay } | null {
   const month = view.month ?? 0;
   // An act done at once this month (R-ACTIVITY-015) waits on the month's end as a planned one does; the view marks it `done`.
   const done: readonly string[] = (view.activities ?? []).filter((option) => option.done).map((option) => option.id);
@@ -444,7 +492,12 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
     // The act is shut by what it needs (the endorsement before the portfolio and the people who will write): its own
     // needs words, so the nudge never points at an act the player cannot see.
     const shutOption = view.activities?.find((candidate) => candidate.id === activity);
-    if (shutOption !== undefined && !shutOption.allowed && has(`${own}.needs`)) return { key: `${own}.needs` };
+    if (shutOption !== undefined && !shutOption.allowed) {
+      // The first unmet need names its own act and opens it: never "needs more" with no act.
+      const need = needOf(shutOption.missing, own, has);
+      if (need !== null) return need;
+      if (has(`${own}.needs`)) return { key: `${own}.needs` };
+    }
     // Short of money: the nudge names the gap and a way to it, instead of the thing again; once a hunt for better pay is
     // planned it says so, and once the job's pay covers the gap within a month it says to work and save.
     const option = view.activities?.find((candidate) => candidate.id === activity);
@@ -534,9 +587,10 @@ function cheapestFare(view: NudgeView): number {
 
 /**
  * When nothing can be paid, a free step: the step's stop needs a fare the naira held cannot
- * pay and is too far to walk, so the nudge names what can be done on foot instead: walking home where home is near
- * enough, the racks for a life in Makoko with no job, a job on a board within reach, else the month's end. Null when the
- * step can be reached.
+ * pay and is too far to walk, so the nudge names what can be done on foot instead: walking home whenever home is not
+ * here, however far, then the racks for a
+ * life in Makoko with no job, a job on a board within reach, and at home the month's end. Null when the step can be
+ * reached.
  */
 export function freeStep(view: NudgeView & StepView, reach: Reach, has: (key: string) => boolean = hasWords): (Nudge & { about: NudgeAbout; way: StepWay }) | null {
   const held = (view.pockets?.NGN.cash ?? 0) + (view.pockets?.NGN.bank ?? 0);
@@ -546,11 +600,11 @@ export function freeStep(view: NudgeView & StepView, reach: Reach, has: (key: st
   if (way.at.some((entry) => entry.startsWith(`${reach.here}:`)) || onFoot(reach, way.go)) return null;
   const jobless = (view.job?.id ?? null) === null;
   const board = view.activities?.find((option) => option.id === "activity.job-hunt")?.params ?? [];
-  if (reach.home !== null && reach.home !== reach.here && onFoot(reach, reach.home) && has("ui.nudge.broke.home")) return { key: "ui.nudge.broke.home", about: "step", way: { go: reach.home, at: [] } };
+  if (reach.home !== null && reach.home !== reach.here && has("ui.nudge.broke.home")) return { key: "ui.nudge.broke.home", about: "step", way: { go: reach.home, at: [] } };
   if (jobless && board.includes(RACKS) && onFoot(reach, MAKOKO) && has("ui.nudge.broke.racks")) return { key: "ui.nudge.broke.racks", about: "step", way: RACKS_WAY };
   if (jobless && board.length > 0 && BOARD_STOPS.some((stop) => onFoot(reach, stop)) && has("ui.nudge.broke.job")) return { key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY };
-  // Nothing free is near either (11 Oct 2026, the teacher's ready life stuck at the passport office with no fare): the
-  // month's end is the step, never a ride that cannot be paid (R-WORLD-003).
+  // At home with nothing free near (11 Oct 2026, the teacher's ready life stuck with no fare): the month's end is the
+  // step, never a ride that cannot be paid (R-WORLD-003). Away from home the walk home came first.
   if (has("ui.nudge.broke.wait")) return { key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } };
   return null;
 }
@@ -581,10 +635,8 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   const step = stepOf(view);
   if (view.chapter.current !== null && step !== null) {
     const care = CARE_CHAPTERS.has(view.chapter.current);
-    // In the months on the ward, the certification comes first while she can sit it: it counts toward care.
-    if (care && step === TENURE && meanwhileOf(view, planned) === "nurse-certification" && has("ui.nudge.meanwhile.nurse-certification")) return { key: "ui.nudge.meanwhile.nurse-certification", about: "step" };
     // The care file's detour names its own step in its own words.
-    const detour = careDetour(view, step);
+    const detour = fileDetour(view, step);
     // The story's own nudge words for the step when content has them (at most eight words), else the step's words.
     const own = detour === null ? `${view.chapter.current}.item.${step}` : wordsOf(detour);
     const started = startedKey(view, own, detour ?? `${view.chapter.current}.${step}`, planned, has);

@@ -78,7 +78,8 @@ export const routeText: Record<string, string> = {
   "route.uk-care.item.passport.way": "Apply at the passport office in Ikoyi",
   "route.uk-care.item.english.way": "Sit it at the English test centre",
   "route.uk-care.item.sponsor.way": "Look for one at the hub's desk",
-  "route.uk-care.item.tb.way": "At the clinic, once the passport is held",
+  // The TB certificate runs out: taken last, when the application is near.
+  "route.uk-care.item.tb.way": "At the clinic, last of all: it lasts {months} months, so take it when the application is near",
   "route.uk-care.item.police.way": "Ask at the visa centre's notice",
   "route.uk-care.item.applied.way": "At the visa centre's desk",
 
@@ -117,6 +118,14 @@ export const routeText: Record<string, string> = {
   "route.uk-talent.item.endorsement": "Endorsement held",
   "route.uk-talent.item.tb": "TB certificate held",
   "route.uk-talent.item.applied": "Visa application sent",
+  // Where each need not yet met is taken, its act and its place, on a line under it in Japa.
+  "route.uk-talent.item.tech.way": "The coding course at the hub",
+  "route.uk-talent.item.portfolio.way": "Work on it at the hub's desk, or give a talk",
+  "route.uk-talent.item.network.way": "The meetups at the hub, or a talk",
+  "route.uk-talent.item.passport.way": "Apply at the passport office in Ikoyi",
+  "route.uk-talent.item.endorsement.way": "Apply at the hub's desk",
+  "route.uk-talent.item.tb.way": "At the clinic, last of all: it lasts {months} months, so take it when the application is near",
+  "route.uk-talent.item.applied.way": "At the visa centre's desk",
 
   "route.gulf-contract.name": "A contract in the Gulf",
   "route.gulf-contract.blurb":

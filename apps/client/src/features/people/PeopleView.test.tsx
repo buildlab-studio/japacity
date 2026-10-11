@@ -74,7 +74,12 @@ describe("the parents", () => {
     expect(mother.textContent).toMatch(/\bshe\b/i);
     expect(mother.textContent).not.toMatch(/\bthey\b/i);
     expect(mother.textContent).not.toContain(say("ui.people.slot.state.computer"));
-    expect(say("ui.people.mark.computer").split(" ")).toHaveLength(1);
+    // The mark stays a short tag, never a name: decided 11 Oct 2026 (after review 13), its word is "Not a
+    // player", three words where it was one.
+    expect(say("ui.people.mark.computer")).toBe("Not a player");
+    // The mark is its own tag beside the name, never part of it.
+    expect(say("ui.people.parent.name.mother")).not.toContain(say("ui.people.mark.computer"));
+    expect(within(mother).getByText(say("ui.people.mark.computer")).textContent).toBe(say("ui.people.mark.computer"));
   });
 });
 

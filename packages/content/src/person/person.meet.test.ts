@@ -48,4 +48,14 @@ describe("the partner met in a place", () => {
     const words = Object.fromEntries(keys.map((key) => [key, text[key] ?? ""]));
     expect(institutionProblems(words)).toEqual([]);
   });
+
+  // once courted, the person answers in their own voice; if the bond
+  // ends without the player ending it, the reason is theirs too.
+  test("[R-PEOPLE-013] [R-PEOPLE-042] [R-PEOPLE-041] given every partner who can be met, when their words are looked up, then there is an answer once courted, a reason for stopping waiting and a reason for leaving, each one line in quotes, with no institution beside a crime", () => {
+    const keys = partnerMeetings.flatMap((meeting) => [`${meeting.person}.courted`, `${meeting.person}.drifted`, `${meeting.person}.left`]);
+    expect(keys.filter((key) => (text[key] ?? "").trim() === "" || (text[key] ?? "").includes("\n"))).toEqual([]);
+    expect(keys.filter((key) => !/^".+"$/.test(text[key] ?? ""))).toEqual([]);
+    const words = Object.fromEntries(keys.map((key) => [key, text[key] ?? ""]));
+    expect(institutionProblems(words)).toEqual([]);
+  });
 });

@@ -6,10 +6,9 @@ import type { ModeSettings } from "./mode";
 import type { PlaceFile } from "./placeFile";
 import type { Walker } from "./walk";
 
-/** What the screen makes of a tap: a person, the player, a shopfront, a thing chosen, or what an act of a thing does. */
+/** What the screen makes of a tap: a person, a shopfront, a thing chosen, or what an act of a thing does. A tap on the player's own figure makes nothing (R-WORLD-005). */
 export type Picked =
   | { kind: "person"; slot: number }
-  | { kind: "own" }
   | { kind: "model"; file: string; signs: string[] }
   | { kind: "thing"; thing: Thing }
   | { kind: "action"; activity: string; more?: string[]; label?: string; param?: string }
