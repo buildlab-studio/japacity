@@ -44,7 +44,8 @@ function takeMorningSwitch(): void {
     if (asked === "now") localStorage.setItem(MORNING_KEY, "now");
     else localStorage.removeItem(MORNING_KEY);
   } catch {
-    // Storage blocked: the switch does nothing.
+    // Storage blocked: the switch does nothing, and the envelopes keep their mornings.
+    return;
   }
 }
 
