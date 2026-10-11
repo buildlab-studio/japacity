@@ -186,15 +186,20 @@ function fieldsOf(draft: DoorDraft): PageFields {
     // Where the life is from: a ready life's own; a new one's comes with its family, drawn at Begin (R-PROLOGUE-009).
     from: ready === null ? "" : hometownWords(content.scenario[ready]?.hometown ?? null),
     ...(archetype === null ? {} : { was: say(`prologue.archetype.${archetype.id}.was`) }),
-    // The strip from what the door knows: the home's district and the year picked; how ready comes with the life.
-    strip: { district: home === null ? "" : say(`ui.door.home.where.${home}`), years, percent: null },
+    // The strip from what the door knows: the home's district and the year picked; how ready comes with the life. A ready
+    // life starts in the family house, as every fixed life does, so its strip names Surulere as a tile's does.
+    strip: { district: home !== null ? say(`ui.door.home.where.${home}`) : ready !== null ? say(`ui.door.home.where.${READY_HOME}`) : "", years, percent: null },
     photo: lookOf(draft.look)?.picture ?? "",
     wear: { look: draft.look, ...(draft.style === undefined ? {} : { style: draft.style }) },
   };
 }
 
-/** The path and the age in small figures under the name over the figure. */
+/** Where every ready life starts (home.md: the home kind's first place), for the page's strip before Begin. */
+const READY_HOME: Home = "family-house";
+
+/** The path and the age in small figures under the name over the figure; on the ready lives, nothing until one is picked. */
 function captionOf(draft: DoorDraft): string {
+  if (draft.stage === "ready" && draft.ready === null) return "";
   const years = yearsFor(draft);
   const path = pathWords(draft);
   if (years === null) return path;

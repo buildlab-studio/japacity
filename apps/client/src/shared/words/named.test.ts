@@ -2,10 +2,24 @@
 // laptop's repair read "Something went wrong and it cost ₦85,000." on the results.
 import { describe, expect, test } from "vitest";
 
-import { moneyLines } from "../../features/turn/month.results";
+import { content } from "@japacity/content";
+import type { ReportLine } from "@japacity/sim";
+
+import { moneyLines, otherLines } from "../../features/turn/month.results";
 import { newGame, openOffer } from "../testing/fixtures";
 import { formatMoney } from "./format";
 import { words } from "./text";
+
+/** The prize message claimed on the first seed whose draw makes it a fraud, or honest: the answer's lines and the month's. */
+function promoClaimed(fraud: boolean): ReportLine[] {
+  for (let seed = 1; seed < 40; seed += 1) {
+    const game = newGame("scenario.ada", `promo-${String(seed)}`);
+    const offer = openOffer(game, "offer.telco-promo");
+    const lines = game.accept({ type: "offer/choose", offer: offer.id, choice: "claim" }).lines;
+    if (lines.some((line) => line.key === "line.wallet.gift") !== fraud) return [...lines, ...game.endTurn().lines];
+  }
+  throw new Error(`No seed made the prize message ${fraud ? "a fraud" : "honest"}.`);
+}
 
 describe("money named for the blow that took it", () => {
   test("[R-WORLD-008] given the laptop's fault and its repair paid, when the month's money is read, then the line names the repair and its cost", () => {
@@ -27,5 +41,23 @@ describe("money named for the blow that took it", () => {
     const said = money.map((entry) => words(entry.line.key, entry.line.params));
     expect(said.some((line) => line.startsWith("Treatment for the illness: "))).toBe(true);
     expect(said.some((line) => line.startsWith("Something went wrong"))).toBe(false);
+  });
+
+  // Review 14, X6: "Send N2,000 to claim your prize" was told as "Paid to the agent: ₦2,000." though there was no agent.
+  test("[R-LUCK-007] [R-WORLD-008] given the prize message claimed and a fraud, when the month's money is read for the results, the Bank and News, then the fee is said as sent for a prize that never came, never paid to an agent", () => {
+    const lines = promoClaimed(true);
+    const fee = moneyLines(lines).filter((entry) => entry.amount === 200_000 && entry.sign === -1);
+    expect(fee.map((entry) => entry.line.key)).toEqual(["ui.line.offer-paid.offer.telco-promo.fee-agent"]);
+    expect(words(fee[0]!.line.key, fee[0]!.line.params)).toBe(`${formatMoney(200_000, "NGN")} sent for a prize that never came.`);
+    const said = [...moneyLines(lines), ...otherLines(lines).map((line) => ({ line }))].map((entry) => words(entry.line.key, entry.line.params));
+    expect(said.some((line) => line.includes("agent"))).toBe(false);
+  });
+
+  test("[R-LUCK-007] [R-WORLD-008] given the prize message claimed and honest, when the month's money is read, then the fee is said as sent to claim the prize and the prize as come through, and no agent is named", () => {
+    const lines = promoClaimed(false);
+    const said = moneyLines(lines).map((entry) => words(entry.line.key, entry.line.params));
+    expect(said).toContain(`${formatMoney(200_000, "NGN")} sent to claim the prize.`);
+    expect(said).toContain(`The prize came through: ${formatMoney(content.tuning.luck.promo, "NGN")}.`);
+    expect(said.some((line) => line.includes("agent") || line.includes("never came"))).toBe(false);
   });
 });

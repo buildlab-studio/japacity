@@ -46,6 +46,10 @@ export const turnText: Record<string, string> = {
   "turn.results.no-money": "No money came in or went out.",
   "turn.results.draw": "Draw {draw}",
   "turn.results.draw-matched": "One of yours came in",
+  // The month the Friday draw's result comes, a player who held tickets in it and won nothing is told so (lottery.md
+  // R-LOTTERY-016).
+  "turn.results.draw-missed": "Your tickets did not win.",
+  "turn.results.draw-missed.one": "Your ticket did not win.",
   "turn.results.savings": "Saved for the move",
   "turn.results.savings-line": "{shown} of {required}",
   "turn.results.ready": "Ready to move",

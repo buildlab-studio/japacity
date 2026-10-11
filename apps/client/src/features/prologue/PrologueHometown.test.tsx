@@ -1,6 +1,6 @@
 // Where the life is from, on the page and the family card (prologue.md R-PROLOGUE-009, R-PROLOGUE-014, amended 11 Oct
 // 2026): the page prints FROM beside FAMILY as its card turns over, the card's title says
-// "Family in" the town with its means a tag, and the child of the water is from Lagos. Real content, real draws.
+// "Family from" the town with its means a tag, and the child of the water is from Lagos. Real content, real draws.
 import { act } from "@testing-library/react";
 import { content } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -50,14 +50,14 @@ async function handover(id: string, seed: string): Promise<ReturnType<typeof new
 const field = (id: string): string | null => document.querySelector(`[data-page] [data-field='${id}']`)?.textContent ?? null;
 
 describe("where the life is from, on the handover", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-014] given a tile's life handed over, when its family turns over, then the card says Family in the town the view names, the means stand as a tag beside the others, and the page prints FROM that town beside FAMILY in its means", async () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-014] given a tile's life handed over, when its family turns over, then the card says Family from the town the view names, the means stand as a tag beside the others, and the page prints FROM that town beside FAMILY in its means", async () => {
     const game = await handover("developer", "hometown-page-0");
     const hometown = game.view().hometown;
     expect(hometown).not.toBeNull();
     const town = say(`${hometown!}.name`);
     expect(content.tuning.prologue.hometowns.city.concat(content.tuning.prologue.hometowns.town)).toContain(hometown);
-    expect(document.querySelector("[data-family-title]")?.textContent).toBe(say("ui.page.family.in", { hometown: town }));
-    expect(document.querySelector("[data-family-title]")?.textContent).toBe(`Family in ${town}`);
+    expect(document.querySelector("[data-family-title]")?.textContent).toBe(say("ui.page.family.from", { hometown: town }));
+    expect(document.querySelector("[data-family-title]")?.textContent).toBe(`Family from ${town}`);
     const tags = [...document.querySelectorAll("[data-family-tags] > *")].map((tag) => tag.textContent);
     const means = ["low", "middle", "high"].map((band) => say(`ui.page.family.${band}`));
     expect(tags.filter((tag) => means.some((words) => tag?.includes(words)))).toHaveLength(1);

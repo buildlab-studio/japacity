@@ -1,5 +1,5 @@
 import { content, text } from "@japacity/content";
-import { screen, within } from "@testing-library/react";
+import { cleanup, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { newGame, openOffer, recordedGame, recordedSave, viewAfter } from "../../shared/testing/fixtures";
@@ -62,6 +62,25 @@ describe("the luck offers and the offers abroad, from the engine", () => {
     expect(card.textContent).not.toContain(formatMoney(content.tuning.luck.promo, "NGN"));
     for (const sign of offer.signs) expect(within(card).getByText(text[`offer.telco-promo.sign.${sign}`]!)).toBeDefined();
     expectClean(card);
+  });
+
+  // Review 14: "Pay the deposit: ₦300,000" was the yellow button and "Tell your cousin no" the plain one; four of seven
+  // quick hands paid it.
+  test("[R-ADVICE-006] [R-WORLD-006] given an ask that may be a scam (the cousin's pitch, the prize message), then no answer is the main button, and the answer that costs nothing comes first; an honest ask keeps its main button", async () => {
+    for (const [entry, no, pay] of [["offer.road-cousin", "ignore", "take"], ["offer.telco-promo", "ignore", "claim"]] as const) {
+      const game = newGame();
+      openOffer(game, entry);
+      await renderWithView(<OfferView />, game.view());
+      const buttons = within(cardOf(entry)).getAllByRole("button");
+      expect(buttons.map((button) => button.className.includes("bg-accent"))).toEqual(buttons.map(() => false));
+      expect(buttons[0]!.textContent).toBe(text[`${entry}.choice.${no}`]);
+      expect(buttons[1]!.textContent).toContain(text[`${entry}.choice.${pay}`]!);
+      cleanup();
+    }
+    const game = newGame();
+    openOffer(game, "offer.roof");
+    await renderWithView(<OfferView />, game.view());
+    expect(within(cardOf("offer.roof")).getAllByRole("button")[0]!.className).toContain("bg-accent");
   });
 
   test("[R-LUCK-010] given the scholarship round on Ada's life with a school's offer held, then it shows in content's words with nothing to pay", async () => {

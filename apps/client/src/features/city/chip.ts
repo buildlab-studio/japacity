@@ -58,11 +58,14 @@ export function chipNode(thing: Thing, onAct: (act: Act) => void, onStop: (act: 
   return chip;
 }
 
-/** The small `computer` tag beside a person's name, in the words the people's cards use. */
+/**
+ * The small `computer` tag beside a person's name, in the words the people's cards use: quiet, in the case a person
+ * writes it, never shouted in capitals (text.md R-TEXT-005, people.md R-PEOPLE-009).
+ */
 export function markTag(mark: NonNullable<Thing["mark"]>): HTMLSpanElement {
   const tag = document.createElement("span");
   tag.dataset.personMark = mark;
-  tag.className = "ml-1.5 rounded-[3px] border border-sheet-line px-1.5 py-px align-[2px] text-[10px] font-extrabold uppercase text-text-2";
+  tag.className = "ml-1.5 rounded-[3px] border border-sheet-line px-1.5 py-px align-[2px] text-[12px] font-semibold text-text-2";
   tag.textContent = sceneWords(`ui.people.mark.${mark}`);
   return tag;
 }

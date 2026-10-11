@@ -222,12 +222,33 @@ const LAPSED = "line.offer.lapsed";
 function paidFor(lines: readonly ReportLine[]): ReportLine[] {
   return lines.map((line, index) => {
     if (!line.key.startsWith(WALLET)) return line;
-    const next = lines.slice(index + 1).find((other) => other.key === TAKEN || other.key.startsWith(WALLET));
-    const offer = next?.key === TAKEN ? next.params.offer : undefined;
+    const later = lines.slice(index + 1);
+    const next = later.find((other) => other.key === TAKEN || other.key.startsWith(WALLET));
+    const reason = line.key.slice(WALLET.length);
+    if (next?.key !== TAKEN) return withMoneyAfter(line, later);
+    const { offer } = next.params;
     if (typeof offer !== "string") return line;
-    const key = line.key === FAMILY ? `${FAMILY_PAID}${offer}` : `${OFFER_PAID}${offer}`;
-    return hasWords(key) ? { ...line, key } : line;
+    // The answer's own words for this payment by its reason, where content has them, before its words for any payment
+    //.
+    const keys = line.key === FAMILY ? [`${FAMILY_PAID}${offer}`] : [`${OFFER_PAID}${offer}.${reason}`, `${OFFER_PAID}${offer}`];
+    const key = keys.find(hasWords);
+    return key === undefined ? line : { ...line, key };
   });
+}
+
+/**
+ * A payment an answer moved before more of the answer's money (the prize message answered honestly: the fee, then the
+ * prize): said by the answer's words for that payment with the money after it, `<offer>.<reason>.then-<reason>`, where
+ * content has them; any other keeps the wallet's words. Only the wallet's lines may stand between it and the answer.
+ */
+function withMoneyAfter(line: ReportLine, later: readonly ReportLine[]): ReportLine {
+  const close = later.findIndex((other) => !other.key.startsWith(WALLET));
+  const taken = close < 1 ? undefined : later[close];
+  const offer = taken?.key === TAKEN ? taken.params.offer : undefined;
+  const after = later[0]?.key.slice(WALLET.length);
+  if (typeof offer !== "string" || after === undefined) return line;
+  const key = `${OFFER_PAID}${offer}.${line.key.slice(WALLET.length)}.then-${after}`;
+  return hasWords(key) ? { ...line, key } : line;
 }
 
 /**

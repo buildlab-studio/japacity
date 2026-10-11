@@ -102,7 +102,8 @@ describe("bad news told in the past tense", () => {
     const past = ["line.route.school-rejected", "line.activity.driving-failed", "line.activity.lotto-lost", "line.activity.pay-withheld", "line.activity.bet-lost", "line.wallet.remit-lost"];
     expect(past.filter((key) => !badNews(key, text[key] ?? ""))).toEqual([]);
     expect(badNews("line.test.past", "The school turned you down. The examiner said no. Nothing came in. The pay did not come. It never arrived.")).toBe(true);
-    for (const said of ["turned you down", "said no", "Nothing came in", "did not come", "never arrived"]) expect(badNews("line.test.one", `Then: ${said}.`)).toBe(true);
+    // "did not win" joined 11 Oct 2026: the kiosk's draw lost is said as "Your ticket did not win."
+    for (const said of ["turned you down", "said no", "Nothing came in", "did not come", "never arrived", "did not win"]) expect(badNews("line.test.one", `Then: ${said}.`)).toBe(true);
   });
 });
 

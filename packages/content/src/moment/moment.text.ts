@@ -25,6 +25,8 @@ export const momentText: Record<string, string> = {
 
   // The visa refused (route.md R-ROUTE-018, 019): straight, by the first reason the letter gives.
   "moment.refused.kicker": "Visa refused",
+  // The endorsing body said no before any visa was asked for (R-ENDORSE-002): its own kicker.
+  "moment.refused.kicker.endorsement": "Endorsement refused",
   "moment.refused.line.funds": "Your statement showed the money. It did not show where it came from.",
   "moment.refused.line.interview": "Ten minutes at the window decided it. Your answers did not hold together.",
   "moment.refused.line.history": "They remembered the last refusal.",
@@ -45,6 +47,15 @@ export const momentText: Record<string, string> = {
   "moment.agent.kicker": "The agent is gone",
   "moment.agent.line": "He was a scam. The papers he promised were never coming.",
   "moment.agent.caption": "paid to him, and gone",
+
+  // The deposit a road pitch took for nothing (road.md R-ROAD-003, the fraud): straight, as the agent's,
+  // the pitch's own name in the title, the line by the pitch, the deposit gone as the figure.
+  "moment.deposit.kicker": "The deposit is gone",
+  "moment.deposit.line": "Three weeks to Europe, he said. His number is switched off now.",
+  "moment.deposit.line.offer.road-cousin": "Your cousin swears he did not know. His friend's number is switched off.",
+  "moment.deposit.line.offer.road-park": "He is not at the park any more. Nobody there will say his name.",
+  "moment.deposit.line.offer.road-radio": "The advert still plays on the radio. The number in it rings out.",
+  "moment.deposit.caption": "paid to hold a place, and gone",
 
   // The one chance on the bus home (activity.md R-ACTIVITY-011): straight.
   "moment.robbed.kicker": "One chance",

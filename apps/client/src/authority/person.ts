@@ -2,6 +2,9 @@
 // archetype, and the player's own colours on the look with the page's photo in them. The simulation holds none of them: they are kept on the device beside the save, under one
 // key of their own, and the city and the rides draw the character in the look. Online, presence already
 // carries a look; the server would keep these beside the character the same way.
+import { text } from "@japacity/content";
+import type { PlayerView } from "@japacity/sim";
+
 import { readStyle, type LookStyle } from "../shared/frontdoor/style";
 
 /** The one localStorage key the person is kept under, beside `japacity.save`. */
@@ -82,4 +85,15 @@ export function keptLookFile(storage: Read | null = browserStorage()): string | 
 export function keptStyleOf(file: string, storage: Read | null = browserStorage()): LookStyle | undefined {
   const person = readPerson(storage);
   return person !== null && `shared/chr/${person.look}.glb` === file ? person.style : undefined;
+}
+
+/**
+ * The player's first name for the life on screen (R-PROLOGUE-009): the one given at the door, kept beside the save, else
+ * a ready life's own. No computer person carries it (people.md R-PEOPLE-061).
+ */
+export function playerName(view: Pick<PlayerView, "scenario"> | null, storage: Read | null = browserStorage()): string | null {
+  if (view === null) return null;
+  const given = readPerson(storage)?.name.trim() ?? "";
+  if (given !== "") return given;
+  return text[`share.first-name.${view.scenario}`] ?? null;
 }

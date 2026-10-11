@@ -316,6 +316,7 @@ export function CardView() {
   const { card, scenario } = view;
   const turn = useCardsTurn();
   const closed = useGame((state) => state.cardClosed);
+  const told = useGame((state) => state.cardTold);
   const closeCard = useGame((state) => state.closeCard);
   const kept = useKept(scenario, view.month);
   const key = cardKey(card);
@@ -324,6 +325,11 @@ export function CardView() {
   const others = kept.filter((entry) => entry.key !== key);
   // Read when the send-off is due, kept with its card when it closes (decision 0018).
   const type = japaTypeOf(view);
+  // R-MOMENT-006: a chapter's close its moment card told is not told a third time;
+  // its card goes to the gallery as a closed one does, without opening.
+  useEffect(() => {
+    if (card !== null && key !== null && told === key) gallery.getState().keep(scenario, card, type);
+  }, [card, key, told, scenario, type]);
   const galleryTile =
     others.length === 0 ? null : (
       <div>

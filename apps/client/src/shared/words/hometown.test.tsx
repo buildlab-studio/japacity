@@ -38,7 +38,12 @@ describe("lines from home", () => {
     expect(words("offer.mum-shop.body", { cost: 1800000 })).toMatch(/^Mama: 'The supplier/);
     expect(say("ui.people.parent.blurb.mother")).toBe("At home, as she has always been. She calls when there is news.");
     expect(blurbOf("activity.call-home")).toBe("You call your mother and listen to all of it.");
-    expect(say("ui.page.family.in", { hometown: "Kano" })).toBe("Family in Kano");
+    // The card's title is where the family is from, its place of origin: "Family in" is superseded.
+    expect(say("ui.page.family.from", { hometown: "Kano" })).toBe("Family from Kano");
+    // The family there is the wider family: the hometown's events never put Mama in the town.
+    expect(words("offer.harvest.said.give", {})).toBe("You gave to the harvest. The family's name was called, and your uncle stood up for all of you.");
+    expect(words("offer.roof.said.pay", {})).toBe("You paid for the roof. The house back home stayed dry, and your father told everyone who paid.");
+    expect(words("offer.roof.said.no", {})).toBe("You told your father you could not pay for the roof. The rain came into the house back home again.");
     setNow(null);
     expect(nameOf("person.sib-home")).toBe("Your sibling in your hometown");
   });
@@ -53,7 +58,7 @@ describe("lines from home", () => {
         "offer.uncle-burial.body",
         "person.sib-home.blurb",
         "person.sib-home.name",
-        "ui.page.family.in",
+        "ui.page.family.from",
         "ui.prologue.town.city",
         "ui.prologue.town.town",
       ].sort(),

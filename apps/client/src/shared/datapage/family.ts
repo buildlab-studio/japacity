@@ -14,7 +14,7 @@ type Draw = NonNullable<NonNullable<PlayerView["prologue"]>["draw"]>;
 export const TRAIL_KEY = "japacity.door.years";
 
 export interface FamilyCard {
-  /** Where the family is: "Family in Enugu"; the child of the water's house on stilts in Makoko. */
+  /** Where the family is from: "Family from Enugu"; the child of the water's house on stilts in Makoko. */
   title: string;
   /** The family's means in a few words, as the page's FAMILY line prints them: "A family that gets by". */
   means: string;
@@ -34,8 +34,9 @@ function comfortableFrom(): number {
 const MEANS_TONE: Record<"low" | "middle" | "high", Tone> = { low: "down", middle: "plain", high: "up" };
 
 /**
- * The family the game drew (R-PROLOGUE-002) as a two-line card: where it is as the title, "Family in Enugu" (amended
- * 11 Oct 2026; the design's card), with its means and its ups and downs as small tags.
+ * The family the game drew (R-PROLOGUE-002) as a two-line card: where it is from as the title, "Family from Enugu"
+ * (amended 11 Oct 2026, the decision of 14:47; the decision of 16:22 and review 14, X5: the place of origin, never
+ * where the parents live), with its means and its ups and downs as small tags.
  * `hometown` is the view's (`hometown.<slug>`); where none is known yet the means stand as the title. The child of the
  * water grew up on the lagoon (R-PROLOGUE-012): its own title in place of the town and the means.
  */
@@ -48,7 +49,7 @@ export function familyCard(draw: Draw, water: boolean, hometown: string | null =
   if (!water) tags.push(draw.town === "city" ? { tone: "up", words: say("ui.page.family.city") } : { tone: "down", words: say("ui.page.family.town") });
   tags.push(draw.parentsEducated ? { tone: "up", words: say("ui.page.family.schooled") } : { tone: "down", words: say("ui.page.family.unschooled") });
   tags.push({ tone: "plain", words: sayCount("ui.page.family.siblings", draw.siblings, { count: draw.siblings }) });
-  return { title: named ? say("ui.page.family.in", { hometown: hometownWords(hometown) }) : meansWords, means: meansWords, tags };
+  return { title: named ? say("ui.page.family.from", { hometown: hometownWords(hometown) }) : meansWords, means: meansWords, tags };
 }
 
 /** The draw kept with the years' trail, or null where none is kept or it cannot be read. */

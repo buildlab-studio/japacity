@@ -8,7 +8,7 @@ const ROAD_KEY = /^line\.(route\.road-|place\.on-road|place\.returned-road|road\
 
 /** Words that mark the plain line as bad news, in the present and in the past the results are told in. */
 const BAD_WORDS =
-  /\b(refus\w*|reject\w*|turn(?:s|ed)? you down|(?:says|said) no|rob\w*|stole\w*|stolen|ill|illness|sick|run down|lost|loss|gone|missed|could not|cannot|no longer|died|death|burial|evict\w*|default\w*|seiz\w*|taken|took|withdrawn|removed|lapsed|ran out|run out|ends?|ended|broke|short|owe\w*|debt|arrears|court|fraud\w*|nothing yet|nothing (?:comes|came)|no right|(?:does|did) not come|did not happen|ransom|deport\w*|banned|went wrong|never arrive[sd])\b/i;
+  /\b(refus\w*|reject\w*|turn(?:s|ed)? you down|(?:says|said) no|rob\w*|stole\w*|stolen|ill|illness|sick|run down|lost|loss|gone|missed|could not|cannot|no longer|died|death|burial|evict\w*|default\w*|seiz\w*|taken|took|withdrawn|removed|lapsed|ran out|run out|ends?|ended|broke|short|owe\w*|debt|arrears|court|fraud\w*|nothing yet|nothing (?:comes|came)|no right|(?:does|did) not (?:come|win)|did not happen|ransom|deport\w*|banned|went wrong|never arrive[sd])\b/i;
 
 /** Bad news the words alone do not show: a doubt, a parting, a loss of face, being poor. */
 const ALSO_BAD: readonly string[] = [

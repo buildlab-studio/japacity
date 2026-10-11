@@ -12,7 +12,6 @@ import { TurnBar } from "../../features/turn/TurnBar";
 import { TurnView } from "../../features/turn/TurnView";
 import { engineView, richView } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
-import { formatMoney } from "./format";
 import { paramWords, say, sayCount, words } from "./text";
 import { uiText } from "./ui";
 
@@ -60,7 +59,9 @@ describe("words that mislead", () => {
     expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 1 })).toContain("1 question to answer");
     expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 2 })).toContain("2 questions to answer");
     expect(words("line.status.clock-ran", { months: 1 })).toBe("1 month left on the clock.");
-    expect(words("line.activity.lotto-lost", { tickets: 1, stake: { currency: "NGN", amount: 20_000 } })).toBe(`1 ticket for ${formatMoney(20_000, "NGN")}. Nothing came in.`);
+    // the kiosk's draw is said as the outcome, the ticket's price told on its own line.
+    expect(words("line.activity.lotto-lost", { tickets: 1, stake: { currency: "NGN", amount: 20_000 } })).toBe("Your ticket did not win.");
+    expect(words("line.activity.lotto-lost", { tickets: 3, stake: { currency: "NGN", amount: 60_000 } })).toBe("Your 3 tickets did not win.");
 
     const base = richView();
     const loan = base.obligations.find((owed) => owed.missed > 0);

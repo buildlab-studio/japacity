@@ -285,7 +285,7 @@ export function Chats() {
           {name}
           {/* The quiet mark a person the game plays carries on every screen (people.md R-PEOPLE-009, R-PEOPLE-054). */}
           {bond?.label === "computer" ? (
-            <span className="rounded-[3px] border border-sheet-line px-1.5 py-px text-[11px] font-extrabold text-text-2 uppercase" data-person-mark="computer">
+            <span className="rounded-[3px] border border-sheet-line px-1.5 py-px text-[12px] font-semibold text-text-2" data-person-mark="computer">
               {say("ui.people.mark.computer")}
             </span>
           ) : null}

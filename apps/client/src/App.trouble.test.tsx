@@ -7,8 +7,10 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { App, SLOW_MS } from "./App";
 import { localAuthority } from "./authority/local";
 import { remoteAuthority } from "./authority/remote";
+import { keepPerson } from "./authority/person";
 import { createGameStore } from "./authority/store";
 import { readDoor } from "./shared/datapage/door";
+import type { AccountApi } from "./shared/net/auth";
 import type { ServerRejection } from "./shared/net/contract";
 import { requestFailure } from "./shared/net/http";
 import { BASE, fakeServer } from "./shared/testing/server";
@@ -88,6 +90,47 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     expect(screen.getByRole("button", { name: say("ui.trouble.retry") })).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.trouble.reload") })).toBeNull();
     noBrowserWords();
+  });
+
+  // Review 14, X7: a new visitor with the server down saw a blank page with the card, and Retry said "Opening your
+  // life... Still opening..." to someone with no life.
+  test("[R-ENGINE-015] [R-SERVER-043] given a new visitor online (no life on this device) and a stand-in server answering 503, then the start screen's frame stands with the hook and the card naming the game; Retry keeps the frame, never Opening your life, and once the server answers the start screen takes its place", async () => {
+    const server = fakeServer();
+    const down = { status: 503, headers: { "Retry-After": "5" }, body: { ok: false, code: "unavailable", detail: "The game's server could not reach its database. Try again shortly.", retryAfter: 5 } };
+    server.answer("GET /api/view", down, down, down, down, down, down, { status: 401, body: { ok: false, code: "signed-out", detail: "Nobody is signed in." } });
+    const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch, wall: { met: () => false, passed: () => undefined } });
+    const account = { ageStatus: () => Promise.resolve("unasked" as const), returnedFromGoogle: () => null } as unknown as AccountApi;
+    const store = createGameStore(remote, { ...noPause, account });
+    // The online shell hands the server's own refusals to the store (goOnline).
+    remote.listen((event) => store.getState().heard(event));
+    render(<App store={store} />);
+    expect(screen.queryByText(say("ui.loading"))).toBeNull();
+    const card = await screen.findByRole("alertdialog", { name: say("ui.trouble.server") });
+    const frame = document.querySelector("[data-start-trouble]");
+    expect(frame?.getAttribute("data-start-trouble")).toBe("server");
+    expect(frame?.querySelector("[data-start-hook]")).not.toBeNull();
+    expect(frame?.querySelector("[data-start-steps]")).not.toBeNull();
+    expect(card.querySelector("[data-wordmark]")?.getAttribute("alt")).toBe(say("ui.game"));
+    noBrowserWords();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.trouble.retry") }));
+    // Asking again keeps the frame; the server down still, the card comes back in it.
+    expect(screen.queryByText(say("ui.loading"))).toBeNull();
+    expect(document.querySelector("[data-start-trouble]")).not.toBeNull();
+    await screen.findByRole("alertdialog", { name: say("ui.trouble.server") });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.trouble.retry") }));
+    // The server answers: nobody is signed in, so the start screen itself, with Play.
+    expect(await screen.findByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
+    expect(document.querySelector("[data-start-screen]")).not.toBeNull();
+    expect(screen.queryByText(say("ui.loading"))).toBeNull();
+    expect(screen.queryByText(say("ui.loading.slow"))).toBeNull();
+  });
+
+  test("[R-ENGINE-015] given a player whose life is kept on this device and the server down, then the card stands where the life is opening, as before", async () => {
+    keepPerson({ look: "chr_ada", name: "Bayo", archetype: "developer" });
+    const store = createGameStore({ view: () => Promise.reject(requestFailure("server", "502")), send: unused }, { ...noPause, account: {} as AccountApi });
+    render(<App store={store} />);
+    expect(await screen.findByRole("alertdialog", { name: say("ui.trouble.server") })).toBeDefined();
+    expect(document.querySelector("[data-start-trouble]")).toBeNull();
   });
 
   test("[R-ENGINE-015] [R-ACCOUNT-006] given a login wall or an ended session in front of the view, then the card says so with Retry and Reload", async () => {

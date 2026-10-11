@@ -68,7 +68,7 @@ export const qualityText: Record<string, string> = {
   // The month's own drift toward rest (R-QUALITY-004): from below, at rest, from above.
   "line.quality.told.quality.wellbeing.drift.below": "The tiredness eased a little.",
   "line.quality.told.quality.wellbeing.drift.rest": "You were yourself again.",
-  "line.quality.told.quality.wellbeing.drift.above": "The lift wore off.",
+  "line.quality.told.quality.wellbeing.drift.above": "The good mood from last month passed.",
   "line.quality.told.quality.network.gain": "You got to know a few more people.",
   "line.quality.told.quality.network.loss": "You lost touch with a few people.",
   "line.quality.told.quality.tech.gain": "Your code got sharper.",
