@@ -104,6 +104,9 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     checklist: [
       item("licence", 10, held("document.nursing-licence")),
       item("verification", 14, held("document.nmcn-verification")),
+      // The clinic's certification (R-SPONSOR-005 as amended 11 Oct 2026): the checklist's smallest weight,
+      // taken out of the application's as the police paper's was.
+      item("certificate", 5, held("document.nurse-certificate")),
       item("passport", 6, held("document.passport")),
       // Band 4.0, B1, held as the band times ten.
       item("english", 10, held("document.english-test", 40)),
@@ -112,7 +115,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       // R-DOCUMENT-007: the police certificate; its weight comes out of the application's.
       item("police", 5, held("document.police-certificate")),
       item("salary", 10, step(CARE, "salary")),
-      item("applied", 15, applied(CARE)),
+      item("applied", 10, applied(CARE)),
     ],
     schools: [],
     interview: null,

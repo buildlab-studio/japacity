@@ -68,6 +68,10 @@ export const worldText: Record<string, string> = {
   "ui.nudge.broke.racks": "No fare: work the racks",
   "ui.nudge.broke.job": "No fare: find work nearby",
   "ui.nudge.broke.wait": "No fare: end the month",
+  // The care file counts the certificate (R-SPONSOR-005 as amended 11 Oct 2026): named while she can pay it, else the gap.
+  "ui.nudge.meanwhile.nurse-certification": "Sit the nursing certification at the clinic",
+  "ui.nudge.meanwhile.nurse-certification.short": "Find {amount} more for the certification",
+  "ui.nudge.meanwhile.nurse-certification.saving": "Wait for payday, then the certification",
   "ui.nudge.meanwhile.open-source": "Share your code at the hub",
   "ui.nudge.meanwhile.tech-posts": "Post what you know, at the laptops",
   "ui.nudge.meanwhile.be-noticed": "Get noticed: ask at the jobs board",

@@ -125,6 +125,8 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file-care.item.sponsor": "A sponsor with a licence",
   "chapter.build-the-file-care.item.sponsor.nudge": "Find a sponsor with a licence",
   "chapter.build-the-file-care.item.sponsor.planned": "Sponsor search planned. Tap Next month.",
+  // While the care window is shut no sponsor takes a nurse from abroad: the step says so.
+  "chapter.build-the-file-care.item.sponsor.shut": "Care sponsors are closed: keep the file ready",
   "chapter.build-the-file-care.item.applied": "Send the care visa application",
   "chapter.build-the-file-care.item.applied.nudge": "Send the care visa application",
   "chapter.build-the-file-care.item.applied.planned": "Application planned. Tap Next month.",

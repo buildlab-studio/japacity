@@ -65,6 +65,7 @@ export const routeText: Record<string, string> = {
     "A health and care visa with a sponsor's certificate. For nurses and carers, if the door is open to people applying from home.",
   "route.uk-care.item.licence": "Nursing licence held",
   "route.uk-care.item.verification": "Council verification held (it needs 24 months as a nurse first)",
+  "route.uk-care.item.certificate": "Nursing certificate held",
   "route.uk-care.item.passport": "Passport held",
   "route.uk-care.item.english": "English result at band 4.0 or better",
   "route.uk-care.item.sponsor": "A sponsor's certificate",
@@ -75,6 +76,7 @@ export const routeText: Record<string, string> = {
   // Where each step not yet ticked is taken, on a line under it in Japa.
   "route.uk-care.item.licence.way": "Renew it with the council on your phone",
   "route.uk-care.item.verification.way": "Ask the council on your phone",
+  "route.uk-care.item.certificate.way": "Sit the certification exam at the clinic",
   "route.uk-care.item.passport.way": "Apply at the passport office in Ikoyi",
   "route.uk-care.item.english.way": "Sit it at the English test centre",
   "route.uk-care.item.sponsor.way": "Look for one at the hub's desk",
