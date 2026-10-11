@@ -9,6 +9,23 @@ import { nameOf, say } from "./text";
 import { AGE_LIMIT_NEAR, ageMonthsOf, comingOf, RENT_NEAR, soonest } from "./coming";
 
 describe("what is coming", () => {
+  test("[R-CLOCK-032] given the English result sealed until the morning and a passport on its way, when the list is read, then the result comes tomorrow at seven in words and the passport keeps its months", () => {
+    const base = richView();
+    const view = {
+      ...base,
+      month: 10,
+      documents: [
+        { id: "document.english-test" as const, state: "pending" as const, readyMonth: 10, expiresMonth: null, value: null, onItsWay: 10 },
+        { id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 },
+      ],
+    };
+    const papers = comingOf(view).filter((item) => item.kind === "paper");
+    expect(papers.map((item) => [item.what, item.when])).toEqual([
+      [nameOf("document.english-test"), "Tomorrow, 7am"],
+      [nameOf("document.passport"), undefined],
+    ]);
+  });
+
   test("[R-WORLD-002] given a new life, when the list is read, then the next birthday is on it as months away, and the chip has nothing to say", () => {
     const view = engineView();
     const age = ageMonthsOf(view);

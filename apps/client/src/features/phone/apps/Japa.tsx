@@ -17,7 +17,6 @@ import { actOnCard, nowSaid } from "../../../shared/words/acts";
 import { formatMoney } from "../../../shared/words/format";
 import { type Coming, comingOf } from "../../../shared/words/coming";
 import { everyRouteClosed } from "../../../shared/words/closed";
-import { sealedTillMorning } from "../../../shared/words/morning";
 import { checklistWords } from "../../../shared/words/requirement";
 import { readyPercent } from "../../../shared/words/ready";
 import { planRoute } from "../../../shared/words/savings";
@@ -233,11 +232,9 @@ const REMINDER_ICONS: Readonly<Record<Reminder["kind"], LucideIcon>> = { visa: S
 
 /** What is coming up: the city's one list (`comingOf`), in its order, kept to the plan's waits. */
 export function remindersOf(view: PlayerView): ReminderRow[] {
-  // A result sealed until the morning comes tomorrow at seven, never "this month" (R-CLOCK-032).
-  const sealed = new Set(view.documents.filter((paper) => sealedTillMorning(view, paper.id)).map((paper) => nameOf(paper.id)));
   return comingOf(view)
     .filter(isReminder)
-    .map((item) => ({ kind: item.kind, what: reminderWhat(item), when: item.kind === "paper" && sealed.has(item.what) ? say("ui.wait.morning.short") : inMonths(item.month, view.month) }));
+    .map((item) => ({ kind: item.kind, what: reminderWhat(item), when: item.when ?? inMonths(item.month, view.month) }));
 }
 
 /** A step, ticked or not; `way`: where an unticked step is taken, or when it comes, on a small line under it. */

@@ -1472,7 +1472,7 @@ export function City({
                   {coming === null || !(bandOpen || (peek && !chipFolds(nudge, coming, view.month))) ? null : (
                     <button type="button" className="chip press pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming onClick={() => openCalendar("coming")} aria-label={say("ui.world.coming-up")}>
                       <Clock size={14} aria-hidden />
-                      <span className="truncate">{say("ui.world.coming", { what: coming.what, when: inMonths(coming.month, view.month) })}</span>
+                      <span className="truncate">{say("ui.world.coming", { what: coming.what, when: coming.when ?? inMonths(coming.month, view.month) })}</span>
                     </button>
                   )}
                 </div>

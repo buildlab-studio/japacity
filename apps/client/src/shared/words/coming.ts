@@ -7,6 +7,7 @@ import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
 import { formatMoney } from "./format";
+import { sealedTillMorning } from "./morning";
 import { planMarks } from "./plan";
 import { nameOf, say, words } from "./text";
 
@@ -17,6 +18,8 @@ export interface Coming {
   kind: "offer" | "paper" | "visa" | "birthday" | "age-limit" | "plan" | "rent";
   /** For an ask: the offer's entry, so the Calendar can name where it is answered. */
   entry?: string;
+  /** When it comes in words, in place of the months away: a result sealed until the morning (R-CLOCK-032). */
+  when?: string;
 }
 
 const AGE = "quality.age-months";
@@ -35,7 +38,8 @@ export function comingOf(view: Pick<PlayerView, "month" | "offers" | "documents"
   const list: Coming[] = [];
   for (const offer of view.offers) list.push({ what: words(`${offer.entry}.name`), month: offer.expiresMonth, kind: "offer", entry: offer.entry });
   // R-DOCUMENT-008: a paper on its way, a renewal of one held among them.
-  for (const paper of view.documents) if (paper.onItsWay !== null) list.push({ what: nameOf(paper.id), month: paper.onItsWay, kind: "paper" });
+  // A result sealed until the morning comes tomorrow at seven, never "this month" (R-CLOCK-032).
+  for (const paper of view.documents) if (paper.onItsWay !== null) list.push({ what: nameOf(paper.id), month: paper.onItsWay, kind: "paper", ...(sealedTillMorning(view, paper.id) ? { when: say("ui.wait.morning.short") } : {}) });
   for (const route of view.routes) {
     if (route.visa !== null && route.state === "applying") list.push({ what: nameOf(route.id), month: route.visa.decisionMonth, kind: "visa" });
   }
