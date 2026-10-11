@@ -1,10 +1,12 @@
-// The public replies kept in Cloudflare's cache (docs/rules/server.md
-// R-SERVER-039, clock.md R-CLOCK-019). A Worker's own reply is not cached by
-// Cloudflare: its `public, max-age` reaches the browser only. So the world,
-// the draw and the advert replies are put in the Cache API (`caches.default`)
-// by hand, keyed by what makes each the same for everyone, and read before
-// the database. The cache lives in one data centre, so the database is asked
-// once per key per location. Nothing about the player enters a key.
+// The server's cache (docs/rules/server.md R-SERVER-039, clock.md R-CLOCK-019).
+// Despite the file's name this is no cache in front of the Worker: a Worker's
+// own reply is not cached by Cloudflare, and its `public, max-age` reaches the
+// browser only. The world, the draw and the advert replies are put by hand in
+// the Cache API (`caches.default`), which lives beside the Worker in the data
+// centre it runs in (London with placement, R-SERVER-040), keyed by what makes
+// each the same for everyone, and read before the database. A hit saves the
+// database query, not the player's trip to the server. Nothing about the
+// player enters a key. Behind Cloudflare Access there is no such cache.
 import { int, time } from "@japacity/sim";
 import type { Context, Env } from "hono";
 
@@ -18,8 +20,10 @@ export interface EdgeCache {
 export interface Made {
   body: string | ArrayBuffer;
   type: string;
-  /** Milliseconds since 1970. */
+  /** Milliseconds since 1970: how long a browser may keep it. */
   freshUntil: number;
+  /** When the server's cache must let it go, if sooner than `freshUntil` (the advert replies, R-ADVERT-014). */
+  keptUntil?: number;
 }
 
 /** A reply as it is sent: from the cache or just made, with the seconds a browser may keep it. */
@@ -38,6 +42,9 @@ const SHAPE = 1;
 /** The moment a stored reply stops being fresh, kept beside it so a hit sends the seconds left, never the seconds it was stored with. */
 const FRESH_UNTIL = "x-japacity-fresh-until";
 
+/** The moment the server's cache lets a reply go, which may come before the browser's. */
+const KEPT_UNTIL = "x-japacity-kept-until";
+
 /**
  * The key: the game's own origin (the Worker answers only on its own custom
  * domain, so a request's origin is the deployment's), a path no route serves,
@@ -45,7 +52,7 @@ const FRESH_UNTIL = "x-japacity-fresh-until";
  * path, query, cookies or headers.
  */
 export function edgeKey(origin: string, parts: (string | number)[]): string {
-  return `${origin}/api/edge/${String(SHAPE)}/${parts.map((part) => encodeURIComponent(String(part))).join("/")}`;
+  return `${origin}/api/cache/${String(SHAPE)}/${parts.map((part) => encodeURIComponent(String(part))).join("/")}`;
 }
 
 /** `caches.default` in the Workers runtime; null where there is none (Node, the browser tests). */
@@ -64,7 +71,8 @@ async function kept(edge: EdgeCache, key: string, now: number): Promise<Served |
     const hit = await edge.match(key);
     if (hit === undefined) return null;
     const until = Number(hit.headers.get(FRESH_UNTIL));
-    if (!Number.isSafeInteger(until) || until <= now) {
+    const keptUntil = Number(hit.headers.get(KEPT_UNTIL));
+    if (!Number.isSafeInteger(until) || !Number.isSafeInteger(keptUntil) || until <= now || keptUntil <= now) {
       await hit.body?.cancel();
       return null;
     }
@@ -75,9 +83,9 @@ async function kept(edge: EdgeCache, key: string, now: number): Promise<Served |
 }
 
 /** Stores a reply for as long as it is fresh. A refused store costs the next request one read, never this reply. */
-async function keep(edge: EdgeCache, key: string, made: Made, maxAge: number): Promise<void> {
+async function keep(edge: EdgeCache, key: string, made: Made, keptUntil: number, keptFor: number): Promise<void> {
   try {
-    const headers = { "content-type": made.type, "cache-control": `public, max-age=${String(maxAge)}`, [FRESH_UNTIL]: String(made.freshUntil) };
+    const headers = { "content-type": made.type, "cache-control": `public, max-age=${String(keptFor)}`, [FRESH_UNTIL]: String(made.freshUntil), [KEPT_UNTIL]: String(keptUntil) };
     await edge.put(key, new Response(made.body, { headers }));
   } catch {
     return;
@@ -89,10 +97,12 @@ async function keptIn(edge: EdgeCache | null, key: string, now: number): Promise
   return edge === null ? null : kept(edge, key, now);
 }
 
-/** A reply just made, stored while it stays fresh, and sent for the seconds left. */
+/** A reply just made, stored while the cache may keep it, and sent for the seconds the browser may. */
 async function stored(edge: EdgeCache | null, key: string, now: number, made: Made): Promise<Served> {
   const maxAge = secondsTo(made.freshUntil, now);
-  if (edge !== null && maxAge > 0) await keep(edge, key, made, maxAge);
+  const keptUntil = Math.min(made.keptUntil ?? made.freshUntil, made.freshUntil);
+  const keptFor = secondsTo(keptUntil, now);
+  if (edge !== null && keptFor > 0) await keep(edge, key, made, keptUntil, keptFor);
   return { body: made.body, type: made.type, maxAge };
 }
 

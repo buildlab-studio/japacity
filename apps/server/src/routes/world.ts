@@ -1,8 +1,8 @@
 // `GET /api/world` (docs/rules/clock.md R-CLOCK-018, R-CLOCK-019): the world
-// of the current tick, the same for everyone. Kept in Cloudflare's cache by
-// its tick until the next tick (server.md R-SERVER-039), so the database is
-// read for it once per tick per location, and public to the browser for as
-// long. Needs no session. Never the book, never a later tick.
+// of the current tick, the same for everyone. Kept in the server's cache (the
+// Cache API beside the Worker) by its tick until the next tick (server.md
+// R-SERVER-039), so the database is read for it once per tick per location,
+// and public to the browser for as long. Needs no session. Never the book, never a later tick.
 import { int, time } from "@japacity/sim";
 import { Hono } from "hono";
 

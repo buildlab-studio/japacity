@@ -1,7 +1,7 @@
 // `GET /api/draw/:n` (docs/rules/lottery.md R-LOTTERY-007, 008, 015): a draw's
 // public data for the client's draw page, the same for everyone, with no
 // session. The secret leaves only inside the published result (R-SERVER-015).
-// Kept in Cloudflare's cache by the draw's number for as long as a browser may
+// Kept in the server's cache (the Cache API beside the Worker) by the draw's number for as long as a browser may
 // keep it (server.md R-SERVER-039).
 import type { LotteryOdds, LotteryResult } from "@japacity/sim";
 import { time } from "@japacity/sim";

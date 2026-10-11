@@ -71,7 +71,7 @@ export interface CommandRequest {
 /** `GET /api/view`: the view, the lines since the client's last fetch are not kept (R-SERVER-019), and the clock. */
 export type ViewReply = { ok: true; view: PlayerView; lines: ReportLine[]; clock: ClockView } | ServerRejection;
 
-/** R-CLOCK-018, R-CLOCK-019: `GET /api/world`, the same for everyone, kept in Cloudflare's cache by its tick until the next tick (R-SERVER-039). Needs no session. */
+/** R-CLOCK-018, R-CLOCK-019: `GET /api/world`, the same for everyone, kept in the server's cache by its tick until the next tick (R-SERVER-039). Needs no session. */
 export interface WorldReply {
   tick: number;
   world: World;

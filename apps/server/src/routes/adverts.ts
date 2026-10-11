@@ -1,7 +1,10 @@
 // `GET /api/adverts?region=` (docs/rules/adverts.md R-ADVERT-008): the hour's
-// campaign per slot for a region, the same for everyone there, kept in
-// Cloudflare's cache by the region and the hour until the hour ends, and the
-// approved images by creative, version and hour (server.md R-SERVER-039).
+// campaign per slot for a region, the same for everyone there, kept in the
+// server's cache (the Cache API beside the Worker) by the region and the hour
+// for at most five minutes, and
+// the approved images by creative, version and hour as briefly, so a pulled
+// advert leaves new visitors within five minutes (server.md R-SERVER-039,
+// R-ADVERT-014). The browser keeps either until the hour ends.
 // Needs no session and reads nothing about the player. Nothing is served while
 // the `adverts` switch is off (R-SERVER-031): the switch is read before the
 // cache. No route here accepts anything from an advertiser (R-ADVERT-013).
@@ -29,12 +32,16 @@ function secondsTo(until: number, now: number): number {
   return Math.max(1, int.divCeil(until - now, time.SECOND_MS));
 }
 
+/** R-ADVERT-014, R-SERVER-039: the longest the server's cache keeps an advert reply, so a pull reaches new visitors within it. */
+export const ADVERT_KEPT_MS = 5 * time.MINUTE_MS;
+
 /**
  * R-SERVER-039: each route counts its limit first, then reads the switch, then
  * the cache, then the database. The slots' key is the region and the hour, the
  * image's the creative, its version and the hour: what makes each the same for
- * everyone. A campaign pulled within the hour leaves at the hour's end at the
- * latest, as the browser was always told.
+ * everyone. The server's cache keeps each for at most ADVERT_KEPT_MS, so a campaign
+ * pulled within the hour leaves new visitors within five minutes; the browser
+ * keeps it until the hour ends, as it always was told.
  */
 export function advertRoutes(deps: ServerDeps, on: AdvertsOn = advertsOnByDefault, edge: EdgeCache | null = edgeCache()): Hono<SessionEnv> {
   const route = new Hono<SessionEnv>();
@@ -50,7 +57,7 @@ export function advertRoutes(deps: ServerDeps, on: AdvertsOn = advertsOnByDefaul
     const key = edgeKey(new URL(c.req.url).origin, ["adverts", region, hourOf(now)]);
     const served = await throughEdge(edge, key, now, async () => {
       const reply = await servedAt(deps, region, now);
-      return { body: JSON.stringify(reply), type: JSON_TYPE, freshUntil: reply.until };
+      return { body: JSON.stringify(reply), type: JSON_TYPE, freshUntil: reply.until, keptUntil: now + ADVERT_KEPT_MS };
     });
     return sent(c, served);
   });
@@ -68,7 +75,7 @@ export function advertRoutes(deps: ServerDeps, on: AdvertsOn = advertsOnByDefaul
       if (creative === null || creative.status !== "approved" || campaign === null || statusAt(campaign, now) !== "live") return null;
       const image = await deps.stores.adverts.image(creative.id, creative.version);
       if (image === null) return null;
-      return { body: image.slice().buffer, type: `image/${creative.file.format}`, freshUntil: emptyReply("", now).until };
+      return { body: image.slice().buffer, type: `image/${creative.file.format}`, freshUntil: emptyReply("", now).until, keptUntil: now + ADVERT_KEPT_MS };
     });
     if (served === null) return c.notFound();
     return sent(c, served);

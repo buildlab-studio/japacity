@@ -16,7 +16,7 @@ import { testSession } from "../deps";
 import { TICKS_CRON } from "../jobs/ticks";
 import { tickRow } from "../world/ticks";
 import { adminAdvertRoutes } from "./admin-adverts";
-import { advertRoutes, advertsOnByDefault } from "./adverts";
+import { ADVERT_KEPT_MS, advertRoutes, advertsOnByDefault } from "./adverts";
 import { edgeKey } from "./edge";
 import { fakeEdge } from "./edge.testing";
 
@@ -535,7 +535,7 @@ describe("the wiring to the admin log and the counters", () => {
 });
 
 describe("the slots and images through the cache", () => {
-  test("[R-ADVERT-008] [R-SERVER-039] given caches.default and a live campaign, when the slots are asked for twice in one hour from one region, then the campaigns are read once and both replies are the same; another region and the next hour are read again", async () => {
+  test("[R-ADVERT-008] [R-ADVERT-014] [R-SERVER-039] given caches.default and a live campaign, when the slots are asked for twice within five minutes from one region, then the campaigns are read once and both replies are the same, the browser told to keep them to the hour's end; another region, five minutes on and the next hour are read again", async () => {
     const clock = { at: EPOCH };
     const deps = world(clock);
     const { campaign: id } = await live(makeApp(deps));
@@ -555,11 +555,19 @@ describe("the slots and images through the cache", () => {
     const until = (int.divFloor(EPOCH, time.HOUR_MS) + 1) * time.HOUR_MS;
     expect(second.cache).toBe(`public, max-age=${String(int.divCeil(until - clock.at, time.SECOND_MS))}`);
     expect(edge.asked[0]).toBe(edgeKey("http://localhost", ["adverts", "NG", int.divFloor(EPOCH, time.HOUR_MS)]));
+    expect(edge.stored[0]?.headers["cache-control"]).toBe(`public, max-age=${String(ADVERT_KEPT_MS / time.SECOND_MS)}`);
     await ask("GB");
     expect(reads).toHaveBeenCalledTimes(2);
+    clock.at = EPOCH + ADVERT_KEPT_MS - 1;
+    await ask("NG");
+    expect(reads).toHaveBeenCalledTimes(2);
+    clock.at = EPOCH + ADVERT_KEPT_MS;
+    const later = await ask("NG");
+    expect(reads).toHaveBeenCalledTimes(3);
+    expect(later.cache).toBe(`public, max-age=${String(int.divCeil(until - clock.at, time.SECOND_MS))}`);
     clock.at = until;
     await ask("NG");
-    expect(reads).toHaveBeenCalledTimes(3);
+    expect(reads).toHaveBeenCalledTimes(4);
   });
 
   test("[R-SERVER-031] [R-SERVER-039] given slots kept in the cache, when the adverts switch goes off, then nothing is served and the cache is not asked; back on, the kept reply is served again", async () => {
@@ -577,8 +585,9 @@ describe("the slots and images through the cache", () => {
     expect(await (await route.request("/api/adverts?region=NG")).text()).toBe(kept);
   });
 
-  test("[R-ADVERT-013] [R-SERVER-039] given an approved image, when it is fetched twice in one hour, then its bytes are read once and come back the same as its format; a creative that is not live is 404 each time and never stored", async () => {
-    const deps = world();
+  test("[R-ADVERT-013] [R-ADVERT-014] [R-SERVER-039] given an approved image, when it is fetched twice within five minutes, then its bytes are read once and come back the same as its format, and five minutes on they are read again; a creative that is not live is 404 each time and never stored", async () => {
+    const clock = { at: EPOCH };
+    const deps = world(clock);
     const app = makeApp(deps);
     const { creative: art } = await live(app);
     const edge = fakeEdge();
@@ -593,5 +602,9 @@ describe("the slots and images through the cache", () => {
     expect((await route.request(`/api/adverts/image/${art}/2`)).status).toBe(404);
     expect((await route.request(`/api/adverts/image/${art}/2`)).status).toBe(404);
     expect(edge.stored.map((each) => each.key)).toEqual([edgeKey("http://localhost", ["advert-image", art, 1, int.divFloor(EPOCH, time.HOUR_MS)])]);
+    clock.at = EPOCH + ADVERT_KEPT_MS;
+    const fresh = await route.request(`/api/adverts/image/${art}/1`);
+    expect(reads).toHaveBeenCalledTimes(2);
+    expect(fresh.headers.get("cache-control")).toBe(`public, max-age=${String(int.divCeil((int.divFloor(EPOCH, time.HOUR_MS) + 1) * time.HOUR_MS - clock.at, time.SECOND_MS))}`);
   });
 });

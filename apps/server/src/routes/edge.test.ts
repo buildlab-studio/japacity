@@ -1,4 +1,4 @@
-// The public replies in Cloudflare's cache (docs/rules/server.md R-SERVER-039,
+// The public replies in the server's cache (docs/rules/server.md R-SERVER-039,
 // clock.md R-CLOCK-019), with a stand-in for `caches.default`.
 import { int, time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -22,7 +22,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-/** A server whose Worker runtime has `edge` as `caches.default`, with ticks 0 to 3 stored. */
+/** A server whose Worker runtime has `edge` (a stand-in for the server's cache) as `caches.default`, with ticks 0 to 3 stored. */
 async function behindEdge(edge: FakeEdge | typeof brokenEdge, over: Parameters<typeof testServer>[0] = {}): Promise<TestServer> {
   vi.stubGlobal("caches", { default: edge });
   const server = testServer(over);
@@ -65,7 +65,7 @@ describe("the world through the cache", () => {
     await call<WorldReply>(server, "GET", "/api/world", "account.ada", undefined, "198.51.100.1");
     await server.app.request("/api/world?fresh=1", { headers: { cookie: "session=abc", "cf-connecting-ip": "198.51.100.2" } });
     const key = edgeKey("http://localhost", ["world", 1]);
-    expect(key).toBe("http://localhost/api/edge/1/world/1");
+    expect(key).toBe("http://localhost/api/cache/1/world/1");
     expect(edge.asked).toEqual([key, key, key]);
     expect(edge.stored).toHaveLength(1);
     expect(edge.stored[0]?.key).toBe(key);
