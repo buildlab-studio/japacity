@@ -834,8 +834,10 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         id: "sell",
         requires: [],
         pick: null,
+        // The deed of sale says where the money came from: a traced source, never a lot the visa officer asks about
+        // (R-WALLET-011).
         effects: [
-          { type: "money/add", currency: "NGN", pocket: "bank", amount: { term: "price" }, reason: "sale", flagged: true },
+          { type: "money/add", currency: "NGN", pocket: "bank", amount: { term: "price" }, reason: "sale" },
           { type: "quality/add", quality: "quality.land", amount: -1 },
           { type: "quality/add", quality: "quality.standing", amount: -3 },
         ],
