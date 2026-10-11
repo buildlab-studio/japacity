@@ -1,7 +1,8 @@
 name: check
 
-# The quick checks on every push to main and every pull request: the Workers' generated types, typecheck, lint and the unit tests
-# (about four minutes). The full check (`pnpm check`: the rules and assets checks too) and the browser
+# The quick checks on every push to main and every pull request: the Workers' generated types, typecheck, lint, the unit tests,
+# the size budget of a first visit and the audit of the production dependencies (about five minutes); on a pull request also a
+# secret scan of its commits. The full check (`pnpm check`: the rules and assets checks too) and the browser
 # suite stay local, run before every push by the maintainer's watcher, so Actions minutes stay low on the
 # free plan. Enabled on GitHub by the maintainer on 10 Oct 2026. It runs with no secrets, on pull_request (never
 # pull_request_target), so a fork's code never meets this repository's secrets. Every action is pinned to a
@@ -46,8 +47,45 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
 
+      # R-ENGINE-020: builds the client and holds each part of a first visit to tools/size-budget.json (a few seconds).
+      - run: pnpm check:size
+
+      # The production dependencies' known advisories: fails on high or critical only; a moderate one is read, not forced.
+      - run: pnpm audit --prod --audit-level=high
+
       - name: Protected files
         if: github.event_name == 'pull_request'
         env:
           APPROVED_TEST_CHANGE: ${{ contains(github.event.pull_request.labels.*.name, 'approved-test-change') && '1' || '0' }}
         run: pnpm check:protected -- origin/${{ github.base_ref }}
+
+  # Secret scanning of a pull request's own commits. gitleaks' own action needs a paid licence on an
+  # organisation's repository, so the job runs gitleaks' released binary at a pinned version and refuses it unless its
+  # checksum matches the one the release published. Rules and allow list: .gitleaks.toml. It reads the checkout and
+  # sends nothing anywhere; a finding fails the job with the file and line, the value redacted.
+  secrets:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The pull request's commits back to its base.
+          fetch-depth: 0
+
+      - name: Install gitleaks, pinned and checked
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/$archive" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archive}"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$archive" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP" gitleaks
+
+      - name: Scan the pull request's commits
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          "$RUNNER_TEMP/gitleaks" git --config .gitleaks.toml --log-opts="--no-merges ${BASE}..${HEAD}" --redact --no-banner --exit-code 1 .
