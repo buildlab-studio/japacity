@@ -1,17 +1,15 @@
-// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018): the month
-// on the phone, in order. The job held; the free time as up to three cards, each thing started carrying on until it is
-// stopped (R-WORLD-007), an empty one resting (R-TURN-006); the chores done this month and what they saved; what is
-// coming with its months away and where, each row opening where it is dealt with (a paper in Papers, R-WORLD-019); the
-// pages left; and its own Next month, which
-// puts the phone away and turns the page. Handed to the phone by the shell, so the phone knows nothing of the month.
+// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018): the month on the phone, in order. The job held; what carries on, each thing started carrying on until it is
+// stopped (R-WORLD-007), a held month's reason among them; the chores done this month and what they saved; what is coming
+// with its months away and where, each row opening where it is dealt with (a paper in Papers, R-WORLD-019). The month
+// turns when it is lived (R-TURN-010), so there is no plan to fill and nothing here ends it. Handed to the phone by the
+// shell, so the phone knows nothing of the month.
 import { content } from "@japacity/content";
 import type { PlayerView, SlotLock, SlotPick } from "@japacity/sim";
 import { int } from "@japacity/sim";
 import { Briefcase, Lock, X } from "lucide-react";
-import { type ReactNode, use, useEffect, useRef, useState } from "react";
+import { type ReactNode, use, useEffect, useRef } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { slotsUsed } from "../../authority/store";
 import { stretchedWords } from "../../shared/days/stretch";
 import { PhoneNav } from "../../shared/phone/nav";
 import { cue } from "../../shared/sound/cues";
@@ -20,19 +18,15 @@ import type { Coming } from "../../shared/words/coming";
 import { formatMoney } from "../../shared/words/format";
 import { lockWords } from "../../shared/words/locks";
 import { hasWords, nameOf, paramWords, say } from "../../shared/words/text";
-import { countFacts } from "../../shared/world/MonthCount";
-import { markTaught, wasTaught } from "../../shared/world/taught";
 import { ComingList } from "./ComingList";
-import { blockedBy } from "./TurnBar";
-import { TurnClock } from "./TurnClock";
-import { freeTimeWords, turnWords } from "./turn.words";
+import { turnWords } from "./turn.words";
 
-/** What the Calendar opens on: its coming section (the band's chip), or the month with the teach card (the band's Next month). */
-export type CalendarOpening = "coming" | "teach" | null;
+/** What the Calendar opens on: its coming section (the band's coming chip), or the month as it is. */
+export type CalendarOpening = "coming" | null;
 
 /** The Calendar's opening from the phone's `calendar:<opening>`, or null for the month as it is. */
 export function calendarOpening(said: string | null): CalendarOpening {
-  return said === "coming" || said === "teach" ? said : null;
+  return said === "coming" ? said : null;
 }
 
 const COOK = "activity.cook-at-home";
@@ -113,34 +107,17 @@ function Section({ title, children, mark }: { title: string; children: ReactNode
 export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
   const view = useView();
   const plan = useGame((state) => state.plan);
-  const busy = useGame((state) => state.busy);
   const stopPick = useGame((state) => state.stopPick);
-  const clearPlan = useGame((state) => state.clearPlan);
-  const endMonth = useGame((state) => state.endMonth);
-  const untilNews = useGame((state) => state.untilNews);
-  const nextTurnAt = useGame((state) => state.clock?.nextTurnAt);
   const nav = use(PhoneNav);
-  // The teach card says once in a life what the month is, when Next month opened the Calendar in place of turning (R-WORLD-002).
-  const [teach, setTeach] = useState(() => opening === "teach" && !wasTaught("calendar", view.scenario));
   const coming = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (opening === "coming") coming.current?.scrollIntoView?.({ block: "start" });
   }, [opening]);
-  // An interview with a question still to answer holds the month as a set piece does (R-INTERVIEW-004).
-  const blocked = blockedBy(view.ended, view.turns.banked, view.setpiece !== null || (view.interview?.question ?? null) !== null);
-  const shut = busy || blocked !== null;
-  const abroad = view.place.where === "abroad";
-  const used = slotsUsed(plan);
+  const carrying = plan.filter((pick): pick is SlotPick => pick !== null);
   const stretched = stretchedWords(view, plan);
   const rentShort = rentShortWords(view);
   const chores = choresWords(view);
   const jobs = jobRows(view.job);
-  const turn = (run: () => Promise<unknown>) => {
-    cue("tap");
-    // The page turns, and the phone goes away so it turns over the world (R-WORLD-027).
-    void run();
-    nav.close();
-  };
   // A row of what is coming opens where it is dealt with: a paper in Papers, a wait in Japa, a due in Bills (R-WORLD-002, R-WORLD-019).
   const openFor = (item: Coming): (() => void) | null => {
     switch (item.kind) {
@@ -163,54 +140,9 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
   };
   // A dated ask names the place it is answered at, or where it is attended where content stages it nowhere: the burial in the village (R-WORLD-002).
   const noteOf = (item: Coming): string | null => (item.kind === "offer" && item.entry !== undefined ? (askPlace(item.entry) ?? attendedAt(item.entry)) : null);
-  const endButton = (main: boolean) => (
-    <button
-      key="end"
-      type="button"
-      className={main ? "btn-main" : "chip press flex h-12 w-full items-center justify-between px-4 text-[15px] font-extrabold disabled:opacity-50"}
-      disabled={shut}
-      onClick={() => turn(endMonth)}
-      data-month-end
-      data-main={main}
-    >
-      <span>{turnWords("turn.month.end")}</span>
-      <span className="truncate pl-2 text-[13px] font-semibold opacity-80">{freeTimeWords(used, view.freeSlots)}</span>
-    </button>
-  );
-  const untilButton = (main: boolean) => (
-    <button
-      key="until"
-      type="button"
-      className={main ? "btn-main" : "chip press flex h-12 w-full items-center justify-between px-4 text-[15px] font-extrabold disabled:opacity-50"}
-      disabled={shut}
-      onClick={() => turn(untilNews)}
-      data-month-until
-      data-main={main}
-    >
-      <span className="shrink-0">{turnWords("ui.month.until-news")}</span>
-      <span className="truncate pl-2 text-right text-[12px] leading-tight font-semibold opacity-80">{turnWords("ui.month.until-news-foot")}</span>
-    </button>
-  );
 
   return (
     <div className="flex flex-col gap-4" data-calendar-app data-phone-app="calendar">
-      {teach ? (
-        <div className="flex items-start gap-2 rounded-[6px] bg-sheet-2 p-3 shadow-[0_2px_0_var(--sheet-line)]" role="note" data-calendar-teach>
-          <p className="min-w-0 flex-1 text-[14px] leading-snug">{turnWords("turn.calendar.teach")}</p>
-          <button
-            type="button"
-            className="press flex size-8 shrink-0 items-center justify-center rounded-[4px] text-text-2"
-            aria-label={turnWords("turn.calendar.teach.ok")}
-            onClick={() => {
-              markTaught("calendar", view.scenario);
-              setTeach(false);
-            }}
-            data-calendar-teach-ok
-          >
-            <X size={16} aria-hidden />
-          </button>
-        </div>
-      ) : null}
       {jobs.length === 0 ? null : (
         <Section title={turnWords("turn.calendar.work")} mark="work">
           <ul className="flex flex-col gap-1.5" data-month-jobs>
@@ -223,7 +155,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
           </ul>
         </Section>
       )}
-      <Section title={turnWords("turn.month.free")} mark="free">
+      <Section title={turnWords("turn.calendar.carrying")} mark="carrying">
         {view.locks.length === 0 ? null : (
           <ul className="flex flex-col gap-1.5" aria-label={say("ui.locks.title")} data-month-locks>
             {view.locks.map((lock, index) => (
@@ -234,56 +166,29 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
             ))}
           </ul>
         )}
-        {view.freeSlots === 0 ? <p className="text-[14px] text-text-2">{turnWords("turn.month.no-slots")}</p> : null}
-        {plan.length === 0 ? null : (
-          <ol className="flex flex-col gap-1.5" aria-label={turnWords("turn.month.free")} data-month-plan>
-            {plan.map((pick, index) =>
-              pick === null ? (
-                <li key={`free-${String(index)}`} className="flex min-h-11 items-center rounded-[5px] border-2 border-dashed border-sheet-line px-3 text-[14px] text-text-2" data-slot="free">
-                  {say("ui.month.rest")}
-                </li>
-              ) : (
-                <li key={`${pick.activity}-${String(index)}`} className="chip-in flex min-h-11 items-center gap-2 rounded-[5px] bg-sheet-muted py-1 pr-1 pl-3 text-[15px] font-bold" data-slot="planned">
-                  <span className="min-w-0 flex-1 truncate">{pickWords(pick)}</span>
-                  <span className="shrink-0 text-[12px] font-semibold text-text-2">{say("ui.world.thing.planned")}</span>
-                  <button
-                    type="button"
-                    aria-label={say("ui.world.stop-act", { what: pickWords(pick) })}
-                    onClick={() => {
-                      cue("close");
-                      stopPick(pick);
-                    }}
-                    className="press flex size-9 shrink-0 items-center justify-center rounded-[4px] text-text-2"
-                    data-stop
-                  >
-                    <X size={18} aria-hidden />
-                  </button>
-                </li>
-              ),
-            )}
+        {carrying.length === 0 ? null : (
+          <ol className="flex flex-col gap-1.5" aria-label={turnWords("turn.calendar.carrying")} data-month-plan>
+            {carrying.map((pick, index) => (
+              <li key={`${pick.activity}-${String(index)}`} className="chip-in flex min-h-11 items-center gap-2 rounded-[5px] bg-sheet-muted py-1 pr-1 pl-3 text-[15px] font-bold" data-slot="planned">
+                <span className="min-w-0 flex-1 truncate">{pickWords(pick)}</span>
+                <span className="shrink-0 text-[12px] font-semibold text-text-2">{say("ui.world.thing.planned")}</span>
+                <button
+                  type="button"
+                  aria-label={say("ui.world.stop-act", { what: pickWords(pick) })}
+                  onClick={() => {
+                    cue("close");
+                    stopPick(pick);
+                  }}
+                  className="press flex size-9 shrink-0 items-center justify-center rounded-[4px] text-text-2"
+                  data-stop
+                >
+                  <X size={18} aria-hidden />
+                </button>
+              </li>
+            ))}
           </ol>
         )}
-        {view.freeSlots > 0 && used >= view.freeSlots ? (
-          <p className="text-[13px] font-semibold" data-free-full>
-            {turnWords("turn.calendar.all-used")}
-          </p>
-        ) : null}
-        {view.freeSlots > used ? <p className="text-[13px] text-text-2">{turnWords("turn.month.hint")}</p> : null}
-        {used > 0 ? (
-          <div>
-            <button
-              type="button"
-              className="chip press inline-flex h-9 items-center gap-1.5 px-3 text-[13px] font-bold"
-              onClick={() => {
-                cue("close");
-                clearPlan();
-              }}
-              data-clear-plan
-            >
-              {say("ui.month.clear")}
-            </button>
-          </div>
-        ) : null}
+        {carrying.length === 0 && view.locks.length === 0 ? <p className="text-[13px] text-text-2">{turnWords("turn.month.hint")}</p> : null}
       </Section>
       {chores === null ? null : (
         <Section title={turnWords("turn.calendar.done")} mark="chores">
@@ -297,38 +202,21 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
           <ComingList view={view} onPick={openFor} noteOf={noteOf} />
         </Section>
       </div>
-      <Section title={turnWords("turn.calendar.pages")} mark="pages">
-        <ul className="flex flex-col gap-1.5 text-[14px] leading-tight font-semibold" data-calendar-pages>
-          {countFacts(view.turns.banked, view.turns.cap, nextTurnAt, Date.now()).map((fact) => (
-            <li key={fact.id} className="flex items-center gap-2" data-count-fact={fact.id}>
-              <fact.icon size={18} className="shrink-0 text-text-2" aria-hidden />
-              <span>{fact.words}</span>
-            </li>
-          ))}
-        </ul>
-      </Section>
       <Rejection />
-      <div className="sticky -bottom-3 -mx-3 -mb-3 flex flex-col gap-1.5 border-t border-sheet-line bg-sheet px-3 pt-2 pb-3">
-        {stretched === null ? null : (
-          <p className="text-[13px] font-semibold text-text-2" data-month-stretched>
-            {stretched}
-          </p>
-        )}
-        {rentShort === null ? null : (
-          <p className="text-[13px] font-semibold text-out" data-month-rent-short>
-            {rentShort}
-          </p>
-        )}
-        {/* R-WORLD-028: abroad the quiet months go by Until news, so it is the main button there and Next month the second. */}
-        {abroad ? untilButton(true) : endButton(true)}
-        {abroad ? endButton(false) : untilButton(false)}
-        {blocked === null ? null : (
-          <p className="text-[13px] text-text-2" data-month-blocked>
-            {blocked}
-          </p>
-        )}
-        {blocked !== null && view.turns.banked < 1 ? <TurnClock /> : null}
-      </div>
+      {stretched === null && rentShort === null ? null : (
+        <div className="flex flex-col gap-1.5 border-t border-sheet-line pt-2">
+          {stretched === null ? null : (
+            <p className="text-[13px] font-semibold text-text-2" data-month-stretched>
+              {stretched}
+            </p>
+          )}
+          {rentShort === null ? null : (
+            <p className="text-[13px] font-semibold text-out" data-month-rent-short>
+              {rentShort}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

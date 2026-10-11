@@ -1,13 +1,21 @@
 // The band's money by where the character is (docs/rules/world.md R-WORLD-002): the naira at home,
-// and abroad the country's own money, bank and cash together, from content's country table.
+// and abroad the country's own money, bank and cash together, from content's country table. And the month's name and
+// phase where the pages were (decision 0034; turn.md R-TURN-010): no Next month, no count of anything.
 import { content, text } from "@japacity/content";
 import type { Currency, PlayerView } from "@japacity/sim";
-import { describe, expect, test } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, test, vi } from "vitest";
 
+import { createGameStore } from "../../authority/store";
+import { localAuthority } from "../../authority/local";
 import { abroadGame, engineView, setPockets } from "../testing/fixtures";
+import "../testing/render";
 import { formatMoney } from "../words/format";
-import { bandMoney, bandPlace } from "./Band";
+import { Band, bandMoney, bandMonth, bandPlace } from "./Band";
 import { nameOf, say } from "../words/text";
+
+/** Noon on 15 March 2026, Lagos. */
+const MARCH = Date.UTC(2026, 2, 15, 11);
 
 const ABROAD = ["country.uk", "country.uae", "country.canada", "country.italy"] as const;
 
@@ -61,3 +69,38 @@ describe("the band's place", () => {
   });
 });
 
+
+describe("the band's month", () => {
+  test("[R-WORLD-002] [R-TURN-010] given a life begun in March at month 1 with 30 of 60 half-days spent, when the band renders, then a small chip says April and Mid, with no digit, no count of days and no end-month button, and a tap on it opens the Calendar", () => {
+    const view: PlayerView = { ...engineView(), month: 1, halfDays: { spent: 30, free: 60 } };
+    const month = bandMonth(view, MARCH);
+    expect(month).toEqual({ name: "April", phase: "Mid" });
+    const onMonth = vi.fn();
+    render(<Band when="23 yrs 4 mo" name="The family house" money={42_000_000} formatMoney={(value) => formatMoney(value, "NGN")} month={month} onMonth={onMonth} />);
+    const chip = document.querySelector<HTMLElement>("[data-band-month]");
+    if (chip === null) throw new Error("No month on the band");
+    expect(chip.textContent).toContain("April");
+    expect(chip.textContent).toContain("Mid");
+    expect(chip.textContent).not.toMatch(/\d/);
+    const band = document.querySelector("[data-band]")?.textContent ?? "";
+    expect(band).not.toMatch(/\bdays?\b|pages?|%|Next month|left/i);
+    expect(document.querySelector("[data-end-month]")).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.world.end-month") })).toBeNull();
+    fireEvent.click(chip);
+    expect(onMonth).toHaveBeenCalledTimes(1);
+  });
+
+  test("[R-WORLD-002] [R-TURN-010] given the month lived to its end, and a fresh one, when the band's month is read, then it says Month end, then Early", () => {
+    const view: PlayerView = { ...engineView(), month: 0, halfDays: { spent: 20, free: 20 } };
+    expect(bandMonth(view, MARCH)).toEqual({ name: "March", phase: "Month end" });
+    expect(bandMonth({ ...view, halfDays: { spent: 0, free: 60 } }, MARCH)).toEqual({ name: "March", phase: "Early" });
+  });
+
+  test("[R-WORLD-002] given a life begun on this device in March, when the store starts it, then the store holds the time it began, read from the authority", async () => {
+    const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "band-month", now: () => MARCH });
+    const store = createGameStore(authority, { life: authority, choosingLife: true });
+    await store.getState().chooseLife("scenario.ada");
+    expect(store.getState().beganAt).toBe(MARCH);
+    expect(authority.beganAt()).toBe(MARCH);
+  });
+});

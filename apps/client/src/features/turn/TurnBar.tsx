@@ -1,5 +1,5 @@
 // The month's action on the old page (R-WORLD-024): always on screen. On a phone it sits above the
-// tab bar; on a desktop it heads the month plan. In the world, the Calendar app does this job.
+// tab bar; on a desktop it heads the month plan. In the world the month turns when it is lived (decision 0034).
 import { useGame, useView } from "../../authority/GameProvider";
 import { slotsUsed } from "../../authority/store";
 import { Button } from "../../shared/ui/Button";

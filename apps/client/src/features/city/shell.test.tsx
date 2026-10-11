@@ -7,9 +7,9 @@ import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { inMonths, nameOf, say, words } from "../../shared/words/text";
-import { FLIP_MS } from "../../shared/world/MonthCount";
+import { bandMonth } from "../../shared/world/Band";
 import { forgetTaught, wasTaught } from "../../shared/world/taught";
-import { calendarFirst, City, type CityMapSlot, homeLine, TITLE_MS } from "./City";
+import { City, type CityMapSlot, homeLine, RESULTS_BEAT_MS, TITLE_MS } from "./City";
 import { cityWords } from "./city.words";
 import { nudgeOf, stepWayOf } from "./nudge";
 
@@ -31,6 +31,13 @@ async function opened(ui: Parameters<typeof renderWithView>[0], view: Parameters
 function band(): HTMLElement {
   const found = document.querySelector<HTMLElement>("[data-band]");
   if (found === null) throw new Error("No band");
+  return found;
+}
+
+/** The month's name and phase on the band: a tap opens the Calendar (R-WORLD-002, R-TURN-010). */
+function monthChip(): HTMLElement {
+  const found = document.querySelector<HTMLElement>("[data-band] [data-band-month]");
+  if (found === null) throw new Error("No month on the band");
   return found;
 }
 
@@ -59,13 +66,13 @@ describe("the world fills the screen", () => {
 
   test("[R-WORLD-001] given a life in the world, when it opens, then only the band, the nudge and the Map and Phone buttons stand over the place", async () => {
     const view = engineView();
-    await opened(world(), view);
+    const { store } = await opened(world(), view);
     expect(band()).toBeTruthy();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
     // The nudge is a button when it opens the way to what it names (R-WORLD-003); the band's handle shows only while something is coming (R-WORLD-002).
-    // The months the player may still play are part of the band, a glyph with the number (R-WORLD-027).
+    // The month's name and phase are part of the band, a chip that opens the Calendar (R-WORLD-002, decision 0034).
     // The name over the age opens the data page (R-PROLOGUE-009).
-    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.months.label", { count: view.turns.banked }), say("ui.world.end-month"), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
+    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt) }), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
@@ -97,61 +104,29 @@ describe("the world fills the screen", () => {
     expect(within(sheet).getByText("second")).toBeTruthy();
   });
 
-  test("[R-WORLD-002] given the first month of a life, when Next month is tapped, then the phone opens on the Calendar with its teach card as the answer to the tap, and the page does not turn", async () => {
-    const { authority } = await opened(phoned(), engineView());
-    expect(document.querySelector("[data-phone-app]")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
-    expect(document.querySelector("[data-phone-app]")?.getAttribute("data-phone-app")).toBe("calendar:teach");
-    expect(authority.sent).toEqual([]);
-  });
-
-  test("[R-WORLD-002] [R-WORLD-027] given a month behind the life and something planned, when Next month is tapped, then the page turns at once on the spot, with no sheet or phone between", async () => {
-    const view = { ...richView(), setpiece: null, interview: null };
-    const { authority, store } = await opened(phoned(), view);
-    act(() => {
-      store.getState().addToPlan({ activity: "activity.learn-tech", param: null });
-    });
-    fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
-    await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "turn/end", slots: [{ activity: "activity.learn-tech", param: null }] }));
-    expect(document.querySelector("[data-phone-app]")).toBeNull();
-    expect(screen.queryByRole("dialog")).toBeNull();
-  });
-
-  test("[R-WORLD-002] given a month behind the life with nothing planned and no job, when Next month is tapped, then the Calendar opens so the month is seen before it turns", async () => {
-    const base = { ...richView(), setpiece: null, interview: null };
-    const view = { ...base, job: { ...base.job, id: null, side: null, pay: null, sidePay: null } };
-    const { authority } = await opened(phoned(), view);
-    fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
-    expect(document.querySelector("[data-phone-app]")?.getAttribute("data-phone-app")).toBe("calendar:teach");
-    expect(authority.sent).toEqual([]);
-    expect(calendarFirst(view, [null, null, null])).toBe(true);
-    expect(calendarFirst(view, [{ activity: "activity.learn-tech", param: null }, null, null])).toBe(false);
-    expect(calendarFirst({ ...view, report: null }, [{ activity: "activity.learn-tech", param: null }])).toBe(true);
-  });
-
-  test("[R-WORLD-002] [R-WORLD-027] given the band, when its calendar glyph or the coming chip is tapped, then the phone opens on the Calendar, the chip on what is coming", async () => {
+  test("[R-WORLD-002] given the band, when its month or the coming chip is tapped, then the phone opens on the Calendar, the chip on what is coming", async () => {
     const { authority } = await opened(phoned(), { ...richView(), setpiece: null, interview: null });
-    fireEvent.click(within(band()).getByRole("button", { name: new RegExp(say("ui.months.label", { count: richView().turns.banked })) }));
+    fireEvent.click(monthChip());
     expect(document.querySelector("[data-phone-app]")?.getAttribute("data-phone-app")).toBe("calendar");
     expect(authority.sent).toEqual([]);
   });
 });
 
 describe("the band and the thumb buttons", () => {
-  test("[R-WORLD-002] [R-WORLD-027] given a life, when the band renders, then its clock is the character's age in years and months with the months to play beside it at all times, and no month number", async () => {
+  test("[R-WORLD-002] [R-TURN-010] given a life, when the band renders, then its clock is the character's age in years and months with the month's name and phase beside it, and no month number or count", async () => {
     const view = engineView();
-    await opened(world(), view);
+    const { store } = await opened(world(), view);
     const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
     expect(ageMonths).toBeGreaterThan(0);
     const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
     expect(within(band()).getByText(clock)).toBeTruthy();
     expect(band().textContent).not.toContain(say("ui.world.month-of", { month: view.month + 1 }));
-    // R-WORLD-027 replaces the hide-until-three: the count shows at all times, as a glyph with the number, never as a sentence.
-    expect(view.turns.banked).toBeGreaterThan(3);
-    expect(within(band()).getByRole("button", { name: say("ui.months.label", { count: view.turns.banked }) }).textContent).toBe(String(view.turns.banked));
-    document.body.innerHTML = "";
-    await opened(world(), { ...view, turns: { ...view.turns, banked: 2 } });
-    expect(within(band()).getByRole("button", { name: say("ui.months.label", { count: 2 }) }).textContent).toBe("2");
+    // The month as it stands, in words: its name from when the life began, its phase from the time spent (decision 0034).
+    const month = bandMonth(view, store.getState().beganAt);
+    expect(monthChip().textContent).toBe(`${month.name}${month.phase}`);
+    expect(monthChip().textContent).not.toMatch(/\d/);
+    expect(month.phase).toBe(say("ui.month.phase.early"));
+    expect(document.querySelector("[data-band] [data-end-month], [data-band] [data-month-count]")).toBeNull();
   });
 
   test("[R-WORLD-003] given a chip open when the month ends, when the results show, then the chip is gone and the nudge is back", async () => {
@@ -161,13 +136,13 @@ describe("the band and the thumb buttons", () => {
     expect(document.querySelector("[data-thing-chip]")).toBeNull();
   });
 
-  test("[R-WORLD-002] [R-WORLD-027] given the results showing, when the band renders, then it hides once they are up, and it shows again once the player goes back", async () => {
+  test("[R-WORLD-002] given the results showing, when the band renders, then it hides once they are up, and it shows again once the player goes back", async () => {
     const { store } = await opened(world(), richView());
     expect(band().getAttribute("aria-hidden")).toBe("false");
     act(() => store.setState({ reportOpen: true }));
-    // the band stays while its page flips on the spot, and steps back once the results are up (R-WORLD-027).
+    // The band stays through the short beat in the room, and steps back once the results are up.
     expect(band().getAttribute("aria-hidden")).toBe("false");
-    await waitFor(() => expect(band().getAttribute("aria-hidden")).toBe("true"), { timeout: FLIP_MS + 1500 });
+    await waitFor(() => expect(band().getAttribute("aria-hidden")).toBe("true"), { timeout: RESULTS_BEAT_MS + 1500 });
     act(() => store.setState({ reportOpen: false }));
     expect(band().getAttribute("aria-hidden")).toBe("false");
   });
@@ -186,13 +161,13 @@ describe("the band and the thumb buttons", () => {
     expect(thumbs().getAttribute("aria-hidden")).toBe("true");
   });
 
-  test("[R-WORLD-008] [R-WORLD-025] [R-WORLD-027] given the month ended, when the shell shows, then the page turns on the spot first, the scene goes dark after it, and the results are handed the name of where the player is", async () => {
+  test("[R-WORLD-008] [R-WORLD-025] given the month ended, when the shell shows, then a short beat in the room comes first, the scene goes dark after it, and the results are handed the name of where the player is", async () => {
     const { store } = await opened(world(), engineView());
     const shown = band().querySelector("h2")?.textContent ?? "";
     act(() => store.setState({ reportOpen: true }));
-    // the glyph's page flips on the band before the cut (R-WORLD-002), so the dark comes after it.
+    // The beat in the room comes before the cut, so the dark comes after it.
     expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("false");
-    await waitFor(() => expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("true"), { timeout: FLIP_MS + 1000 });
+    await waitFor(() => expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("true"), { timeout: RESULTS_BEAT_MS + 1000 });
     expect(document.querySelector("[data-results-for]")).toBeNull();
     // The band starts the name with a capital; the results' "Back to ..." keeps content's casing.
     await waitFor(() => expect(document.querySelector("[data-results-for]")).not.toBeNull());
@@ -217,7 +192,7 @@ describe("street talk", () => {
         seen.add(chatter()?.textContent ?? "");
       }
       expect(seen.size).toBeGreaterThan(1);
-      fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
+      fireEvent.click(monthChip());
       expect(chatter()).toBeNull();
     } finally {
       vi.useRealTimers();
@@ -337,7 +312,7 @@ describe("the nudge", () => {
     if (view === null) throw new Error("No view");
     act(() => store.setState({ view: { ...view, offers: richView().offers } }));
     expect(nudge()).toBe(say("ui.nudge.offer"));
-    fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
+    fireEvent.click(monthChip());
     expect(nudge()).toBeNull();
   });
 });

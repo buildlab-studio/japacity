@@ -17,8 +17,6 @@ export const worldText: Record<string, string> = {
   "ui.world.month-of": "Month {month}",
   "ui.world.clock": "{years} yrs {months} mo",
   "ui.world.age": "{years} yrs {months} mo",
-  "ui.world.turns": "{count} pages",
-  "ui.world.turns.one": "1 page",
   "ui.world.show-more": "Show more",
   "ui.world.show-less": "Show less",
   "ui.world.coming": "{what}, {when}",

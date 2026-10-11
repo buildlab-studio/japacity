@@ -49,34 +49,33 @@ export const uiText: Record<string, string> = {
   // An empty free slot rests (R-TURN-006): never planned, never "nothing".
   "ui.month.rest": "Free time: you rest",
   "ui.opening.go": "Go",
-  "ui.month.until-news": "Until news",
-  "ui.month.until-news-foot": "Stops when something needs you",
+  // The month's name and phase on the band, where the pages were (R-WORLD-002, R-TURN-010; decision 0034): month 0 of a
+  // life is the month of the year it began in; the phase says the month's free time in words, never a count.
+  "ui.month.name.0": "January",
+  "ui.month.name.1": "February",
+  "ui.month.name.2": "March",
+  "ui.month.name.3": "April",
+  "ui.month.name.4": "May",
+  "ui.month.name.5": "June",
+  "ui.month.name.6": "July",
+  "ui.month.name.7": "August",
+  "ui.month.name.8": "September",
+  "ui.month.name.9": "October",
+  "ui.month.name.10": "November",
+  "ui.month.name.11": "December",
+  "ui.month.phase.early": "Early",
+  "ui.month.phase.mid": "Mid",
+  "ui.month.phase.late": "Late",
+  "ui.month.phase.end": "Month end",
+  // The band's month chip, read aloud: it opens the phone's Calendar.
+  "ui.month.chip": "{name}, {phase}. Open the calendar",
   // A quiet month's one line after Until news (R-WORLD-028): "Kept £340. Credit up."
   "ui.month.quiet.credit-up": "Credit up.",
   "ui.month.quiet.credit-down": "Credit down.",
   "ui.month.quiet.passed": "Passed by: {offer}.",
 
-  // The pages left on the flip calendar (R-WORLD-027): each page a month of the character's life, the number on the glyph, the words at a tap.
-  // The player never reads "turn" or "banked"; these restate the older drafts in online.ts and world.ts.
-  "ui.months.label": "Pages left: {count}",
-  // R-TEXT-008: a tap on the count gives facts, each an icon and a few words, never a paragraph.
-  "ui.months.fact.left": "{count} pages left",
-  "ui.months.fact.left.one": "1 page left",
-  "ui.months.fact.page": "1 page = 1 month of your life",
-  "ui.months.fact.next": "Next page in {wait}",
+  // Nothing on screen says it since the band names the month (decision 0034); kept while the voice test reads it.
   "ui.months.fact.arriving": "Next page any minute now",
-  "ui.months.fact.full": "Full: {count} pages",
-  "ui.months.fact.chapter": "A new chapter fills it again",
-  "ui.months.fact.refilled": "Full again: {count} pages",
-  "ui.months.fact.none": "No pages left",
-  "ui.months.fact.places": "Places: free",
-  "ui.months.fact.phone": "The phone: free",
-  "ui.months.fact.plan": "The plan: free",
-  "ui.months.full-again": "A new chapter: your calendar is full again, {count} pages.",
-  // The calendar filled again between months, not by a chapter: said on the band and the results.
-  "ui.months.refilled": "Your pages are full again: {count} to play.",
-  "ui.world.turns": "{count} pages left",
-  "ui.world.turns.one": "1 page left",
   "ui.clock.next": "Next page in {wait}",
   "ui.clock.full": "Full: you hold every page you can. Play a month to make room.",
   "ui.clock.hours": "{hours}h {minutes}m",

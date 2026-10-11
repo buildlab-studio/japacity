@@ -7,7 +7,7 @@ import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { earlyWinIn } from "../features/guides/earlyWin";
 import { momentLine } from "../shared/moment/moment";
-import { carriedPlan, creditMoved, RUN_MONTHS, stopsRun } from "../features/turn/untilNews";
+import { carriedPlan } from "../features/turn/carried";
 import type { AccountApi } from "../shared/net/auth";
 import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
 import { failureOf, type FailureKind, isReloading, isReported } from "../shared/net/http";
@@ -48,6 +48,8 @@ export interface StoreAuthority {
   clock?(): ClockView | null;
   /** The world's numbers at this tick, for one whose world is not fetched (the local one): the season the meetings read (R-WORLD-020). */
   vars?(): Readonly<Record<string, number>>;
+  /** The real time the life began, for one that keeps it (the local one): the band names the month of the year by it (R-WORLD-002). */
+  beganAt?(): number;
 }
 
 export interface Shown {
@@ -141,22 +143,23 @@ export interface GameState {
   /** Counts the `messages` nudges heard, so an open conversation fetches what is new (R-PAIR-011). */
   messageNudges: number;
   /**
-   * The quiet months of the last Until news run, oldest first, each as all of its lines (the first with
-   * what was done mid-month), and a last line when the credit file moved over it. The results tell each
-   * as one line above the month that stopped the run (R-WORLD-028).
+   * The real time the life began (R-WORLD-002): month 0 of the life is that month of the year, so the band names the month.
+   * Read from the authority as the life loads or starts; an authority that keeps none (online, until the account carries
+   * it) leaves the time the game loaded.
    */
-  quiet: ReportLine[][];
+  beganAt: number;
 
   refresh: () => Promise<void>;
   /** R-ENGINE-015: sends again what failed (the view, the command kept, or the life); its first caller gets the answer. */
   retry: () => Promise<void>;
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
-  endMonth: () => Promise<Reply | ServerRejection | null>;
   /**
-   * Until news (R-WORLD-028): ends months in a row, each its own `turn/end` with the plan as it carries on
-   * (R-WORLD-007), until something needs the player or six have passed.
+   * Ends the month with the commitments that carry on (R-WORLD-007), and the results open in the room. `rest`: the bed's
+   * Sleep, the month's time left rested (R-TURN-010). The command does not carry it yet: the contract's `turn/end` has
+   * no `rest` field, and the simulation gates nothing on the time spent (decision 0034), so the plain command is sent;
+   * the bed's Sleep passes it already so the flag reaches the wire once the contract takes it.
    */
-  untilNews: () => Promise<Reply | ServerRejection | null>;
+  endMonth: (rest?: true) => Promise<Reply | ServerRejection | null>;
   setSlot: (index: number, pick: SlotPick | null) => void;
   /** Puts a month-act in the first empty slot. False when every slot is full, or the pick is not one to plan. */
   addToPlan: (pick: SlotPick) => boolean;
@@ -404,6 +407,12 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       if (!isReported(error)) set({ failed: failureWords(error) });
     }
 
+    /** When the life began, from an authority that keeps it: read once as the life loads, and again when one starts. */
+    function began(): Partial<GameState> {
+      const at = authority.beganAt?.();
+      return at === undefined ? {} : { beganAt: at };
+    }
+
     /** The authority's own clock, when it keeps one and reports none through events. */
     function ownClock(): Partial<GameState> {
       const clock = authority.clock?.();
@@ -415,7 +424,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       // A fetch that set out before a command's reply can land after it: the older view is dropped.
       const held = get().view;
       if (held !== null && view.v < held.v) return;
-      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null), ...(held === null && options.rememberMonth === true ? rememberedMonth(view) : {}), ...ownClock() });
+      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null), ...(held === null && options.rememberMonth === true ? rememberedMonth(view) : {}), ...(held === null ? began() : {}), ...ownClock() });
     }
 
     /**
@@ -445,7 +454,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             moments: bigLines(reply.lines),
             momentCards: cards,
             ...chapterTold(get().momentCards, cards, reply.view),
-            ...(ended ? { reportOpen: true, lastMonthLines: get().monthLines, monthLines: [], quiet: [] } : { monthLines: [...get().monthLines, ...reply.lines] }),
+            ...(ended ? { reportOpen: true, lastMonthLines: get().monthLines, monthLines: [] } : { monthLines: [...get().monthLines, ...reply.lines] }),
             ...ownClock(),
           });
         } else {
@@ -528,7 +537,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       accountNotice: null,
       earlyWin: false,
       messageNudges: 0,
-      quiet: [],
+      beganAt: Date.now(),
 
       refresh,
       async retry() {
@@ -538,67 +547,12 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         else await run();
       },
       send: (command) => send(command),
+      // `rest` waits for the contract (see the type above): the plain command is sent until `turn/end` carries it.
       async endMonth() {
         const slots = get().plan.filter((pick): pick is SlotPick => pick !== null);
         const reply = await send({ type: "turn/end", slots });
         if (reply?.ok === true) set({ reportOpen: true });
         return reply;
-      },
-      async untilNews() {
-        const first = get();
-        if (first.view === null || first.busy) return null;
-        set({ busy: true, rejection: null });
-        const quiet: ReportLine[][] = [];
-        const moments: ReportLine[] = [];
-        let momentCards = get().momentCards;
-        let last: Reply | ServerRejection | null = null;
-        let accepted = 0;
-        let failedAt: { kind: FailureKind; error: unknown } | null = null;
-        try {
-          for (let months = 1; months <= RUN_MONTHS; months += 1) {
-            const view = get().view;
-            if (view === null) break;
-            // Each month sends the plan as it stands, the commitments carried on from the month before (R-WORLD-007).
-            const slots = get().plan.filter((pick): pick is SlotPick => pick !== null);
-            const reply = await authority.send({ type: "turn/end", slots, basedOn: view.v });
-            last = reply;
-            if (!reply.ok) {
-              set({ rejection: { code: reply.code, words: rejectionWords(reply.code), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });
-              if (accepted === 0 && !get().signedOut) await viewAfter();
-              // A month already ended stands as the one that stopped the run: its full results show.
-              quiet.pop();
-              break;
-            }
-            accepted += 1;
-            const credit = creditMoved(view, reply.view);
-            const told = [...(months === 1 ? get().monthLines : []), ...reply.lines, ...(credit === null ? [] : [credit])];
-            moments.push(...bigLines(reply.lines));
-            const cardsBefore = momentCards;
-            momentCards = withMoment(momentCards, reply.lines, get().momentScreens > 0 ? reply.view : null, view, months === 1 ? get().monthLines : []);
-            // Each month lands in the store as it ends, so the month kept on the device follows the run.
-            set({
-              earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, slots),
-              view: reply.view,
-              plan: fitPlan(carriedPlan(get().plan, reply.view), reply.view.freeSlots),
-              lines: reply.lines,
-              lastMonthLines: months === 1 ? get().monthLines : [],
-              monthLines: [],
-              ...chapterTold(cardsBefore, momentCards, reply.view),
-            });
-            if (stopsRun(reply.view, reply.lines, months).length > 0) break;
-            quiet.push(told);
-          }
-        } catch (error) {
-          quiet.pop();
-          const kind = failureOf(error);
-          // The months already ended stand; Retry carries the run on from the month the failure stopped it at.
-          if (kind !== null) failedAt = { kind, error };
-          else broke(error);
-        } finally {
-          set({ busy: false, ...(accepted > 0 ? { quiet, moments, momentCards, reportOpen: true } : {}) });
-        }
-        if (failedAt !== null) return held(failedAt.kind, "command", () => get().untilNews(), failedAt.error);
-        return last;
       },
       setSlot(index, pick) {
         const plan = [...get().plan];
@@ -657,7 +611,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         forgetMonth();
         // A new life is taught afresh: its first chapter's title, its places' labels, its home (R-CHAPTER-011).
         forgetTaught();
-        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], momentCards: [], rejection: null, monthLines: [], lastMonthLines: [], cardClosed: null, cardTold: null, quiet: [] });
+        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], momentCards: [], rejection: null, monthLines: [], lastMonthLines: [], cardClosed: null, cardTold: null, ...began() });
       },
       openLifeChooser: options.life === undefined || options.lifeAgain === false ? null : () => set({ choosingLife: true }),
       endLife:
@@ -681,7 +635,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
                 if (!ended) return false;
                 forgetMonth();
                 forgetLife();
-                set({ view: null, choosingLife: true, notice: null, plan: [], lines: [], moments: [], momentCards: [], monthLines: [], lastMonthLines: [], cardClosed: null, cardTold: null, quiet: [], reportOpen: false, earlyWin: false, clock: null, world: null, presence: null });
+                set({ view: null, choosingLife: true, notice: null, plan: [], lines: [], moments: [], momentCards: [], monthLines: [], lastMonthLines: [], cardClosed: null, cardTold: null, reportOpen: false, earlyWin: false, clock: null, world: null, presence: null });
                 options.afterLifeEnded?.();
                 return true;
               } finally {
@@ -723,7 +677,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         set({ messageNudges: get().messageNudges + 1 });
       },
       leave(notice) {
-        set({ signedOut: true, accountNotice: notice, view: null, clock: null, world: null, presence: null, rejection: null, lines: [], moments: [], momentCards: [], quiet: [] });
+        set({ signedOut: true, accountNotice: notice, view: null, clock: null, world: null, presence: null, rejection: null, lines: [], moments: [], momentCards: [] });
       },
     };
   });

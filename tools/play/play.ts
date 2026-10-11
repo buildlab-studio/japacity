@@ -534,40 +534,70 @@ async function onTheRoad(run: Run, month: number): Promise<boolean> {
   return true;
 }
 
+/** The homes' beds, by the thing's id in each room file, with the act that ends the month (R-WORLD-025). */
+const BEDS = ["bed", "room"] as const;
+const BED_END = '[data-thing-chip] [data-act="end-month"]';
+
+/**
+ * Ends the month from the bed when the player is at home: in the yard the house is gone into first; the bed's mark is
+ * tapped, then its month-end act, and the lock screen, when the bed opens it, is put away. True once a `turn/end` is
+ * on its way, read as the band stepping back or the results opening. False when no bed was in reach.
+ */
+async function bedEnd(run: Run, month: number): Promise<boolean> {
+  const { page } = run;
+  const ended = async (): Promise<boolean> => (await shown(page.locator("[data-world-sheet='results'], [data-moment]"))) || (await page.locator("[data-band]").first().getAttribute("aria-hidden").catch(() => null)) === "true";
+  const house = page.locator('[data-thing-mark="house"]');
+  if (!(await shown(page.locator(BED_END))) && (await shown(house))) {
+    await tap(run, house, "the house");
+    await page.waitForTimeout(600);
+    if (await tap(run, page.locator('[data-thing-chip] [data-act="enter"]'), "Go in")) await page.waitForTimeout(1_500);
+  }
+  if (!(await shown(page.locator(BED_END)))) {
+    for (const bed of BEDS) {
+      const mark = page.locator(`[data-thing-mark="${bed}"]`);
+      if (!(await shown(mark))) continue;
+      await tap(run, mark, `the ${bed}`);
+      await page.waitForTimeout(600);
+      break;
+    }
+  }
+  if (!(await tap(run, page.locator(BED_END), "the bed's month end"))) return false;
+  // The bed opens the phone first when the month's lines wait there (R-WORLD-030); putting it away ends the month.
+  if (await appear(page.locator("[data-home-bar]"), 1_500)) await tap(run, page.locator("[data-home-bar]"), "the phone's home bar");
+  for (let wait = 0; wait < 10 && !(await ended()); wait += 1) await page.waitForTimeout(300);
+  log(run, `month ${String(month)}: the bed's month end tapped`);
+  // Tapped once only: a month end on its way that the band has not shown yet is still an end, never a second tap.
+  return true;
+}
+
 async function endMonth(run: Run, month: number): Promise<boolean> {
   const { page } = run;
   // The city's own question may have put the life on the road this month (the night meeting, then the truth).
   if (await shown(page.locator("[data-road]"))) return onTheRoad(run, month);
-  const end = page.locator("[data-end-month]");
-  if (!(await appear(end, LONG))) {
-    problem(run, `month ${String(month)}: no Next month button`);
-    return false;
-  }
-  // An answer may open a new question (the road's deposit opens the night meeting): the nudge is followed again, twice at most.
-  for (let again = 0; again < 2 && (await end.first().isDisabled()); again += 1) {
-    log(run, `month ${String(month)}: Next month is shut (${(await end.first().getAttribute("title")) ?? "no reason given"}); following the nudge again`);
-    await followNudge(run, month);
-  }
-  if (await end.first().isDisabled()) {
-    problem(run, `month ${String(month)}: Next month is shut: ${(await end.first().getAttribute("title")) ?? "no reason given"}`);
-    return false;
-  }
-  // The month is read in the phone's Calendar, opened by the band's calendar glyph, then the phone is put away (R-WORLD-002).
+  // The month's name and phase stand on the band where Next month was; a tap opens the Calendar, read and put away (R-WORLD-002).
   const calendar = page.locator("[data-app-screen='calendar']");
-  if (await tap(run, page.locator("[data-band] [data-month-count]"), "the calendar glyph")) {
+  log(run, `month ${String(month)} on the band: ${(await page.locator("[data-band] [data-band-month]").first().getAttribute("aria-label").catch(() => null)) ?? "no month shown"}`);
+  if (await tap(run, page.locator("[data-band] [data-band-month]"), "the band's month")) {
     if (await appear(calendar, SHORT)) {
       log(run, `month ${String(month)} calendar: ${await words(calendar, 240)}`);
       await shot(run, `month ${String(month)} plan`);
       await tap(run, page.locator("[data-home-bar]"), "the phone's home bar");
       await page.waitForTimeout(600);
-    } else problem(run, `month ${String(month)}: the calendar glyph did not open the Calendar`);
+    } else problem(run, `month ${String(month)}: the band's month did not open the Calendar`);
   }
-  // Next month on the band turns the page at once; in the first month, or one with nothing planned and no job, it opens
-  // the Calendar instead, whose own Next month turns it.
-  if (!(await tap(run, end, "Next month"))) return false;
-  if (await appear(calendar, 2_000)) {
-    log(run, `month ${String(month)}: Next month opened the Calendar first`);
-    if (!(await tap(run, calendar.locator("[data-month-end]"), "Next month in the Calendar"))) return false;
+  // The month ends from the bed at home (R-WORLD-025; decision 0034): the band has no Next month. An answer may open a new
+  // question that holds the month (the road's deposit opens the night meeting): the nudge is followed again, twice at most.
+  // The automatic turn when the month is lived comes with the next step of the lived month; until then the driver walks
+  // in from the yard when it stands there, and a life away from home ends the run with the reason.
+  let ended = await bedEnd(run, month);
+  for (let again = 0; again < 2 && !ended && (await shown(page.locator("[data-nudge]"))); again += 1) {
+    log(run, `month ${String(month)}: the bed did not end the month; following the nudge again`);
+    await followNudge(run, month);
+    ended = await bedEnd(run, month);
+  }
+  if (!ended) {
+    problem(run, `month ${String(month)}: the month could not be ended from the bed (not at home, or a question holds it)`);
+    return false;
   }
 
   // Staged moments and cards come before the results; each is read and passed.

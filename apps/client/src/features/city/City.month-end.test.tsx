@@ -1,7 +1,6 @@
 // The bed's month end, the player's own figure and a thing's chip over the world (docs/rules/world.md R-WORLD-025,
 // R-WORLD-008, R-WORLD-005, R-WORLD-003, R-WORLD-014). The bed's Next month
-// ends the month as the band's does: the lock screen's lines are a preview, and putting the phone away opens the
-// results. A tap on your own figure opens nothing. A chip hides the nudge only while it is open: a tap anywhere
+// ends the month: the lock screen's lines are a preview, and putting the phone away opens the results in the room. A tap on your own figure opens nothing. A chip hides the nudge only while it is open: a tap anywhere
 // outside it, Escape or its sheet's close puts it away and the nudge comes back by itself; a person's or a shopfront's
 // card does the same and sits at the foot of the screen. A reload opens inside the house when the player last stopped
 // there. The place file is the one
@@ -12,10 +11,8 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/people";
 import { plannable } from "../../shared/words/acts";
-import { say } from "../../shared/words/text";
 import type { Act, Thing } from "../../shared/world/contract";
-import { FLIP_MS } from "../../shared/world/MonthCount";
-import { City } from "./City";
+import { City, RESULTS_BEAT_MS } from "./City";
 
 type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act } | { kind: "own" } | { kind: "person"; slot: number } | { kind: "model"; file: string; signs: string[] };
 
@@ -72,7 +69,7 @@ function found(selector: string): HTMLElement {
   return one;
 }
 
-/** Ada at home with a month behind her and something planned, so Next month turns the page rather than open the Calendar. */
+/** Ada at home with a month behind her and something planned. */
 async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn = true) {
   // In the yard unless the test keeps the player inside (R-WORLD-014: the game opens where the player last stopped).
   if (goIn) window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
@@ -97,7 +94,7 @@ async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn =
 const nudge = (): Element | null => document.querySelector("[data-nudge]");
 
 describe("the bed's month end", () => {
-  test("[R-WORLD-025] [R-WORLD-008] given the month's lines waiting at home, when the bed's Next month is tapped and the phone is put away, then the lock screen comes first with nothing sent, and putting it away ends the month and opens the results sheet, the same sheet over the same place as the band's Next month", async () => {
+  test("[R-WORLD-025] [R-WORLD-008] given the month's lines waiting at home, when the bed's Next month is tapped and the phone is put away, then the lock screen comes first with nothing sent, and putting it away ends the month and opens the results sheet over the place", async () => {
     const bed = await adaAtHome({ signalsWaiting: true });
     fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
     // The lock screen's lines are a preview: the month has not turned.
@@ -109,24 +106,16 @@ describe("the bed's month end", () => {
     expect(bed.authority.sent.find((command) => command.type === "turn/end")).toMatchObject({ type: "turn/end", slots });
     expect(document.querySelector("[data-stand-in-phone]")).toBeNull();
     await waitFor(() => expect(bed.store.getState().reportOpen).toBe(true));
-    const fromBed = await waitFor(() => found("[data-results-for]"), { timeout: FLIP_MS + 1500 });
-    const bedPlace = fromBed.dataset.resultsFor;
-    expect(bedPlace).toBeTruthy();
-    // The band's Next month from the same place: the same command and the same sheet.
-    document.body.innerHTML = "";
-    const band = await adaAtHome({ signalsWaiting: true });
-    fireEvent.click(found(`[aria-label="${say("ui.world.end-month")}"]`));
-    await waitFor(() => expect(band.authority.sent.filter((command) => command.type === "turn/end")).toHaveLength(1));
-    const fromBand = await waitFor(() => found("[data-results-for]"), { timeout: FLIP_MS + 1500 });
-    expect(fromBand.dataset.resultsFor).toBe(bedPlace);
+    const fromBed = await waitFor(() => found("[data-results-for]"), { timeout: RESULTS_BEAT_MS + 1500 });
+    expect(fromBed.dataset.resultsFor).toBeTruthy();
   });
 
-  test("[R-WORLD-025] given nothing waiting on the phone, when the bed's Next month is tapped, then the month ends at once as the band's does and the results follow", async () => {
+  test("[R-WORLD-025] given nothing waiting on the phone, when the bed's Next month is tapped, then the month ends at once and the results follow", async () => {
     const { authority } = await adaAtHome({ signalsWaiting: false });
     fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
     expect(document.querySelector("[data-stand-in-phone]")).toBeNull();
     await waitFor(() => expect(authority.sent.filter((command) => command.type === "turn/end")).toHaveLength(1));
-    await waitFor(() => found("[data-results-for]"), { timeout: FLIP_MS + 1500 });
+    await waitFor(() => found("[data-results-for]"), { timeout: RESULTS_BEAT_MS + 1500 });
   });
 });
 

@@ -16,20 +16,14 @@ import { ThumbBar } from "./ThumbBar";
 const naira = (amount: number): string => `₦${String(Math.round(amount / 100))}`;
 
 describe("the band", () => {
-  test("[R-WORLD-002] given a month, a place and money, when the band renders, then it shows those three and Next month, and nothing else", () => {
-    render(<Band when="Month 6" name="The family house" money={42_000_000} formatMoney={naira} onEndMonth={() => undefined} />);
+  test("[R-WORLD-002] given a month, a place and money, when the band renders, then it shows those three with the month's name and phase, and nothing else: no Next month", () => {
+    render(<Band when="Month 6" name="The family house" money={42_000_000} formatMoney={naira} month={{ name: "April", phase: "Mid" }} />);
     expect(screen.getByText("Month 6")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "The family house" })).toBeTruthy();
     expect(screen.getByText("₦420000")).toBeTruthy();
-    expect(screen.getByRole<HTMLButtonElement>("button", { name: "Next month" }).disabled).toBe(false);
+    expect(screen.getByRole("button", { name: say("ui.month.chip", { name: "April", phase: "Mid" }) })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Next month" })).toBeNull();
     expect(screen.getAllByRole("button")).toHaveLength(1);
-  });
-
-  test("[R-WORLD-002] given the month cannot end, when the band renders with the reason, then Next month is disabled and carries it", () => {
-    render(<Band when="Month 6" name="Home" money={0} formatMoney={naira} onEndMonth={() => undefined} endBlocked="Answer the officer first" />);
-    const button = screen.getByRole<HTMLButtonElement>("button", { name: "Next month" });
-    expect(button.disabled).toBe(true);
-    expect(button.getAttribute("title")).toBe("Answer the officer first");
   });
 });
 
