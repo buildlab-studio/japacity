@@ -1132,7 +1132,11 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     return Object.entries(state.route).flatMap(([id, held]) => routeProblems(id as Id<"route">, held, content));
   },
   view: (read) => ({
-    // R-ROAD-001: the road never appears in the routes view.
-    routes: Object.entries(read.state.route).filter(([id]) => read.content.route[id as Id<"route">]?.gate !== "road").map(([id, held]) => routeView(read, id as Id<"route">, held)),
+    // R-ROAD-001: the road never appears in the routes view. R-ROUTE-004: in content order, never the stored state's
+    // key order, which a database may hand back reordered, so every client lists the routes the same way.
+    routes: (Object.keys(read.content.route) as Id<"route">[]).flatMap((id) => {
+      const held = ownOf(read.state.route, id);
+      return held === undefined || read.content.route[id]?.gate === "road" ? [] : [routeView(read, id, held)];
+    }),
   }),
 };
