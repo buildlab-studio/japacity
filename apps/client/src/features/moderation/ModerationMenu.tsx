@@ -26,8 +26,9 @@ export function useScreenName(): string {
   });
 }
 
-export function FeedbackForm({ moderation, screen, max }: { moderation: ModerationApi; screen: string; max: number }) {
-  const [text, setText] = useState("");
+/** `initial`: words already in the box, as the broken screen's Tell us writes them in (R-ANALYTICS-002). */
+export function FeedbackForm({ moderation, screen, max, initial = "" }: { moderation: ModerationApi; screen: string; max: number; initial?: string }) {
+  const [text, setText] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
   const used = [...text.trim()].length;

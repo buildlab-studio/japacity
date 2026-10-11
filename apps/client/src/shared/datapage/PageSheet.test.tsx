@@ -9,7 +9,7 @@ import { localAuthority } from "../../authority/local";
 import { keepPerson } from "../../authority/person";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { lookOf } from "../frontdoor/looks";
-import { clockWords } from "../words/quality";
+import { AGE, clockWords, yearsOf } from "../words/quality";
 import { say } from "../words/text";
 import { Band } from "../world/Band";
 import { stripLines } from "./DataPage";
@@ -17,6 +17,11 @@ import { familyCard, TRAIL_KEY } from "./family";
 import { stampsOf } from "./stamps";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
+
+/** The age in months the view holds. */
+function ageOf(view: Pick<PlayerView, "qualities">): number {
+  return view.qualities.find((quality) => quality.id === AGE)?.value ?? 0;
+}
 
 afterEach(() => {
   localStorage.clear();
@@ -72,7 +77,9 @@ describe("the page from the band", () => {
     const sheet = screen.getByRole("dialog", { name: say("prologue.door.page.title") });
     const page = sheet.querySelector<HTMLElement>("[data-page]")!;
     expect(page.querySelector("[data-field='name']")?.textContent).toContain("Morenike");
-    expect(page.querySelector("[data-field='age']")?.textContent).toContain(clockWords(view.qualities));
+    // the page's age is the years with their word; the band keeps years and months.
+    expect(page.querySelector("[data-field='age']")?.textContent).toBe(`${say("prologue.page.age")}${say("prologue.page.age.years", { years: yearsOf(ageOf(view)) })}`);
+    expect(page.querySelector("[data-field='age']")?.textContent).not.toContain(clockWords(view.qualities));
     expect(page.querySelector("[data-field='path']")?.textContent).toContain(say("scenario.ada.kind"));
     expect(page.querySelector("[data-field='ready']")?.textContent).toContain(say("prologue.page.ready.figure", { percent: view.japacity.percent ?? 0 }));
     expect(page.querySelector<HTMLImageElement>("[data-photo] img")?.getAttribute("src")).toBe(lookOf("chr_kemi")!.picture);
@@ -95,7 +102,7 @@ describe("the page from the band", () => {
     };
     store.setState({ view: older });
     const page = await screen.findByRole("dialog");
-    expect(page.querySelector("[data-field='age']")?.textContent).toContain(clockWords(older.qualities));
+    expect(page.querySelector("[data-field='age']")?.textContent).toBe(`${say("prologue.page.age")}${say("prologue.page.age.years", { years: yearsOf(ageOf(older)) })}`);
     // The passport is a step before the visa: it stamps nothing.
     expect(page.querySelector("[data-stamp]")).toBeNull();
     const route = "route.uk-care" as const;
@@ -125,7 +132,7 @@ describe("the page from the band", () => {
     const page = screen.getByRole("dialog").querySelector<HTMLElement>("[data-page]")!;
     expect(page.querySelector("[data-field='family']")?.textContent).toContain(familyCard({ familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, false).title);
     const months = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
-    const lines = stripLines("Morenike", { district: say("ui.door.home.where.family-house"), years: Math.floor(months / 12), months: months % 12, percent: view.japacity.percent ?? 0 });
+    const lines = stripLines("Morenike", { district: say("ui.door.home.where.family-house"), years: yearsOf(months), percent: view.japacity.percent ?? 0 });
     expect(view.home.place).toBe("place.family-house");
     expect(page.querySelector("[data-page-strip]")?.textContent).toBe(lines.join(""));
     expect(lines[1]).toMatch(/^SURULERE<</);

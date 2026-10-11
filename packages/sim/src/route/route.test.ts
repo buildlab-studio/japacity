@@ -283,6 +283,17 @@ describe("hearing of a route and looking into it", () => {
     expect(funds.earned).toBeGreaterThan(0);
     expect(game.view().routes[0]!.checklist.find((item) => item.id === "deposit")).toMatchObject({ met: false, have: null, need: null, earned: 0 });
   });
+  test("[R-ROUTE-004] given the state's routes stored in another key order, as a database hands them back, when the view is read, then its routes follow content order, the same list either way", () => {
+    const game = life({ quiet: true });
+    for (let month = 0; month < 3; month += 1) game.endTurn();
+    const inOrder = game.view().routes;
+    const contentOrder = Object.keys(content.route).filter((id) => content.route[id as Id<"route">]?.gate !== "road" && Object.hasOwn(game.state.route, id));
+    expect(contentOrder.length).toBeGreaterThan(1);
+    expect(inOrder.map((route) => route.id)).toEqual(contentOrder);
+    game.state = { ...game.state, route: Object.fromEntries(Object.entries(game.state.route).reverse()) };
+    expect(Object.keys(game.state.route)).not.toEqual(Object.keys(content.route).filter((id) => Object.hasOwn(game.state.route, id)));
+    expect(game.view().routes).toEqual(inOrder);
+  });
 });
 
 describe("the window", () => {

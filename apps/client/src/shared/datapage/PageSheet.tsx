@@ -15,7 +15,7 @@ import { type Archetype, archetypeOf, throughUniversity } from "../frontdoor/arc
 import { sixteenPath } from "../words/sixteen";
 import { gateLook } from "../frontdoor/Gate";
 import { lookOf } from "../frontdoor/looks";
-import { AGE, clockWords, yearsOf } from "../words/quality";
+import { AGE, pageAgeWords, yearsOf } from "../words/quality";
 import { typeWords } from "../words/japaType";
 import { readyPercent } from "../words/ready";
 import { hasWords, say } from "../words/text";
@@ -63,13 +63,13 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
   return {
     ...(type === null ? {} : { type: typeWords(type) }),
     name: nameOf(person, view),
-    age: clockWords(view.qualities),
+    age: pageAgeWords(view.qualities),
     // The path and what it was: the tile's own while the life went its way, the life as lived where it did not.
     path: archetype === null ? (hasWords(kind) ? say(kind) : "") : lived === null ? say(`prologue.archetype.${archetype.id}.name`) : say(`ui.page.lived.${lived}`),
     ...(archetype === null ? {} : { was: lived === null ? say(`prologue.archetype.${archetype.id}.was`) : say(`prologue.page.lived.${lived}`) }),
     ...(draw === null ? {} : { family: familyCard(draw, archetype?.id === "water").title }),
     ready: say("prologue.page.ready.figure", { percent }),
-    strip: { district: districtOf(view), years: yearsOf(months), months: months - yearsOf(months) * 12, percent },
+    strip: { district: districtOf(view), years: yearsOf(months), percent },
     photo: lookOf(gateLook(person?.look))?.picture ?? "",
     // The player's own colours, or the look as made, and the photo drawn in them, kept with the person (R-PROLOGUE-015).
     ...(person === null ? {} : { wear: { look: person.look, ...(person.style === undefined ? {} : { style: person.style }), ...(person.photo === undefined ? {} : { photo: person.photo }), ...(person.photoPx === undefined ? {} : { photoPx: person.photoPx }) } }),

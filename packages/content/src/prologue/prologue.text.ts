@@ -230,7 +230,7 @@ const words: Record<string, string> = {
   "prologue.page.head": "Travel data page",
   "prologue.page.name": "Name",
   "prologue.page.age": "Age",
-  "prologue.page.age.years": "{years}",
+  "prologue.page.age.years": "{years} yrs",
   "prologue.page.path": "So far",
   "prologue.page.ready": "Ready",
   "prologue.page.type": "Japa type",

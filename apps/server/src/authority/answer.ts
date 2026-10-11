@@ -2,7 +2,7 @@
 import type { ServerCode, ServerRejection } from "../types";
 
 /** The statuses the routes use. A simulation's rejection is a game answer and goes out as 200. */
-export type Status = 200 | 400 | 401 | 404 | 409 | 429;
+export type Status = 200 | 400 | 401 | 403 | 404 | 409 | 429;
 
 export interface Answer<B> {
   status: Status;

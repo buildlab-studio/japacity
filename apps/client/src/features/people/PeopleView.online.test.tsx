@@ -66,6 +66,22 @@ describe("the invite link", () => {
     expect(server.sent.find((sent) => sent.path === "/api/invite")?.body).toEqual({ slot: "partner" });
     expect(screen.getByText(say("ui.people.invite.link-days", { days: content.tuning.pair.inviteDays }))).toBeDefined();
   });
+
+  test.each([
+    ["too-many", 429],
+    ["region", 403],
+  ])("[R-PAIR-008] [R-PAIR-018] given the server refusing the link as %s with %i, then the client reads the refusal from the body and says it in words", async (code, status) => {
+    const game = peopleGame();
+    game.accept({ type: "people/invite", slot: "partner", looking: "partner", fill: "who-codes" });
+    const server = fakeServer();
+    server.answer("POST /api/invite", { status, body: { ok: false, code, detail: "Refused." } });
+    const { store } = await online(server, game);
+    act(() => store.setState({ earlyWin: true }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.people.invite.link-get") }));
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toBe(say("ui.people.invite.failed", { why: say(`reject.${code}`) }));
+    expect(alert.textContent).not.toContain("Refused.");
+  });
 });
 
 describe("the conversation", () => {

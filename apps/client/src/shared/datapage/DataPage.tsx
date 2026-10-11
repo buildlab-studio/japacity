@@ -62,8 +62,8 @@ export interface PageStamp {
 /** What the machine-readable strip is built from; a part not known yet prints as fillers. */
 export interface Strip {
   district: string;
+  /** Whole years only, "26Y": the page carries no months (R-PROLOGUE-009). */
   years: number | null;
-  months: number | null;
   percent: number | null;
 }
 
@@ -75,7 +75,7 @@ export function mrz(words: string, length: number): string {
 
 /** The strip's two lines: the name after the page's own code, then the district, the age and how ready. */
 export function stripLines(name: string, strip: Strip): [string, string] {
-  const age = strip.years === null ? "" : `${String(strip.years)}Y${strip.months === null ? "" : `${String(strip.months)}M`}`;
+  const age = strip.years === null ? "" : `${String(strip.years)}Y`;
   return [`P<${PAGE_CODE}${mrz(name, 25)}`, mrz(`${strip.district}<<${age}<<${strip.percent === null ? "" : String(strip.percent)}`, 30)];
 }
 

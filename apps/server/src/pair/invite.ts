@@ -9,6 +9,7 @@ import { newCharacter } from "../authority/character";
 import { characterOf } from "../authority/command";
 import { transact } from "../authority/transaction";
 import type { ServerDeps } from "../deps";
+import type { Status } from "../authority/answer";
 import type { PairAnswer, PairRejection } from "./codes";
 import { asRefusal, NOT_POSSIBLE, refused, widen } from "./codes";
 import { interactionOf } from "./region";
@@ -17,6 +18,15 @@ import { milestonesOf } from "./rewards";
 import { pairStep, sendTo, unusual } from "./step";
 
 const CODE_BYTES = 12;
+
+/**
+ * R-PAIR-008, R-PAIR-018: a link's refusals answer the 4xx the other routes use, with the
+ * refusal in the body: a link taken is a conflict (409, as a name taken), a link run out is refused (403, as the age
+ * pass that ran out), a region that allows no pair is refused (403, as a region closed to sign-up).
+ */
+function unusable(failed: "used" | "expired" | "wrong-slot", detail: string): { status: Status; body: PairRejection } {
+  return refused(failed === "used" ? 409 : failed === "expired" ? 403 : 200, failed, detail);
+}
 /** R-PEOPLE-008: a partner is an adult with the prologue behind them. */
 const ADULT_MONTHS = 216;
 const AGE: Id<"quality"> = "quality.age-months";
@@ -85,7 +95,7 @@ export async function makeInvite(deps: ServerDeps, account: string, body: unknow
   if (paused !== null) return paused;
   const row = await deps.stores.account.get(account);
   if (row?.character === null || row === null) return refused(404, "no-character", "This account has no character yet.");
-  if (interactionOf(deps, row) === "none") return refused(200, "region", "Players here meet computer characters only.");
+  if (interactionOf(deps, row) === "none") return refused(403, "region", "Players here meet computer characters only.");
   const read = await stateOf(deps, row.character);
   if (read === null) return refused(409, "diverged", "This character is being checked.");
   const held = read.state.people.slots[slot];
@@ -95,7 +105,8 @@ export async function makeInvite(deps: ServerDeps, account: string, body: unknow
   const out = open.find((each) => each.slot === slot);
   if (out !== undefined) return { status: 200, body: { ok: true, code: out.code, slot, expires: out.expires, card: out.card as InviteCard } };
   const tuning = read.content.tuning.pair;
-  if (!mayOpenInvite(open.length, tuning)) return refused(200, "too-many", `At most ${String(tuning.maxOpenInvites)} cards may be out at once.`);
+  // As the guest sign-up's too-many and the reports' limit: 429.
+  if (!mayOpenInvite(open.length, tuning)) return refused(429, "too-many", `At most ${String(tuning.maxOpenInvites)} cards may be out at once.`);
   const card = inviteCard(read, slot);
   if (card === null) return refused(400, "not-legal", `The card on ${slot} is off the fixed lists.`);
   const code = hex(deps.randomBytes(CODE_BYTES));
@@ -110,7 +121,7 @@ export async function showInvite(deps: ServerDeps, code: string): Promise<PairAn
   const row = await deps.stores.invite.get(code);
   if (row === null) return refused(404, "bad-code", "There is no such link.");
   const usable = useInvite(row, row.slot, deps.now());
-  if (!usable.ok) return refused(200, usable.failed, usable.failed === "used" ? "This link has been used." : "This link has run out.");
+  if (!usable.ok) return unusable(usable.failed, usable.failed === "used" ? "This link has been used." : "This link has run out.");
   return { status: 200, body: { ok: true, slot: row.slot, looking: row.looking, expires: row.expires, card: row.card as InviteCard } };
 }
 
@@ -169,9 +180,9 @@ export async function acceptInvite(deps: ServerDeps, account: string, code: stri
   const invite = await deps.stores.invite.get(code);
   if (invite === null) return refused(404, "bad-code", "There is no such link.");
   const usable = useInvite(invite, slot, deps.now());
-  if (!usable.ok) return refused(200, usable.failed, `The link cannot be used: ${usable.failed}.`);
+  if (!usable.ok) return unusable(usable.failed, `The link cannot be used: ${usable.failed}.`);
   const refusedEarly = await mayAccept(deps, account, invite);
-  if (refusedEarly !== null) return { status: refusedEarly.code === "signed-out" ? 401 : 200, body: refusedEarly };
+  if (refusedEarly !== null) return { status: refusedEarly.code === "signed-out" ? 401 : refusedEarly.code === "region" ? 403 : 200, body: refusedEarly };
   const friend = await friendFor(deps, account, invite, field(body, "scenario"));
   if (!("character" in friend)) return friend;
   if (friend.character === invite.from) return refused(200, "not-legal", "A character cannot pair with itself.");
