@@ -15,6 +15,7 @@ import { Award, BedSingle, BookOpen, ChevronLeft, ChevronRight, Dices, Flag, Gra
 import { type ReactNode, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
+import { useScreenCount } from "../../useScreenCount";
 import { keepPerson } from "../../authority/person";
 import { formatMoney } from "../../shared/words/format";
 import { blurbOf, say, words } from "../../shared/words/text";
@@ -252,6 +253,28 @@ export interface DoorGuest {
   started: () => Promise<void>;
 }
 
+/**
+ * R-ANALYTICS-002, R-ANALYTICS-008: the front door's screens as the funnel counts them:
+ * the first door, the second (an archetype or a ready life), and the page printed. Begun is no screen of its own.
+ */
+export function doorScreen(stage: DoorStage): "door-1" | "door-2" | "page" | null {
+  switch (stage) {
+    case "you":
+      return "door-1";
+    case "life":
+    case "ready":
+      return "door-2";
+    case "page":
+      return "page";
+    case "begun":
+      return null;
+    default: {
+      const never: never = stage;
+      throw new Error(`Unknown door stage ${String(never)}.`);
+    }
+  }
+}
+
 export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
   const notice = useGame((state) => state.notice);
   const chooseLife = useGame((state) => state.chooseLife);
@@ -267,6 +290,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
   });
   const [tried, setTried] = useState(false);
   const [pressed, setPressed] = useState(false);
+  useScreenCount(doorScreen(draft.stage));
   // The username as typed on the page; null while the name fills it in.
   const [typedUsername, setTypedUsername] = useState<string | null>(null);
   const [usernameSaid, setUsernameSaid] = useState<string | null>(null);

@@ -8,6 +8,9 @@ export type DropReason = "signed-out" | "size" | "shape" | "rate" | "name" | "ke
 /** The unknown region, as the account's country is stored when Cloudflare gave none. */
 export const NO_REGION = "XX";
 
+/** R-ANALYTICS-013: the region a whole-game figure is kept under, such as the day's online peak; no account's region is ever this. */
+export const WHOLE_GAME = "all";
+
 export function counterDef(content: Content, name: string): CounterDef | null {
   return content.analytics.counters.find((def) => def.name === name) ?? null;
 }

@@ -73,6 +73,7 @@ import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
 
 export { blockedWords, reservedNames } from "./account/account.data";
+export { FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "./analytics/analytics.data";
 export { japaTypes, officialAccounts, shareChapters, shareKinds } from "./share/share.data";
 export { OPERATOR, type Operator } from "./legal/legal.operator";
 export { LICENCES_URL, REGISTER_URL, REPOSITORY_URL } from "./legal/legal.repository";

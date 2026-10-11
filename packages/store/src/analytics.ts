@@ -36,3 +36,21 @@ export interface DayLog {
   /** The accounts created in [start, end), in id order. */
   created: (start: number, end: number) => Promise<AccountRow[]>;
 }
+
+/** R-ANALYTICS-008, R-ANALYTICS-013: a number of accounts in one region. `region` is the account's country, `XX` when it has none or is gone. */
+export interface RegionCount {
+  region: string;
+  count: number;
+}
+
+/**
+ * R-ANALYTICS-008, R-ANALYTICS-012, R-ANALYTICS-013: counts the
+ * nightly job and the admin's live figures read from the game's own tables,
+ * read only. Each answers counts by region and never an account.
+ */
+export interface NumbersLog {
+  /** The distinct accounts with at least one command their player sent whose `at` falls in [start, end), by region. */
+  players: (start: number, end: number) => Promise<RegionCount[]>;
+  /** The accounts created before `end`, by region. */
+  accounts: (end: number) => Promise<RegionCount[]>;
+}

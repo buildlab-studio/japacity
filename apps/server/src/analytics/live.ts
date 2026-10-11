@@ -1,0 +1,46 @@
+// R-ANALYTICS-008: the counters the server adds the moment it
+// acts, for what the command log never holds: a guest secured and feedback
+// sent. Only the day's totals by region are written; the account is read for
+// its region and its sign-up day and goes no further (R-ANALYTICS-007). A
+// counter that fails to write is never something the player sees.
+import { utcDay } from "../admin/day";
+import type { ServerDeps } from "../deps";
+import { dayName } from "./day";
+import { NO_REGION } from "./list";
+
+type Deps = Pick<ServerDeps, "stores" | "now">;
+
+async function quietly(write: () => Promise<void>): Promise<void> {
+  try {
+    await write();
+  } catch {
+    // R-ANALYTICS-004's spirit: counting never fails what was counted.
+  }
+}
+
+/**
+ * R-ACCOUNT-023: a guest was secured. Counted on the day it happened
+ * (`players/secured`, the funnel's `secured`) and on the account's sign-up day
+ * (`players/secured-by-signup`), so conversion reads by sign-up week.
+ */
+export function countSecured(deps: Deps, account: string): Promise<void> {
+  return quietly(async () => {
+    const row = await deps.stores.account.get(account);
+    if (row === null) return;
+    const region = row.country === "" ? NO_REGION : row.country;
+    const day = dayName(utcDay(deps.now()));
+    await deps.stores.counters.add([
+      { day, region, name: "players/secured", key: region, count: 1 },
+      { day, region, name: "funnel/step", key: "secured", count: 1 },
+      { day: dayName(utcDay(row.createdAt)), region, name: "players/secured-by-signup", key: region, count: 1 },
+    ]);
+  });
+}
+
+/** R-MODERATION-020: one piece of feedback kept, counted by the region it came from. */
+export function countFeedback(deps: Deps, country: string | null): Promise<void> {
+  return quietly(async () => {
+    const region = country === null || !/^[A-Z]{2}$/.test(country) ? NO_REGION : country;
+    await deps.stores.counters.add([{ day: dayName(utcDay(deps.now())), region, name: "feedback/sent", key: region, count: 1 }]);
+  });
+}

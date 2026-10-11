@@ -5,6 +5,7 @@
 // (R-CLOCK-012, R-SERVER-011, R-ACCOUNT-017). The place object is exported here (R-CLOCK-025).
 import { content, text } from "@japacity/content";
 import { pgDayLog } from "@japacity/db";
+import { WorkerEntrypoint } from "cloudflare:workers";
 
 import { makeApp } from "./app";
 import { makeAuth } from "./auth/auth";
@@ -15,7 +16,9 @@ import { contentsFor } from "./authority/overlay";
 import { productionConfig } from "./config";
 import { webRandomBytes } from "./deps";
 import { quicknet } from "./draw/beacon";
+import { countFromGate } from "./analytics/gate";
 import { COUNTERS_CRON, countersJob } from "./jobs/counters";
+import { onlineJob } from "./jobs/online";
 import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
 import { standInJob } from "./jobs/stand-in";
@@ -29,6 +32,7 @@ import type { Place } from "./place/place.object";
 import type { PushKeys } from "./notify/webpush";
 import { isolateFor, openRequest, placeOfIn, profileOfIn } from "./production";
 import type { Isolate, RequestScope } from "./production";
+import { adminStatsRoutes } from "./routes/admin-stats";
 import { drawRoute } from "./routes/draw";
 import { notifyKeyRoute } from "./routes/notify";
 import { placeSocketRoutes } from "./routes/place";
@@ -143,12 +147,27 @@ async function within<T>(env: Env, waitUntil: (promise: Promise<unknown>) => voi
   }
 }
 
+/**
+ * R-ANALYTICS-008: the gate's counts (apps/gate): the holding
+ * screen served, the invite link used, a page opened from a shared card. Only
+ * a Worker bound to this entrypoint by a service binding can call it; it is
+ * not on the internet, and no cookie or header is involved. The gate sends a
+ * counter's name and key and the visitor's country, and nothing else.
+ */
+export class GateCounters extends WorkerEntrypoint<Env> {
+  async count(rows: unknown, country: unknown): Promise<number> {
+    return within(this.env, (promise) => this.ctx.waitUntil(promise), ({ deps }) => countFromGate(deps, rows, country));
+  }
+}
+
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     // R-SERVER-038: on staging a page or a file is served without opening a database client.
     return served(request, env, (toGame) =>
-      within(env, (promise) => ctx.waitUntil(promise), async ({ deps }, auth, keys) => {
+      within(env, (promise) => ctx.waitUntil(promise), async ({ deps, handle }, auth, keys) => {
         const app = makeApp(deps, { auth, keys })
+          // R-ANALYTICS-012: the admin's numbers read the command log by its time.
+          .route("/api/admin", adminStatsRoutes(deps, pgDayLog(handle)))
           .route("/", drawRoute(deps))
           .route("/", notifyKeyRoute(pushKeys(env)))
           .route("/", placeSocketRoutes(deps, { rooms: isolateOf(env).rooms, placeOf: placeOfIn(deps), profileOf: profileOfIn(deps, isolateOf(env).text) }));
@@ -170,8 +189,10 @@ export default {
     // city.md R-CITY-039: the board figures' week turns on the five-minute cron.
     job(({ deps }) => boardsWeekJob(deps, cron));
     if (cron === "0 0 * * *") job(({ deps }, auth) => runDeletions(deps, auth));
+    // R-ANALYTICS-013: online now, sampled for the day's peak on the five-minute cron.
+    job(({ deps, handle }) => onlineJob(deps, pgDayLog(handle), cron));
     // R-ANALYTICS-008, R-SERVER-011: both read the day's characters from the command log.
-    if (cron === COUNTERS_CRON) job(({ deps, handle }) => countersJob(deps, pgDayLog(handle)));
+    if (cron === COUNTERS_CRON) job(({ deps, handle }) => countersJob(deps, pgDayLog(handle), pgDayLog(handle)));
     if (cron === MONEY_CRON) job(({ deps, handle }) => moneyJob(deps, pgDayLog(handle)));
     if (cron === "0 0 * * *") job(({ deps }) => dropOldFeedback(deps));
     if (cron === "0 0 * * *") job(({ deps }) => standInJob(deps));

@@ -1,6 +1,7 @@
 // R-ANALYTICS-003, R-ANALYTICS-004, R-ANALYTICS-007: a batch as it arrives.
 // Only `name`, `key` and `count` of each row are read; every other field,
 // in the rows or around them, is never looked at again.
+import { FUNNEL_STEPS } from "@japacity/content";
 import type { Content } from "@japacity/sim";
 
 import { counterDef, keyAllowed } from "./list";
@@ -68,4 +69,11 @@ export function checkBatch(content: Content, body: string): Checked {
     }
   }
   return checked;
+}
+
+/** R-ANALYTICS-004: the front door's screens, the only rows a batch may carry signed out. */
+const DOOR_KEYS: ReadonlySet<string> = new Set(FUNNEL_STEPS.filter((each) => each.from === "screen/opened").map((each) => each.step));
+
+export function isDoorRow(row: CounterRow): boolean {
+  return row.name === "screen/opened" && DOOR_KEYS.has(row.key);
 }

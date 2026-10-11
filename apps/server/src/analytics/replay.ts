@@ -20,9 +20,26 @@ export interface Played {
   lines: ReportLine[];
 }
 
+/** R-ANALYTICS-008: where a life stood after its last command before a moment, for `economy/held`. */
+export interface LifeAt {
+  /** True while the years before are still open. */
+  prologueOpen: boolean;
+  /** `turn/end` commands after the prologue. */
+  months: number;
+  /** Naira in the bank, in cash and locked, in kobo. */
+  nairaKobo: number;
+}
+
 export interface Life {
   account: string;
   played: Played[];
+  /** Set when the replay was asked for a moment: the life after its last command before it, null with none. */
+  atEnd?: LifeAt | null;
+}
+
+function lifeAt(state: State, months: number): LifeAt {
+  const naira = state.wallet.pockets.NGN;
+  return { prologueOpen: state.prologue.open, months, nairaKobo: naira.bank + naira.cash + naira.locked };
 }
 
 /**
@@ -30,7 +47,7 @@ export interface Life {
  * A row the replay now rejects is left out: only what the simulation accepts
  * is counted.
  */
-export async function replayLife(deps: Pick<ServerDeps, "contents" | "stores">, character: string): Promise<Loaded<Life>> {
+export async function replayLife(deps: Pick<ServerDeps, "contents" | "stores">, character: string, until?: number): Promise<Loaded<Life>> {
   const held = await deps.stores.player.load(character);
   if (held === null) return { ok: false, code: "missing", detail: `No character ${character}.` };
   const log = await deps.stores.player.log(character, 0);
@@ -39,6 +56,7 @@ export async function replayLife(deps: Pick<ServerDeps, "contents" | "stores">, 
   const bySegment = rowsBySegment(held.segments, log);
   const played: Played[] = [];
   let turns = 0;
+  let atEnd: LifeAt | null = null;
   for (const [index, segment] of held.segments.entries()) {
     const content = contentNamed(deps, segment.content, segment.overlay);
     if (content === null) return { ok: false, code: "no-content", detail: `Segment ${String(segment.segment)} ran under content ${segment.content}, which this server does not bundle.` };
@@ -54,7 +72,8 @@ export async function replayLife(deps: Pick<ServerDeps, "contents" | "stores">, 
       if (ended) turns += 1;
       played.push({ row, afterPrologue, turn: ended ? turns : turns + 1, events: result.events, lines: result.lines });
       state = result.state;
+      if (until !== undefined && row.at < until) atEnd = lifeAt(state, turns);
     }
   }
-  return { ok: true, value: { account: held.character.account, played } };
+  return { ok: true, value: { account: held.character.account, played, ...(until === undefined ? {} : { atEnd }) } };
 }
