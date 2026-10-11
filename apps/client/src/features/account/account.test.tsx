@@ -154,7 +154,7 @@ describe("the start screen online", () => {
     const hook = screen.getByRole("heading", { level: 1 });
     expect(hook.children).toHaveLength(2);
     expect(START_HOOKS).toContainEqual([...hook.children].map((row) => row.textContent));
-    expect(screen.queryByText(say("ui.life.intro"))).toBeNull();
+    expect(document.body.textContent).not.toMatch(/out of the country|land on your feet/);
     const steps = within(screen.getByRole("list", { name: say("ui.account.start.steps") })).getAllByRole("listitem");
     expect(steps.map((step) => step.textContent?.trim())).toEqual(["Hustle", "Papers", "Fly"]);
     expect(steps.every((step) => step.querySelector("svg") !== null)).toBe(true);
@@ -168,6 +168,22 @@ describe("the start screen online", () => {
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
     expect(screen.queryByLabelText(say("ui.account.email.label"))).toBeNull();
     expect(account.calls).toEqual([]);
+  });
+
+  test("[R-ACCOUNT-029] given the shell's city behind, then it stands in the figure's place behind the start screen and the age screen, never dragged, and no compound is drawn", async () => {
+    const store = signedOutStore(fakeAccount());
+    render(
+      <GameProvider store={store}>
+        <AccountGate load={fakeTurnstile().load} sitekey={TEST_SITE_KEY} behind={<div data-test-city />} />
+      </GameProvider>,
+    );
+    await screen.findByRole("button", { name: say("ui.account.start.play") });
+    expect(document.querySelector('[data-gate="start"] [data-front-scene] [data-gate-scene] [data-test-city]')).not.toBeNull();
+    expect(document.querySelector("[data-gate-scene]")?.className).toContain("pointer-events-none");
+    expect(document.querySelector("[data-gate-standin]")).toBeNull();
+    await play();
+    await screen.findByRole("combobox", { name: say("ui.account.age.day") });
+    expect(document.querySelector("[data-gate-scene] [data-test-city]")).not.toBeNull();
   });
 
   test("[R-ACCOUNT-029] given the start screen, when Play is pressed, then the age screen follows, and its Back returns to the start screen", async () => {

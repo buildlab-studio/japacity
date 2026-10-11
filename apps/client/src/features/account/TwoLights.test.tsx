@@ -7,7 +7,7 @@ import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { cityPeople, HOME_FLOOR_BP, type LightsReply, sharesOf, useLights } from "./lights";
 import { TwoLights } from "./TwoLights";
-import { forgetWinks, WINK_LINES, winkFor } from "./wink";
+import { forgetWinks, WINK_LINES, winkFor } from "../../shared/frontdoor/wink";
 
 afterEach(() => {
   forgetWinks();

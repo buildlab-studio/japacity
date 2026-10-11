@@ -78,12 +78,17 @@ describe("the situation in plain words", () => {
     expect(Object.values(uiText).some((said) => /Japacity so far/.test(said))).toBe(false);
   });
 
-  test("[R-TEXT-006] given the first screen, when a life is picked, then the line under Who are you? names leaving", async () => {
+  // the sentence about the game is gone everywhere. Offline,
+  // where the door is the first screen, it opens with the start screen's hook in two rows and the three steps.
+  test("[R-TEXT-006] given the first screen offline, then under Who are you? the door opens with one of the start screen's hooks in two rows and the three steps, and no sentence about the game", async () => {
     await renderWithView(<ScenarioView />, newGame("scenario.ada").view());
     expect(screen.getByRole("heading", { name: say("ui.life.title") })).toBeDefined();
-    const intro = say("ui.life.intro");
-    expect(screen.getByText(intro)).toBeDefined();
-    expect(intro).toMatch(/out of the country/);
-    expect(intro.split(/\.\s/)).toHaveLength(1);
+    const hook = document.querySelector("[data-door-intro] [data-start-hook]");
+    const rows = [...(hook?.children ?? [])].map((row) => row.textContent);
+    const hooks = [1, 2, 3].map((n) => [say(`ui.wink.start.${String(n)}.a`), say(`ui.wink.start.${String(n)}.b`)]);
+    expect(hooks).toContainEqual(rows);
+    expect(screen.getByRole("list", { name: say("ui.account.start.steps") }).textContent?.trim().split(/\s+/)).toEqual(["Hustle", "Papers", "Fly"]);
+    expect(Object.keys(uiText).some((key) => key === "ui.life.intro")).toBe(false);
+    expect(document.body.textContent).not.toMatch(/out of the country|land on your feet/);
   });
 });

@@ -3,18 +3,10 @@
 // lines, picked once per visit, R-ACCOUNT-031), the whole game in three steps as an icon and a word each, then Play
 // with its small second line, and "I already have a life here" for an account kept before. The two lights hang over the
 // top of the scene (TwoLights.tsx), so a line about the light is a caption. Nothing says Lagos: the scene behind does.
-import { Briefcase, ChevronRight, FolderOpen, Plane } from "lucide-react";
 import { useId } from "react";
 
+import { StartHook } from "../../shared/frontdoor/Hook";
 import { say } from "../../shared/words/text";
-import { winkFor } from "./wink";
-
-/** The steps, each with the icon of the phone app it is played in: Jobs, Papers and Japa (features/phone/PhoneApps.tsx). */
-const STEPS = [
-  { Icon: Briefcase, word: "ui.account.start.step.hustle" },
-  { Icon: FolderOpen, word: "ui.account.start.step.papers" },
-  { Icon: Plane, word: "ui.account.start.step.fly" },
-] as const;
 
 export interface StartScreenProps {
   onPlay: () => void;
@@ -22,29 +14,10 @@ export interface StartScreenProps {
 }
 
 export function StartScreen({ onPlay, onReturning }: StartScreenProps) {
-  const hook = winkFor("start");
   const then = useId();
   return (
     <div className="flex flex-col" data-start-screen>
-      {/* A hook, not an explanation. */}
-      <h1 className="title text-[30px] leading-[1.05]" data-start-hook={hook[0]}>
-        {hook.map((row) => (
-          <span key={row} className="block">
-            {say(row)}
-          </span>
-        ))}
-      </h1>
-      {/* The whole game in three steps, an icon and a word each. */}
-      <ol className="mt-3 flex items-center gap-1.5" aria-label={say("ui.account.start.steps")} data-start-steps>
-        {STEPS.map((step, i) => (
-          <li key={step.word} className="flex items-center gap-1.5">
-            {i > 0 && <ChevronRight size={14} className="text-text-2" aria-hidden />}
-            <span className="flex h-9 items-center gap-1.5 rounded-[6px] bg-sheet-muted px-2.5 text-[14px] font-bold">
-              <step.Icon size={18} aria-hidden /> {say(step.word)}
-            </span>
-          </li>
-        ))}
-      </ol>
+      <StartHook />
       {/* The button is named Play; its second line is said as its description. */}
       <button type="button" className="btn-main mt-4" onClick={onPlay} aria-label={say("ui.account.start.play")} aria-describedby={then}>
         <span>{say("ui.account.start.play")}</span>

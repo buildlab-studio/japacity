@@ -39,9 +39,14 @@ export interface GateProps {
   over?: ReactNode;
   /** The colours the figure wears; with no look given, the kept person's own. */
   style?: LookStyle | undefined;
+  /**
+   * Another scene in the figure's place: the live city behind the start screen and the ways in (account.md R-ACCOUNT-029,
+   * amended 11 Oct 2026), as designed; the compound and the figure come back at the door. Not dragged.
+   */
+  scene?: ReactNode;
 }
 
-export function Gate({ look, children, mark, over, style }: GateProps) {
+export function Gate({ look, children, mark, over, style, scene }: GateProps) {
   const drawing = useMemo(canDraw, []);
   // The look's picture stands in until the figure is in the scene.
   const [drawn, setDrawn] = useState(false);
@@ -82,7 +87,11 @@ export function Gate({ look, children, mark, over, style }: GateProps) {
       >
         {/* The theme's own band behind the figure, as the design's door has it (R-WORLD-021: an interface colour is a role token). The compound keeps its own colours and shows through a clear sky. */}
         {/* The look's own picture stands in until the scene has loaded, and where WebGL is missing. */}
-        {drawing ? (
+        {scene !== undefined ? (
+          <div className="pointer-events-none absolute inset-0" data-gate-scene>
+            {scene}
+          </div>
+        ) : drawing ? (
           <>
             <Suspense fallback={null}>
               <FrontScene look={shown?.file ?? "shared/chr/chr_ada.glb"} spin={spin} style={worn} onShown={() => setDrawn(true)} />

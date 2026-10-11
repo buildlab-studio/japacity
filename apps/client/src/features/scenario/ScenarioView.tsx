@@ -17,11 +17,13 @@ import { type ReactNode, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { useScreenCount } from "../../useScreenCount";
+import { authorityMode } from "../../authority/mode";
 import { keepPerson } from "../../authority/person";
 import { formatMoney } from "../../shared/words/format";
 import { blurbOf, say, words } from "../../shared/words/text";
 import { agePointsCount, type Archetype, ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf, homesFor, moneyDrawn, opensChips, savingsOf, throughUniversity } from "../../shared/frontdoor/archetypes";
 import { DoorHead } from "../../shared/frontdoor/DoorHead";
+import { StartHook } from "../../shared/frontdoor/Hook";
 import { Stand } from "../../shared/frontdoor/Stand";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
 import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
@@ -291,6 +293,8 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
   });
   const [tried, setTried] = useState(false);
   const [pressed, setPressed] = useState(false);
+  // Offline the door is the first screen, so it carries the start screen's hook (R-TEXT-006).
+  const [offline] = useState(() => authorityMode().authority === "local");
   useScreenCount(doorScreen(draft.stage));
   // The username as typed on the page; null while the name fills it in.
   const [typedUsername, setTypedUsername] = useState<string | null>(null);
@@ -482,10 +486,13 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
           label={say("ui.life.title")}
           foot={<MainButton word={say("ui.door.next")} then={say(asked ? "ui.door.ready.title" : "ui.door.next.then")} onClick={() => go(asked ? "ready" : "life")} />}
         >
-          {/* What the game is about, in one line under the question (R-TEXT-006). */}
-          <p className="text-[13px] leading-snug text-text-2" data-door-intro>
-            {say("ui.life.intro")}
-          </p>
+          {/* R-TEXT-006, amended 11 Oct 2026: no sentence about the game. Offline, where the door is the first screen, it opens
+              with the start screen's hook and three steps; online the hook was just seen, and the question and the fields carry it. */}
+          {offline ? (
+            <div className="mb-1" data-door-intro>
+              <StartHook heading={false} />
+            </div>
+          ) : null}
           {notice === null ? null : (
             <p role="status" className="mt-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]">
               {say(notice)}

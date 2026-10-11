@@ -557,7 +557,6 @@ export const uiText: Record<string, string> = {
 
   // A new life
   "ui.life.title": "Who are you?",
-  "ui.life.intro": "Build a life in Lagos and find your way out of the country, with the right papers and enough money to land on your feet.",
   "ui.life.start": "Live this life",
   "ui.life.again": "Start a new life",
   "ui.life.notice.other-content": "Your saved life was made for an older version of the game, so it could not come along. A new life has started.",

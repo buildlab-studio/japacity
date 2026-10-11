@@ -26,11 +26,8 @@ const TO = { x: 262, y: 128 };
 const WIRE = `M${String(FROM.x)} ${String(FROM.y)} Q${String(BEND.x)} ${String(BEND.y)} ${String(TO.x)} ${String(TO.y)}`;
 
 const HOME = { x: 110, y: 112 };
-/**
- * The caption hangs between the two cords, above the wire, where the design has it under the counts: in the game the scene
- * behind is the figure on its plinth, whose face stands just where the design's caption sits over the city.
- */
-const CAPTION_Y = 74;
+/** The caption under the counts, where the design has it. */
+const CAPTION_Y = 214;
 const ABROAD = { x: 270, y: 132 };
 
 /** The design's timing: three sparks out, 3.6 s each, 1.2 s apart; one back, 7 s, from 0.6 s. */

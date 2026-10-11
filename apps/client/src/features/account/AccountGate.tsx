@@ -64,6 +64,8 @@ export interface AccountGateProps {
   door?: ((guest: GuestDoor) => ReactNode) | null;
   /** A seam for tests: how long Begin waits for the unseen check's token. */
   botWaitMs?: number;
+  /** What stands behind the start screen and the ways in, drawn by the shell: the live city (R-ACCOUNT-029); the compound when left out. */
+  behind?: ReactNode;
 }
 
 /** The two lights over the start screen, edge to edge from the very top (R-ACCOUNT-031). */
@@ -82,7 +84,7 @@ function NewLife({ account, sitekey, load, botWaitMs, door, onExpired, onFull, o
   return door === null ? <GuestForm door={guest} onReturning={onReturning} /> : <>{door(guest)}</>;
 }
 
-export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, agent, href, door = null, botWaitMs }: AccountGateProps) {
+export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, agent, href, door = null, botWaitMs, behind }: AccountGateProps) {
   const account = useGame((state) => state.account);
   const notice = useGame((state) => state.accountNotice);
   const signedIn = useGame((state) => state.signedIn);
@@ -219,7 +221,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   // Over the start screen alone hang the two lights (R-ACCOUNT-031); the account screens carry the wordmark instead.
   const over = marked ? top : shown === "start" ? <StartLights /> : null;
   return (
-    <Gate mark="start" {...(over === null ? {} : { over })}>
+    <Gate mark="start" {...(over === null ? {} : { over })} {...(behind === undefined ? {} : { scene: behind })}>
       <GateSheet mark={shown} label={say("ui.game")}>
         {notice === null ? null : (
           <p role="status" className="mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]">
