@@ -110,4 +110,27 @@ export const personText: Record<string, string> = {
   "person.ifeoma-ca.home": "A sister's flat in Lagos, for December",
   "person.chidi-dubai.met": "At the house in December, a friend of the family back from Dubai with gifts for everybody. \"Take. It is perfume. Everybody gets perfume.\"",
   "person.chidi-dubai.home": "His uncle's house in Lagos, for December",
+
+  // Once courted (people.md R-PEOPLE-013): their answer, in the voice of their
+  // meeting line, told in the corner and the first message of their thread in Chats. Once the bond ends without the
+  // player ending it (R-PEOPLE-042 drift, R-PEOPLE-041 a partner who heard), the reason in their own words, told in the
+  // head of the thread for the month it stays.
+  "person.tobi-bank.courted": "\"Next Sunday, then. I will keep you a seat by the choir.\"",
+  "person.tobi-bank.drifted": "\"I kept your seat every Sunday. You never came, so I stopped keeping it.\"",
+  "person.tobi-bank.left": "\"People talk after service. I heard. I will not ask you who.\"",
+  "person.amaka-nurse.courted": "\"Come by after my night shift. Bring tea, and we will talk.\"",
+  "person.amaka-nurse.drifted": "\"I waited after my night shifts. You never came. I am too tired to keep waiting.\"",
+  "person.amaka-nurse.left": "\"Somebody told me. I work nights, I am not blind. We are done.\"",
+  "person.kelechi-dev.courted": "\"I fly back in January. Call me on Sundays and we will see.\"",
+  "person.kelechi-dev.drifted": "\"Not one call on a Sunday. I can take a hint, even from Manchester.\"",
+  "person.kelechi-dev.left": "\"Lagos is small, and Manchester hears everything. I heard. Goodbye.\"",
+  "person.funmi-uk.courted": "\"Send me voice notes when I am back in Leicester. Long ones. I will send longer.\"",
+  "person.funmi-uk.drifted": "\"My voice notes sat there with nobody listening. I stopped recording.\"",
+  "person.funmi-uk.left": "\"Your aunty told me what you have been doing. I deleted your voice notes.\"",
+  "person.ifeoma-ca.courted": "\"I go back after December. Call me when it is minus thirty and tell me it is fine.\"",
+  "person.ifeoma-ca.drifted": "\"Not one call. Even the winter here is warmer than that.\"",
+  "person.ifeoma-ca.left": "\"I heard about the other one. I will not lie about this, at least.\"",
+  "person.chidi-dubai.courted": "\"I go back to Dubai after the holidays. Call me on Friday. Friday is my day off.\"",
+  "person.chidi-dubai.drifted": "\"I waited by the phone every Friday. Nobody called, so I stopped waiting.\"",
+  "person.chidi-dubai.left": "\"Word reached Dubai. I heard who you were seeing. Keep the perfume.\"",
 };

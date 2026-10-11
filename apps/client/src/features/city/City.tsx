@@ -68,7 +68,7 @@ import { stopReached } from "./stops";
 import { opensKiosk, withKiosk } from "./kiosk";
 import { namedThings } from "./mark";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
-import { COURT, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
+import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
 
 /** Acts the scene shows (R-WORLD-005): the pot steams, the drum fills; the place says no answer for them (R-OBLIGATION-014). */
 const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]);
@@ -534,6 +534,8 @@ export function City({
   const [menu, setMenu] = useState(false);
   const [credits, setCredits] = useState(false);
   const [picked, setPicked] = useState<Picked | null>(null);
+  // Lines the corner tells once it shows again: a courted partner's answer waits for the home's card to be put away (R-PEOPLE-013).
+  const [toTell, setToTell] = useState<string[]>([]);
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [heardCount, setHeardCount] = useState(0);
@@ -1029,12 +1031,16 @@ export function City({
     // R-WORLD-020, R-PEOPLE-013: talking to a person met here opens their card; its one button courts them.
     if (world && picked?.kind === "command" && picked.command === COURT && picked.with !== undefined) {
       const person = picked.with;
-      return talkAsk(person, view, content.tuning.people.maxCourting, { name: nameOf, court: (name) => say("ui.people.court", { name }), full: (count) => say("ui.people.court.full", { count }), notYet: say("ui.needs.not-yet"), computer: say("ui.people.mark.computer") }, {
+      const partnered = (partner: string | null, name: string): string => say("ui.people.court.partnered", { partner: partner === null ? say("ui.people.who.player") : nameOf(partner), name });
+      return talkAsk(person, view, content.tuning.people.maxCourting, { name: nameOf, court: (name) => say("ui.people.court", { name }), full: (count) => say("ui.people.court.full", { count }), notYet: say("ui.needs.not-yet"), computer: say("ui.people.mark.computer"), partnered }, {
         send: (who) => {
           void send({ type: "people/court", with: who }).then((reply) => {
             cue(reply?.ok === true ? "done" : "tap");
-            // R-PEOPLE-054: one plain line when a computer partner is chosen, told in the corner.
-            if (reply?.ok === true) tell(say("ui.people.chosen", { name: nameOf(who) }));
+            // R-PEOPLE-013: their answer in their own words, then R-PEOPLE-054's one plain line, told in the corner once it shows.
+            if (reply?.ok === true) {
+              const told = courtedTold(who, { name: nameOf, answer: (one) => (hasWords(`${one}.courted`) ? say(`${one}.courted`) : null), said: (name, line) => say("ui.people.courted.said", { name, line }), chosen: (name) => say("ui.people.chosen", { name }) });
+              setToTell((held) => [...held, ...told]);
+            }
           });
           setPicked(null);
         },
@@ -1255,6 +1261,12 @@ export function City({
   const homeTeachShown = homeTeach !== null && homeTeach === homeHere && !covered && !resultsOpen && !cardUp && blurbOf(homeTeach) !== null;
   // R-WORLD-026: the corner and the bubble show only while nothing covers the world; the street's talk comes only then.
   const worldFree = world && looking && !covered && !resultsOpen && !cardUp && !beatShown;
+  // What waits to be told goes to the corner once it shows: nothing covers the world and the home's card is put away.
+  useEffect(() => {
+    if (toTell.length === 0 || !worldFree || homeTeachShown) return;
+    for (const line of toTell) tell(line);
+    setToTell([]);
+  }, [toTell, worldFree, homeTeachShown]);
   const heardNth = useRef(0);
   useStreetTalk(() => {
     if (entry === null) return null;

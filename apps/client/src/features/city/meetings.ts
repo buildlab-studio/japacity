@@ -138,17 +138,32 @@ export interface TalkWords {
   full: (count: number) => string;
   notYet: string;
   computer: string;
+  /** The cost of seeing someone new beside a partner (R-PEOPLE-041), given the partner's person id (null for a friend) and the new name. */
+  partnered: (partner: string | null, name: string) => string;
+}
+
+/** The bonds together now: partner or married, where gossip about anyone else courted follows (R-PEOPLE-018, R-PEOPLE-041). */
+const TOGETHER: ReadonlySet<string> = new Set(["partner", "married"]);
+
+/** The bond at partner or married, which hears of anyone else courted (R-PEOPLE-041), or null. */
+export function togetherBond(view: Pick<PlayerView, "people">): PlayerView["people"]["bonds"][number] | null {
+  return view.people.bonds.find((bond) => bond.role === "partner" && TOGETHER.has(bond.stage)) ?? null;
 }
 
 /**
  * The talk sheet (R-WORLD-006): a card marked `computer`, with the person's meeting line in their own voice and one button, court them,
  * which sends `people/court` with the person. While `maxCourting` bonds already court, the button is shut, says
- * "Not yet", and the reason stands once on the card (R-PEOPLE-013).
+ * "Not yet", and the reason stands once on the card (R-PEOPLE-013). Beside a partner, the button's second line says
+ * what it costs if word gets out (R-PEOPLE-041).
  */
 export function talkAsk(person: string, view: Pick<PlayerView, "people">, maxCourting: number, said: TalkWords, act: { send: (person: string) => void; dismiss: () => void }): Ask {
   const name = said.name(person);
   const courting = courtingNow(view);
   const blocked = courting >= maxCourting ? said.full(courting) : null;
+  // R-PEOPLE-041: beside a partner, seeing someone new is talked about; the button's second line says so before the tap.
+  // Courting beside courting costs nothing in the rules, so then the card says nothing more.
+  const together = togetherBond(view);
+  const note = blocked === null && together !== null ? said.partnered(together.person, name) : null;
   return {
     form: "card",
     icon: "message-circle",
@@ -160,7 +175,19 @@ export function talkAsk(person: string, view: Pick<PlayerView, "people">, maxCou
     when: "now",
     button: blocked === null ? said.court(name) : said.notYet,
     ...(blocked === null ? {} : { blocked }),
+    ...(note === null ? {} : { note }),
     act: () => act.send(person),
     dismiss: act.dismiss,
   };
+}
+
+/**
+ * What the corner tells once a computer partner is courted (R-PEOPLE-013): their
+ * answer in their own words, `<person>.courted`, said as theirs ("Tobi: ..."), then the one plain line that they live
+ * in the game (R-PEOPLE-054). Their answer is left out where content has none.
+ */
+export function courtedTold(person: string, said: { name: (person: string) => string; answer: (person: string) => string | null; said: (name: string, line: string) => string; chosen: (name: string) => string }): string[] {
+  const name = said.name(person);
+  const answer = said.answer(person);
+  return [...(answer === null ? [] : [said.said(name, answer)]), said.chosen(name)];
 }
