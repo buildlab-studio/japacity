@@ -12,6 +12,7 @@ import type {
   SegmentRow,
   SnapshotRow,
   StoreResult,
+  TxStores,
   Work,
 } from "../types";
 import { accept, copy, makeLock, refuse } from "./copy.memory";
@@ -116,9 +117,11 @@ function applyPair(pairs: Map<string, PairRow>, heldIds: ReadonlySet<string>, wr
 /**
  * R-SERVER-002, R-SERVER-007, R-PAIR-004: characters and pair records in maps
  * behind one async lock. A transaction stages its writes on copies and swaps
- * them in only when every write is accepted.
+ * them in only when every write is accepted. `stores` are the ones the work is
+ * given (R-SERVER-002): the memory stores beside this one, which
+ * take no lock this store holds and roll nothing back, unlike Postgres.
  */
-export function memoryPlayerStores(): { player: PlayerStore; pair: PairStore } {
+export function memoryPlayerStores(stores: TxStores): { player: PlayerStore; pair: PairStore } {
   let characters = new Map<string, Stored>();
   let pairs = new Map<string, PairRow>();
   const locked = makeLock();
@@ -142,7 +145,7 @@ export function memoryPlayerStores(): { player: PlayerStore; pair: PairStore } {
       }
     }
     between.sort((p, q) => compareIds(p.key, q.key));
-    const { writes, result } = await work({ characters: order.map((id) => held(stored(id))), pairs: between });
+    const { writes, result } = await work({ characters: order.map((id) => held(stored(id))), pairs: between }, stores);
 
     const heldIds = new Set(order);
     const staged = new Map(characters);

@@ -4,7 +4,7 @@
 // the same row and the store keeps the first.
 import type { DirectorBook, World, WorldCalendar } from "@japacity/sim";
 import { hashState, stepWorld, time } from "@japacity/sim";
-import type { WorldTickRow } from "@japacity/store";
+import type { WorldStore, WorldTickRow } from "@japacity/store";
 
 import { tickStartsAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
@@ -66,6 +66,23 @@ export async function storedWorlds(deps: WorldDeps, ticks: Iterable<number>): Pr
   const worlds = new Map<number, World>();
   for (const tick of ticks) {
     if (!worlds.has(tick)) worlds.set(tick, (await tickRow(deps, tick)).world);
+  }
+  return worlds;
+}
+
+/**
+ * R-CLOCK-017, R-SERVER-002: the stored worlds of the given
+ * ticks, read through a transaction's own world store, which only reads. A
+ * logged command's tick is at or under a tick made before the locks
+ * (R-CLOCK-013), so a missing one is a fault, never a tick to make here.
+ */
+export async function heldWorlds(world: WorldStore, ticks: Iterable<number>): Promise<Map<number, World>> {
+  const worlds = new Map<number, World>();
+  for (const tick of ticks) {
+    if (worlds.has(tick)) continue;
+    const row = await world.tick(tick);
+    if (row === null) throw new Error(`Tick ${String(tick)} is logged and not stored.`);
+    worlds.set(tick, row.world);
   }
   return worlds;
 }

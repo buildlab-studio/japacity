@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import type { CharacterWrite, Held, PlayerStore, StoreResult, Writes } from "../types";
-import { logRow, logRows, must, newCharacter, snapshot, stateAt } from "./fixtures";
+import { DRAW_ODDS, logRow, logRows, must, newCharacter, snapshot, stateAt, world } from "./fixtures";
 
 /** `server.snapshotEvery` in server.md's Numbers. The store keeps what it is given; the server decides when. */
 const SNAPSHOT_EVERY = 20;
@@ -300,6 +300,38 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       await appendTo(store, "char-a", 1, 1);
 
       expect((await store.load("char-a"))?.character.v).toBe(1);
+    });
+
+    test("[R-SERVER-002] given a character with a logged command, when the work reads and writes through the stores it is given, then every call settles inside the transaction and the work's own write is kept", async () => {
+      const store = await make();
+      must(await store.create(newCharacter("char-a")));
+      await appendTo(store, "char-a", 1, 1);
+      const tick = { tick: 3, world: world(3), book: { era: "era.calm", passes: {}, mark: 0 }, content: "content-1", hash: "hash-3" };
+      const draw = { draw: 2, secret: "11".repeat(32), fingerprint: "22".repeat(32), beaconRound: 900, odds: DRAW_ODDS, jackpot: 20_000_000 };
+
+      const seen = must(
+        await store.transact(["char-a"], async (rows, stores) => {
+          const v = rows.characters[0]?.character.v ?? -1;
+          await stores.world.insertTick(tick);
+          must(await stores.world.putDraw(draw));
+          const numbers = must(await stores.world.addTickets(draw.draw, "char-a", 2));
+          const retired = await stores.audit.retire({ character: "char-a", why: "rollback", at: 5, note: "inside", segments: [], log: [], snapshots: [] });
+          const read = { tick: await stores.world.tick(3), numbers, tickets: await stores.world.tickets(draw.draw), audit: (await stores.audit.list("char-a")).map((row) => row.n), n: retired.n };
+          return { writes: { characters: [{ id: "char-a", append: [logRow("char-a", v + 1)] }] }, result: read };
+        }),
+      );
+
+      expect(seen).toEqual({
+        tick,
+        numbers: [0, 1],
+        tickets: [
+          { draw: 2, n: 0, character: "char-a" },
+          { draw: 2, n: 1, character: "char-a" },
+        ],
+        audit: [seen.n],
+        n: seen.n,
+      });
+      expect((await store.load("char-a"))?.character.v).toBe(2);
     });
 
     test("[R-CLOCK-004] given a character, when a transaction moves refilledAt with no command, then it reads back and the version stays", async () => {

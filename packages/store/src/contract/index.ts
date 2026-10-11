@@ -21,4 +21,4 @@ export { suiteForInviteStore } from "./invite.contract";
 export { suiteForModerationStore } from "./report.contract";
 export { suiteForBoardStore } from "./boards.contract";
 export type { BoardStores } from "./boards.contract";
-export { must, newCharacter } from "./fixtures";
+export { DRAW_ODDS, logRow, must, newCharacter } from "./fixtures";

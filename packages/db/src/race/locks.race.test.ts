@@ -135,10 +135,10 @@ describe("PlayerStore locks between two connections", () => {
     const hold = gate();
     const holding = gate();
 
-    const firstDone = first.transact(["char-b"], async (rows) => {
+    const firstDone = first.transact(["char-b"], async (rows, stores) => {
       holding.open();
       await hold.opened;
-      return appendToEach(rows);
+      return appendToEach(rows, stores);
     });
     await holding.opened;
     const secondDone = second.transact(["char-b", "char-a"], appendToEach);

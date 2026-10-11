@@ -12,13 +12,17 @@ import type {
   SegmentRow,
   SnapshotRow,
   StoreResult,
+  TxStores,
   Work,
 } from "@japacity/store";
 import { and, asc, desc, eq, gt, inArray, isNull, lte, or, sql } from "drizzle-orm";
 
 import type { Handle, Queries } from "../handle";
+import { oneConnection } from "../handle";
 import { characters, commandLog, pairs, segments, snapshots } from "../schema";
+import { pgAuditStore } from "./audit";
 import { refuse } from "./result";
+import { pgWorldStore } from "./world";
 
 type SegmentSelect = typeof segments.$inferSelect;
 type SnapshotSelect = typeof snapshots.$inferSelect;
@@ -200,65 +204,88 @@ async function applyPlan(tx: Queries, plan: Plan): Promise<void> {
 }
 
 /**
+ * R-SERVER-002: the stores a transaction's work is given, on
+ * the transaction's own client. Their lock is a new one for this transaction
+ * alone: the handle's lock is held for the whole transaction and is never
+ * taken again inside it. A store's own transaction becomes a savepoint.
+ */
+function storesOn(tx: Queries): TxStores {
+  const bound = oneConnection(tx);
+  return { world: pgWorldStore(bound), audit: pgAuditStore(bound) };
+}
+
+/**
  * R-SERVER-002, R-SERVER-007, R-PAIR-004: characters and pair records in
  * Postgres. `transact` locks the rows with `SELECT ... FOR UPDATE` one at a
  * time in ascending code-unit order, checks every write before it writes any,
- * and so commits all of them or none.
+ * and so commits all of them or none. A refused write rolls back what the
+ * work wrote through its stores too.
  */
 export function pgPlayerStores(handle: Handle): { player: PlayerStore; pair: PairStore } {
   async function transact<T>(ids: readonly string[], work: Work<T>): Promise<StoreResult<T>> {
     const order = [...new Set(ids)].sort(compareIds);
-    return handle.transaction(async (tx): Promise<StoreResult<T>> => {
-      const rows: CharacterRow[] = [];
-      const missing: string[] = [];
-      for (const id of order) {
-        const row = await lockRow(tx, id, "update");
-        if (row === null) missing.push(id);
-        else rows.push(row);
-      }
-      if (missing.length > 0) return refuse("missing", `No character ${missing.join(", ")}.`);
+    // A refusal after the work ran is thrown, so the work's own writes roll back with the rest.
+    const thrown: { refusal: Refusal | null } = { refusal: null };
+    const rollBack = (refusal: Refusal): never => {
+      thrown.refusal = refusal;
+      throw new Error(`Rolled back: ${refusal.code}.`);
+    };
+    try {
+      return await handle.transaction(async (tx): Promise<StoreResult<T>> => {
+        const rows: CharacterRow[] = [];
+        const missing: string[] = [];
+        for (const id of order) {
+          const row = await lockRow(tx, id, "update");
+          if (row === null) missing.push(id);
+          else rows.push(row);
+        }
+        if (missing.length > 0) return refuse("missing", `No character ${missing.join(", ")}.`);
 
-      const held: Held[] = [];
-      for (const row of rows) held.push(await readHeld(tx, row));
-      const keys: string[] = [];
-      for (const [at, lower] of order.entries()) for (const higher of order.slice(at + 1)) keys.push(pairKey(lower, higher));
-      const found = keys.length === 0 ? [] : await tx.select().from(pairs).where(inArray(pairs.key, keys));
-      const between = found.map(toPair).sort((left, right) => compareIds(left.key, right.key));
+        const held: Held[] = [];
+        for (const row of rows) held.push(await readHeld(tx, row));
+        const keys: string[] = [];
+        for (const [at, lower] of order.entries()) for (const higher of order.slice(at + 1)) keys.push(pairKey(lower, higher));
+        const found = keys.length === 0 ? [] : await tx.select().from(pairs).where(inArray(pairs.key, keys));
+        const between = found.map(toPair).sort((left, right) => compareIds(left.key, right.key));
 
-      const { writes, result } = await work({ characters: structuredClone(held), pairs: structuredClone(between) });
+        const { writes, result } = await work({ characters: structuredClone(held), pairs: structuredClone(between) }, storesOn(tx));
 
-      const heldIds = new Set(order);
-      const written = new Set<string>();
-      const plans: Plan[] = [];
-      for (const write of writes.characters ?? []) {
-        if (!heldIds.has(write.id)) return refuse("not-held", `${write.id} is written without being held.`);
-        if (written.has(write.id)) return refuse("bad-write", `${write.id} is written twice in one transaction.`);
-        written.add(write.id);
-        const own = held.find((each) => each.character.id === write.id);
-        if (own === undefined) throw new Error(`Character ${write.id} vanished under its lock.`);
-        const plan = planCharacter(own, await storedSnapshots(tx, write.id, write), write);
-        if (isRefusal(plan)) return plan;
-        plans.push(plan);
-      }
-      const betweenByKey = new Map(between.map((row) => [row.key, row]));
-      const seen = new Set<string>();
-      const pairRows: PairRow[] = [];
-      for (const write of writes.pairs ?? []) {
-        const row = planPair(betweenByKey, heldIds, write, seen);
-        if (isRefusal(row)) return row;
-        pairRows.push(row);
-      }
+        const heldIds = new Set(order);
+        const written = new Set<string>();
+        const plans: Plan[] = [];
+        for (const write of writes.characters ?? []) {
+          if (!heldIds.has(write.id)) return rollBack(refuse("not-held", `${write.id} is written without being held.`));
+          if (written.has(write.id)) return rollBack(refuse("bad-write", `${write.id} is written twice in one transaction.`));
+          written.add(write.id);
+          const own = held.find((each) => each.character.id === write.id);
+          if (own === undefined) throw new Error(`Character ${write.id} vanished under its lock.`);
+          const plan = planCharacter(own, await storedSnapshots(tx, write.id, write), write);
+          if (isRefusal(plan)) return rollBack(plan);
+          plans.push(plan);
+        }
+        const betweenByKey = new Map(between.map((row) => [row.key, row]));
+        const seen = new Set<string>();
+        const pairRows: PairRow[] = [];
+        for (const write of writes.pairs ?? []) {
+          const row = planPair(betweenByKey, heldIds, write, seen);
+          if (isRefusal(row)) return rollBack(row);
+          pairRows.push(row);
+        }
 
-      for (const plan of plans) await applyPlan(tx, plan);
-      for (const row of pairRows) {
-        await tx
-          .insert(pairs)
-          .values(row)
-          .onConflictDoUpdate({ target: pairs.key, set: { v: row.v, record: row.record } });
-      }
-      // The result is the caller's own value, handed back as it is.
-      return { ok: true, value: result };
-    });
+        for (const plan of plans) await applyPlan(tx, plan);
+        for (const row of pairRows) {
+          await tx
+            .insert(pairs)
+            .values(row)
+            .onConflictDoUpdate({ target: pairs.key, set: { v: row.v, record: row.record } });
+        }
+        // The result is the caller's own value, handed back as it is.
+        return { ok: true, value: result };
+      });
+    } catch (error) {
+      if (thrown.refusal !== null) return thrown.refusal;
+      throw error;
+    }
   }
 
   const player: PlayerStore = {

@@ -31,7 +31,10 @@ function makeLock(): <T>(run: () => Promise<T>) => Promise<T> {
  * `pg` client for one request. Statements from two overlapping calls would
  * otherwise interleave inside one session, so the lock runs every call, read
  * or transaction, one after the other. Locks between connections are
- * Postgres's own (`SELECT ... FOR UPDATE`).
+ * Postgres's own (`SELECT ... FOR UPDATE`). A call made through the same
+ * handle inside one of its own transactions would wait for ever, so the work
+ * of a transaction reaches the database only through that transaction's
+ * client (docs/rules/server.md R-SERVER-002).
  */
 export function oneConnection(db: Queries): Handle {
   const locked = makeLock();
