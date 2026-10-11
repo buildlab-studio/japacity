@@ -12,6 +12,8 @@ const PREVIEW = process.env.PREVIEW_DIR;
 /** Every 40 ms over the grow and the screen's fade after it, the longest of the three (Phone.tsx GROW_MS + SCREEN_FADE_MS). */
 const FRAMES_MS = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400];
 const AWAY_FRAMES_MS = [0, 40, 80, 120, 160, 200];
+/** The frame's flight on the real clock (Phone.tsx GROW_MS). */
+const GROW_MS = 250;
 /** What a motion may change, by the standard (R-WORLD-023). */
 const COMPOSITOR = ["opacity", "transform"];
 
@@ -187,6 +189,8 @@ test("[R-WORLD-018] [R-WORLD-023] the phone grows and shrinks as one transform: 
     await release(page);
     await expect(page.locator("[data-phone]")).toHaveAttribute("data-grown", grown);
     await settled(page);
+    // A tap while the frame flies waits for its landing (Phone.tsx useGrow), and the held frames above may take less real time than the flight.
+    await page.waitForTimeout(GROW_MS + 50);
     const after = await sampleAt(page, 0);
     expect(after.band).toEqual(before.band);
     expect(after.scene).toEqual(before.scene);
