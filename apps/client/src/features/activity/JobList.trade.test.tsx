@@ -46,7 +46,7 @@ describe("the board opens on the life's own trade", () => {
     expect(checkedRow()).toBe(JUNIOR_DEV);
   });
 
-  test("[R-ACTIVITY-005] given a life with no trade the board lists (the shop worker's), when the board opens, then the first row is the one chosen, as before", async () => {
+  test("[R-ACTIVITY-005] given a life with no trade the board lists (the shop worker's), when the board opens, then the first row is the one chosen, as before", () => {
     const view = lifeOf(archetypeOf("shop-worker")!, "s4-shop").view();
     const ordered = huntOrder(view, view.activities.find((option) => option.id === HUNT)?.params ?? []);
     expect(ordered.length).toBeGreaterThan(0);

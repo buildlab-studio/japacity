@@ -145,8 +145,9 @@ describe("the sure hunt that lands another job", () => {
 
   test("[R-ACTIVITY-005] [R-GUIDE-014] given Ada's first hunt for the junior developer's job with the month full (study, tech and the meetup), when the draw misses, then the month says the job asked for came to nothing and then the offer for the job the sure hunt landed; when it lands, the offer is the job asked for and nothing else is said", () => {
     const asked = "activity.job-junior-dev";
-    let missed = 0;
-    let landed = 0;
+    const sure = sureHuntJob(readOf(start({ scenario: "scenario.ada", content })), entryOf(asked), 1, false)?.id;
+    expect(sure).not.toBe(asked);
+    const told: (string | undefined)[][][] = [];
     for (let at = 0; at < 16; at += 1) {
       const game = start({ scenario: "scenario.ada", content, seed: `z1-${String(at)}` });
       const named = game.view().activities.find((option) => option.id === HUNT);
@@ -155,23 +156,20 @@ describe("the sure hunt that lands another job", () => {
       game.accept({ type: "activity/now", activity: HUNT, param: asked });
       game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
       game.endTurn(FULL);
-      const hunts = (game.view().report?.lines ?? []).filter((line) => line.key.startsWith("line.activity.hunt-"));
-      const offer = game.view().offers.find((open) => open.entry === "offer.job");
-      expect(offer).toBeDefined();
-      const hired = hunts.find((line) => line.key === "line.activity.hunt-hired");
-      if (hired?.params["job"] === asked) {
-        landed += 1;
-        expect(hunts.map((line) => line.key)).toEqual(["line.activity.hunt-hired"]);
-      } else {
-        missed += 1;
-        expect(hunts.map((line) => [line.key, line.params["job"]])).toEqual([
-          ["line.activity.hunt-missed", asked],
-          ["line.activity.hunt-hired", sureHuntJob(readOf(start({ scenario: "scenario.ada", content })), entryOf(asked), 1, false)?.id],
-        ]);
-      }
+      expect(game.view().offers.some((open) => open.entry === "offer.job")).toBe(true);
+      told.push((game.view().report?.lines ?? []).filter((line) => line.key.startsWith("line.activity.hunt-")).map((line) => [line.key, line.params["job"] as string | undefined]));
     }
+    const landed = [["line.activity.hunt-hired", asked]];
+    const missedThenSure = [
+      ["line.activity.hunt-missed", asked],
+      ["line.activity.hunt-hired", sure],
+    ];
+    // Every month tells one of the two ways, and the job asked for is never left out.
+    expect(told.filter((one) => JSON.stringify(one) !== JSON.stringify(landed) && JSON.stringify(one) !== JSON.stringify(missedThenSure))).toEqual([]);
+    const missed = told.filter((one) => JSON.stringify(one) === JSON.stringify(missedThenSure)).length;
+    const hit = told.length - missed;
     // Both ways come in sixteen tries at a fair chance.
     expect(missed).toBeGreaterThan(0);
-    expect(landed).toBeGreaterThan(0);
+    expect(hit).toBeGreaterThan(0);
   });
 });
