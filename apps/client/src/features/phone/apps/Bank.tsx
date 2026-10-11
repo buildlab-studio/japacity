@@ -534,7 +534,12 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
               {say("ui.remit.title")}
             </button>
           ) : null}
-          {choosing === "change" ? <ChangeChooser key={start === undefined ? "free" : `${start.from}-${start.to}`} onAsk={open} {...(start === undefined ? {} : { start })} /> : choosing === "move" ? <MoveChooser onAsk={open} /> : choosing === "send" ? <SendChooser onAsk={open} /> : null}
+          {/* What a choice opens settles in where it was tapped (R-WORLD-023). */}
+          {choosing === null ? null : (
+            <div key={choosing} className="motion-reveal">
+              {choosing === "change" ? <ChangeChooser key={start === undefined ? "free" : `${start.from}-${start.to}`} onAsk={open} {...(start === undefined ? {} : { start })} /> : choosing === "move" ? <MoveChooser onAsk={open} /> : <SendChooser onAsk={open} />}
+            </div>
+          )}
         </>
       )}
       {sheet}

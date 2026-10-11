@@ -79,8 +79,8 @@ function Sheet({ ask, formatMoney, icon, main: counted }: AskSheetProps & { main
       }}
     >
       <Dialog.Portal>
-        <Dialog.Backdrop className="fade fixed inset-0 z-40 bg-scrim/60 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
-        <Dialog.Popup className="fixed inset-x-0 bottom-0 z-50 outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none" data-ask-form={ask?.form}>
+        <Dialog.Backdrop className="motion-scrim fixed inset-0 z-40 bg-scrim/60 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
+        <Dialog.Popup className="motion-sink fixed inset-x-0 bottom-0 z-50 outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none" data-ask-form={ask?.form}>
           {ask === null ? null : ask.form === "card" ? <Card ask={ask} main={main} formatMoney={formatMoney} icon={icon} /> : <Slip ask={ask} main={main} formatMoney={formatMoney} />}
         </Dialog.Popup>
       </Dialog.Portal>

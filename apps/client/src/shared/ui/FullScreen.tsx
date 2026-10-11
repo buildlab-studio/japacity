@@ -20,7 +20,7 @@ export function FullScreen({ open, onClose, title, tone = "ink", children }: Ful
       <Dialog.Portal>
         <Dialog.Popup
           aria-label={title}
-          className={`data-ending-style:pointer-events-none data-closed:pointer-events-none fixed inset-0 z-[60] flex flex-col items-center justify-center gap-6 overflow-y-auto p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] outline-hidden ${toneClass}`}
+          className={`motion-scrim data-ending-style:pointer-events-none data-closed:pointer-events-none fixed inset-0 z-[60] flex flex-col items-center justify-center gap-6 overflow-y-auto p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] outline-hidden ${toneClass}`}
         >
           {children}
         </Dialog.Popup>

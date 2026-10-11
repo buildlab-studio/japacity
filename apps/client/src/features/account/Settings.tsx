@@ -229,7 +229,8 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
 
       {more}
 
-      <div className="flex flex-col gap-3 border-t border-sheet-line pt-4">
+      {/* Each step of leaving settles in where the last stood (R-WORLD-023). */}
+      <div key={step} className={`flex flex-col gap-3 border-t border-sheet-line pt-4 ${step === "idle" ? "" : "motion-reveal"}`}>
         {step === "idle" ? (
           <div>
             <Button variant="quiet" disabled={busy} onClick={() => setStep("warn")}>

@@ -1,8 +1,9 @@
 // A sheet: from the bottom on a phone, from the right on a desktop. Built on
-// Base UI's dialog for the focus trap and the escape key; no animation yet.
-// Base UI unmounts a closed sheet on the next animation frame. Until then the
-// closed backdrop still covers the page, and a frame can be late on a busy
-// phone or in a hidden tab, so a closed sheet lets clicks through at once.
+// Base UI's dialog for the focus trap and the escape key. It rises in and goes
+// back the way it came by a short transition on transform and opacity
+// (index.css .motion-sheet and .motion-scrim, world.md R-WORLD-023), and Base UI
+// unmounts it once that ends. Until then the closing backdrop still covers the
+// page, so a closing sheet lets clicks through at once.
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
@@ -23,8 +24,8 @@ export function Sheet({ open, onOpenChange, title, description, top, children }:
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 z-40 bg-black/40 data-ending-style:pointer-events-none data-closed:pointer-events-none" />
-        <Dialog.Popup className="data-ending-style:pointer-events-none data-closed:pointer-events-none fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col gap-4 overflow-y-auto rounded-t-md border border-sheet-line bg-sheet p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-ink shadow-xl outline-hidden lg:inset-y-0 lg:right-0 lg:left-auto lg:max-h-none lg:w-[28rem] lg:rounded-none lg:rounded-l-md">
+        <Dialog.Backdrop className="motion-scrim fixed inset-0 z-40 bg-black/40 data-ending-style:pointer-events-none data-closed:pointer-events-none" />
+        <Dialog.Popup className="motion-sheet data-ending-style:pointer-events-none data-closed:pointer-events-none fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col gap-4 overflow-y-auto rounded-t-md border border-sheet-line bg-sheet p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-ink shadow-xl outline-hidden lg:inset-y-0 lg:right-0 lg:left-auto lg:max-h-none lg:w-[28rem] lg:rounded-none lg:rounded-l-md">
           {top === undefined ? null : <div className="pt-2 pb-1">{top}</div>}
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-1">

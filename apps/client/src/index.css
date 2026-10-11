@@ -241,6 +241,49 @@ body {
   .rise, .pop, .drop, .phone-up, .chip-in, .fade { animation: fade 0.2s ease both !important; }
 }
 
+/* State changes (R-WORLD-023): what opens, closes, appears or expands moves by a plain
+   CSS transition on transform and opacity only (the compositor's), 150 to 250 ms, never on a layout property and never
+   by a render loop. Base UI's dialogs mark their first frame [data-starting-style] and their closing frames
+   [data-ending-style], and wait for the transition before they unmount; anything else mounted fresh starts from its
+   @starting-style. The rule at the top of this file sets every transition to none under reduced motion, so each snaps. */
+.motion-scrim { transition-property: opacity; transition-duration: 200ms; transition-timing-function: ease; }
+.motion-scrim[data-starting-style], .motion-scrim[data-ending-style] { opacity: 0; }
+/* A sheet rises from the foot on a phone and comes in from the right on a desktop, and goes back the same way. */
+.motion-sheet { transition-property: transform, opacity; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+.motion-sheet[data-starting-style], .motion-sheet[data-ending-style] { transform: translateY(100%); }
+@media (min-width: 64rem) {
+  .motion-sheet[data-starting-style], .motion-sheet[data-ending-style] { transform: translateX(100%); }
+}
+/* A world sheet rises as the design's does (.rise); closing, it sinks back the same way. */
+.motion-sink { transition-property: transform, opacity; transition-duration: 200ms; transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+.motion-sink[data-ending-style] { transform: translateY(100%); }
+/* A card over the scene comes in with the design's .pop; dismissed, it shrinks a little away as it fades. */
+.motion-card { transition-property: transform, opacity; transition-duration: 180ms; transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+.motion-card[data-ending-style] { transform: scale(0.96); opacity: 0; }
+/* What a tap reveals in place (a chooser, a folded row): it settles in from just above while the room for it opens at once. */
+.motion-reveal { transition-property: transform, opacity; transition-duration: 180ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+@starting-style { .motion-reveal { transform: translateY(-6px); opacity: 0; } }
+/* A folded row (<details>) opens the same way, wherever it is: its content settles in as it shows. */
+details > :not(summary) { transition-property: transform, opacity; transition-duration: 180ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
+@starting-style { details[open] > :not(summary) { transform: translateY(-6px); opacity: 0; } }
+/* An app opening inside the phone comes in from the right, as the design's does; back on the home screen, the grid fades in. */
+.motion-in-right { transition-property: transform; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+@starting-style { .motion-in-right { transform: translateX(100%); } }
+.motion-in-fade { transition-property: opacity; transition-duration: 180ms; transition-timing-function: ease; }
+@starting-style { .motion-in-fade { opacity: 0; } }
+/* The phone's grow and shrink (R-WORLD-018, 023): one transform from the box it was in to the box it is in, measured once
+   (Phone.tsx), with the screen's content hidden in flight and faded in once the frame lands. Put away, it drops back
+   the way it rose while the scrim clears. */
+.motion-handset { transition-property: transform; transition-duration: 250ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+.motion-screen { transition-property: opacity; transition-duration: 150ms; transition-delay: 250ms; transition-timing-function: ease-out; }
+.motion-away { transition-property: transform, opacity; transition-duration: 200ms; transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+/* The handset's three resting transforms, each the same list of functions so one eases into another piece by piece:
+   at rest at the foot, tilted as the design's is; grown, straight; put away, dropped below the screen, tilting back. */
+.handset-rest { transform: translate(0px, 0px) rotate(-2deg) scale(1, 1); }
+.handset-grown { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); }
+.handset-away { transform: translate(0px, 110%) rotate(4deg) scale(1, 1); }
+
 .flip-page { transform-origin: 50% 0; transform-style: preserve-3d; animation: flip-page 0.6s cubic-bezier(0.45, 0, 0.25, 1) both; }
 .flip-page > * { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 2px; background: var(--on-strong); }
 .flip-page > :last-child { transform: rotateX(180deg); filter: brightness(0.72); }
