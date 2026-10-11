@@ -65,7 +65,8 @@ test("three months of play show no kobo, raw object, missing value or bare key",
   const months = [
     ["Look for a job", "Apply for a passport", "Ask around at the motor park"],
     ["Look for a job", "Take a side gig", "Study for the English test"],
-    ["Take a side gig", "Rest", "Rest"],
+    // rest is never planned, an empty slot rests; time with family and a run fill the month.
+    ["Take a side gig", "Time with family", "Morning run"],
   ];
   for (const [index, activities] of months.entries()) {
     const month = index + 1;
@@ -79,9 +80,9 @@ test("three months of play show no kobo, raw object, missing value or bare key",
     await expectNothingBroken(page, `in the report for month ${String(month)}`);
     await report.getByRole("button", { name: "Close" }).click();
     await expect(page.getByRole("heading", { name: `Month ${String(month + 1)}`, exact: true })).toBeVisible();
-    // The first click after the sheet closes must land.
-    await page.getByRole("button", { name: "Same again" }).click();
-    await expect(page.getByText(/^[1-9] of \d things planned$|^Working, and (one|two|three) things? planned beside the job$/)).toBeVisible();
+    // What was started carries on into the next month by itself (R-WORLD-007): no Same again, and the free time is said in words.
+    await expect(page.getByRole("button", { name: "Same again" })).toHaveCount(0);
+    await expect(page.getByText(/^Free time: (you rest|all used|[a-z]+ left)$/)).toBeVisible();
     const remove = page.getByRole("button", { name: /^Take out/ });
     while ((await remove.count()) > 0) await remove.first().click();
     await expectNothingBroken(page, `in month ${String(month + 1)}`);
