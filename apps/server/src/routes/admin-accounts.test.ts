@@ -66,8 +66,10 @@ describe("the admin accounts from the deployment", () => {
   });
 
   test("[R-SERVER-012] given the Worker, when its isolate is made, then its config is the deployment's, read from the ADMIN_ACCOUNTS binding, and config.ts names no account", () => {
+    // The isolate is made in worker.ts since 11 Oct 2026 (R-SERVER-040's plumbing moved out of index.ts); the Env stays in index.ts.
+    const plumbing = readFileSync(fileURLToPath(new URL("../worker.ts", import.meta.url).href), "utf8");
+    expect(plumbing).toContain("config: deployedConfig(env.ADMIN_ACCOUNTS)");
     const worker = readFileSync(fileURLToPath(new URL("../index.ts", import.meta.url).href), "utf8");
-    expect(worker).toContain("config: deployedConfig(env.ADMIN_ACCOUNTS)");
     expect(worker).toMatch(/ADMIN_ACCOUNTS\?: string;/);
     const config = readFileSync(fileURLToPath(new URL("../config.ts", import.meta.url).href), "utf8");
     expect(config).toContain("admin: { accounts: [] },");

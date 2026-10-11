@@ -1,8 +1,12 @@
 import { content, text } from "@japacity/content";
+import { DatabaseUnavailable } from "@japacity/db";
 import { describe, expect, test } from "vitest";
 
 import { newLife, testServer } from "./authority/testing";
-import { hubFor, placeOfIn, profileOfIn } from "./production";
+import { productionConfig } from "./config";
+import { openLimiters } from "./deps";
+import type { Place } from "./place/place.object";
+import { hubFor, isolateFor, openRequest, placeOfIn, profileOfIn } from "./production";
 
 const PLACES = Object.values(content.place);
 
@@ -31,5 +35,26 @@ describe("the place a character's socket is for", () => {
     expect(await placeOfIn(server.deps)("account-a")).toBe("place.ojuelegba");
     expect(await profileOfIn(server.deps, text)("account-a")).toEqual({ name: text["share.first-name.scenario.ada"], look: "scenario.ada" });
     expect(await placeOfIn(server.deps)("account-z")).toBeNull();
+  });
+});
+
+describe("the deployment's own connection (R-SERVER-002)", () => {
+  // Nothing listens on port 1, so a connection, if one were tried, would be refused.
+  const NOWHERE = "postgres://test:test@127.0.0.1:1/test";
+
+  test("[R-SERVER-002] [R-SERVER-040] given the default connection to a database that is not there, when a request's scope is opened and closed without a statement, then nothing fails; its first statement fails with DatabaseUnavailable and the scope says so", async () => {
+    const isolate = isolateFor(
+      { connectionString: NOWHERE, place: {} as DurableObjectNamespace<Place> },
+      { config: productionConfig, contents: { current: content, previous: null }, secrets: { worldSeed: "w", banSalt: "b", drawTokenKey: "d" }, limits: openLimiters, text, now: () => 0, randomBytes: (count) => new Uint8Array(count) },
+    );
+    const idle = await openRequest(isolate, NOWHERE);
+    expect(idle.unavailable()).toBe(false);
+    await idle.close();
+
+    const asked = await openRequest(isolate, NOWHERE);
+    const failure = await asked.deps.stores.world.latest().catch((error: unknown) => error);
+    expect((failure as Error).cause).toBeInstanceOf(DatabaseUnavailable);
+    expect(asked.unavailable()).toBe(true);
+    await asked.close();
   });
 });
