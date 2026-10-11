@@ -19,7 +19,7 @@ import { formatMoney } from "../../shared/words/format";
 import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nextStepOf, ownWayOf, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
-import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
+import { bandWords, hasWords, hometownWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
 import { lookOf } from "../../shared/frontdoor/looks";
 import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, withAge, withHome } from "../../shared/frontdoor/archetypes";
@@ -327,8 +327,8 @@ export const TURN_MS = 450;
 
 
 /** The family the game drew, face down until it turns over once, the same height before and after. */
-function Family({ draw, water, turned }: { draw: Draw | null; water: boolean; turned: boolean }) {
-  const card = draw === null || !turned ? null : familyCard(draw, water);
+function Family({ draw, water, turned, hometown }: { draw: Draw | null; water: boolean; turned: boolean; hometown: string | null }) {
+  const card = draw === null || !turned ? null : familyCard(draw, water, hometown);
   return (
     <div className="min-h-[64px] [perspective:600px]" data-family={card === null ? "drawing" : "turned"}>
       <div
@@ -405,8 +405,14 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   const kept = draw ?? trail.draw;
   const water = archetype?.id === "water";
   const base = pageOf(view, person);
-  // The family prints on the page as its card turns over; until then its line waits (R-PROLOGUE-009, 014).
-  const page: PageFields = { ...base, photo: lookOf(gateLook(person?.look))?.picture ?? "", family: handover && turned && kept !== null ? familyCard(kept, water).title : "" };
+  // The family and where it is from print on the page as its card turns over; until then their lines wait (R-PROLOGUE-009, 014).
+  const shown = handover && turned && kept !== null;
+  const page: PageFields = {
+    ...base,
+    photo: lookOf(gateLook(person?.look))?.picture ?? "",
+    family: shown ? familyCard(kept, water, view.hometown).means : "",
+    from: shown && view.hometown !== null ? hometownWords(view.hometown) : "",
+  };
   const years = yearChips(trail, view, water);
   const story = handover ? storyChips(view) : [];
   const step = handover ? firstStep(view) : null;
@@ -455,7 +461,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
                 <p className="num shrink-0 text-[13px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
               </div>
             )}
-            {kept === null && !handover ? null : <Family draw={kept} water={water} turned={handover && turned} />}
+            {kept === null && !handover ? null : <Family draw={kept} water={water} turned={handover && turned} hometown={view.hometown} />}
             <h2 className="label mt-3 text-text-2">{say(handover ? "ui.page.years" : "ui.page.years.running")}</h2>
             <Chips chips={years} mark="data-years" />
             {story.length === 0 ? null : <Chips chips={story} mark="data-handover-story" />}

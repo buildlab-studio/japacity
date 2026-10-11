@@ -18,7 +18,7 @@ import { lookOf } from "../frontdoor/looks";
 import { AGE, pageAgeWords, yearsOf } from "../words/quality";
 import { typeWords } from "../words/japaType";
 import { readyPercent } from "../words/ready";
-import { hasWords, say } from "../words/text";
+import { hasWords, hometownWords, say } from "../words/text";
 import { DataPage, type PageFields } from "./DataPage";
 import { familyCard, keptDraw } from "./family";
 import { stampsOf } from "./stamps";
@@ -67,7 +67,9 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
     // The path and what it was: the tile's own while the life went its way, the life as lived where it did not.
     path: archetype === null ? (hasWords(kind) ? say(kind) : "") : lived === null ? say(`prologue.archetype.${archetype.id}.name`) : say(`ui.page.lived.${lived}`),
     ...(archetype === null ? {} : { was: lived === null ? say(`prologue.archetype.${archetype.id}.was`) : say(`prologue.page.lived.${lived}`) }),
-    ...(draw === null ? {} : { family: familyCard(draw, archetype?.id === "water").title }),
+    ...(draw === null ? {} : { family: familyCard(draw, archetype?.id === "water").means }),
+    // Where the life is from, kept in the view after the prologue closes (R-PROLOGUE-009).
+    ...(view.hometown === null ? {} : { from: hometownWords(view.hometown) }),
     ready: say("prologue.page.ready.figure", { percent }),
     strip: { district: districtOf(view), years: yearsOf(months), percent },
     photo: lookOf(gateLook(person?.look))?.picture ?? "",

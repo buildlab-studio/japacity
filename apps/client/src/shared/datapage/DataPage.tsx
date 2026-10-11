@@ -1,7 +1,8 @@
 // The travel data page (prologue.md R-PROLOGUE-009): the design's page, line for line. The
 // header with its type line, the photo, the name, the nationality beside the age, the path and what the life was so
-// far, the family beside how ready as the big figure, and the machine-readable strip at the foot, built from the game's
-// own data. It prints on the door, after Begin and on the band's page. No stamp lands on it until a visa is granted:
+// far, where the life is from and the family beside how ready as the big figure (FROM), and the
+// machine-readable strip at the foot, built from the game's own data. It prints on the door, after Begin and on the
+// band's page. No stamp lands on it until a visa is granted:
 // the visa's is the first, round and red, and the steps after it stamp beneath. Pale green security paper with green
 // ink of its own: like the danfo yellow on things in the world, these colours belong to the page and never change with
 // the theme. Never a real number, a coat of arms or an issuing authority, and the country code is the game's own
@@ -47,8 +48,13 @@ export interface PageFields {
   wear?: { look: string; style?: LookStyle; photo?: string; photoPx?: number };
   /** The stamps, oldest first: none before the visa; the visa's first, then each step after it (`stampsOf`). */
   stamps?: readonly PageStamp[];
-  /** The family the game drew, as its card's title; empty until it is drawn, absent where the page does not say it. */
+  /** The family the game drew, its means in a few words; empty until it is drawn, absent where the page does not say it. */
   family?: string;
+  /**
+   * Where the life is from, as a passport names a place of birth (R-PROLOGUE-009): the hometown's
+   * name; empty until the family is drawn, absent where the page does not say it.
+   */
+  from?: string;
   /** The japa type read at the send-off and kept with its card (decision 0018); absent before then. */
   type?: { name: string; line: string };
 }
@@ -148,8 +154,13 @@ export function DataPage({ page, print = false }: { page: PageFields; print?: bo
           {page.type === undefined ? null : <Field id="type" label={say("prologue.page.type")} value={page.type.name} delay={delay()} />}
         </div>
       </div>
-      {/* The family the game drew and how ready beside it, in a row under the photo; ready as the big figure. */}
+      {/* Where the life is from, the family the game drew and how ready beside them, in a row under the photo; ready as the big figure. */}
       <div className="flex gap-3 px-3 pb-2">
+        {page.from === undefined ? null : (
+          <div className="max-w-[40%] shrink-0">
+            <Field id="from" label={say("ui.page.field.from")} value={page.from} delay={delay()} />
+          </div>
+        )}
         <div className="min-w-0">{page.family === undefined ? null : <Field id="family" label={say("ui.page.field.family")} value={page.family} delay={delay()} />}</div>
         <div className="shrink-0 text-right" data-field="ready">
           <div className={LABEL} style={{ opacity: 0.62 }}>

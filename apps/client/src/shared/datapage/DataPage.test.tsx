@@ -35,6 +35,19 @@ describe("the data page", () => {
     expect(document.querySelector("[data-stamp]")).toBeNull();
   });
 
+  test("[R-PROLOGUE-009] given where the life is from, then FROM prints in the row under the photo before FAMILY, with READY beside them; before the family is drawn it waits as the page's dots", () => {
+    render(<DataPage page={{ ...PAGE, from: "Port Harcourt" }} />);
+    const field = (id: string): string | null => document.querySelector(`[data-page] [data-field='${id}']`)?.textContent ?? null;
+    expect(field("from")).toBe(`${say("ui.page.field.from")}Port Harcourt`);
+    const order = [...document.querySelectorAll<HTMLElement>("[data-page] [data-field]")].map((one) => one.dataset["field"]);
+    expect(order).toEqual(["name", "nationality", "age", "path", "was", "from", "family", "ready"]);
+    // The strip is the page's own data as its rule names it: the town is not on it.
+    expect(document.querySelector("[data-page-strip]")?.textContent).not.toContain("PORT<HARCOURT");
+    document.body.innerHTML = "";
+    render(<DataPage page={{ ...PAGE, from: "", family: "" }} />);
+    expect(document.querySelector("[data-page] [data-field='from']")?.textContent).toBe(`${say("ui.page.field.from")}${say("prologue.page.empty")}`);
+  });
+
   test("[R-PROLOGUE-009] given the game's own data, then the strip carries the name, the home's district, the age and how ready, in capitals with fillers; a part not known yet is fillers; never a real number", () => {
     // the strip's age is the years alone, "23Y", never "23Y1M".
     expect(stripLines("Ifẹ́", PAGE.strip)).toEqual(["P<JPCIFE<<<<<<<<<<<<<<<<<<<<<<", "SURULERE<<23Y<<12<<<<<<<<<<<<<"]);

@@ -123,19 +123,30 @@ describe("the page from the band", () => {
     expect(screen.getByRole("dialog").querySelector("[data-field='was']")?.textContent).toContain(say("prologue.archetype.trader.was"));
   });
 
-  test("[R-PROLOGUE-009] given the family the prologue drew kept on the device, then the band's page prints its title on the FAMILY line and the strip carries the name, the home's district, the age and how ready", async () => {
+  test("[R-PROLOGUE-009] given the family the prologue drew kept on the device, then the band's page prints its means on the FAMILY line and the strip carries the name, the home's district, the age and how ready", async () => {
     localStorage.setItem(TRAIL_KEY, JSON.stringify({ draw: { familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, steps: [] }));
     const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
     band(store);
     fireEvent.click(opener());
     const view = store.getState().view!;
     const page = screen.getByRole("dialog").querySelector<HTMLElement>("[data-page]")!;
-    expect(page.querySelector("[data-field='family']")?.textContent).toContain(familyCard({ familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, false).title);
+    // the card's title says where the family is; the FAMILY line keeps its means.
+    expect(page.querySelector("[data-field='family']")?.textContent).toContain(familyCard({ familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, false).means);
     const months = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
     const lines = stripLines("Morenike", { district: say("ui.door.home.where.family-house"), years: yearsOf(months), percent: view.japacity.percent ?? 0 });
     expect(view.home.place).toBe("place.family-house");
     expect(page.querySelector("[data-page-strip]")?.textContent).toBe(lines.join(""));
     expect(lines[1]).toMatch(/^SURULERE<</);
+  });
+
+  test("[R-PROLOGUE-009] [R-PROLOGUE-002] given a ready life from Enugu, when its page opens from the band, then FROM prints Enugu before FAMILY, as a passport names a place of birth", async () => {
+    const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
+    expect(store.getState().view?.hometown).toBe("hometown.enugu");
+    band(store);
+    fireEvent.click(opener());
+    const page = screen.getByRole("dialog").querySelector<HTMLElement>("[data-page]")!;
+    expect(page.querySelector("[data-field='from']")?.textContent).toBe(`${say("ui.page.field.from")}Enugu`);
+    expect(say("ui.page.field.from")).toBe("From");
   });
 
   test("[R-PROLOGUE-009] given no game around the band, then it shows the age alone, with nothing to open", () => {
