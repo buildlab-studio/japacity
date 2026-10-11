@@ -88,6 +88,17 @@ describe("the three real lives as golden scripts", () => {
     },
   );
 
+  test.each(abroad.map((script) => [script.name, script] as const))(
+    "[R-CHAPTER-002] [R-CHAPTER-009] given %s, which flies on the skilled worker's route it never leaned to, when its save is replayed through the real content, then its chapters end past the send-off: the send-off and Landing are done and Secure is current",
+    (_name, script) => {
+      const first = lifeStart(script.save)!;
+      const { state } = replay(script.save, content, (tick) => standInWorld(first.worldSeed, tick, content));
+      expect(state.route["route.uk-skilled"]?.state).toBe("departed");
+      expect(state.chapter.done).toEqual(["chapter.find-your-feet", "chapter.build-the-file", "chapter.decision-day", "chapter.send-off", "chapter.landing"]);
+      expect(state.chapter.current).toBe("chapter.secure");
+    },
+  );
+
   // Finding: engine/goldens.test.ts replays every blessed golden against the
   test("[R-ENGINE-010] given the life scripts, when compared with the blessed goldens, then each has a golden with the same save", () => {
     for (const script of lifeScripts) {
