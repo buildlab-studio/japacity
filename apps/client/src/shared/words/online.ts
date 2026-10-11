@@ -32,6 +32,18 @@ export const onlineText: Record<string, string> = {
   "ui.online.wait": "Too much at once. Wait {seconds} seconds, then try again.",
   "ui.online.wait.one": "Too much at once. Wait a second, then try again.",
 
+  // R-ENGINE-015: a request with no answer the game can read, by its kind; the card over the screen says it, never the browser's own words
+  "ui.loading.slow": "Still opening...",
+  "ui.trouble.network": "The server did not answer.",
+  "ui.trouble.wall": "Your session ended: open the game again.",
+  "ui.trouble.server": "Something broke on our side.",
+  "ui.trouble.retry": "Retry",
+  "ui.trouble.reload": "Reload",
+  // "The game could not start: {why}" (ui.failed), the why by the same kinds
+  "ui.failed.why.network": "the server did not answer",
+  "ui.failed.why.wall": "your session ended",
+  "ui.failed.why.server": "something broke on our side",
+
   // The clock (R-CLOCK-007)
   "ui.clock.next": "Next month banked in {wait}",
   "ui.clock.arriving": "A month is on its way.",

@@ -60,11 +60,13 @@ export function readPerson(storage: Read | null = browserStorage()): KeptPerson 
   }
 }
 
-export function keepPerson(person: KeptPerson, storage: Write | null = browserStorage()): void {
+/** False when a private window refused storage: the person then lasts the visit only. */
+export function keepPerson(person: KeptPerson, storage: Write | null = browserStorage()): boolean {
   try {
     storage?.setItem(PERSON_KEY, JSON.stringify(person));
+    return storage !== null;
   } catch {
-    // A private window may refuse storage; the person then lasts the visit only.
+    return false;
   }
 }
 

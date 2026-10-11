@@ -9,11 +9,11 @@ import { earlyWinIn } from "../features/guides/earlyWin";
 import { carriedPlan, creditMoved, RUN_MONTHS, stopsRun } from "../features/turn/untilNews";
 import type { AccountApi } from "../shared/net/auth";
 import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
-import { isReported } from "../shared/net/http";
+import { failureOf, type FailureKind, isReloading, isReported } from "../shared/net/http";
 import { plannable } from "../shared/words/acts";
 import { isSaid, tidyLines } from "../shared/words/lines";
 import { setNow } from "../shared/words/now";
-import { sayCount } from "../shared/words/text";
+import { say, sayCount } from "../shared/words/text";
 import { uiText } from "../shared/words/ui";
 import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";
@@ -61,10 +61,24 @@ export interface LifeControls {
   endLife?(): Promise<boolean>;
 }
 
+/**
+ * R-ENGINE-015: a request that brought no answer the game can read, by its kind, and what it was for: the view, a
+ * command (kept, and sent again on Retry), or the life Begin starts. Shown as a card over the screen.
+ */
+export interface Trouble {
+  kind: FailureKind;
+  during: "view" | "command" | "life";
+}
+
+/** R-ENGINE-015: a failed view refresh tries again by itself after each of these pauses, then the card shows. */
+export const VIEW_RETRY_MS: readonly number[] = [1_000, 3_000];
+
 export interface GameState {
   view: PlayerView | null;
-  /** Set when the authority could not be reached at all. */
+  /** Why the game could not go on, in the player's words, for a failure that is no request's (a fault in the game itself). */
   failed: string | null;
+  /** R-ENGINE-015: the request that failed, until Retry brings its answer. */
+  trouble: Trouble | null;
   busy: boolean;
   /** The last rejection, until the player sends something else or dismisses it. */
   rejection: Shown | null;
@@ -121,6 +135,8 @@ export interface GameState {
   quiet: ReportLine[][];
 
   refresh: () => Promise<void>;
+  /** R-ENGINE-015: sends again what failed (the view, the command kept, or the life); its first caller gets the answer. */
+  retry: () => Promise<void>;
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
   endMonth: () => Promise<Reply | ServerRejection | null>;
   /**
@@ -171,6 +187,8 @@ export interface GameStoreOptions {
   rememberMonth?: boolean;
   /** After a life has ended and the door is open (R-ACCOUNT-030): the browser's game loads afresh, so nothing held in memory outlives the life. */
   afterLifeEnded?: () => void;
+  /** Waits before a failed view is asked for again (R-ENGINE-015). A test's own clock; the browser's otherwise. */
+  wait?: (ms: number) => Promise<void>;
 }
 
 export function rejectionWords(code: ServerCode): string {
@@ -178,7 +196,15 @@ export function rejectionWords(code: ServerCode): string {
   return text[key] ?? uiText[key] ?? code;
 }
 
-const failure = (error: unknown) => (error instanceof Error ? error.message : String(error));
+/** R-ENGINE-015: the failure in the player's words, by its kind, never the browser's own text; a fault that is no request's is said as ours. */
+export function failureWords(error: unknown): string {
+  return say(`ui.failed.why.${failureOf(error) ?? "server"}`);
+}
+
+const realWait = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 /** The lines that get a moment of their own, once each payment is told once; an offer's answer said in its own words is one. */
 function bigLines(lines: readonly ReportLine[]): ReportLine[] {
@@ -249,20 +275,24 @@ function readMonth(): MonthMemory | null {
   }
 }
 
-function writeMonth(memory: MonthMemory): void {
+/** False in private windows and full stores: the month is kept in memory alone. */
+function writeMonth(memory: MonthMemory): boolean {
   try {
     localStorage.setItem(MONTH_KEY, JSON.stringify(memory));
+    return true;
   } catch {
-    // Private windows and full stores: the month is kept in memory alone.
+    return false;
   }
 }
 
 /** Drops what the browser remembers of the month: a new life, or a test's own load. */
-export function forgetMonth(): void {
+export function forgetMonth(): boolean {
   try {
     localStorage.removeItem(MONTH_KEY);
+    return true;
   } catch {
     // Nothing kept, nothing to drop.
+    return false;
   }
 }
 
@@ -289,7 +319,41 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
 }
 
 function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameStore {
+  const wait = options.wait ?? realWait;
   return createStore<GameState>()((set, get) => {
+    /** What Retry runs: the request that failed, sent again, its answer handed to whoever waited on the first. */
+    let again: (() => Promise<void>) | null = null;
+    /** The refresh under way, so a focus, a page shown again and a nudge at once cost one request. */
+    let refreshing: Promise<void> | null = null;
+
+    /**
+     * R-ENGINE-015: shows the card for a failed request and keeps it to send again. The promise settles with the
+     * answer Retry brings, so whoever sent the first (a sheet, Begin) waits on with the player's choice intact. A failed
+     * view never takes the place of a command or a life waiting to be sent again. A wall the page is already reloading
+     * for (R-ACCOUNT-006) shows nothing and settles never: the page is going, and the login comes next.
+     */
+    function held<T>(kind: FailureKind, during: Trouble["during"], retry: () => Promise<T>, error?: unknown): Promise<T> {
+      if (isReloading(error)) return new Promise<T>(() => undefined);
+      const showing = get().trouble;
+      if (during === "view" && showing !== null && showing.during !== "view") return Promise.resolve(undefined as T);
+      return new Promise<T>((resolve, reject) => {
+        again = async () => {
+          set({ trouble: null });
+          try {
+            resolve(await retry());
+          } catch (error) {
+            reject(error instanceof Error ? error : new Error(String(error)));
+          }
+        };
+        set({ trouble: { kind, during }, busy: false });
+      });
+    }
+
+    /** A failure that is no request's: the game's own fault, said as ours, the screen replaced. */
+    function broke(error: unknown): void {
+      if (!isReported(error)) set({ failed: failureWords(error) });
+    }
+
     /** The authority's own clock, when it keeps one and reports none through events. */
     function ownClock(): Partial<GameState> {
       const clock = authority.clock?.();
@@ -304,12 +368,18 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null), ...(held === null && options.rememberMonth === true ? rememberedMonth(view) : {}), ...ownClock() });
     }
 
-    async function send(command: PlayerCommand): Promise<Reply | ServerRejection | null> {
+    /**
+     * `basedOn` is the version the command was first sent on: a retry sends it on the same, so a command that landed
+     * before its answer was lost comes back stale rather than being played twice.
+     */
+    async function send(command: PlayerCommand, basedOn?: number): Promise<Reply | ServerRejection | null> {
       const { view, busy } = get();
       if (view === null || busy) return null;
+      const retried = basedOn !== undefined;
+      const based = basedOn ?? view.v;
       set({ busy: true, rejection: null });
       try {
-        const reply = await authority.send({ ...command, basedOn: view.v });
+        const reply = await authority.send({ ...command, basedOn: based });
         if (reply.ok) {
           // One update: a month's report opens with the view it reports on, so nothing that
           // waits for the report (the share card, a scene) can open in between.
@@ -326,22 +396,62 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             ...ownClock(),
           });
         } else {
-          set({ rejection: { code: reply.code, words: rejectionWords(reply.code), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });
+          // A retried command that comes back stale most likely landed the first time: the latest view says so, and nothing is refused.
+          if (!(retried && reply.code === "stale")) set({ rejection: { code: reply.code, words: rejectionWords(reply.code), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });
           // The state may have moved on (a stale command): show the latest.
-          if (!get().signedOut) take(await authority.view());
+          if (!get().signedOut) await viewAfter();
         }
         return reply;
       } catch (error) {
-        if (!isReported(error)) set({ failed: failure(error) });
+        const kind = failureOf(error);
+        if (kind !== null) return held(kind, "command", () => send(command, based), error);
+        broke(error);
         return null;
       } finally {
         set({ busy: false });
       }
     }
 
+    /** R-ENGINE-015: the view, asked for again twice with a pause before the card; a fault that is no request's replaces the screen. */
+    async function fetchView(): Promise<void> {
+      for (let attempt = 0; ; attempt += 1) {
+        try {
+          take(await authority.view());
+          if (get().trouble?.during === "view") {
+            again = null;
+            set({ trouble: null });
+          }
+          return;
+        } catch (error) {
+          const kind = failureOf(error);
+          if (kind === null) return broke(error);
+          const pause = VIEW_RETRY_MS[attempt];
+          if (pause === undefined || isReloading(error)) {
+            void held(kind, "view", refresh, error);
+            return;
+          }
+          await wait(pause);
+        }
+      }
+    }
+
+    function refresh(): Promise<void> {
+      refreshing ??= fetchView().finally(() => {
+        refreshing = null;
+      });
+      return refreshing;
+    }
+
+    /** A view asked for after a refusal: one that set out before it may be older, so a new one follows it. */
+    async function viewAfter(): Promise<void> {
+      if (refreshing !== null) await refreshing;
+      await refresh();
+    }
+
     return {
       view: null,
       failed: null,
+      trouble: null,
       busy: false,
       rejection: null,
       lines: [],
@@ -364,14 +474,14 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       messageNudges: 0,
       quiet: [],
 
-      async refresh() {
-        try {
-          take(await authority.view());
-        } catch (error) {
-          if (!isReported(error)) set({ failed: failure(error) });
-        }
+      refresh,
+      async retry() {
+        const run = again;
+        again = null;
+        if (run === null) set({ trouble: null });
+        else await run();
       },
-      send,
+      send: (command) => send(command),
       async endMonth() {
         const slots = get().plan.filter((pick): pick is SlotPick => pick !== null);
         const reply = await send({ type: "turn/end", slots });
@@ -386,6 +496,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         const moments: ReportLine[] = [];
         let last: Reply | ServerRejection | null = null;
         let accepted = 0;
+        let failedAt: { kind: FailureKind; error: unknown } | null = null;
         try {
           for (let months = 1; months <= RUN_MONTHS; months += 1) {
             const view = get().view;
@@ -396,7 +507,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             last = reply;
             if (!reply.ok) {
               set({ rejection: { code: reply.code, words: rejectionWords(reply.code), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });
-              if (accepted === 0 && !get().signedOut) take(await authority.view());
+              if (accepted === 0 && !get().signedOut) await viewAfter();
               // A month already ended stands as the one that stopped the run: its full results show.
               quiet.pop();
               break;
@@ -418,11 +529,15 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             quiet.push(told);
           }
         } catch (error) {
-          if (!isReported(error)) set({ failed: failure(error) });
           quiet.pop();
+          const kind = failureOf(error);
+          // The months already ended stand; Retry carries the run on from the month the failure stopped it at.
+          if (kind !== null) failedAt = { kind, error };
+          else broke(error);
         } finally {
           set({ busy: false, ...(accepted > 0 ? { quiet, moments, reportOpen: true } : {}) });
         }
+        if (failedAt !== null) return held(failedAt.kind, "command", () => get().untilNews(), failedAt.error);
         return last;
       },
       setSlot(index, pick) {
@@ -463,7 +578,15 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       },
       async chooseLife(scenario) {
         if (options.life === undefined) return;
-        const view = await options.life.newLife(scenario);
+        let view: PlayerView;
+        try {
+          view = await options.life.newLife(scenario);
+        } catch (error) {
+          // R-ENGINE-015: Begin is one request; until it is answered the door keeps the run and Retry sends it again.
+          const kind = failureOf(error);
+          if (kind === null) throw error;
+          return held(kind, "life", () => get().chooseLife(scenario), error);
+        }
         forgetMonth();
         // A new life is taught afresh: its first chapter's title, its places' labels, its home (R-CHAPTER-011).
         forgetTaught();
@@ -477,16 +600,23 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
               const life = options.life;
               if (life?.endLife === undefined || get().busy) return false;
               set({ busy: true, rejection: null });
+              let ended: boolean;
               try {
-                if (!(await life.endLife())) return false;
+                ended = await life.endLife();
+              } catch (error) {
+                const kind = failureOf(error);
+                set({ busy: false });
+                if (kind !== null) return held(kind, "command", async () => (await get().endLife?.()) ?? false, error);
+                broke(error);
+                return false;
+              }
+              try {
+                if (!ended) return false;
                 forgetMonth();
                 forgetLife();
                 set({ view: null, choosingLife: true, notice: null, plan: [], lines: [], moments: [], monthLines: [], lastMonthLines: [], cardClosed: null, quiet: [], reportOpen: false, earlyWin: false, clock: null, world: null, presence: null });
                 options.afterLifeEnded?.();
                 return true;
-              } catch (error) {
-                if (!isReported(error)) set({ failed: failure(error) });
-                return false;
               } finally {
                 set({ busy: false });
               }
@@ -519,7 +649,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         }
       },
       async signedIn() {
-        set({ signedOut: false, accountNotice: null, failed: null });
+        set({ signedOut: false, accountNotice: null, failed: null, trouble: null });
         await get().refresh();
       },
       heardMessages() {
