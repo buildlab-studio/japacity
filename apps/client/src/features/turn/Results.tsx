@@ -13,7 +13,7 @@ import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
 import { inMonths, runningName, say, sayCount, words } from "../../shared/words/text";
 import { ToneTag } from "../../shared/ui/ToneTag";
-import { drawShown, foldLotto, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, monthTags, quietLine, runningOut, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
+import { CHANGED_INTO, changesInto, drawShown, foldLotto, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, monthTags, quietLine, runningOut, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
@@ -91,6 +91,7 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   const main = nets.find((net) => net.currency === local) ?? nets[0] ?? { currency: local, amount: 0 };
   const rest = nets.filter((net) => net !== main);
   const tags = monthTags(lines);
+  const changes = changesInto(lines);
   // The counter counts up from nothing each time the sheet opens.
   const [counted, setCounted] = useState(0);
   useEffect(() => {
@@ -156,6 +157,16 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
             <span className={`num text-[15px] ${net.amount < 0 ? "text-out" : "text-in"}`}>{signed(net.amount, net.amount, net.currency)}</span>
           </div>
         ))}
+        {/* Each change of money, both sides as they were: it counts for nothing in Kept, so it is said here (R-WORLD-008). */}
+        {changes.length === 0 ? null : (
+          <ul className="-mt-2 flex flex-col items-end gap-0.5" data-results-changes>
+            {changes.map((change, index) => (
+              <li key={index} className="text-right text-[13px] leading-snug text-text-2" data-results-change>
+                {say(CHANGED_INTO, { paid: change.paid, got: change.got })}
+              </li>
+            ))}
+          </ul>
+        )}
         {tags.length === 0 ? null : (
           <div className="-mt-2 flex flex-wrap justify-end gap-1.5" data-results-tags>
             {tags.map((tag) => (
