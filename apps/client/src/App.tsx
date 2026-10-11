@@ -28,6 +28,7 @@ import { ChapterView } from "./features/chapter/ChapterView";
 import { City } from "./features/city/City";
 import { CreditsRow } from "./features/city/Credits";
 import { Map } from "./features/map/Map";
+import { MomentCard } from "./features/moment/MomentCard";
 import { HeldShareCard } from "./features/notify/held";
 import { NotifySetting } from "./features/notify/NotifySetting";
 import { OfferView } from "./features/offer/OfferView";
@@ -86,7 +87,8 @@ function WorldPlaying() {
           if (first?.startsWith("chapter.") === true) return <ChapterView />;
           return <ActivityPicker only={ids} />;
         }}
-        results={(place) => <Results place={place} foot={<GuestReminder afterFirstChapter />} />}
+        // R-MOMENT-006: a moment of the month stands over the results sheet, inside its tree, and is dismissed back to it.
+        results={(place) => <Results place={place} foot={<><GuestReminder afterFirstChapter /><MomentCard over="results" /></>} />}
         // R-WORLD-006: one ask at a time: the set piece's question, the interview's, then each open offer on its own.
         asks={[
           ...(view.setpiece === null && !closing ? [] : [<SetpieceView key="setpiece" />]),
@@ -120,6 +122,8 @@ function WorldPlaying() {
           <CardView />
         </HeldShareCard>
       </div>
+      {/* R-MOMENT-006: a moment an act or the draw's letter brings stands over the world. */}
+      <MomentCard over="world" />
       <SecureAsk />
     </div>
   );
