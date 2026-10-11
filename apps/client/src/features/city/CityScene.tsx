@@ -34,6 +34,7 @@ import { walkableOf } from "./walk/map";
 import { findRoute } from "./walk/route";
 import { SHEET_KINDS } from "../../../../../tools/assets/world-check";
 import { animateWorld, buildWorld, colourOf, skyColours, type World } from "./world";
+import { failureOf } from "../../shared/net/http";
 
 /** How much further the fog stands while looking from above, so the plan is not lost in it. */
 const PLAN_FOG = 90;
@@ -293,7 +294,8 @@ function Place(props: PlaceProps) {
       wear(built.own.root, keptStyleOf(own));
       setWorld(built);
     })().catch((error: unknown) => {
-      if (alive) onFailed(error instanceof Error ? error.message : String(error));
+      // The screen says the place could not be shown in its own words; what went wrong is kept by kind, never as text.
+      if (alive) onFailed(failureOf(error) ?? "fault");
     });
     return () => {
       alive = false;

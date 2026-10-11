@@ -13,6 +13,7 @@ import { slotKind } from "../../shared/sim/people";
 import { Button } from "../../shared/ui/Button";
 import { nameOf, runningName, say, words } from "../../shared/words/text";
 import type { PairApi } from "./pairApi";
+import { troubleWords } from "../../shared/words/trouble";
 
 type Looking = keyof typeof INVITE_FILLS;
 
@@ -56,7 +57,7 @@ function Link({ api, slot }: { api: PairApi; slot: string }) {
       if (reply.ok) setLink(api.inviteLink(reply.code));
       else setFailed(say("ui.people.invite.failed", { why: rejectionWords(reply.code) }));
     } catch (error) {
-      setFailed(say("ui.people.invite.failed", { why: error instanceof Error ? error.message : String(error) }));
+      setFailed(troubleWords(error));
     } finally {
       setBusy(false);
     }
