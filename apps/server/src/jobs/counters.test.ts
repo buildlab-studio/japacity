@@ -82,7 +82,7 @@ describe("the nightly counters job", () => {
     expect(await totals(server)).toEqual(once);
   });
 
-  test("[R-ANALYTICS-011] [R-ANALYTICS-008] given an account that plays on the day after it signed up and again a week on, when those days are counted, then day-1 and day-7 returns are kept on the sign-up day", async () => {
+  test("[R-ANALYTICS-011] [R-ANALYTICS-008] given an account that plays on the day after it signed up and again a week on, when those days are counted, then day-1, day-3 and day-7 returns are kept on the sign-up day", async () => {
     const server = testServer();
     const signUpDay = utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
@@ -101,9 +101,10 @@ describe("the nightly counters job", () => {
 
     const rows = await totals(server);
     expect(pick(rows, dayName(signUpDay), "players/returned", "d1")).toBe(1);
+    expect(pick(rows, dayName(signUpDay), "players/returned", "d3")).toBe(1);
     expect(pick(rows, dayName(signUpDay), "players/returned", "d7")).toBe(1);
     expect(pick(rows, dayName(signUpDay), "players/returned", "d30")).toBe(0);
-    expect(rows.filter((row) => row.name === "players/returned")).toHaveLength(2);
+    expect(rows.filter((row) => row.name === "players/returned")).toHaveLength(3);
     expect(pick(rows, dayName(signUpDay + 3), "players/active", "NG")).toBe(1);
   });
 

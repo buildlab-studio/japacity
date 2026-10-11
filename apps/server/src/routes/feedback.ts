@@ -2,6 +2,7 @@
 // signed-in session. The reply says only whether it was kept.
 import { Hono } from "hono";
 
+import { countFeedback } from "../analytics/live";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
@@ -16,8 +17,13 @@ export function feedbackRoute(deps: ServerDeps): Hono<SessionEnv> {
     const session = sessionOf(c);
     if (session === null) return c.json<ServerRejection>({ ok: false, code: "signed-out", detail: "Sign in first." }, 401);
     const body: unknown = await c.req.json().catch(() => null);
-    const sent = await sendFeedback(deps, session.account, countryOf(c.req.raw), body);
-    if (sent.ok) return c.json({ ok: true });
+    const country = countryOf(c.req.raw);
+    const sent = await sendFeedback(deps, session.account, country, body);
+    if (sent.ok) {
+      // R-ANALYTICS-008: the support load, by region.
+      await countFeedback(deps, country);
+      return c.json({ ok: true });
+    }
     const rejection: ServerRejection = { ok: false, code: sent.code, detail: sent.detail };
     if (sent.retryAfter !== undefined) {
       rejection.retryAfter = sent.retryAfter;

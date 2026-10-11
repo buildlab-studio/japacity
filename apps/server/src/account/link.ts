@@ -10,6 +10,7 @@
 import type { GenericEndpointContext } from "better-auth";
 import { APIError, getSessionFromCtx } from "better-auth/api";
 
+import { countSecured } from "../analytics/live";
 import type { ServerDeps } from "../deps";
 
 /** The code a refused link answers with, in the library's error and in the Google callback's `?error=`. */
@@ -63,4 +64,6 @@ export async function foldIntoGuest(deps: ServerDeps, linking: Linking, { anonym
   await internal.updateUser(guest, { email: newUser.user.email, emailVerified: newUser.user.emailVerified, isAnonymous: false });
   const secured = await deps.stores.account.secure(guest);
   if (!secured.ok) throw new Error(`The guest ${guest} has no account row to secure: ${secured.detail}`);
+  // R-ANALYTICS-008: the guest secured, by region, on the day and on its sign-up day.
+  await countSecured(deps, guest);
 }

@@ -33,7 +33,8 @@ type Counted =
   | { type: "place/returned"; shape: string }
   | { type: "lottery/bought"; tickets: number };
 
-const RETURNED: Partial<Record<number, string>> = { 1: "d1", 7: "d7", 30: "d30" };
+/** R-ANALYTICS-008: d3 and d14 were added on 11 Oct 2026, so the returns make a curve. */
+const RETURNED: Partial<Record<number, string>> = { 1: "d1", 3: "d3", 7: "d7", 14: "d14", 30: "d30" };
 
 /**
  * R-GUIDE-014: a line of tone `good` that follows from the player's own
