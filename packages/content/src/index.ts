@@ -49,6 +49,7 @@ import { placeText } from "./place/place.text";
 import { pointsTable } from "./points/points.data";
 import { pointsText } from "./points/points.text";
 import { prologueTable } from "./prologue/prologue.data";
+import { hometownText } from "./prologue/prologue.hometown.text";
 import { prologueText } from "./prologue/prologue.text";
 import { qualityTable } from "./quality/quality.data";
 import { qualityText } from "./quality/quality.text";
@@ -83,6 +84,7 @@ export type { NamedPerson, NamedRole, NameFaith, NamePeople, NameSex, PoolName }
 export { recurringPeople } from "./person/person.recurring.data";
 export type { RecurringPerson, RecurringRole } from "./person/person.recurring.data";
 export { familyFeed, familyNames, familyPosts, travelKnown } from "./family/family.data";
+export { HOMETOWN_FILL, hometownByHome, hometownCities, hometownRegion, hometownTowns } from "./prologue/prologue.hometown.data";
 export type { FamilyPost, FamilyPostKind, FamilySender } from "./family/family.data";
 /** The story tied to the world (world.md R-WORLD-003, R-WORLD-019, R-WORLD-020). */
 export { NUDGE_WORDS, storyStep, storySteps, storyThings } from "./story/story.data";
@@ -165,6 +167,7 @@ export const textTables: Record<string, Record<string, string>> = {
   place: placeText,
   points: pointsText,
   prologue: prologueText,
+  hometown: hometownText,
   quality: qualityText,
   reject: rejectText,
   route: routeText,

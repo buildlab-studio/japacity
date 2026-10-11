@@ -72,6 +72,37 @@ function stepEntry(content: Content, id: string): PrologueStep | null {
   return content.prologue[id] ?? null;
 }
 
+/** The step whose answer says where the life sleeps at twenty-two; Makoko's says where it was born (R-PROLOGUE-012). */
+const HOME_STEP = "home";
+
+/**
+ * Where the family drawn is from (R-PROLOGUE-002): a town or a city by
+ * the draw's own split, picked by its means, its siblings and its parents' schooling, so the same family is always from
+ * the same place, a sibling's life too (R-PEOPLE-011), and no stream moves: nothing new is drawn.
+ */
+export function familyHometown(draw: NonNullable<PrologueSlice["draw"]>, numbers: Tuning["prologue"]): string | null {
+  const list = draw.town === "city" ? numbers.hometowns.city : numbers.hometowns.town;
+  if (list.length === 0) return null;
+  const mix = draw.familyMeans * 7 + draw.siblings * 13 + (draw.parentsEducated ? 5 : 0);
+  return list[mix - divFloor(mix, list.length) * list.length] ?? null;
+}
+
+/**
+ * R-PROLOGUE-002: where the life is from. A fixed life names its own; a life from sixteen reads
+ * it from the family drawn, unless its home answer says where it was born (the child of the water's Lagos,
+ * R-PROLOGUE-012). Null until the family is drawn.
+ */
+export function hometownOf(state: State, content: Content): string | null {
+  const own = content.scenario[state.scenario]?.hometown;
+  if (own !== undefined) return own;
+  const draw = state.prologue.draw;
+  if (draw === null) return null;
+  const numbers = content.tuning.prologue;
+  const home = state.prologue.choices[HOME_STEP];
+  const born = home === undefined ? undefined : numbers.hometowns.byHome[home];
+  return born ?? familyHometown(draw, numbers);
+}
+
 /** R-PROLOGUE-002: the parents' chance of schooling, by family means. */
 export function parentsEducatedBp(familyMeans: number, numbers: Tuning["prologue"]): number {
   return numbers.parentsEducatedBp + numbers.parentsEducatedPerPoint * familyMeans;
@@ -374,13 +405,15 @@ function invariants(state: State, content: Content): string[] {
   return [];
 }
 
-/** R-PROLOGUE-008: the card, its answers with `allowed`, and the draws already made. Nothing before it is drawn. */
-function view(read: ReadCtx): Pick<PlayerView, "prologue"> {
+/** R-PROLOGUE-008: the card, its answers with `allowed`, and the draws already made. Nothing before it is drawn. Where the life is from stays after the close (R-PROLOGUE-002). */
+function view(read: ReadCtx): Pick<PlayerView, "prologue" | "hometown"> {
   const slice = read.state.prologue;
-  if (!slice.open || slice.step === null) return { prologue: null };
+  const hometown = hometownOf(read.state, read.content);
+  if (!slice.open || slice.step === null) return { prologue: null, hometown };
   const step = stepEntry(read.content, slice.step);
-  if (step === null) return { prologue: null };
+  if (step === null) return { prologue: null, hometown };
   return {
+    hometown,
     prologue: {
       step: step.id,
       answers: step.answers.map((answer) => ({ id: answer.id, allowed: allMet(read, answer.requires) })),

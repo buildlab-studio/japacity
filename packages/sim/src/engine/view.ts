@@ -48,6 +48,7 @@ export const VIEW_KEYS = [
   "credit",
   "goals",
   "prologue",
+  "hometown",
   "era",
   "card",
   "lottery",

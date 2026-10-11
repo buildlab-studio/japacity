@@ -35,6 +35,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
     job: null,
     // R-PEOPLE-010: working values until scenario.md gives each life its count.
     siblings: 2,
+    hometown: "hometown.enugu",
     tenure: {},
     // four months of living in hand, so a graduate who follows the nudge to the board is hired
     // before the money runs out (scenario.md's table still says ₦180,000 in the bank; it is added).
@@ -72,6 +73,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
     job: "activity.job-bank-officer",
     // R-PEOPLE-010: working values until scenario.md gives each life its count.
     siblings: 2,
+    hometown: "hometown.abeokuta",
     tenure: { "activity.job-bank-officer": 48 },
     pockets: { NGN: { bank: naira(4200000), cash: naira(60000) } },
     documents: [{ document: "document.passport", monthsLeft: 22, value: null }],
@@ -106,6 +108,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
     job: "activity.job-junior-dev",
     // R-PEOPLE-010: working values until scenario.md gives each life its count.
     siblings: 2,
+    hometown: "hometown.kaduna",
     tenure: { "activity.job-junior-dev": 18 },
     pockets: { NGN: { bank: naira(900000), cash: naira(40000) } },
     documents: [],
@@ -155,6 +158,7 @@ export const ngoziScenario: ScenarioEntry = {
   tenure: { "activity.job-nurse": 30 },
     // R-PEOPLE-010: working values until scenario.md gives each life its count.
     siblings: 2,
+    hometown: "hometown.owerri",
   pockets: { NGN: { bank: naira(650000), cash: naira(30000) } },
   documents: [
     { document: "document.passport", monthsLeft: 40, value: null },
@@ -204,6 +208,7 @@ export const aniekanScenario: ScenarioEntry = {
   tenure: { "activity.job-teacher": 48 },
   // R-PEOPLE-010: working values until scenario.md gives each life its count.
   siblings: 3,
+  hometown: "hometown.uyo",
   pockets: { NGN: { bank: naira(350000), cash: naira(20000) } },
   documents: [],
   obligations: [

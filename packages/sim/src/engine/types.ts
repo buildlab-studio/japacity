@@ -1126,6 +1126,8 @@ export interface ScenarioEntry {
   tenure: Record<Id<"activity">, number>;
   /** Siblings the life starts with (R-PEOPLE-010). */
   siblings: number;
+  /** A fixed life's hometown, `hometown.<slug>` (R-PROLOGUE-002); a life from sixteen reads its own from the family drawn. */
+  hometown?: string;
   /** The character's sex, where the life says (docs/rules/streets.md R-STREET-009); the prologue's life does not. */
   sex?: "f" | "m";
   pockets: Partial<Record<Currency, { bank: number; cash: number }>>;
@@ -1239,6 +1241,12 @@ export interface Tuning {
     privateSession: number;
     /** R-HOME-009: the family support a life from sixteen sends home once abroad, in kobo, before the remit share. */
     homeSupport: number;
+    /**
+     * R-PROLOGUE-002: the hometowns a family drawn in the city or in a town may be from, as
+     * `hometown.<slug>` with words in content; one is read from the family drawn, never drawn on its own. `byHome`:
+     * the hometown a home answer says the life was born to, the child of the water's Lagos (R-PROLOGUE-012).
+     */
+    hometowns: { city: string[]; town: string[]; byHome: Record<string, string> };
   };
   /** `downUnder`: wellbeing or standing under this is "down" (R-LUCK-003); `rescueAfterMonths`: months played before the whip-round (R-LUCK-002). */
   /** advice.md: the four ways to look into a route, and the agents. */
@@ -2224,6 +2232,12 @@ export interface PlayerView {
     lastOutcome: string | null;
     draw: PrologueSlice["draw"];
   } | null;
+  /**
+   * Where the life is from (R-PROLOGUE-002): `hometown.<slug>`, with
+   * words in content, read from the family drawn or the fixed life's own, kept after the prologue closes. Null until
+   * the family is drawn.
+   */
+  hometown: string | null;
   /** The era running, with its start and end as this player's months (the tick difference from now). Null until the director runs. */
   era: { id: Id<"era">; since: number; until: number; sinceMonth: number; untilMonth: number } | null;
   /** The send-off card or the real-story card, when one is due (R-CHAPTER-006, R-ROAD-011). */

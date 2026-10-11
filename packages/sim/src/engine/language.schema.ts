@@ -58,6 +58,8 @@ export function idOf<K extends KindName>(kind: K) {
 export const CurrencySchema = z.enum(["NGN", "GBP", "USD", "CAD", "AED", "EUR"]);
 export const ForeignCurrencySchema = z.enum(["GBP", "USD", "CAD", "AED", "EUR"]);
 export const PocketSchema = z.enum(["bank", "cash"]);
+/** A hometown (R-PROLOGUE-002): `hometown.<slug>`, its words in content. Not a kind: a town the family is from, never a place the game shows. */
+export const HometownSchema = z.string().regex(new RegExp(`^hometown\\.${SLUG}$`), { error: "Expected a hometown of the form hometown.slug" });
 export const ReasonSchema = z.enum([
   "opening",
   "salary",
@@ -499,6 +501,7 @@ export const TuningSchema = z.strictObject({
     grade: z.strictObject({ base: CountSchema, upBp: BpSchema, downBp: BpSchema, min: CountSchema, max: CountSchema }),
     privateSession: CountSchema,
     homeSupport: CountSchema,
+    hometowns: z.strictObject({ city: z.array(HometownSchema).min(1), town: z.array(HometownSchema).min(1), byHome: z.record(z.string().min(1), HometownSchema) }),
   }),
   advice: z.strictObject({ warnings: z.boolean(), networkToAsk: CountSchema, adviserFee: CountSchema, agentKindsBp: z.strictObject({ fixer: BpSchema, chaser: BpSchema, overpromiser: BpSchema, scammer: BpSchema }), fees: z.strictObject({ fixer: z.tuple([CountSchema, CountSchema]), overpromiser: z.tuple([CountSchema, CountSchema]), scammer: z.tuple([CountSchema, CountSchema]) }), chaserFee: z.tuple([CountSchema, CountSchema]), fixerMonths: CountSchema, chaserMonths: CountSchema, fakePapersFee: CountSchema, scamTells: CountSchema, overpromiseTells: CountSchema, floorNaira: CountSchema, warnMonths: CountSchema }),
   luck: z.strictObject({
