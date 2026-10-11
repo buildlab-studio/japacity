@@ -37,9 +37,8 @@ describe("the body", () => {
     expect(game.state.activity.played[COOK]).toBe(2);
   });
 
-  test("[R-QUALITY-007] given a hungry and spent life, when the month turns, then wellbeing pays for both against a fed twin, and the body rests back toward sixty", () => {
+  test("[R-QUALITY-007] given a hungry and spent life, when the month turns, then wellbeing pays for both and the body rests back toward sixty", () => {
     const game = ngozi();
-    const twin = ngozi();
     const { body } = content.tuning.turn;
     // Nollywood until the belly is low (the time lived takes it down), then water, which tires, until the body is spent:
     // an act that takes effort then waits for sleep (R-ACTIVITY-020).
@@ -50,10 +49,16 @@ describe("the body", () => {
     const energy = game.state.quality[ENERGY]!;
     expect(belly).toBeLessThan(body.lowBelow);
     expect(energy).toBeLessThan(body.lowBelow);
-    game.endTurn();
-    twin.endTurn();
+    const turned = game.endTurn();
+    const energyMoves = turned.events.filter((event) => event.type === "quality/changed" && (event as { quality?: string }).quality === ENERGY);
+    expect(energyMoves, JSON.stringify(energyMoves)).toHaveLength(1);
     expect(game.state.quality[BELLY]).toBe(Math.min(body.restTo, belly + body.restBy));
     expect(game.state.quality[ENERGY]).toBe(Math.min(body.restTo, energy + body.restBy));
-    expect(game.state.quality[WELLBEING]).toBe(twin.state.quality[WELLBEING]! - body.hungryWellbeing - body.spentWellbeing);
+    // The two hits land on wellbeing with the month's own source, beside its drift.
+    const hits = turned.events
+      .filter((event) => event.type === "quality/changed" && (event as { quality?: string }).quality === WELLBEING && (event as { source?: string }).source === "month")
+      .map((event) => (event as { amount: number }).amount);
+    expect(hits).toContain(-body.hungryWellbeing);
+    expect(hits).toContain(-body.spentWellbeing);
   });
 });

@@ -443,7 +443,8 @@ export const prologueScenario: ScenarioEntry = {
   id: "scenario.prologue",
   prologue: true,
   qualities: {
-    ...Object.fromEntries(Object.values(qualityTable).map((entry) => [entry.id, entry.min])),
+    // Every quality at its floor, except the body, which starts where its entry says (R-QUALITY-007).
+    ...Object.fromEntries(Object.values(qualityTable).map((entry) => [entry.id, entry.start ?? entry.min])),
     "quality.age-months": tuning.prologue.startAgeMonths,
   },
   job: null,
