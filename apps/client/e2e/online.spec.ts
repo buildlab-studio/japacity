@@ -386,7 +386,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   await chip.locator('[data-act="talk"]').click();
   const card = page.getByRole("dialog");
   await expect(card.getByRole("button", { name: /Start seeing Tobi/ })).toBeVisible({ timeout: 20_000 });
-  await expect(card).toContainText("After service, by the car park.");
+  await expect(card).toContainText("After service, your mother brings him home for lunch.");
   // The sheet settles before the picture.
   await page.waitForTimeout(800);
   await shoot(page, "m68-2-talk-sheet", info.project.name);
