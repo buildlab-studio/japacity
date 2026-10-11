@@ -70,7 +70,9 @@ function pastFirstChapter(): Answer {
   const game = start({ scenario: "scenario.tunde", content });
   game.grant(1);
   const view = game.view();
-  return { body: { ok: true, view: { ...view, chapter: { ...view.chapter, done: ["chapter.find-your-feet"], current: "chapter.build-the-file" } }, lines: [], clock: CLOCK } };
+  // The file's own items, none met yet: the first chapter's items under the file's id would name steps it does not have.
+  const items = (content.chapter["chapter.build-the-file"]?.items ?? []).map((item) => ({ id: item.id, met: false }));
+  return { body: { ok: true, view: { ...view, chapter: { ...view.chapter, done: ["chapter.find-your-feet"], current: "chapter.build-the-file", items } }, lines: [], clock: CLOCK } };
 }
 
 test("[R-ACCOUNT-021] [R-ACCOUNT-024] [R-GUIDE-015] a new visitor passes the age screen and changes the username on the door's page; Begin starts the guest with it, and no sign-in method is asked at the door", async ({ page }, info) => {
