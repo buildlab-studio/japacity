@@ -237,8 +237,9 @@ test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the gam
   await shoot(page, "advert-card", info.project.name);
 });
 
-test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi stands in the Inverter Room with the computer mark; his card's button courts him, and his thread in Chats opens with the bond's head", async ({ page }, info) => {
+test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi stands in the family house's parlour with the computer mark; his card's button courts him, and his thread in Chats opens with the bond's head", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The world is checked at phone size.");
+  test.setTimeout(120_000);
   const TOBI = "person.tobi-bank";
   const game = start({ scenario: "scenario.tunde", content });
   game.grant(1);
@@ -261,32 +262,41 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   page.on("request", (request) => {
     if (request.method() === "POST" && new URL(request.url()).pathname === "/api/command") sent.push(request.postDataJSON());
   });
-  // The world opens where the player last stood: the Inverter Room in Yaba, where the church's meeting stands for now.
+  // The world opens at home, the family house, where the people met after the service come home with the family.
   await page.addInitScript(() => {
-    localStorage.setItem("japacity.city.last", JSON.stringify(["place.yaba-hub"]));
+    localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
     localStorage.setItem("japacity.walkthrough", "1");
   });
   await page.goto("/");
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   await passOpeningWords(page);
+  // The home's teach card, once in a life (R-HOME-008), is put away so the parlour is clear.
+  const teach = page.locator("[data-home-teach-ok]");
+  if (await teach.waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await teach.click();
   await page.waitForFunction(() => (window as unknown as { __city?: { ready?: boolean } }).__city?.ready === true, null, { timeout: 90_000 });
+  // Into the parlour through the house's door.
+  await page.locator('[data-mark="house"]').click({ timeout: 30_000 });
+  await page.locator('[data-thing-chip="house"] [data-act="enter"]').click();
+  await page.waitForFunction(() => (window as unknown as { __city?: { ready?: boolean; place?: string } }).__city?.ready === true, null, { timeout: 90_000 });
   const mark = page.locator('[data-mark="after-service"]');
   await expect(mark).toBeVisible({ timeout: 30_000 });
   // The names every thing shows on a first entry fade before the picture (R-WORLD-005).
   await page.waitForTimeout(2600);
-  // The meetup's two stand only in December.
-  await expect(page.locator('[data-mark="meetup-speaker"]')).toHaveCount(0);
+  // A friend of the family visiting stands there too.
+  await expect(page.locator('[data-mark="friend-guest"]')).toHaveCount(1);
   await mark.click();
   const chip = page.locator('[data-thing-chip="after-service"]');
   await expect(chip).toContainText("Tobi");
   await expect(chip.locator("[data-person-mark]")).toHaveText("Computer");
   await page.waitForTimeout(400);
-  await shoot(page, "m68-1-hub-tobi", info.project.name);
+  await shoot(page, "m68-1-parlour-tobi", info.project.name);
 
   await chip.locator('[data-act="talk"]').click();
   const card = page.getByRole("dialog");
   await expect(card.getByRole("button", { name: /Start seeing Tobi/ })).toBeVisible({ timeout: 20_000 });
   await expect(card).toContainText("After service, by the car park.");
+  // The sheet settles before the picture.
+  await page.waitForTimeout(800);
   await shoot(page, "m68-2-talk-sheet", info.project.name);
   await card.getByRole("button", { name: /Start seeing Tobi/ }).click();
   await expect.poll(() => sent.length).toBe(1);
