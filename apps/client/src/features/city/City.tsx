@@ -65,6 +65,8 @@ import { enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHer
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
+import { opensKiosk, withKiosk } from "./kiosk";
+import { KioskSheet } from "../lottery/KioskSheet";
 import { namedThings } from "./mark";
 
 /** Acts the scene shows (R-WORLD-005): the pot steams, the drum fills; the place says no answer for them (R-OBLIGATION-014). */
@@ -714,7 +716,8 @@ export function City({
   const heldDue = view.obligations.find((owed) => content.obligation[owed.entry]?.type === "held-funds") ?? null;
   // An activity shut only by a paper not yet held (the English test before the passport) still stands in the world, shut with its reason;
   // a now-act done this month is gone from its thing until the next (R-ACTIVITY-015).
-  const activityKey = [...actsOffered(view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
+  // R-LOTTERY-001: while the world runs the Friday draw the kiosk's act stays, and opens the draw's sheet.
+  const activityKey = [...withKiosk(actsOffered(view), view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
@@ -1058,6 +1061,8 @@ export function City({
       });
     }
     if (!world || picked?.kind !== "action" || picked.more !== undefined) return null;
+    // R-LOTTERY-001: online the kiosk's tap opens the Friday draw's own sheet, never the offline slip.
+    if (opensKiosk(picked.activity, view)) return null;
     const activity = picked.activity;
     const option = view.activities.find((candidate) => candidate.id === activity);
     if (option === undefined) return null;
@@ -1172,7 +1177,9 @@ export function City({
     if (setpieceOver && picked?.kind === "action" && picked.activity.startsWith("setpiece.")) setPicked(null);
   }, [setpieceOver, picked]);
   // R-WORLD-022: a sheet, the phone or the map opening over the world, and closing back to it.
-  const covered = world && (asksOpen || ask !== null || picked?.kind === "ride" || phone || map);
+  // The kiosk's sheet while the world runs the Friday draw (R-LOTTERY-001, R-WORLD-005).
+  const kioskUp = world && picked?.kind === "action" && opensKiosk(picked.activity, view);
+  const covered = world && (asksOpen || ask !== null || kioskUp || picked?.kind === "ride" || phone || map);
   // A share card up over the world (a chapter's card) keeps the street talk away from its foot.
   const cardsTurn = useCardsTurn();
   const cardClosed = useGame((state) => state.cardClosed);
@@ -1563,7 +1570,8 @@ export function City({
       </Sheet>
       <CreditsSheet open={credits} onOpenChange={setCredits} />
       {world ? <AskSheet ask={ask} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} {...(askIcon === undefined ? {} : { icon: askIcon })} /> : null}
-      {world && picked?.kind === "action" && ask === null ? (
+      {kioskUp ? <KioskSheet open onClose={() => setPicked(null)} label={hereName} /> : null}
+      {world && picked?.kind === "action" && ask === null && !kioskUp ? (
         <WorldSheet
           open
           onClose={() => setPicked(null)}
