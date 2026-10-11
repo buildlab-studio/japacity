@@ -38,7 +38,7 @@ export const activityAbroadText: Record<string, string> = {
   "activity.job-it-farm-cash.blurb": "You pick in the fields for cash. The boss pays when he pays.",
 
   "activity.call-home.name": "Call home",
-  "activity.call-home.blurb": "You call your mother in {hometown} and listen to all of it.",
+  "activity.call-home.blurb": "You call your mother and listen to all of it.",
   "activity.community-uk.name": "Join the community, UK",
   "activity.community-uk.blurb": "Church, the mosque or the Nigerian association. People who know who is hiring.",
   "activity.community-ca.name": "Join the community, Canada",

@@ -24,18 +24,22 @@ function hometownKeys(): string[] {
 }
 
 describe("lines from home", () => {
-  test("[R-PROLOGUE-002] given a life from Enugu on screen, when Mama's ask, Papa's, the parents on the People screen and the sibling at home are said, then each names Enugu; an explicit town wins; with no life on screen they say your hometown", () => {
+  test("[R-PROLOGUE-002] given a life from Enugu on screen, when the wider family's asks, the sibling who stayed and the opening card are said, then each names Enugu, while Mama's own asks and the parents stay at home in Lagos; an explicit town wins; with no life on screen they say your hometown", () => {
     setNow(4, "hometown.enugu");
     expect(hometownWords()).toBe("Enugu");
-    expect(words("offer.roof.body", { cost: 4500000 })).toMatch(/^Mama calls from Enugu: 'Rain entered the parlour again\. The carpenter wants ₦45,000 for zinc and labour\.'$/);
-    expect(words("offer.nepa-bill.body", { cost: 1800000 })).toContain("Mama, on the phone from Enugu:");
-    expect(words("offer.uncle-burial.body", { cost: 5000000 })).toMatch(/^Your father, from Enugu: 'The family is contributing/);
-    expect(say("ui.people.parent.blurb.mother")).toBe("In Enugu, as she has always been. She calls when there is news.");
+    expect(words("offer.roof.body", { cost: 4500000 })).toMatch(/^Your father: 'Rain entered the roof of the house in Enugu\. The carpenter wants ₦45,000 for zinc and labour\.'$/);
+    expect(words("offer.harvest.body", { cost: 1500000 })).toMatch(/^Your uncle, from Enugu: 'They are calling families/);
+    expect(words("offer.uncle-burial.body", { cost: 5000000 })).toMatch(/^Your father: 'The family in Enugu is contributing for the burial\./);
+    expect(say("ui.prologue.town.city")).toBe("Your family is from Enugu, a city.");
     expect(nameOf("person.sib-home")).toBe("Your sibling in Enugu");
     expect(blurbOf("person.sib-home")).toBe("Still in Enugu, still in the family's business, still asking how far.");
+    // Mama and Papa live in the family's Lagos house: their own asks and the People screen say home, never the town.
+    expect(words("offer.nepa-bill.body", { cost: 1800000 })).toMatch(/^Mama: 'They are threatening/);
+    expect(words("offer.mum-shop.body", { cost: 1800000 })).toMatch(/^Mama: 'The supplier/);
+    expect(say("ui.people.parent.blurb.mother")).toBe("At home, as she has always been. She calls when there is news.");
+    expect(blurbOf("activity.call-home")).toBe("You call your mother and listen to all of it.");
     expect(say("ui.page.family.in", { hometown: "Kano" })).toBe("Family in Kano");
     setNow(null);
-    expect(say("ui.people.parent.blurb.father")).toBe("In your hometown, as he has always been. He calls when there is news.");
     expect(nameOf("person.sib-home")).toBe("Your sibling in your hometown");
   });
 
@@ -43,18 +47,13 @@ describe("lines from home", () => {
     const keys = hometownKeys();
     expect(keys).toEqual(
       [
-        "activity.call-home.blurb",
         "line.prologue.drawn",
         "offer.harvest.body",
-        "offer.mum-shop.body",
-        "offer.nepa-bill.body",
         "offer.roof.body",
         "offer.uncle-burial.body",
         "person.sib-home.blurb",
         "person.sib-home.name",
         "ui.page.family.in",
-        "ui.people.parent.blurb.father",
-        "ui.people.parent.blurb.mother",
         "ui.prologue.town.city",
         "ui.prologue.town.town",
       ].sort(),
@@ -71,12 +70,11 @@ describe("lines from home", () => {
     }
   });
 
-  test("[R-PROLOGUE-002] given Ada's life, from Enugu, on the People screen, then her mother and father are in Enugu, as the view names it", async () => {
+  test("[R-PROLOGUE-002] given Ada's life, from Enugu, on the People screen, then her mother and father are at home in Lagos, as P19 has it, and no brace shows", async () => {
     const view = engineView("scenario.ada");
     expect(view.hometown).toBe("hometown.enugu");
     await renderWithView(<PeopleView />, view);
-    expect(document.body.textContent).toContain(say("ui.people.parent.blurb.mother"));
-    expect(document.body.textContent).toContain("In Enugu, as she has always been.");
+    expect(document.body.textContent).toContain("At home, as she has always been.");
     expect(document.body.textContent).not.toContain("{hometown}");
   });
 });
