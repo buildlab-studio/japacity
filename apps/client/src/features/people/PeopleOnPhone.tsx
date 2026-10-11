@@ -6,21 +6,27 @@
 import { ChevronDown } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
-import { useView } from "../../authority/GameProvider";
+import { useGame, useView } from "../../authority/GameProvider";
 import { BlockReport } from "../../shared/moderation/BlockReport";
-import { bondName, endCost, slotOrder, stepsFor, TOGETHER, type BondView } from "../../shared/sim/people";
-import { nameOf, runningName, say, sayCount } from "../../shared/words/text";
+import { bondName, endCost, endedHow, slotOrder, stepsFor, TOGETHER, type BondView } from "../../shared/sim/people";
+import { countWords } from "../../shared/words/count";
+import { hasWords, nameOf, runningName, say, sayCount } from "../../shared/words/text";
 import { Answered, End, Facts, Held, Joint, momentsLeft, Pending, Proposals, Warnings } from "./BondCard";
 import type { PairApi } from "./pairApi";
 import { SlotCard, Sponsoring } from "./PeopleView";
 
-/** One row of the head: its name and one figure on a line that never wraps; what else there is folds behind a tap (R-WORLD-006). */
+/**
+ * One row of the head: its name and one figure; what else there is folds behind a tap (R-WORLD-006). The figure is a
+ * person's words (R-TEXT-007), so it may run to a second line rather than be cut.
+ */
 function Row({ id, name, figure, open = false, children }: { id: string; name: string; figure: ReactNode; open?: boolean; children: ReactNode }) {
   return (
     <details className="group border-b border-sheet-line last:border-b-0" open={open} data-head-row={id}>
       <summary className="press flex min-h-11 cursor-pointer list-none items-center gap-2 py-2 text-[14px] [&::-webkit-details-marker]:hidden">
         <span className="shrink-0 font-bold">{name}</span>
-        <span className="ml-auto flex min-w-0 items-center gap-1.5 truncate whitespace-nowrap text-text-2">{figure}</span>
+        <span className="ml-auto min-w-0 text-right leading-snug text-text-2" data-head-figure>
+          {figure}
+        </span>
         <ChevronDown size={16} className="shrink-0 text-text-2 transition-transform group-open:rotate-180" aria-hidden />
       </summary>
       <div className="flex flex-col gap-2 pb-3 text-[14px]">{children}</div>
@@ -28,10 +34,31 @@ function Row({ id, name, figure, open = false, children }: { id: string; name: s
   );
 }
 
+/** A count as a person says it at the head of a line: "Six", "Once" is the words file's own (R-TEXT-005). */
+function countSaid(count: number): string {
+  const said = countWords(count);
+  return said.charAt(0).toUpperCase() + said.slice(1);
+}
+
+/** The times together so far, in a person's words (R-TEXT-005, R-TEXT-007): "Nothing shared yet", "Once together", "Three times together". */
+export function togetherWords(count: number): string {
+  return sayCount("ui.people.head.moments", count, { count: countSaid(count) });
+}
+
+/** The times together still short before asking, in a person's words: "Six more times together before you can ask". */
+export function leftWords(count: number): string {
+  return sayCount("ui.people.head.moments-left", count, { count: countSaid(count) });
+}
+
+/** Who the ask row asks: a computer by name, a friend as "your friend" (R-TEXT-007: "Ask Tobi", never "Ask them"). */
+export function askName(bond: BondView): string {
+  return bond.person === null ? say("ui.people.who.player") : bondName(bond);
+}
+
 /** What the ask row's figure says: the moments still short, the first step there is to ask, or not yet. */
 function askFigure(view: ReturnType<typeof useView>, bond: BondView): string {
   const left = momentsLeft(bond);
-  if (bond.stage === "courting" && left > 0) return sayCount("ui.people.head.moments-left", left, { count: left });
+  if (bond.stage === "courting" && left > 0) return leftWords(left);
   const [first] = stepsFor(view, bond);
   return first === undefined ? say("ui.needs.not-yet") : say(`ui.people.step.${first}`);
 }
@@ -48,6 +75,36 @@ function endFigure(view: ReturnType<typeof useView>, bond: BondView): string {
  * away (pair.md R-PAIR-014).
  */
 export function BondHead({ bond, api }: { bond: BondView; api: PairApi | null }) {
+  if (bond.stage === "ended") return <EndedHead bond={bond} />;
+  return <LiveHead bond={bond} api={api} />;
+}
+
+/**
+ * An ended bond's head, for the month its thread stays (R-PEOPLE-042): what
+ * happened in one line, then the reason in their own words where they gave one, a computer who stopped waiting or left.
+ */
+function EndedHead({ bond }: { bond: BondView }) {
+  const view = useView();
+  const monthLines = useGame((state) => state.monthLines);
+  const lastMonthLines = useGame((state) => state.lastMonthLines);
+  const how = endedHow(bond, [...lastMonthLines, ...(view.report?.lines ?? []), ...monthLines]);
+  const name = bond.person === null ? say("ui.people.who.player") : bondName(bond);
+  const reason = bond.person === null ? null : how === "drift" ? `${bond.person}.drifted` : how === "them" ? `${bond.person}.left` : null;
+  return (
+    <section className="mb-3 flex flex-col gap-1.5 rounded-[10px] border border-sheet-line bg-sheet-2 px-3 py-3" data-bond-head={bond.id} data-ended={how} aria-label={bondName(bond)}>
+      <p className="text-[15px] font-bold" data-ended-line>
+        {say(`ui.people.head.ended.${how}`, { name: how === "me" || how === "other" ? name : name.charAt(0).toUpperCase() + name.slice(1) })}
+      </p>
+      {reason === null || !hasWords(reason) ? null : (
+        <p className="text-[14px] leading-snug text-text-2" data-ended-reason>
+          {say(reason)}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function LiveHead({ bond, api }: { bond: BondView; api: PairApi | null }) {
   const view = useView();
   const [answered, setAnswered] = useState<Parameters<typeof Answered>[0]["lines"]>([]);
   const [ending, setEnding] = useState(0);
@@ -61,7 +118,7 @@ export function BondHead({ bond, api }: { bond: BondView; api: PairApi | null })
       <Row
         id="stage"
         name={say(`ui.people.stage.${bond.stage}`)}
-        figure={sayCount("ui.people.head.moments", moments, { count: moments })}
+        figure={togetherWords(moments)}
       >
         <Warnings bond={bond} view={view} />
         <Facts bond={bond} />
@@ -72,7 +129,7 @@ export function BondHead({ bond, api }: { bond: BondView; api: PairApi | null })
         </Row>
       )}
       {mine !== null || theirs !== null || view.ended || stepsFor(view, bond).length === 0 ? null : (
-        <Row id="ask" name={say("ui.people.head.ask")} figure={askFigure(view, bond)}>
+        <Row id="ask" name={say("ui.people.head.ask", { name: askName(bond) })} figure={askFigure(view, bond)}>
           <Held bond={bond} />
           <Proposals bond={bond} onSent={setAnswered} />
           <Answered lines={answered} />

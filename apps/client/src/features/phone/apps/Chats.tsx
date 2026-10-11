@@ -11,8 +11,8 @@ import { createContext, Fragment, use, useCallback, useEffect, useRef, useState,
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import type { ConversationReply, PairReply, SayReply } from "../../../shared/net/contract";
-import { bondName, conversationPhrases, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/sim/people";
-import { monthsAgo, say, words } from "../../../shared/words/text";
+import { bondName, conversationPhrases, endStillTold, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/sim/people";
+import { hasWords, monthsAgo, say, words } from "../../../shared/words/text";
 import { Head } from "../act";
 import { familyFeedLines } from "../feed";
 import { phoneWords } from "../phone.words";
@@ -39,14 +39,24 @@ const SLOTS = "people";
 
 const PHRASES = conversationPhrases();
 
-/** The people a chat is open with: a player on the other side of a pair, or a computer partner. */
+/**
+ * The people a chat is open with: a player on the other side of a pair, or a computer partner. A bond that ended keeps
+ * its thread through the month it ended in, its head saying so, and then it goes (people.md R-PEOPLE-042, decided 11 Oct
+ * 
+ */
 export function chatPeople(view: ReturnType<typeof useView>): BondView[] {
-  return view.people.bonds.filter((bond) => bond.stage !== "ended" && (bond.pair !== null || (bond.role === "partner" && bond.person !== null)));
+  return view.people.bonds.filter((bond) => (bond.stage !== "ended" || endStillTold(view, bond)) && (bond.pair !== null || (bond.role === "partner" && bond.person !== null)));
 }
 
-function Bubble({ from, mine = false, children }: { from: string | null; mine?: boolean; children: string }) {
+/** A computer partner's answer once courted, the first message of their thread (R-PEOPLE-013), or null when content has none. */
+export function courtedLine(person: string | null): string | null {
+  const key = `${person ?? ""}.courted`;
+  return person !== null && hasWords(key) ? say(key) : null;
+}
+
+function Bubble({ from, mine = false, courted = false, children }: { from: string | null; mine?: boolean; courted?: boolean; children: string }) {
   return (
-    <li className={`flex flex-col gap-0.5 ${mine ? "items-end" : "items-start"}`}>
+    <li className={`flex flex-col gap-0.5 ${mine ? "items-end" : "items-start"}`} data-courted={courted ? "" : undefined}>
       {from === null ? null : <span className="px-1 text-[11px] font-bold text-text-2">{from}</span>}
       <span className={`max-w-[85%] rounded-[14px] px-3 py-2 text-[14px] leading-snug ${mine ? "band rounded-br-[4px]" : "rounded-bl-[4px] border border-sheet-line bg-sheet-2"}`}>{children}</span>
     </li>
@@ -89,14 +99,23 @@ function Family() {
   );
 }
 
-/** A computer partner: no messages of their own; the moments together arrive here. */
+/**
+ * A computer partner: no messages of their own beyond their answer when courted, which opens the thread (R-PEOPLE-013);
+ * the moments together arrive after it. A thread kept for the month a bond ended in shows the same, read only.
+ */
 function Computer({ bond, name }: { bond: BondView; name: string }) {
   const moments = bond.moments ?? [];
+  const first = courtedLine(bond.person);
   return (
     <div data-chat={bond.id}>
-      <p className="text-[14px] text-text-2">{phoneWords("phone.chats.computer", { name })}</p>
-      {moments.length === 0 ? null : (
-        <ul className="mt-3 flex flex-col gap-2">
+      {bond.stage === "ended" ? null : <p className="text-[14px] text-text-2">{phoneWords("phone.chats.computer", { name })}</p>}
+      {first === null && moments.length === 0 ? null : (
+        <ul className="mt-3 flex flex-col gap-2" data-thread>
+          {first === null ? null : (
+            <Bubble from={name} courted>
+              {first}
+            </Bubble>
+          )}
           {moments.slice(-6).map((moment, index) => (
             <Bubble key={index} from={name}>
               {momentWords(moment)}
@@ -273,7 +292,7 @@ export function Chats() {
         {bond === null || screens === null ? null : screens.head(bond)}
         {bond === null ? (
           <Family />
-        ) : bond.pair !== null ? (
+        ) : bond.pair !== null && bond.stage !== "ended" ? (
           talk === null ? (
             <p className="text-[14px] text-text-2">{say("ui.talk.offline")}</p>
           ) : (

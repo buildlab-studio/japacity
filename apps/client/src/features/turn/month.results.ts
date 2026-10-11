@@ -50,6 +50,12 @@ const JOB_OFFER = "offer.job";
 /** Someone who cares says cash on you is cash at risk (R-WALLET-019): told on the results, not left for News. */
 const CASH_WARNING = "line.wallet.cash-warning";
 
+/**
+ * A bond that ended this month (people.md R-PEOPLE-035 to 042): told on the results, never left for News alone, so a
+ * partner who stopped waiting or left is said the month it happens.
+ */
+export const BOND_ENDED: ReadonlySet<string> = new Set(["line.people.drifted", "line.people.left", "line.people.ended", "line.people.ended-absence", "line.people.ended-restart", "line.people.ended-block"]);
+
 /** The visa granted: the month's news, told first and alone in the lead. */
 const GRANTED = "line.route.granted";
 
@@ -83,6 +89,8 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   isEvicted,
   (line) => line.key === GRANTED,
   isUnpaid,
+  // R-PEOPLE-042: a bond that ended this month, before the month's errands.
+  (line) => BOND_ENDED.has(line.key),
   // R-OBLIGATION-014: what cooking and fetching water saved on the upkeep, each its own line.
   (line) => ["line.activity.hunt-hired", "line.activity.hunt-missed", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
   (line) => ACTS.has(line.key),
