@@ -2,7 +2,7 @@ import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import type { ClockView } from "../shared/net/contract";
-import { isReported } from "../shared/net/http";
+import { failureOf, isReported } from "../shared/net/http";
 import { engineView } from "../shared/testing/fixtures";
 import { BASE, fakeServer } from "../shared/testing/server";
 import { remoteAuthority, type AuthorityEvent } from "./remote";
@@ -23,6 +23,8 @@ function setUp() {
   const remote = remoteAuthority({
     baseUrl: `${BASE}/`,
     fetch: server.fetch,
+    // A login wall's reload is the page's; here it is only counted.
+    wall: { met: () => false, passed: () => undefined },
     now: () => time,
     wait: (ms) => {
       waits.push(ms);
@@ -44,7 +46,8 @@ describe("the remote authority", () => {
     const post = server.sent.find((request) => request.method === "POST");
     expect(post?.path).toBe("/api/command");
     expect(post?.body).toEqual({ command: { type: "turn/end", slots: [], basedOn: 5 }, basedOn: 5 });
-    expect(post?.credentials).toBe("include");
+    // R-ENGINE-015: the page and the API are one origin, so the cookie goes same-origin only.
+    expect(post?.credentials).toBe("same-origin");
     expect(remote.held()).toBe(6);
   });
 
@@ -121,12 +124,12 @@ describe("the remote authority", () => {
     expect(events).toEqual([{ kind: "signed-out" }]);
   });
 
-  test("[R-SERVER-001] given a 401 with no body, then it reads as signed-out", async () => {
+  test("[R-SERVER-001] [R-ACCOUNT-006] given a 401 with no body, then it is no refusal of the game's but a wall (restated 11 Oct 2026: the game's own 401 always says signed-out in its body)", async () => {
     const { server, remote, events } = setUp();
     server.answer("POST /api/command", { status: 401, body: undefined });
-    const reply = await remote.send({ type: "turn/end", slots: [], basedOn: 1 });
-    expect(reply).toMatchObject({ ok: false, code: "signed-out" });
-    expect(events).toEqual([{ kind: "signed-out" }]);
+    const error: unknown = await remote.send({ type: "turn/end", slots: [], basedOn: 1 }).catch((caught: unknown) => caught);
+    expect(failureOf(error)).toBe("wall");
+    expect(events).toEqual([]);
   });
 
   test("[R-ACCOUNT-015] given an account with no character, when the view is fetched, then the store hears no-character", async () => {

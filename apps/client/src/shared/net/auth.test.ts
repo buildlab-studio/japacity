@@ -77,7 +77,8 @@ describe("deleting the account, as the server built it", () => {
     expect(await api.deleteAccount(null)).toEqual({ ok: true });
     expect(server.sent.map((request) => `${request.method} ${request.path}`)).toEqual(["DELETE /api/account"]);
     expect(server.sent[0]?.body).toEqual({});
-    expect(server.sent[0]?.credentials).toBe("include");
+    // R-ENGINE-015: the page and the API are one origin, so the session cookie goes same-origin.
+    expect(server.sent[0]?.credentials).toBe("same-origin");
   });
 
   test("[R-ACCOUNT-016] given a session that is not fresh, then the server's not-fresh is told; with the emailed code the deletion goes with { code } and succeeds", async () => {
