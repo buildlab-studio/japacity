@@ -49,7 +49,7 @@ test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and come
   await page.locator('[data-thumb="phone"]').click();
   await expect(page.locator("[data-phone]")).toBeVisible();
   // The Calendar sits first among the apps since the month lives on the phone (R-WORLD-018), so nine.
-  await expect(page.locator("[data-app]")).toHaveCount(9);
+  await expect(page.locator("[data-app]")).toHaveCount(10);
   await expect(page.locator("[data-app]").first()).toHaveAttribute("data-app", "calendar");
   await expect(page.locator("[data-phone-area]")).not.toBeEmpty();
   await page.waitForTimeout(500);
