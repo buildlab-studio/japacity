@@ -43,7 +43,7 @@ import {
 } from "./stores";
 
 export { type Connection, connect, connectOnFirstUse, DatabaseUnavailable, type PgClient } from "./connect";
-export { type Handle, oneConnection, type Queries } from "./handle";
+export { boundedHandle, type Handle, oneConnection, type Queries, STATEMENT_TIMED_OUT } from "./handle";
 export * as schema from "./schema";
 export {
   pgAdvertStore,

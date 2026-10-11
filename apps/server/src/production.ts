@@ -8,7 +8,7 @@
 // is kept per store (R-SERVER-031), and the counters, whose hourly batch count
 // is (R-ANALYTICS-004).
 import type { Content, Id, PlaceEntry, Where, World } from "@japacity/sim";
-import { connect, connectOnFirstUse, pgCounterStore, pgStores, pgSwitchStore } from "@japacity/db";
+import { boundedHandle, connect, connectOnFirstUse, pgCounterStore, pgStores, pgSwitchStore } from "@japacity/db";
 import type { Connection, Handle, Queries } from "@japacity/db";
 import type { CounterStore, SwitchStore } from "@japacity/store";
 
@@ -140,12 +140,26 @@ export function profileOfIn(deps: ServerDeps, text: Record<string, string>): Pro
   };
 }
 
+/** How a request's statements are bounded: `statementMs` for an admin read (R-SERVER-012). */
+export interface RequestBounds {
+  statementMs?: number;
+}
+
 /**
  * The request's dependencies over a new client, which connects on its first statement (R-SERVER-002);
- * `session` is filled by the caller once the auth library is made on `db`.
+ * `session` is filled by the caller once the auth library is made on `db`. With `bounds.statementMs` every store
+ * call runs in a transaction of its own under that statement timeout, the counters' reads included, which then go
+ * through the request's client rather than the isolate's.
  */
-export async function openRequest(isolate: Isolate, connectionString: string, open: (url: string) => Promise<Connection> = (url) => Promise.resolve(connectOnFirstUse(url))): Promise<RequestScope & { setSession: (reader: SessionReader) => void }> {
-  const { handle, db, close, unavailable = () => false } = await open(connectionString);
+export async function openRequest(
+  isolate: Isolate,
+  connectionString: string,
+  open: (url: string) => Promise<Connection> = (url) => Promise.resolve(connectOnFirstUse(url)),
+  bounds: RequestBounds = {},
+): Promise<RequestScope & { setSession: (reader: SessionReader) => void }> {
+  const opened = await open(connectionString);
+  const { db, close, unavailable = () => false } = opened;
+  const handle = bounds.statementMs === undefined ? opened.handle : boundedHandle(opened.handle, bounds.statementMs);
   const stores = {} as Stores;
   let session: SessionReader = () => Promise.resolve(null);
   const deps: ServerDeps = {
@@ -162,7 +176,7 @@ export async function openRequest(isolate: Isolate, connectionString: string, op
   Object.assign(stores, {
     ...pgStores(handle),
     switches: isolate.switches,
-    counters: isolate.counters,
+    counters: bounds.statementMs === undefined ? isolate.counters : pgCounterStore(handle),
     presence: placePresenceStore(isolate.rooms),
     nudges: placeNudgeBus(isolate.rooms, placeOf),
   } satisfies Stores);
