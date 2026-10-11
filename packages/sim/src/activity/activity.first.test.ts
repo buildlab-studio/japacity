@@ -132,3 +132,46 @@ describe("the sure first hunt", () => {
     }
   });
 });
+
+// the developer applied for the junior developer's job with the month full (the
+// portfolio and open source at the desk, the meetup), and the month answered with an offer for customer service and not
+// one word of the job asked for. The plan never touched the pick: the draw missed and the sure hunt landed its own job.
+// The month now says the job asked for came to nothing before the offer for the one landed.
+describe("the sure hunt that lands another job", () => {
+  const FULL: { activity: Id<"activity">; param: null }[] = [
+    { activity: "activity.learn-tech", param: null },
+    { activity: "activity.study-english", param: null },
+  ];
+
+  test("[R-ACTIVITY-005] [R-GUIDE-014] given Ada's first hunt for the junior developer's job with the month full (study, tech and the meetup), when the draw misses, then the month says the job asked for came to nothing and then the offer for the job the sure hunt landed; when it lands, the offer is the job asked for and nothing else is said", () => {
+    const asked = "activity.job-junior-dev";
+    let missed = 0;
+    let landed = 0;
+    for (let at = 0; at < 16; at += 1) {
+      const game = start({ scenario: "scenario.ada", content, seed: `z1-${String(at)}` });
+      const named = game.view().activities.find((option) => option.id === HUNT);
+      expect(named?.params).toContain(asked);
+      expect(named?.sure).toBe(true);
+      game.accept({ type: "activity/now", activity: HUNT, param: asked });
+      game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
+      game.endTurn(FULL);
+      const hunts = (game.view().report?.lines ?? []).filter((line) => line.key.startsWith("line.activity.hunt-"));
+      const offer = game.view().offers.find((open) => open.entry === "offer.job");
+      expect(offer).toBeDefined();
+      const hired = hunts.find((line) => line.key === "line.activity.hunt-hired");
+      if (hired?.params["job"] === asked) {
+        landed += 1;
+        expect(hunts.map((line) => line.key)).toEqual(["line.activity.hunt-hired"]);
+      } else {
+        missed += 1;
+        expect(hunts.map((line) => [line.key, line.params["job"]])).toEqual([
+          ["line.activity.hunt-missed", asked],
+          ["line.activity.hunt-hired", sureHuntJob(readOf(start({ scenario: "scenario.ada", content })), entryOf(asked), 1, false)?.id],
+        ]);
+      }
+    }
+    // Both ways come in sixteen tries at a fair chance.
+    expect(missed).toBeGreaterThan(0);
+    expect(landed).toBeGreaterThan(0);
+  });
+});
