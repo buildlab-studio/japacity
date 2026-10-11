@@ -24,6 +24,9 @@ export const activityProfileText: Record<string, string> = {
   "line.activity.first-merged": "Your first contribution was merged. Your name is on it.",
   "line.activity.contributed": "More of your fixes were merged. No new piece this month.",
   "line.activity.exam-failed": "The exam: {right} of {asked} right. A pass needs {pass}. You can sit it again.",
+  // How the talk went, from its answer, and what it counted for.
+  "line.activity.exam-passed.activity.conference-talk": "The talk went well: three people asked for your handle. It counts toward the endorsement's letters.",
+  "line.activity.exam-failed.activity.conference-talk": "The talk fell flat. It still counts toward the endorsement's letters.",
   // A course at home cut short by the flight (R-ACTIVITY-013).
   "line.activity.course-ended": "Your course ends with the flight: {activity}. Nothing more is charged for it.",
 };

@@ -270,7 +270,7 @@ describe("report lines", () => {
     expect(result.lines).toEqual([
       {
         key: "line.quality.gain",
-        params: { quality: "quality.english", points: 6, value: game.state.quality["quality.english"]! },
+        params: { quality: "quality.english", points: 6, value: game.state.quality["quality.english"]!, source: "offer.test.yes" },
         tone: "good",
         attention: false,
         counts: [UK],
@@ -290,7 +290,7 @@ describe("report lines", () => {
     expect(result.lines).toEqual([
       {
         key: "line.quality.loss",
-        params: { quality: "quality.english", points: 6, value: game.state.quality["quality.english"]! },
+        params: { quality: "quality.english", points: 6, value: game.state.quality["quality.english"]!, source: "offer.test.yes" },
         tone: "bad",
         attention: false,
         counts: [],
@@ -312,7 +312,7 @@ describe("report lines", () => {
     const result = game.endTurn([]);
     const worn = result.lines.filter((line) => line.key === "line.quality.worn");
     expect(worn).toEqual([
-      { key: "line.quality.worn", params: { quality: "quality.wellbeing", points: 5, value: expect.any(Number) as number }, tone: "plain", attention: false, counts: [] },
+      { key: "line.quality.worn", params: { quality: "quality.wellbeing", points: 5, value: expect.any(Number) as number, source: game.state.activity.job }, tone: "plain", attention: false, counts: [] },
     ]);
   });
 
@@ -324,7 +324,7 @@ describe("report lines", () => {
     const result = game.endTurn();
     const drift = result.lines.filter((line) => line.key === "line.quality.drift");
     expect(drift).toEqual([
-      { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: tuning.wellbeingDrift, value: tuning.wellbeingDriftTo - 10 + tuning.wellbeingDrift }, tone: "plain", attention: false, counts: [UK] },
+      { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: tuning.wellbeingDrift, value: tuning.wellbeingDriftTo - 10 + tuning.wellbeingDrift, source: "month" }, tone: "plain", attention: false, counts: [UK] },
     ]);
   });
 
@@ -333,8 +333,17 @@ describe("report lines", () => {
     const result = game.endTurn();
     const quality = result.lines.filter((line) => line.key.startsWith("line.quality."));
     expect(quality).toEqual([
-      { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: 2, value: 68 }, tone: "plain", attention: false, counts: [] },
+      { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: 2, value: 68, source: "month" }, tone: "plain", attention: false, counts: [] },
     ]);
+  });
+
+  test("[R-TEXT-005] [R-QUALITY-002] given a month at the meetup, when its moves are reported, then each line carries the act that caused it, so the words can say what the act did", () => {
+    const game = start({ content, scenario: "scenario.zainab" });
+    const result = game.endTurn([{ activity: "activity.meetup", param: null }]);
+    const moves = result.lines.filter((line) => line.key.startsWith("line.quality.") && line.params.source === "activity.meetup");
+    expect(moves.map((line) => line.params.quality).sort()).toEqual(["quality.network", "quality.wellbeing"]);
+    // Every move names its cause: an act, an answer or the month.
+    expect(result.lines.filter((line) => ["line.quality.gain", "line.quality.loss", "line.quality.worn", "line.quality.drift"].includes(line.key)).every((line) => typeof line.params.source === "string")).toBe(true);
   });
 
   test("[R-QUALITY-002] given a hidden quality, when it changes, then the event is recorded and no line shows it", () => {
