@@ -3,18 +3,17 @@
 // lines, picked once per visit, R-ACCOUNT-031), the whole game in three steps as an icon and a word each, then Play
 // with its small second line, and "I already have a life here" for an account kept before. The two lights hang over the
 // top of the scene (TwoLights.tsx), so a line about the light is a caption. Nothing says Lagos: the scene behind does.
-import { ChevronRight } from "lucide-react";
+import { Briefcase, ChevronRight, FolderOpen, Plane } from "lucide-react";
 import { useId } from "react";
 
-import { PhoneIcon } from "../phone/icons";
 import { say } from "../../shared/words/text";
 import { winkFor } from "./wink";
 
-/** The steps, each the phone app it is played in: Jobs, Papers and Japa (features/phone/PhoneApps.tsx). */
+/** The steps, each with the icon of the phone app it is played in: Jobs, Papers and Japa (features/phone/PhoneApps.tsx). */
 const STEPS = [
-  { icon: "briefcase", word: "ui.account.start.step.hustle" },
-  { icon: "folder-open", word: "ui.account.start.step.papers" },
-  { icon: "plane", word: "ui.account.start.step.fly" },
+  { Icon: Briefcase, word: "ui.account.start.step.hustle" },
+  { Icon: FolderOpen, word: "ui.account.start.step.papers" },
+  { Icon: Plane, word: "ui.account.start.step.fly" },
 ] as const;
 
 export interface StartScreenProps {
@@ -41,7 +40,7 @@ export function StartScreen({ onPlay, onReturning }: StartScreenProps) {
           <li key={step.word} className="flex items-center gap-1.5">
             {i > 0 && <ChevronRight size={14} className="text-text-2" aria-hidden />}
             <span className="flex h-9 items-center gap-1.5 rounded-[6px] bg-sheet-muted px-2.5 text-[14px] font-bold">
-              <PhoneIcon name={step.icon} size={18} /> {say(step.word)}
+              <step.Icon size={18} aria-hidden /> {say(step.word)}
             </span>
           </li>
         ))}

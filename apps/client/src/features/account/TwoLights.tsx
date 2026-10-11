@@ -113,10 +113,19 @@ function Glow({ at, shareBp, name, refs }: { at: { x: number; y: number }; share
     <div className="absolute" style={{ left: at.x - GLOW_MAX, top: at.y - GLOW_MAX, width: size, height: size }} data-light-glow={name}>
       <div className="h-full w-full transition-transform duration-700 ease-out" style={{ transform: `scale(${(radius / GLOW_MAX).toFixed(3)})` }} data-glow-share={shareBp}>
         <div ref={refs.breathe} className="h-full w-full">
-          <div ref={refs.flicker} className="h-full w-full rounded-full" style={{ background: fill, opacity: 0.86 }} />
+          <div ref={refs.flicker} className="h-full w-full" style={{ background: fill, opacity: 0.86 }} />
         </div>
       </div>
     </div>
+  );
+}
+
+/** A spark, drawn as designed: a small circle of the picture, carried along the wire by its layer. */
+function Spark({ r, fill }: { r: number; fill: string }) {
+  return (
+    <svg width={2 * r} height={2 * r} className="block">
+      <circle cx={r} cy={r} r={r} fill={fill} />
+    </svg>
   );
 }
 
@@ -192,10 +201,12 @@ export function TwoLights({ shown }: { shown: LightsShown }) {
             ref={(node) => {
               sparks.current[i] = node;
             }}
-            className="absolute top-0 left-0 h-[5.2px] w-[5.2px] rounded-full"
-            style={{ background: "#ffe9a8", transform: `translate(${String(FROM.x - 2.6)}px, ${String(FROM.y - 2.6)}px)` }}
+            className="absolute top-0 left-0"
+            style={{ transform: `translate(${String(FROM.x - 2.6)}px, ${String(FROM.y - 2.6)}px)` }}
             data-light-spark="out"
-          />
+          >
+            <Spark r={2.6} fill="#ffe9a8" />
+          </div>
         ))}
         {/* Now and then, one comes back. */}
         {still ? null : (
@@ -203,10 +214,12 @@ export function TwoLights({ shown }: { shown: LightsShown }) {
           ref={(node) => {
             sparks.current[3] = node;
           }}
-          className="absolute top-0 left-0 h-[4.8px] w-[4.8px] rounded-full"
-          style={{ background: "#ffffff", transform: `translate(${String(TO.x - 2.4)}px, ${String(TO.y - 2.4)}px)` }}
+          className="absolute top-0 left-0"
+          style={{ transform: `translate(${String(TO.x - 2.4)}px, ${String(TO.y - 2.4)}px)` }}
           data-light-spark="back"
-        />
+        >
+          <Spark r={2.4} fill="#ffffff" />
+        </div>
         )}
         <Glow at={HOME} shareBp={homeBp} name="home" refs={refsFor("home")} />
         <Glow at={ABROAD} shareBp={abroadBp} name="abroad" refs={refsFor("abroad")} />
