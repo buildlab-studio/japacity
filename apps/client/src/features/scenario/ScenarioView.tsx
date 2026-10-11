@@ -19,7 +19,7 @@ import { useGame } from "../../authority/GameProvider";
 import { useScreenCount } from "../../useScreenCount";
 import { keepPerson } from "../../authority/person";
 import { formatMoney } from "../../shared/words/format";
-import { blurbOf, say, words } from "../../shared/words/text";
+import { blurbOf, hometownWords, say, words } from "../../shared/words/text";
 import { agePointsCount, type Archetype, ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf, homesFor, moneyDrawn, opensChips, savingsOf, throughUniversity } from "../../shared/frontdoor/archetypes";
 import { DoorHead } from "../../shared/frontdoor/DoorHead";
 import { Stand } from "../../shared/frontdoor/Stand";
@@ -173,6 +173,7 @@ function pathWords(draft: DoorDraft): string {
 function fieldsOf(draft: DoorDraft): PageFields {
   const years = yearsFor(draft);
   const archetype = draft.ready === null ? archetypeOf(draft.archetype) : null;
+  const ready = READY.find((id) => id === draft.ready) ?? null;
   const home = archetype === null ? null : fitHome(archetype, draft.age, { home: draft.home ?? homeOf(archetype), homePicked: true });
   return {
     name: draft.name.trim(),
@@ -180,6 +181,8 @@ function fieldsOf(draft: DoorDraft): PageFields {
     path: pathWords(draft),
     ready: "",
     family: "",
+    // Where the life is from: a ready life's own; a new one's comes with its family, drawn at Begin (R-PROLOGUE-009).
+    from: ready === null ? "" : hometownWords(content.scenario[ready]?.hometown ?? null),
     ...(archetype === null ? {} : { was: say(`prologue.archetype.${archetype.id}.was`) }),
     // The strip from what the door knows: the home's district and the year picked; how ready comes with the life.
     strip: { district: home === null ? "" : say(`ui.door.home.where.${home}`), years, percent: null },

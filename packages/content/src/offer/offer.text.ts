@@ -51,7 +51,7 @@ export const offerText: Record<string, string> = {
 
   "offer.roof.name": "The roof",
   "offer.roof.title": "The roof",
-  "offer.roof.body": "Mama: 'Rain entered the parlour again. The carpenter wants {cost} for zinc and labour.'",
+  "offer.roof.body": "Your father: 'Rain entered the roof of the house in {hometown}. The carpenter wants {cost} for zinc and labour.'",
   "offer.roof.choice.pay": "Pay all of it",
   "offer.roof.choice.half": "Pay half",
   "offer.roof.choice.no": "Say you cannot",
@@ -61,7 +61,7 @@ export const offerText: Record<string, string> = {
 
   "offer.harvest.name": "Harvest pledge",
   "offer.harvest.title": "Harvest pledge",
-  "offer.harvest.body": "Mama: 'They are calling families by name at the harvest. {cost} would cover ours.'",
+  "offer.harvest.body": "Your uncle, from {hometown}: 'They are calling families by name at the harvest. {cost} would cover ours.'",
   "offer.harvest.choice.give": "Give it",
   "offer.harvest.choice.no": "Let them call the name",
   "offer.harvest.said.give": "You gave to the harvest. The family's name was called, and your mother stood up.",
@@ -69,7 +69,7 @@ export const offerText: Record<string, string> = {
 
   "offer.uncle-burial.name": "Your uncle's burial",
   "offer.uncle-burial.title": "Your uncle's burial",
-  "offer.uncle-burial.body": "Your father: 'The family is contributing for the burial. Your share is {cost}. People will remember who gave.'",
+  "offer.uncle-burial.body": "Your father: 'The family in {hometown} is contributing for the burial. Your share is {cost}. People will remember who gave.'",
   "offer.uncle-burial.choice.send": "Send your share",
   "offer.uncle-burial.choice.token": "Send something small",
   "offer.uncle-burial.choice.nothing": "Send nothing",

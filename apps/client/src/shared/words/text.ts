@@ -1,11 +1,11 @@
 // Every word on screen comes through here: content's table first, then the
 // interface's own first drafts. A missing key shows as itself, so a gap in
 // content is visible in play instead of hidden behind a guess.
-import { content, text } from "@japacity/content";
+import { content, HOMETOWN_FILL, text } from "@japacity/content";
 import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";
 
 import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEnding } from "./format";
-import { nowMonth } from "./now";
+import { nowHometown, nowMonth } from "./now";
 import { peopleParam } from "./people";
 import { uiText } from "./ui";
 
@@ -19,6 +19,23 @@ export function hasWords(key: string): boolean {
 
 function lookup(key: string): string {
   return text[key] ?? uiText[key] ?? key;
+}
+
+/**
+ * Content's placeholder for where the life is from (prologue.md R-PROLOGUE-002): `{hometown}` in
+ * any line names the town of the life on screen, so one line serves every hometown. A line that is handed its own
+ * `hometown` says that one. With no life on screen, or its family not drawn yet, "your hometown".
+ */
+export const HOMETOWN = HOMETOWN_FILL;
+
+/** The name of where the life on screen is from, or "your hometown" where none is known. */
+export function hometownWords(id: string | null = nowHometown()): string {
+  return id !== null && hasWords(`${id}.name`) ? lookup(`${id}.name`) : lookup("ui.hometown.unknown");
+}
+
+/** A line with its `{hometown}` filled from the life on screen; everything else left as it was. */
+function withHometown(line: string): string {
+  return line.includes(`{${HOMETOWN}}`) ? line.replaceAll(`{${HOMETOWN}}`, hometownWords()) : line;
 }
 
 /**
@@ -273,7 +290,8 @@ export function words(key: string, params: Params = {}): string {
   const template = lookup(countedKey(key, params));
   return template.replace(BRACE, (whole, name: string, offset: number) => {
     const value = params[name];
-    return value === undefined ? whole : formatParam(name, value, params, key, !opensSentence(template, offset));
+    if (value === undefined) return name === HOMETOWN ? hometownWords() : whole;
+    return formatParam(name, value, params, key, !opensSentence(template, offset));
   });
 }
 
@@ -281,7 +299,7 @@ export function words(key: string, params: Params = {}): string {
 export function say(key: string, params: Params = {}): string {
   return lookup(key).replace(BRACE, (whole, name: string) => {
     const value = params[name];
-    if (value === undefined) return whole;
+    if (value === undefined) return name === HOMETOWN ? hometownWords() : whole;
     if (typeof value === "object") return formatMoney(value.amount, value.currency);
     return typeof value === "number" ? formatNumber(value) : value;
   });
@@ -330,10 +348,11 @@ export function paramWords(param: string): string {
 
 /** An entry's name: `<id>.name`. */
 export function nameOf(id: string): string {
-  return lookup(`${id}.name`);
+  return withHometown(lookup(`${id}.name`));
 }
 
 /** An entry's one-line description, or null when content has none. */
 export function blurbOf(id: string): string | null {
-  return text[`${id}.blurb`] ?? null;
+  const blurb = text[`${id}.blurb`];
+  return blurb === undefined ? null : withHometown(blurb);
 }

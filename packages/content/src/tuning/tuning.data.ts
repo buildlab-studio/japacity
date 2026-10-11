@@ -2,6 +2,7 @@
 // group comes from is named above it.
 import type { Tuning } from "@japacity/sim";
 
+import { hometownByHome, hometownCities, hometownTowns } from "../prologue/prologue.hometown.data";
 import { naira, pct, pounds } from "../units";
 
 export const tuning: Tuning = {
@@ -163,6 +164,8 @@ export const tuning: Tuning = {
     privateSession: naira(2500000),
     // R-HOME-009: what a life from sixteen sends home each month once abroad, before the remit share; the fixed lives send ₦25,000 to ₦60,000.
     homeSupport: naira(40000),
+    // R-PROLOGUE-002: where the family drawn is from, read from the draw, never drawn on its own.
+    hometowns: { city: hometownCities, town: hometownTowns, byHome: hometownByHome },
   },
 
   // luck.md. The jackpot, 1 in 100,000, is under one basis point, so its figure is draws out of a

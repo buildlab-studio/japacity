@@ -2,7 +2,7 @@ import type { NewsEntry, NewsStage, RejectionCode } from "@japacity/sim";
 import type { Proof, Same } from "@japacity/sim/schemas";
 import { describe, expect, test } from "vitest";
 
-import { content, mergeText, text, textTables } from "./index";
+import { content, HOMETOWN_FILL, mergeText, text, textTables } from "./index";
 
 declare global {
   interface ImportMeta {
@@ -85,11 +85,11 @@ describe("words for every entry", () => {
     expect(missingWords(keys)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every offer, when its words name a figure in braces, then the offer carries that term", () => {
+  test("[R-ENGINE-014] [R-PROLOGUE-002] given every offer, when its words name a figure in braces, then the offer carries that term, or it is where the life is from, which the screen fills", () => {
     const uncarried: string[] = [];
     let named = 0;
     for (const offer of Object.values(content.offer)) {
-      const carried = new Set([...Object.keys(offer.terms), ...(offer.id === "offer.job" ? ["job"] : [])]);
+      const carried = new Set([...Object.keys(offer.terms), ...(offer.id === "offer.job" ? ["job"] : []), HOMETOWN_FILL]);
       const words = Object.entries(text).filter(([key]) => key.startsWith(`${offer.id}.`));
       for (const [key, line] of words) {
         for (const match of line.matchAll(/\{([^}]+)\}/g)) {

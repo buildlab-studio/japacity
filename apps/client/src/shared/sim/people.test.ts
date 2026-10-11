@@ -2,7 +2,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { courted, eagerContent, peopleGame, playMonth, SEE as SEE_SLOT } from "../testing/people";
-import { words } from "../words/text";
+import { nameOf, words } from "../words/text";
 import { bondName, conversationPhrases, endCost, fillWords, momentWords, optionWords, personOf, phraseWords, slotOrder, timeWith, CALL, SEE } from "./people";
 
 const SIBLING_FACTS = { label: "computer" as const, ageMonths: 0, where: "home" as const, country: null, status: null, statusMonthsLeft: null, monthsInCountry: 0, job: null, meetsFloor: {}, eduLevel: 1, englishBand: null, home: "town" as const, joint: null, funds: null, assistanceTaken: 0, sponsorReady: null };
@@ -36,7 +36,8 @@ describe("who a bond is with", () => {
     const facts = (ageMonths: number) => ({ ...SIBLING_FACTS, ageMonths });
     const older = { ...base, id: "bond-1", facts: facts(360) };
     const younger = { ...base, id: "bond-2", facts: facts(240) };
-    const name = text["person.sib-home.name"]!;
+    // The name as the screen says it: the sibling at home names where the life is from (R-PROLOGUE-002).
+    const name = nameOf("person.sib-home");
     expect(bondName(older, [older, younger])).toBe(words("ui.people.sibling.older", { name }));
     expect(bondName(younger, [older, younger])).toBe(words("ui.people.sibling.younger", { name }));
     expect(bondName(older, [older])).toBe(name);
