@@ -75,15 +75,14 @@ describe("the journey, not the wait", () => {
   test("[R-TEXT-007] given the allow list, then each kept line still exists, still says the word, and has its reason", () => {
     const all = new Map(every.map(({ key, line }) => [key, line]));
     for (const [key, reason] of Object.entries(KEPT)) {
-      expect(reason.length, key).toBeGreaterThan(10);
-      expect(WAITING.test(said(all.get(key) ?? "")), key).toBe(true);
+      expect({ key, reasoned: reason.length > 10, says: WAITING.test(said(all.get(key) ?? "")) }).toEqual({ key, reasoned: true, says: true });
     }
     expect(every.filter(({ key, line }) => KEPT_KINDS.some(({ pattern }) => pattern.test(key)) && WAITING.test(said(line))).length).toBeGreaterThan(0);
   });
 
   test("[R-TEXT-007] given a new line that narrates waiting, then the scan would catch it; a brace named wait would not", () => {
-    for (const line of ["Wait for payday, then the meetup", "A parcel waits", "Still free while you wait", "Mama is waiting for you at home.", "Dead time at home"]) expect(WAITING.test(said(line)), line).toBe(true);
-    for (const line of ["Payday first, then the meetup", "Next page in {wait}", "After {patience} with nothing, {name} moves on."]) expect(WAITING.test(said(line)), line).toBe(false);
+    for (const line of ["Wait for payday, then the meetup", "A parcel waits", "Still free while you wait", "Mama is waiting for you at home.", "Dead time at home"]) expect({ line, caught: WAITING.test(said(line)) }).toEqual({ line, caught: true });
+    for (const line of ["Payday first, then the meetup", "Next page in {wait}", "After {patience} with nothing, {name} moves on."]) expect({ line, caught: WAITING.test(said(line)) }).toEqual({ line, caught: false });
   });
 
   test("[R-TEXT-007] given the design's table, then the game says the journey's lines: the papers go in and something moves", () => {
