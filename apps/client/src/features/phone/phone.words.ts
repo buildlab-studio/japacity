@@ -68,6 +68,9 @@ export const phoneText: Record<string, string> = {
   "phone.bank.moved": "Money moved",
 
   "phone.chats.family": "The family group",
+  // The People row (world.md R-WORLD-020): the slots of this life, never a list of strangers.
+  "phone.chats.slots": "People",
+  "phone.chats.slots.line": "Partner, brothers and sisters, parents",
   "phone.chats.family.none": "The group is quiet.",
   "phone.chats.family.line": "{from}: {words}",
   "phone.chats.people": "This month",

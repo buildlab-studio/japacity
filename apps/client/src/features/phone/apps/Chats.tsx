@@ -1,10 +1,13 @@
 // Chats (docs/rules/world.md R-WORLD-019, R-WORLD-020): the family group as bubbles, the month's
 // people lines, and the partner's and a friend's messages when the view has a pair. Sending is a
-// preset phrase the pair rules allow (R-PAIR-010), picked from chips: nobody types.
+// preset phrase the pair rules allow (R-PAIR-010), picked from chips: nobody types. Once courting, a
+// bond lives in its thread, whose head carries its stage and choices; the People row at the top opens
+// the slots of this life with the invite card (R-WORLD-020, people.md R-PEOPLE-010). Both are the people
+// feature's own screens, handed in by the shell.
 import { content } from "@japacity/content";
 import { fillOptions, type ConversationRow, type Id } from "@japacity/sim";
-import { ChevronLeft, ChevronRight, Users } from "lucide-react";
-import { createContext, Fragment, use, useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, UserRound, Users } from "lucide-react";
+import { createContext, Fragment, use, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import type { ConversationReply, PairReply, SayReply } from "../../../shared/net/contract";
@@ -22,6 +25,17 @@ export interface PairTalk {
 }
 
 export const PhoneTalk = createContext<PairTalk | null>(null);
+
+/** The people feature's screens Chats shows, from the shell: a bond's head over its thread, and the slots behind the People row. */
+export interface PhonePeopleScreens {
+  head: (bond: BondView) => ReactNode;
+  slots: ReactNode;
+}
+
+export const PhonePeople = createContext<PhonePeopleScreens | null>(null);
+
+/** The People row's id among the threads: never a bond's. */
+const SLOTS = "people";
 
 const PHRASES = conversationPhrases();
 
@@ -220,10 +234,24 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
 export function Chats() {
   const view = useView();
   const talk = use(PhoneTalk);
+  const screens = use(PhonePeople);
   const [open, setOpen] = useState<string | null>(null);
   const people = chatPeople(view);
   const bond = people.find((candidate) => candidate.id === open) ?? null;
   const groupName = say("family.group.name");
+
+  if (open === SLOTS && screens !== null) {
+    return (
+      <div data-phone-app="chats">
+        <button type="button" onClick={() => setOpen(null)} className="press mb-2 flex items-center gap-1 text-[14px] font-bold text-text-2" data-chats-back>
+          <ChevronLeft size={16} aria-hidden />
+          {phoneWords("phone.app.chats")}
+        </button>
+        <h3 className="title mb-3 text-[18px]">{phoneWords("phone.chats.slots")}</h3>
+        <div data-chat={SLOTS}>{screens.slots}</div>
+      </div>
+    );
+  }
 
   if (open !== null) {
     const name = bond === null ? groupName : bondName(bond, view.people.bonds);
@@ -233,7 +261,16 @@ export function Chats() {
           <ChevronLeft size={16} aria-hidden />
           {phoneWords("phone.app.chats")}
         </button>
-        <h3 className="title mb-3 text-[18px]">{name}</h3>
+        <h3 className="title mb-3 flex items-center gap-2 text-[18px]">
+          {name}
+          {/* The quiet mark a person the game plays carries on every screen (people.md R-PEOPLE-009, R-PEOPLE-054). */}
+          {bond?.label === "computer" ? (
+            <span className="rounded-[3px] border border-sheet-line px-1.5 py-px text-[11px] font-extrabold text-text-2 uppercase" data-person-mark="computer">
+              {say("ui.people.mark.computer")}
+            </span>
+          ) : null}
+        </h3>
+        {bond === null || screens === null ? null : screens.head(bond)}
         {bond === null ? (
           <Family />
         ) : bond.pair !== null ? (
@@ -254,6 +291,20 @@ export function Chats() {
   return (
     <div data-phone-app="chats">
       <ul className="flex flex-col divide-y divide-sheet-line">
+        {screens === null ? null : (
+          <li>
+            <button type="button" onClick={() => setOpen(SLOTS)} className="press flex w-full items-center gap-3 py-2.5 text-left" data-chat-row={SLOTS}>
+              <span className="band-2 flex size-10 shrink-0 items-center justify-center rounded-full">
+                <UserRound size={18} aria-hidden />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[15px] font-bold">{phoneWords("phone.chats.slots")}</span>
+                <span className="block truncate text-[13px] text-text-2">{phoneWords("phone.chats.slots.line")}</span>
+              </span>
+              <ChevronRight size={16} className="shrink-0 text-text-2" aria-hidden />
+            </button>
+          </li>
+        )}
         <li>
           <button type="button" onClick={() => setOpen("family")} className="press flex w-full items-center gap-3 py-2.5 text-left" data-chat-row="family">
             <span className="band flex size-10 shrink-0 items-center justify-center rounded-full">
