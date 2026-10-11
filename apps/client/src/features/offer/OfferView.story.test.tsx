@@ -125,7 +125,8 @@ describe("the aunty's $500", () => {
     const lines = answer(game, AUNTY, "thank");
     expect(game.state.wallet.lots).toContainEqual(expect.objectContaining({ currency: "USD", amount: 50_000, reason: "gift" }));
     expect(told(lines)).toContain(text[`${AUNTY}.said.thank`]);
-    expect(text[`${AUNTY}.said.thank`]).toContain("Ask her for a note saying it was a gift, or wait three months before you apply.");
+    // the money sits; the player does not wait.
+    expect(text[`${AUNTY}.said.thank`]).toContain("Ask her for a note saying it was a gift, or let it sit three months before you apply.");
   });
 
   test("[R-WORLD-008] [R-LUCK-010] given the gift asked for through the bank with a note, when its lines are read, then the $500 lands unflagged and the line says so", () => {

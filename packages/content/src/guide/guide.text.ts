@@ -103,7 +103,7 @@ export const guideText: Record<string, string> = {
   "guide.uk-care.section.real":
     "Since 22 July 2025 the care worker route has been closed to new applicants from abroad. Nurses can still come on the health and care visa with a sponsor: an employer that holds a licence and gives a certificate of sponsorship.\n\nA nurse trained outside the UK must be registered with the Nursing and Midwifery Council (NMC), which has its own costs. Since March 2024 Nigeria's nursing council asks for two years of work after licensing before it verifies a nurse for work abroad.\n\nThe employer pays for the certificate. Reporters and prosecutors have found people selling certificates, some for jobs that did not exist.",
   "guide.uk-care.section.game":
-    "In the game the care route starts closed and can open again with the news. A sponsor is an offer that may be real or a fraud, with signs you can read. The fees and salary lines are the real ones at the dates given, and the game keeps them fixed. The wait for the nursing council's verification is drawn between six and twelve months; the real wait varies.",
+    "In the game the care route starts closed and can open again with the news. A sponsor is an offer that may be real or a fraud, with signs you can read. The fees and salary lines are the real ones at the dates given, and the game keeps them fixed. The nursing council's verification comes in six to twelve months, drawn each time; the real time varies.",
   "guide.uk-care.section.next": "Read the NMC page on costs for nurses trained outside the UK, and the reporting on certificate fraud. A sponsor's licence can be checked on the UK government's public register of licensed sponsors.",
 
   // guide.uk-skilled
@@ -117,14 +117,14 @@ export const guideText: Record<string, string> = {
   "guide.canada-points.title": "How Canada's points draw works, and why the cut-off moves",
   "guide.canada-points.section.real":
     "Canada's Express Entry ranks people in a pool by a score made of age, education, language, work and how they combine. Every few weeks a draw invites everyone above a cut-off score to apply for permanent residence.\n\nThe cut-off moves with each draw. In 2026 general draws ran between 508 and 547, and draws for healthcare workers went lower. Foreign work counts only alongside other parts of the score.\n\nAn applicant without a job offer shows settlement funds: C$15,263 for one person from July 2025.",
-  "guide.canada-points.section.game": "The game works out the score from your character each time it is asked, with a shorter points table than the real grid. The cut-off is a figure in the world that rises and falls with the news, and a healthcare cut-off reads your care score. The wait for a decision is set at six months, an estimate.",
+  "guide.canada-points.section.game": "The game works out the score from your character each time it is asked, with a shorter points table than the real grid. The cut-off is a figure in the world that rises and falls with the news, and a healthcare cut-off reads your care score. The decision comes six months after you apply, an estimate.",
   "guide.canada-points.section.next": "Read the official points criteria on Canada.ca, then the Comprehensive Ranking System (CRS) grid to see each part's points. Recent draw results show where the cut-off has been.",
 
   // guide.global-talent
   "guide.global-talent.title": "Global talent visas: what endorsement means",
   "guide.global-talent.section.real":
     "The UK's global talent visa needs no job offer. Most applicants first ask an endorsing body to back them as a leader or a potential leader in their field, then apply for the visa with that endorsement.\n\nFrom April 2026 the endorsement stage costs £561 and the visa stage £205, plus the health surcharge for each year. For digital technology the endorsing body reads evidence of the applicant's work and letters of support. Nigeria was among the top countries for tech endorsements in 2021.",
-  "guide.global-talent.section.game": "In the game endorsement is a draw that your portfolio and network make more likely, with a wait of one to two months. A refused endorsement means a wait before you ask again. The real body reads a written case and letters, which the game does not model.",
+  "guide.global-talent.section.game": "In the game endorsement is a draw that your portfolio and network make more likely, and its answer comes in one to two months. After a refusal, some months pass before you can ask again. The real body reads a written case and letters, which the game does not model.",
   "guide.global-talent.section.next": "Read the GOV.UK page on global talent first, then the endorsing body's own guidance for your field.",
 
   // guide.gulf-work
@@ -165,7 +165,7 @@ export const guideText: Record<string, string> = {
   // guide.numbers
   "guide.numbers.title": "Where the game's numbers come from",
   "guide.numbers.section.real": "Every number in Japacity is either a real figure, with its source and the date it was read, or an estimate set to make the game play well. The fees, salary lines and funds for each route are real figures at the dates given.",
-  "guide.numbers.section.game": "Real figures are kept as they were on the day they were read, and the game's world then moves them with its own news. Chances, waits and most amounts at home are estimates. Each page below says which is which.",
+  "guide.numbers.section.game": "Real figures are kept as they were on the day they were read, and the game's world then moves them with its own news. Chances, times and most amounts at home are estimates. Each page below says which is which.",
   "guide.numbers.section.next": "Read the numbers page for the part of the game you want to check. Each lists every figure with its source.",
   "guide.uk-family.title": "Joining a partner in the UK, or going with them: the income floor, the fee, the interview",
   "guide.uk-family.section.real":

@@ -55,7 +55,7 @@ export const offerParcelText: Record<string, string> = {
   "offer.parcel-shipped.act": "Collect it",
   // The nudge while it waits (at most eight words), and the asks sheet away from the booth.
   "offer.parcel-shipped.nudge": "Collect your parcel on Bode Thomas Street",
-  "offer.parcel-shipped.away": "Your parcel is waiting at the cargo office on Bode Thomas Street.",
+  "offer.parcel-shipped.away": "Your parcel is at the cargo office on Bode Thomas Street.",
 
   // The foodstuff takes its share off next month's living costs, as cooking does (R-OBLIGATION-014).
   "line.obligation.relief.parcel-shipped.aunty-food": "Food from the parcel: {amount} less.",

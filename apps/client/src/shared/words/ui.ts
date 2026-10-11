@@ -90,11 +90,11 @@ export const uiText: Record<string, string> = {
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",
   "ui.inside.hub": "The hub, Yaba",
   "ui.inside.hub.short": "The hub",
-  "ui.world.ask-away": "Someone is waiting for you at {place}.",
+  "ui.world.ask-away": "Someone is asking for you at {place}.",
   // Who waits, where content knows: the family house is Mama's.
-  "ui.world.ask-away.place.family-house": "Mama is waiting for you at home.",
+  "ui.world.ask-away.place.family-house": "Mama is asking for you at home.",
   // R-STREET-010: the parcel waits at the cargo office; the nudge names it from anywhere else in the city.
-  "ui.world.ask-away.place.bode-thomas": "A parcel is waiting at the cargo office on Bode Thomas Street.",
+  "ui.world.ask-away.place.bode-thomas": "Your parcel is at the cargo office on Bode Thomas Street.",
   // A country as the plane's line names it (features/city/City.tsx, the depart sheet).
   "ui.country.place.country.uk": "the UK",
   "ui.country.place.country.canada": "Canada",
@@ -263,7 +263,7 @@ export const uiText: Record<string, string> = {
   "ui.band.quality.family-stake.2": "The family has put money into your leaving",
   "ui.band.quality.family-stake.3": "The family has put money into your leaving",
   // Content's lines at a count of one (shared/words/text.ts, LINE_COUNTS)
-  "ui.line.setpiece.opened.one": "{setpiece}: 1 question waiting for you.",
+  "ui.line.setpiece.opened.one": "{setpiece}: 1 question to answer.",
   "ui.line.activity.lotto-won.one": "1 ticket for {stake}, and it came in: {won}.",
   "ui.line.activity.lotto-lost.one": "1 ticket for {stake}. Nothing came in.",
   "ui.line.status.clock-started.one": "The job is gone. You have 1 month to find another sponsor.",
@@ -422,7 +422,7 @@ export const uiText: Record<string, string> = {
   "ui.route.heard-only": "Look into it to see what it needs.",
   "ui.route.checklist": "What it needs",
   "ui.route.schools": "Universities",
-  "ui.route.school.pending": "Waiting, answer by month {month}",
+  "ui.route.school.pending": "Applied, answer by month {month}",
   "ui.route.school.offer": "Offer",
   "ui.route.school.rejected": "No offer",
   "ui.route.school.discount": "{amount} off",
@@ -468,8 +468,8 @@ export const uiText: Record<string, string> = {
   "ui.japacity.of": "on {route}",
 
   // Offers
-  "ui.offer.title": "Waiting on you",
-  "ui.offer.none": "Nothing else waits on you here.",
+  "ui.offer.title": "Asked of you",
+  "ui.offer.none": "Nothing else asked of you here.",
   "ui.offer.expires": "Answer {when}",
   "ui.card.dismiss": "Tap to dismiss",
   "ui.in-months": "in {count} months",
@@ -818,7 +818,7 @@ export const uiText: Record<string, string> = {
   "ui.req.month-min": "Month {value} or later",
   "ui.req.chapter-done": "Finish \"{chapter}\"",
   "ui.req.not": "Not while this holds: {inner}",
-  "ui.req.not-pending": "Wait: your {document} is already on the way",
+  "ui.req.not-pending": "Your {document} is already on the way",
   "ui.req.not-held": "Only without {document} in hand",
   "ui.req.not-job": "{job} is open already",
   "ui.req.any": "One of: {inner}",

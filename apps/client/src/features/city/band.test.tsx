@@ -34,6 +34,7 @@ describe("the place's name on the band", () => {
     await standingAt(CLINIC, { asks: [<p key="a">the send-off</p>], asksAt: ["place.visa-centre"] });
     fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.offer") }));
     const sheet = screen.getByRole("dialog");
-    expect(within(sheet).getByText("Someone is waiting for you at the visa centre.")).toBeTruthy();
+    // someone asks for you there.
+    expect(within(sheet).getByText("Someone is asking for you at the visa centre.")).toBeTruthy();
   });
 });

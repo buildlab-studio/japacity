@@ -101,7 +101,7 @@ export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.officer.close": "That is all. You will receive a decision in writing.",
 
   // Report lines. First drafts.
-  "line.setpiece.opened": "{setpiece}: {questions} questions waiting for you.",
+  "line.setpiece.opened": "{setpiece}: {questions} questions to answer.",
   "line.setpiece.closed": "{setpiece} is over.",
   "line.setpiece.dropped": "{setpiece} is behind you. You left before it was settled.",
   // R-LUCK-008: staged.

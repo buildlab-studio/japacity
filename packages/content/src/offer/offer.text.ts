@@ -366,7 +366,7 @@ export const offerText: Record<string, string> = {
   "offer.relative-sends.choice.thank": "Take it as it comes: it lands now, flagged for three months",
   "offer.relative-sends.choice.note": "Ask her to send it through the bank, with a note",
   "offer.relative-sends.said.thank":
-    "You call to thank her. The $500 lands with nothing to say where it came from, and a visa officer will ask. Ask her for a note saying it was a gift, or wait three months before you apply.",
+    "You call to thank her. The $500 lands with nothing to say where it came from, and a visa officer will ask. Ask her for a note saying it was a gift, or let it sit three months before you apply.",
   "offer.relative-sends.said.note": "She sends it through her bank, with a note: a gift from her, for your travel. The $500 lands, and anyone who asks can see where it came from.",
 
   "offer.december-bonus.name": "A thirteenth month",
