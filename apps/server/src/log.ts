@@ -1,4 +1,4 @@
-// R-SERVER-039: the server's one log line, written for each failure and for
+// R-SERVER-042: the server's one log line, written for each failure and for
 // nothing else, as JSON so Workers Logs can index its fields. It names what
 // failed (a request, a job, the auth library), the job's name, the method and
 // the path's shape, the status answered, and the error's name, code and first
@@ -96,7 +96,7 @@ export function errorCode(error: unknown): string | undefined {
   return undefined;
 }
 
-/** R-SERVER-039: the line for a failure, every field checked. */
+/** R-SERVER-042: the line for a failure, every field checked. */
 export function failureLine(failure: Failure): FailureLine {
   const { what, job, method, path, status, error } = failure;
   const cause = causeOf(error);
@@ -115,7 +115,7 @@ export function failureLine(failure: Failure): FailureLine {
   };
 }
 
-/** R-SERVER-039: writes the one line, at error level, as JSON. Never throws. */
+/** R-SERVER-042: writes the one line, at error level, as JSON. Never throws. */
 export function logFailure(failure: Failure): void {
   try {
     console.error(JSON.stringify(failureLine(failure)));

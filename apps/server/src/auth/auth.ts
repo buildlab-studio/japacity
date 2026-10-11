@@ -117,7 +117,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
     basePath: "/api/auth",
     secret: keys.secret,
     database: adapter,
-    // R-SERVER-039: the library's errors become the server's one log line, scrubbed; its warnings and its own
+    // R-SERVER-042: the library's errors become the server's one log line, scrubbed; its warnings and its own
     // printing (which would carry a failed statement's values) are dropped.
     logger: {
       level: "error",

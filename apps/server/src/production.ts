@@ -58,7 +58,7 @@ export interface RequestScope {
   handle: Handle;
   db: Queries;
   close: () => Promise<void>;
-  /** R-SERVER-040: true once the request's database refused the connection or dropped it. */
+  /** R-SERVER-043: true once the request's database refused the connection or dropped it. */
   unavailable: () => boolean;
 }
 

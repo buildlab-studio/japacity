@@ -88,7 +88,7 @@ function isRefusal(body: unknown): body is ServerRejection {
   return typeof body === "object" && body !== null && (body as Partial<ServerRejection>).ok === false && typeof (body as Partial<ServerRejection>).code === "string";
 }
 
-/** R-SERVER-040: the server's own failure, `{ ok: false, code: "unavailable" }` with a 503 or a 500: no refusal of the game's. */
+/** R-SERVER-043: the server's own failure, `{ ok: false, code: "unavailable" }` with a 503 or a 500: no refusal of the game's. */
 function isServerFailure(body: object): boolean {
   return (body as { ok?: unknown }).ok === false && (body as { code?: unknown }).code === "unavailable";
 }
@@ -117,7 +117,7 @@ export function classify<T>(response: Pick<Response, "status" | "type" | "redire
   const body = page ? undefined : parsed(text);
   if (typeof body === "object" && body !== null) {
     if (status >= 200 && status < 300) return { kind: "ok", body: body as T };
-    // R-SERVER-040: the server's own failure (`unavailable`) is no refusal the game can act on: the trouble card shows.
+    // R-SERVER-043: the server's own failure (`unavailable`) is no refusal the game can act on: the trouble card shows.
     if (status >= 500 && isServerFailure(body)) return { kind: "server", detail: `${String(status)} unavailable` };
     if (isRefusal(body)) return { kind: "rejected", body: body as T };
     if (status >= 500) return { kind: "server", detail: `${String(status)}` };

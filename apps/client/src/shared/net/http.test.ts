@@ -129,7 +129,7 @@ describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
     expect(await kindOf(() => Promise.resolve(answered(503, off, { contentType: JSON_TYPE })))).toBe("rejected");
   });
 
-  test("[R-ENGINE-015] [R-SERVER-040] given the server's own failure (unavailable) with a 503 and its wait, or with a 500, then it is server, never a refusal the game would show as one", async () => {
+  test("[R-ENGINE-015] [R-SERVER-043] given the server's own failure (unavailable) with a 503 and its wait, or with a 500, then it is server, never a refusal the game would show as one", async () => {
     const down = JSON.stringify({ ok: false, code: "unavailable", detail: "The game's server could not reach its database. Try again shortly.", retryAfter: 5 });
     const broke = JSON.stringify({ ok: false, code: "unavailable", detail: "Something broke on the game's server." });
     const reply503 = { ...answered(503, down, { contentType: JSON_TYPE }), headers: new Headers({ "content-type": JSON_TYPE, "Retry-After": "5" }) } as Response;

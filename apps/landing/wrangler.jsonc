@@ -10,7 +10,7 @@
   "compatibility_date": "2026-09-01",
   // Not deployed: no workers.dev address and no route.
   "workers_dev": false,
-  // The same logs, traces and Issues as the game's Worker (apps/server/wrangler.jsonc, R-SERVER-039), for the day it is deployed.
+  // The same logs, traces and Issues as the game's Worker (apps/server/wrangler.jsonc, R-SERVER-042), for the day it is deployed.
   "observability": {
     "enabled": true,
     "logs": { "enabled": true, "head_sampling_rate": 1, "invocation_logs": true },

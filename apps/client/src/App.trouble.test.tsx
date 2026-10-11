@@ -76,7 +76,7 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     expect(screen.queryByRole("alertdialog")).toBeNull();
   });
 
-  test("[R-ENGINE-015] [R-SERVER-040] given the server answers the view with its own 503 unavailable (the database not answering), then the card says something broke on our side, with Retry and no Reload", async () => {
+  test("[R-ENGINE-015] [R-SERVER-043] given the server answers the view with its own 503 unavailable (the database not answering), then the card says something broke on our side, with Retry and no Reload", async () => {
     const server = fakeServer();
     const down = { status: 503, headers: { "Retry-After": "5" }, body: { ok: false, code: "unavailable", detail: "The game's server could not reach its database. Try again shortly.", retryAfter: 5 } };
     server.answer("GET /api/view", down);

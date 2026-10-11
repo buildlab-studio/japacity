@@ -35,7 +35,7 @@ function wrangler(path: string): Worker {
   return JSON.parse(text.replace(/^\s*\/\/.*$/gm, "")) as Worker;
 }
 
-/** R-SERVER-039: the observability every Worker deploys with. */
+/** R-SERVER-042: the observability every Worker deploys with. */
 const OBSERVED = {
   enabled: true,
   logs: { enabled: true, head_sampling_rate: 1, invocation_logs: true },
@@ -82,7 +82,7 @@ describe("the game's address", () => {
     expect(staging?.assets).toEqual({ directory: "../client/dist", not_found_handling: "single-page-application", binding: "ASSETS", run_worker_first: true });
   });
 
-  test("[R-SERVER-038] [R-SERVER-039] given both environments, when their observability is read, then production keeps every request's logs and invocation log, a twentieth of traces and Issues, and staging has no block of its own, so it inherits the same", () => {
+  test("[R-SERVER-038] [R-SERVER-042] given both environments, when their observability is read, then production keeps every request's logs and invocation log, a twentieth of traces and Issues, and staging has no block of its own, so it inherits the same", () => {
     // production had none, staging logs only.
     expect(server.observability).toEqual(OBSERVED);
     // `observability` is an inheritable key (wrangler's configuration page), so staging without one runs on the top level's.
@@ -90,7 +90,7 @@ describe("the game's address", () => {
     expect(staging?.observability ?? server.observability).toEqual(OBSERVED);
   });
 
-  test("[R-SERVER-039] given the gate and the landing page, when their observability is read, then each has the game's block", () => {
+  test("[R-SERVER-042] given the gate and the landing page, when their observability is read, then each has the game's block", () => {
     expect(wrangler("../../gate/wrangler.jsonc").observability).toEqual(OBSERVED);
     expect(wrangler("../../landing/wrangler.jsonc").observability).toEqual(OBSERVED);
   });

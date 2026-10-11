@@ -51,7 +51,7 @@ describe("a request's connection", () => {
     expect(asked.ends).toBe(1);
   });
 
-  test("[R-SERVER-002] [R-SERVER-040] given a database that refuses the connection, when two statements are sent, then each fails with DatabaseUnavailable from the one attempt, and close ends nothing", async () => {
+  test("[R-SERVER-002] [R-SERVER-043] given a database that refuses the connection, when two statements are sent, then each fails with DatabaseUnavailable from the one attempt, and close ends nothing", async () => {
     const { asked, make } = counted(true);
     const connection = connectOnFirstUse("postgres://game", make);
     const first = await connection.handle.read((db) => db.execute(sql`select 1`)).catch((error: unknown) => error);

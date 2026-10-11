@@ -42,7 +42,7 @@ describe("the deployment's own connection (R-SERVER-002)", () => {
   // Nothing listens on port 1, so a connection, if one were tried, would be refused.
   const NOWHERE = "postgres://test:test@127.0.0.1:1/test";
 
-  test("[R-SERVER-002] [R-SERVER-040] given the default connection to a database that is not there, when a request's scope is opened and closed without a statement, then nothing fails; its first statement fails with DatabaseUnavailable and the scope says so", async () => {
+  test("[R-SERVER-002] [R-SERVER-043] given the default connection to a database that is not there, when a request's scope is opened and closed without a statement, then nothing fails; its first statement fails with DatabaseUnavailable and the scope says so", async () => {
     const isolate = isolateFor(
       { connectionString: NOWHERE, place: {} as DurableObjectNamespace<Place> },
       { config: productionConfig, contents: { current: content, previous: null }, secrets: { worldSeed: "w", banSalt: "b", drawTokenKey: "d" }, limits: openLimiters, text, now: () => 0, randomBytes: (count) => new Uint8Array(count) },

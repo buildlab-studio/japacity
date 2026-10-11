@@ -1,6 +1,6 @@
 // The Worker's request plumbing (worker.ts) on Postgres, with PGlite standing
 // in for `pg` behind a client that counts its connections: R-SERVER-002's
-// client opened on first use, and R-SERVER-040's answer when the database
+// client opened on first use, and R-SERVER-043's answer when the database
 // does not take the connection.
 import { content, text } from "@japacity/content";
 import { connectOnFirstUse, pgStores } from "@japacity/db";
@@ -157,8 +157,8 @@ describe("the database client of a request (R-SERVER-002)", () => {
   });
 });
 
-describe("a database that does not answer (R-SERVER-040)", () => {
-  test("[R-SERVER-040] [R-SERVER-039] given a signed-in player and a database that refuses the connection, when POST /api/command is sent, then the reply is 503 unavailable with Retry-After, the connection was tried once, and one log line names no account, session, address or body", async () => {
+describe("a database that does not answer (R-SERVER-043)", () => {
+  test("[R-SERVER-043] [R-SERVER-042] given a signed-in player and a database that refuses the connection, when POST /api/command is sent, then the reply is 503 unavailable with Retry-After, the connection was tried once, and one log line names no account, session, address or body", async () => {
     const { jar, v } = await playerWithLife();
     const { request, plumbing } = counting(true);
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);

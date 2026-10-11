@@ -125,7 +125,7 @@ export function gameReply(request: Request, env: Env, waitUntil: (promise: Promi
         .route("/", drawRoute(deps))
         .route("/", notifyKeyRoute(pushKeys(env)))
         .route("/", placeSocketRoutes(deps, { rooms, placeOf: placeOfIn(deps), profileOf: profileOfIn(deps, words) }));
-      // R-SERVER-040: `onError` asks the request's connection whether the database answered (security/fail.ts).
+      // R-SERVER-043: `onError` asks the request's connection whether the database answered (security/fail.ts).
       const bindings: FailureBindings = { databaseUnavailable: unavailable };
       return app.fetch(request, bindings);
     },

@@ -36,7 +36,7 @@ export interface PgClient {
   end: () => Promise<void>;
 }
 
-/** The database did not take the connection: the request can be answered "try again" (docs/rules/server.md R-SERVER-040). */
+/** The database did not take the connection: the request can be answered "try again" (docs/rules/server.md R-SERVER-043). */
 export class DatabaseUnavailable extends Error {
   override name = "DatabaseUnavailable";
 }

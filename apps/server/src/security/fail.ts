@@ -1,7 +1,7 @@
-// R-SERVER-040: no failure escapes to the platform's own error page. A
+// R-SERVER-043: no failure escapes to the platform's own error page. A
 // request that throws is answered in JSON the client can read,
 // `{ ok: false, code: "unavailable" }`, with the security headers, and the
-// failure is logged once (R-SERVER-039). The status says whether trying again
+// failure is logged once (R-SERVER-042). The status says whether trying again
 // may help: 503 with `Retry-After` when the database or an upstream did not
 // answer, 500 when the server itself is wrong.
 import type { Context } from "hono";
@@ -65,7 +65,7 @@ export function unavailable(status: FailureStatus): ServerFailure {
   return { ok: false, code: "unavailable", detail: DETAIL[status], ...(status === 503 ? { retryAfter: RETRY_AFTER_SECONDS } : {}) };
 }
 
-/** R-SERVER-040: the reply for a failure, with the security headers of R-SERVER-034, `no-store`, and `Retry-After` on a 503. */
+/** R-SERVER-043: the reply for a failure, with the security headers of R-SERVER-034, `no-store`, and `Retry-After` on a 503. */
 export function failureReply(status: FailureStatus): Response {
   const headers = new Headers({ ...SECURITY_HEADERS, "content-type": "application/json; charset=utf-8", "cache-control": DEFAULT_CACHE });
   if (status === 503) headers.set("retry-after", String(RETRY_AFTER_SECONDS));
@@ -82,7 +82,7 @@ export interface FailureBindings {
 }
 
 /**
- * R-SERVER-040: `app.onError`. A failure inside a route: logged, then answered 503 when the request's database
+ * R-SERVER-043: `app.onError`. A failure inside a route: logged, then answered 503 when the request's database
  * refused or dropped its connection, or by `failureStatus` otherwise.
  */
 export function onAppError(error: Error, c: Context): Response {
@@ -93,7 +93,7 @@ export function onAppError(error: Error, c: Context): Response {
 }
 
 /**
- * R-SERVER-040: a request's whole answer. A failure that escapes it (one before or outside the app: the
+ * R-SERVER-043: a request's whole answer. A failure that escapes it (one before or outside the app: the
  * database client, the auth library's set-up, the files on staging) is logged and answered 503, since the
  * app's own failures are answered inside it.
  */

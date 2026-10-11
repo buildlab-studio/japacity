@@ -1,4 +1,4 @@
-// R-SERVER-039: the one log line, its fields, and that nothing else in the
+// R-SERVER-042: the one log line, its fields, and that nothing else in the
 // Worker writes to the console.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -30,7 +30,7 @@ function failedQuery(): Error {
 }
 
 describe("the server's log line", () => {
-  test("[R-SERVER-039] given a request that failed, when the line is made, then it holds what, method, the path's shape without its query, status, the error's name, first line, cause and code, and no other field", () => {
+  test("[R-SERVER-042] given a request that failed, when the line is made, then it holds what, method, the path's shape without its query, status, the error's name, first line, cause and code, and no other field", () => {
     const line = failureLine({ what: "request", method: "post", path: "https://japacity.app/api/invite/0123456789abcdef01234567/accept?token=secret-value", status: 503, error: failedQuery() });
     expect(line).toEqual({
       level: "error",
@@ -48,12 +48,12 @@ describe("the server's log line", () => {
     expect(JSON.stringify(line)).not.toContain("10.1.2.3");
   });
 
-  test("[R-SERVER-039] given a job that failed, when the line is made, then it names the job and carries no request field", () => {
+  test("[R-SERVER-042] given a job that failed, when the line is made, then it names the job and carries no request field", () => {
     const line = failureLine({ what: "job", job: "money", error: Object.assign(new Error("deadlock detected"), { code: "40P01" }) });
     expect(line).toEqual({ level: "error", what: "job", job: "money", error: "Error", message: "deadlock detected", code: "40P01" });
   });
 
-  test("[R-SERVER-039] given an error's words with an email, an address, a long id or token, a quoted value or a key's value, when they are scrubbed, then each is taken out and the words are cut to 200 characters", () => {
+  test("[R-SERVER-042] given an error's words with an email, an address, a long id or token, a quoted value or a key's value, when they are scrubbed, then each is taken out and the words are cut to 200 characters", () => {
     expect(scrubbed("no user ada@example.com")).toBe("no user <email>");
     expect(scrubbed("from 203.0.113.7 and 2001:db8::1")).toBe("from <address> and <address>");
     expect(scrubbed("session Xk9fQ2mN7pL4vR8sT1wZ3yB6 expired")).toBe("session <id> expired");
@@ -63,7 +63,7 @@ describe("the server's log line", () => {
     expect(scrubbed("word ".repeat(100))).toHaveLength(MESSAGE_MAX);
   });
 
-  test("[R-SERVER-039] given paths with ids, codes, pair keys and content ids, when their shape is taken, then route words and content ids stay and every other segment is :id", () => {
+  test("[R-SERVER-042] given paths with ids, codes, pair keys and content ids, when their shape is taken, then route words and content ids stay and every other segment is :id", () => {
     expect(pathShape("/api/health")).toBe("/api/health");
     expect(pathShape("/api/place/place.ojuelegba/socket")).toBe("/api/place/place.ojuelegba/socket");
     expect(pathShape("/api/pair/char-1:char-2/say")).toBe("/api/pair/:id/say");
@@ -72,7 +72,7 @@ describe("the server's log line", () => {
     expect(pathShape("/api/draw/12")).toBe("/api/draw/:id");
   });
 
-  test("[R-SERVER-039] given a failure, when it is logged, then one console.error line is written, and it is the line as JSON", () => {
+  test("[R-SERVER-042] given a failure, when it is logged, then one console.error line is written, and it is the line as JSON", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
     logFailure({ what: "job", job: "ticks", error: new TypeError("x is not a function") });
@@ -81,7 +81,7 @@ describe("the server's log line", () => {
     expect(JSON.parse(String(error.mock.calls[0]?.[0]))).toEqual({ level: "error", what: "job", job: "ticks", error: "TypeError", message: "x is not a function" });
   });
 
-  test("[R-SERVER-039] given the Worker's source, when every file but log.ts is read, then none writes to the console", () => {
+  test("[R-SERVER-042] given the Worker's source, when every file but log.ts is read, then none writes to the console", () => {
     const writers = workerFiles(SOURCE)
       .filter((path) => !path.endsWith(join("src", "log.ts")))
       .filter((path) => /\bconsole\s*\./.test(readFileSync(path, "utf8")))

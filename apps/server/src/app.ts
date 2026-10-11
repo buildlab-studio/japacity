@@ -37,7 +37,7 @@ import { sameOriginWrites } from "./security/origin";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
-  // R-SERVER-040: a route that throws is logged once and answered in JSON, never the platform's error page.
+  // R-SERVER-043: a route that throws is logged once and answered in JSON, never the platform's error page.
   app.onError(onAppError);
   // outermost, so every reply carries the headers, a refusal below included.
   app.use(securityHeaders());

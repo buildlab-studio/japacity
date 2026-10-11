@@ -3,8 +3,8 @@
 // library first asks for it, and closed after the reply; nothing holds a
 // client between requests (worker.ts). The scheduled handler runs the jobs by
 // their cron the same way (R-CLOCK-012, R-SERVER-011, R-ACCOUNT-017). No
-// failure escapes to the platform's error page (R-SERVER-040), and each is
-// logged once (R-SERVER-039). The place object is exported here (R-CLOCK-025).
+// failure escapes to the platform's error page (R-SERVER-043), and each is
+// logged once (R-SERVER-042). The place object is exported here (R-CLOCK-025).
 import { pgDayLog } from "@japacity/db";
 import { WorkerEntrypoint } from "cloudflare:workers";
 
@@ -71,7 +71,7 @@ export interface Env {
   MAIL_TRANSPORT?: string;
   /** Mailpit's address on this machine, for MAIL_TRANSPORT=mailpit. */
   MAILPIT_URL?: string;
-  /** R-SERVER-012: the admin accounts, comma-separated account ids. Empty in wrangler.jsonc; the deploy supplies the value. */
+  /** R-SERVER-012: the admin accounts, comma-separated account ids. A Worker secret, set once per environment with `wrangler secret put ADMIN_ACCOUNTS`. */
   ADMIN_ACCOUNTS?: string;
 }
 
@@ -81,7 +81,7 @@ export interface Env {
  * a Worker bound to this entrypoint by a service binding can call it; it is
  * not on the internet, and no cookie or header is involved. The gate sends a
  * counter's name and key and the visitor's country, and nothing else. A
- * failure is logged here (R-SERVER-039) and handed back to the gate, which
+ * failure is logged here (R-SERVER-042) and handed back to the gate, which
  * carries on without it.
  */
 export class GateCounters extends WorkerEntrypoint<Env> {
@@ -98,7 +98,7 @@ export class GateCounters extends WorkerEntrypoint<Env> {
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const waitUntil = (promise: Promise<unknown>) => ctx.waitUntil(promise);
-    // R-SERVER-040: the game's failures are answered inside `served`, so staging's tag stays on them; the outer
+    // R-SERVER-043: the game's failures are answered inside `served`, so staging's tag stays on them; the outer
     // catch takes what is left (the files on staging). R-SERVER-038: a page or a file never opens a database client.
     return answered(request, () => served(request, env, (toGame) => answered(toGame, () => gameReply(toGame, env, waitUntil))));
   },
@@ -125,7 +125,7 @@ export default {
       ...(cron === MONEY_CRON ? [job("money", ({ deps, handle }) => moneyJob(deps, pgDayLog(handle)))] : []),
       ...(daily ? [job("feedback", ({ deps }) => dropOldFeedback(deps)), job("stand-in", ({ deps }) => standInJob(deps))] : []),
     ];
-    // R-SERVER-040: each job caught and logged by its name; one failure never hides another.
+    // R-SERVER-043: each job caught and logged by its name; one failure never hides another.
     void runJobs(jobs, later);
   },
 };
