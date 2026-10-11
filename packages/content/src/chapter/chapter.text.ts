@@ -234,7 +234,7 @@ export const chapterText: Record<string, string> = {
   "chapter.decision-day-care.item.applied": "Send the care visa application",
   "chapter.decision-day-care.item.applied.nudge": "Send the care visa application",
   "chapter.decision-day-care.item.granted": "Get the visa",
-  "chapter.decision-day-care.item.granted.nudge": "Back to your life: London emails",
+  "chapter.decision-day-care.item.granted.nudge": "Back to your life: the UK writes.",
 
   "chapter.decision-day-talent.name": "Decision day",
   "chapter.decision-day-talent.title": "Decision day",
@@ -250,7 +250,7 @@ export const chapterText: Record<string, string> = {
   "chapter.decision-day-talent.item.applied": "Send the talent visa application",
   "chapter.decision-day-talent.item.applied.nudge": "Send the talent visa application",
   "chapter.decision-day-talent.item.granted": "Get the visa",
-  "chapter.decision-day-talent.item.granted.nudge": "Back to your life: London emails",
+  "chapter.decision-day-talent.item.granted.nudge": "Back to your life: the UK writes.",
 
   "chapter.decision-day-points.name": "Decision day",
   "chapter.decision-day-points.title": "Decision day",
