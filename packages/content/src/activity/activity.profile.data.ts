@@ -70,6 +70,8 @@ export const profileActivityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "quality/add", quality: "quality.standing", amount: 5 },
       { type: "quality/add", quality: "quality.network", amount: 5 },
     ],
+    // How the talk went, told from its one answer. What it gives stays the act's own.
+    exam: { setpiece: TALK, pass: 1, effects: [] },
     counts: [TALENT],
   },
   // Any job, six months in: the raise is a draw the activity kind makes (tuning.activity), once for each job.

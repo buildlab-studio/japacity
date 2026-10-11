@@ -232,24 +232,38 @@ export function bandOpening(quality: string, gate: number): number | null {
   return opens ?? BANDS - 1;
 }
 
-/** Lines that tell a quality's figure, told by its band where it has one. */
-const QUALITY_MOVES: Record<string, string> = {
-  "line.quality.gain": "ui.line.quality.gain-band",
-  "line.quality.loss": "ui.line.quality.loss-band",
-  "line.quality.drift": "ui.line.quality.drift-band",
+/** Lines that tell a quality's move, and which way each tells it. */
+const QUALITY_MOVES: Record<string, "gain" | "loss" | "worn" | "drift"> = {
+  "line.quality.gain": "gain",
+  "line.quality.loss": "loss",
+  "line.quality.worn": "worn",
+  "line.quality.drift": "drift",
 };
 
+/**
+ * A quality's move as what a person would notice (R-TEXT-005): "You know a few more people
+ * now", never "Network up". Wear from work says the work; the month's drift says where wellbeing settles against its
+ * resting point (R-QUALITY-004). Null when content has no words for that move.
+ */
+export function movedWords(quality: string, way: "gain" | "loss" | "worn" | "drift", value: number | null): string | null {
+  const told = `line.quality.told.${quality}`;
+  const rest = content.tuning.quality.wellbeingDriftTo;
+  const key = way === "drift" ? `${told}.drift.${value === null || value === rest ? "rest" : value < rest ? "below" : "above"}` : way === "worn" && !hasWords(`${told}.worn`) ? `${told}.loss` : `${told}.${way}`;
+  return hasWords(key) ? say(key) : null;
+}
+
 function bandLine(key: string, params: Params): string | null {
-  const banded = QUALITY_MOVES[key];
+  const way = QUALITY_MOVES[key];
   const { quality, value, points } = params;
-  if (banded === undefined || typeof quality !== "string" || typeof value !== "number") return null;
-  const band = bandWords(quality, value);
+  if (way === undefined || typeof quality !== "string") return null;
+  const band = typeof value === "number" ? bandWords(quality, value) : null;
   // A quality with a named level and no bands (education, the degree grade) says the level, never its figure.
-  const label = `${quality}.value.${String(value)}`;
-  if (band === null) return hasWords(label) ? say("ui.line.quality.label", { quality: nameOf(quality), value: say(label) }) : null;
+  const label = typeof value === "number" ? `${quality}.value.${String(value)}` : null;
+  if (band === null && label !== null && hasWords(label)) return say("ui.line.quality.label", { quality: nameOf(quality), value: say(label) });
   // From nothing (the prologue's draw), the band alone says where the character starts.
-  const fromNothing = key === "line.quality.gain" && points === value;
-  return say(fromNothing ? "ui.line.quality.start-band" : banded, { quality: nameOf(quality), band });
+  if (way === "gain" && band !== null && points === value) return say("ui.line.quality.start-band", { band });
+  // Else what the move is to a person; with no words for it, where it leaves them, said as the band.
+  return movedWords(quality, way, typeof value === "number" ? value : null) ?? (band === null ? null : say("ui.line.quality.start-band", { band }));
 }
 
 /** Words for a key the simulation chose (a report line, an offer body), with its raw params formatted. */

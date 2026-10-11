@@ -5,6 +5,7 @@ import type { ReportLine } from "@japacity/sim";
 
 import { monthlyPayOf, type PayView } from "./cost";
 import { countWords } from "./count";
+import { hasWords } from "./text";
 import { afterPrologue, isUnpaid, tidyLines, toldUnpaid } from "./lines";
 import { moneyTold } from "./money";
 
@@ -59,6 +60,9 @@ export function toldOnResults(line: ReportLine, pays: PayView): ReportLine {
   const { job } = line.params;
   if (line.key === TAKEN) return answered(line);
   // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (R-TEXT-005).
+  // An act sat as a set piece is told in its own words where content has them: the talk, how it went.
+  const own = EXAM_MARKED.has(line.key) && typeof line.params.activity === "string" ? `${line.key}.${line.params.activity}` : null;
+  if (own !== null && hasWords(own)) return { ...line, key: own };
   if (EXAM_MARKED.has(line.key) || line.key === PIECE || line.key === PIECE_MORE) return { ...line, params: Object.fromEntries(Object.entries(line.params).map(([name, value]) => [name, typeof value === "number" ? countWords(value) : value])) };
   if (line.key === "line.obligation.missed") return toldUnpaid(line);
   if (line.key === "line.activity.hunt-missed" && typeof job === "string") return { ...line, key: "ui.results.hunt-missed" };

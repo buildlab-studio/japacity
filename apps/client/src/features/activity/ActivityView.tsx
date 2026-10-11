@@ -353,9 +353,12 @@ function ActivityCard({ option }: { option: ActivityOption }) {
 
         {option.missing.length > 0 ? (
           <div className="text-sm">
-            <p className="font-medium">
-              {option.missing.every((requirement) => alreadyDone(requirement, { routes: view.routes })) ? say("ui.activity.done-already") : say("ui.activity.why-not")}
-            </p>
+            {/* The shut button already says "Not yet": the card says why, once, without a second "Not yet" over it. */}
+            {line?.kind === "needs" && line.words === say("ui.needs.not-yet") ? null : (
+              <p className="font-medium">
+                {option.missing.every((requirement) => alreadyDone(requirement, { routes: view.routes })) ? say("ui.activity.done-already") : say("ui.activity.why-not")}
+              </p>
+            )}
             <ul className="list-disc pl-5">
               {option.missing.map((requirement, index) => (
                 <li key={index}>{requirementSentence(requirement, { routes: view.routes })}</li>

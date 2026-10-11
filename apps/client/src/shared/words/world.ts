@@ -68,7 +68,6 @@ export const worldText: Record<string, string> = {
   "ui.nudge.broke.racks": "No fare: work the racks",
   "ui.nudge.broke.job": "No fare: find work nearby",
   "ui.nudge.broke.wait": "No fare: end the month",
-  "ui.nudge.meanwhile.nurse-certification": "Sit the nursing certification at the clinic",
   "ui.nudge.meanwhile.open-source": "Share your code at the hub",
   "ui.nudge.meanwhile.tech-posts": "Post what you know, at the laptops",
   "ui.nudge.meanwhile.be-noticed": "Get noticed: ask at the jobs board",
