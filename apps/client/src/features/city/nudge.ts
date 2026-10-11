@@ -535,8 +535,8 @@ function cheapestFare(view: NudgeView): number {
 /**
  * When nothing can be paid, a free step: the step's stop needs a fare the naira held cannot
  * pay and is too far to walk, so the nudge names what can be done on foot instead: walking home where home is near
- * enough, the racks for a life in Makoko with no job, a job on a board within reach. Null when the step can be reached,
- * or when nothing free is near.
+ * enough, the racks for a life in Makoko with no job, a job on a board within reach, else the month's end. Null when the
+ * step can be reached.
  */
 export function freeStep(view: NudgeView & StepView, reach: Reach, has: (key: string) => boolean = hasWords): (Nudge & { about: NudgeAbout; way: StepWay }) | null {
   const held = (view.pockets?.NGN.cash ?? 0) + (view.pockets?.NGN.bank ?? 0);
@@ -549,6 +549,9 @@ export function freeStep(view: NudgeView & StepView, reach: Reach, has: (key: st
   if (reach.home !== null && reach.home !== reach.here && onFoot(reach, reach.home) && has("ui.nudge.broke.home")) return { key: "ui.nudge.broke.home", about: "step", way: { go: reach.home, at: [] } };
   if (jobless && board.includes(RACKS) && onFoot(reach, MAKOKO) && has("ui.nudge.broke.racks")) return { key: "ui.nudge.broke.racks", about: "step", way: RACKS_WAY };
   if (jobless && board.length > 0 && BOARD_STOPS.some((stop) => onFoot(reach, stop)) && has("ui.nudge.broke.job")) return { key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY };
+  // Nothing free is near either (11 Oct 2026, the teacher's ready life stuck at the passport office with no fare): the
+  // month's end is the step, never a ride that cannot be paid (R-WORLD-003).
+  if (has("ui.nudge.broke.wait")) return { key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } };
   return null;
 }
 

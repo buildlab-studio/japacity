@@ -176,7 +176,14 @@ async function ride(run: Run): Promise<void> {
   const sheet = page.locator("[data-ride-sheet]");
   log(run, `ride: ${await words(sheet)}`);
   await shot(run, "map with a stop picked");
-  if (!(await tap(run, sheet.locator("[data-ride-main]"), "the ride's main button"))) return;
+  // A fare the naira cannot pay shuts the main button (R-WORLD-017): the sheet is closed and the month goes on.
+  const main = sheet.locator("[data-ride-main]");
+  if ((await shown(main)) && !(await main.isEnabled())) {
+    log(run, "the ride's main button is shut (no fare): closing the sheet");
+    await closeSheets(run);
+    return;
+  }
+  if (!(await tap(run, main, "the ride's main button"))) return;
   if (await appear(page.locator("[data-ride]"), SHORT)) {
     await page.waitForTimeout(1_500);
     await shot(run, "on the ride");
@@ -543,6 +550,11 @@ async function phoneApps(run: Run): Promise<void> {
     return;
   }
   const { page } = run;
+  // A life that ended, or a screen with no thumb bar, has no phone to open: read, not a problem.
+  if (!(await shown(page.locator("[data-thumb='phone']")))) {
+    log(run, "no phone thumb at the end: nothing to open");
+    return;
+  }
   if (!(await tap(run, page.locator("[data-thumb='phone']"), "the phone"))) return;
   if (!(await appear(page.locator("[data-app]"), SHORT))) {
     problem(run, "the phone opened with no apps");

@@ -48,6 +48,14 @@ describe("an offer out of reach", () => {
 });
 
 describe("the free step", () => {
+  test("[R-WORLD-003] given Ada with no naira somewhere far from home with nothing on foot, when the nudge is read, then it says to end the month, never a ride she cannot pay", () => {
+    const view = atTheClinicStep(ada(0));
+    const reach: Reach = { here: "place.passport-office", home: "place.family-house", stops: [{ id: "place.passport-office", position: FAR }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }, { id: "place.bode-thomas", position: BODE_THOMAS }] };
+    expect(nudgeOf(view, undefined, [], false, reach)).toEqual({ key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } });
+    const said = say("ui.nudge.broke.wait");
+    expect(said.split(/\s+/).length).toBeLessThanOrEqual(8);
+  });
+
   test("[R-WORLD-003] given Ada with no naira at Bode Thomas and the hub a ride away, when the nudge is read, then it says to walk home, home being near enough, and its way is home", () => {
     const view = ada(0);
     const reach: Reach = { here: "place.bode-thomas", home: "place.family-house", stops: [{ id: "place.bode-thomas", position: BODE_THOMAS }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }] };
