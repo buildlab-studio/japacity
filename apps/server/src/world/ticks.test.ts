@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 
 import { call, testServer } from "../authority/testing";
 import { productionConfig, testConfig } from "../config";
-import { ticksJob, TICKS_CRON } from "../jobs/ticks";
+import { jobCron, ticksJob, TICKS_CRON } from "../jobs/ticks";
 import type { WorldReply } from "../types";
 import { catchUp, lagosCalendar, makeTick } from "./ticks";
 
@@ -57,6 +57,18 @@ describe("the world's stored ticks", () => {
     expect(await ticksJob(server.deps, TICKS_CRON)).toEqual([2, 3, 4]);
     expect((await server.deps.stores.world.latest())?.tick).toBe(4);
     expect(await server.deps.stores.world.tick(5)).toBeNull();
+  });
+
+  test("[R-CLOCK-012] [R-SERVER-038] given a deployment's TICK_CRON of thirty minutes, when that cron fires, then the ticks job runs; without TICK_CRON only the five-minute cron runs it, and the daily cron is handed on unchanged", async () => {
+    const STAGING_TICKS = "*/30 * * * *";
+    const server = testServer();
+    server.setNow(epoch + 2 * worldTickMs + 1);
+    expect(await ticksJob(server.deps, jobCron(STAGING_TICKS))).toEqual([]);
+    expect(await ticksJob(server.deps, jobCron(STAGING_TICKS, STAGING_TICKS))).toEqual([0, 1, 2]);
+    server.setNow(epoch + 3 * worldTickMs + 1);
+    expect(await ticksJob(server.deps, jobCron(TICKS_CRON))).toEqual([3]);
+    expect(jobCron("0 0 * * *", STAGING_TICKS)).toBe("0 0 * * *");
+    expect(jobCron("0 0 * * *")).toBe("0 0 * * *");
   });
 
   test("[R-CLOCK-013] given two catch-ups racing on the same store, when both finish, then every tick was stored once and equals the tick one writer alone makes", async () => {
