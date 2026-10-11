@@ -1,6 +1,7 @@
 // The whole content of the first milestone, and every word it uses.
 import type { Content } from "@japacity/sim";
 
+import { accountText } from "./account/account.text";
 import { activityAbroadText } from "./activity/activity.abroad.text";
 import { activitySignalsText } from "./activity/activity.signals.text";
 import { activityTable } from "./activity/activity.data";
@@ -135,6 +136,7 @@ export const content: Content = {
 
 /** Every words file, by the name it is merged under. */
 export const textTables: Record<string, Record<string, string>> = {
+  account: accountText,
   phrase: phraseText,
   activity: activityText,
   activityAbroad: activityAbroadText,

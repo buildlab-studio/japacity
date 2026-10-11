@@ -1,0 +1,45 @@
+# The local stack's services (server.md R-SERVER-038): Postgres for the game and Mailpit for its mail.
+# `pnpm dev:full` starts them; `docker compose stop` stops them; `docker compose down --volumes`
+# also deletes the local database and the inbox. Both listen on this machine only.
+# The values here are local and not secrets; LOCAL_DATABASE_URL in .env.example matches them.
+name: japacity
+
+services:
+  postgres:
+    # The same major version as the deployments' Neon branches (decision 0004).
+    image: postgres:18
+    environment:
+      POSTGRES_DB: japacity
+      POSTGRES_USER: japacity
+      POSTGRES_PASSWORD: japacity-local
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # From Postgres 18 the image keeps its data in a folder per major version under this path.
+      - japacity-postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U japacity -d japacity"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  mailpit:
+    image: axllent/mailpit:v1.30.6
+    environment:
+      # The game's Worker posts each mail to the HTTP send API (POST /api/v1/send); SMTP stays open for any other tool.
+      MP_MAX_MESSAGES: 500
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+    volumes:
+      - japacity-mailpit:/data
+    command: ["--database", "/data/mailpit.db"]
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  japacity-postgres:
+  japacity-mailpit:
