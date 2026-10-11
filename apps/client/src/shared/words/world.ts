@@ -83,4 +83,6 @@ export const worldText: Record<string, string> = {
   // A set piece staged elsewhere waits there; the player goes to it.
   "ui.nudge.setpiece-away": "{what} is at {place}.",
   "ui.nudge.end": "Tap Next month when you are ready",
+  // The news has closed every way out at once, as the pandemic does. Japa says when it opens.
+  "ui.nudge.closed.every": "Every route is closed for now",
 };

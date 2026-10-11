@@ -160,6 +160,12 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file-talent.item.endorsement.needs.quality.tech": "Take the coding course at the hub",
   "chapter.build-the-file-talent.item.endorsement.needs.quality.portfolio": "Work on your portfolio at the hub",
   "chapter.build-the-file-talent.item.endorsement.needs.quality.network": "Meet people at the hub's meetup",
+  // Every need's act already in the month's plan or carrying on in it.
+  "chapter.build-the-file-talent.item.endorsement.needs.planned": "Your plan is set. Tap Next month.",
+  // The endorsement lasts three months: asked for only once the TB test and the application can follow.
+  "chapter.build-the-file-talent.item.endorsement.short": "Find {amount} more before the endorsement",
+  // The news has closed the way.
+  "chapter.build-the-file-talent.item.endorsement.closed": "The talent route is closed for now",
   "chapter.build-the-file-talent.item.endorsement.started": "The endorsing body answers {when}",
   // After a refusal, while its months run (R-ENDORSE-002).
   "chapter.build-the-file-talent.item.endorsement.wait": "Ask for the endorsement again {when}",
@@ -167,6 +173,11 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file-talent.item.applied": "Send the talent visa application",
   "chapter.build-the-file-talent.item.applied.nudge": "Send the talent visa application",
   "chapter.build-the-file-talent.item.applied.planned": "Application planned. Tap Next month.",
+  "chapter.build-the-file-talent.item.applied.short": "Find {amount} more for the application",
+  "chapter.build-the-file-talent.item.applied.closed": "The talent route is closed for now",
+  // The papers the file needs beside its own steps, listed in Japa in the order they are got.
+  "chapter.build-the-file-talent.item.passport": "Your passport",
+  "chapter.build-the-file-talent.item.tb": "Your TB certificate",
 
   "chapter.build-the-file-points.name": "Build the file",
   "chapter.build-the-file-points.title": "Build the file",
