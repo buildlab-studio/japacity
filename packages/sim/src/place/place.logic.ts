@@ -28,7 +28,7 @@ import type {
   WhereEntry,
 } from "../engine/types";
 import { countryEntry, isKept, isOverstayer, removalBanMonths, statusEntry } from "../status/status.logic";
-import { homeCharges } from "../home/home.logic";
+import { FAMILY_HOUSE, homeCharges } from "../home/home.logic";
 import type { PlaceEvent } from "./place.events";
 import { feeInNaira, walletAfter } from "../wallet/wallet.logic";
 import type { Payment } from "../wallet/wallet.logic";
@@ -324,7 +324,9 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (from === to) return reject("not-legal", "A ride goes somewhere else.");
   if (start.where !== "home" || end.where !== "home") return reject("not-legal", "A ride inside the city stays in the city.");
   // On foot only within walking distance: past it a fare is the only way, so a fare is a real cost.
-  if (way === "walk" && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres)) {
+  // A life may always walk home, however far: the long walk is its cost.
+  const home = ctx.state.home.place ?? FAMILY_HOUSE;
+  if (way === "walk" && to !== home && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres)) {
     return reject("not-legal", "Too far to walk.");
   }
   const fare = bp(ctx.content.tuning.city.ride.fareKobo[way], fareBpOf(ctx));

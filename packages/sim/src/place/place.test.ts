@@ -233,6 +233,22 @@ describe("coming home", () => {
     expect(game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.tejuosho-market", way: "walk" }).events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
   });
 
+  test("[R-PLACE-010] given a life living in Makoko standing at Bode Thomas Street, past walking distance of home, when a walk home is sent, then it is accepted with no fare, while a walk to another stop that far is still refused", () => {
+    const game = start({ content, scenario: "scenario.ada" });
+    game.accept({ type: "home/move", to: "place.makoko" });
+    const from = content.place["place.bode-thomas"]?.position;
+    const home = content.place["place.makoko"]?.position;
+    const other = content.place["place.ojuelegba"]?.position;
+    if (from === null || from === undefined || home === null || home === undefined || other === null || other === undefined) throw new Error("A place has no position.");
+    const limit = content.tuning.city.ride.walkMetres;
+    expect(withinMetres(from, home, limit)).toBe(false);
+    expect(withinMetres(from, other, limit)).toBe(false);
+    game.expectRejected({ type: "place/ride", from: "place.bode-thomas", to: "place.ojuelegba", way: "walk" }, "not-legal");
+    const result = game.accept({ type: "place/ride", from: "place.bode-thomas", to: "place.makoko", way: "walk" });
+    expect(result.events.filter((event) => event.type === "wallet/debited")).toEqual([]);
+    expect(result.events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
+  });
+
   test("[R-PLACE-004] given a character at home, when return/home is sent, then it is rejected", () => {
     const game = readyLife(content);
     const rejected = game.expectRejected({ type: "return/home" }, "not-legal");
