@@ -106,13 +106,13 @@ export function withPlanned(thing: Thing, plan: readonly (SlotPick | null)[], vi
 }
 
 /**
- * The asks sheet's header (R-WORLD-006): with several asks, which one this is of those the sheet opened with, so it
- * counts up as each is answered; over a set piece of several questions (the exam), which of its own questions this is,
- * never "3 of 3" over its first question once the other asks are answered. Null
- * with one ask and nothing to count.
+ * The asks sheet's header (R-WORLD-006): with several asks waiting, which one this is of those still waiting, so the
+ * count is what is left; over a set piece of several
+ * questions (the exam), which of its own questions this is, never "3 of 3" over its first question once the other asks
+ * are answered. Null with one ask left and nothing to count.
  */
-export function askHeader(at: { total: number; left: number; index: number; setpiece: Pick<NonNullable<PlayerView["setpiece"]>, "asked" | "total"> | null }): { n: number; count: number } | null {
+export function askHeader(at: { left: number; index: number; setpiece: Pick<NonNullable<PlayerView["setpiece"]>, "asked" | "total"> | null }): { n: number; count: number } | null {
   if (at.setpiece !== null && at.setpiece.total > 1) return { n: Math.min(at.setpiece.asked + 1, at.setpiece.total), count: at.setpiece.total };
-  if (at.total < 2) return null;
-  return { n: at.total - at.left + Math.min(at.index, at.left - 1) + 1, count: at.total };
+  if (at.left < 2) return null;
+  return { n: Math.min(at.index, at.left - 1) + 1, count: at.left };
 }

@@ -1,6 +1,7 @@
 // The asks sheet's header over the exam (docs/rules/world.md R-WORLD-006): with
 // the exam, the fuel ask and an offer waiting, the header read "1 OF 3", and once the other two were answered it read
 // "3 OF 3" over the exam's first question. Over a set piece of several questions the count is its own questions.
+// Review 14's smaller notes: "4 OF 4" stood over the one ask left; the count is what is left.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -19,9 +20,16 @@ describe("the asks sheet's header", () => {
     expect(setpiece).toMatchObject({ entry: EXAM, asked: 0 });
     expect(setpiece!.total).toBeGreaterThan(1);
     // The sheet opened with three asks; two are answered and the exam is left.
-    expect(askHeader({ total: 3, left: 1, index: 0, setpiece })).toEqual({ n: 1, count: setpiece!.total });
-    // Over any other ask, the count is the asks: the second of three.
-    expect(askHeader({ total: 3, left: 2, index: 0, setpiece: null })).toEqual({ n: 2, count: 3 });
-    expect(askHeader({ total: 1, left: 1, index: 0, setpiece: null })).toBeNull();
+    expect(askHeader({ left: 1, index: 0, setpiece })).toEqual({ n: 1, count: setpiece!.total });
+    // Over any other ask, the count is the asks still waiting: two left, the first of them.
+    expect(askHeader({ left: 2, index: 0, setpiece: null })).toEqual({ n: 1, count: 2 });
+    expect(askHeader({ left: 1, index: 0, setpiece: null })).toBeNull();
+  });
+
+  test("[R-WORLD-006] given four asks waiting, when three are answered one by one, then the header counts what is left, 1 of 4, 1 of 3, 1 of 2, and none over the last one, never 4 of 4 with one ask left", () => {
+    expect([4, 3, 2, 1].map((left) => askHeader({ left, index: 0, setpiece: null }))).toEqual([{ n: 1, count: 4 }, { n: 1, count: 3 }, { n: 1, count: 2 }, null]);
+    // Stepping on to the next ask still waiting counts within what is left.
+    expect(askHeader({ left: 3, index: 2, setpiece: null })).toEqual({ n: 3, count: 3 });
+    expect(askHeader({ left: 2, index: 5, setpiece: null })).toEqual({ n: 2, count: 2 });
   });
 });
