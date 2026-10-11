@@ -13,10 +13,12 @@ import type { Command, CommandType, Content, Rejection, Sender, State, StepResul
 /** R-PEOPLE-044: the only commands the engine accepts from a stand-in. The kinds judge each as a player's, with the sender in hand. */
 export const STAND_IN_COMMANDS = ["interview/answer", "people/answer"] as const satisfies readonly Command["type"][];
 
-/** Commands only the authority may send (R-SERVER-013): the turn grant, the draw's payout, and what the server knows of other lives, the interview and the hosting. */
+/** Commands only the authority may send (R-SERVER-013): the turn grant, the draw's payout, the top-up (R-WALLET-020), and what the server knows of other lives, the interview and the hosting. */
 export const AUTHORITY_COMMANDS = [
   "turns/grant",
   "lottery/pay",
+  // R-WALLET-020: naira bought with real money, marked. No server route sends it yet.
+  "wallet/top-up",
   "people/link",
   "people/facts",
   "people/moments",

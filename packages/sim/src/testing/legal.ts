@@ -284,6 +284,8 @@ function fromLottery(view: PlayerView): Loose[] {
   const draw = view.lottery;
   // R-LOTTERY-002: nothing is on sale between a draw's close and the next opening.
   if (draw === null || !draw.onSale || draw.tickets >= draw.maxTickets || view.pockets.NGN.bank < draw.ticket) return [];
+  // R-WALLET-020: a ticket is bought with earned naira only, the naira held less the marked share.
+  if (view.pockets.NGN.bank + view.pockets.NGN.cash - view.wallet.marked < draw.ticket) return [];
   return [{ type: "lottery/buy", tickets: 1 }];
 }
 
