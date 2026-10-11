@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 
 import clinic from "../../../public/assets/places/tb-clinic/place.json";
 import { earlyStops } from "../../shared/words/sixteen";
-import { hasWords, say } from "../../shared/words/text";
+import { hasWords, nameOf, say } from "../../shared/words/text";
 import { actsOffered } from "./acts";
 import { nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { CARE, hearCare, hire, month, readCare, readyNurse, tileNurse, until } from "../../shared/testing/nurse";
@@ -93,16 +93,17 @@ function followedButLicence(view: PlayerView): SlotPick[] {
 }
 
 describe("the nurse's way never opens a shut place", () => {
-  test("[R-WORLD-015] [R-WORLD-003] given the ready nurse in her care file, when the nudge asks for the council's verification, then the clinic is open on the map every month until it is asked, and at the clinic the tap opens the council's own card", () => {
+  test("[R-WORLD-015] [R-WORLD-003] [R-WORLD-019] given the ready nurse in her care file, when the nudge asks for the council's verification, then the clinic stays open on the map every month until it is asked, and wherever she stands the tap opens the verification's card in the phone's Papers", () => {
+    // the council is asked by a call, from the phone, not at the clinic's notice.
     const game = readyInTheFile();
     for (let months = 0; months < 7; months += 1) {
       const view = game.view();
       expect(nudgeOf(view).key).toBe(`${FILE}.item.verification.nudge`);
-      expect(stepWayOf(view)?.go).toBe(CLINIC);
+      expect(stepWayOf(view)).toMatchObject({ go: null, app: "papers", opens: "activity.request-verification" });
       expect(reached(view, CLINIC)).toBe(true);
-      expect(opensAt(view, CLINIC)).toEqual({ kind: "act", activity: "activity.request-verification" });
-      // Away from it, the map opens with the clinic picked, never a stop marked not yet.
-      expect(opensAt(view, "place.family-house")).toEqual({ kind: "map", stop: CLINIC });
+      const card = { kind: "app", app: "papers", act: "activity.request-verification" };
+      expect(opensAt(view, CLINIC)).toEqual(card);
+      expect(opensAt(view, "place.family-house")).toEqual(card);
       month(game);
     }
   });
@@ -188,12 +189,18 @@ describe("the nurse's way never opens a shut place", () => {
 });
 
 describe("the nurse's nudges point at the chip that holds the act", () => {
-  test("[R-WORLD-003] [R-WORLD-005] given the ready nurse at the council's step, when the clinic's notice is read, then the chip that holds the act is named the council and lists the verification and the licence's renewal", () => {
+  test("[R-WORLD-003] [R-WORLD-005] [R-WORLD-019] given the ready nurse at the council's step, when the clinic's notice is read, then its chip holds the certification exam alone, named for it, and the council's verification and renewal are on the phone, not at the notice", () => {
+    // the council's acts left the clinic's notice for the phone.
     const view = readyInTheFile().view();
-    const notice = clinicThings(view).find((thing) => thing.id === stepThingHere(stepWayOf(view)!, CLINIC, clinicThings(view)));
-    const council = notice?.acts.find((act) => [act.stages, ...(act.more ?? [])].includes("activity.request-verification"));
-    expect(sceneWords(council?.label ?? "")).toBe("The council");
-    expect([council?.stages, ...(council?.more ?? [])]).toEqual(expect.arrayContaining(["activity.request-verification", "activity.renew-licence"]));
+    const notice = clinicThings(view).find((thing) => thing.id === "jobs-notice");
+    const certify = (thingsOf(stageOf(clinic as unknown as PlaceFile)).find((thing) => thing.id === "jobs-notice")?.acts ?? []).find((act) => act.id === "certify");
+    expect(certify?.stages).toBe("activity.nurse-certification");
+    expect(certify?.more).toBeUndefined();
+    expect(sceneWords(certify?.label ?? "")).toBe(nameOf("activity.nurse-certification"));
+    const listed = (notice?.acts ?? []).flatMap((act) => [act.stages, ...(act.more ?? [])]);
+    expect(listed).not.toContain("activity.request-verification");
+    expect(listed).not.toContain("activity.renew-licence");
+    expect(stepWayOf(view)?.app).toBe("papers");
   });
 
   test("[R-WORLD-003] [R-CHAPTER-009] given the tile's nurse at work who has heard of care work, when the page is next, then the nudge names the page in Japa in under eight words and its tap opens Japa, where the care page is one tap away", () => {
@@ -269,7 +276,7 @@ describe("the nurse's waiting months and her licence", () => {
     expect(said.findIndex((line) => line === say("chapter.build-the-file.item.passport.nudge"))).toBeLessThan(said.findIndex((line) => line.startsWith("Keep nursing:")));
   });
 
-  test("[R-WORLD-003] [R-DOCUMENT-004] given the tile's nurse whose licence runs out in the care file, when the nudge is read, then it names the renewal at the clinic, its tap there opens the renewal's card, and once renewed the licence is held and the nudge moves on", () => {
+  test("[R-WORLD-003] [R-DOCUMENT-004] [R-WORLD-019] given the tile's nurse whose licence runs out in the care file, when the nudge is read, then it names the renewal on her phone, its tap opens the renewal's card in Papers, and once renewed the licence is held and the nudge moves on", () => {
     // Care work stays shut to applicants from abroad, as it was in the review: no sponsor answers and the file waits.
     const game = tileNurse("nurse-licence");
     hire(game);
@@ -277,10 +284,10 @@ describe("the nurse's waiting months and her licence", () => {
     const lapsed = until(game, (view) => view.documents.some((paper) => paper.id === "document.nursing-licence" && paper.state === "expired"), 60, followedButLicence);
     expect(CARE_CHAPTER.has(lapsed.chapter.current ?? "")).toBe(true);
     expect(nudgeOf(lapsed)).toEqual({ key: `${FILE}.item.licence.nudge`, about: "step" });
-    expect(say(`${FILE}.item.licence.nudge`)).toBe("Renew your nursing licence at the clinic");
-    expect(stepWayOf(lapsed)?.go).toBe(CLINIC);
-    expect(reached(lapsed, CLINIC)).toBe(true);
-    expect(opensAt(lapsed, CLINIC)).toEqual({ kind: "act", activity: "activity.renew-licence" });
+    // the renewal is a message to the council, sent from the phone.
+    expect(say(`${FILE}.item.licence.nudge`)).toBe("Renew your nursing licence on your phone");
+    expect(stepWayOf(lapsed)).toMatchObject({ go: null, app: "papers", opens: "activity.renew-licence" });
+    expect(opensAt(lapsed, CLINIC)).toEqual({ kind: "app", app: "papers", act: "activity.renew-licence" });
     month(game, followed(lapsed));
     const renewed = game.view();
     expect(renewed.documents.find((paper) => paper.id === "document.nursing-licence")?.state).toBe("held");

@@ -5,7 +5,6 @@ import { describe, expect, test } from "vitest";
 
 import airport from "../../../public/assets/places/arrivals-hall/place.json";
 import bank from "../../../public/assets/places/bank-counter/place.json";
-import parlour from "../../../public/assets/places/family-house-parlour/place.json";
 import testCentre from "../../../public/assets/places/english-test-centre/place.json";
 import clinic from "../../../public/assets/places/tb-clinic/place.json";
 import visaCentre from "../../../public/assets/places/visa-centre/place.json";
@@ -61,7 +60,8 @@ describe("the nudge's Go on the application", () => {
 describe("the nudge where the player stands", () => {
   const cases = [
     { chapter: "chapter.find-your-feet", step: "job", file: raw, place: "place.yaba", names: /hub|Yaba/ },
-    { chapter: "chapter.build-the-file", step: "passport", file: parlour, place: "place.family-house", names: /home/ },
+    // the passport office stands in the visa centre's hall.
+    { chapter: "chapter.build-the-file", step: "passport", file: visaCentre, place: "place.passport-office", names: /Ikoyi/ },
     { chapter: "chapter.build-the-file", step: "english", file: testCentre, place: "place.english-test-centre", names: /centre/ },
     { chapter: "chapter.build-the-file", step: "offer", file: raw, place: "place.yaba", names: /hub/ },
     { chapter: "chapter.decision-day", step: "deposit", file: bank, place: "place.olokun-office", names: /bank/ },

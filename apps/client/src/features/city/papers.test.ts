@@ -1,37 +1,30 @@
-// Look in the box says what is in it (docs/rules/world.md R-WORLD-019), as Japa's Papers screen does.
+// The papers box opens the phone's Papers app (docs/rules/world.md R-WORLD-019): one
+// source for what is in the box, and no sheet of its own. Restated from the box's look line and its sheet of papers.
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { nameOf, runningName } from "../../shared/words/text";
-import { cityWords, papersLook } from "./city.words";
+import { stageOf } from "./placeFile";
+import { builtPlaces } from "./scene.testing";
+import { sceneWords } from "./scene.words";
+import { thingsOf } from "./things";
 
-const PASSPORT = "document.passport";
-const TRANSCRIPT = "document.transcript";
+/** The papers box in each home's file: the parlour's, the room in a compound's and the room on the water's. */
+const BOXES = builtPlaces().flatMap(({ folder, file }) => thingsOf(stageOf(file)).filter((thing) => thing.label === "city.thing.papers").map((thing) => ({ folder, thing })));
 
 describe("the papers box", () => {
-  test("[R-WORLD-019] given no paper held, when the box is looked in, then it says the box is empty, never that all is in it", () => {
-    expect(papersLook([])).toBe(cityWords("city.act.papers.empty"));
-    expect(papersLook([{ id: PASSPORT, state: "pending" }])).toBe(cityWords("city.act.papers.empty"));
-    expect(papersLook([{ id: PASSPORT, state: "pending" }])).not.toMatch(/All in the box/);
+  test("[R-WORLD-019] given the papers box in every home, when its acts are read, then its one act opens the Papers app, named Look in the box, and no sheet of papers is left", () => {
+    expect(BOXES.map(({ folder }) => folder).sort()).toEqual(["compound-room", "family-house-parlour", "makoko"]);
+    for (const { folder, thing } of BOXES) {
+      expect({ folder, acts: thing.acts }).toEqual({ folder, acts: [{ id: "papers", label: "city.act.papers", kind: "app", app: "papers" }] });
+      expect(sceneWords(thing.acts[0]!.label)).toBe("Look in the box");
+    }
   });
 
-  test("[R-WORLD-019] given some papers held and one on its way, when the box is looked in, then it names only the ones held", () => {
-    const told = papersLook([
-      { id: PASSPORT, state: "held" },
-      { id: TRANSCRIPT, state: "pending" },
-    ]);
-    expect(told).toBe(cityWords("city.act.papers.some", { papers: runningName(PASSPORT) }));
-    expect(told).not.toContain(runningName(TRANSCRIPT));
-  });
-
-  test("[R-WORLD-019] given every paper held, when the box is looked in, then it names them all and says all is in the box", () => {
-    const told = papersLook([
-      { id: PASSPORT, state: "held" },
-      { id: TRANSCRIPT, state: "held" },
-    ]);
-    expect(told).toBe(cityWords("city.act.papers.all", { papers: cityWords("city.act.papers.and", { first: nameOf(PASSPORT), last: runningName(TRANSCRIPT) }) }));
-  });
-
-  test("[R-WORLD-019] given the line the City shows today with no state passed, then it claims nothing about what is in the box", () => {
-    expect(cityWords("city.act.papers.done")).not.toMatch(/All in the box|empty/);
+  test("[R-WORLD-019] given the homes, when what they stage is read, then no paper is requested there: the calls are made on the phone and the passport at Immigration", () => {
+    const papers = Object.values(content.activity).filter((entry) => entry.effects.some((effect) => effect.type === "document/request")).map((entry) => entry.id as string);
+    for (const home of ["place.family-house", "place.makoko", "place.compound-room"] as const) {
+      expect({ home, papers: (content.place[home]?.stages ?? []).filter((id) => papers.includes(id)) }).toEqual({ home, papers: [] });
+    }
+    expect(content.place["place.passport-office"]?.stages).toEqual(["activity.get-passport"]);
   });
 });

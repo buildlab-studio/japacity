@@ -7,11 +7,13 @@ import { useSyncExternalStore } from "react";
 
 import { newsMarkOf, SEEN_KEY } from "../../shared/phone/newsSeen";
 import { familyFeedLines } from "./feed";
+import { papersMarkOf } from "./papers";
 
 export { SEEN_KEY };
 
-// The Calendar sits first among the apps: the month lives on the phone (R-WORLD-002).
-export const APP_IDS = ["calendar", "bank", "chats", "japa", "jobs", "lotto", "bills", "news", "settings"] as const;
+// The Calendar sits first among the apps: the month lives on the phone (R-WORLD-002). Papers
+// sits beside Japa: the plan's papers, held and on their way (R-WORLD-019).
+export const APP_IDS = ["calendar", "bank", "chats", "japa", "papers", "jobs", "lotto", "bills", "news", "settings"] as const;
 export type AppId = (typeof APP_IDS)[number];
 
 export type Seen = Partial<Record<AppId, string>>;
@@ -38,6 +40,8 @@ export function marksOf(view: PlayerView): Record<AppId, string> {
     bank: "",
     chats,
     japa: "",
+    // A paper that landed or moved this month (R-WORLD-030): the dot until Papers is opened.
+    papers: papersMarkOf(view),
     jobs: jobOffers(view).map((offer) => offer.id).join(","),
     lotto: view.lottery?.last === null || view.lottery?.last === undefined ? "" : String(view.lottery.last.draw),
     bills: bills.length === 0 ? "" : `${String(view.month)}:${bills.map((owed) => owed.id).join(",")}`,

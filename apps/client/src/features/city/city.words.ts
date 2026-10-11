@@ -80,6 +80,7 @@ export const cityText: Record<string, string> = {
   "city.thing.mum-stall": "Mama's stall",
   "city.thing.mummy": "Mama",
   "city.thing.visa-desk": "Visa desk",
+  "city.thing.passport-desk": "Passport desk",
   "city.thing.chairs": "Chairs",
   "city.thing.agent-desk": "Agent",
   "city.thing.test-desk": "Test desk",
@@ -107,18 +108,12 @@ export const cityText: Record<string, string> = {
   "city.thing.stove": "Stove",
   "city.act.sit": "Sit",
   "city.act.turn-on.done": "The TV comes on, NEPA permitting.",
-  // R-WORLD-019: what the box holds, as the Papers screen in Japa says it. `.done` alone is true in every state; the City fills the others through `papersLook`.
-  "city.act.papers.done": "The box under the bed, where the papers live. Japa on your phone says what is in it.",
   // The light bill paid at home: Mama's words over her head, then the next compound in the corner (R-WORLD-005, R-WORLD-026).
   "city.say.light-back": "God bless you. Light is back.",
   "city.heard.up-nepa": "The next compound shouts “UP NEPA”.",
   "city.told.light-paid": "Light bill paid",
   // The parcel collected at the cargo office, told in the corner (R-WORLD-005).
   "city.told.parcel": "The parcel is yours.",
-  "city.act.papers.empty": "The box is empty for now.",
-  "city.act.papers.some": "In the box: {papers}.",
-  "city.act.papers.all": "{papers}. All in the box.",
-  "city.act.papers.and": "{first} and {last}",
   // Lying down is done at once, seen on the bed or the couch; an empty slot of the month already rests (R-TURN-006).
   "city.act.lie": "Lie down",
   "city.act.cook": "Cook for the week",
@@ -127,8 +122,8 @@ export const cityText: Record<string, string> = {
   "city.act.fill-drum": "Fetch water",
   "city.act.pack": "Pack and go",
   "city.act.turn-on": "Turn on",
+  // R-WORLD-019: the box opens the phone's Papers app, where every paper is told.
   "city.act.papers": "Look in the box",
-  "city.act.papers-start": "Start a paper",
   "city.act.go-in": "Go in",
   "city.act.go-out": "Go out",
   "city.act.ride": "Ride",
@@ -334,28 +329,6 @@ export function cityWords(key: string, params: Record<string, string | number> =
     const value = params[name];
     return value === undefined ? whole : String(value);
   });
-}
-
-/** Names in a running list: "the passport", "the passport and the transcript", "a, b and c". */
-function listOf(names: readonly string[]): string {
-  if (names.length <= 1) return names[0] ?? "";
-  return cityWords("city.act.papers.and", { first: names.slice(0, -1).join(", "), last: names.at(-1) ?? "" });
-}
-
-/**
- * R-WORLD-019: Look in the box says what is in it, as Japa's Papers screen does: empty when no
- * paper is held, every paper by name when all are, else the ones held. The City shows this as
- * the act's line, from the view's documents.
- */
-export function papersLook(documents: readonly { id: string; state: string }[]): string {
-  const held = documents.filter((paper) => paper.state === "held").map((paper) => paper.id);
-  if (held.length === 0) return cityWords("city.act.papers.empty");
-  if (held.length === documents.length) {
-    // The list opens the sentence, so only its first name keeps a capital.
-    const all = listOf(held.map((id, index) => (index === 0 ? nameOf(id) : runningName(id))));
-    return cityWords("city.act.papers.all", { papers: all });
-  }
-  return cityWords("city.act.papers.some", { papers: listOf(held.map((id) => runningName(id))) });
 }
 
 /** A place's name as content gives it (R-CITY-024). */

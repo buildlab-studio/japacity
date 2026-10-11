@@ -46,13 +46,20 @@ function withOwnChoice(act: Act): Act {
 // the places' files list what each desk's sheet offers; the entries added since (the care, talent, points and Gulf files' steps, R-CHAPTER-009) are listed here until the files carry them.
 /** More entries a thing's sheet act lists, by `<place>:<thing>:<act>`. */
 const MORE_AT: Record<string, readonly string[]> = {
-  // The council's chip holds its acts: the certification, the verification and the licence's renewal.
-  "place.tb-clinic:jobs-notice:certify": ["activity.request-verification", "activity.renew-licence"],
   "place.yaba:desk:routes": ["activity.find-sponsor", "activity.apply-endorsement", "activity.enter-pool"],
   "place.visa-centre:desk:apply": ["activity.apply-uk-care", "activity.apply-uk-talent"],
-  "place.family-house:papers-box:start": ["activity.get-eca"],
-  "place.compound-room:papers-box:start": ["activity.get-eca"],
   "place.agent-office:desk:visit": ["activity.apply-gulf-contract"],
+};
+
+/**
+ * A thing as it stands in a place that borrows another place's room (city.md R-CITY-010, the hub's room in Yaba's
+ * way), by `<place>:<thing>`: its own name and acts there, or none to stand empty. The passport office stands in the
+ * visa centre's hall until its own is built: its desk takes the passport and nothing of the visa's.
+ */
+const BORROWED_AT: Record<string, Pick<Thing, "label" | "acts"> | null> = {
+  "place.passport-office:desk": { label: "city.thing.passport-desk", acts: [{ id: "passport", label: "activity.get-passport.name", kind: "sheet", stages: "activity.get-passport" }] },
+  "place.passport-office:officer": null,
+  "place.passport-office:police-notice": null,
 };
 
 /**
@@ -63,9 +70,16 @@ const FIRST_AT: Record<string, string> = {
   "place.yaba:desk:routes": "activity.see-adviser",
 };
 
-/** The things with the entries these tables add to their sheets at `place`, and the one each lists first. */
+/**
+ * The things with the entries these tables add to their sheets at `place`, and the one each lists first; in a borrowed
+ * room, each thing as it stands there, a thing with nothing to do there left out.
+ */
 export function withMoreAt(things: readonly Thing[], place: string): Thing[] {
-  return things.map((thing) => ({
+  return things.flatMap((thing) => {
+    const borrowed = BORROWED_AT[`${place}:${thing.id}`];
+    if (borrowed === null) return [];
+    return [borrowed === undefined ? thing : { ...thing, ...borrowed }];
+  }).map((thing) => ({
     ...thing,
     acts: thing.acts.map((act) => {
       const at = `${place}:${thing.id}:${act.id}`;

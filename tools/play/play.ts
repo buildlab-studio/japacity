@@ -337,6 +337,24 @@ async function followNudge(run: Run, month: number): Promise<void> {
       await page.waitForTimeout(600);
       break;
     }
+    // A paper asked for by a call or a message opens the phone's Papers on its card (R-WORLD-019): the card's act is
+    // taken, the corner's answer read, and the phone put away; with no card open, the papers are read as they stand.
+    const papers = page.locator("[data-app-screen='papers']");
+    if (await shown(papers)) {
+      const card = papers.locator("[data-paper-card]");
+      const act = card.locator("[data-activity-picker] button:enabled");
+      if (await shown(act)) {
+        log(run, `the nudge opened Papers on ${(await card.first().getAttribute("data-paper-card")) ?? ""}: ${await words(card, 240)}`);
+        await shot(run, `month ${String(month)} papers card`);
+        await tap(run, act, "the paper's act");
+        await page.waitForTimeout(1_200);
+        const toast = page.locator("[data-speech], [data-corner] [data-told]:last-child");
+        if (await shown(toast)) log(run, `toast: ${await words(toast)}`);
+      } else log(run, `the nudge opened Papers: ${await words(papers, 240)}`);
+      await tap(run, page.locator("[data-home-bar]"), "the phone's home bar");
+      await page.waitForTimeout(600);
+      break;
+    }
     // The step that is the month's end opens the phone's Calendar (R-WORLD-003): its month is read, and the phone put away.
     const calendar = page.locator("[data-app-screen='calendar']");
     if (await shown(calendar)) {

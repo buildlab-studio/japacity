@@ -190,7 +190,7 @@ describe("the things of the built places", () => {
     }
   });
 
-  test("[R-WORLD-019] given the parlour, when its papers box is read, then it stands at the bed, starts the passport with the transcript on the same sheet, offers a look, and its words resolve", () => {
+  test("[R-WORLD-019] given the parlour, when its papers box is read, then it stands at the bed, its one act opens the Papers app, and its words resolve", () => {
     const found = builtPlaces().find((built) => built.folder === "family-house-parlour");
     if (found === undefined) throw new Error("No parlour");
     const stage = stageOf(found.file);
@@ -202,11 +202,9 @@ describe("the things of the built places", () => {
     const bed = copyOf("shared/prop/prop_bed.glb");
     if (tin === undefined || bed === undefined) throw new Error("The box or the bed stands nowhere");
     expect(Math.hypot(tin[0] - bed[0], tin[1] - bed[1])).toBeLessThan(1.5);
-    expect(box.acts.map((act) => [act.id, act.kind, act.stages, act.more])).toEqual([
-      ["start", "sheet", "activity.get-passport", ["activity.get-transcript"]],
-      ["look", "plain", undefined, undefined],
-    ]);
+    // the box's sheet of papers went to the phone.
+    expect(box.acts.map((act) => [act.id, act.kind, act.app])).toEqual([["papers", "app", "papers"]]);
     expect(sceneWords(box.label)).toBe("Papers box");
-    expect(box.acts.map((act) => sceneWords(act.label))).toEqual(["Start a paper", "Look in the box"]);
+    expect(box.acts.map((act) => sceneWords(act.label))).toEqual(["Look in the box"]);
   });
 });

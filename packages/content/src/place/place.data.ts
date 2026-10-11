@@ -244,13 +244,15 @@ const entries: PlaceEntry[] = [
   }),
 
   // Lagos: institutions, by plain description. An area and never a position.
-  unnamed("place.passport-office", "institution", "home", "lagos", "ikoyi", { stages: [], crowd: BUSY, traditionalBp: OFFICE }),
+  // The passport is a visit to Immigration: the office stands in the visa centre's hall
+  // until its own room is built, as the hub's room borrows the inverter room.
+  unnamed("place.passport-office", "institution", "home", "lagos", "ikoyi", { assets: "visa-centre", stages: ["activity.get-passport"], crowd: BUSY, traditionalBp: OFFICE }),
   // R-DOCUMENT-007: the police certificate is asked at the notice here until a station is built.
   unnamed("place.visa-centre", "institution", "home", "lagos", "victoria-island", { stages: ["activity.apply-for-visa", "activity.apply-uk-care", "activity.apply-uk-talent", "setpiece.credibility-interview", "activity.get-police-certificate"], crowd: BUSY, traditionalBp: OFFICE }),
   unnamed("place.english-test-centre", "institution", "home", "lagos", "ikeja", { stages: ["activity.sit-english-test", "activity.study-english"], crowd: QUIET, traditionalBp: OFFICE }),
   // The staff nurse's job is on the clinic's notice, where a nurse from sixteen takes her first step (prologue.md R-PROLOGUE-010).
   // activity.md R-ACTIVITY-013: the nurse's certification on the notice, its exam sat on the chairs.
-  unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { stages: ["activity.tb-test", "activity.gulf-medical", "activity.job-nurse", "activity.nurse-certification", "activity.request-verification", "activity.renew-licence", "setpiece.nurse-exam"], crowd: QUIET, traditionalBp: OFFICE }),
+  unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { stages: ["activity.tb-test", "activity.gulf-medical", "activity.job-nurse", "activity.nurse-certification", "setpiece.nurse-exam"], crowd: QUIET, traditionalBp: OFFICE }),
   unnamed("place.medical-centre", "institution", "home", "lagos", "ikeja", { crowd: QUIET, traditionalBp: OFFICE }),
   unnamed("place.university", "institution", "home", "lagos", "akoka", { scope: "exterior", stages: [], crowd: BUSY, traditionalBp: CAMPUS }),
   unnamed("place.general-hospital", "institution", "home", "lagos", "surulere", { stages: ["offer.illness", "offer.illness-worse"], crowd: BUSY, traditionalBp: STREET }),
@@ -273,9 +275,6 @@ const entries: PlaceEntry[] = [
     assets: "family-house-compound",
     occasion: true,
     stages: [
-      "activity.get-passport",
-      "activity.get-transcript",
-      "activity.get-eca",
       "activity.rest",
       "activity.family-time",
       "activity.family-meeting",

@@ -1,5 +1,5 @@
 // The phone in a real browser at phone size (docs/rules/world.md R-WORLD-018): it rises over the
-// world with the wallpaper and the apps, the Calendar first, grows and comes back, opens Bank, Chats and Japa,
+// world with the wallpaper and the apps, the Calendar first, grows and comes back, opens Bank, Chats, Japa and Papers,
 // and still fits a small phone of 360 by 640. With PREVIEW_DIR set, each step is saved as a picture.
 import { join } from "node:path";
 
@@ -34,7 +34,7 @@ async function expectInside(page: Page): Promise<void> {
   }
 }
 
-test("[R-WORLD-018] the phone rises over the world, grows and comes back, opens Bank, Chats and Japa, and fits 360 by 640", async ({ page }, info) => {
+test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and comes back, opens Bank, Chats, Japa and Papers, and fits 360 by 640", async ({ page }, info) => {
   test.skip(!info.project.name.startsWith("Pixel"), "phone size only");
   test.setTimeout(150_000);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -86,10 +86,13 @@ test("[R-WORLD-018] the phone rises over the world, grows and comes back, opens 
   await page.locator('[data-app="japa"]').click();
   await expect(page.locator('[data-phone-app="japa"]')).toBeVisible();
   await shot(page, "phone-06-japa");
+  // Japa's papers step opens Papers, the box under the bed on the phone.
   await page.locator("[data-open-papers]").click();
+  await expect(page.locator('[data-app-screen="papers"]')).toBeVisible();
   await expect(page.getByText("The box under the bed", { exact: true })).toBeVisible();
   await shot(page, "phone-07-papers");
   await page.getByRole("button", { name: "Back" }).click();
+  await expect(page.locator('[data-app="papers"]')).toBeVisible();
 
   await page.setViewportSize({ width: 360, height: 640 });
   await page.waitForTimeout(400);

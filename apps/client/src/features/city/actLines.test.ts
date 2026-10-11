@@ -24,22 +24,22 @@ describe("an act's line as it lands", () => {
     expect(shown.length).toBeGreaterThan(10);
     for (const { folder, thing, act } of shown) {
       expect({ act: `${folder} ${thing.id} ${act.id}`, done: silent(`${act.label}.done`), says: silent(`${act.label}.says`) }).toEqual({ act: `${folder} ${thing.id} ${act.id}`, done: true, says: true });
-      expect(act.kind !== "plain" || plainActLine(thing, act, []) === null, `${folder} ${thing.id} ${act.id}`).toBe(true);
+      expect(act.kind !== "plain" || plainActLine(thing, act) === null, `${folder} ${thing.id} ${act.id}`).toBe(true);
     }
   });
 
   test("[R-WORLD-005] given Mama at her stall, when she is greeted, then she says her welcome over her head and the corner tells the oranges after", () => {
     const greet = ACTS.find(({ act }) => act.label === "city.act.greet-mum");
     if (greet === undefined) throw new Error("No greeting at Mama's stall.");
-    expect(plainActLine(greet.thing, greet.act, [])).toEqual({ kind: "say", who: greet.thing.id, name: "Mama", words: "You have eaten? Sit small.", then: "Mama presses a bag of oranges on you." });
+    expect(plainActLine(greet.thing, greet.act)).toEqual({ kind: "say", who: greet.thing.id, name: "Mama", words: "You have eaten? Sit small.", then: "Mama presses a bag of oranges on you." });
   });
 
   test("[R-WORLD-005] given the agent and the visa officer at their desks, when asked, then each speaks in his own voice over his head, with no narration round the words", () => {
     const agent = ACTS.find(({ act }) => act.label === "city.act.ask-desk");
     const officer = ACTS.find(({ act }) => act.label === "city.act.ask-visa-desk");
     if (agent === undefined || officer === undefined) throw new Error("No agent or officer to ask.");
-    expect(plainActLine(agent.thing, agent.act, [])).toMatchObject({ kind: "say", who: "agent", words: expect.stringMatching(/^Not today\. /) as string, then: null });
-    expect(plainActLine(officer.thing, officer.act, [])).toEqual({ kind: "say", who: "officer", name: "The officer", words: "Nothing for you today.", then: null });
+    expect(plainActLine(agent.thing, agent.act)).toMatchObject({ kind: "say", who: "agent", words: expect.stringMatching(/^Not today\. /) as string, then: null });
+    expect(plainActLine(officer.thing, officer.act)).toEqual({ kind: "say", who: "officer", name: "The officer", words: "Nothing for you today.", then: null });
   });
 
   test("[R-TEXT-008] [R-WORLD-005] given every plain act that tells a line, when it is read, then it is short, in the third person about the world, and never a person's quoted words", () => {
@@ -52,10 +52,12 @@ describe("an act's line as it lands", () => {
     }
   });
 
-  test("[R-WORLD-019] [R-WORLD-005] given the papers box, when it is looked in, then the corner tells what it holds", () => {
-    const box = ACTS.find(({ act }) => act.label === "city.act.papers");
-    if (box === undefined) throw new Error("No papers box.");
-    expect(plainActLine(box.thing, box.act, [])).toEqual({ kind: "tell", words: cityWords("city.act.papers.empty") });
+  test("[R-WORLD-019] [R-WORLD-005] given the papers box, when it is looked in, then nothing is told in the corner: the box opens the phone's Papers, which tells every paper", () => {
+    // the box's line in the corner gave way to the app.
+    const boxes = ACTS.filter(({ act }) => act.label === "city.act.papers");
+    expect(boxes.length).toBeGreaterThanOrEqual(3);
+    for (const { act } of boxes) expect([act.kind, act.app]).toEqual(["app", "papers"]);
+    expect(silent("city.act.papers.done")).toBe(true);
   });
 
   test("[R-WORLD-005] [R-WORLD-026] given the light bill paid in the parlour, when the answer lands, then Mama says the light is back over her head, the corner tells the bill paid and the next compound is heard after; elsewhere, or for the bill left, nothing", () => {
