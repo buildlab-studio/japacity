@@ -9,7 +9,7 @@ import { Hono } from "hono";
 import { utcDay } from "../admin/day";
 import { advertRegion } from "../adverts/campaign";
 import { addAdvertCounters, withinAccountDay } from "../adverts/counts";
-import { checkBatch } from "../analytics/batch";
+import { checkBatch, isDoorRow } from "../analytics/batch";
 import { dayName } from "../analytics/day";
 import type { DropReason } from "../analytics/list";
 import { NO_REGION } from "../analytics/list";
@@ -17,6 +17,7 @@ import { batchAllowed } from "../analytics/rate";
 import { usageCountsOn } from "../analytics/usage";
 import type { ServerDeps } from "../deps";
 import { overLimit } from "../limits/limit";
+import { countryOf } from "./place";
 
 export type { CounterBatch, CounterRow } from "../analytics/batch";
 
@@ -34,8 +35,17 @@ export function countersRoute(deps: ServerDeps): Hono {
     const day = dayName(utcDay(deps.now()));
     const session = await deps.session(c.req.raw);
     if (session === null) {
-      // R-SERVER-026: a batch with no session is counted as dropped only within the address limit.
-      if ((await overLimit(deps, "reads", null, c.req.header("cf-connecting-ip") ?? null)) === null) await deps.stores.counters.add(droppedRows(day, NO_REGION, { "signed-out": 1 }));
+      // R-SERVER-026: a batch with no session is looked at only within the address limit.
+      if ((await overLimit(deps, "reads", null, c.req.header("cf-connecting-ip") ?? null)) !== null) return done();
+      // R-ANALYTICS-004: the door's three screens may arrive signed out, since the door is
+      // before any account; they are counted under the request's region. Nothing else may: it is dropped signed out.
+      const checked = checkBatch(deps.contents.current, await c.req.text());
+      const door = checked.rows.filter(isDoorRow);
+      const refused = checked.rows.length - door.length;
+      const country = countryOf(c.req.raw);
+      const region = country !== null && /^[A-Z]{2}$/.test(country) ? country : NO_REGION;
+      const dropped = refused > 0 || door.length === 0 ? { ...checked.dropped, "signed-out": 1 } : checked.dropped;
+      await deps.stores.counters.add([...door.map((row) => ({ day, region, name: row.name, key: row.key, count: row.count })), ...droppedRows(day, NO_REGION, dropped)]);
       return done();
     }
     const account = await deps.stores.account.get(session.account);
