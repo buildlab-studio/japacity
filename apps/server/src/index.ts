@@ -20,7 +20,7 @@ import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
 import { standInJob } from "./jobs/stand-in";
 import { notifyJob } from "./jobs/notify";
-import { ticksJob } from "./jobs/ticks";
+import { jobCron, ticksJob, TICKS_CRON } from "./jobs/ticks";
 import { MONEY_CRON, moneyJob } from "./jobs/money";
 import { dropOldFeedback } from "./moderation/feedback";
 import { advertLinksJob } from "./adverts/job";
@@ -32,6 +32,7 @@ import type { Isolate, RequestScope } from "./production";
 import { drawRoute } from "./routes/draw";
 import { notifyKeyRoute } from "./routes/notify";
 import { placeSocketRoutes } from "./routes/place";
+import { served } from "./security/noindex";
 
 export { Place } from "./place/place.object";
 
@@ -64,6 +65,12 @@ export interface Env {
   VAPID_PUBLIC_KEY?: string;
   VAPID_PRIVATE_KEY?: string;
   VAPID_SUBJECT?: string;
+  /** R-CLOCK-012, R-SERVER-038: the deployment's tick cron when it is not the five-minute one (staging's thirty minutes). */
+  TICK_CRON?: string;
+  /** R-SERVER-038: set on staging only; every reply carries the noindex tag and robots.txt disallows all. */
+  NOINDEX?: string;
+  /** R-SERVER-038: the client's files, bound on staging only, where the Worker runs first for every path. */
+  ASSETS?: Fetcher;
 }
 
 let isolate: Isolate | null = null;
@@ -138,20 +145,24 @@ async function within<T>(env: Env, waitUntil: (promise: Promise<unknown>) => voi
 
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    return within(env, (promise) => ctx.waitUntil(promise), async ({ deps }, auth, keys) => {
-      const app = makeApp(deps, { auth, keys })
-        .route("/", drawRoute(deps))
-        .route("/", notifyKeyRoute(pushKeys(env)))
-        .route("/", placeSocketRoutes(deps, { rooms: isolateOf(env).rooms, placeOf: placeOfIn(deps), profileOf: profileOfIn(deps, isolateOf(env).text) }));
-      return app.fetch(request);
-    });
+    // R-SERVER-038: on staging a page or a file is served without opening a database client.
+    return served(request, env, (toGame) =>
+      within(env, (promise) => ctx.waitUntil(promise), async ({ deps }, auth, keys) => {
+        const app = makeApp(deps, { auth, keys })
+          .route("/", drawRoute(deps))
+          .route("/", notifyKeyRoute(pushKeys(env)))
+          .route("/", placeSocketRoutes(deps, { rooms: isolateOf(env).rooms, placeOf: placeOfIn(deps), profileOf: profileOfIn(deps, isolateOf(env).text) }));
+        return app.fetch(toGame);
+      }),
+    );
   },
   scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): void {
     const later = (promise: Promise<unknown>) => ctx.waitUntil(promise);
     const job = (run: Parameters<typeof within>[2]) => later(within(env, later, run));
-    const { cron } = controller;
+    // R-CLOCK-012, R-SERVER-038: the deployment's tick cron stands for the five-minute one, so every job below runs at its pace.
+    const cron = jobCron(controller.cron, env.TICK_CRON ?? TICKS_CRON);
     const beacon = quicknet((input, init) => fetch(input, init), productionConfig.lottery.beacon.url);
-    // By cron: the world's ticks (R-CLOCK-012), the draws and the bank-full notices (R-CLOCK-031) every five minutes; deletions (R-ACCOUNT-017) and the money report (R-SERVER-011) daily.
+    // By cron: the world's ticks (R-CLOCK-012), the draws and the bank-full notices (R-CLOCK-031) every five minutes (or at the deployment's tick cron); deletions (R-ACCOUNT-017) and the money report (R-SERVER-011) daily.
     job(({ deps }) => ticksJob(deps, cron));
     job(({ deps }) => drawJob(deps, { beacon }, cron));
     job(({ deps }) => notifyJob(deps, pushKeys(env), cron));

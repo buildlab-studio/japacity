@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 
 import { relyingPartyOf } from "./auth/auth";
+import { TICKS_CRON } from "./jobs/ticks";
 
 const PRODUCTION = "https://japacity.app";
 const STAGING = "https://staging.japacity.app";
@@ -21,7 +22,10 @@ interface Worker {
   name: string;
   vars: Record<string, string>;
   routes?: Route[];
-  assets?: { directory: string; not_found_handling?: string; run_worker_first?: string[] | boolean };
+  assets?: { directory: string; not_found_handling?: string; binding?: string; run_worker_first?: string[] | boolean };
+  workers_dev?: boolean;
+  preview_urls?: boolean;
+  triggers?: { crons: string[] };
   env?: Record<string, Worker>;
 }
 
@@ -45,6 +49,27 @@ describe("the game's address", () => {
     expect(staging?.name).toBe("japacity-server-staging");
     expect(staging?.vars["SITE_URL"]).toBe(STAGING);
     expect(staging?.routes).toEqual([{ pattern: new URL(STAGING).host, custom_domain: true }]);
+  });
+
+  test("given the staging environment, when its switches are read, then it has no workers.dev address and no preview URLs, written in its own block as at the top level", () => {
+    expect(server.workers_dev).toBe(false);
+    expect(server.preview_urls).toBe(false);
+    expect(staging?.workers_dev).toBe(false);
+    expect(staging?.preview_urls).toBe(false);
+  });
+
+  test("[R-SERVER-038] [R-CLOCK-012] given both environments, when their crons are read, then production ticks every five minutes with no TICK_CRON and staging ticks on its own TICK_CRON of thirty minutes, both with the daily cron", () => {
+    expect(server.triggers?.crons).toEqual([TICKS_CRON, "0 0 * * *"]);
+    expect(server.vars["TICK_CRON"]).toBeUndefined();
+    expect(staging?.vars["TICK_CRON"]).toBe("*/30 * * * *");
+    expect(staging?.triggers?.crons).toEqual([staging?.vars["TICK_CRON"], "0 0 * * *"]);
+  });
+
+  test("[R-SERVER-038] given both environments, when their files and switches are read, then only staging runs the Worker first for every path with the files bound as ASSETS and NOINDEX set", () => {
+    expect(server.vars["NOINDEX"]).toBeUndefined();
+    expect(server.assets?.binding).toBeUndefined();
+    expect(staging?.vars["NOINDEX"]).toBe("1");
+    expect(staging?.assets).toEqual({ directory: "../client/dist", not_found_handling: "single-page-application", binding: "ASSETS", run_worker_first: true });
   });
 
   test("given the gate's shipped settings, when they are read, then before launch it owns the root of the game's host and its card picture is on that host", () => {
