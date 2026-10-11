@@ -26,6 +26,7 @@ export interface DayFacts {
 /** The events the counters read, as their kinds write them. */
 type Counted =
   | { type: "chapter/closed"; chapter: string }
+  | { type: "chapter/reopened"; chapters: string[] }
   | { type: "route/moved"; route: string; to: string }
   | { type: "route/refused"; reasons: string[] }
   | { type: "offer/taken"; entry: string; choice: string }
@@ -82,6 +83,10 @@ function eventTotals(day: string, region: string, played: Played, into: Map<stri
     switch (event.type) {
       case "chapter/closed":
         add("chapter/closed", event.chapter);
+        break;
+      case "chapter/reopened":
+        // R-CHAPTER-003: a grant withdrawn before the flight reopens the chapters it closed; each is counted.
+        for (const chapter of event.chapters) add("chapter/reopened", chapter);
         break;
       case "route/moved":
         add("route/moved", `${event.route}:${event.to}`);

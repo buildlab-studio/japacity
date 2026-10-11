@@ -23,6 +23,7 @@ describe("the day's game counters", () => {
       facts([
         played([
           { type: "chapter/closed", chapter: "chapter.home", next: null },
+          { type: "chapter/reopened", chapters: ["chapter.home", "chapter.file"], current: "chapter.home" },
           { type: "route/moved", route: "route.uk-student", to: "granted" },
           { type: "route/refused", route: "route.uk-student", month: 3, reasons: ["funds", "history"], depositRefund: null },
           { type: "offer/taken", id: "o1", entry: "offer.loan", choice: "accept" },
@@ -37,6 +38,8 @@ describe("the day's game counters", () => {
     expect(rows).toEqual(
       expect.arrayContaining([
         { day, region: "GB", name: "chapter/closed", key: "chapter.home", count: 1 },
+        { day, region: "GB", name: "chapter/reopened", key: "chapter.home", count: 1 },
+        { day, region: "GB", name: "chapter/reopened", key: "chapter.file", count: 1 },
         { day, region: "GB", name: "route/moved", key: "route.uk-student:granted", count: 1 },
         { day, region: "GB", name: "route/refused", key: "funds", count: 1 },
         { day, region: "GB", name: "offer/chosen", key: "offer.loan:accept", count: 1 },
@@ -46,7 +49,7 @@ describe("the day's game counters", () => {
         { day, region: "GB", name: "players/active", key: "GB", count: 1 },
       ]),
     );
-    expect(rows).toHaveLength(8);
+    expect(rows).toHaveLength(10);
   });
 
   test("[R-ANALYTICS-008] given only the authority's grants and a stand-in's months on a day, when it is counted, then no player is active and no turn is counted as a player's", () => {

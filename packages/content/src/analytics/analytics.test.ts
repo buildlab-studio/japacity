@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { content } from "../index";
 
-const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped"];
+const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped"];
 const CLIENT = ["screen/opened", "share/pressed", "share/completed", "advert/impression", "advert/tap", "settings/sound", "settings/graphics", "load/time", "client/error", "ask/shown", "ask/accepted"];
 
 const list = content.analytics.counters;
@@ -13,7 +13,7 @@ describe("the counter list", () => {
     expect(SERVER.map((name) => [name, named(name)?.source])).toEqual(SERVER.map((name) => [name, "server"]));
     expect(named("players/returned")?.keys).toEqual(["d1", "d7", "d30"]);
     const byRegion = ["players/active", "players/new", "turns/ended", "lottery/tickets"];
-    const byId = ["chapter/closed", "route/moved", "offer/chosen"];
+    const byId = ["chapter/closed", "chapter/reopened", "route/moved", "offer/chosen"];
     expect(byRegion.map((name) => named(name)?.keys)).toEqual(byRegion.map(() => "region"));
     expect(byId.map((name) => named(name)?.keys)).toEqual(byId.map(() => "id"));
   });

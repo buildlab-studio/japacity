@@ -100,6 +100,7 @@ export const counterTable: CounterDef[] = [
   { name: "players/returned", keys: ["d1", "d7", "d30"], source: "server" },
   { name: "turns/ended", keys: "region", source: "server" },
   { name: "chapter/closed", keys: "id", source: "server" },
+  { name: "chapter/reopened", keys: "id", source: "server" },
   { name: "route/moved", keys: "id", source: "server" },
   { name: "route/refused", keys: REFUSAL_REASONS, source: "server" },
   { name: "offer/chosen", keys: "id", source: "server" },
