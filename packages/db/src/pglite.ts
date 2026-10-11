@@ -16,6 +16,8 @@ export interface PgliteConnection {
   handle: Handle;
   /** The database as Drizzle sees it, for the auth library's adapter in the server's tests. */
   db: Queries;
+  /** PGlite itself, for a server test that stands it in for a `pg` client (apps/server/src/worker.test.ts). */
+  client: PGlite;
   /** Empties every table and restarts every sequence, for the next test. */
   empty: () => Promise<void>;
   close: () => Promise<void>;
@@ -29,6 +31,7 @@ export async function connectPglite(): Promise<PgliteConnection> {
   return {
     handle,
     db,
+    client,
     empty: () =>
       handle.read(async () => {
         const found = await db.execute<{ name: string }>(
