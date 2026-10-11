@@ -27,6 +27,7 @@ import { homeText } from "./home/home.text";
 import { guideTable } from "./guide/guide.data";
 import { guideText } from "./guide/guide.text";
 import { lotteryText } from "./lottery/lottery.text";
+import { momentText } from "./moment/moment.text";
 import { eraTable } from "./era/era.data";
 import { interviewTable } from "./interview/interview.data";
 import { interviewText } from "./interview/interview.text";
@@ -152,6 +153,7 @@ export const textTables: Record<string, Record<string, string>> = {
   home: homeText,
   interview: interviewText,
   lottery: lotteryText,
+  moment: momentText,
   era: eraText,
   news: newsText,
   obligation: obligationText,
