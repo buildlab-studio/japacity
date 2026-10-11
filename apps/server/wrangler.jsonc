@@ -55,9 +55,11 @@
   // Secrets, set by the maintainer with `wrangler secret put <NAME>` and never written here:
   // WORLD_SEED, BAN_SALT, DRAW_TOKEN_KEY, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
   // TURNSTILE_SECRET_KEY, and for the bank-full notice VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT.
+  // From `wrangler hyperdrive create` on production's database: the game
+  // configuration with caching off, the cached one for the ticks and the auth library.
   "hyperdrive": [
-    { "binding": "GAME_DB", "id": "REPLACE_WITH_HYPERDRIVE_ID_CACHE_OFF" },
-    { "binding": "CACHED_DB", "id": "REPLACE_WITH_HYPERDRIVE_ID_CACHED" }
+    { "binding": "GAME_DB", "id": "dfa35042f0eb48d9beefaeae053a5408" },
+    { "binding": "CACHED_DB", "id": "d5b2792f9d3f46fcb79bf6aa79ad5802" }
   ],
   "env": {
     // Staging, behind Cloudflare Access: `wrangler deploy --env staging`. Its own Worker, database,
