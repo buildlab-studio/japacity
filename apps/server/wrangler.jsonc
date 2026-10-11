@@ -56,10 +56,28 @@
     // inherited from the top level, so each is written again here.
     "staging": {
       "name": "japacity-server-staging",
+      // Inherited from the top level already; written again so staging's own block says it has no
+      // workers.dev address and no preview URLs, by choice.
+      "workers_dev": false,
+      "preview_urls": false,
       "routes": [{ "pattern": "staging.japacity.app", "custom_domain": true }],
-      "vars": {
-        "SITE_URL": "https://staging.japacity.app"
+      // R-SERVER-038: the Worker runs first for every path and serves the client's files through
+      // ASSETS, so each reply carries the noindex tag and robots.txt disallows all. Production keeps
+      // the platform serving its files first.
+      "assets": {
+        "directory": "../client/dist",
+        "not_found_handling": "single-page-application",
+        "binding": "ASSETS",
+        "run_worker_first": true
       },
+      "vars": {
+        "SITE_URL": "https://staging.japacity.app",
+        // R-CLOCK-012, R-SERVER-038: staging ticks every thirty minutes so its database can sleep
+        // between runs; every five-minute job runs on this cron instead. Equal to the first cron below.
+        "TICK_CRON": "*/30 * * * *",
+        "NOINDEX": "1"
+      },
+      "triggers": { "crons": ["*/30 * * * *", "0 0 * * *"] },
       // Namespaces of their own: two Workers on one id would share one count.
       "ratelimits": [
         { "name": "COMMANDS_10S", "namespace_id": "3001", "simple": { "limit": 10, "period": 10 } },
