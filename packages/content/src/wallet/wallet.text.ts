@@ -59,6 +59,8 @@ export const walletText: Record<string, string> = {
   "line.wallet.wedding": "Your share of the wedding: {amount}.",
   "line.wallet.undertaking": "The undertaking you signed took {amount}.",
   "line.wallet.assistance": "Social assistance came in: {amount}.",
+  // R-WALLET-020: naira bought with real money; it buys anything but a ticket.
+  "line.wallet.top-up": "Topped up: {amount}.",
   "line.wallet.remit-app": "You sent {sent} home by app. {naira} reached your naira account.",
   "line.wallet.remit-bank": "You sent {sent} home through the bank. About {naira} reaches your naira account {readyMonth}.",
   "line.wallet.remit-informal": "You handed {sent} to the man who sends money home. {naira} reached your people in cash.",

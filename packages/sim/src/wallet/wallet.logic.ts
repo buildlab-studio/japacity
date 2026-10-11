@@ -41,7 +41,7 @@ const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
 const QUEUE: Id<"var"> = "var.fx-bank-queue";
 
 /** Reasons money comes in under. Every other reason except the two transfers is money going out. */
-export const SOURCES: readonly Reason[] = ["opening", "salary", "gig", "gift", "sale", "loan", "held-funds", "refund", "deposit-return", "cash-work", "win", "remit"];
+export const SOURCES: readonly Reason[] = ["opening", "salary", "gig", "gift", "sale", "loan", "held-funds", "refund", "deposit-return", "cash-work", "win", "remit", "top-up"];
 /** A bank remit waits in the queue under an id with this prefix and arrives under `remit` (R-ABROAD-006). */
 const REMIT_PREFIX = "remit";
 
@@ -96,6 +96,7 @@ export const REASON_LINE: Record<Reason, string | null> = {
   wedding: "line.wallet.wedding",
   undertaking: "line.wallet.undertaking",
   assistance: "line.wallet.assistance",
+  "top-up": "line.wallet.top-up",
   convert: null,
   move: null,
 };
@@ -131,6 +132,54 @@ function allowanceShown(read: ReadCtx): number | null {
 /** The allowance and the queue are the Lagos bank's, so they bind only at home. */
 function atHome(state: State): boolean {
   return state.place.where === "home";
+}
+
+// ---------------------------------------------------------------------------
+// Marked money: R-WALLET-020
+// ---------------------------------------------------------------------------
+
+/** The topped-up naira not yet spent (R-WALLET-020); 0 while there is none. */
+export function markedOf(wallet: Pick<WalletSlice, "marked">): number {
+  return wallet.marked ?? 0;
+}
+
+/**
+ * R-WALLET-020, R-LOTTERY-018: the naira earned in the game, the naira bank and cash less the marked figure. A Friday
+ * ticket and the kiosk's slip are paid from it alone, so a top-up never stakes a ticket.
+ */
+export function earnedNaira(wallet: Pick<WalletSlice, "pockets" | "marked">): number {
+  const { bank, cash } = wallet.pockets.NGN;
+  return Math.max(0, bank + cash - markedOf(wallet));
+}
+
+/** R-WALLET-020, R-LOTTERY-018: the detail a ticket or a slip is refused with when only the marked naira would cover it. */
+export const EARNED_ONLY = "Tickets come from money you earned.";
+
+/** The slice with the marked figure set, the key dropped at zero so no state hash moves while nothing is marked. */
+function withMarked(slice: WalletSlice, marked: number): WalletSlice {
+  if (marked > 0) return { ...slice, marked };
+  if (slice.marked === undefined) return slice;
+  const rest: WalletSlice = { ...slice };
+  delete rest.marked;
+  return rest;
+}
+
+/**
+ * R-WALLET-020: earned naira is spent first, the marked naira only once the earned runs out, so
+ * after a naira debit the marked figure is never above what is left. A move between pockets is the same money and spends
+ * nothing; a ticket and a slip are paid only when the earned share covers them, so they never reach it.
+ */
+function markedAfterDebit(slice: WalletSlice, event: Extract<WalletEvent, { type: "wallet/debited" }>): WalletSlice {
+  const marked = markedOf(slice);
+  if (marked === 0 || event.currency !== "NGN" || event.pocket === "locked" || event.reason === "move") return slice;
+  const { bank, cash } = slice.pockets.NGN;
+  return withMarked(slice, Math.min(marked, bank + cash));
+}
+
+/** R-WALLET-020: naira credited as `top-up` is marked; every other credit, a prize among them, is earned. */
+function markedAfterCredit(slice: WalletSlice, event: Extract<WalletEvent, { type: "wallet/credited" }>): WalletSlice {
+  if (event.reason !== "top-up" || event.currency !== "NGN" || event.pocket === "locked") return slice;
+  return withMarked(slice, markedOf(slice) + event.amount);
 }
 
 // ---------------------------------------------------------------------------
@@ -296,9 +345,30 @@ function takeMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return takeEvents(ctx.state, ctx.content, effect.currency, effect.pocket, effectAmount(ctx, effect.amount, cause.terms), effect.reason) ?? [];
 }
 
+/**
+ * `wallet/top-up` (R-WALLET-020): naira bought with real money lands in the naira bank as `top-up`, a lot the visa
+ * officer asks about (R-WALLET-011), and the marked figure rises by the amount as the credit is evolved.
+ */
+function topUpEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "wallet/top-up") throw new Error(`wallet/top-up cannot carry out ${effect.type}.`);
+  if (!isGoodAmount(effect.amount)) throw new Error(`A top-up is a whole number of kobo above zero, got ${String(effect.amount)}.`);
+  return [credit("NGN", "bank", effect.amount, "top-up"), lotOf(ctx.state, "NGN", effect.amount, "top-up")];
+}
+
 // ---------------------------------------------------------------------------
 // Commands
 // ---------------------------------------------------------------------------
+
+/**
+ * The authority's `wallet/top-up` (R-WALLET-020, R-SERVER-013): the engine refuses it from anyone else. The processor's
+ * receipts, the monthly cap and the server route that sends it come with the payment processor.
+ */
+function topUp(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
+  if (command.type !== "wallet/top-up") throw new Error(`wallet/top-up cannot handle ${command.type}.`);
+  if (ctx.sender !== "authority") return reject("not-legal", "Only the authority tops up naira.");
+  if (!isGoodAmount(command.amount)) return reject("bad-amount", "A top-up is a whole number of kobo above zero.");
+  return ctx.apply([{ type: "wallet/top-up", amount: command.amount }], { source: "wallet", param: null, terms: {} });
+}
 
 function move(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "wallet/move") throw new Error(`wallet/move cannot handle ${command.type}.`);
@@ -572,7 +642,7 @@ function withPocket(slice: WalletSlice, currency: Currency, pocket: AnyPocket, c
 function evolve(slice: WalletSlice, event: WalletEvent, state: State): WalletSlice {
   switch (event.type) {
     case "wallet/credited":
-      return withMonthNet(
+      return markedAfterCredit(withMonthNet(
         {
           ...slice,
           pockets: withPocket(slice, event.currency, event.pocket, event.amount),
@@ -582,9 +652,9 @@ function evolve(slice: WalletSlice, event: WalletEvent, state: State): WalletSli
         event.currency,
         event.amount,
         event.reason,
-      );
+      ), event);
     case "wallet/debited":
-      return withMonthNet(
+      return markedAfterDebit(withMonthNet(
         {
           ...slice,
           pockets: withPocket(slice, event.currency, event.pocket, -event.amount),
@@ -594,7 +664,7 @@ function evolve(slice: WalletSlice, event: WalletEvent, state: State): WalletSli
         event.currency,
         -event.amount,
         event.reason,
-      );
+      ), event);
     case "wallet/queued":
       return { ...slice, queued: [...slice.queued, event.conversion] };
     case "wallet/arrived":
@@ -729,6 +799,13 @@ function invariants(state: State): string[] {
     const booked = sumFor(state.wallet.totals.in, currency) - sumFor(state.wallet.totals.out, currency);
     if (held !== booked) problems.push(`${currency} holds ${String(held)} but the ledger says ${String(booked)} (R-WALLET-002).`);
   }
+  // R-WALLET-020: the marked figure is a share of the naira held, never negative, missing while zero.
+  const { marked } = state.wallet;
+  if (marked !== undefined) {
+    const { bank, cash } = state.wallet.pockets.NGN;
+    if (!Number.isSafeInteger(marked) || marked <= 0) problems.push(`The marked figure is ${String(marked)}; it is a whole number above zero or missing (R-WALLET-020).`);
+    if (marked > bank + cash) problems.push(`The marked figure ${String(marked)} is over the naira bank and cash, ${String(bank + cash)} (R-WALLET-020).`);
+  }
   for (const conversion of state.wallet.queued) {
     if (!Number.isSafeInteger(conversion.paid) || conversion.paid <= 0) problems.push(`Queued conversion ${conversion.id} carries ${String(conversion.paid)}.`);
   }
@@ -762,11 +839,13 @@ export const walletKind: RegisteredKind<WalletSlice, WalletEvent> = {
     "wallet/move": move,
     "wallet/convert": convert,
     "wallet/remit": remit,
+    "wallet/top-up": topUp,
   },
   effects: {
     "money/add": addMoney,
     "money/take": takeMoney,
     "money/pay-fee": payFee,
+    "wallet/top-up": topUpEffect,
   },
   phases: { settle, close: closeMonth },
   evolve,
@@ -783,5 +862,6 @@ export const walletKind: RegisteredKind<WalletSlice, WalletEvent> = {
     rates: read.world.rates,
     bankAllowanceLeft: allowanceShown(read),
     keptMonths: read.state.wallet.keptMonths ?? 0,
+    wallet: { marked: markedOf(read.state.wallet) },
   }),
 };

@@ -121,13 +121,17 @@ const CEILINGS: Partial<Record<Reason, Ceiling>> = {
   "pot-top-up": () => 0,
 };
 
-/** R-WALLET-013: money created and destroyed by reason and currency, and the alarms that name an account as suspect. */
-export function ledgerReport(state: State, content: Content): LedgerReport {
+/**
+ * R-WALLET-013: money created and destroyed by reason and currency, and the alarms that name an account as suspect.
+ * `topUp` is the ceiling for `top-up` in naira, the processor's receipts for the account (R-WALLET-020); until they
+ * feed it, it is 0, so any top-up names the account. A top-up in any other currency has no receipts at all.
+ */
+export function ledgerReport(state: State, content: Content, topUp = 0): LedgerReport {
   const created = withoutTransfers(state.wallet.totals.in);
   const alarms: LedgerAlarm[] = [];
   for (const [reason, byCurrency] of Object.entries(created)) {
     for (const [currency, total] of Object.entries(byCurrency ?? {})) {
-      const ceiling = CEILINGS[reason as Reason]?.(currency as Currency, state, content) ?? null;
+      const ceiling = reason === "top-up" ? (currency === "NGN" ? topUp : 0) : (CEILINGS[reason as Reason]?.(currency as Currency, state, content) ?? null);
       if (ceiling !== null && (total ?? 0) > ceiling) alarms.push({ reason: reason as Reason, currency: currency as Currency, total: total ?? 0, ceiling });
     }
   }

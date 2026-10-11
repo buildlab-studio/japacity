@@ -105,6 +105,7 @@ export const ReasonSchema = z.enum([
   "wedding",
   "undertaking",
   "assistance",
+  "top-up",
   "convert",
   "move",
 ]);
@@ -287,6 +288,8 @@ export const EffectSchema = z.discriminatedUnion("type", [
     amount: AmountSchema,
     reason: ReasonSchema,
   }),
+  // R-WALLET-020: the authority's top-up alone applies it; a test proves no content entry carries it.
+  z.strictObject({ type: z.literal("wallet/top-up"), amount: z.int().positive() }),
   z.strictObject({ type: z.literal("quality/add"), quality: idOf("quality"), amount: IntSchema }),
   z.strictObject({ type: z.literal("activity/hunt") }),
   z.strictObject({

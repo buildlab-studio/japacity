@@ -48,6 +48,7 @@ export const EFFECT_OWNER: Record<PrefixOf<EffectType>, SliceKey> = {
   people: "people",
   interview: "interview",
   money: "wallet",
+  wallet: "wallet",
   quality: "quality",
   activity: "activity",
   document: "document",

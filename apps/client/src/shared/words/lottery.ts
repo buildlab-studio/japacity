@@ -28,6 +28,8 @@ export const lotteryWords: Record<string, string> = {
   "ui.lottery.from-bank": "Paid from your naira bank account, which holds {bank}.",
   "ui.lottery.short": "Your naira bank account holds {bank}, less than one ticket.",
   "ui.lottery.full": "You hold the most tickets a draw allows.",
+  // R-WALLET-020: a ticket is bought only with naira earned in the game, never with a top-up.
+  "ui.lottery.earned-only": "Tickets come from money you earned.",
   "ui.lottery.closed-buy": "Sales for this draw are closed. Tickets for the next one go on sale with the result.",
   "ui.lottery.jackpot": "The jackpot",
   "ui.lottery.rolled": "Nobody won it last draw, so it rolled over and grew.",
