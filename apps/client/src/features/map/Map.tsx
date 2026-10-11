@@ -54,19 +54,20 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const stable = useMemo(() => pins, [key]);
   const homeId = home ?? stable.find((pin) => pin.state === "home")?.id ?? null;
   const [picked, setPicked] = useState<string | null>(pickFirst);
-  const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"] } | null>(null);
+  const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean } | null>(null);
 
   const here = stable.find((pin) => pin.state === "here") ?? null;
   const pin = stable.find((candidate) => candidate.id === picked) ?? null;
   const abroad = country.id === "lagos" ? null : country.id;
-  const ways = useMemo(() => (pin === null || here === null ? [] : rideChoices(here.position, pin.position, abroad, view.place.fareBp)), [pin, here, abroad, view.place.fareBp]);
+  // Home stays walkable however far (R-WORLD-017).
+  const ways = useMemo(() => (pin === null || here === null ? [] : rideChoices(here.position, pin.position, abroad, view.place.fareBp, pin.id === homeId)), [pin, here, abroad, view.place.fareBp, homeId]);
 
   // A ride chosen in the place plays at once, the same ride as from the map.
   useEffect(() => {
     if (diveTo === null) return;
     const to = stable.find((candidate) => candidate.id === diveTo);
     if (to === undefined) return;
-    const choice = here === null ? undefined : rideChoices(here.position, to.position, abroad, view.place.fareBp).find((way) => way.id === diveBy);
+    const choice = here === null ? undefined : rideChoices(here.position, to.position, abroad, view.place.fareBp, to.id === homeId).find((way) => way.id === diveBy);
     setPicked(null);
     start(choice, to.id, diveBy);
     // The ride starts once for the place chosen.
@@ -75,12 +76,13 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   /** The fare first: a ride the city refuses does not play, and the sheet closes. A city with nothing to say rides at once. */
   const start = (choice: RideChoice | undefined, to: string, way: RideChoice["id"]): void => {
     const answer = choice === undefined || onRide === undefined ? true : onRide(choice, to);
+    const long = choice?.long === true;
     if (answer instanceof Promise) {
       void answer.then((accepted) => {
-        if (accepted) setRiding({ id: to, way });
+        if (accepted) setRiding({ id: to, way, long });
       });
     } else if (answer !== false) {
-      setRiding({ id: to, way });
+      setRiding({ id: to, way, long });
     }
   };
 
@@ -134,6 +136,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       {riding === null ? null : (
         <Ride
           way={riding.way}
+          long={riding.long}
           place={ridingTo === null ? "" : ridingTo.name}
           drawing={drawing}
           own={own}

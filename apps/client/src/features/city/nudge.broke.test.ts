@@ -1,6 +1,7 @@
 // When nothing can be paid, the nudge names a free step (docs/rules/world.md R-WORLD-003): the
 // step's stop needs a fare the naira held cannot pay and is too far to walk, so the nudge says what can be done on foot:
-// walking home where home is near enough, the racks for a life in Makoko with no job, a job on a board within reach.
+// walking home whenever home is not here, however far (R-WORLD-017), the racks for a life in Makoko with no
+// job, a job on a board within reach, and at home the month's end.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -48,12 +49,24 @@ describe("an offer out of reach", () => {
 });
 
 describe("the free step", () => {
-  test("[R-WORLD-003] given Ada with no naira somewhere far from home with nothing on foot, when the nudge is read, then it says to end the month, never a ride she cannot pay", () => {
+  // a life may always walk home, however far, so far from
+  // home the free step is the walk home; "end the month" stays only for a life already at home.
+  test("[R-WORLD-003] [R-WORLD-017] given Ada with no naira somewhere far from home with nothing on foot, when the nudge is read, then it says to walk home, however far, never a ride she cannot pay; at home with nothing near it says to end the month", () => {
     const view = atTheClinicStep(ada(0));
     const reach: Reach = { here: "place.passport-office", home: "place.family-house", stops: [{ id: "place.passport-office", position: FAR }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }, { id: "place.bode-thomas", position: BODE_THOMAS }] };
-    expect(nudgeOf(view, undefined, [], false, reach)).toEqual({ key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } });
+    expect(nudgeOf(view, undefined, [], false, reach)).toEqual({ key: "ui.nudge.broke.home", about: "step", way: { go: "place.family-house", at: [] } });
+    const atHome: Reach = { here: "place.family-house", home: "place.family-house", stops: [{ id: "place.family-house", position: FAR }, { id: "place.tb-clinic", position: HOME_SPOT }] };
+    expect(nudgeOf(view, undefined, [], false, atHome)).toEqual({ key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } });
     const said = say("ui.nudge.broke.wait");
     expect(said.split(/\s+/).length).toBeLessThanOrEqual(8);
+  });
+
+  test("[R-WORLD-003] [R-WORLD-017] given a life with no naira away from home, when the free step is read, then it is the walk home whether home is near or a long way off, before the racks and the board", () => {
+    const view = atTheClinicStep(ada(0));
+    for (const homeAt of [HOME_SPOT, FAR]) {
+      const reach: Reach = { here: "place.akoka", home: "place.family-house", stops: [{ id: "place.akoka", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }, { id: "place.family-house", position: homeAt }, { id: "place.tb-clinic", position: FAR }] };
+      expect(freeStep(view, reach)).toEqual({ key: "ui.nudge.broke.home", about: "step", way: { go: "place.family-house", at: [] } });
+    }
   });
 
   test("[R-WORLD-003] given Ada with no naira at Bode Thomas and the hub a ride away, when the nudge is read, then it says to walk home, home being near enough, and its way is home", () => {
@@ -84,9 +97,10 @@ describe("the free step", () => {
     expect(freeStep(view, { here: "place.akoka", home: null, stops: [{ id: "place.akoka", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }] })).toBeNull();
   });
 
-  test("[R-WORLD-003] given Ada with no naira and no job near the hub's board, her home and the step's stop both a ride away, when the nudge is read, then it names work nearby and its way is the board", () => {
+  // away from home the walk home comes first, so the board is named from home.
+  test("[R-WORLD-003] given Ada with no naira and no job at home near the hub's board, the step's stop a ride away, when the nudge is read, then it names work nearby and its way is the board", () => {
     const view = atTheClinicStep(ada(0));
-    const reach: Reach = { here: "place.akoka", home: "place.family-house", stops: [{ id: "place.akoka", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }, { id: "place.family-house", position: FAR }, { id: "place.tb-clinic", position: FAR }] };
+    const reach: Reach = { here: "place.family-house", home: "place.family-house", stops: [{ id: "place.family-house", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }, { id: "place.tb-clinic", position: FAR }] };
     expect(nudgeOf(view, undefined, [], false, reach)).toEqual({ key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY });
   });
 

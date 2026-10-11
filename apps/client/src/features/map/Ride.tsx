@@ -8,9 +8,9 @@ import { loadModel } from "../../shared/three/load";
 import { loadManifest, type PublishManifest } from "../../shared/three/manifest";
 import { mountCanvas, sharedRenderer } from "../../shared/three/sharedRenderer";
 import { mapWords } from "./map.words";
-import { type Angle, angleAt, anglesOf, buildRide, darkAt, figuresOn, peopleOf, type Phase, preMsOf, RIDE_MS, type RideScene, type Role, stepClock, type Way } from "./rideScene";
+import { type Angle, angleAt, anglesOf, buildRide, darkAt, figuresOn, LONG_WALK_MS, peopleOf, type Phase, preMsOf, RIDE_MS, type RideScene, type Role, stepClock, type Way } from "./rideScene";
 
-export { PRE_MS, RIDE_MS } from "./rideScene";
+export { LONG_WALK_MS, PRE_MS, RIDE_MS } from "./rideScene";
 
 /** How long past its own length the ride may run by the wall clock before it ends anyway (R-WORLD-032): a stall of up to three seconds is forgiven, so a slow device never holds the player much longer than the ride. */
 export const RIDE_SLACK_MS = 3500;
@@ -76,6 +76,8 @@ export interface RideProps {
   from?: string;
   /** Turn back: the character gets down at the next stop and walks back, the fare gone. Called once, instead of `onDone`. */
   onTurnBack?: () => void;
+  /** A walk home past the walking limit: it plays for `LONG_WALK_MS` and has no Skip (R-WORLD-017). */
+  long?: boolean;
 }
 
 /** How many road lines the card may say in the middle of a ride (map.words.ts). */
@@ -90,7 +92,7 @@ const PERSON_LINES: ReadonlySet<number> = new Set([3]);
  * after the pre-roll, 0 to 1. A road line that names a person is the way's own.
  */
 export function alongOf(u: number, seed: number, way: Way): { key: string; needs: "from" | "to" | null } {
-  if (u < 0.34) return { key: "map.ride.along.start", needs: "from" };
+  if (u < 0.34) return { key: way === "walk" ? "map.ride.along.start.walk" : "map.ride.along.start", needs: "from" };
   const road = (Math.abs(Math.trunc(seed)) % ROAD_LINES) + 1;
   if (u < 0.78) return { key: PERSON_LINES.has(road) ? `map.ride.along.road.${String(road)}.${way}` : `map.ride.along.road.${String(road)}`, needs: null };
   return { key: "map.ride.along.near", needs: "to" };
@@ -146,12 +148,14 @@ export function preloadRide(own: string): void {
 
 const FRAMES_KEPT = 240;
 
-export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone, from, onTurnBack }: RideProps) {
+export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone, from, onTurnBack, long = false }: RideProps) {
   const box = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
   const dark = useRef<HTMLDivElement>(null);
   const done = useRef(false);
   const pre = preMsOf(way);
+  // The long walk home runs longer than any ride and cannot be skipped; every other ride is about six seconds.
+  const length = long ? LONG_WALK_MS : RIDE_MS;
   // A slow device (frames under ten a second) runs the ride's clock behind the wall clock; the ride still ends within its slack.
   const startedAt = useRef(Date.now());
   // The ride's own clock: the scene, the angle, the card's line, the bar and the end all read it.
@@ -173,7 +177,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
     back.current?.();
   };
   // The card's line follows the ride's own clock, so it matches what is outside.
-  const alongAt = (ms: number): ReturnType<typeof alongOf> | null => (ms >= pre && from !== undefined ? alongOf(Math.min(1, Math.max(0, (ms - pre) / (RIDE_MS - pre))), seed, way) : null);
+  const alongAt = (ms: number): ReturnType<typeof alongOf> | null => (ms >= pre && from !== undefined ? alongOf(Math.min(1, Math.max(0, (ms - pre) / (length - pre))), seed, way) : null);
   const [along, setAlong] = useState(() => alongAt(0));
   const line = phase === "pre" ? lineOf(way, seed) : along === null ? null : along.key;
   const lineParams: Record<string, string> = along === null ? {} : along.needs === "from" && from !== undefined ? { from } : along.needs === "to" ? { to: place } : {};
@@ -188,7 +192,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
   const step = useRef<(dt: number) => void>(() => undefined);
   step.current = (dt: number): void => {
     if (done.current) return;
-    const ms = stepClock(clock.current, dt);
+    const ms = stepClock(clock.current, dt, length);
     clock.current = ms;
     const held = probe.current;
     held.clock = ms;
@@ -203,10 +207,10 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
       shownAlong.current = nextAlong?.key ?? null;
       setAlong(nextAlong);
     }
-    if (bar.current !== null) bar.current.style.transform = `scaleX(${String(ms / RIDE_MS)})`;
+    if (bar.current !== null) bar.current.style.transform = `scaleX(${String(ms / length)})`;
     if (dark.current !== null) dark.current.style.opacity = String(darkAt(way, ms));
     // The ride ends by itself when its own clock runs out, or when the wall clock has run past it and its slack; Skip ends it at once.
-    if (ms >= RIDE_MS || Date.now() - startedAt.current >= RIDE_MS + RIDE_SLACK_MS) end();
+    if (ms >= length || Date.now() - startedAt.current >= length + RIDE_SLACK_MS) end();
   };
 
   // Where nothing draws, a timer steps the clock; where the scene draws, each frame does.
@@ -225,7 +229,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
 
   const [ride, setRide] = useState<RideScene | null>(null);
   useEffect(() => {
-    const built = buildRide(way);
+    const built = buildRide(way, length);
     setRide(built);
     const held = probe.current;
     window.__ride = held;
@@ -233,7 +237,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
       if (window.__ride === held) delete window.__ride;
       built.dispose();
     };
-  }, [way]);
+  }, [way, length]);
   useEffect(() => {
     if (ride === null) return;
     ride.setAngle(angle);
@@ -321,9 +325,11 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
               {mapWords("map.ride.turn-back")}
             </button>
           )}
-          <button type="button" onClick={end} className="chip press h-9 shrink-0 px-3 text-[13px] font-bold" data-ride-skip>
-            {mapWords("map.ride.skip")}
-          </button>
+          {long ? null : (
+            <button type="button" onClick={end} className="chip press h-9 shrink-0 px-3 text-[13px] font-bold" data-ride-skip>
+              {mapWords("map.ride.skip")}
+            </button>
+          )}
         </div>
       </div>
       {line === null ? null : (

@@ -585,9 +585,13 @@ export function City({
   useEffect(() => {
     if (!world && sceneAt !== null) setPlaceId(sceneAt);
   }, [world, sceneAt]);
+  // The place the effect below last saw: a reload opens in the room it was kept in (R-WORLD-014), and only a move to
+  // another place steps back outside.
+  const placeSeen = useRef(placeId);
   useEffect(() => {
     watch.current = enterPlace(watch.current);
-    setInside(false);
+    if (placeSeen.current !== placeId) setInside(false);
+    placeSeen.current = placeId;
     setZoomed(false);
     setPicked(null);
     setFailed(null);
@@ -688,8 +692,6 @@ export function City({
   const cardWords = (): string => {
     if (picked === null || sample === null) return "";
     switch (picked.kind) {
-      case "own":
-        return cityWords("city.you");
       case "person": {
         const shown = sample.people.find((person) => person.slot === picked.slot) ?? (file === null ? undefined : dancerShown(stageOf(file), picked.slot));
         if (shown === undefined) return "";
@@ -753,6 +755,12 @@ export function City({
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
   // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
+    // A tap on the player's own figure opens nothing: it only puts away a chip,
+    // as any tap outside one does, so the nudge stays (R-WORLD-003).
+    if (scenePick.kind === "own") {
+      setPicked(null);
+      return;
+    }
     if (scenePick.kind !== "act") {
       setPicked(scenePick);
       return;
@@ -1205,6 +1213,29 @@ export function City({
   useEffect(() => {
     if (reportOpen) setPicked(null);
   }, [reportOpen]);
+  // A thing's chip, and a person's or a shopfront's card, close on a tap anywhere outside them, or on Escape (Back), so
+  // the nudge they hide comes back by itself, never waiting on a tap on the floor (R-WORLD-003, R-WORLD-005; the
+  // The scene reads taps on itself: another thing chooses that thing, open ground puts it away.
+  const personCard = world && (picked?.kind === "person" || picked?.kind === "model");
+  const chipOpen = (world && picked?.kind === "thing") || personCard;
+  useEffect(() => {
+    if (!chipOpen) return;
+    const outside = (event: PointerEvent): void => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest("[data-thing-chip], [data-card]") !== null || target.tagName === "CANVAS") return;
+      setPicked(null);
+    };
+    const back = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") setPicked(null);
+    };
+    document.addEventListener("pointerdown", outside, true);
+    document.addEventListener("keydown", back);
+    return () => {
+      document.removeEventListener("pointerdown", outside, true);
+      document.removeEventListener("keydown", back);
+    };
+  }, [chipOpen]);
   // A pick added from the picker's sheet closes the sheet, as the ask card does (R-WORLD-006); its thing's label says it is planned.
   const lastPlan = useRef(plan);
   useEffect(() => {
@@ -1448,6 +1479,12 @@ export function City({
               {say("ui.world.whole")}
             </button>
           ) : null}
+          {/* A person's or a shopfront's card sits at the foot of the screen, as the sheets do, never under the band. */}
+          {personCard && picked !== null ? (
+            <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[39] px-2 pb-[max(8px,env(safe-area-inset-bottom))]" data-card-dock>
+              <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />
+            </div>
+          ) : null}
           <Corner hidden={!worldFree || homeTeachShown} />
           {homeTeachShown && homeTeach !== null ? (
             <div className="pop pointer-events-auto fixed inset-x-3 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] mx-auto flex max-w-sm items-start gap-2 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-home-teach={homeTeach}>
@@ -1562,7 +1599,7 @@ export function City({
                 {heardWords(heard.key, heard.params)}
               </p>
             )}
-            {picked === null || picked.kind === "action" || picked.kind === "command" || picked.kind === "ride" || picked.kind === "enter" || picked.kind === "inside" || picked.kind === "thing" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
+            {world || picked === null || picked.kind === "action" || picked.kind === "command" || picked.kind === "ride" || picked.kind === "enter" || picked.kind === "inside" || picked.kind === "thing" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
             {world ? null : (
               <p className="pointer-events-auto self-start rounded-md bg-sheet/80 px-2 py-1 text-xs text-text-2">{cityWords("city.hold")}</p>
             )}

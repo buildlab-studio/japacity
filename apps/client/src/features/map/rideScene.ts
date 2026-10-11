@@ -37,6 +37,8 @@ export type Way = RideChoice["id"];
 export const RIDE_MS = 6000;
 /** The pre-roll before a ride by danfo, keke or okada: at most a second and a half (R-WORLD-017). */
 export const PRE_MS = 1400;
+/** A walk home past the walking limit plays this long, twice a ride, and cannot be skipped: the long walk is its cost (R-WORLD-017). */
+export const LONG_WALK_MS = 12000;
 
 /** The pre-roll's length for a way: none on foot. */
 export function preMsOf(way: Way): number {
@@ -65,9 +67,9 @@ export const STALL_MS = 1000;
  * ride's pace (each angle still gets its frames, since no frame is longer than the shortest angle); a stalled frame moves
  * the clock one step only; never past the ride's end.
  */
-export function stepClock(ms: number, dt: number): number {
+export function stepClock(ms: number, dt: number, length: number = RIDE_MS): number {
   const step = dt > STALL_MS ? STEP_MS : Math.max(0, dt);
-  return Math.min(RIDE_MS, ms + step);
+  return Math.min(length, ms + step);
 }
 
 /** The angles a way shows, each from the moment it starts: the pre-roll outside, then the rest of the ride shared out. */
@@ -326,7 +328,7 @@ function turnBone(figure: Figure, name: string, x: number, y: number, z: number)
 }
 
 /** The street, the vehicle and its seats, for the way given. */
-export function buildRide(way: Way): RideScene {
+export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
   const scene = new Scene();
   const air = new Color(palette.sky);
   scene.background = air;
@@ -415,8 +417,9 @@ export function buildRide(way: Way): RideScene {
   scene.add(vehicle);
 
   const pre = preMsOf(way);
-  const rideMs = RIDE_MS - pre;
-  const travel = way === "walk" ? WALK_TRAVEL : (TRAVEL * rideMs) / RIDE_MS;
+  const rideMs = length - pre;
+  // The long walk home covers its longer clock at the same stride (R-WORLD-017).
+  const travel = way === "walk" ? (WALK_TRAVEL * length) / RIDE_MS : (TRAVEL * rideMs) / RIDE_MS;
   /** Where the pre-roll leaves the vehicle: the danfo has pulled away, the rest stand at the kerb. */
   const pulled = way === "danfo" ? (PULL * (pre / 1000) ** 2) / 2 : 0;
   let phase: Phase = pre > 0 ? "pre" : "ride";

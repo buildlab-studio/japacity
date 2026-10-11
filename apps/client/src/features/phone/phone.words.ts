@@ -141,7 +141,9 @@ export const phoneText: Record<string, string> = {
   "phone.jobs.left": "You quit",
 
   "phone.lotto.next": "Next draw",
-  "phone.lotto.offline": "Offline, the street kiosk runs its own draw",
+  // Offline the street kiosk sells the tickets and runs the draw (R-WORLD-018): the app tells where, never a bare line.
+  "phone.lotto.kiosk": "Tickets are sold at the kiosk on {street}.",
+  "phone.lotto.none-month": "No ticket this month.",
   // R-LUCK-005: what this month's tickets cost, said once.
   "phone.lotto.month": "{count} tickets this month",
   "phone.lotto.month.one": "1 ticket this month",

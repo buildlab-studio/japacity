@@ -16,7 +16,7 @@ import { buildGrid, isWater, nearestNode, nodePoint, routeBetween, toXZ, type XZ
 import { Map } from "./Map";
 import { mapWords } from "./map.words";
 import { mapPins, type MapPin, rideChoices } from "./pins";
-import { alongOf, LINES, lineOf, PRE_MS, Ride, RIDE_MS } from "./Ride";
+import { alongOf, LINES, lineOf, LONG_WALK_MS, PRE_MS, Ride, RIDE_MS } from "./Ride";
 import { firstWay, headingOf } from "./RideSheet";
 import { type Angle, angleAt, anglesOf, buildRide, CUT_DARK_MS, darkAt, figuresOn, STEP_MS, stepClock } from "./rideScene";
 import { buildCityMap, drawCallsOf, readColours } from "./scene";
@@ -357,6 +357,92 @@ describe("the ride", () => {
     expect(walk.textContent).toContain(mapWords("map.way.walk-far"));
     fireEvent.click(walk);
     expect(walk.getAttribute("aria-checked")).toBe("false");
+  });
+
+  test("[R-WORLD-017] given home past walking distance and no fare held, when its ride sheet shows, then Walk home is open and chosen, never Too far to walk, while another stop as far keeps the limit", async () => {
+    const pins = lagosPins();
+    const here = pins.find((pin) => pin.state === "here");
+    if (here === undefined) throw new Error("No here");
+    const limit = content.tuning.city.ride.walkMetres;
+    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((limit * 3) / 111.32) };
+    const home = rideChoices(here.position, far, null, 10000, true).find((way) => way.id === "walk");
+    expect(home?.shut).toBeUndefined();
+    expect(home?.long).toBe(true);
+    expect(rideChoices(here.position, far).find((way) => way.id === "walk")?.shut).toBe("far");
+    const farPins = pins.map((pin) => (pin.id === HOME || pin.id === "place.bode-thomas" ? { ...pin, position: far } : pin));
+    const view = engineView();
+    const broke = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, cash: 0, bank: 0 } } };
+    await renderWithView(<Map pins={farPins} country={LAGOS} countries={COUNTRIES} drawing={false} home={HOME} onGo={() => undefined} onClose={() => undefined} />, broke);
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === HOME) as HTMLElement);
+    const sheet = screen.getByRole("dialog");
+    const walk = within(sheet).getAllByRole("radio").find((radio) => radio.dataset.way === "walk") as HTMLButtonElement;
+    expect(walk.disabled).toBe(false);
+    expect(walk.textContent).not.toContain(mapWords("map.way.walk-far"));
+    expect(walk.getAttribute("aria-checked")).toBe("true");
+    const main = sheet.querySelector<HTMLButtonElement>("[data-ride-main]");
+    expect(main?.textContent).toContain(mapWords("map.walk-home"));
+    expect(main?.disabled).toBe(false);
+    // Another stop as far keeps the walking limit.
+    fireEvent.click(within(sheet).getByRole("button", { name: mapWords("map.not-now") }));
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.bode-thomas") as HTMLElement);
+    const other = within(screen.getByRole("dialog")).getAllByRole("radio").find((radio) => radio.dataset.way === "walk") as HTMLButtonElement;
+    expect(other.disabled).toBe(true);
+    expect(other.textContent).toContain(mapWords("map.way.walk-far"));
+  });
+
+  test("[R-WORLD-017] given a walk home past walking distance, when it plays, then it runs longer than a ride, has no Skip, and ends once by itself; a walk within reach keeps the ride's six seconds and its Skip", async () => {
+    vi.useFakeTimers();
+    expect(LONG_WALK_MS).toBeGreaterThan(RIDE_MS);
+    const onRide = vi.fn();
+    const onGo = vi.fn();
+    const pins = lagosPins();
+    const here = pins.find((pin) => pin.state === "here");
+    if (here === undefined) throw new Error("No here");
+    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((content.tuning.city.ride.walkMetres * 3) / 111.32) };
+    const farPins = pins.map((pin) => (pin.id === HOME ? { ...pin, position: far } : pin));
+    const view = engineView();
+    const broke = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, cash: 0, bank: 0 } } };
+    await renderWithView(<Map pins={farPins} country={LAGOS} countries={COUNTRIES} drawing={false} home={HOME} onGo={onGo} onClose={() => undefined} onRide={onRide} />, broke);
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === HOME) as HTMLElement);
+    fireEvent.click(screen.getByRole("dialog").querySelector("[data-ride-main]") as HTMLElement);
+    expect((onRide.mock.calls[0] as [RideChoice, string])[0]).toMatchObject({ id: "walk", long: true });
+    expect(document.querySelector("[data-ride='walk']")).not.toBeNull();
+    expect(document.querySelector("[data-ride-skip]")).toBeNull();
+    expect(screen.queryByRole("button", { name: mapWords("map.ride.skip") })).toBeNull();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RIDE_MS + 500);
+    });
+    expect(onGo).not.toHaveBeenCalled();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(LONG_WALK_MS - RIDE_MS);
+    });
+    expect(onGo).toHaveBeenCalledTimes(1);
+    expect(onGo).toHaveBeenCalledWith(HOME);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(LONG_WALK_MS);
+    });
+    expect(onGo).toHaveBeenCalledTimes(1);
+    // A walk within reach is a ride's length and can be skipped.
+    document.body.innerHTML = "";
+    const onDone = vi.fn();
+    render(<Ride way="walk" place="Tejuosho Market" drawing={false} onDone={onDone} />);
+    expect(screen.getByRole("button", { name: mapWords("map.ride.skip") })).toBeTruthy();
+  });
+
+  test("[R-WORLD-017] given a walk, short or the long walk home, when it sets off, then the card says it sets off on foot from the place left, never that it pulls out; a ride still pulls out", async () => {
+    expect(alongOf(0, 1, "walk")).toEqual({ key: "map.ride.along.start.walk", needs: "from" });
+    expect(alongOf(0, 1, "danfo").key).toBe("map.ride.along.start");
+    expect(mapWords("map.ride.along.start.walk", { from: "Computer Village" })).toBe("Setting off from Computer Village on foot.");
+    vi.useFakeTimers();
+    for (const long of [false, true]) {
+      document.body.innerHTML = "";
+      render(<Ride way="walk" long={long} place="The family house" from="Computer Village" drawing={false} onDone={() => undefined} />);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(200);
+      });
+      expect(document.querySelector("[data-ride-line]")?.textContent).toBe("Setting off from Computer Village on foot.");
+      expect(document.body.textContent).not.toContain("Pulling out");
+    }
   });
 
   test("[R-WORLD-017] given a ride with the place it left, when it plays, then the card says where you are on the ride's own clock: pulling out, a road line, the stop near the end", async () => {
