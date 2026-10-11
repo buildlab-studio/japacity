@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import compoundFile from "../../../public/assets/places/compound-room/place.json";
 import parlourFile from "../../../public/assets/places/family-house-parlour/place.json";
 import { engineView, newGame } from "../../shared/testing/fixtures";
-import { answersNow } from "../../shared/words/acts";
+import { answersNow, nowActsIn } from "../../shared/words/acts";
 import { say } from "../../shared/words/text";
 import { actsOffered } from "./acts";
 import { doActLine, plainActLine, plannedMarks } from "./actLines";
@@ -22,16 +22,19 @@ const parlour = parlourFile as unknown as PlaceFile;
 const things = thingsOf(stageOf(parlour));
 
 describe("the room's basics at the tap", () => {
-  test("[R-OBLIGATION-014] [R-ACTIVITY-015] [R-WORLD-005] given the parlour, when cooking and water are done, then each answers now and leaves its thing for the month, and the scene shows it: the pot steams and the drum is full", () => {
+  test("[R-OBLIGATION-014] [R-ACTIVITY-015] [R-WORLD-005] given the parlour, when cooking and water are done, then each answers now and stays at its thing for another time, and the scene shows it: the pot steams and the drum is full", () => {
     expect(answersNow(COOK)).toBe(true);
     expect(answersNow(WATER)).toBe(true);
     const game = newGame("scenario.ada");
-    game.accept({ type: "activity/now", activity: COOK, param: null });
-    game.accept({ type: "activity/now", activity: WATER, param: null });
+    const answered = [...game.accept({ type: "activity/now", activity: COOK, param: null }).lines, ...game.accept({ type: "activity/now", activity: WATER, param: null }).lines];
+    // Decision 0035 (R-ACTIVITY-019): a meal and the water repeat within the month, so each stays at its thing for another time.
     const offered = actsOffered(game.view());
-    expect(offered).not.toContain(COOK);
-    expect(offered).not.toContain(WATER);
-    const shown = stageOf(showPlanned(parlour, [COOK, WATER]));
+    expect(offered).toContain(COOK);
+    expect(offered).toContain(WATER);
+    // Never done for the month, they are seen on their things by the month's own answers.
+    expect(game.view().activities.filter((option) => option.id === COOK || option.id === WATER).every((option) => !option.done)).toBe(true);
+    expect(nowActsIn(answered)).toEqual([COOK, WATER]);
+    const shown = stageOf(showPlanned(parlour, nowActsIn(answered)));
     expect(shown.motion.length).toBeGreaterThan(stageOf(parlour).motion.length);
     expect(shown.models.length).toBeGreaterThan(stageOf(parlour).models.length);
   });

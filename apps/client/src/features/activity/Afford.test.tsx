@@ -14,8 +14,10 @@ import { nameOf, say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
 const TB = "activity.tb-test";
-const LEARN = "activity.learn-tech";
-const PORTFOLIO = "activity.build-portfolio";
+// Decision 0035 (R-ACTIVITY-019): the coding course and the portfolio now answer at once and repeat, so the paid things
+// a plan holds are month-acts: the nurse's certification and a master's at home.
+const CERTIFICATE = "activity.nurse-certification";
+const MASTERS = "activity.masters-at-home";
 
 const addButton = (id: string): HTMLButtonElement => screen.getByRole<HTMLButtonElement>("button", { name: `${nameOf(id)}` });
 
@@ -54,16 +56,17 @@ describe("the picker's cards and money", () => {
     const first = 2_500_000;
     const second = naira(view) - first;
     // only month-acts are planned, each once, so the plan
-    // that pays is a course and then the portfolio beside it.
-    const { store } = await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(LEARN, first), offered(PORTFOLIO, first), offered(TB, second)] });
+    // that pays is a course and then a second month-act beside it (decision 0035: two that still take the month).
+    expect([CERTIFICATE, MASTERS].every((id) => plannable(id))).toBe(true);
+    const { store } = await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(CERTIFICATE, first), offered(MASTERS, first), offered(TB, second)] });
     expect(addButton(TB).querySelector("[data-after]")?.textContent).toBe(say("ui.world.left", { amount: formatMoney(first, "NGN") }));
     act(() => {
-      store.getState().addToPlan({ activity: LEARN, param: null });
+      store.getState().addToPlan({ activity: CERTIFICATE, param: null });
     });
     expect(addButton(TB).querySelector("[data-after]")?.textContent).toBe(say("ui.world.left", { amount: formatMoney(0, "NGN") }));
     expect(addButton(TB).disabled).toBe(false);
     act(() => {
-      store.getState().addToPlan({ activity: PORTFOLIO, param: null });
+      store.getState().addToPlan({ activity: MASTERS, param: null });
     });
     expect(addButton(TB).disabled).toBe(true);
     expect(addButton(TB).querySelector("[data-after]")?.textContent).toBe(say("ui.world.short", { amount: formatMoney(first, "NGN") }));

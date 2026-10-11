@@ -39,7 +39,7 @@ import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
-import { actOnCard, answersNow, nowActOf, nowLineIn } from "../../shared/words/acts";
+import { actOnCard, answersNow, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
 import { doActLine, lightBack, plainActLine, plannedMarks } from "./actLines";
@@ -637,7 +637,8 @@ export function City({
   // R-WORLD-029: a choice for the month is seen on its thing: what carries on in the plan, and what was done this month,
   // the pot steaming once cooked and the drum full once fetched (R-OBLIGATION-014).
   const plannedKey = plan.flatMap((pick) => (pick === null ? [] : [pick.activity])).join("|");
-  const doneKey = view.activities.flatMap((option) => (option.done ? [option.id] : [])).join("|");
+  // An act that repeats is never done for the month (R-ACTIVITY-019, decision 0035), so the month's own answers say it was done.
+  const doneKey = [...new Set([...view.activities.flatMap((option) => (option.done ? [option.id] : [])), ...nowActsIn(monthLines)])].join("|");
   // R-WORLD-020, R-PEOPLE-009, R-PEOPLE-013: a computer partner the view lists stands at their thing in the place content
   // meets them in, one met only in December only while it is December; nobody else stands there.
   const december = useGame((state) => worldVar(state, DECEMBER)) === 1;
@@ -1131,6 +1132,7 @@ export function City({
     const paper = isPaper(activity);
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
+    const time = timeWordsOf(activity);
     return {
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : school !== null ? SCHOOL_ICON : "hand",
@@ -1162,7 +1164,9 @@ export function City({
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: shut ? say("ui.activity.planned") : chosen !== null && hasWords(`${chosen}.act`) ? say(`${chosen}.act`) : nameOf(activity),
       // R-ACTIVITY-015: an act done at once says "Now" under its button; a month-act counts when the month ends.
+      // R-ACTIVITY-018: an act done at once says the time it takes in words.
       ...(answersNow(activity) ? { when: "now" as const } : {}),
+      ...(time === null ? {} : { time }),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
       // R-WALLET-020: a slip is paid from earned naira only; with only topped-up naira to pay it, the kiosk is shut with its words.

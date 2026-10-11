@@ -1,13 +1,13 @@
-// The month passes as the player moves (docs/rules/world.md R-WORLD-030): the days the interface
-// counts from rides and acts, never past the month, and the lines each month-act says of itself, on
-// the real content and the real engine through the real store.
+// The month passes as the player moves (docs/rules/world.md R-WORLD-030, amended for the lived month): the day is
+// read from the view's halfDays, the share of the month's free time the acts have spent, never past the month, and
+// the lines each month-act says of itself, on the real content and the real engine through the real store.
 import { activitySignals, content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { localAuthority } from "../../authority/local";
 import { createGameStore, type GameStore } from "../../authority/store";
-import { DAYS_IN_MONTH, dueSignals, isMonthAct, monthActs, signalsOf, waitingSignals } from "./days";
+import { DAYS_IN_MONTH, dayOfView, dueSignals, isMonthAct, monthActs, signalsOf, waitingSignals } from "./days";
 import { atHome, CITY_LAST_KEY } from "./standing";
 import { currentDays, forgetDays, tellSignals, watchDays } from "./days.store";
 
@@ -34,7 +34,11 @@ const MONTH_ACTS_FREE = [
   "activity.overtime",
 ];
 
-const COURSE = "activity.learn-tech" as Id<"activity">;
+// Decision 0035 (R-ACTIVITY-019): the coding course now answers at once and repeats, so it is never planned; the course
+// that carries on as a commitment is a master's at home, whose lines come in its first and third weeks as the course's did.
+const COURSE = "activity.masters-at-home" as Id<"activity">;
+/** A nap: an act that spends a morning of the month's free time and costs nothing. */
+const NAP = "activity.nap" as Id<"activity">;
 
 async function adaStore(): Promise<GameStore> {
   const authority = localAuthority({ fastClock: true, storage: null, scenario: "scenario.ada", makeSeed: () => "month-signals", now: () => 0 });
@@ -54,6 +58,14 @@ function twoStops(): [Id<"place">, Id<"place">] {
 async function ride(store: GameStore, from: Id<"place">, to: Id<"place">): Promise<void> {
   const reply = await store.getState().send({ type: "place/ride", from, to, way: "danfo" });
   if (reply === null || !reply.ok) throw new Error("The ride was refused.");
+}
+
+/** Spends the month's free time a morning at a time, as naps, until the view's day is `target`. */
+async function liveUntil(store: GameStore, target: number): Promise<void> {
+  for (let guard = 0; guard < 200 && dayOfView(store.getState().view!) < target; guard += 1) {
+    const reply = await store.getState().send({ type: "activity/now", activity: NAP, param: null });
+    if (reply === null || !reply.ok) throw new Error("The nap was refused.");
+  }
 }
 
 function stand(place: string, inside = false): void {
@@ -99,36 +111,52 @@ describe("the lines each month-act says of itself", () => {
 });
 
 describe("the days of the month", () => {
-  test("[R-WORLD-030] given a new month, when a ride is accepted, then the days move by one, and an act planned moves them by one more", async () => {
+  test("[R-WORLD-030] given a new month, when a ride is accepted or a course planned, then the days do not move; when acts spend the month's free time, the day is the share of it spent", async () => {
+    // Decision 0035, with R-WORLD-030 as amended for the lived month (decision 0034): the day is read from the view's
+    // halfDays; a ride and a plan spend none of it, the acts that answer at once do.
     const store = await adaStore();
     const stop = watchDays(store);
     const [house, other] = twoStops();
     expect(day()).toBe(0);
     await ride(store, house, other);
+    expect(day()).toBe(0);
+    expect(store.getState().addToPlan({ activity: COURSE, param: null })).toBe(true);
+    expect(day()).toBe(0);
+    await store.getState().send({ type: "activity/now", activity: "activity.learn-tech", param: null });
+    await store.getState().send({ type: "activity/now", activity: "activity.cook-at-home", param: null });
+    const { spent, free } = store.getState().view!.halfDays;
+    expect(spent).toBe(3);
+    expect(day()).toBe(Math.floor((spent * DAYS_IN_MONTH) / free));
     expect(day()).toBe(1);
-    store.getState().addToPlan({ activity: COURSE, param: null });
-    expect(day()).toBe(2);
     await ride(store, other, house);
-    expect(day()).toBe(3);
+    expect(day()).toBe(1);
     stop();
   });
 
-  test("[R-WORLD-030] given rides back and forth all month, when the days are counted, then they stop at four weeks and never pass the month", async () => {
+  test("[R-WORLD-030] given acts that spend the whole month's free time and more, when the days are counted, then they stop at four weeks and never pass the month", async () => {
+    // Decision 0035, with R-WORLD-030 as amended (decision 0034): the days are the view's time spent, so it is acts, not
+    // rides, that fill them; once the free time is spent the month turns by itself (R-TURN-010).
+    const free = (await adaStore()).getState().view!.halfDays.free;
+    expect(dayOfView({ halfDays: { spent: free, free } })).toBe(DAYS_IN_MONTH);
+    expect(dayOfView({ halfDays: { spent: free + 4, free } })).toBe(DAYS_IN_MONTH);
     const store = await adaStore();
     const stop = watchDays(store);
-    const [house, other] = twoStops();
-    for (let leg = 0; leg < DAYS_IN_MONTH + 4; leg += 1) await ride(store, leg % 2 === 0 ? house : other, leg % 2 === 0 ? other : house);
-    expect(day()).toBe(DAYS_IN_MONTH);
+    const month = store.getState().view!.month;
+    for (let nap = 1; nap < free; nap += 1) await store.getState().send({ type: "activity/now", activity: NAP, param: null });
+    expect(store.getState().view!.halfDays.spent).toBe(free - 1);
+    expect(day()).toBe(DAYS_IN_MONTH - 1);
     expect(DAYS_IN_MONTH).toBe(28);
+    await store.getState().send({ type: "activity/now", activity: NAP, param: null });
+    await vi.waitFor(() => expect(store.getState().view!.month).toBe(month + 1));
+    expect(day()).toBe(0);
     stop();
   });
 
   test("[R-WORLD-030] given days gone this month, when the page is turned, then the next month starts at its first day", async () => {
     const store = await adaStore();
     const stop = watchDays(store);
-    const [house, other] = twoStops();
-    await ride(store, house, other);
-    await ride(store, other, house);
+    // Decision 0035, with R-WORLD-030 as amended (decision 0034): the days go as the acts spend the month's time.
+    await liveUntil(store, 2);
     expect(day()).toBe(2);
     const month = store.getState().view!.month;
     await store.getState().endMonth();
@@ -139,23 +167,26 @@ describe("the days of the month", () => {
   });
 
   test("[R-WORLD-030] given the days counted, when the store is watched twice, then each move still counts once", async () => {
+    // Decision 0035, with R-WORLD-030 as amended (decision 0034): the day is the view's share of the time spent, so two
+    // watches read the same day, and with no watch left nothing is kept.
     const store = await adaStore();
     const first = watchDays(store);
     const second = watchDays(store);
-    const [house, other] = twoStops();
-    await ride(store, house, other);
+    await liveUntil(store, 1);
     expect(day()).toBe(1);
     second();
-    await ride(store, other, house);
+    await liveUntil(store, 2);
     expect(day()).toBe(2);
     first();
-    await ride(store, house, other);
+    await liveUntil(store, 3);
     expect(day()).toBe(2);
   });
 });
 
 describe("a planned course tells of itself on its day, at home", () => {
-  test("[R-WORLD-030] given a coding course planned, when the days pass, then its first line comes the day after and its second in its third week", async () => {
+  test("[R-WORLD-030] given a master's course planned, when the days pass, then its first line comes the day after and its second in its third week", async () => {
+    // Decision 0035: the course that carries on is the master's at home; the days pass as the acts spend the month's
+    // time (R-WORLD-030 as amended, decision 0034), so planning takes no day and a ride passes none.
     const store = await adaStore();
     const stop = watchDays(store);
     const [house, other] = twoStops();
@@ -164,15 +195,17 @@ describe("a planned course tells of itself on its day, at home", () => {
     store.getState().addToPlan({ activity: COURSE, param: null });
     const due = () => dueSignals(currentDays()!, store.getState().view!, store.getState().plan).map((signal) => signal.key);
     expect(monthActs(store.getState().view!, store.getState().plan)).toContain(COURSE);
-    // Planning took the day; nothing of the course has happened yet.
+    // Nothing of the course has happened yet, and a ride spends none of the month's time.
     expect(due()).toEqual([]);
     await ride(store, house, other);
+    expect(due()).toEqual([]);
+    // Planned on the month's first day, the course's first day is the next; its third week starts two weeks on.
+    expect(currentDays()?.since[COURSE]).toBe(0);
+    await liveUntil(store, 1);
     expect(due()).toEqual([`${COURSE}.signal.1`]);
-    // Planned on day 1, the course's first day is the next; its third week starts two weeks on.
-    expect(currentDays()?.since[COURSE]).toBe(1);
-    while (day() < 1 + 1 + 14) {
+    while (day() < 1 + 14) {
       expect(due()).not.toContain(`${COURSE}.signal.2`);
-      await ride(store, day() % 2 === 0 ? house : other, day() % 2 === 0 ? other : house);
+      await liveUntil(store, day() + 1);
     }
     expect(due()).toEqual([`${COURSE}.signal.1`, `${COURSE}.signal.2`]);
     stop();
@@ -197,7 +230,8 @@ describe("a planned course tells of itself on its day, at home", () => {
     const stop = watchDays(store);
     const [house, other] = twoStops();
     store.getState().addToPlan({ activity: COURSE, param: null });
-    await ride(store, house, other);
+    // Decision 0035, with R-WORLD-030 as amended (decision 0034): a day passes as the acts spend the month's time.
+    await liveUntil(store, 1);
     const view = store.getState().view!;
     const waiting = waitingSignals(currentDays()!, view, store.getState().plan);
     expect(waiting.map((signal) => signal.key)).toEqual([`${COURSE}.signal.1`]);
@@ -208,6 +242,8 @@ describe("a planned course tells of itself on its day, at home", () => {
     expect(store.getState().plan).toContainEqual({ activity: COURSE, param: null });
     expect(waitingSignals(currentDays()!, store.getState().view!, store.getState().plan)).toEqual([]);
     await ride(store, house, other);
+    expect(waitingSignals(currentDays()!, store.getState().view!, store.getState().plan)).toEqual([]);
+    await liveUntil(store, 1);
     expect(waitingSignals(currentDays()!, store.getState().view!, store.getState().plan).map((signal) => signal.key)).toEqual([`${COURSE}.signal.1`]);
     stop();
   });

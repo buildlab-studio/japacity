@@ -10,7 +10,7 @@ import { describe, expect, test } from "vitest";
 import { slot, applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { formatMoney } from "../../shared/words/format";
-import { newGame, recordedGame, abroadGame, viewAfter } from "../../shared/testing/fixtures";
+import { chargedLivingGame, newGame, recordedGame, abroadGame, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nameOf, words } from "../../shared/words/text";
 import { monthlyPayOf } from "../../shared/words/cost";
@@ -18,9 +18,8 @@ import { storyLines, toldOnResults } from "./month.results";
 import { Results } from "./Results";
 import { turnWords } from "./turn.words";
 
-/** Ada with every naira taken, so the month's living costs cannot be paid. */
-function adaBroke(): Game {
-  const game = newGame("scenario.ada");
+/** Ada with every naira taken, so whatever the month charges cannot be paid. */
+function adaBroke(game: Game = newGame("scenario.ada")): Game {
   const pocket = game.state.wallet.pockets.NGN;
   applyEffects(game, [
     { type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "social" },
@@ -41,8 +40,13 @@ function storyRows(): HTMLElement[] {
 
 describe("money that was not paid", () => {
   test("[R-WORLD-008] given Ada with nothing to pay her living costs, when the month ends, then the first story line says the living costs went unpaid, in red, with the figure and what it cost", async () => {
-    const game = adaBroke();
+    // Decision 0035 (R-HOME-012): at home nothing of the living is charged as the month turns, so a broke month there
+    // misses no living costs at all; the unpaid line is tested on the living charged whole, as the simulation's relief tests do.
+    const lived = adaBroke().endTurn().lines;
+    expect(lived.some((line) => line.key === "line.obligation.missed" && line.params["obligation"] === "obligation.upkeep")).toBe(false);
+    const game = adaBroke(chargedLivingGame("scenario.ada"));
     const due = game.view().obligations.find((owed) => owed.entry === "obligation.upkeep")?.due ?? 0;
+    expect(due).toBeGreaterThan(0);
     const { lines } = game.endTurn();
     await showResults(game, lines);
     const first = storyRows()[0];

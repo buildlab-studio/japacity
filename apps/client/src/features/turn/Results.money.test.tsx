@@ -11,7 +11,7 @@ import { applyEffects, readyLife, toKnown, withEffects } from "../../../../../pa
 import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
 import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import { standInWorld } from "@japacity/sim";
-import { newGame, openOffer } from "../../shared/testing/fixtures";
+import { chargedLivingGame, newGame, openOffer } from "../../shared/testing/fixtures";
 import { formatMoney } from "../../shared/words/format";
 import { tidyLines } from "../../shared/words/lines";
 import { words } from "../../shared/words/text";
@@ -46,7 +46,9 @@ function scammerGame(): { game: Game; offer: string; fee: number } {
 
 describe("what the results count", () => {
   test("[R-WORLD-008] given a life with no money for its upkeep, when the month ends, then the missed bill is told but what was kept is what really moved", () => {
-    const game = newGame("scenario.ada");
+    // Decision 0035 (R-HOME-012): at home the living is charged nothing as the month turns, so a bill to miss is made by
+    // charging it whole, as the simulation's relief tests do.
+    const game = chargedLivingGame("scenario.ada");
     const pocket = game.state.wallet.pockets.NGN;
     applyEffects(game, [
       { type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "social" },

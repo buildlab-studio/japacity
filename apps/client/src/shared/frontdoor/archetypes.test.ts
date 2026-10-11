@@ -5,7 +5,8 @@ import { content } from "@japacity/content";
 import { allMet } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { newGame } from "../testing/fixtures";
+import { chargedLivingContent, newGame } from "../testing/fixtures";
+import { start } from "../../../../../packages/sim/src/testing/play";
 import { say } from "../words/text";
 import { earlyStops, nextStepOf, ownWayOf, sixteenPath } from "../words/sixteen";
 import { agePointsCount, ARCHETYPES, type Archetype, archetypeOf, doorAnswer, handoverKind, lowestYear, ownSteps, presetAnswer, withAge } from "./archetypes";
@@ -24,8 +25,9 @@ interface Played {
   game: ReturnType<typeof newGame>;
 }
 
-function play(archetype: Archetype, seed: string): Played {
-  const game = newGame(PROLOGUE, seed);
+/** `on`: the content the life is played on; the shipped content unless a test needs the living charged (decision 0035). */
+function play(archetype: Archetype, seed: string, on: typeof content = content): Played {
+  const game = on === content ? newGame(PROLOGUE, seed) : start({ scenario: PROLOGUE, seed, content: on });
   const unnamed: string[] = [];
   const shut: string[] = [];
   const sent = new Set<string>();
@@ -349,8 +351,10 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
       // No card: the send-off is its crowd's, as the table names it, and nothing a draw shut.
       if (unnamed.length > 0 || shut.length > 0) wrong.push(`${String(at)}: unnamed ${unnamed.join(",")}, shut ${shut.join(",")}`);
       if (view.home.place !== MAKOKO || view.home.moved !== null) wrong.push(`${String(at)}: home ${JSON.stringify(view.home)}`);
-      if (view.home.rent?.amount !== content.tuning.home.makokoUpkeep) wrong.push(`${String(at)}: rent ${JSON.stringify(view.home.rent)}`);
+      // Decision 0035 (R-HOME-012): the room's bill stands at the page's rent, and the engine charges none of it as the month turns.
+      if (view.home.rent?.amount !== 0) wrong.push(`${String(at)}: rent ${JSON.stringify(view.home.rent)}`);
       if (view.obligations.map((owed) => owed.entry).join(",") !== MAKOKO_UPKEEP) wrong.push(`${String(at)}: owes ${view.obligations.map((owed) => owed.entry).join(",")}`);
+      if (view.obligations.some((owed) => owed.amount !== content.tuning.home.makokoUpkeep)) wrong.push(`${String(at)}: the room's bill ${JSON.stringify(view.obligations)}`);
       if (sixteenPath(view) !== "trade") wrong.push(`${String(at)}: ${String(sixteenPath(view))}`);
       if (handoverKind(water, view) !== `${say("prologue.archetype.water.name")}. ${say("prologue.archetype.water.was")}.`) wrong.push(`${String(at)}: ${handoverKind(water, view)}`);
     }
@@ -362,7 +366,9 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
     const wrong: string[] = [];
     for (let at = 0; at < 30; at += 1) {
       const seed = `save-${String(at)}`;
-      const lives = [play(water, seed).game, play(shopWorker, seed).game];
+      // Decision 0035 (R-HOME-012): with the living lived by hand neither home charges anything as the month turns, so the
+      // saving the page promises is tested with the living charged whole, as the simulation's relief tests charge it.
+      const lives = [play(water, seed, chargedLivingContent).game, play(shopWorker, seed, chargedLivingContent).game];
       for (const game of lives) for (let month = 0; month < 6; month += 1) upMonth(game, false);
       const [onWater, atHome] = lives.map(nairaHeld) as [number, number];
       if (onWater <= atHome) wrong.push(`${seed}: ${String(onWater)} against ${String(atHome)}`);
@@ -378,7 +384,9 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
     for (let at = 0; at < lives; at += 1) {
       const seed = `up-${String(at)}`;
       for (const [who, archetype] of [["water", water], ["home", shopWorker]] as const) {
-        const { game } = play(archetype, seed);
+        // Decision 0035 (R-HOME-012): the capital the room saves against the family house is tested with the living charged
+        // whole, as the simulation's relief tests charge it; lived by hand, neither home charges anything.
+        const { game } = play(archetype, seed, chargedLivingContent);
         if (!(game.view().activities.find((option) => option.id === "activity.job-hunt")?.params ?? []).includes(DESK_JOB)) wrong.push(`${seed} ${who}: the hunt cannot ask for the desk job`);
         for (let month = 0; month < 12; month += 1) upMonth(game, true);
         if (game.view().activities.some((option) => option.id === OPEN_SHOP && option.allowed)) reached[who] += 1;

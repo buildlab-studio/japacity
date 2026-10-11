@@ -1,7 +1,7 @@
-// The days of the month (docs/rules/world.md R-WORLD-030): the interface counts them from what the
-// character does, a ride a day and an act a day, at most four weeks, as presentation only. Nothing in
-// the simulation reads them; its outcomes land at the month's end. Each month-act tells of itself in
-// the lines content gives it, each in a week of the act counted from the day after it joined the month.
+// The days of the month (docs/rules/world.md R-WORLD-030, as amended for the lived month, decision 0034): the day is
+// read from the view's `halfDays`, the share of the month's free time spent laid over four weeks; the interface keeps
+// no count of its own, so a ride or a plan moves nothing. Each month-act tells of itself in the lines content gives
+// it, each in a week of the act counted from the day after it joined the month.
 import { activitySignals } from "@japacity/content";
 import type { PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 
@@ -12,7 +12,7 @@ export const DAYS_IN_MONTH = 4 * DAYS_IN_WEEK;
 export interface MonthDays {
   scenario: string;
   month: number;
-  /** Days gone this month: 0 at its start, at most DAYS_IN_MONTH. */
+  /** Days gone this month, read from the view's time (`dayOfView`): 0 at its start, at most DAYS_IN_MONTH. */
   day: number;
   /** The day each month-act joined the month: the job held from the start, a pick from the day after it was planned. */
   since: Record<string, number>;
@@ -66,10 +66,11 @@ export function daysOf(kept: MonthDays | null, view: Pick<PlayerView, "scenario"
   return kept !== null && kept.scenario === view.scenario && kept.month === view.month ? kept : freshDays(view);
 }
 
-/** Days gone, never past the month. */
-export function passDays(days: MonthDays, count: number): MonthDays {
-  const day = Math.min(DAYS_IN_MONTH, days.day + Math.max(0, count));
-  return day === days.day ? days : { ...days, day };
+/** The day of the month the view's time says: the share of the month's free time spent, over four weeks, never past it. */
+export function dayOfView(view: Pick<PlayerView, "halfDays">): number {
+  const { spent, free } = view.halfDays;
+  if (free <= 0) return 0;
+  return Math.min(DAYS_IN_MONTH, Math.floor((Math.max(0, spent) * DAYS_IN_MONTH) / free));
 }
 
 /** The acts that take this month and tell of themselves: the job held, the side job, then what is planned. */
@@ -109,39 +110,16 @@ export interface Moment {
   lines: readonly ReportLine[];
 }
 
-/** How many of each act a plan holds. */
-function counted(plan: readonly (SlotPick | null)[]): Map<string, number> {
-  const counts = new Map<string, number>();
-  for (const pick of plan) if (pick !== null) counts.set(pick.activity, (counts.get(pick.activity) ?? 0) + 1);
-  return counts;
-}
-
-/** The picks a plan gained. */
-function gained(before: readonly (SlotPick | null)[], after: readonly (SlotPick | null)[]): number {
-  const was = counted(before);
-  let more = 0;
-  for (const [activity, count] of counted(after)) more += Math.max(0, count - (was.get(activity) ?? 0));
-  return more;
-}
-
-/** An answer to a set piece or an interview's question is part of the act that opened it, not a day of its own. */
-function answering(view: PlayerView): boolean {
-  return view.setpiece !== null || (view.interview?.question ?? null) !== null;
-}
-
 /**
- * The days after the store moved from `before` to `after`: a command accepted this month (a ride,
- * an act sent) is a day, and each act planned is a day. A new month starts at its first day, and the
- * first view seen (a load) counts nothing. Every act of the month is given the day it joined.
+ * The days after the store moved from `before` to `after`: the day is the view's (`dayOfView`), so only the time the
+ * acts spend moves it. A new month starts at its first day. Every act of the month is given the day it joined.
  */
 export function stepDays(kept: MonthDays | null, before: Moment, after: Moment): MonthDays | null {
   if (after.view === null) return kept;
   let days = daysOf(kept, after.view);
+  const day = dayOfView(after.view);
+  if (day !== days.day) days = { ...days, day };
   const sameMonth = before.view !== null && before.view.scenario === after.view.scenario && before.view.month === after.view.month;
-  if (sameMonth && before.view !== null) {
-    const sent = after.lines !== before.lines && !answering(before.view) ? 1 : 0;
-    days = passDays(days, sent + gained(before.plan, after.plan));
-  }
   // The job held from the month's start; anything joining later from the day after its own.
   const first = !sameMonth;
   const since = { ...days.since };

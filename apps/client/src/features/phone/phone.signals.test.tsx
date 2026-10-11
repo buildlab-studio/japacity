@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { createGameStore, type GameStore } from "../../authority/store";
+import { dayOfView } from "../../shared/days/days";
 import { forgetDays } from "../../shared/days/days.store";
 import { CITY_LAST_KEY } from "../../shared/days/standing";
 import "../../shared/testing/render";
@@ -16,9 +17,11 @@ import { say } from "../../shared/words/text";
 import { PhoneApps, usePhoneWaiting } from "./PhoneApps";
 import { APP_IDS, markSeen, marksOf, reloadSeen } from "./seen";
 
-const COURSE = "activity.learn-tech" as Id<"activity">;
+// Decision 0035 (R-ACTIVITY-019): the coding course now answers at once and is never planned, so the course that carries
+// on and tells of itself is a master's at home.
+const COURSE = "activity.masters-at-home" as Id<"activity">;
 /** The course's first line, from content. */
-const LINE = text["activity.learn-tech.signal.1"] ?? "missing";
+const LINE = text["activity.masters-at-home.signal.1"] ?? "missing";
 const NOON = () => new Date(2026, 9, 8, 12, 5);
 
 /** Every command the store sends, in order. */
@@ -50,7 +53,7 @@ function stand(place: string): void {
   localStorage.setItem(CITY_LAST_KEY, JSON.stringify([place]));
 }
 
-/** Ada plans a coding course and rides out, so its first line is due, with the phone put away. */
+/** Ada plans a master's course, rides out and naps through a day, so its first line is due, with the phone put away. */
 async function courseDue(): Promise<{ store: GameStore; open: () => void; close: () => void }> {
   const store = await adaStore();
   let shown = false;
@@ -68,6 +71,11 @@ async function courseDue(): Promise<{ store: GameStore; open: () => void; close:
   if (other === undefined) throw new Error("No place to ride to.");
   await act(async () => {
     await store.getState().send({ type: "place/ride", from: "place.family-house", to: other.id, way: "danfo" });
+  });
+  // Decision 0035, with R-WORLD-030 as amended for the lived month (decision 0034): the day is the share of the month's
+  // free time spent, which a ride does not spend, so a day goes as naps spend it.
+  await act(async () => {
+    while (dayOfView(store.getState().view!) < 1) await store.getState().send({ type: "activity/now", activity: "activity.nap", param: null });
   });
   // Everything in the apps seen, so the dot is the month's lines alone.
   const marks = marksOf(store.getState().view!);
@@ -98,7 +106,7 @@ afterEach(() => {
 });
 
 describe("the month's lines on the phone", () => {
-  test("[R-WORLD-030] given a coding course planned and a day gone, when the phone opens at home, then the course's line shows as a notification and the dot goes", async () => {
+  test("[R-WORLD-030] given a master's course planned and a day gone, when the phone opens at home, then the course's line shows as a notification and the dot goes", async () => {
     const { open, close } = await courseDue();
     stand("place.family-house");
     expect(dot()).toBe(true);
@@ -145,7 +153,9 @@ describe("the month's lines on the phone", () => {
 
   test("[R-WORLD-030] given the lines told and the phone opened at home and on the street, when the view is read, then it is the very same view and the phone sent nothing", async () => {
     const { store, open, close } = await courseDue();
-    expect(sent).toEqual(["place/ride"]);
+    // Decision 0035: the day that went was three naps of the month's free time, sent as acts before the phone opened.
+    const lived: Command["type"][] = ["place/ride", "activity/now", "activity/now", "activity/now"];
+    expect(sent).toEqual(lived);
     const before = store.getState().view;
     const json = JSON.stringify(before);
     stand("place.ojuelegba");
@@ -157,6 +167,6 @@ describe("the month's lines on the phone", () => {
     close();
     expect(store.getState().view).toBe(before);
     expect(JSON.stringify(store.getState().view)).toBe(json);
-    expect(sent).toEqual(["place/ride"]);
+    expect(sent).toEqual(lived);
   });
 });

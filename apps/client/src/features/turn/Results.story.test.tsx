@@ -25,12 +25,16 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
 describe("the month's story on the results", () => {
   test("[R-WORLD-008] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, after what was kept and before the money", async () => {
     const game = newGame("scenario.ada");
+    // Decision 0035 (R-HOME-012): no living is charged as the month turns at home, so the money of the month is what was
+    // paid at the act: a meal cooked mid-month, which the results count with the month's own lines.
+    const { lines: meal } = game.accept({ type: "activity/now", activity: "activity.cook-at-home", param: null });
+    expect(moneyLines(meal)).toHaveLength(1);
     const { lines } = game.endTurn([slot("activity.job-hunt", TEACHER)]);
     const hired = lines.find((each) => each.key === "line.activity.hunt-hired");
     const offer = lines.find((each) => each.key === "line.offer.opened");
     if (hired === undefined || offer === undefined) throw new Error("The hunt found no job on this seed.");
     const { store } = await renderWithView(<Results place="Home" />, game.view());
-    act(() => store.setState({ reportOpen: true }));
+    act(() => store.setState({ reportOpen: true, lastMonthLines: meal }));
     const story = document.querySelector("[data-results-story]");
     expect(story?.querySelector("h3")?.textContent).toBe(turnWords("turn.results.story"));
     const told = [...(story?.querySelectorAll("li") ?? [])].map((row) => row.textContent);
@@ -44,7 +48,7 @@ describe("the month's story on the results", () => {
     const order = [...document.querySelectorAll("[data-results-kept], [data-results-story], [data-results-lines]")].map((node) => (node.hasAttribute("data-results-kept") ? "kept" : node.hasAttribute("data-results-story") ? "story" : "money"));
     expect(order).toEqual(["kept", "story", "money"]);
     // The money count is still only money that moved.
-    expect(document.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe(String(kept(moneyLines(lines)).find((net) => net.currency === "NGN")?.amount ?? 0));
+    expect(document.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe(String(kept(moneyLines([...meal, ...lines])).find((net) => net.currency === "NGN")?.amount ?? 0));
   });
 
   test("[R-WORLD-008] given a way out heard of in the month, when the story is read, then it is told, and money and plain news are not", () => {
@@ -105,8 +109,9 @@ describe("the adviser's reading and the relative's gift", () => {
   });
 
   test("[R-TEXT-008] [R-ADVICE-004] given the adviser read a file in the month, when the results show, then her reading names the route in one line and its conditions are tags with marks, never her sentence", async () => {
-    // Ada's recorded life once the master's is known: the adviser is paid now and the month ends.
-    const game = recordedGame("ada-careful", lifeSaves["ada-careful"]!.commands.length - 9);
+    // Ada's recorded life once the master's is known: the adviser is paid now and the month ends. Decision 0035: the life
+    // was re-recorded with the study done act by act, so the master's is known after its first 28 commands, not 9.
+    const game = recordedGame("ada-careful", lifeSaves["ada-careful"]!.commands.length - 28);
     const { lines: now } = game.accept({ type: "activity/now", activity: "activity.see-adviser", param: null });
     game.endTurn();
     const reading = now.find((each) => each.key === "line.activity.adviser-missing");

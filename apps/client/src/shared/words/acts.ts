@@ -4,13 +4,26 @@ import { content } from "@japacity/content";
 import type { Id, Reply, ReportLine, SlotPick } from "@japacity/sim";
 
 import type { ServerRejection } from "../net/contract";
-import { hasWords, words } from "./text";
+import { hasWords, say, words } from "./text";
 
 const NOW_LINE = /^line\.activity\.[a-z0-9-]+\.now$/;
 
 /** True when the entry answers now: its card sends `activity/now`, and it never fills a slot of the month. */
 export function answersNow(activity: string): boolean {
   return content.activity[activity as keyof typeof content.activity]?.when === "now";
+}
+
+/**
+ * The month's free time an act done at once takes, in words (R-ACTIVITY-018): a morning for 1 half-day, a day for 2,
+ * a weekend for 4, a week for 10, and between them the nearer below. Null for a purchase or an act that takes the month,
+ * which spend none of it.
+ */
+export function timeWordsOf(activity: string): string | null {
+  const entry = content.activity[activity as keyof typeof content.activity];
+  if (entry === undefined || entry.when !== "now" || entry.purchase === true) return null;
+  const half = entry.halfDays ?? 1;
+  const span = half <= 1 ? "morning" : half < 4 ? "day" : half < 6 ? "weekend" : half < 10 ? "half-week" : "week";
+  return say(`ui.world.time.${span}`);
 }
 
 /** Rest, which an empty slot already is (R-TURN-006): never planned, never a thing's act, never in a picker. */
@@ -33,6 +46,11 @@ export function pickable<T extends { id: string }>(options: readonly T[]): T[] {
 /** The place's answer among a command's lines, `line.activity.<slug>.now`, or null when it holds none. */
 export function nowLineIn(lines: readonly ReportLine[]): ReportLine | null {
   return lines.find((line) => NOW_LINE.test(line.key)) ?? null;
+}
+
+/** The acts the month's now-lines answered, each once: what was done at once this month, an act that repeats among them. */
+export function nowActsIn(lines: readonly ReportLine[]): string[] {
+  return [...new Set(lines.flatMap((line) => (NOW_LINE.test(line.key) ? [nowActOf(line)] : [])).filter((activity) => activity !== ""))];
 }
 
 /** The act a now-line answers, from its params. */

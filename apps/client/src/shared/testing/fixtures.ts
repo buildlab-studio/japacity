@@ -3,7 +3,7 @@
 // hand on top of a real view, so the screens for offers, routes and the
 // interview can be exercised before the kinds that fill them exist.
 import { content } from "@japacity/content";
-import type { Authority, Command, Currency, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave } from "@japacity/sim";
+import type { Authority, Command, Content, Currency, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave } from "@japacity/sim";
 import { newState, standInWorld, viewFor } from "@japacity/sim";
 
 // The recorded lives, the rule tests' game handle and its way of applying effects are the
@@ -316,6 +316,18 @@ export function richAbroadView(): PlayerView {
 /** A new life as a game handle on the real content, for views a few commands or effects away. */
 export function newGame(scenario: Id<"scenario"> = "scenario.ada", seed?: string): Game {
   return start(seed === undefined ? { scenario, content } : { scenario, seed, content });
+}
+
+/**
+ * The content with the living at home charged whole as the month turns, as it was before decision 0035 (R-HOME-012
+ * leaves it all to be lived by hand). For the screens that tell such a charge, its relief or its miss, which still
+ * stand for whatever is charged; the simulation's own relief tests charge it the same way.
+ */
+export const chargedLivingContent: Content = { ...content, tuning: { ...content.tuning, home: { ...content.tuning.home, livingByHandBp: 0 } } };
+
+/** A new life on `chargedLivingContent`: its living at home is charged as the month turns. */
+export function chargedLivingGame(scenario: Id<"scenario"> = "scenario.ada", seed?: string): Game {
+  return start(seed === undefined ? { scenario, content: chargedLivingContent } : { scenario, seed, content: chargedLivingContent });
 }
 
 /**

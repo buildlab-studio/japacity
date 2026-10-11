@@ -6,7 +6,7 @@ import type { Id } from "@japacity/sim";
 import { fireEvent } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { abroadGame } from "../../../shared/testing/fixtures";
+import { abroadGame, setPockets } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { nameOf } from "../../../shared/words/text";
 import { phoneWords } from "../phone.words";
@@ -19,7 +19,13 @@ const OTHER = "activity.job-teacher" as Id<"activity">;
 /** Ada in the UK with the shop job offered, and a second offer beside it. */
 function twoOffers() {
   const game = abroadGame();
-  for (let month = 0; month < 24 && !game.view().offers.some((offer) => offer.terms.job === SHOP); month += 1) game.endTurn([{ activity: HUNT, param: SHOP }]);
+  // Decision 0035: in the re-recorded life the hunt misses its first months, and landed with no pounds the unpaid dues
+  // would take her student status, and the shop job with it, before an offer comes. So each month's pound dues are
+  // covered before she hunts, and she stays a student who may work part time.
+  for (let month = 0; month < 24 && !game.view().offers.some((offer) => offer.terms.job === SHOP); month += 1) {
+    setPockets(game, { GBP: game.view().obligations.reduce((sum, owed) => sum + owed.due, 0) });
+    game.endTurn([{ activity: HUNT, param: SHOP }]);
+  }
   const view = game.view();
   const shop = view.offers.find((offer) => offer.terms.job === SHOP);
   if (shop === undefined || content.activity[OTHER] === undefined) throw new Error("No offer to copy.");

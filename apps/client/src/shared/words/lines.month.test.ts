@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { storyLines } from "../../features/turn/month.results";
 import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import { start } from "../../../../../packages/sim/src/testing/play";
-import { newGame, openOffer } from "../testing/fixtures";
+import { chargedLivingContent, newGame, openOffer } from "../testing/fixtures";
 import { formatMoney } from "./format";
 import { tidyLines } from "./lines";
 import { words } from "./text";
@@ -82,21 +82,33 @@ describe("one line for one thing", () => {
   });
 });
 
+/** Ada's months on the subsidy's world until it comes into force: that month's lines, and the month before's as read. */
+function toSubsidyGone(on: typeof content): { risen: ReportLine[] | null; before: string[] } {
+  // A world where the subsidy comes into force within the first year and a half (the probe's seed: in force at tick 16
+  // since the one-chance story joined the pool and moved every world's draws, wallet.md R-WALLET-019).
+  const game = start({ scenario: "scenario.ada", seed: "s", worldSeed: "w-1", content: on });
+  applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500_000_000, reason: "gift" }]);
+  let risen: ReportLine[] | null = null;
+  let before: string[] = [];
+  for (let month = 0; month < 24 && risen === null; month += 1) {
+    if (game.view().turns.banked < 1) game.grant(3);
+    game.endTurn();
+    const lines = game.view().report?.lines ?? [];
+    if (lines.some((each) => each.key === "line.news.delivered" && each.params.story === "news.fuel-subsidy" && each.params.stage === "in-force")) risen = lines;
+    else before = read(lines);
+  }
+  return { risen, before };
+}
+
 describe("living costs that rise", () => {
   test("[R-WORLD-008] given the fuel subsidy in force, when the month's living costs are charged at the new figure, then the results say living costs are up to it a month, and why", () => {
-    // A world where the subsidy comes into force within the first year and a half (the probe's seed: in force at tick 16
-    // since the one-chance story joined the pool and moved every world's draws, wallet.md R-WALLET-019).
-    const game = start({ scenario: "scenario.ada", seed: "s", worldSeed: "w-1", content });
-    applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500_000_000, reason: "gift" }]);
-    let risen: ReportLine[] | null = null;
-    let before: string[] = [];
-    for (let month = 0; month < 24 && risen === null; month += 1) {
-      if (game.view().turns.banked < 1) game.grant(3);
-      game.endTurn();
-      const lines = game.view().report?.lines ?? [];
-      if (lines.some((each) => each.key === "line.news.delivered" && each.params.story === "news.fuel-subsidy" && each.params.stage === "in-force")) risen = lines;
-      else before = read(lines);
-    }
+    // Decision 0035 (R-HOME-012): at home nothing of the living is charged as the month turns, so the month the subsidy
+    // goes tells no living costs at all, neither the rise nor the charge.
+    const lived = toSubsidyGone(content);
+    if (lived.risen === null) throw new Error("The fuel subsidy never came into force.");
+    expect(read(lived.risen).filter((said) => said.startsWith("Living costs"))).toEqual([]);
+    // The rise's own words are tested where the living is charged whole, as the simulation's relief tests charge it.
+    const { risen, before } = toSubsidyGone(chargedLivingContent);
     if (risen === null) throw new Error("The fuel subsidy never came into force.");
     const charged = risen.find((each) => each.key === "line.obligation.charged" && each.params.obligation === "obligation.upkeep");
     const amount = charged?.params.amount;

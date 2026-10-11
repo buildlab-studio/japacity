@@ -719,6 +719,8 @@ export const uiText: Record<string, string> = {
   // One line for every home: the family house charges living costs, the others rent (R-PROLOGUE-014).
   "ui.page.home.costs": "Next month: {amount}",
   "ui.page.home.costs.prepaid": "Rent in {count} months",
+  // R-HOME-012 (decision 0035): where nothing of the living is taken as the month turns, it is bought as you go.
+  "ui.page.home.by-hand": "Food, water and fares as you go",
   "ui.page.capital": "A shop's capital",
   "ui.page.lived.degree": "University, as it went",
   "ui.page.lived.capital": "A trade, with capital",

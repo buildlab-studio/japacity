@@ -72,11 +72,20 @@ function haveFor(pocket: PlayerView["pockets"][Currency], pay: NonNullable<Retur
   return pocket.locked >= pay.amount ? pocket.bank + pocket.cash + pay.amount : pocket.locked;
 }
 
+/**
+ * R-HOME-012 (decision 0035): the naira living at home is bought as you go and charged nothing as the month turns, so
+ * its notice would say a bill is taken at the month's end when none is. The home card above says how it is lived.
+ */
+export function livedByHand(owed: Owed): boolean {
+  const entry = content.obligation[owed.entry];
+  return entry?.type === "upkeep" && entry.currency === "NGN" && owed.due === 0 && owed.missed === 0 && owed.outstanding <= 0;
+}
+
 export function Bills() {
   const view = useView();
   const { open, sheet } = useAsk();
   // What is due this month first, then what is only owed.
-  const owed = [...view.obligations].sort((a, b) => Number(b.due > 0) - Number(a.due > 0));
+  const owed = view.obligations.filter((bill) => !livedByHand(bill)).sort((a, b) => Number(b.due > 0) - Number(a.due > 0));
   const slip = (bill: Owed, currency: Currency, pay: NonNullable<ReturnType<typeof payNow>>): AskSpec => ({
     form: "slip",
     icon: "receipt",

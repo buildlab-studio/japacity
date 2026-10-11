@@ -42,10 +42,14 @@ function adaDoing(topActivities: Card["topActivities"], change: Partial<PlayerVi
   return { ...view, ...change, card: { ...view.card!, topActivities } };
 }
 
-/** Ada at her send-off with her standing brought to the middle, so no reading comes before the one each test sets. */
+/**
+ * Ada at her send-off with her standing brought to the middle and her job alone as the thing done most, so no reading
+ * comes before the one each test sets. Decision 0035: study and time with the family are counted each time they are done
+ * now, so her re-recorded things done most lead with them; left as they are, they would read before the test's change.
+ */
 function adaPlain(): PlayerView {
   const view = sendOff("ada-careful");
-  return { ...view, card: { ...view.card!, standing: 50 } };
+  return { ...view, card: { ...view.card!, standing: 50, topActivities: ["activity.job-junior-dev"] } };
 }
 
 /**
@@ -110,18 +114,29 @@ describe("the japa type, read at the send-off", () => {
     }
   });
 
-  test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan is the long way round (a refusal), Ada the hustler, Tunde the family anchor and Zainab the long way round (a return)", () => {
-    // The lives as re-recorded on 10 Oct 2026 for decision 0022. Ada's is a new life (seed golden-ada-1, the first from
-    // seed 1 that flies in the window): her standing ends at 84 with no family act among the things done most, so she is
-    // not the family anchor, and she kept 13 of her 24 months (re-recorded 10 Oct 2026 with the sure first hunt, R-GUIDE-014), under two thirds, so she is not the careful saver either.
-    expect(japaTypeOf(sendOff("aniekan-borrower"))).toBe("long-way-round");
+  test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan is the night reader, Ada the family anchor, Tunde the night reader and Zainab the long way round (a return)", () => {
+    // Decision 0035: the lives were re-recorded on 11 Oct 2026. Study and time with the family are acts done a few times a
+    // month now, each counted, so they lead the things done most. Aniekan's refusals are on the Gulf contract, not the
+    // way he took, and study leads his things done most: the night reader.
+    const aniekan = sendOff("aniekan-borrower");
+    expect(aniekan.routes.find((route) => route.id === aniekan.card!.route)?.refusals ?? 0).toBe(0);
+    expect(aniekan.card!.topActivities[0]).toBe("activity.learn-tech");
+    expect(japaTypeOf(aniekan)).toBe("night-reader");
+    // Ada's new life (seed golden-ada-0): her standing ends at the top, 100, with time with the family first among the
+    // things done most, so she is the family anchor before the careful saver her 23 kept months of 28 would make her.
     const ada = sendOff("ada-careful");
-    expect(ada.card).toMatchObject({ months: 24, standing: 84 });
-    expect(ada.keptMonths).toBe(13);
-    expect(japaTypeOf(ada)).toBe("hustler");
-    // Tunde re-recorded on 10 Oct 2026 with the sure first hunt (seed golden-tunde-108): pay from his first month leaves the family's asks answered, so he reads as the family anchor, on this seed and the one before it.
-    expect(japaTypeOf(sendOff("tunde-borrower"))).toBe("family-anchor");
-    expect(japaTypeOf(sendOff("zainab-remote"))).toBe("long-way-round");
+    expect(ada.card).toMatchObject({ months: 28, standing: 100 });
+    expect(ada.card!.topActivities[0]).toBe("activity.family-time");
+    expect(ada.keptMonths).toBe(23);
+    expect(japaTypeOf(ada)).toBe("family-anchor");
+    // Tunde (seed golden-tunde-16): study leads his things done most, and no reading before it holds: the night reader.
+    const tunde = sendOff("tunde-borrower");
+    expect(tunde.card!.topActivities[0]).toBe("activity.learn-tech");
+    expect(japaTypeOf(tunde)).toBe("night-reader");
+    // Zainab came home once and went again: the long way round, before anything else.
+    const zainab = sendOff("zainab-remote");
+    expect(zainab.place.returns.length).toBeGreaterThan(0);
+    expect(japaTypeOf(zainab)).toBe("long-way-round");
   });
 
   test("[R-SHARE-001] given a trader's tile played into her own shop, when the type is read at a send-off, then the shop's months kept make her the careful saver before the hustler, fewer kept make her the hustler, and the kiosk beside the shop, the lotto and the bet slip both, is one risk and not the gambler", () => {
@@ -151,8 +166,10 @@ describe("the japa type, read at the send-off", () => {
     expect(japaTypeOf({ ...ada, place: { ...ada.place, returns: [{ month: 6, shape: "broke", country: "country.uk" }] } })).toBe("long-way-round");
     // The way taken refused once before it was granted.
     expect(japaTypeOf({ ...ada, routes: ada.routes.map((route) => (route.id === ada.card!.route ? { ...route, refusals: 1 } : route)) })).toBe("long-way-round");
-    // A refusal on another way is not the way taken.
-    expect(ada.routes.find((route) => route.id === "route.uk-talent")?.refusals ?? 0).toBeGreaterThan(0);
+    // A refusal on another way is not the way taken. Decision 0035: Ada's re-recorded life is never refused, so the
+    // refusal is set on another way here.
+    expect(ada.card!.route).not.toBe("route.uk-talent");
+    expect(japaTypeOf({ ...ada, routes: ada.routes.map((route) => (route.id === "route.uk-talent" ? { ...route, refusals: 1 } : route)) })).not.toBe("long-way-round");
     // Home at its proudest: standing at the top of its range, or the top band with time given to family.
     expect(japaTypeOf({ ...ada, card: { ...ada.card!, standing: content.quality["quality.standing"]!.max } })).toBe("family-anchor");
     const standing = content.quality["quality.standing"]!;
@@ -167,9 +184,10 @@ describe("the japa type, read at the send-off", () => {
     // Study first.
     expect(japaTypeOf(adaDoing(["activity.learn-tech", "activity.job-junior-dev"]))).toBe("night-reader");
     expect(japaTypeOf(adaDoing(["activity.job-junior-dev", "activity.study-english"]))).toBe("night-reader");
-    // Ada as she went: fewer than two thirds of her months kept, and none of the readings before: the hustler.
-    expect(ada.keptMonths * 3).toBeLessThan(ada.card!.months * 2);
-    expect(japaTypeOf(ada)).toBe("hustler");
+    // Ada as she went, plain: decision 0035's re-recorded life kept two thirds of her months and more, and none of the
+    // readings before holds: the careful saver. One month under two thirds is the hustler, below.
+    expect(ada.keptMonths * 3).toBeGreaterThanOrEqual(ada.card!.months * 2);
+    expect(japaTypeOf(ada)).toBe("careful-saver");
     // Two thirds of the months played kept: the careful saver, at the edge and not one month under it.
     const twoThirds = Math.ceil((ada.card!.months * 2) / 3);
     expect(japaTypeOf({ ...ada, keptMonths: twoThirds })).toBe("careful-saver");
