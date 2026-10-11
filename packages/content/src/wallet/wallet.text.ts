@@ -38,7 +38,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.moved": "Moved {amount} to {pocket}.",
   "line.wallet.queued": "The bank has your {paid}. Your foreign currency is due {readyMonth}.",
   // R-WALLET-019: someone who cares, in their own words, with no figure.
-  "line.wallet.cash-warning": "Mama called from {hometown}. 'This cash you are carrying about, it is not safe. They are robbing people inside danfo these days. Keep small for transport and put the rest in the bank, you hear?'",
+  "line.wallet.cash-warning": "Mama called. 'This cash you are carrying about, it is not safe. They are robbing people inside danfo these days. Keep small for transport and put the rest in the bank, you hear?'",
   "line.wallet.flagged": "A deposit of {amount} came from somewhere a visa officer will ask about. It will show for three months.",
   "line.wallet.rent": "Rent paid: {amount}.",
   "line.wallet.deposit-return": "Your deposit came back: {amount}.",

@@ -8,7 +8,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { plannable } from "../../shared/words/acts";
 import { requirementSentence } from "../../shared/words/requirement";
-import { lowerFirst, say } from "../../shared/words/text";
+import { blurbOf, lowerFirst, say } from "../../shared/words/text";
 import { ActivityView } from "./ActivityView";
 
 const addButton = (id: string) => screen.getByRole("button", { name: `${text[`${id}.name`] ?? id}` });
@@ -20,7 +20,8 @@ describe("the month plan", () => {
     await renderWithView(<ActivityView />, view);
     for (const option of view.activities.filter((candidate) => candidate.id !== "activity.rest")) {
       expect(screen.getByRole("heading", { name: text[`${option.id}.name`]! })).toBeDefined();
-      expect(screen.getByText(text[`${option.id}.blurb`] ?? "")).toBeDefined();
+      // the blurb as the screen says it, its `{hometown}` filled (R-PROLOGUE-002, amended).
+      expect(screen.getByText(blurbOf(option.id) ?? "")).toBeDefined();
     }
     expect(screen.queryByRole("heading", { name: text["activity.rest.name"]! })).toBeNull();
   });

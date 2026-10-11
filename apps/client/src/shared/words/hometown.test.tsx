@@ -24,12 +24,11 @@ function hometownKeys(): string[] {
 }
 
 describe("lines from home", () => {
-  test("[R-PROLOGUE-002] given a life from Enugu on screen, when Mama's ask, her call about the cash, the parents on the People screen and the sibling at home are said, then each names Enugu; an explicit town wins; with no life on screen they say your hometown", () => {
+  test("[R-PROLOGUE-002] given a life from Enugu on screen, when Mama's ask, Papa's, the parents on the People screen and the sibling at home are said, then each names Enugu; an explicit town wins; with no life on screen they say your hometown", () => {
     setNow(4, "hometown.enugu");
     expect(hometownWords()).toBe("Enugu");
     expect(words("offer.roof.body", { cost: 4500000 })).toMatch(/^Mama calls from Enugu: 'Rain entered the parlour again\. The carpenter wants ₦45,000 for zinc and labour\.'$/);
     expect(words("offer.nepa-bill.body", { cost: 1800000 })).toContain("Mama, on the phone from Enugu:");
-    expect(words("line.wallet.cash-warning")).toMatch(/^Mama called from Enugu\. /);
     expect(words("offer.uncle-burial.body", { cost: 5000000 })).toMatch(/^Your father, from Enugu: 'The family is contributing/);
     expect(say("ui.people.parent.blurb.mother")).toBe("In Enugu, as she has always been. She calls when there is news.");
     expect(nameOf("person.sib-home")).toBe("Your sibling in Enugu");
@@ -45,9 +44,7 @@ describe("lines from home", () => {
     expect(keys).toEqual(
       [
         "activity.call-home.blurb",
-        "line.activity.send-money.now",
         "line.prologue.drawn",
-        "line.wallet.cash-warning",
         "offer.harvest.body",
         "offer.mum-shop.body",
         "offer.nepa-bill.body",

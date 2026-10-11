@@ -30,7 +30,7 @@ export const activityNowText: Record<string, string> = {
   "line.activity.rent-flat-ca.now": "The landlord hands you the keys. The rent is due every month.",
   "line.activity.phone-contract-uk.now": "Contract signed. A bill follows every month.",
   "line.activity.phone-contract-ca.now": "Contract signed. A bill follows every month.",
-  "line.activity.send-money.now": "Your people in {hometown} will see it soon.",
+  "line.activity.send-money.now": "Your people at home will see it soon.",
   "line.activity.side-gig.now": "The client pays cash, on the spot.",
   "line.activity.tech-posts.now": "Posted. The likes start to come in.",
   "line.activity.safe-ride.now": "The driver says: I will carry you home every night this month.",
