@@ -3,6 +3,8 @@
 // through its own environment, and every action is pinned to a commit. Restated 11 Oct 2026 (the Cloudflare audit's
 // finding 13): staging deploys only once the check has passed on that push, the commit it passed; both deploys run the
 // wrangler apps/server pins; the admin list is a Worker secret (server.md R-SERVER-012), so no deploy passes it.
+// each deploy migrates its database before
+// the build and the Worker, with the migrator role's string, and deploys nothing when that fails.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -97,11 +99,44 @@ describe("the workflows", () => {
       expect(steps[0]).toContain('echo "set=false" >> "$GITHUB_OUTPUT"');
       expect(steps[0]).toContain("::notice::");
       for (const step of steps.slice(1)) expect({ name, step: step.split("\n")[0], gated: step.includes("if: steps.ready.outputs.set == 'true'") }).toEqual({ name, step: step.split("\n")[0], gated: true });
-      // Only the Cloudflare pair are secrets of the environment; the build's variables are not, and the admin accounts
-      // are the Worker's own secret (R-SERVER-012).
-      expect([...new Set(text.match(/secrets\.[A-Z_]+/g))].sort()).toEqual(["secrets.CLOUDFLARE_ACCOUNT_ID", "secrets.CLOUDFLARE_API_TOKEN"]);
+      // The quiet stop asks for the Cloudflare pair only, never the database's string (R-SERVER-044).
+      expect(steps[0]).not.toContain("DATABASE_URL_UNPOOLED");
+      // Only the Cloudflare pair and the migrator's string are secrets of the environment; the build's variables are
+      // not, and the admin accounts are the Worker's own secret (R-SERVER-012 and R-SERVER-044).
+      expect([...new Set(text.match(/secrets\.[A-Z_]+/g))].sort()).toEqual(["secrets.CLOUDFLARE_ACCOUNT_ID", "secrets.CLOUDFLARE_API_TOKEN", "secrets.DATABASE_URL_UNPOOLED"]);
       expect([...new Set(text.match(/vars\.[A-Z_]+/g))].sort()).toEqual(["vars.VITE_ANALYTICS_TOKEN", "vars.VITE_SERVER_URL", "vars.VITE_TURNSTILE_SITE_KEY"]);
     }
+  });
+
+  test("[R-SERVER-044] given either deploy, when its steps are read, then it installs, migrates with the migrator's string, builds the client and deploys the Worker in that order, and a missing string or a failed migration stops it loudly before anything is built or deployed", () => {
+    for (const [name, environment] of [["deploy-staging.yml", "staging"], ["deploy-production.yml", "production"]] as const) {
+      const text = read(name);
+      const steps = text.slice(text.indexOf("    steps:\n")).split(/\n {6}- /).slice(1);
+      const at = (find: (step: string) => boolean): number => steps.findIndex(find);
+      const install = at((step) => step.includes("run: pnpm install --frozen-lockfile"));
+      const migrate = at((step) => step.startsWith("name: Migrate the database\n"));
+      const build = at((step) => step.startsWith("name: Build the client\n"));
+      const deploy = at((step) => step.includes("uses: cloudflare/wrangler-action@"));
+      expect({ name, order: [install, migrate, build, deploy].every((index, i, all) => index > (all[i - 1] ?? 0)) }).toEqual({ name, order: true });
+      expect({ name, migrates: steps.filter((step) => step.includes("db:migrate")).length }).toEqual({ name, migrates: 1 });
+
+      const step = steps[migrate] ?? "";
+      expect(step).toContain("        if: steps.ready.outputs.set == 'true'\n");
+      expect(step).toContain("        env:\n          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}\n");
+      expect(step).toContain('          if [ -z "$DATABASE_URL_UNPOOLED" ]; then\n');
+      expect(step).toContain(`            echo "::error::The ${environment} environment has no DATABASE_URL_UNPOOLED secret`);
+      expect(step).toMatch(/::error::[^\n]*\n\s+exit 1\n\s+fi\n\s+pnpm --filter @japacity\/db db:migrate\n/);
+      // The string reaches the migration alone: not the build, not wrangler (comments aside).
+      const code = (part: string) => part.split("\n").filter((line) => !/^\s*#/.test(line)).join("\n");
+      expect({ name, reading: steps.flatMap((other, index) => (index !== migrate && code(other).includes("DATABASE_URL_UNPOOLED") ? [index] : [])) }).toEqual({ name, reading: [] });
+      // A step after a failed one runs only when its `if` holds no status function, so nothing here may name one or
+      // carry on after an error: the build and the deploy run only once the migration has succeeded.
+      expect(text).not.toMatch(/always\(\)|failure\(\)|cancelled\(\)|success\(\)|continue-on-error/);
+    }
+    // The package's script is drizzle-kit's migrate with the config that reads DATABASE_URL_UNPOOLED.
+    const db = JSON.parse(readFileSync(join(root, "packages", "db", "package.json"), "utf8")) as { scripts: Record<string, string> };
+    expect(db.scripts["db:migrate"]).toBe("drizzle-kit migrate --config drizzle.migrate.config.ts");
+    expect(readFileSync(join(root, "packages", "db", "drizzle.migrate.config.ts"), "utf8")).toContain('dbCredentials: { url: process.env["DATABASE_URL_UNPOOLED"] ?? "" }');
   });
 
   test("given CODEOWNERS, when it is read, then the lint config, tests/, the scrub check, every Worker config, the workflows and the legal constants are the maintainer's", () => {
