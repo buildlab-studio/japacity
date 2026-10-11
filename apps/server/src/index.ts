@@ -67,8 +67,8 @@ function isolateOf(env: Env): Isolate {
 }
 
 /**
- * Owner: the email provider (account.md R-ACCOUNT-014); until one is chosen no code leaves the server.
- * R-ACCOUNT-003: the notices go by the same way as the codes. Only the local stack sends, to Mailpit.
+ * R-ACCOUNT-014, decision 0031: the codes leave through Cloudflare Email Service's MAIL binding, Mailpit on
+ * the local stack. R-ACCOUNT-003: the notices go by the same way as the codes. Without either nothing is sent.
  */
 function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): AuthKeys {
   const { sendOtp, sendNotice } = mailFor(env, { text, codeSeconds: productionConfig.auth.otp.expiresIn }, (input, init) => fetch(input, init));

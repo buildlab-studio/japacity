@@ -15,7 +15,8 @@ ADMIN_ACCOUNTS=
 TICK_CRON=
 # Staging only: "1" marks every reply noindex (R-SERVER-038).
 NOINDEX=
-# The local stack only: "mailpit" sends mail to Mailpit; unset on every deployment, where no mail is sent.
+# The local stack only: "mailpit" sends mail to Mailpit; unset on every deployment, which sends through its MAIL binding
+# (Cloudflare Email Service, wrangler.jsonc). Run by hand without it, wrangler dev only simulates that binding.
 MAIL_TRANSPORT=
 # Mailpit's address on this machine, for MAIL_TRANSPORT=mailpit.
 MAILPIT_URL=

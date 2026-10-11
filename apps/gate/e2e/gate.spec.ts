@@ -11,12 +11,18 @@ async function expectScreen(page: Page): Promise<void> {
   await expect(page.locator("form, input, button, script")).toHaveCount(0);
   await expect(page.getByText("Got an invite link from a friend? Open it again on this phone.")).toBeVisible();
   await expect(page.getByRole("link", { name: "@japacityapp on X" })).toHaveAttribute("href", "https://x.com/japacityapp");
+  // the terms and the privacy notice are linked visibly from the screen.
+  await expect(page.getByRole("link", { name: "Terms of play" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Terms of play" })).toHaveAttribute("href", "/terms");
+  await expect(page.getByRole("link", { name: "Privacy notice" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Privacy notice" })).toHaveAttribute("href", "/privacy");
   await expect(page.getByRole("heading", { name: "The game" })).toHaveCount(0);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 }
 
-test("a phone with no invite sees one screen: the game opens soon, with the X link, and no cookie", async ({ page, context }) => {
+// the screen carries the links to the terms and the privacy notice.
+test("a phone with no invite sees one screen: the game opens soon, with the X link and the links to the terms and the privacy notice, and no cookie", async ({ page, context }) => {
   await page.goto("/");
   await expectScreen(page);
   await page.goto("/play?card=granted");
@@ -24,8 +30,15 @@ test("a phone with no invite sees one screen: the game opens soon, with the X li
   expect(await context.cookies()).toEqual([]);
 });
 
-test("a phone with no invite can read the terms, the privacy notice, the official accounts and the credits, and is given no cookie", async ({ page, context }) => {
-  for (const path of ["/terms", "/privacy", "/official"]) {
+// the two pages are reached from the screen's links, and the security.txt is public too.
+test("a phone with no invite can read the terms, the privacy notice, the official accounts and the security.txt, and is given no cookie", async ({ page, context }) => {
+  for (const name of ["Terms of play", "Privacy notice"]) {
+    await page.goto("/");
+    await page.getByRole("link", { name }).click();
+    await expect(page.getByRole("heading", { name: "The game" })).toBeVisible();
+    await expect(page.getByText(name === "Terms of play" ? "/terms" : "/privacy", { exact: true })).toBeVisible();
+  }
+  for (const path of ["/terms", "/privacy", "/official", "/.well-known/security.txt"]) {
     await page.goto(path);
     await expect(page.getByRole("heading", { name: "The game" })).toBeVisible();
     await expect(page.getByText(path, { exact: true })).toBeVisible();

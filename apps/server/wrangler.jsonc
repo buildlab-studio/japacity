@@ -61,6 +61,10 @@
     { "binding": "GAME_DB", "id": "dfa35042f0eb48d9beefaeae053a5408" },
     { "binding": "CACHED_DB", "id": "d5b2792f9d3f46fcb79bf6aa79ad5802" }
   ],
+  // R-ACCOUNT-014, decision 0031: the email codes and the notices leave through Cloudflare Email Service, from
+  // the sending subdomain onboarded for it. The binding may send from the game's one sender and no other
+  // address (SENDER in src/mail/mail.ts, held equal by its test). It needs no secret.
+  "send_email": [{ "name": "MAIL", "allowed_sender_addresses": ["game@mail.japacity.app"] }],
   "env": {
     // Staging, behind Cloudflare Access: `wrangler deploy --env staging`. Its own Worker, database,
     // secrets and passkeys; nothing is shared with production. Vars, bindings and the route are not
@@ -108,7 +112,9 @@
       "hyperdrive": [
         { "binding": "GAME_DB", "id": "4e7ab412c46743a7b639706e32e84f9a" },
         { "binding": "CACHED_DB", "id": "848c169e921e4aa8adc204c778303439" }
-      ]
+      ],
+      // As at the top level: the codes and the notices, from the game's one sender only.
+      "send_email": [{ "name": "MAIL", "allowed_sender_addresses": ["game@mail.japacity.app"] }]
     }
   }
 }
