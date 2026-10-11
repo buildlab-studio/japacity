@@ -474,6 +474,28 @@ describe("R-SPONSOR-005: the care route's papers and window", () => {
   test("[R-SPONSOR-005] given the care route, when its qualification papers are listed, then they are the licence and the verification", () => {
     expect(care.sponsor!.documents).toEqual(["document.nursing-licence", "document.nmcn-verification"]);
   });
+
+  test("[R-SPONSOR-005] [R-JAPACITY-001] [R-JAPACITY-004] given the care checklist as amended 11 Oct 2026, when it is read, then the clinic's certificate is an item held or not with the checklist's smallest weight, the application's weight gave it up, and the weights still add up to 100", () => {
+    const weights = care.checklist.map((item) => item.weight);
+    const certificate = care.checklist.find((item) => item.id === "certificate");
+    expect(certificate).toEqual({ id: "certificate", weight: Math.min(...care.checklist.filter((item) => item.id !== "certificate").map((item) => item.weight)), requirement: { type: "document/held", document: "document.nurse-certificate" }, partial: false });
+    expect(certificate!.weight).toBe(5);
+    expect(care.checklist.find((item) => item.id === "applied")!.weight).toBe(10);
+    expect(weights.reduce((sum, weight) => sum + weight, 0)).toBe(100);
+    expect(text[`${CARE}.item.certificate`]).toBe("Nursing certificate held");
+    expect(text[`${CARE}.item.certificate.way`]).toContain("clinic");
+  });
+
+  test("[R-SPONSOR-005] [R-JAPACITY-001] given Ngozi with care work known and the same papers but for the clinic's certificate, when the figures are read, then the certified nurse's is higher by the item's weight", () => {
+    const certified = ngozi({ documents: [...CARE_PAPERS, { document: "document.nurse-certificate", monthsLeft: null, value: null }] });
+    const plain = ngozi();
+    toKnown(certified, CARE);
+    toKnown(plain, CARE);
+    const figure = (game: Game): number => game.view().routes.find((route) => route.id === CARE)!.percent!;
+    const weight = care.checklist.find((item) => item.id === "certificate")!.weight;
+    expect(certified.view().routes.find((route) => route.id === CARE)!.checklist.find((item) => item.id === "certificate")!.met).toBe(true);
+    expect(figure(certified) - figure(plain)).toBe(weight);
+  });
 });
 
 describe("R-SPONSOR-006: the skilled route", () => {
