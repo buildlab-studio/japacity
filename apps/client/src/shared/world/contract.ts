@@ -162,6 +162,8 @@ export interface RideChoice {
   minutes: number;
   /** Why the way cannot be taken: too far on foot (R-WORLD-017). */
   shut?: "far";
+  /** A walk home past the walking limit: open all the same, played long and with no Skip (R-WORLD-017). */
+  long?: true;
 }
 
 /** An app on the phone (R-WORLD-018). */

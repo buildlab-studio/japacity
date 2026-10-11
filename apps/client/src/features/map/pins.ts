@@ -62,17 +62,19 @@ export function metresBetween(from: Position, to: Position): number {
  * flat fare in tuning, the same the simulation takes for `place/ride` (R-PLACE-010, decision 0011);
  * the minutes are the wait plus the straight-line distance at the way's pace.
  */
-export function rideChoices(from: Position, to: Position, country: string | null = null, fareBp = 10000): RideChoice[] {
+export function rideChoices(from: Position, to: Position, country: string | null = null, fareBp = 10000, home = false): RideChoice[] {
   const { fareKobo, metresPerMinute, waitMinutes, walkMetres } = content.tuning.city.ride;
   // Abroad there is one way, named for the country, at no fare until the tuning carries fares in that country's money (decision 0011).
   if (country !== null) return [{ id: "danfo", label: mapWords(`map.way.abroad.${country}`), fare: 0, minutes: waitMinutes + ABROAD_MINUTES }];
   const metres = metresBetween(from, to);
   // The month's fares (the fuel scarcity doubles them, R-PLACE-010): the same figure the simulation takes. On foot only within walking distance; past it the walk is shut, so a fare is a real cost.
+  // Home is the exception: a life may always walk home, however far, and the long walk is the cost.
+  const far = metres > walkMetres;
   return WAYS.map((id) => ({
     id,
     label: mapWords(`map.way.${id}`),
     fare: Math.floor((fareKobo[id] * fareBp) / 10000),
     minutes: waitMinutes + Math.max(1, Math.round(metres / metresPerMinute[id])),
-    ...(id === "walk" && metres > walkMetres ? { shut: "far" as const } : {}),
+    ...(id === "walk" && far ? (home ? { long: true as const } : { shut: "far" as const }) : {}),
   }));
 }
