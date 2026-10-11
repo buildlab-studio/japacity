@@ -4,9 +4,31 @@
 # blob: the models' textures, fetched from blob addresses, and the shared cards.
 # font-src data: the sign font, small enough that the build inlines it.
 # If the server is ever on another address than the page, connect-src names it, with its wss: form.
+# Caching (docs/rules/server.md R-SERVER-038): every file is asked about again before use (no-cache: kept, but
+# revalidated), so a new build reaches the next load; the page itself above all. Only the files under /assets/ whose
+# names carry the hash of their contents (the build's code, the models) are kept for a year untouched. The models'
+# manifest has a fixed name, so it is asked about every time like the page. A later rule's "! Cache-Control" drops
+# the earlier rule's value, so each path carries one.
 /*
   Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' blob:; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Cache-Control: no-cache
+
+/
+  ! Cache-Control
+  Cache-Control: no-cache
+
+/index.html
+  ! Cache-Control
+  Cache-Control: no-cache
+
+/assets/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/manifest.json
+  ! Cache-Control
+  Cache-Control: no-cache
