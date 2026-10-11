@@ -5,7 +5,7 @@ import { setUsageCounts, startCounting } from "../shared/analytics/start";
 import { readAccount } from "../shared/net/account";
 import { betterAuthApi } from "../shared/net/auth";
 import { clockMode } from "./clock";
-import { localAuthority, type LocalAuthorityOptions } from "./local";
+import { localAuthority, type LocalAuthorityOptions, MORNING_KEY } from "./local";
 import { authorityMode } from "./mode";
 import { goOnline } from "./online";
 import { remoteAuthority } from "./remote";
@@ -32,7 +32,24 @@ function loadAfresh(): void {
   location.reload();
 }
 
+/**
+ * R-CLOCK-032, development only: `?morning=now` on the address opens every sealed result at once and `?morning=off`
+ * lets them wait for seven in Lagos again, so a tester on a phone needs no console.
+ */
+function takeMorningSwitch(): void {
+  if (!import.meta.env.DEV || typeof location === "undefined") return;
+  const asked = new URLSearchParams(location.search).get("morning");
+  if (asked === null) return;
+  try {
+    if (asked === "now") localStorage.setItem(MORNING_KEY, "now");
+    else localStorage.removeItem(MORNING_KEY);
+  } catch {
+    // Storage blocked: the switch does nothing.
+  }
+}
+
 function bootLocal(options: Partial<LocalAuthorityOptions>): GameStore {
+  takeMorningSwitch();
   const authority = localAuthority({ fastClock: clockMode().fastClock, ...options });
   const { start } = authority;
   const store = createGameStore(authority, {
