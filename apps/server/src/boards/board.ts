@@ -1,7 +1,8 @@
 // A board as a player reads it (city.md R-CITY-039, R-CITY-040): the top
-// `board.size` lines and the player's own line, first names only on
-// `everyone`, display names on `friends`. Computer characters have no row, so
-// they are on no board (people.md R-PEOPLE-056).
+// `board.size` lines and the player's own line, the account's username and
+// nothing else about the player on `everyone`, first names and display names on
+// `friends`. Computer characters have no row, so they are on no board
+// (people.md R-PEOPLE-056).
 import { text } from "@japacity/content";
 import type { BoardQuery, BoardWhen, BoardWho, RankedRow, SwitchName } from "@japacity/store";
 import { pairIds } from "@japacity/store";
@@ -24,10 +25,16 @@ export const BOARD_SWITCH: Record<BoardName, SwitchName> = {
   "joined-week": "boards.joined-week",
 };
 
-/** R-CITY-040: one line. `figure` is the japacity figure on all time and the rise since Monday on this week; `name` is the display name, on friends only. */
+/**
+ * R-CITY-040: one line. `figure` is the japacity figure on all time and the rise since Monday on this week. On
+ * `everyone` (and the joined-week board, also strangers) the line names the account's username (account.md
+ * R-ACCOUNT-024) and carries no first name and no display name; on `friends` it carries the character's first name
+ * and the display name, and no username. A username is null only for an account no longer there.
+ */
 export interface BoardRow {
   rank: number;
-  firstName: string;
+  username: string | null;
+  firstName: string | null;
   figure: number;
   me: boolean;
   name: string | null;
@@ -59,7 +66,7 @@ function pickers(board: BoardName): { when: BoardWhen; who: BoardWho } {
     case "all-time.friends":
       return { when: "all-time", who: "friends" };
     case "joined-week":
-      // the joined-week board ranks the japacity figure among the accounts made in the player's week, first names only.
+      // the joined-week board ranks the japacity figure among the accounts made in the player's week, named as everyone is (usernames, R-CITY-040 as amended 11 Oct 2026).
       return { when: "all-time", who: "everyone" };
     default: {
       const never: never = board;
@@ -99,13 +106,18 @@ export async function readBoard(deps: ServerDeps, ports: BoardPorts, character: 
   const top = await deps.stores.boards.top(query, size);
   const own = top.find((line) => line.character === character) ?? (await deps.stores.boards.lineOf(query, character));
   const lines = own === null || top.includes(own) ? top : [...top, own];
-  const names = who === "friends" ? await ports.displayNames(lines.map((line) => line.account)) : new Map<string, string>();
+  const accounts = lines.map((line) => line.account);
+  const friends = who === "friends";
+  // One read for every line's name: the display names among friends, the usernames on everyone (R-CITY-040).
+  const names = friends ? await ports.displayNames(accounts) : new Map<string, string>();
+  const usernames = friends ? new Map<string, string>() : await deps.stores.account.usernames(accounts);
   const row = (line: RankedRow): BoardRow => ({
     rank: line.rank,
-    firstName: firstNameOf(line.scenario),
+    username: friends ? null : (usernames.get(line.account) ?? null),
+    firstName: friends ? firstNameOf(line.scenario) : null,
     figure: line.score,
     me: line.character === character,
-    name: who === "friends" ? (names.get(line.account) ?? null) : null,
+    name: friends ? (names.get(line.account) ?? null) : null,
   });
   return { ok: true, board, size, rows: top.map(row), own: own === null ? null : row(own) };
 }

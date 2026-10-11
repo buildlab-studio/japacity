@@ -142,6 +142,22 @@ export function suiteForAccountStore(make: () => Promise<AccountStore>): void {
       expect(await store.idleGuests(1_000)).toEqual([]);
     });
 
+    test("[R-CITY-040] [R-ACCOUNT-024] given three accounts, one renamed, when the usernames of two of them and an unknown id are read at once, then each known account gives its username as it stands and the unknown id is left out", async () => {
+      const store = await make();
+      must(await store.create(account("account-1")));
+      must(await store.create(account("account-2")));
+      must(await store.create(account("account-3")));
+      must(await store.setUsername("account-2", "Ada_Lagos", 4_000));
+
+      const names = await store.usernames(["account-2", "account-1", "account-unknown", "account-1"]);
+
+      expect([...names.entries()].sort()).toEqual([
+        ["account-1", "account_1"],
+        ["account-2", "Ada_Lagos"],
+      ]);
+      expect((await store.usernames([])).size).toBe(0);
+    });
+
     test("[R-ACCOUNT-026] given a guest, when it is touched later and then earlier, then the later time stays; an unknown id is a no-op", async () => {
       const store = await make();
       must(await store.create(account("account-1", { lastPlayedAt: 1_000 })));

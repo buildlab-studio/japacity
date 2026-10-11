@@ -1,5 +1,7 @@
 // The boards screen against a faked server, in the shapes boards.ts copies
-// from apps/server/src/boards/board.ts.
+// from apps/server/src/boards/board.ts. Restated 11 Oct 2026 (R-CITY-040, the
+// the everyone boards name each line by the account's
+// username; friends keep the display name over the first name.
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -11,8 +13,14 @@ import { BoardsView } from "./BoardsView";
 
 const PAUSED = { status: 503, headers: { "Retry-After": "30" }, body: { ok: false, code: "switched-off", detail: "This board is paused.", retryAfter: 30 } };
 
+/** A line on an everyone board: the username only. */
 function line(rank: number, figure: number, over: Partial<BoardRow> = {}): BoardRow {
-  return { rank, firstName: "Tunde", figure, me: false, name: null, ...over };
+  return { rank, username: "tunde_k", firstName: null, figure, me: false, name: null, ...over };
+}
+
+/** A line on a friends board: the first name and the display name, no username. */
+function friend(rank: number, figure: number, over: Partial<BoardRow> = {}): BoardRow {
+  return { rank, username: null, firstName: "Tunde", figure, me: false, name: null, ...over };
 }
 
 function board(name: BoardName, rows: BoardRow[], own: BoardRow | null = rows.find((row) => row.me) ?? null): { body: BoardReply } {
@@ -23,10 +31,10 @@ function board(name: BoardName, rows: BoardRow[], own: BoardRow | null = rows.fi
 function launched(over: Record<string, Answer[]> = {}): FakeServer {
   const server = fakeServer();
   const answers: Record<string, Answer[]> = {
-    "GET /api/boards/this-week/everyone": [board("this-week.everyone", [line(1, 12, { firstName: "Zainab" }), line(2, 5, { firstName: "Ada", me: true })])],
-    "GET /api/boards/this-week/friends": [board("this-week.friends", [line(1, 5, { firstName: "Ada", me: true, name: "ada_lagos" })])],
-    "GET /api/boards/all-time/everyone": [board("all-time.everyone", [line(1, 80), line(2, 70)], line(51, 10, { firstName: "Ada", me: true }))],
-    "GET /api/boards/all-time/friends": [board("all-time.friends", [line(1, 40, { name: "tunde.k" }), line(2, 30, { firstName: "Ada", me: true, name: "ada_lagos" })])],
+    "GET /api/boards/this-week/everyone": [board("this-week.everyone", [line(1, 12, { username: "zainab_b" }), line(2, 5, { username: "ada_lagos", me: true })])],
+    "GET /api/boards/this-week/friends": [board("this-week.friends", [friend(1, 5, { firstName: "Ada", me: true, name: "ada_lagos" })])],
+    "GET /api/boards/all-time/everyone": [board("all-time.everyone", [line(1, 80), line(2, 70)], line(51, 10, { username: "ada_lagos", me: true }))],
+    "GET /api/boards/all-time/friends": [board("all-time.friends", [friend(1, 40, { name: "tunde.k" }), friend(2, 30, { firstName: "Ada", me: true, name: "ada_lagos" })])],
     "GET /api/boards/joined-week": [PAUSED],
     ...over,
   };
@@ -52,7 +60,7 @@ describe("the boards screen", () => {
   test("[R-CITY-039] given the boards as launched, when the screen opens, then this week for everyone shows, and each picker asks the server for its own board", async () => {
     const server = launched();
     show(server);
-    await waitFor(() => expect(lines()).toEqual(["1Zainab+12", "2AdaYou+5"]));
+    await waitFor(() => expect(lines()).toEqual(["1zainab_b+12", "2ada_lagosYou+5"]));
     expect(screen.getByRole("radio", { name: say("ui.boards.when.this-week") }).getAttribute("aria-checked")).toBe("true");
     expect(screen.getByRole("radio", { name: say("ui.boards.who.everyone") }).getAttribute("aria-checked")).toBe("true");
 
@@ -60,6 +68,7 @@ describe("the boards screen", () => {
     await waitFor(() => expect(document.querySelector("[data-board]")?.getAttribute("data-board")).toBe("all-time.everyone"));
     pick("ui.boards.who", "ui.boards.who.friends");
     await waitFor(() => expect(lines()).toEqual(["1tunde.kTunde40%", "2ada_lagosAdaYou30%"]));
+    expect(document.querySelectorAll("[data-board-first-name]")).toHaveLength(2);
     pick("ui.boards.when", "ui.boards.when.this-week");
     await waitFor(() => expect(document.querySelector("[data-board]")?.getAttribute("data-board")).toBe("this-week.friends"));
 
@@ -75,7 +84,17 @@ describe("the boards screen", () => {
       return found;
     });
     expect(own.textContent).toContain(say("ui.boards.your-place"));
-    expect(own.querySelector("[data-me]")?.textContent).toBe("51AdaYou10%");
+    expect(own.querySelector("[data-me]")?.textContent).toBe("51ada_lagosYou10%");
+  });
+
+  test("[R-CITY-040] given the everyone board, when it shows, then each line and the player's own name the account's username alone; a line whose account is gone says so quietly, never a raw key", async () => {
+    show(launched({ "GET /api/boards/this-week/everyone": [board("this-week.everyone", [line(1, 12, { username: "zainab_b" }), line(2, 9, { username: null }), line(3, 5, { username: "ada_lagos", me: true })])] }));
+    await waitFor(() => expect(lines()).toHaveLength(3));
+    const names = Array.from(document.querySelectorAll("[data-board-lines] [data-board-name]")).map((name) => name.textContent);
+    expect(names).toEqual(["zainab_b", say("ui.boards.someone"), "ada_lagos"]);
+    expect(say("ui.boards.someone")).not.toBe("ui.boards.someone");
+    // Nothing under the name on everyone: no first name, no display name.
+    expect(document.querySelectorAll("[data-board-first-name]")).toHaveLength(0);
   });
 
   test("[R-CITY-040] given a player with no route yet, when a board is shown, then the own line says so instead of a rank", async () => {
@@ -104,7 +123,7 @@ describe("the boards screen", () => {
     expect(document.querySelector("[data-joined-week]")).toBeNull();
 
     cleanup();
-    show(launched({ "GET /api/boards/joined-week": [board("joined-week", [line(1, 30, { firstName: "Ada", me: true }), line(2, 20)])] }));
+    show(launched({ "GET /api/boards/joined-week": [board("joined-week", [line(1, 30, { username: "ada_lagos", me: true }), line(2, 20)])] }));
     await waitFor(() => expect(document.querySelector("[data-joined-week]")).not.toBeNull());
     expect(screen.getByText(say("ui.boards.joined-week"))).toBeTruthy();
   });
@@ -112,6 +131,6 @@ describe("the boards screen", () => {
   test("[R-CITY-039] given a board that fails to load, when the player tries again, then it is asked for again", async () => {
     show(launched({ "GET /api/boards/this-week/everyone": [{ status: 500, body: { ok: false, code: "diverged", detail: "broken" } }, board("this-week.everyone", [line(1, 3)])] }));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.boards.retry") }));
-    await waitFor(() => expect(lines()).toEqual(["1Tunde+3"]));
+    await waitFor(() => expect(lines()).toEqual(["1tunde_k+3"]));
   });
 });

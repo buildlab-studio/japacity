@@ -38,7 +38,7 @@ test("[R-CITY-039] given every board switched off, when the screen opens, then e
 test("[R-CITY-039] given a board switched on again, when the screen opens, then its lines are loaded then and only then", async () => {
   expect(imported.lines).toBe(0);
   const server = fakeServer();
-  server.answer("GET /api/boards/this-week/everyone", { body: { ok: true, board: "this-week.everyone", size: 50, rows: [{ rank: 1, firstName: "Ada", figure: 4, me: true, name: null }], own: { rank: 1, firstName: "Ada", figure: 4, me: true, name: null } } });
+  server.answer("GET /api/boards/this-week/everyone", { body: { ok: true, board: "this-week.everyone", size: 50, rows: [{ rank: 1, username: "ada_lagos", firstName: null, figure: 4, me: true, name: null }], own: { rank: 1, username: "ada_lagos", firstName: null, figure: 4, me: true, name: null } } });
   server.answer("GET /api/boards/joined-week", { status: 503, body: { ok: false, code: "switched-off", detail: "This board is paused.", retryAfter: 30 } });
   render(
     <BoardsApiProvider value={boardsApiFor(BASE, server.fetch)}>

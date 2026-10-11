@@ -4,7 +4,7 @@ import type { SwitchName } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
 import type { Live } from "../authority/load";
-import { call, held, newLife, restMonth, send, testServer, type TestServer } from "../authority/testing";
+import { call, held, newLife, restMonth, send, signUp, testServer, type TestServer } from "../authority/testing";
 import { productionConfig, testConfig } from "../config";
 import { setSwitch } from "../switches/switches";
 import type { ServerRejection } from "../types";
@@ -67,12 +67,17 @@ async function liveOf(server: TestServer, character: string, loaded: State, stat
   };
 }
 
-/** Writes a figure straight into the store, for boards with many lines. */
+/**
+ * Writes a figure straight into the store, for boards with many lines. A stranger's account is made the first time,
+ * with the username `player_<character>`, so the everyone board has a name to show (R-CITY-040 as amended 11 Oct 2026).
+ */
 async function figure(server: TestServer, character: string, value: number | null, over: { before?: number | null; joinedAt?: number; account?: string; scenario?: string } = {}): Promise<void> {
   const joinedAt = over.joinedAt ?? EPOCH;
+  const account = over.account ?? `account-of-${character}`;
+  if ((await server.deps.stores.account.get(account)) === null) await signUp(server, account, `player_${character}`);
   await server.deps.stores.boards.setFigure({
     character,
-    account: over.account ?? `account-of-${character}`,
+    account,
     scenario: over.scenario ?? "scenario.tunde",
     joinedAt,
     joinedWeek: lagosWeek(joinedAt),
@@ -136,8 +141,9 @@ describe("the figures a commit writes", () => {
     expect(row?.figure).toBeGreaterThan(0);
     expect(row).toMatchObject({ weekStart: null, v: 1 });
 
+    // the everyone board names the account's username.
     const line = reply((await board(server, "account.ada", "this-week.everyone")).body).own;
-    expect(line).toEqual({ rank: 1, firstName: "Ada", figure: row?.figure, me: true, name: null });
+    expect(line).toEqual({ rank: 1, username: "account.ada", firstName: null, figure: row?.figure, me: true, name: null });
   });
 
   test("[R-CITY-039] given a commit that leaves the figure where it was, when it is not the first, then nothing is written", async () => {
@@ -214,9 +220,10 @@ describe("the boards", () => {
 
     await turnOff(server, "boards.joined-week", true);
     const cohort = reply((await board(server, "account.ada", "joined-week")).body);
-    expect(cohort.rows.map((row) => [row.rank, row.firstName, row.figure, row.me])).toEqual([
-      [1, "Ada", 30, true],
-      [2, "Tunde", 20, false],
+    // strangers in the same week are named by username, as on everyone (R-CITY-040).
+    expect(cohort.rows.map((row) => [row.rank, row.username, row.figure, row.me])).toEqual([
+      [1, "account.ada", 30, true],
+      [2, "player_same", 20, false],
     ]);
   });
 
@@ -229,8 +236,10 @@ describe("the boards", () => {
     const read = reply((await board(server, "account.ada", "all-time.everyone")).body);
     expect(read.size).toBe(3);
     expect(read.rows.map((row) => row.figure)).toEqual([90, 80, 70]);
-    expect(read.rows.every((row) => row.name === null && row.firstName === "Tunde" && !row.me)).toBe(true);
-    expect(read.own).toEqual({ rank: 5, firstName: "Ada", figure: 10, me: true, name: null });
+    // the lines name usernames, and no first name or display name travels on everyone (R-CITY-040).
+    expect(read.rows.map((row) => row.username)).toEqual(["player_c0", "player_c1", "player_c2"]);
+    expect(read.rows.every((row) => row.name === null && row.firstName === null && !row.me)).toBe(true);
+    expect(read.own).toEqual({ rank: 5, username: "account.ada", firstName: null, figure: 10, me: true, name: null });
 
     await figure(server, character, 75, { account: "account.ada", scenario: "scenario.ada" });
     const inside = reply((await board(server, "account.ada", "all-time.everyone")).body);
@@ -248,7 +257,7 @@ describe("the boards", () => {
     await figure(server, "earlier", 50, { joinedAt: EPOCH, scenario: "scenario.ngozi" });
     await newLife(server, "account.ada", "scenario.ada");
     const read = reply((await board(server, "account.ada", "all-time.everyone")).body);
-    expect(read.rows.map((row) => row.firstName)).toEqual(["Ngozi", "Zainab"]);
+    expect(read.rows.map((row) => row.username)).toEqual(["player_earlier", "player_later"]);
   });
 
   test("[R-CITY-039] given a long-time leader and a new player who rose more since Monday, when this week is read, then the new player tops it and all time keeps the leader first", async () => {
@@ -290,13 +299,34 @@ describe("the boards", () => {
     const app = boardRoutes(server.deps, ports);
     const asked = await app.request("/api/boards/all-time/friends", { headers: { "x-test-account": "account.ada" } });
     const read = reply(await asked.json<BoardReply>());
+    // friends keep the first name and the display name, and carry no username (R-CITY-040).
     expect(read.rows).toEqual([
-      { rank: 1, firstName: "Tunde", figure: 40, me: false, name: "@tunde" },
-      { rank: 2, firstName: "Ada", figure: 30, me: true, name: "@ada" },
+      { rank: 1, username: null, firstName: "Tunde", figure: 40, me: false, name: "@tunde" },
+      { rank: 2, username: null, firstName: "Ada", figure: 30, me: true, name: "@ada" },
     ]);
 
     const everyone = reply(await (await app.request("/api/boards/all-time/everyone", { headers: { "x-test-account": "account.ada" } })).json<BoardReply>());
-    expect(everyone.rows.map((row) => row.name)).toEqual([null, null, null]);
+    expect(everyone.rows.map((row) => [row.username, row.firstName, row.name])).toEqual([
+      ["player_stranger", null, null],
+      ["account.tunde", null, null],
+      ["account.ada", null, null],
+    ]);
+  });
+
+  test("[R-CITY-040] given a player who changed their username and display names known, when the everyone board and the player's own line are read, then each line names the username as it stands now and nothing else about the player travels", async () => {
+    const server = testServer({ config: testConfig({ testing: { testLogin: true }, board: { size: 1 } }) });
+    await figure(server, "leader", 90, { scenario: "scenario.zainab" });
+    const mine = await newLife(server, "account.ada", "scenario.ada");
+    await figure(server, mine, 30, { account: "account.ada", scenario: "scenario.ada" });
+    const renamed = await server.deps.stores.account.setUsername("account.ada", "ada_from_yaba", server.deps.now());
+    expect(renamed.ok).toBe(true);
+
+    const ports: BoardPorts = { ...STAND_IN_PORTS, displayNames: (accounts) => Promise.resolve(new Map(accounts.map((account) => [account, "Display"]))) };
+    const asked = await boardRoutes(server.deps, ports).request("/api/boards/all-time/everyone", { headers: { "x-test-account": "account.ada" } });
+    const read = reply(await asked.json<BoardReply>());
+    expect(read.rows).toEqual([{ rank: 1, username: "player_leader", firstName: null, figure: 90, me: false, name: null }]);
+    expect(read.own).toEqual({ rank: 2, username: "ada_from_yaba", firstName: null, figure: 30, me: true, name: null });
+    for (const row of [...read.rows, read.own]) expect(Object.keys(row ?? {}).sort()).toEqual(["figure", "firstName", "me", "name", "rank", "username"]);
   });
 
   test("[R-PEOPLE-056] given lives whose families are computer characters, when every board is read, then only the players' own characters are on it", async () => {

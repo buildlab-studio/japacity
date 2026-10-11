@@ -339,6 +339,8 @@ export interface AccountStore {
   create: (row: AccountRow) => Promise<StoreResult<AccountRow>>;
   /** R-ACCOUNT-024: the account holding `username` in any capitals, or null. */
   byUsername: (username: string) => Promise<AccountRow | null>;
+  /** R-ACCOUNT-024, city.md R-CITY-040: the usernames of these accounts in one read, for the everyone board; an unknown id is left out. */
+  usernames: (ids: readonly string[]) => Promise<Map<string, string>>;
   /** R-ACCOUNT-024: refused with `missing` for an unknown id and `conflict` for a username another account holds. `at` becomes `usernameChangedAt`. */
   setUsername: (id: string, username: string, at: number) => Promise<StoreResult<AccountRow>>;
   /** R-ACCOUNT-023: the account is secured. Refused with `missing` for an unknown id. */
