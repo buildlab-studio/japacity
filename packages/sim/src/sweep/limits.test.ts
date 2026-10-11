@@ -22,11 +22,20 @@ function centsOf(rates: Record<ForeignCurrency, number>, naira: number): number 
   return convertMinor(naira - bp(naira, content.tuning.wallet.bankChargeBp), "NGN", "USD", rates);
 }
 
-/** Ada, rested until the quick loan opens: under ₦100,000 and nothing on her credit mark. */
+/**
+ * Ada, rested until the quick loan opens: under ₦100,000 and nothing on her credit mark. Since decision 0035 nothing of
+ * her living is charged as a month turns at home, so resting alone never brings her under the line: each month she eats
+ * by hand as the month's time allows (R-HOME-012), the meals spending about what the month's living charge took.
+ */
 function withQuickLoan(): { game: Game; offer: PlayerView["offers"][number] } {
+  const meal = { type: "activity/now", activity: "activity.cook-at-home", param: null } as const;
   const play = (seed: string): Game => {
     const game = start({ scenario: "scenario.ada", seed, content });
-    for (let month = 0; month < 8 && !game.view().offers.some((offer) => offer.entry === "offer.quick-loan"); month += 1) game.endTurn();
+    for (let month = 0; month < 8 && !game.view().offers.some((offer) => offer.entry === "offer.quick-loan"); month += 1) {
+      // A meal a morning until the month's free time is spent (R-TURN-010), or the money for one is gone.
+      for (let fed = true; fed && game.view().halfDays.spent < game.view().halfDays.free; ) fed = game.send(meal).ok;
+      game.endTurn();
+    }
     return game;
   };
   const game = play(seedWhere((seed) => play(seed).view().offers.some((offer) => offer.entry === "offer.quick-loan")));

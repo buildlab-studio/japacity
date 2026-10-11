@@ -27,6 +27,8 @@ const MOVE_IN = home.compound.rentYear + bp(home.compound.rentYear, home.compoun
 const ADA_UPKEEP = content.scenario["scenario.ada"]!.obligations.find((owed) => owed.obligation === FAMILY_UPKEEP)!.amount;
 /** No eviction from Makoko, so a draw on the water never muddies a month. */
 const QUIET: Content = applyOverlay(content, { version: "test-compound-quiet", tuning: { home: { evictionBp: 0 } } });
+/** Decision 0035 lives the living by hand at home; the tests that read the room's upkeep charge itself charge it whole. */
+const CHARGED: Content = { ...QUIET, tuning: { ...QUIET.tuning, home: { ...QUIET.tuning.home, livingByHandBp: 0 } } };
 
 function ada(base: Content = QUIET): Game {
   return start({ content: base, scenario: "scenario.ada", seed: "seed-1" });
@@ -125,7 +127,7 @@ describe("the numbers", () => {
 
 describe("moving into the room", () => {
   test("[R-HOME-010] [R-HOME-002] given Ada at the family house with plenty, when she moves into the room, then the year's rent and the fees are taken at once under rent, the family's upkeep closes, the room's rent and upkeep open, and standing does not move", () => {
-    const game = ada();
+    const game = ada(CHARGED);
     setNaira(game, 0, 5_000_000_00);
     const standing = game.state.quality[STANDING];
     const result = game.accept({ type: "home/move", to: COMPOUND });
@@ -137,15 +139,15 @@ describe("moving into the room", () => {
     expect(game.state.quality[STANDING]).toBe(standing);
     expect(result.lines.map((line) => line.key)).toContain("line.home.moved");
     expect(game.view().home.rent).toEqual({ currency: "NGN", amount: home.compound.upkeep });
-    expect(checkInvariants(game.state, QUIET)).toEqual([]);
+    expect(checkInvariants(game.state, CHARGED)).toEqual([]);
   });
 
   test("[R-HOME-010] [R-HOME-008] given Ada one kobo short of the year's rent and fees, when the card is read and she moves, then the move is shut as short and refused with cannot-afford; with it exactly held it is open and taken", () => {
-    const short = ada();
+    const short = ada(CHARGED);
     setNaira(short, 0, MOVE_IN - 1);
     expect(short.view().home.moves.find((move) => move.to === COMPOUND)).toEqual({ to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: "short" });
     short.expectRejected({ type: "home/move", to: COMPOUND }, "cannot-afford");
-    const exact = ada();
+    const exact = ada(CHARGED);
     setNaira(exact, 0, MOVE_IN);
     expect(exact.view().home.moves.find((move) => move.to === COMPOUND)?.shut).toBeNull();
     exact.accept({ type: "home/move", to: COMPOUND });
@@ -168,7 +170,7 @@ describe("moving into the room", () => {
   });
 
   test("[R-HOME-008] [R-HOME-010] given Ada in the room, when the card is read, then it offers the family house at no cost now and Makoko at its first month, and shuts both the month she moved", () => {
-    const game = inTheRoom();
+    const game = inTheRoom(CHARGED);
     expect(game.view().home.moves).toEqual([
       { to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" },
       { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: "moved" },
@@ -187,8 +189,8 @@ describe("water in the room (R-OBLIGATION-014)", () => {
   });
 
   test("[R-OBLIGATION-014] [R-HOME-010] given Ada in the room, when she fills the drum in a month, then the room's upkeep is charged whole, with no relief and no money line, as in a month she does not", () => {
-    const there = inTheRoom();
-    const twin = inTheRoom();
+    const there = inTheRoom(CHARGED);
+    const twin = inTheRoom(CHARGED);
     month(there);
     month(twin);
     const played = there.endTurn([{ activity: "activity.fill-drum", param: null }]);
@@ -197,7 +199,7 @@ describe("water in the room (R-OBLIGATION-014)", () => {
     expect(charged(played, UPKEEP)[0]).toBeGreaterThan(0);
     expect(eventsOf(played, "obligation/relieved")).toEqual([]);
     expect(played.lines.filter((line) => line.key.startsWith("line.obligation.relief."))).toEqual([]);
-    expect(checkInvariants(there.state, QUIET)).toEqual([]);
+    expect(checkInvariants(there.state, CHARGED)).toEqual([]);
   });
 });
 

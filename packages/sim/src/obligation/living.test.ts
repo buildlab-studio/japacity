@@ -14,9 +14,10 @@ describe("living by hand", () => {
     const bank = game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash;
     game.endTurn();
     expect(game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash).toBe(bank);
-    const meal = content.activity["activity.cook-at-home"]!;
+    const price = content.activity["activity.cook-at-home"]!.cost[0]!.amount;
+    if (typeof price !== "number") throw new Error("The meal's price is not a fixed figure.");
     game.accept({ type: "activity/now", activity: "activity.cook-at-home", param: null });
-    expect(game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash).toBe(bank - meal.cost[0]!.amount);
+    expect(game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash).toBe(bank - price);
   });
 
   test("[R-HOME-012] given upkeep abroad, when the charge is read, then it is whole", () => {

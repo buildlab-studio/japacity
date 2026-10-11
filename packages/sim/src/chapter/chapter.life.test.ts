@@ -4,12 +4,14 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
-import type { Id, PlayerView, ReadCtx } from "../engine/types";
+import type { Id, PlayerView, ReadCtx, StepResult } from "../engine/types";
 import { viewFor } from "../engine/view";
 import { flownAda, LANDING, monthAbroad, playUntil, SECURE, SEND_OFF } from "../goal/goal.journey";
+import { lifeSaves } from "../goldens/lives.data";
 import { roadCard } from "../route/gates/road";
 import { applyEffects } from "../route/route.journey";
 import type { Game } from "../testing/play";
+import { start } from "../testing/play";
 import { sendOffCard, topActivities } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -22,6 +24,26 @@ function readOf(game: Game): ReadCtx {
 
 function closed(result: { events: { type: string }[] }): unknown[] {
   return result.events.filter((event) => event.type === "chapter/closed");
+}
+
+type Accepted = Extract<StepResult, { ok: true }>;
+
+/** A recorded life replayed command by command through the real content; `to` plays on until a command leaves `until` true. */
+function replay(name: string): { game: Game; to: (until: (game: Game) => boolean) => Accepted } {
+  const save = lifeSaves[name];
+  if (save === undefined) throw new Error(`The ${name} life is not recorded.`);
+  const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
+  let index = 0;
+  const to = (until: (game: Game) => boolean): Accepted => {
+    while (index < save.commands.length) {
+      const { command, sender } = save.commands[index]!;
+      index += 1;
+      const result = game.accept(command, sender);
+      if (until(game)) return result;
+    }
+    throw new Error(`The ${name} life never got there.`);
+  };
+  return { game, to };
 }
 
 /** Ada flown and on through Landing, so Secure is the chapter in hand. */
@@ -93,15 +115,20 @@ describe("the send-off card", () => {
   });
 
   test("[R-CHAPTER-006] [R-SHARE-001] given a chapter other than the send-off closing, when the view is read, then there is no send-off card but the chapter card for it, gone once the next month ends", () => {
-    const game = flownAda(content);
-    const after = game.endTurn();
+    // Since the lives were re-recorded for decision 0035, Ada's careful life meets Landing's last item on her first pay
+    // abroad, whose own card stands before a chapter's; Tunde's recorded life abroad closes Landing in a month of its own.
+    const { game, to } = replay("tunde-abroad");
+    to((now) => now.state.place.where === "abroad");
+    const flight = game.state.turn.month;
+    const after = to((now) => now.state.turn.month > flight);
     expect(closed(after)).toEqual([{ type: "chapter/closed", chapter: SEND_OFF, next: LANDING }]);
     // The send-off's close has its own card, shown in the flight month.
     expect(game.view().card?.kind).not.toBe("chapter");
-    const result = playUntil(game, SECURE);
+    const result = to((now) => now.state.chapter.current === SECURE);
     expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: LANDING, next: SECURE }]);
     expect(game.view().card).toMatchObject({ kind: "chapter", chapter: LANDING, months: game.state.turn.month, name: null });
-    monthAbroad(game);
+    const landed = game.state.turn.month;
+    to((now) => now.state.turn.month > landed);
     expect(game.view().card?.kind).not.toBe("chapter");
   });
 });
@@ -191,6 +218,9 @@ describe("after the last chapter", () => {
     const game = atSecure();
     applyEffects(game, [{ type: "status/grant", status: "status.uk-settled" }]);
     game.endTurn();
+    expect(game.state.chapter.current).toBeNull();
+    // Since decision 0035's re-recording, Ada reaches Secure four months after the flight, so the months abroad are played on to six.
+    while (game.state.turn.month - game.state.place.movedMonth < 6) monthAbroad(game);
     const view: PlayerView = viewFor(readOf(game));
     expect(view.chapter.current).toBeNull();
     // Six months abroad: the first goal of the long game is open.
