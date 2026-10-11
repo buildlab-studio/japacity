@@ -25,6 +25,7 @@ import type {
   RollbackCheck,
   SwitchesReply,
   SwitchLogReply,
+  StatsReply,
   SwitchName,
 } from "./admin.contract";
 
@@ -43,6 +44,8 @@ export interface AdminApi {
   log: (filter: { item?: string; account?: string }) => Promise<LogReply>;
   feedback: () => Promise<FeedbackReply>;
   analytics: (day: string | null) => Promise<DashboardReply>;
+  /** R-ANALYTICS-012: the numbers, live. */
+  stats: () => Promise<StatsReply>;
   switches: () => Promise<SwitchesReply>;
   switchLog: () => Promise<SwitchLogReply>;
   setSwitch: (name: SwitchName, on: boolean, reason: string) => Promise<SwitchesReply>;
@@ -90,6 +93,7 @@ export function adminApi(server: Api, baseUrl: string): AdminApi {
     log: (filter) => settle(server.get(`/api/admin/moderation/log${query(filter)}`)),
     feedback: () => settle(server.get("/api/admin/moderation/feedback")),
     analytics: (day) => settle(server.get(`/api/admin/analytics${query({ day: day ?? undefined })}`)),
+    stats: () => settle(server.get("/api/admin/stats")),
     switches: () => settle(server.get("/api/admin/switches")),
     switchLog: () => settle(server.get("/api/admin/switches/log")),
     setSwitch: (name, on, reason) => settle(server.post("/api/admin/switches", { name, on, reason })),

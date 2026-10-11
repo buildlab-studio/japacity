@@ -1,6 +1,6 @@
 // The admin routes' answers for the page's tests and its browser pictures, in
 // the server's shapes. Made-up accounts and businesses only.
-import type { AlarmsReply, CampaignsReply, DashboardReply, FeedbackReply, LogReply, QueueReply, RejectionsReply, ReportReply, RollbackCheck, Switches, SwitchesReply, SwitchLogReply } from "./admin.contract";
+import type { AlarmsReply, CampaignsReply, DashboardReply, FeedbackReply, LogReply, QueueReply, RejectionsReply, ReportReply, RollbackCheck, StatsPeriod, StatsReply, Switches, SwitchesReply, SwitchLogReply } from "./admin.contract";
 
 export const NOW = Date.parse("2026-10-08T12:00:00Z");
 const HOUR = 3_600_000;
@@ -193,6 +193,84 @@ export const SWITCH_LOG: SwitchLogReply = {
   ],
 };
 
+const FEWER = { fewerThan: 10 };
+
+function period(from: string, to: string, scale: number, players: number): StatsPeriod {
+  return {
+    from,
+    to,
+    players: { all: players, regions: { GB: FEWER, NG: players - 4 } },
+    newPlayers: { all: 40 * scale, regions: { NG: 40 * scale } },
+    guests: 40 * scale,
+    secured: 12 * scale,
+    livesStarted: 38 * scale,
+    livesSecured: FEWER,
+    departed: 11 * scale,
+    turnsEnded: 300 * scale,
+    sessions: 95 * scale,
+    clientErrors: 14 * scale,
+    feedbackSent: FEWER,
+    reportsOpen: FEWER,
+    topUps: FEWER,
+    topUpKobo: null,
+    rates: { dailyOverPeriodBp: scale === 1 ? null : 2200, sessionsPerPlayerBp: 14500, errorsPerThousandSessions: 147, departedPerNewBp: 2750, securedPerGuestBp: 3000 },
+  };
+}
+
+/** R-ANALYTICS-012: the numbers on the 8th at noon. */
+export const STATS: StatsReply = {
+  ok: true,
+  stats: {
+    now: { at: NOW, online: { all: 23, regions: { GB: FEWER, NG: 21 } }, peakToday: { regions: { GB: FEWER, NG: 37 } } },
+    today: period("2026-10-08", "2026-10-08", 1, 64),
+    last7: period("2026-10-01", "2026-10-07", 7, 210),
+    last30: period("2026-09-08", "2026-10-07", 30, 520),
+    totals: { day: "2026-10-07", players: { all: 1240, regions: { GB: 61, NG: 1179 } } },
+    funnel: {
+      from: "2026-09-08",
+      to: "2026-10-07",
+      steps: [
+        { step: "holding", count: 3100, ofFirstBp: 10000 },
+        { step: "invited", count: 900, ofFirstBp: 2903 },
+        { step: "door-1", count: 820, ofFirstBp: 2645 },
+        { step: "door-2", count: 700, ofFirstBp: 2258 },
+        { step: "page", count: 640, ofFirstBp: 2064 },
+        { step: "begin", count: 600, ofFirstBp: 1935 },
+        { step: "world", count: 540, ofFirstBp: 1741 },
+        { step: "month-1", count: 470, ofFirstBp: 1516 },
+        { step: "chapter-1", count: 300, ofFirstBp: 967 },
+        { step: "secured", count: 150, ofFirstBp: 483 },
+      ],
+    },
+    retention: {
+      from: "2026-09-08",
+      to: "2026-10-07",
+      weeks: [
+        {
+          week: "2026-09-28",
+          newPlayers: 280,
+          returned: { d1: { count: 90, bp: 3214 }, d3: { count: 60, bp: 2142 }, d7: { count: 30, bp: 1071 }, d14: { count: FEWER, bp: null }, d30: { count: FEWER, bp: null } },
+          secured: { count: 70, bp: 2500 },
+        },
+      ],
+    },
+    sessions: { from: "2026-09-08", to: "2026-10-07", count: 2850, lengths: { "under-2": 400, "2-5": 700, "5-15": 1100, "15-30": 450, "over-30": 200 }, perPlayerBp: 14500 },
+    shares: {
+      from: "2026-09-08",
+      to: "2026-10-07",
+      kinds: [
+        { kind: "send-off", pressed: 120, completed: 80, arrived: 64, arrivedPerShareBp: 8000 },
+        { kind: "granted", pressed: 30, completed: FEWER, arrived: FEWER, arrivedPerShareBp: null },
+      ],
+    },
+    adverts: { from: "2026-09-08", to: "2026-10-07", impressions: 41000, taps: 120, revenueKobo: 0, revenuePerPlayerKobo: 0 },
+    economy: {
+      day: "2026-10-07",
+      cells: ["1-3", "4-12", "13+"].flatMap((months) => ["0", "under-50k", "50k-500k", "over-500k"].map((held) => ({ months, held, lives: months === "1-3" && held === "under-50k" ? 140 : FEWER }))),
+    },
+  },
+};
+
 /** Every admin GET this page makes, by path without its query. */
 export const ADMIN_GETS: Record<string, unknown> = {
   "/api/account": { ok: true, account: { id: "account.owner", country: "NG", age: { passed: true, method: "declared" }, createdAt: NOW - 90 * DAY, character: null, admin: true } },
@@ -203,6 +281,7 @@ export const ADMIN_GETS: Record<string, unknown> = {
   "/api/admin/moderation/log": LOG,
   "/api/admin/moderation/feedback": FEEDBACK,
   "/api/admin/analytics": DASHBOARD,
+  "/api/admin/stats": STATS,
   "/api/admin/adverts/campaigns": CAMPAIGNS,
   "/api/admin/switches": SWITCHES,
   "/api/admin/switches/log": SWITCH_LOG,

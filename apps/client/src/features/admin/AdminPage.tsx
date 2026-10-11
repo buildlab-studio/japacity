@@ -8,12 +8,13 @@ import { AnalyticsTab } from "./AnalyticsTab";
 import { words, type AdminKey } from "./admin.words";
 import type { AdminApi } from "./api";
 import { ModerationTab } from "./ModerationTab";
+import { NumbersTab } from "./NumbersTab";
 import { MoneyTab, RejectionsTab, RollbackTab } from "./ServerTabs";
 import { SwitchesTab } from "./SwitchesTab";
 
 export const ADMIN_PATH = "/admin";
 
-export const ADMIN_TABS = ["money", "rejections", "rollback", "moderation", "analytics", "adverts", "switches"] as const;
+export const ADMIN_TABS = ["money", "rejections", "rollback", "moderation", "analytics", "numbers", "adverts", "switches"] as const;
 
 export type AdminTab = (typeof ADMIN_TABS)[number];
 
@@ -23,6 +24,7 @@ const TAB_WORDS: Record<AdminTab, AdminKey> = {
   rollback: "admin.tab.rollback",
   moderation: "admin.tab.moderation",
   analytics: "admin.tab.analytics",
+  numbers: "admin.tab.numbers",
   adverts: "admin.tab.adverts",
   switches: "admin.tab.switches",
 };
@@ -47,6 +49,7 @@ export function AdminPage({ api, tab: first = "money" }: { api: AdminApi; tab?: 
     rollback: () => <RollbackTab api={api} character={character} />,
     moderation: () => <ModerationTab api={api} />,
     analytics: () => <AnalyticsTab api={api} />,
+    numbers: () => <NumbersTab api={api} />,
     adverts: () => <AdvertsTab api={api} />,
     switches: () => <SwitchesTab api={api} />,
   };

@@ -33,7 +33,7 @@ describe("the analytics beacon on the game's page", () => {
 
   test("[R-ANALYTICS-012] given the build's environment with and without VITE_ANALYTICS_TOKEN, when the build's step runs, then the page gains the beacon only with it", () => {
     const built = (env: Record<string, unknown>) => {
-      const plugin = beaconPlugin() as { configResolved: (config: { env: Record<string, unknown> }) => void; transformIndexHtml: (html: string) => string };
+      const plugin = beaconPlugin() as unknown as { configResolved: (config: { env: Record<string, unknown> }) => void; transformIndexHtml: (html: string) => string };
       plugin.configResolved({ env });
       return plugin.transformIndexHtml(PAGE);
     };

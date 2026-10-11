@@ -264,6 +264,92 @@ export interface Dashboard {
 export type DashboardReply = { ok: true; dashboard: Dashboard } | AdminRefusal;
 
 // ---------------------------------------------------------------------------
+// apps/server/src/routes/admin-stats.ts (R-ANALYTICS-012, 013): the Numbers tab.
+// Copied from apps/server/src/analytics/stats.contract.ts; a test holds both to one shape.
+// ---------------------------------------------------------------------------
+
+export interface Regional {
+  all: Shown;
+  regions: Record<string, Shown>;
+}
+
+export interface PeriodRates {
+  dailyOverPeriodBp: number | null;
+  sessionsPerPlayerBp: number | null;
+  errorsPerThousandSessions: number | null;
+  departedPerNewBp: number | null;
+  securedPerGuestBp: number | null;
+}
+
+export interface StatsPeriod {
+  from: string;
+  to: string;
+  players: Regional;
+  newPlayers: Regional;
+  guests: Shown;
+  secured: Shown;
+  livesStarted: Shown;
+  livesSecured: Shown;
+  departed: Shown;
+  turnsEnded: Shown;
+  sessions: Shown;
+  clientErrors: Shown;
+  feedbackSent: Shown;
+  reportsOpen: Shown;
+  topUps: Shown;
+  topUpKobo: number | null;
+  rates: PeriodRates;
+}
+
+export interface FunnelStep {
+  step: string;
+  count: Shown;
+  ofFirstBp: number | null;
+}
+
+export interface Returned {
+  count: Shown;
+  bp: number | null;
+}
+
+export interface RetentionWeek {
+  week: string;
+  newPlayers: Shown;
+  returned: Record<"d1" | "d3" | "d7" | "d14" | "d30", Returned>;
+  secured: Returned;
+}
+
+export interface ShareKind {
+  kind: string;
+  pressed: Shown;
+  completed: Shown;
+  arrived: Shown;
+  arrivedPerShareBp: number | null;
+}
+
+export interface EconomyCell {
+  months: string;
+  held: string;
+  lives: Shown;
+}
+
+export interface Stats {
+  now: { at: number; online: Regional; peakToday: { regions: Record<string, Shown> } };
+  today: StatsPeriod;
+  last7: StatsPeriod;
+  last30: StatsPeriod;
+  totals: { day: string; players: Regional };
+  funnel: { from: string; to: string; steps: FunnelStep[] };
+  retention: { from: string; to: string; weeks: RetentionWeek[] };
+  sessions: { from: string; to: string; count: Shown; lengths: Record<string, Shown>; perPlayerBp: number | null };
+  shares: { from: string; to: string; kinds: ShareKind[] };
+  adverts: { from: string; to: string; impressions: Shown; taps: Shown; revenueKobo: number; revenuePerPlayerKobo: number | null };
+  economy: { day: string; cells: EconomyCell[] };
+}
+
+export type StatsReply = { ok: true; stats: Stats } | AdminRefusal;
+
+// ---------------------------------------------------------------------------
 // apps/server/src/routes/admin-switches.ts (R-SERVER-030, 031)
 // ---------------------------------------------------------------------------
 
