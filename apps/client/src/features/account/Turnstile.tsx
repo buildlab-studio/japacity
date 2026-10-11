@@ -9,6 +9,8 @@ import { useEffect, useRef } from "react";
 
 export interface TurnstileOptions {
   sitekey: string;
+  /** Returned by siteverify, which the server checks (R-ACCOUNT-013). */
+  action: string;
   callback: (token: string) => void;
   "expired-callback": () => void;
   "error-callback": () => void;
@@ -23,6 +25,12 @@ export interface TurnstileApi {
 }
 
 export type LoadTurnstile = () => Promise<TurnstileApi>;
+
+/**
+ * R-ACCOUNT-013: the action the widget is rendered with. The guest start is the one surface it guards,
+ * and the server refuses a pass made for any other (apps/server/src/account/turnstile.ts, TURNSTILE_ACTION).
+ */
+export const TURNSTILE_ACTION = "guest";
 
 /** Cloudflare's test site key that always passes, for builds that are not production. */
 export const TEST_SITE_KEY = "1x00000000000000000000AA";
@@ -78,6 +86,7 @@ export function Turnstile({ sitekey, load, round, onToken, onShown }: { sitekey:
         if (gone || container === null) return;
         const id = api.render(container, {
           sitekey,
+          action: TURNSTILE_ACTION,
           callback: (token) => tell.current(token),
           "expired-callback": () => tell.current(null),
           "error-callback": () => tell.current(null),
