@@ -57,11 +57,15 @@ export function withMeetings(things: readonly Thing[], place: string, standing: 
   });
 }
 
-/** The place's file with only the people standing now, each in their own model where the file names one for them. */
+/**
+ * The place's file with only the people standing now at its meetings, each in their own model where the file names one
+ * for them. Someone a dressing stands as themselves, at no meeting (their room's partner), stays.
+ */
 export function withStanding(file: PlaceFile, standing: readonly Standing[]): PlaceFile {
   const stage = file.stage;
   if (stage?.standing === undefined) return file;
-  const kept = stage.standing.filter((stander) => standing.some((one) => one.thing === stander.thing && (stander.person === undefined || stander.person === one.person)));
+  const meets = meetingThingsAt(file.place);
+  const kept = stage.standing.filter((stander) => !meets.has(stander.thing) || standing.some((one) => one.thing === stander.thing && (stander.person === undefined || stander.person === one.person)));
   if (kept.length === stage.standing.length) return file;
   const next: Stage = { ...stage, standing: kept };
   return { ...file, stage: next };
@@ -88,9 +92,33 @@ export function courtingNow(view: Pick<PlayerView, "people">): number {
   return view.people.bonds.filter((bond) => bond.stage === "courting").length;
 }
 
+/** The stages of a bond from courting on: their room is open (R-WORLD-020). */
+const COURTED: ReadonlySet<string> = new Set(["courting", "partner", "married"]);
+
 /** True while a bond with a partner is courting or later: their room is on the map (R-WORLD-020). */
 export function roomOpen(view: Pick<PlayerView, "people">): boolean {
-  return view.people.bonds.some((bond) => bond.role === "partner" && (bond.stage === "courting" || bond.stage === "partner" || bond.stage === "married"));
+  return view.people.bonds.some((bond) => bond.role === "partner" && COURTED.has(bond.stage));
+}
+
+/**
+ * Whose room their room is now (R-WORLD-020): the computer partner of a bond courting or later, the one whose home the
+ * room sits near on the map when there is one (`roomNear`), else the first; null for none, or a bond with a player,
+ * and the room is plain.
+ */
+export function roomPartner(view: Pick<PlayerView, "people">, meetings: readonly PartnerMeeting[] = partnerMeetings): Id<"person"> | null {
+  const courted = view.people.bonds.flatMap((bond) => (bond.role === "partner" && bond.person !== null && COURTED.has(bond.stage) ? [bond.person] : []));
+  const homes = courted.flatMap((person) => meetings.filter((meeting) => meeting.person === person));
+  return (homes.find((meeting) => meeting.home.near !== null) ?? homes[0])?.person ?? null;
+}
+
+/**
+ * The people a dressing stands in a place as themselves, at no thing of its file: their room's partner (R-WORLD-020). Each
+ * is a thing with their name and the `computer` mark (R-PEOPLE-054) and no act of its own, since the bond's choices
+ * live in Chats and the visit on the room's chair (R-PEOPLE-014).
+ */
+export function standingAsThemselves(stage: Pick<Stage, "standing" | "things">): Thing[] {
+  const declared = new Set((stage.things ?? []).map((thing) => thing.id));
+  return (stage.standing ?? []).flatMap((one) => (one.person === undefined || declared.has(one.thing) ? [] : [{ id: one.thing, file: one.file, copy: 0, label: `${one.person}.name`, mark: "computer" as const, acts: [] }]));
 }
 
 /** The place their room sits near on the map: the home of the first courted computer partner who has one in Lagos, else none. */
