@@ -124,3 +124,32 @@ describe("the shell is never stale (R-SERVER-038)", () => {
     }
   });
 });
+
+// the maintainer, 11 Oct 2026, 13:26: a security.txt (RFC 9116) at the well-known path, a plain static file of the game.
+describe("the security.txt", () => {
+  const file = readFileSync(join(PUBLIC, ".well-known", "security.txt"), "utf8");
+  const headers = rules(readFileSync(join(PUBLIC, "_headers"), "utf8"));
+
+  test("given the file, when it is read, then it holds the four fields in order, the expiry in RFC 3339 form, and no signature or policy link", () => {
+    const lines = file.split("\n");
+    expect(lines.at(-1)).toBe("");
+    const fields = lines.slice(0, -1).map((line) => {
+      const colon = line.indexOf(": ");
+      return [line.slice(0, colon), line.slice(colon + 2)];
+    });
+    expect(fields.map(([name]) => name)).toEqual(["Contact", "Expires", "Preferred-Languages", "Canonical"]);
+    expect(Object.fromEntries(fields)).toMatchObject({ Contact: "mailto:security@japacity.app", "Preferred-Languages": "en", Canonical: "https://japacity.app/.well-known/security.txt" });
+    const expires = fields[1]?.[1] ?? "";
+    expect(expires).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/);
+    expect(new Date(expires).toISOString()).toBe(expires.includes(".") ? expires : expires.replace("Z", ".000Z"));
+    expect(file).not.toMatch(/BEGIN PGP|Policy:|Encryption:/);
+  });
+
+  test("[R-SERVER-038] given the file's path, then it is served no-cache like every unhashed file, never kept a year, with the security headers standing", () => {
+    const all = served(headers, "/.well-known/security.txt");
+    expect(all.get("cache-control")).toBe("no-cache");
+    expect(all.get("x-content-type-options")).toBe("nosniff");
+    // No rule names its type: the platform types a .txt file text/plain; charset=utf-8 from its extension.
+    expect(headers.some((rule) => rule.pattern.includes(".well-known") || rule.set.some(([name]) => name === "content-type"))).toBe(false);
+  });
+});
