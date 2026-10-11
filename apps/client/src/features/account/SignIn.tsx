@@ -8,6 +8,7 @@ import { useState } from "react";
 
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
+import { GoogleButton } from "../../shared/ui/GoogleButton";
 import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
 import { browserLink, inAppBrowser } from "./inApp";
@@ -88,9 +89,7 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
           {copied ? <p role="status">{say("ui.account.in-app.copied")}</p> : null}
         </div>
       ) : (
-        <Button variant="primary" disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null))}>
-          {say("ui.account.google")}
-        </Button>
+        <GoogleButton label={say("ui.account.google")} disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null))} />
       )}
       <CodeForm account={account} onSignedIn={onSignedIn} />
       <div>

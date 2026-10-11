@@ -116,6 +116,22 @@ describe("the version line and the dedication", () => {
     expect(fetching).not.toHaveBeenCalled();
   });
 
+  test("[R-CITY-021] given Settings open at its foot, when the fifth tap shows the dedication, then it is brought into view under the version line at once, so the home bar never cuts it", async () => {
+    const seen: (ScrollIntoViewOptions | boolean | undefined)[] = [];
+    const scrolled: Element[] = [];
+    Element.prototype.scrollIntoView = function (this: Element, options?: ScrollIntoViewOptions | boolean) {
+      scrolled.push(this);
+      seen.push(options);
+    };
+    await openSettings();
+    for (let tap = 0; tap < DEDICATION_TAPS; tap += 1) fireEvent.click(versionButton());
+    const line = document.querySelector("[data-dedication]");
+    expect(line).not.toBeNull();
+    expect(scrolled).toEqual([line]);
+    expect(seen).toEqual([{ block: "nearest" }]);
+    delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+  });
+
   test("[R-CITY-021] given five taps spread wider than the window, when the fifth lands, then nothing shows; five within it, then the dedication shows", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date(2026, 9, 11, 15, 0));

@@ -60,6 +60,11 @@
   --app-bills: #7a3b69;
   --app-news: #4a5068;
   --app-settings: #8a8378;
+  /* Google's sign-in button, in Google's own colours (developers.google.com/identity/branding-guidelines, read 11 Oct
+     2026): the light theme on a light sheet, the dark theme on a dark one (R-ACCOUNT-023). */
+  --google-fill: #ffffff;
+  --google-stroke: #747775;
+  --google-text: #1f1f1f;
   /* Older names, kept as aliases of the roles so they follow the theme and the surface. */
   --ink: var(--text);
   --accent: var(--action);
@@ -101,6 +106,9 @@
 /* Sheets the colour of the bar. The pick flips so it still stands out: chalk on adire, yellow on danfo. */
 :root[data-surface="dark"] {
   color-scheme: dark;
+  --google-fill: #131314;
+  --google-stroke: #8e918f;
+  --google-text: #e3e3e3;
   --sheet: #18234f;
   --sheet-2: #22306a;
   --sheet-muted: #2b3a7a;
@@ -124,6 +132,9 @@
   --sheet-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='11' cy='11' r='1.1' fill='%231c2a5e' fill-opacity='.07'/%3E%3C/svg%3E");
 }
 :root[data-ui="danfo"][data-surface="dark"] {
+  --google-fill: #131314;
+  --google-stroke: #8e918f;
+  --google-text: #e3e3e3;
   --sheet: #1d1b17;
   --sheet-2: #2a2722;
   --sheet-muted: #36322b;
@@ -180,6 +191,17 @@
   --font-display: "Danfo", system-ui, sans-serif;
 }
 
+/* Google Sans Medium, the face Google's branding guidelines name for its sign-in button, and only there (OFL-1.1: the
+   licence beside the file). Latin only; it is fetched the first time a Google button shows. */
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/google-sans-500-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 html,
 body {
   background-color: var(--sheet);
@@ -220,6 +242,31 @@ body {
 .btn-main:disabled { opacity: 0.5; }
 .btn-dark { background: var(--strong); color: var(--on-strong); border-radius: 5px; font-weight: 800; outline: var(--band-outline); outline-offset: -1px; }
 .press:active { transform: translateY(1px); filter: brightness(0.92); }
+/* Google's standard sign-in button (R-ACCOUNT-023), to the guidelines' numbers for Android and the web: 40 px tall, a
+   1 px stroke inside, 12 px before the G, the G at 20 px, 10 px after it, 12 px after the words, Google Sans Medium
+   14/20. Full width, as the sheet's other ways are, the G at the left and the words in the middle, as Google's own
+   button draws it at a set width. */
+.google-button {
+  display: grid;
+  grid-template-columns: 20px 1fr 20px;
+  column-gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--google-stroke);
+  border-radius: 4px;
+  background-color: var(--google-fill);
+  color: var(--google-text);
+  font-family: "Google Sans", Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  text-align: center;
+}
+.google-button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.google-button:disabled { opacity: 0.38; cursor: not-allowed; }
 
 @keyframes rise { from { transform: translateY(110%); } to { transform: translateY(0); } }
 /* The calendar's top page flipping up over the rings, on the spot (R-WORLD-027). */
@@ -240,6 +287,49 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .rise, .pop, .drop, .phone-up, .chip-in, .fade { animation: fade 0.2s ease both !important; }
 }
+
+/* State changes (R-WORLD-023): what opens, closes, appears or expands moves by a plain
+   CSS transition on transform and opacity only (the compositor's), 150 to 250 ms, never on a layout property and never
+   by a render loop. Base UI's dialogs mark their first frame [data-starting-style] and their closing frames
+   [data-ending-style], and wait for the transition before they unmount; anything else mounted fresh starts from its
+   @starting-style. The rule at the top of this file sets every transition to none under reduced motion, so each snaps. */
+.motion-scrim { transition-property: opacity; transition-duration: 200ms; transition-timing-function: ease; }
+.motion-scrim[data-starting-style], .motion-scrim[data-ending-style] { opacity: 0; }
+/* A sheet rises from the foot on a phone and comes in from the right on a desktop, and goes back the same way. */
+.motion-sheet { transition-property: transform, opacity; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+.motion-sheet[data-starting-style], .motion-sheet[data-ending-style] { transform: translateY(100%); }
+@media (min-width: 64rem) {
+  .motion-sheet[data-starting-style], .motion-sheet[data-ending-style] { transform: translateX(100%); }
+}
+/* A world sheet rises as the design's does (.rise); closing, it sinks back the same way. */
+.motion-sink { transition-property: transform, opacity; transition-duration: 200ms; transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+.motion-sink[data-ending-style] { transform: translateY(100%); }
+/* A card over the scene comes in with the design's .pop; dismissed, it shrinks a little away as it fades. */
+.motion-card { transition-property: transform, opacity; transition-duration: 180ms; transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+.motion-card[data-ending-style] { transform: scale(0.96); opacity: 0; }
+/* What a tap reveals in place (a chooser, a folded row): it settles in from just above while the room for it opens at once. */
+.motion-reveal { transition-property: transform, opacity; transition-duration: 180ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+@starting-style { .motion-reveal { transform: translateY(-6px); opacity: 0; } }
+/* A folded row (<details>) opens the same way, wherever it is: its content settles in as it shows. */
+details > :not(summary) { transition-property: transform, opacity; transition-duration: 180ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
+@starting-style { details[open] > :not(summary) { transform: translateY(-6px); opacity: 0; } }
+/* An app opening inside the phone comes in from the right, as the design's does; back on the home screen, the grid fades in. */
+.motion-in-right { transition-property: transform; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+@starting-style { .motion-in-right { transform: translateX(100%); } }
+.motion-in-fade { transition-property: opacity; transition-duration: 180ms; transition-timing-function: ease; }
+@starting-style { .motion-in-fade { opacity: 0; } }
+/* The phone's grow and shrink (R-WORLD-018, 023): one transform from the box it was in to the box it is in, measured once
+   (Phone.tsx), with the screen's content hidden in flight and faded in once the frame lands. Put away, it drops back
+   the way it rose while the scrim clears. */
+.motion-handset { transition-property: transform; transition-duration: 250ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+.motion-screen { transition-property: opacity; transition-duration: 150ms; transition-delay: 250ms; transition-timing-function: ease-out; }
+.motion-away { transition-property: transform, opacity; transition-duration: 200ms; transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+/* The handset's three resting transforms, each the same list of functions so one eases into another piece by piece:
+   at rest at the foot, tilted as the design's is; grown, straight; put away, dropped below the screen, tilting back. */
+.handset-rest { transform: translate(0px, 0px) rotate(-2deg) scale(1, 1); }
+.handset-grown { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); }
+.handset-away { transform: translate(0px, 110%) rotate(4deg) scale(1, 1); }
 
 .flip-page { transform-origin: 50% 0; transform-style: preserve-3d; animation: flip-page 0.6s cubic-bezier(0.45, 0, 0.25, 1) both; }
 .flip-page > * { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 2px; background: var(--on-strong); }

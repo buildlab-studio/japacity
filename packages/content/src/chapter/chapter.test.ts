@@ -30,3 +30,11 @@ describe("the Gulf file", () => {
     expect(names("route.road")).toBe(false);
   });
 });
+
+describe("the first chapter's closing line", () => {
+  // the line says it plainly.
+  test("[R-CHAPTER-002] [R-MOMENT-005] given the first chapter, when it closes, then its closing line says the salary and the wish to leave plainly, with no dash and no shout", () => {
+    expect(text["chapter.find-your-feet.close"]).toBe("You have a salary. Now you know what you want: to leave.");
+    expect(text["chapter.find-your-feet.close"]).not.toMatch(/[!\u2013\u2014]/);
+  });
+});

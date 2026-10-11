@@ -121,7 +121,8 @@ test("[R-ACCOUNT-023] [R-ACCOUNT-027] a guest past its first chapter is asked on
   const ask = page.getByRole("dialog", { name: "Keep this life" });
   await expect(ask).toBeVisible({ timeout: 20_000 });
   await expect(ask.getByText("You finished your first chapter.", { exact: false })).toBeVisible();
-  await expect(ask.getByRole("button", { name: "Keep it with Google" })).toBeVisible();
+  // Google's own button, in one of Google's texts (R-ACCOUNT-023).
+  await expect(ask.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await shoot(page, "first-chapter-ask", info.project.name);
   await ask.getByRole("button", { name: "Not now" }).click();
   await expect(ask).toHaveCount(0);
@@ -141,7 +142,7 @@ test.describe("inside a messaging app's browser", () => {
     await pastTheCard(page);
     const sheet = page.getByRole("dialog", { name: "Keep this life" });
     await expect(sheet).toBeVisible({ timeout: 20_000 });
-    await expect(sheet.getByRole("button", { name: "Keep it with Google" })).toHaveCount(0);
+    await expect(sheet.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
     await expect(sheet.getByText("Google sign-in does not work inside this app.", { exact: false })).toBeVisible();
     await expect(sheet.getByRole("link", { name: "Open in your browser" })).toHaveAttribute("href", /^intent:\/\//);
     await sheet.getByLabel("Email").fill("ada@example.com");
@@ -170,6 +171,11 @@ test("[R-ACCOUNT-023] a guest secures the life later by a code sent to an email,
   await sheet.getByLabel("The 6-digit code").fill("123456");
   await sheet.getByRole("button", { name: "Keep my life" }).click();
   await expect(page.getByText("Done. This life is yours on any phone now.")).toBeVisible();
+  // kept, the sheet says only that.
+  const kept = page.getByRole("dialog", { name: "Kept" });
+  await expect(kept).toBeVisible();
+  await expect(kept.getByRole("button", { name: "Not now" })).toHaveCount(0);
+  await expect(kept.getByLabel("Email")).toHaveCount(0);
   expect(sent).toContain("POST /api/auth/sign-in/email-otp");
   // The life goes on as it was: no new character was asked for.
   expect(sent).not.toContain("POST /api/character");

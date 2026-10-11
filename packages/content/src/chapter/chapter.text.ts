@@ -20,7 +20,7 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.open.prologue.capital": "Six years under a master, and the settlement is in hand. Everybody is asking when the shop opens.",
   "chapter.find-your-feet.open.prologue.water": "The racks fed you and the canoe took you to school. Now the water is behind you, and everybody is asking what is next.",
   "chapter.find-your-feet.open.prologue.trade": "Your years behind another man's counter are over. Now it is your own life, and everybody is asking what is next.",
-  "chapter.find-your-feet.close": "You have a salary and a word for what you want. Japa.",
+  "chapter.find-your-feet.close": "You have a salary. Now you know what you want: to leave.",
   "chapter.find-your-feet.item.job": "Get a job",
   "chapter.find-your-feet.item.job.nudge": "Ask at the hub in Yaba",
   "chapter.find-your-feet.item.job.nudge.here": "Find a job on the board",

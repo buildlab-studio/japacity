@@ -92,7 +92,8 @@ describe("the handset", () => {
     expect([...grid.querySelectorAll("[data-app]")].map((app) => app.getAttribute("data-app"))).toEqual([...APP_IDS]);
     expect(APP_IDS[0]).toBe("calendar");
     expect([...grid.querySelectorAll("[data-app]")].map((app) => (app as HTMLElement).style.background)).toEqual(APP_IDS.map((id) => `var(--app-${id})`));
-    expect(document.querySelector("[data-handset]")?.className).toContain("-rotate-2");
+    // the tilt at rest is a transform, so the grow can carry it away on the compositor (R-WORLD-023).
+    expect(document.querySelector("[data-handset]")?.className).toContain("handset-rest");
   });
 
   test("[R-WORLD-018] given the phone, when the grow button is tapped and tapped again, then it grows to nearly the whole screen and comes back", async () => {
@@ -101,11 +102,16 @@ describe("the handset", () => {
     expect(phone?.getAttribute("data-grown")).toBe("false");
     fireEvent.click(screen.getByRole("button", { name: "Make the phone bigger" }));
     expect(phone?.getAttribute("data-grown")).toBe("true");
-    // Grown, the handset keeps the small state's anchor and animates to the screen's width.
-    expect(document.querySelector("[data-handset]")?.className).toContain("w-[calc(100vw-16px)]");
-    expect(document.querySelector("[data-handset]")?.className).toContain("left-1/2");
+    // grown, the handset is laid out at the screen's width, straight, and gets
+    // there by one transform from the box it left, never by animating its edges (R-WORLD-023).
+    const handset = document.querySelector("[data-handset]");
+    expect(handset?.className).toContain("w-[calc(100vw-16px)]");
+    expect(handset?.className).toContain("handset-grown");
+    expect(handset?.className).toContain("motion-handset");
+    expect(handset?.className).not.toMatch(/transition-\[|duration-/);
     fireEvent.click(screen.getByRole("button", { name: "Make the phone smaller" }));
     expect(phone?.getAttribute("data-grown")).toBe("false");
+    expect(document.querySelector("[data-handset]")?.className).toContain("handset-rest");
   });
 
   test("[R-WORLD-018] given an app is open, when Back is tapped, then the grid returns, and the home bar puts the phone away", async () => {

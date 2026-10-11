@@ -12,6 +12,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useGame } from "../../authority/GameProvider";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
+import { GoogleButton } from "../../shared/ui/GoogleButton";
 import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
 import { counting, setUsageCounts } from "../../shared/analytics/start";
@@ -229,7 +230,8 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
 
       {more}
 
-      <div className="flex flex-col gap-3 border-t border-sheet-line pt-4">
+      {/* Each step of leaving settles in where the last stood (R-WORLD-023). */}
+      <div key={step} className={`flex flex-col gap-3 border-t border-sheet-line pt-4 ${step === "idle" ? "" : "motion-reveal"}`}>
         {step === "idle" ? (
           <div>
             <Button variant="quiet" disabled={busy} onClick={() => setStep("warn")}>
@@ -266,9 +268,7 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
                 onSignedIn={gone}
               />
             )}
-            <Button variant="quiet" disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null), (result) => setProblem(failureWords(result)))}>
-              {say("ui.account.google")}
-            </Button>
+            <GoogleButton label={say("ui.account.google")} disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null), (result) => setProblem(failureWords(result)))} />
             <p className="text-sm text-text-2">{say("ui.account.delete.google")}</p>
             <div>
               <Button disabled={busy} onClick={() => setStep("idle")}>

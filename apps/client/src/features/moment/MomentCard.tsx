@@ -136,10 +136,10 @@ function MomentDialog({ shot, open, onClose }: { shot: MomentShot; open: boolean
     >
       <Dialog.Portal>
         {/* Over the results sheet the card is a nested dialog, whose backdrop shows only when forced: the sheet dims under it too. */}
-        <Dialog.Backdrop forceRender className="fade fixed inset-0 z-[70] bg-device/85 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
+        <Dialog.Backdrop forceRender className="motion-scrim fixed inset-0 z-[70] bg-device/85 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
         {/* R-MOMENT-006: one tap anywhere dismisses it, the card as much as the dimmed world around it. */}
         <Dialog.Popup
-          className="fixed inset-0 z-[71] flex items-center justify-center overflow-y-auto px-4 pt-[max(24px,env(safe-area-inset-top))] pb-[max(24px,env(safe-area-inset-bottom))] outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none"
+          className="motion-card fixed inset-0 z-[71] flex items-center justify-center overflow-y-auto px-4 pt-[max(24px,env(safe-area-inset-top))] pb-[max(24px,env(safe-area-inset-bottom))] outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none"
           onClick={onClose}
           ref={screenRef}
           initialFocus={screenRef}
