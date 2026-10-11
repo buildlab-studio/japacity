@@ -18,6 +18,7 @@ import type { ServerDeps } from "../deps";
 import { overLimit } from "../limits/limit";
 import { TOO_LARGE_DETAIL } from "../security/body";
 import type { ServerRejection } from "../types";
+import { writeLine } from "../log";
 import { countryOf } from "./place";
 
 export const CSP_REPORT_PATH = "/api/csp-report";
@@ -156,9 +157,9 @@ export function cspReportRoute(deps: ServerDeps): Hono {
     const violations = type === null ? null : violationsOf(type, body);
     if (violations === null) return refuse(400, MALFORMED_DETAIL);
     const kept = violations.slice(0, CSP_REPORTS_PER_REQUEST);
-    // The log line first, so a report is seen even if the count cannot be written. Until the shared failure logger
-    // lands, this is the route's own structured line.
-    for (const violation of kept) console.error(cspLogLine(violation));
+    // The log line first, so a report is seen even if the count cannot be written; written through log.ts, the
+    // Worker's one console writer (R-SERVER-042).
+    for (const violation of kept) writeLine(cspLogLine(violation));
     if (kept.length > 0) {
       const day = dayName(utcDay(deps.now()));
       const country = countryOf(c.req.raw);

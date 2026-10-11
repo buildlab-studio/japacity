@@ -123,3 +123,15 @@ export function logFailure(failure: Failure): void {
     // A line that cannot be written is dropped; the reply never waits on the log.
   }
 }
+
+/**
+ * R-SERVER-041, R-SERVER-042: the policy's report lines go out through this file too, already made into JSON by
+ * the route (`routes/csp.ts`), at the same level, so no other file of the Worker writes to the console. Never throws.
+ */
+export function writeLine(json: string): void {
+  try {
+    console.error(json);
+  } catch {
+    // Dropped the same way: the reply never waits on the log.
+  }
+}
