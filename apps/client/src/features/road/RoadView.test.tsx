@@ -58,6 +58,12 @@ function road(view: PlayerView, city: ReactNode = null) {
 }
 
 describe("the road's one panel", () => {
+  test("[R-WORLD-002] given the month's report on the road, when the screen is read, then its heading names the month on the road and no running month number shows", async () => {
+    await road(onTheRoad([offer("offer-9", EXIT_OFFER, [ASK])]));
+    expect(screen.getByRole("heading", { name: say("ui.road.month-done") })).toBeDefined();
+    expect(document.body.textContent).not.toMatch(/Month \d+/);
+  });
+
   test("[R-ROAD-007] given the exit offer open, when the player asks to be let go, then offer/choose is sent with ask, beside waiting a month", async () => {
     const { authority } = await road(onTheRoad([offer("offer-9", EXIT_OFFER, [ASK])]));
     const exit = document.querySelector<HTMLElement>("[data-road-exit]");

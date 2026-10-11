@@ -1117,6 +1117,7 @@ export const uiText: Record<string, string> = {
 
   // The road (road.md)
   "ui.road.title": "On the road",
+  "ui.road.month-done": "The month on the road",
   "ui.road.exit-title": "There is a way back",
   "ui.road.exit-help": "The anti-trafficking agency and the migration agency bring people home from this road, whatever they paid. Asking them is the exit.",
   "ui.road.wait": "Wait a month",
