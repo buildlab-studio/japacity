@@ -6,7 +6,9 @@ import { describe, expect, test } from "vitest";
 
 import { newGame } from "../../shared/testing/fixtures";
 import { kioskCapReached } from "../../shared/words/lotto";
+import { say } from "../../shared/words/text";
 import { KIOSK_CAP, kioskAnswer } from "./acts";
+import { earnedNaira, earnedShort } from "./kiosk";
 
 const { maxTickets } = content.tuning.luck;
 
@@ -26,5 +28,23 @@ describe("the kiosk's ceiling", () => {
     expect(kioskAnswer(answers[maxTickets - 2]!, before).key).toBe("line.activity.play-lotto.now");
     expect(kioskCapReached(lines)).toBe(true);
     expect(kioskAnswer(answers[maxTickets - 1]!, lines).key).toBe(KIOSK_CAP);
+  });
+});
+
+describe("tickets come from money earned", () => {
+  test("[R-WALLET-020] [R-LOTTERY-018] given a view, when the kiosk reads the marked figure, then it is shut with its words only when the naira held would pay and the earned share would not; today nothing is marked and it never is", () => {
+    const game = newGame("scenario.ada");
+    const view = game.view();
+    expect(view.wallet.marked).toBe(0);
+    const held = view.pockets.NGN.bank + view.pockets.NGN.cash;
+    expect(earnedNaira(view)).toBe(held);
+    expect(earnedShort(view, held)).toBe(false);
+    // A view with every naira held topped up, as one could read once the processor feeds the top-up.
+    const marked = { ...view, wallet: { marked: held } };
+    expect(earnedNaira(marked)).toBe(0);
+    expect(earnedShort(marked, 1)).toBe(true);
+    expect(earnedShort(marked, held + 1)).toBe(false);
+    expect(earnedShort({ ...view, wallet: { marked: held - 1 } }, 1)).toBe(false);
+    expect(say("ui.lottery.earned-only")).toBe("Tickets come from money you earned.");
   });
 });

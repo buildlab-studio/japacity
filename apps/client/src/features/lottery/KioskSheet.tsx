@@ -12,6 +12,7 @@ import { Rejection } from "../../shared/ui/Rejection";
 import { formatMoney } from "../../shared/words/format";
 import { say, sayCount } from "../../shared/words/text";
 import { WorldSheet } from "../../shared/world/WorldSheet";
+import { earnedNaira } from "../city/kiosk";
 import { canBuy, chancesOf, salesClosed, serverDrawLoader, type LoadDraw, type Lottery } from "./draw";
 import { DrawPage } from "./DrawPage";
 import { LastDraw } from "./LastDraw";
@@ -70,7 +71,8 @@ export interface KioskSheetProps {
 
 /** The kiosk's sheet while the world runs the Friday draw; nothing while it does not (the offline slip stands then). */
 export function KioskSheet({ open, onClose, label, load }: KioskSheetProps) {
-  const { lottery, pockets } = useView();
+  const view = useView();
+  const { lottery, pockets } = view;
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   const clock = useClock();
@@ -79,10 +81,11 @@ export function KioskSheet({ open, onClose, label, load }: KioskSheetProps) {
   if (lottery === null) return null;
 
   const bank = pockets.NGN.bank;
-  const most = canBuy(lottery, bank);
+  // R-WALLET-020, R-LOTTERY-018: tickets are paid from the bank, and only from naira earned in the game.
+  const most = canBuy(lottery, Math.min(bank, earnedNaira(view)));
   const count = Math.min(Math.max(1, wanted), Math.max(1, most));
   const cost = count * lottery.ticket;
-  const shut = shutBy(lottery, salesClosed(lottery, clock));
+  const shut = shutBy(lottery, salesClosed(lottery, clock)) ?? (most === 0 && canBuy(lottery, bank) > 0 ? say("ui.lottery.earned-only") : null);
   const short = shut === null && most === 0 ? lottery.ticket - bank : null;
   const buy = (): void => {
     void send({ type: "lottery/buy", tickets: count }).then((reply) => {

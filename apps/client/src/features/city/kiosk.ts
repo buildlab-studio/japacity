@@ -6,6 +6,18 @@ import type { PlayerView } from "@japacity/sim";
 /** The entry the kiosk's act stages in the place files and the table. */
 export const KIOSK = "activity.play-lotto";
 
+/** R-WALLET-020: the naira earned in the game, the naira held less the marked, topped-up share a ticket is never paid from. */
+export function earnedNaira(view: Pick<PlayerView, "pockets" | "wallet">): number {
+  const { bank, cash } = view.pockets.NGN;
+  return Math.max(0, bank + cash - view.wallet.marked);
+}
+
+/** R-WALLET-020, R-LOTTERY-018: the naira held would pay `cost`, but only with the marked share, so the kiosk is shut with its words. */
+export function earnedShort(view: Pick<PlayerView, "pockets" | "wallet">, cost: number): boolean {
+  const { bank, cash } = view.pockets.NGN;
+  return bank + cash >= cost && earnedNaira(view) < cost;
+}
+
 /** True while the world runs the Friday draw, so the kiosk sells its tickets (R-LOTTERY-001). */
 export function kioskOnline(view: Pick<PlayerView, "lottery">): boolean {
   return view.lottery !== null;
