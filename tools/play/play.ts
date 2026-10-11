@@ -284,6 +284,10 @@ async function settle(run: Run, when: string): Promise<void> {
     }
     const card = page.getByRole("dialog");
     if (await shown(card)) {
+      if (await shown(page.locator("[data-moment-card]"))) {
+        await passMomentCard(run, when);
+        continue;
+      }
       log(run, `card over the world ${when}: ${await words(card)}`);
       await shot(run, `card ${when}`);
       const closer = card.getByRole("button", { name: /^(Close|Carry on|Next|Go|Done|Not now|OK)$/ });
@@ -583,12 +587,32 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
   }
   log(run, `month ${String(month)} results: ${await words(results, 600)}`);
   await shot(run, `month ${String(month)} results`);
+  await passMomentCard(run, `month ${String(month)}`);
   await tap(run, results.locator("[data-results-back]"), "Back on the results");
   await page.waitForTimeout(600);
   run.monthsEnded += 1;
   await settle(run, `after month ${String(month)}`);
   log(run, `band: ${await words(page.locator("[data-band]"))}`);
   return true;
+}
+
+/**
+ * A screenshot moment (moments.md R-MOMENT-006): one card over the scene for a big outcome, over the results sheet or
+ * the world. It is read and pictured, then put away with its Close, as a player would with one tap; the sheet under it
+ * stays. Nothing happens when no card is up.
+ */
+async function passMomentCard(run: Run, when: string): Promise<void> {
+  const { page } = run;
+  for (let step = 0; step < 3; step += 1) {
+    const card = page.locator("[data-moment-card]");
+    if (!(await shown(card))) return;
+    log(run, `moment card ${when}: ${await words(card, 300)}`);
+    await shot(run, `${when} moment card`);
+    const close = card.getByRole("button", { name: "Close" });
+    if (await shown(close)) await close.click({ timeout: SHORT }).catch(() => undefined);
+    else await page.keyboard.press("Escape");
+    await page.waitForTimeout(400);
+  }
 }
 
 // The phone -------------------------------------------------------------------------------------
