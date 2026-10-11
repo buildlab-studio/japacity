@@ -2,6 +2,7 @@ import { content } from "@japacity/content";
 import { pairId, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
+import { characterOf } from "../authority/command";
 import { view } from "../authority/testing";
 import type { InviteAccepted, InviteMade, InviteShown, InvitesListed } from "./invite";
 import type { PairRejection } from "./codes";
@@ -114,13 +115,15 @@ describe("invite links", () => {
     expect(again.body).toMatchObject({ ok: true, code });
   });
 
-  test("[R-PAIR-008] given no card out on a slot, when a link is asked for it, then it is refused and none is made", async () => {
+  test("[R-PAIR-008] given no card out on a slot, when a link is asked for it, then it is refused with 400 as the routes' other not-legal answers are, and none is made", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
 
     const made = await call<Reply<InviteMade>>(server, "POST", "/api/invite", INVITER, { slot: "partner" });
 
+    expect(made.status).toBe(400);
     expect(made.body).toMatchObject({ ok: false, code: "not-legal" });
+    expect(await server.deps.stores.invite.open(await characterOf(server.deps, INVITER) ?? "", server.deps.now())).toEqual([]);
   });
 
   test("[R-PAIR-008] given an account that has not passed the date-of-birth screen, when it takes a link, then it is refused and gets no pair", async () => {

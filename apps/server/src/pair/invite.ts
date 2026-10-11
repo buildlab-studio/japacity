@@ -89,7 +89,7 @@ export async function makeInvite(deps: ServerDeps, account: string, body: unknow
   const read = await stateOf(deps, row.character);
   if (read === null) return refused(409, "diverged", "This character is being checked.");
   const held = read.state.people.slots[slot];
-  if (held?.state !== "invited" || held.invite === null || !isLooking(held.invite.looking)) return refused(200, "not-legal", `No card is out for ${slot}. Send people/invite first.`);
+  if (held?.state !== "invited" || held.invite === null || !isLooking(held.invite.looking)) return refused(400, "not-legal", `No card is out for ${slot}. Send people/invite first.`);
   const now = deps.now();
   const open = await deps.stores.invite.open(row.character, now);
   const out = open.find((each) => each.slot === slot);
@@ -97,7 +97,7 @@ export async function makeInvite(deps: ServerDeps, account: string, body: unknow
   const tuning = read.content.tuning.pair;
   if (!mayOpenInvite(open.length, tuning)) return refused(200, "too-many", `At most ${String(tuning.maxOpenInvites)} cards may be out at once.`);
   const card = inviteCard(read, slot);
-  if (card === null) return refused(200, "not-legal", `The card on ${slot} is off the fixed lists.`);
+  if (card === null) return refused(400, "not-legal", `The card on ${slot} is off the fixed lists.`);
   const code = hex(deps.randomBytes(CODE_BYTES));
   const expires = inviteExpires(now, tuning);
   const made = await deps.stores.invite.create({ code, from: row.character, account, slot, looking: held.invite.looking, fill: held.invite.fill, card, madeAt: now, expires });
