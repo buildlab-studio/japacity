@@ -4,7 +4,7 @@
 // endorsement needs more. See Japa." for five months with no act named. Z18: the meetup's nudge was two taps. Real
 // content, lives played through `step`.
 import { content, text } from "@japacity/content";
-import type { Id, PlayerView } from "@japacity/sim";
+import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { applyEffects, readyLife, slot } from "../../../../../packages/sim/src/route/route.journey";
@@ -12,7 +12,7 @@ import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { formatMoney } from "../../shared/words/format";
 import { hearCare, month, readCare, readyNurse, until } from "../../shared/testing/nurse";
 import { hasWords, say } from "../../shared/words/text";
-import { nudgeOf, STEP_ACTIVITY, stepWayOf } from "./nudge";
+import { MEANWHILE_WAYS, nudgeOf, STEP_ACTIVITY, stepWayOf } from "./nudge";
 import { stepOpen } from "./stepOpen";
 
 const FILE = "chapter.build-the-file-care";
@@ -22,6 +22,7 @@ const TALENT_DAY = "chapter.decision-day-talent";
 const TALENT: Id<"route"> = "route.uk-talent";
 const CERTIFY = "activity.nurse-certification";
 const VERIFY = "activity.request-verification";
+const CERTIFY_NUDGE = "ui.nudge.meanwhile.nurse-certification";
 const NUDGE_WORDS = 8;
 
 function wordCount(said: string): number {
@@ -35,6 +36,23 @@ function readyInTheFile(): Game {
   readCare(game);
   until(game, (view) => view.chapter.current === FILE, 4);
   return game;
+}
+
+/** The act each step's nudge names in the care file, as a player who follows it takes it. */
+const ACT_OF: Record<string, string> = {
+  "chapter.build-the-file.item.passport": "activity.get-passport",
+  "chapter.build-the-file.item.english": "activity.sit-english-test",
+  "chapter.decision-day-care.item.police": "activity.get-police-certificate",
+  [CERTIFY_NUDGE]: CERTIFY,
+};
+
+/** The act the nudge names this month when it can be taken now; a long shot at the band studies first. */
+function followed(view: PlayerView): SlotPick[] {
+  const key = nudgeOf(view).key.replace(/\.nudge(\.here)?$/, "");
+  const act = key.endsWith(".english.study") ? "activity.study-english" : ACT_OF[key];
+  const option = view.activities.find((candidate) => candidate.id === act);
+  if (act === undefined || option?.allowed !== true || !option.affordable) return [];
+  return [{ activity: act as Id<"activity">, param: null }];
 }
 
 function naira(view: PlayerView): number {
@@ -78,23 +96,45 @@ describe("a step the naira cannot pay names the gap", () => {
     expect(nudgeOf(broke)).toEqual({ key: `${FILE}.item.verification.short`, params: { amount: formatMoney(1_730_000, "NGN") }, about: "step" });
   });
 
-  test("[R-WORLD-003] [R-ACTIVITY-013] given the ready nurse on the ward while the council works, with the certification open to her, when the nudge is read each month, then it never names the certification: the care file reads neither the certificate nor the care it adds", () => {
-    // The care route's checklist and gate read neither the certificate nor care above the nurse's own sixty.
+  // the care checklist counts the certificate (R-SPONSOR-005), so the waiting
+  // months name it again while she can pay it, as before m75, and its gap while she cannot.
+  test("[R-WORLD-003] [R-ACTIVITY-013] [R-SPONSOR-005] given the ready nurse on the ward while the council works, with the certification open to her and paid for, when the nudge is read each month and followed, then it names the certification, its tap opens the certification's card at the clinic, and once she has sat it it is never named again", () => {
     const care = content.route["route.uk-care"]!;
-    expect(care.checklist.some((item) => JSON.stringify(item.requirement).includes("nurse-certificate") || JSON.stringify(item.requirement).includes("quality.care"))).toBe(false);
+    expect(care.checklist.some((item) => item.requirement.type === "document/held" && item.requirement.document === "document.nurse-certificate")).toBe(true);
     const game = readyInTheFile();
     game.accept({ type: "activity/now", activity: VERIFY, param: null });
     const said: string[] = [];
-    let offered = 0;
-    for (let months = 0; months < 6; months += 1) {
+    const named: PlayerView[] = [];
+    for (let months = 0; months < 12; months += 1) {
       const view = game.view();
-      if (view.activities.find((option) => option.id === CERTIFY)?.allowed === true) offered += 1;
-      const nudge = nudgeOf(view);
-      said.push(`${nudge.key} ${say(nudge.key, nudge.params ?? {})}`);
-      month(game);
+      said.push(nudgeOf(view).key);
+      if (said.at(-1) === CERTIFY_NUDGE) named.push(view);
+      month(game, followed(view));
     }
-    expect(offered).toBeGreaterThan(0);
-    expect(said.filter((line) => /certification/i.test(line))).toEqual([]);
+    // Named once, in a month she could sit it and pay it, and never again once sat.
+    expect(named.length).toBe(1);
+    const view = named[0]!;
+    expect(view.activities.find((option) => option.id === CERTIFY)).toMatchObject({ allowed: true, affordable: true });
+    expect(wordCount(say(CERTIFY_NUDGE))).toBeLessThanOrEqual(NUDGE_WORDS);
+    expect(MEANWHILE_WAYS["nurse-certification"]).toEqual({ go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"], opens: CERTIFY });
+    expect(stepOpen(MEANWHILE_WAYS["nurse-certification"]!, "jobs-notice", view.activities.filter((option) => option.allowed).map((option) => option.id), "place.tb-clinic")).toEqual({ kind: "act", activity: CERTIFY });
+    expect(game.view().documents.find((paper) => paper.id === "document.nurse-certificate")).toBeDefined();
+  });
+
+  test("[R-WORLD-003] [R-ACTIVITY-013] given the ready nurse on the ward while the council works, when the naira held cannot pay the certification, then the nudge names how much more to find and never the act, and close to payday it says to wait for it", () => {
+    const game = readyInTheFile();
+    game.accept({ type: "activity/now", activity: VERIFY, param: null });
+    const view = until(game, (seen) => nudgeOf(seen).key === CERTIFY_NUDGE, 12, followed);
+    const fee = view.activities.find((option) => option.id === CERTIFY)!.cost.reduce((sum, cost) => sum + cost.amount, 0);
+    const short = (amount: number): PlayerView => {
+      const held = holding({ ...view, job: { ...view.job, id: null } }, amount);
+      return { ...held, activities: held.activities.map((option) => (option.id === CERTIFY ? { ...option, affordable: false } : option)) };
+    };
+    expect(nudgeOf(short(fee - 1_730_000))).toEqual({ key: `${CERTIFY_NUDGE}.short`, params: { amount: formatMoney(1_730_000, "NGN") }, about: "step" });
+    // With her pay coming in and the gap under what the month leaves, it says to wait for payday, and the tap ends the month.
+    const nearly = { ...short(fee - 100), job: view.job, obligations: [] };
+    expect(nudgeOf(nearly)).toEqual({ key: `${CERTIFY_NUDGE}.saving`, about: "step", way: { go: null, at: [] } });
+    for (const key of [`${CERTIFY_NUDGE}.short`, `${CERTIFY_NUDGE}.saving`]) expect(wordCount(say(key, { amount: formatMoney(1_730_000, "NGN") }))).toBeLessThan(NUDGE_WORDS);
   });
 });
 

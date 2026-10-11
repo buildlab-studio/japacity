@@ -136,6 +136,9 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   if (view.chapter.current === "chapter.send-off" && step === "departed" && heldFundsOpen({ ...view, setpiece: null, interview: null, offers: [], report: null })) return HELD_FUNDS_WAY;
   // The file's detour, where the nudge names one.
   const detour = fileDetour(view, step);
+  // The sponsor step while the care window is shut goes to what the file can still take.
+  const shut = detour === null ? sponsorShutWay(view, step, []) : null;
+  if (shut !== null) return shut;
   return STEP_WAYS[detour ?? `${view.chapter.current}.${step}`] ?? null;
 }
 
@@ -298,14 +301,19 @@ export const BETTER_JOB = "ui.nudge.better-job";
 const HELD_FUNDS = "held-funds";
 
 const NURSE_JOB = "activity.job-nurse";
+/** The nurse's certification as a waiting-month act (R-ACTIVITY-013). */
+const CERTIFICATION = "nurse-certification";
 
 /**
  * The waiting months' acts by profile (R-ACTIVITY-013): the act a life with nothing else to do is pointed at, where it is
- * offered and not yet planned. Never the nurse's certification: the care file reads neither the certificate nor the care
- * it adds, so it is no step of the file and the nudge never names it. It stays on the
- * clinic's notice.
+ * offered and not yet planned. The nurse's certification is one again: the care file counts the certificate (R-SPONSOR-005
+ * as amended 11 Oct 2026), so the waiting months name it while she can pay it, and its gap while she cannot (R-WORLD-003).
  */
-const MEANWHILE: readonly { act: string; fits: (view: NudgeView) => boolean }[] = [
+/** What a waiting-month act reads of the view. */
+type MeanwhileView = Partial<Pick<PlayerView, "activities" | "qualities" | "documents" | "job">>;
+
+const MEANWHILE: readonly { act: string; fits: (view: MeanwhileView) => boolean }[] = [
+  { act: CERTIFICATION, fits: (view) => qualityOf(view, "quality.care") >= 50 && (view.documents ?? []).some((paper) => paper.id === "document.nursing-licence" && paper.state === "held") },
   { act: "open-source", fits: (view) => qualityOf(view, "quality.tech") >= 40 },
   { act: "tech-posts", fits: (view) => qualityOf(view, "quality.tech") >= 30 },
   // Not for the staff nurse: getting noticed counts toward the study visa and Canada's points, never care work, and her
@@ -315,22 +323,57 @@ const MEANWHILE: readonly { act: string; fits: (view: NudgeView) => boolean }[] 
 
 /** Where each waiting-month act is taken (the m18 builders' stagings). */
 export const MEANWHILE_WAYS: Readonly<Record<string, StepWay>> = {
+  // The certification's own card on the clinic's notice, one tap (as the meetup's).
+  [CERTIFICATION]: { go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"], opens: "activity.nurse-certification" },
   "open-source": { go: "place.yaba", at: ["place.yaba:desk"] },
   "tech-posts": { go: "place.yaba-hub", at: ["place.yaba-hub:laptops"] },
   "be-noticed": { go: "place.yaba", at: ["place.yaba:jobs"] },
 };
 
-function qualityOf(view: NudgeView, id: string): number {
+function qualityOf(view: MeanwhileView, id: string): number {
   return view.qualities?.find((quality) => quality.id === id)?.value ?? 0;
 }
 
 /** The short id of the waiting-month act that fits this life and stands open this month, or null. */
-export function meanwhileOf(view: NudgeView, planned: readonly string[]): string | null {
+export function meanwhileOf(view: MeanwhileView, planned: readonly string[]): string | null {
   for (const { act, fits } of MEANWHILE) {
     const id = `activity.${act}`;
     const option = view.activities?.find((candidate) => candidate.id === id);
     if (option !== undefined && option.allowed && !planned.includes(id) && fits(view)) return act;
   }
+  return null;
+}
+
+type Said = { key: string; params?: Record<string, string | number>; way?: StepWay };
+
+/**
+ * The waiting-month act's nudge: its own words while the naira held pays it, else its gap and a way to the money, never the
+ * act (R-WORLD-003 as decided in m75: a step the player cannot pay says the shortfall). Null: no act fits, or no words.
+ */
+function meanwhileSaid(view: NudgeView, planned: readonly string[], has: (key: string) => boolean): Said | null {
+  const act = meanwhileOf(view, planned);
+  if (act === null) return null;
+  const key = `ui.nudge.meanwhile.${act}`;
+  const option = view.activities?.find((candidate) => candidate.id === `activity.${act}`);
+  if (option !== undefined && !option.affordable) return shortfall(view, option, key, planned, has, MONTH_END);
+  return has(key) ? { key } : null;
+}
+
+/**
+ * An act the naira held cannot pay: the gap and a way to it, instead of the act: once a hunt for
+ * better pay is planned it says so, and once the job's pay covers the gap within a month it says to work and save,
+ * with `saving` as its way when given. Null when the naira held covers the act or content has no words for the gap.
+ */
+function shortfall(view: NudgeView, option: NonNullable<NudgeView["activities"]>[number], own: string, planned: readonly string[], has: (key: string) => boolean, saving?: StepWay): Said | null {
+  const naira = option.cost.filter((cost) => cost.currency === "NGN").reduce((sum, cost) => sum + cost.amount, 0);
+  const held = (view.pockets?.NGN.bank ?? 0) + (view.pockets?.NGN.cash ?? 0);
+  if (option.affordable || naira <= held) return null;
+  if (planned.includes("activity.job-hunt")) return { key: "ui.nudge.hunt-planned" };
+  // What next month leaves: the pay less the month's bills. Only when that closes the gap is "work and save" true.
+  const pay = view.job?.id === null || view.job?.id === undefined ? 0 : monthlyNaira(view.job.id);
+  if (pay - nairaDues(view) >= naira - held && has(`${own}.saving`)) return { key: `${own}.saving`, ...(saving === undefined ? {} : { way: saving }) };
+  // The gap's way is the jobs board, where the money is: the City reads it from the `.short` words.
+  if (has(`${own}.short`)) return { key: `${own}.short`, params: { amount: formatMoney(naira - held, "NGN") } };
   return null;
 }
 
@@ -391,13 +434,7 @@ function careDetour(view: CareView, step: string): string | null {
   if (!CARE_CHAPTERS.has(view.chapter.current ?? "")) return null;
   const care = view.routes?.find((route) => route.id === CARE_ROUTE);
   if (care === undefined) return null;
-  const unmet = (item: string): boolean => care.checklist.find((one) => one.id === item)?.met === false;
-  const pending = (stepKey: string): boolean => {
-    const paper = STEP_PAPER[stepKey];
-    return paper !== undefined && (view.documents?.find((held) => held.id === paper)?.onItsWay ?? null) !== null;
-  };
-  const open = (stepKey: string): boolean => view.activities?.find((option) => option.id === STEP_ACTIVITY[stepKey])?.allowed === true;
-  const now = (item: string, stepKey: string): boolean => unmet(item) && !pending(stepKey) && open(stepKey);
+  const { unmet, pending, now } = carePapers(view, care);
   if (unmet("licence")) return LICENCE_STEP;
   if (step === TENURE) return now("passport", PASSPORT_STEP) ? PASSPORT_STEP : null;
   if (step === "verification" && pending(VERIFICATION_STEP)) return [{ item: "passport", step: PASSPORT_STEP }, { item: "english", step: ENGLISH_STEP }].find((paper) => now(paper.item, paper.step))?.step ?? null;
@@ -407,6 +444,39 @@ function careDetour(view: CareView, step: string): string | null {
   if (first !== undefined) return first.step;
   if (care.window === "closed") return WINDOW_STEP;
   return step === "applied" && unmet("tb") ? CARE_TB_STEP : null;
+}
+
+/** How the care file's papers stand: an item unmet, a step's paper on its way, an item that can be got now. */
+function carePapers(view: CareView, care: PlayerView["routes"][number]): { unmet: (item: string) => boolean; pending: (stepKey: string) => boolean; now: (item: string, stepKey: string) => boolean } {
+  const unmet = (item: string): boolean => care.checklist.find((one) => one.id === item)?.met === false;
+  const pending = (stepKey: string): boolean => {
+    const paper = STEP_PAPER[stepKey];
+    return paper !== undefined && (view.documents?.find((held) => held.id === paper)?.onItsWay ?? null) !== null;
+  };
+  const open = (stepKey: string): boolean => view.activities?.find((option) => option.id === STEP_ACTIVITY[stepKey])?.allowed === true;
+  return { unmet, pending, now: (item, stepKey) => unmet(item) && !pending(stepKey) && open(stepKey) };
+}
+
+const SPONSOR = "sponsor";
+/** The sponsor step's words while the care window is shut (R-WORLD-003 as amended 11 Oct 2026). */
+const SPONSOR_SHUT = "chapter.build-the-file-care.item.sponsor.shut";
+
+/**
+ * The way the shut sponsor step's nudge opens: no sponsor takes a nurse from abroad while the care
+ * window is shut, so the tap goes to the file's next paper that can be got now, in the route's order (the TB test never: it is
+ * taken last; the salary needs a sponsor), else the waiting-month act she can pay, else the month's end. Null: the
+ * sponsor step is not shut, or this is not the care file.
+ */
+function sponsorShutWay(view: CareView & MeanwhileView & Partial<Pick<PlayerView, "pockets">>, step: string, planned: readonly string[]): StepWay | null {
+  if (view.chapter.current !== "chapter.build-the-file-care" || step !== SPONSOR) return null;
+  const care = view.routes?.find((route) => route.id === CARE_ROUTE);
+  if (care === undefined || care.window !== "closed") return null;
+  const { now } = carePapers(view, care);
+  const paper = CARE_PAPERS.find((one) => one.item !== "salary" && now(one.item, one.step) && !planned.includes(STEP_ACTIVITY[one.step] ?? ""));
+  if (paper !== undefined) return STEP_WAYS[paper.step] ?? MONTH_END;
+  const act = meanwhileOf(view, planned);
+  const affordable = view.activities?.find((option) => option.id === `activity.${act ?? ""}`)?.affordable === true;
+  return act !== null && affordable ? (MEANWHILE_WAYS[act] ?? MONTH_END) : MONTH_END;
 }
 
 /** True while funds held for the visa are still to be given back. */
@@ -459,8 +529,8 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
       // comes before "work and save"; else the archetype's own act for the wait (R-ACTIVITY-013).
       if (planned.includes("activity.job-hunt") && (view.job?.id ?? null) !== null) return { key: "ui.nudge.hunt-planned" };
       if (betterJobOnBoard(view) && has(BETTER_JOB)) return { key: BETTER_JOB };
-      const meanwhile = meanwhileOf(view, planned);
-      if (meanwhile !== null && has(`ui.nudge.meanwhile.${meanwhile}`)) return { key: `ui.nudge.meanwhile.${meanwhile}` };
+      const meanwhile = meanwhileSaid(view, planned, has);
+      if (meanwhile !== null) return meanwhile;
       if (has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.onItsWay, month) } };
     }
   }
@@ -498,18 +568,10 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
       if (need !== null) return need;
       if (has(`${own}.needs`)) return { key: `${own}.needs` };
     }
-    // Short of money: the nudge names the gap and a way to it, instead of the thing again; once a hunt for better pay is
-    // planned it says so, and once the job's pay covers the gap within a month it says to work and save.
+    // Short of money: the nudge names the gap and a way to it, instead of the thing again.
     const option = view.activities?.find((candidate) => candidate.id === activity);
-    const naira = option?.cost.filter((cost) => cost.currency === "NGN").reduce((sum, cost) => sum + cost.amount, 0) ?? 0;
-    const held = (view.pockets?.NGN.bank ?? 0) + (view.pockets?.NGN.cash ?? 0);
-    if (option !== undefined && !option.affordable && naira > held) {
-      if (planned.includes("activity.job-hunt")) return { key: "ui.nudge.hunt-planned" };
-      // What next month leaves: the pay less the month's bills. Only when that closes the gap is "work and save" true.
-      const pay = view.job?.id === null || view.job?.id === undefined ? 0 : monthlyNaira(view.job.id);
-      if (pay - nairaDues(view) >= naira - held && has(`${own}.saving`)) return { key: `${own}.saving` };
-      if (has(`${own}.short`)) return { key: `${own}.short`, params: { amount: formatMoney(naira - held, "NGN") } };
-    }
+    const short = option === undefined ? null : shortfall(view, option, own, planned, has);
+    if (short !== null) return short;
   }
   const route = view.routes?.find((candidate) => candidate.id === STORY_ROUTE);
   if (stepKey === "chapter.build-the-file.offer") {
@@ -635,8 +697,17 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   const step = stepOf(view);
   if (view.chapter.current !== null && step !== null) {
     const care = CARE_CHAPTERS.has(view.chapter.current);
+    // In the months on the ward, the certification comes first while she can sit it: the care file counts it (the eleventh
+    // review; R-SPONSOR-005 as amended 11 Oct 2026). Short of its fee, the gap.
+    if (care && step === TENURE && meanwhileOf(view, planned) === CERTIFICATION) {
+      const said = meanwhileSaid(view, planned, has);
+      if (said !== null) return { ...said, about: "step" };
+    }
     // The care file's detour names its own step in its own words.
     const detour = fileDetour(view, step);
+    // While the care window is shut no sponsor takes her: the sponsor step says so and its tap goes to what the file can still take.
+    const shut = detour === null && has(SPONSOR_SHUT) ? sponsorShutWay(view, step, planned) : null;
+    if (shut !== null) return { key: SPONSOR_SHUT, about: "step", way: shut };
     // The story's own nudge words for the step when content has them (at most eight words), else the step's words.
     const own = detour === null ? `${view.chapter.current}.item.${step}` : wordsOf(detour);
     const started = startedKey(view, own, detour ?? `${view.chapter.current}.${step}`, planned, has);
