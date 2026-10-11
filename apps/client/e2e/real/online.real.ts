@@ -9,12 +9,17 @@ import { devices, expect, test, type Browser, type BrowserContext, type Page } f
 // nothing faked. One new player is played through the tests in order, on a Pixel 7: the way in, a
 // life started and a month ended, the life kept with an email code, the Friday draw bought at the
 // kiosk, the Credits, sign out and back in, and the invite link's page. Each test fails on any
-// console error, any failed request and any refusal it did not ask for.
+// console error, any failed request and any refusal it did not ask for. With --staging (REAL_BASE_URL)
+// the same tests run against staging behind Access; those that need Mailpit or the local database are skipped.
+import { realTarget } from "../../../../tools/local/access";
 import { cronUrl, readLocalStack } from "../../../../tools/local/env";
 import { passOpeningWords, passThePage } from "../door";
 
 const ROOT = fileURLToPath(new URL("../../../..", import.meta.url));
 const stack = readLocalStack(ROOT);
+const target = realTarget(process.env, stack.siteUrl);
+const NO_MAILPIT = "staging has no Mailpit, so no email code can be read there";
+const NO_LOCAL_DATABASE = "the switch is set on the local database, which staging is not";
 const SHOTS = process.env.PREVIEW_DIR ?? "";
 /** A new address each run: the code sends are limited per address a day (R-ACCOUNT-014). */
 const EMAIL = `player-${String(Date.now())}@example.com`;
@@ -72,7 +77,7 @@ function watch(page: Page): Watch {
 
 /** A Pixel 7 of its own: cookies and storage apart from every other phone. */
 async function newPhone(browser: Browser): Promise<BrowserContext> {
-  return browser.newContext({ ...devices["Pixel 7"], baseURL: stack.siteUrl, ignoreHTTPSErrors: true });
+  return browser.newContext({ ...devices["Pixel 7"], baseURL: target.baseUrl, ignoreHTTPSErrors: target.local, extraHTTPHeaders: target.headers });
 }
 
 /** The newest code Mailpit holds for the address, read from its API (GET /api/v1/messages). */
@@ -180,6 +185,7 @@ test.describe("one new player, played in order on one phone", () => {
   });
 
   test("[R-ACCOUNT-023] [R-ACCOUNT-014] the guest keeps the life by a code sent to an email: the code is read from Mailpit's inbox, and the same life goes on", async () => {
+    test.skip(!target.local, NO_MAILPIT);
     await openApp(page, "settings");
     await page.getByRole("button", { name: "Account", exact: true }).click();
     await page.locator("[data-guest-reminder]").getByRole("button").click();
@@ -200,6 +206,7 @@ test.describe("one new player, played in order on one phone", () => {
   });
 
   test("[R-LOTTERY-001] [R-WORLD-006] the kiosk on Bode Thomas Street sells a ticket for the world's Friday draw, bought through /api/command", async () => {
+    test.skip(!target.local, `a ticket needs the life kept by an email code, and ${NO_MAILPIT}`);
     // The world's five-minute job keeps the draw on sale (R-CLOCK-012); it is run once more here.
     const cron = await page.request.post(cronUrl(stack), { data: { cron: "*/5 * * * *" } });
     expect(cron.ok()).toBe(true);
@@ -243,6 +250,7 @@ test.describe("one new player, played in order on one phone", () => {
   });
 
   test("[R-ACCOUNT-001] [R-ACCOUNT-002] the player signs out, then signs in again by a code from Mailpit, and the same life opens", async () => {
+    test.skip(!target.local, NO_MAILPIT);
     await openApp(page, "settings");
     await page.getByRole("button", { name: "Account", exact: true }).click();
     await page.getByRole("button", { name: "Sign out" }).click();
@@ -264,6 +272,7 @@ test.describe("one new player, played in order on one phone", () => {
   });
 
   test("[R-PAIR-007] [R-PAIR-008] the invite link's page: a card made for the partner slot opens for a friend on another phone, before sign-up, with the age screen under it", async ({ browser }) => {
+    test.skip(!target.local, `an invite needs the life kept by an email code, and ${NO_MAILPIT}`);
     await openApp(page, "chats");
     await page.locator('[data-chat-row="people"]').click();
     await page.getByRole("button", { name: "Ask a friend to be your partner" }).click();
@@ -271,7 +280,7 @@ test.describe("one new player, played in order on one phone", () => {
     await page.getByRole("form", { name: "Ask a friend" }).locator('button[type="submit"]').click();
     expect((await made).status()).toBe(200);
     // The link's button waits for the early win (R-GUIDE-015); the same route it calls gives the code.
-    const invite = await page.request.post("/api/invite", { data: { slot: "partner" }, headers: { origin: stack.siteUrl } });
+    const invite = await page.request.post("/api/invite", { data: { slot: "partner" }, headers: { origin: target.baseUrl } });
     expect(invite.status(), await invite.text()).toBe(200);
     const { code } = (await invite.json()) as { code: string };
 
@@ -295,6 +304,7 @@ test.describe("one new player, played in order on one phone", () => {
 });
 
 test("[R-SERVER-031] [R-SERVER-032] with sign-ups switched off in the database, a new visitor sees the full screen and no way in; switched on again, the way in is back", async ({ browser }) => {
+  test.skip(!target.local, NO_LOCAL_DATABASE);
   test.setTimeout(240_000);
   const visitor = await newPhone(browser);
   try {

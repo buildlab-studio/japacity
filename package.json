@@ -32,7 +32,7 @@
     "db:migrate:local": "tsx tools/local/migrate.ts",
     "build": "pnpm --filter @japacity/client build",
     "test:browser": "playwright test -c apps/client/e2e/playwright.config.ts",
-    "test:browser:real": "playwright test -c apps/client/e2e/playwright.real.config.ts",
+    "test:browser:real": "tsx tools/local/real.ts",
     "docs:dev": "vitepress dev docs/site --port 5180",
     "docs:build": "vitepress build docs/site",
     "docs:preview": "vitepress preview docs/site --port 5181"
