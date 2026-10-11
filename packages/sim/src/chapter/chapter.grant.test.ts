@@ -56,7 +56,8 @@ describe("a grant on a route with no file of its own", () => {
     expect(leanRoute(game.state.route, content, game.state.chapter.chosen)).toBe(UK);
     expect(game.state.chapter.current).toBe(DECISION);
     const { result } = playTo(game, commands, granting, routeIs(SKILLED, "granted"));
-    expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: DECISION, next: SEND_OFF }]);
+    // a close the grant made carries the route it rested on.
+    expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: DECISION, next: SEND_OFF, onGrant: SKILLED }]);
     expect(game.state.turn.banked).toBe(cap);
     expect(leanRoute(game.state.route, content, game.state.chapter.chosen)).toBe(SKILLED);
     expect(grantedRoute(game.state.route, content)).toBe(SKILLED);
@@ -87,8 +88,9 @@ describe("a grant on a route with no file of its own", () => {
     expect(game.view().card).toMatchObject({ kind: "send-off", route: SKILLED, chapter: SEND_OFF });
     const month = game.state.turn.month;
     const { result } = playTo(game, commands, flight.next, (now) => now.state.turn.month > month);
+    // decision day closed on the flight's grant says so; the send-off's own item closed it.
     expect(closed(result)).toEqual([
-      { type: "chapter/closed", chapter: DECISION, next: SEND_OFF },
+      { type: "chapter/closed", chapter: DECISION, next: SEND_OFF, onGrant: SKILLED },
       { type: "chapter/closed", chapter: SEND_OFF, next: LANDING },
     ]);
     const types = result.events.map((event) => event.type).filter((type) => type === "chapter/closed" || type === "turn/refilled");
@@ -161,7 +163,8 @@ describe("a grant on a route with a file of its own", () => {
     expect(game.state.chapter.current).toBe(FILE);
     grantCare(game);
     const result = game.endTurn();
-    expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: "chapter.build-the-file-care", next: "chapter.decision-day-care" }]);
+    // the grant closed the file, and the close says so.
+    expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: "chapter.build-the-file-care", next: "chapter.decision-day-care", onGrant: CARE }]);
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(["tb", "police", "applied", "granted"]);
   });
 });
@@ -189,7 +192,8 @@ describe("a partner's route", () => {
     expect(game.state.chapter.current).toBe(FILE);
     // A partner's grant takes a bond and a decision; the route's state is written as the decision would leave it.
     game.state = { ...game.state, route: { ...game.state.route, [PARTNER]: { ...game.state.route[PARTNER]!, state: "granted" } } };
-    expect(closed(game.endTurn())).toEqual([{ type: "chapter/closed", chapter: FILE, next: DECISION }]);
+    // the closes the grant made carry the route they rested on.
+    expect(closed(game.endTurn())).toEqual([{ type: "chapter/closed", chapter: FILE, next: DECISION, onGrant: PARTNER }]);
     expect(leanRoute(game.state.route, content)).toBe(PARTNER);
     expect(game.view().plan.route).toBe(PARTNER);
     game.accept({ type: "route/depart", route: PARTNER });
@@ -197,7 +201,7 @@ describe("a partner's route", () => {
     expect(game.view().card).toMatchObject({ kind: "send-off", route: PARTNER, chapter: SEND_OFF });
     const result = game.endTurn();
     expect(closed(result)).toEqual([
-      { type: "chapter/closed", chapter: DECISION, next: SEND_OFF },
+      { type: "chapter/closed", chapter: DECISION, next: SEND_OFF, onGrant: PARTNER },
       { type: "chapter/closed", chapter: SEND_OFF, next: LANDING },
     ]);
     expect(game.state.chapter.current).toBe(LANDING);

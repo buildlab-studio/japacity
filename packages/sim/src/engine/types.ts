@@ -1704,6 +1704,11 @@ export interface ChapterSlice {
   done: Id<"chapter">[];
   /** The way out the player made the plan (R-CHAPTER-009), read before the order looked into; absent until one is chosen. */
   chosen?: Id<"route">;
+  /**
+   * The done chapters a grant closed and no flight has made final, each with the route it rested on, in the order they
+   * closed (R-CHAPTER-003): a withdrawal of that grant before the flight reopens them. Absent while none.
+   */
+  byGrant?: { chapter: Id<"chapter">; route: Id<"route"> }[];
 }
 
 export interface NewsSlice {
