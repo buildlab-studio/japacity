@@ -13,7 +13,7 @@ import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
 import { inMonths, runningName, say, sayCount, words } from "../../shared/words/text";
 import { ToneTag } from "../../shared/ui/ToneTag";
-import { CHANGED_INTO, changesInto, drawShown, foldLotto, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, monthTags, quietLine, runningOut, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
+import { CHANGED_INTO, changesInto, drawMissed, drawShown, foldLotto, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, monthTags, quietLine, runningOut, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
@@ -100,6 +100,7 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   }, [shown, main.amount]);
   if (report === null) return null;
   const draw = drawShown(view);
+  const missed = drawMissed(view, [...midMonth, ...report.lines]);
   const save = savings(view);
   // An offer that opened and was answered within the month (asked around, then walked on) needs no answer now.
   const told = [...midMonth, ...report.lines].filter((line) => !(line.key === OFFER_OPENED && typeof line.params["offer"] === "string" && !view.offers.some((offer) => offer.entry === line.params["offer"])));
@@ -243,6 +244,11 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
               })}
             </ul>
             {draw.matched.length > 0 ? <p className="text-[13px] font-semibold">{turnWords("turn.results.draw-matched")}</p> : null}
+            {missed === null ? null : (
+              <p className="text-[13px] font-semibold" data-results-draw-missed={missed}>
+                {turnWords(missed === 1 ? "turn.results.draw-missed.one" : "turn.results.draw-missed")}
+              </p>
+            )}
           </section>
         )}
 

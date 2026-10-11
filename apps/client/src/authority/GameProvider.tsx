@@ -4,6 +4,7 @@ import { createContext, use, useEffect, type ReactNode } from "react";
 import { useStore } from "zustand";
 
 import { setNow } from "../shared/words/now";
+import { playerName } from "./person";
 import type { GameState, GameStore } from "./store";
 
 const GameContext = createContext<GameStore | null>(null);
@@ -11,7 +12,7 @@ const GameContext = createContext<GameStore | null>(null);
 export function GameProvider({ store, children }: { store: GameStore; children: ReactNode }) {
   // R-WORLD-002: the month in hand for the words is this game's while it is on screen, and nobody's after.
   useEffect(() => {
-    setNow(store.getState().view?.month ?? null, store.getState().view?.hometown ?? null);
+    setNow(store.getState().view?.month ?? null, store.getState().view?.hometown ?? null, playerName(store.getState().view));
     return () => setNow(null);
   }, [store]);
   return <GameContext value={store}>{children}</GameContext>;

@@ -11,7 +11,9 @@ import { SoundNotice } from "./shared/sound/SoundNotice";
 import { TroubleCard, TroubleFace } from "./shared/ui/Trouble";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
+import { readPerson } from "./authority/person";
 import { AccountGate } from "./features/account/AccountGate";
+import { StartTrouble } from "./features/account/StartTrouble";
 import { canDraw } from "./shared/frontdoor/Gate";
 import { AgentSheets } from "./features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
@@ -164,14 +166,22 @@ function WorldPlaying() {
 /** R-ENGINE-015: the loading screen says it is still at it after this long. */
 export const SLOW_MS = 5_000;
 
-/** "Opening your life...", a second line once it takes long, and the card in its place when the view could not be read. */
+/**
+ * "Opening your life...", a second line once it takes long, and the card in its place when the view could not be read.
+ * Online, for a visitor this device has no life for, the start screen's frame instead: never "Opening your life" for
+ * someone with no life, and with the server down the card stands in its sheet, naming the game (R-ENGINE-015, amended
+ * 11 Oct 2026).
+ */
 function Opening() {
   const trouble = useGame((state) => state.trouble);
+  const online = useGame((state) => state.account !== null);
+  const [lifeKept] = useState(() => readPerson() !== null);
   const [slow, setSlow] = useState(false);
   useEffect(() => {
     const timer = window.setTimeout(() => setSlow(true), SLOW_MS);
     return () => window.clearTimeout(timer);
   }, []);
+  if (online && !lifeKept) return <StartTrouble trouble={trouble} />;
   if (trouble !== null) return <TroubleFace trouble={trouble} inline />;
   return (
     <div className="p-4 text-text-2" data-opening>

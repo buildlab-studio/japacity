@@ -9,10 +9,10 @@ import { formatMoney, formatNumber } from "../words/format";
 import { formatParam, hasWords, nameOf, say, sayCount } from "../words/text";
 
 /** The kinds of moment, each with its words under `moment.<kind>` in content. */
-export type MomentKind = "granted" | "refused" | "agent" | "robbed" | "won" | "landed" | "chapter";
+export type MomentKind = "granted" | "refused" | "agent" | "deposit" | "robbed" | "won" | "landed" | "chapter";
 
 /** A card's icon, by name; the card maps each to its drawing. */
-export type MomentIcon = "luggage" | "file-x" | "phone-off" | "bus" | "ticket" | "plane-landing" | "book";
+export type MomentIcon = "luggage" | "file-x" | "phone-off" | "banknote-x" | "bus" | "ticket" | "plane-landing" | "book";
 
 /** One entry of the list: the line that makes the moment, and whether a given line of that key does. */
 export interface MomentEntry {
@@ -31,13 +31,17 @@ const bigWin = (line: ReportLine): boolean => line.big === true;
  * R-MOMENT-001: the outcomes that are moments, most telling first. A batch of lines (a month's report, a command's
  * answer, the authority's own lines) gives at most one card: the first entry here that one of its lines makes. The
  * flight's line is the landing, so the chapter closed beside it, or the decision day closed beside the grant, never
- * stacks a second card on the first.
+ * stacks a second card on the first. The endorsement refused is a refusal: its own line tells it, since
+ * the screen folds the route's refusal into the body's (`oneEndorsementStory`). The deposit a road pitch took for
+ * nothing is a loss in the agent's style.
  */
 export const MOMENTS: readonly MomentEntry[] = [
   { kind: "refused", key: "line.route.refused", icon: "file-x", tone: "bad" },
+  { kind: "refused", key: "line.route.endorsement-refused", icon: "file-x", tone: "bad" },
   { kind: "granted", key: "line.route.granted", icon: "luggage", tone: "good" },
   { kind: "robbed", key: "line.activity.robbed", icon: "bus", tone: "bad" },
   { kind: "agent", key: "line.offer.agent-scam", icon: "phone-off", tone: "bad" },
+  { kind: "deposit", key: "line.route.road-fraud", icon: "banknote-x", tone: "bad" },
   { kind: "won", key: "line.lottery.letter", icon: "ticket", tone: "good", is: bigWin },
   { kind: "won", key: "line.activity.lotto-won", icon: "ticket", tone: "good", is: bigWin },
   { kind: "landed", key: "line.route.departed", icon: "plane-landing", tone: "good" },
@@ -51,14 +55,48 @@ function entryFor(line: ReportLine): MomentEntry | null {
 /**
  * R-MOMENT-001: the one line of a batch that becomes a card, or null. Nothing on the road chain is a moment (road.md
  * R-ROAD-010), and an ended life has its own card. Of several chapters closed at once, the last is the one told.
+ * `earlier`: the month's lines told before the batch, where the deposit a pitch took was paid; a deposit's line whose
+ * deposit is not among them makes no card, since a card never stands without its figure.
  */
-export function momentLine(lines: readonly ReportLine[], view: Pick<PlayerView, "place" | "ended">): ReportLine | null {
+export function momentLine(lines: readonly ReportLine[], view: Pick<PlayerView, "place" | "ended">, earlier: readonly ReportLine[] = []): ReportLine | null {
   if (view.place.where === "road" || view.ended) return null;
   const told = tidyLines(lines);
   for (const entry of MOMENTS) {
-    const made = told.filter((line) => entryFor(line) === entry);
+    const made = told.filter((line) => entryFor(line) === entry && (entry.kind !== "deposit" || depositPaid([...earlier, ...lines]) !== null));
     const line = entry.kind === "chapter" ? made.at(-1) : made[0];
     if (line !== undefined) return line;
+  }
+  return null;
+}
+
+const WALLET = "line.wallet.";
+const DEPOSIT_PAID = "line.wallet.fee-agent";
+const TAKEN = "line.offer.taken";
+
+/** A road pitch (road.md R-ROAD-002): an offer of the road's group whose taking pays a deposit. */
+function isPitch(offer: unknown): offer is Id<"offer"> {
+  const entry = typeof offer === "string" ? content.offer[offer as Id<"offer">] : undefined;
+  return entry?.group === "road" && entry.terms.deposit !== undefined;
+}
+
+/**
+ * The deposit the last road pitch taken was paid, and the pitch: the wallet's lines told just before its answer (the
+ * deposit leaves the naira by its size, so from one pocket or two, R-ROAD-003). Null when the lines hold none.
+ */
+export function depositPaid(lines: readonly ReportLine[]): { offer: Id<"offer">; amount: { currency: Currency; amount: number } } | null {
+  for (let at = lines.length - 1; at >= 0; at -= 1) {
+    const line = lines[at]!;
+    const offer = line.params["offer"];
+    if (line.key !== TAKEN || line.params["choice"] !== "take" || !isPitch(offer)) continue;
+    let amount = 0;
+    let currency: Currency = "NGN";
+    for (let before = at - 1; before >= 0 && lines[before]!.key.startsWith(WALLET); before -= 1) {
+      const paid = lines[before]!.key === DEPOSIT_PAID ? moneyParamOf(lines[before]!, "amount") : null;
+      if (paid === null) continue;
+      amount += paid.amount;
+      currency = paid.currency;
+    }
+    return amount > 0 ? { offer, amount: { currency, amount } } : null;
   }
   return null;
 }
@@ -137,16 +175,22 @@ function untracedShare(route: PlayerView["routes"][number] | undefined): number 
   return Math.floor(route.unexplainedBp / 100);
 }
 
-type Built = Pick<MomentFace, "title" | "line" | "figure" | "chip">;
+type Built = Pick<MomentFace, "title" | "line" | "figure" | "chip"> & {
+  /** The kicker's variant where the outcome has its own (`moment.<kind>.kicker.<part>`), else the kind's. */
+  kicker?: string;
+};
 
 function granted(line: ReportLine, view: PlayerView): Built {
   const route = stringParam(line, "route") ?? "";
   return { title: nameOf(route), line: say(variant("moment.granted.line", route)), figure: monthsFigure(view, "moment.granted.caption"), chip: null };
 }
 
+/** The endorsing body's refusal (R-ENDORSE-002): told by its own line, the route's refusal noted beside it folded away. */
+const ENDORSEMENT_REFUSED = "line.route.endorsement-refused";
+
 function refused(line: ReportLine, view: PlayerView, before: PlayerView | null): Built {
   const route = stringParam(line, "route") ?? "";
-  const reason = stringParam(line, "reason") ?? "credibility";
+  const reason = line.key === ENDORSEMENT_REFUSED ? "endorsement" : (stringParam(line, "reason") ?? "credibility");
   const held = view.routes.find((candidate) => candidate.id === route);
   // The share on the file the letter judged: the route as it stood while it was being decided. Once refused, the
   // figure is worked against the funds a new file would need, so it is not the one the letter read.
@@ -154,13 +198,20 @@ function refused(line: ReportLine, view: PlayerView, before: PlayerView | null):
   const share = reason === "funds" ? untracedShare(filed) : null;
   const figure: MomentFigure = share === null ? monthsFigure(view, "moment.refused.caption") : { value: share, unit: { kind: "percent" }, caption: say("moment.refused.caption.funds") };
   const again = held !== undefined && held.refusals > 1 ? say("moment.refused.again", { count: held.refusals }) : null;
-  return { title: nameOf(route), line: say(variant("moment.refused.line", reason)), figure, chip: again };
+  return { title: nameOf(route), kicker: say(variant("moment.refused.kicker", reason)), line: say(variant("moment.refused.line", reason)), figure, chip: again };
 }
 
 function agent(line: ReportLine): Built {
   const who = line.params["agent"];
   const amount = moneyParamOf(line, "amount") ?? { currency: "NGN", amount: 0 };
   return { title: who === undefined ? "" : formatParam("agent", who, line.params, line.key), line: say("moment.agent.line"), figure: moneyFigure(amount, "moment.agent.caption"), chip: null };
+}
+
+/** R-MOMENT-002: the deposit a road pitch took and the pitch's own name; the figure the deposit gone. */
+function deposit(earlier: readonly ReportLine[]): Built | null {
+  const paid = depositPaid(earlier);
+  if (paid === null) return null;
+  return { title: nameOf(paid.offer), line: say(variant("moment.deposit.line", paid.offer)), figure: moneyFigure(paid.amount, "moment.deposit.caption"), chip: null };
 }
 
 function robbed(line: ReportLine): Built {
@@ -195,7 +246,7 @@ function chapter(line: ReportLine, view: PlayerView): Built {
   return { title: say(`${id}.title`), line: say(`${id}.close`), figure, chip: null };
 }
 
-function built(entry: MomentEntry, line: ReportLine, view: PlayerView, before: PlayerView | null): Built {
+function built(entry: MomentEntry, line: ReportLine, view: PlayerView, before: PlayerView | null, earlier: readonly ReportLine[]): Built | null {
   switch (entry.kind) {
     case "granted":
       return granted(line, view);
@@ -203,6 +254,8 @@ function built(entry: MomentEntry, line: ReportLine, view: PlayerView, before: P
       return refused(line, view, before);
     case "agent":
       return agent(line);
+    case "deposit":
+      return deposit(earlier);
     case "robbed":
       return robbed(line);
     case "won":
@@ -220,10 +273,14 @@ function built(entry: MomentEntry, line: ReportLine, view: PlayerView, before: P
 
 /**
  * R-MOMENT-002: the card for a moment's line, read from the view the line came with (and, for a refusal, the view
- * before it, while the file was being decided). Null for a line that is no moment.
+ * before it, while the file was being decided). `earlier` holds the month's lines up to and with the moment's own, where
+ * a deposit was paid. Null for a line that is no moment, or one whose figure the lines do not hold.
  */
-export function momentFace(line: ReportLine, view: PlayerView, before: PlayerView | null = null): MomentFace | null {
+export function momentFace(line: ReportLine, view: PlayerView, before: PlayerView | null = null, earlier: readonly ReportLine[] = [line]): MomentFace | null {
   const entry = entryFor(line);
   if (entry === null) return null;
-  return { kind: entry.kind, tone: entry.tone, icon: entry.icon, kicker: say(`moment.${entry.kind}.kicker`), ...built(entry, line, view, before), mark: say("moment.mark"), address: say("moment.address") };
+  const face = built(entry, line, view, before, earlier);
+  if (face === null) return null;
+  const { kicker, ...rest } = face;
+  return { kind: entry.kind, tone: entry.tone, icon: entry.icon, kicker: kicker ?? say(`moment.${entry.kind}.kicker`), ...rest, mark: say("moment.mark"), address: say("moment.address") };
 }

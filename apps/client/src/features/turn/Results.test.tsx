@@ -2,11 +2,11 @@ import type { LotteryOdds, PlayerView, ReportLine } from "@japacity/sim";
 import { act, fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { engineView, richView } from "../../shared/testing/fixtures";
+import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { words } from "../../shared/words/text";
-import { drawShown, kept, localCurrency, moneyLines, otherLines, savings } from "./month.results";
+import { drawMissed, drawShown, kept, localCurrency, moneyLines, otherLines, savings, STORY_MAX, storyLines } from "./month.results";
 import { Results } from "./Results";
 import { turnWords } from "./turn.words";
 
@@ -131,5 +131,55 @@ describe("the results sheet", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
     act(() => store.setState({ moments: [] }));
     expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+});
+
+/** The front page's line of the draw whose result the view holds (R-LOTTERY-016). */
+const DRAWN: ReportLine = { key: "line.lottery.drawn-rolled", params: { draw: 7, jackpot: { currency: "NGN", amount: 20_000_000 }, winners: 2 }, tone: "plain", attention: false, counts: [] };
+
+/** A month at the kiosk on the first seed whose draw makes the tickets lose, or win, as the real engine plays it. */
+function kioskMonth(won: boolean, tickets: number): ReportLine[] {
+  for (let seed = 1; seed < 200; seed += 1) {
+    const game = newGame("scenario.ada", `kiosk-${String(seed)}`);
+    const lines = game.endTurn([{ activity: "activity.play-lotto", param: String(tickets) }]).lines;
+    if (lines.some((line) => line.key === (won ? "line.activity.lotto-won" : "line.activity.lotto-lost"))) return lines;
+  }
+  throw new Error(`No seed made the kiosk's draw ${won ? "win" : "lose"}.`);
+}
+
+// Review 14, X15: a ticket bought showed only the tag "Lotto: ₦200"; nothing said the ticket lost.
+describe("the draw's outcome said", () => {
+  test("[R-WORLD-008] [R-LUCK-005] given a ticket bought at the kiosk and lost, when the month's results show, then the story says the ticket did not win, in words, whatever else the month held", async () => {
+    const lines = kioskMonth(false, 1);
+    const story = storyLines(lines);
+    const lost = story.find((line) => line.key === "line.activity.lotto-lost");
+    expect(lost).toBeDefined();
+    expect(words(lost!.key, lost!.params)).toBe("Your ticket did not win.");
+    // A full month never cuts it: six other events first, and the draw is still said.
+    const busy: ReportLine[] = Array.from({ length: STORY_MAX + 2 }, (_, at) => ({ key: "line.offer.opened", params: { offer: `offer.whip-round-${String(at)}` }, tone: "plain", attention: true, counts: [] }));
+    expect(storyLines([...busy, ...lines]).some((line) => line.key === "line.activity.lotto-lost")).toBe(true);
+    const { store } = await renderWithView(<Results place="Bode Thomas Street" />, monthEnded(lines));
+    act(() => store.setState({ reportOpen: true }));
+    expect(within(screen.getByRole("dialog")).getByText("Your ticket did not win.")).toBeTruthy();
+  });
+
+  test("[R-WORLD-008] [R-LUCK-005] given tickets bought at the kiosk and one won, then the story says the win", () => {
+    const lines = kioskMonth(true, 5);
+    const won = storyLines(lines).find((line) => line.key === "line.activity.lotto-won");
+    expect(won).toBeDefined();
+    expect(words(won!.key, won!.params)).toMatch(/^5 tickets for ₦1,000, and one came in: ₦[\d,]+\.$/);
+  });
+
+  test("[R-WORLD-008] [R-LOTTERY-016] given the Friday draw's result in the month's lines and the player's tickets in it, none matched, then the results say the tickets did not win; matched, or with no ticket, or before the result, they do not", async () => {
+    expect(drawMissed(withDraw(engineView(), [30, 55]), [DRAWN])).toBe(2);
+    expect(drawMissed(withDraw(engineView(), [12, 30]), [DRAWN])).toBeNull();
+    expect(drawMissed(withDraw(engineView(), null), [DRAWN])).toBeNull();
+    expect(drawMissed(withDraw(engineView(), [30, 55]), [])).toBeNull();
+    const closed = withDraw(engineView(), [30, 55]);
+    expect(drawMissed({ lottery: { ...closed.lottery!, onSale: false } }, [DRAWN])).toBeNull();
+    const { store } = await renderWithView(<Results place="Ojuelegba" />, withDraw(monthEnded([SALARY, DRAWN]), [55]));
+    act(() => store.setState({ reportOpen: true }));
+    expect(document.querySelector("[data-results-draw-missed]")?.textContent).toBe(turnWords("turn.results.draw-missed.one"));
+    expect(turnWords("turn.results.draw-missed.one")).toBe("Your ticket did not win.");
   });
 });

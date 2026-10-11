@@ -48,6 +48,12 @@ const HIRED = "line.activity.hunt-hired";
 const OPENED = "line.offer.opened";
 const JOB_OFFER = "offer.job";
 
+/**
+ * The kiosk's draw (luck.md R-LUCK-005): a month a ticket was bought says what the
+ * draw came to, won or not, never only the ticket's tag. Told whatever else the month held, as the chores are.
+ */
+const KIOSK_DRAW: ReadonlySet<string> = new Set(["line.activity.lotto-won", "line.activity.lotto-lost"]);
+
 /** Someone who cares says cash on you is cash at risk (R-WALLET-019): told on the results, not left for News. */
 const CASH_WARNING = "line.wallet.cash-warning";
 
@@ -104,6 +110,8 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   (line) => line.key.startsWith("line.chapter.") || line.key.startsWith("line.goal.") || isSaid(line),
   (line) => line.key.startsWith("line.setpiece.") || line.key.startsWith("line.interview.") || line.key.startsWith("line.status."),
   forYou,
+  // The kiosk's draw, after the month's events and before its chores.
+  (line) => KIOSK_DRAW.has(line.key),
   // The month's chores (food cooked, water fetched) come after the month's events.
   (line) => line.key.startsWith("line.obligation.relief."),
 ];
@@ -137,8 +145,13 @@ export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
     .filter((entry) => entry.rank !== -1)
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
     // The cash warning is said once in a life with attention (R-WALLET-019): a full month never drops it.
-    .filter((entry, at, ranked) => CHORES.has(entry.line.key) || entry.line.key === CASH_WARNING || ranked.slice(0, at).filter((before) => !CHORES.has(before.line.key) && before.line.key !== CASH_WARNING).length < STORY_MAX)
+    .filter((entry, at, ranked) => alwaysTold(entry.line) || ranked.slice(0, at).filter((before) => !alwaysTold(before.line)).length < STORY_MAX)
     .map((entry) => entry.line);
+}
+
+/** The lines a full month never cuts: the chores, the cash warning, and the kiosk's draw. */
+function alwaysTold(line: ReportLine): boolean {
+  return CHORES.has(line.key) || line.key === CASH_WARNING || KIOSK_DRAW.has(line.key);
 }
 
 /** A route whose application has gone in: its papers no longer need warning of. */
@@ -206,6 +219,20 @@ export function drawShown(view: Pick<PlayerView, "lottery">): { draw: number; nu
   const numbers = [...new Set(last.winners.flatMap((tier) => tier.tickets))].sort((a, b) => a - b);
   const mine = new Set(view.lottery?.numbers ?? []);
   return { draw: last.draw, numbers, matched: numbers.filter((number) => mine.has(number)) };
+}
+
+/**
+ * How many tickets the player held in the Friday draw whose result this month's lines bring, when none of them won
+ * (lottery.md R-LOTTERY-016); else null. The view's numbers are the last draw's
+ * only while the next is on sale (R-LOTTERY-005: a closed draw being made holds the newer ones).
+ */
+export function drawMissed(view: Pick<PlayerView, "lottery">, lines: readonly ReportLine[]): number | null {
+  const lottery = view.lottery;
+  const shown = drawShown(view);
+  if (lottery === null || shown === null || !lottery.onSale) return null;
+  const mine = lottery.numbers ?? [];
+  const drawn = lines.some((line) => (line.key === "line.lottery.drawn" || line.key === "line.lottery.drawn-rolled") && line.params["draw"] === shown.draw);
+  return drawn && mine.length > 0 && shown.matched.length === 0 ? mine.length : null;
 }
 
 /** True for the whole view the Bank's figure reads; a test's slice takes the older path. */

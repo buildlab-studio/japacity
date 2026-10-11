@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { content, text } from "../index";
 import { momentText } from "./moment.text";
 
-const KINDS = ["granted", "refused", "agent", "robbed", "won", "landed", "chapter"];
+const KINDS = ["granted", "refused", "agent", "deposit", "robbed", "won", "landed", "chapter"];
 /** The words of a bank alert, a receipt, a transfer or a government letter (share.md R-SHARE-006, text.md). */
 const BANK_LOOK = /alert|credit|debit|transaction|receipt|\bref(?:erence)?\b|account|balance|transfer|\bbank|embassy|home office|ministry|stamp|successful|\bNGN\b|\bGBP\b/i;
 

@@ -119,6 +119,23 @@ function AmountPicker({ min, max, value, onChange }: { min: number; max: number;
   );
 }
 
+/**
+ * An ask that may be a scam (an entry with a fraud share: the road's pitch, the message that says you have won, a sponsor
+ * that may not be one) has no main button: every answer is plain, so the player reads before choosing, and the answers
+ * that cost nothing come first, the way to say no before the way to pay (advice.md R-ADVICE-006, world.md R-WORLD-006,
+ * amended 11 Oct 2026).
+ */
+export function mayBeScam(offer: Pick<Offer, "entry">): boolean {
+  return (content.offer[offer.entry]?.fraudBp ?? 0) > 0;
+}
+
+/** The answers in the order the card shows them: as content gives them, or for a possible scam the free ones first. */
+export function shownChoices(offer: Offer): Offer["choices"] {
+  if (!mayBeScam(offer)) return offer.choices;
+  const pays = (choice: Offer["choices"][number]): number => (choice.pick === null && choiceCost(offer, choice.id) === null ? 0 : 1);
+  return [...offer.choices].sort((a, b) => pays(a) - pays(b));
+}
+
 function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: ReportLine[]) => void }) {
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
@@ -153,10 +170,10 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
           <AmountPicker min={picking.pick.min} max={picking.pick.max} value={amount} onChange={setAmount} />
         )}
         <div className="flex flex-wrap gap-2">
-          {offer.choices.map((choice, index) => (
+          {shownChoices(offer).map((choice, index) => (
             <Button
                 key={choice.id}
-                variant={index === 0 ? "primary" : "secondary"}
+                variant={index === 0 && !mayBeScam(offer) ? "primary" : "secondary"}
                 disabled={!choice.allowed || busy || ended}
                 onClick={() =>
                   void send(

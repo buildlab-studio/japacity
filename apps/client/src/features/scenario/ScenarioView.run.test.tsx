@@ -202,6 +202,26 @@ describe("the run through the front door", () => {
     expect(readPerson()?.archetype).toBeNull();
   });
 
+  // Review 14: "Funmi, The developer · 23 years old" stood over the ready lives before any pick (the smaller note), and a
+  // ready life's page strip read "<<28Y<<<" with no district.
+  test("[R-PROLOGUE-013] [R-PROLOGUE-009] given a run Settings asked for, then the ready lives name nothing under the name before a pick, and a ready life's page prints its home district in the strip, as a tile's does", () => {
+    askReadyLives();
+    door();
+    expect(stage()).toBe("ready");
+    // No path and no age under the name: neither the first tile's nor any ready life's.
+    expect(document.body.textContent).not.toMatch(/years old/);
+    expect(document.body.textContent).not.toContain(" · ");
+    fireEvent.click(screen.getByRole("button", { name: `${say("prologue.door.pick")}: ${say("scenario.tunde.kind")}` }));
+    expect(stage()).toBe("page");
+    const strip = document.querySelector("[data-page-strip]")?.textContent ?? "";
+    expect(strip).toContain(`${say("ui.door.home.where.family-house").toUpperCase()}<<28Y<<`);
+    // Back to the ready lives with one picked, the pick's line stands under the name.
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+    expect(stage()).toBe("ready");
+    expect(document.body.textContent).toContain(say("scenario.tunde.kind"));
+    expect(document.body.textContent).toMatch(/28 years old/);
+  });
+
   test("[R-PROLOGUE-013] given a screen past the first, then a back button returns to the screen before with its answers kept", () => {
     door();
     fireEvent.change(nameBox(), { target: { value: "Kemi" } });

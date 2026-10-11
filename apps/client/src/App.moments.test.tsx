@@ -1,16 +1,29 @@
 // The moment card over the month's results (docs/rules/moments.md R-MOMENT-006): the sheet and the card are two
 // features, put together by the shell as App.tsx does, so the test that sees both lives beside the shell.
 import type { PlayerView, ReportLine } from "@japacity/sim";
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
+import { GameProvider } from "./authority/GameProvider";
+import type { PlayerCommand } from "./authority/store";
+import { createGameStore } from "./authority/store";
+import { gallery } from "./features/card/gallery";
+import { CardView } from "./features/card/ShareCard";
 import { MomentCard } from "./features/moment/MomentCard";
 import { Results } from "./features/turn/Results";
-import { engineView } from "./shared/testing/fixtures";
+import { engineView, gameAuthority, recordedGame, recordedSave } from "./shared/testing/fixtures";
 import { renderWithView } from "./shared/testing/render";
+import { cardKey } from "./shared/ui/stage";
 import { say } from "./shared/words/text";
 
 const REFUSED: ReportLine = { key: "line.route.refused", params: { route: "route.uk-masters", reason: "interview" }, tone: "bad", attention: true, counts: [] };
+
+/** A recorded command as the screen sends it: the store fills in the version it is based on. */
+function recordedCommand(recorded: unknown): PlayerCommand {
+  const command = { ...(recorded as PlayerCommand & { basedOn?: number }) };
+  delete command.basedOn;
+  return command;
+}
 
 /** A view with a month's report, so the results sheet has something to show. */
 function reportedView(): PlayerView {
@@ -38,4 +51,59 @@ describe("the moment card over the results", () => {
     expect(store.getState().momentCards).toEqual([]);
   });
 
+
+  // Review 14, X9: the results line, the moment card and the old chapter card told one close three times.
+  test("[R-MOMENT-006] [R-SHARE-001] given Ada's month that closes a chapter (her recorded life), when the moment card has told it over the results, then the chapter's share card never opens after it, and it is kept in the gallery", async () => {
+    const save = recordedSave("ada-careful");
+    const game = recordedGame("ada-careful", save.commands.length - 31);
+    const store = createGameStore(gameAuthority(game));
+    await store.getState().refresh();
+    gallery.getState().clear();
+    render(
+      <GameProvider store={store}>
+        <Results place="the hub" foot={<MomentCard over="results" />} />
+        <MomentCard over="world" />
+        <CardView />
+      </GameProvider>,
+    );
+    const command = recordedCommand(save.commands[31]!.command);
+    await act(async () => {
+      await store.getState().send(command);
+      store.getState().setReportOpen(true);
+    });
+    const view = store.getState().view!;
+    expect(view.card?.kind).toBe("chapter");
+    const key = cardKey(view.card);
+    // The results line and the moment card tell the close.
+    await waitFor(() => expect(document.querySelector("[data-story-line='line.chapter.closed']")).not.toBeNull());
+    const card = await screen.findByRole("dialog", { name: say("moment.chapter.kicker") });
+    expect(store.getState().cardClosed).toBe(key);
+    fireEvent.click(card.querySelector("[data-moment-card]")!);
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: say("moment.chapter.kicker") })).toBeNull());
+    act(() => store.getState().setReportOpen(false));
+    // The old chapter card does not follow: nothing full screen opens, and the card waits in the gallery.
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.querySelector("[data-share-card]")).toBeNull();
+    expect(gallery.getState().kept.some((kept) => kept.key === key)).toBe(true);
+  });
+
+  test("[R-MOMENT-006] given the same close where no moment card stands (the old month page keeps none), then the chapter's share card opens as before", async () => {
+    const save = recordedSave("ada-careful");
+    const game = recordedGame("ada-careful", save.commands.length - 31);
+    const store = createGameStore(gameAuthority(game));
+    await store.getState().refresh();
+    render(
+      <GameProvider store={store}>
+        <CardView />
+      </GameProvider>,
+    );
+    const command = recordedCommand(save.commands[31]!.command);
+    await act(async () => {
+      await store.getState().send(command);
+      store.getState().setReportOpen(false);
+    });
+    expect(store.getState().cardClosed).toBeNull();
+    expect(await screen.findByRole("dialog")).toBeDefined();
+    expect(document.querySelector("[data-share-card='chapter']")).not.toBeNull();
+  });
 });

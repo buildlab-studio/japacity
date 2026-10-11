@@ -5,7 +5,7 @@
 // Close, dismisses it, and the sheet under it is as it was (R-MOMENT-006). It is no share card: nothing is drawn to an
 // image, offered or sent (R-MOMENT-007).
 import { Dialog } from "@base-ui/react/dialog";
-import { BookMarked, Bus, FileX, Luggage, PhoneOff, PlaneLanding, Ticket, X, type LucideIcon } from "lucide-react";
+import { BanknoteX, BookMarked, Bus, FileX, Luggage, PhoneOff, PlaneLanding, Ticket, X, type LucideIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
@@ -19,6 +19,7 @@ const ICONS: Record<MomentIcon, LucideIcon> = {
   luggage: Luggage,
   "file-x": FileX,
   "phone-off": PhoneOff,
+  "banknote-x": BanknoteX,
   bus: Bus,
   ticket: Ticket,
   "plane-landing": PlaneLanding,
@@ -123,7 +124,7 @@ export function MomentCard({ over }: { over: "results" | "world" }) {
 }
 
 function MomentDialog({ shot, open, onClose }: { shot: MomentShot; open: boolean; onClose: () => void }) {
-  const face = useMemo(() => momentFace(shot.line, shot.view, shot.before), [shot]);
+  const face = useMemo(() => momentFace(shot.line, shot.view, shot.before, shot.told), [shot]);
   // Focus lands on the screen itself, so no ring stands on Close in the picture a player takes.
   const screenRef = useRef<HTMLDivElement>(null);
   if (face === null) return null;

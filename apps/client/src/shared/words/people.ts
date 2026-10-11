@@ -5,6 +5,8 @@
 // people screens can be read in one place; ui.ts takes them in whole.
 import { text } from "@japacity/content";
 
+import { notThePlayers } from "./others";
+
 export const peopleText: Record<string, string> = {
   "ui.tab.people": "People",
   "ui.people.title": "Your people",
@@ -300,7 +302,9 @@ export function jobWords(job: string): string {
 
 /** Words for a person's id when content names it, else null. */
 function personName(id: string): string | null {
-  return text[`${id}.name`] ?? null;
+  const name = text[`${id}.name`];
+  // A computer person never carries the player's own first name (R-PEOPLE-061).
+  return name === undefined ? null : notThePlayers(`${id}.name`, name);
 }
 
 /**

@@ -133,7 +133,8 @@ export const activityText: Record<string, string> = {
   "line.activity.driving-passed": "You passed the driving test on attempt {attempt}. The licence came in the post.",
   "line.activity.driving-failed": "Attempt {attempt} at the driving test. The examiner said no.",
   "line.activity.lotto-won": "{tickets} tickets for {stake}, and one came in: {won}.",
-  "line.activity.lotto-lost": "{tickets} tickets for {stake}. Nothing came in.",
+  // The draw's outcome said in words on the month's results (luck.md R-LUCK-005), never a bare tag.
+  "line.activity.lotto-lost": "Your {tickets} tickets did not win.",
   "line.activity.bet-won": "The slip came in. {stake} on it paid {won}.",
   "line.activity.bet-lost": "The slip cut on the last match. The {stake} is gone.",
 

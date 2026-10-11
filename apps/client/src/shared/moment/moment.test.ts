@@ -3,7 +3,7 @@
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { recordedGame, recordedSave } from "../testing/fixtures";
+import { newGame, openOffer, recordedGame, recordedSave, viewAfter } from "../testing/fixtures";
 import { formatMoney } from "../words/format";
 import { say } from "../words/text";
 import { figureWords, MOMENTS, momentFace, momentLine, sameLine } from "./moment";
@@ -62,7 +62,8 @@ describe("which outcomes are moments", () => {
     const refused = line("line.route.refused", { route: "route.uk-masters", reason: "interview" }, { tone: "bad" });
     expect(momentLine([robbed, refused], AT_HOME)).toBe(refused);
     expect(momentLine([line("line.activity.played", { activity: "activity.rest" })], AT_HOME)).toBeNull();
-    expect(MOMENTS.map((entry) => entry.kind)).toEqual(["refused", "granted", "robbed", "agent", "won", "won", "landed", "chapter"]);
+    // the endorsement's own refusal is a refusal, and the deposit lost follows the agent.
+    expect(MOMENTS.map((entry) => entry.kind)).toEqual(["refused", "refused", "granted", "robbed", "agent", "deposit", "won", "won", "landed", "chapter"]);
   });
 
   test("[R-MOMENT-001] given the road or a life that has ended, then nothing is a moment", () => {
@@ -75,6 +76,63 @@ describe("which outcomes are moments", () => {
     const granted = line("line.route.granted", { route: "route.uk-masters" }, { big: true });
     expect(sameLine(granted, { ...granted, params: { ...granted.params } })).toBe(true);
     expect(sameLine(granted, line("line.route.granted", { route: "route.uk-care" }))).toBe(false);
+  });
+});
+
+/** The cousin's pitch taken on the first seed whose hidden draw makes it a fraud: the answer's lines, then the month's. */
+function depositTaken(): { answer: ReportLine[]; month: ReportLine[]; view: PlayerView } {
+  for (let seed = 1; seed < 40; seed += 1) {
+    const game = newGame("scenario.ada", `deposit-${String(seed)}`);
+    viewAfter(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 100_000_000, reason: "gift" }]);
+    const offer = openOffer(game, "offer.road-cousin");
+    const answer = game.accept({ type: "offer/choose", offer: offer.id, choice: "take" }).lines;
+    if (game.state.setpiece.open !== null) continue;
+    const month = game.endTurn().lines;
+    if (month.some((told) => told.key === "line.route.road-fraud")) return { answer, month, view: game.view() };
+  }
+  throw new Error("No seed made the cousin's pitch a fraud.");
+}
+
+// Review 14, X8: the endorsement refused and the cousin's ₦300,000 deposit gave no card.
+describe("the biggest losses get their card", () => {
+  test("[R-MOMENT-001] given Ada's endorsement refused by the body (her recorded life), when the month's lines come, then the refusal is the card, told by the body's own line", () => {
+    for (const [life, index] of [["ada-careful", 104], ["ada-abroad", 85]] as const) {
+      const { lines, view, before } = played(life, index);
+      expect(lines.map((told) => told.key)).toContain("line.route.endorsement-refused");
+      const shot = momentLine(lines, view);
+      expect(shot?.key).toBe("line.route.endorsement-refused");
+      const face = momentFace(shot!, view, before)!;
+      expect(face).toMatchObject({ kind: "refused", tone: "bad", kicker: say("moment.refused.kicker.endorsement"), title: say("route.uk-talent.name"), line: say("moment.refused.line.endorsement") });
+      expect(face.kicker).toBe("Endorsement refused");
+      expect(face.figure).toMatchObject({ value: view.month, unit: { kind: "count" } });
+    }
+  });
+
+  test("[R-MOMENT-001] [R-MOMENT-002] given the cousin's pitch taken and the deposit gone to a fraud, when the month ends, then the deposit is the card: the pitch's name, its own line, the deposit as the figure", () => {
+    const { answer, month, view } = depositTaken();
+    const shot = momentLine(month, view, answer);
+    expect(shot?.key).toBe("line.route.road-fraud");
+    const face = momentFace(shot!, view, null, [...answer, ...month])!;
+    const paid = answer.filter((told) => told.key === "line.wallet.fee-agent").reduce((sum, told) => sum + (told.params["amount"] as { amount: number }).amount, 0);
+    expect(paid).toBeGreaterThanOrEqual(30_000_000);
+    expect(face).toMatchObject({ kind: "deposit", tone: "bad", icon: "banknote-x", kicker: "The deposit is gone", title: say("offer.road-cousin.name"), line: say("moment.deposit.line.offer.road-cousin"), chip: null });
+    expect(face.figure).toEqual({ value: paid, unit: { kind: "money", currency: "NGN" }, caption: say("moment.deposit.caption") });
+    expect(face.line).not.toContain(figureWords(face.figure, face.figure.value));
+    // Without the deposit among the month's lines there is no figure, so no card.
+    expect(momentLine(month, view)).toBeNull();
+    expect(momentFace(shot!, view)).toBeNull();
+  });
+
+  test("[R-MOMENT-001] given Zainab's recorded life, where the cousin's pitch was taken and was no fraud, then no deposit card comes in any month after it", () => {
+    const save = recordedSave("zainab-remote");
+    const game = recordedGame("zainab-remote", save.commands.length);
+    const told: ReportLine[] = [];
+    save.commands.forEach((entry) => {
+      const lines = game.accept(entry.command, entry.sender).lines;
+      expect(momentLine(lines, game.view(), told)?.key).not.toBe("line.route.road-fraud");
+      told.push(...lines);
+    });
+    expect(told.some((line) => line.key === "line.offer.taken" && line.params["offer"] === "offer.road-cousin" && line.params["choice"] === "take")).toBe(true);
   });
 });
 

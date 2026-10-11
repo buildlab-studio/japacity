@@ -64,7 +64,7 @@ export const uiText: Record<string, string> = {
   "ui.months.fact.left.one": "1 page left",
   "ui.months.fact.page": "1 page = 1 month of your life",
   "ui.months.fact.next": "Next page in {wait}",
-  "ui.months.fact.arriving": "Next page on its way",
+  "ui.months.fact.arriving": "Next page any minute now",
   "ui.months.fact.full": "Full: {count} pages",
   "ui.months.fact.chapter": "A new chapter fills it again",
   "ui.months.fact.refilled": "Full again: {count} pages",
@@ -191,6 +191,11 @@ export const uiText: Record<string, string> = {
   "ui.line.offer-paid.offer.family-send-off": "The send-off: {amount}.",
   // Fuel scarcity's fares are not living costs.
   "ui.line.offer-paid.offer.fuel-scarcity": "Fuel scarcity: {amount} on fares.",
+  // The message that says you have won (luck.md R-LUCK-007): never "paid to the agent", since there was none.
+  // A fraud takes the fee and nothing follows; an honest one takes the fee and the prize comes.
+  "ui.line.offer-paid.offer.telco-promo.fee-agent": "{amount} sent for a prize that never came.",
+  "ui.line.offer-paid.offer.telco-promo.fee-agent.then-gift": "{amount} sent to claim the prize.",
+  "ui.line.offer-paid.offer.telco-promo.gift": "The prize came through: {amount}.",
   // A blow's money named for what it paid, never "Something went wrong".
   "ui.line.offer-paid.offer.laptop-fault": "The laptop repair: {amount}.",
   "ui.line.offer-paid.offer.illness": "Treatment for the illness: {amount}.",
@@ -265,7 +270,7 @@ export const uiText: Record<string, string> = {
   // Content's lines at a count of one (shared/words/text.ts, LINE_COUNTS)
   "ui.line.setpiece.opened.one": "{setpiece}: 1 question to answer.",
   "ui.line.activity.lotto-won.one": "1 ticket for {stake}, and it came in: {won}.",
-  "ui.line.activity.lotto-lost.one": "1 ticket for {stake}. Nothing came in.",
+  "ui.line.activity.lotto-lost.one": "Your ticket did not win.",
   "ui.line.status.clock-started.one": "The job is gone. You have 1 month to find another sponsor.",
   "ui.line.activity.adviser-missing.one": "Her reading: {route} does not fit yet. {count} things are missing, at least 1 month away.",
   "ui.line.status.clock-ran.one": "1 month left on the clock.",
@@ -289,7 +294,7 @@ export const uiText: Record<string, string> = {
   "ui.activity.title": "What to do with your free time",
   // A card's button says the act, never "Add to month" (the review); the line under it says what it uses.
   "ui.activity.uses-free": "Uses this month's free time",
-  "ui.activity.full": "Every free thing is planned",
+  "ui.activity.full": "Your free time is full this month",
   // A thing started carries on each month until it is stopped (R-WORLD-007).
   "ui.activity.planned": "Ongoing",
   "ui.activity.cost": "Costs {amount}",
@@ -663,8 +668,9 @@ export const uiText: Record<string, string> = {
   // The page as the handover (prologue.md R-PROLOGUE-014): the family drawn, the years before as chips, the money, the stamp.
   "ui.page.family": "Your family",
   "ui.page.family.drawing": "Drawing your family",
-  // The card's title names where the family is (the design's "Family in Enugu"); its means are a tag beside the others.
-  "ui.page.family.in": "Family in {hometown}",
+  // The card's title names where the family is from, its place of origin (
+  // Mama and Papa live in the Surulere house; the design's "Family in Enugu" is superseded). Its means are a tag beside the others.
+  "ui.page.family.from": "Family from {hometown}",
   "ui.page.family.low": "Money is short at home",
   "ui.page.family.middle": "A family that gets by",
   "ui.page.family.high": "A comfortable family",

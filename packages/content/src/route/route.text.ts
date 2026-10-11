@@ -11,7 +11,7 @@ export const routeText: Record<string, string> = {
   "route.uk-masters.item.offer": "An offer from a university",
   "route.uk-masters.item.deposit": "Deposit paid",
   "route.uk-masters.item.funds": "Funds shown cover the funds required",
-  "route.uk-masters.item.held": "Funds covered for a month, and now",
+  "route.uk-masters.item.held": "Funds held a full month, and still there",
   "route.uk-masters.item.tb": "TB certificate held",
   "route.uk-masters.item.applied": "Visa application sent",
 

@@ -209,10 +209,17 @@ describe("the moment card on screen", () => {
       "line.activity.lotto-won": { tickets: 3, stake: naira(60_000), won: naira(5_000_000) },
       "line.route.departed": { route: "route.uk-masters" },
       "line.chapter.closed": { chapter: "chapter.build-the-file" },
+      "line.route.endorsement-refused": { route: "route.uk-talent" },
+      "line.route.road-fraud": { route: "route.road" },
     };
+    // the deposit's card reads its figure from the month's lines where the pitch was
+    // taken, and the endorsement's refusal has its own kicker.
+    const deposit = [line("line.wallet.fee-agent", { amount: naira(30_000_000) }, { tone: "bad" }), line("line.offer.taken", { offer: "offer.road-cousin", choice: "take" })];
+    const kickers: Record<string, string> = { "line.route.endorsement-refused": "moment.refused.kicker.endorsement" };
     for (const entry of MOMENTS) {
-      act(() => store.setState({ momentCards: [{ line: line(entry.key, params[entry.key] ?? {}, { big: true, tone: entry.tone === "bad" ? "bad" : "good" }), view, before: null }] }));
-      const card = await screen.findByRole("dialog", { name: say(`moment.${entry.kind}.kicker`) });
+      const made = line(entry.key, params[entry.key] ?? {}, { big: true, tone: entry.tone === "bad" ? "bad" : "good" });
+      act(() => store.setState({ momentCards: [{ line: made, view, before: null, ...(entry.kind === "deposit" ? { told: [...deposit, made] } : {}) }] }));
+      const card = await screen.findByRole("dialog", { name: say(kickers[entry.key] ?? `moment.${entry.kind}.kicker`) });
       expect(card.querySelector(`[data-moment-card='${entry.kind}']`)).not.toBeNull();
       expect(card.querySelector("[data-moment-line]")?.textContent).not.toMatch(/^moment\.|\{/);
       expect(card.querySelector("[data-moment-figure]")).not.toBeNull();

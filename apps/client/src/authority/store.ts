@@ -13,11 +13,13 @@ import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply 
 import { failureOf, type FailureKind, isReloading, isReported } from "../shared/net/http";
 import { plannable } from "../shared/words/acts";
 import { isSaid, tidyLines } from "../shared/words/lines";
+import { cardKey } from "../shared/ui/cardKey";
 import { setNow } from "../shared/words/now";
 import { say, sayCount } from "../shared/words/text";
 import { uiText } from "../shared/words/ui";
 import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";
+import { playerName } from "./person";
 import type { AuthorityEvent } from "./remote";
 
 /** A number of the world at this tick as the store holds it: the fetched world's online, the local authority's offline; 0 before either is known. */
@@ -110,6 +112,8 @@ export interface GameState {
   momentScreens: number;
   /** The share card the player has closed, by `cardKey`, so the scenes after it know it has had its turn. */
   cardClosed: string | null;
+  /** The chapter's share card a moment card told instead, by `cardKey` (R-MOMENT-006): kept in the gallery, never opened. */
+  cardTold: string | null;
   /** True when the player should pick who to be: a new life, or one that replaced a lost save. */
   choosingLife: boolean;
   /** Why a life was replaced, as a words key, when it was. */
@@ -223,12 +227,31 @@ export interface MomentShot {
   line: ReportLine;
   view: PlayerView;
   before: PlayerView | null;
+  /** The month's lines up to and with the batch's own, where a figure told before it was paid (the deposit a pitch took). */
+  told?: ReportLine[];
 }
 
-/** The cards so far, with this batch's moment card after them, if the batch has one (R-MOMENT-001). */
-function withMoment(cards: readonly MomentShot[], lines: readonly ReportLine[], view: PlayerView | null, before: PlayerView | null): MomentShot[] {
-  const line = view === null ? null : momentLine(lines, view);
-  return line === null || view === null ? [...cards] : [...cards, { line, view, before }];
+/**
+ * The cards so far, with this batch's moment card after them, if the batch has one (R-MOMENT-001). `earlier`: the
+ * month's lines told before the batch.
+ */
+function withMoment(cards: readonly MomentShot[], lines: readonly ReportLine[], view: PlayerView | null, before: PlayerView | null, earlier: readonly ReportLine[] = []): MomentShot[] {
+  const line = view === null ? null : momentLine(lines, view, earlier);
+  return line === null || view === null ? [...cards] : [...cards, { line, view, before, told: [...earlier, ...lines] }];
+}
+
+const CHAPTER_CLOSED = "line.chapter.closed";
+
+
+/**
+ * R-MOMENT-006: a chapter's close is told once. When a moment card was queued for a
+ * chapter closing and the view's share card is that chapter's, the share card is put aside as closed: the results line
+ * and the moment card tell it, and the card goes to the gallery (`CardView`) without opening.
+ */
+function chapterTold(before: readonly MomentShot[], after: readonly MomentShot[], view: PlayerView): Partial<GameState> {
+  const told = after.length > before.length && after.slice(before.length).some((shot) => shot.line.key === CHAPTER_CLOSED);
+  const key = view.card?.kind === "chapter" ? cardKey(view.card) : null;
+  return told && key !== null ? { cardClosed: key, cardTold: key } : {};
 }
 
 /** The lines that get a moment of their own, once each payment is told once; an offer's answer said in its own words is one. */
@@ -339,7 +362,7 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
   // R-WORLD-002: the words tell a stamped month as months away from the view's month, kept beside them; and
   // R-PROLOGUE-002: a line's `{hometown}` names where this life is from.
   store.subscribe((state, before) => {
-    if (state.view !== before.view) setNow(state.view?.month ?? null, state.view?.hometown ?? null);
+    if (state.view !== before.view) setNow(state.view?.month ?? null, state.view?.hometown ?? null, playerName(state.view));
   });
   return store;
 }
@@ -411,6 +434,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
           // waits for the report (the share card, a scene) can open in between.
           const ended = command.type === "turn/end";
           const slots = command.type === "turn/end" ? command.slots : null;
+          const cards = withMoment(get().momentCards, reply.lines, get().momentScreens > 0 ? reply.view : null, view, get().monthLines);
           set({
             earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, slots),
             view: reply.view,
@@ -418,7 +442,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             plan: fitPlan(ended ? carriedPlan(get().plan, reply.view) : get().plan, reply.view.freeSlots),
             lines: reply.lines,
             moments: bigLines(reply.lines),
-            momentCards: withMoment(get().momentCards, reply.lines, get().momentScreens > 0 ? reply.view : null, view),
+            momentCards: cards,
+            ...chapterTold(get().momentCards, cards, reply.view),
             ...(ended ? { reportOpen: true, lastMonthLines: get().monthLines, monthLines: [], quiet: [] } : { monthLines: [...get().monthLines, ...reply.lines] }),
             ...ownClock(),
           });
@@ -490,6 +515,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       momentCards: [],
       momentScreens: 0,
       cardClosed: null,
+      cardTold: null,
       choosingLife: options.choosingLife ?? false,
       notice: options.notice ?? null,
       clock: null,
@@ -546,7 +572,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             const credit = creditMoved(view, reply.view);
             const told = [...(months === 1 ? get().monthLines : []), ...reply.lines, ...(credit === null ? [] : [credit])];
             moments.push(...bigLines(reply.lines));
-            momentCards = withMoment(momentCards, reply.lines, get().momentScreens > 0 ? reply.view : null, view);
+            const cardsBefore = momentCards;
+            momentCards = withMoment(momentCards, reply.lines, get().momentScreens > 0 ? reply.view : null, view, months === 1 ? get().monthLines : []);
             // Each month lands in the store as it ends, so the month kept on the device follows the run.
             set({
               earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, slots),
@@ -555,6 +582,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
               lines: reply.lines,
               lastMonthLines: months === 1 ? get().monthLines : [],
               monthLines: [],
+              ...chapterTold(cardsBefore, momentCards, reply.view),
             });
             if (stopsRun(reply.view, reply.lines, months).length > 0) break;
             quiet.push(told);
@@ -628,7 +656,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         forgetMonth();
         // A new life is taught afresh: its first chapter's title, its places' labels, its home (R-CHAPTER-011).
         forgetTaught();
-        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], momentCards: [], rejection: null, monthLines: [], lastMonthLines: [], cardClosed: null, quiet: [] });
+        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], momentCards: [], rejection: null, monthLines: [], lastMonthLines: [], cardClosed: null, cardTold: null, quiet: [] });
       },
       openLifeChooser: options.life === undefined || options.lifeAgain === false ? null : () => set({ choosingLife: true }),
       endLife:
@@ -652,7 +680,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
                 if (!ended) return false;
                 forgetMonth();
                 forgetLife();
-                set({ view: null, choosingLife: true, notice: null, plan: [], lines: [], moments: [], momentCards: [], monthLines: [], lastMonthLines: [], cardClosed: null, quiet: [], reportOpen: false, earlyWin: false, clock: null, world: null, presence: null });
+                set({ view: null, choosingLife: true, notice: null, plan: [], lines: [], moments: [], momentCards: [], monthLines: [], lastMonthLines: [], cardClosed: null, cardTold: null, quiet: [], reportOpen: false, earlyWin: false, clock: null, world: null, presence: null });
                 options.afterLifeEnded?.();
                 return true;
               } finally {

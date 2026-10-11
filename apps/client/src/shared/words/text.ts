@@ -6,6 +6,7 @@ import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";
 
 import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEnding } from "./format";
 import { nowHometown, nowMonth } from "./now";
+import { notThePlayers } from "./others";
 import { peopleParam } from "./people";
 import { uiText } from "./ui";
 
@@ -18,7 +19,8 @@ export function hasWords(key: string): boolean {
 }
 
 function lookup(key: string): string {
-  return text[key] ?? uiText[key] ?? key;
+  // A computer person never carries the player's own first name (R-PEOPLE-061).
+  return notThePlayers(key, text[key] ?? uiText[key] ?? key);
 }
 
 /**

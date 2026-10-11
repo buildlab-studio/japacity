@@ -2,14 +2,10 @@
 // then the month's report with its moment card over it (docs/rules/moments.md), then the share card, then a scene such as the
 // December visit. Each waits for the one before it, so two never cover each
 // other and a click always lands on the one in front.
-import type { PlayerView } from "@japacity/sim";
-
 import { useGame, useView } from "../../authority/GameProvider";
+import { cardKey } from "./cardKey";
 
-/** A name for a card, so closing one does not close the next. */
-export function cardKey(card: PlayerView["card"]): string | null {
-  return card === null ? null : `${card.kind}-${String(card.months)}`;
-}
+export { cardKey } from "./cardKey";
 
 /** True when no staged win or moment card is on screen and the report is closed: the card may open (R-MOMENT-006). */
 export function useCardsTurn(): boolean {
