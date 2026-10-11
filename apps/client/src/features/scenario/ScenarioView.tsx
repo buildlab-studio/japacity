@@ -614,7 +614,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
                   // The room shut says what is still needed; a home whose first month cannot be paid says the shortfall.
                   const shut = one === "compound-room" ? "needed" : "short";
                   const Icon = short ? Lock : HOME_ICONS[one];
-                  const { monthly, rentYear } = homeFigures(one);
+                  const { now, monthly, rentYear } = homeFigures(one);
                   // Open: what the life holds at Begin; shut: what it is short of the move-in and a month of living.
                   const start = formatMoney(startIn(archetype, draft.age, one), "NGN");
                   const figure = short ? formatMoney(-pocket, "NGN") : moneyDrawn(archetype) ? say("ui.door.home.about", { amount: start }) : start;
@@ -637,7 +637,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
                           {say(`ui.door.home.${one}`)} <span className={`font-semibold ${on ? "opacity-80" : "text-text-2"}`}>· {say(`ui.door.home.where.${one}`)}</span>
                         </span>
                         <span className={`block text-[12px] leading-snug ${on ? "opacity-85" : "text-text-2"}`} data-home-costs>
-                          {say(`ui.door.home.costs.${one}`, { amount: formatMoney(monthly, "NGN"), rent: formatMoney(rentYear ?? 0, "NGN") })}
+                          {say(`ui.door.home.costs.${one}`, { amount: formatMoney(monthly, "NGN"), rent: formatMoney(rentYear ?? 0, "NGN"), movein: formatMoney(now, "NGN") })}
                         </span>
                       </span>
                       <span className="shrink-0 text-right leading-tight" data-home-left={short ? shut : "start"}>
