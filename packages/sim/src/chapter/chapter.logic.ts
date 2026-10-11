@@ -5,7 +5,7 @@ import { check } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
-import type { BaseEvent, ChapterEntry, ChapterSlice, Command, Content, Ctx, Id, PlayerView, ReadCtx, Rejection, ReportLine, Requirement, RequirementResult, RouteGate, RouteSlice } from "../engine/types";
+import type { BaseEvent, ChapterEntry, ChapterSlice, Command, Content, Ctx, Id, PlayerView, ReadCtx, Rejection, ReportLine, Requirement, RequirementResult, RouteEntry, RouteSlice } from "../engine/types";
 import { checklistEarned, japacity, routePercent } from "../japacity/japacity.logic";
 import { cardOf, cardsAllowed, reportLines, topActivities } from "./chapter.card";
 import type { ChapterEvent } from "./chapter.events";
@@ -51,31 +51,34 @@ function leanCandidates(content: Content): Id<"route">[] {
  * master's life to the points file; read in time, the nurse who reads the care page first gets the care
  * file and a life that looked into the master's first keeps the master's file. The master's when the life
  * has heard of none of them. A way the player made the plan (`chosen`, the `chapter/lean` command) comes
- * before all of these while it is heard of or further on.
+ * before all of these while it is heard of or further on. A route granted or flown comes before everything
+ * (11 Oct 2026, `grantedRoute`).
  */
 export function leanRoute(routes: RouteSlice, content: Content, chosen: Id<"route"> | null = null): Id<"route"> {
-  return grantedRoute(routes, content) ?? planOf(routes, content, chosen) ?? BASE_ROUTE;
+  return planOf(routes, content, chosen) ?? BASE_ROUTE;
 }
 
 /**
- * The gates of the ways out a life takes by its own effort: the routes of `OWN_ROUTES` in chapter.data.ts.
- * The road, a partner's route and a dependant's are not among them.
+ * The routes a visa is granted and flown on: every route with a country, a partner's and a dependant's among
+ * them, never the road (`FLOWN_ROUTES` in chapter.data.ts, R-CHAPTER-002).
  */
-const OWN_GATES: ReadonlySet<RouteGate> = new Set<RouteGate>(["study", "sponsor", "points", "endorsement", "contract"]);
+function flightRoutes(content: Content): RouteEntry[] {
+  return Object.values(content.route).filter((entry) => entry.country !== null && entry.gate !== "road");
+}
 
 /**
- * R-CHAPTER-009, 11 Oct 2026: the grant decides the plan. The own-effort route flown, else the one granted,
- * in content's order; null while none is. The chapters follow it before the chosen way and the time order.
+ * R-CHAPTER-009, 11 Oct 2026: the grant decides the plan. The route flown, else the one granted, in
+ * content's order; null while none is. The chapters follow it before the chosen way and the time order.
  */
 export function grantedRoute(routes: RouteSlice, content: Content): Id<"route"> | null {
-  const own = Object.values(content.route).filter((entry) => OWN_GATES.has(entry.gate));
-  const first = (state: "granted" | "departed"): Id<"route"> | null => own.find((entry) => routes[entry.id]?.state === state)?.id ?? null;
+  const flights = flightRoutes(content);
+  const first = (state: "granted" | "departed"): Id<"route"> | null => flights.find((entry) => routes[entry.id]?.state === state)?.id ?? null;
   return first("departed") ?? first("granted");
 }
 
-/** True when an own-effort route has been flown. */
+/** True when a route has been flown. */
 function flown(routes: RouteSlice, content: Content): boolean {
-  return Object.values(content.route).some((entry) => OWN_GATES.has(entry.gate) && routes[entry.id]?.state === "departed");
+  return flightRoutes(content).some((entry) => routes[entry.id]?.state === "departed");
 }
 
 /** True when the life has heard of the route or gone further with it. */
@@ -83,8 +86,13 @@ function live(routes: RouteSlice, id: Id<"route">): boolean {
   return routes[id] !== undefined && routes[id].state !== "unknown";
 }
 
-/** R-CHAPTER-009: the lean as the view names it: the chosen way, else the order in time, else none heard of. */
+/**
+ * R-CHAPTER-009: the lean as the view names it: the route granted or flown, else the chosen way,
+ * else the order in time, else none heard of.
+ */
 function planOf(routes: RouteSlice, content: Content, chosen: Id<"route"> | null): Id<"route"> | null {
+  const granted = grantedRoute(routes, content);
+  if (granted !== null) return granted;
   const candidates = leanCandidates(content);
   if (chosen !== null && candidates.includes(chosen) && live(routes, chosen)) return chosen;
   const first = (month: (id: Id<"route">) => number | null): Id<"route"> | null => {
@@ -106,7 +114,10 @@ function planOf(routes: RouteSlice, content: Content, chosen: Id<"route"> | null
  * so the switch can say what making it the plan would do.
  */
 function waysOf(read: ReadCtx): PlayerView["plan"]["ways"] {
-  return leanCandidates(read.content)
+  // The route granted is a way of the plan even with no file of its own.
+  const granted = grantedRoute(read.state.route, read.content);
+  const candidates = leanCandidates(read.content);
+  return (granted === null || candidates.includes(granted) ? candidates : [...candidates, granted])
     .filter((id) => read.content.route[id] !== undefined && live(read.state.route, id))
     .map((route) => {
       return { route, percent: routePercent(read, route) ?? checklistEarned(read, route) };
@@ -285,7 +296,11 @@ export function sendOffCard(read: ReadCtx): PlayerView["card"] {
  */
 export function chapterCard(read: ReadCtx): PlayerView["card"] {
   if (!cardsAllowed(read)) return null;
-  for (const line of reportLines(read, CLOSED_LINE)) {
+  const closes = reportLines(read, CLOSED_LINE);
+  // A chapter closed in the same report as the send-off (the flight's turn, R-CHAPTER-002) has no card of its own: the
+  // send-off card is that report's (R-CHAPTER-006).
+  if (closes.some((line) => line.params.chapter === SEND_OFF)) return null;
+  for (const line of closes) {
     const chapter = line.params.chapter as Id<"chapter">;
     // The way out the chapters follow stands on the card while no route's figure counts yet (R-CHAPTER-009): the nurse's care
     // work, shut to applicants from abroad, has its own figure from the month its page is read.

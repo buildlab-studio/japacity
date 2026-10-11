@@ -8,11 +8,12 @@ import { lifeSaves } from "../goldens/lives.data";
 import { slot } from "../route/route.journey";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
-import { grantedRoute, leanRoute } from "./chapter.logic";
+import { chapterCard, grantedRoute, leanRoute } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
 const SKILLED: Id<"route"> = "route.uk-skilled";
 const CARE: Id<"route"> = "route.uk-care";
+const PARTNER: Id<"route"> = "route.uk-partner";
 const FILE: Id<"chapter"> = "chapter.build-the-file";
 const DECISION: Id<"chapter"> = "chapter.decision-day";
 const SEND_OFF: Id<"chapter"> = "chapter.send-off";
@@ -97,6 +98,34 @@ describe("a grant on a route with no file of its own", () => {
   });
 });
 
+describe("the plan follows the grant", () => {
+  test("[R-CHAPTER-009] given Ada's abroad life leaning to the master's, when the skilled worker's visa is granted, then the view's plan names the skilled route and its ways carry it, though it has no file of its own", () => {
+    const { game, commands } = recorded("ada-abroad");
+    playTo(game, commands, 0, routeIs(SKILLED, "known"));
+    expect(game.view().plan.route).toBe(UK);
+    expect(game.view().plan.ways.map((way) => way.route)).not.toContain(SKILLED);
+    playTo(game, commands, game.state.v, routeIs(SKILLED, "granted"));
+    const { plan } = game.view();
+    expect(plan.route).toBe(SKILLED);
+    expect(plan.ways.map((way) => way.route)).toContain(SKILLED);
+    expect(plan.ways.find((way) => way.route === SKILLED)?.percent).toBe(game.view().routes.find((route) => route.id === SKILLED)?.percent);
+    expect(Object.values(content.chapter).some((entry) => entry.route === SKILLED)).toBe(false);
+  });
+});
+
+describe("the flight's report has one card", () => {
+  test("[R-CHAPTER-006] [R-SHARE-001] given Tunde's flight turn closing decision day and the send-off in one report, when the view is read in the first month abroad, then no chapter card is due for decision day", () => {
+    const { game, commands } = recorded("tunde-abroad");
+    const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
+    const month = game.state.turn.month;
+    playTo(game, commands, flight.next, (now) => now.state.turn.month > month);
+    const closes = game.state.turn.report?.lines.filter((line) => line.key === "line.chapter.closed").map((line) => line.params.chapter);
+    expect(closes).toEqual([DECISION, SEND_OFF]);
+    expect(chapterCard({ state: game.state, world: game.world(), content })).toBeNull();
+    expect(game.view().card?.kind).not.toBe("chapter");
+  });
+});
+
 describe("a grant on a route with a file of its own", () => {
   /** Ada's careful life at decision day on the master's, the month before her grant. */
   function atDecision(): Game {
@@ -137,8 +166,8 @@ describe("a grant on a route with a file of its own", () => {
   });
 });
 
-describe("the own routes", () => {
-  test("[R-CHAPTER-009] given the real content, when the routes a grant leads by are listed, then they are the routes whose flight closes the send-off: every way of the player's own effort, never the road, a partner's or a dependant's", () => {
+describe("the routes a grant leads by", () => {
+  test("[R-CHAPTER-002] [R-CHAPTER-009] given the real content, when the routes a grant leads by are listed, then they are the routes whose flight closes the send-off: every route with a country, a partner's and a dependant's among them, never the road", () => {
     const item = content.chapter[SEND_OFF]!.items[0]!.requirement;
     const flown = item.type === "any" ? item.of.flatMap((each) => (each.type === "route/state" ? [each.route] : [])) : [];
     const leading = Object.keys(content.route).filter((id) => {
@@ -147,6 +176,30 @@ describe("the own routes", () => {
     });
     expect(leading.sort()).toEqual([...flown].sort());
     expect(leading).toContain(SKILLED);
+    expect(leading).toEqual(expect.arrayContaining([PARTNER, "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"]));
     expect(leading).not.toContain("route.road");
+  });
+});
+
+describe("a partner's route", () => {
+  test("[R-CHAPTER-002] [R-CHAPTER-006] [R-CHAPTER-009] given a life in the master's file granted the partner visa, when the grant's turn ends, the life flies on it and the month ends, then the file closes, the send-off card shows from the flight, and decision day and the send-off close on the flight's turn", () => {
+    const game = start({ scenario: "scenario.tunde", content });
+    for (let month = 0; month < 8 && game.state.route[UK]?.state !== "heard"; month += 1) game.endTurn();
+    game.endTurn([slot("activity.look-into-route", UK)]);
+    expect(game.state.chapter.current).toBe(FILE);
+    // A partner's grant takes a bond and a decision; the route's state is written as the decision would leave it.
+    game.state = { ...game.state, route: { ...game.state.route, [PARTNER]: { ...game.state.route[PARTNER]!, state: "granted" } } };
+    expect(closed(game.endTurn())).toEqual([{ type: "chapter/closed", chapter: FILE, next: DECISION }]);
+    expect(leanRoute(game.state.route, content)).toBe(PARTNER);
+    expect(game.view().plan.route).toBe(PARTNER);
+    game.accept({ type: "route/depart", route: PARTNER });
+    expect(game.state.place).toMatchObject({ where: "abroad", country: "country.uk" });
+    expect(game.view().card).toMatchObject({ kind: "send-off", route: PARTNER, chapter: SEND_OFF });
+    const result = game.endTurn();
+    expect(closed(result)).toEqual([
+      { type: "chapter/closed", chapter: DECISION, next: SEND_OFF },
+      { type: "chapter/closed", chapter: SEND_OFF, next: LANDING },
+    ]);
+    expect(game.state.chapter.current).toBe(LANDING);
   });
 });

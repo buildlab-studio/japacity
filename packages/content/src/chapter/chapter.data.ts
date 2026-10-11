@@ -12,6 +12,11 @@ const FILE: Id<"chapter"> = "chapter.build-the-file";
 const DECISION: Id<"chapter"> = "chapter.decision-day";
 /** The ways out a life takes by its own effort (not through a partner): the first chapter counts any of them. */
 const OWN_ROUTES: Id<"route">[] = ["route.uk-masters", "route.uk-care", "route.uk-talent", "route.uk-skilled", "route.canada-points", "route.gulf-contract"];
+/**
+ * The routes a visa is granted and flown on: every route with a country, a partner's and a dependant's among them,
+ * never the road. The send-off reads a flight on any of them (R-CHAPTER-002).
+ */
+const FLOWN_ROUTES: Id<"route">[] = [...OWN_ROUTES, "route.uk-partner", "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"];
 
 function held(document: Id<"document">, min?: number): Requirement {
   return min === undefined ? { type: "document/held", document } : { type: "document/held", document, min };
@@ -162,8 +167,8 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
   "chapter.send-off": {
     id: "chapter.send-off",
     order: 12,
-    // The flight on any way out of the player's own effort closes the send-off (R-CHAPTER-009).
-    items: [{ id: "departed", requirement: { type: "any", of: OWN_ROUTES.map((route) => ({ type: "route/state" as const, route, in: ["departed"] })) } }],
+    // The flight on any route with a country closes the send-off, a partner's or a dependant's too (R-CHAPTER-002).
+    items: [{ id: "departed", requirement: { type: "any", of: FLOWN_ROUTES.map((route) => ({ type: "route/state" as const, route, in: ["departed"] })) } }],
   },
   "chapter.landing": {
     id: "chapter.landing",
