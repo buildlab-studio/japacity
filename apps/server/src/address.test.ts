@@ -27,6 +27,8 @@ interface Worker {
   preview_urls?: boolean;
   observability?: { enabled: boolean; head_sampling_rate?: number };
   triggers?: { crons: string[] };
+  placement?: Record<string, string>;
+  hyperdrive?: { binding: string; id: string }[];
   env?: Record<string, Worker>;
 }
 
@@ -77,6 +79,13 @@ describe("the game's address", () => {
   test("[R-SERVER-038] given both environments, when their logs are read, then staging keeps every request in Workers Logs and production's block is untouched", () => {
     expect(staging?.observability).toEqual({ enabled: true, head_sampling_rate: 1 });
     expect(server.observability).toBeUndefined();
+  });
+
+  test("[R-SERVER-040] given both environments, when their placement is read, then each runs its fetch handler near Neon's London region, and both keep the cached Hyperdrive configuration bound", () => {
+    expect(server.placement).toEqual({ region: "aws:eu-west-2" });
+    expect(staging?.placement).toEqual({ region: "aws:eu-west-2" });
+    expect(server.hyperdrive?.map((each) => each.binding)).toEqual(["GAME_DB", "CACHED_DB"]);
+    expect(staging?.hyperdrive?.map((each) => each.binding)).toEqual(["GAME_DB", "CACHED_DB"]);
   });
 
   test("given the gate's shipped settings, when they are read, then before launch it owns the root of the game's host and its card picture is on that host", () => {

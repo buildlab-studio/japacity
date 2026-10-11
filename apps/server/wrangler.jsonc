@@ -12,6 +12,10 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
   "preview_urls": false,
+  // R-SERVER-040: run the fetch handler near the database, Neon's London region (aws-eu-west-2), not near
+  // the player: one command makes several queries in a row, each a round trip. A placement hint, checked
+  // against wrangler 4.149's schema and Cloudflare's placement page on 11 Oct 2026.
+  "placement": { "region": "aws:eu-west-2" },
   // The game's one address. Before launch the gate's route on the same host runs first
   // (apps/gate/README.md); deleting that route makes this Worker the root.
   "routes": [{ "pattern": "japacity.app", "custom_domain": true }],
@@ -57,6 +61,9 @@
   // TURNSTILE_SECRET_KEY, and for the bank-full notice VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT.
   "hyperdrive": [
     { "binding": "GAME_DB", "id": "REPLACE_WITH_HYPERDRIVE_ID_CACHE_OFF" },
+    // CACHED_DB is read by nothing yet. It stays bound for the reads design 05 section 7 allows
+    // from a cache: the world's ticks and the auth library. The world's reply is kept by the Cache API instead
+    // (R-SERVER-039), because reading a tick may store a missing one, a write a cached configuration must not serve.
     { "binding": "CACHED_DB", "id": "REPLACE_WITH_HYPERDRIVE_ID_CACHED" }
   ],
   "env": {
@@ -69,6 +76,8 @@
       // workers.dev address and no preview URLs, by choice.
       "workers_dev": false,
       "preview_urls": false,
+      // R-SERVER-040: near staging's database, also in Neon's London region, written again so the block says it.
+      "placement": { "region": "aws:eu-west-2" },
       "routes": [{ "pattern": "staging.japacity.app", "custom_domain": true }],
       // Workers Logs on staging only: every request and its console lines are kept, so a failure a
       // tester meets can be read from the server's side. Kept 7 days on the paid plan. Production has no such block
