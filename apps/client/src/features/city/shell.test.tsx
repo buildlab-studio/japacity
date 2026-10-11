@@ -545,6 +545,30 @@ describe("the home the game opens in", () => {
     expect(slot.pins.find((pin) => pin.id === "place.family-house")?.state).not.toBe("home");
   });
 
+  test("[R-WORLD-014] [R-WORLD-020] given a life living in Makoko, when the map is handed its pins, then the family house is still on it, a little from the home spot, so the people met there can be reached", async () => {
+    localStorage.removeItem("japacity.city.last");
+    const base = engineView();
+    const view = { ...base, home: { ...base.home, place: "place.makoko" as const, rent: { currency: "NGN" as const, amount: 25_000 } } };
+    let handed: CityMapSlot | null = null;
+    await opened(
+      world({
+        cityMap: (props) => {
+          handed = props;
+          return <p data-map-slot />;
+        },
+      }),
+      view,
+    );
+    if (handed === null) fireEvent.click(screen.getByRole("button", { name: say("ui.world.map") }));
+    const slot = handed as CityMapSlot | null;
+    if (slot === null) throw new Error("The map was not handed its slot");
+    const house = slot.pins.find((pin) => pin.id === "place.family-house");
+    const home = slot.pins.find((pin) => pin.id === "place.makoko");
+    expect(house).toBeDefined();
+    expect(house?.state).not.toBe("home");
+    expect(house?.position).not.toEqual(home?.position);
+  });
+
   test("[R-HOME-010] [R-HOME-006] given a life living in the room in a compound, when the world opens, then it opens in the room and the map's Home pin stands there", async () => {
     localStorage.removeItem("japacity.city.last");
     const base = engineView();

@@ -211,6 +211,9 @@ function areaSpot(area: string): { latE3: number; lonE3: number } | null {
 }
 /** The family house stands on a made-up street (city.md), so the map gives it a spot in Surulere near the hub. */
 const HOME_SPOT = { latE3: 6507, lonE3: 3359 };
+/** R-WORLD-014: the family house keeps its place on the map while the character lives in a room elsewhere in Lagos, a little from the home spot. */
+const FAMILY_SPOT = { latE3: 6511, lonE3: 3353 };
+const FAMILY_HOUSE = "place.family-house";
 /** The countries the map can show, with why the others are shut, until the view says more. */
 const COUNTRIES = ["country.uk", "country.uae", "country.canada", "country.italy"];
 
@@ -878,6 +881,7 @@ export function City({
     const spotOf = (place: PlaceEntry): { latE3: number; lonE3: number } => {
       if (place.position !== null) return place.position;
       if (place.id === home) return HOME_SPOT;
+      if (place.id === FAMILY_HOUSE && where === "home") return FAMILY_SPOT;
       // Their room has no address of its own: it sits a little off the place it is near, or off home for one who is home only for December (R-WORLD-020).
       if (place.id === THEIR_ROOM) {
         const near = content.place[(roomNear(view) ?? "") as Id<"place">]?.position ?? HOME_SPOT;
@@ -893,7 +897,8 @@ export function City({
     const early = earlyStops(view);
     return places
       // R-WORLD-020: their room opens only once a bond is courting.
-      .filter((place) => (place.id === THEIR_ROOM ? roomOpen(view) && shipped?.has(place.id) === true : place.position !== null || place.id === home || (place.area !== null && shipped?.has(place.id) === true)) && (shipped === null || shipped.has(place.id) || place.id === home))
+      // R-WORLD-014: the family house stays on the map for every life in Nigeria, home or not (the people met there, R-WORLD-020).
+      .filter((place) => (place.id === THEIR_ROOM ? roomOpen(view) && shipped?.has(place.id) === true : place.position !== null || place.id === home || (place.id === FAMILY_HOUSE && where === "home") || (place.area !== null && shipped?.has(place.id) === true)) && (shipped === null || shipped.has(place.id) || place.id === home || (place.id === FAMILY_HOUSE && where === "home")))
       .map((place) => {
         const reached = stopReached(view.chapter, where, place.id, early);
         const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : !reached ? "not" : shipped === null || shipped.has(place.id) ? "can" : "not";

@@ -98,16 +98,16 @@ export const personText: Record<string, string> = {
 
   // Where each partner is met and their home (world.md R-WORLD-020, person.meet.data.ts). The
   // meeting line is what you see and hear when you first tap them.
-  "person.tobi-bank.met": "After service, by the car park. \"You sit by the choir every week, abi? I have seen you.\"",
+  "person.tobi-bank.met": "After service, your mother brings him home for lunch. \"You sit by the choir every week, abi? I have seen you.\"",
   "person.tobi-bank.home": "A flat off Bode Thomas, two floors up",
-  "person.amaka-nurse.met": "At a friend's room after her night shift, still in her blue scrubs. \"Is there tea? Please say there is tea.\"",
+  "person.amaka-nurse.met": "A friend of the family, at the house after her night shift, still in her blue scrubs. \"Is there tea? Please say there is tea.\"",
   "person.amaka-nurse.home": "A room near the general hospital",
   "person.kelechi-dev.met": "Home for December, he gives the meetup's talk on working abroad. After it he finds you. \"You asked the only good question.\"",
   "person.kelechi-dev.home": "His mother's house in Lagos, for December",
-  "person.funmi-uk.met": "Home for December, in the pew in front of you. \"You have been singing the wrong verse. Don't worry, so have I.\"",
+  "person.funmi-uk.met": "Home for December, she comes back from service with your aunty. \"You have been singing the wrong verse. Don't worry, so have I.\"",
   "person.funmi-uk.home": "The family house in Lagos, for December",
   "person.ifeoma-ca.met": "At the meetup in December, home from Calgary with a laptop full of plans. \"Ask me anything about the winter. I will lie.\"",
   "person.ifeoma-ca.home": "A sister's flat in Lagos, for December",
-  "person.chidi-dubai.met": "At a friend's room in December, back from Dubai with gifts for everybody. \"Take. It is perfume. Everybody gets perfume.\"",
+  "person.chidi-dubai.met": "At the house in December, a friend of the family back from Dubai with gifts for everybody. \"Take. It is perfume. Everybody gets perfume.\"",
   "person.chidi-dubai.home": "His uncle's house in Lagos, for December",
 };
