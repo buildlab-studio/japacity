@@ -71,8 +71,8 @@
       "durable_objects": { "bindings": [{ "name": "PLACE", "class_name": "Place" }] },
       // From `wrangler hyperdrive create` on the staging database.
       "hyperdrive": [
-        { "binding": "GAME_DB", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID_CACHE_OFF" },
-        { "binding": "CACHED_DB", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID_CACHED" }
+        { "binding": "GAME_DB", "id": "4e7ab412c46743a7b639706e32e84f9a" },
+        { "binding": "CACHED_DB", "id": "848c169e921e4aa8adc204c778303439" }
       ]
     }
   }
