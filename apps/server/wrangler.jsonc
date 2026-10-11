@@ -1,7 +1,8 @@
 // The game's server: the authority for every character (docs/rules/server.md),
 // the clock and the world on a schedule (docs/rules/clock.md), accounts
-// (docs/rules/account.md). Nothing here is deployed until the maintainer says so;
-// every id below is a placeholder the maintainer fills.
+// (docs/rules/account.md). Nothing here is deployed until the maintainer says so.
+// The values that belong to this deployment (the routes, the Hyperdrive ids) are listed for anyone
+// running their own copy in docs/site/built/your-own-copy.md.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "japacity-server",
@@ -29,7 +30,11 @@
     // Until launch: production ticks every thirty minutes like staging, so both
     // Neon branches sleep between runs and fit the free plan while the gate is closed. On launch day, after Neon
     // moves to a paid plan, remove this var and put the first cron below back to "*/5 * * * *" (apps/gate/README.md).
-    "TICK_CRON": "*/30 * * * *"
+    "TICK_CRON": "*/30 * * * *",
+    // R-SERVER-012: the accounts that may open the admin page, comma-separated account ids. Empty here on
+    // purpose, so no account id is ever committed: the deploy supplies the value with
+    // `--var ADMIN_ACCOUNTS:<ids>` (the deploy workflows take it from the environment's ADMIN_ACCOUNTS secret).
+    "ADMIN_ACCOUNTS": ""
   },
   // R-CLOCK-012: the world's ticks every five minutes, on TICK_CRON until launch. R-SERVER-011: the money report at 00:00 UTC.
   "triggers": { "crons": ["*/30 * * * *", "0 0 * * *"] },
@@ -83,7 +88,9 @@
         // R-CLOCK-012, R-SERVER-038: staging ticks every thirty minutes so its database can sleep
         // between runs; every five-minute job runs on this cron instead. Equal to the first cron below.
         "TICK_CRON": "*/30 * * * *",
-        "NOINDEX": "1"
+        "NOINDEX": "1",
+        // R-SERVER-012: as at the top level, empty here; the staging deploy supplies its own with --var.
+        "ADMIN_ACCOUNTS": ""
       },
       "triggers": { "crons": ["*/30 * * * *", "0 0 * * *"] },
       // Namespaces of their own: two Workers on one id would share one count.

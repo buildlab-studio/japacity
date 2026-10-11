@@ -1,0 +1,20 @@
+# The files that keep the game honest and the deployment safe need the maintainer's review (CONTRIBUTING.md,
+# "Branches and releases"). GitHub asks for it once the maintainer turns on "Require review from Code Owners" for main.
+
+# The lint config, with the simulation's purity rules.
+/eslint.config.js @Alameen688
+
+# The repository-wide tests: import boundaries, the bundle scan, the workflows' guards, the example settings.
+/tests/ @Alameen688
+
+# The scrub check: the legal planning and the deployment values that never enter the repository.
+/tools/scrub-check.ts @Alameen688
+
+# Every Worker's config: routes, bindings, the deployment's ids.
+wrangler.jsonc @Alameen688
+
+# The workflows, the deploys and this file.
+/.github/ @Alameen688
+
+# The operator and the repository address the legal pages read.
+/packages/content/src/legal/ @Alameen688

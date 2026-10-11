@@ -1,3 +1,4 @@
 # Local secrets for `wrangler dev`. Never committed.
 .dev.vars
 .dev.vars.*
+!.dev.vars.example

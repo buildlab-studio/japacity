@@ -1,0 +1,82 @@
+name: deploy-staging
+
+# Staging on every push to main (; docs/site/built/your-own-copy.md).
+# Safe in a fork: the job runs only in buildlab-studio/japacity, and the Cloudflare secrets live in this
+# repository's `staging` environment, which a fork and a pull request never see. Until the maintainer has set the
+# environment's secrets the job stops quietly at its first step with a notice, and deploys nothing.
+on:
+  push:
+    branches: [main]
+
+# Two pushes never deploy at once: the newer one waits for the one running, and is never cancelled halfway.
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: github.repository == 'buildlab-studio/japacity'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    steps:
+      - name: The environment's secrets are set
+        id: ready
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$ACCOUNT" ]; then
+            echo "::notice::The staging environment has no CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID yet, so nothing is deployed."
+            echo "set=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "set=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.ready.outputs.set == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Reads the pnpm version from packageManager in package.json.
+      - if: steps.ready.outputs.set == 'true'
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - if: steps.ready.outputs.set == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - if: steps.ready.outputs.set == 'true'
+        run: pnpm install --frozen-lockfile
+
+      # The client is built for staging's own address with the environment's variables (none is a secret: each
+      # ends up in the page). The Worker serves this build.
+      - name: Build the client
+        if: steps.ready.outputs.set == 'true'
+        env:
+          VITE_SERVER_URL: ${{ vars.VITE_SERVER_URL }}
+          VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
+          VITE_ANALYTICS_TOKEN: ${{ vars.VITE_ANALYTICS_TOKEN }}
+        run: |
+          if [ -z "$VITE_SERVER_URL" ] || [ -z "$VITE_TURNSTILE_SITE_KEY" ]; then
+            echo "::error::Set the staging environment's variables VITE_SERVER_URL and VITE_TURNSTILE_SITE_KEY before deploying."
+            exit 1
+          fi
+          VITE_BUILD="$(git rev-parse --short HEAD)" pnpm build
+
+      # The admin accounts come from the environment's ADMIN_ACCOUNTS secret, never from a committed file
+      # (server.md R-SERVER-012); unset, staging has no admin.
+      - name: Deploy the Worker to staging
+        if: steps.ready.outputs.set == 'true'
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/server
+          packageManager: pnpm
+          command: deploy --env staging --var ADMIN_ACCOUNTS:${{ secrets.ADMIN_ACCOUNTS }}

@@ -1,0 +1,100 @@
+// The scrub check's second list: the values of one deployment that are never committed.
+import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { afterEach, describe, expect, test } from "vitest";
+
+import { DEPLOYMENT_VALUES, findDeploymentValues, scrubTree } from "./scrub-check";
+
+const made: string[] = [];
+
+afterEach(() => {
+  for (const folder of made.splice(0)) rmSync(folder, { recursive: true, force: true });
+});
+
+function repository(files: Record<string, string>): string {
+  const root = mkdtempSync(join(tmpdir(), "scrub-deploy-"));
+  made.push(root);
+  execFileSync("git", ["init", "-q"], { cwd: root });
+  for (const [path, text] of Object.entries(files)) {
+    mkdirSync(join(root, path, ".."), { recursive: true });
+    writeFileSync(join(root, path), text);
+  }
+  return root;
+}
+
+const example = (label: string): string => DEPLOYMENT_VALUES.find((value) => value.label === label)?.example ?? "";
+
+/** A 32-hex id like the planted one, made here from the example so this file's text holds none whole. */
+const plantedId = (): string => /[0-9a-f]{32}/.exec(example("a 32-hex id"))?.[0] ?? "";
+
+describe("the scrub check's deployment values", () => {
+  test("given a planted line for each kind of deployment value, when a docs page is checked, then every one is caught on its line", () => {
+    expect(DEPLOYMENT_VALUES.map((value) => value.label)).toEqual([
+      "an email address",
+      "a 32-hex id",
+      "a Turnstile key",
+      "a Google OAuth client id",
+      "a Google OAuth client secret",
+      "a Cloudflare account id",
+      "an admin account list",
+    ]);
+    for (const value of DEPLOYMENT_VALUES) {
+      const hits = findDeploymentValues("docs/site/built/somewhere.md", `# A page\n\n${value.example}\n`);
+      expect({ label: value.label, caught: hits.map((hit) => hit.label) }).toEqual({ label: value.label, caught: expect.arrayContaining([value.label]) as unknown });
+      expect(hits.every((hit) => hit.line === 3 && hit.kind === "deployment")).toBe(true);
+    }
+  });
+
+  test("given placeholders and look-alikes, when they are checked, then none is caught", () => {
+    const lines = [
+      "Write to ada@example.com, owner@example.test, kemi@brightpath.example or x@nowhere.invalid.",
+      "sub: mailto:owner@example.test",
+      "The game's own address: social@japacity.app, help@japacity.app.",
+      "https://user@fcm.googleapis.com/a and formula/postgresql@18.json and cloudflare/wrangler-action@v4.1.3",
+      "LOCAL_DATABASE_URL=postgres://japacity:japacity-local@127.0.0.1:5432/japacity",
+      "postgres://owner:example@ep-example.eu-central-1.aws.neon.tech/neondb",
+      `const TOKEN = "${"0123456789abcdef".repeat(2)}";`,
+      `uses: actions/checkout@${"3d3c42e5aac5ba805825da76410c181273ba90b1"} # v7.0.1`,
+      "VITE_TURNSTILE_SITE_KEY=1x00000000000000000000AA",
+      "TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA",
+      "ADMIN_ACCOUNTS=",
+      "ADMIN_ACCOUNTS=<your account id>",
+      '"ADMIN_ACCOUNTS": "",',
+      "command: deploy --var ADMIN_ACCOUNTS:${{ secrets.ADMIN_ACCOUNTS }}",
+      "GOOGLE_CLIENT_ID=<your Google OAuth client id>",
+      "VAPID_SUBJECT=<mailto: an address of yours>",
+    ];
+    for (const line of lines) expect({ line, hits: findDeploymentValues("docs/site/built/somewhere.md", line) }).toEqual({ line, hits: [] });
+  });
+
+  test("given the staging Hyperdrive ids, when they stand in the server's wrangler.jsonc, then they pass, and the same id anywhere else fails; an account id fails even there", () => {
+    const binding = `{ "binding": "GAME_DB", "id": "${plantedId()}" }`;
+    expect(findDeploymentValues("apps/server/wrangler.jsonc", binding)).toEqual([]);
+    expect(findDeploymentValues("apps/gate/wrangler.jsonc", binding).map((hit) => hit.label)).toEqual(["a 32-hex id"]);
+    expect(findDeploymentValues("docs/site/built/your-own-copy.md", binding).map((hit) => hit.label)).toEqual(["a 32-hex id"]);
+    expect(findDeploymentValues("apps/server/wrangler.jsonc", example("a Cloudflare account id")).map((hit) => hit.label)).toEqual(["a Cloudflare account id"]);
+  });
+
+  test("given a binary file, when it is checked, then it is passed over", () => {
+    expect(findDeploymentValues("assets-src/model.glb", `\u0000${example("an email address")}`)).toEqual([]);
+  });
+
+  test("given a repository with planted values, an ignored .env.local holding real ones and examples holding placeholders, when the tree is scrubbed, then only the planted lines fail", () => {
+    const root = repository({
+      ".gitignore": ".env.local\n.dev.vars\n",
+      ".env.local": `${example("an admin account list")}\n${example("a Turnstile key")}\n`,
+      "apps/server/.dev.vars": `${example("a Google OAuth client secret")}\n`,
+      ".env.example": "ADMIN_ACCOUNTS=\n# VITE_TURNSTILE_SITE_KEY=<your Turnstile site key>\n",
+      "apps/server/.dev.vars.example": "GOOGLE_CLIENT_SECRET=<your Google OAuth client secret>\n",
+      "apps/server/wrangler.jsonc": `{ "id": "${plantedId()}" }\n`,
+      "docs/planted.md": `Fine.\n${example("an email address")}\n`,
+      "apps/gate/wrangler.jsonc": `{\n"account_id": "${plantedId()}"\n}\n`,
+      "README.md": "A game.",
+    });
+    const hits = scrubTree(root).map((hit) => `${hit.file}:${String(hit.line)}: ${hit.label}`);
+    expect(hits).toEqual(["apps/gate/wrangler.jsonc:2: a 32-hex id", "apps/gate/wrangler.jsonc:2: a Cloudflare account id", "docs/planted.md:2: an email address"]);
+  });
+});
