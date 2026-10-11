@@ -90,7 +90,7 @@ function testEnv(): Env {
     TURNSTILE_SECRET_KEY: "test-turnstile-secret",
     // Both environments set the tick cron and bind the mail; neither is reached by these tests.
     TICK_CRON: "*/30 * * * *",
-    MAIL: { send: () => Promise.reject(new Error("no mail in this test")) } as unknown as SendEmail,
+    MAIL: { send: () => Promise.reject(new Error("no mail in this test")) },
   };
 }
 
