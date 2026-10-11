@@ -76,10 +76,12 @@ export interface Env {
   NOINDEX?: string;
   /** R-SERVER-038: the client's files, bound on staging only, where the Worker runs first for every path. */
   ASSETS?: Fetcher;
-  /** R-ACCOUNT-014, R-SERVER-038: `mailpit` on the local stack only; unset on every deployment, where no mail is sent. */
+  /** R-ACCOUNT-014, R-SERVER-038: `mailpit` on the local stack only; unset on every deployment, which sends through MAIL. */
   MAIL_TRANSPORT?: string;
   /** Mailpit's address on this machine, for MAIL_TRANSPORT=mailpit. */
   MAILPIT_URL?: string;
+  /** R-ACCOUNT-014, decision 0031: Cloudflare Email Service, allowed the game's one sender only. Unbound: no mail is sent. */
+  MAIL?: SendEmail;
   /** R-SERVER-012: the admin accounts, comma-separated account ids. Empty in wrangler.jsonc; the deploy supplies the value. */
   ADMIN_ACCOUNTS?: string;
 }
@@ -104,8 +106,8 @@ function isolateOf(env: Env): Isolate {
 }
 
 /**
- * Owner: the email provider (account.md R-ACCOUNT-014); until one is chosen no code leaves the server.
- * R-ACCOUNT-003: the notices go by the same way as the codes. Only the local stack sends, to Mailpit.
+ * R-ACCOUNT-014, decision 0031: the codes leave through Cloudflare Email Service's MAIL binding, Mailpit on
+ * the local stack. R-ACCOUNT-003: the notices go by the same way as the codes. Without either nothing is sent.
  */
 function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): AuthKeys {
   const { sendOtp, sendNotice } = mailFor(env, { text, codeSeconds: productionConfig.auth.otp.expiresIn }, (input, init) => fetch(input, init));
