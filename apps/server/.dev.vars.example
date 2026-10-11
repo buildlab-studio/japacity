@@ -1,7 +1,7 @@
 # The game's Worker: every secret and variable its code reads (apps/server/src/index.ts, `Env`), with placeholders.
 #
 # On a deployment the secrets are set once per environment with `wrangler secret put <NAME>` (add `--env staging`
-# for staging), never written in a file, and the variables come from wrangler.jsonc and the deploy.
+# for staging), never written in a file and never passed on a deploy's command line; the variables come from wrangler.jsonc.
 # On this machine `pnpm dev:full` already gives the Worker working local values from .env.example; copy this file to
 # apps/server/.dev.vars (git ignores it) only to run `wrangler dev` here by hand. A staging secret is never a production one.
 # docs/site/built/your-own-copy.md lists every value that belongs to one deployment.
@@ -9,8 +9,6 @@
 # Variables (wrangler.jsonc `vars`)
 # The game's one address, a bare https origin; the auth library, the passkeys and the bot check trust only it.
 SITE_URL=<https://your-domain.example>
-# The accounts that may open the admin page, comma-separated account ids (R-SERVER-012). Empty: nobody.
-ADMIN_ACCOUNTS=
 # Staging only: the tick cron when it is not the five-minute one (R-CLOCK-012).
 TICK_CRON=
 # Staging only: "1" marks every reply noindex (R-SERVER-038).
@@ -42,3 +40,6 @@ TURNSTILE_SECRET_KEY=<your Turnstile secret key>
 VAPID_PUBLIC_KEY=<your VAPID public key>
 VAPID_PRIVATE_KEY=<your VAPID private key>
 VAPID_SUBJECT=<mailto: an address of yours>
+# The accounts that may open the admin page, comma-separated account ids (R-SERVER-012). Empty: nobody. A secret on a
+# deployment (`wrangler secret put ADMIN_ACCOUNTS`), never a variable in wrangler.jsonc.
+ADMIN_ACCOUNTS=

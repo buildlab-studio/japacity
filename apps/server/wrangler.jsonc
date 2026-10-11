@@ -34,11 +34,7 @@
     // Until launch: production ticks every thirty minutes like staging, so both
     // Neon branches sleep between runs and fit the free plan while the gate is closed. On launch day, after Neon
     // moves to a paid plan, remove this var and put the first cron below back to "*/5 * * * *" (apps/gate/README.md).
-    "TICK_CRON": "*/30 * * * *",
-    // R-SERVER-012: the accounts that may open the admin page, comma-separated account ids. Empty here on
-    // purpose, so no account id is ever committed: the deploy supplies the value with
-    // `--var ADMIN_ACCOUNTS:<ids>` (the deploy workflows take it from the environment's ADMIN_ACCOUNTS secret).
-    "ADMIN_ACCOUNTS": ""
+    "TICK_CRON": "*/30 * * * *"
   },
   // R-CLOCK-012: the world's ticks every five minutes, on TICK_CRON until launch. R-SERVER-011: the money report at 00:00 UTC.
   "triggers": { "crons": ["*/30 * * * *", "0 0 * * *"] },
@@ -58,7 +54,8 @@
   // Decision 0004: every request opens one client through GAME_DB and closes it after the reply.
   // Secrets, set by the maintainer with `wrangler secret put <NAME>` and never written here:
   // WORLD_SEED, BAN_SALT, DRAW_TOKEN_KEY, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
-  // TURNSTILE_SECRET_KEY, and for the bank-full notice VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT.
+  // TURNSTILE_SECRET_KEY, ADMIN_ACCOUNTS (R-SERVER-012: the admin list, never a var here), and for the bank-full
+  // notice VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT.
   // From `wrangler hyperdrive create` on production's database: the game
   // configuration with caching off, the cached one for the ticks and the auth library.
   "hyperdrive": [
@@ -103,9 +100,7 @@
         // R-CLOCK-012, R-SERVER-038: staging ticks every thirty minutes so its database can sleep
         // between runs; every five-minute job runs on this cron instead. Equal to the first cron below.
         "TICK_CRON": "*/30 * * * *",
-        "NOINDEX": "1",
-        // R-SERVER-012: as at the top level, empty here; the staging deploy supplies its own with --var.
-        "ADMIN_ACCOUNTS": ""
+        "NOINDEX": "1"
       },
       "triggers": { "crons": ["*/30 * * * *", "0 0 * * *"] },
       // Namespaces of their own: two Workers on one id would share one count.

@@ -18,6 +18,7 @@ import { adminRoutes } from "./routes/admin";
 import { switchRoutes } from "./routes/admin-switches";
 import { adminAnalyticsRoutes } from "./routes/admin-analytics";
 import { countersRoute } from "./routes/counters";
+import { cspReportRoute } from "./routes/csp";
 import { feedbackRoute } from "./routes/feedback";
 import { moderationAdminRoutes } from "./routes/moderation-admin";
 import { moderationPorts } from "./moderation/ports";
@@ -59,6 +60,8 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/api/admin/adverts", adminAdvertRoutes(deps));
   app.route("/api/admin", adminRoutes(deps));
   app.route("/", countersRoute(deps)).route("/api/admin", adminAnalyticsRoutes(deps));
+  // R-SERVER-041: the page's content policy reports here.
+  app.route("/", cspReportRoute(deps));
   app.route("/", moderationAdminRoutes(deps, moderationPorts(deps, accounts)));
   app.route("/", feedbackRoute(deps));
   app.route("/", inviteRoutes(deps));

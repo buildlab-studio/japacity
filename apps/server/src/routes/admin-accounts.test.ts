@@ -1,5 +1,6 @@
-// R-SERVER-012: the admin accounts come from the deployment's Worker variable
-// ADMIN_ACCOUNTS, never from a committed file.
+// R-SERVER-012: the admin accounts come from the deployment's Worker secret
+// ADMIN_ACCOUNTS, never from a committed file. a secret
+// set with `wrangler secret put`, no longer a variable in wrangler.jsonc that each deploy filled with --var.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -59,10 +60,19 @@ describe("the admin accounts from the deployment", () => {
     expect((await closed.request("/api/admin/alarms", as(OWNER))).status).toBe(404);
   });
 
-  test("[R-SERVER-012] given the committed wrangler.jsonc, when both environments are read, then ADMIN_ACCOUNTS is there and empty in each, so no account id is committed", () => {
+  // the admin list is a Worker secret. A variable and a secret of one name cannot stand on one
+  // Worker, so neither environment's vars may name it, and a deploy (which keeps the secrets already set) leaves it be.
+  test("[R-SERVER-012] given the committed wrangler.jsonc, when both environments are read, then neither names ADMIN_ACCOUNTS as a variable, so no account id is committed and the secret of that name stands alone", () => {
     const config = wrangler();
-    expect(config.vars["ADMIN_ACCOUNTS"]).toBe("");
-    expect(config.env?.["staging"]?.vars["ADMIN_ACCOUNTS"]).toBe("");
+    expect(Object.keys(config.vars)).not.toContain("ADMIN_ACCOUNTS");
+    expect(Object.keys(config.env?.["staging"]?.vars ?? {})).not.toContain("ADMIN_ACCOUNTS");
+    expect(config.vars["SITE_URL"]).toMatch(/^https:\/\//);
+    expect(config.env?.["staging"]?.vars["SITE_URL"]).toMatch(/^https:\/\//);
+    const text = readFileSync(fileURLToPath(new URL("../../wrangler.jsonc", import.meta.url).href), "utf8");
+    // Named only in the comment that lists the secrets set with `wrangler secret put`, never as a key or a --var.
+    expect(text).not.toMatch(/"ADMIN_ACCOUNTS"\s*:/);
+    expect(text).not.toContain("--var");
+    expect(text).toMatch(/\/\/ Secrets, set by the maintainer with `wrangler secret put <NAME>`[^\n]*\n(\s*\/\/[^\n]*\n)*?\s*\/\/[^\n]*\bADMIN_ACCOUNTS\b/);
   });
 
   test("[R-SERVER-012] given the Worker, when its isolate is made, then its config is the deployment's, read from the ADMIN_ACCOUNTS binding, and config.ts names no account", () => {

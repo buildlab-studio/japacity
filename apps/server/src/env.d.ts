@@ -18,6 +18,8 @@ declare namespace Cloudflare {
     GOOGLE_CLIENT_ID: string;
     GOOGLE_CLIENT_SECRET: string;
     TURNSTILE_SECRET_KEY: string;
+    /** R-SERVER-012: the admin accounts, comma-separated account ids, a Worker secret set once per environment; unset, the admin page does not exist. */
+    ADMIN_ACCOUNTS?: string;
     /** R-CLOCK-031: the VAPID pair, base64url, and the address the push services can reach the maintainer at. No notice is sent without all three. */
     VAPID_PUBLIC_KEY?: string;
     VAPID_PRIVATE_KEY?: string;

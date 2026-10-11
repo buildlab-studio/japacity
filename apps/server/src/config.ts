@@ -47,7 +47,7 @@ export interface ServerConfig {
   regions: Regions;
   /**
    * R-SERVER-012: the accounts that may read the admin page. Empty here; a deployment fills it from its
-   * Worker variable ADMIN_ACCOUNTS (`deployedConfig`), so no account id is ever written in a committed file.
+   * Worker secret ADMIN_ACCOUNTS (`deployedConfig`), so no account id is ever written in a committed file.
    */
   admin: { accounts: string[] };
   /** lottery.md Numbers: the secret's size and the public beacon (R-LOTTERY-007). */
@@ -126,7 +126,7 @@ export const productionConfig: ServerConfig = {
 };
 
 /**
- * R-SERVER-012: the Worker variable ADMIN_ACCOUNTS read as account ids: comma-separated, each
+ * R-SERVER-012: the Worker secret ADMIN_ACCOUNTS read as account ids: comma-separated, each
  * trimmed, empty pieces and repeats dropped. Unset or empty, there is no admin account.
  */
 export function adminAccountsFrom(value: string | undefined): string[] {
@@ -134,7 +134,7 @@ export function adminAccountsFrom(value: string | undefined): string[] {
   return [...new Set(ids)];
 }
 
-/** R-SERVER-012: the config a deployment runs: production's, with the admin accounts from its ADMIN_ACCOUNTS variable. */
+/** R-SERVER-012: the config a deployment runs: production's, with the admin accounts from its ADMIN_ACCOUNTS secret. */
 export function deployedConfig(adminAccounts: string | undefined): ServerConfig {
   return { ...productionConfig, admin: { accounts: adminAccountsFrom(adminAccounts) } };
 }

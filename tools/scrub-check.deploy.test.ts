@@ -63,7 +63,7 @@ describe("the scrub check's deployment values", () => {
       "ADMIN_ACCOUNTS=",
       "ADMIN_ACCOUNTS=<your account id>",
       '"ADMIN_ACCOUNTS": "",',
-      "command: deploy --var ADMIN_ACCOUNTS:${{ secrets.ADMIN_ACCOUNTS }}",
+      "pnpm exec wrangler secret put ADMIN_ACCOUNTS --env staging",
       "GOOGLE_CLIENT_ID=<your Google OAuth client id>",
       "VAPID_SUBJECT=<mailto: an address of yours>",
     ];
