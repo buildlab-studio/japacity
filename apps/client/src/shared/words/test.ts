@@ -18,11 +18,33 @@ const ISSUED_BAND = "line.document.issued-band";
 export const ISSUED_BAND_SHORT = "line.document.issued-band-short";
 export const ISSUED_BAND_MET = "line.document.issued-band-met";
 
+/** What the band needed is read from: the plan, whose route's own content names its band. */
+export interface BandView {
+  plan?: { route: string | null } | undefined;
+}
+
 /**
- * The band the route asks for, held as the band times ten: the least the chapter's English item takes
- * (the nudge's "Score 6.0"), else the lowest band any university asks for.
+ * The band a route asks for in its own content, held as the band times ten: its checklist's English result (the care
+ * file's 4.0, the master's 6.0). Null for a route that asks none.
  */
-export function bandNeeded(): number {
+export function routeBand(route: string): number | null {
+  for (const item of content.route[route as keyof typeof content.route]?.checklist ?? []) {
+    const requirement = item.requirement;
+    if (requirement.type === "document/held" && requirement.document === ENGLISH_PAPER && requirement.min !== undefined) return requirement.min;
+  }
+  return null;
+}
+
+/**
+ * The band the route asks for, held as the band times ten:
+ * the plan's route's own, from its content, so the file, the centre's sheet and the result say one band. With no plan,
+ * or a plan that asks no band, the least the chapter's English item takes (the nudge's "Score 6.0"), else the lowest
+ * band any university asks for.
+ */
+export function bandNeeded(view: BandView = {}): number {
+  const lean = view.plan?.route ?? null;
+  const own = lean === null ? null : routeBand(lean);
+  if (own !== null) return own;
   const asked = Object.values(content.chapter).flatMap((chapter) =>
     chapter.items.flatMap((item) => (item.requirement.type === "document/held" && item.requirement.document === ENGLISH_PAPER && item.requirement.min !== undefined ? [item.requirement.min] : [])),
   );
@@ -63,8 +85,8 @@ export interface TestChance {
 }
 
 /** The sit-the-test card's chance of the band the route needs, in the jobs' words, and the advice to study first on a long shot. */
-export function testChance(view: { qualities: readonly { id: string; value: number }[] }): TestChance {
-  const needed = bandNeeded();
+export function testChance(view: { qualities: readonly { id: string; value: number }[] } & BandView): TestChance {
+  const needed = bandNeeded(view);
   const band = chanceBand(bandChanceBp(englishOf(view), needed));
   const chance = jobsWords(`jobs.chance.${band}`).toLowerCase();
   return {
@@ -78,11 +100,19 @@ export function testChance(view: { qualities: readonly { id: string; value: numb
  * The English result as the results say it (R-WORLD-008): a band under the one the route needs says so
  * and what next, in content's words; a band that reaches it says it meets the route's band.
  */
-export function bandResultLine(line: ReportLine): ReportLine {
+export function bandResultLine(line: ReportLine, needed: number = bandNeeded()): ReportLine {
   if (line.key !== ISSUED_BAND || line.params.document !== ENGLISH_PAPER) return line;
   const band = line.params.band;
-  const needed = bandNeeded();
   if (typeof band !== "number") return line;
   if (band >= needed) return { ...line, key: ISSUED_BAND_MET, params: { ...line.params, needed: formatBand(needed) } };
   return { ...line, key: ISSUED_BAND_SHORT, tone: "bad", params: { ...line.params, needed: formatBand(needed) } };
+}
+
+/**
+ * A result already told against the band with no plan, told again against the plan's own:
+ * the nurse's "That meets the route's 6.0." on a care plan that asks 4.0. The engine's line is always good in tone.
+ */
+export function bandResultFor(line: ReportLine, view: BandView): ReportLine {
+  if (line.key !== ISSUED_BAND_MET && line.key !== ISSUED_BAND_SHORT) return line;
+  return bandResultLine({ ...line, key: ISSUED_BAND, tone: "good" }, bandNeeded(view));
 }

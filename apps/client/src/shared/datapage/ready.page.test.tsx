@@ -17,12 +17,12 @@ describe("one figure for how ready", () => {
     game.accept({ type: "activity/now", activity: "activity.look-into-route", param: CARE });
     const view = game.view();
     expect(view.japacity.percent).toBeNull();
-    const plan = view.routes.find((route) => route.id === CARE)?.percent ?? null;
+    const plan = view.routes.find((route) => route.id === CARE)?.percent ?? 0;
     expect(plan).toBeGreaterThan(0);
     await renderWithView(<Japa />, view);
     expect(document.querySelector("[data-japa-percent]")?.getAttribute("data-japa-percent")).toBe(String(plan));
     expect(pageOf(view, null).ready).toBe(say("prologue.page.ready.figure", { percent: plan }));
-    expect(pageOf(view, null).strip.percent).toBe(plan);
+    expect(pageOf(view, null).strip?.percent).toBe(plan);
   });
 
   test("[R-WORLD-019] given a life with no plan, when the page is read, then READY is 0%, as Japa shows no figure", async () => {
