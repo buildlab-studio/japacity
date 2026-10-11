@@ -13,7 +13,7 @@ import type { MomentShot } from "../../authority/store";
 import { Counter } from "../../shared/world/Band";
 import { currentTheme } from "../../shared/world/theme";
 import { say } from "../../shared/words/text";
-import { figureWords, momentFace, type MomentFace, type MomentIcon } from "./moment";
+import { figureWords, momentFace, type MomentFace, type MomentIcon } from "../../shared/moment/moment";
 
 const ICONS: Record<MomentIcon, LucideIcon> = {
   luggage: Luggage,

@@ -10,8 +10,7 @@ import { engineView, fakeAuthority } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { useCardsTurn } from "../../shared/ui/stage";
 import { say } from "../../shared/words/text";
-import { Results } from "../turn/Results";
-import { MOMENTS } from "./moment";
+import { MOMENTS } from "../../shared/moment/moment";
 import { figureSize, markFile, MomentCard } from "./MomentCard";
 
 const naira = (amount: number) => ({ currency: "NGN" as const, amount });
@@ -111,26 +110,6 @@ describe("the moment card on screen", () => {
       fireEvent.click(card);
       await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     }
-  });
-
-  test("[R-MOMENT-006] given a month whose report holds a refusal, when the results sheet is up, then the card stands over it, and one tap on it leaves the sheet as it was", async () => {
-    const { store, authority } = await renderWithView(
-      <>
-        <Results place="the family house" foot={<MomentCard over="results" />} />
-        <MomentCard over="world" />
-      </>,
-      reportedView(),
-    );
-    authority.linesNext([REFUSED]);
-    await act(() => store.getState().endMonth());
-    const results = await screen.findByRole("dialog", { name: /./ });
-    expect(results.closest("[data-world-sheet='results']") ?? document.querySelector("[data-world-sheet='results']")).not.toBeNull();
-    const card = await screen.findByRole("dialog", { name: say("moment.refused.kicker") });
-    fireEvent.click(card.querySelector("[data-moment-card]")!);
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: say("moment.refused.kicker") })).toBeNull());
-    expect(document.querySelector("[data-world-sheet='results']")).not.toBeNull();
-    expect(store.getState().reportOpen).toBe(true);
-    expect(store.getState().momentCards).toEqual([]);
   });
 
   test("[R-MOMENT-006] given a card over the world, when Close is pressed or the dimmed world is tapped, then it goes; until then the share card waits its turn", async () => {

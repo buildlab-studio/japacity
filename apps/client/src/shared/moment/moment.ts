@@ -1,12 +1,12 @@
 // The screenshot moments (docs/rules/moments.md): every big outcome is one clean card over the scene, with one line in
 // the game's voice, the figure that makes it land, and the game's small mark with its address in a corner. This file
-// says which lines are moments and what each card holds; MomentCard.tsx draws it. Words come from content only.
+// says which lines are moments and what each card holds; features/moment/MomentCard.tsx draws it. Words come from content only.
 import { content } from "@japacity/content";
 import type { Currency, Id, PlayerView, ReportLine } from "@japacity/sim";
 
-import { tidyLines } from "../../shared/words/lines";
-import { formatMoney, formatNumber } from "../../shared/words/format";
-import { formatParam, hasWords, nameOf, say, sayCount } from "../../shared/words/text";
+import { tidyLines } from "../words/lines";
+import { formatMoney, formatNumber } from "../words/format";
+import { formatParam, hasWords, nameOf, say, sayCount } from "../words/text";
 
 /** The kinds of moment, each with its words under `moment.<kind>` in content. */
 export type MomentKind = "granted" | "refused" | "agent" | "robbed" | "won" | "landed" | "chapter";

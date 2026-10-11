@@ -67,7 +67,7 @@ import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things"
 import { stopReached } from "./stops";
 import { KIOSK, opensKiosk, withKiosk } from "./kiosk";
 import { namedThings } from "./mark";
-import { sameLine } from "../moment/moment";
+import { sameLine } from "../../shared/moment/moment";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
 

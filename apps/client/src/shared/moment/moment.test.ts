@@ -3,9 +3,9 @@
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { recordedGame, recordedSave } from "../../shared/testing/fixtures";
-import { formatMoney } from "../../shared/words/format";
-import { say } from "../../shared/words/text";
+import { recordedGame, recordedSave } from "../testing/fixtures";
+import { formatMoney } from "../words/format";
+import { say } from "../words/text";
 import { figureWords, MOMENTS, momentFace, momentLine, sameLine } from "./moment";
 
 /** The lines and the view a recorded life's command brings, played after every command before it. */

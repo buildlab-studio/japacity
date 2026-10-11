@@ -6,7 +6,7 @@ import type { Command, Id, PlayerView, Reply, ReportLine, SlotPick, World } from
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { earlyWinIn } from "../features/guides/earlyWin";
-import { momentLine } from "../features/moment/moment";
+import { momentLine } from "../shared/moment/moment";
 import { carriedPlan, creditMoved, RUN_MONTHS, stopsRun } from "../features/turn/untilNews";
 import type { AccountApi } from "../shared/net/auth";
 import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
