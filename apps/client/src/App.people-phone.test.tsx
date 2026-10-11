@@ -1,22 +1,23 @@
 // The people of this life on the phone (docs/rules/world.md R-WORLD-020, R-WORLD-006, R-WORLD-018; people.md R-PEOPLE-010,
 // R-PEOPLE-014, R-PEOPLE-016): once courting, a bond's Chats thread carries a head with its stage and its choices, one row
 // each, and its rows send the bond's commands; Chats' People row opens the slots with the invite card. Chats as the
-// shell hands it the people feature's screens, over a real life played through the engine.
+// shell hands it the people feature's screens, over a real life played through the engine. Here beside the shell, since
+// it joins two features as App.tsx does.
 import { content } from "@japacity/content";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { moderationApi } from "../../shared/moderation/api";
-import { ModerationProvider } from "../../shared/moderation/ModerationProvider";
-import { api } from "../../shared/net/http";
-import { slotOrder } from "../../shared/sim/people";
-import { BASE, fakeServer } from "../../shared/testing/server";
-import { courted, eagerContent, linkedFriend, peopleGame, renderWithGame, TOBI } from "../../shared/testing/people";
-import { nameOf, say, sayCount } from "../../shared/words/text";
-import { Chats, PhonePeople } from "../phone/apps/Chats";
-import { phoneWords } from "../phone/phone.words";
-import { pairApiFor } from "./pairApi";
-import { BondHead, PeopleSlots } from "./PeopleOnPhone";
+import { moderationApi } from "./shared/moderation/api";
+import { ModerationProvider } from "./shared/moderation/ModerationProvider";
+import { api } from "./shared/net/http";
+import { slotOrder } from "./shared/sim/people";
+import { BASE, fakeServer } from "./shared/testing/server";
+import { courted, eagerContent, linkedFriend, peopleGame, renderWithGame, TOBI } from "./shared/testing/people";
+import { nameOf, say, sayCount } from "./shared/words/text";
+import { Chats, PhonePeople } from "./features/phone/apps/Chats";
+import { phoneWords } from "./features/phone/phone.words";
+import { pairApiFor } from "./features/people/pairApi";
+import { BondHead, PeopleSlots } from "./features/people/PeopleOnPhone";
 
 const people = content.tuning.people;
 

@@ -294,7 +294,7 @@ export function Chats() {
         {screens === null ? null : (
           <li>
             <button type="button" onClick={() => setOpen(SLOTS)} className="press flex w-full items-center gap-3 py-2.5 text-left" data-chat-row={SLOTS}>
-              <span className="band-2 flex size-10 shrink-0 items-center justify-center rounded-full">
+              <span className="band-2 flex size-10 shrink-0 items-center justify-center rounded-[10px]">
                 <UserRound size={18} aria-hidden />
               </span>
               <span className="min-w-0 flex-1">
