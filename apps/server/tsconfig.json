@@ -1,7 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "types": ["@cloudflare/workers-types"]
+    // The runtime and the bindings as `wrangler types` generates them for this Worker's compatibility date and
+    // flags (pnpm check:types keeps the file current), not the package's default entrypoint.
+    "types": ["./worker-configuration.d.ts"]
   },
   "include": ["src"]
 }

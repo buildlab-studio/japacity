@@ -1,14 +1,9 @@
-// The Workers tests read the gate's bindings through `env` and call it through `exports`,
-// both from `cloudflare:workers`; this gives them the Worker's own types.
-import type { Env as GateEnv } from "./index";
-
-declare global {
-  namespace Cloudflare {
-    interface Env extends GateEnv {
-      GATE_SECRET: GateEnv["GATE_SECRET"];
-    }
-    interface GlobalProps {
-      mainModule: typeof import("./index");
-    }
+// What the gate reads that its configuration does not list, merged into the bindings `wrangler types` generates
+// (worker-configuration.d.ts, from wrangler.jsonc; run `pnpm check:types` after changing that file). Both the
+// handler and `env` from `cloudflare:workers` (the Workers tests) read this one type.
+declare namespace Cloudflare {
+  interface Env {
+    /** Also the code in the invite link. Set with `wrangler secret put GATE_SECRET`. Unset or empty, the gate admits nobody. */
+    GATE_SECRET: string;
   }
 }

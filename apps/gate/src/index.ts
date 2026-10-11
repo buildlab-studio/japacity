@@ -5,25 +5,16 @@
 // deletes the route and the game's Worker is the root. Nothing about a visitor is stored. This
 // module exports only the handler and its Env: the runtime refuses other exports here. The gate
 // counts the holding screen, the invite link and a card's arrival for the game (counts.ts).
-import { countryOf, countsFor, report } from "./counts";
-import type { GameCounters, Seen } from "./counts";
+import { countryOf, countsFor, gameOf, report } from "./counts";
+import type { Seen } from "./counts";
 import { admits, codeMatches, cookieFor } from "./gate";
 import { BEACON_REPORTS, BEACON_SCRIPT, beaconOn, renderScreen } from "./screen";
 
-export interface Env {
-  /** Also the code in the invite link. Set with `wrangler secret put GATE_SECRET`. */
-  GATE_SECRET: string;
-  /** The game's X handle without the @. Empty: no X link. */
-  GATE_X_HANDLE: string;
-  /** The game's address, where the screen's card picture is. */
-  SITE_URL: string;
-  /** The Cloudflare Web Analytics site token. Empty: the screen carries no script. */
-  ANALYTICS_TOKEN?: string | undefined;
-  /** The gate's own files: only the card picture. */
-  ASSETS: Fetcher;
-  /** The game's Worker, its `GateCounters` entrypoint, for the counts (counts.ts). Unbound: nothing is counted. */
-  GAME?: GameCounters | undefined;
-}
+/**
+ * The gate's bindings: what `wrangler types` generates from wrangler.jsonc (worker-configuration.d.ts), with the
+ * secret merged in by src/env.d.ts. `GAME`, the game's Worker, is read through `gameOf` (counts.ts).
+ */
+export type Env = Cloudflare.Env;
 
 const PRIVATE = { "cache-control": "no-store", "referrer-policy": "no-referrer", "x-robots-tag": "noindex" };
 
@@ -87,7 +78,7 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === CARD && (request.method === "GET" || request.method === "HEAD")) return env.ASSETS.fetch(request);
     const later = (promise: Promise<unknown>) => (ctx === undefined ? void promise : ctx.waitUntil(promise));
-    const counted = (seen: Seen) => report(env.GAME, countsFor(request, url, seen), countryOf(request), later);
+    const counted = (seen: Seen) => report(gameOf(env.GAME), countsFor(request, url, seen), countryOf(request), later);
     const now = nowSeconds();
     const code = inviteCode(url.pathname);
     if (code !== null && (await codeMatches(code, env.GATE_SECRET))) {

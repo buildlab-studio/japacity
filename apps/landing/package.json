@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "types": "wrangler types --env-file=/dev/null --strict-vars=false",
+    "types:check": "wrangler types --check --env-file=/dev/null --strict-vars=false",
     "deploy": "wrangler deploy",
     "typecheck": "tsc -p tsconfig.json",
     "db:create": "wrangler d1 create japacity-waitlist",

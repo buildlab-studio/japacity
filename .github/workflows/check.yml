@@ -1,6 +1,6 @@
 name: check
 
-# The quick checks on every push to main and every pull request: typecheck, lint and the unit tests
+# The quick checks on every push to main and every pull request: the Workers' generated types, typecheck, lint and the unit tests
 # (about four minutes). The full check (`pnpm check`: the rules and assets checks too) and the browser
 # suite stay local, run before every push by the maintainer's watcher, so Actions minutes stay low on the
 # free plan. Enabled on GitHub by the maintainer on 10 Oct 2026. It runs with no secrets, on pull_request (never
@@ -40,6 +40,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # The Workers' generated bindings and runtime types (worker-configuration.d.ts) still match each wrangler.jsonc.
+      - run: pnpm check:types
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test

@@ -68,7 +68,9 @@ describe("the admin accounts from the deployment", () => {
   test("[R-SERVER-012] given the Worker, when its isolate is made, then its config is the deployment's, read from the ADMIN_ACCOUNTS binding, and config.ts names no account", () => {
     const worker = readFileSync(fileURLToPath(new URL("../index.ts", import.meta.url).href), "utf8");
     expect(worker).toContain("config: deployedConfig(env.ADMIN_ACCOUNTS)");
-    expect(worker).toMatch(/ADMIN_ACCOUNTS\?: string;/);
+    // Since 11 Oct 2026 the binding's type is generated from wrangler.jsonc, where both environments list the variable.
+    const bindings = readFileSync(fileURLToPath(new URL("../../worker-configuration.d.ts", import.meta.url).href), "utf8");
+    expect(bindings).toMatch(/ADMIN_ACCOUNTS: string;/);
     const config = readFileSync(fileURLToPath(new URL("../config.ts", import.meta.url).href), "utf8");
     expect(config).toContain("admin: { accounts: [] },");
   });

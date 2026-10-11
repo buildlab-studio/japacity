@@ -6,6 +6,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "wrangler dev",
+    "types": "wrangler types --env-file=/dev/null --strict-vars=false",
+    "types:check": "wrangler types --check --env-file=/dev/null --strict-vars=false",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

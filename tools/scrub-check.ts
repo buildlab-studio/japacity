@@ -114,8 +114,17 @@ const madeUpRun = (match: string): boolean => /^(0123456789abcdef)+$/i.test(matc
 
 const never = (): boolean => false;
 
-/** The only file where a 32-hex id may stand: the staging Hyperdrive ids, which are not secret without the account's token. */
-const WRANGLER_IDS = new Map([["apps/server/wrangler.jsonc", "the staging Hyperdrive ids (research: not secret, listed on the your-own-copy page)"]]);
+/**
+ * The only files where a 32-hex run may stand: the staging Hyperdrive ids, which are not secret without the account's
+ * token, and the hash of the configuration `wrangler types` writes at the top of each Worker's generated types.
+ */
+const GENERATED_TYPES = "the hash of the Worker's configuration that `wrangler types` records (pnpm check:types), not an id";
+const WRANGLER_IDS = new Map([
+  ["apps/server/wrangler.jsonc", "the staging Hyperdrive ids (research: not secret, listed on the your-own-copy page)"],
+  ["apps/server/worker-configuration.d.ts", GENERATED_TYPES],
+  ["apps/gate/worker-configuration.d.ts", GENERATED_TYPES],
+  ["apps/landing/worker-configuration.d.ts", GENERATED_TYPES],
+]);
 
 // The examples are assembled from parts, so this file's own text carries none of them whole.
 const hex32 = ["4c1d", "9e7a", "02b8", "f3a6"].join("").repeat(2);

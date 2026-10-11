@@ -214,7 +214,8 @@ describe("Web Analytics on the screen", () => {
 
   test("given no analytics token, when the screen is served, then it carries no script and its policy allows none", async () => {
     for (const token of ["", undefined]) {
-      const response = await worker.fetch(new Request(`${HOST}/`), { ...env, ANALYTICS_TOKEN: token });
+      // The generated bindings type the token as a string; a deployment without the variable gives none at all.
+      const response = await worker.fetch(new Request(`${HOST}/`), { ...env, ANALYTICS_TOKEN: token as string });
       const html = await response.clone().text();
       expect(html).not.toMatch(/<script|cloudflareinsights/);
       expect(response.headers.get("content-security-policy")).not.toMatch(/script-src|connect-src/);

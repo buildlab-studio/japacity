@@ -12,6 +12,8 @@
     "typecheck": "tsc -p tsconfig.json && pnpm -r run typecheck",
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
+    "check:types": "pnpm --filter @japacity/server --filter @japacity/gate --filter @japacity/landing run types:check",
+    "types": "pnpm --filter @japacity/server --filter @japacity/gate --filter @japacity/landing run types",
     "check:rules": "tsx tools/check-rules.ts",
     "check:protected": "tsx tools/check-protected.ts",
     "check:assets": "tsx tools/assets/check-assets.ts",
