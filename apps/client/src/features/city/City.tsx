@@ -456,19 +456,16 @@ export function City({
   const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const [asksOpen, setAsksOpen] = useState(false);
   const [askIndex, setAskIndex] = useState(0);
-  const askTotal = useRef(0);
   const askList = Array.isArray(asks) ? asks : null;
   const askCount = askList?.length ?? 0;
   useEffect(() => {
     if (askIndex >= askCount) setAskIndex(0);
-    // The count is the asks the sheet opened with, so "1 of 3" goes on to "2 of 3" as each is answered.
-    if (!asksOpen) askTotal.current = askCount;
-    else if (askCount > askTotal.current) askTotal.current = askCount;
   }, [askIndex, askCount]);
   // Over the set piece (the exam), the header counts its own questions, not the asks.
   const shownAsk = askList?.[Math.min(askIndex, Math.max(0, askCount - 1))];
   const onSetpiece = isValidElement(shownAsk) && shownAsk.key === "setpiece" ? view.setpiece : null;
-  const header = askList === null ? null : askHeader({ total: askTotal.current, left: askCount, index: askIndex, setpiece: onSetpiece });
+  // The count is the asks still waiting: one left says no count at all.
+  const header = askList === null ? null : askHeader({ left: askCount, index: askIndex, setpiece: onSetpiece });
   const askLabel = header === null ? null : say("ui.world.ask-of", header);
   // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;

@@ -162,16 +162,16 @@ export function leadsAlone(line: ReportLine): boolean {
   return line.key === GRANTED;
 }
 
-/** A change at the bank as the results tell it: its `amount` is the bank's charge, which stays money out. */
-const BANK_CHANGED: ReadonlySet<string> = new Set([CHANGED, CHANGED_SMALL]);
+/** A change at the bank whose charge is too small to show: its `amount` is the charge, which stays money out with no line of its own. */
+const CHARGE_RIDES: ReadonlySet<string> = new Set([CHANGED_SMALL]);
 /** The sides of a change, told on their own lines and counted for nothing: a change is a move, not spending. */
-const CHANGE_SIDES: ReadonlySet<string> = new Set([CHANGED_OUT, CHANGED_STREET, CHANGED_STREET_OUT, CHANGED_QUEUED, CONVERTED]);
+const CHANGE_SIDES: ReadonlySet<string> = new Set([CHANGED, CHANGED_OUT, CHANGED_STREET, CHANGED_STREET_OUT, CHANGED_QUEUED, CONVERTED]);
 
 /**
  * What was kept in each currency the lines moved: in less out, in the order each first appears. A change of money
  * counts for nothing either way (decision 0021 as amended, R-WORLD-008): its two sides are left out, and only the
- * bank's charge stays as money out, as the wallet counts the month (R-WALLET-015). An FX man's short count is its
- * own line, money out.
+ * bank's charge stays as money out, as the wallet counts the month (R-WALLET-015), counted once: its own line, or the
+ * change's line when it is too small to show. An FX man's short count is its own line, money out.
  */
 export function kept(lines: readonly MoneyLine[]): { currency: Currency; amount: number }[] {
   const order: Currency[] = [];
@@ -182,7 +182,7 @@ export function kept(lines: readonly MoneyLine[]): { currency: Currency; amount:
   };
   for (const { line, currency, sign, amount } of lines) {
     if (CHANGE_SIDES.has(line.key)) continue;
-    if (BANK_CHANGED.has(line.key)) {
+    if (CHARGE_RIDES.has(line.key)) {
       const charge = moneyParam("amount", line.params, line.key);
       if (charge !== null && charge.amount > 0) add(charge.currency, -charge.amount);
       continue;

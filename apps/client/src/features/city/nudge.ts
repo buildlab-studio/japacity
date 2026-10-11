@@ -4,6 +4,8 @@
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
+import { everyRouteClosed } from "../../shared/words/closed";
+import { shortfall as costShortfall } from "../../shared/words/cost";
 import { duesGap } from "../../shared/words/dues";
 import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
@@ -236,15 +238,26 @@ const NEED_WAYS: Readonly<Record<string, StepWay>> = {
   "quality.network": { go: "place.yaba", at: ["place.yaba:meetup"], opens: "activity.meetup" },
 };
 
-/** The first need a shut step's act is missing that has its own words and way (`<own>.needs.<quality>`), or null. */
-function needOf(missing: NonNullable<NudgeView["activities"]>[number]["missing"], own: string, has: (key: string) => boolean): { key: string; way: StepWay } | null {
+/**
+ * The first need a shut step's act is missing that has its own words and way (`<own>.needs.<quality>`), or null. A need
+ * whose act is already in the month's plan, or carries on in it ("Ongoing", R-WORLD-007), is passed over for the next
+ *; with every need's act
+ * planned, the plan is set and the step says to end the month (`<own>.needs.planned`).
+ */
+function needOf(missing: NonNullable<NudgeView["activities"]>[number]["missing"], own: string, has: (key: string) => boolean, planned: readonly string[] = []): { key: string; way?: StepWay } | null {
+  let running = false;
   for (const requirement of missing) {
     if (requirement.type !== "quality/min") continue;
     const key = `${own}.needs.${requirement.quality}`;
     const way = NEED_WAYS[requirement.quality];
-    if (way !== undefined && has(key)) return { key, way };
+    if (way === undefined || !has(key)) continue;
+    if (way.opens !== undefined && planned.includes(way.opens)) {
+      running = true;
+      continue;
+    }
+    return { key, way };
   }
-  return null;
+  return running && has(`${own}.needs.planned`) ? { key: `${own}.needs.planned`, way: MONTH_END } : null;
 }
 
 /** The route the chapters follow, for the school's answer and the funds (chapter.md). */
@@ -293,7 +306,7 @@ const STEP_ACTIVITY_ALSO: Record<string, readonly string[]> = {
   "chapter.find-your-feet.heard": ["activity.ask-around"],
 };
 
-type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities" | "goals" | "plan">>;
+type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities" | "goals" | "plan" | "rates">>;
 
 /** The nudge that sends a waiting life to the board for better pay. */
 export const BETTER_JOB = "ui.nudge.better-job";
@@ -417,11 +430,85 @@ function fileDetour(view: CareView, step: string): string | null {
     const talent = view.routes?.find((route) => route.id === TALENT_ROUTE);
     return talent?.checklist.find((item) => item.id === "passport")?.met === false ? PASSPORT_STEP : null;
   }
-  return careDetour(view, step);
+  return talentDetour(view, step) ?? careDetour(view, step);
 }
 
 const TALENT_ROUTE = "route.uk-talent";
 const TALENT_DAY = "chapter.decision-day-talent";
+const TALENT_FILE = "chapter.build-the-file-talent";
+const TALENT_TB_STEP = "chapter.decision-day-talent.tb";
+const ENDORSEMENT_STEP = "chapter.build-the-file-talent.endorsement";
+const TALENT_APPLIED_STEP = "chapter.build-the-file-talent.applied";
+const ENDORSE = "activity.apply-endorsement";
+const TB_TEST = "activity.tb-test";
+const APPLY_TALENT = "activity.apply-uk-talent";
+
+/**
+ * The talent file's papers in the order they must be met and paid for: the passport first, at its
+ * office, whenever it can be got; the endorsement only once the passport is held (its own step, `talentShort` and the
+ * closed words keep it until the rest can follow within its three months); then the TB test, and the application last.
+ * While the passport is on its way the file's own work goes on (the portfolio, the endorsement's needs), and the step
+ * waits on the passport only when nothing else of the file can be done. Null: the chapter's own step.
+ */
+function talentDetour(view: CareView, step: string): string | null {
+  if (view.chapter.current !== TALENT_FILE) return null;
+  const talent = view.routes?.find((route) => route.id === TALENT_ROUTE);
+  if (talent === undefined) return null;
+  const unmet = (item: string): boolean => talent.checklist.find((one) => one.id === item)?.met === false;
+  if (unmet("passport")) {
+    const pending = (view.documents?.find((held) => held.id === "document.passport")?.onItsWay ?? null) !== null;
+    if (!pending) return PASSPORT_STEP;
+    if (step === "portfolio") return null;
+    const endorse = view.activities?.find((option) => option.id === ENDORSE);
+    const working = endorse !== undefined && !endorse.allowed && endorse.missing.some((requirement) => requirement.type === "quality/min");
+    return step === "endorsement" && working ? null : PASSPORT_STEP;
+  }
+  if (step === "applied" && unmet("tb") && talent.window !== "closed") return TALENT_TB_STEP;
+  return null;
+}
+
+/** True when the route's window is what shuts the act: the news has closed the way (R-ROUTE-005). */
+function closedBy(option: NonNullable<NudgeView["activities"]>[number]): boolean {
+  return option.missing.some((requirement) => requirement.type === "var/min" && WINDOW_VARS.has(requirement.var));
+}
+
+/** The routes' window variables, from content (R-ROUTE-005): the road has none. */
+const WINDOW_VARS: ReadonlySet<string> = new Set(Object.values(content.route).flatMap((route) => (route?.window === null || route?.window === undefined ? [] : [route.window])));
+
+/** A closed way says so plainly and opens Japa, where the same is said: no desk is offered an act it cannot take. */
+const CLOSED_WAY: StepWay = { go: null, at: [], app: "japa" };
+export const EVERY_ROUTE_CLOSED = "ui.nudge.closed.every";
+
+/** The closed words for a step whose act the window shuts: every route closed, else this way's own words. Null: no words. */
+function closedSaid(view: NudgeView, own: string, has: (key: string) => boolean): Said | null {
+  if (everyRouteClosed(view) && has(EVERY_ROUTE_CLOSED)) return { key: EVERY_ROUTE_CLOSED, way: CLOSED_WAY };
+  return has(`${own}.closed`) ? { key: `${own}.closed`, way: CLOSED_WAY } : null;
+}
+
+/**
+ * What the talent file still has to pay once a step is taken: the endorsement is asked for only when the
+ * TB test and the application can follow within its three months, so its step counts all three; the application its
+ * own fee. A paper already held is not paid again.
+ */
+const TALENT_COSTS: Readonly<Record<string, readonly string[]>> = {
+  [ENDORSEMENT_STEP]: [ENDORSE, TB_TEST, APPLY_TALENT],
+  [TALENT_APPLIED_STEP]: [APPLY_TALENT],
+};
+
+/**
+ * The talent step's gap: the naira the file's costs from here need at the bank now, with its charge, against what is
+ * held (cost.ts, R-WALLET-009). The hunt planned says so; else the gap, whose way is the jobs board. Null: no gap.
+ */
+function talentShort(view: NudgeView, own: string, stepKey: string, planned: readonly string[], has: (key: string) => boolean): Said | null {
+  const acts = TALENT_COSTS[stepKey];
+  if (acts === undefined || view.pockets === undefined || view.rates === undefined || view.activities === undefined) return null;
+  const tbHeld = view.routes?.find((route) => route.id === TALENT_ROUTE)?.checklist.find((item) => item.id === "tb")?.met === true;
+  const costs = acts.filter((act) => !(act === TB_TEST && tbHeld)).flatMap((act) => view.activities?.find((option) => option.id === act)?.cost ?? []);
+  const gap = costShortfall({ pockets: view.pockets, rates: view.rates }, costs);
+  if (gap.short === 0) return null;
+  if (planned.includes("activity.job-hunt")) return { key: "ui.nudge.hunt-planned" };
+  return has(`${own}.short`) ? { key: `${own}.short`, params: { amount: formatMoney(gap.short, "NGN") } } : null;
+}
 
 /**
  * The care file's step the nudge names in place of the chapter's own, as the tables'
@@ -570,10 +657,16 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
     const shutOption = view.activities?.find((candidate) => candidate.id === activity);
     if (shutOption !== undefined && !shutOption.allowed) {
       // The first unmet need names its own act and opens it: never "needs more" with no act.
-      const need = needOf(shutOption.missing, own, has);
+      const need = needOf(shutOption.missing, own, has, planned);
       if (need !== null) return need;
+      // The news has closed the way: said plainly, never "needs more" over a list with every need done.
+      const closed = closedBy(shutOption) ? closedSaid(view, own, has) : null;
+      if (closed !== null) return closed;
       if (has(`${own}.needs`)) return { key: `${own}.needs` };
     }
+    // The talent file's step is taken only when what must follow it can be paid.
+    const fileShort = talentShort(view, own, stepKey, planned, has);
+    if (fileShort !== null) return fileShort;
     // Short of money: the nudge names the gap and a way to it, instead of the thing again.
     const option = view.activities?.find((candidate) => candidate.id === activity);
     const short = option === undefined ? null : shortfall(view, option, own, planned, has);

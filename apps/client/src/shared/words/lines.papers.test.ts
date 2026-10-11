@@ -1,6 +1,7 @@
 // A paper on its way and the same paper ready are never told in one list (docs/rules/world.md R-WORLD-008; the
 // the results said "Your passport is on the way. It should be ready this month."
-// and, on the next line, "Your passport is ready." Real content, real draws.
+// and, on the next line, "Your passport is ready." Review 14: the English test said "It should be ready this
+// month." and "Your English test result is out." on the same results. Real content, real draws.
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -45,5 +46,19 @@ describe("a paper on its way and ready, told once", () => {
     const end = game.endTurn().lines;
     expect(about(end, "line.document.issued")).toEqual([]);
     expect(about(tidyLines([...mid, ...end]), "line.document.requested")).toHaveLength(1);
+  });
+
+  test("[R-WORLD-008] given the English test sat mid-month and its band out at that month's end, when the month's lines are told, then the results and News tell the band once and never that the result is on the way", () => {
+    const game = newGame("scenario.tunde");
+    const ENGLISH = "document.english-test";
+    const mid = game.accept({ type: "activity/now", activity: "activity.sit-english-test", param: null }).lines;
+    const end = game.endTurn().lines;
+    const of = (lines: readonly ReportLine[], key: string): ReportLine[] => lines.filter((line) => line.key.startsWith(key) && line.params["document"] === ENGLISH);
+    expect(of([...mid, ...end], "line.document.requested")).toHaveLength(1);
+    expect(of(end, "line.document.issued-band")).toHaveLength(1);
+    expect(of(tidyLines([...mid, ...end]), "line.document.requested")).toEqual([]);
+    expect(of(storyLines([...mid, ...end]), "line.document.requested")).toEqual([]);
+    expect(of(storyLines([...mid, ...end]), "line.document.issued-band")).toHaveLength(1);
+    expect(of(newsLines(mid, end, game.view()), "line.document.requested")).toEqual([]);
   });
 });

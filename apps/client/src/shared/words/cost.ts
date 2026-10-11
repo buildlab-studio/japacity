@@ -124,7 +124,8 @@ export function afterPaying(view: Pockets, planned: readonly Money[], costs: rea
   }
   const gap = shortfall(view, all);
   if (gap.short > 0) return { left: null, short: { currency: "NGN", amount: gap.short } };
-  const left: Money = { currency: "NGN", amount: gap.have - gap.need };
+  // What is left is the naira the band will read after: the cash too, though only the bank buys foreign money.
+  const left: Money = { currency: "NGN", amount: view.pockets.NGN.bank + view.pockets.NGN.cash - gap.need };
   return { left, short: null, due: dueOver(left, dues) };
 }
 

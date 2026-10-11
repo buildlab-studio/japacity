@@ -16,6 +16,7 @@ import { Mark } from "../../../shared/ui/Mark";
 import { actOnCard, nowSaid } from "../../../shared/words/acts";
 import { formatMoney } from "../../../shared/words/format";
 import { type Coming, comingOf } from "../../../shared/words/coming";
+import { everyRouteClosed } from "../../../shared/words/closed";
 import { checklistWords } from "../../../shared/words/requirement";
 import { readyPercent } from "../../../shared/words/ready";
 import { planRoute } from "../../../shared/words/savings";
@@ -64,25 +65,57 @@ export function chapterAhead(chapter: PlayerView["chapter"]): { id: Id<"chapter"
 function ChapterSteps({ view }: { view: PlayerView }) {
   const { chapter } = view;
   const current = chapter.current;
-  if (current === null || content.chapter[current]?.variantOf === undefined) return null;
+  const entry = current === null ? undefined : content.chapter[current];
+  if (current === null || entry?.variantOf === undefined) return null;
   const ward = wardMonths(view);
+  const route = entry.route === undefined ? undefined : view.routes.find((held) => held.id === entry.route);
+  const papers = FILE_PAPERS[current] ?? [];
   return (
     <div data-chapter-steps={current}>
       <Head>{nameOf(current)}</Head>
       <ul className="flex flex-col">
-        {chapter.items.map((item) => {
+        {chapter.items.flatMap((item) => {
           const own = `${current}.item.${item.id}`;
           // The months on the ward, counted while they run.
           const counted = !item.met && item.id === "tenure" && ward !== null && hasWords(`${own}.japa`);
           const wait = item.met ? null : councilWait(view, own);
-          return (
+          // The papers the file needs before this step, ticked as the route's checklist ticks them.
+          const before = route === undefined ? [] : papers.filter((paper) => paper.before === item.id).flatMap((paper) => route.checklist.filter((one) => one.id === paper.item));
+          return [
+            ...before.map((paper) => (
+              <Step key={paper.id} met={paper.met} {...stepWay(route!.id, paper)}>
+                {words(`${current}.item.${paper.id}`)}
+              </Step>
+            )),
             <Step key={item.id} met={item.met} {...(wait === null ? {} : { way: wait })}>
               {counted ? say(`${own}.japa`, { done: ward.done, need: ward.need }) : words(own)}
-            </Step>
-          );
+            </Step>,
+          ];
         })}
       </ul>
     </div>
+  );
+}
+
+/**
+ * The papers a way's file needs that are not steps of its chapter, each listed before the step it must come before, in
+ * the order they are got: the passport first, the TB test last, just before the application.
+ */
+const FILE_PAPERS: Readonly<Record<string, readonly { item: string; before: string }[]>> = {
+  "chapter.build-the-file-talent": [
+    { item: "passport", before: "endorsement" },
+    { item: "tb", before: "applied" },
+  ],
+};
+
+/** The way the plan follows closed by the news, said once under the head: every route, or this one. */
+function ClosedLine({ view, route }: { view: PlayerView; route: RouteView | null }) {
+  if (route === null || route.window !== "closed") return null;
+  const every = everyRouteClosed(view);
+  return (
+    <p className="mt-2 rounded-[6px] border-l-4 border-out bg-sheet-2 px-3 py-2 text-[14px] font-bold" data-japa-closed={every ? "every" : route.id}>
+      {phoneWords(every ? "phone.japa.closed.every" : "phone.japa.closed")}
+    </p>
   );
 }
 
@@ -423,6 +456,7 @@ export function Japa() {
       {/* The header names the route; the figure's route is said again only when it is another. */}
       {view.japacity.route === null || view.japacity.route === head?.id ? null : <p className="mt-1 text-[12px] text-text-2">{say("ui.japacity.of", { route: runningName(view.japacity.route) })}</p>}
       {next === null ? null : <NextStep step={next} />}
+      <ClosedLine view={view} route={head} />
       {ahead === null ? <ChapterSteps view={view} /> : null}
       {others.length === 0 ? null : (
         <div data-japa-others>

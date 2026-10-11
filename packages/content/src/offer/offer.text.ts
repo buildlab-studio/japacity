@@ -196,7 +196,7 @@ export const offerText: Record<string, string> = {
     "'I will pay {price} for the plot, cash, this week. After that I look elsewhere.' Your father will hear about it either way.",
   "offer.land-buyer.choice.sell": "Sell the plot",
   "offer.land-buyer.choice.hold": "Keep it",
-  "offer.land-buyer.said.sell": "You sold the plot for cash. Your father heard about it before the week was out.",
+  "offer.land-buyer.said.sell": "You sold the plot. The deed of sale says where the money came from. Your father heard about it before the week was out.",
 
   "offer.family-pledge.name": "The family's pledge",
   "offer.family-pledge.title": "The family meeting",

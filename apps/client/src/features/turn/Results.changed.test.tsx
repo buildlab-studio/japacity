@@ -2,8 +2,11 @@
 // 14:47, item 5). A change of money counts for nothing in Kept (decision 0021 as amended 10 Oct 2026: the kept
 // figure leaves out the change's two sides, the bank's charge stays money out), and the reviewer read a month whose
 // band fell by the change as money hidden. So each change in the month is said under Kept on its own line, both sides
-// as they were: "Changed ₦806,930 into £561". Played on the real engine, Tunde at home.
-import type { Currency, ReportLine } from "@japacity/sim";
+// as they were: "Changed ₦806,930 into £561". Since review 14 the side paid in at the bank is what went at the
+// rate, the bank's charge told once on its own line, so Kept plus the changes is the band's move. Played on the real
+// engine, Tunde at home.
+import { content } from "@japacity/content";
+import { int, type Currency, type ReportLine } from "@japacity/sim";
 import { act } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -21,11 +24,12 @@ function held(game: Game, currency: Currency): number {
   return pocket.bank + pocket.cash;
 }
 
-/** One change, and both sides as the pockets moved: what left and what came in. */
-function change(game: Game, from: Currency, to: Currency, amount: number, via: "bank" | "aboki"): { lines: ReportLine[]; paid: number; got: number } {
+/** One change, and both sides as the pockets moved: what went at the rate (the bank's charge apart) and what came in. */
+function change(game: Game, from: Currency, to: Currency, amount: number, via: "bank" | "aboki"): { lines: ReportLine[]; paid: number; charge: number; got: number } {
   const before = { from: held(game, from), to: held(game, to) };
   const lines = game.accept({ type: "wallet/convert", from, to, amount, via }).lines;
-  return { lines, paid: before.from - held(game, from), got: held(game, to) - before.to };
+  const charge = via === "bank" ? int.bp(amount, content.tuning.wallet.bankChargeBp) : 0;
+  return { lines, paid: before.from - held(game, from) - charge, charge, got: held(game, to) - before.to };
 }
 
 function shownChanges(): string[] {
@@ -33,9 +37,10 @@ function shownChanges(): string[] {
 }
 
 describe("the changed-into lines under Kept", () => {
-  test("[R-WORLD-008] given naira changed into pounds at the bank, more with the FX man, and pounds changed back into naira, when the month's results show, then each change is one line under Kept with both sides as they were, in the order made, and Kept still counts only the bank's charges", async () => {
+  test("[R-WORLD-008] given naira changed into pounds at the bank, more with the FX man, and pounds changed back into naira, when the month's results show, then each change is one line under Kept with what went at the rate and what came in, in the order made, Kept counts only the bank's charges, and Kept plus the changes is the band's move", async () => {
     const game = newGame("scenario.tunde");
     setPockets(game, { NGN: 200_000_000 });
+    const start = held(game, "NGN");
     const atBank = change(game, "NGN", "GBP", 50_000_000, "bank");
     const moved = game.accept({ type: "wallet/move", currency: "NGN", amount: 30_000_000, to: "cash" }).lines;
     const withFxMan = change(game, "NGN", "GBP", 20_000_000, "aboki");
@@ -66,6 +71,10 @@ describe("the changed-into lines under Kept", () => {
     expect(document.querySelector("[data-results-tag='change']")).toBeNull();
     // A change counts for nothing either way: the naira kept is what the month really moved, the charges included.
     expect(keptLine?.getAttribute("data-results-kept")).toBe(String(kept(money).find((net) => net.currency === "NGN")?.amount ?? 0));
+    // Kept plus the changes is the band's move, the bank's charges counted once.
+    const nairaKept = kept(money).find((net) => net.currency === "NGN")?.amount ?? 0;
+    const nairaChanged = changesInto(money).reduce((sum, each) => sum + (each.paid.currency === "NGN" ? -each.paid.amount : 0) + (each.got.currency === "NGN" ? each.got.amount : 0), 0);
+    expect(nairaKept + nairaChanged).toBe(held(game, "NGN") - start);
   });
 
   test("[R-WORLD-008] [R-TEXT-008] given the changed-into line, when its words are read, then they come from content, carry no raw key, and nothing in them looks like a bank alert", () => {

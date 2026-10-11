@@ -86,6 +86,9 @@ export const phoneText: Record<string, string> = {
   "phone.japa.plan": "Your plan: {route}",
   "phone.japa.others": "Other ways out",
   "phone.japa.steps": "The steps",
+  // The news has closed the way: said plainly, with where to watch for it opening.
+  "phone.japa.closed.every": "Every route is closed for now. The news says when they open.",
+  "phone.japa.closed": "This way is closed for now. The news says when it opens.",
   "phone.japa.papers": "Papers",
   "phone.japa.official": "The full list for {route}, as it stands today",
   "phone.japa.official.free": "Free",

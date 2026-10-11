@@ -431,10 +431,10 @@ const ISSUED = "line.document.issued";
 
 /**
  * A paper asked for and issued in the same month is told once, as ready: never "on the way, ready this month" beside
- * "ready".
+ * "ready", a test's band out among them.
  */
 function readyNotOnTheWay(lines: readonly ReportLine[]): ReportLine[] {
-  const ready = new Set(lines.filter((line) => line.key === ISSUED).map((line) => line.params["document"]));
+  const ready = new Set(lines.filter((line) => line.key === ISSUED || line.key.startsWith(`${ISSUED}-band`)).map((line) => line.params["document"]));
   return lines.filter((line) => !(line.key === REQUESTED && ready.has(line.params["document"])));
 }
 

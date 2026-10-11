@@ -167,6 +167,7 @@ describe("the money that changes hands", () => {
     const bigCharge = formatMoney(int.bp(10_000_000, content.tuning.wallet.bankChargeBp), "NGN");
     expect(changeLine(game.view(), "NGN", "GBP", 10_000_000, "bank")).toContain(bigCharge);
     const big = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 10_000_000, via: "bank" });
-    expect(said(big.lines)[0]).toContain(bigCharge);
+    // Said once, on its own line.
+    expect(said(big.lines).filter((line) => line.includes(bigCharge))).toHaveLength(1);
   });
 });

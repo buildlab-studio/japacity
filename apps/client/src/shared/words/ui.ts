@@ -155,7 +155,9 @@ export const uiText: Record<string, string> = {
   "ui.line.goal-first": "A new goal: {goal}. {first}",
   "ui.line.remit-landed": "Landed in your naira account at home: {amount}.",
   "ui.results.changed-out": "Changed at the bank: {amount}.",
-  "ui.results.changed": "Changed {paid} into {got}. The bank's charge came to {amount}.",
+  "ui.results.changed": "Changed {paid} into {got} at the bank.",
+  // The charge on a change, told once, on its own line.
+  "ui.results.change-charge": "The bank's charge for the change: {amount}.",
   "ui.results.changed-small": "Changed {paid} into {got} at the bank.",
   // An answer with what was chosen.
   "ui.results.answered": "Answered: {offer}. You chose: {chosen}.",
