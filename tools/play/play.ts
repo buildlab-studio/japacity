@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 import { text } from "@japacity/content";
 import { type Browser, chromium, type Locator, type Page } from "@playwright/test";
 
+import { accessHeaders } from "../local/access";
 import { doorButton, livesFrom, localCertificate, parseOptions, type PlayOptions, shotName, USAGE } from "./options";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
@@ -639,7 +640,8 @@ function answersLocally(url: string): Promise<boolean> {
 async function answers(url: string): Promise<boolean> {
   if (localCertificate(url)) return answersLocally(url);
   try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(2_000) });
+    // Staging is behind Access: the service token's headers go with it when they are set (tools/local/access.ts).
+    const response = await fetch(url, { headers: accessHeaders(process.env, url), signal: AbortSignal.timeout(2_000) });
     return response.ok;
   } catch {
     return false;
@@ -699,7 +701,7 @@ async function play(options: PlayOptions, button: string): Promise<number> {
   let browser: Browser | null = null;
   try {
     browser = await chromium.launch({ headless: !options.headed, args: CHROMIUM_ARGS });
-    const context = await browser.newContext({ ...PHONE, baseURL: served.base, ignoreHTTPSErrors: localCertificate(served.base) });
+    const context = await browser.newContext({ ...PHONE, baseURL: served.base, ignoreHTTPSErrors: localCertificate(served.base), extraHTTPHeaders: accessHeaders(process.env, served.base) });
     const page = await context.newPage();
     const run: Run = { page, options, started, shots: 0, monthsEnded: 0, problems: [] };
     const errors: string[] = [];
