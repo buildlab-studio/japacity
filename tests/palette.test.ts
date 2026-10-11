@@ -87,6 +87,16 @@ const DOOR_ROUNDS: Readonly<Record<string, number>> = {
   [`${CLIENT}/shared/datapage/DataPage.tsx`]: 1,
 };
 
+/**
+ * The two lights over the start screen (account.md R-ACCOUNT-031; R-WORLD-021's exception of 11 Oct 2026, the maintainer at
+ * 14:34 and 14:41): a picture of everyone, not the interface, drawn as designed, with the dusk across
+ * the top and a glow for each bulb, in its own colours as the 3D world keeps its own. Its soft gradients are counted
+ * apart from the rule, so the picture gains none, and nothing else in the client may draw one.
+ */
+const PICTURE_GRADIENTS: Readonly<Record<string, number>> = {
+  [`${CLIENT}/features/account/TwoLights.tsx`]: 2,
+};
+
 describe("the palette", () => {
   test("[R-WORLD-021] given the walk, then it sees the client's screens, styles and words", () => {
     expect(clientFiles).toContain(`${CLIENT}/index.css`);
@@ -108,7 +118,15 @@ describe("the palette", () => {
   });
 
   test("[R-WORLD-021] given the client, then nothing is drawn with a gradient, a blur or a glow", () => {
-    expect(show([...findAll(clientFiles, GRADIENT_CLASS), ...findAll(clientFiles, GRADIENT_STOP), ...findAll(clientFiles, GRADIENT_CSS), ...findAll(clientFiles, BLUR), ...findAll(clientFiles, GLOW)])).toEqual([]);
+    const interfaceFiles = clientFiles.filter((file) => PICTURE_GRADIENTS[file] === undefined);
+    expect(show([...findAll(clientFiles, GRADIENT_CLASS), ...findAll(clientFiles, GRADIENT_STOP), ...findAll(interfaceFiles, GRADIENT_CSS), ...findAll(clientFiles, BLUR), ...findAll(clientFiles, GLOW)])).toEqual([]);
+  });
+
+  test("[R-WORLD-021] [R-ACCOUNT-031] given the two lights' exception, then the picture draws its dusk and its glow and no other gradient, and no blur", () => {
+    for (const [file, gradients] of Object.entries(PICTURE_GRADIENTS)) {
+      expect({ file, gradients: findAll([file], GRADIENT_CSS).length }).toEqual({ file, gradients });
+      expect(show([...findAll([file], GRADIENT_CLASS), ...findAll([file], GRADIENT_STOP), ...findAll([file], BLUR), ...findAll([file], GLOW)])).toEqual([]);
+    }
   });
 
   test("[R-WORLD-021] given the player's words, then no emoji stands in for a picture", () => {
