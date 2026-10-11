@@ -421,8 +421,8 @@ export interface DayRow {
   destroyed: ByReason;
 }
 
-/** R-SERVER-011. A day is a whole number of UTC days since 1970. */
-export interface LedgerStore {
+/** R-SERVER-011: the ledger's reads and writes, on its own or inside one of its transactions. */
+export interface LedgerRows {
   mark: (character: string) => Promise<LedgerMark | null>;
   /** Replaces the mark, never adds to it. */
   setMark: (character: string, totals: WalletSlice["totals"], day: number) => Promise<void>;
@@ -432,6 +432,16 @@ export interface LedgerStore {
   day: (day: number) => Promise<DayRow>;
   /** R-ACCOUNT-017: the marks go with the account. */
   dropMark: (character: string) => Promise<void>;
+}
+
+/** R-SERVER-011. A day is a whole number of UTC days since 1970. */
+export interface LedgerStore extends LedgerRows {
+  /**
+   * R-SERVER-011: one transaction. The work is handed the ledger bound to the transaction (as
+   * decision 0030 hands a player transaction its stores) and reads and writes only through it: what it wrote is
+   * kept when it resolves, and none of it when it throws, so a day's totals and the mark that closes them move together.
+   */
+  transaction: <T>(work: (ledger: LedgerRows) => Promise<T>) => Promise<T>;
 }
 
 /** R-SERVER-009, R-SERVER-021: rows a correction or an upgrade took out of play. */
