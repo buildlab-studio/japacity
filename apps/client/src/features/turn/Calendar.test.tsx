@@ -224,7 +224,7 @@ describe("the Calendar's other sections", () => {
     expect(document.querySelector("[data-month-chores]")?.textContent).toBe(`Cooked and fetched water: ${formatMoney(Math.floor((upkeep.due * share) / 10000), "NGN")} less this month`);
   });
 
-  test("[R-WORLD-002] given what is coming, when a paper on its way or the room's rent is tapped in the Calendar, then Japa or Bills opens; an ask names where it is answered", async () => {
+  test("[R-WORLD-002] [R-WORLD-019] given what is coming, when a paper on its way or the room's rent is tapped in the Calendar, then Papers or Bills opens; an ask names where it is answered", async () => {
     const openApp = vi.fn();
     const rich = richView();
     const view = {
@@ -242,8 +242,21 @@ describe("the Calendar's other sections", () => {
     for (const row of rows) fireEvent.click(row);
     const kinds = rows.map((row) => row.getAttribute("data-coming-open"));
     expect(kinds).toEqual(expect.arrayContaining(["paper", "rent"]));
-    expect(openApp.mock.calls.map(([id]) => id as string)).toEqual(kinds.map((kind) => (kind === "rent" ? "bills" : "japa")));
+    // a paper on its way opens Papers, the plan's waits Japa.
+    expect(openApp.mock.calls.map(([id]) => id as string)).toEqual(kinds.map((kind) => (kind === "rent" ? "bills" : kind === "paper" ? "papers" : "japa")));
     expect(document.querySelector("[data-calendar='coming']")).not.toBeNull();
+  });
+
+  test("[R-WORLD-002] given a burial in the village to answer next month, when the Calendar shows what is coming, then its row says the months away and where it is attended", async () => {
+    const rich = richView();
+    const [ask] = rich.offers;
+    if (ask === undefined) throw new Error("No ask in the rich view.");
+    const view = { ...rich, offers: [{ ...ask, entry: "offer.village-burial" as typeof ask.entry, expiresMonth: rich.month + 1 }] };
+    await renderWithView(<Calendar opening="coming" />, view);
+    const row = document.querySelector("[data-coming-row='offer']");
+    expect(row?.querySelector("[data-coming-box]")?.getAttribute("data-coming-box")).toBe("1");
+    expect(row?.textContent).toContain(words("offer.village-burial.name"));
+    expect(row?.querySelector("[data-coming-note]")?.textContent).toBe("In the village");
   });
 
   test("[R-WORLD-027] given the pages left, when the Calendar shows, then its pages section says the count and that a page is a month of your life", async () => {

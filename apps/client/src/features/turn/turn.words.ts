@@ -26,6 +26,8 @@ export const turnText: Record<string, string> = {
   "turn.calendar.chores.cooked": "Cooked for the week",
   "turn.calendar.chores.drum": "The drum is full",
   "turn.calendar.at": "At {place}",
+  // Where a dated ask is attended when no place of the city stages it (R-WORLD-002).
+  "turn.calendar.where.offer.village-burial": "In the village",
   "turn.calendar.pages": "Pages left",
   // Said once in a life, when Next month opens the Calendar instead of turning the page (R-WORLD-002).
   "turn.calendar.teach": "This is your month before the page turns. What you start carries on each month until you stop it.",

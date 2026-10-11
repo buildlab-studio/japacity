@@ -1,7 +1,8 @@
 // The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018): the month
 // on the phone, in order. The job held; the free time as up to three cards, each thing started carrying on until it is
 // stopped (R-WORLD-007), an empty one resting (R-TURN-006); the chores done this month and what they saved; what is
-// coming with its months away, each row opening where it is dealt with; the pages left; and its own Next month, which
+// coming with its months away and where, each row opening where it is dealt with (a paper in Papers, R-WORLD-019); the
+// pages left; and its own Next month, which
 // puts the phone away and turns the page. Handed to the phone by the shell, so the phone knows nothing of the month.
 import { content } from "@japacity/content";
 import type { PlayerView, SlotLock, SlotPick } from "@japacity/sim";
@@ -94,6 +95,12 @@ function askPlace(entry: string): string | null {
   return turnWords("turn.calendar.at", { place: name });
 }
 
+/** Where a dated ask staged at no place of the city is attended, in the Calendar's words: the burial in the village. */
+function attendedAt(entry: string): string | null {
+  const key = `turn.calendar.where.${entry}`;
+  return turnWords(key) === key ? null : turnWords(key);
+}
+
 function Section({ title, children, mark }: { title: string; children: ReactNode; mark: string }) {
   return (
     <section className="flex flex-col gap-1.5" data-calendar={mark}>
@@ -134,10 +141,11 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
     void run();
     nav.close();
   };
-  // A row of what is coming opens where it is dealt with: a paper or a wait in Japa, a due in Bills (R-WORLD-002).
+  // A row of what is coming opens where it is dealt with: a paper in Papers, a wait in Japa, a due in Bills (R-WORLD-002, R-WORLD-019).
   const openFor = (item: Coming): (() => void) | null => {
     switch (item.kind) {
       case "paper":
+        return () => nav.openApp("papers");
       case "visa":
       case "plan":
       case "age-limit":
@@ -153,8 +161,8 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
       }
     }
   };
-  // A dated ask names the place it is answered at (R-WORLD-002).
-  const noteOf = (item: Coming): string | null => (item.kind === "offer" && item.entry !== undefined ? askPlace(item.entry) : null);
+  // A dated ask names the place it is answered at, or where it is attended where content stages it nowhere: the burial in the village (R-WORLD-002).
+  const noteOf = (item: Coming): string | null => (item.kind === "offer" && item.entry !== undefined ? (askPlace(item.entry) ?? attendedAt(item.entry)) : null);
   const endButton = (main: boolean) => (
     <button
       key="end"
