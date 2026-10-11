@@ -50,8 +50,8 @@ export function testServer(over: Partial<ServerDeps> = {}): TestServer {
   };
 }
 
-/** R-ACCOUNT-012: the account row the accounts work makes at sign-in; its username is the id unless one is given. */
-export async function signUp(server: TestServer, account: string, username = account): Promise<void> {
+/** R-ACCOUNT-012: the account row the accounts work makes at sign-in; its username is the id unless one is given, secured unless a guest is asked for. */
+export async function signUp(server: TestServer, account: string, username = account, state: "guest" | "secured" = "secured"): Promise<void> {
   const made = await server.deps.stores.account.create({
     id: account,
     country: "NG",
@@ -60,7 +60,7 @@ export async function signUp(server: TestServer, account: string, username = acc
     character: null,
     notifyBankFull: false,
     sendUsageCounts: true,
-    state: "secured",
+    state,
     username,
     usernameChangedAt: null,
     lastPlayedAt: server.deps.now(),

@@ -113,7 +113,8 @@ describe("the boards screen", () => {
   });
 
   test("[R-ACCOUNT-022] given a guest, when a board is asked for, then the screen asks the player to secure the life", async () => {
-    show(launched({ "GET /api/boards/this-week/everyone": [{ status: 403, body: { ok: false, code: "not-legal", detail: "Secure your account to be on the boards." } }] }));
+    // the server refuses a guest `guest-only`, as R-ACCOUNT-022 names it; `not-legal` stood in before.
+    show(launched({ "GET /api/boards/this-week/everyone": [{ status: 403, body: { ok: false, code: "guest-only", detail: "Secure this life with Google or an email code to be on the boards." } }] }));
     await waitFor(() => expect(screen.getByText(say("ui.boards.secure"))).toBeTruthy());
   });
 

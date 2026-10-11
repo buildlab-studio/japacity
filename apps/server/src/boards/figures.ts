@@ -9,7 +9,7 @@ import { tickAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
 import { tickRow } from "../world/ticks";
 import type { BoardPorts } from "./ports";
-import { STAND_IN_PORTS } from "./ports";
+import { accountPorts } from "./ports";
 import { lagosWeek } from "./week";
 
 /** R-JAPACITY-003: the figure a board shows, null for "no route yet". */
@@ -23,7 +23,7 @@ export const figureOf: FigureOf = (read) => japacity(read).percent;
  * figure that moves only with the world (a window closing) is written at the
  * character's next commit, since a board read never loads a life.
  */
-export async function noteFigures(deps: ServerDeps, lives: readonly Live[], ports: BoardPorts = STAND_IN_PORTS, figure: FigureOf = figureOf): Promise<void> {
+export async function noteFigures(deps: ServerDeps, lives: readonly Live[], ports: BoardPorts = accountPorts(deps), figure: FigureOf = figureOf): Promise<void> {
   const moved = lives.filter((live) => live.rows.length > 0);
   if (moved.length === 0) return;
   const now = deps.now();
