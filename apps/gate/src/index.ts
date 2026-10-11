@@ -1,6 +1,7 @@
 // The gate: a Worker on the route japacity.app/* that owns the game's root
 // before launch. `/invite/<the code>` sets the cookie and sends the phone to `/`; a request with
-// that cookie passes to the game untouched; anyone else sees one screen. At launch the maintainer
+// that cookie passes to the game untouched, and so does anyone's request for the public pages
+//; anyone else sees one screen. At launch the maintainer
 // deletes the route and the game's Worker is the root. Nothing about a visitor is stored. This
 // module exports only the handler and its Env: the runtime refuses other exports here.
 import { admits, codeMatches, cookieFor } from "./gate";
@@ -34,6 +35,18 @@ const CARD = "/card.png";
 
 /** The invite link's path. The game's own pair invites share it, so only the gate's code is taken here. */
 const INVITE = /^\/invite\/([^/]+)\/?$/;
+
+/**
+ * The pages anyone may read before launch: the terms, the privacy notice
+ * (and their .html forms, which the game sends on to the clean path), the official accounts and
+ * the credits page the terms link to. Each is a plain page; the game's code and routes stay shut.
+ */
+const PUBLIC = new Set(["/terms", "/terms.html", "/privacy", "/privacy.html", "/official"]);
+
+function isPublic(request: Request, url: URL): boolean {
+  if (request.method !== "GET" && request.method !== "HEAD") return false;
+  return PUBLIC.has(url.pathname) || url.pathname.startsWith("/official/");
+}
 
 function nowSeconds(): number {
   return Math.floor(Date.now() / 1000);
@@ -70,7 +83,7 @@ export default {
     const code = inviteCode(url.pathname);
     if (code !== null && (await codeMatches(code, env.GATE_SECRET))) return admit(await cookieFor(env.GATE_SECRET, now));
     // The game's Worker is the host's Custom Domain, so it is the origin: fetch(request) streams both ways and carries socket upgrades.
-    if (await admits(request.headers.get("cookie"), env.GATE_SECRET, now)) return fetch(request);
+    if (isPublic(request, url) || (await admits(request.headers.get("cookie"), env.GATE_SECRET, now))) return fetch(request);
     return refuse(request, url, env);
   },
 } satisfies ExportedHandler<Env>;
