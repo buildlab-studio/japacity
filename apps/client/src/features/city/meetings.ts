@@ -14,22 +14,9 @@ export const DECEMBER: Id<"var"> = "var.season-december";
 /** The place the city opens on map once a bond is courting: one room dressed per person (R-WORLD-020, R-PEOPLE-014). */
 export const THEIR_ROOM = "place.their-room";
 
-/**
- * Where a meeting stands while the place content names has no stage file in the client: the church's two meetings
- * stand at the hub (the Inverter Room, `place.yaba-hub`) until the church is built (the brief of m68, 11 Oct 2026; the
- * QUESTION in `person.meet.data.ts` is still open).
- */
-export const STAND_IN: Readonly<Record<string, string>> = { "place.church": "place.yaba-hub" };
-
-/** The place a meeting is staged at now: its own, or the one standing in for it. */
-export function metAt(meeting: Pick<PartnerMeeting, "met">): string {
-  return STAND_IN[meeting.met.place] ?? meeting.met.place;
-}
-
-/** The ids of the things a person stands as at a place, its own meetings' and those standing in there. */
+/** The ids of the things a person stands as at a place. */
 export function meetingThingsAt(place: string): Set<string> {
-  const from = [place, ...Object.entries(STAND_IN).filter(([, to]) => to === place).map(([own]) => own)];
-  return new Set(from.flatMap((one) => meetingThings[one] ?? []));
+  return new Set(meetingThings[place] ?? []);
 }
 
 /** Someone standing at a thing now. */
@@ -41,12 +28,12 @@ export interface Standing {
 /**
  * Who stands in this place now (R-PEOPLE-009, R-PEOPLE-013): each meeting staged here whose person the view lists as a
  * candidate, one met only in December only while it is December. Two meetings share a thing (after the service, a
- * friend's room): one person stands at a thing at a time, and the one met only in December comes first, since a
+ * friend of the family): one person stands at a thing at a time, and the one met only in December comes first, since a
  * December passes and the other stays.
  */
 export function standingAt(place: string, candidates: PlayerView["people"]["candidates"], december: boolean, meetings: readonly PartnerMeeting[] = partnerMeetings): Standing[] {
   const listed = new Set(candidates.filter((candidate) => candidate.role === "partner").map((candidate) => candidate.person));
-  const here = meetings.filter((meeting) => metAt(meeting) === place && listed.has(meeting.person) && (!meeting.decemberOnly || december));
+  const here = meetings.filter((meeting) => meeting.met.place === place && listed.has(meeting.person) && (!meeting.decemberOnly || december));
   const ordered = [...here.filter((meeting) => meeting.decemberOnly), ...here.filter((meeting) => !meeting.decemberOnly)];
   const taken = new Set<string>();
   return ordered.flatMap((meeting) => {
@@ -78,6 +65,11 @@ export function withStanding(file: PlaceFile, standing: readonly Standing[]): Pl
   if (kept.length === stage.standing.length) return file;
   const next: Stage = { ...stage, standing: kept };
   return { ...file, stage: next };
+}
+
+/** How many residents give up their places so the crowd and those standing at a thing stay within `cap` (R-WORLD-011). */
+export function roomFor(crowd: number, standing: number, cap: number): number {
+  return Math.max(0, Math.min(crowd, crowd + standing - cap));
 }
 
 /** The crowd with `count` residents fewer, the last first, so those standing at a thing take their places (R-WORLD-011). */

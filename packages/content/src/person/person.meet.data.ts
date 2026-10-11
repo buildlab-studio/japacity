@@ -6,9 +6,10 @@
 // R-PEOPLE-013 as amended on 9 Oct 2026; the world's side built 11 Oct 2026): the city stands each row's person at
 // its thing while the list holds them, a `decemberOnly` one only while `var.season-december` is 1, and the thing's
 // sheet sends `people/court` (apps/client/src/features/city/meetings.ts).
-// `place.church` has no stage file in the client yet, so its two meetings (`after-service`) stand at the
-// hub, the Inverter Room (`place.yaba-hub`), until the church is built. The lead rules at the merge:
-// keep the stand-in, or build the church.
+// until the church is a built place, the people met after the service are met at
+// the family house (after the service the family comes home with a guest), and a friend's guest is a friend of the
+// family visiting there, since a friend's room before courting would contradict their room opening only once courting
+// (world.md R-WORLD-020). The meetup's two stand at the meetup itself, in the hub (`place.yaba`).
 import type { Id } from "@japacity/sim";
 
 export interface PartnerMeeting {
@@ -24,24 +25,24 @@ export interface PartnerMeeting {
 /**
  * The places the meetings need that content does not have yet, for the maintainer to add as entries.
  * `place.their-room` is one stylised interior with no position, dressed per person as the room
- * abroad is dressed per country: a friend's room where people meet, and a partner's home.
+ * abroad is dressed per country: a partner's home, where nobody is met.
  */
 export const placesWanted: Id<"place">[] = [];
 
 const THEIR_ROOM: Id<"place"> = "place.their-room";
+const FAMILY_HOUSE: Id<"place"> = "place.family-house";
 
 /** The things a person stands as, by place: the person's own id in the place file. */
 export const meetingThings: Record<string, string[]> = {
-  "place.church": ["after-service"],
-  "place.yaba-hub": ["meetup-speaker", "meetup-guest"],
-  "place.their-room": ["friend-guest"],
+  "place.family-house": ["after-service", "friend-guest"],
+  "place.yaba": ["meetup-speaker", "meetup-guest"],
 };
 
 export const partnerMeetings: PartnerMeeting[] = [
-  { person: "person.tobi-bank", met: { place: "place.church", thing: "after-service" }, decemberOnly: false, home: { place: THEIR_ROOM, near: "place.bode-thomas" } },
-  { person: "person.amaka-nurse", met: { place: THEIR_ROOM, thing: "friend-guest" }, decemberOnly: false, home: { place: THEIR_ROOM, near: "place.ojuelegba" } },
-  { person: "person.kelechi-dev", met: { place: "place.yaba-hub", thing: "meetup-speaker" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
-  { person: "person.funmi-uk", met: { place: "place.church", thing: "after-service" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
-  { person: "person.ifeoma-ca", met: { place: "place.yaba-hub", thing: "meetup-guest" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
-  { person: "person.chidi-dubai", met: { place: THEIR_ROOM, thing: "friend-guest" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
+  { person: "person.tobi-bank", met: { place: FAMILY_HOUSE, thing: "after-service" }, decemberOnly: false, home: { place: THEIR_ROOM, near: "place.bode-thomas" } },
+  { person: "person.amaka-nurse", met: { place: FAMILY_HOUSE, thing: "friend-guest" }, decemberOnly: false, home: { place: THEIR_ROOM, near: "place.ojuelegba" } },
+  { person: "person.kelechi-dev", met: { place: "place.yaba", thing: "meetup-speaker" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
+  { person: "person.funmi-uk", met: { place: FAMILY_HOUSE, thing: "after-service" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
+  { person: "person.ifeoma-ca", met: { place: "place.yaba", thing: "meetup-guest" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
+  { person: "person.chidi-dubai", met: { place: FAMILY_HOUSE, thing: "friend-guest" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
 ];

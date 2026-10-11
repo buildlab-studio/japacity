@@ -1,7 +1,8 @@
 // Their room (place.their-room; docs/rules/world.md R-WORLD-020, people.md R-PEOPLE-014): one shared room, on the map
-// once a bond is courting, where time together is a visit on its chair and a friend's guest stands while the view lists
-// them. Built from the room in a compound's shell, the size such a room is. The checks the other rooms pass, read against
-// the interior row; and for the two rooms a person is met in, everyone standing at a thing stands on walkable ground.
+// once a bond is courting, where time together is a visit on its chair and nobody is met. Built
+// from the room in a compound's shell, the size such a room is. The checks the other rooms pass, read against the
+// interior row; and for the two rooms a person is met in, the hub and the family house's parlour, everyone standing at a
+// thing stands on walkable ground.
 import { type Footprint, isFootprint } from "@japacity/assets";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -9,8 +10,9 @@ import { describe, expect, test } from "vitest";
 import budgets from "../../../../../../assets-src/budgets.json";
 import { checkWalkable, placedBoxes, standingProblem } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";
-import inverterRoom from "../../../../public/assets/places/inverter-room/place.json";
+import parlourRaw from "../../../../public/assets/places/family-house-parlour/place.json";
 import placeFile from "../../../../public/assets/places/their-room/place.json";
+import hubRaw from "../../../../public/assets/places/yaba-hub/place.json";
 import { crowdSize } from "../crowd";
 import { crowdTuning } from "../limits";
 import type { PlaceFile } from "../placeFile";
@@ -36,8 +38,9 @@ async function footprintsOf(of: PlaceFile): Promise<Map<string, Footprint>> {
 }
 
 describe("their room's file", () => {
-  test("[R-WORLD-020] given their room in content, when its folder is read, then it is its own file for its own entry, a room with no address", () => {
+  test("[R-WORLD-020] given their room in content, when its folder is read, then it is its own file for its own entry, a room with no address where nobody stands to be met", () => {
     expect(entry.assets).toBe("their-room");
+    expect(stage.standing).toBeUndefined();
     expect(file.place).toBe(ID);
     expect(entry.position).toBeNull();
     expect(file.scope).toBe("interior");
@@ -101,10 +104,10 @@ describe("their room's things", () => {
 });
 
 describe("everyone standing at a thing", () => {
-  test("[R-WORLD-020] [R-ASSET-030] given the two rooms a person is met in, when everyone who can stand at a thing stands there, then each stands on walkable ground clear of every footprint, apart from where the player starts, and each thing's own spot is clear too", async () => {
+  test("[R-WORLD-020] [R-ASSET-030] given the hub and the family house's parlour, where people are met, when everyone who can stand at a thing stands there, then each stands on walkable ground clear of every footprint, apart from where the player starts, and each thing's own spot is clear too", async () => {
     for (const [id, raw] of [
-      ["place.yaba-hub", inverterRoom],
-      [ID, placeFile],
+      ["place.yaba", hubRaw],
+      ["place.family-house", parlourRaw],
     ] as const) {
       const room = raw as unknown as PlaceFile;
       const here = room.stage;

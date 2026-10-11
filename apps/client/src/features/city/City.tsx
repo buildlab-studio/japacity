@@ -66,7 +66,8 @@ import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
 import { namedThings } from "./mark";
-import { COURT, DECEMBER, makeRoom, roomNear, roomOpen, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
+import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
+import { COURT, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
 
 /** Acts the scene shows (R-WORLD-005): the pot steams, the drum fills; the place says no answer for them (R-OBLIGATION-014). */
 const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]);
@@ -653,8 +654,8 @@ export function City({
     if (crowdEntry === null || file === null) return null;
     const standers = (stageOf(file).standing ?? []).map((stander) => stander.file);
     const drawn = sampleCrowd({ ...crowdEntry, crowd: dressedCrowd ?? crowdEntry.crowd }, poolOf(file.people.sample), date, mode, world ? crowdTuning(city, file.scope, dressedCrowd !== null) : city, others, today, [own, ...(stageOf(file).dancers ?? []).map((dancer) => dancer.file), ...standers]);
-    // Someone standing at a thing of their own takes a resident's place, so the room holds no more than its crowd (R-WORLD-011).
-    return { ...drawn, people: makeRoom(drawn.people, standers.length) };
+    // Someone standing at a thing of their own takes a resident's place where the room would hold more than its scope allows (R-WORLD-011).
+    return { ...drawn, people: makeRoom(drawn.people, roomFor(drawn.people.length, standers.length, WORLD_LIMITS.people[file.scope][mode])) };
   }, [crowdEntry, file, dressedCrowd, date, mode, others, today, own, world]);
   const places = enterable(here, PLACES);
   const heard = entry === null ? null : overheard(view, entry.id, date, heardCount);
