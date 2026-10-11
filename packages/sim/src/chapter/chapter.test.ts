@@ -180,7 +180,8 @@ describe("a chapter that one item closes", () => {
     const { result, state, world } = grantWithHeldLapsed(without);
     expect(state.route[UK]?.state).toBe("granted");
     expect(check({ state, world, content: without }, HELD).met).toBe(false);
-    expect(result.events).toContainEqual({ type: "chapter/closed", chapter: DECISION, next: "chapter.send-off" });
+    // the grant clause closed it, so the close carries the route.
+    expect(result.events).toContainEqual({ type: "chapter/closed", chapter: DECISION, next: "chapter.send-off", onGrant: UK });
     expect(state.chapter.current).toBe("chapter.send-off");
   });
 
