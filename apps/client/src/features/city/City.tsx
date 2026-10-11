@@ -67,6 +67,7 @@ import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things"
 import { stopReached } from "./stops";
 import { KIOSK, opensKiosk, withKiosk } from "./kiosk";
 import { namedThings } from "./mark";
+import { sameLine } from "../../shared/moment/moment";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
 
@@ -475,15 +476,21 @@ export function City({
   // R-WORLD-008: the old page's moment cards are not shown over the world; a big line (the flight, a win) is told in the corner and passes.
   const moments = useGame((state) => state.moments);
   const nextMoment = useGame((state) => state.nextMoment);
+  const momentCards = useGame((state) => state.momentCards);
   useEffect(() => {
     if (!world || moments.length === 0) return;
     const line = moments[0];
+    // A big line its moment card tells is not told again in the corner, and does not hold the card back (R-MOMENT-006).
+    if (line !== undefined && momentCards.some((card) => sameLine(card.line, line))) {
+      nextMoment();
+      return;
+    }
     // The party's line is told by its own beat over the full yard, not again in the corner.
     if (line !== undefined && line.key !== PARTY_SAID) tell(words(line.key, line.params));
     const timer = window.setTimeout(nextMoment, MOMENT_MS);
     return () => window.clearTimeout(timer);
     // The corner is the city's; the next big line is told once the last has led a while.
-  }, [world, moments, nextMoment]);
+  }, [world, moments, nextMoment, momentCards]);
   // R-WORLD-025: the scene goes dark, then the results sheet (which reads the report's state itself).
   const [resultsShown, setResultsShown] = useState(false);
   useEffect(() => {
@@ -1263,7 +1270,8 @@ export function City({
   // A share card up over the world (a chapter's card) keeps the street talk away from its foot.
   const cardsTurn = useCardsTurn();
   const cardClosed = useGame((state) => state.cardClosed);
-  const cardUp = world && cardsTurn && cardKey(view.card) !== null && cardClosed !== cardKey(view.card);
+  // A moment card covers the world as a share card does: the corner, the bubble and the rise wait for it (R-MOMENT-006, R-WORLD-026).
+  const cardUp = world && ((cardsTurn && cardKey(view.card) !== null && cardClosed !== cardKey(view.card)) || momentCards.length > 0);
   // Japacity shown two ways (R-WORLD-029): the rise flies and the bag by the door grows once nothing covers the world, so both are seen together.
   const openingUp = !openingSeen && view.report === null && view.chapter.current !== null && !view.ended;
   const japa = useJapaRise(view.japacity.percent, world && looking && !covered && !resultsOpen && !map && !cardUp && !openingUp);
