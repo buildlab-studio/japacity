@@ -301,7 +301,8 @@ describe("the run through the front door", () => {
       for (const home of homes.filter((one) => one.dataset["home"] !== "self-contain")) {
         const id = home.dataset["home"] as keyof typeof monthly;
         expect(home.textContent).toContain(`${say(`ui.door.home.${id}`)} · ${say(`ui.door.home.where.${id}`)}`);
-        expect(home.querySelector("[data-home-costs]")?.textContent).toBe(say(`ui.door.home.costs.${id}`, { amount: formatMoney(monthly[id], "NGN"), rent: formatMoney(content.tuning.home.compound.rentYear, "NGN") }));
+        // the room also says its move-in.
+        expect(home.querySelector("[data-home-costs]")?.textContent).toBe(say(`ui.door.home.costs.${id}`, { amount: formatMoney(monthly[id], "NGN"), rent: formatMoney(content.tuning.home.compound.rentYear, "NGN"), movein: formatMoney(now[id], "NGN") }));
         const left = savingsOf(tile) - now[id] - monthly[id];
         expect(pocketIn(tile, 0, id)).toBe(left);
         // What the band shows at Begin: the savings less the move-in, the month's living named apart.
@@ -324,8 +325,11 @@ describe("the run through the front door", () => {
     }
     expect(say("ui.door.home.costs.family-house", { amount: "₦95,000" })).toBe("Then ₦95,000 a month · family around");
     expect(ARCHETYPES.filter((tile) => selfContainReached(tile, 0)).map((tile) => tile.id)).toEqual(["accountant", "trader"]);
-    // The room's ₦50,000 is living costs, its rent a year's apart (the review builder's report).
-    expect(document.querySelector("[data-home='compound-room'] [data-home-costs]")?.textContent).toBe(`Living costs ${formatMoney(content.tuning.home.compound.upkeep, "NGN")} a month · rent ${formatMoney(content.tuning.home.compound.rentYear, "NGN")} a year`);
+    // The room's ₦50,000 is living costs, its rent a year's apart (the review builder's report). Restated 11 Oct 2026 (the
+    // : the door says what moving in takes with the agent's and the agreement's fees, as Bills does,
+    // then the year's rent after it.
+    const { rentYear, feesBp, upkeep } = content.tuning.home.compound;
+    expect(document.querySelector("[data-home='compound-room'] [data-home-costs]")?.textContent).toBe(`${formatMoney(rentYear + Math.floor((rentYear * feesBp) / 10000), "NGN")} to move in, then ${formatMoney(rentYear, "NGN")} a year · living ${formatMoney(upkeep, "NGN")} a month`);
     // The trade's settlement is drawn, so its figure is "about"; no other tile's is.
     expect(ARCHETYPES.filter((tile) => moneyDrawn(tile)).map((tile) => tile.id)).toEqual(["trader"]);
     // A home picked is kept through another tile; a home left as it was follows the tile.

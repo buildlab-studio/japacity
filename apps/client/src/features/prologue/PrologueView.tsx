@@ -28,6 +28,7 @@ import { JapacityLine, StatBox } from "../../shared/datapage/PageParts";
 import { DoorHead } from "../../shared/frontdoor/DoorHead";
 import { readDoor } from "../../shared/datapage/door";
 import { pageOf } from "../../shared/datapage/PageSheet";
+import { readyPercent } from "../../shared/words/ready";
 import { familyCard, noteAnswer, noteCard, readTrail, storyChips, type YearChip, yearChips } from "./years";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
@@ -456,7 +457,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
               <>
                 <div className="mt-3 grid grid-cols-2 gap-1.5">
                   <StatBox label={say("ui.page.money")} value={formatMoney(naira, "NGN")} mark="money" />
-                  <StatBox label={say("ui.page.ready")} value={say("prologue.page.ready.figure", { percent: view.japacity.percent ?? 0 })} mark="ready" />
+                  <StatBox label={say("ui.page.ready")} value={say("prologue.page.ready.figure", { percent: readyPercent(view) ?? 0 })} mark="ready" />
                 </div>
                 <JapacityLine />
               </>

@@ -1081,6 +1081,7 @@ function huntedThisMonth(state: State): boolean {
  * One month of hunting the job the slot names (R-ACTIVITY-005). A landed hunt opens the job offer with the job in its terms.
  * R-GUIDE-014: a starting life's first hunt in its first three months lands for sure: the draw is made as ever, and when it
  * misses, the sure hunt lands the lowest-paid job the life may hunt in the slot (the named one when none reads a pay).
+ * R-ACTIVITY-005 as amended 11 Oct 2026: when that is another job, the named one is told as missed before it.
  */
 function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   if (cause.param === null) throw new Error(`A hunt from ${cause.source} names no job.`);
@@ -1088,7 +1089,10 @@ function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   const read = readOf(ctx);
   const drawn = ctx.random.chance("job", huntChanceBp(read, entry));
   const landed = drawn ? entry : sureHuntJob(read, entry, ctx.state.turn.month + 1, huntedThisMonth(ctx.state));
-  const events = record(ctx, { type: "activity/hunted", job: landed?.id ?? entry.id, hired: landed !== null });
+  // a sure hunt that lands another job first says the job asked for came to nothing, so the
+  // pick is never lost from the month's telling.
+  const instead = landed !== null && landed.id !== entry.id ? record(ctx, { type: "activity/hunted", job: entry.id, hired: false }) : [];
+  const events = [...instead, ...record(ctx, { type: "activity/hunted", job: landed?.id ?? entry.id, hired: landed !== null })];
   // content without the job offer has nothing to open, so the landed hunt opens nothing.
   if (landed !== null && ctx.content.offer[JOB_OFFER] !== undefined) {
     ctx.apply([{ type: "offer/open", offer: JOB_OFFER }], { source: cause.source, param: landed.id, terms: { ...cause.terms, job: landed.id } });
