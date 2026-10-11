@@ -187,6 +187,13 @@ describe("how this game was made", () => {
     expect([...made.querySelectorAll("[data-made]")].map((item) => item.getAttribute("data-made"))).toEqual(["images", "clips", "voices", "music"]);
     expect(made.body.textContent).toContain(files.credits.generated);
     expect(made.body.textContent).toContain(text["guide.page.made.approved"]);
+    // The voices line agrees with the register: the one generated voice, with its tool, and its lines shown as text.
+    const voices = made.querySelector('[data-made="voices"]')?.textContent ?? "";
+    const voiceRow = files.credits.assets.find((row) => row.file.includes("/voice/"));
+    expect(voiceRow?.attribution).toContain("Kokoro-82M");
+    expect(voices).toContain("Kokoro-82M");
+    expect(voices).toContain("every line is also shown as text");
+    expect(voices).not.toMatch(/no voice in the game is generated/i);
     expect(made.querySelector('a[href$="assets-src/register.json"]')).not.toBeNull();
     expect(made.querySelector(`a[href="${REGISTER_URL}"]`)).not.toBeNull();
     // The credits are a screen of the game and the sources a page of the documentation site (R-GUIDE-007, R-GUIDE-008).
