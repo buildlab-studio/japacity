@@ -26,7 +26,9 @@ const LAUNCH = [
 ];
 /** R-ANALYTICS-008 (11 Oct 2026, server.md R-SERVER-041): the page policy's reports, counted by the server. */
 const REPORTS = ["client/csp"];
-const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped", ...LAUNCH, ...REPORTS];
+/** R-ANALYTICS-008 (11 Oct 2026, account.md R-ACCOUNT-031): the lives being played, for the two lights. */
+const LIVES = ["lives/playing"];
+const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped", ...LAUNCH, ...REPORTS, ...LIVES];
 const CLIENT = ["screen/opened", "share/pressed", "share/completed", "advert/impression", "advert/tap", "settings/sound", "settings/graphics", "load/time", "client/error", "ask/shown", "ask/accepted"];
 
 const list = content.analytics.counters;
@@ -60,6 +62,10 @@ describe("the counter list", () => {
     expect(named("economy/held")?.keys).toContain("13+:over-500k");
     expect(HELD_BANDS.map((band) => band.from)).toEqual([0, 1, 5_000_000, 50_000_001]);
     expect(MONTH_BANDS.map((band) => band.from)).toEqual([1, 4, 13]);
+  });
+
+  test("[R-ANALYTICS-008] [R-ACCOUNT-031] given the lives being played, when the list is read, then the counter is the server's, keyed by where a life stands", () => {
+    expect(named("lives/playing")).toEqual({ name: "lives/playing", keys: ["home", "abroad", "road"], source: "server" });
   });
 
   test("[R-ANALYTICS-008] [R-ANALYTICS-002] given the onboarding funnel, when its steps are read, then they run in the page's order and the door's three are client screens", () => {

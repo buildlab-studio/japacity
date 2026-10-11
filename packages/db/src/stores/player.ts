@@ -359,6 +359,18 @@ export function pgPlayerStores(handle: Handle): { player: PlayerStore; pair: Pai
           .returning({ id: characters.id });
         return claimed.length > 0;
       }),
+
+    page: (after, limit) =>
+      handle.read(async (db) => {
+        // Compared and ordered by byte ("C"), the same order the memory store's code units give for the ids the server makes.
+        const rows = await db
+          .select(characterColumns)
+          .from(characters)
+          .where(after === null ? undefined : sql`${characters.id} collate "C" > ${after}`)
+          .orderBy(asc(sql`${characters.id} collate "C"`))
+          .limit(Math.max(0, limit));
+        return rows;
+      }),
   };
 
   const pair: PairStore = {
