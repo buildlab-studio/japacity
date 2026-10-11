@@ -49,6 +49,21 @@ describe("the English result on its way", () => {
   });
 });
 
+describe("the English result sealed until the morning", () => {
+  test("[R-CLOCK-032] given the test sat and its result sealed, pending in the month it was due, when the nudge is chosen and shown, then it says the result comes tomorrow at seven and opens nothing", async () => {
+    const waiting = waitingOnResult();
+    const sealed = { ...waiting, documents: waiting.documents.map((paper) => ({ ...paper, readyMonth: waiting.month, onItsWay: waiting.month })) };
+    const nudge = nudgeOf(sealed);
+    expect(nudge).toMatchObject({ key: "ui.wait.morning", about: "step" });
+    expect(say(nudge.key, nudge.params)).toBe("Comes tomorrow, 7am");
+    await renderWithView(<City world results={() => <p />} />, sealed);
+    const go = document.querySelector<HTMLElement>("[data-opening-go]");
+    if (go !== null) fireEvent.click(go);
+    expect(document.querySelector("[data-nudge]")?.textContent).toBe("Comes tomorrow, 7am");
+    expect(document.querySelector("[data-nudge-open]")).toBeNull();
+  });
+});
+
 describe("the English test as a long shot", () => {
   test("[R-WORLD-003] [R-WORLD-006] given the English step open with no result sat and the band a long shot, when the nudge is chosen, then it says to study first, and with study planned it says to end the month; a fair chance names the test", () => {
     const base = waitingOnResult();

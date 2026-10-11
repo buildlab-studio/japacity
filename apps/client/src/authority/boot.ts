@@ -35,12 +35,28 @@ function loadAfresh(): void {
 function bootLocal(options: Partial<LocalAuthorityOptions>): GameStore {
   const authority = localAuthority({ fastClock: clockMode().fastClock, ...options });
   const { start } = authority;
-  return createGameStore(authority, {
+  const store = createGameStore(authority, {
     life: authority,
     rememberMonth: true,
     afterLifeEnded: loadAfresh,
     choosingLife: start.kind !== "loaded",
     notice: start.kind === "replaced" ? `ui.life.notice.${start.why}` : null,
+  });
+  followMorning(store);
+  return store;
+}
+
+/**
+ * R-CLOCK-032: back on the tab, from another app or a night's sleep, the view is read again and with it the results
+ * whose morning has come. Online, `goOnline` reads the view on the same signs.
+ */
+function followMorning(store: GameStore): void {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  const refresh = () => void store.getState().refresh();
+  window.addEventListener("focus", refresh);
+  window.addEventListener("pageshow", refresh);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") refresh();
   });
 }
 

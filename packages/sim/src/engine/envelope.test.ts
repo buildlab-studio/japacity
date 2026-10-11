@@ -71,6 +71,14 @@ describe("withholding a sealed result", () => {
     expect(withholdLines([band, visa, pay], sealed, lagos(12, 7) + HOUR_MS)).toEqual([band, visa, pay]);
   });
 
+  test("[R-CLOCK-032] given the month's report telling a sealed result, when the view is shown before the morning, then the report keeps that line back, a copy read back from storage too, and gives it again once the morning has come", () => {
+    const report = { month: 4, lines: [pay, band, visa], japacityBefore: null, japacityAfter: null, attention: true };
+    const after = { ...viewWith([held], [granted], 5), report } as PlayerView;
+    const stored = JSON.parse(JSON.stringify(sealed)) as typeof sealed;
+    expect(withhold(after, stored, lagos(11, 23)).view.report?.lines).toEqual([pay]);
+    expect(withhold(after, stored, lagos(12, 7)).view.report?.lines).toEqual([pay, band, visa]);
+  });
+
   test("[R-CLOCK-032] given a day passes, when the same envelopes are read again, then the answer is the same (a reload changes nothing)", () => {
     expect(withhold(viewWith([held], [granted], 5), sealed, lagos(12, 7) + DAY_MS).opened).toHaveLength(2);
     expect(withhold(viewWith([held], [granted], 5), sealed, lagos(12, 6)).opened).toHaveLength(0);

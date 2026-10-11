@@ -2,7 +2,7 @@
 // thing the authority said. Screens read from here and send through here, so
 // none of them ever holds a state, a seed or a version number of its own.
 import { content, text } from "@japacity/content";
-import type { Command, Id, PlayerView, Reply, ReportLine, SlotPick, World } from "@japacity/sim";
+import type { Command, Envelope, Id, PlayerView, Reply, ReportLine, SlotPick, World } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { earlyWinIn } from "../features/guides/earlyWin";
@@ -48,6 +48,8 @@ export interface StoreAuthority {
   clock?(): ClockView | null;
   /** The world's numbers at this tick, for one whose world is not fetched (the local one): the season the meetings read (R-WORLD-020). */
   vars?(): Readonly<Record<string, number>>;
+  /** R-CLOCK-032: the envelopes whose morning has come, each given once, for one that keeps them (the local one). */
+  morning?(): Envelope[];
 }
 
 export interface Shown {
@@ -92,6 +94,11 @@ export interface GameState {
   monthLines: ReportLine[];
   /** The month just ended's mid-month lines, shown with its report. */
   lastMonthLines: ReportLine[];
+  /**
+   * R-CLOCK-032: the results whose morning has come, given once by the authority, kept until the lock screen has told
+   * them. Their lines join `monthLines` as they come, so each is told once with the month's.
+   */
+  opened: Envelope[];
   /**
    * One entry per free slot, null for an empty one, which rests (R-TURN-006). Only month-acts are planned: a now-act is
    * done at once and rest is what an empty slot does. The plan carries on across the month's end (R-WORLD-007).
@@ -148,6 +155,8 @@ export interface GameState {
   quiet: ReportLine[][];
 
   refresh: () => Promise<void>;
+  /** R-CLOCK-032: the lock screen has told the opened results; they are let go. */
+  morningShown: () => void;
   /** R-ENGINE-015: sends again what failed (the view, the command kept, or the life); its first caller gets the answer. */
   retry: () => Promise<void>;
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
@@ -310,6 +319,8 @@ interface MonthMemory {
   monthLines: ReportLine[];
   lastMonthLines: ReportLine[];
   cardClosed: string | null;
+  /** The results opened and not yet told on the lock screen (R-CLOCK-032): the authority gives each once. */
+  opened?: Envelope[];
 }
 
 function readMonth(): MonthMemory | null {
@@ -349,7 +360,7 @@ export function forgetMonth(): boolean {
 function rememberedMonth(view: PlayerView): Partial<GameState> {
   const memory = readMonth();
   if (memory === null || memory.v !== view.v || memory.scenario !== view.scenario) return {};
-  return { plan: fitPlan(memory.plan, view.freeSlots), monthLines: memory.monthLines, lastMonthLines: memory.lastMonthLines, cardClosed: memory.cardClosed };
+  return { plan: fitPlan(memory.plan, view.freeSlots), monthLines: memory.monthLines, lastMonthLines: memory.lastMonthLines, cardClosed: memory.cardClosed, opened: memory.opened ?? [] };
 }
 
 export function createGameStore(authority: StoreAuthority, options: GameStoreOptions = {}): GameStore {
@@ -357,8 +368,8 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
   // R-WORLD-007, R-WORLD-008: a reload keeps the month's plan and what was done in it.
   if (options.rememberMonth === true) store.subscribe((state, before) => {
     if (state.view === null) return;
-    if (state.view.v === before.view?.v && state.plan === before.plan && state.monthLines === before.monthLines && state.lastMonthLines === before.lastMonthLines && state.cardClosed === before.cardClosed) return;
-    writeMonth({ v: state.view.v, scenario: state.view.scenario, plan: state.plan, monthLines: state.monthLines, lastMonthLines: state.lastMonthLines, cardClosed: state.cardClosed });
+    if (state.view.v === before.view?.v && state.plan === before.plan && state.monthLines === before.monthLines && state.lastMonthLines === before.lastMonthLines && state.cardClosed === before.cardClosed && state.opened === before.opened) return;
+    writeMonth({ v: state.view.v, scenario: state.view.scenario, plan: state.plan, monthLines: state.monthLines, lastMonthLines: state.lastMonthLines, cardClosed: state.cardClosed, opened: state.opened });
   });
   // R-WORLD-002: the words tell a stamped month as months away from the view's month, kept beside them; and
   // R-PROLOGUE-002: a line's `{hometown}` names where this life is from.
@@ -465,11 +476,23 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       }
     }
 
+    /**
+     * R-CLOCK-032: the results whose morning has come, from an authority that keeps them (the remote one does not yet).
+     * Kept until the lock screen tells them; their lines join the month's, so each is told once.
+     */
+    function takeMorning(): void {
+      if (!("morning" in authority) || typeof authority.morning !== "function" || get().view === null) return;
+      const opened = authority.morning();
+      if (opened.length === 0) return;
+      set({ opened: [...get().opened, ...opened], monthLines: [...get().monthLines, ...opened.flatMap((envelope) => envelope.held)] });
+    }
+
     /** R-ENGINE-015: the view, asked for again twice with a pause before the card; a fault that is no request's replaces the screen. */
     async function fetchView(): Promise<void> {
       for (let attempt = 0; ; attempt += 1) {
         try {
           take(await authority.view());
+          takeMorning();
           if (get().trouble?.during === "view") {
             again = null;
             set({ trouble: null });
@@ -510,6 +533,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       lines: [],
       monthLines: [],
       lastMonthLines: [],
+      opened: [],
       plan: [],
       reportOpen: false,
       moments: [],
@@ -531,6 +555,9 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       quiet: [],
 
       refresh,
+      morningShown() {
+        if (get().opened.length > 0) set({ opened: [] });
+      },
       async retry() {
         const run = again;
         again = null;
@@ -657,7 +684,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         forgetMonth();
         // A new life is taught afresh: its first chapter's title, its places' labels, its home (R-CHAPTER-011).
         forgetTaught();
-        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], momentCards: [], rejection: null, monthLines: [], lastMonthLines: [], cardClosed: null, cardTold: null, quiet: [] });
+        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], momentCards: [], rejection: null, monthLines: [], lastMonthLines: [], opened: [], cardClosed: null, cardTold: null, quiet: [] });
       },
       openLifeChooser: options.life === undefined || options.lifeAgain === false ? null : () => set({ choosingLife: true }),
       endLife:
@@ -681,7 +708,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
                 if (!ended) return false;
                 forgetMonth();
                 forgetLife();
-                set({ view: null, choosingLife: true, notice: null, plan: [], lines: [], moments: [], momentCards: [], monthLines: [], lastMonthLines: [], cardClosed: null, cardTold: null, quiet: [], reportOpen: false, earlyWin: false, clock: null, world: null, presence: null });
+                set({ view: null, choosingLife: true, notice: null, plan: [], lines: [], moments: [], momentCards: [], monthLines: [], lastMonthLines: [], opened: [], cardClosed: null, cardTold: null, quiet: [], reportOpen: false, earlyWin: false, clock: null, world: null, presence: null });
                 options.afterLifeEnded?.();
                 return true;
               } finally {

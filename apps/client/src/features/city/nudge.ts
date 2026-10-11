@@ -11,6 +11,7 @@ import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
 import { nextStepOf, ownRouteOf, ownWayOf, RACKS, RACKS_STEP, racksAtHand, wardMonths } from "../../shared/words/sixteen";
 import { routeKeptBy } from "../../shared/words/keepJob";
+import { sealedTillMorning } from "../../shared/words/morning";
 import { testChance } from "../../shared/words/test";
 import { hasWords, inMonths, nameOf, say } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
@@ -307,6 +308,9 @@ const STEP_ACTIVITY_ALSO: Record<string, readonly string[]> = {
 };
 
 type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities" | "goals" | "plan" | "rates">>;
+
+/** A result sealed until seven the next morning (R-CLOCK-032): "Comes tomorrow, 7am". */
+export const MORNING = "ui.wait.morning";
 
 /** The nudge that sends a waiting life to the board for better pay. */
 export const BETTER_JOB = "ui.nudge.better-job";
@@ -615,6 +619,8 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
   const wait = refusalWait(view, stepKey);
   if (wait !== null && has(`${own}.wait`)) return { key: `${own}.wait`, params: { when: inMonths(wait, month) } };
   const paper = STEP_PAPER[stepKey];
+  // A result sealed until the morning (R-CLOCK-032) says when it comes, and nothing else to do for it.
+  if (paper !== undefined && sealedTillMorning(view, paper) && has(MORNING)) return { key: MORNING };
   if (paper !== undefined) {
     const held = view.documents?.find((document) => document.id === paper);
     if (held !== undefined && held.onItsWay !== null) {

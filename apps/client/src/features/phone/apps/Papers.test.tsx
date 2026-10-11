@@ -3,7 +3,7 @@
 // the phone through the act's own card, the passport a visit that opens the map on the passport office; and a paper
 // that landed or moved told on the wallpaper, tappable into Papers, opening nothing by itself.
 import type { PlayerView, ReportLine } from "@japacity/sim";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { useGame } from "../../../authority/GameProvider";
@@ -152,6 +152,21 @@ describe("the Papers app", () => {
     expect(requestOf(PASSPORT)).toBe("activity.get-passport");
     expect(placeOf("activity.get-passport", "home")).toBe("place.passport-office");
     for (const call of PHONE_ACTS) expect(placeOf(call, "home")).toBeNull();
+  });
+});
+
+describe("a result sealed until the morning", () => {
+  test("[R-CLOCK-032] given the English result sealed, pending in the month it was due, when Papers opens, then its card says it comes tomorrow at seven, and a result due later still says when", async () => {
+    const view = adaPlanned();
+    const pending = (readyMonth: number): PlayerView => ({ ...view, documents: [...view.documents, { id: "document.english-test", state: "pending", readyMonth, expiresMonth: null, value: null, onItsWay: readyMonth }] });
+    await openPhone(pending(view.month));
+    fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
+    expect(document.querySelector('[data-paper="document.english-test"] [data-paper-state]')?.textContent).toBe("Comes tomorrow, 7am");
+    expect(papersOf(pending(view.month + 1)).find((row) => row.id === "document.english-test")?.state).toBe("coming");
+    cleanup();
+    await openPhone(pending(view.month + 1));
+    fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
+    expect(document.querySelector('[data-paper="document.english-test"] [data-paper-state]')?.textContent).toBe(phoneWords("phone.papers.pending", { when: inMonths(view.month + 1, view.month) }));
   });
 });
 

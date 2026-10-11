@@ -3,19 +3,22 @@
 // and told as soon as they show; away from home only that something waits, never the lines. The
 // lines stay on the phone for the rest of the month. A paper that landed or moved is told above
 // them wherever the phone is opened, a message from the office, and a tap opens Papers; it waits
-// there until Papers is opened, and nothing opens by itself. Nothing here sends a command.
-import { FolderOpen } from "lucide-react";
-import { use, useEffect, useState } from "react";
+// there until Papers is opened, and nothing opens by itself. A result whose morning has come (clock.md R-CLOCK-032)
+// is told first of all, a notice from its office, once. Nothing here sends a command.
+import type { Envelope, PlayerView } from "@japacity/sim";
+import { FolderOpen, Mail } from "lucide-react";
+import { use, useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { dueSignals, waitingSignals } from "../../shared/days/days";
 import { tellSignals, useMonthDays } from "../../shared/days/days.store";
 import { atHome } from "../../shared/days/standing";
 import { PhoneNav } from "../../shared/phone/nav";
-import { say } from "../../shared/words/text";
+import { formatBand } from "../../shared/words/format";
+import { runningName, say } from "../../shared/words/text";
 import { paperNotices, paperNoticeWords, papersMarkOf } from "./papers";
 import { phoneWords } from "./phone.words";
-import { useSeen } from "./seen";
+import { markSeen, useSeen } from "./seen";
 
 /** The lines due and those still waiting, from the days kept, the view and the plan. */
 export function useSignals(): { due: ReturnType<typeof dueSignals>; waiting: ReturnType<typeof waitingSignals> } {
@@ -31,16 +34,54 @@ export function useSignalsWaiting(): boolean {
   return useSignals().waiting.length > 0;
 }
 
-/** The month's papers that landed or moved, while Papers has not been opened since (R-WORLD-030): each a tap into Papers. */
-function PaperNotices() {
+/** An opened result's office and what it says (R-CLOCK-032): the test centre's band, the endorsing body, the visa centre's decision, told straight. */
+export function envelopeWords(envelope: Envelope, view: Pick<PlayerView, "routes">): { from: string | null; words: string } {
+  if (envelope.kind === "route") {
+    const refused = envelope.held.some((line) => line.key.startsWith("line.route.refused")) || view.routes.find((route) => route.id === envelope.id)?.state === "refused";
+    return { from: phoneWords("phone.morning.from.route"), words: phoneWords(refused ? "phone.morning.route.refused" : "phone.morning.route.granted") };
+  }
+  const own = `phone.morning.${envelope.id}`;
+  const band = envelope.held.map((line) => line.params.band).find((value) => typeof value === "number");
+  if (phoneWords(own) === own) return { from: null, words: phoneWords("phone.papers.notice.issued", { paper: runningName(envelope.id) }) };
+  return { from: phoneWords(`phone.morning.from.${envelope.id}`), words: phoneWords(own, { band: band === undefined ? "" : formatBand(band) }) };
+}
+
+/** The results whose morning has come, first on the wallpaper, each a notice from its office (R-CLOCK-032). */
+function MorningNotices({ told }: { told: readonly Envelope[] }) {
+  const view = useView();
+  if (told.length === 0) return null;
+  return (
+    <ul className="mt-4 flex flex-col gap-2 px-4" aria-label={phoneWords("phone.morning.notices")} data-morning>
+      {told.map((envelope) => {
+        const { from, words } = envelopeWords(envelope, view);
+        return (
+          <li key={`${envelope.kind}.${envelope.id}`} className="pop flex items-start gap-2 rounded-[12px] bg-sheet/95 px-3 py-2 text-left text-[14px] leading-snug text-text shadow-[0_4px_10px_rgba(10,14,30,0.25)]" data-envelope={envelope.id}>
+            <Mail size={16} aria-hidden className="mt-0.5 shrink-0 text-text-2" />
+            <span className="min-w-0 flex-1">
+              {from === null ? null : <span className="block text-[12px] font-bold text-text-2">{from}</span>}
+              <span className="block font-semibold">{words}</span>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/**
+ * The month's papers that landed or moved, while Papers has not been opened since (R-WORLD-030): each a tap into Papers.
+ * A paper a morning notice tells is not told again here.
+ */
+function PaperNotices({ skip }: { skip: ReadonlySet<string> }) {
   const view = useView();
   const seen = useSeen();
   const nav = use(PhoneNav);
   const mark = papersMarkOf(view);
-  if (mark === "" || seen.papers === mark) return null;
+  const notices = paperNotices(view).filter((notice) => !skip.has(notice.document));
+  if (mark === "" || seen.papers === mark || notices.length === 0) return null;
   return (
     <ul className="mt-4 flex flex-col gap-2 px-4" aria-label={phoneWords("phone.papers.notices")} data-paper-notices>
-      {paperNotices(view).map((notice) => (
+      {notices.map((notice) => (
         <li key={`${notice.kind}.${notice.document}`}>
           <button
             type="button"
@@ -58,9 +99,25 @@ function PaperNotices() {
 }
 
 export function Notices() {
+  const view = useView();
+  const opened = useGame((state) => state.opened);
+  const morningShown = useGame((state) => state.morningShown);
+  // The opened results are read once as the lock screen shows: they stay on it while it is up, and the store lets them go.
+  const [told] = useState(() => opened);
+  const done = useRef(false);
+  useEffect(() => {
+    if (told.length === 0 || done.current) return;
+    done.current = true;
+    morningShown();
+    // Told here, so the paper's own notice and the Papers dot do not tell it again; another paper's notice still waits for Papers.
+    const ids = new Set<string>(told.map((envelope) => envelope.id));
+    if (paperNotices(view).every((notice) => ids.has(notice.document))) markSeen("papers", papersMarkOf(view));
+  }, [told, morningShown, view]);
+  const skip = new Set<string>(told.flatMap((envelope) => (envelope.kind === "document" ? [envelope.id] : [])));
   return (
     <>
-      <PaperNotices />
+      <MorningNotices told={told} />
+      <PaperNotices skip={skip} />
       <MonthNotices />
     </>
   );

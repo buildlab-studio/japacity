@@ -13,6 +13,7 @@ import { PhoneNav } from "../../../shared/phone/nav";
 import { nowActOf, nowLineIn, nowLineWords } from "../../../shared/words/acts";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand } from "../../../shared/words/format";
+import { sealedTillMorning } from "../../../shared/words/morning";
 import { forMonths, inMonths, nameOf, runningName, say, sayCount } from "../../../shared/words/text";
 import { PhoneSaid } from "../act";
 import { type PaperRow, type PaperState, papersOf } from "../papers";
@@ -34,6 +35,8 @@ function stateWords(row: PaperRow, view: PlayerView): string {
   }
   switch (row.state) {
     case "coming":
+      // A result sealed until the morning says when it comes (R-CLOCK-032), never "this month".
+      if (sealedTillMorning(view, row.id)) return say("ui.wait.morning");
       return phoneWords("phone.papers.pending", { when: inMonths(row.onItsWay ?? view.month, view.month) });
     case "held":
       return row.expiresMonth === null ? say("ui.document.held") : phoneWords("phone.papers.valid", { when: forMonths(row.expiresMonth, view.month) });

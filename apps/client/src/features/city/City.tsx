@@ -50,7 +50,7 @@ import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from 
 import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
-import { BETTER_JOB, BOARD_WAY, MEANWHILE_WAYS, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
+import { BETTER_JOB, BOARD_WAY, MEANWHILE_WAYS, MORNING, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { nudgeHere, stepOpen } from "./stepOpen";
 import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
@@ -74,8 +74,8 @@ import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, ro
 /** Acts the scene shows (R-WORLD-005): the pot steams, the drum fills; the place says no answer for them (R-OBLIGATION-014). */
 const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]);
 
-/** Nudges that name a wait with nothing to do but end months: the English result on its way. */
-const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started"]);
+/** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (R-CLOCK-032). */
+const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started", MORNING]);
 
 const CityScene = lazy(() => import("./CityScene"));
 const Bag = lazy(() => import("./Bag"));

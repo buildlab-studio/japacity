@@ -4,7 +4,7 @@
 // from other features (the account's settings, the pair routes) the shell hands in.
 import type { ReactNode } from "react";
 
-import { useView } from "../../authority/GameProvider";
+import { useGame, useView } from "../../authority/GameProvider";
 import { todayWords } from "../../shared/words/format";
 import type { PhoneApp } from "../../shared/world/contract";
 import { Refused } from "./act";
@@ -103,7 +103,9 @@ export function usePhoneWaiting(): boolean {
   const view = useView();
   const waiting = waitingOf(marksOf(view), useSeen());
   const signals = useSignalsWaiting();
-  return signals || APP_IDS.some((id) => waiting[id]);
+  // A result whose morning has come waits on the lock screen (R-CLOCK-032).
+  const morning = useGame((state) => state.opened.length > 0);
+  return signals || morning || APP_IDS.some((id) => waiting[id]);
 }
 
 export interface PhoneAppsProps {

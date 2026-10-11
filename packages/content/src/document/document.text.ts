@@ -51,4 +51,18 @@ export const documentText: Record<string, string> = {
   "document.tb-certificate.reminder.expired": "Your TB certificate has run out. Get another before you apply.",
   // A paper the plan needs, running out before the application is sent.
   "document.reminder.runs-out": "Your {document} runs out {when}.",
+
+  // The morning (clock.md R-CLOCK-032): a result real life makes you wait for is sealed until seven the next morning in
+  // Lagos. While it is sealed, the places that would name it say when it comes; the short words fit the nudge and Japa.
+  "ui.wait.morning": "Comes tomorrow, 7am",
+  "ui.wait.morning.short": "Tomorrow, 7am",
+  // Once its morning has come, the lock screen tells it first, as a notice from its office. {band} is the band, formatted.
+  "phone.morning.notices": "This morning",
+  "phone.morning.from.document.english-test": "The test centre",
+  "phone.morning.document.english-test": "Your result is in: band {band}.",
+  "phone.morning.from.document.endorsement": "The endorsing body",
+  "phone.morning.document.endorsement": "Your endorsement is in. They have endorsed you.",
+  "phone.morning.from.route": "The visa centre",
+  "phone.morning.route.granted": "Your visa is granted.",
+  "phone.morning.route.refused": "Your visa has been refused.",
 };

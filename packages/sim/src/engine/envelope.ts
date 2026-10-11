@@ -62,7 +62,7 @@ export const sealedAt = (envelope: Envelope, now: number): boolean => envelope.o
 
 /**
  * The view as the player may see it now: every sealed result reads as it did before it landed, the paper
- * still on its way this month, the decision still pending. Envelopes whose morning has come are left as the
+ * still on its way this month, the decision still pending, and the report without the lines that told it. Envelopes whose morning has come are left as the
  * view has them and returned as `opened`, with the lines they held, for the morning to tell once.
  */
 export function withhold(view: PlayerView, envelopes: readonly Envelope[], now: number): { view: PlayerView; opened: Envelope[] } {
@@ -81,7 +81,17 @@ export function withhold(view: PlayerView, envelopes: readonly Envelope[], now: 
       shown = { ...shown, routes: shown.routes.map((entry) => (entry.id === envelope.id ? was : entry)) };
     }
   }
+  // The month's report keeps the sealed lines back too, so the results, News and the Papers notice never tell them early.
+  // Matched by what they say: an envelope read back from storage holds copies, not the report's own lines.
+  const sealed = new Set(envelopes.filter((envelope) => sealedAt(envelope, now)).flatMap((envelope) => envelope.held.map(lineSaid)));
+  const report = shown.report ?? null;
+  if (sealed.size > 0 && report !== null) shown = { ...shown, report: { ...report, lines: report.lines.filter((line) => !sealed.has(lineSaid(line))) } };
   return { view: shown, opened };
+}
+
+/** A line as what it says: its key and its figures. */
+function lineSaid(line: ReportLine): string {
+  return `${line.key}:${JSON.stringify(line.params)}`;
 }
 
 /** The lines a reply may carry now: the ones a sealed envelope holds are kept back. */
