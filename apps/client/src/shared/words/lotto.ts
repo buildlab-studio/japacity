@@ -3,7 +3,7 @@
 // ticket line. The Lotto app says what this month's tickets cost and the kiosk says when the month's ceiling is
 // reached, both from these, so they never disagree.
 import { content } from "@japacity/content";
-import type { MoneyParam, ReportLine } from "@japacity/sim";
+import type { MoneyParam, PlayerView, ReportLine } from "@japacity/sim";
 
 import { moneyParam } from "./text";
 
@@ -44,4 +44,16 @@ export function lottoMonth(lines: readonly ReportLine[]): LottoMonth {
 /** True once this month's kiosk tickets reach the most one slip sells (R-LUCK-005, `tuning.luck.maxTickets`). */
 export function kioskCapReached(lines: readonly ReportLine[]): boolean {
   return lottoMonth(lines).tickets >= content.tuning.luck.maxTickets;
+}
+
+/** R-WALLET-020: the naira earned in the game, the naira held less the marked, topped-up share a ticket is never paid from. */
+export function earnedNaira(view: Pick<PlayerView, "pockets" | "wallet">): number {
+  const { bank, cash } = view.pockets.NGN;
+  return Math.max(0, bank + cash - view.wallet.marked);
+}
+
+/** R-WALLET-020, R-LOTTERY-018: the naira held would pay `cost`, but only with the marked share, so the kiosk is shut with its words. */
+export function earnedShort(view: Pick<PlayerView, "pockets" | "wallet">, cost: number): boolean {
+  const { bank, cash } = view.pockets.NGN;
+  return bank + cash >= cost && earnedNaira(view) < cost;
 }

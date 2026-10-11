@@ -42,7 +42,7 @@ import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { actOnCard, answersNow, nowActOf, nowLineIn } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned } from "./acts";
-import { kioskCapReached } from "../../shared/words/lotto";
+import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
 import { doActLine, lightBack, plainActLine, plannedMarks } from "./actLines";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
@@ -65,7 +65,7 @@ import { enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHer
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
-import { earnedShort, KIOSK, opensKiosk, withKiosk } from "./kiosk";
+import { KIOSK, opensKiosk, withKiosk } from "./kiosk";
 import { namedThings } from "./mark";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
