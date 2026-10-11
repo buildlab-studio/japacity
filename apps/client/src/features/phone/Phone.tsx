@@ -25,6 +25,8 @@ export interface PhoneProps {
   start?: string | null;
   /** What the wallpaper tells between the clock and the apps: the month's acts telling of themselves (R-WORLD-030). */
   notices?: ReactNode;
+  /** Puts the phone away onto the map at a stop (R-WORLD-019): a paper's visit in Papers. */
+  onMap?: (stop: string) => void;
 }
 
 const CLOCK = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -42,7 +44,7 @@ function useClock(now: () => Date): string {
 
 const realNow = () => new Date();
 
-export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start = null, notices = null }: PhoneProps) {
+export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start = null, notices = null, onMap }: PhoneProps) {
   const [open, setOpen] = useState<string | null>(start);
   const started = useRef(false);
   useEffect(() => {
@@ -65,7 +67,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
 
   return (
     <PhoneSaid value={tell}>
-      <PhoneNav value={{ openApp, close: onClose }}>
+      <PhoneNav value={{ openApp, close: onClose, ...(onMap === undefined ? {} : { openMap: onMap }) }}>
       <div className="fixed inset-0 z-[44]" role="dialog" aria-modal="true" aria-label={phoneWords("phone.title")} data-phone data-grown={grown}>
         <button type="button" tabIndex={-1} aria-hidden onClick={onClose} className="fade absolute inset-0 cursor-default bg-scrim" />
         {/* Grown and small share one anchor (the bottom middle, shifted half its width) and set the same four

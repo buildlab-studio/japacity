@@ -7,24 +7,23 @@
 // (docs/rules/chapter.md R-CHAPTER-009).
 import { content } from "@japacity/content";
 import type { Currency, Id, PlayerView, RouteView } from "@japacity/sim";
-import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX, Flag, Stamp, type LucideIcon } from "lucide-react";
+import { Check, ChevronRight, Circle, FileCheck, FileClock, Flag, Stamp, type LucideIcon } from "lucide-react";
 import { use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
+import { PhoneNav } from "../../../shared/phone/nav";
 import { Mark } from "../../../shared/ui/Mark";
 import { actOnCard, nowSaid } from "../../../shared/words/acts";
-import { monthsLeft, SOON } from "../../../shared/words/expiry";
-import { formatBand, formatMoney } from "../../../shared/words/format";
+import { formatMoney } from "../../../shared/words/format";
 import { type Coming, comingOf } from "../../../shared/words/coming";
 import { checklistWords } from "../../../shared/words/requirement";
 import { planRoute } from "../../../shared/words/savings";
 import { wardMonths } from "../../../shared/words/sixteen";
-import { blurbOf, forMonths, hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
+import { blurbOf, hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
 import { RoutePage } from "./PlanSwitch";
 
-const ENGLISH_RESULT = "document.english-test";
 const OFFICIAL = "activity.look-into-route";
 
 /** Japa's words after the grant and the flight, first drafts in the voice of docs/rules/text.md; content's and the phone's tables win. */
@@ -204,50 +203,6 @@ export function remindersOf(view: PlayerView): ReminderRow[] {
     .map((item) => ({ kind: item.kind, what: reminderWhat(item), when: inMonths(item.month, view.month) }));
 }
 
-function Papers({ onBack }: { onBack: () => void }) {
-  const { documents, month } = useView();
-  return (
-    <div data-papers>
-      <button type="button" onClick={onBack} className="press mb-2 flex items-center gap-1 text-[14px] font-bold text-text-2" data-papers-back>
-        <ChevronLeft size={16} aria-hidden />
-        {phoneWords("phone.app.japa")}
-      </button>
-      <h3 className="title text-[18px]">{phoneWords("phone.japa.papers.title")}</h3>
-      <p className="mt-1 mb-3 text-[13px] text-text-2">{phoneWords("phone.japa.papers.hint")}</p>
-      {documents.length === 0 ? (
-        <p className="text-[14px] text-text-2">{phoneWords("phone.japa.papers.none")}</p>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {documents.map((paper) => {
-            const left = monthsLeft(paper, month);
-            const soon = left !== null && left <= SOON;
-            const Icon = paper.state === "held" ? FileCheck : paper.onItsWay !== null ? FileClock : FileX;
-            return (
-              <li key={paper.id} data-paper={paper.id} data-state={paper.state} className="flex items-start gap-3 rounded-[6px] p-3" style={{ background: "var(--paper-bill)" }}>
-                <Icon size={20} aria-hidden className={`mt-0.5 shrink-0 ${paper.state === "held" ? "text-in" : paper.state === "expired" ? "text-out" : "text-text-2"}`} />
-                <div className="min-w-0">
-                  <p className={`text-[15px] font-bold ${paper.state === "expired" ? "line-through" : ""}`}>{nameOf(paper.id)}</p>
-                  <p className="text-[13px] text-text-2">
-                    {paper.onItsWay !== null
-                      ? phoneWords("phone.japa.paper-pending", { when: inMonths(paper.onItsWay, month) })
-                      : paper.state === "expired"
-                        ? say("ui.document.expired")
-                        : paper.expiresMonth === null
-                          ? say("ui.document.held")
-                          : phoneWords("phone.japa.paper-valid", { when: forMonths(paper.expiresMonth, month) })}
-                  </p>
-                  {soon && left !== null ? <p className="text-[13px] font-bold text-out">{sayCount("ui.document.expires-soon", left, { months: left })}</p> : null}
-                  {paper.id === ENGLISH_RESULT && paper.value !== null ? <p className="text-[13px] font-bold">{say("ui.document.band", { band: formatBand(paper.value) })}</p> : null}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 /** A step, ticked or not; `way`: where an unticked step is taken, or when it comes, on a small line under it. */
 function Step({ met, children, way }: { met: boolean; children: string; way?: string }) {
   return (
@@ -370,21 +325,15 @@ function PapersButton({ view, onOpen }: { view: PlayerView; onOpen: () => void }
 
 export function Japa() {
   const view = useView();
-  const [papers, setPapers] = useState(false);
   const [page, setPage] = useState<Id<"route"> | null>(null);
   // R-ADVICE-002: the official page can be read from the phone: it goes into the month like the hub's desk would put it.
   const addToPlan = useGame((state) => state.addToPlan);
   const send = useGame((state) => state.send);
   const plan = useGame((state) => state.plan);
   const said = use(PhoneSaid);
-  if (papers) {
-    return (
-      <div data-phone-app="japa">
-        <Papers onBack={() => setPapers(false)} />
-      </div>
-    );
-  }
-  if (view.place.where === "abroad") return <Abroad view={view} onPapers={() => setPapers(true)} />;
+  const nav = use(PhoneNav);
+  const openPapers = () => nav.openApp("papers");
+  if (view.place.where === "abroad") return <Abroad view={view} onPapers={openPapers} />;
   if (page !== null) {
     return (
       <div data-phone-app="japa">
@@ -537,7 +486,7 @@ export function Japa() {
               </Step>
             ))}
       </ul>
-      <PapersButton view={view} onOpen={() => setPapers(true)} />
+      <PapersButton view={view} onOpen={openPapers} />
     </div>
   );
 }

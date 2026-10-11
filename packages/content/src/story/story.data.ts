@@ -4,7 +4,7 @@
 import type { Command, Id } from "@japacity/sim";
 
 /** A phone app, by its id on the phone (R-WORLD-018). */
-export type StoryApp = "bank" | "chats" | "japa" | "jobs" | "lotto" | "bills" | "news";
+export type StoryApp = "bank" | "chats" | "japa" | "papers" | "jobs" | "lotto" | "bills" | "news";
 
 /**
  * What moves the step. An entry opens its own sheet (an activity, an offer, a set piece); a command is
@@ -37,6 +37,8 @@ export interface StoryStep {
 export const storyThings: Record<string, { outside: string[]; inside: string[] }> = {
   "place.family-house": { outside: ["gate", "house-door"], inside: ["sofa", "mama", "papa", "tv", "papers-box", "door"] },
   "place.visa-centre": { outside: ["desk", "chairs", "door"], inside: [] },
+  // The passport office stands in the visa centre's hall, its desk taking the passport.
+  "place.passport-office": { outside: ["desk", "chairs", "door"], inside: [] },
   "place.agent-office": { outside: ["agent-desk", "door"], inside: [] },
   "place.english-test-centre": { outside: ["test-desk", "door"], inside: [] },
   "place.tb-clinic": { outside: ["nurse-desk", "door"], inside: [] },
@@ -72,6 +74,7 @@ const BANK: Id<"place"> = "place.olokun-office";
 const VISA: Id<"place"> = "place.visa-centre";
 const CLINIC: Id<"place"> = "place.tb-clinic";
 const AGENT: Id<"place"> = "place.agent-office";
+const PASSPORT_OFFICE: Id<"place"> = "place.passport-office";
 
 export const storySteps: StoryStep[] = [
   // Find your feet: the hub in Yaba carries the first chapter.
@@ -82,10 +85,10 @@ export const storySteps: StoryStep[] = [
   step(FEET, "heard", { place: HUB, thing: "meetup-corner", app: null, act: { entry: "activity.meetup" } }),
   step(FEET, "known", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.look-into-route" } }),
 
-  // Build the file. the passport office and the university are not among the thirteen
-  // places, so the passport and the transcript are started from the papers box at home.
-  step(FILE, "passport", { place: HOUSE, inside: true, thing: "papers-box", app: "japa", act: { entry: "activity.get-passport" } }),
-  step(FILE, "transcript", { place: HOUSE, inside: true, thing: "papers-box", app: "japa", act: { entry: "activity.get-transcript" } }),
+  // Build the file. The passport is a visit to Immigration; the transcript is a call to the registry, made from the
+  // phone's Papers app at home.
+  step(FILE, "passport", { place: PASSPORT_OFFICE, thing: "desk", app: "papers", act: { entry: "activity.get-passport" } }),
+  step(FILE, "transcript", { place: HOUSE, thing: null, app: "papers", act: { entry: "activity.get-transcript" } }),
   step(FILE, "english", { place: "place.english-test-centre", thing: "test-desk", app: null, act: { entry: "activity.sit-english-test" }, fromBox: true }),
   step(FILE, "offer", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.apply-to-school" } }),
 
@@ -100,17 +103,17 @@ export const storySteps: StoryStep[] = [
   // the box for these rows (the four rows that take it to a desk are the master's); each row names where the
   // step is taken: the clinic's desk, the hub's desk, the visa centre, the agent's office.
   step("chapter.build-the-file-care", "tenure", { place: CLINIC, thing: "nurse-desk", app: "japa", act: { wait: true } }),
-  step("chapter.build-the-file-care", "verification", { place: CLINIC, thing: "nurse-desk", app: "japa", act: { entry: "activity.request-verification" } }),
+  step("chapter.build-the-file-care", "verification", { place: HOUSE, thing: null, app: "papers", act: { entry: "activity.request-verification" } }),
   step("chapter.build-the-file-care", "sponsor", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.find-sponsor" } }),
   step("chapter.build-the-file-care", "applied", { place: VISA, thing: "desk", app: null, act: { entry: "activity.apply-uk-care" } }),
   step("chapter.build-the-file-talent", "portfolio", { place: HUB, thing: "long-desk", app: null, act: { entry: "activity.build-portfolio" } }),
   step("chapter.build-the-file-talent", "endorsement", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.apply-endorsement" } }),
   step("chapter.build-the-file-talent", "applied", { place: VISA, thing: "desk", app: null, act: { entry: "activity.apply-uk-talent" } }),
-  step("chapter.build-the-file-points", "eca", { place: HOUSE, inside: true, thing: "papers-box", app: "japa", act: { entry: "activity.get-eca" } }),
+  step("chapter.build-the-file-points", "eca", { place: HOUSE, thing: null, app: "papers", act: { entry: "activity.get-eca" } }),
   step("chapter.build-the-file-points", "english", { place: "place.english-test-centre", thing: "test-desk", app: null, act: { entry: "activity.sit-english-test" } }),
   step("chapter.build-the-file-points", "pool", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.enter-pool" } }),
   step("chapter.build-the-file-points", "invited", { place: HUB, thing: null, app: "japa", act: { wait: true } }),
-  step("chapter.build-the-file-gulf", "passport", { place: HOUSE, inside: true, thing: "papers-box", app: "japa", act: { entry: "activity.get-passport" } }),
+  step("chapter.build-the-file-gulf", "passport", { place: PASSPORT_OFFICE, thing: "desk", app: "papers", act: { entry: "activity.get-passport" } }),
   step("chapter.build-the-file-gulf", "medical", { place: CLINIC, thing: "nurse-desk", app: null, act: { entry: "activity.gulf-medical" } }),
   step("chapter.build-the-file-gulf", "agent", { place: AGENT, thing: "agent-desk", app: null, act: { entry: "offer.gulf-agent" } }),
   step("chapter.build-the-file-gulf", "contract", { place: AGENT, thing: "agent-desk", app: null, act: { entry: "activity.apply-gulf-contract" } }),

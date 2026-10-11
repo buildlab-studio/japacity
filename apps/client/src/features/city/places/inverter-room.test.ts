@@ -112,8 +112,8 @@ describe("the Inverter Room's things", () => {
       for (const act of one.acts) {
         say(sceneWords(act.label) === act.label, `${one.id} ${act.id} has no label`);
         say(act.kind === "sheet" && act.stages === undefined, `${one.id} ${act.id} stages nothing`);
-        say(act.kind === "plain" && act.pose === undefined && plainActLine(one, act, []) === null, `${one.id} ${act.id} says nothing`);
-        say(act.kind === "plain" && act.pose !== undefined && plainActLine(one, act, []) !== null, `${one.id} ${act.id} says a line the scene shows`);
+        say(act.kind === "plain" && act.pose === undefined && plainActLine(one, act) === null, `${one.id} ${act.id} says nothing`);
+        say(act.kind === "plain" && act.pose !== undefined && plainActLine(one, act) !== null, `${one.id} ${act.id} says a line the scene shows`);
       }
     }
     expect(wrong).toEqual([]);

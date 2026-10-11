@@ -42,7 +42,7 @@ describe("the room's basics at the tap", () => {
       const lie = thing?.acts.find((act) => act.id === "lie");
       if (thing === undefined || lie === undefined) throw new Error(`No Lie down on the ${id}`);
       expect(lie).toMatchObject({ kind: "plain", pose: "lie" });
-      expect(plainActLine(thing, lie, [])).toBeNull();
+      expect(plainActLine(thing, lie)).toBeNull();
     }
     expect(things.flatMap((thing) => thing.acts).some((act) => act.stages === "activity.rest")).toBe(false);
     expect(actsOffered(engineView("scenario.ada"))).not.toContain("activity.rest");

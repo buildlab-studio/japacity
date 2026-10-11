@@ -265,7 +265,7 @@ describe("what the phone carries", () => {
     await waitFor(() => expect(said).toHaveBeenCalledWith("pair-1", "phrase.hello", null));
   });
 
-  test("[R-WORLD-019] given papers held and on the way, when Japa opens, then the plan shows its percent and steps, and the Papers screen shows the box under the bed", async () => {
+  test("[R-WORLD-019] given papers held and on the way, when Japa opens, then the plan shows its percent and steps, and its papers' step opens the Papers app, the box under the bed", async () => {
     const view = richView();
     await openPhone(view);
     openApp("japa");
@@ -274,9 +274,12 @@ describe("what the phone carries", () => {
     // The reminder says the paper and when, each once (R-TEXT-008).
     const reminder = document.querySelector("[data-reminder='paper']");
     expect(reminder?.textContent).toBe(`${phoneWords("phone.japa.paper-ready", { paper: nameOf("document.transcript") })}${inMonths(12, view.month)}`);
+    // the step opens the app, one source for the papers.
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
+    expect(document.querySelector("[data-app-screen]")?.getAttribute("data-app-screen")).toBe("papers");
     expect(screen.getByText("The box under the bed")).toBeTruthy();
-    expect([...document.querySelectorAll("[data-paper]")].map((paper) => paper.getAttribute("data-state"))).toEqual(["held", "held", "pending"]);
+    const states = new Map([...document.querySelectorAll("[data-paper]")].map((paper) => [paper.getAttribute("data-paper"), paper.getAttribute("data-state")]));
+    expect(view.documents.map((paper) => states.get(paper.id))).toEqual(["held", "held", "coming"]);
   });
 
   test("[R-WORLD-018] given a draw result, when Lotto opens, then the next draw, the tickets held and the last result show, with the matched ticket lit", async () => {

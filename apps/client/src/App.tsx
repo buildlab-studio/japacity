@@ -98,12 +98,12 @@ function WorldPlaying() {
           ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => (OFFER_PLACES[offer.entry] ?? null)),
         ]}
         asksHold={closing}
-        phone={(close, area, app) => <PhoneApps onClose={close} area={area} account={
+        phone={(close, area, app, toMap) => <PhoneApps onClose={close} area={area} account={
           <>
             <AccountButton more={<NotifySetting />} />
             <ReadyEntry />
           </>
-        } talk={talk} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} />}
+        } talk={talk} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}

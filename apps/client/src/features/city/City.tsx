@@ -410,8 +410,11 @@ export function City({
   asksAt?: (string | null)[];
   /** True while an ask still says its last line after what it asked has closed (the officer's close): the sheet that holds it stays open. */
   asksHold?: boolean;
-  /** The world mode's phone (R-WORLD-018), handed in by the shell: the handset over the place named `area`. */
-  phone?: (close: () => void, area: string, app?: string | null) => ReactNode;
+  /**
+   * The world mode's phone (R-WORLD-018), handed in by the shell: the handset over the place named `area`. `toMap` puts
+   * it away onto the map with a stop picked: a paper's visit in Papers (R-WORLD-019).
+   */
+  phone?: (close: () => void, area: string, app?: string | null, toMap?: (stop: string) => void) => ReactNode;
   /** A dot on the Phone button: an app has something new (R-WORLD-004). */
   phoneWaiting?: boolean;
   /** The icon for an ask card's corner, by the ask's icon name, from the shell's icon set. */
@@ -784,8 +787,8 @@ export function City({
       case "plain": {
         setPicked(null);
         // A person at the thing speaks over their head and what follows is told in the corner; a thing tells its line;
-        // an act the scene shows (sit) says nothing. The papers box says what it holds (R-WORLD-019).
-        const line = plainActLine(thing, act, view.documents);
+        // an act the scene shows (sit) says nothing.
+        const line = plainActLine(thing, act);
         if (line?.kind === "say") {
           speak(line.who, line.name, line.words);
           const then = line.then;
@@ -796,6 +799,12 @@ export function City({
       // R-ROUTE-008: the school's deposit is paid at the bank through a card the world sends itself.
       case "command":
         setPicked(act.command === undefined ? null : { kind: "command", command: act.command });
+        return;
+      // R-WORLD-019: the papers box opens the phone's Papers app, the one place the papers are told.
+      case "app":
+        setPicked(null);
+        setPhoneApp(act.app ?? null);
+        setPhone(true);
         return;
       // R-WORLD-005: a free act that fills a slot happens at once, seen on the thing, with no line: its label says it is planned.
       case "do": {
@@ -917,6 +926,11 @@ export function City({
       }
       case "month":
         openCalendar(null);
+        return;
+      // A paper asked for by a call or a message opens Papers on its card (R-WORLD-019).
+      case "app":
+        setPhoneApp(opens.act === null ? opens.app : `${opens.app}:${opens.act}`);
+        setPhone(true);
         return;
       case "map":
         setMapPick(opens.stop);
@@ -1657,6 +1671,13 @@ export function City({
             },
             inside ? hereName : name,
             phoneApp,
+            (stop) => {
+              setPhone(false);
+              setPhoneApp(null);
+              setPhoneThen(null);
+              setMapPick(stop);
+              setMap(true);
+            },
           )
         : null}
       {world && phone && handset === undefined && apps !== undefined ? (

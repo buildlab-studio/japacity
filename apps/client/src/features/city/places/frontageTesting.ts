@@ -131,7 +131,7 @@ export function frontageTests(raw: unknown, id: Id<"place">): void {
         expect(sceneWords(act.label), `${thing.id} ${act.id}`).not.toBe(act.label);
         if (act.kind === "sheet") expect(act.stages, `${thing.id} ${act.id}`).toBeDefined();
         // A plain act tells its line or a person speaks; one with a pose is seen, and says nothing (R-WORLD-005, R-TEXT-008).
-        if (act.kind === "plain") expect(plainActLine(thing, act, []) === null, `${thing.id} ${act.id}`).toBe(act.pose !== undefined);
+        if (act.kind === "plain") expect(plainActLine(thing, act) === null, `${thing.id} ${act.id}`).toBe(act.pose !== undefined);
       }
     }
   });

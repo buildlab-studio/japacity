@@ -58,10 +58,9 @@ describe("the room in a compound", () => {
     expect(acts("cooking")).toEqual([["do", "activity.cook-at-home"]]);
     // The drum is filled free from the yard's tap: its own act, not the water seller's.
     expect(acts("drum")).toEqual([["do", "activity.fill-drum"]]);
-    expect(acts("papers-box")).toEqual([
-      ["sheet", "activity.get-passport"],
-      ["plain", null],
-    ]);
+    // the box opens the phone's Papers, where the papers' acts are.
+    expect(acts("papers-box")).toEqual([["app", null]]);
+    expect(thingOf("papers-box").acts[0]?.app).toBe("papers");
     expect(acts("bag")).toEqual([["command", "route/depart"]]);
     expect(["bed", "cooking", "drum", "papers-box", "bag", "door"].map((id) => sceneWords(thingOf(id).label))).toEqual(["Mattress", "Stove", "Water drum", "Papers box", "Bag", "Door"]);
     // The bag and the drum stand by the door, where the water comes in from the yard's tap.
@@ -73,13 +72,13 @@ describe("the room in a compound", () => {
     }
   });
 
-  test("[R-HOME-006] [R-HOME-010] given Ada living in the room, when its acts are read for now, then the mattress lies down, the stove cooks, the drum fetches water and the papers box starts the passport, staged by the family house; for a life living elsewhere the room opens none of them", () => {
+  test("[R-HOME-006] [R-HOME-010] given Ada living in the room, when its acts are read for now, then the mattress lies down, the stove cooks, the drum fetches water and the papers box opens Papers, staged by the family house; for a life living elsewhere the room opens none of them", () => {
     const view = livingThere();
     const now = actsNow(view, ID);
     expect(now["bed"]).toEqual(["lie", "end-month"]);
     expect(now["cooking"]).toEqual(["cook"]);
     expect(now["drum"]).toEqual(["fill-drum"]);
-    expect(now["papers-box"]).toEqual(["start", "look"]);
+    expect(now["papers-box"]).toEqual(["papers"]);
     expect(homeStagesAt(ID, ID, HOME, PLACES)).toEqual(content.place["place.family-house"]?.stages);
     // Lived elsewhere, the room stages nothing; the family house stages its own acts as before.
     expect(homeStagesAt(ID, "place.family-house", HOME, PLACES)).toEqual([]);

@@ -75,16 +75,17 @@ describe("the official page in Japa", () => {
     expect(screen.queryByText(say("ui.world.full"))).toBeNull();
   });
 
-  test("[R-WORLD-002] given a held paper that runs out, when the Papers screen opens, then it says how long it is valid, with no month number", async () => {
+  test("[R-WORLD-002] given a held paper that runs out, when the Papers app opens, then it says how long it is valid, with no month number", async () => {
+    // the papers moved from a screen inside Japa to their own app.
     const view = richView();
     const held = view.documents.find((paper) => paper.state === "held" && paper.expiresMonth !== null);
     if (held === undefined || held.expiresMonth === null) throw new Error("No held paper that runs out.");
     await openJapa(view);
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
     const paper = document.querySelector(`[data-paper="${held.id}"]`);
-    expect(paper?.textContent).toContain(phoneWords("phone.japa.paper-valid", { when: forMonths(held.expiresMonth, view.month) }));
+    expect(paper?.textContent).toContain(phoneWords("phone.papers.valid", { when: forMonths(held.expiresMonth, view.month) }));
     expect(document.querySelector("[data-papers]")?.textContent).not.toMatch(/month \d|until in/i);
-    expect(screen.getByText(phoneWords("phone.japa.papers.title"))).toBeTruthy();
+    expect(screen.getByText(phoneWords("phone.papers.title"))).toBeTruthy();
   });
 });
 
@@ -108,7 +109,7 @@ describe("Japa's reminders, from the one coming list", () => {
 });
 
 describe("a paper being renewed in Japa", () => {
-  test("[R-DOCUMENT-008] given a held passport with a new copy requested, when Japa opens, then the reminders say when it comes and the Papers screen says it is on its way, with no warning that it runs out", async () => {
+  test("[R-DOCUMENT-008] given a held passport with a new copy requested, when Japa opens, then the reminders say when it comes and the Papers app says it is on its way, with no warning that it runs out", async () => {
     const view = viewAfter(newGame("scenario.tunde"), [{ type: "document/request", document: "document.passport" }]);
     const passport = view.documents.find((paper) => paper.id === "document.passport");
     if (passport?.state !== "held" || passport.onItsWay === null) throw new Error("Tunde's passport is not being renewed.");
@@ -116,7 +117,9 @@ describe("a paper being renewed in Japa", () => {
     expect(document.querySelector("[data-reminders]")?.textContent).toContain(nameOf("document.passport"));
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
     const paper = document.querySelector(`[data-paper="document.passport"]`);
-    expect(paper?.textContent).toContain(phoneWords("phone.japa.paper-pending", { when: inMonths(passport.onItsWay, view.month) }));
+    expect(paper?.getAttribute("data-state")).toBe("coming");
+    expect(paper?.textContent).toContain(phoneWords("phone.papers.pending", { when: inMonths(passport.onItsWay, view.month) }));
+    expect(paper?.textContent).not.toMatch(/Runs out/);
   });
 });
 

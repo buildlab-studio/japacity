@@ -23,7 +23,9 @@ export type ActKind =
   /** Happens at once and fills a free slot of the month with the entry it stages, no sheet: rest on the bed (R-WORLD-005). */
   | "do"
   /** Opens a card for a player command the world sends on its own: the school's deposit at the bank (R-ROUTE-008). */
-  | "command";
+  | "command"
+  /** Opens the phone on one of its apps: the papers box opens Papers (R-WORLD-019). */
+  | "app";
 
 export interface Act {
   /** The act's id within its thing: `sit`, `sleep`, `play-lotto`. */
@@ -39,6 +41,8 @@ export interface Act {
   more?: string[];
   /** For `plain`: the entries whose acts stand in its place; it shows only while none of them can open (the agent at an empty desk). */
   unless?: string[];
+  /** For `app`: the phone app it opens, by its id on the phone (`papers`). */
+  app?: string;
   /** For `command`: which command the card sends. */
   command?: "route/pay-deposit" | "route/depart" | "obligation/pay";
   /** The pose the character takes on the thing once the act lands: sitting on it, lying on it (R-WORLD-005). */

@@ -5,7 +5,7 @@
 // fetch water) says nothing: the figure does it, or the pot steams and the drum fills. Pure.
 import type { Act, Thing } from "../../shared/world/contract";
 import { say } from "../../shared/words/text";
-import { cityWords, papersLook } from "./city.words";
+import { cityWords } from "./city.words";
 import { sceneWords } from "./scene.words";
 
 /** What a landed act puts in the world: words over the speaker, a line in the corner, or nothing. */
@@ -15,8 +15,6 @@ export type ActLine = { kind: "say"; who: string; name: string; words: string; t
 const LIGHT_BILL = "offer.nepa-bill";
 /** Mama's thing in the parlour. */
 const MAMA = "mama";
-/** The Look in the box act, whose line is what the box holds (R-WORLD-019). */
-const PAPERS = "city.act.papers";
 
 /** A scene key's words, or null when nothing has words for it. */
 function wordsFor(key: string): string | null {
@@ -26,10 +24,9 @@ function wordsFor(key: string): string | null {
 
 /**
  * The line of a plain act (no cost, no story) as it lands: the person's words when someone speaks, else the
- * corner's line, else nothing. `documents` are the view's, for what the papers box holds.
+ * corner's line, else nothing.
  */
-export function plainActLine(thing: Pick<Thing, "id" | "label">, act: Pick<Act, "label">, documents: readonly { id: string; state: string }[]): ActLine {
-  if (act.label === PAPERS) return { kind: "tell", words: papersLook(documents) };
+export function plainActLine(thing: Pick<Thing, "id" | "label">, act: Pick<Act, "label">): ActLine {
   const told = wordsFor(`${act.label}.done`);
   const says = wordsFor(`${act.label}.says`);
   if (says !== null) return { kind: "say", who: thing.id, name: wordsFor(`${act.label}.who`) ?? sceneWords(thing.label), words: says, then: told };

@@ -15,6 +15,7 @@ import { Japa } from "./apps/Japa";
 import { Jobs } from "./apps/Jobs";
 import { Lotto } from "./apps/Lotto";
 import { News } from "./apps/News";
+import { type PaperCards, Papers } from "./apps/Papers";
 import { Settings } from "./apps/Settings";
 import { Notices, useSignalsWaiting } from "./Notices";
 import { Phone } from "./Phone";
@@ -26,6 +27,7 @@ const ICON: Record<AppId, string> = {
   bank: "landmark",
   chats: "message-circle",
   japa: "plane",
+  papers: "folder-open",
   jobs: "briefcase",
   lotto: "ticket",
   bills: "receipt",
@@ -33,22 +35,33 @@ const ICON: Record<AppId, string> = {
   settings: "settings",
 };
 
-/** What an app opens on: the Bank on its send chooser (`bank:send`); the Calendar on its coming list or its teach card. */
+/**
+ * What an app opens on: the Bank on its send chooser (`bank:send`); the Calendar on its coming list
+ * or its teach card; Papers on an act's card (`papers:activity.get-transcript`, the nudge's step, R-WORLD-003).
+ */
 type Opening = string | null;
 
 /** The Calendar's screen, handed in by the shell with what it opens on (R-WORLD-002), so the phone knows nothing of the month. */
 export type CalendarScreen = (opening: string | null) => ReactNode;
 
-function screenOf(id: AppId, account: ReactNode, opening: Opening = null, calendar: CalendarScreen | null = null): ReactNode {
+/** What the shell hands the phone: the Calendar's screen and the acts' cards, so the phone imports no other feature. */
+interface Handed {
+  calendar: CalendarScreen | null;
+  cards: PaperCards | null;
+}
+
+function screenOf(id: AppId, account: ReactNode, opening: Opening, handed: Handed): ReactNode {
   switch (id) {
     case "calendar":
-      return calendar?.(opening) ?? null;
+      return handed.calendar?.(opening) ?? null;
     case "bank":
       return <Bank opening={opening === "send" ? "send" : null} />;
     case "chats":
       return <Chats />;
     case "japa":
       return <Japa />;
+    case "papers":
+      return <Papers opening={opening} cards={handed.cards} />;
     case "jobs":
       return <Jobs />;
     case "lotto":
@@ -67,7 +80,7 @@ function screenOf(id: AppId, account: ReactNode, opening: Opening = null, calend
 }
 
 /** The apps, each with its dot from what the player has not seen. */
-export function usePhoneApps({ account = null, opening = null, calendar = null }: { account?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null } = {}): PhoneApp[] {
+export function usePhoneApps({ account = null, opening = null, calendar = null, cards = null }: { account?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null } = {}): PhoneApp[] {
   const view = useView();
   const waiting = waitingOf(marksOf(view), useSeen());
   return APP_IDS.map((id) => ({
@@ -78,7 +91,7 @@ export function usePhoneApps({ account = null, opening = null, calendar = null }
     screen: (
       <>
         <Refused />
-        {screenOf(id, account, opening?.app === id ? opening.act : null, calendar)}
+        {screenOf(id, account, opening?.app === id ? opening.act : null, { calendar, cards })}
       </>
     ),
     waiting: waiting[id],
@@ -106,13 +119,17 @@ export interface PhoneAppsProps {
   start?: string | null;
   /** The Calendar's screen, from the shell (R-WORLD-002). */
   calendar?: CalendarScreen | null;
+  /** An act's card, from the shell, for Papers (R-WORLD-019). */
+  cards?: PaperCards | null;
+  /** Puts the phone away onto the map at a stop, from the shell: a paper's visit (R-WORLD-019). */
+  onMap?: (stop: string) => void;
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, talk = null, now, start = null, calendar = null }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, talk = null, now, start = null, calendar = null, cards = null, onMap }: PhoneAppsProps) {
   const view = useView();
   const [app, act] = start === null ? [null, null] : start.split(":");
-  const apps = usePhoneApps({ account, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar });
+  const apps = usePhoneApps({ account, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards });
   const marks = marksOf(view);
   return (
     <PhoneTalk value={talk}>
@@ -127,6 +144,7 @@ export function PhoneApps({ onClose, area, account = null, talk = null, now, sta
           if ((APP_IDS as readonly string[]).includes(id)) markSeen(id as AppId, marks[id as AppId]);
         }}
         {...(now === undefined ? {} : { now })}
+        {...(onMap === undefined ? {} : { onMap })}
       />
     </PhoneTalk>
   );
