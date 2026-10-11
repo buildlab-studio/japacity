@@ -24,7 +24,9 @@ const LAUNCH = [
   "moderation/open",
   "feedback/sent",
 ];
-const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped", ...LAUNCH];
+/** R-ANALYTICS-008 (11 Oct 2026, server.md R-SERVER-041): the page policy's reports, counted by the server. */
+const REPORTS = ["client/csp"];
+const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped", ...LAUNCH, ...REPORTS];
 const CLIENT = ["screen/opened", "share/pressed", "share/completed", "advert/impression", "advert/tap", "settings/sound", "settings/graphics", "load/time", "client/error", "ask/shown", "ask/accepted"];
 
 const list = content.analytics.counters;
@@ -49,6 +51,10 @@ describe("the counter list", () => {
     expect(named("share/arrival")?.keys).toEqual(named("share/pressed")?.keys);
     expect(named("wallet/topped-up")?.keys).toEqual(["count", "kobo"]);
     expect(named("advert/revenue")?.keys).toEqual(["kobo"]);
+    // Added 11 Oct 2026: the page policy's reports, keyed by directive, `other` for any directive off the list.
+    expect(named("client/csp")?.source).toBe("server");
+    expect(named("client/csp")?.keys).toContain("script-src-elem");
+    expect(named("client/csp")?.keys).toContain("other");
     expect(named("economy/held")?.keys).toHaveLength(12);
     expect(named("economy/held")?.keys).toContain("1-3:0");
     expect(named("economy/held")?.keys).toContain("13+:over-500k");

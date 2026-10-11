@@ -60,7 +60,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/api/admin/adverts", adminAdvertRoutes(deps));
   app.route("/api/admin", adminRoutes(deps));
   app.route("/", countersRoute(deps)).route("/api/admin", adminAnalyticsRoutes(deps));
-  // R-SERVER-039: the page's content policy reports here.
+  // R-SERVER-041: the page's content policy reports here.
   app.route("/", cspReportRoute(deps));
   app.route("/", moderationAdminRoutes(deps, moderationPorts(deps, accounts)));
   app.route("/", feedbackRoute(deps));

@@ -152,6 +152,35 @@ const ECONOMY_KEYS = MONTH_BANDS.flatMap((month) => HELD_BANDS.map((held) => `${
 /** R-MODERATION-003: a report's reasons, as the store keeps them (`ReportReason`). */
 const REPORT_REASONS = ["scam", "harassment", "impersonation", "underage", "sexual", "hate", "self-harm", "illegal", "cheating", "advert", "other"];
 
+/**
+ * R-ANALYTICS-008, server.md R-SERVER-041: the directives a report of the page's content policy may be
+ * counted under; any other is counted as `other`.
+ */
+export const CSP_DIRECTIVES = [
+  "default-src",
+  "script-src",
+  "script-src-elem",
+  "script-src-attr",
+  "style-src",
+  "style-src-elem",
+  "style-src-attr",
+  "img-src",
+  "font-src",
+  "connect-src",
+  "media-src",
+  "object-src",
+  "frame-src",
+  "child-src",
+  "worker-src",
+  "manifest-src",
+  "base-uri",
+  "form-action",
+  "frame-ancestors",
+  "require-trusted-types-for",
+  "trusted-types",
+  "other",
+] as const;
+
 /** R-ANALYTICS-004: why a row or a batch was dropped. */
 export const DROP_REASONS = ["signed-out", "size", "shape", "rate", "name", "key", "count"];
 
@@ -193,6 +222,8 @@ export const counterTable: CounterDef[] = [
   { name: "advert/revenue", keys: ["kobo"], source: "server" },
   { name: "moderation/open", keys: REPORT_REASONS, source: "server" },
   { name: "feedback/sent", keys: "region", source: "server" },
+  // R-ANALYTICS-008, server.md R-SERVER-041: the page policy's reports, counted by the server as they arrive.
+  { name: "client/csp", keys: [...CSP_DIRECTIVES], source: "server" },
 
   // R-ANALYTICS-002: what only the client sees.
   { name: "screen/opened", keys: SCREENS, source: "client" },

@@ -1,6 +1,6 @@
 # The page's own headers. The policy reports and
 # does not block yet: watch a week of play, then rename the header to enforce it.
-# Reports go to the server's /api/csp-report (docs/rules/server.md R-SERVER-039): report-to names the Reporting API's
+# Reports go to the server's /api/csp-report (docs/rules/server.md R-SERVER-041): report-to names the Reporting API's
 # endpoint, which Reporting-Endpoints defines on this origin, and report-uri is the older form for browsers without it.
 # Both are paths on the page's own origin, so the same file serves every deployment.
 # wasm-unsafe-eval: the models' mesh decoder. challenges.cloudflare.com: the bot check.

@@ -69,8 +69,10 @@ describe("the admin accounts from the deployment", () => {
     expect(config.vars["SITE_URL"]).toMatch(/^https:\/\//);
     expect(config.env?.["staging"]?.vars["SITE_URL"]).toMatch(/^https:\/\//);
     const text = readFileSync(fileURLToPath(new URL("../../wrangler.jsonc", import.meta.url).href), "utf8");
-    expect(text).not.toContain("ADMIN_ACCOUNTS");
+    // Named only in the comment that lists the secrets set with `wrangler secret put`, never as a key or a --var.
+    expect(text).not.toMatch(/"ADMIN_ACCOUNTS"\s*:/);
     expect(text).not.toContain("--var");
+    expect(text).toMatch(/\/\/ Secrets, set by the maintainer with `wrangler secret put <NAME>`[^\n]*\n(\s*\/\/[^\n]*\n)*?\s*\/\/[^\n]*\bADMIN_ACCOUNTS\b/);
   });
 
   test("[R-SERVER-012] given the Worker, when its isolate is made, then its config is the deployment's, read from the ADMIN_ACCOUNTS binding, and config.ts names no account", () => {

@@ -1,10 +1,11 @@
-// `POST /api/csp-report` (server.md R-SERVER-039): where the page's content policy
+// `POST /api/csp-report` (server.md R-SERVER-041): where the page's content policy
 // sends what it would have blocked, so "watch a week of play, then enforce" has something to watch. Browsers send
 // one of two shapes: the older `report-uri` one (`application/csp-report`, one report) and the Reporting API's
 // (`application/reports+json`, a list that may hold other kinds of report too). Each violation becomes one log line
 // and one count. A report carries far more than is kept: the line holds the directive, the blocked address's origin
 // and the document's path, and nothing else (never the user agent, the full address, the referrer, the sample, the
 // policy or a query string; R-SERVER-015, analytics.md R-ANALYTICS-007).
+import { CSP_DIRECTIVES } from "@japacity/content";
 import type { CounterTotal } from "@japacity/store";
 import type { MiddlewareHandler } from "hono";
 import { Hono } from "hono";
@@ -33,31 +34,8 @@ export const CSP_REPORTS_PER_REQUEST = 20;
 /** The counter each violation adds one to, keyed by its directive. Counts only (analytics.md R-ANALYTICS-012). */
 export const CSP_COUNTER = "client/csp";
 
-/** The directives a report may name; any other is counted and logged as `other`. */
-export const CSP_DIRECTIVES = [
-  "default-src",
-  "script-src",
-  "script-src-elem",
-  "script-src-attr",
-  "style-src",
-  "style-src-elem",
-  "style-src-attr",
-  "img-src",
-  "font-src",
-  "connect-src",
-  "media-src",
-  "object-src",
-  "frame-src",
-  "child-src",
-  "worker-src",
-  "manifest-src",
-  "base-uri",
-  "form-action",
-  "frame-ancestors",
-  "require-trusted-types-for",
-  "trusted-types",
-  "other",
-] as const;
+/** The directives a report may name, from the content's counter list (analytics.md R-ANALYTICS-008); any other is `other`. */
+export { CSP_DIRECTIVES };
 
 export type CspDirective = (typeof CSP_DIRECTIVES)[number];
 
