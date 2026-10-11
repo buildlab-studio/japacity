@@ -53,13 +53,13 @@ export const routeText: Record<string, string> = {
     "A sponsor for {route} sent you a certificate, but the salary is under the bar. It cannot be used for the visa.",
   "line.route.agent-recorded": "The agent took your money and your details for {route}. He said the contract would follow.",
   // The points gate (route-gates.md R-POINTS-002, 003, 005). First drafts.
-  "line.route.pool-entered": "Your profile for {route} went into the pool. It waits for the cut-off to come down to your score.",
+  "line.route.pool-entered": "Your profile for {route} went into the pool. Each draw, the cut-off moves.",
   "line.route.invited": "You were invited to apply for {route}. The fee goes with the application.",
   "line.route.invite-unpaid": "You were invited to apply for {route}, but the fee could not be paid. The invitation holds one more month.",
   "line.route.invite-lapsed": "The invitation for {route} has lapsed. The fee was never paid. Your profile stays in the pool.",
   "line.route.profile-lapsed": "Your profile for {route} has run out without an invitation. You can enter the pool again.",
   // The endorsement gate (R-ENDORSE-002). First draft.
-  "line.route.endorsement-refused": "The endorsing body did not back you for {route}. The letter was withdrawn, and there is a wait before you can ask again.",
+  "line.route.endorsement-refused": "The endorsing body did not back you for {route}. The letter was withdrawn. Build the work up, then ask again.",
   "route.uk-care.name": "Care work in the UK",
   "route.uk-care.blurb":
     "A health and care visa with a sponsor's certificate. For nurses and carers, if the door is open to people applying from home.",
@@ -172,8 +172,8 @@ export const routeText: Record<string, string> = {
   "line.route.road-go": "You got on the bus before light. Nobody at home knew yet.",
   "line.route.road-turned-back": "You went home before the bus left. The deposit stayed with the man.",
   "line.route.road-desert": "The trucks went north across the sand. The water was counted.",
-  "line.route.road-compound": "You were taken to a compound with a locked gate and told to wait. Nobody said for how long.",
-  "line.route.road-coast": "You reached the coast. There were more people waiting than there was room.",
+  "line.route.road-compound": "You were taken to a compound behind a locked gate. Nobody said for how long.",
+  "line.route.road-coast": "You reached the coast. There were more people than there was room in the boats.",
   "line.route.road-sea": "There was a boat that night. It was too small for the people on it.",
   "line.route.road-held": "Another month in the same place. They took a phone and called your family for money.",
   "line.route.road-turned": "Soldiers stopped the truck and sent everyone back. The migration agency offered a flight home.",
@@ -241,6 +241,6 @@ export const routeText: Record<string, string> = {
   // The visa appointment and its reminders (world.md R-WORLD-019, story/story.notice.data.ts).
   // {month} is the decision month, told as months away (world.md R-WORLD-002).
   "route.uk-masters.reminder.appointment": "Visa appointment: take the file from under the bed, then go.",
-  "route.uk-masters.reminder.interview": "Your interview is now. The officer is waiting.",
+  "route.uk-masters.reminder.interview": "Your interview is now. The officer will see you.",
   "route.uk-masters.reminder.decision": "Visa decision expected {month}.",
 };

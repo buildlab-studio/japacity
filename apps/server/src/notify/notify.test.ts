@@ -140,6 +140,14 @@ describe("the push message", () => {
   });
 });
 
+describe("the notice's words", () => {
+  test("[R-TEXT-007] [R-CLOCK-031] given the server's words, when each is read, then none narrates the player as idle or waited on: the bank-full notice says what to do", () => {
+    const deadTime = /\b(?:waiting for you|waits for you|while you wait|nothing to do but wait|dead time|still waiting|keep waiting|your life is waiting)\b/i;
+    expect(Object.values(notifyText).filter((line) => deadTime.test(line.replace(/\{[^}]*\}/g, "")))).toEqual([]);
+    expect(notifyText["notify.bank-full"]).toBe("Your months are full. Come and live them.");
+  });
+});
+
 describe("the bank's fill", () => {
   const clock = turnClock(productionConfig, cap);
   const state = (banked: number, ended = false) => {

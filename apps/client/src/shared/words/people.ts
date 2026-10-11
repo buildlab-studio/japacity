@@ -133,8 +133,8 @@ export const peopleText: Record<string, string> = {
   "ui.people.propose.joint.lead.them": "They lead, I go with them",
   "ui.people.propose.joint.send": "Ask",
   "ui.people.propose.joint.none": "None of the routes you know brings a partner yet.",
-  "ui.people.pending.mine": "You asked to {step}. Waiting for their answer.",
-  "ui.people.pending.mine.joint": "You asked to apply together on {route}. Waiting for their answer.",
+  "ui.people.pending.mine": "You asked to {step}. It is with them now.",
+  "ui.people.pending.mine.joint": "You asked to apply together on {route}. It is with them now.",
   "ui.people.pending.theirs": "They ask to {step}.",
   "ui.people.pending.theirs.joint": "They ask to apply together on {route}, with {lead} leading.",
   "ui.people.lead.me": "you",
@@ -196,9 +196,9 @@ export const peopleText: Record<string, string> = {
 
   // Gossip and drift (R-PEOPLE-041, R-PEOPLE-042)
   "ui.people.gossip": "You have a partner and you are seeing someone else. People talk: about {chance} a month. If your partner hears, you lose standing, and they may leave.",
-  "ui.people.drift.near": "No time together for {months} months. After {patience} with nothing, {name} stops waiting.",
-  "ui.people.drift.near.one": "No time together this past month. After {patience} with nothing, {name} stops waiting.",
-  "ui.people.drift.rule": "{name} will wait {patience} months without time together. No longer.",
+  "ui.people.drift.near": "No time together for {months} months. After {patience} with nothing, {name} moves on.",
+  "ui.people.drift.near.one": "No time together this past month. After {patience} with nothing, {name} moves on.",
+  "ui.people.drift.rule": "{name} gives it {patience} months without time together. No longer.",
 
   // The stand-in (R-PEOPLE-043, R-PEOPLE-044)
   "ui.people.stand-in.warned": "Your partner has gone quiet for a week. If they stay quiet for two weeks, a stand-in answers for them.",
@@ -243,7 +243,7 @@ export const peopleText: Record<string, string> = {
   "ui.talk.offline": "Talk opens when you both play online.",
   "ui.talk.failed.not-possible": "That is not possible right now.",
   "ui.talk.failed.blocked": "You blocked them. Lift the block to talk again.",
-  "ui.talk.failed.too-many": "That is a lot of talking for one hour. Wait a while, then say more.",
+  "ui.talk.failed.too-many": "That is a lot of talking for one hour. Say more in a while.",
   "ui.talk.failed.region": "Talking is not open where you are.",
   "ui.talk.failed.not-here": "You are not there any more.",
   "ui.talk.failed.wrong-place": "That one is for saying in a place.",
@@ -255,7 +255,7 @@ export const peopleText: Record<string, string> = {
   "ui.interview.for": "For {route}",
   "ui.interview.blocks": "Answer before the month can end. Your partner answers in another room.",
   "ui.interview.question": "Question {n} of {total}",
-  "ui.interview.waiting": "Your answers are in. The officer waits for your partner's. Carry on with your life.",
+  "ui.interview.waiting": "Your answers are in. Now the officer hears your partner. Back to your life.",
   "ui.interview.stand-in": "A stand-in answered for your partner.",
   "ui.interview.result": "{piece} for {route}",
   "ui.interview.result.pass": "Passed",

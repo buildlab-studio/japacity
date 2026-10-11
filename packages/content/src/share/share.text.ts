@@ -84,7 +84,7 @@ export const shareText: Record<string, string> = {
   "share.type.careful-saver.name": "The Careful Saver",
   "share.type.careful-saver.line": "I spent less than I made. Most months, anyway.",
   "share.type.hustler.name": "The Hustler",
-  "share.type.hustler.line": "I took the work that was there. Sleep could wait.",
+  "share.type.hustler.line": "I took the work that was there. Sleep came later.",
   "share.type.night-reader.name": "The Night Reader",
   "share.type.night-reader.line": "I read while the house slept. It carried me out.",
   "share.type.family-anchor.name": "The Family Anchor",

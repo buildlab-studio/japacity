@@ -114,7 +114,7 @@ export const adviceText: Record<string, string> = {
   "offer.agent-promise.name": "The agent's promise",
   "offer.agent-promise.title": "The agent's promise",
   "offer.agent-promise.body": "'It will all be sorted by the month I told you. Just wait.'",
-  "offer.agent-promise.choice.wait": "Keep waiting",
+  "offer.agent-promise.choice.wait": "Take his word",
 
   // What a scammer sells after the fee (R-ADVICE-008).
   "offer.agent-papers.name": "Papers made to order",
@@ -157,9 +157,9 @@ export const adviceText: Record<string, string> = {
   "line.offer.look-name-nothing": "You checked his name. Nobody had heard anything bad.",
   "line.offer.look-name-found": "You checked his name: {tell}.",
   "line.offer.agent-paid": "You paid {agent} {amount}. He said he would move things along.",
-  "line.offer.agent-paid-nothing-waiting": "You paid {agent} {amount}. He looked, but no paper of yours was waiting to be moved.",
+  "line.offer.agent-paid-nothing-waiting": "You paid {agent} {amount}. He looked, but you had no paper in line to move.",
   "line.offer.agent-chaser-paid": "You paid {agent} {amount} to follow up your papers.",
-  "line.offer.agent-chaser-paid-nothing-waiting": "You paid {agent} {amount}. No paper of yours was waiting to be followed up.",
+  "line.offer.agent-chaser-paid-nothing-waiting": "You paid {agent} {amount}. You had no paper in line to follow up.",
   "line.offer.agent-scam": "{agent} was a scam. {amount} gone.",
   "line.offer.agent-scam-tell": "You had seen it: {tell}.",
   "line.offer.agent-promise-broken": "The month he promised came. Nothing moved. {agent} does not pick up.",

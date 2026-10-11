@@ -38,7 +38,7 @@ export async function overLimit(deps: ServerDeps, gate: Gate, account: string | 
   const checks = account === null ? [{ limiter: deps.limits.anon60s, seconds: 60, key: address ?? NO_ADDRESS }] : gatesOf(deps, gate).map((each) => ({ ...each, key: account }));
   for (const check of checks) {
     const { success } = await check.limiter.limit({ key: check.key });
-    if (!success) return { ok: false, code: "rate-limited", detail: "Too many requests. Wait a moment and try again.", retryAfter: check.seconds };
+    if (!success) return { ok: false, code: "rate-limited", detail: "Too many requests. Try again in a moment.", retryAfter: check.seconds };
   }
   return null;
 }

@@ -40,7 +40,7 @@ export const interviewText: Record<string, string> = {
   "interview.genuineness.a.plans.not-decided": "We have not decided",
 
   "line.interview.opened": "The interview for {route} is booked. {questions} questions, in a room on your own, before the month can end.",
-  "line.interview.waiting": "Your answers are in. The officer is waiting for your partner's.",
+  "line.interview.waiting": "Your answers are in. Now the officer hears your partner.",
   "line.interview.passed": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer closed the file and nodded.",
   "line.interview.doubted": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer wrote a long note.",
   "line.interview.failed": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer did not believe the relationship.",

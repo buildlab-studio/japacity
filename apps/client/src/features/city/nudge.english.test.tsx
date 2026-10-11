@@ -32,18 +32,19 @@ describe("the English result on its way", () => {
     const view = waitingOnResult();
     const nudge = nudgeOf(view);
     expect(nudge).toMatchObject({ key: "chapter.build-the-file.item.english.started", params: { when: inMonths(11, 10) }, about: "step" });
-    expect(say(nudge.key, nudge.params)).toBe("Wait for your result, due next month");
+    // the result comes; the player is not told to wait.
+    expect(say(nudge.key, nudge.params)).toBe("Your result comes next month");
     expect(say(nudge.key, nudge.params)).not.toMatch(/Score|test centre/);
     // Planned this month, it says to end the month.
     const planned = { ...view, documents: [] };
     expect(say(nudgeOf(planned, undefined, ["activity.sit-english-test"]).key)).toBe("Test booked. Tap Next month.");
   });
 
-  test("[R-WORLD-003] given the result pending, when the world shows the nudge, then it opens nothing: there is nothing to do but wait", async () => {
+  test("[R-WORLD-003] given the result pending, when the world shows the nudge, then it opens nothing: the result comes by itself", async () => {
     await renderWithView(<City world results={() => <p />} />, waitingOnResult());
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
-    expect(document.querySelector("[data-nudge]")?.textContent).toBe("Wait for your result, due next month");
+    expect(document.querySelector("[data-nudge]")?.textContent).toBe("Your result comes next month");
     expect(document.querySelector("[data-nudge-open]")).toBeNull();
   });
 });

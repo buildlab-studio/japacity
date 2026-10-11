@@ -321,7 +321,7 @@ export const newsText: Record<string, string> = {
   "news.era-strike.announced.head": "Strike season",
   "news.era-strike.announced.body": "The universities are shutting. Papers from them will be slow.",
   "news.era-strike.in-force.head": "The campuses are empty",
-  "news.era-strike.in-force.body": "Transcripts and results wait.",
+  "news.era-strike.in-force.body": "No transcripts, no results, until it ends.",
   "news.era-strike.ended.head": "The strike is called off",
   "news.era-strike.ended.body": "Campuses open again. The backlog will take a while.",
 

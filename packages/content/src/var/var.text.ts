@@ -56,7 +56,7 @@ export const varText: Record<string, string> = {
   "var.inflation.name": "Inflation",
   "var.uk-care-sponsor-risk.name": "Care sponsors losing their licence",
   "var.passport-fee.name": "Passport fee",
-  "var.transcript-wait-extra.name": "Extra wait for transcripts",
+  "var.transcript-wait-extra.name": "Extra months for transcripts",
   "var.flight-factor.name": "Flight prices",
   "var.remote-hire-bonus.name": "Remote hiring",
   "var.uk-dependant-maintenance.name": "Funds a skilled worker's partner must show",

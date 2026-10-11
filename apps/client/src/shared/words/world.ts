@@ -57,7 +57,7 @@ export const worldText: Record<string, string> = {
   "ui.world.stop-act": "Stop {what}",
   "ui.world.step-outside": "Step outside",
 
-  "ui.nudge.setpiece": "Answer what is waiting",
+  "ui.nudge.setpiece": "Answer what you were asked",
   "ui.nudge.offer": "Answer the person asking",
   "ui.nudge.report": "Read the month's news",
   "ui.nudge.dues": "Find {due} this month: {held} held",
@@ -71,7 +71,7 @@ export const worldText: Record<string, string> = {
   // The care file counts the certificate (R-SPONSOR-005 as amended 11 Oct 2026): named while she can pay it, else the gap.
   "ui.nudge.meanwhile.nurse-certification": "Sit the nursing certification at the clinic",
   "ui.nudge.meanwhile.nurse-certification.short": "Find {amount} more for the certification",
-  "ui.nudge.meanwhile.nurse-certification.saving": "Wait for payday, then the certification",
+  "ui.nudge.meanwhile.nurse-certification.saving": "Payday first, then the certification",
   "ui.nudge.meanwhile.open-source": "Share your code at the hub",
   "ui.nudge.meanwhile.tech-posts": "Post what you know, at the laptops",
   "ui.nudge.meanwhile.be-noticed": "Get noticed: ask at the jobs board",
@@ -81,6 +81,6 @@ export const worldText: Record<string, string> = {
   // A chapter with every item met closes when the page turns.
   "ui.nudge.chapter-done": "The chapter is done. Tap Next month.",
   // A set piece staged elsewhere waits there; the player goes to it.
-  "ui.nudge.setpiece-away": "{what} waits for you at {place}.",
+  "ui.nudge.setpiece-away": "{what} is at {place}.",
   "ui.nudge.end": "Tap Next month when you are ready",
 };

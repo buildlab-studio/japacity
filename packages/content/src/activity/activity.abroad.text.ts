@@ -72,7 +72,7 @@ export const activityAbroadText: Record<string, string> = {
   "activity.phone-contract-ca.name": "Get a phone contract, Canada",
   "activity.phone-contract-ca.blurb": "A two-year plan with a carrier. Pay it on time and the file starts to grow.",
   "activity.send-money.name": "Send money home",
-  "activity.send-money.blurb": "Pick a channel and an amount. The family is waiting.",
+  "activity.send-money.blurb": "Pick a channel and an amount. Home is counting on it.",
   "activity.december-home-uk.name": "December in Lagos, from the UK",
   "activity.december-home-uk.blurb": "London to Lagos at the December fare, both ways. Everybody will be there.",
   "activity.december-home-ca.name": "December in Lagos, from Canada",
