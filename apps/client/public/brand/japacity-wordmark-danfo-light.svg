@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 736 140" role="img">
+  <title>Japacity</title>
+  <g transform="scale(1.4)">
+    <path d="M93.64 44.41A44 44 0 1 1 85.9 24.6" fill="none" stroke="#17140f" stroke-width="6"/>
+    <circle cx="50" cy="50" r="36" fill="#f2b705"/>
+    <path d="M26 28H62V19L82 34 62 49V62A19 19 0 0 1 24 62V54H36V62A7 7 0 0 0 50 62V40H26Z" fill="#17140f"/>
+  </g>
+  <!-- The letters on a cap height of 100, each drawn from straight lines and arcs. -->
+  <g transform="translate(166 20)" fill="#17140f" fill-rule="evenodd">
+    <path d="M38 0H60V70A30 30 0 0 1 0 70V58H22V70A8 8 0 0 0 38 70Z"/>
+    <path transform="translate(66 0)" d="M0 100L30 0H50L80 100H58L52 80H28L22 100ZM33.4 62L40 40 46.6 62Z"/>
+    <path transform="translate(156 0)" d="M0 0H36A32 32 0 0 1 36 64H22V100H0ZM22 20H36A12 12 0 0 1 36 44H22Z"/>
+    <path transform="translate(226 0)" d="M0 100L30 0H50L80 100H58L52 80H28L22 100ZM33.4 62L40 40 46.6 62Z"/>
+    <path transform="translate(314 0)" d="M67.1 17.9A38 50 0 1 0 67.1 82.1L50.3 68A16 28 0 1 1 50.3 32Z"/>
+    <path transform="translate(394 0)" d="M0 0H22V100H0Z"/>
+    <path transform="translate(430 0)" d="M0 0H66V20H44V100H22V20H0Z"/>
+    <path transform="translate(494 0)" d="M0 0H24L38 34 52 0H76L49 58V100H27V58Z"/>
+  </g>
+</svg>
