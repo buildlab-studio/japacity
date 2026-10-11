@@ -81,14 +81,16 @@ jobs:
           fi
           VITE_BUILD="$(git rev-parse --short HEAD)" pnpm build
 
-      # No --env: the top level of wrangler.jsonc is production. The admin accounts come from the environment's
-      # ADMIN_ACCOUNTS secret, never from a committed file (server.md R-SERVER-012); unset, production has no admin.
+      # No --env: the top level of wrangler.jsonc is production. The admin accounts are the Worker's own ADMIN_ACCOUNTS
+      # secret, set once with `wrangler secret put ADMIN_ACCOUNTS` and kept by every deploy (server.md R-SERVER-012,
+      # restated 11 Oct 2026); unset, production has no admin. Wrangler is the version apps/server/package.json pins.
       - name: Deploy the Worker to production
         if: steps.ready.outputs.set == 'true'
         uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.149.0"
           workingDirectory: apps/server
           packageManager: pnpm
-          command: deploy --var ADMIN_ACCOUNTS:${{ secrets.ADMIN_ACCOUNTS }}
+          command: deploy
