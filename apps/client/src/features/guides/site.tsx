@@ -1,12 +1,12 @@
 // The guide pages (docs/rules/guides.md): plain pages built at build time that load without the
 // game, need no sign-in and link into it (R-GUIDE-005). Every word comes from the content's text
 // table passed in, so a page is the content's words, never a copy of them.
+import { inline, readRulePage, REGISTER_URL, type RulePage } from "@japacity/content";
 import type { Content, Id } from "@japacity/sim";
 import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { CREDITS_PATH, GUIDES_ROOT, guidePath, MADE_PATH, numbersPath, SOURCES_PATH } from "./paths";
-import { inline, readRulePage, type RulePage } from "./rulePage";
+import { GUIDES_ROOT, guidePath, MADE_PATH, numbersPath } from "./paths";
 
 /** credits.json as tools/assets/credits.ts writes it (city.md R-CITY-021). */
 export interface CreditsFile {
@@ -14,12 +14,6 @@ export interface CreditsFile {
   assets: { file: string; attribution: string }[];
   fonts: { family: string; attribution: string }[];
   generated: string;
-}
-
-export interface ShippedPackage {
-  name: string;
-  version: string;
-  license: string;
 }
 
 export interface SiteInput {
@@ -35,11 +29,8 @@ export interface SiteInput {
   scripts?: readonly string[];
   /** Every rule page, by file name without `.md`. */
   rulePages: readonly { name: string; markdown: string }[];
+  /** credits.json, for its statement of where generated media is used. */
   credits: CreditsFile;
-  /** Who made the game, from the copyright line of the code's licence. */
-  makers: string;
-  /** The open source packages the client ships. */
-  packages: readonly ShippedPackage[];
 }
 
 export interface SitePage {
@@ -49,15 +40,6 @@ export interface SitePage {
   file: string;
   html: string;
 }
-
-const REGISTER_URL = "https://github.com/buildlab-studio/japacity/blob/main/assets-src/register.json";
-const OSM_COPYRIGHT = "https://www.openstreetmap.org/copyright";
-
-/** content carries the real-story credits as words only; these links are the research's (research 04) until it carries them. */
-const REAL_STORY_LINKS: Record<string, string> = {
-  "road.real-story.credit.1": "https://fij.ng/article/undercover-europe-through-the-sahara-desert-and-the-mediterranean-sea-i/",
-  "road.real-story.credit.3": "https://undercover.hosting.nyu.edu/s/undercover-reporting/item/14851",
-};
 
 const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -131,12 +113,6 @@ function Page({ say, title, description, input, children }: { say: Words; title:
             <a href={GUIDES_ROOT} className={LINK}>
               {say("guide.page.all-guides")}
             </a>
-            <a href={SOURCES_PATH} className={LINK}>
-              {say("guide.page.sources-page")}
-            </a>
-            <a href={CREDITS_PATH} className={LINK}>
-              {say("guide.page.credits")}
-            </a>
           </nav>
         </header>
         <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 leading-relaxed">{children}</main>
@@ -146,9 +122,6 @@ function Page({ say, title, description, input, children }: { say: Words; title:
             <p className="flex flex-wrap gap-x-4">
               <a href="/" className={LINK}>
                 {say("guide.page.play")}
-              </a>
-              <a href={CREDITS_PATH} className={LINK}>
-                {say("guide.page.credits")}
               </a>
               <a href={MADE_PATH} className={LINK}>
                 {say("guide.page.made")}
@@ -254,66 +227,11 @@ function GuidesIndex({ input }: { input: SiteInput }) {
           </li>
         ))}
       </ul>
-      <p className="flex flex-wrap gap-x-4">
-        <a href={SOURCES_PATH} className={LINK}>
-          {say("guide.page.sources-page")}
-        </a>
+      <p>
         <a href={MADE_PATH} className={LINK}>
           {say("guide.page.made")}
         </a>
       </p>
-    </Page>
-  );
-}
-
-function SourcesPage({ input, pages }: { input: SiteInput; pages: readonly RulePage[] }) {
-  const say = wordsFrom(input.text);
-  const credits = Object.keys(input.text)
-    .filter((key) => key.startsWith("road.real-story.credit."))
-    .sort();
-  return (
-    <Page say={say} title={say("guide.page.sources.title")} description={say("guide.page.sources.intro")} input={input}>
-      <h1 className="text-3xl font-bold">{say("guide.page.sources.title")}</h1>
-      <p>{say("guide.page.sources.intro")}</p>
-      <h2 className="text-2xl font-semibold">{say("guide.page.sources.guides")}</h2>
-      {Object.values(input.content.guide).map((guide) => (
-        <section key={guide.id} className="flex flex-col gap-2" data-group={guide.id}>
-          <h3 className="text-lg font-semibold">
-            <a href={guidePath(guide.id)} className={LINK}>
-              {say(`${guide.id}.title`)}
-            </a>
-          </h3>
-          <SourceList say={say} sources={guide.sources} />
-        </section>
-      ))}
-      <section className="flex flex-col gap-2" data-group="real-story">
-        <h2 className="text-2xl font-semibold">{say("guide.page.sources.journalism")}</h2>
-        <p className="text-text-2">{say("guide.page.sources.journalism-note")}</p>
-        <ul className="flex list-disc flex-col gap-1 pl-5">
-          {credits.map((key) => {
-            const url = REAL_STORY_LINKS[key];
-            return (
-              <li key={key}>
-                {url === undefined ? (
-                  say(key)
-                ) : (
-                  <a href={url} className={LINK} rel="noreferrer">
-                    {say(key)}
-                  </a>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-      {pages
-        .filter((page) => page.sources.length > 0)
-        .map((page) => (
-          <section key={page.name} className="flex flex-col gap-2" data-group={`rules/${page.name}`}>
-            <h2 className="text-2xl font-semibold">{say("guide.page.sources.rules", { page: page.title })}</h2>
-            <SourceList say={say} sources={page.sources} />
-          </section>
-        ))}
     </Page>
   );
 }
@@ -372,77 +290,6 @@ function NumbersPage({ input, page }: { input: SiteInput; page: RulePage }) {
   );
 }
 
-function CreditsPage({ input }: { input: SiteInput }) {
-  const say = wordsFrom(input.text);
-  const osm = input.credits.mapData.some((line) => line.link.includes("openstreetmap.org") || line.sources.some((source) => source.includes("openstreetmap.org")));
-  const overture = input.credits.mapData.some((line) => line.sources.some((source) => source.includes("overturemaps")));
-  return (
-    <Page say={say} title={say("guide.page.credits.title")} description={say("guide.page.credits.licence.name")} input={input}>
-      <h1 className="text-3xl font-bold">{say("guide.page.credits.title")}</h1>
-      <section className="flex flex-col gap-2" data-credits="people">
-        <h2 className="text-xl font-semibold">{say("guide.page.credits.people")}</h2>
-        <p>{input.makers}</p>
-      </section>
-      <section className="flex flex-col gap-2" data-credits="assets">
-        <h2 className="text-xl font-semibold">{say("guide.page.credits.assets")}</h2>
-        {input.credits.assets.length === 0 ? (
-          <p>{say("guide.page.credits.assets-none")}</p>
-        ) : (
-          <ul className="flex list-disc flex-col gap-1 pl-5">
-            {input.credits.assets.map((row) => (
-              <li key={row.file}>{row.attribution}</li>
-            ))}
-          </ul>
-        )}
-      </section>
-      <section className="flex flex-col gap-2" data-credits="fonts">
-        <h2 className="text-xl font-semibold">{say("guide.page.credits.fonts")}</h2>
-        <ul className="flex list-disc flex-col gap-1 pl-5">
-          {input.credits.fonts.map((font) => (
-            <li key={font.family}>{font.attribution}</li>
-          ))}
-        </ul>
-      </section>
-      <section className="flex flex-col gap-2" data-credits="code">
-        <h2 className="text-xl font-semibold">{say("guide.page.credits.code")}</h2>
-        <ul className="flex list-disc flex-col gap-1 pl-5">
-          {input.packages.map((shipped) => (
-            <li key={shipped.name}>
-              {shipped.license === "" ? `${shipped.name} ${shipped.version}` : `${shipped.name} ${shipped.version}, ${shipped.license}`}
-            </li>
-          ))}
-        </ul>
-      </section>
-      {osm || overture ? (
-        <section className="flex flex-col gap-2" data-credits="map">
-          <h2 className="text-xl font-semibold">{say("guide.page.credits.map")}</h2>
-          {osm ? (
-            <p>
-              <a href={OSM_COPYRIGHT} className={LINK}>
-                {say("guide.page.credits.osm")}
-              </a>
-              .
-            </p>
-          ) : null}
-          {overture ? <p>{say("guide.page.credits.overture")}</p> : null}
-        </section>
-      ) : null}
-      <section className="flex flex-col gap-2" data-credits="licences">
-        <h2 className="text-xl font-semibold">{say("guide.page.credits.licences")}</h2>
-        <p>{say("guide.page.credits.licence.code")}</p>
-        <p>{say("guide.page.credits.licence.docs")}</p>
-        <p>{say("guide.page.credits.licence.content")}</p>
-        <p>{say("guide.page.credits.licence.name")}</p>
-      </section>
-      <p>
-        <a href={MADE_PATH} className={LINK}>
-          {say("guide.page.made")}
-        </a>
-      </p>
-    </Page>
-  );
-}
-
 function MadePage({ input }: { input: SiteInput }) {
   const say = wordsFrom(input.text);
   const kinds = ["images", "clips", "voices", "music"];
@@ -475,16 +322,14 @@ function page(path: string, element: ReactNode): SitePage {
   return { path, file: `${path.replace(/^\//, "")}index.html`, html: `<!doctype html>${renderToStaticMarkup(element)}` };
 }
 
-/** Every guide page, the guides' index, the sources page, the numbers pages, the credits and how the game was made. The numbers guide is the index of the numbers pages. */
+/** Every guide page, the guides' index, the numbers pages and how the game was made. The numbers guide is the index of the numbers pages. */
 export function renderSite(input: SiteInput): SitePage[] {
   const rules = input.rulePages.map((rule) => readRulePage(rule.name, rule.markdown)).sort((a, b) => a.name.localeCompare(b.name));
   const numbered = rules.filter((rule) => rule.numbers !== null);
   return [
     page(GUIDES_ROOT, <GuidesIndex input={input} />),
     ...(Object.keys(input.content.guide) as Id<"guide">[]).map((id) => page(guidePath(id), <GuidePage input={input} id={id} pages={numbered} />)),
-    page(SOURCES_PATH, <SourcesPage input={input} pages={rules} />),
     ...numbered.map((rule) => page(numbersPath(rule.name), <NumbersPage input={input} page={rule} />)),
-    page(CREDITS_PATH, <CreditsPage input={input} />),
     page(MADE_PATH, <MadePage input={input} />),
   ];
 }

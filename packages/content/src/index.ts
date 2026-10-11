@@ -75,6 +75,7 @@ import { walletText } from "./wallet/wallet.text";
 export { blockedWords, reservedNames } from "./account/account.data";
 export { japaTypes, officialAccounts, shareChapters, shareKinds } from "./share/share.data";
 export { OPERATOR, type Operator } from "./legal/legal.operator";
+export { LICENCES_URL, REGISTER_URL, REPOSITORY_URL } from "./legal/legal.repository";
 export { lifePeople, nameMix, namedMix, namedPeople, namePool, peopleRegion, takingRoles } from "./person/person.names.data";
 export type { NamedPerson, NamedRole, NameFaith, NamePeople, NameSex, PoolName } from "./person/person.names.data";
 export { recurringPeople } from "./person/person.recurring.data";
@@ -200,6 +201,8 @@ export const text: Record<string, string> = mergeText(textTables);
 
 export { guideChecks, guideForRoute, guideKeys, staleGuides } from "./guide/guide.check";
 export { GUIDE_SECTIONS } from "./guide/guide.data";
+export { sourcesList, type ListedSource, type RulePageSources, type SourcesList } from "./guide/guide.sources";
+export { inline, isoDay, readRulePage, type Inline, type RulePage, type RuleSource } from "./guide/guide.rules";
 /** R-ADVERT-001, R-ADVERT-002: the slots check, which the engine's content check does not reach. */
 export { advertChecks } from "./advert/advert.check";
 export { realNameChecks } from "./place/place.check";

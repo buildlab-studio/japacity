@@ -8,7 +8,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { App } from "../../App";
 import { GuidesMenu } from "./GuidesMenu";
-import { CREDITS_PATH, guidePath, MADE_PATH, SOURCES_PATH } from "./paths";
+import { guidePath, MADE_PATH } from "./paths";
 import { onTheClassicPage } from "../../shared/testing/classic";
 
 function openMenu() {
@@ -37,12 +37,12 @@ describe("the guides from the game", () => {
     expect(first?.textContent).toContain(say("guide.page.route-link"));
   });
 
-  test("[R-GUIDE-008] given the menu, when it is opened, then the credits, the sources and how the game was made are reachable", async () => {
+  test("[R-GUIDE-011] given the menu, when it is opened, then how the game was made is reachable, and no link leads to a credits or sources page", async () => {
     await renderWithView(<GuidesMenu />, engineView("scenario.ada"));
     openMenu();
-    expect(screen.getByRole("link", { name: say("guide.page.credits") }).getAttribute("href")).toBe(CREDITS_PATH);
-    expect(screen.getByRole("link", { name: say("guide.page.sources-page") }).getAttribute("href")).toBe(SOURCES_PATH);
     expect(screen.getByRole("link", { name: say("guide.page.made") }).getAttribute("href")).toBe(MADE_PATH);
+    const hrefs = screen.getAllByRole("link").map((link) => link.getAttribute("href") ?? "");
+    expect(hrefs.filter((href) => href.startsWith("/guides/credits") || href.startsWith("/guides/sources"))).toEqual([]);
   });
 
   test("[R-GUIDE-005] given the game's header, when a life is in play, then the guides menu is in it", async () => {

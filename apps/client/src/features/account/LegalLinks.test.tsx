@@ -76,4 +76,15 @@ describe("the terms and the privacy notice from the account screens", () => {
     );
     expect(legalLinks(container)).toEqual(BOTH);
   });
+
+  test("[R-CITY-021] given the settings sheet and the Credits row the shell hands in, when it shows, then the row stands just above the two pages", () => {
+    const api = account();
+    const { container } = render(
+      <GameProvider store={storeFor(api)}>
+        <AccountSettings account={api} credits={<button type="button">Credits</button>} />
+      </GameProvider>,
+    );
+    const row = within(container).getByRole("button", { name: "Credits" });
+    expect(row.nextElementSibling?.getAttribute("aria-label")).toBe(say("ui.legal.label"));
+  });
 });

@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { content, text } from "@japacity/content";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { content, LICENCES_URL, text } from "@japacity/content";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import hubFile from "../../../public/assets/places/ojuelegba/place.json";
@@ -11,7 +11,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { assetUrl, PUBLISHED, type PublishManifest } from "../../shared/three/manifest";
 import { City } from "./City";
 import { cityWords } from "./city.words";
-import { CreditsList, type CreditsFile } from "./Credits";
+import { CreditsList, CreditsRow, type CreditsFile } from "./Credits";
 import { localDate, poolOf, sampleCrowd } from "./crowd";
 import { filesOf, type PlaceFile } from "./placeFile";
 
@@ -74,11 +74,58 @@ describe("loading", () => {
 });
 
 describe("credits", () => {
-  test("[R-CITY-021] given credits.json, when the credits screen shows, then the map data line links OpenStreetMap to its copyright page, with the fonts and the generated media", () => {
+  test("[R-CITY-021] given credits.json, when the credits screen shows, then the map data line links OpenStreetMap to its copyright page, with the register's attributions, the fonts, the generated media and the licences, in that order", () => {
     render(<CreditsList credits={credits} />);
     expect(screen.getByRole("link", { name: "OpenStreetMap" }).getAttribute("href")).toBe("https://www.openstreetmap.org/copyright");
     expect(screen.getByText(/available under the Open Database Licence/)).toBeDefined();
+    for (const row of credits.assets) expect(screen.getByText(row.attribution)).toBeDefined();
     for (const font of credits.fonts) expect(screen.getByText(font.attribution)).toBeDefined();
     expect(screen.getByText(credits.generated)).toBeDefined();
+    const order = [...document.querySelectorAll("[data-credits]")].map((section) => section.getAttribute("data-credits"));
+    expect(order).toEqual(["map", "assets", "fonts", "generated", "licences"]);
+    expect(within(document.querySelector<HTMLElement>('[data-credits="assets"]')!).getByRole("heading").textContent).toBe("Sound and art from others");
+  });
+
+  test("[R-CITY-021] given the register's voice row, when the generated media is stated, then the statement does not repeat the row", () => {
+    expect(credits.assets.length).toBeGreaterThan(0);
+    for (const row of credits.assets) {
+      expect(credits.generated).not.toContain(row.attribution);
+      for (const sentence of row.attribution.split(". ")) expect(credits.generated).not.toContain(sentence.replace(/\.$/, ""));
+    }
+  });
+
+  test("[R-CITY-021] given Settings, when its Credits row is pressed, then the same credits sheet opens", () => {
+    render(<CreditsRow />);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: cityWords("city.credits") }));
+    const sheet = screen.getByRole("dialog", { name: cityWords("city.credits") });
+    expect(within(sheet).getByText(cityWords("city.credits.loading"))).toBeDefined();
+  });
+
+  test("[R-GUIDE-008] given a register row with an attribution, when the credits show, then it stands under sound and art from others; with none, then the section is not there", () => {
+    render(<CreditsList credits={{ ...credits, assets: [{ file: "x.glb", attribution: "A bus by Someone, CC BY 4.0" }] }} />);
+    expect(document.querySelector('[data-credits="assets"] p')?.textContent).toBe("A bus by Someone, CC BY 4.0");
+    cleanup();
+    render(<CreditsList credits={{ ...credits, assets: [] }} />);
+    expect(document.querySelector('[data-credits="assets"]')).toBeNull();
+  });
+
+  test("[R-GUIDE-009] given map data from OpenStreetMap, when the credits screen shows, then its line links OpenStreetMap to the copyright page; with none, then no map line", () => {
+    render(<CreditsList credits={credits} />);
+    const map = document.querySelector('[data-credits="map"]');
+    expect(map?.querySelector("a")?.getAttribute("href")).toBe("https://www.openstreetmap.org/copyright");
+    expect(map?.textContent).toContain("Map data from OpenStreetMap, available under the Open Database Licence");
+    cleanup();
+    render(<CreditsList credits={{ ...credits, mapData: [] }} />);
+    expect(document.querySelector('[data-credits="map"]')).toBeNull();
+  });
+
+  test("[R-GUIDE-010] given the credits screen, when its licences are read, then code, docs, content and art, and the reserved name are stated, with the repository's full list linked", () => {
+    render(<CreditsList credits={credits} />);
+    const licences = document.querySelector('[data-credits="licences"]');
+    for (const words of ["Code: MIT.", "Docs: CC BY 4.0.", "Game content and art: CC BY-SA 4.0.", "The name Japacity and its logo are reserved."]) expect(licences?.textContent).toContain(words);
+    const full = within(licences as HTMLElement).getByRole("link", { name: "The full list, with every package the game ships, is in the repository." });
+    expect(full.getAttribute("href")).toBe(LICENCES_URL);
+    expect(LICENCES_URL).toBe("https://github.com/buildlab-studio/japacity/blob/main/LICENSES.md");
   });
 });

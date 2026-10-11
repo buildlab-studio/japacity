@@ -1,7 +1,5 @@
 // Where the guide pages are served: under /guides/, beside the game at /.
 export const GUIDES_ROOT = "/guides/";
-export const SOURCES_PATH = "/guides/sources/";
-export const CREDITS_PATH = "/guides/credits/";
 export const MADE_PATH = "/guides/how-this-game-was-made/";
 export const NUMBERS_PATH = "/guides/numbers/";
 

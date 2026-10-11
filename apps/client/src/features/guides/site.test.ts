@@ -1,11 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { content, staleGuides, text } from "@japacity/content";
+import { content, isoDay, readRulePage, REGISTER_URL, staleGuides, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { CREDITS_PATH, guidePath, MADE_PATH, NUMBERS_PATH, numbersPath, SOURCES_PATH } from "./paths";
-import { isoDay, readRulePage } from "./rulePage";
+import { guidePath, MADE_PATH, NUMBERS_PATH, numbersPath } from "./paths";
 import { renderSite, shownDay, type SiteInput, type SitePage } from "./site";
 import { siteFiles } from "./site.files";
 
@@ -35,7 +34,7 @@ describe("the guide pages", () => {
   test("[R-GUIDE-005] given the content, when the site is built, then every guide is a plain page under /guides/ with no script, linking into the game", () => {
     const paths = pages.map((page) => page.path);
     for (const id of Object.keys(content.guide)) expect(paths).toContain(guidePath(id));
-    expect(paths).toEqual(expect.arrayContaining(["/guides/", SOURCES_PATH, CREDITS_PATH, MADE_PATH]));
+    expect(paths).toEqual(expect.arrayContaining(["/guides/", MADE_PATH]));
     for (const page of pages) {
       expect(page.html.startsWith("<!doctype html><html lang=\"en-NG\">")).toBe(true);
       expect(page.file).toBe(`${page.path.slice(1)}index.html`);
@@ -182,79 +181,18 @@ describe("the words a player reads", () => {
   });
 });
 
-describe("the sources page", () => {
-  const sources = at(pages, SOURCES_PATH);
-  const links = new Set([...sources.querySelectorAll("a")].map((link) => link.getAttribute("href")));
-
-  test("[R-GUIDE-007] given every guide and every rule page, when the sources page is read, then each source is linked there, grouped by subject", () => {
-    for (const guide of Object.values(content.guide)) {
-      for (const source of guide.sources) expect(links.has(source.url) ? source.url : `missing ${source.url}`).toBe(source.url);
-      expect(sources.querySelector(`[data-group="${guide.id}"]`)).not.toBeNull();
-    }
-    const rules = files.rulePages.map((page) => readRulePage(page.name, page.markdown)).filter((page) => page.sources.length > 0);
-    expect(rules.length).toBeGreaterThan(20);
-    for (const rule of rules) {
-      expect(sources.querySelector(`[data-group="rules/${rule.name}"]`)).not.toBeNull();
-      for (const source of rule.sources) expect(links.has(source.url) ? source.url : `missing ${source.url}`).toBe(source.url);
-    }
-    const guidesPage = rules.find((rule) => rule.name === "guides");
-    expect(guidesPage?.sources[0]?.readOn).toBe("2026-10-08");
-  });
-
-  test("[R-GUIDE-007] given the real-story cards, when the sources page is read, then their journalism is credited and not reproduced", () => {
-    const group = sources.querySelector('[data-group="real-story"]');
-    const credits = Object.keys(text).filter((key) => key.startsWith("road.real-story.credit."));
-    expect(credits.length).toBeGreaterThanOrEqual(2);
-    for (const key of credits) expect(group?.textContent).toContain(text[key]);
-    expect(group?.querySelector("a")?.getAttribute("href")).toMatch(/^https:\/\//);
-    expect(group?.textContent).not.toContain(text["road.real-story.line"]);
-  });
-});
-
-describe("the credits", () => {
-  const credits = at(pages, CREDITS_PATH);
-
-  test("[R-GUIDE-008] given the credits page, when it is read, then it names the makers, the register's attributions, the fonts and the open source code with licences", () => {
-    const holders = /^Copyright \(c\) \d{4} (.+)$/m.exec(readFileSync(join(process.cwd(), "LICENSE"), "utf8"))?.[1];
-    expect(holders).toMatch(/\S and Japacity contributors$/);
-    expect(credits.querySelector('[data-credits="people"] p')?.textContent).toBe(holders);
-    for (const font of files.credits.fonts) expect(credits.querySelector('[data-credits="fonts"]')?.textContent).toContain(font.attribution);
-    const code = credits.querySelector('[data-credits="code"]')?.textContent ?? "";
-    expect(code).toMatch(/react 19\.3\.\d+, MIT/);
-    expect(code).not.toContain("@japacity");
-    const withAssets = at(site({ credits: { ...files.credits, assets: [{ file: "x.glb", attribution: "A bus by Someone, CC BY 4.0" }] } }), CREDITS_PATH);
-    expect(withAssets.querySelector('[data-credits="assets"] li')?.textContent).toBe("A bus by Someone, CC BY 4.0");
-  });
-
-  test("[R-GUIDE-008] given every guide page and the sources page, when their links are read, then each reaches the credits", () => {
-    const without = pages.filter((page) => new DOMParser().parseFromString(page.html, "text/html").querySelector(`a[href="${CREDITS_PATH}"]`) === null);
-    expect(without.map((page) => page.path)).toEqual([]);
-  });
-
-  test("[R-GUIDE-009] given map data from OpenStreetMap, when the credits are read, then they carry its line linked to the copyright page; with none, then no map line", () => {
-    const line = credits.querySelector('[data-credits="map"] a');
-    expect(line?.textContent).toBe("© OpenStreetMap contributors. Available under the Open Database License");
-    expect(line?.parentElement?.textContent).toBe("© OpenStreetMap contributors. Available under the Open Database License.");
-    expect(line?.getAttribute("href")).toBe("https://www.openstreetmap.org/copyright");
-    const none = at(site({ credits: { ...files.credits, mapData: [] } }), CREDITS_PATH);
-    expect(none.querySelector('[data-credits="map"]')).toBeNull();
-    const overture = at(site({ credits: { ...files.credits, mapData: [{ text: "x", link: "https://docs.overturemaps.org/attribution/", sources: ["https://overturemaps.org (place.x)"] }] } }), CREDITS_PATH);
-    expect(overture.querySelector('[data-credits="map"]')?.textContent).toContain(text["guide.page.credits.overture"]);
-  });
-
-  test("[R-GUIDE-010] given the credits page, when its licences are read, then code, docs, content and art, and the reserved name are stated", () => {
-    const licences = credits.querySelector('[data-credits="licences"]')?.textContent ?? "";
-    for (const words of ["Code: MIT.", "Docs: CC BY 4.0.", "Game content and art: CC BY-SA 4.0.", "The name Japacity and its logo are reserved."]) expect(licences).toContain(words);
-  });
-});
-
 describe("how this game was made", () => {
-  test("[R-GUIDE-011] given the page, when it is read, then it says by kind where generated media is used, that a person approved it, and links the register", () => {
+  test("[R-GUIDE-011] given the page, when it is read, then it says by kind where generated media is used, that a person approved it, and links the register; no page links a credits page", () => {
     const made = at(pages, MADE_PATH);
     expect([...made.querySelectorAll("[data-made]")].map((item) => item.getAttribute("data-made"))).toEqual(["images", "clips", "voices", "music"]);
     expect(made.body.textContent).toContain(files.credits.generated);
     expect(made.body.textContent).toContain(text["guide.page.made.approved"]);
     expect(made.querySelector('a[href$="assets-src/register.json"]')).not.toBeNull();
-    expect(at(pages, CREDITS_PATH).querySelector(`a[href="${MADE_PATH}"]`)).not.toBeNull();
+    expect(made.querySelector(`a[href="${REGISTER_URL}"]`)).not.toBeNull();
+    // The credits are a screen of the game and the sources a page of the documentation site (R-GUIDE-007, R-GUIDE-008).
+    const paths = pages.map((page) => page.path);
+    expect(paths.filter((path) => path.startsWith("/guides/credits") || path.startsWith("/guides/sources"))).toEqual([]);
+    const linking = pages.filter((page) => /href="\/guides\/(credits|sources)\//.test(page.html));
+    expect(linking.map((page) => page.path)).toEqual([]);
   });
 });

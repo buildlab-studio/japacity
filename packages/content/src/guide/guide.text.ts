@@ -12,8 +12,6 @@ export const guideText: Record<string, string> = {
   "guide.page.read-on": "read on {date}",
   "guide.page.play": "Play Japacity",
   "guide.page.all-guides": "All guides",
-  "guide.page.sources-page": "Every source",
-  "guide.page.credits": "Credits",
   "guide.page.made": "How this game was made",
   "guide.page.game-note": "Japacity is a game. It is built on real rules, simplified.",
   // The one notice on names, shown on the about page and in the terms (city.md R-CITY-041).
@@ -24,16 +22,8 @@ export const guideText: Record<string, string> = {
   "guide.page.index.routes": "For the routes: {routes}.",
   "guide.page.index.routes.one": "For the route: {routes}.",
   "guide.page.index.routes.zero": "For every route.",
-  "guide.page.menu": "Guides and credits",
+  "guide.page.menu": "Guides",
   "guide.page.route-link": "What the route really needs",
-
-  // The sources page (R-GUIDE-007).
-  "guide.page.sources.title": "Every source the game cites",
-  "guide.page.sources.intro": "Every source cited in the game, its guides and its rule pages, grouped by subject, each with the date it was read.",
-  "guide.page.sources.guides": "The guides",
-  "guide.page.sources.rules": "The rule page on {page}",
-  "guide.page.sources.journalism": "The real-story cards",
-  "guide.page.sources.journalism-note": "The road's real-story cards draw on this reporting. Nothing from it is reproduced in the game.",
 
   // The numbers pages (R-GUIDE-006).
   "guide.page.numbers.title": "Where the numbers come from: {page}",
@@ -88,22 +78,6 @@ export const guideText: Record<string, string> = {
   "guide.page.numbers.name.undertaking": "Sponsoring a partner",
   "guide.page.numbers.name.wallet": "Money",
   "guide.page.numbers.name.home": "Where you live",
-
-  // The credits (R-GUIDE-008, R-GUIDE-009, R-GUIDE-010).
-  "guide.page.credits.title": "Credits",
-  "guide.page.credits.people": "Made by",
-  "guide.page.credits.assets": "Art and models from others",
-  "guide.page.credits.assets-none": "Every model and picture in the game was made for it.",
-  "guide.page.credits.fonts": "Fonts",
-  "guide.page.credits.code": "Open source code the game ships",
-  "guide.page.credits.map": "Map data",
-  "guide.page.credits.osm": "© OpenStreetMap contributors. Available under the Open Database License",
-  "guide.page.credits.overture": "Overture Maps data, under the licence of each source theme.",
-  "guide.page.credits.licences": "The game's own licences",
-  "guide.page.credits.licence.code": "Code: MIT.",
-  "guide.page.credits.licence.docs": "Docs: CC BY 4.0.",
-  "guide.page.credits.licence.content": "Game content and art: CC BY-SA 4.0.",
-  "guide.page.credits.licence.name": "The name Japacity and its logo are reserved. No licence above covers them.",
 
   // How this game was made (R-GUIDE-011).
   "guide.page.made.title": "How this game was made",

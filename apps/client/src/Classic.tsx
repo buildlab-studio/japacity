@@ -14,6 +14,7 @@ import { PhoneTile, PlaceAdverts } from "./features/adverts/placed";
 import { CardView } from "./features/card/ShareCard";
 import { ChapterView } from "./features/chapter/ChapterView";
 import { City } from "./features/city/City";
+import { CreditsRow } from "./features/city/Credits";
 import { CreditView } from "./features/credit/CreditView";
 import { DocumentView } from "./features/document/DocumentView";
 import { GoalView } from "./features/goal/GoalView";
@@ -94,7 +95,7 @@ function Header() {
         </span>
         <ModerationMenu />
         <GuidesMenu />
-        <AccountButton more={<NotifySetting />} />
+        <AccountButton more={<NotifySetting />} credits={<CreditsRow />} />
         <NotifyAsk />
       </div>
     </header>
