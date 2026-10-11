@@ -45,6 +45,8 @@ export const mapText: Record<string, string> = {
   "map.ride.turn-back": "Turn back",
   // Where you are as the ride goes, in the card: pulling out, the road, the stop.
   "map.ride.along.start": "Pulling out of {from}.",
+  // On foot nothing pulls out: the walk sets off.
+  "map.ride.along.start.walk": "Setting off from {from} on foot.",
   "map.ride.along.road.1": "The traffic moves, for once.",
   "map.ride.along.road.2": "A hold-up at the junction, horns going.",
   // The line that names a person is each way's own: the okada's rider, the keke's and the danfo's driver, your own feet.

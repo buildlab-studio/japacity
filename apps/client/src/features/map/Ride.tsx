@@ -92,7 +92,7 @@ const PERSON_LINES: ReadonlySet<number> = new Set([3]);
  * after the pre-roll, 0 to 1. A road line that names a person is the way's own.
  */
 export function alongOf(u: number, seed: number, way: Way): { key: string; needs: "from" | "to" | null } {
-  if (u < 0.34) return { key: "map.ride.along.start", needs: "from" };
+  if (u < 0.34) return { key: way === "walk" ? "map.ride.along.start.walk" : "map.ride.along.start", needs: "from" };
   const road = (Math.abs(Math.trunc(seed)) % ROAD_LINES) + 1;
   if (u < 0.78) return { key: PERSON_LINES.has(road) ? `map.ride.along.road.${String(road)}.${way}` : `map.ride.along.road.${String(road)}`, needs: null };
   return { key: "map.ride.along.near", needs: "to" };

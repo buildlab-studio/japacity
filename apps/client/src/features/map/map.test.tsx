@@ -429,6 +429,22 @@ describe("the ride", () => {
     expect(screen.getByRole("button", { name: mapWords("map.ride.skip") })).toBeTruthy();
   });
 
+  test("[R-WORLD-017] given a walk, short or the long walk home, when it sets off, then the card says it sets off on foot from the place left, never that it pulls out; a ride still pulls out", async () => {
+    expect(alongOf(0, 1, "walk")).toEqual({ key: "map.ride.along.start.walk", needs: "from" });
+    expect(alongOf(0, 1, "danfo").key).toBe("map.ride.along.start");
+    expect(mapWords("map.ride.along.start.walk", { from: "Computer Village" })).toBe("Setting off from Computer Village on foot.");
+    vi.useFakeTimers();
+    for (const long of [false, true]) {
+      document.body.innerHTML = "";
+      render(<Ride way="walk" long={long} place="The family house" from="Computer Village" drawing={false} onDone={() => undefined} />);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(200);
+      });
+      expect(document.querySelector("[data-ride-line]")?.textContent).toBe("Setting off from Computer Village on foot.");
+      expect(document.body.textContent).not.toContain("Pulling out");
+    }
+  });
+
   test("[R-WORLD-017] given a ride with the place it left, when it plays, then the card says where you are on the ride's own clock: pulling out, a road line, the stop near the end", async () => {
     vi.useFakeTimers();
     render(<Ride way="danfo" place="Bode Thomas Street" from="Ojuelegba" drawing={false} seed={1} onDone={() => undefined} />);
