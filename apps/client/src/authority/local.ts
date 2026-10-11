@@ -132,13 +132,15 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   // A life not yet chosen is never written: the front door comes back after a reload instead of the first scenario's life.
   let chosen = false;
 
-  function persist(): void {
-    if (storage === null || !chosen) return;
+  /** False when the save was not written: a full or blocked storage loses it on reload, but play goes on. */
+  function persist(): boolean {
+    if (storage === null || !chosen) return false;
     const stored: Stored = { save, clock: { anchor } };
     try {
       storage.setItem(SAVE_KEY, JSON.stringify(stored));
+      return true;
     } catch {
-      // A full or blocked storage loses the save on reload, but play goes on.
+      return false;
     }
   }
 
@@ -276,8 +278,9 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       try {
         storage?.removeItem?.(SAVE_KEY);
         storage?.removeItem?.(PERSON_KEY);
-      } catch {
-        // A blocked storage kept nothing to clear.
+      } catch (error) {
+        // A blocked storage kept nothing to clear; said in the console for whoever reads it, never to the player.
+        console.warn(`Japacity: the old save was not cleared (${error instanceof Error ? error.name : "blocked"}).`);
       }
       // As at a load with no save: a life is held so the authority answers, but none is written before one is chosen.
       chosen = false;

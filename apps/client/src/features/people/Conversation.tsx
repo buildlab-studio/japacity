@@ -15,6 +15,7 @@ import { Button } from "../../shared/ui/Button";
 import { Tag } from "../../shared/ui/Panel";
 import { hasWords, say, sayCount } from "../../shared/words/text";
 import type { PairApi } from "./pairApi";
+import { troubleWords } from "../../shared/words/trouble";
 
 const PHRASES = conversationPhrases();
 
@@ -76,7 +77,7 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
           return [...held, ...reply.messages.filter((row) => !known.has(row.id))];
         });
       } catch (error) {
-        setRefusal(say("ui.talk.failed.other", { why: error instanceof Error ? error.message : String(error) }));
+        setRefusal(troubleWords(error));
       }
     },
     [api, pair],
@@ -120,7 +121,7 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
       if (reply.ok) setRows((held) => [...held, reply.message]);
       else setRefusal(refusalWords(reply));
     } catch (error) {
-      setRefusal(say("ui.talk.failed.other", { why: error instanceof Error ? error.message : String(error) }));
+      setRefusal(troubleWords(error));
     } finally {
       setBusy(false);
     }

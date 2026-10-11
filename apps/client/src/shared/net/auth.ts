@@ -26,7 +26,8 @@ import {
   type UsernameRequest,
 } from "./contract";
 import { forgetAccount, putUsageCounts, readAccount } from "./account";
-import { api, type Fetch } from "./http";
+import { api, type Fetch, requestFetch } from "./http";
+import { pageWall, type WallGuard } from "./wall";
 
 /**
  * `no-life`: a way in with no life behind it; a life starts as a guest (R-ACCOUNT-021, R-ACCOUNT-029).
@@ -169,22 +170,26 @@ export function deleted(reply: DeleteReply): AuthResult {
   return { ok: false, why: reply.code === "rate-limited" ? "too-many" : "refused" };
 }
 
-/** Reads the server's 503 for the age screen while sign-ups are off; anything else leaves the screen to ask. */
-function switchedOff(reply: unknown, status: number): Full | null {
-  if (status !== 503 || typeof reply !== "object" || reply === null) return null;
-  const refusal = reply as Partial<ServerRejection>;
-  return refusal.code === "switched-off" ? { full: true, retryAfter: refusal.retryAfter ?? FULL_RETRY_FALLBACK_S } : null;
+/** A refusal from `GET /api/age`: the server's 503 while sign-ups are off (R-SERVER-032), or the region's. */
+function isRejection(reply: AgeStatus | ServerRejection): reply is ServerRejection {
+  return "ok" in reply && reply.ok === false;
 }
 
-export function betterAuthApi({ baseUrl, fetch }: { baseUrl: string; fetch?: Fetch }): AccountApi {
+/**
+ * `wall`: what a login wall sets off (R-ACCOUNT-006), the page's one reload or a test's. Every request here, the auth
+ * library's among them, goes through the one request function (R-ENGINE-015): its clock, same origin, no redirect
+ * followed, a wall or no answer sorted by its kind.
+ */
+export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: string; fetch?: Fetch; wall?: WallGuard }): AccountApi {
   const base = baseUrl.replace(/\/+$/, "");
   const send: Fetch = fetch ?? ((input, init) => globalThis.fetch(input, init));
-  const server = api({ baseUrl: base, fetch: send });
+  const server = api({ baseUrl: base, fetch: send, wall });
+  const classified = requestFetch(send, wall);
   // the server mounts Better Auth at /api/auth, its default base path.
   const client = createAuthClient({
     baseURL: `${base}/api/auth`,
     // The seam's own fetch, so a test's stand-in server answers the library's routes too.
-    fetchOptions: { credentials: "include", customFetchImpl: (input, init) => send(input instanceof Request ? input.url : String(input), init) },
+    fetchOptions: { credentials: "same-origin", customFetchImpl: (input, init) => classified(input instanceof Request ? input.url : String(input), init) },
     plugins: [emailOTPClient(), passkeyClient()],
   });
   const home = () => (typeof location === "undefined" ? "/" : `${location.origin}/`);
@@ -194,38 +199,24 @@ export function betterAuthApi({ baseUrl, fetch }: { baseUrl: string; fetch?: Fet
     async ageStatus() {
       // `GET /api/age` reads the server's refusal cookie (R-ACCOUNT-012); its switch gate answers 503 first while sign-ups are off (R-SERVER-031).
       try {
-        const response = await send(`${base}/api/age`, { method: "GET", credentials: "include", headers: { accept: "application/json" } });
-        const reply: unknown = await response.json().catch(() => null);
-        const closed = switchedOff(reply, response.status);
-        if (closed !== null) return closed;
-        if (typeof reply === "object" && reply !== null && (reply as Partial<ServerRejection>).code === "region-closed") return "region-closed";
-        if (response.ok && (reply as Partial<AgeStatus> | null)?.refused === true) return "refused";
+        const reply = await server.get<AgeStatus | ServerRejection>("/api/age");
+        if (!isRejection(reply)) return reply.refused === true ? "refused" : "unasked";
+        if (reply.code === "switched-off") return full(reply);
+        if (reply.code === "region-closed") return "region-closed";
+        return "unasked";
       } catch {
-        // Unreachable now: the age screen says so when it sends.
+        // Unreachable now (a wall has already reloaded the page): the age screen says so when it sends.
+        return "unasked";
       }
-      return "unasked";
     },
     async declareAge(birth) {
       const request: AgeRequest = { dateOfBirth: birth };
-      const response = await send(`${base}/api/age`, {
-        method: "POST",
-        credentials: "include",
-        headers: { accept: "application/json", "content-type": "application/json" },
-        body: JSON.stringify(request),
-      });
-      const reply = (await response.json()) as AgeReply;
-      return standing(reply);
+      return standing(await server.post<AgeReply>("/api/age", request));
     },
     async startGuest(username, bot) {
       const request: GuestRequest = { username };
       try {
-        const response = await send(`${base}/api/guest`, {
-          method: "POST",
-          credentials: "include",
-          headers: { accept: "application/json", "content-type": "application/json", ...(bot === null ? {} : { [CAPTCHA_HEADER]: bot }) },
-          body: JSON.stringify(request),
-        });
-        const reply = (await response.json()) as NameReply;
+        const reply = await server.post<NameReply>("/api/guest", request, bot === null ? {} : { [CAPTCHA_HEADER]: bot });
         forgetAccount(server);
         return guestAnswer(reply);
       } catch {

@@ -27,13 +27,15 @@ function browserStorage(): Forget | null {
   }
 }
 
-/** Drops everything the ended life kept on the device. */
-export function forgetLife(storage: Forget | null = browserStorage()): void {
+/** Drops everything the ended life kept on the device. False when a blocked storage refused a key (it kept nothing to drop). */
+export function forgetLife(storage: Forget | null = browserStorage()): boolean {
+  let all = true;
   for (const key of LIFE_KEYS) {
     try {
       storage?.removeItem(key);
     } catch {
-      // A blocked storage kept nothing to drop.
+      all = false;
     }
   }
+  return all;
 }

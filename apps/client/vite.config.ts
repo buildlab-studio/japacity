@@ -4,8 +4,9 @@ import { defineConfig } from "vite";
 
 import { guidePages } from "./src/features/guides/prerender";
 import { beaconPlugin } from "./src/shared/analytics/beacon";
+import { buildStamp } from "./src/shared/stamp/stamp.plugin";
 import { legalPagesPlugin } from "./src/features/legal/plugin";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), guidePages(), legalPagesPlugin(), beaconPlugin()],
+  plugins: [react(), tailwindcss(), guidePages(), legalPagesPlugin(), beaconPlugin(), buildStamp()],
 });

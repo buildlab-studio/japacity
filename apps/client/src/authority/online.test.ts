@@ -24,17 +24,31 @@ afterEach(() => {
 
 const reply = (view: PlayerView, clock: ClockView = CLOCK) => ({ body: { ok: true, view, lines: [], clock } });
 
+/** A document's stand-in: its visibility set by the test, and its events heard. */
+function fakePage() {
+  const target = new EventTarget();
+  let state: DocumentVisibilityState = "visible";
+  const page = Object.defineProperty(target, "visibilityState", { get: () => state }) as EventTarget & { visibilityState: DocumentVisibilityState };
+  const turn = (to: DocumentVisibilityState) => {
+    state = to;
+    target.dispatchEvent(new Event("visibilitychange"));
+  };
+  return { page, turn };
+}
+
 async function setUp(first: PlayerView = { ...engineView(), v: 2 }) {
   const server = fakeServer();
   server.answer("GET /api/view", reply(first));
-  const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch });
-  const store = createGameStore(remote, { life: remote, lifeAgain: false });
+  // A login wall here shows the card; the page's one reload for it is wall.test.ts's.
+  const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch, wall: { met: () => false, passed: () => undefined } });
+  const store = createGameStore(remote, { life: remote, lifeAgain: false, wait: () => Promise.resolve() });
   const { open, opened } = fakeSockets();
   const focus = new EventTarget();
-  const stop = goOnline({ store, remote, open, random: () => 0, now: () => Date.now(), focus });
+  const { page, turn } = fakePage();
+  const stop = goOnline({ store, remote, open, random: () => 0, now: () => Date.now(), focus, page });
   await store.getState().refresh();
   const views = () => server.sent.filter((request) => request.path === "/api/view").length;
-  return { server, store, opened, focus, stop, views };
+  return { server, store, opened, focus, turn, stop, views };
 }
 
 describe("going online", () => {
@@ -61,6 +75,47 @@ describe("going online", () => {
     const before = views();
     focus.dispatchEvent(new Event("focus"));
     await vi.waitFor(() => expect(views()).toBe(before + 1));
+  });
+
+  test("[R-ENGINE-015] given the page shown again from the back-forward cache, then the view is read again once, and the clock and the month's plan survive", async () => {
+    const { server, store, focus, views } = await setUp();
+    store.getState().setSlot(0, { activity: "activity.learn-tech", param: null });
+    const plan = store.getState().plan;
+    const later: ClockView = { ...CLOCK, tick: 4 };
+    server.answer("GET /api/view", reply({ ...engineView(), v: 2 }, later));
+    const before = views();
+    focus.dispatchEvent(Object.assign(new Event("pageshow"), { persisted: true }));
+    await vi.waitFor(() => expect(views()).toBe(before + 1));
+    await vi.waitFor(() => expect(store.getState().clock?.tick).toBe(4));
+    expect(store.getState().plan).toEqual(plan);
+  });
+
+  test("[R-ENGINE-015] given the tab turns visible after the phone slept, then the view is read again; turning hidden reads nothing", async () => {
+    const { turn, views } = await setUp();
+    const before = views();
+    turn("hidden");
+    await vi.advanceTimersByTimeAsync(10);
+    expect(views()).toBe(before);
+    turn("visible");
+    await vi.waitFor(() => expect(views()).toBe(before + 1));
+  });
+
+  test("[R-ENGINE-015] given the browser left and come back with focus, pageshow and visible at once, then one request reads the view", async () => {
+    const { focus, turn, views } = await setUp();
+    const before = views();
+    focus.dispatchEvent(new Event("focus"));
+    focus.dispatchEvent(new Event("pageshow"));
+    turn("visible");
+    await vi.advanceTimersByTimeAsync(10);
+    expect(views()).toBe(before + 1);
+  });
+
+  test("[R-ENGINE-015] [R-ACCOUNT-006] given the session lost while away (the wall's redirect), when the page comes back, then the card says so and the life on screen stays", async () => {
+    const { server, store, focus } = await setUp();
+    server.answer("GET /api/view", () => Promise.resolve({ status: 302, body: "", headers: { "content-type": "text/html" } }));
+    focus.dispatchEvent(new Event("pageshow"));
+    await vi.waitFor(() => expect(store.getState().trouble).toEqual({ kind: "wall", during: "view" }));
+    expect(store.getState().view?.v).toBe(2);
   });
 
   test("[R-CLOCK-021] given a view nudge above the version held, then the view is fetched through an ordinary request", async () => {

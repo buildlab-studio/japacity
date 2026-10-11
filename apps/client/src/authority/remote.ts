@@ -6,6 +6,7 @@ import type { Command, Id, PlayerView, Reply, ReportLine } from "@japacity/sim";
 
 import type { ClockView, CommandRequest, NewCharacterReply, NewCharacterRequest, PresenceReply, ServerRejection, ServerReply, ViewReply, WorldReply } from "../shared/net/contract";
 import { api, reportedError, retryAfterMs, type Api, type Fetch } from "../shared/net/http";
+import type { WallGuard } from "../shared/net/wall";
 
 /** What the authority tells the store that the Authority type has no room for. */
 export type AuthorityEvent =
@@ -24,6 +25,8 @@ export interface RemoteAuthorityOptions {
   /** Milliseconds since 1970 on the device. Only for holding off after `rate-limited`, never for the game's clock. */
   now?: () => number;
   wait?: (ms: number) => Promise<void>;
+  /** What a login wall sets off (R-ACCOUNT-006): the page's reload guard, or a test's. */
+  wall?: WallGuard;
 }
 
 export interface RemoteAuthority {
@@ -49,7 +52,7 @@ const realWait = (ms: number) =>
   });
 
 export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthority {
-  const http = api({ baseUrl: options.baseUrl, ...(options.fetch === undefined ? {} : { fetch: options.fetch }) });
+  const http = api({ baseUrl: options.baseUrl, ...(options.fetch === undefined ? {} : { fetch: options.fetch }), ...(options.wall === undefined ? {} : { wall: options.wall }) });
   const now = options.now ?? (() => Date.now());
   const wait = options.wait ?? realWait;
   const listeners = new Set<AuthorityListener>();

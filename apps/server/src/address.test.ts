@@ -25,6 +25,7 @@ interface Worker {
   assets?: { directory: string; not_found_handling?: string; binding?: string; run_worker_first?: string[] | boolean };
   workers_dev?: boolean;
   preview_urls?: boolean;
+  observability?: { enabled: boolean; head_sampling_rate?: number };
   triggers?: { crons: string[] };
   env?: Record<string, Worker>;
 }
@@ -70,6 +71,11 @@ describe("the game's address", () => {
     expect(server.assets?.binding).toBeUndefined();
     expect(staging?.vars["NOINDEX"]).toBe("1");
     expect(staging?.assets).toEqual({ directory: "../client/dist", not_found_handling: "single-page-application", binding: "ASSETS", run_worker_first: true });
+  });
+
+  test("[R-SERVER-038] given both environments, when their logs are read, then staging keeps every request in Workers Logs and production's block is untouched", () => {
+    expect(staging?.observability).toEqual({ enabled: true, head_sampling_rate: 1 });
+    expect(server.observability).toBeUndefined();
   });
 
   test("given the gate's shipped settings, when they are read, then before launch it owns the root of the game's host and its card picture is on that host", () => {

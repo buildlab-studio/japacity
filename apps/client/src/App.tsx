@@ -8,6 +8,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { bootGame } from "./authority/boot";
 import { CountedBoundary } from "./shared/analytics/CountedBoundary";
 import { SoundNotice } from "./shared/sound/SoundNotice";
+import { TroubleCard, TroubleFace } from "./shared/ui/Trouble";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { AccountGate } from "./features/account/AccountGate";
@@ -124,7 +125,38 @@ function WorldPlaying() {
   );
 }
 
+/** R-ENGINE-015: the loading screen says it is still at it after this long. */
+export const SLOW_MS = 5_000;
+
+/** "Opening your life...", a second line once it takes long, and the card in its place when the view could not be read. */
+function Opening() {
+  const trouble = useGame((state) => state.trouble);
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSlow(true), SLOW_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
+  if (trouble !== null) return <TroubleFace trouble={trouble} inline />;
+  return (
+    <div className="p-4 text-text-2" data-opening>
+      <p>{say("ui.loading")}</p>
+      {slow ? <p className="mt-1 text-sm">{say("ui.loading.slow")}</p> : null}
+    </div>
+  );
+}
+
+/** The screen, with the card over it while a request waits to be sent again; the loading screen shows the card in its own place. */
 function Shell() {
+  const waiting = useGame((state) => state.view === null && !state.signedOut && !state.choosingLife && state.failed === null);
+  return (
+    <>
+      <Screen />
+      {waiting ? null : <TroubleCard />}
+    </>
+  );
+}
+
+function Screen() {
   const view = useGame((state) => state.view);
   const failed = useGame((state) => state.failed);
   const choosingLife = useGame((state) => state.choosingLife);
@@ -137,7 +169,7 @@ function Shell() {
   // Online and signed out: the start screen, the age screen, then the door, whose Begin makes the guest life (R-ACCOUNT-029).
   if (signedOut) return <AccountGate door={(guest) => <ScenarioView guest={guest} />} />;
   if (choosingLife) return <ScenarioView />;
-  if (view === null) return <p className="p-4 text-text-2">{say("ui.loading")}</p>;
+  if (view === null) return <Opening />;
   if (view.prologue !== null) return <PrologueView />;
   if (prologueJustClosed(lines) && handedOver !== view.v) return <PageHandover onDone={() => setHandedOver(view.v)} />;
   if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;

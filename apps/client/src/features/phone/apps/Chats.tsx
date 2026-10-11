@@ -16,6 +16,7 @@ import { hasWords, monthsAgo, say, words } from "../../../shared/words/text";
 import { Head } from "../act";
 import { familyFeedLines } from "../feed";
 import { phoneWords } from "../phone.words";
+import { troubleWords } from "../../../shared/words/trouble";
 
 /** The server's pair routes the phone needs: the shell hands in the people feature's own, or null offline. */
 export interface PairTalk {
@@ -151,7 +152,7 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
           return [...held, ...reply.messages.filter((row) => !known.has(row.id))];
         });
       } catch (error) {
-        setRefusal(say("ui.talk.failed.other", { why: error instanceof Error ? error.message : String(error) }));
+        setRefusal(troubleWords(error));
       }
     },
     [talk, pair],

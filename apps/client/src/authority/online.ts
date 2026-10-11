@@ -1,6 +1,8 @@
 // Keeps an online store fresh: the authority's reports into the store, the
 // nudge socket for the character's place, the world on its schedule, and a
-// fetch when the tab comes back into focus (R-CLOCK-019, R-CLOCK-021 to 023).
+// fetch when the tab comes back into focus (R-CLOCK-019, R-CLOCK-021 to 023),
+// or comes back at all: shown again from the back-forward cache, or visible
+// again after the phone slept or the browser was left (R-ENGINE-015).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
@@ -8,6 +10,7 @@ import { openingPlace } from "../features/city/staging";
 
 import { deviceRandom, type RandomBelow } from "../shared/net/random";
 import { browserSocket, nudgeSocket, type NudgeSocket, type OpenSocket } from "../shared/net/socket";
+import { failureOf } from "../shared/net/http";
 import { worldSchedule } from "../shared/net/world";
 import type { RemoteAuthority } from "./remote";
 import type { GameStore } from "./store";
@@ -18,8 +21,15 @@ export interface OnlineOptions {
   open?: OpenSocket;
   random?: RandomBelow;
   now?: () => number;
-  /** Where focus is heard. Null in tests that do not need it. */
+  /** Where focus and `pageshow` are heard. Null in tests that do not need it. */
   focus?: Pick<Window, "addEventListener" | "removeEventListener"> | null;
+  /** Where `visibilitychange` is heard, and whether the page is visible. Null in tests that do not need it. */
+  page?: Pick<Document, "addEventListener" | "removeEventListener" | "visibilityState"> | null;
+}
+
+/** A side fetch that failed: said in the console by its kind, for whoever reads it, never to the player. */
+function noted(what: string, error: unknown): void {
+  console.warn(`Japacity: ${what} was not fetched (${failureOf(error) ?? "fault"}).`);
 }
 
 const PLACES = Object.values(content.place);
@@ -40,6 +50,7 @@ export function goOnline(options: OnlineOptions): () => void {
   const random = options.random ?? deviceRandom;
   const now = options.now ?? (() => Date.now());
   const focus = options.focus === undefined ? (typeof window === "undefined" ? null : window) : options.focus;
+  const page = options.page === undefined ? (typeof document === "undefined" ? null : document) : options.page;
 
   const refresh = () => {
     const state = store.getState();
@@ -49,8 +60,9 @@ export function goOnline(options: OnlineOptions): () => void {
   async function fetchWorld(): Promise<void> {
     try {
       store.setState({ world: await remote.world() });
-    } catch {
-      // The world is shown only through the view, which the refresh below brings anyway.
+    } catch (error) {
+      // The world is shown only through the view: the refresh below brings it, and tells the player if it cannot.
+      noted("the world", error);
     }
     refresh();
   }
@@ -59,8 +71,9 @@ export function goOnline(options: OnlineOptions): () => void {
     try {
       const presence = await remote.presence(place);
       if (store.getState().view !== null) store.setState({ presence });
-    } catch {
-      // Presence is a sample for colour, and the next nudge asks again.
+    } catch (error) {
+      // Presence is a sample for colour: the last one stays, and the next nudge asks again.
+      noted("who is here", error);
     }
   }
 
@@ -93,9 +106,17 @@ export function goOnline(options: OnlineOptions): () => void {
     });
   }
 
+  // R-ENGINE-015: back after a kill, a sleep or a while away, the view is read again: one request (the store's
+  // refresh is shared), the usual card if it fails. The clock and the month kept on the device stay as they were.
+  const visible = () => {
+    if (page?.visibilityState === "visible") refresh();
+  };
+
   const unsubscribe = store.subscribe(follow);
   follow();
   focus?.addEventListener("focus", refresh);
+  focus?.addEventListener("pageshow", refresh);
+  page?.addEventListener("visibilitychange", visible);
 
   return () => {
     unsubscribe();
@@ -103,5 +124,7 @@ export function goOnline(options: OnlineOptions): () => void {
     world.stop();
     socket?.close();
     focus?.removeEventListener("focus", refresh);
+    focus?.removeEventListener("pageshow", refresh);
+    page?.removeEventListener("visibilitychange", visible);
   };
 }

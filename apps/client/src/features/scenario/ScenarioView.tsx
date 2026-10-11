@@ -6,7 +6,8 @@
 // name and a tile at random. The ready lives are not on the door: a run Settings asks for lists them on the second
 // screen in the place of the tiles.
 // The run is kept as it goes, so a reload at any step comes back to that step; nothing of the life is written
-// before Begin. For a tile, Begin starts the life at once and the page fills as the years go by (R-PROLOGUE-014).
+// before Begin, and the run is marked begun only once the authority has answered it (R-ENGINE-015). For a tile,
+// Begin starts the life at once and the page fills as the years go by (R-PROLOGUE-014).
 // Online and signed out, the gate hands in the guest start (account.md R-ACCOUNT-029): the page holds the username,
 // filled in from the name and changed there, and the guest line; Begin makes the guest life before the character.
 import { content } from "@japacity/content";
@@ -359,9 +360,16 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
       const style = isMade(draft.style) ? undefined : draft.style;
       const photo = madePhoto(draft.look, style);
       keepPerson({ look: draft.look, name: draft.name.trim(), archetype: ready === null ? draft.archetype : null, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo: photo.photo, photoPx: photo.px }) });
-      change({ stage: "begun", ...(home === null ? {} : { home }) });
+      // R-ENGINE-015: Begin is one request, and its answer the point of no return. Until it comes the run stays on the
+      // device as this page (a reload comes back to it, filled in); once the authority holds the life the run is begun,
+      // and a reload opens the life where it stands. The home goes first: the years read it as they play.
+      const fitted = { ...draft, ...(home === null ? {} : { home }) };
+      keepDoor(fitted);
       void chooseLife(ready ?? FROM_SIXTEEN)
-        .then(() => guest?.started())
+        .then(() => {
+          keepDoor({ ...fitted, stage: "begun" });
+          return guest?.started();
+        })
         .catch(() => setPressed(false));
     };
     if (guest === null) {
