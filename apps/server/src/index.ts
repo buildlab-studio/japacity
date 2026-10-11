@@ -24,7 +24,7 @@ import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
 import { standInJob } from "./jobs/stand-in";
 import { notifyJob } from "./jobs/notify";
-import { jobCron, ticksJob, TICKS_CRON } from "./jobs/ticks";
+import { jobCron, tickPeriodMs, ticksJob, TICKS_CRON } from "./jobs/ticks";
 import { MONEY_CRON, moneyJob } from "./jobs/money";
 import { dropOldFeedback } from "./moderation/feedback";
 import { advertLinksJob } from "./adverts/job";
@@ -150,7 +150,7 @@ export default {
     job(({ deps }) => ticksJob(deps, cron));
     job(({ deps }) => drawJob(deps, { beacon }, cron));
     job(({ deps }) => notifyJob(deps, pushKeys(env), cron));
-    job(({ deps }) => advertLinksJob(deps, cron, (input, init) => fetch(input, init)));
+    job(({ deps }) => advertLinksJob(deps, cron, (input, init) => fetch(input, init), tickPeriodMs(env.TICK_CRON ?? TICKS_CRON)));
     // city.md R-CITY-039: the board figures' week turns on the five-minute cron.
     job(({ deps }) => boardsWeekJob(deps, cron));
     if (cron === "0 0 * * *") job(({ deps }, auth) => runDeletions(deps, auth));

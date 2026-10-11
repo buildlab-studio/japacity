@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 
 import { relyingPartyOf } from "./auth/auth";
-import { TICKS_CRON } from "./jobs/ticks";
+import { tickPeriodMs, TICKS_CRON } from "./jobs/ticks";
 
 const PRODUCTION = "https://japacity.app";
 const STAGING = "https://staging.japacity.app";
@@ -65,6 +65,12 @@ describe("the game's address", () => {
     expect(server.triggers?.crons).toEqual([server.vars["TICK_CRON"] ?? TICKS_CRON, "0 0 * * *"]);
     expect(staging?.vars["TICK_CRON"]).toBe("*/30 * * * *");
     expect(staging?.triggers?.crons).toEqual([staging?.vars["TICK_CRON"] ?? TICKS_CRON, "0 0 * * *"]);
+  });
+
+  test("[R-ADVERT-014] given both environments' tick crons, when the advert recheck reads their period, then each gives thirty minutes until launch, and the five-minute cron of launch day gives five", () => {
+    expect(tickPeriodMs(server.vars["TICK_CRON"] ?? TICKS_CRON)).toBe(30 * 60_000);
+    expect(tickPeriodMs(staging?.vars["TICK_CRON"] ?? TICKS_CRON)).toBe(30 * 60_000);
+    expect(tickPeriodMs(TICKS_CRON)).toBe(5 * 60_000);
   });
 
   test("[R-SERVER-038] given both environments, when their files and switches are read, then only staging runs the Worker first for every path with the files bound as ASSETS and NOINDEX set", () => {

@@ -6,14 +6,14 @@ import { describe, expect, test } from "vitest";
 import { testDeps } from "../app.test";
 import { makeApp } from "../app";
 import { addAdvertCounters, ADVERT_COUNTERS } from "../adverts/counts";
-import { advertLinksJob, RECHECK_WINDOW_MS } from "../adverts/job";
+import { advertLinksJob, recheckWindow } from "../adverts/job";
 import type { Fetcher } from "../adverts/links";
 import type { AdvertsReply } from "../adverts/serve";
 import { base64, jpegOf, pngOf, webpOf } from "../adverts/testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";
 import { testSession } from "../deps";
-import { TICKS_CRON } from "../jobs/ticks";
+import { tickPeriodMs, TICKS_CRON } from "../jobs/ticks";
 import { tickRow } from "../world/ticks";
 import { adminAdvertRoutes } from "./admin-adverts";
 import { advertRoutes } from "./adverts";
@@ -278,15 +278,71 @@ describe("the review", () => {
   });
 
   test("[R-ADVERT-014] given approved campaigns, when the five-minute job runs, then only one starting before the next run has its links rechecked and is pulled when they fail", async () => {
+    // the job is handed the deployment's tick period; five minutes here, as before.
+    const FIVE = tickPeriodMs(TICKS_CRON);
     const clock = { at: EPOCH };
     const deps = world(clock);
     const app = makeApp(deps);
-    const soon = await live(app, { starts: EPOCH + RECHECK_WINDOW_MS - 1 });
-    const later = await live(app, { starts: EPOCH + RECHECK_WINDOW_MS });
+    const soon = await live(app, { starts: EPOCH + FIVE - 1 });
+    const later = await live(app, { starts: EPOCH + FIVE });
     const failing: Fetcher = () => Promise.reject(new Error("offline"));
-    expect(await advertLinksJob(deps, "0 0 * * *", failing)).toEqual([]);
-    expect(await advertLinksJob(deps, TICKS_CRON, failing)).toEqual([soon.campaign]);
+    expect(await advertLinksJob(deps, "0 0 * * *", failing, FIVE)).toEqual([]);
+    expect(await advertLinksJob(deps, TICKS_CRON, failing, FIVE)).toEqual([soon.campaign]);
     expect((await deps.stores.adverts.campaign(later.campaign))?.status).toBe("approved");
+  });
+
+  test("[R-ADVERT-014] given the tick crons, when their periods are read, then five and thirty minutes come back and a cron of any other form is refused", () => {
+    expect(tickPeriodMs("*/5 * * * *")).toBe(5 * time.MINUTE_MS);
+    expect(tickPeriodMs("*/30 * * * *")).toBe(30 * time.MINUTE_MS);
+    for (const cron of ["0 0 * * *", "*/7 * * * *", "*/0 * * * *", "*/90 * * * *", "*/5 * * * 1", "5 * * * *", ""]) expect(() => tickPeriodMs(cron)).toThrow("every N minutes");
+  });
+
+  /** A fetcher counting the rechecks, whose links hold while `hold` says so and fail after. */
+  function counted(): { fetcher: Fetcher; calls: () => number; fail: () => void } {
+    let calls = 0;
+    let hold = true;
+    const fetcher: Fetcher = (input) => {
+      calls += 1;
+      return hold ? Promise.resolve(Object.defineProperty(new Response("ok"), "url", { value: input })) : Promise.reject(new Error("offline"));
+    };
+    return { fetcher, calls: () => calls, fail: () => (hold = false) };
+  }
+
+  test("[R-ADVERT-014] given a thirty-minute tick, when the job runs a minute late and the next a minute early, then every campaign starting before each next run is rechecked by exactly one run, those starting just after a late firing among them", async () => {
+    const THIRTY = tickPeriodMs("*/30 * * * *");
+    const clock = { at: EPOCH };
+    const deps = world(clock);
+    const app = makeApp(deps);
+    // On the old fixed window of five minutes from the run, the campaigns at five and at 29 minutes in were never rechecked.
+    const justAfter = await live(app, { starts: EPOCH + 30 * time.SECOND_MS });
+    const fiveIn = await live(app, { starts: EPOCH + 5 * time.MINUTE_MS });
+    const lastMs = await live(app, { starts: EPOCH + THIRTY - 1 });
+    const next = await live(app, { starts: EPOCH + THIRTY });
+    const links = counted();
+
+    clock.at = EPOCH + time.MINUTE_MS;
+    expect(recheckWindow(clock.at, THIRTY)).toEqual({ from: EPOCH, until: EPOCH + THIRTY });
+    expect(await advertLinksJob(deps, TICKS_CRON, links.fetcher, THIRTY)).toEqual([]);
+    expect(links.calls()).toBe(3);
+
+    // Every link fails from now on: a campaign the next run rechecked again would be pulled.
+    links.fail();
+    clock.at = EPOCH + THIRTY - time.MINUTE_MS;
+    expect(recheckWindow(clock.at, THIRTY)).toEqual({ from: EPOCH + THIRTY, until: EPOCH + 2 * THIRTY });
+    expect(await advertLinksJob(deps, TICKS_CRON, links.fetcher, THIRTY)).toEqual([next.campaign]);
+    expect(links.calls()).toBe(4);
+    for (const { campaign } of [justAfter, fiveIn, lastMs]) expect((await deps.stores.adverts.campaign(campaign))?.status).toBe("approved");
+  });
+
+  test("[R-ADVERT-014] given a five-minute tick, when runs drift by a minute either way, then the windows of successive firings meet end to start, so no campaign is rechecked twice or skipped", () => {
+    const FIVE = tickPeriodMs(TICKS_CRON);
+    for (const firing of [0, 1, 2, 288]) {
+      const at = EPOCH + firing * FIVE;
+      for (const drift of [-time.MINUTE_MS, -1, 0, 1, time.MINUTE_MS]) {
+        expect({ firing, drift, window: recheckWindow(at + drift, FIVE) }).toEqual({ firing, drift, window: { from: at, until: at + FIVE } });
+      }
+      expect(recheckWindow(at + time.MINUTE_MS, FIVE).until).toBe(recheckWindow(at + FIVE - time.MINUTE_MS, FIVE).from);
+    }
   });
 });
 
