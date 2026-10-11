@@ -170,13 +170,40 @@ describe("a chapter that one item closes", () => {
     expect(state.chapter.current).toBe("chapter.send-off");
   });
 
-  test("[R-CHAPTER-002] given the same file with no closesOn on decision day, when the grant comes, then the chapter stays open, as every item must hold", () => {
+  // a grant finishes the chapters up to decision day
+  // whatever their items say, so with no closesOn the grant still closes it. It stayed open before. The closesOn
+  // item alone is tested below on chapters no grant reaches.
+  test("[R-CHAPTER-002] given the same file with no closesOn on decision day, when the grant comes, then the grant closes it all the same, though not every item holds", () => {
     const open: ChapterEntry = { ...content.chapter[DECISION]! };
     delete open.closesOn;
     const without: Content = { ...content, chapter: { ...content.chapter, [DECISION]: open } };
-    const { state } = grantWithHeldLapsed(without);
+    const { result, state, world } = grantWithHeldLapsed(without);
     expect(state.route[UK]?.state).toBe("granted");
-    expect(state.chapter.current).toBe(DECISION);
+    expect(check({ state, world, content: without }, HELD).met).toBe(false);
+    expect(result.events).toContainEqual({ type: "chapter/closed", chapter: DECISION, next: "chapter.send-off" });
+    expect(state.chapter.current).toBe("chapter.send-off");
+  });
+
+  /** The mini content's first chapter with a second item that never holds, closed by its job alone or not. */
+  function oneItemCloses(closesOn: string | null): Content {
+    const one: ChapterEntry = {
+      ...miniContent.chapter[ONE]!,
+      items: [...miniContent.chapter[ONE]!.items, { id: "never", requirement: { type: "chapter/done", chapter: TWO } }],
+      ...(closesOn === null ? {} : { closesOn }),
+    };
+    return { ...miniContent, chapter: { ...miniContent.chapter, [ONE]: one } };
+  }
+
+  test("[R-CHAPTER-002] given a chapter whose closesOn item is met and another item unmet, with no grant anywhere, when the turn ends, then it closes on that item alone; with no closesOn it stays open", () => {
+    const alone = start({ scenario: "scenario.worker", content: oneItemCloses("job") });
+    expect(alone.endTurn().events.filter((event) => event.type === "chapter/closed")).toEqual([{ type: "chapter/closed", chapter: ONE, next: TWO }]);
+    const every = start({ scenario: "scenario.worker", content: oneItemCloses(null) });
+    expect(every.view().chapter.items).toEqual([
+      { id: "job", met: true },
+      { id: "never", met: false },
+    ]);
+    expect(every.endTurn().events.filter((event) => event.type === "chapter/closed")).toEqual([]);
+    expect(every.state.chapter.current).toBe(ONE);
   });
 });
 
