@@ -37,6 +37,14 @@ export function closesAt(lottery: Pick<Lottery, "closesTick">, clock: Pick<Clock
   return clock.nextTickAt + (lottery.closesTick - clock.tick - 1) * time.WORLD_TICK_MS;
 }
 
+/**
+ * R-LOTTERY-002: no ticket is sold for the draw on show once its close is reached by the server's clock, or while the
+ * world says the closed draw is being made (`onSale` false). The draw before stays on show, closed, until the next opens.
+ */
+export function salesClosed(lottery: Pick<Lottery, "closesTick" | "onSale">, clock: Pick<ClockView, "tick"> | null): boolean {
+  return !lottery.onSale || (clock !== null && clock.tick >= lottery.closesTick);
+}
+
 /** One prize's chance as the kiosk says it: one ticket in `every` wins `amount`, `exact` when a million divides evenly. */
 export interface Chance {
   tier: Tier;
