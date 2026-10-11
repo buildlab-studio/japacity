@@ -1,3 +1,4 @@
+import type { WorldClock } from "@japacity/sim";
 // The HTTP contract between the client and the server, copied from the
 // server's files (and the Nudge of packages/store/src/types.ts), because the
 // client imports nothing from the server's side (decision 0004,
@@ -57,8 +58,10 @@ export interface ClockView {
   nextTickAt: number;
   /** Null while the bank is full. */
   nextTurnAt: number | null;
-  /** R-CLOCK-032: the next seven in the morning in Lagos, when a sealed result opens. */
+  /** R-CLOCK-032: when the next sealed result opens: the world's next morning (decision 0036). */
   morningAt: number;
+  /** R-CLOCK-033: the world's own clock, the same for everyone. */
+  world: WorldClock;
 }
 
 /** Copied from apps/server/src/types.ts. */

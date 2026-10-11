@@ -3,6 +3,7 @@
 // kiosk's act opens the Friday draw's sheet while the world runs the draw, and the luck kiosk's slip while it does not. The place file is the one the game ships; the scene is a stand-in that
 // offers each thing's acts as buttons, as a tap on the thing does once the character has walked to it.
 import { readFileSync } from "node:fs";
+import { worldClockAt } from "@japacity/sim";
 import { join } from "node:path";
 
 import type { World } from "@japacity/sim";
@@ -73,7 +74,7 @@ async function onTheStreet(lottery: World["lottery"]): Promise<{ store: GameStor
   const life = onlineLife(lottery);
   const store = createGameStore(life.authority);
   await store.getState().refresh();
-  store.getState().heard({ kind: "clock", clock: { tick: 10, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null, morningAt: 0 } });
+  store.getState().heard({ kind: "clock", clock: { tick: 10, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null, morningAt: 0, world: worldClockAt(0) } });
   render(
     <GameProvider store={store}>
       <City world results={() => <p />} kiosk={(close, label) => <KioskSheet open onClose={close} label={label} load={null} />} />

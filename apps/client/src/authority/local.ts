@@ -8,7 +8,7 @@ import type { Authority, Command, Content, Envelope, FlatSave, Id, PlayerView, R
 import { archetypeOf, fullPrologue } from "../shared/frontdoor/archetypes";
 import { tileSeed } from "../shared/frontdoor/draw";
 import type { ClockView } from "../shared/net/contract";
-import { lastSegment, lifeStart, loadSave, newSave, newState, nextMorning, recordCommand, replay, savedCommands, sealFrom, standInWorld, step, time, viewFor, withhold, withholdLines } from "@japacity/sim";
+import { lastSegment, lifeStart, loadSave, newSave, newState, nextGameMorning, recordCommand, replay, savedCommands, sealFrom, standInWorld, step, time, viewFor, withhold, withholdLines, worldClockAt } from "@japacity/sim";
 import { PERSON_KEY, readPerson } from "./person";
 
 /** The one localStorage key the life is kept under. */
@@ -297,7 +297,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       earnTurns();
       const cap = content.tuning.turn.cap;
       const next = options.fastClock ? now() : anchor + time.TURN_REFILL_MS;
-      return { tick, nextTickAt: next, nextTurnAt: state.turn.banked >= cap ? null : next, morningAt: nextMorning(now()) };
+      return { tick, nextTickAt: next, nextTurnAt: state.turn.banked >= cap ? null : next, morningAt: nextGameMorning(now()), world: worldClockAt(now()) };
     },
     send(command): Promise<Reply> {
       // A player may not grant turns: the engine rejects it as not-yours (R-TURN-005).
@@ -305,7 +305,8 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       const result = apply(command, "player");
       if (!result.ok) return Promise.resolve(result);
       // R-CLOCK-032: a result real life makes you wait for is sealed until the next morning in Lagos.
-      if (before !== null) envelopes = [...envelopes, ...sealFrom(before, currentView(), result.lines, nextMorning(now()))];
+      // Decision 0036: a sealed result opens with the world's next morning, at most one game day away.
+      if (before !== null) envelopes = [...envelopes, ...sealFrom(before, currentView(), result.lines, nextGameMorning(now()))];
       earnTurns();
       persist();
       return Promise.resolve({ ok: true, view: shownView(), lines: withholdLines(result.lines, envelopes, morningNow()) });

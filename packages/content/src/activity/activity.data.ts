@@ -191,13 +191,13 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: 12 }],
     counts: [],
   },
-  // Gist with Mama: a morning, as often as you like (R-ACTIVITY-019).
+  // Gist with Mama: talking takes no time, as often as you like (R-ACTIVITY-019).
   "activity.family-time": {
     id: "activity.family-time",
     slot: "free",
     when: "now",
     repeat: true,
-    halfDays: 1,
+    halfDays: 0,
     requires: [],
     param: null,
     cost: [],

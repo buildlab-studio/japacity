@@ -8,7 +8,6 @@ import { bp, valueInKobo } from "../engine/int";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, turnInProgress, turnSlots } from "../engine/kind";
-import { freeHalfDays } from "../turn/turn.logic";
 import { reject } from "../engine/reject";
 import type {
   ActivityEntry,
@@ -127,6 +126,15 @@ export function answersNow(entry: Pick<ActivityEntry, "when">): boolean {
 /** R-ACTIVITY-015: the now-acts sent in the month in hand, in order. */
 export function nowThisMonth(state: State): SlotPick[] {
   return state.activity.now ?? [];
+}
+
+/**
+ * R-ACTIVITY-020 (decision 0036): the body is spent for an act that takes effort (any time at all) when energy is under
+ * `tuning.turn.body.spentBelow`; a purchase, and an act that takes no time, never waits.
+ */
+export function bodySpent(state: State, content: Content, entry: Pick<ActivityEntry, "purchase" | "halfDays">): boolean {
+  if (entry.purchase === true || (entry.halfDays ?? 1) <= 0 || content.quality["quality.energy"] === undefined) return false;
+  return (state.quality["quality.energy"] ?? 0) < content.tuning.turn.body.spentBelow;
 }
 
 /** R-ACTIVITY-015: a now-act that is not a purchase and does not repeat (R-ACTIVITY-019), already done this month, so shut until the next. */
@@ -927,10 +935,8 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (entry === undefined) return reject("unknown-id", `${pick.activity} is not an activity in content.`);
   if ((entry.slot !== "free" && entry.slot !== "none") || !answersNow(entry)) return reject("not-legal", `${entry.id} fills the month: it is a slot pick, not an act now.`);
   if (doneThisMonth(ctx.state, entry)) return reject("not-legal", `${entry.id} was done this month already. It runs once a month.`);
-  // R-ACTIVITY-019: an act that takes time needs time left in the month; what takes none (talking, looking, buying) is always open.
-  if (entry.purchase !== true && (entry.halfDays ?? 1) > 0 && ctx.state.turn.spent >= freeHalfDays(ctx.state, ctx.content)) {
-    return reject("not-legal", `${entry.id} takes time, and the month's time is spent.`);
-  }
+  // R-ACTIVITY-020 (decision 0036): an act that takes effort waits for sleep once the body is spent; what takes none is always open.
+  if (bodySpent(ctx.state, ctx.content, entry)) return reject("not-legal", `${entry.id} takes effort, and you are spent. Sleep.`);
   // R-LUCK-005: the kiosk sells at most `maxTickets` a month across visits; past it the
   // sixth is refused, and the kiosk says so in its own voice on the screen.
   if (entry.id === LOTTO) {
@@ -1241,12 +1247,12 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
       const missing = [...entry.requires.filter((requirement) => !judge(requirement).met), ...waiting];
       const prices = pricesOf(read, entry, params?.[0] ?? null);
       const done = doneThisMonth(read.state, entry);
-      // R-ACTIVITY-019: a now-act that takes time is shut once the month's time is spent; what takes none stays open.
-      const noTime = answersNow(entry) && entry.purchase !== true && (entry.halfDays ?? 1) > 0 && read.state.turn.spent >= freeHalfDays(read.state, read.content);
+      // R-ACTIVITY-020: a now-act that takes effort waits for sleep once the body is spent; what takes none stays open.
+      const spent = answersNow(entry) && bodySpent(read.state, read.content, entry);
       const sure = entry.id === HUNT_ACTIVITY && firstHuntSure(read);
       return {
         id: entry.id,
-        allowed: !done && !noTime && missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
+        allowed: !done && !spent && missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
         missing,
         params,
         cost: prices.map(({ currency, amount }) => ({ currency, amount })),
@@ -1254,6 +1260,7 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
         when: answersNow(entry) ? "now" : "month",
         done,
         ...(sure ? { sure: true as const } : {}),
+        ...(spent ? { spent: true as const } : {}),
       };
     });
 }

@@ -2,6 +2,7 @@
 // faked here as online.spec fakes it, every command played through the real game. A tile and an age picked at the
 // door reach the world as they were picked, and the page as the years go by never names another life.
 import { content } from "@japacity/content";
+import { worldClockAt } from "@japacity/sim";
 import type { Command, Id, PlayerView } from "@japacity/sim";
 import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -22,7 +23,7 @@ afterEach(() => {
   localStorage.clear();
 });
 
-const CLOCK: ClockView = { tick: 0, nextTickAt: 3_600_000, nextTurnAt: null, morningAt: 0 };
+const CLOCK: ClockView = { tick: 0, nextTickAt: 3_600_000, nextTurnAt: null, morningAt: 0, world: worldClockAt(0) };
 /** The nurse's own year at the door is 23 (her path with no setback); three steps older is the oldest the door offers. */
 const OLDER = 3;
 const AGE = "quality.age-months";

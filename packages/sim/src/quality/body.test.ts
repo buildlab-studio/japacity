@@ -41,9 +41,10 @@ describe("the body", () => {
     const game = ngozi();
     const twin = ngozi();
     const { body } = content.tuning.turn;
-    // The month's time on water, which fills nothing and tires: the belly and the energy fall below the line, and the
-    // time runs out (R-ACTIVITY-019: an act that takes time is shut once the month's time is spent).
-    for (let i = 0; i < 10; i += 1) game.accept({ type: "activity/now", activity: "activity.fetch-water", param: null });
+    // Nollywood until the belly is low (the time lived takes it down), then water, which tires, until the body is spent:
+    // an act that takes effort then waits for sleep (R-ACTIVITY-020).
+    while ((game.state.quality[BELLY] ?? 0) >= body.lowBelow) game.accept({ type: "activity/now", activity: "activity.watch-tv", param: null });
+    while ((game.state.quality[ENERGY] ?? 0) >= body.spentBelow) game.accept({ type: "activity/now", activity: "activity.fetch-water", param: null });
     game.expectRejected({ type: "activity/now", activity: "activity.fetch-water", param: null }, "not-legal");
     const belly = game.state.quality[BELLY]!;
     const energy = game.state.quality[ENERGY]!;

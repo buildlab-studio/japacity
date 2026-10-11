@@ -8,8 +8,9 @@ describe("the time a now-act spends", () => {
     for (const entry of Object.values(content.activity)) {
       if (entry.when !== "now" || entry.purchase === true) continue;
       seen += 1;
+      // Talking takes no time (gist with Mama); everything else a morning to a week.
       const halfDays = entry.halfDays ?? 0;
-      expect(halfDays >= 1 && halfDays <= 10, `${entry.id} spends ${String(halfDays)}`).toBe(true);
+      expect(halfDays >= 0 && halfDays <= 10, `${entry.id} spends ${String(halfDays)}`).toBe(true);
     }
     expect(seen).toBeGreaterThan(40);
   });

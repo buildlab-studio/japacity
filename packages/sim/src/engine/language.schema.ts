@@ -401,7 +401,7 @@ export const TuningSchema = z.strictObject({
     quietAskCap: CountSchema,
     halfDays: z.strictObject({ noJob: CountSchema, withJob: CountSchema }),
     repeatPerSlot: z.int().positive(),
-    body: z.strictObject({ bellyPerHalfDay: CountSchema, energyPerHalfDay: CountSchema, restTo: CountSchema, restBy: CountSchema, lowBelow: CountSchema, hungryWellbeing: CountSchema, spentWellbeing: CountSchema }),
+    body: z.strictObject({ bellyPerHalfDay: CountSchema, energyPerHalfDay: CountSchema, restTo: CountSchema, restBy: CountSchema, lowBelow: CountSchema, hungryWellbeing: CountSchema, spentWellbeing: CountSchema, spentBelow: CountSchema }),
   }),
   quality: z.strictObject({
     wellbeingRest: CountSchema,

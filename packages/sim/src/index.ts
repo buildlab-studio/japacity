@@ -13,6 +13,8 @@ export { replay, newSave, recordCommand, loadSave, isFlatSave, lifeStart, savedC
 export { viewFor, hiddenPaths } from "./engine/view";
 export { nextMorning, sealFrom, sealedAt, withhold, withholdLines, REAL_WAIT_DOCUMENTS } from "./engine/envelope";
 export type { Envelope } from "./engine/envelope";
+export { worldClockAt, nextGameMorning, partOf } from "./engine/worldClock";
+export type { WorldClock, DayPart } from "./engine/worldClock";
 export { drawAt, hashString32 } from "./engine/random";
 export * as int from "./engine/int";
 export { standInWorld } from "./world/standIn";

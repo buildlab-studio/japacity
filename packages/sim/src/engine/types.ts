@@ -1160,7 +1160,7 @@ export interface Tuning {
     /** An act that repeats, kept as a commitment in a slot, runs this many times as the month turns (R-ACTIVITY-019). */
     repeatPerSlot: number;
     /** The body (R-QUALITY-007): what each half-day lived takes off the belly and the energy, where the month's rest brings each back to, and what a hungry or spent month takes off wellbeing. */
-    body: { bellyPerHalfDay: number; energyPerHalfDay: number; restTo: number; restBy: number; lowBelow: number; hungryWellbeing: number; spentWellbeing: number };
+    body: { bellyPerHalfDay: number; energyPerHalfDay: number; restTo: number; restBy: number; lowBelow: number; hungryWellbeing: number; spentWellbeing: number; spentBelow: number };
   };
   quality: {
     wellbeingRest: number;
@@ -2162,6 +2162,8 @@ export interface ActivityOption {
   done: boolean;
   /** The hunt only: this life's next hunt is its sure first one (R-GUIDE-014). Missing otherwise. */
   sure?: true;
+  /** R-ACTIVITY-020: the act takes effort and the body is spent, so it waits for sleep. Missing otherwise. */
+  spent?: true;
 }
 
 export interface OfferView {

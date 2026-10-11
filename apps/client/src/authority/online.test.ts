@@ -1,4 +1,5 @@
 import { content } from "@japacity/content";
+import { worldClockAt } from "@japacity/sim";
 import type { Id, PlayerView } from "@japacity/sim";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -11,7 +12,7 @@ import { remoteAuthority } from "./remote";
 import { createGameStore } from "./store";
 
 const NOW = 1_000_000;
-const CLOCK: ClockView = { tick: 3, nextTickAt: NOW + 10_000, nextTurnAt: NOW + 5_000, morningAt: 0 };
+const CLOCK: ClockView = { tick: 3, nextTickAt: NOW + 10_000, nextTurnAt: NOW + 5_000, morningAt: 0, world: worldClockAt(0) };
 
 beforeEach(() => {
   vi.useFakeTimers();

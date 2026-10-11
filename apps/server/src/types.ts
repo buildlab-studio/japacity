@@ -1,4 +1,5 @@
 // The server's reply and clock types (docs/rules/server.md contract item 5,
+import type { WorldClock } from "@japacity/sim";
 // docs/rules/clock.md contract items 3 and 4). This file is kept by hand.
 import type { Command, Id, PlayerView, RejectionCode, Reply, ReportLine, World } from "@japacity/sim";
 import type { Nudge } from "@japacity/store";
@@ -53,8 +54,10 @@ export interface ClockView {
   nextTickAt: number;
   /** Null while the bank is full. */
   nextTurnAt: number | null;
-  /** R-CLOCK-032: the next seven in the morning in Lagos, when a sealed result opens. */
+  /** R-CLOCK-032: when the next sealed result opens: the world's next morning (decision 0036). */
   morningAt: number;
+  /** R-CLOCK-033: the world's own clock, the same for everyone. */
+  world: WorldClock;
 }
 
 export type ServerReply = (Reply & { clock: ClockView }) | ServerRejection;

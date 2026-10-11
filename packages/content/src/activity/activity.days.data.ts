@@ -8,7 +8,7 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.bucket-bath": 1,
   "activity.watch-tv": 1,
   "activity.help-shop": 6,
-  "activity.family-time": 1,
+  "activity.family-time": 0,
   "activity.study-english": 2,
   "activity.learn-tech": 2,
   "activity.build-portfolio": 4,

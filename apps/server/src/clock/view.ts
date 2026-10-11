@@ -1,7 +1,7 @@
 // The clock a reply carries (docs/rules/clock.md R-CLOCK-001 to 003). Every
 // time here is the server's: a client never sends one.
 import type { State } from "@japacity/sim";
-import { int, nextMorning } from "@japacity/sim";
+import { int, nextGameMorning, worldClockAt } from "@japacity/sim";
 
 import type { ServerConfig } from "../config";
 import type { ClockView } from "../types";
@@ -26,5 +26,5 @@ export function turnClock(config: ServerConfig, cap: number): TurnClock {
 /** R-CLOCK-003: the tick, when the next one begins, and when the next turn is earned. */
 export function clockView(config: ServerConfig, now: number, state: State, refilledAt: number, cap: number): ClockView {
   const tick = tickAt(config.clock, now);
-  return { tick, nextTickAt: tickStartsAt(config.clock, tick + 1), nextTurnAt: nextTurnAt(state, refilledAt, turnClock(config, cap)), morningAt: nextMorning(now) };
+  return { tick, nextTickAt: tickStartsAt(config.clock, tick + 1), nextTurnAt: nextTurnAt(state, refilledAt, turnClock(config, cap)), morningAt: nextGameMorning(now), world: worldClockAt(now) };
 }

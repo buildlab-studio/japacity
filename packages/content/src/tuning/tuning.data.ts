@@ -22,7 +22,8 @@ export const tuning: Tuning = {
     repeatPerSlot: 3,
     // R-QUALITY-007 (decision 0035): each half-day lived takes a little off the belly and the energy; the month's rest brings
     // each back toward 60; a month that ends hungry or spent takes it out of wellbeing.
-    body: { bellyPerHalfDay: 2, energyPerHalfDay: 1, restTo: 60, restBy: 25, lowBelow: 30, hungryWellbeing: 6, spentWellbeing: 4 },
+    // R-ACTIVITY-020: under `spentBelow` energy, an act that takes effort waits for sleep.
+    body: { bellyPerHalfDay: 2, energyPerHalfDay: 1, restTo: 60, restBy: 25, lowBelow: 30, hungryWellbeing: 6, spentWellbeing: 4, spentBelow: 10 },
   },
 
   // quality.md, and activity.md for the hiring figures.

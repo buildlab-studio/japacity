@@ -1,4 +1,5 @@
 import type { PlayerView } from "@japacity/sim";
+import { worldClockAt } from "@japacity/sim";
 import { act, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -29,7 +30,7 @@ describe("the clock on the turn bar", () => {
     const view = engineView();
     const store = createGameStore({ view: () => Promise.resolve(view), send: () => Promise.reject(new Error("unused")) });
     await store.getState().refresh();
-    store.getState().heard({ kind: "clock", clock: { tick: 1, nextTickAt: NOW + 1, nextTurnAt: NOW + 90 * 60_000, morningAt: 0 } });
+    store.getState().heard({ kind: "clock", clock: { tick: 1, nextTickAt: NOW + 1, nextTurnAt: NOW + 90 * 60_000, morningAt: 0, world: worldClockAt(0) } });
     render(
       <GameProvider store={store}>
         <TurnBar />
@@ -50,7 +51,7 @@ describe("the clock on the turn bar", () => {
       send: () => Promise.reject(new Error("unused")),
     });
     await store.getState().refresh();
-    store.getState().heard({ kind: "clock", clock: { tick: 1, nextTickAt: NOW + 10_000_000, nextTurnAt: NOW + 3_000, morningAt: 0 } });
+    store.getState().heard({ kind: "clock", clock: { tick: 1, nextTickAt: NOW + 10_000_000, nextTurnAt: NOW + 3_000, morningAt: 0, world: worldClockAt(0) } });
     render(
       <GameProvider store={store}>
         <TurnBar />
@@ -80,7 +81,7 @@ describe("the clock on the turn bar", () => {
     );
     expect(document.querySelector("[data-turn-clock]")).toBeNull();
     unmount();
-    store.getState().heard({ kind: "clock", clock: { tick: 1, nextTickAt: NOW + 1, nextTurnAt: null, morningAt: 0 } });
+    store.getState().heard({ kind: "clock", clock: { tick: 1, nextTickAt: NOW + 1, nextTurnAt: null, morningAt: 0, world: worldClockAt(0) } });
     render(
       <GameProvider store={store}>
         <TurnBar />

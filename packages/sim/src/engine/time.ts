@@ -14,6 +14,22 @@ export const LAGOS_OFFSET_MS = HOUR_MS;
 /** The hour in Lagos a sealed result opens: what real life made you wait for comes in the morning (R-CLOCK-032). */
 export const MORNING_HOUR_LAGOS = 7;
 
+// The world's own clock (R-CLOCK-033, decision 0036): one game day runs on real time but faster than life, the same
+// moment for everyone, so a sitting sees the sun move. Each life's months turn only when that life sleeps.
+
+/** One game day in real time. */
+export const GAME_DAY_MS = 2 * HOUR_MS;
+
+/** The real moment game day 0 began at its midnight: a Friday 18:00 UTC, the same epoch as the server's ticks (R-CLOCK-002), so day 0 is a Friday. */
+export const GAME_DAY_EPOCH_MS = 1_791_568_800_000;
+
+/** The game day's hours, 0 to 23, and where its parts begin: morning at six, the afternoon at noon, evening at six, night at ten. */
+export const GAME_HOURS = 24;
+export const MORNING_HOUR = 6;
+export const AFTERNOON_HOUR = 12;
+export const EVENING_HOUR = 18;
+export const NIGHT_HOUR = 22;
+
 /** One new turn every two real hours. docs/design/01-concept.md section 9, docs/rules/turn.md "Outside the simulation". */
 export const TURN_REFILL_MS = 2 * HOUR_MS;
 
