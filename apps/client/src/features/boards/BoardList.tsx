@@ -1,8 +1,8 @@
 // One board's lines (docs/rules/city.md R-CITY-040): rank, name and figure for
 // the top lines, then the player's own line wherever it ranks. The name is the
-// account's username on everyone, and the display name over the first name on
-// friends. Loaded only after the server has answered with a board, so a
-// switched-off board's screen is never fetched.
+// account's username on every board, friends too. Loaded
+// only after the server has answered with a board, so a switched-off board's
+// screen is never fetched.
 import { formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import type { BoardReply, BoardRow, When } from "./boards";
@@ -13,9 +13,9 @@ function figureWords(row: BoardRow, when: When): string {
   return say(row.figure > 0 ? "ui.boards.figure.this-week.up" : "ui.boards.figure.this-week.down", { figure });
 }
 
-/** The line's name: the username on everyone, else the display name or the first name; a quiet word for an account no longer there. */
+/** The line's name: the account's username; a quiet word for an account no longer there. */
 function nameOf(row: BoardRow): string {
-  return row.username ?? row.name ?? row.firstName ?? say("ui.boards.someone");
+  return row.username ?? say("ui.boards.someone");
 }
 
 function Line({ row, when }: { row: BoardRow; when: When }) {
@@ -28,15 +28,8 @@ function Line({ row, when }: { row: BoardRow; when: When }) {
       <span className="w-10 shrink-0 text-right font-semibold tabular-nums" aria-label={say("ui.boards.rank", { rank: row.rank })}>
         {row.rank}
       </span>
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate" data-board-name>
-          {nameOf(row)}
-        </span>
-        {row.name === null || row.firstName === null ? null : (
-          <span className="truncate text-xs font-normal text-text-2" data-board-first-name>
-            {row.firstName}
-          </span>
-        )}
+      <span className="min-w-0 flex-1 truncate" data-board-name>
+        {nameOf(row)}
       </span>
       {row.me ? <span className="text-xs font-medium text-text-2 uppercase">{say("ui.boards.you")}</span> : null}
       <span className="shrink-0 tabular-nums">{figureWords(row, when)}</span>

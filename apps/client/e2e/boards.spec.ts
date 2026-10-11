@@ -13,17 +13,17 @@ test.use({ baseURL: ONLINE, viewport: { width: 390, height: 844 }, deviceScaleFa
 
 const PREVIEW = process.env.PREVIEW_DIR;
 const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
-// R-CITY-040 as amended 11 Oct 2026: the everyone boards name each line by the account's username.
+// R-CITY-040 as amended 11 Oct 2026: every board names each line by the account's username, friends too.
 const USERNAMES = ["zainab_b", "tunde_k", "ngozi_o", "ada_ikeja", "tunde_99", "zee_lagos", "ngozi_writes", "ada_o", "tk_surulere", "ngo_yaba"];
 
-type Row = { rank: number; username: string | null; firstName: string | null; figure: number; me: boolean; name: string | null };
+type Row = { rank: number; username: string | null; figure: number; me: boolean };
 
 function rows(figures: number[], me: number | null): Row[] {
-  return figures.map((figure, at) => ({ rank: at + 1, username: USERNAMES[at] ?? "ada_from_yaba", firstName: null, figure, me: at === me, name: null }));
+  return figures.map((figure, at) => ({ rank: at + 1, username: USERNAMES[at] ?? "ada_from_yaba", figure, me: at === me }));
 }
 
-function friend(rank: number, firstName: string, figure: number, name: string, me = false): Row {
-  return { rank, username: null, firstName, figure, me, name };
+function friend(rank: number, username: string, figure: number, me = false): Row {
+  return { rank, username, figure, me };
 }
 
 function reply(board: string, lines: Row[], own: Row | null) {
@@ -31,17 +31,17 @@ function reply(board: string, lines: Row[], own: Row | null) {
 }
 
 const BOARDS: Record<string, { body: unknown; status?: number }> = {
-  "GET /api/boards/this-week/everyone": reply("this-week.everyone", rows([31, 26, 22, 19, 17, 15, 12, 11, 9, 8], null), { rank: 14, username: "ada_from_yaba", firstName: null, figure: 6, me: true, name: null }),
-  "GET /api/boards/all-time/everyone": reply("all-time.everyone", rows([92, 88, 85, 81, 79, 77, 74, 72, 70, 69], null), { rank: 212, username: "ada_from_yaba", firstName: null, figure: 41, me: true, name: null }),
+  "GET /api/boards/this-week/everyone": reply("this-week.everyone", rows([31, 26, 22, 19, 17, 15, 12, 11, 9, 8], null), { rank: 14, username: "ada_from_yaba", figure: 6, me: true }),
+  "GET /api/boards/all-time/everyone": reply("all-time.everyone", rows([92, 88, 85, 81, 79, 77, 74, 72, 70, 69], null), { rank: 212, username: "ada_from_yaba", figure: 41, me: true }),
   "GET /api/boards/this-week/friends": reply(
     "this-week.friends",
-    [friend(1, "Tunde", 9, "tunde.k"), friend(2, "Ada", 6, "ada_from_yaba", true), friend(3, "Ngozi", 0, "ngozi_o")],
-    friend(2, "Ada", 6, "ada_from_yaba", true),
+    [friend(1, "tunde_k", 9), friend(2, "ada_from_yaba", 6, true), friend(3, "ngozi_o", 0)],
+    friend(2, "ada_from_yaba", 6, true),
   ),
   "GET /api/boards/all-time/friends": reply(
     "all-time.friends",
-    [friend(1, "Ngozi", 63, "ngozi_o"), friend(2, "Ada", 41, "ada_from_yaba", true), friend(3, "Tunde", 38, "tunde.k")],
-    friend(2, "Ada", 41, "ada_from_yaba", true),
+    [friend(1, "ngozi_o", 63), friend(2, "ada_from_yaba", 41, true), friend(3, "tunde_k", 38)],
+    friend(2, "ada_from_yaba", 41, true),
   ),
   "GET /api/boards/joined-week": { status: 503, body: { ok: false, code: "switched-off", detail: "This board is paused.", retryAfter: 30 } },
 };
@@ -79,6 +79,9 @@ test("[R-CITY-039] the four boards behind the two pickers, each with the player'
       const list = page.locator(`[data-board="${when}.${who}"]`);
       await expect(list).toBeVisible();
       await expect(list.locator("[data-me]")).toHaveCount(1);
+      // R-CITY-040: the player's own line names the username on every board, and nothing else names it.
+      await expect(list.locator("[data-me] [data-board-name]")).toHaveText("ada_from_yaba");
+      await expect(list.locator("[data-me]")).not.toContainText("Ada");
       // The header is fixed over the top of a phone's screen, so the pickers are brought just under it.
       await boards.evaluate((element) => window.scrollBy(0, element.getBoundingClientRect().top - 72));
       if (PREVIEW !== undefined && PREVIEW !== "") await page.screenshot({ path: join(PREVIEW, `board-${when}-${who}-phone.png`) });

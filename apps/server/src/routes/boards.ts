@@ -33,7 +33,7 @@ async function answer(deps: ServerDeps, ports: BoardPorts, c: Context<SessionEnv
   if ((await ports.guests([session.account])).has(session.account)) return { status: 403, body: guestOnly(BOARDS_DETAIL) };
   const character = (await deps.stores.account.get(session.account))?.character ?? null;
   if (character === null) return refuse(404, "no-character", "Start a life to be on the boards.");
-  return { status: 200, body: await readBoard(deps, ports, character, board) };
+  return { status: 200, body: await readBoard(deps, character, board) };
 }
 
 function send(c: Context<SessionEnv>, deps: ServerDeps, reply: Reply): Response {

@@ -1,14 +1,12 @@
 // A board as a player reads it (city.md R-CITY-039, R-CITY-040): the top
-// `board.size` lines and the player's own line, the account's username and
-// nothing else about the player on `everyone`, first names and display names on
-// `friends`. Computer characters have no row, so they are on no board
-// (people.md R-PEOPLE-056).
-import { text } from "@japacity/content";
+// `board.size` lines and the player's own line, each naming the account's
+// username and nothing else about the player, on every board, friends too
+// Computer characters have no row, so they are on no
+// board (people.md R-PEOPLE-056).
 import type { BoardQuery, BoardWhen, BoardWho, RankedRow, SwitchName } from "@japacity/store";
 import { pairIds } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
-import type { BoardPorts } from "./ports";
 import { lagosWeek } from "./week";
 
 /** R-CITY-039: the four boards behind the pickers, and the joined-the-same-week board kept switched off. */
@@ -27,17 +25,15 @@ export const BOARD_SWITCH: Record<BoardName, SwitchName> = {
 
 /**
  * R-CITY-040: one line. `figure` is the japacity figure on all time and the rise since Monday on this week. On
- * `everyone` (and the joined-week board, also strangers) the line names the account's username (account.md
- * R-ACCOUNT-024) and carries no first name and no display name; on `friends` it carries the character's first name
- * and the display name, and no username. A username is null only for an account no longer there.
+ * every board, friends as everyone, the line names the account's username (account.md R-ACCOUNT-024) and carries
+ * no first name and no display name (amended 11 Oct 2026: one name a player chose serves both boards). A username
+ * is null only for an account no longer there.
  */
 export interface BoardRow {
   rank: number;
   username: string | null;
-  firstName: string | null;
   figure: number;
   me: boolean;
-  name: string | null;
 }
 
 /** R-CITY-040: the top `size` lines, and the player's own line wherever it ranks, null while the player has no route yet. */
@@ -87,13 +83,8 @@ async function friendsOf(deps: ServerDeps, character: string): Promise<string[]>
   return friends;
 }
 
-/** R-CITY-040: the scenario's first name, the same the share card shows. */
-export function firstNameOf(scenario: string): string {
-  return text[`share.first-name.${scenario}`] ?? "";
-}
-
 /** R-CITY-039, R-CITY-040: the board for the player whose character is `character`. */
-export async function readBoard(deps: ServerDeps, ports: BoardPorts, character: string, board: BoardName): Promise<BoardReply> {
+export async function readBoard(deps: ServerDeps, character: string, board: BoardName): Promise<BoardReply> {
   const { when, who } = pickers(board);
   const week = lagosWeek(deps.now());
   const query: BoardQuery = { when, week };
@@ -106,18 +97,13 @@ export async function readBoard(deps: ServerDeps, ports: BoardPorts, character: 
   const top = await deps.stores.boards.top(query, size);
   const own = top.find((line) => line.character === character) ?? (await deps.stores.boards.lineOf(query, character));
   const lines = own === null || top.includes(own) ? top : [...top, own];
-  const accounts = lines.map((line) => line.account);
-  const friends = who === "friends";
-  // One read for every line's name: the display names among friends, the usernames on everyone (R-CITY-040).
-  const names = friends ? await ports.displayNames(accounts) : new Map<string, string>();
-  const usernames = friends ? new Map<string, string>() : await deps.stores.account.usernames(accounts);
+  // One read for every line's name: the usernames, on every board (R-CITY-040).
+  const usernames = await deps.stores.account.usernames(lines.map((line) => line.account));
   const row = (line: RankedRow): BoardRow => ({
     rank: line.rank,
-    username: friends ? null : (usernames.get(line.account) ?? null),
-    firstName: friends ? firstNameOf(line.scenario) : null,
+    username: usernames.get(line.account) ?? null,
     figure: line.score,
     me: line.character === character,
-    name: friends ? (names.get(line.account) ?? null) : null,
   });
   return { ok: true, board, size, rows: top.map(row), own: own === null ? null : row(own) };
 }
