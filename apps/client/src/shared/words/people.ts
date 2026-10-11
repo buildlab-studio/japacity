@@ -24,7 +24,8 @@ export const peopleText: Record<string, string> = {
   "ui.people.parent.name.father": "Your father",
   "ui.people.parent.blurb.mother": "At home, as she has always been. She calls when there is news.",
   "ui.people.parent.blurb.father": "At home, as he has always been. He calls when there is news.",
-  "ui.people.mark.computer": "Computer",
+  // The mark's word (R-PEOPLE-009, R-PEOPLE-054): what the player would say, not a system word.
+  "ui.people.mark.computer": "Not a player",
   "ui.people.mark.player": "Player",
   "ui.people.mark.stand-in": "Stand-in",
   "ui.people.mark.computer.long": "A computer character, not a player.",
@@ -49,6 +50,10 @@ export const peopleText: Record<string, string> = {
   "ui.people.chosen": "{name} is a computer character. They live in the game.",
   // Met in a place (R-WORLD-020, R-PEOPLE-013): the talk sheet shut while the most bonds a life may court already court.
   "ui.people.court.full": "You are seeing {count} people already.",
+  // R-PEOPLE-041: seeing someone new beside a partner is talked about; the card says what it costs before the tap.
+  "ui.people.court.partnered": "You are with {partner}. Seeing {name} too costs standing if it comes out, and {partner} may leave.",
+  // R-PEOPLE-013: their answer once courted, told in the corner in their own words.
+  "ui.people.courted.said": "{name}: {line}",
   "ui.people.lives.home": "Lives at home",
   "ui.people.lives.abroad": "Lives in {country}",
 
@@ -168,19 +173,26 @@ export const peopleText: Record<string, string> = {
   "ui.people.end.confirm": "End it for good",
   "ui.people.end.keep": "Keep it",
   // A bond's head in its Chats thread (world.md R-WORLD-020, R-WORLD-006): one row each, the details behind a tap.
-  "ui.people.head.ask": "Ask them",
-  "ui.people.head.moments": "{count} moments",
-  "ui.people.head.moments.one": "1 moment",
-  "ui.people.head.moments.zero": "No moments",
-  "ui.people.head.moments-left": "{count} more moments",
-  "ui.people.head.moments-left.one": "1 more moment",
+  // A person's words, not the system's (R-TEXT-005, R-TEXT-007). {count} is in words.
+  "ui.people.head.ask": "Ask {name}",
+  "ui.people.head.moments": "{count} times together",
+  "ui.people.head.moments.one": "Once together",
+  "ui.people.head.moments.zero": "Nothing shared yet",
+  "ui.people.head.moments-left": "{count} more times together before you can ask",
+  "ui.people.head.moments-left.one": "One more time together before you can ask",
   "ui.people.head.asked.mine": "You asked",
   "ui.people.head.asked.theirs": "They asked you",
   "ui.people.head.sponsoring": "Sponsoring",
   "ui.people.head.barred": "Barred for now",
-  "ui.people.head.end.standing": "Costs standing",
-  "ui.people.head.end.wellbeing": "Costs wellbeing",
-  "ui.people.head.end.nothing": "Costs nothing",
+  "ui.people.head.end.standing": "Ending it will be talked about",
+  "ui.people.head.end.wellbeing": "Ending it will hurt",
+  "ui.people.head.end.nothing": "Nobody holds it against you",
+  // An ended bond's thread, for the month it stays (R-PEOPLE-042): what happened,
+  // then the reason in their own words where they had one.
+  "ui.people.head.ended.drift": "{name} stopped calling.",
+  "ui.people.head.ended.them": "{name} ended it.",
+  "ui.people.head.ended.me": "You ended it with {name}.",
+  "ui.people.head.ended.other": "It is over with {name}.",
 
   // Gossip and drift (R-PEOPLE-041, R-PEOPLE-042)
   "ui.people.gossip": "You have a partner and you are seeing someone else. People talk: about {chance} a month. If your partner hears, you lose standing, and they may leave.",

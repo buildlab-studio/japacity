@@ -379,7 +379,8 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   await mark.click();
   const chip = page.locator('[data-thing-chip="after-service"]');
   await expect(chip).toContainText("Tobi");
-  await expect(chip.locator("[data-person-mark]")).toHaveText("Computer");
+  // The mark's word (R-PEOPLE-009).
+  await expect(chip.locator("[data-person-mark]")).toHaveText("Not a player");
   await page.waitForTimeout(400);
   await shoot(page, "m68-1-parlour-tobi", info.project.name);
 
