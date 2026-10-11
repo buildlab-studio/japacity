@@ -4,15 +4,18 @@
 // as money kept. The
 // change is one line with both sides in its words. Since decision 0021 as amended a change
 // counts for nothing in what was kept, either way: changing money is a move, not spending, and only the
-// bank's charge stays money out, as the wallet counts the month (R-WALLET-015).
+// bank's charge stays money out, as the wallet counts the month (R-WALLET-015). Since review 14 the
+// charge is told once, on its own line, and the change's paid side is what went at the rate, so Kept plus the change
+// is the band's move.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { newGame, recordedGame } from "../../shared/testing/fixtures";
 import { formatMoney } from "../../shared/words/format";
+import { CHANGE_CHARGE } from "../../shared/words/money";
 import { words } from "../../shared/words/text";
-import { CHANGED, CHANGED_OUT, kept, moneyLines } from "./month.results";
+import { CHANGED, CHANGED_OUT, changesInto, kept, moneyLines } from "./month.results";
 
 const CHARGE = content.tuning.wallet.bankChargeBp;
 
@@ -31,7 +34,7 @@ function changedAbroad(amount: (dollars: number) => number): { lines: ReportLine
 }
 
 describe("a change of money on the results", () => {
-  test("[R-WORLD-008] [R-WALLET-004] given a quarter of Ada's dollars changed into pounds at the bank, when the month's money is read, then the change is one line that says both sides with the bank's charge folded in, counted as the pounds that came in", () => {
+  test("[R-WORLD-008] [R-WALLET-004] given a quarter of Ada's dollars changed into pounds at the bank, when the month's money is read, then the change is one line that says what went at the rate and what came in, counted as the pounds that came in, and the bank's charge is one line of its own in the money it was taken in", () => {
     const { lines, paid, charge, received } = changedAbroad((dollars) => Math.floor(dollars / 4 / 100) * 100);
     const money = moneyLines(lines);
     const changes = money.filter((entry) => entry.line.key === CHANGED);
@@ -39,10 +42,13 @@ describe("a change of money on the results", () => {
     const change = changes[0];
     expect(change).toMatchObject({ sign: 1, currency: "GBP", amount: received });
     const said = words(change?.line.key ?? "", change?.line.params ?? {});
-    expect(said).toContain(formatMoney(paid, "USD"));
+    expect(said).toContain(formatMoney(paid - charge, "USD"));
     expect(said).toContain(formatMoney(received, "GBP"));
-    // The charge in the money it was taken in, as the confirm sheet says it.
-    expect(said).toContain(formatMoney(charge, "USD"));
+    // The charge in the money it was taken in, as the confirm sheet says it, said once.
+    const charges = money.filter((entry) => entry.line.key === CHANGE_CHARGE);
+    expect(charges).toEqual([expect.objectContaining({ sign: -1, currency: "USD", amount: charge })]);
+    expect(words(charges[0]!.line.key, charges[0]!.line.params)).toContain(formatMoney(charge, "USD"));
+    expect(said).not.toContain(formatMoney(charge, "USD"));
     expect(money.some((entry) => entry.line.key === "line.wallet.bank-charge" || entry.line.key === "line.wallet.converted")).toBe(false);
   });
 
@@ -52,17 +58,22 @@ describe("a change of money on the results", () => {
     expect(nets.find((net) => net.currency === "USD")?.amount).toBe(-charge);
     expect(nets.find((net) => net.currency === "GBP")?.amount ?? 0).toBe(band.ended - band.changed);
     const out = moneyLines(lines).find((entry) => entry.line.key === CHANGED_OUT);
-    expect(words(out?.line.key ?? "", out?.line.params)).toContain(formatMoney(paid, "USD"));
+    expect(words(out?.line.key ?? "", out?.line.params)).toContain(formatMoney(paid - charge, "USD"));
+    // What left the dollars is the change's side and the charge together, each told once.
+    const dollarsOut = moneyLines(lines).filter((entry) => entry.currency === "USD" && entry.sign === -1).reduce((sum, entry) => sum + entry.amount, 0);
+    expect(dollarsOut).toBe(paid);
   });
 
-  test("[R-WORLD-008] [R-WALLET-004] given all the dollars changed, a figure no chip rounds, when the change is read, then what went out shows as the whole dollars it was", () => {
-    const { lines, paid } = changedAbroad((dollars) => dollars);
-    const change = moneyLines(lines).find((entry) => entry.line.key === CHANGED);
+  test("[R-WORLD-008] [R-WALLET-004] given all the dollars changed, a figure no chip rounds, when the change is read, then what went at the rate and the bank's charge add up to the whole dollars it was, to the cent", () => {
+    const { lines, paid, charge } = changedAbroad((dollars) => dollars);
+    const money = moneyLines(lines);
+    const change = money.find((entry) => entry.line.key === CHANGED);
     const out = change?.line.params["paid"];
     if (typeof out !== "object") throw new Error("The change does not say what went out.");
     expect(out.currency).toBe("USD");
-    expect(formatMoney(out.amount, "USD")).toBe(formatMoney(paid, "USD"));
-    expect(Math.abs(out.amount - paid)).toBeLessThan(50);
+    const told = money.find((entry) => entry.line.key === CHANGE_CHARGE);
+    expect(told).toMatchObject({ currency: "USD", amount: charge });
+    expect(out.amount + charge).toBe(paid);
   });
 
   test("[R-WORLD-008] given a change with no bank's charge before it, when the month's money is read, then what came in still shows, as money in, and counts for nothing in what was kept", () => {
@@ -81,12 +92,43 @@ describe("a change of money on the results", () => {
     const changed = naira();
     expect(before - changed).toBe(paid);
     const money = moneyLines(told);
-    expect(money).toHaveLength(2);
-    expect(money[1]).toMatchObject({ sign: -1, currency: "NGN", amount: paid });
+    expect(money).toHaveLength(3);
+    expect(money[1]).toMatchObject({ sign: -1, currency: "NGN", amount: paid - charge });
+    expect(money[2]).toMatchObject({ sign: -1, currency: "NGN", amount: charge });
+    expect(money[2]?.line.key).toBe(CHANGE_CHARGE);
     // The pounds that came in are told on the change's own line, and kept as nothing.
     expect(money[0]).toMatchObject({ sign: 1, currency: "GBP" });
     expect(kept(money)).toEqual([{ currency: "NGN", amount: -charge }]);
-    expect(words(money[0]?.line.key ?? "", money[0]?.line.params)).toContain(formatMoney(charge, "NGN"));
+    expect(words(money[2]?.line.key ?? "", money[2]?.line.params)).toContain(formatMoney(charge, "NGN"));
+    // Kept and the change together are the band's move.
+    const [change] = changesInto(money);
+    expect(-charge - (change?.paid.amount ?? 0)).toBe(changed - before);
+  });
+
+  test("[R-WORLD-008] [R-WALLET-015] given the reviewer's month (the band down ₦952,722, ₦1,037,389 paid in at the bank for £561 with a charge of ₦15,331, the month's other lines adding to +₦84,667), when what was kept and the change are read, then Kept is +₦69,336, the change says ₦1,022,058 into £561, the charge is one line, and Kept plus the change is the band's move", () => {
+    const naira = (amount: number) => ({ currency: "NGN" as const, amount: amount * 100 });
+    const pounds = (amount: number) => ({ currency: "GBP" as const, amount: amount * 100 });
+    const line = (key: string, amount: { currency: "NGN" | "GBP"; amount: number }, tone: ReportLine["tone"]): ReportLine => ({ key, params: { amount }, tone, attention: false, counts: [] });
+    // As the wallet tells a foreign fee paid from the naira bank (R-WALLET-009): the side changed, the charge, what came in, the fee.
+    const lines: ReportLine[] = [
+      line("line.wallet.convert-paid", naira(1_022_058), "plain"),
+      line("line.wallet.bank-charge", naira(15_331), "bad"),
+      line("line.wallet.converted", pounds(561), "plain"),
+      line("line.wallet.fee-document", pounds(561), "bad"),
+      line("line.wallet.salary", naira(274_667), "good"),
+      line("line.wallet.upkeep", naira(190_000), "bad"),
+    ];
+    const money = moneyLines(lines);
+    expect(kept(money)).toEqual([
+      { currency: "NGN", amount: naira(69_336).amount },
+      { currency: "GBP", amount: -pounds(561).amount },
+    ]);
+    expect(changesInto(money)).toEqual([{ paid: naira(1_022_058), got: pounds(561) }]);
+    expect(money.filter((entry) => entry.line.key === CHANGE_CHARGE)).toEqual([expect.objectContaining({ sign: -1, ...naira(15_331) })]);
+    const keptNaira = kept(money).find((net) => net.currency === "NGN")?.amount ?? 0;
+    expect(keptNaira - (changesInto(money)[0]?.paid.amount ?? 0)).toBe(-naira(952_722).amount);
+    // Every naira line on the sheet adds to the band's move too.
+    expect(money.filter((entry) => entry.currency === "NGN").reduce((sum, entry) => sum + entry.sign * entry.amount, 0)).toBe(-naira(952_722).amount);
   });
 
   test("[R-WALLET-015] [R-WORLD-008] given a month abroad with a change at the bank, and a month at home with one, when each month closes, then the results' kept figure in the money of the place is the net the wallet counts the month by", () => {

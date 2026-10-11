@@ -23,9 +23,9 @@ export const CONVERTED = "line.wallet.converted";
 export const CONVERT_PAID = "line.wallet.convert-paid";
 export const BANK_CHARGE = "line.wallet.bank-charge";
 
-/** A change at the bank as the results tell it: both sides in its words, and its net as the line's amount. */
+/** A change at the bank as the results tell it: both sides in its words, its charge told on its own line after it. */
 export const CHANGED = "ui.results.changed";
-/** The same, for a charge too small to show as a figure: no "The bank's charge came to £0". */
+/** The same, for a charge too small to show as a figure: it gets no line, no "The bank's charge: £0". */
 export const CHANGED_SMALL = "ui.results.changed-small";
 
 /** True when a charge shows as a figure; one that rounds to nothing ("£0") is not said at all. */
@@ -48,27 +48,32 @@ function paidIn(charge: number): number {
 
 /** The side of a change that went out, as the results tell it: its own line in the money paid in. */
 export const CHANGED_OUT = "ui.results.changed-out";
+/** The bank's charge on a change, its own line as money out, in the results' words. */
+export const CHANGE_CHARGE = "ui.results.change-charge";
 
 /**
  * A change of money at the bank, counted as the band moves in every money it touched (R-WALLET-004,
  * R-WORLD-008). The side that came in counts as money in, in
  * its own money; the side paid in counts as money out, in its own money, so Kept shows every currency
- * that moved and each matches its band. The bank's charge is folded into what was paid in and told in
- * the line's words, never counted again.
+ * that moved and each matches its band. The bank's charge is told once, on its own line as money out, and the change's
+ * paid side is what went at the rate, the charge not in it. A charge too small to show as a figure gets no line of its own ("£0"): it rides on the
+ * change's line and Kept still counts it, as the wallet does (R-WALLET-015).
  */
-function bankChange(line: ReportLine, charge: MoneyParam, paidLine: ReportLine | undefined): MoneyLine[] {
+function bankChange(line: ReportLine, chargeLine: ReportLine, charge: MoneyParam, paidLine: ReportLine | undefined): MoneyLine[] {
   const gained = moneyParam("amount", line.params, line.key);
   if (gained === null || gained.amount === 0) return [];
-  // What was paid in: the wallet's own figure for the side changed plus the charge taken off it first; the charge alone
-  // places it only to within a unit (the papers builder's finding), so that is the fallback for an older recording.
+  // What went at the rate: the wallet's own figure for the side changed, after the charge was taken off it; the charge
+  // alone places what was paid in only to within a unit (the papers builder's finding), the fallback for an older recording.
   const paidPart = paidLine === undefined ? null : moneyParam("amount", paidLine.params, paidLine.key);
-  const paid = paidPart === null ? paidIn(charge.amount) : paidPart.amount + charge.amount;
+  const paid = paidPart === null ? paidIn(charge.amount) - charge.amount : paidPart.amount;
+  const shown = chargeShown(charge.amount, charge.currency);
   // The charge in the money it was taken in, as the confirm sheet names it.
-  const told: ReportLine = { ...line, key: chargeShown(charge.amount, charge.currency) ? CHANGED : CHANGED_SMALL, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency: charge.currency, amount: charge.amount } } };
+  const told: ReportLine = { ...line, key: shown ? CHANGED : CHANGED_SMALL, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency: charge.currency, amount: charge.amount } } };
   const out: ReportLine = { ...line, key: CHANGED_OUT, params: { amount: { currency: charge.currency, amount: paid } } };
   return [
     { line: told, sign: 1, currency: gained.currency, amount: gained.amount },
     { line: out, sign: -1, currency: charge.currency, amount: paid },
+    ...(shown ? [{ line: { ...chargeLine, key: CHANGE_CHARGE, params: { amount: charge } }, sign: -1 as const, currency: charge.currency, amount: charge.amount }] : []),
   ];
 }
 
@@ -161,7 +166,7 @@ export function moneyTold(tidy: readonly ReportLine[]): (MoneyLine[] | null)[] {
       const chargeLine = change.charge === null ? undefined : tidy[change.charge];
       const paidLine = change.paid === null ? undefined : tidy[change.paid];
       const charge = chargeLine === undefined ? null : moneyParam("amount", chargeLine.params, chargeLine.key);
-      if (charge !== null) return bankChange(line, charge, paidLine);
+      if (chargeLine !== undefined && charge !== null) return bankChange(line, chargeLine, charge, paidLine);
       if (paidLine !== undefined) return streetChange(line, paidLine);
       // With nothing paid in on the same lines (a change that waited in the bank's queue), only what came in is here.
       const gained = moneyParam("amount", line.params, line.key);
