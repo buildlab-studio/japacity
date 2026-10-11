@@ -19,6 +19,8 @@ const ADA: Id<"scenario"> = "scenario.ada";
 /** Ada's draw with no sibling abroad, and one with an older sibling settled in the UK (the people kind's draw). */
 const NO_ONE_ABROAD = "seed-1";
 const SIBLING_ABROAD = "seed-3";
+/** Decision 0035 lives the living by hand at home; the foodstuff test reads the charge itself, so it charges it whole. */
+const CHARGED: Content = { ...content, tuning: { ...content.tuning, home: { ...content.tuning.home, livingByHandBp: 0 } } };
 
 function life(seed: string, scenario: Id<"scenario"> = ADA, base: Content = content): Game {
   return start({ content: base, scenario, seed });
@@ -196,8 +198,8 @@ describe("the parcel: collecting it", () => {
 });
 
 describe("the parcel: what each thing gives", () => {
-  function collect(holds: string): { game: Game; before: State; result: Accepted } {
-    const game = life(SIBLING_ABROAD);
+  function collect(holds: string, base: Content = content): { game: Game; before: State; result: Accepted } {
+    const game = life(SIBLING_ABROAD, ADA, base);
     game.endTurn();
     setNaira(game, parcel.handling * 10, PLENTY);
     // Room under the top of every quality, so each gift shows whole.
@@ -231,9 +233,9 @@ describe("the parcel: what each thing gives", () => {
   });
 
   test("[R-OBLIGATION-014] given foodstuff in the parcel, when it is collected, then the next month's living costs fall by what cooking gives, once", () => {
-    const { game } = collect("sibling-food");
+    const { game } = collect("sibling-food", CHARGED);
     const twinOf = (): Game => {
-      const twin = life(SIBLING_ABROAD);
+      const twin = life(SIBLING_ABROAD, ADA, CHARGED);
       twin.endTurn();
       setNaira(twin, parcel.handling * 10, PLENTY);
       return twin;

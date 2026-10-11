@@ -600,9 +600,10 @@ describe("funds", () => {
       },
     });
     toKnown(game);
-    // The month on the way paid the living costs, over the line for cash, from the bank first (wallet.md R-WALLET-018).
+    // Decision 0035 (R-HOME-012): the month on the way charged no living at home, so the naira bank is as it was set; the
+    // funds below read the bank as it stands.
     const naira = game.state.wallet.pockets.NGN.bank;
-    expect(naira).toBeLessThan(3000000 * UNIT);
+    expect(naira).toBe(3000000 * UNIT);
     expect(game.state.wallet.pockets.NGN.cash).toBe(500000 * UNIT);
     const bankOnly = toPence(game, naira, "NGN") + 5000 * UNIT + toPence(game, 2000 * UNIT, "USD");
     expect(fundsShown(readOf(game), UK)).toBe(bankOnly);

@@ -85,8 +85,10 @@ describe("rules that cross kinds", () => {
   });
 
   describe("held funds", () => {
-    // Tunde, papers in hand. His pounds leave him £1,000 short of the funds once the Northgate deposit is paid, and his naira is next to nothing.
-    const SHORT = 100000;
+    // Tunde, papers in hand. His pounds leave him £1,500 short of the funds once the Northgate deposit is paid, and his naira is next to nothing.
+    // Decision 0035: no living is charged at home as the month turns, so his salary gathers in the bank while he waits for the
+    // school's answer; £1,000 short was covered by the month the offer opens, so he starts £1,500 short to be short still.
+    const SHORT = 150000;
     const pinned = { "var.uk-living-line": 117100, "var.uk-living-months": 9, "var.fx-bank-queue": 0 } as Record<Id<"var">, number>;
     function heldLife(): Game {
       const required = 1700000 - 400000 + 117100 * 9;

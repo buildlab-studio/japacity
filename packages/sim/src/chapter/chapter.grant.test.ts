@@ -46,10 +46,12 @@ function closed(result: { events: { type: string }[] }): unknown[] {
 const routeIs = (route: Id<"route">, state: string) => (game: Game) => game.state.route[route]?.state === state;
 
 describe("a grant on a route with no file of its own", () => {
-  test("[R-CHAPTER-002] [R-CHAPTER-009] given Ada's abroad life leaning to the master's at decision day, when the skilled worker's visa is granted, then decision day closes on the grant's turn, the bank is refilled and the lean is now the skilled route", () => {
+  test("[R-CHAPTER-002] [R-CHAPTER-009] given Tunde's abroad life leaning to the master's at decision day, when the skilled worker's visa is granted, then decision day closes on the grant's turn, the bank is refilled and the lean is now the skilled route", () => {
+    // Since the lives were re-recorded for decision 0035, Tunde's abroad life is the one granted at decision day (month 19);
+    // Ada's is granted while still building the file and flies with decision day open, read below.
     // A first pass finds the command whose turn brings the grant; the second stops just before it.
-    const granting = playTo(recorded("ada-abroad").game, recorded("ada-abroad").commands, 0, routeIs(SKILLED, "granted")).next - 1;
-    const { game, commands } = recorded("ada-abroad");
+    const granting = playTo(recorded("tunde-abroad").game, recorded("tunde-abroad").commands, 0, routeIs(SKILLED, "granted")).next - 1;
+    const { game, commands } = recorded("tunde-abroad");
     playTo(game, commands, 0, (now) => now.state.v === granting);
     // Up to the turn of the grant the life leans to the master's, at decision day.
     expect(commands[granting]?.command.type).toBe("turn/end");
@@ -65,8 +67,9 @@ describe("a grant on a route with no file of its own", () => {
     expect(game.state.route[UK]?.state).toBe("known");
   });
 
-  test("[R-CHAPTER-002] [R-CHAPTER-006] [R-CHAPTER-009] given Ada granted the skilled worker's visa, when she flies, then the send-off card is in the view, the month ends with the send-off closed and the next month abroad Landing is current", () => {
-    const { game, commands } = recorded("ada-abroad");
+  test("[R-CHAPTER-002] [R-CHAPTER-006] [R-CHAPTER-009] given Tunde granted the skilled worker's visa, when he flies, then the send-off card is in the view, the month ends with the send-off closed and the next month abroad Landing is current", () => {
+    // Decision 0035's re-recording: Tunde's abroad life reaches the send-off on the grant and flies from it.
+    const { game, commands } = recorded("tunde-abroad");
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     expect(game.state.chapter.current).toBe(SEND_OFF);
     expect(game.view().card).toMatchObject({ kind: "send-off", route: SKILLED, chapter: SEND_OFF, months: game.state.turn.month });
@@ -79,8 +82,9 @@ describe("a grant on a route with no file of its own", () => {
     expect(game.view().card?.kind).not.toBe("send-off");
   });
 
-  test("[R-CHAPTER-002] [R-CHAPTER-006] [R-CHAPTER-009] given Tunde's abroad life flying with decision day still open, when he flies, then the send-off card shows from the flight, and the month's end closes decision day and the send-off in order, each its own close with its own refill", () => {
-    const { game, commands } = recorded("tunde-abroad");
+  test("[R-CHAPTER-002] [R-CHAPTER-006] [R-CHAPTER-009] given Ada's abroad life flying with decision day still open, when she flies, then the send-off card shows from the flight, and the month's end closes decision day and the send-off in order, each its own close with its own refill", () => {
+    // Decision 0035's re-recording: Ada's abroad life is granted while building the file (month 40) and flies that month.
+    const { game, commands } = recorded("ada-abroad");
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     // The grant's turn closed the file: one close a turn until the flight.
     expect(game.state.chapter).toMatchObject({ current: DECISION, done: ["chapter.find-your-feet", FILE] });
@@ -116,8 +120,9 @@ describe("the plan follows the grant", () => {
 });
 
 describe("the flight's report has one card", () => {
-  test("[R-CHAPTER-006] [R-SHARE-001] given Tunde's flight turn closing decision day and the send-off in one report, when the view is read in the first month abroad, then no chapter card is due for decision day", () => {
-    const { game, commands } = recorded("tunde-abroad");
+  test("[R-CHAPTER-006] [R-SHARE-001] given Ada's flight turn closing decision day and the send-off in one report, when the view is read in the first month abroad, then no chapter card is due for decision day", () => {
+    // Decision 0035's re-recording: Ada's abroad life is the one whose flight turn closes both.
+    const { game, commands } = recorded("ada-abroad");
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     const month = game.state.turn.month;
     playTo(game, commands, flight.next, (now) => now.state.turn.month > month);

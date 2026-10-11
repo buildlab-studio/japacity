@@ -103,6 +103,8 @@ describe("sending money home", () => {
     const game = adaAbroad();
     const rate = game.world().rates.USD.official;
     const before = game.state.wallet.pockets.NGN.bank;
+    // Since decision 0035's re-recording Ada lands with a lot of her own (her held funds' naira, month 26); the remit adds none.
+    const lots = game.state.wallet.lots;
     const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "app" });
     const fee = bp(HUNDRED_DOLLARS, remit.appFeeBp);
     const naira = mulDiv(HUNDRED_DOLLARS - fee, rate - bp(rate, remit.appMarginBp), 100);
@@ -118,7 +120,7 @@ describe("sending money home", () => {
       counts: [],
     });
     // It is documented: never a lot.
-    expect(game.state.wallet.lots).toEqual([]);
+    expect(game.state.wallet.lots).toEqual(lots);
   });
 
   test("[R-WALLET-017] given $100 sent home by app, when its lines are read, then the dollars leaving are told as money out and the naira landing as money in: a line's tone is its event's", () => {
@@ -329,6 +331,9 @@ describe("the bank abroad", () => {
 
   test("[R-WALLET-006] given a bank queue in the world, when Ada changes dollars to pounds at the bank abroad, then the pounds arrive at once: the queue is the Lagos bank's", () => {
     const game = adaAbroad();
+    // Since decision 0035's re-recording Ada lands with fewer dollars than this; the change needs them held, as above.
+    const { USD } = game.state.wallet.pockets;
+    if (USD.bank < DOLLARS) applyEffects(game, [{ type: "money/add", currency: "USD", pocket: "bank", amount: DOLLARS - USD.bank, reason: "gift" }]);
     const landed = game.world();
     game.world = () => ({ ...landed, vars: { ...landed.vars, "var.fx-bank-queue": 2 } });
     const before = game.state.wallet.pockets.GBP.bank;
