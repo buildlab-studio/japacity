@@ -409,12 +409,18 @@ async function followNudge(run: Run, month: number): Promise<void> {
     }
     // The act chips stay over the thing while its sheet is open, so they come after the sheet.
     const act = page.locator("[data-thing-chip] [data-act]");
+    // An act that carries on in the plan says "Ongoing" and is shut (R-WORLD-007): only an open act can be tapped.
+    const open = page.locator("[data-thing-chip] [data-act]:not([data-planned]):not([disabled])");
+    if ((await shown(act)) && !(await shown(open))) {
+      log(run, `acts over the thing: ${(await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ")}; all ongoing, nothing to tap`);
+      break;
+    }
     if (await shown(act)) {
       const names = (await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ");
-      // The act the nudge's step opens, when the chips carry it; else the first chip.
+      // The act the nudge's step opens, when the chips carry it and it is open; else the first open chip.
       const opens = await page.locator("[data-nudge]").first().getAttribute("data-nudge-opens", { timeout: 1_000 }).catch(() => null);
-      const named = opens === null ? null : page.locator(`[data-act][data-activity="${opens}"]`);
-      const chosen = named !== null && (await shown(named)) ? named : act;
+      const named = opens === null ? null : page.locator(`[data-act][data-activity="${opens}"]:not([data-planned]):not([disabled])`);
+      const chosen = named !== null && (await shown(named)) ? named : open;
       const activities = (await act.evaluateAll((nodes) => nodes.map((node) => (node as { dataset: Record<string, string | undefined> }).dataset["activity"] ?? "-"))).join(", ");
       log(run, `acts over the thing: ${names} (${activities}); the nudge opens ${opens ?? "nothing named"}; tapping ${chosen === act ? "the first" : "the step's own"}`);
       await tap(run, chosen, "the act");
