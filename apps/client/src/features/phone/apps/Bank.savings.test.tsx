@@ -11,7 +11,6 @@ import { newGame, recordedGame, viewAfter } from "../../../shared/testing/fixtur
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { phoneWords } from "../phone.words";
-import { savings } from "../../turn/month.results";
 import { Bank, savedFor, savingsOf } from "./Bank";
 
 const TALENT = "route.uk-talent";
@@ -100,14 +99,14 @@ describe("Saved for the move, on the plan's own way", () => {
 
   // Restated 11 Oct 2026 for R-WORLD-019 as amended: the figure shows from the month the plan
   // is set, as the results show it, where it waited for the official page before.
-  test("[R-WORLD-019] given a way only heard of as the plan's lean, when the Bank opens, then its figure shows at once, the results' own, and still once the way is looked into", async () => {
+  test("[R-WORLD-019] given a way only heard of as the plan's lean, when the Bank opens, then its figure shows at once, the shared figure the results read, and still once the way is looked into", async () => {
     const game = newGame("scenario.ngozi");
     viewAfter(game, [{ type: "route/hear", route: "route.uk-care", via: "meetup" }]);
     const heard = game.view();
     expect(heard.plan.route).toBe("route.uk-care");
     expect(heard.routes.find((route) => route.id === "route.uk-care")?.state).toBe("heard");
+    // The results read the same shared figure (shared/words/savings.ts; the results' side is in App.oneFigure.test.tsx).
     const figure = savingsOf(heard)!;
-    expect(savings(heard)).toEqual({ kind: "funds", ...figure });
     await renderWithView(<Bank />, heard);
     // Ngozi already holds the care visa's fee: the line says it is enough, with the figure.
     expect(document.querySelector("[data-savings]")?.textContent).toContain(formatMoney(figure.required, figure.currency));
@@ -115,20 +114,6 @@ describe("Saved for the move, on the plan's own way", () => {
     game.accept({ type: "activity/now", activity: "activity.look-into-route", param: "route.uk-care" });
     await renderWithView(<Bank />, game.view());
     expect(document.querySelectorAll("[data-savings]").length).toBeGreaterThan(0);
-  });
-
-  test("[R-WORLD-019] given the developer who hears of the talent visa at the meetup in his first month, when the month's results and the Bank are read before the official page, then both say the same figure toward the move", async () => {
-    const game = developer();
-    game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
-    game.endTurn([]);
-    const view = game.view();
-    expect(view.plan.route).toBe(TALENT);
-    expect(view.routes.find((route) => route.id === TALENT)?.state).toBe("heard");
-    const shown = savings(view);
-    if (shown === null || shown.kind !== "funds") throw new Error("The results show no figure toward the move.");
-    await renderWithView(<Bank />, view);
-    expect(document.querySelector("[data-savings-none]")).toBeNull();
-    expect(document.querySelector("[data-savings]")?.textContent).toContain(phoneWords("phone.bank.savings.line", { shown: formatMoney(shown.shown, shown.currency), required: formatMoney(shown.required, shown.currency) }));
   });
 
   test("[R-WORLD-019] given the master's only heard of, with nothing to count yet, when the Bank opens, then one line says there is no plan yet, as the results show no figure", async () => {
