@@ -174,6 +174,30 @@ describe("without the cookie", () => {
     expect(await shown(await visit("/", { headers: { cookie: `${COOKIE}=1800000000.forged` } }))).toEqual(SCREEN);
   });
 
+  test("given the terms, the privacy notice, the official accounts or the credits page, when they are opened with no cookie, then the game answers each, for anyone", async () => {
+    for (const path of ["/terms", "/terms.html", "/privacy", "/privacy.html", "/official", "/official/", "/official/index.html"]) {
+      const response = await visit(path);
+      expect([path, response.status, response.headers.get("set-cookie")]).toEqual([path, 200, null]);
+      expect(await response.text()).toBe(`game ${path}`);
+    }
+    expect(await (await visit("/terms?from=start")).text()).toBe("game /terms");
+    expect(await (await visit("/privacy", { method: "HEAD" })).text()).toBe("");
+  });
+
+  test("given the public pages open, when the root or any page beside them is opened with no cookie, then the holding screen still shows", async () => {
+    for (const path of ["/", "/play", "/termsx", "/terms/more", "/privacy.htm", "/officials", "/guides", "/guides/", "/guides/credits/more", "/legal/terms.html"]) {
+      expect([path, await shown(await visit(path))]).toEqual([path, SCREEN]);
+    }
+  });
+
+  test("given a public page, when anything but a read is sent to it with no cookie, then it is refused and the game never gets it", async () => {
+    for (const path of ["/terms", "/official/index.html"]) {
+      const posted = await visit(path, { method: "POST", body: "{}" });
+      expect(posted.status).toBe(403);
+      expect(await posted.text()).not.toContain("game");
+    }
+  });
+
   test("given no handle yet, or one that is not a handle, when the screen is served, then there is no X link and the rest is the same", async () => {
     for (const handle of ["", "@japacityapp", "japacity app", "a".repeat(16), '"><script>']) {
       const response = await worker.fetch(new Request(`${HOST}/`), { ...env, GATE_X_HANDLE: handle });

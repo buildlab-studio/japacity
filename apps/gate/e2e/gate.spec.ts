@@ -24,6 +24,17 @@ test("a phone with no invite sees one screen: the game opens soon, with the X li
   expect(await context.cookies()).toEqual([]);
 });
 
+test("a phone with no invite can read the terms, the privacy notice, the official accounts and the credits, and is given no cookie", async ({ page, context }) => {
+  for (const path of ["/terms", "/privacy", "/official"]) {
+    await page.goto(path);
+    await expect(page.getByRole("heading", { name: "The game" })).toBeVisible();
+    await expect(page.getByText(path, { exact: true })).toBeVisible();
+  }
+  await page.goto("/");
+  await expectScreen(page);
+  expect(await context.cookies()).toEqual([]);
+});
+
 test("a wrong code, or the old ?code= form of the link, shows the same screen and leaves no cookie", async ({ page, context }) => {
   await page.goto("/invite/not-the-code");
   await expectScreen(page);

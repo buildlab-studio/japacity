@@ -1,10 +1,12 @@
-// The legal pages inside Vite: emitted as legal/terms.html and legal/privacy.html
-// beside the game in a build, and served at the same paths by the dev server.
+// The legal pages inside Vite: emitted as terms.html and privacy.html at the top
+// of the build, and served at /terms and /privacy by the dev server, which sends
+// /terms.html and /privacy.html on to the clean paths as the platform does.
 // pages.ts reads content's operator constant, which is TypeScript, so it is
 // loaded through a Vite server in SSR mode, as the guide pages are. Runs in
 // Node, from vite.config.ts.
 import { createServer, type Plugin, type ViteDevServer } from "vite";
 
+import { legalRoute } from "./addresses";
 import type { legalPages as LegalPages } from "./pages";
 
 const ENTRY = "/src/features/legal/pages.ts";
@@ -32,17 +34,28 @@ export function legalPagesPlugin(): Plugin {
       });
       try {
         const legalPages = await loadPages(server);
-        for (const page of legalPages(root)) this.emitFile({ type: "asset", fileName: page.path.slice(1), source: page.html });
+        for (const page of legalPages(root)) this.emitFile({ type: "asset", fileName: page.file, source: page.html });
       } finally {
         await server.close();
       }
     },
     configureServer(server) {
       server.middlewares.use((request, response, next) => {
-        const path = (request.url ?? "").split("?")[0] ?? "";
+        const [path = "", query] = (request.url ?? "").split("?", 2);
+        const route = legalRoute(path);
+        if (route === null) {
+          next();
+          return;
+        }
+        if ("redirect" in route) {
+          response.statusCode = 307;
+          response.setHeader("Location", query === undefined ? route.redirect : `${route.redirect}?${query}`);
+          response.end();
+          return;
+        }
         loadPages(server)
           .then((legalPages) => {
-            const found = legalPages(root).find((page) => page.path === path);
+            const found = legalPages(root).find((page) => page.path === route.serve);
             if (found === undefined) {
               next();
               return;
