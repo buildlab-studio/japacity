@@ -295,7 +295,40 @@ export function toldUnpaid(line: ReportLine): ReportLine {
 
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
   // Named before the retold go, so a payment named for its offer is never taken for the month's own.
-  return readyNotOnTheWay(oneGoalLine(jobEndsWithFlight(movedWithRent(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines))))))))))))).map(variant).map(remitLanded).map(goalFirst);
+  return toldMoves(readyNotOnTheWay(oneGoalLine(jobEndsWithFlight(movedWithRent(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines)))))))))))))).map(variant).map(remitLanded).map(goalFirst);
+}
+
+/** The lines that tell a quality's move. */
+const MOVES: ReadonlySet<string> = new Set(["line.quality.gain", "line.quality.loss", "line.quality.worn", "line.quality.drift"]);
+/** The portfolio's gain is told as a piece for it (told.ts, `asPiece`), so it is never folded into its act's line. */
+const PIECES = "quality.portfolio";
+/** Acts whose own line already says what they did to the person: the rest taken, the talk and how it went. */
+const TOLD_BY_OWN_LINE: ReadonlySet<string> = new Set(["activity.rest", "activity.conference-talk"]);
+
+/**
+ * What an act did to the person, told once (R-TEXT-005): the moves a line's `source` caused
+ * are one line in the act's own words where content has them (`line.quality.from.<source>`: "You know more people at
+ * the hub now" for the meetup's network and wellbeing), and none at all where the act's own line already says it (an
+ * offer answered in its own words, the rest taken, the talk). Any other move is told by its quality (text.ts, `words`).
+ */
+function toldMoves(lines: readonly ReportLine[]): ReportLine[] {
+  const said = new Set(lines.flatMap((line) => {
+    const { offer, choice } = line.params;
+    return saidFor(line) === null || typeof offer !== "string" || typeof choice !== "string" ? [] : [`${offer}.${choice}`];
+  }));
+  const folded = new Set<string>();
+  const isMove = (line: ReportLine): boolean => MOVES.has(line.key) && line.params.quality !== PIECES;
+  return lines.flatMap((line) => {
+    const source = line.params.source;
+    if (!isMove(line) || typeof source !== "string") return [line];
+    if (TOLD_BY_OWN_LINE.has(source) || said.has(source)) return [];
+    const own = `line.quality.from.${source}`;
+    if (!hasWords(own)) return [line];
+    if (folded.has(source)) return [];
+    folded.add(source);
+    const tones = new Set(lines.filter((other) => isMove(other) && other.params.source === source).map((other) => other.tone));
+    return [{ ...line, key: own, params: {}, tone: tones.size === 1 ? line.tone : "plain" }];
+  });
 }
 
 /** A slot played, and a now-act done at once (R-ACTIVITY-015): each comes just before the money it spent. */
