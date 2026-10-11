@@ -25,10 +25,14 @@
   "vars": {
     // The game's address. The auth library, the passkeys' relying
     // party (its host, R-ACCOUNT-003), the bot check's host and the origin check on writes trust only this.
-    "SITE_URL": "https://japacity.app"
+    "SITE_URL": "https://japacity.app",
+    // Until launch: production ticks every thirty minutes like staging, so both
+    // Neon branches sleep between runs and fit the free plan while the gate is closed. On launch day, after Neon
+    // moves to a paid plan, remove this var and put the first cron below back to "*/5 * * * *" (apps/gate/README.md).
+    "TICK_CRON": "*/30 * * * *"
   },
-  // R-CLOCK-012: the world's ticks every five minutes. R-SERVER-011: the money report at 00:00 UTC.
-  "triggers": { "crons": ["*/5 * * * *", "0 0 * * *"] },
+  // R-CLOCK-012: the world's ticks every five minutes, on TICK_CRON until launch. R-SERVER-011: the money report at 00:00 UTC.
+  "triggers": { "crons": ["*/30 * * * *", "0 0 * * *"] },
   // R-SERVER-025 to 027: the limits, counted per location (R-SERVER-028). Periods are 10 or 60 seconds.
   "ratelimits": [
     { "name": "COMMANDS_10S", "namespace_id": "2001", "simple": { "limit": 10, "period": 10 } },

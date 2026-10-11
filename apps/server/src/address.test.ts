@@ -59,11 +59,12 @@ describe("the game's address", () => {
     expect(staging?.preview_urls).toBe(false);
   });
 
-  test("[R-SERVER-038] [R-CLOCK-012] given both environments, when their crons are read, then production ticks every five minutes with no TICK_CRON and staging ticks on its own TICK_CRON of thirty minutes, both with the daily cron", () => {
-    expect(server.triggers?.crons).toEqual([TICKS_CRON, "0 0 * * *"]);
-    expect(server.vars["TICK_CRON"]).toBeUndefined();
+  test("[R-SERVER-038] [R-CLOCK-012] given both environments, when their crons are read, then each ticks on its own TICK_CRON of thirty minutes until launch, standing for the five-minute one, both with the daily cron", () => {
+    // Until launch production ticks like staging; on launch day its TICK_CRON goes and the first cron is TICKS_CRON again.
+    expect(server.vars["TICK_CRON"]).toBe("*/30 * * * *");
+    expect(server.triggers?.crons).toEqual([server.vars["TICK_CRON"] ?? TICKS_CRON, "0 0 * * *"]);
     expect(staging?.vars["TICK_CRON"]).toBe("*/30 * * * *");
-    expect(staging?.triggers?.crons).toEqual([staging?.vars["TICK_CRON"], "0 0 * * *"]);
+    expect(staging?.triggers?.crons).toEqual([staging?.vars["TICK_CRON"] ?? TICKS_CRON, "0 0 * * *"]);
   });
 
   test("[R-SERVER-038] given both environments, when their files and switches are read, then only staging runs the Worker first for every path with the files bound as ASSETS and NOINDEX set", () => {
