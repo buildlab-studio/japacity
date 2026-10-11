@@ -31,7 +31,7 @@ export function accessRoutePattern(url: string): string {
 
 /** The part of a Playwright context the token is put on. */
 export interface Routable {
-  route(pattern: string, handler: (route: { request(): { headers(): Record<string, string> }; continue(options: { headers: Record<string, string> }): Promise<void> }) => Promise<void>): Promise<void>;
+  route(pattern: string, handler: (route: { request(): { headers(): Record<string, string> }; continue(options: { headers: Record<string, string> }): Promise<void> }) => Promise<void>): Promise<unknown>;
 }
 
 /**
