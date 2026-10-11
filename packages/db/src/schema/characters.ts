@@ -76,7 +76,8 @@ export const commandLog = pgTable(
     hash: text("hash").notNull(),
     at: bigint("at", { mode: "number" }).notNull(),
   },
-  (table) => [primaryKey({ columns: [table.character, table.v] })],
+  // R-ANALYTICS-013: online now, every five minutes, and the nightly counts read the log by its time.
+  (table) => [primaryKey({ columns: [table.character, table.v] }), index("command_log_at_idx").on(table.at)],
 );
 
 /** R-PAIR-001: one row per pair; `key` is the two ids sorted, `a` the lower. */

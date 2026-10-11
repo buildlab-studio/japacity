@@ -1,0 +1,1 @@
+CREATE INDEX "command_log_at_idx" ON "command_log" USING btree ("at");

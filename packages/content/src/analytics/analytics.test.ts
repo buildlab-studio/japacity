@@ -1,8 +1,30 @@
 import { describe, expect, test } from "vitest";
 
-import { content } from "../index";
+import { content, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "../index";
 
-const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped"];
+/** R-ANALYTICS-008: the numbers before launch. */
+const LAUNCH = [
+  "players/weekly",
+  "players/monthly",
+  "players/online-peak",
+  "players/guest",
+  "players/secured",
+  "players/secured-by-signup",
+  "players/total",
+  "sessions/count",
+  "sessions/length",
+  "funnel/step",
+  "share/arrival",
+  "lives/started",
+  "lives/secured",
+  "japa/departed",
+  "economy/held",
+  "wallet/top-up",
+  "advert/revenue",
+  "moderation/open",
+  "feedback/sent",
+];
+const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped", ...LAUNCH];
 const CLIENT = ["screen/opened", "share/pressed", "share/completed", "advert/impression", "advert/tap", "settings/sound", "settings/graphics", "load/time", "client/error", "ask/shown", "ask/accepted"];
 
 const list = content.analytics.counters;
@@ -11,11 +33,46 @@ const named = (name: string) => list.find((def) => def.name === name);
 describe("the counter list", () => {
   test("[R-ANALYTICS-008] given the page's game counters, when the list is read, then each is there once, made by the server", () => {
     expect(SERVER.map((name) => [name, named(name)?.source])).toEqual(SERVER.map((name) => [name, "server"]));
-    expect(named("players/returned")?.keys).toEqual(["d1", "d7", "d30"]);
+    expect(named("players/returned")?.keys).toEqual(["d1", "d3", "d7", "d14", "d30"]);
     const byRegion = ["players/active", "players/new", "turns/ended", "lottery/tickets"];
     const byId = ["chapter/closed", "chapter/reopened", "route/moved", "offer/chosen"];
     expect(byRegion.map((name) => named(name)?.keys)).toEqual(byRegion.map(() => "region"));
     expect(byId.map((name) => named(name)?.keys)).toEqual(byId.map(() => "id"));
+  });
+
+  test("[R-ANALYTICS-008] given the numbers before launch, when the list is read, then each is keyed as the page gives it", () => {
+    const byRegion = ["players/weekly", "players/monthly", "players/guest", "players/secured", "players/secured-by-signup", "players/total", "sessions/count", "lives/started", "lives/secured", "japa/departed", "feedback/sent"];
+    expect(byRegion.map((name) => named(name)?.keys)).toEqual(byRegion.map(() => "region"));
+    expect(named("players/online-peak")?.keys).toEqual(["peak"]);
+    expect(named("sessions/length")?.keys).toEqual(["under-2", "2-5", "5-15", "15-30", "over-30"]);
+    expect(named("funnel/step")?.keys).toEqual(["holding", "invited", "begin", "world", "month-1", "chapter-1", "secured"]);
+    expect(named("share/arrival")?.keys).toEqual(named("share/pressed")?.keys);
+    expect(named("wallet/top-up")?.keys).toEqual(["count", "kobo"]);
+    expect(named("advert/revenue")?.keys).toEqual(["kobo"]);
+    expect(named("economy/held")?.keys).toHaveLength(12);
+    expect(named("economy/held")?.keys).toContain("1-3:0");
+    expect(named("economy/held")?.keys).toContain("13+:over-500k");
+    expect(HELD_BANDS.map((band) => band.from)).toEqual([0, 1, 5_000_000, 50_000_001]);
+    expect(MONTH_BANDS.map((band) => band.from)).toEqual([1, 4, 13]);
+  });
+
+  test("[R-ANALYTICS-008] [R-ANALYTICS-002] given the onboarding funnel, when its steps are read, then they run in the page's order and the door's three are client screens", () => {
+    expect(FUNNEL_STEPS.map((each) => each.step)).toEqual(["holding", "invited", "door-1", "door-2", "page", "begin", "world", "month-1", "chapter-1", "secured"]);
+    const keysOf = (name: string) => named(name)?.keys ?? [];
+    expect(FUNNEL_STEPS.filter((each) => !(keysOf(each.from) as string[]).includes(each.step))).toEqual([]);
+    expect(FUNNEL_STEPS.filter((each) => each.from === "screen/opened").map((each) => each.step)).toEqual(["door-1", "door-2", "page"]);
+  });
+
+  test("[R-ANALYTICS-013] given a session's and the online count's settings, when they are read, then the gap is 30 minutes, online is 5 and the length bands start at 0, 2, 5, 15 and 30 minutes", () => {
+    expect(SESSION_GAP_MINUTES).toBe(30);
+    expect(ONLINE_MINUTES).toBe(5);
+    expect(SESSION_BANDS.map((band) => [band.key, band.from])).toEqual([
+      ["under-2", 0],
+      ["2-5", 2],
+      ["5-15", 5],
+      ["15-30", 15],
+      ["over-30", 30],
+    ]);
   });
 
   test("[R-ANALYTICS-002] given what only the client sees, when the list is read, then those names and only those are the client's", () => {
