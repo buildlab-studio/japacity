@@ -117,6 +117,8 @@ export const cityText: Record<string, string> = {
   "city.act.lie": "Lie down",
   // A meal is cooked now, as often as you are hungry (R-ACTIVITY-019): Indomie and egg, or jollof for the house, on one sheet.
   "city.act.cook": "Cook",
+  // The fan (docs/design/13-the-lively-layer.md section 3): beside a free act's "Free" pill, where a priced one has its balance.
+  "city.fan.no-cost": "No cost",
   "city.act.fetch-water": "Fetch water",
   // The compound's drum, filled from the tap in the yard: the water costs nothing there, so nothing comes off (R-OBLIGATION-014); an act the scene shows tells no line (R-TEXT-008).
   "city.act.fill-drum": "Fetch water",
