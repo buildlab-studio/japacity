@@ -6,7 +6,7 @@
 import type { PaletteName } from "@japacity/assets";
 import type { PatternSpec } from "@japacity/assets/pattern";
 
-import { type Blend, frontAt, project, type Shape, surface, type Surface } from "./blend";
+import { type Blend, frontAt, project, type Shape, surface, type Surface, type Tri } from "./blend";
 import type { PersonBone, PersonMesh } from "./person.types";
 import { thin } from "./thin";
 
@@ -20,8 +20,39 @@ const B = Object.fromEntries(BONE_NAMES.map((n, i) => [n, i])) as Record<BoneNam
 export const BONE_PARENTS = [-1, 0, 1, 2, 3, 2, 5, 6, 2, 8, 9, 0, 11, 12, 0, 14, 15] as const;
 
 const ARM_SPLAY = (35 * Math.PI) / 180; // bind pose: arms 35 degrees out from hanging
-const HEAD_SCALE = 1.18; // heads are drawn larger than life so they read on a phone
 const HC = 1.578; // head centre height; the top of the head is 1.70 m
+
+/**
+ * How faces are drawn: today's (a white round a dark eye), or one of the three directions of the
+ * revamp exploration (the design): "a" soft marks, "b" low poly, "c" big and friendly.
+ * One switch for every person, so the same people export each way without touching their data.
+ */
+export type FaceStyle = "today" | "a" | "b" | "c";
+export const FACE_STYLES: readonly FaceStyle[] = ["today", "a", "b", "c"];
+/** The style the shipped people are built with. */
+export const FACE_STYLE: FaceStyle = "today";
+/** A style named on the command line or in JAPACITY_FACE, or the shipped one when none is named. */
+export function faceStyleFrom(value: string | undefined): FaceStyle {
+  if (value === undefined || value === "") return FACE_STYLE;
+  const found = FACE_STYLES.find((style) => style === value);
+  if (found === undefined) throw new Error(`No face style ${value}. Known: ${FACE_STYLES.join(", ")}`);
+  return found;
+}
+
+/** The numbers a face style sets beyond the face: how much larger than life the head, hands and feet are drawn. */
+interface Look {
+  style: FaceStyle;
+  /** Heads are drawn larger than life so they read on a phone. */
+  headScale: number;
+  handScale: number;
+  footScale: number;
+}
+const LOOKS: Record<FaceStyle, Look> = {
+  today: { style: "today", headScale: 1.18, handScale: 1, footScale: 1 },
+  a: { style: "a", headScale: 1.18, handScale: 1, footScale: 1 },
+  b: { style: "b", headScale: 1.18, handScale: 1, footScale: 1 },
+  c: { style: "c", headScale: 1.25, handScale: 1.2, footScale: 1.12 },
+};
 
 type Vec = [number, number, number];
 type Weights = [number, number][];
@@ -84,7 +115,7 @@ export interface PersonSpec {
 }
 
 /** The spec with the defaults filled in. */
-type Spec = PersonSpec & { build: number; hairColor: PaletteName; shoes: PaletteName };
+type Spec = PersonSpec & { build: number; hairColor: PaletteName; shoes: PaletteName; look: Look };
 
 interface Body {
   sh: number;
@@ -361,8 +392,8 @@ function box(b: Buf, c: Vec, size: Vec, colour: PaletteName, w: Weights, group =
  * coordinate runs round and starts again after `wrapV`, a triangle across the seam gets its own
  * copies of the corners before it, so the pattern does not smear.
  */
-function blended(b: Buf, blend: Blend, o: { cell: number; budget: number; colour: PaletteName; w: Weights; group?: number; uv?: (p: Vec) => [number, number]; wrapV?: number }): Surface {
-  const shape = project(blend, thin(surface(blend, o.cell), o.budget), o.cell);
+function blended(b: Buf, blend: Blend, o: { cell: number; budget: number; colour: PaletteName; w: Weights; group?: number; uv?: (p: Vec) => [number, number]; wrapV?: number; mirror?: boolean }): Surface {
+  const shape = o.mirror === true ? mirrored(blend, o.cell, o.budget) : project(blend, thin(surface(blend, o.cell), o.budget), o.cell);
   const start = b.pos.length / 3;
   const uvs = shape.positions.map((p): [number, number] => o.uv?.(p) ?? [0, 0]);
   shape.positions.forEach((p, i) => vert(b, p, o.colour, at(uvs, i), o.w));
@@ -380,6 +411,56 @@ function blended(b: Buf, blend: Blend, o: { cell: number; budget: number; colour
     }));
   }
   return shape;
+}
+
+/**
+ * A blend that is the same on both sides of x = 0, thinned on one side and mirrored, so a low poly
+ * shape's planes fall the same way left and right instead of where the thinning happened to leave them.
+ * The seam is cut flat, its flat face dropped, and its edge shared by both halves.
+ */
+function mirrored(blend: Blend, cell: number, budget: number): Surface {
+  const half: Blend = { k: 0, shapes: [{ kind: "blend", blend }], cut: [{ kind: "half", p: [0, 0, 0], n: [1, 0, 0] }], cutK: 0 };
+  const s = project(half, thin(surface(half, cell), Math.round(budget / 2)), cell);
+  // The flat face of the cut looks along -x; every other triangle is the shape's own.
+  const normalX = ([a, b, c]: Tri): number => {
+    const [p, q, r] = [at(s.positions, a), at(s.positions, b), at(s.positions, c)];
+    const n = cross(sub(q, p), sub(r, p));
+    return n[0] / (len(n) || 1);
+  };
+  const kept = s.triangles.filter((t) => normalX(t) > -0.9);
+  // The edge left open where the flat face was is the seam: its points stand on x = 0, shared by both halves.
+  const edges = new Map<string, number>();
+  const key = (i: number, j: number): string => (i < j ? `${String(i)},${String(j)}` : `${String(j)},${String(i)}`);
+  for (const [a, b, c] of kept) for (const [i, j] of [[a, b], [b, c], [c, a]] as const) edges.set(key(i, j), (edges.get(key(i, j)) ?? 0) + 1);
+  const seam = new Set<number>();
+  for (const [k, n] of edges) if (n === 1) for (const i of k.split(",")) seam.add(Number(i));
+  const snapped = s.positions.map((p, i): Vec => (seam.has(i) ? [0, p[1], p[2]] : p));
+  const positions: Vec[] = [];
+  const index = new Map<number, number>();
+  const twin = new Map<number, number>();
+  const keep = (i: number): number => {
+    let j = index.get(i);
+    if (j === undefined) {
+      j = positions.length;
+      positions.push(at(snapped, i));
+      index.set(i, j);
+    }
+    return j;
+  };
+  const mirror = (i: number): number => {
+    const p = at(snapped, i);
+    if (seam.has(i)) return keep(i);
+    let j = twin.get(i);
+    if (j === undefined) {
+      j = positions.length;
+      positions.push([-p[0], p[1], p[2]]);
+      twin.set(i, j);
+    }
+    return j;
+  };
+  const triangles: Tri[] = kept.map(([a, b, c]): Tri => [keep(a), keep(b), keep(c)]);
+  for (const [a, b, c] of kept) triangles.push([mirror(a), mirror(c), mirror(b)]);
+  return { positions, triangles };
 }
 
 // ---------- head surface ----------
@@ -401,7 +482,7 @@ function headPoint(y: number, th: number, scale = 1, lift = 0): Vec {
 }
 const wHead: Weights = [[B.head, 1]];
 // A head-attached point given in body space, in metres.
-const unHead = (p: Vec): Vec => [p[0] / HEAD_SCALE, 1.455 + (p[1] - 1.455) / HEAD_SCALE, p[2] / HEAD_SCALE];
+const unHead = (p: Vec, hs: number): Vec => [p[0] / hs, 1.455 + (p[1] - 1.455) / hs, p[2] / hs];
 
 interface CapOptions {
   scale: number;
@@ -515,9 +596,9 @@ const HAIR: Record<HairName, (b: Buf, s: Spec) => void> = {
     const R = (y: number, fn: (th: number, k: number) => Vec): Ring => ({ c: [0, y, 0], ru: 0.12, rv: 0.12, w: wHead, fn });
     const odd = (k: number): boolean => k % 2 !== 0;
     tube(b, [
-      R(endY, (th, k) => unHead([Math.cos(th) * 0.16, endY + 0.02 * Math.abs(Math.cos(th)) + (odd(k) ? 0.035 : 0), -0.128 - 0.012 * Math.abs(Math.sin(th)) + (odd(k) ? 0.014 : -0.006)])),
-      R(1.25, (th, k) => unHead([Math.cos(th) * 0.158, 1.25, -0.118 - 0.012 * Math.abs(Math.sin(th)) + (odd(k) ? 0.016 : -0.008)])),
-      R(1.38, (th, k) => unHead([Math.cos(th) * 0.15, 1.385, Math.min(0.0, Math.sin(th) * 0.13) - 0.035 + (odd(k) ? 0.012 : -0.006)])),
+      R(endY, (th, k) => unHead([Math.cos(th) * 0.16, endY + 0.02 * Math.abs(Math.cos(th)) + (odd(k) ? 0.035 : 0), -0.128 - 0.012 * Math.abs(Math.sin(th)) + (odd(k) ? 0.014 : -0.006)], s.look.headScale)),
+      R(1.25, (th, k) => unHead([Math.cos(th) * 0.158, 1.25, -0.118 - 0.012 * Math.abs(Math.sin(th)) + (odd(k) ? 0.016 : -0.008)], s.look.headScale)),
+      R(1.38, (th, k) => unHead([Math.cos(th) * 0.15, 1.385, Math.min(0.0, Math.sin(th) * 0.13) - 0.035 + (odd(k) ? 0.012 : -0.006)], s.look.headScale)),
       R(1.52, (th) => headPoint(-0.02, th, 1.1)),
       R(1.6, (th) => headPoint(0.03, th, 1.085)),
     ], { sides: 10, arc: [0.3, -Math.PI - 0.3], color: s.hairColor });
@@ -526,8 +607,8 @@ const HAIR: Record<HairName, (b: Buf, s: Spec) => void> = {
       const v: Vec = [1, 0, 0];
       tube(b, [
         { c: headPoint(0.0, sg > 0 ? 0.25 : Math.PI - 0.25, 1.09), ru: 0.032, rv: 0.012, u, v, w: wHead },
-        { c: unHead([sg * 0.118, 1.4, 0.055]), ru: 0.034, rv: 0.012, u, v, w: wHead },
-        { c: unHead([sg * 0.082, 1.22, 0.108]), ru: 0.026, rv: 0.01, u: [1, 0, 0], v: [0, 0, 1], w: wHead },
+        { c: unHead([sg * 0.118, 1.4, 0.055], s.look.headScale), ru: 0.034, rv: 0.012, u, v, w: wHead },
+        { c: unHead([sg * 0.082, 1.22, 0.108], s.look.headScale), ru: 0.026, rv: 0.01, u: [1, 0, 0], v: [0, 0, 1], w: wHead },
       ], { sides: 4, theta0: 0, color: s.hairColor, capEnd: true });
     }
   },
@@ -840,36 +921,89 @@ function faceOf(s: Spec): Face {
   for (const ch of s.face ?? s.name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   const r = rng(h || 1);
   const j = (a: number): number => (r() - 0.5) * 2 * a;
-  return { ey: 0.014 + j(0.007), ex: 0.036 + j(0.005), ew: 0.02 + j(0.004), eh: 0.026 + j(0.007), nw: 0.022 + j(0.006), nl: 0.03 + j(0.008), mw: 0.038 + j(0.01), my: -0.064 + j(0.006), brow: r() < 0.6 };
+  const f: Face = { ey: 0.014 + j(0.007), ex: 0.036 + j(0.005), ew: 0.02 + j(0.004), eh: 0.026 + j(0.007), nw: 0.022 + j(0.006), nl: 0.03 + j(0.008), mw: 0.038 + j(0.01), my: -0.064 + j(0.006), brow: r() < 0.6 };
+  const style = s.look.style;
+  switch (style) {
+    case "today":
+    case "b":
+      return f;
+    // Soft marks: the eyes set a little wider apart.
+    case "a":
+      return { ...f, ex: f.ex * 1.1 };
+    // Big and friendly: larger eyes, set lower and wider, a smaller nose, a narrower mouth.
+    case "c":
+      return { ...f, ey: f.ey - 0.014, ex: f.ex * 1.12, ew: f.ew * 1.3, eh: f.eh * 1.2, nw: f.nw * 0.85, nl: f.nl * 0.75, mw: f.mw * 0.85 };
+    default: {
+      const never: never = style;
+      throw new Error(`face: ${String(never)}`);
+    }
+  }
 }
 
 // The head as blended shapes: a skull inside the old head's outline (so caps and hair still sit
 // outside it), a jaw and chin, cheeks, a brow, a nose from the face's numbers, and ears.
-function headBlend(f: Face): Blend {
+function headBlend(f: Face, style: FaceStyle = "today"): Blend {
   const at0 = (x: number, y: number, z: number): Vec => [x, HC + y, z];
   const noseY = -0.02 - (f.nl - 0.03) / 2;
-  return {
-    k: 0.022,
+  const skull: Shape[] = [
+    { kind: "ellipsoid", c: at0(0, 0.0, -0.002), r: [0.089, 0.116, 0.097] },
+    { kind: "ellipsoid", c: at0(0, -0.058, 0.016), r: [0.07, 0.056, 0.078] },
+    { kind: "ball", c: at0(0, -0.097, 0.048), r: 0.024 },
+  ];
+  const ears: Shape[] = [
+    { kind: "ellipsoid", c: at0(0.09, -0.01, -0.004), r: [0.012, 0.024, 0.018] },
+    { kind: "ellipsoid", c: at0(-0.09, -0.01, -0.004), r: [0.012, 0.024, 0.018] },
+  ];
+  const mouth: Shape = { kind: "ellipsoid", c: at0(0, f.my + 0.002, 0.08), r: [f.mw * 0.6, 0.016, 0.02] };
+  if (style !== "b") {
+    return {
+      k: 0.022,
+      shapes: [
+        ...skull,
+        { kind: "ball", c: at0(0.042, -0.028, 0.062), r: 0.028 },
+        { kind: "ball", c: at0(-0.042, -0.028, 0.062), r: 0.028 },
+        { kind: "ellipsoid", c: at0(0, 0.036, 0.072), r: [0.068, 0.016, 0.024] },
+        { kind: "ellipsoid", c: at0(0, noseY, 0.09), r: [f.nw * 0.42, f.nl * 0.62, 0.02] },
+        { kind: "ball", c: at0(f.nw * 0.4, noseY - f.nl * 0.36, 0.093), r: 0.011 },
+        { kind: "ball", c: at0(-f.nw * 0.4, noseY - f.nl * 0.36, 0.093), r: 0.011 },
+        mouth,
+        ...ears,
+      ],
+    };
+  }
+  // Low poly: a brow shelf, high cheekbones and a nose wedge, melted less so their planes stay
+  // apart, and a crease for the mouth, cut before thinning so the few faces left fall along it. The
+  // light does the rest. Sockets for the eyes were tried and left out: under a sun from above they
+  // shade as a frown.
+  const solid: Blend = {
+    k: 0.014,
     shapes: [
-      { kind: "ellipsoid", c: at0(0, 0.0, -0.002), r: [0.089, 0.116, 0.097] },
-      { kind: "ellipsoid", c: at0(0, -0.058, 0.016), r: [0.07, 0.056, 0.078] },
-      { kind: "ball", c: at0(0, -0.097, 0.048), r: 0.024 },
-      { kind: "ball", c: at0(0.042, -0.028, 0.062), r: 0.028 },
-      { kind: "ball", c: at0(-0.042, -0.028, 0.062), r: 0.028 },
-      { kind: "ellipsoid", c: at0(0, 0.036, 0.072), r: [0.068, 0.016, 0.024] },
-      { kind: "ellipsoid", c: at0(0, noseY, 0.09), r: [f.nw * 0.42, f.nl * 0.62, 0.02] },
-      { kind: "ball", c: at0(f.nw * 0.4, noseY - f.nl * 0.36, 0.093), r: 0.011 },
-      { kind: "ball", c: at0(-f.nw * 0.4, noseY - f.nl * 0.36, 0.093), r: 0.011 },
-      { kind: "ellipsoid", c: at0(0, f.my + 0.002, 0.08), r: [f.mw * 0.6, 0.016, 0.02] },
-      { kind: "ellipsoid", c: at0(0.09, -0.01, -0.004), r: [0.012, 0.024, 0.018] },
-      { kind: "ellipsoid", c: at0(-0.09, -0.01, -0.004), r: [0.012, 0.024, 0.018] },
+      ...skull,
+      { kind: "ellipsoid", c: at0(0, 0.036, 0.068), r: [0.066, 0.013, 0.018] },
+      { kind: "ball", c: at0(0.046, -0.022, 0.064), r: 0.03 },
+      { kind: "ball", c: at0(-0.046, -0.022, 0.064), r: 0.03 },
+      { kind: "ellipsoid", c: at0(0, noseY + 0.004, 0.088), r: [f.nw * 0.5, f.nl * 0.7, 0.024] },
+      mouth,
+      ...ears,
     ],
+  };
+  const front = (x: number, y: number): number => frontAt(solid, x, HC + y, 0.2, -0.1);
+  return {
+    ...solid,
+    cut: [
+      { kind: "ellipsoid", c: at0(0, f.my, front(0, f.my) + 0.005), r: [f.mw * 0.55, 0.003, 0.008] },
+    ],
+    cutK: 0.006,
   };
 }
 
-/** How far forward the face is at (x, y from the head centre), before the head is drawn larger. */
+/** How far forward a head's face is at (x, y from the head centre), before the head is drawn larger. */
+function frontOf(blend: Blend, x: number, y: number): number {
+  return frontAt(blend, x, HC + y, 0.2, -0.1);
+}
+/** How far forward today's face is: the shipped people's marks and shades are placed by it. */
 function faceFront(f: Face, x: number, y: number): number {
-  return frontAt(headBlend(f), x, HC + y, 0.2, -0.1);
+  return frontOf(headBlend(f), x, y);
 }
 
 // A small lens lying on the face, for an eye, a brow or the mouth: smooth, in one colour.
@@ -877,12 +1011,40 @@ function lens(b: Buf, c: Vec, ru: number, rv: number, depth: number, colour: Pal
   tube(b, [{ c, ru, rv, w: wHead }], { sides, u: [1, 0, 0], v: [0, 1, 0], color: colour, capStart: true, capStartOff: [0, 0, -depth], capEnd: true, capEndOff: [0, 0, depth] });
 }
 
-function buildHead(b: Buf, s: Spec): void {
-  const f = faceOf(s);
-  blended(b, headBlend(f), { cell: 0.006, budget: 380, colour: s.skin, w: wHead });
+/**
+ * An eye as one dark almond lying on the face: pointed at the corners, the lower lid flatter than
+ * the upper, the outer corner lifted by `lift`, so it reads as calm rather than round and staring.
+ */
+function almond(b: Buf, c: Vec, ru: number, rv: number, lift: number, colour: PaletteName, sides = 10): void {
+  const outward = Math.sign(c[0]);
+  const fn = (th: number): Vec => {
+    const cs = Math.cos(th);
+    const sn = Math.sin(th);
+    const y = rv * sn * (0.45 + 0.55 * Math.abs(sn)) * (sn < 0 ? 0.7 : 1) + lift * cs * outward;
+    return [c[0] + ru * cs, c[1] + y, c[2]];
+  };
+  tube(b, [{ c, ru, rv, w: wHead, fn }], { sides, u: [1, 0, 0], v: [0, 1, 0], color: colour, capStart: true, capStartOff: [0, 0, -0.004], capEnd: true, capEndOff: [0, 0, 0.004] });
+}
+
+/** A soft line lying on the face through points (x, y from the head centre): a thin rod, half sunk, in one colour. */
+function stroke(b: Buf, head: Blend, pts: readonly [number, number][], thick: number, colour: PaletteName, sides = 6): void {
+  const depth = thick * 0.8;
+  const rings: Ring[] = pts.map(([x, y], i) => {
+    const prev = at(pts, Math.max(0, i - 1));
+    const next = at(pts, Math.min(pts.length - 1, i + 1));
+    const l = Math.hypot(next[0] - prev[0], next[1] - prev[1]) || 1;
+    return { c: [x, HC + y, frontOf(head, x, y) + depth * 0.3], ru: thick, rv: depth, w: wHead, u: [-(next[1] - prev[1]) / l, (next[0] - prev[0]) / l, 0], v: [0, 0, 1] };
+  });
+  tube(b, rings, { sides, u: [0, 1, 0], v: [0, 0, 1], color: colour, capStart: true, capEnd: true });
+}
+
+/** The mouth in the palette's lip colour, or in wine on the three darkest skins, where lip does not show. */
+const mouthColour = (s: Spec): PaletteName => (["skin1", "skin2", "skin3"] as PaletteName[]).includes(s.skin) ? "wine" : "lip";
+
+// Today's face: a white round a dark eye, so the face reads on the darkest skins too.
+function todayFace(b: Buf, s: Spec, f: Face): void {
   for (const sx of [-1, 1]) {
     const x = sx * f.ex;
-    // A white round a dark eye, so the face reads on the darkest skins too.
     const z = faceFront(f, x, f.ey);
     lens(b, [x, HC + f.ey, z + 0.002], f.ew * 0.78, f.eh * 0.48, 0.006, "white");
     lens(b, [x, HC + f.ey, z + 0.005], f.ew * 0.4, f.eh * 0.42, 0.006, "black");
@@ -891,9 +1053,71 @@ function buildHead(b: Buf, s: Spec): void {
       lens(b, [x, HC + y, faceFront(f, x, y) + 0.001], f.ew / 2 + 0.007, 0.0045, 0.005, s.hairColor, 6);
     }
   }
-  // The mouth in the palette's lip colour, or in wine on the three darkest skins, where lip does not show.
-  const dark: PaletteName[] = ["skin1", "skin2", "skin3"];
-  lens(b, [0, HC + f.my, faceFront(f, 0, f.my)], f.mw * 0.58, 0.0065, 0.005, dark.includes(s.skin) ? "wine" : "lip");
+  lens(b, [0, HC + f.my, faceFront(f, 0, f.my)], f.mw * 0.58, 0.0065, 0.005, mouthColour(s));
+}
+
+// Soft marks (A), and the same marks larger on a larger head (C): no whites; each eye a dark almond
+// with one small highlight toward the sun, a soft arc of brow, the mouth a curved line that smiles.
+function softFace(b: Buf, s: Spec, f: Face, head: Blend, big: boolean): void {
+  for (const sx of [-1, 1]) {
+    const x = sx * f.ex;
+    const z = frontOf(head, x, f.ey);
+    const ru = f.ew * 0.55;
+    const rv = f.eh * (big ? 0.4 : 0.34);
+    almond(b, [x, HC + f.ey, z + 0.002], ru, rv, rv * 0.25, "black");
+    const glint = big ? 0.0034 : 0.0026;
+    lens(b, [x + ru * 0.3, HC + f.ey + rv * 0.36, z + 0.0056], glint, glint, 0.0015, "white", 6);
+    const by = f.ey + rv + (big ? 0.012 : 0.011);
+    const half = ru + 0.004;
+    const brow: [number, number][] = [-1, -0.5, 0, 0.5, 1].map((t) => [x + t * half, by + 0.0035 * (1 - t * t) + 0.0012 * t * sx]);
+    stroke(b, head, brow, 0.0022, s.hairColor);
+  }
+  const hw = f.mw * 0.5;
+  const smile = big ? 0.005 : 0.0045;
+  const mouth: [number, number][] = [-1, -2 / 3, -1 / 3, 0, 1 / 3, 2 / 3, 1].map((t) => [t * hw, f.my + smile * t * t]);
+  stroke(b, head, mouth, 0.0024, mouthColour(s));
+}
+
+// Low poly (B): the head stays faceted, shown flat; the eyes are small dark marks set into the face
+// and the mouth a thin crease, so the planes of the brow, the nose and the cheeks do the face.
+function lowPolyFace(b: Buf, s: Spec, f: Face, head: Blend): void {
+  for (const sx of [-1, 1]) {
+    const x = sx * f.ex;
+    lens(b, [x, HC + f.ey, frontOf(head, x, f.ey) + 0.0008], f.ew * 0.55, f.eh * 0.34, 0.0015, "black", 6);
+  }
+  const hw = f.mw * 0.5;
+  stroke(b, head, [-1, -0.5, 0, 0.5, 1].map((t): [number, number] => [t * hw, f.my + 0.003 * t * t]), 0.002, mouthColour(s), 4);
+}
+
+/** The bare head's own budget: today's 380 triangles, or fewer for the low poly head, so its planes show. */
+export const HEAD_BUDGET: Record<FaceStyle, number> = { today: 380, a: 380, b: 160, c: 380 };
+
+function buildHead(b: Buf, s: Spec): void {
+  const f = faceOf(s);
+  const style = s.look.style;
+  const head = headBlend(f, style);
+  const skin = { cell: 0.006, budget: HEAD_BUDGET[style], colour: s.skin, w: wHead, mirror: style === "b" };
+  switch (style) {
+    case "today":
+      blended(b, head, skin);
+      todayFace(b, s, f);
+      return;
+    case "a":
+    case "c":
+      blended(b, head, skin);
+      softFace(b, s, f, head, style === "c");
+      return;
+    case "b":
+      hard(b, () => {
+        blended(b, head, skin);
+        lowPolyFace(b, s, f, head);
+      });
+      return;
+    default: {
+      const never: never = style;
+      throw new Error(`face: ${String(never)}`);
+    }
+  }
 }
 
 function buildArm(b: Buf, P: Body, s: Spec, J: Joints, sd: "L" | "R"): void {
@@ -933,11 +1157,12 @@ function buildArm(b: Buf, P: Body, s: Spec, J: Joints, sd: "L" | "R"): void {
     skinFrom = 2;
   }
   if (skinFrom < 4) tube(b, [0, 1, 2, 3, 4].filter((i) => i >= skinFrom).map((i) => ring(i)), { ...o, color: s.skin, ...(skinFrom === 0 ? cap : {}) });
+  const hk = k * s.look.handScale;
   smoothPart(b, "hands", () => tube(b, [
-    { c: W, ru: 0.02 * k, rv: 0.031 * k, w: [[ha, 1]] },
-    { c: add(W, mul(d, 0.045)), ru: 0.021 * k, rv: 0.038 * k, w: [[ha, 1]] },
-    { c: add(W, mul(d, 0.088)), ru: 0.013 * k, rv: 0.027 * k, w: [[ha, 1]] },
-  ], { ...o, color: s.skin, capEnd: true, capEndOff: mul(d, 0.012) }));
+    { c: W, ru: 0.02 * hk, rv: 0.031 * hk, w: [[ha, 1]] },
+    { c: add(W, mul(d, 0.045 * s.look.handScale)), ru: 0.021 * hk, rv: 0.038 * hk, w: [[ha, 1]] },
+    { c: add(W, mul(d, 0.088 * s.look.handScale)), ru: 0.013 * hk, rv: 0.027 * hk, w: [[ha, 1]] },
+  ], { ...o, color: s.skin, capEnd: true, capEndOff: mul(d, 0.012 * s.look.handScale) }));
 }
 
 function buildLeg(b: Buf, P: Body, s: Spec, sd: "L" | "R"): void {
@@ -980,11 +1205,13 @@ function buildLeg(b: Buf, P: Body, s: Spec, sd: "L" | "R"): void {
     const from = Math.max(0, ys.findLastIndex((y) => y > hem + 0.02));
     tube(b, [0, 1, 2, 3, 4].filter((i) => i >= from).map((i) => ring(i)), { sides: 6, color: s.skin });
   }
-  const R = (z: number, ru: number, rv: number, cy: number): Ring => ({ c: [x, cy, z], ru, rv, w: [[ft, 1]] });
+  const fk = s.look.footScale;
+  // A larger foot grows forward from the heel and up from the sole.
+  const R = (z: number, ru: number, rv: number, cy: number): Ring => ({ c: [x, cy * fk, z + (z + 0.058) * (fk - 1)], ru: ru * fk, rv: rv * fk, w: [[ft, 1]] });
   if (s.heels === true) {
     // A raised heel on a spike, toe on the ground.
     tube(b, [R(-0.05, 0.027, 0.024, 0.062), R(0.02, 0.034, 0.03, 0.05), R(0.1, 0.04, 0.02, 0.022), R(0.155, 0.026, 0.012, 0.013)], { sides: 6, u: [1, 0, 0], v: [0, 1, 0], theta0: 0, color: s.shoes, capStart: true, capEnd: true, capEndOff: [0, 0, 0.012] });
-    box(b, [x, 0.021, -0.052], [0.014, 0.042, 0.014], s.shoes, [[ft, 1]]);
+    box(b, [x, 0.021 * fk, -0.052 - 0.006 * (fk - 1)], [0.014 * fk, 0.042 * fk, 0.014 * fk], s.shoes, [[ft, 1]]);
   } else {
     tube(b, [R(-0.058, 0.036, 0.04, 0.043), R(0.02, 0.043, 0.045, 0.047), R(0.115, 0.046, 0.03, 0.032), R(0.165, 0.036, 0.018, 0.02)], { sides: 6, u: [1, 0, 0], v: [0, 1, 0], theta0: 0, color: s.shoes, capStart: true, capEnd: true, capEndOff: [0, 0, 0.012] });
   }
@@ -995,7 +1222,7 @@ function buildExtras(b: Buf, s: Spec, J: Joints): void {
   if (s.bag !== undefined) {
     const sd = s.bagHand ?? "L";
     const sg = sd === "L" ? 1 : -1;
-    const tip = add(joint(J, `W${sd}`), mul(joint(J, `d${sd}`), 0.085));
+    const tip = add(joint(J, `W${sd}`), mul(joint(J, `d${sd}`), 0.085 * s.look.handScale));
     const w: Weights = [[bone(`hand${sd}`), 1]];
     box(b, add(tip, [sg * 0.012, -0.075, 0]), [0.045, 0.1, 0.14], s.bag, w);
     box(b, add(tip, [sg * 0.006, -0.018, 0]), [0.01, 0.03, 0.07], s.bag, w);
@@ -1003,7 +1230,10 @@ function buildExtras(b: Buf, s: Spec, J: Joints): void {
   if (s.phone === true) box(b, add(joint(J, "WR"), mul(joint(J, "dR"), 0.075)), [0.014, 0.075, 0.038], "black", [[B.handR, 1]]);
   if (s.shades === true) {
     const f = faceOf(s);
-    box(b, [0, HC + 0.014, faceFront(f, f.ex, 0.014) + 0.004], [0.158, 0.034, 0.016], "black", wHead);
+    // Today's shades keep their height; the other styles' sit on the eyes, wherever those are, in front of any socket.
+    const y = s.look.style === "today" ? 0.014 : f.ey;
+    const solid: Blend = { ...headBlend(f, s.look.style), cut: [] };
+    box(b, [0, HC + y, frontOf(solid, f.ex, y) + 0.004], [0.158, 0.034, 0.016], "black", wHead);
   }
   if (s.beard === true) {
     // The jaw, chin and lower cheeks grown a little, below the cheekbones, with the mouth left open.
@@ -1032,19 +1262,19 @@ function buildExtras(b: Buf, s: Spec, J: Joints): void {
   }
   if (s.carry !== undefined) {
     const carry = s.carry;
-    smoothPart(b, "load", () => buildHeadLoad(b, carry));
+    smoothPart(b, "load", () => buildHeadLoad(b, carry, s.look.headScale));
   }
 }
 
 // A hawker's load: a cloth pad on the head, a wide basin on the pad, piled with one kind of goods.
-function buildHeadLoad(b: Buf, carry: NonNullable<PersonSpec["carry"]>): void {
-  const top = 1.455 + (1.7 - 1.455) * HEAD_SCALE - 0.012; // just into the top of the head, in body space
-  const R = (y: number, r: number): Ring => ({ c: [0, 1.7 + y, 0], ru: r, rv: r, w: wHead, fn: (th) => unHead([r * Math.cos(th), top + y, r * Math.sin(th)]) });
+function buildHeadLoad(b: Buf, carry: NonNullable<PersonSpec["carry"]>, hs: number): void {
+  const top = 1.455 + (1.7 - 1.455) * hs - 0.012; // just into the top of the head, in body space
+  const R = (y: number, r: number): Ring => ({ c: [0, 1.7 + y, 0], ru: r, rv: r, w: wHead, fn: (th) => unHead([r * Math.cos(th), top + y, r * Math.sin(th)], hs) });
   tube(b, [R(0.0, 0.085), R(0.02, 0.095), R(0.04, 0.08)], { sides: 8, color: "tan", capEnd: true });
   tube(b, [R(0.03, 0.1), R(0.045, 0.2), R(0.105, 0.27), R(0.096, 0.25), R(0.05, 0.18)], { sides: 10, color: carry.tray ?? "hub", capStart: true, capEnd: true });
   const r = rng(carry.seed ?? 3);
-  const pos = (x: number, y: number, z: number): Vec => unHead([x, top + 0.03 + y, z]);
-  const k = 1 / HEAD_SCALE;
+  const pos = (x: number, y: number, z: number): Vec => unHead([x, top + 0.03 + y, z], hs);
+  const k = 1 / hs;
   const item = (x: number, y: number, z: number, size: Vec, col: PaletteName): void => hard(b, () => box(b, pos(x, y, z), mul(size, k), col, wHead));
   const round = (x: number, y: number, z: number, rad: number, col: PaletteName): void =>
     tube(b, [{ c: pos(x, y, z), ru: rad * k, rv: rad * k, w: wHead }], { sides: 5, color: col, capStart: true, capStartOff: [0, -rad * k, 0], capEnd: true, capEndOff: [0, rad * k, 0] });
@@ -1230,8 +1460,9 @@ function shade(b: Buf): Shaded {
 }
 
 // ---------- assemble ----------
-export function buildPerson(spec: PersonSpec): PersonMesh {
-  const s: Spec = { ...spec, build: spec.build ?? 1, hairColor: spec.hairColor ?? "hair", shoes: spec.shoes ?? "black" };
+export function buildPerson(spec: PersonSpec, face: FaceStyle = FACE_STYLE): PersonMesh {
+  const s: Spec = { ...spec, build: spec.build ?? 1, hairColor: spec.hairColor ?? "hair", shoes: spec.shoes ?? "black", look: LOOKS[face] };
+  const hs = s.look.headScale;
   const P = bodyOf(s);
   const b = makeBuf();
   const J = jointsFor(P);
@@ -1244,7 +1475,9 @@ export function buildPerson(spec: PersonSpec): PersonMesh {
   const rows = P.rows ?? null;
   if (rows !== null) buildTorsoZones(b, P, s, rows);
   else buildTorso(b, P, s, T);
+  const headFrom = b.pos.length / 3;
   smoothPart(b, "head", () => buildHead(b, s));
+  const headTo = b.pos.length / 3;
   for (const sd of ["L", "R"] as const) {
     buildArm(b, P, s, J, sd);
     buildLeg(b, P, s, sd);
@@ -1266,13 +1499,13 @@ export function buildPerson(spec: PersonSpec): PersonMesh {
   const pivotY = 1.455;
   // The top of the bare head, as blended, stands at 1.70 m times the height number once drawn larger.
   let headTop = 0;
-  for (let i = 0; i < b.part.length; i++) if (b.part[i] === "head") headTop = Math.max(headTop, b.pos[i * 3 + 1] ?? 0);
-  const kH = ((s.height ?? 1) * 1.7) / (pivotY + (headTop - pivotY) * HEAD_SCALE);
+  for (let i = headFrom; i < headTo; i++) headTop = Math.max(headTop, b.pos[i * 3 + 1] ?? 0);
+  const kH = ((s.height ?? 1) * 1.7) / (pivotY + (headTop - pivotY) * hs);
   for (let i = 0; i < b.pos.length / 3; i++) {
     if (b.si[i * 4] === B.head && b.sw[i * 4] === 1) {
-      b.pos[i * 3] = (b.pos[i * 3] ?? 0) * HEAD_SCALE;
-      b.pos[i * 3 + 1] = pivotY + ((b.pos[i * 3 + 1] ?? 0) - pivotY) * HEAD_SCALE;
-      b.pos[i * 3 + 2] = (b.pos[i * 3 + 2] ?? 0) * HEAD_SCALE;
+      b.pos[i * 3] = (b.pos[i * 3] ?? 0) * hs;
+      b.pos[i * 3 + 1] = pivotY + ((b.pos[i * 3 + 1] ?? 0) - pivotY) * hs;
+      b.pos[i * 3 + 2] = (b.pos[i * 3 + 2] ?? 0) * hs;
     }
     for (let a = 0; a < 3; a++) b.pos[i * 3 + a] = (b.pos[i * 3 + a] ?? 0) * kH;
   }

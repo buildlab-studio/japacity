@@ -16,7 +16,7 @@ import { buildRailwayBridge } from "@japacity/assets-src/bld/railway-bridge/buil
 import { buildTerrace, type TerraceSpec } from "@japacity/assets-src/bld/rye-lane-terrace/build";
 import { buildStadium } from "@japacity/assets-src/lm/national-stadium/build";
 import { buildBridgeSpan } from "@japacity/assets-src/lm/third-mainland-span/build";
-import { buildPerson } from "@japacity/assets-src/people/people";
+import { buildPerson, faceStyleFrom } from "@japacity/assets-src/people/people";
 import { ALL_PEOPLE } from "@japacity/assets-src/people/people.data";
 import type { PersonMesh } from "@japacity/assets-src/people/person.types";
 import { buildBales } from "@japacity/assets-src/prop/bales/build";
@@ -465,7 +465,8 @@ const ENTRIES: CatalogEntry[] = [
       author: LAB,
       views: [...ELEVATIONS, "phone"],
       pose: spec.carry === undefined ? "stand" : "tray",
-      build: () => personModel(buildPerson(spec)),
+      // JAPACITY_FACE names a face style for an exploration's export; unset, the shipped style.
+      build: () => personModel(buildPerson(spec, faceStyleFrom(process.env.JAPACITY_FACE))),
     }),
   ),
   ...GRID_PIECES.flatMap((piece) => MESH_LEVELS.map((level) => gridEntry(piece, level))),
