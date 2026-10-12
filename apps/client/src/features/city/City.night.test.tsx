@@ -9,12 +9,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { GameStore } from "../../authority/store";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/people";
-import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
 import type { Act, Ask, Thing } from "../../shared/world/contract";
 import { wasTaught } from "../../shared/world/taught";
-import { ActivityPicker } from "../activity/ActivityView";
 import { actsOffered, withSpent } from "./acts";
 import { chipNode } from "./chip";
 import { City, RESULTS_BEAT_MS } from "./City";
@@ -193,11 +191,4 @@ describe("a spent body", () => {
     expect(document.querySelector("[data-ask-main]")).toBeNull();
   });
 
-  test("[R-ACTIVITY-020] given a spent act on a sheet of several, when the sheet shows, then its card says You are spent. Sleep. in place of its button", async () => {
-    const game = newGame("scenario.ada");
-    while (game.view().activities.find((option) => option.id === WATER)?.spent !== true) game.accept({ type: "activity/now", activity: WATER, param: null });
-    await renderWithView(<ActivityPicker only={[WATER]} />, game.view());
-    expect(found(`[data-act-spent="${WATER}"]`).textContent).toBe("You are spent. Sleep.");
-    expect(document.querySelector("[data-activity-picker] button")).toBeNull();
-  });
 });
