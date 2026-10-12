@@ -3,7 +3,7 @@
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { applyPaint, devPaint, paintOf, usePaint } from "./paint";
+import { applyPaint, devPaint, NIGHT_PAINT_LIVE, paintOf, usePaint } from "./paint";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
 
@@ -12,8 +12,8 @@ afterEach(() => {
   delete document.documentElement.dataset.paint;
 });
 
-function Painted() {
-  const paint = usePaint();
+function Painted({ live }: { live?: boolean } = {}) {
+  const paint = usePaint(live);
   return <span data-painted={paint} />;
 }
 
@@ -41,9 +41,13 @@ describe("the paint", () => {
     expect(root.dataset.paint).toBe("day");
   });
 
-  test("[R-CLOCK-033] given the world's clock at night, when the hook runs, then the root takes the night paint, and it goes back to the day's when the hook is gone", () => {
+  test("[R-CLOCK-033] [R-WORLD-021] given the world's clock at night, when the hook runs live, then the root takes the night paint, and it goes back to the day's when the hook is gone; held back, the clock's night still paints the day until the hand's wave", () => {
     history.replaceState(null, "", "/?clock=night");
-    const { unmount } = render(<Painted />);
+    expect(NIGHT_PAINT_LIVE).toBe(false);
+    const held = render(<Painted />);
+    expect(document.documentElement.dataset.paint).toBe("day");
+    held.unmount();
+    const { unmount } = render(<Painted live />);
     expect(document.documentElement.dataset.paint).toBe("night");
     expect(document.querySelector("[data-painted]")?.getAttribute("data-painted")).toBe("night");
     unmount();
