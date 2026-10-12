@@ -66,7 +66,17 @@ export const PUBLIC = join(ROOT, "apps", "client", "public", "assets");
 /** The way every dish in the hub faces, in the frame of its unturned buildings (R-ASSET-019). */
 export const HUB_DISH_YAW = DEFAULT_DISH_YAW;
 
-export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar";
+export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile";
+
+/** The kinds of model a picture tile is cut from (design page 13, the pictures): never a person, whose tile is a name pill until the characters are redone. */
+const TILED_KINDS = /^(prop|shop|veh|lm|bld)_/;
+/** Models no player is shown as a thing: the rooms' shells and the tailor's corner, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
+const UNTILED = /^(bld_room_|bld_tailor-corner$|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
+
+/** Whether a model gets the tile view: a thing a player could be shown on a choice. */
+export function isTiled(name: string): boolean {
+  return TILED_KINDS.test(name) && !UNTILED.test(name);
+}
 
 export interface CatalogEntry {
   /** The shipped name without extension: `bld_plaza`. */
@@ -238,7 +248,8 @@ function roomEntry(room: RoomName): CatalogEntry {
 /** A piece of furniture: shared when more than one room uses it, else in its room's folder. */
 /** The room's basics (world.md R-WORLD-029), written as code from the kit beside the rooms they furnish. */
 function basicsPiece(name: string, folder: string, place: string, build: () => Group): CatalogEntry {
-  return { ...furniturePiece(name, folder, place, build), source: "assets-src/places/room-basics", author: "Written as code from the kit" };
+  // Each piece its own folder under the basics' builder, so each has renders of its own.
+  return { ...furniturePiece(name, folder, place, build), source: `assets-src/places/room-basics/${name.slice("prop_".length)}`, author: "Written as code from the kit" };
 }
 
 function furniturePiece(name: string, folder: string, place: string, build: () => Group): CatalogEntry {
@@ -254,7 +265,7 @@ function furniturePiece(name: string, folder: string, place: string, build: () =
   };
 }
 
-export const CATALOG: CatalogEntry[] = [
+const ENTRIES: CatalogEntry[] = [
   buildingEntry("shop-row", "ojuelegba"),
   buildingEntry("plaza", "ojuelegba"),
   {
@@ -426,7 +437,7 @@ export const CATALOG: CatalogEntry[] = [
   { name: "veh_abra", file: "places/deira/veh_abra.glb", place: "place.deira", source: "assets-src/veh/abra", author: PLACES_A, views: [...ELEVATIONS, "phone"], ground: "lagoon", build: () => staticModel("veh_abra", buildAbra()) },
   { name: "veh_labour-bus", file: "places/deira/veh_labour-bus.glb", place: "place.deira", source: "assets-src/veh/labour-bus", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_labour-bus", buildLabourBus()) },
   // The pieces the three old places needed when they were rebuilt as frontages (docs/rules/world.md R-WORLD-011).
-  { name: "veh_taxi-dubai", file: "places/deira/veh_taxi-dubai.glb", place: "place.deira", source: "assets-src/veh/taxi", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_taxi-dubai", buildTaxi(DUBAI_TAXI)) },
+  { name: "veh_taxi-dubai", file: "places/deira/veh_taxi-dubai.glb", place: "place.deira", source: "assets-src/veh/taxi/dubai", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_taxi-dubai", buildTaxi(DUBAI_TAXI)) },
   placePiece("prop_street-bench", "peckham", buildStreetBench),
   { name: "prop_flag-mast", file: "shared/prop/prop_flag-mast.glb", place: "shared", source: "assets-src/prop/flag-mast", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_flag-mast", buildFlagMast()) },
   { name: "prop_bus-shelter", file: "shared/prop/prop_bus-shelter.glb", place: "shared", source: "assets-src/prop/bus-shelter", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_bus-shelter", buildBusShelter()) },
@@ -501,6 +512,9 @@ export const CATALOG: CatalogEntry[] = [
   { name: "shop_barber-kiosk", file: "places/bode-thomas/shop_barber-kiosk.glb", place: "place.bode-thomas", source: "assets-src/shop/barber-kiosk", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_barber-kiosk", buildBarberKiosk("place.bode-thomas.sign.9", { board: "white", ink: "red", painted: true }), true) },
   { name: "shop_viewing-centre", file: "places/bode-thomas/shop_viewing-centre.glb", place: "place.bode-thomas", source: "assets-src/shop/viewing-centre", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_viewing-centre", buildViewingCentre(HUB_DISH_YAW)) },
 ];
+
+/** Every shipped asset, each model a player could be shown as a thing with the tile view beside its fixed views. */
+export const CATALOG: CatalogEntry[] = ENTRIES.map((entry) => (isTiled(entry.name) && !entry.views.includes("tile") ? { ...entry, views: [...entry.views, "tile"] } : entry));
 
 export function findEntries(names: readonly string[]): CatalogEntry[] {
   if (names.length === 0 || names.includes("all")) return CATALOG;

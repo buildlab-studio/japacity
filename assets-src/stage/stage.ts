@@ -1,5 +1,6 @@
 // The stage every asset is shot on (R-ASSET-020): one sun and one sky (R-ASSET-006), the
-// palette's sand ground, and a standard street for the phone shot. The shooter drives it
+// palette's sand ground, a standard street for the phone shot, and a clear ground for the tile
+// the interface cuts as a sticker (design page 13). The shooter drives it
 // through `window.stage`; it renders on the software renderer, so a model gives the same
 // pixels every time. It loads the shipped file, as the client will, not the builder.
 import { palette, type PaletteName } from "@japacity/assets";
@@ -28,7 +29,7 @@ import {
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 
-export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar";
+export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile";
 export type MaskView = "front" | "side" | "plan";
 
 export interface LoadOptions {
@@ -65,7 +66,8 @@ const colour = (name: PaletteName): Color => new Color(palette[name]);
 const DEG = Math.PI / 180;
 
 // A logarithmic depth buffer: the software renderer's depth is coarse, and the stage shows a 4 m shop and a 600 m bridge alike.
-const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, logarithmicDepthBuffer: true });
+// An alpha channel, so the tile can leave the sky and the ground out; every other view paints the sky over it.
+const renderer = new WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true, logarithmicDepthBuffer: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -184,6 +186,65 @@ function setThreeQuarter(box: Box3): ViewInfo {
   return { view: "threeQuarter", camera: { kind: "perspective", position: camera.position.toArray(), target: sphere.center.toArray(), fov } };
 }
 
+/** Every vertex of the model's meshes in world space, the signs' faces among them. */
+function pointsOf(root: Object3D): Vector3[] {
+  root.updateMatrixWorld(true);
+  const points: Vector3[] = [];
+  root.traverse((child) => {
+    const mesh = child as Mesh;
+    if (!mesh.isMesh || !mesh.visible) return;
+    const position = mesh.geometry.getAttribute("position");
+    for (let at = 0; at < position.count; at++) points.push(new Vector3().fromBufferAttribute(position, at).applyMatrix4(mesh.matrixWorld));
+  });
+  return points;
+}
+
+/**
+ * The tile: the three-quarter view's angle and lens, framed on the asset's own corners rather than
+ * its sphere, so the asset fills the square with a margin for the sticker's white edge. The distance
+ * is the nearest at which every corner is inside the margin, and the aim is moved so the corners'
+ * picture sits in the middle; a few rounds settle both.
+ */
+function setTile(box: Box3, root: Object3D): ViewInfo {
+  const fov = 32;
+  const aspect = window.innerWidth / window.innerHeight;
+  const fill = 0.88;
+  const tanV = Math.tan((fov / 2) * DEG) * fill;
+  const tanH = tanV * aspect;
+  const dir = new Vector3(Math.sin(45 * DEG) * Math.cos(30 * DEG), Math.sin(30 * DEG), Math.cos(45 * DEG) * Math.cos(30 * DEG));
+  const right = new Vector3().crossVectors(new Vector3(0, 1, 0), dir).normalize();
+  const up = new Vector3().crossVectors(dir, right).normalize();
+  const corners = pointsOf(root);
+  const target = box.getCenter(new Vector3());
+  let distance = 1;
+  for (let round = 0; round < 4; round++) {
+    distance = 0;
+    for (const corner of corners) {
+      const offset = corner.clone().sub(target);
+      const toward = offset.dot(dir);
+      distance = Math.max(distance, toward + Math.abs(offset.dot(right)) / tanH, toward + Math.abs(offset.dot(up)) / tanV);
+    }
+    let low = [Infinity, Infinity];
+    let high = [-Infinity, -Infinity];
+    for (const corner of corners) {
+      const offset = corner.clone().sub(target);
+      const depth = distance - offset.dot(dir);
+      const across = offset.dot(right) / (depth * tanH);
+      const upward = offset.dot(up) / (depth * tanV);
+      low = [Math.min(low[0] ?? 0, across), Math.min(low[1] ?? 0, upward)];
+      high = [Math.max(high[0] ?? 0, across), Math.max(high[1] ?? 0, upward)];
+    }
+    target.addScaledVector(right, (((low[0] ?? 0) + (high[0] ?? 0)) / 2) * distance * tanH);
+    target.addScaledVector(up, (((low[1] ?? 0) + (high[1] ?? 0)) / 2) * distance * tanV);
+  }
+  const reach = box.getSize(new Vector3()).length();
+  const camera = new PerspectiveCamera(fov, aspect, Math.max(0.05, (distance - reach) * 0.5, distance / 200), distance + reach * 2);
+  camera.position.copy(target).addScaledVector(dir, distance);
+  camera.lookAt(target);
+  current = camera;
+  return { view: "tile", camera: { kind: "perspective", position: camera.position.toArray(), target: target.toArray(), fov } };
+}
+
 /**
  * The phone shot: eye height on the far pavement, 12 m from the asset's front, a 32 degree lens.
  * For a landmark too big to read from 12 m, `phoneFar` is the same lens from where a player
@@ -256,7 +317,12 @@ const stage = {
       figure.position.set((box.min.x + box.max.x) / 2 + 1.2, 0, box.max.z + 0.4);
     }
     scene.fog = null;
-    ground.visible = true;
+    // The tile is cut as a sticker: no sky and no ground, on a page as clear as the canvas.
+    const tile = view === "tile";
+    scene.background = tile ? null : colour("sky");
+    ground.visible = !tile;
+    document.documentElement.style.background = tile ? "transparent" : "";
+    document.body.style.background = tile ? "transparent" : "";
     let info: ViewInfo;
     switch (view) {
       case "front":
@@ -272,6 +338,9 @@ const stage = {
       case "phone":
       case "phoneFar":
         info = setPhone(box, view === "phoneFar");
+        break;
+      case "tile":
+        info = setTile(box, model);
         break;
       default: {
         const never: never = view;

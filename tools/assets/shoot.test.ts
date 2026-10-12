@@ -1,13 +1,14 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { CATALOG, PUBLIC, ROOT, SOURCE } from "./catalog";
+import { CATALOG, isTiled, PUBLIC, ROOT, SOURCE } from "./catalog";
 import { listFiles, sourceFiles } from "./check-assets";
 import { readGlb } from "./glb";
-import { PHONE_SHOT } from "./shoot";
+import { decodePng } from "./png";
+import { mergeRecords, PHONE_SHOT, type RenderRecord, TILE_SHOT, viewsAsked } from "./shoot";
 import { signText } from "./stage-browser";
 
 const config = JSON.parse(readFileSync(join(SOURCE, "review.config.json"), "utf8")) as { phoneShot: Record<string, number>; criteria: { key: string }[] };
@@ -64,5 +65,75 @@ describe("the fixed views", () => {
     for (const key of keys) expect({ key, said: words[key] }).toEqual({ key, said: text[key] });
     expect(Object.values(words).every((said) => said.trim() !== "")).toBe(true);
     expect(Object.keys(JSON.parse(readFileSync(join(SOURCE, "signs.json"), "utf8")) as object)).toEqual(["note"]);
+  });
+});
+
+describe("the tile view", () => {
+  const tiled = CATALOG.filter((entry) => isTiled(entry.name));
+  const untiled = CATALOG.filter((entry) => !isTiled(entry.name));
+
+  test("[R-ASSET-020] given the shells, sheets and grids no player is shown as a thing, when their views are listed, then none gets the tile, none is shot and none keeps a tile render", () => {
+    const shown = ["bld_room_parlour", "bld_room_compound", "bld_tailor-corner", "prop_sheet-flag_coarse", "prop_sheet-pennant_fine", "prop_water_coarse", "prop_water_fine", "prop_pole", "prop_drum-water", "prop_plank-walkway", "chr_tunde"];
+    for (const name of shown) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: false });
+    expect(CATALOG.filter((entry) => entry.name.startsWith("bld_room_") || entry.name.startsWith("prop_sheet-") || entry.name.startsWith("prop_water_")).filter((entry) => entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
+    expect(untiled.filter((entry) => entry.views.includes("tile") || existsSync(join(ROOT, entry.source, "renders", "tile.png"))).map((entry) => entry.name)).toEqual([]);
+    for (const name of ["prop_cooking-corner", "prop_bed", "veh_danfo", "lm_national-stadium", "bld_family-house", "shop_provisions"]) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: true });
+  });
+
+  test("[R-ASSET-020] given every model a player can be shown as a thing, when its views are listed, then it gets the tile, and no person does", () => {
+    expect(tiled.length).toBeGreaterThan(70);
+    expect(tiled.filter((entry) => !entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
+    expect(CATALOG.filter((entry) => entry.name.startsWith("chr_") && entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
+    expect(CATALOG.filter((entry) => entry.views.includes("tile")).every((entry) => /^(prop|shop|veh|lm|bld)_/.test(entry.name))).toBe(true);
+  });
+
+  test("[R-ASSET-020] given every asset, when its renders folder is named, then no two assets share one, so no render is written over another's", () => {
+    const sources = CATALOG.map((entry) => entry.source);
+    expect(sources.filter((source, at) => sources.indexOf(source) !== at)).toEqual([]);
+  });
+
+  test("[R-ASSET-020] given the tile shot, when its numbers are read, then it is a square of 256 CSS pixels at device scale 2", () => {
+    expect(TILE_SHOT).toEqual({ width: 256, height: 256, deviceScaleFactor: 2 });
+  });
+
+  test("[R-ASSET-006] given the stage, when it shows the tile, then the sky and the ground are left out on a clear page under the same one sun and one sky", () => {
+    expect(stage).toMatch(/case "tile":/);
+    expect(stage).toMatch(/alpha: true/);
+    expect(stage).toMatch(/scene\.background = tile \? null : colour\("sky"\)/);
+    expect(stage).toMatch(/ground\.visible = !tile/);
+  });
+
+  test("given the shooter's words, when only some views are asked for, then the asked ones are shot and the names left are the assets", () => {
+    expect(viewsAsked(["--view", "tile", "prop_bed", "all"])).toEqual({ views: ["tile"], names: ["prop_bed", "all"] });
+    expect(viewsAsked(["prop_bed"])).toEqual({ views: null, names: ["prop_bed"] });
+  });
+
+  test("given a render manifest, when only the tile is shot again, then the other views' records stay and the tile's is replaced, in the order of the entry's views", () => {
+    const record = (view: RenderRecord["view"], sha256: string): RenderRecord => ({ view, file: `x/${view}.png`, sha256, viewport: { width: 1, height: 1, deviceScaleFactor: 1 }, camera: null });
+    const merged = mergeRecords(["front", "threeQuarter", "phone", "tile"], [record("phone", "p"), record("front", "f"), record("tile", "old")], [record("tile", "new")]);
+    expect(merged.map((r) => [r.view, r.sha256])).toEqual([["front", "f"], ["phone", "p"], ["tile", "new"]]);
+  });
+
+  test.each(tiled.map((entry) => ({ name: entry.name, source: entry.source })))("[R-ASSET-011] given $name's tile, when it is read, then it is 512 pixels square, clear at its corners and the asset fills it", ({ source }) => {
+    const image = decodePng(readFileSync(join(ROOT, source, "renders", "tile.png")));
+    expect([image.width, image.height]).toEqual([512, 512]);
+    const alphaAt = (x: number, y: number): number => image.pixels[(y * image.width + x) * 4 + 3] ?? 255;
+    expect([alphaAt(0, 0), alphaAt(511, 0), alphaAt(0, 511), alphaAt(511, 511)]).toEqual([0, 0, 0, 0]);
+    let minX = 512;
+    let maxX = -1;
+    let minY = 512;
+    let maxY = -1;
+    for (let y = 0; y < 512; y++) {
+      for (let x = 0; x < 512; x++) {
+        if (alphaAt(x, y) < 128) continue;
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+      }
+    }
+    // Tighter than the three-quarter view: the asset's longer side spans most of the square, with a margin for the sticker's edge.
+    expect(Math.max(maxX - minX, maxY - minY)).toBeGreaterThan(380);
+    expect(Math.min(minX, minY, 511 - maxX, 511 - maxY)).toBeGreaterThanOrEqual(8);
   });
 });

@@ -4,9 +4,10 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
+import { CATALOG, isTiled } from "./catalog";
 import { defaultPaths, listFiles } from "./check-assets";
-import { sha256 } from "./manifest";
-import { hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf } from "./publish";
+import { readManifest, sha256 } from "./manifest";
+import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, TILES } from "./publish";
 
 const ROOT = join(import.meta.dirname, "..", "..");
 
@@ -41,6 +42,28 @@ describe("published names", () => {
   });
 });
 
+describe("the tiles", () => {
+  test("[R-CITY-018] given assets with a tile render, when the tiles are copied, then each lands under tiles by the asset's name, a tile no asset names is removed, and the image manifest learns each copy's hash", () => {
+    const work = mkdtempSync(join(tmpdir(), "tiles-"));
+    try {
+      const folder = join(work, "public");
+      for (const name of ["a", "b"]) {
+        mkdirSync(join(work, "src", name, "renders"), { recursive: true });
+        writeFileSync(join(work, "src", name, "renders", "tile.png"), `tile ${name}`);
+      }
+      mkdirSync(join(folder, TILES), { recursive: true });
+      writeFileSync(join(folder, TILES, "prop_gone.png"), "old");
+      writeFileSync(join(folder, TILES, "prop_gone.0123456789ab.png"), "old");
+      const hashes = copyTiles([{ name: "prop_a", source: "src/a" }, { name: "veh_b", source: "src/b" }], work, folder, "public");
+      expect(listFiles(join(folder, TILES))).toEqual(["prop_a.png", "veh_b.png"]);
+      expect(readFileSync(join(folder, TILES, "veh_b.png"), "utf8")).toBe("tile b");
+      expect(hashes).toEqual({ "public/tiles/prop_a.png": sha256(Buffer.from("tile a")), "public/tiles/veh_b.png": sha256(Buffer.from("tile b")) });
+    } finally {
+      rmSync(work, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("the committed publish", () => {
   const folder = defaultPaths(ROOT).public;
   const manifest = JSON.parse(readFileSync(join(folder, MANIFEST_FILE), "utf8")) as PublishManifest;
@@ -59,5 +82,18 @@ describe("the committed publish", () => {
     const named = new Set([MANIFEST_FILE, ...Object.keys(manifest.files), ...Object.values(manifest.files)]);
     expect(listFiles(folder).filter((path) => !named.has(path))).toEqual([]);
     expect(sourcesOf(folder)).toEqual(Object.keys(manifest.files));
+  });
+
+  test("[R-CITY-018] [R-ASSET-011] given every model with a tile, when the publish is read, then its tile is published by its name with the render's bytes, and the image manifest knows the copy", () => {
+    const images = readManifest().renders;
+    const tiled = CATALOG.filter((entry) => isTiled(entry.name));
+    const wrong = tiled.filter((entry) => {
+      const published = manifest.files[`${TILES}/${entry.name}.png`];
+      if (published === undefined) return true;
+      const render = readFileSync(join(ROOT, entry.source, "renders", "tile.png"));
+      return sha256(readFileSync(join(folder, published))) !== sha256(render) || images[`apps/client/public/assets/${TILES}/${entry.name}.png`] !== sha256(render);
+    });
+    expect(wrong.map((entry) => entry.name)).toEqual([]);
+    expect(Object.keys(manifest.files).filter((path) => path.startsWith(`${TILES}/`))).toHaveLength(tiled.length);
   });
 });
