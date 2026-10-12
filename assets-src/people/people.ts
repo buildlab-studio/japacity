@@ -1015,13 +1015,15 @@ function lens(b: Buf, c: Vec, ru: number, rv: number, depth: number, colour: Pal
  * An eye as one dark almond lying on the face: pointed at the corners, the lower lid flatter than
  * the upper, the outer corner lifted by `lift`, so it reads as calm rather than round and staring.
  */
-function almond(b: Buf, c: Vec, ru: number, rv: number, lift: number, colour: PaletteName, sides = 10): void {
+function almond(b: Buf, c: Vec, ru: number, rv: number, lift: number, colour: PaletteName, sides = 10, onFace?: { head: Blend; rise: number }): void {
   const outward = Math.sign(c[0]);
   const fn = (th: number): Vec => {
     const cs = Math.cos(th);
     const sn = Math.sin(th);
     const y = rv * sn * (0.45 + 0.55 * Math.abs(sn)) * (sn < 0 ? 0.7 : 1) + lift * cs * outward;
-    return [c[0] + ru * cs, c[1] + y, c[2]];
+    const x = c[0] + ru * cs;
+    // A wide eye follows the face round to its corners rather than standing off it as a flat disc.
+    return [x, c[1] + y, onFace === undefined ? c[2] : frontOf(onFace.head, x, c[1] + y - HC) + onFace.rise];
   };
   tube(b, [{ c, ru, rv, w: wHead, fn }], { sides, u: [1, 0, 0], v: [0, 1, 0], color: colour, capStart: true, capStartOff: [0, 0, -0.004], capEnd: true, capEndOff: [0, 0, 0.004] });
 }
@@ -1062,20 +1064,29 @@ function softFace(b: Buf, s: Spec, f: Face, head: Blend, big: boolean): void {
   for (const sx of [-1, 1]) {
     const x = sx * f.ex;
     const z = frontOf(head, x, f.ey);
-    const ru = f.ew * 0.55;
-    const rv = f.eh * (big ? 0.4 : 0.34);
-    almond(b, [x, HC + f.ey, z + 0.002], ru, rv, rv * 0.25, "black", 8);
-    const glint = big ? 0.0034 : 0.0026;
-    lens(b, [x + ru * 0.3, HC + f.ey + rv * 0.36, z + 0.0056], glint, glint, 0.0015, "white", 4);
-    const by = f.ey + rv + (big ? 0.012 : 0.011);
-    const half = ru + 0.004;
-    // Four points and four sides a stroke: the marks cost about what today's lenses did.
-    const brow: [number, number][] = [-1, -1 / 3, 1 / 3, 1].map((t) => [x + t * half, by + 0.0035 * (1 - t * t) + 0.0012 * t * sx]);
-    stroke(b, head, brow, 0.0022, s.hairColor, 4);
+    const ru = f.ew * 0.55 * (big ? 1.5 : 1);
+    const rv = f.eh * (big ? 0.4 * 1.4 : 0.34);
+    let glintZ = z + 0.0056;
+    if (big) {
+      // Large enough to read on a 60 pixel person: the dark almond lies in a muted cream one a little longer than it,
+      // which shows at the corners as an eye's whites do, so the eye reads on the darkest skin and never as a ring.
+      almond(b, [x, HC + f.ey, z + 0.0015], ru * 1.25, rv * 0.96, rv * 0.25, "wallCream", 8, { head, rise: 0.0015 });
+      almond(b, [x, HC + f.ey, z + 0.0028], ru, rv, rv * 0.25, "black", 8, { head, rise: 0.0028 });
+      glintZ = z + 0.0064;
+    } else {
+      almond(b, [x, HC + f.ey, z + 0.002], ru, rv, rv * 0.25, "black", 8);
+    }
+    const glint = big ? 0.0045 : 0.0026;
+    lens(b, [x + ru * 0.3, HC + f.ey + rv * 0.36, glintZ], glint, glint, 0.0015, "white", 4);
+    const by = f.ey + rv + (big ? 0.011 : 0.011);
+    const half = big ? ru * 0.95 : ru + 0.004;
+    // Few points and four sides a stroke: the marks cost about what today's lenses did.
+    const brow: [number, number][] = (big ? [-1, 0, 1] : [-1, -1 / 3, 1 / 3, 1]).map((t) => [x + t * half, by + 0.0035 * (1 - t * t) + 0.0012 * t * sx]);
+    stroke(b, head, brow, big ? 0.0032 : 0.0022, s.hairColor, 4);
   }
   const hw = f.mw * 0.5;
   const smile = big ? 0.005 : 0.0045;
-  const mouth: [number, number][] = [-1, -0.5, 0, 0.5, 1].map((t) => [t * hw, f.my + smile * t * t]);
+  const mouth: [number, number][] = (big ? [-1, -1 / 3, 1 / 3, 1] : [-1, -0.5, 0, 0.5, 1]).map((t) => [t * hw, f.my + smile * t * t]);
   stroke(b, head, mouth, 0.0024, mouthColour(s), 4);
 }
 
