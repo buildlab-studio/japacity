@@ -288,7 +288,8 @@ describe("the handover reads the life as lived", () => {
     }
     expect(wrong).toEqual([]);
     expect(off).toBeGreaterThan(0);
-  });
+  // Plays the counter life over every degree tile and many seeds: more than the five seconds a test is given under load.
+  }, 20_000);
 
   test("[R-PROLOGUE-011] given the words for one life and for a life as lived, then each is there, plain, with no dash", () => {
     for (const key of ["prologue.archetype.once", "prologue.handover.lived.degree", "prologue.handover.lived.capital", "prologue.handover.lived.trade"]) {
