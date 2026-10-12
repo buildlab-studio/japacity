@@ -108,29 +108,34 @@ describe("the japa type, read at the send-off", () => {
         shown.push({ month: view.month, kept: lines.length > 0 && net > 0, counted: view.keptMonths - before });
         month = [];
       }
-      expect({ name, countedEarly, otherMoney }).toEqual({ name, countedEarly: [], otherMoney: [] });
+      // A month abroad in which only the naira at home moved (a family ask paid from home, decision 0037's arrivals) shows no
+      // pounds figure and is not counted; the sheet's main figure is in the money of the place whenever money moved there.
+      expect({ name, countedEarly }).toEqual({ name, countedEarly: [] });
+      for (const at of otherMoney) expect(shown.find((entry) => entry.month === at)).toMatchObject({ kept: false, counted: 0 });
       expect({ name, shown }).toEqual({ name, shown: shown.map((entry) => ({ ...entry, counted: entry.kept ? 1 : 0 })) });
       expect({ name, count: game.view().keptMonths }).toEqual({ name, count: shown.filter((entry) => entry.kept).length });
     }
   });
 
   test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan, Ada and Tunde are family anchors and Zainab the long way round (a return)", () => {
-    // Decision 0036: the lives were re-recorded on 12 Oct 2026 and the card reads a repeat act's taps as months, so study no
-    // longer leads the things done most. Aniekan's refusals are on the Gulf contract, not the way he took; the sponsor's
-    // search leads his things done most, and with no reading before it his standing makes him the family anchor.
+    // Decisions 0036 and 0037: the lives were re-recorded on 12 Oct 2026 and the card reads a repeat act's taps as months, so
+    // study no longer leads the things done most. Aniekan's refusals are on the Gulf contract, not the way he took; the junior
+    // developer's job leads his things done most, and with no reading before it his standing makes him the family anchor.
     const aniekan = sendOff("aniekan-borrower");
     expect(aniekan.routes.find((route) => route.id === aniekan.card!.route)?.refusals ?? 0).toBe(0);
-    expect(aniekan.card!.topActivities[0]).toBe("activity.find-sponsor");
+    expect(aniekan.card!.topActivities[0]).toBe("activity.job-junior-dev");
     expect(japaTypeOf(aniekan)).toBe("family-anchor");
-    // Ada (seed golden-ada-0): her standing ends at the top, 100, with time with the family first among the things done most,
-    // so she is the family anchor before the careful saver her kept months would make her.
+    // Ada (seed golden-ada-0): her standing ends high, 91 since decision 0037's arrivals re-cut her life, with time with the
+    // family first among the things done most, so she is the family anchor before the careful saver her kept months would make her.
     const ada = sendOff("ada-careful");
-    expect(ada.card).toMatchObject({ months: 28, standing: 100 });
+    expect(ada.card).toMatchObject({ months: 28, standing: 91 });
     expect(ada.card!.topActivities[0]).toBe("activity.family-time");
     expect(japaTypeOf(ada)).toBe("family-anchor");
-    // Tunde: the senior bank job leads his things done most, time with the family second; no reading before the family anchor holds.
+    // Tunde: time with the family leads his things done most since the re-cut of decision 0037 (gist takes no time, so his
+    // lived months hold more of it), the senior bank job behind it; no reading before the family anchor holds.
     const tunde = sendOff("tunde-borrower");
-    expect(tunde.card!.topActivities[0]).toBe("activity.job-bank-senior");
+    expect(tunde.card!.topActivities[0]).toBe("activity.family-time");
+    expect(tunde.card!.topActivities).toContain("activity.job-bank-senior");
     expect(japaTypeOf(tunde)).toBe("family-anchor");
     // Zainab came home once and went again: the long way round, before anything else.
     const zainab = sendOff("zainab-remote");

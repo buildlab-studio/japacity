@@ -1,6 +1,6 @@
 // The month's close, shrunk (docs/rules/world.md R-WORLD-008; decisions 0035, 0036): the
 // results sheet after Sleep leads with payday when there is one, then the rent when it was due, then the moments, then
-// Kept, in four to six lines. What was bought by hand during the month was paid as it was done and is not listed again:
+// Kept, in up to six lines. What was bought by hand during the month was paid as it was done and is not listed again:
 // no "Done this month", no living line, no relief line at home, no "you rested". The sheet keeps its look.
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { act } from "@testing-library/react";
@@ -30,7 +30,7 @@ function sheetText(): string {
 }
 
 describe("the month's close", () => {
-  test("[R-WORLD-008] given the nurse's lived month (meals, water, gist and study bought by hand) and her salary, when the results open after Sleep, then payday leads, then the moments, then Kept, in four to six lines, with nothing bought by hand listed, no living line, no relief and no rest filler", async () => {
+  test("[R-WORLD-008] given the nurse's lived month (meals, water, gist and study bought by hand) and her salary, when the results open after Sleep, then payday leads, then the moments, then Kept, in up to six lines, with nothing bought by hand listed, no living line, no relief and no rest filler", async () => {
     const game = newGame("scenario.ngozi");
     const mid: ReportLine[] = [];
     for (const activity of ["activity.cook-at-home", "activity.cook-at-home", "activity.fetch-water", "activity.family-time", "activity.study-english"] as const) mid.push(...game.accept({ type: "activity/now", activity, param: null }).lines);
@@ -42,7 +42,9 @@ describe("the month's close", () => {
     expect(order[0]).toBe("payday");
     expect(order.at(-1)).toBe("kept");
     expect(order.filter((row) => row === "kept")).toHaveLength(1);
-    expect(order.length).toBeGreaterThanOrEqual(4);
+    // Decision 0037: one of the month's asks landed while the day was lived and is not told again at the close, so the
+    // sheet may be payday, one moment and Kept.
+    expect(order.length).toBeGreaterThanOrEqual(3);
     expect(order.length).toBeLessThanOrEqual(CLOSE_MAX);
     const salary = lines.find((each) => each.key === "line.activity.salary");
     if (salary === undefined) throw new Error("No salary this month.");
