@@ -22,20 +22,20 @@ function line(key: string, params: ReportLine["params"], extra: Partial<ReportLi
   return { key, params, tone: "plain", attention: false, counts: [], ...extra };
 }
 
-// Decision 0035: the lives were re-recorded, so each moment sits at another command of its life.
+// Decisions 0035 and 0037: the lives were re-recorded, so each moment sits at another command of its life.
 const AT_HOME = played("ada-careful", 227).view;
 const naira = (amount: number) => ({ currency: "NGN" as const, amount });
 
 describe("which outcomes are moments", () => {
   test("[R-MOMENT-001] given Ada's decision day, when the visa is granted and the chapter closes in one report, then one card is due, the grant's", () => {
-    const { lines, view } = played("ada-careful", 284);
+    const { lines, view } = played("ada-careful", 285);
     expect(lines.map((told) => told.key)).toEqual(expect.arrayContaining(["line.route.granted", "line.chapter.closed"]));
     expect(momentLine(lines, view)?.key).toBe("line.route.granted");
   });
 
-  // Decision 0035: in the re-recorded lives Tunde is never refused on his funds; Zainab's first application is.
-  test("[R-MOMENT-001] given Zainab's first application refused on its funds, then the refusal is the card", () => {
-    const { lines, view } = played("zainab-remote", 176);
+  // Decision 0037: in the re-recorded lives Tunde the borrower's first application is refused on its funds; Zainab's is not.
+  test("[R-MOMENT-001] given Tunde's first application refused on its funds, then the refusal is the card", () => {
+    const { lines, view } = played("tunde-borrower", 101);
     expect(momentLine(lines, view)).toMatchObject({ key: "line.route.refused", params: { route: "route.uk-masters", reason: "funds" } });
   });
 
@@ -47,8 +47,8 @@ describe("which outcomes are moments", () => {
   test("[R-MOMENT-001] given a chapter closing with nothing bigger beside it, then the chapter is the card; of two closed at once the last is told", () => {
     const { lines, view } = played("ada-careful", 227);
     expect(momentLine(lines, view)).toMatchObject({ key: "line.chapter.closed", params: { chapter: "chapter.build-the-file" } });
-    // Decision 0035: in the re-recorded lives it is Ada abroad whose first month there closes two chapters at once.
-    const both = played("ada-abroad", 363);
+    // Decision 0037: in the re-recorded lives it is Ada abroad whose flight closes decision day and the send-off at once.
+    const both = played("ada-abroad", 421);
     expect(momentLine(both.lines, both.view)).toMatchObject({ key: "line.chapter.closed", params: { chapter: "chapter.send-off" } });
   });
 
@@ -98,9 +98,9 @@ function depositTaken(): { answer: ReportLine[]; month: ReportLine[]; view: Play
 
 // Review 14, X8: the endorsement refused and the cousin's ₦300,000 deposit gave no card.
 describe("the biggest losses get their card", () => {
-  // Decision 0035: in the re-recorded lives Ada is never refused an endorsement; Tunde and Zainab are, abroad-bound.
-  test("[R-MOMENT-001] given the endorsement refused by the body (Tunde's and Zainab's recorded lives), when the month's lines come, then the refusal is the card, told by the body's own line", () => {
-    for (const [life, index] of [["tunde-abroad", 115], ["zainab-abroad", 99]] as const) {
+  // Decision 0037: in the re-recorded lives only Zainab, abroad-bound, is refused an endorsement.
+  test("[R-MOMENT-001] given the endorsement refused by the body (Zainab's recorded life), when the month's lines come, then the refusal is the card, told by the body's own line", () => {
+    for (const [life, index] of [["zainab-abroad", 74]] as const) {
       const { lines, view, before } = played(life, index);
       expect(lines.map((told) => told.key)).toContain("line.route.endorsement-refused");
       const shot = momentLine(lines, view);
@@ -158,7 +158,7 @@ describe("the biggest losses get their card", () => {
 
 describe("what a card holds", () => {
   test("[R-MOMENT-002] given Ada's grant, then the card names the route, says the route's line, and the figure is the months played", () => {
-    const { lines, view } = played("ada-careful", 284);
+    const { lines, view } = played("ada-careful", 285);
     const face = momentFace(momentLine(lines, view)!, view)!;
     expect(face).toMatchObject({ kind: "granted", tone: "good", kicker: say("moment.granted.kicker"), title: say("route.uk-masters.name"), line: say("moment.granted.line.route.uk-masters"), chip: null });
     expect(face.figure).toEqual({ value: view.month, unit: { kind: "count" }, caption: say("moment.granted.caption") });
@@ -166,15 +166,15 @@ describe("what a card holds", () => {
     expect(face.address).toBe("japacity.app");
   });
 
-  // Decision 0035: the re-recorded refusal on the funds is Zainab's, on a file 85% untraced.
-  test("[R-MOMENT-002] given Zainab's refusal on the funds, then it is dark, says the funds' line, and its figure is the untraced share on the file the letter judged, as a whole percent", () => {
-    const { lines, view, before } = played("zainab-remote", 176);
+  // Decision 0037: the re-recorded refusal on the funds is Tunde the borrower's, on a file 55% untraced.
+  test("[R-MOMENT-002] given Tunde's refusal on the funds, then it is dark, says the funds' line, and its figure is the untraced share on the file the letter judged, as a whole percent", () => {
+    const { lines, view, before } = played("tunde-borrower", 101);
     const face = momentFace(momentLine(lines, view)!, view, before)!;
     expect(face).toMatchObject({ kind: "refused", tone: "bad", line: say("moment.refused.line.funds"), chip: null });
     const filed = before.routes.find((held) => held.id === "route.uk-masters")!;
     expect(filed.state).toBe("applying");
     expect(face.figure).toEqual({ value: Math.floor(filed.unexplainedBp / 100), unit: { kind: "percent" }, caption: say("moment.refused.caption.funds") });
-    expect(figureWords(face.figure, face.figure.value)).toBe("85%");
+    expect(figureWords(face.figure, face.figure.value)).toBe("55%");
     // Without the file as it was decided, the months stand instead: the share worked out after the refusal is another file's.
     expect(momentFace(momentLine(lines, view)!, view)!.figure).toEqual({ value: view.month, unit: { kind: "count" }, caption: say("moment.refused.caption") });
     // From the second refusal on the route, its count stands beside the figure.
@@ -222,14 +222,14 @@ describe("what a card holds", () => {
     const face = momentFace(momentLine(home.lines, home.view)!, home.view)!;
     expect(face).toMatchObject({ title: say("chapter.build-the-file.title"), line: say("chapter.build-the-file.close") });
     expect(face.figure).toEqual({ value: home.view.japacity.percent, unit: { kind: "percent" }, caption: say("moment.chapter.caption.japacity") });
-    const abroad = played("ada-abroad", 364);
+    const abroad = played("ada-abroad", 422);
     const landed = momentFace(momentLine(abroad.lines, abroad.view)!, abroad.view)!;
     expect(landed.title).toBe(say("chapter.landing.title"));
     expect(landed.figure).toEqual({ value: abroad.view.month, unit: { kind: "count" }, caption: say("moment.chapter.caption") });
   });
 
   test("[R-MOMENT-005] given every card these lives and lines make, then the line never repeats the figure the card shows, and a loss carries no joke version", () => {
-    const faces = [played("ada-careful", 284), played("zainab-remote", 176), played("ada-careful", 289), played("ada-careful", 227)].map(({ lines, view, before }) => momentFace(momentLine(lines, view)!, view, before)!);
+    const faces = [played("ada-careful", 285), played("tunde-borrower", 101), played("ada-careful", 289), played("ada-careful", 227)].map(({ lines, view, before }) => momentFace(momentLine(lines, view)!, view, before)!);
     faces.push(momentFace(line("line.activity.robbed", { cash: naira(14_200_000), phone: naira(6_000_000) }, { tone: "bad" }), AT_HOME)!);
     faces.push(momentFace(line("line.offer.agent-scam", { agent: "offer.agent-stop.who.1", amount: naira(2_500_000) }, { tone: "bad" }), AT_HOME)!);
     for (const face of faces) {

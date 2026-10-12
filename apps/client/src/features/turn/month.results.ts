@@ -155,7 +155,7 @@ const PAYDAY: ReadonlySet<string> = new Set(["line.activity.salary", "line.walle
 /** Rent paid as the month turns: a room's, a flat's, a bed space's. */
 const RENT = "line.wallet.rent";
 
-/** The most lines the month's close holds, Kept among them (12 Oct 2026: four to six lines). */
+/** The most lines the month's close holds, Kept among them (12 Oct 2026: up to six lines). */
 export const CLOSE_MAX = 6;
 /** The fewest moments it keeps room for, however much pay and rent lead. */
 const MOMENTS_MIN = 2;
@@ -172,7 +172,7 @@ export interface MonthClose {
 
 /**
  * The month's close (R-WORLD-008): it leads with payday when there is one, then the rent
- * when it was due, then the moments, then Kept, in four to six lines. What was bought by hand during the month (food,
+ * when it was due, then the moments, then Kept, in up to six lines. What was bought by hand during the month (food,
  * water, a fare) was paid as it was done and is not listed again; no living line, no "you rested". Only the lines of the
  * month's turn (`turned`) hold the pay and the rent; the story reads the whole month (`told`).
  */

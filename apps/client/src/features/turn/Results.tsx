@@ -1,6 +1,6 @@
 // The month's results (docs/rules/world.md R-WORLD-008). The staged wins (Moment) come first; the sheet
 // opens once they have passed. Shrunk for the lived month: payday when there is one, the
-// rent when it was due, the month's moments, then Kept, in four to six lines; what was bought by hand during the month
+// rent when it was due, the month's moments, then Kept, in up to six lines; what was bought by hand during the month
 // was paid as it was done and is not listed again. `foot`: a line another feature puts under the results, placed by the shell.
 import { useEffect, useState, type ReactNode } from "react";
 
