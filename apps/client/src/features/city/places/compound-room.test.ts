@@ -12,7 +12,7 @@ import { cameraAt, projected, SCREENS } from "../scene.testing";
 import { aimShot, shotOf, WHOLE } from "../shot";
 import { type PlaceFile, stageOf } from "../placeFile";
 import { sceneWords } from "../scene.words";
-import { homeStagesAt } from "../staging";
+import { byHandAt, homeStagesAt } from "../staging";
 import { stagedNow, thingSpot, thingsNow, thingsOf, withMoreAt } from "../things";
 
 const ID = "place.compound-room";
@@ -38,7 +38,7 @@ function livingThere(): PlayerView {
 /** The things the player can act on in the room now, as the city reads them for the home `home`. */
 function actsNow(view: PlayerView, home: string | null): Record<string, string[]> {
   const offered = new Set(view.activities.filter((option) => option.allowed).map((option) => option.id));
-  const staged = new Set<string>([...(content.place[ID]?.stages ?? []), ...homeStagesAt(ID, home, HOME, PLACES)]);
+  const staged = new Set<string>([...(content.place[ID]?.stages ?? []), ...homeStagesAt(ID, home, HOME, PLACES), ...byHandAt(ID, home, HOME, content.activity)]);
   const now = thingsNow(withMoreAt(thingsOf(stage), ID), stagedNow(offered, staged, new Set(), null));
   return Object.fromEntries(now.map((thing) => [thing.id, thing.acts.map((act) => act.id)]));
 }
@@ -50,14 +50,18 @@ describe("the room in a compound", () => {
     expect(content.place[ID]).toMatchObject({ scope: "interior", assets: "compound-room", stages: [] });
     expect(stage.people).toEqual([]);
     const acts = (id: string) => thingOf(id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null]);
-    // the mattress's act is Lie down, done at once with the lying pose; an empty slot rests.
+    // the mattress naps on its sheet and sleeps; while no nap can be had its act is
+    // Lie down, done at once with the lying pose, as R-TURN-006 had it; an empty slot rests.
     expect(acts("bed")).toEqual([
-      ["plain", null],
+      ["sheet", "activity.nap"],
       ["end", null],
     ]);
-    expect(acts("cooking")).toEqual([["do", "activity.cook-at-home"]]);
-    // The drum is filled free from the yard's tap: its own act, not the water seller's.
-    expect(acts("drum")).toEqual([["do", "activity.fill-drum"]]);
+    expect(thingOf("bed").acts[0]?.otherwise).toMatchObject({ id: "lie", kind: "plain", pose: "lie" });
+    expect(acts("cooking")).toEqual([["sheet", "activity.cook-at-home"]]);
+    expect(thingOf("cooking").acts[0]?.more).toEqual(["activity.cook-jollof"]);
+    // The drum is filled free from the yard's tap: its own act, not the water seller's; the bath on its sheet.
+    expect(acts("drum")).toEqual([["sheet", "activity.fill-drum"]]);
+    expect(thingOf("drum").acts[0]?.more).toEqual(["activity.bucket-bath"]);
     // the box opens the phone's Papers, where the papers' acts are.
     expect(acts("papers-box")).toEqual([["app", null]]);
     expect(thingOf("papers-box").acts[0]?.app).toBe("papers");
@@ -72,10 +76,10 @@ describe("the room in a compound", () => {
     }
   });
 
-  test("[R-HOME-006] [R-HOME-010] given Ada living in the room, when its acts are read for now, then the mattress lies down, the stove cooks, the drum fetches water and the papers box opens Papers, staged by the family house; for a life living elsewhere the room opens none of them", () => {
+  test("[R-HOME-006] [R-HOME-010] [R-ACTIVITY-019] given Ada living in the room, when its acts are read for now, then the mattress naps, the stove cooks, the drum fetches water and the papers box opens Papers, staged by the family house and the acts lived by hand; for a life living elsewhere the room opens none of them", () => {
     const view = livingThere();
     const now = actsNow(view, ID);
-    expect(now["bed"]).toEqual(["lie", "end-month"]);
+    expect(now["bed"]).toEqual(["nap", "end-month"]);
     expect(now["cooking"]).toEqual(["cook"]);
     expect(now["drum"]).toEqual(["fill-drum"]);
     expect(now["papers-box"]).toEqual(["papers"]);

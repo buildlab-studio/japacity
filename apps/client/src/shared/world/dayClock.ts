@@ -44,7 +44,7 @@ function useServed(store: GameStore | null): WorldClock | null {
  * The world's clock, moving on the device every minute (R-CLOCK-033): a reply's reading wins as it lands, and the
  * device's own reading takes over at the next minute.
  */
-export function useDayClock(): WorldClock {
+export function useDayClock(): WorldClock & { served: boolean } {
   const store = useGameStoreIfAny();
   const served = useServed(store);
   const [reading, setReading] = useState<{ served: WorldClock | null; device: WorldClock }>(() => ({ served, device: worldClockAt(Date.now()) }));
@@ -55,5 +55,7 @@ export function useDayClock(): WorldClock {
     const timer = window.setInterval(() => setReading({ served: null, device: worldClockAt(Date.now()) }), DAY_CLOCK_MS);
     return () => window.clearInterval(timer);
   }, []);
-  return dayClockOf(reading.served, reading.device, devClockPart(search()));
+  // `served`: a reply has given the world's clock; before one, the device's reading stands in for the sky but nothing
+  // that changes what the player is told (the night's nudge) rests on it.
+  return { ...dayClockOf(reading.served, reading.device, devClockPart(search())), served: reading.served !== null || devClockPart(search()) !== null };
 }

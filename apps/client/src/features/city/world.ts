@@ -12,12 +12,12 @@ import { instanceModel } from "../../shared/three/instance";
 import { ownIndicator, nameTag } from "../../shared/three/marks";
 import { danceFigure } from "../../shared/three/dance";
 import { poseFigure } from "../../shared/three/people";
-import { bunting, frondGeometry, instancedSheets, leaves, type MeshLevel, rideWater, sheet, sheetGeometry, smoke, stripedFlag, water } from "../../shared/three/motion";
+import { bunting, drops, flicker, frondGeometry, glow, instancedSheets, leaves, type MeshLevel, rideWater, sheet, sheetGeometry, smoke, stripedFlag, water } from "../../shared/three/motion";
 import { type Figure, figureOf } from "../../shared/three/people";
 import { crossAt } from "./cross";
 import { actPose, placeCrowd, type Shown, walkPose } from "./crowd";
 import type { ModeSettings } from "./mode";
-import { DANCER_SLOT, type DanceName, type Motion, type Stage, type Strip } from "./placeFile";
+import { DANCER_SLOT, type DanceName, type Lamp, type Motion, type Stage, type Strip } from "./placeFile";
 import { strideOf, WALK_SPEED } from "./walk";
 import { routeMap, type RouteMap } from "./walk/map";
 import { advanceStrolls, type Strolls, strollsOf } from "./walk/stroll";
@@ -211,6 +211,22 @@ export function motionOf(motion: Motion, level: MeshLevel): Object3D {
       const blown = leaves(fewer, width, height, first);
       blown.position.copy(at);
       return blown;
+    }
+    case "drops": {
+      const falling = drops(fewer, width, height, motion.at[1], first);
+      falling.position.copy(at);
+      return falling;
+    }
+    case "flicker": {
+      const screen = flicker(width, height, first);
+      screen.position.copy(at);
+      screen.rotation.y = motion.ry ?? 0;
+      return screen;
+    }
+    case "glow": {
+      const point = glow(width / 2, first, false);
+      point.position.copy(at);
+      return point;
     }
     default: {
       const never: never = motion.kind;
@@ -426,6 +442,19 @@ export function animateWorld(world: World, time: number, seconds: number): void 
   for (const figure of world.standers) poseFigure(figure, time);
   world.indicator.position.y = INDICATOR_Y + Math.sin(time * 2.4) * 0.05;
   world.indicator.rotation.y = time * 1.5;
+}
+
+/** The warm colour of a lamp's glow: a bulb or a lantern's flame at night. */
+export const LAMP_COLOUR = 0xffb46a;
+
+/** The place's lamps as warm points of light, out until the day's light sets how bright they stand (R-CLOCK-033). */
+export function lampsOf(lamps: readonly Lamp[]): Object3D[] {
+  return lamps.map((lamp) => {
+    const point = glow(lamp.size / 2, new Color(LAMP_COLOUR), lamp.bulb === true);
+    point.position.set(...lamp.at);
+    point.name = "lamp";
+    return point;
+  });
 }
 
 /** The sky behind the place and the colour of its fog: each leans from the sky's colour toward the ground's by the mode's haze. */

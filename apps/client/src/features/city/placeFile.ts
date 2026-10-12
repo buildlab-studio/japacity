@@ -14,13 +14,15 @@ import { personOf, type Role } from "./roster";
 export type Spot = [number, number, number];
 export type Vec3 = [number, number, number];
 
-export type MotionKind = "flag" | "hang" | "frond" | "water" | "smoke" | "leaves" | "bunting";
+export type MotionKind = "flag" | "hang" | "frond" | "water" | "smoke" | "leaves" | "bunting" | "drops" | "flicker" | "glow";
 
 /**
  * One moving thing. Sheets (`flag` pinned on the left edge, `hang` pinned along the top, `frond`
  * pinned at the stalk) are a `size` of width and height at `at`, turned by `ry`; `bunting` runs
  * `count` pennants from `at` to `to`; `water` is a `size` of width and depth; `smoke` rises from
- * `at`; `leaves` tumble across `size` around `at`.
+ * `at`; `leaves` tumble across `size` around `at`; `drops` fall `count` drops off a rim of `size` (width and depth) at
+ * `at` to the floor; `flicker` is a screen of `size` whose light flickers, its bottom edge at `at`, turned by `ry`;
+ * `glow` is a warm point of light at `at`, its halo `size[0]` across.
  */
 export interface Motion {
   kind: MotionKind;
@@ -67,8 +69,11 @@ export interface Stage {
   ground: { size: [number, number]; colour: PaletteName };
   /** Strips of road, pavement, kerb and gutter, drawn after the ground and over it in list order. */
   roads: Strip[];
-  /** One sun and one sky light, set by the place (R-ASSET-006). */
-  light: { sun: Vec3; sky: PaletteName; ground: PaletteName };
+  /**
+   * One sun and one sky light, set by the place (R-ASSET-006) and turned and tinted by the world's clock (R-CLOCK-033);
+   * `lamps` are the warm points that glow as the light goes: the bulb, the lantern, the street's few lights.
+   */
+  light: { sun: Vec3; sky: PaletteName; ground: PaletteName; lamps?: Lamp[] };
   /** Where the player's character stands on entering, and which way it faces. */
   start: Spot;
   /** The ground people may walk on, as polygons of [x, z] in metres (assets.md R-ASSET-030); the whole ground when absent. */
@@ -103,6 +108,15 @@ export interface Stage {
   things?: Thing[];
   /** The place a door here opens into, as a place id (world.md R-WORLD-013): a room is just another place. */
   inside?: string;
+}
+
+/** A warm point of light the place shows as the day goes (R-CLOCK-033): where, how wide its halo, and whether a bulb hangs there. */
+export interface Lamp {
+  at: Vec3;
+  /** The halo's width in metres. */
+  size: number;
+  /** A bulb seen hanging there; a lantern or a window shows only its glow. */
+  bulb?: boolean;
 }
 
 /**
@@ -150,12 +164,15 @@ export interface Dressing {
 
 /**
  * A choice made this month, seen on its thing (world.md R-WORLD-029): while the month's plan holds the
- * activity, its models and motion join the stage's. Nothing is hidden and no one moves.
+ * activity, its models and motion join the stage's. Nothing is hidden and no one moves. A show with `seconds` is the
+ * answer of an act done at once instead (R-WORLD-005): its motion plays that long where the act was done, each time the
+ * act lands, and goes.
  */
 export interface Show {
   activity: string;
   models: Stage["models"];
   motion: Motion[];
+  seconds?: number;
 }
 
 export interface PlaceFile {
@@ -240,12 +257,17 @@ export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<
  */
 export function showPlanned(file: PlaceFile, planned: readonly string[]): PlaceFile {
   const stage = stageOf(file);
-  const shown = (stage.shows ?? []).filter((show) => planned.includes(show.activity));
+  const shown = (stage.shows ?? []).filter((show) => show.seconds === undefined && planned.includes(show.activity));
   if (shown.length === 0) return file;
   return {
     ...file,
     stage: { ...stage, models: [...stage.models, ...shown.flatMap((show) => show.models)], motion: [...stage.motion, ...shown.flatMap((show) => show.motion)] },
   };
+}
+
+/** What an act done at once shows where it was done, each time it lands (R-WORLD-005): its shows that play for a while. */
+export function showsFor(stage: Pick<Stage, "shows">, activity: string): Show[] {
+  return (stage.shows ?? []).filter((show) => show.seconds !== undefined && show.activity === activity);
 }
 
 /** A dancer's slot, after every slot a sample can have, so a tap on one is told from a tap on the crowd. */

@@ -115,10 +115,13 @@ export const cityText: Record<string, string> = {
   "city.told.parcel": "The parcel is yours.",
   // Lying down is done at once, seen on the bed or the couch; an empty slot of the month already rests (R-TURN-006).
   "city.act.lie": "Lie down",
-  "city.act.cook": "Cook for the week",
+  // A meal is cooked now, as often as you are hungry (R-ACTIVITY-019): Indomie and egg, or jollof for the house, on one sheet.
+  "city.act.cook": "Cook",
   "city.act.fetch-water": "Fetch water",
   // The compound's drum, filled from the tap in the yard: the water costs nothing there, so nothing comes off (R-OBLIGATION-014); an act the scene shows tells no line (R-TEXT-008).
   "city.act.fill-drum": "Fetch water",
+  // The drum's one sheet: the water and the bucket bath (R-WORLD-005, a third act goes on a sheet).
+  "city.act.drum": "Water and a bath",
   "city.act.pack": "Pack and go",
   "city.act.turn-on": "Turn on",
   // R-WORLD-019: the box opens the phone's Papers app, where every paper is told.
@@ -127,10 +130,13 @@ export const cityText: Record<string, string> = {
   "city.act.go-out": "Go out",
   "city.act.ride": "Ride",
   "city.act.bills": "The bills",
-  "city.act.family-time": "Family time",
+  // Mama's sheet: gist with her, and a few days in her shop.
+  "city.act.family-time": "Gist",
   "city.act.family-meeting": "Family meeting",
   "city.act.roof": "The roof",
   "city.act.night-shift": "Night shift",
+  // The table's sheet: the study done at home, and the night support from the laptop.
+  "city.act.table": "Study or work",
   "city.act.brother-fees": "School fees",
   "city.act.send-off": "The send-off",
   "city.act.pledge": "The pledge",

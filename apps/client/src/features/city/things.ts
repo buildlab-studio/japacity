@@ -171,7 +171,8 @@ export function thingsNow(things: readonly Thing[], offered: (stages: string) =>
       const listed = all.filter(offered);
       if (listed.length === all.length) return [act];
       const stages = listed[0];
-      if (stages === undefined) return [];
+      // An act that names what stands in its place while nothing it lists can open shows that instead (the bed's Lie down).
+      if (stages === undefined) return act.otherwise === undefined ? [] : [act.otherwise];
       const more = listed.slice(1);
       return [{ id: act.id, label: act.label, kind: act.kind, stages, ...(more.length === 0 ? {} : { more }) }];
     });

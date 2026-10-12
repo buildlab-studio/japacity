@@ -1,6 +1,6 @@
 // What the city may show and where (city.md R-CITY-010 to 013). Pure: everything here reads the
 // view and the place entries, and nothing else, so the city never shows a field the view lacks.
-import type { Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
+import type { ActivityEntry, Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
 
 export type ViewPlace = Pick<PlayerView["place"], "where" | "country">;
 
@@ -51,6 +51,17 @@ export function homeStagesAt(place: string, home: string | null, where: ViewPlac
   const family = DEFAULT_PLACE.home;
   if (where.where !== "home" || home === null || place !== home || home === family) return [];
   return places.find((entry) => entry.id === family)?.stages ?? [];
+}
+
+/**
+ * The acts lived by hand at home (activity.md R-ACTIVITY-019, decision 0035): every act that repeats is staged at the
+ * family house and in the character's own home while they are at home, so the parlour's table can offer the study a hub
+ * or a centre also stages, and the bed its nap. Content stages an id at one place only (R-CITY-010), so the home's
+ * share is read here; a thing still shows only the acts its file declares.
+ */
+export function byHandAt(place: string, home: string | null, where: ViewPlace, activities: Readonly<Record<string, ActivityEntry>>): readonly string[] {
+  if (where.where !== "home" || (place !== DEFAULT_PLACE.home && place !== home)) return [];
+  return Object.values(activities).filter((entry) => entry.repeat === true).map((entry) => entry.id as string);
 }
 
 /** An open set piece and the place that stages it, with its question (R-CITY-011). */

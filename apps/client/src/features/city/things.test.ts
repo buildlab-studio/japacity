@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import bodeThomas from "../../../public/assets/places/bode-thomas/place.json";
 import { say } from "../../shared/words/text";
-import type { Thing } from "../../shared/world/contract";
+import type { Act, Thing } from "../../shared/world/contract";
 import { type PlaceFile, stageOf } from "./placeFile";
 import { builtPlaces } from "./scene.testing";
 import { sceneWords } from "./scene.words";
@@ -69,6 +69,15 @@ describe("the straight walk", () => {
 });
 
 describe("a third act on a sheet", () => {
+  test("[R-WORLD-005] given a sheet act that names what stands in its place, when none of its entries can open, then that act shows instead, and with one open the sheet act itself", () => {
+    const lie: Act = { id: "lie", label: "city.act.lie", kind: "plain", pose: "lie", seat: [0, 0, 0] };
+    const bed: Thing = { id: "bed", file: "shared/prop/prop_bed.glb", copy: 0, label: "city.thing.bed", acts: [{ id: "nap", label: "activity.nap.name", kind: "sheet", stages: "activity.nap", otherwise: lie }, { id: "end-month", label: "ui.world.end-month", kind: "end" }] };
+    expect(thingsNow([bed], () => true)[0]).toBe(bed);
+    expect(thingsNow([bed], () => false)[0]?.acts).toEqual([lie, bed.acts[1]]);
+    const plain: Thing = { ...bed, acts: [{ id: "nap", label: "activity.nap.name", kind: "sheet", stages: "activity.nap" }] };
+    expect(thingsNow([plain], () => false)).toEqual([]);
+  });
+
   test("[R-WORLD-005] given a desk whose act lists more entries, when some are offered, then the act stays listing only those, and goes once none is", () => {
     const desk: Thing = { id: "desk", file: "places/x/prop_long-desk.glb", copy: 0, label: "city.thing.long-desk", acts: [{ id: "routes", label: "city.act.routes", kind: "sheet", stages: "activity.look-into-route", more: ["activity.see-adviser", "activity.ask-someone-who-went"] }] };
     const some = thingsNow([desk], (stages) => stages === "activity.see-adviser" || stages === "activity.ask-someone-who-went");
@@ -175,19 +184,59 @@ describe("the things of the built places", () => {
     }
   });
 
-  test("[R-WORLD-025] [R-TURN-006] given the bed at home and the bed in the room abroad, when their acts are read, then each offers Lie down, done at once with the lying pose and no slot, and Next month, the band's own act", () => {
-    for (const folder of ["family-house-parlour", "the-room"]) {
+  test("[R-WORLD-025] [R-TURN-006] [R-ACTIVITY-019] given the bed at home, in a compound and in the room abroad, when their acts are read, then each offers a nap on its sheet lain on the bed, and Sleep, the band's own act; while no nap can be had, Lie down stands in its place, done at once with the lying pose and no slot", () => {
+    for (const folder of ["family-house-parlour", "compound-room", "the-room"]) {
       const found = builtPlaces().find((built) => built.folder === folder);
       if (found === undefined) throw new Error(`No ${folder}`);
       const bed = (stageOf(found.file).things ?? []).find((thing) => thing.file.endsWith("prop_bed.glb"));
-      expect(bed?.acts.map((act) => [act.id, act.kind, act.stages, act.pose])).toEqual([
-        ["lie", "plain", undefined, "lie"],
+      if (bed === undefined) throw new Error(`No bed in ${folder}`);
+      expect(bed.acts.map((act) => [act.id, act.kind, act.stages, act.pose])).toEqual([
+        ["nap", "sheet", "activity.nap", "lie"],
         ["end-month", "end", undefined, undefined],
       ]);
-      expect(sceneWords(bed?.acts[0]?.label ?? "")).toBe("Lie down");
-      expect(bed?.acts[0]?.seat).toHaveLength(3);
-      expect(sceneWords(bed?.acts[1]?.label ?? "")).toBe(say("ui.world.end-month"));
+      const [nap, sleep] = bed.acts;
+      expect(sceneWords(nap?.label ?? "")).toBe("Nap");
+      expect(sceneWords(sleep?.label ?? "")).toBe(say("ui.world.end-month"));
+      expect(say("ui.world.end-month")).toBe("Sleep");
+      const lie = nap?.otherwise;
+      expect([lie?.id, lie?.kind, lie?.stages, lie?.pose]).toEqual(["lie", "plain", undefined, "lie"]);
+      expect(sceneWords(lie?.label ?? "")).toBe("Lie down");
+      expect(lie?.seat).toEqual(nap?.seat);
+      expect(lie?.top).toBe(nap?.top);
+      // A nap to be had: Nap and Sleep. None (night, spent, abroad): Lie down and Sleep. Never three.
+      expect(thingsNow([bed], (stages) => stages === "activity.nap")[0]?.acts.map((act) => act.id)).toEqual(["nap", "end-month"]);
+      expect(thingsNow([bed], () => false)[0]?.acts.map((act) => act.id)).toEqual(["lie", "end-month"]);
     }
+  });
+
+  test("[R-WORLD-005] [R-WORLD-025] [R-ACTIVITY-019] given the parlour, when its things are read, then the cooking corner offers both meals on one sheet, the drum the water and the bath on one, the television Nollywood with Papa from the sofa, Mama her gist and her shop on one beside the bills, and the table the study, the course, the portfolio and the night support on one beside the fees", () => {
+    const found = builtPlaces().find((built) => built.folder === "family-house-parlour");
+    if (found === undefined) throw new Error("No parlour");
+    const stage = stageOf(found.file);
+    const acts = (id: string) => (stage.things ?? []).find((thing) => thing.id === id)?.acts.map((act) => [act.kind, act.stages ?? null, act.more ?? null, sceneWords(act.label)]);
+    expect(acts("cooking")).toEqual([["sheet", "activity.cook-at-home", ["activity.cook-jollof"], "Cook"]]);
+    expect(acts("drum")).toEqual([["sheet", "activity.fetch-water", ["activity.bucket-bath"], "Water and a bath"]]);
+    expect(acts("tv")).toEqual([["sheet", "activity.watch-tv", null, "Nollywood with Papa"]]);
+    expect(acts("mama")).toEqual([
+      ["sheet", "activity.family-time", ["activity.help-shop"], "Gist"],
+      ["sheet", "offer.nepa-bill", null, "The bills"],
+    ]);
+    expect(acts("table")).toEqual([
+      ["sheet", "activity.study-english", ["activity.learn-tech", "activity.build-portfolio", "activity.night-support"], "Study or work"],
+      ["sheet", "offer.brother-fees", null, "School fees"],
+    ]);
+    // The television stands on its stand, and Nollywood is watched sitting on the sofa facing it.
+    const tv = (stage.things ?? []).find((thing) => thing.id === "tv");
+    if (tv === undefined) throw new Error("No television");
+    expect(tv.file).toBe("places/family-house-parlour/prop_tv-stand.glb");
+    expect(thingSpot(stage, tv)).toEqual(stage.models.find((model) => model.file === tv.file)?.at[0]?.slice(0, 2));
+    const sit = (stage.things ?? []).find((thing) => thing.id === "sofa")?.acts.find((act) => act.id === "sit");
+    expect(tv.acts[0]?.pose).toBe("sit");
+    expect(tv.acts[0]?.seat).toEqual(sit?.seat);
+    // Each act's sheet lists only what can open now, and the names come from content.
+    expect(sceneWords("activity.cook-jollof.name")).toBe("Jollof for the house");
+    const cooking = (stage.things ?? []).find((thing) => thing.id === "cooking");
+    expect(thingsNow(cooking === undefined ? [] : [cooking], (stages) => stages === "activity.cook-at-home")[0]?.acts[0]).toEqual({ id: "cook", label: "city.act.cook", kind: "sheet", stages: "activity.cook-at-home" });
   });
 
   test("[R-WORLD-019] given the parlour, when its papers box is read, then it stands at the bed, its one act opens the Papers app, and its words resolve", () => {

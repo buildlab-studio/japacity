@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { abroadView, engineView, richView } from "../../shared/testing/fixtures";
 import { heardHere, overheard, placeLines } from "./overheard";
-import { enterable, offersHere, openingPlace, openScene, reportHere, stagedAt } from "./staging";
+import { byHandAt, enterable, offersHere, openingPlace, openScene, reportHere, stagedAt } from "./staging";
 import { ARRIVED, standAt, stepWalk, WALK_SPEED, walkTo } from "./walk";
 
 const places = Object.values(content.place);
@@ -93,5 +93,19 @@ describe("tap to walk", () => {
     walker = stepWalk(walker, 10);
     expect(walker).toMatchObject({ x: 3, z: 4, target: null });
     expect(stepWalk(walkTo(standAt(0, 0, 0), ARRIVED, 0), 0).target).toBeNull();
+  });
+});
+
+describe("the acts lived by hand at home", () => {
+  test("[R-ACTIVITY-019] [R-CITY-010] given the acts that repeat, when the family house or the character's own home is read at home, then each is staged there, the study a hub or a centre also stages among them; elsewhere, abroad or in another life's room none is", () => {
+    const repeats = Object.values(content.activity).filter((entry) => entry.repeat === true).map((entry) => entry.id as string);
+    expect(repeats).toEqual(expect.arrayContaining(["activity.cook-at-home", "activity.cook-jollof", "activity.nap", "activity.bucket-bath", "activity.watch-tv", "activity.family-time", "activity.help-shop", "activity.study-english", "activity.learn-tech", "activity.build-portfolio"]));
+    expect([...byHandAt("place.family-house", "place.family-house", HOME, content.activity)].sort()).toEqual([...repeats].sort());
+    expect([...byHandAt("place.family-house", "place.compound-room", HOME, content.activity)].sort()).toEqual([...repeats].sort());
+    expect([...byHandAt("place.compound-room", "place.compound-room", HOME, content.activity)].sort()).toEqual([...repeats].sort());
+    expect(byHandAt("place.compound-room", "place.family-house", HOME, content.activity)).toEqual([]);
+    expect(byHandAt("place.yaba", "place.family-house", HOME, content.activity)).toEqual([]);
+    expect(byHandAt("place.family-house", "place.family-house", UK, content.activity)).toEqual([]);
+    expect(byHandAt("place.family-house", null, HOME, content.activity)).toEqual(repeats);
   });
 });

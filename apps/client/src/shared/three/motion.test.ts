@@ -1,10 +1,10 @@
 import { buildGrid } from "@japacity/assets-src/prop/motion/build";
 import { GRIDS } from "@japacity/assets-src/prop/motion/grids";
-import { BoxGeometry, type BufferGeometry, Color, Group, InstancedMesh, Mesh, MeshLambertMaterial, Matrix4, Vector3 } from "three";
+import { AdditiveBlending, BoxGeometry, type BufferGeometry, Color, Group, InstancedMesh, Mesh, MeshBasicMaterial, MeshLambertMaterial, Matrix4, Sprite, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 
 import { instanceModel } from "./instance";
-import { bunting, gridFilesOf, keepGrid, loadGrids, puffGeometry, rideWater, sheetGeometry, smoke, water } from "./motion";
+import { bunting, drops, flicker, glow, glowAt, gridFilesOf, keepGrid, loadGrids, puffGeometry, rideWater, sheetGeometry, smoke, water } from "./motion";
 import { PUFF_INDEX, PUFF_POSITIONS } from "./puff.data";
 
 describe("smoke", () => {
@@ -123,5 +123,69 @@ describe("riding the water", () => {
     expect(mesh.frustumCulled).toBe(true);
     expect(shader.vertexShader).toContain("float roll = sin(uTime");
     expect(shader.vertexShader).not.toContain("uGlide");
+  });
+});
+
+/** A material's shaders as the scene compiles them, from a stand-in of three's own chunks. */
+function compiled(material: MeshLambertMaterial | MeshBasicMaterial): { vertexShader: string; fragmentShader: string } {
+  const shader = { uniforms: {}, vertexShader: "#include <beginnormal_vertex>\n#include <begin_vertex>\n", fragmentShader: "#include <color_fragment>\n" };
+  material.onBeforeCompile(shader as unknown as Parameters<MeshLambertMaterial["onBeforeCompile"]>[0], undefined as unknown as Parameters<MeshLambertMaterial["onBeforeCompile"]>[1]);
+  return shader;
+}
+
+describe("the fx of the room's acts", () => {
+  test("[R-WORLD-005] given the bucket bath, when its drops are built, then they are one instanced draw call round the drum's rim, opaque, each with its seed and its fall, moved and shrunk by the shader alone", () => {
+    const water = drops(10, 0.6, 0.6, 0.9, new Color(0x9cc3d5));
+    expect(water).toBeInstanceOf(InstancedMesh);
+    expect(water.count).toBe(10);
+    expect((water.material as MeshLambertMaterial).transparent).toBe(false);
+    expect(water.geometry.getAttribute("aSeed").count).toBe(10);
+    expect(water.geometry.getAttribute("aFall").getX(0)).toBeCloseTo(0.9, 6);
+    const spot = new Vector3();
+    const matrix = new Matrix4();
+    for (let index = 0; index < 10; index += 1) {
+      water.getMatrixAt(index, matrix);
+      spot.setFromMatrixPosition(matrix);
+      expect(Math.hypot(spot.x, spot.z)).toBeCloseTo(0.3, 6);
+      expect(spot.y).toBe(0);
+    }
+    const shader = compiled(water.material as MeshLambertMaterial);
+    expect(shader.vertexShader).toContain("attribute float aFall;");
+    expect(shader.vertexShader).toMatch(/transformed\.y -= life \* life \* aFall/);
+  });
+
+  test("[R-WORLD-005] given the television while it plays, when its flicker is built, then it is one unlit plane on the screen whose brightness alone moves on the shared clock, never transparent", () => {
+    const screen = flicker(1.1, 0.6, new Color(0xdfe8ff));
+    const material = screen.material as MeshBasicMaterial;
+    expect(material).toBeInstanceOf(MeshBasicMaterial);
+    expect(material.transparent).toBe(false);
+    screen.geometry.computeBoundingBox();
+    expect(screen.geometry.boundingBox?.min.y).toBeCloseTo(0, 6);
+    expect(screen.geometry.boundingBox?.max.y).toBeCloseTo(0.6, 6);
+    const shader = compiled(material);
+    expect(shader.fragmentShader).toContain("uniform float uTime;");
+    expect(shader.fragmentShader).toMatch(/diffuseColor\.rgb \*= flick/);
+  });
+
+  test("[R-CLOCK-033] [R-ASSET-006] given a lamp, when its glow is built and set, then it adds no light to the scene: an unlit bead and a soft halo added to what is behind, out at nothing, brighter when turned up", () => {
+    const lamp = glow(0.6, new Color(0xffb36b));
+    const lights: unknown[] = [];
+    lamp.traverse((object) => {
+      if ((object as { isLight?: boolean }).isLight === true) lights.push(object);
+    });
+    expect(lights).toEqual([]);
+    const round = lamp.children.find((child): child is Sprite => child instanceof Sprite);
+    if (round === undefined) throw new Error("No halo");
+    expect(round.material.blending).toBe(AdditiveBlending);
+    expect(round.material.depthWrite).toBe(false);
+    expect(lamp.children.some((child) => child instanceof Mesh && child.material instanceof MeshBasicMaterial)).toBe(true);
+    glowAt(lamp, 0);
+    expect(lamp.visible).toBe(false);
+    glowAt(lamp, 1);
+    expect(lamp.visible).toBe(true);
+    const full = round.scale.x;
+    glowAt(lamp, 1.5);
+    expect(round.scale.x).toBeGreaterThan(full);
+    expect(glow(0.6, new Color(0xffffff), false).children.every((child) => child instanceof Sprite)).toBe(true);
   });
 });
