@@ -5,6 +5,8 @@
 // "Mama presses a bag of oranges on you."
 import { useEffect, useRef, useSyncExternalStore } from "react";
 
+import { CentredColumn } from "../ui/lively/CentredColumn";
+
 /** A told line stays this long in the corner (the design's `toast`). */
 export const TOLD_MS = 7000;
 /** A heard line, the street's talk, stays this long (the design's `hear`). */
@@ -155,11 +157,14 @@ export function Corner({ hidden = false, told = false }: { hidden?: boolean; tol
   const shown = told ? lines.filter((line) => line.kind === "told") : lines;
   if (hidden || shown.length === 0) return null;
   return (
-    <div className={`pointer-events-none fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-3 flex max-w-[74vw] flex-col items-start gap-1.5 ${told ? "z-[45]" : "z-[36]"}`} role="status" data-corner>
-      {shown.map((line, index) => (
-        <CornerLine key={line.id} line={line} opacity={FADE[index + CORNER_MAX - shown.length] ?? 1} />
-      ))}
-    </div>
+    // On a laptop the corner is the centred column's, beside its Map (decision 0038).
+    <CentredColumn className={`pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] px-3 ${told ? "z-[45]" : "z-[36]"}`}>
+      <div className="flex max-w-[80%] flex-col items-start gap-1.5" role="status" data-corner>
+        {shown.map((line, index) => (
+          <CornerLine key={line.id} line={line} opacity={FADE[index + CORNER_MAX - shown.length] ?? 1} />
+        ))}
+      </div>
+    </CentredColumn>
   );
 }
 

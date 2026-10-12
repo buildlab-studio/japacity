@@ -101,9 +101,13 @@ describe("the handset", () => {
     fireEvent.click(screen.getByRole("button", { name: "Make the phone bigger" }));
     expect(phone?.getAttribute("data-grown")).toBe("true");
     // grown, the handset is laid out at the screen's width, straight, and gets
-    // there by one transform from the box it left, never by animating its edges (R-WORLD-023).
+    // there by one transform from the box it left, never by animating its edges (R-WORLD-023). Restated 12 Oct 2026
+    // (decision 0038): the screen's width up to the centred column's, so on a phone the whole screen and on a laptop the
+    // column of phone width the band and the thumbs stand in.
     const handset = document.querySelector("[data-handset]");
-    expect(handset?.className).toContain("w-[calc(100vw-16px)]");
+    expect(handset?.className).toContain("w-[calc(100%-16px)]");
+    expect(handset?.parentElement?.hasAttribute("data-centred-column")).toBe(true);
+    expect(handset?.parentElement?.className).toContain("inset-0");
     expect(handset?.className).toContain("handset-grown");
     expect(handset?.className).toContain("motion-handset");
     expect(handset?.className).not.toMatch(/transition-\[|duration-/);

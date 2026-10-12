@@ -7,6 +7,7 @@ import { ChevronDown } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { BandPerson } from "../datapage/PageSheet";
+import { CentredColumn } from "../ui/lively/CentredColumn";
 import { formatMoney } from "../words/format";
 import { dayPartWords, monthNameOf } from "../words/monthName";
 import { say } from "../words/text";
@@ -141,11 +142,12 @@ function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void
 /**
  * The band is one slim row (R-WORLD-002): the place and the clock, the month's name and the part of the day, the money. A handle
  * under it opens the second row; closed, that row peeks for a few seconds whenever its words change, then gets out of
- * the way.
+ * the way. On a laptop it stands in the centred column with the world around it
+ * (decision 0038).
  */
 export function Band({ when, name, money, formatMoney, month, body = null, onMonth, hidden = false, more, open = false, onToggle }: BandProps) {
   return (
-    <div className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(10px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>
+    <CentredColumn className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(10px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>
       <div className="band pointer-events-auto flex h-[54px] items-center gap-1.5 rounded-[6px] pl-3 pr-1.5 shadow-[0_8px_20px_rgba(10,14,30,0.3)]">
         <BandPerson when={when} place={bandPlace(name)} body={body} />
         {month === undefined ? null : <MonthChip month={month} onMonth={onMonth} />}
@@ -161,6 +163,6 @@ export function Band({ when, name, money, formatMoney, month, body = null, onMon
         </div>
       )}
       {more}
-    </div>
+    </CentredColumn>
   );
 }

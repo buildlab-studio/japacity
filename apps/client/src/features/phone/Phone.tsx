@@ -4,6 +4,7 @@ import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
 import { type ReactNode, type RefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { PhoneNav } from "../../shared/phone/nav";
+import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { invertedTransform, layoutBox, type LayoutBox, motionOn } from "../../shared/ui/motion";
 import type { PhoneApp } from "../../shared/world/contract";
 import { Corner, tell } from "../../shared/world/Lines";
@@ -158,12 +159,14 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
         <button type="button" tabIndex={-1} aria-hidden onClick={putAway} className={`motion-in-fade absolute inset-0 cursor-default bg-scrim ${away ? "opacity-0" : ""}`} data-phone-scrim />
         {/* The handset is laid out at rest or grown, centred at the foot, and never moves by layout: the grow and the
             shrink are one transform from the box it left (useGrow), and putting it away is a transform too, so the
-            frames between are the compositor's (R-WORLD-023). */}
+            frames between are the compositor's (R-WORLD-023). On a laptop it is laid out in
+            the centred column, so grown it is a phone's width, not the screen's (decision 0038). */}
+        <CentredColumn className="pointer-events-none absolute inset-0">
         <div
           ref={handset}
-          className={`absolute ${away ? "motion-away handset-away" : `motion-handset ${grown ? "handset-grown" : "handset-rest"}`} ${
+          className={`pointer-events-auto absolute ${away ? "motion-away handset-away" : `motion-handset ${grown ? "handset-grown" : "handset-rest"}`} ${
             grown
-              ? "bottom-[max(8px,env(safe-area-inset-bottom))] left-2 h-[calc(100dvh-max(8px,env(safe-area-inset-top))-max(8px,env(safe-area-inset-bottom)))] w-[calc(100vw-16px)]"
+              ? "bottom-[max(8px,env(safe-area-inset-bottom))] left-2 h-[calc(100dvh-max(8px,env(safe-area-inset-top))-max(8px,env(safe-area-inset-bottom)))] w-[calc(100%-16px)]"
               : "bottom-[max(12px,env(safe-area-inset-bottom))] left-[calc(50%-min(44vw,170px))] h-[min(78dvh,600px)] w-[min(88vw,340px)]"
           }`}
           data-handset
@@ -230,6 +233,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
             </div>
           </div>
         </div>
+        </CentredColumn>
         {/* What an app's act did is told over the handset, in the corner's own look, so it is read while the phone covers the world (R-WORLD-026). */}
         <Corner told />
       </div>

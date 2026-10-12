@@ -4,6 +4,7 @@
 // it has played once both were, as the walkthrough kept that it was seen.
 import { useEffect, useState } from "react";
 
+import { CentredColumn } from "../ui/lively/CentredColumn";
 import { say } from "../words/text";
 
 export const WALK_KEY = "japacity.walkthrough";
@@ -97,7 +98,7 @@ export function FirstUseLabels({ tapped, hidden }: { tapped: ReadonlySet<FirstTh
   const shown = FIRST_THUMBS.filter((thumb) => !tapped.has(thumb.id));
   if (shown.length === 0) return null;
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[38] flex justify-between px-3 pb-[max(14px,env(safe-area-inset-bottom))]" data-first-labels>
+    <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-0 z-[38] flex justify-between px-3 pb-[max(14px,env(safe-area-inset-bottom))]" data-first-labels>
       {FIRST_THUMBS.map((thumb) => (
         <div key={thumb.id} className={`flex h-16 items-end ${thumb.id === "map" ? "pl-[70px]" : "pr-[70px]"}`}>
           {tapped.has(thumb.id) ? null : (
@@ -107,6 +108,6 @@ export function FirstUseLabels({ tapped, hidden }: { tapped: ReadonlySet<FirstTh
           )}
         </div>
       ))}
-    </div>
+    </CentredColumn>
   );
 }

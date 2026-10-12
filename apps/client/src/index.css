@@ -331,8 +331,11 @@ body {
   box-shadow: 0 6px 16px rgba(19, 26, 51, 0.1);
 }
 /* On a laptop the band, the nudge, the thumbs, the toasts, the teaching cards and the phone stand in a centred column of
-   phone width, and the world fills the screen around it (section 2; the lively column). */
-.centred-column { width: 100%; max-width: 430px; margin-inline: auto; }
+   phone width, and the world fills the screen around it (section 2; the lively column). In the components layer, so a
+   caller's own utilities win. */
+@layer components {
+  .centred-column { width: 100%; max-width: 430px; margin-inline: auto; }
+}
 
 @keyframes rise { from { transform: translateY(110%); } to { transform: translateY(0); } }
 /* The calendar's top page flipping up over the rings, on the spot (R-WORLD-027). */
