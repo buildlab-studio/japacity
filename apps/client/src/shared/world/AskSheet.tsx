@@ -9,7 +9,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useGame, useGameStoreIfAny } from "../../authority/GameProvider";
 import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying, type Money } from "../words/cost";
 import { say } from "../words/text";
-import { Balance, pricedLabel } from "./Balance";
+import { Balance, CENTRED, pricedLabel } from "./Balance";
 import type { Ask } from "./contract";
 
 export interface AskSheetProps {
@@ -174,6 +174,7 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
 /** Label and second line together longer than this stack, so neither wraps out of the button at 390 px. */
 const SIDE_BY_SIDE = 34;
 
+
 /** The button's own shape stacked: the label over its second line, as tall as the two need. */
 const STACKED: CSSProperties = { height: "auto", minHeight: 58, flexDirection: "column", alignItems: "flex-start", justifyContent: "center", gap: 2, paddingTop: 10, paddingBottom: 12, textAlign: "left" };
 
@@ -187,7 +188,7 @@ function MainButton({ ask, main, label }: { ask: Ask; main: Main; label: string 
   const second = main.after ?? (main.balance !== undefined && ask.when === "now" ? null : say(ask.when === "now" ? "ui.world.now" : "ui.world.counts-at-end"));
   const stacked = second !== null && label.length + second.length > SIDE_BY_SIDE;
   return (
-    <button type="button" className={`btn-main mt-4 ${second === null ? "justify-center" : ""}`} style={stacked ? STACKED : undefined} onClick={ask.act} disabled={main.shut} data-ask-main data-short={main.shut ? "true" : undefined} data-ask-stacked={stacked ? "true" : undefined}>
+    <button type="button" className="btn-main mt-4" style={stacked ? STACKED : second === null ? CENTRED : undefined} onClick={ask.act} disabled={main.shut} data-ask-main data-short={main.shut ? "true" : undefined} data-ask-stacked={stacked ? "true" : undefined}>
       <span className="leading-tight">{label}</span>
       {second === null ? null : main.warn === true ? (
         <span className="flex items-center gap-1 text-[13px] leading-snug font-bold" data-ask-warn>

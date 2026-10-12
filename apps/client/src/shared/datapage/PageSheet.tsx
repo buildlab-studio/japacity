@@ -111,7 +111,7 @@ export function PageSheet({ view, onClose }: { view: PlayerView; onClose: () => 
 function Body({ body }: { body: string | null | undefined }) {
   if (body === null || body === undefined) return null;
   return (
-    <span key={body} className="fade shrink-0 rounded-[3px] bg-white/14 px-1.5 py-0.5 text-[11px] leading-none font-extrabold" data-band-body={body}>
+    <span key={body} className="fade shrink-0 rounded-[3px] bg-signal px-1.5 py-0.5 text-[11px] leading-none font-extrabold text-action-text" data-band-body={body}>
       {body}
     </span>
   );

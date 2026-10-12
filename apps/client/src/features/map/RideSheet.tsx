@@ -5,7 +5,7 @@ import { Bike, Bus, CarTaxiFront, Footprints, X } from "lucide-react";
 import { useState } from "react";
 
 import { blurbOf, say, words } from "../../shared/words/text";
-import { Balance, pricedLabel } from "../../shared/world/Balance";
+import { Balance, CENTRED, pricedLabel } from "../../shared/world/Balance";
 import type { RideChoice } from "../../shared/world/contract";
 import { mapWords } from "./map.words";
 import type { MapPin } from "./pins";
@@ -131,7 +131,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
               })}
             </div>
           )}
-          <button type="button" className={`btn-main mt-3 ${main.after === null ? "justify-center" : ""}`} disabled={main.disabled} onClick={() => (here ? (onStay ?? onClose)() : way === undefined ? undefined : onChoose(way))} data-ride-main>
+          <button type="button" className="btn-main mt-3" style={main.after === null ? CENTRED : undefined} disabled={main.disabled} onClick={() => (here ? (onStay ?? onClose)() : way === undefined ? undefined : onChoose(way))} data-ride-main>
             <span>{main.label}</span>
             {main.after === null ? null : <span className="text-[13px] font-semibold opacity-80">{main.after}</span>}
           </button>

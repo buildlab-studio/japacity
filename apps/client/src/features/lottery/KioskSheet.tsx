@@ -12,7 +12,7 @@ import { Rejection } from "../../shared/ui/Rejection";
 import { formatMoney } from "../../shared/words/format";
 import { earnedNaira } from "../../shared/words/lotto";
 import { say, sayCount } from "../../shared/words/text";
-import { Balance, pricedLabel } from "../../shared/world/Balance";
+import { Balance, CENTRED, pricedLabel } from "../../shared/world/Balance";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { canBuy, chancesOf, salesClosed, serverDrawLoader, type LoadDraw, type Lottery } from "./draw";
 import { DrawPage } from "./DrawPage";
@@ -105,7 +105,7 @@ export function KioskSheet({ open, onClose, label, load }: KioskSheetProps) {
     ) : (
       <>
         {/* R-WORLD-006: the button says the act and its price; under it the balance before, struck, and after. Short, it says how much. */}
-        <button type="button" className={`btn-main ${short === null ? "justify-center" : ""}`} onClick={buy} disabled={busy || short !== null} data-kiosk-buy={count} data-short={short === null ? undefined : "true"}>
+        <button type="button" className="btn-main" style={short === null ? CENTRED : undefined} onClick={buy} disabled={busy || short !== null} data-kiosk-buy={count} data-short={short === null ? undefined : "true"}>
           <span className="leading-tight">{pricedLabel(sayCount("ui.lottery.kiosk.buy", count, { count }), formatMoney(cost, "NGN"))}</span>
           {short === null ? null : <span className="text-[13px] leading-snug font-semibold opacity-80">{say("ui.world.short", { amount: formatMoney(short, "NGN") })}</span>}
         </button>
