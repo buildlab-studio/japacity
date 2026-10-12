@@ -68,6 +68,11 @@ export interface SceneProps {
   acted?: { activity: string; at: number } | null;
   /** The world's clock the last reply carried, or null before one (R-CLOCK-033); the scene carries it on by the device's clock. */
   worldClock?: WorldClock | null;
+  /**
+   * The world mode: the thing the character sleeps on while the bed's timed sleep runs, or null (R-WORLD-025). The figure
+   * lies on it as the nap does, a small sleep mark floats over it, and when it goes back to null the figure gets up.
+   */
+  asleep?: string | null;
 }
 
 /** Read by the browser test: what the last frame drew and where the character is. */

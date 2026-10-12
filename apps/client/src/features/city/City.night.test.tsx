@@ -1,6 +1,6 @@
 // The night and sleep (docs/rules/world.md R-WORLD-025; activity.md R-ACTIVITY-020; clock.md R-CLOCK-033; decision
-// 0036): the month turns only from the bed, at any hour of the world's day; a life's first night is told once on a
-// small card before it; at night the nudge sends the player to bed unless someone waits; and a spent body says so where
+// 0036): the month turns only from the bed, at any hour of the world's day, once the bed's timed sleep runs out
+// (City.sleep.test.tsx tells the sleep itself); a life's first night is told once on a small card before it; at night the nudge sends the player to bed unless someone waits; and a spent body says so where
 // an act's button was. The place file is the one the game ships; the scene is a stand-in that hands the city the taps.
 import { type DayPart, type WorldClock, worldClockAt } from "@japacity/sim";
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
@@ -17,6 +17,7 @@ import { actsOffered, withSpent } from "./acts";
 import { chipNode } from "./chip";
 import { City, RESULTS_BEAT_MS } from "./City";
 import { atNight, NIGHT } from "./nudge";
+import { SLEEP_MS } from "./sleep";
 
 type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act };
 
@@ -58,6 +59,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.restoreAllMocks();
   window.localStorage.clear();
   Reflect.deleteProperty(window, "WebGL2RenderingContext");
@@ -94,9 +96,17 @@ async function inTheParlour(months = 0, before: (game: ReturnType<typeof newGame
 
 const turns = (sent: readonly { type: string }[]): number => sent.filter((command) => command.type === "turn/end").length;
 
+/** The bed's timed sleep runs its length (R-WORLD-025), on clocks faked once the parlour is up. */
+async function sleepThrough(): Promise<void> {
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(SLEEP_MS);
+  });
+}
+
 describe("sleep, the way the month turns", () => {
-  test("[R-WORLD-025] given a new life's first night, when the bed's Sleep is tapped, then one small card says each night you sleep is a month of your life and nothing is sent until its Sleep; then the month ends, and the next night has no card", async () => {
+  test("[R-WORLD-025] given a new life's first night, when the bed's Sleep is tapped, then one small card says each night you sleep is a month of your life and nothing is sent until its Sleep; then the sleep runs and the month ends, and the next night has no card", async () => {
     const { store, authority, game } = await inTheParlour();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
     expect(game.view().month).toBe(0);
     fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
     const card = found("[data-night-teach]");
@@ -104,26 +114,39 @@ describe("sleep, the way the month turns", () => {
     expect(card.textContent).toContain(say("ui.night.first"));
     expect(turns(authority.sent)).toBe(0);
     fireEvent.click(found("[data-night-teach-ok]"));
-    await waitFor(() => expect(turns(authority.sent)).toBe(1));
+    // The card's Sleep starts the bed's timed sleep: the month turns once it runs out, not at the tap (R-WORLD-025 as
+    // amended on 12 Oct 2026), so the wait below runs the sleep before the turn is counted.
+    expect(found("[data-asleep]")).toBeTruthy();
+    expect(turns(authority.sent)).toBe(0);
+    await sleepThrough();
+    expect(turns(authority.sent)).toBe(1);
     expect(document.querySelector("[data-night-teach]")).toBeNull();
     expect(wasTaught("night", "scenario.ada")).toBe(true);
-    await waitFor(() => found("[data-results-for]"), { timeout: RESULTS_BEAT_MS + 1500 });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RESULTS_BEAT_MS + 1500);
+    });
+    found("[data-results-for]");
     act(() => store.getState().setReportOpen(false));
-    fireEvent.click(await waitFor(() => found('[data-stand-in-act="bed:end-month"]')));
+    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
     expect(document.querySelector("[data-night-teach]")).toBeNull();
-    await waitFor(() => expect(turns(authority.sent)).toBe(2));
+    await sleepThrough();
+    expect(turns(authority.sent)).toBe(2);
   });
 
-  test("[R-WORLD-025] [R-CLOCK-033] given the world's morning, then its night, when the bed's Sleep is tapped each time, then the month ends either way", async () => {
+  test("[R-WORLD-025] [R-CLOCK-033] given the world's morning, then its night, when the bed's Sleep is tapped each time and the sleep runs out, then the month ends either way", async () => {
     const { store, authority } = await inTheParlour(1);
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
     setPart(store, "morning");
     fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
-    await waitFor(() => expect(turns(authority.sent)).toBe(1));
-    await waitFor(() => expect(store.getState().reportOpen).toBe(true));
+    // The sleep runs its length before the month turns (R-WORLD-025 as amended on 12 Oct 2026).
+    await sleepThrough();
+    expect(turns(authority.sent)).toBe(1);
+    expect(store.getState().reportOpen).toBe(true);
     act(() => store.getState().setReportOpen(false));
     setPart(store, "night");
-    fireEvent.click(await waitFor(() => found('[data-stand-in-act="bed:end-month"]')));
-    await waitFor(() => expect(turns(authority.sent)).toBe(2));
+    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    await sleepThrough();
+    expect(turns(authority.sent)).toBe(2);
   });
 });
 

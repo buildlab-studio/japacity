@@ -28,9 +28,10 @@ import { filesOf, showsFor, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { chipNode } from "./chip";
 import { markNode, showMark } from "./mark";
+import { bedLie, sleepMarkNode } from "./sleep";
 import { type LabelBox, spreadLabels } from "./labels";
 import { aimShot, clampTurn, roomShot, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
-import { thingSpot, walkBeforeAct } from "./things";
+import { thingSpot, walkBeforeAct, walkSpot } from "./things";
 import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo } from "./walk";
 import { walkableOf } from "./walk/map";
 import { findRoute } from "./walk/route";
@@ -61,6 +62,8 @@ const BACK_DEPTH = 0.12;
 const LIE_LENGTH = 1.6;
 /** A label, and a thing's acts, float this high over the thing's spot. */
 const LABEL_Y = 2.6;
+/** How high over the bed the sleep mark floats, clear of the lying figure (R-WORLD-025). */
+const SLEEP_MARK_Y = 1.5;
 /** The sun's shadow covers the place's width and this much round it, in metres. */
 const SHADOW_MARGIN = 4;
 const SHADOW_BIAS = -0.0005;
@@ -351,6 +354,37 @@ function Place(props: PlaceProps) {
     };
   }, [world, stage.light.lamps]);
 
+  // While the bed's sleep runs a small sleep mark floats over the bed; when it ends the figure gets up beside the bed
+  // (R-WORLD-025). A sleep that never laid the figure down (a walk cut it short) has nothing to get up from.
+  const asleep = props.asleep ?? null;
+  const sleepMark = useRef<{ spot: [number, number]; node: HTMLDivElement } | null>(null);
+  const sleptOn = useRef<string | null>(null);
+  useEffect(() => {
+    const was = sleptOn.current;
+    sleptOn.current = asleep;
+    if (asleep !== null || was === null || !walk.current.lying) return;
+    walk.current.lying = false;
+    const bed = things.find((thing) => thing.id === was);
+    // Up where the walk to the bed ended, beside it, never on the mattress.
+    const spot = bed === undefined ? null : walkSpot(stage, bed, walk.current.walker);
+    if (spot !== null) walk.current.walker = standAt(spot[0], spot[1], walk.current.walker.facing);
+    // Only the sleep's end gets the figure up; the bed and the stage are read as they stand then.
+  }, [asleep]);
+  useEffect(() => {
+    if (markBox === null || asleep === null) return;
+    const bed = things.find((thing) => thing.id === asleep);
+    const seat = bed === undefined ? undefined : bedLie(bed)?.seat;
+    const spot = seat === undefined ? (bed === undefined ? null : thingSpot(stage, bed)) : ([seat[0], seat[1]] as [number, number]);
+    if (spot === null) return;
+    const node = sleepMarkNode();
+    markBox.append(node);
+    sleepMark.current = { spot, node };
+    return () => {
+      node.remove();
+      sleepMark.current = null;
+    };
+  }, [asleep, markBox, things, stage]);
+
   // An act done at once answers where it was done for a while (R-WORLD-005): the jollof's steam, the bath's drops, the
   // television's flicker, the lantern turned up. Read from the act's own time, so a place rebuilt meanwhile keeps it.
   const acted = props.acted ?? null;
@@ -457,14 +491,17 @@ function Place(props: PlaceProps) {
     const waiting = walk.current.pending;
     if (waiting !== null && next.target === null) {
       walk.current.pending = null;
-      const pose = waiting.act.pose ?? (waiting.act.kind === "plain" && waiting.act.id === "sit" ? "sit" : null);
+      // The bed's Sleep lies on the bed as its nap does, on the same seat and top (R-WORLD-025).
+      const lie = waiting.act.kind === "end" && waiting.act.pose === undefined ? bedLie(waiting.thing) : null;
+      const posed = lie === null ? waiting.act : { ...waiting.act, ...lie };
+      const pose = posed.pose ?? (posed.kind === "plain" && posed.id === "sit" ? "sit" : null);
       if (pose !== null) {
-        const seat = waiting.act.seat;
+        const seat = posed.seat;
         if (seat !== undefined) walk.current.walker = standAt(seat[0], seat[1], seat[2]);
         walk.current.sitting = pose === "sit";
         walk.current.lying = pose === "lie";
         // The figure's back rests on the top the act names (the mattress), else the old fixed height.
-        walk.current.lieY = waiting.act.top === undefined ? LIE_Y : waiting.act.top + backDepth(world.own.root);
+        walk.current.lieY = posed.top === undefined ? LIE_Y : posed.top + backDepth(world.own.root);
       }
       pick.current({ kind: "act", thing: waiting.thing, act: waiting.act });
     }
@@ -579,6 +616,15 @@ function Place(props: PlaceProps) {
         // The chip stands above its thing, and never under the band: a thing near the top of the screen gets its chip just under the band instead.
         const bandBottom = document.querySelector("[data-band]")?.getBoundingClientRect().bottom ?? 0;
         shown.node.style.top = `${String(Math.max(at.y, bandBottom + shown.node.offsetHeight + EDGE_MARGIN))}px`;
+      }
+    }
+    const sleeping = sleepMark.current;
+    if (sleeping !== null) {
+      const at = onScreen(state.camera, state.size, sleeping.spot[0], SLEEP_MARK_Y, sleeping.spot[1], 1.05);
+      sleeping.node.style.display = at === null ? "none" : "";
+      if (at !== null) {
+        sleeping.node.style.left = `${String(at.x)}px`;
+        sleeping.node.style.top = `${String(at.y)}px`;
       }
     }
     const probe = window.__city;
