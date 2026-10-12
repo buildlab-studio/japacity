@@ -307,3 +307,36 @@ export function buildSmallShelf(): Group {
   box(g, 0.2, 0.08, 0.2, 0.18, 1.11, 0, "charcoal");
   return setFootprint(g, [{ x: 0, z: 0, width: w + 0.03, depth: d }]);
 }
+
+/**
+ * The bath corner of a yard: three sheets of zinc on wooden posts round a concrete slab with its drain, a wrapper hung
+ * over the open side for a door, a bucket and its cup on the slab and the soap on a ledge. Its open side faces +Z.
+ */
+export function buildBathCorner(): Group {
+  const g = new Group();
+  g.name = "prop_bath-corner";
+  const w = 1.3;
+  const d = 1.2;
+  const h = 1.75;
+  box(g, w, 0.06, d, 0, 0, 0, "concrete");
+  box(g, 0.14, 0.012, 0.14, 0.35, 0.06, 0.25, "drain");
+  for (const [x, z] of [[-w / 2, -d / 2], [w / 2, -d / 2], [-w / 2, d / 2], [w / 2, d / 2]] as const) box(g, 0.06, h + 0.1, 0.06, x, 0, z, "darkWood");
+  // The zinc: the back and the two sides, standing a hand off the slab, ribbed in the rusted shade.
+  box(g, w, h - 0.2, 0.02, 0, 0.2, -d / 2, "zinc");
+  for (const s of [-1, 1]) box(g, 0.02, h - 0.2, d, s * (w / 2), 0.2, 0, "zinc");
+  for (let i = 0; i < 5; i++) quad(g, 0.04, h - 0.2, -w / 2 + 0.15 + i * 0.25, 0.2, -d / 2 + 0.012, "zincRust");
+  // The wrapper over the open side, drawn to one side on its line.
+  beam(g, [-w / 2, h + 0.02, d / 2], [w / 2, h + 0.02, d / 2], 0.015, "black");
+  box(g, 0.5, h - 0.35, 0.02, -w / 2 + 0.28, 0.3, d / 2, "wine");
+  quad(g, 0.5, 0.12, -w / 2 + 0.28, 0.9, d / 2 + 0.011, "gold");
+  // The bucket, its cup and the soap.
+  cylinder(g, 0.15, 0.34, 0.12, 0.06, -0.12, "basin", 10, 0.18);
+  cylinder(g, 0.05, 0.08, 0.2, 0.4, -0.06, "white", 6);
+  box(g, 0.3, 0.03, 0.1, 0, 1.1, -d / 2 + 0.06, "darkWood");
+  box(g, 0.1, 0.04, 0.06, -0.05, 1.13, -d / 2 + 0.06, "tomato");
+  return setFootprint(g, [
+    { x: 0, z: -d / 2, width: w, depth: 0.1 },
+    { x: -w / 2, z: 0, width: 0.1, depth: d },
+    { x: w / 2, z: 0, width: 0.1, depth: d },
+  ]);
+}
