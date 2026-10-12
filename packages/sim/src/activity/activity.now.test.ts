@@ -77,6 +77,15 @@ const NOW_ACTS: readonly string[] = [
   "activity.cook-at-home",
   "activity.fetch-water",
   "activity.fill-drum",
+  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0037).
+  "activity.buy-suya",
+  "activity.mallam-tea",
+  "activity.pure-water",
+  "activity.barber",
+  "activity.viewing-centre",
+  "activity.beer-joint",
+  "activity.night-out",
+  "activity.buy-clothes",
 ];
 
 const MONTH_ACTS: readonly string[] = [
@@ -120,7 +129,7 @@ describe("when an act answers", () => {
     for (const id of MONTH_ACTS) expect({ id, when: content.activity[id as Id<"activity">]?.when }).toEqual({ id, when: "month" });
     for (const entry of entries().filter((candidate) => candidate.slot === "main" || candidate.slot === "side")) expect({ id: entry.id, when: entry.when }).toEqual({ id: entry.id, when: "month" });
     expect(entries().filter((entry) => entry.purchase === true && entry.when !== "now")).toEqual([]);
-    for (const id of [LOTTO, BET, PHONE, "activity.street-shopping-uk", "activity.street-shopping-uae"]) expect({ id, purchase: content.activity[id as Id<"activity">]?.purchase }).toEqual({ id, purchase: true });
+    for (const id of [LOTTO, BET, PHONE, "activity.street-shopping-uk", "activity.street-shopping-uae", "activity.pure-water"]) expect({ id, purchase: content.activity[id as Id<"activity">]?.purchase }).toEqual({ id, purchase: true });
     for (const id of [ASK_AROUND, PASSPORT, HUNT, MEETUP]) expect(content.activity[id]?.purchase).toBeUndefined();
   });
 
