@@ -86,6 +86,16 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.study-english": "repeat",
   "activity.learn-tech": "repeat",
   "activity.build-portfolio": "repeat",
+  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0037): the barber and the clothes once a
+  // month, the water a purchase, the rest as often as the month's time allows.
+  "activity.buy-suya": "repeat",
+  "activity.mallam-tea": "repeat",
+  "activity.pure-water": "purchase",
+  "activity.barber": "once",
+  "activity.viewing-centre": "repeat",
+  "activity.beer-joint": "repeat",
+  "activity.night-out": "repeat",
+  "activity.buy-clothes": "once",
 };
 
 /**
