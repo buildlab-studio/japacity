@@ -30,7 +30,7 @@ const HC = 1.578; // head centre height; the top of the head is 1.70 m
 export type FaceStyle = "today" | "a" | "b" | "c";
 export const FACE_STYLES: readonly FaceStyle[] = ["today", "a", "b", "c"];
 /** The style the shipped people are built with. */
-export const FACE_STYLE: FaceStyle = "today";
+export const FACE_STYLE: FaceStyle = "c";
 /** A style named on the command line or in JAPACITY_FACE, or the shipped one when none is named. */
 export function faceStyleFrom(value: string | undefined): FaceStyle {
   if (value === undefined || value === "") return FACE_STYLE;
@@ -1064,18 +1064,19 @@ function softFace(b: Buf, s: Spec, f: Face, head: Blend, big: boolean): void {
     const z = frontOf(head, x, f.ey);
     const ru = f.ew * 0.55;
     const rv = f.eh * (big ? 0.4 : 0.34);
-    almond(b, [x, HC + f.ey, z + 0.002], ru, rv, rv * 0.25, "black");
+    almond(b, [x, HC + f.ey, z + 0.002], ru, rv, rv * 0.25, "black", 8);
     const glint = big ? 0.0034 : 0.0026;
-    lens(b, [x + ru * 0.3, HC + f.ey + rv * 0.36, z + 0.0056], glint, glint, 0.0015, "white", 6);
+    lens(b, [x + ru * 0.3, HC + f.ey + rv * 0.36, z + 0.0056], glint, glint, 0.0015, "white", 4);
     const by = f.ey + rv + (big ? 0.012 : 0.011);
     const half = ru + 0.004;
-    const brow: [number, number][] = [-1, -0.5, 0, 0.5, 1].map((t) => [x + t * half, by + 0.0035 * (1 - t * t) + 0.0012 * t * sx]);
-    stroke(b, head, brow, 0.0022, s.hairColor);
+    // Four points and four sides a stroke: the marks cost about what today's lenses did.
+    const brow: [number, number][] = [-1, -1 / 3, 1 / 3, 1].map((t) => [x + t * half, by + 0.0035 * (1 - t * t) + 0.0012 * t * sx]);
+    stroke(b, head, brow, 0.0022, s.hairColor, 4);
   }
   const hw = f.mw * 0.5;
   const smile = big ? 0.005 : 0.0045;
-  const mouth: [number, number][] = [-1, -2 / 3, -1 / 3, 0, 1 / 3, 2 / 3, 1].map((t) => [t * hw, f.my + smile * t * t]);
-  stroke(b, head, mouth, 0.0024, mouthColour(s));
+  const mouth: [number, number][] = [-1, -0.5, 0, 0.5, 1].map((t) => [t * hw, f.my + smile * t * t]);
+  stroke(b, head, mouth, 0.0024, mouthColour(s), 4);
 }
 
 // Low poly (B): the head stays faceted, shown flat; the eyes are small dark marks set into the face
@@ -1089,8 +1090,12 @@ function lowPolyFace(b: Buf, s: Spec, f: Face, head: Blend): void {
   stroke(b, head, [-1, -0.5, 0, 0.5, 1].map((t): [number, number] => [t * hw, f.my + 0.003 * t * t]), 0.002, mouthColour(s), 4);
 }
 
-/** The bare head's own budget: today's 380 triangles, or fewer for the low poly head, so its planes show. */
-export const HEAD_BUDGET: Record<FaceStyle, number> = { today: 380, a: 380, b: 160, c: 380 };
+/**
+ * The bare head's own budget: today's 380 triangles; fewer for the low poly head, so its planes show;
+ * 300 for the big head, so its face costs no more than today's and the busiest people stay inside
+ * 80% of a person's budget.
+ */
+export const HEAD_BUDGET: Record<FaceStyle, number> = { today: 380, a: 380, b: 160, c: 300 };
 
 function buildHead(b: Buf, s: Spec): void {
   const f = faceOf(s);
