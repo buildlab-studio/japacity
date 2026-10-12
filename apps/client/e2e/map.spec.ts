@@ -89,7 +89,11 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   expect(lit?.route?.[0]).toEqual(here?.at);
   expect(lit?.route?.[(lit.route.length || 1) - 1]).toEqual(there?.at);
   expect(lit?.drawCalls).toBeLessThanOrEqual(20);
-  await expect(page.locator("[data-ride-main]")).toContainText("left");
+  // The button says the ride and its fare, the balance before struck through under it with the balance after (decision 0036; "left" is gone).
+  await expect(page.locator("[data-ride-main]")).toContainText("₦");
+  await expect(page.locator("[data-ride-main]")).not.toContainText("left");
+  await expect(page.locator("[data-balance-before]")).toBeVisible();
+  await expect(page.locator("[data-balance-after]")).toBeVisible();
   await shot(page, "02-stop-picked-route-lit");
 
   // The ride: a short scene with its band and Skip, then the place opens with its name told in the corner (R-WORLD-026).
