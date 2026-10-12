@@ -40,13 +40,15 @@ function inPlace([x, z, turn]: readonly number[], [px, pz]: readonly [number, nu
 describe("Makoko", () => {
   frontageTests(raw, ID);
 
-  test("[R-HOME-006] given the room on the water, when its things are read, then the room lies down on its bunk at once and ends the month, the porch's cooking corner cooks and fetches water, and the papers box opens the phone's Papers, each thing with at most two acts", () => {
+  test("[R-HOME-006] [R-ACTIVITY-019] given the room on the water, when its things are read, then the room naps on its bunk and sleeps, lying down at once while no nap can be had, the porch's cooking corner cooks and fetches water with the meals and the bath on their sheets, and the papers box opens the phone's Papers, each thing with at most two acts", () => {
     const room = thing("room");
     expect(room.file).toBe("places/makoko/bld_makoko-house_a.glb");
     expect(room.acts.map((act) => [act.id, act.kind, act.stages ?? null, act.pose ?? null])).toEqual([
-      ["lie", "plain", null, "lie"],
+      ["nap", "sheet", "activity.nap", "lie"],
       ["end-month", "end", null, null],
     ]);
+    const lie = room.acts[0]?.otherwise;
+    expect([lie?.id, lie?.kind, lie?.pose, lie?.seat, lie?.top]).toEqual(["lie", "plain", "lie", room.acts[0]?.seat, room.acts[0]?.top]);
     const [house] = copiesOf(stage, "bld_makoko-house_a.glb");
     if (house === undefined) throw new Error("No room");
     const [bx, bz, top] = roomBunk();
@@ -57,16 +59,16 @@ describe("Makoko", () => {
     expect(Math.hypot(seat[0] - x, seat[1] - z)).toBeLessThan(0.3);
     expect(top).toBeGreaterThan(0.35);
     expect(top).toBeLessThan(0.5);
-    expect(thing("room-chores").acts.map((act) => [act.kind, act.stages])).toEqual([
-      ["do", "activity.cook-at-home"],
-      ["do", "activity.fetch-water"],
+    expect(thing("room-chores").acts.map((act) => [act.kind, act.stages, act.more])).toEqual([
+      ["sheet", "activity.cook-at-home", ["activity.cook-jollof"]],
+      ["sheet", "activity.fetch-water", ["activity.bucket-bath"]],
     ]);
     const papers = thing("room-papers").acts;
     // the passport is a visit to Immigration, the transcript a call from the phone.
     expect(papers.map((act) => [act.id, act.kind, act.app])).toEqual([["papers", "app", "papers"]]);
     for (const id of ["room", "room-chores", "room-papers"]) expect(thing(id).acts.length).toBeLessThanOrEqual(2);
     // The parlour's own words for the same acts.
-    expect(room.acts.map((act) => sceneWords(act.label))).toEqual([sceneWords("city.act.lie"), sceneWords("ui.world.end-month")]);
+    expect([sceneWords(room.acts[0]?.otherwise?.label ?? ""), ...room.acts.map((act) => sceneWords(act.label))]).toEqual([sceneWords("city.act.lie"), sceneWords("activity.nap.name"), sceneWords("ui.world.end-month")]);
   });
 
   test("[R-HOME-006] given the room's porch, when it is read against the walk, then it stands at the walk's height, joins the walk, and the room's things stand on it", () => {

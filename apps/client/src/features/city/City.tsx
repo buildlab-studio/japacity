@@ -60,7 +60,7 @@ import { personOf, personOfLook } from "./roster";
 import type { Picked, ScenePick } from "./scene.types";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./school";
 import { sceneWords } from "./scene.words";
-import { enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
+import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
@@ -743,7 +743,7 @@ export function City({
   const things = useMemo(() => {
     if (!world || file === null) return undefined;
     const offered = new Set(activityKey.split("|"));
-    const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? []), ...homeStagesAt(placeId, home, here, PLACES)]);
+    const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? []), ...homeStagesAt(placeId, home, here, PLACES), ...byHandAt(placeId, home, here, content.activity)]);
     // Someone standing as themselves (their room's partner) has no act, so is kept past the acts' filter: a tap shows their name (R-PEOPLE-054).
     return [...thingsNow(withMoreAt(withMeetings(thingsOf(stageOf(file)), meetPlace, standing), meetPlace), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow)), ...standingAsThemselves(stageOf(file))];
   }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing]);
@@ -994,12 +994,18 @@ export function City({
   const lastLines = useGame((state) => state.lines);
   const linesSeen = useRef(lastLines);
   const [answer, setAnswer] = useState<ReportLine | null>(null);
+  // The act done at once that landed last, so the scene plays its answer where it was done (R-WORLD-005).
+  const [acted, setActed] = useState<{ activity: string; at: number } | null>(null);
   useEffect(() => {
     if (linesSeen.current === lastLines) return;
     linesSeen.current = lastLines;
     const said = nowLineIn(lastLines);
-    // An act done from the phone is said on the phone; the sheet answers an act done in the place.
-    if (world && !phone && said !== null && !SHOWN_BY_SCENE.has(nowActOf(said))) setAnswer(said);
+    if (!world || phone || said === null) return;
+    setActed({ activity: nowActOf(said), at: Date.now() });
+    // An act done from the phone is said on the phone; the sheet answers an act done in the place. One the scene shows
+    // (the pot steaming, the drum full) closes its sheet, so the answer is seen on the thing.
+    if (SHOWN_BY_SCENE.has(nowActOf(said))) setPicked(null);
+    else setAnswer(said);
   }, [lastLines, world, phone]);
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
@@ -1370,6 +1376,7 @@ export function City({
                     },
                     zoomed,
                     onZoomed: setZoomed,
+                    acted,
                   }
                 : {})}
               onFrame={(frameMs) => {

@@ -42,7 +42,8 @@ describe("the room's basics at the tap", () => {
   test("[R-WORLD-005] [R-TEXT-008] [R-TURN-006] given the bed and the sofa, when Lie down lands, then no line is told: the figure lies down, and no thing's act plans rest", () => {
     for (const id of ["bed", "sofa"]) {
       const thing = things.find((candidate) => candidate.id === id);
-      const lie = thing?.acts.find((act) => act.id === "lie");
+      // The bed's Lie down stands in for its nap while no nap can be had (decision 0035, R-ACTIVITY-019).
+      const lie = thing?.acts.flatMap((act) => [act, ...(act.otherwise === undefined ? [] : [act.otherwise])]).find((act) => act.id === "lie");
       if (thing === undefined || lie === undefined) throw new Error(`No Lie down on the ${id}`);
       expect(lie).toMatchObject({ kind: "plain", pose: "lie" });
       expect(plainActLine(thing, lie)).toBeNull();

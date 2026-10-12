@@ -62,6 +62,8 @@ export interface SceneProps {
   zoomed?: boolean;
   /** The world mode: the pinch came to rest close (true) or on the whole place (false). */
   onZoomed?: (zoomed: boolean) => void;
+  /** The world mode: the act done at once that landed last and when, so its answer plays where it was done (R-WORLD-005). */
+  acted?: { activity: string; at: number } | null;
 }
 
 /** Read by the browser test: what the last frame drew and where the character is. */

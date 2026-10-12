@@ -1,0 +1,181 @@
+// The sky and the sun by the world's clock (docs/rules/clock.md R-CLOCK-033; decision 0036). Each place keeps its one sun
+// and its one sky light (R-ASSET-006); the part of the world's day and the minute within it only turn the sun, tint both
+// lights and the sky, and light the lamps a place names. The same rule indoors and out, in every place. Pure but for the
+// hook at the foot, which reads the clock the last reply carried and the device's between replies.
+import { type DayPart, time, type WorldClock, worldClockAt } from "@japacity/sim";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { Color } from "three";
+
+import { useGameStoreIfAny } from "../../authority/GameProvider";
+
+/** One look of the day: the sun's colour, strength, height and turn, the sky light's tint and strength, the lamps. */
+export interface Look {
+  /** The sun's colour, as 8-bit sRGB. */
+  sun: number;
+  /** The directional light's intensity. */
+  sunStrength: number;
+  /** The sun's height above the horizon in degrees; null keeps the place's own. */
+  height: number | null;
+  /** Degrees the sun is turned about the vertical from the place's own direction; the morning's and the evening's are opposite. */
+  turn: number;
+  /** The tint the sky leans to, as 8-bit sRGB, and how far: 0 is the place's own sky. */
+  tint: number;
+  tintShare: number;
+  /** The hemisphere light's intensity. */
+  skyStrength: number;
+  /** How much of the ground's colour the hemisphere's lower half keeps: dark at night. */
+  groundShare: number;
+  /** How soft the sun's shadow is (the shadow map's radius): long soft shadows in the morning. */
+  softness: number;
+  /** The lamps' glow, 0 out to 1 full: the bulb, the lantern, the street's few lights. */
+  lamps: number;
+}
+
+/** The afternoon's sun and sky as every place was lit before the clock: its own sun, a white light, its own sky. */
+const NOON: Look = { sun: 0xfff0d0, sunStrength: 2, height: null, turn: 0, tint: 0xffffff, tintShare: 0, skyStrength: 1.1, groundShare: 1, softness: 1, lamps: 0 };
+
+/** Each part's look at its start and at its end; within a part the look moves from one to the other with the minute. */
+export const LOOKS: Record<DayPart, { from: Look; to: Look }> = {
+  // A low warm sun, long soft shadows, a pale sky, rising toward the day's full light.
+  morning: {
+    from: { sun: 0xffb877, sunStrength: 2.3, height: 16, turn: -65, tint: 0xf4ead8, tintShare: 0.55, skyStrength: 1.0, groundShare: 0.85, softness: 3, lamps: 0.25 },
+    to: { sun: 0xfff1d8, sunStrength: 2.1, height: 48, turn: -20, tint: 0xf6efe2, tintShare: 0.25, skyStrength: 1.1, groundShare: 1, softness: 1.5, lamps: 0 },
+  },
+  // Full white light, the place as it was always lit, the sun moving over toward the evening's side.
+  afternoon: {
+    from: NOON,
+    to: { ...NOON, sun: 0xffe4b8, sunStrength: 1.95, height: 34, turn: 45, softness: 1.5 },
+  },
+  // An orange sun low on the other side, the sky warming, then dusk and the lamps coming on.
+  evening: {
+    from: { sun: 0xff9b52, sunStrength: 2.2, height: 14, turn: 115, tint: 0xf2a774, tintShare: 0.5, skyStrength: 0.85, groundShare: 0.8, softness: 2.5, lamps: 0.5 },
+    to: { sun: 0xd0684a, sunStrength: 0.9, height: 5, turn: 125, tint: 0x5d4f86, tintShare: 0.75, skyStrength: 0.6, groundShare: 0.45, softness: 3, lamps: 1 },
+  },
+  // A deep blue sky with the sun almost out: the room is lit by its bulb and the lantern.
+  night: {
+    from: { sun: 0x6f86c8, sunStrength: 0.35, height: 42, turn: 180, tint: 0x1d2c5a, tintShare: 0.9, skyStrength: 0.55, groundShare: 0.3, softness: 2, lamps: 1 },
+    to: { sun: 0x6f86c8, sunStrength: 0.35, height: 42, turn: 180, tint: 0x1d2c5a, tintShare: 0.9, skyStrength: 0.55, groundShare: 0.3, softness: 2, lamps: 1 },
+  },
+};
+
+const { MORNING_HOUR, AFTERNOON_HOUR, EVENING_HOUR, NIGHT_HOUR, GAME_HOURS } = time;
+const DAY_MINUTES = GAME_HOURS * 60;
+/** Where each part begins, in minutes of the day. */
+const STARTS: Record<DayPart, number> = { morning: MORNING_HOUR * 60, afternoon: AFTERNOON_HOUR * 60, evening: EVENING_HOUR * 60, night: NIGHT_HOUR * 60 };
+const NEXT: Record<DayPart, DayPart> = { morning: "afternoon", afternoon: "evening", evening: "night", night: "morning" };
+/** The last hour of the night grows toward the morning's first light, so six o'clock is no jump. */
+const DAWN_MINUTES = 60;
+
+/** How far through its part a minute of the day stands, 0 at the part's start to 1 at its end. */
+export function progressIn(part: DayPart, minute: number): number {
+  const start = STARTS[part];
+  const end = STARTS[NEXT[part]];
+  const length = (end - start + DAY_MINUTES) % DAY_MINUTES;
+  const into = (minute - start + DAY_MINUTES) % DAY_MINUTES;
+  return Math.min(1, Math.max(0, into / length));
+}
+
+function mixColour(from: number, to: number, share: number): number {
+  return new Color(from).lerp(new Color(to), share).getHex();
+}
+
+function mixNumber(from: number, to: number, share: number): number {
+  return from + (to - from) * share;
+}
+
+/** The look between two looks; a height kept as the place's own stays so until both name one. */
+export function mixLooks(from: Look, to: Look, share: number, ownHeight: number): Look {
+  return {
+    sun: mixColour(from.sun, to.sun, share),
+    sunStrength: mixNumber(from.sunStrength, to.sunStrength, share),
+    height: mixNumber(from.height ?? ownHeight, to.height ?? ownHeight, share),
+    turn: mixNumber(from.turn, to.turn, share),
+    tint: mixColour(from.tint, to.tint, share),
+    tintShare: mixNumber(from.tintShare, to.tintShare, share),
+    skyStrength: mixNumber(from.skyStrength, to.skyStrength, share),
+    groundShare: mixNumber(from.groundShare, to.groundShare, share),
+    softness: mixNumber(from.softness, to.softness, share),
+    lamps: mixNumber(from.lamps, to.lamps, share),
+  };
+}
+
+/** The place's own sun height in degrees, from its sun's direction. */
+export function ownHeightOf(sun: readonly [number, number, number]): number {
+  return (Math.atan2(sun[1], Math.hypot(sun[0], sun[2])) * 180) / Math.PI;
+}
+
+/** The look of the day at a part and a minute, for a place whose own sun stands at `sun`. */
+export function lookAt(part: DayPart, minute: number, sun: readonly [number, number, number]): Look {
+  const own = ownHeightOf(sun);
+  const { from, to } = LOOKS[part];
+  const share = progressIn(part, minute);
+  if (part !== "night") return mixLooks(from, to, share, own);
+  // Toward six the night pales into the morning's first light.
+  const length = (STARTS.morning - STARTS.night + DAY_MINUTES) % DAY_MINUTES;
+  const dawn = Math.max(0, (share * length - (length - DAWN_MINUTES)) / DAWN_MINUTES);
+  return mixLooks(from, LOOKS.morning.from, dawn * dawn, own);
+}
+
+/** Where the sun stands from the place's centre for a look: the place's own direction turned, at the look's height, as far away. */
+export function sunAt(sun: readonly [number, number, number], look: Pick<Look, "height" | "turn">): [number, number, number] {
+  const far = Math.hypot(sun[0], sun[1], sun[2]);
+  const flat = Math.atan2(sun[2], sun[0]) - (look.turn * Math.PI) / 180;
+  const height = ((look.height ?? ownHeightOf(sun)) * Math.PI) / 180;
+  const across = Math.cos(height) * far;
+  return [Math.cos(flat) * across, Math.sin(height) * far, Math.sin(flat) * across];
+}
+
+/** The sky's colour for a look: the place's own sky leaning toward the look's tint. */
+export function skyOf(own: Color, look: Pick<Look, "tint" | "tintShare">): Color {
+  return own.clone().lerp(new Color(look.tint), look.tintShare);
+}
+
+/** The parts the development switch may pin, each at a minute that reads as that part. */
+const PINNED_MINUTE: Record<DayPart, number> = { morning: 8 * 60, afternoon: 14 * 60, evening: 19 * 60, night: 0 };
+
+/** The part a page's `?clock=` pins, in development only, for pictures and tests; null otherwise. */
+export function pinnedPart(search: string, development: boolean): DayPart | null {
+  if (!development) return null;
+  const asked = new URLSearchParams(search).get("clock");
+  return asked === "morning" || asked === "afternoon" || asked === "evening" || asked === "night" ? asked : null;
+}
+
+/** A clock that stands at a pinned part. */
+export function pinnedClock(part: DayPart): Pick<WorldClock, "part" | "minute"> {
+  return { part, minute: PINNED_MINUTE[part] };
+}
+
+/**
+ * The world's clock now: the device's reading, moved by how far the last reply's reading stood from the device's when it
+ * came, so the server's reading wins on a reply and the device carries it on between replies (R-CLOCK-033).
+ */
+export function worldNow(now: number, reply: { world: WorldClock; at: number } | null): WorldClock {
+  if (reply === null) return worldClockAt(now);
+  const minuteMs = time.GAME_DAY_MS / DAY_MINUTES;
+  const device = worldClockAt(reply.at);
+  const ahead = (reply.world.day - device.day) * DAY_MINUTES + (reply.world.minute - device.minute);
+  return worldClockAt(now + ahead * minuteMs);
+}
+
+/** The device reads the clock this often between replies: a real minute, twelve of the game's. */
+const READ_MS = 60_000;
+
+/** The part of the world's day and its minute, for the scene: pinned in development by `?clock=`, else the world's clock. */
+export function useDayClock(): Pick<WorldClock, "part" | "minute"> {
+  const store = useGameStoreIfAny();
+  const subscribe = useCallback((listener: () => void) => store?.subscribe(listener) ?? (() => undefined), [store]);
+  const world = useSyncExternalStore(subscribe, () => store?.getState().clock?.world ?? null);
+  const [reply, setReply] = useState<{ world: WorldClock; at: number } | null>(null);
+  useEffect(() => {
+    if (world !== null) setReply({ world, at: Date.now() });
+  }, [world]);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), READ_MS);
+    return () => window.clearInterval(timer);
+  }, []);
+  const pinned = pinnedPart(typeof window === "undefined" ? "" : window.location.search, import.meta.env.DEV);
+  if (pinned !== null) return pinnedClock(pinned);
+  const clock = worldNow(now, reply);
+  return { part: clock.part, minute: clock.minute };
+}

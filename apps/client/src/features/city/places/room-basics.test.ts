@@ -16,6 +16,7 @@ import { type PlaceFile, showPlanned, stageOf } from "../placeFile";
 import { cameraAt, projected, SCREENS } from "../scene.testing";
 import { sceneWords } from "../scene.words";
 import { aimShot, shotOf, WHOLE } from "../shot";
+import { byHandAt } from "../staging";
 import { stagedNow, thingSpot, thingsNow } from "../things";
 import { instancesOf } from "./placeTesting";
 
@@ -28,6 +29,7 @@ const ROOMS = [
   { name: "the room in a compound", file: compound, place: "place.compound-room" },
 ] as const;
 const COOK = "activity.cook-at-home";
+const HOME = { where: "home", country: null } as const;
 const WATER = "activity.fetch-water";
 
 /** The room's floor, 12 by 10 inside and its walls, and the tops of the two walls it has, from its ground. */
@@ -106,12 +108,12 @@ describe("the room down its length", () => {
 });
 
 describe("the basics at home", () => {
-  test("[R-WORLD-029] [R-OBLIGATION-014] given the parlour, when its things are read, then the cooking corner cooks for the week, the drum fetches water, the bed lies down and ends the month, and the bag by the door packs; each says its act in words", () => {
+  test("[R-WORLD-029] [R-OBLIGATION-014] [R-ACTIVITY-019] given the parlour, when its things are read, then the cooking corner cooks, the drum fetches water, the bed naps and sleeps, and the bag by the door packs; each says its act in words", () => {
     const acts = (id: string) => thingOf(parlour, id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null, sceneWords(act.label)]);
-    expect(acts("cooking")).toEqual([["do", COOK, "Cook for the week"]]);
-    expect(acts("drum")).toEqual([["do", WATER, "Fetch water"]]);
+    expect(acts("cooking")).toEqual([["sheet", COOK, "Cook"]]);
+    expect(acts("drum")).toEqual([["sheet", WATER, "Water and a bath"]]);
     expect(acts("bag")).toEqual([["command", "route/depart", "Pack and go"]]);
-    expect(acts("bed").map(([kind]) => kind)).toEqual(["plain", "end"]);
+    expect(acts("bed").map(([kind]) => kind)).toEqual(["sheet", "end"]);
     expect(thingOf(parlour, "table").acts.length).toBeGreaterThan(0);
     expect(["cooking", "drum", "bag"].map((id) => sceneWords(thingOf(parlour, id).label))).toEqual(["Cooking corner", "Water drum", "Bag"]);
     // The bag stands by the door.
@@ -131,9 +133,28 @@ describe("the basics at home", () => {
   });
 });
 
+describe("the acts lived by hand at home", () => {
+  test("[R-ACTIVITY-019] [R-WORLD-005] given Ada at home, when the parlour's acts are read with the acts that repeat staged at home, then the bed naps, the television plays, the drum's sheet holds the bath, Mama's her shop and the table's the study and the course; jollof only once it can be had", () => {
+    const view = engineView("scenario.ada");
+    const offered = new Set(view.activities.filter((option) => option.allowed).map((option) => option.id));
+    const staged = new Set<string>([...(content.place["place.family-house"]?.stages ?? []), ...byHandAt("place.family-house", "place.family-house", HOME, content.activity)]);
+    const now = thingsNow(stageOf(parlour).things ?? [], stagedNow(offered, staged, new Set(), null));
+    const of = (id: string) => now.find((thing) => thing.id === id)?.acts.map((act) => [act.id, act.stages, act.more ?? []]);
+    expect(of("bed")).toEqual([["nap", "activity.nap", []], ["end-month", undefined, []]]);
+    expect(of("tv")).toEqual([["watch-tv", "activity.watch-tv", []]]);
+    expect(of("drum")?.[0]).toEqual(["fetch-water", WATER, ["activity.bucket-bath"]]);
+    expect(of("mama")?.[0]).toEqual(["family-time", "activity.family-time", ["activity.help-shop"]]);
+    const table = of("table")?.[0];
+    expect(table?.[1]).toBe("activity.study-english");
+    expect(table?.[2]).toEqual(expect.arrayContaining(["activity.learn-tech"]));
+    const cooking = of("cooking")?.[0];
+    expect(cooking?.[2]).toEqual(offered.has("activity.cook-jollof") ? ["activity.cook-jollof"] : []);
+  });
+});
+
 describe("the basics abroad", () => {
   test("[R-WORLD-029] [R-OBLIGATION-014] given the room abroad, when its things are read and its acts for a life just landed, then the cooking corner cooks and there is no drum: the room has a tap", () => {
-    expect(thingOf(room, "cooking").acts.map((act) => [act.kind, act.stages])).toEqual([["do", COOK]]);
+    expect(thingOf(room, "cooking").acts.map((act) => [act.kind, act.stages])).toEqual([["sheet", COOK]]);
     expect((stageOf(room).things ?? []).some((thing) => thing.id === "drum")).toBe(false);
     expect(stageOf(room).models.some((model) => model.file.endsWith("prop_water-drum.glb"))).toBe(false);
     expect(thingOf(room, "bag").acts.map((act) => act.command)).toEqual(["route/depart"]);

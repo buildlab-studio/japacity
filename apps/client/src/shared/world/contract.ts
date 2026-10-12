@@ -41,6 +41,11 @@ export interface Act {
   more?: string[];
   /** For `plain`: the entries whose acts stand in its place; it shows only while none of them can open (the agent at an empty desk). */
   unless?: string[];
+  /**
+   * For `sheet`: the act shown in its place while none of its entries can open, so a thing still offers two acts at most:
+   * the bed's Lie down while no nap can be had (at night, spent, abroad; R-WORLD-005, R-WORLD-025).
+   */
+  otherwise?: Act;
   /** For `app`: the phone app it opens, by its id on the phone (`papers`). */
   app?: string;
   /** For `command`: which command the card sends. */

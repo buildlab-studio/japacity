@@ -9,7 +9,8 @@
 import { onWalkable } from "@japacity/assets";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { Box3, type Camera, type DirectionalLight, Fog, type Object3D, PerspectiveCamera, Vector3 } from "three";
+import type { WorldClock } from "@japacity/sim";
+import { Box3, type Camera, Color, type DirectionalLight, Fog, type HemisphereLight, type Mesh, type Object3D, PerspectiveCamera, Vector3 } from "three";
 
 import { keptStyleOf } from "../../authority/person";
 import { wear } from "../../shared/frontdoor/colours";
@@ -18,11 +19,12 @@ import { bubbleSpot } from "../../shared/world/Lines";
 import { advanceClock } from "../../shared/three/clock";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest } from "../../shared/three/manifest";
-import { loadGrids } from "../../shared/three/motion";
+import { glowAt, loadGrids } from "../../shared/three/motion";
 import { poseFigure } from "../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { limitMotion } from "./limits";
-import { filesOf, type Spot, type Stage, stageOf } from "./placeFile";
+import { type Look, lookAt, mixLooks, ownHeightOf, skyOf, sunAt, useDayClock } from "./daylight";
+import { filesOf, showsFor, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { chipNode } from "./chip";
 import { markNode, showMark } from "./mark";
@@ -33,7 +35,7 @@ import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo
 import { walkableOf } from "./walk/map";
 import { findRoute } from "./walk/route";
 import { SHEET_KINDS } from "../../../../../tools/assets/world-check";
-import { animateWorld, buildWorld, colourOf, skyColours, type World } from "./world";
+import { animateWorld, buildWorld, colourOf, lampsOf, motionOf, skyColours, type World } from "./world";
 import { failureOf } from "../../shared/net/http";
 
 /** How much further the fog stands while looking from above, so the plan is not lost in it. */
@@ -63,6 +65,27 @@ const LABEL_Y = 2.6;
 const SHADOW_MARGIN = 4;
 const SHADOW_BIAS = -0.0005;
 const SHADOW_NORMAL_BIAS = 0.04;
+/** How quickly the day's light eases to a new look, a share a second: about 600 ms to settle when the part changes (R-CLOCK-033). */
+const DAY_EASE = 5;
+/** How long an act's answer takes to grow in where it stands, and to go: short, on its scale alone (R-WORLD-005). */
+const FX_MS = 200;
+
+/** Whether two looks of the day stand close enough to stop easing. */
+function settled(a: Look, b: Look): boolean {
+  return a.sun === b.sun && a.tint === b.tint && Math.abs(a.sunStrength - b.sunStrength) < 0.002 && Math.abs(a.skyStrength - b.skyStrength) < 0.002 && Math.abs((a.height ?? 0) - (b.height ?? 0)) < 0.05 && Math.abs(a.turn - b.turn) < 0.05 && Math.abs(a.tintShare - b.tintShare) < 0.002 && Math.abs(a.groundShare - b.groundShare) < 0.002 && Math.abs(a.lamps - b.lamps) < 0.002 && Math.abs(a.softness - b.softness) < 0.01;
+}
+
+/** Frees what an act's answer drew once it has gone; the halo's shared texture stays. */
+function disposeFx(object: Object3D): void {
+  object.removeFromParent();
+  object.traverse((part) => {
+    const mesh = part as Mesh;
+    if (!mesh.isMesh) return;
+    mesh.geometry.dispose();
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const material of materials) material.dispose();
+  });
+}
 
 /** How far the figure's back stands behind its middle, measured on the figure standing at its spot. */
 function backDepth(root: Object3D): number {
@@ -163,6 +186,8 @@ interface PlaceProps extends SceneProps {
   /** True when the view is the raised shot; false for the street camera. */
   raised: boolean;
   takeTap: () => boolean;
+  /** The part of the world's day and its minute, which set the sun and the sky (R-CLOCK-033). */
+  day: Pick<WorldClock, "part" | "minute">;
 }
 
 function Idle({ looking }: { looking: boolean }) {
@@ -184,6 +209,7 @@ function Place(props: PlaceProps) {
   const { walk } = props;
   const planShare = useRef(0);
   const sun = useRef<DirectionalLight>(null);
+  const skyLight = useRef<HemisphereLight>(null);
   const frames = useRef<number[]>([]);
   /** An act chosen while the character still walks to its thing: it follows on arrival (R-WORLD-010). */
   const labels = useRef<{ thing: Thing; node: HTMLButtonElement }[]>([]);
@@ -198,6 +224,13 @@ function Place(props: PlaceProps) {
   // The moving sheets a mode may draw, the cheapest kept (R-WORLD-011); the roaming city draws them all.
   const stage: Stage = useMemo(() => (roam ? plain : { ...plain, motion: limitMotion(plain.motion, level) }), [plain, roam, level]);
   const peopleKey = people.map((shown) => `${shown.person.file}:${String(shown.tag)}`).join("|");
+  // The day's look by the world's clock, and the look the lights stand at now, easing toward it (R-CLOCK-033).
+  const { part, minute } = props.day;
+  const target = useMemo(() => lookAt(part, minute, stage.light.sun), [part, minute, stage.light.sun]);
+  const look = useRef<Look | null>(null);
+  const daylit = useRef<{ look: Look | null; sun: [number, number, number]; sky: Color; ground: Color; background: Color; fog: Color }>({ look: null, sun: [0, 0, 0], sky: new Color(), ground: new Color(), background: new Color(), fog: new Color() });
+  const lamps = useRef<Object3D[]>([]);
+  const fx = useRef<{ objects: Object3D[]; from: number; to: number }[]>([]);
 
   /** Starts the walk to a thing; false when the character already stands at it. */
   const walkFor = (thing: Thing): boolean => {
@@ -302,6 +335,45 @@ function Place(props: PlaceProps) {
     };
     // The world is rebuilt for a new place, a new crowd or a new mode; the callbacks are the screen's and may change freely.
   }, [place, file, peopleKey, own, settings.mesh, settings.shadows, roam]);
+
+  // The place's lamps glow as the light goes: the bulb, the lantern, the street's few lights (R-CLOCK-033).
+  useEffect(() => {
+    if (world === null) return;
+    const made = lampsOf(stage.light.lamps ?? []);
+    for (const lamp of made) {
+      glowAt(lamp, look.current?.lamps ?? 0);
+      world.root.add(lamp);
+    }
+    lamps.current = made;
+    return () => {
+      for (const lamp of made) disposeFx(lamp);
+      lamps.current = [];
+    };
+  }, [world, stage.light.lamps]);
+
+  // An act done at once answers where it was done for a while (R-WORLD-005): the jollof's steam, the bath's drops, the
+  // television's flicker, the lantern turned up. Read from the act's own time, so a place rebuilt meanwhile keeps it.
+  const acted = props.acted ?? null;
+  useEffect(() => {
+    if (world === null || acted === null) return;
+    const now = Date.now();
+    const playing = showsFor(stage, acted.activity)
+      .map((show) => ({ show, to: acted.at + (show.seconds ?? 0) * 1000 }))
+      .filter(({ to }) => now < to)
+      .map(({ show, to }) => {
+        const objects = show.motion.map((motion) => motionOf(motion, settings.mesh));
+        for (const object of objects) {
+          object.scale.setScalar(0.001);
+          world.root.add(object);
+        }
+        return { objects, from: acted.at, to };
+      });
+    fx.current = playing;
+    return () => {
+      for (const { objects } of playing) for (const object of objects) disposeFx(object);
+      fx.current = [];
+    };
+  }, [world, acted, stage, settings.mesh]);
 
   useEffect(() => {
     if (world === null) return;
@@ -423,13 +495,44 @@ function Place(props: PlaceProps) {
         state.scene.fog.far = settings.fog.far + planShare.current * PLAN_FOG;
       }
     }
+    // The day's light eases toward the clock's look over about 600 ms, colour and strength only (R-CLOCK-033).
+    const was = look.current;
+    const day = was === null ? target : settled(was, target) ? target : mixLooks(was, target, 1 - Math.exp(-delta * DAY_EASE), ownHeightOf(stage.light.sun));
+    look.current = day;
+    const lit = daylit.current;
+    if (lit.look !== day) {
+      lit.look = day;
+      lit.sun = sunAt(stage.light.sun, day);
+      lit.sky.copy(skyOf(colourOf(stage.light.sky), day));
+      lit.ground.copy(colourOf(stage.light.ground)).multiplyScalar(day.groundShare);
+      lit.background.copy(lit.sky).lerp(lit.ground, settings.haze.sky);
+      lit.fog.copy(lit.sky).lerp(lit.ground, settings.haze.fog);
+      for (const lamp of lamps.current) glowAt(lamp, day.lamps);
+    }
     const light = sun.current;
     if (light !== null) {
       // In the world the sun stands over the place's centre, so its shadow covers the place and only the place (R-WORLD-012).
       const [cx, , cz] = raised ? shot.centre : [next.x, 0, next.z];
-      light.position.set(cx + stage.light.sun[0], stage.light.sun[1], cz + stage.light.sun[2]);
+      light.position.set(cx + lit.sun[0], lit.sun[1], cz + lit.sun[2]);
       light.target.position.set(cx, 0, cz);
       light.target.updateMatrixWorld();
+      light.color.setHex(day.sun);
+      light.intensity = day.sunStrength;
+      light.shadow.radius = day.softness;
+    }
+    const sky = skyLight.current;
+    if (sky !== null) {
+      sky.color.copy(lit.sky);
+      sky.groundColor.copy(lit.ground);
+      sky.intensity = day.skyStrength;
+    }
+    if (state.scene.background instanceof Color) state.scene.background.copy(lit.background);
+    if (state.scene.fog instanceof Fog) state.scene.fog.color.copy(lit.fog);
+    // An act's answer grows in where it stands and goes again, on its scale alone.
+    const clock = Date.now();
+    for (const { objects, from, to } of fx.current) {
+      const grown = Math.max(0.001, Math.min(1, (clock - from) / FX_MS, (to - clock) / FX_MS));
+      for (const object of objects) object.scale.setScalar(grown);
     }
     // A label or a chip near the screen's edge is held inside it, since it is centred on its thing.
     const within = (x: number, node: HTMLElement): number => {
@@ -542,17 +645,17 @@ function Place(props: PlaceProps) {
     }
   };
 
-  const { sky, background, fog } = skyColours(stage.light.sky, stage.light.ground, settings.haze);
+  const { sky, background, fog } = useMemo(() => skyColours(stage.light.sky, stage.light.ground, settings.haze), [stage.light.sky, stage.light.ground, settings.haze]);
   const reach = raised ? Math.max(shot.width ?? 0, 16) / 2 + SHADOW_MARGIN : 24;
   return (
     <>
       <color attach="background" args={[background]} />
       <fog attach="fog" args={[fog, settings.fog.near, settings.fog.far]} />
-      <hemisphereLight args={[sky, colourOf(stage.light.ground), 1.1]} />
+      <hemisphereLight ref={skyLight} args={[sky, colourOf(stage.light.ground), 1.1]} />
       <directionalLight
         ref={sun}
-        intensity={2}
-        color={0xfff0d0}
+        intensity={target.sunStrength}
+        color={target.sun}
         castShadow={settings.shadows}
         shadow-mapSize={[1024, 1024]}
         shadow-bias={SHADOW_BIAS}
@@ -575,6 +678,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
   const drag = useRef<{ x: number; turn: number } | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const { settings, looking, file, zoomed = false, onZoomed } = props;
+  const day = useDayClock();
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => roomShot(shotOf(stageOf(file)), stageOf(file), file.scope), [file]);
   const rig = useRef<Rig>(wholeRig());
@@ -688,6 +792,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
           walk={walk}
           shot={shot}
           raised={raised}
+          day={day}
           takeTap={() => {
             const was = held.current;
             held.current = false;

@@ -6,19 +6,26 @@
 // shipped grids of each level (assets.md R-ASSET-029) once loaded, and built here until then.
 import { gridFile, type GridPiece, WATER_TILE } from "@japacity/assets-src/prop/motion/grids";
 import {
+  AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   Color,
+  DataTexture,
   DoubleSide,
+  Group,
+  IcosahedronGeometry,
   Float32BufferAttribute,
   InstancedBufferAttribute,
   InstancedMesh,
   type Material,
   Matrix4,
   Mesh,
+  MeshBasicMaterial,
   MeshLambertMaterial,
   type Object3D,
   PlaneGeometry,
+  Sprite,
+  SpriteMaterial,
   Vector3,
 } from "three";
 
@@ -26,7 +33,7 @@ import { motionUniforms } from "./clock";
 import { PUFF_INDEX, PUFF_POSITIONS } from "./puff.data";
 
 export type SheetKind = "flag" | "hang" | "frond";
-export type MotionShader = SheetKind | "water" | "smoke" | "leaf";
+export type MotionShader = SheetKind | "water" | "smoke" | "leaf" | "drop";
 export type MeshLevel = "fine" | "coarse";
 
 const HEAD = /* glsl */ `
@@ -106,6 +113,12 @@ const BODY: Record<MotionShader, string> = {
       life * 3.6,
       uWind.y * life * life * 3.4 * g + cos(aSeed * 23.0 + uTime * 0.5) * 0.45 * life);
   }`,
+  // A drop of water off the drum's rim: it falls faster as it goes, shrinks to nothing at the floor and starts again.
+  drop: /* glsl */ `{
+    float life = fract(uTime * 1.1 + aSeed * 3.7);
+    transformed *= 1.0 - smoothstep(0.7, 1.0, life);
+    transformed.y -= life * life * aFall;
+  }`,
   // A leaf or a scrap of paper tumbling downwind along the ground, across a strip `aSpan` long.
   leaf: /* glsl */ `{
     float speed = 1.6 + fract(aSeed * 7.0) * 1.6;
@@ -133,7 +146,7 @@ export function motionMaterial(kind: MotionShader, color: Color | number = 0xfff
   const material = new MeshLambertMaterial({ color, flatShading: true, side: DoubleSide, vertexColors });
   material.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, motionUniforms);
-    const attributes = kind === "smoke" ? "attribute float aSeed;\n" : kind === "leaf" ? "attribute float aSeed;\nattribute float aSpan;\nattribute float aDepth;\n" : "";
+    const attributes = kind === "smoke" ? "attribute float aSeed;\n" : kind === "leaf" ? "attribute float aSeed;\nattribute float aSpan;\nattribute float aDepth;\n" : kind === "drop" ? "attribute float aSeed;\nattribute float aFall;\n" : "";
     const varying = kind === "water" ? "varying float vCrest;\n" : "";
     const turned = kind === "smoke" ? shader.vertexShader.replace("#include <beginnormal_vertex>", `#include <beginnormal_vertex>\n${SMOKE_NORMAL}`) : shader.vertexShader;
     shader.vertexShader = HEAD + attributes + varying + turned.replace("#include <begin_vertex>", `#include <begin_vertex>\n${BODY[kind]}`);
@@ -438,6 +451,103 @@ export function leaves(count: number, span: number, depth: number, color: Color)
   geometry.setAttribute("aSpan", new InstancedBufferAttribute(new Float32Array(count).fill(span), 1));
   geometry.setAttribute("aDepth", new InstancedBufferAttribute(new Float32Array(count).fill(depth), 1));
   return instanced(geometry, motionMaterial("leaf", color), count, "motion-leaves");
+}
+
+/**
+ * Drops of water falling off a rim `width` across and `depth` deep to the floor `fall` below, each from its own spot along
+ * the rim and on its own beat: the bucket bath's water off the drum. Opaque, shrinking to nothing, one draw call.
+ */
+export function drops(count: number, width: number, depth: number, fall: number, color: Color): InstancedMesh {
+  const geometry = seeded(new IcosahedronGeometry(0.035, 0), count);
+  geometry.setAttribute("aFall", new InstancedBufferAttribute(new Float32Array(count).fill(fall), 1));
+  const mesh = new InstancedMesh(geometry, motionMaterial("drop", color), count);
+  const at = new Matrix4();
+  for (let index = 0; index < count; index += 1) {
+    // Round the rim, each drop a little apart from the last, so the drum drips all round and never in a line.
+    const turn = index * 2.399963;
+    mesh.setMatrixAt(index, at.makeTranslation((Math.cos(turn) * width) / 2, 0, (Math.sin(turn) * depth) / 2));
+  }
+  mesh.frustumCulled = false;
+  mesh.name = "motion-drops";
+  return mesh;
+}
+
+const FLICKER = /* glsl */ `
+float flick = 0.62 + 0.22 * sin(uTime * 9.0) + 0.12 * sin(uTime * 23.0 + 1.3) + 0.08 * step(0.7, fract(uTime * 0.6));
+diffuseColor.rgb *= flick;
+`;
+
+/**
+ * A soft flicker of light on a screen `width` by `height`, facing +Z, its bottom edge at y = 0: the television while it
+ * plays. Unlit, so it reads as light at night as by day; the brightness moves on the shared clock, nothing else.
+ */
+export function flicker(width: number, height: number, color: Color): Mesh {
+  const material = new MeshBasicMaterial({ color });
+  material.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, motionUniforms);
+    shader.fragmentShader = `uniform float uTime;\n${shader.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>\n${FLICKER}`)}`;
+  };
+  material.customProgramCacheKey = () => "motion-flicker";
+  const mesh = new Mesh(new PlaneGeometry(width, height).translate(0, height / 2, 0), material);
+  mesh.name = "motion-flicker";
+  return mesh;
+}
+
+/** The size of the halo's soft round, in texels. */
+const HALO_TEXELS = 32;
+let haloTexture: DataTexture | null = null;
+
+/** A soft round, white at its middle and gone at its edge, made once in code: no image to ship. */
+function halo(): DataTexture {
+  if (haloTexture !== null) return haloTexture;
+  const data = new Uint8Array(HALO_TEXELS * HALO_TEXELS * 4);
+  const middle = (HALO_TEXELS - 1) / 2;
+  for (let y = 0; y < HALO_TEXELS; y += 1) {
+    for (let x = 0; x < HALO_TEXELS; x += 1) {
+      const out = Math.min(1, Math.hypot(x - middle, y - middle) / middle);
+      const soft = (1 - out) * (1 - out);
+      const at = (y * HALO_TEXELS + x) * 4;
+      data.set([255, 255, 255, Math.round(soft * 255)], at);
+    }
+  }
+  haloTexture = new DataTexture(data, HALO_TEXELS, HALO_TEXELS);
+  haloTexture.needsUpdate = true;
+  return haloTexture;
+}
+
+/**
+ * A warm point of light: a small unlit bead (the bulb, the lantern's flame) and a soft halo round it that faces the
+ * camera, added to what is behind it. No light is added to the scene (the place keeps its one sun and one sky light,
+ * R-ASSET-006); `glowAt` sets how bright it stands, 0 out.
+ */
+export function glow(radius: number, color: Color, bead = true): Group {
+  const group = new Group();
+  group.name = "motion-glow";
+  if (bead) {
+    const point = new Mesh(new IcosahedronGeometry(Math.max(0.04, radius * 0.12), 1), new MeshBasicMaterial({ color: color.clone().lerp(new Color(0xffffff), 0.55) }));
+    point.name = "glow-bead";
+    group.add(point);
+  }
+  const round = new Sprite(new SpriteMaterial({ map: halo(), color, blending: AdditiveBlending, transparent: true, depthWrite: false, opacity: 1 }));
+  round.name = "glow-halo";
+  round.scale.setScalar(radius * 2);
+  group.add(round);
+  group.userData = { radius };
+  glowAt(group, 1);
+  return group;
+}
+
+/** How bright a glow stands, 0 out to 1 full and above for a lantern turned up: its halo's size and strength, its bead shown while lit. */
+export function glowAt(group: Object3D, strength: number): void {
+  const radius = (group.userData as { radius?: number }).radius ?? 0.5;
+  const lit = strength > 0.02;
+  group.visible = lit;
+  for (const child of group.children) {
+    if (child instanceof Sprite) {
+      child.scale.setScalar(radius * 2 * (0.6 + 0.4 * Math.min(strength, 1.6)));
+      child.material.opacity = Math.min(1, strength) * 0.85;
+    }
+  }
 }
 
 /** A pennant 0.32 m wide and 0.36 m deep, pinned along its top at y = 0. */
