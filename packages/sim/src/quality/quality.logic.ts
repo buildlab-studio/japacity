@@ -271,8 +271,9 @@ export const qualityKind: RegisteredKind<QualitySlice, QualityEvent> = {
   view: (read) => {
     const { state, content } = read;
     const part: Pick<PlayerView, "qualities" | "runDown"> = {
+      // R-QUALITY-007: the body is hidden from the profile but said on the screen in words, so the view carries it too.
       qualities: Object.values(content.quality)
-        .filter((entry) => entry.shown)
+        .filter((entry) => entry.shown || entry.id === BELLY || entry.id === ENERGY)
         .map((entry) => ({ id: entry.id, value: state.quality[entry.id] ?? entry.min })),
       // R-HEALTH-007: the warning shows as a banner while it stands.
       runDown: runDownWarned(read),

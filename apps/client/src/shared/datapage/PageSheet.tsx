@@ -107,20 +107,33 @@ export function PageSheet({ view, onClose }: { view: PlayerView; onClose: () => 
   );
 }
 
+/** The body's word beside the age, only when it complains (R-QUALITY-007): "Hungry", "Tired", never a number. */
+function Body({ body }: { body: string | null | undefined }) {
+  if (body === null || body === undefined) return null;
+  return (
+    <span key={body} className="fade shrink-0 rounded-[3px] bg-white/14 px-1.5 py-0.5 text-[11px] leading-none font-extrabold" data-band-body={body}>
+      {body}
+    </span>
+  );
+}
+
 /** The band's clock and place as they were before the page: the age small over the place's name. */
-function Plain({ when, place }: { when: string; place: string }) {
+function Plain({ when, place, body = null }: { when: string; place: string; body?: string | null }) {
   return (
     <div className="min-w-0 flex-1 leading-none">
       <div className="label label-strong truncate text-[9px] tabular-nums">{when}</div>
-      <h2 className="title mt-0.5 truncate text-[16px] leading-tight">{place}</h2>
+      <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
+        <h2 className="title min-w-0 truncate text-[16px] leading-tight">{place}</h2>
+        <Body body={body} />
+      </div>
     </div>
   );
 }
 
-function Opener({ store, when, place }: { store: GameStore; when: string; place: string }) {
+function Opener({ store, when, place, body = null }: { store: GameStore; when: string; place: string; body?: string | null }) {
   const view = useStore(store, (state) => state.view);
   const [open, setOpen] = useState(false);
-  if (view === null) return <Plain when={when} place={place} />;
+  if (view === null) return <Plain when={when} place={place} body={body} />;
   const name = nameOf(readPerson(), view);
   const show = (): void => setOpen(true);
   return (
@@ -142,9 +155,12 @@ function Opener({ store, when, place }: { store: GameStore; when: string; place:
         )}
         <h2 className="inline text-[10px] tracking-normal normal-case">{place}</h2>
       </div>
-      <button type="button" className="press title num mt-0.5 block max-w-full truncate text-left text-[16px] leading-[1.1]" onClick={show} aria-label={say("prologue.page.open")} data-page-open>
-        {when}
-      </button>
+      <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
+        <button type="button" className="press title num block min-w-0 truncate text-left text-[16px] leading-[1.1]" onClick={show} aria-label={say("prologue.page.open")} data-page-open>
+          {when}
+        </button>
+        <Body body={body} />
+      </div>
       {open ? <PageSheet view={view} onClose={() => setOpen(false)} /> : null}
     </div>
   );
@@ -154,8 +170,8 @@ function Opener({ store, when, place }: { store: GameStore; when: string; place:
  * The band's clock and place (R-WORLD-002, R-PROLOGUE-009): in a game, the name with the place over the age, as the
  * the design's bar has it, the name and the age opening the page; outside one, the age over the place's name.
  */
-export function BandPerson({ when, place }: { when: string; place: string }) {
+export function BandPerson({ when, place, body = null }: { when: string; place: string; body?: string | null }) {
   const store = useGameStoreIfAny();
-  if (store === null) return <Plain when={when} place={place} />;
-  return <Opener store={store} when={when} place={place} />;
+  if (store === null) return <Plain when={when} place={place} body={body} />;
+  return <Opener store={store} when={when} place={place} body={body} />;
 }

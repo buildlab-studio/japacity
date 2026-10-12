@@ -12,6 +12,7 @@ import { createGameStore } from "../../authority/store";
 import { localAuthority } from "../../authority/local";
 import { abroadGame, engineView, fakeAuthority, setPockets } from "../testing/fixtures";
 import "../testing/render";
+import { bodyWords } from "../words/body";
 import { formatMoney } from "../words/format";
 import { Band, bandMoney, bandMonth, bandPlace } from "./Band";
 import { DAY_CLOCK_MS, dayClockOf, devClockPart, useDayClock } from "./dayClock";
@@ -157,5 +158,52 @@ describe("the band's month", () => {
     await store.getState().chooseLife("scenario.ada");
     expect(store.getState().beganAt).toBe(MARCH);
     expect(authority.beganAt()).toBe(MARCH);
+  });
+});
+
+/** A view whose body stands at the belly and the energy given. */
+function bodyAt(belly: number, energy: number): PlayerView {
+  const view = engineView();
+  const rest = view.qualities.filter((quality) => quality.id !== "quality.belly" && quality.id !== "quality.energy");
+  return { ...view, qualities: [...rest, { id: "quality.belly", value: belly }, { id: "quality.energy", value: energy }] };
+}
+
+describe("the body on the band", () => {
+  test("[R-QUALITY-007] given the belly and the energy at each edge, when the body's word is read, then it is Hungry under 30 belly, Tired under 30 energy, Hungry, tired for both, and nothing otherwise", () => {
+    const low = content.tuning.turn.body.lowBelow;
+    expect(low).toBe(30);
+    expect(bodyWords(bodyAt(low - 1, 70))).toBe("Hungry");
+    expect(bodyWords(bodyAt(low, 70))).toBeNull();
+    expect(bodyWords(bodyAt(60, low - 1))).toBe("Tired");
+    expect(bodyWords(bodyAt(60, low))).toBeNull();
+    expect(bodyWords(bodyAt(0, 0))).toBe("Hungry, tired");
+    expect(bodyWords(bodyAt(100, 100))).toBeNull();
+    // A view with no body says nothing.
+    expect(bodyWords({ qualities: [] })).toBeNull();
+  });
+
+  test("[R-QUALITY-007] given a new life, when its view is read, then it carries the body and the band says nothing of a body that does not complain", () => {
+    const view = engineView();
+    expect(view.qualities.some((quality) => quality.id === "quality.belly")).toBe(true);
+    expect(view.qualities.some((quality) => quality.id === "quality.energy")).toBe(true);
+    expect(bodyWords(view)).toBeNull();
+  });
+
+  test("[R-QUALITY-007] given a hungry life, when the band renders, then Hungry stands beside the age in words, never a number; a fed life's band says nothing of the body", async () => {
+    const hungry = bodyAt(12, 70);
+    const store = createGameStore(fakeAuthority(hungry));
+    await store.getState().refresh();
+    const { unmount } = render(
+      <GameProvider store={store}>
+        <Band when="23 yrs 4 mo" name="The family house" money={0} formatMoney={String} month={{ name: "April", part: "Evening" }} body={bodyWords(hungry)} />
+      </GameProvider>,
+    );
+    const word = document.querySelector<HTMLElement>("[data-band-body]");
+    expect(word?.textContent).toBe("Hungry");
+    expect(word?.getAttribute("data-band-body")).toBe("Hungry");
+    expect(word?.textContent).not.toMatch(/\d|%/);
+    unmount();
+    render(<Band when="23 yrs 4 mo" name="The family house" money={0} formatMoney={String} body={bodyWords(bodyAt(80, 80))} />);
+    expect(document.querySelector("[data-band-body]")).toBeNull();
   });
 });

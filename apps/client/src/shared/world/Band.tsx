@@ -85,8 +85,10 @@ export interface BandProps {
   name: string;
   money: number;
   formatMoney: (value: number) => string;
-  /** The month's name and phase, a small chip beside the age; none outside a game. */
+  /** The month's name and the part of the day, a small chip beside the age; none outside a game. */
   month?: BandMonth;
+  /** The body's word beside the age, only when it complains (R-QUALITY-007): "Hungry", "Tired", "Hungry, tired". */
+  body?: string | null;
   /** A tap on the month opens the phone's Calendar. */
   onMonth?: () => void;
   hidden?: boolean;
@@ -141,11 +143,11 @@ function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void
  * under it opens the second row; closed, that row peeks for a few seconds whenever its words change, then gets out of
  * the way.
  */
-export function Band({ when, name, money, formatMoney, month, onMonth, hidden = false, more, open = false, onToggle }: BandProps) {
+export function Band({ when, name, money, formatMoney, month, body = null, onMonth, hidden = false, more, open = false, onToggle }: BandProps) {
   return (
     <div className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(10px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>
       <div className="band pointer-events-auto flex h-[54px] items-center gap-1.5 rounded-[6px] pl-3 pr-1.5 shadow-[0_8px_20px_rgba(10,14,30,0.3)]">
-        <BandPerson when={when} place={bandPlace(name)} />
+        <BandPerson when={when} place={bandPlace(name)} body={body} />
         {month === undefined ? null : <MonthChip month={month} onMonth={onMonth} />}
         <div className="chip px-2 py-1">
           <Counter value={money} format={formatMoney} className="text-[14px]" />

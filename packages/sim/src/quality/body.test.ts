@@ -23,6 +23,14 @@ describe("the body", () => {
     expect(content.quality[ENERGY]).toMatchObject({ shown: false, start: 70 });
   });
 
+  test("[R-QUALITY-007] given a new life, when its view is read, then it carries the belly and the energy for the screen to say in words, and no other hidden quality", () => {
+    const qualities = ngozi().view().qualities;
+    expect(qualities.find((quality) => quality.id === BELLY)?.value).toBe(60);
+    expect(qualities.find((quality) => quality.id === ENERGY)?.value).toBe(70);
+    const hidden = qualities.filter((quality) => content.quality[quality.id]?.shown === false).map((quality) => quality.id);
+    expect(hidden.sort()).toEqual([BELLY, ENERGY].sort());
+  });
+
   test("[R-QUALITY-007] [R-ACTIVITY-019] given a meal and a nap, when each is done now, then the belly and the energy move at once, less the time the act takes", () => {
     const game = ngozi();
     const { body } = content.tuning.turn;

@@ -13,6 +13,10 @@ export const worldText: Record<string, string> = {
   "ui.act.priced": "{act} · {price}",
   "ui.act.balance": "{before} now, {after} after",
   "ui.world.due": "{due} due at the month's end",
+  // The body on the band, only when it complains (R-QUALITY-007): a word, never a number.
+  "ui.body.hungry": "Hungry",
+  "ui.body.tired": "Tired",
+  "ui.body.both": "Hungry, tired",
   // What an act does, in words, beside the time it takes (R-WORLD-006; R-QUALITY-007: the body in words only).
   "ui.world.does": "Does",
   "ui.act.does.fills": "fills you",

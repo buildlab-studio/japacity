@@ -40,6 +40,7 @@ import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
+import { bodyWords } from "../../shared/words/body";
 import { actOnCard, answersNow, effectWordsOf, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
@@ -1488,6 +1489,8 @@ export function City({
             name={homeLine(hereId, view) ?? bandName(hereName)}
             {...bandMoney(view)}
             month={bandMonth(view, beganAt, dayClock)}
+            // R-QUALITY-007: the body's word beside the age, only when it complains.
+            body={bodyWords(view)}
             onMonth={() => {
               cue("tap");
               openCalendar(null);
