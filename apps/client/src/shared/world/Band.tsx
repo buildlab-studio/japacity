@@ -1,14 +1,14 @@
-// The top band (docs/rules/world.md R-WORLD-002): the age and the place's name, the month's name and phase, and the
-// money as a counter. Nothing else. It hides while riding and while the results show. The month turns when it is lived
-// (decision 0034), so the band carries no Next month and no count of anything.
+// The top band (docs/rules/world.md R-WORLD-002): the age and the place's name, the month's name with the world's part of
+// the day (clock.md R-CLOCK-033), and the money as a counter. Nothing else. It hides while riding and while the results
+// show. The month turns when the life sleeps (decision 0036), so the band carries no Next month and no count of anything.
 import { text } from "@japacity/content";
-import type { PlayerView } from "@japacity/sim";
+import type { DayPart, PlayerView } from "@japacity/sim";
 import { ChevronDown } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { BandPerson } from "../datapage/PageSheet";
 import { formatMoney } from "../words/format";
-import { monthNameOf, phaseOf, phaseWords } from "../words/monthName";
+import { dayPartWords, monthNameOf } from "../words/monthName";
 import { say } from "../words/text";
 import { localCurrency } from "../words/wayHome";
 
@@ -64,18 +64,18 @@ export function bandMoney(view: Pick<PlayerView, "place" | "pockets">): Pick<Ban
 }
 
 /**
- * The month as the band says it (R-WORLD-002, R-TURN-010): the month of the year by when the life began, and the phase of
- * its free time in words.
+ * The month as the band says it (R-WORLD-002, R-CLOCK-033): the month of the year by when the life began, and the world's
+ * part of the day in words, from the world's clock, never the month's time.
  */
-export function bandMonth(view: Pick<PlayerView, "month" | "halfDays">, beganAt: number): BandMonth {
-  return { name: monthNameOf(beganAt, view.month), phase: phaseWords(phaseOf(view.halfDays)) };
+export function bandMonth(view: Pick<PlayerView, "month">, beganAt: number, clock: { part: DayPart }): BandMonth {
+  return { name: monthNameOf(beganAt, view.month), part: dayPartWords(clock.part) };
 }
 
 export interface BandMonth {
   /** The month of the year: "April". */
   name: string;
-  /** Where the month stands, in words: Early, Mid, Late, Month end. */
-  phase: string;
+  /** The world's part of the day, in words: Morning, Afternoon, Evening, Night. */
+  part: string;
 }
 
 export interface BandProps {
@@ -116,8 +116,8 @@ export function bandPlace(name: string): string {
 }
 
 /**
- * The month on the band (R-WORLD-002, R-TURN-010): its name over its phase, where the pages were. A new phase fades in,
- * short and on opacity alone, so the month moving on is seen without a jolt.
+ * The month on the band (R-WORLD-002, R-CLOCK-033): its name over the world's part of the day, where the pages were. A
+ * new part of the day fades in, short and on opacity alone, so the day moving on is seen without a jolt.
  */
 function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void) | undefined }) {
   return (
@@ -125,19 +125,19 @@ function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void
       type="button"
       className="press flex h-[42px] min-w-[58px] shrink-0 flex-col items-center justify-center rounded-[5px] bg-white/12 px-2 leading-tight"
       onClick={onMonth}
-      aria-label={say("ui.month.chip", { name: month.name, phase: month.phase })}
-      data-band-month={month.phase}
+      aria-label={say("ui.month.chip", { name: month.name, part: month.part })}
+      data-band-month={month.part}
     >
       <span className="text-[11px] font-extrabold tracking-[0.08em] uppercase">{month.name}</span>
-      <span key={month.phase} className="fade text-[11px] font-bold opacity-80">
-        {month.phase}
+      <span key={month.part} className="fade text-[11px] font-bold opacity-80" data-band-part>
+        {month.part}
       </span>
     </button>
   );
 }
 
 /**
- * The band is one slim row (R-WORLD-002): the place and the clock, the month's name and phase, the money. A handle
+ * The band is one slim row (R-WORLD-002): the place and the clock, the month's name and the part of the day, the money. A handle
  * under it opens the second row; closed, that row peeks for a few seconds whenever its words change, then gets out of
  * the way.
  */

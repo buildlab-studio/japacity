@@ -1,17 +1,20 @@
 // The band's money by where the character is (docs/rules/world.md R-WORLD-002): the naira at home,
-// and abroad the country's own money, bank and cash together, from content's country table. And the month's name and
-// phase where the pages were (decision 0034; turn.md R-TURN-010): no Next month, no count of anything.
+// and abroad the country's own money, bank and cash together, from content's country table. And the month's name with
+// the world's part of the day where the pages were (decision 0036; clock.md R-CLOCK-033): no Next month, no count of
+// anything, never a clock time.
 import { content, text } from "@japacity/content";
-import type { Currency, PlayerView } from "@japacity/sim";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { type Currency, type PlayerView, time, worldClockAt } from "@japacity/sim";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
+import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import { localAuthority } from "../../authority/local";
-import { abroadGame, engineView, setPockets } from "../testing/fixtures";
+import { abroadGame, engineView, fakeAuthority, setPockets } from "../testing/fixtures";
 import "../testing/render";
 import { formatMoney } from "../words/format";
 import { Band, bandMoney, bandMonth, bandPlace } from "./Band";
+import { DAY_CLOCK_MS, dayClockOf, devClockPart, useDayClock } from "./dayClock";
 import { nameOf, say } from "../words/text";
 
 /** Noon on 15 March 2026, Lagos. */
@@ -71,29 +74,81 @@ describe("the band's place", () => {
 
 
 describe("the band's month", () => {
-  test("[R-WORLD-002] [R-TURN-010] given a life begun in March at month 1 with 30 of 60 half-days spent, when the band renders, then a small chip says April and Mid, with no digit, no count of days and no end-month button, and a tap on it opens the Calendar", () => {
-    const view: PlayerView = { ...engineView(), month: 1, halfDays: { spent: 30, free: 60 } };
-    const month = bandMonth(view, MARCH);
-    expect(month).toEqual({ name: "April", phase: "Mid" });
+  test("[R-WORLD-002] [R-CLOCK-033] given a life begun in March at month 1 and the world's clock in the evening, when the band renders, then a small chip says April and Evening, with no digit, no count of days, no clock time and no end-month button, and a tap on it opens the Calendar", () => {
+    const view: PlayerView = { ...engineView(), month: 1, halfDays: { spent: 2, free: 60 } };
+    const month = bandMonth(view, MARCH, { part: "evening" });
+    expect(month).toEqual({ name: "April", part: "Evening" });
     const onMonth = vi.fn();
     render(<Band when="23 yrs 4 mo" name="The family house" money={42_000_000} formatMoney={(value) => formatMoney(value, "NGN")} month={month} onMonth={onMonth} />);
     const chip = document.querySelector<HTMLElement>("[data-band-month]");
     if (chip === null) throw new Error("No month on the band");
-    expect(chip.textContent).toContain("April");
-    expect(chip.textContent).toContain("Mid");
+    expect(chip.textContent).toBe("AprilEvening");
     expect(chip.textContent).not.toMatch(/\d/);
     const band = document.querySelector("[data-band]")?.textContent ?? "";
-    expect(band).not.toMatch(/\bdays?\b|pages?|%|Next month|left/i);
+    expect(band).not.toMatch(/\bdays?\b|pages?|%|Next month|left|\d:\d\d|Early|Mid|Late|Month end/i);
     expect(document.querySelector("[data-end-month]")).toBeNull();
     expect(screen.queryByRole("button", { name: say("ui.world.end-month") })).toBeNull();
     fireEvent.click(chip);
     expect(onMonth).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-WORLD-002] [R-TURN-010] given the month lived to its end, and a fresh one, when the band's month is read, then it says Month end, then Early", () => {
-    const view: PlayerView = { ...engineView(), month: 0, halfDays: { spent: 20, free: 20 } };
-    expect(bandMonth(view, MARCH)).toEqual({ name: "March", phase: "Month end" });
-    expect(bandMonth({ ...view, halfDays: { spent: 0, free: 60 } }, MARCH)).toEqual({ name: "March", phase: "Early" });
+  test("[R-CLOCK-033] [R-WORLD-002] given the month's time all spent or none of it, when the band's month is read, then the part of the day is the world's clock's whichever way the month stands", () => {
+    const parts = [["morning", "Morning"], ["afternoon", "Afternoon"], ["evening", "Evening"], ["night", "Night"]] as const;
+    for (const [part, words] of parts) {
+      const spent: PlayerView = { ...engineView(), month: 0, halfDays: { spent: 20, free: 20 } };
+      const fresh: PlayerView = { ...engineView(), month: 0, halfDays: { spent: 0, free: 60 } };
+      expect(bandMonth(spent, MARCH, { part })).toEqual({ name: "March", part: words });
+      expect(bandMonth(fresh, MARCH, { part })).toEqual({ name: "March", part: words });
+    }
+  });
+
+  test("[R-CLOCK-033] given the band in a game with no reply's clock, when it renders on the device and a minute passes, then its part of the day is the world's clock at the device's time, and a reply's clock wins as it lands", () => {
+    vi.useFakeTimers();
+    try {
+      // 21:50 of a game day: the evening, ten game minutes from the night.
+      const day = time.GAME_DAY_MS;
+      const evening = time.GAME_DAY_EPOCH_MS + day * 3 + (day * (21 * 60 + 50)) / 1440;
+      vi.setSystemTime(evening);
+      expect(worldClockAt(evening).part).toBe("evening");
+      const authority = fakeAuthority(engineView());
+      const store = createGameStore(authority);
+      function Shown() {
+        const clock = useDayClock();
+        return <Band when="23 yrs" name="Home" money={0} formatMoney={String} month={bandMonth(engineView(), MARCH, clock)} />;
+      }
+      render(
+        <GameProvider store={store}>
+          <Shown />
+        </GameProvider>,
+      );
+      const part = (): string => document.querySelector("[data-band-part]")?.textContent ?? "";
+      expect(part()).toBe("Evening");
+      // A real minute is twelve game minutes: past ten at night.
+      act(() => {
+        vi.advanceTimersByTime(DAY_CLOCK_MS);
+      });
+      expect(part()).toBe("Night");
+      // A reply's clock wins over the device's until the device reads again.
+      act(() => store.setState({ clock: { tick: 0, nextTickAt: 0, nextTurnAt: null, morningAt: 0, world: { ...worldClockAt(evening), part: "afternoon" } } }));
+      expect(part()).toBe("Afternoon");
+      act(() => {
+        vi.advanceTimersByTime(DAY_CLOCK_MS);
+      });
+      expect(part()).toBe("Night");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("[R-CLOCK-033] given the development switch for the clock, when it is read, then a development build stands at the part asked for, and a build for players never does", () => {
+    expect(devClockPart("?clock=night", true)).toBe("night");
+    expect(devClockPart("?clock=morning&x=1", true)).toBe("morning");
+    expect(devClockPart("?clock=noon", true)).toBeNull();
+    expect(devClockPart("", true)).toBeNull();
+    expect(devClockPart("?clock=night", false)).toBeNull();
+    const clock = worldClockAt(time.GAME_DAY_EPOCH_MS);
+    expect(dayClockOf(null, clock, "night")).toEqual({ ...clock, part: "night" });
+    expect(dayClockOf(null, clock, null)).toBe(clock);
   });
 
   test("[R-WORLD-002] given a life begun on this device in March, when the store starts it, then the store holds the time it began, read from the authority", async () => {

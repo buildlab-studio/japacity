@@ -39,6 +39,7 @@ import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
+import { useDayClock } from "../../shared/world/dayClock";
 import { actOnCard, answersNow, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
@@ -445,7 +446,9 @@ export function City({
   const stopPick = useGame((state) => state.stopPick);
   const gameStore = useGameStoreIfAny();
   const beganAt = useGame((state) => state.beganAt);
-  // R-WORLD-002: the band's clock is the character's age, with the month's name and phase beside it; the simulation still counts months.
+  // R-WORLD-002: the band's clock is the character's age, with the month's name beside it and the world's part of the day
+  // (R-CLOCK-033), moving on the device each minute; the simulation still counts months.
+  const dayClock = useDayClock();
   const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
   const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const [asksOpen, setAsksOpen] = useState(false);
@@ -1455,7 +1458,7 @@ export function City({
             when={clock}
             name={homeLine(hereId, view) ?? bandName(hereName)}
             {...bandMoney(view)}
-            month={bandMonth(view, beganAt)}
+            month={bandMonth(view, beganAt, dayClock)}
             onMonth={() => {
               cue("tap");
               openCalendar(null);

@@ -1,8 +1,8 @@
-// The month's name and its phase, as the band says them (docs/rules/world.md R-WORLD-002; turn.md R-TURN-010; decision
-// 0034). Month 0 of a life is the month of the year the life began in, read on Lagos's clock, so a life begun in March is
-// in April at month 1. The phase is the month's free time spent, said in words only: never a count of days, never a
-// percentage.
-import type { PlayerView } from "@japacity/sim";
+// The month's name as the band says it (docs/rules/world.md R-WORLD-002; decision 0034), and the world's part of the day
+// beside it (clock.md R-CLOCK-033; decision 0036). Month 0 of a life is the month of the year the life began in, read on
+// Lagos's clock, so a life begun in March is in April at month 1. The month's phase by its free time spent stays for
+// what reads it; the band no longer says it.
+import type { DayPart, PlayerView } from "@japacity/sim";
 import { time } from "@japacity/sim";
 
 import { say } from "./text";
@@ -34,7 +34,7 @@ export function phaseOf(halfDays: PlayerView["halfDays"]): MonthPhase {
   return "late";
 }
 
-/** The phase in words: Early, Mid, Late, Month end. */
-export function phaseWords(phase: MonthPhase): string {
-  return say(`ui.month.phase.${phase}`);
+/** The world's part of the day in words (R-CLOCK-033): Morning, Afternoon, Evening, Night. */
+export function dayPartWords(part: DayPart): string {
+  return say(`ui.day.part.${part}`);
 }

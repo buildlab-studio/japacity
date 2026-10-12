@@ -63,12 +63,13 @@ export const uiText: Record<string, string> = {
   "ui.month.name.9": "October",
   "ui.month.name.10": "November",
   "ui.month.name.11": "December",
-  "ui.month.phase.early": "Early",
-  "ui.month.phase.mid": "Mid",
-  "ui.month.phase.late": "Late",
-  "ui.month.phase.end": "Month end",
+  // The world's part of the day on the band (clock.md R-CLOCK-033), in words, never a time with digits.
+  "ui.day.part.morning": "Morning",
+  "ui.day.part.afternoon": "Afternoon",
+  "ui.day.part.evening": "Evening",
+  "ui.day.part.night": "Night",
   // The band's month chip, read aloud: it opens the phone's Calendar.
-  "ui.month.chip": "{name}, {phase}. Open the calendar",
+  "ui.month.chip": "{name}, {part}. Open the calendar",
   // A quiet month's one line after Until news (R-WORLD-028): "Kept £340. Credit up."
   "ui.month.quiet.credit-up": "Credit up.",
   "ui.month.quiet.credit-down": "Credit down.",
