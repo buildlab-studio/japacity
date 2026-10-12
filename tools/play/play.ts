@@ -142,7 +142,8 @@ async function onlineDoor(run: Run, next: Locator): Promise<boolean> {
 async function frontDoor(run: Run, button: string): Promise<boolean> {
   const { page, options } = run;
   if (options.played) await page.addInitScript({ content: 'localStorage.setItem("japacity.walkthrough", "1");' });
-  await page.goto("/");
+  // The bed's sleep is shortened to a few seconds on the development server the driver runs (R-WORLD-025, `?sleep=`).
+  await page.goto(`/?sleep=${String(SLEEP_SECONDS)}`);
   // The ready lives are behind Settings (prologue.md R-PROLOGUE-013): the driver asks for them as Settings does, then opens the door again.
   if (options.ready) {
     await page.evaluate(() => localStorage.setItem("japacity.door.ready", "1"));
@@ -537,11 +538,13 @@ async function onTheRoad(run: Run, month: number): Promise<boolean> {
 /** The homes' beds, by the thing's id in each room file, with the act that ends the month (R-WORLD-025). */
 const BEDS = ["bed", "room"] as const;
 const BED_END = '[data-thing-chip] [data-act="end-month"]';
+/** The bed's sleep on the driver's server, in seconds: the month turns once it runs out (R-WORLD-025). */
+const SLEEP_SECONDS = 3;
 
 /**
  * Ends the month from the bed when the player is at home: in the yard the house is gone into first; the bed's mark is
- * tapped, then its month-end act, and the lock screen, when the bed opens it, is put away. True once a `turn/end` is
- * on its way, read as the band stepping back or the results opening. False when no bed was in reach.
+ * tapped, then its Sleep, the first night's card is answered, and the sleep is waited out. True once a `turn/end` is on
+ * its way, read as the band stepping back or the results opening. False when no bed was in reach.
  */
 async function bedEnd(run: Run, month: number): Promise<boolean> {
   const { page } = run;
@@ -562,9 +565,9 @@ async function bedEnd(run: Run, month: number): Promise<boolean> {
     }
   }
   if (!(await tap(run, page.locator(BED_END), "the bed's month end"))) return false;
-  // The bed opens the phone first when the month's lines wait there (R-WORLD-030); putting it away ends the month.
-  if (await appear(page.locator("[data-home-bar]"), 1_500)) await tap(run, page.locator("[data-home-bar]"), "the phone's home bar");
-  for (let wait = 0; wait < 10 && !(await ended()); wait += 1) await page.waitForTimeout(300);
+  // A life's first night is told once on a small card; its Sleep starts the sleep, which turns the month as it runs out.
+  if (await appear(page.locator("[data-night-teach-ok]"), 1_500)) await tap(run, page.locator("[data-night-teach-ok]"), "the first night's Sleep");
+  for (let wait = 0; wait < 10 + SLEEP_SECONDS * 4 && !(await ended()); wait += 1) await page.waitForTimeout(300);
   log(run, `month ${String(month)}: the bed's month end tapped`);
   // Tapped once only: a month end on its way that the band has not shown yet is still an end, never a second tap.
   return true;
