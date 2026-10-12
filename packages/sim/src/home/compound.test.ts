@@ -121,7 +121,8 @@ describe("the numbers", () => {
     expect(home.compound.feesBp).toBe(2000);
     expect(compoundMoveIn(home)).toBe(MOVE_IN);
     expect(MOVE_IN).toBe(420_000_00);
-    expect(content.place[COMPOUND]).toMatchObject({ where: "home", city: "lagos", nameKind: "stylised", position: null, scope: "interior" });
+    // Its made-up spot in Ojuelegba (R-CITY-008 as amended 12 Oct 2026) is its own, so the map and the fares read one position for it.
+    expect(content.place[COMPOUND]).toMatchObject({ where: "home", city: "lagos", nameKind: "stylised", position: { latE3: 6513, lonE3: 3360 }, data: { source: "own" }, scope: "interior" });
   });
 });
 
