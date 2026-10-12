@@ -104,6 +104,14 @@ export function listFiles(dir: string): string[] {
   return out.sort();
 }
 
+/** Where the publish step puts each model's tile render, by the model's name (design page 13, the pictures). */
+export const TILES = "tiles";
+
+/** A tile is a picture of a model, not a model: it needs no register row or budget of its own, only to be its model's render. */
+export function isTile(file: string): boolean {
+  return file.startsWith(`${TILES}/`);
+}
+
 /** A copy pnpm assets:publish wrote beside its source, named by its hash (city.md R-CITY-018): not a shipped name of its own. */
 export function isPublishedCopy(file: string): boolean {
   return hashInName(file.split("/").pop() ?? "") !== null;
@@ -274,6 +282,24 @@ export function checkImages(images: readonly { path: string; bytes: Uint8Array }
   }
   const present = new Set(images.map((image) => image.path));
   for (const path of Object.keys(known)) if (!present.has(path)) problems.push(`R-ASSET-011: assets-src/manifest.json lists ${path}, which is not there`);
+  return problems;
+}
+
+/** 6b. Every picture under tiles is a model's tile render, byte for byte, by the model's name, and every model's tile render is published (R-ASSET-011). */
+export function checkTiles(tiles: readonly { path: string; bytes: Uint8Array }[], renders: ReadonlyMap<string, Uint8Array>): string[] {
+  const problems: string[] = [];
+  const published = new Set<string>();
+  for (const tile of tiles) {
+    const name = /^tiles\/(.+)\.png$/.exec(tile.path)?.[1] ?? "";
+    const render = renders.get(name);
+    if (render === undefined) {
+      problems.push(`R-ASSET-011: ${tile.path} is no model's tile render`);
+      continue;
+    }
+    published.add(name);
+    if (sha256(render) !== sha256(tile.bytes)) problems.push(`R-ASSET-011: ${tile.path} differs from ${name}'s tile render; run pnpm assets:publish`);
+  }
+  for (const name of renders.keys()) if (!published.has(name)) problems.push(`R-ASSET-011: ${name}'s tile render is not published under tiles; run pnpm assets:publish`);
   return problems;
 }
 
@@ -480,7 +506,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
   const register = readJson<Register>(join(paths.source, "register.json"));
   const manifest = readJson<Manifest>(join(paths.source, "manifest.json"));
   const files = sourceFiles(listFiles(paths.public));
-  const shippedFiles = files.filter((file) => !DATA_FILES.has(file.split("/").pop() ?? ""));
+  const shippedFiles = files.filter((file) => !DATA_FILES.has(file.split("/").pop() ?? "") && !isTile(file));
   const measured = await Promise.all(shippedFiles.map((file) => measureFile(paths, file)));
   const byFile = new Map(measured.map((file) => [file.file, file]));
   const readRepo = (path: string): Uint8Array | null => {
@@ -506,10 +532,16 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
 
   // Each asset's source folder is the one whose render manifest names its shipped file.
   const folders = new Map<string, string>();
+  const tileRenders = new Map<string, Uint8Array>();
   for (const file of listFiles(paths.source).filter((path) => path.endsWith("renders/manifest.json"))) {
-    const shipped = readJson<{ file: string }>(join(paths.source, file)).file.replace(/^public\/assets\//, "");
+    const renders = readJson<{ asset: string; file: string; renders: { view: string; file: string }[] }>(join(paths.source, file));
+    const shipped = renders.file.replace(/^public\/assets\//, "");
     folders.set(shipped, join(paths.source, file.replace(/\/renders\/manifest\.json$/, "")));
+    const tile = renders.renders.find((record) => record.view === "tile");
+    if (tile !== undefined) tileRenders.set(renders.asset, readFileSync(join(paths.root, tile.file)));
   }
+  const tiles = files.filter(isTile);
+  problems.push(...checkTiles(tiles.map((file) => ({ path: file, bytes: readFileSync(join(paths.public, file)) })), tileRenders));
   const reviews = new Map<string, Review | null>();
   const outlines = new Map<string, Record<string, { passes: boolean }> | null>();
   for (const row of register.rows) {
@@ -532,7 +564,8 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
   }
   const code = codeBytes(paths);
   if (code === 0) notes.push("The client is not built, so the first download counts no code; pnpm build first to count it.");
-  problems.push(...checkDownloads(measured, hub, code, budgets));
+  // A tile is downloaded like any shipped file, so the whole game counts it.
+  problems.push(...checkDownloads([...measured, ...(await Promise.all(tiles.map((file) => measureFile(paths, file))))], hub, code, budgets));
 
   const creditsPath = join(paths.public, "credits.json");
   problems.push(...checkCredits(existsSync(creditsPath) ? readJson<Credits>(creditsPath) : null, expectedCredits(register, mapSources(paths, placeData))));

@@ -18,6 +18,7 @@ import {
   checkNames,
   checkPlace,
   checkRegister,
+  checkTiles,
   defaultPaths,
   expectedCredits,
   type Measured,
@@ -26,6 +27,7 @@ import {
   type PlaceFile,
   rowFor,
   runChecks,
+  isTile,
   sourceFiles,
 } from "./check-assets";
 import { readGlb, toDocument, writeGlb } from "./glb";
@@ -186,6 +188,24 @@ describe("pictures", () => {
     expect(checkImages([{ path: "assets-src/x/renders/front.png", bytes }], manifest)).toEqual([]);
     expect(checkImages([{ path: "assets-src/x/reference.jpg", bytes }, { path: "assets-src/x/renders/front.png", bytes }], manifest)[0]).toMatch(/no tool wrote/);
     expect(checkImages([{ path: "assets-src/x/renders/front.png", bytes: Uint8Array.from([9]) }], manifest)[0]).toMatch(/differs/);
+  });
+});
+
+describe("tiles", () => {
+  test("[R-ASSET-011] given a picture under tiles, when it is checked, then it passes only as a model's tile render published by the model's name, and a tile render left unpublished fails", () => {
+    const tile = Uint8Array.from([1, 2, 3]);
+    const renders = new Map([["prop_a", tile], ["veh_b", Uint8Array.from([4])]]);
+    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }, { path: "tiles/veh_b.png", bytes: Uint8Array.from([4]) }], renders)).toEqual([]);
+    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: Uint8Array.from([9]) }, { path: "tiles/veh_b.png", bytes: Uint8Array.from([4]) }], renders)).toEqual([expect.stringMatching(/tiles\/prop_a\.png differs from prop_a's tile render/)]);
+    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }, { path: "tiles/veh_b.png", bytes: Uint8Array.from([4]) }, { path: "tiles/prop_c.png", bytes: tile }], renders)).toEqual([expect.stringMatching(/tiles\/prop_c\.png is no model's tile/)]);
+    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }], renders)).toEqual([expect.stringMatching(/veh_b's tile render is not published/)]);
+  });
+
+  test("[R-ASSET-009] given the files under public/assets, when they are sorted, then a tile is a picture of a model and not a model of its own, so it needs no register row or budget", () => {
+    expect(isTile("tiles/prop_bed.png")).toBe(true);
+    expect(isTile("tiles/prop_bed.0123456789ab.png")).toBe(true);
+    expect(isTile("shared/prop/prop_bed.glb")).toBe(false);
+    expect(isTile("places/tiles/prop_bed.glb")).toBe(false);
   });
 });
 
