@@ -6,7 +6,7 @@ import { setFootprint } from "@japacity/assets";
 import { beam, box, clutter, cylinder } from "@japacity/assets/kit";
 import { Group } from "three";
 
-export const SUYA_GRILL = { width: 1.4, depth: 0.5, top: 0.86, pole: 2.35, canopy: 1.25 } as const;
+export const SUYA_GRILL = { width: 1.4, depth: 0.5, top: 0.86, pole: 2.35, canopy: 1.0 } as const;
 
 export function buildSuyaGrill(): Group {
   const g = new Group();
