@@ -55,6 +55,8 @@ export interface Act {
   top?: number;
   /** Set by the shell: the act is already in this month's plan and planning it again does nothing, so its button says Planned and is shut. */
   planned?: boolean;
+  /** R-ACTIVITY-020: the act takes effort and the body is spent: its chip says so where its button was. */
+  spent?: boolean;
 }
 
 /**
@@ -129,10 +131,16 @@ export interface Ask {
   when?: "now" | "month";
   /** The month's free time the act takes, in words ("A morning", "A day"), for an act done at once (R-ACTIVITY-018). */
   time?: string;
+  /** What the act does, in words, on one line ("Fills you, lifts you"), from its effects (R-WORLD-006). */
+  does?: string;
+  /** An act with a price: the main button says the act and its price ("Indomie and egg · ₦1,500"), R-WORLD-006. */
+  priced?: true;
   /** A reason the act cannot happen yet, in words; the main button is shut and says it (R-WORLD-006). */
   blocked?: string;
   /** A second line for the main button in place of what is left after, when the cost does not come from the pockets. */
   note?: string;
+  /** R-ACTIVITY-020: the body is spent; these words stand where the main button was, and there is no button. */
+  spent?: string;
 }
 
 /** A pin on the map (R-WORLD-015). */

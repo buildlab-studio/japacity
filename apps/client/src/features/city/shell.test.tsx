@@ -1,5 +1,6 @@
 // The world's shell over the place (docs/rules/world.md R-WORLD-001 to 004): what stands over the
 // scene, what hides when, and the nudge's choice. The scene itself needs WebGL and is not drawn here.
+import { worldClockAt } from "@japacity/sim";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
@@ -72,7 +73,7 @@ describe("the world fills the screen", () => {
     // The nudge is a button when it opens the way to what it names (R-WORLD-003); the band's handle shows only while something is coming (R-WORLD-002).
     // The month's name and phase are part of the band, a chip that opens the Calendar (R-WORLD-002, decision 0034).
     // The name over the age opens the data page (R-PROLOGUE-009).
-    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt) }), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
+    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt, worldClockAt(Date.now())) }), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
@@ -113,7 +114,7 @@ describe("the world fills the screen", () => {
 });
 
 describe("the band and the thumb buttons", () => {
-  test("[R-WORLD-002] [R-TURN-010] given a life, when the band renders, then its clock is the character's age in years and months with the month's name and phase beside it, and no month number or count", async () => {
+  test("[R-WORLD-002] [R-CLOCK-033] given a life, when the band renders, then its clock is the character's age in years and months with the month's name and the world's part of the day beside it, and no month number or count", async () => {
     const view = engineView();
     const { store } = await opened(world(), view);
     const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
@@ -121,11 +122,11 @@ describe("the band and the thumb buttons", () => {
     const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
     expect(within(band()).getByText(clock)).toBeTruthy();
     expect(band().textContent).not.toContain(say("ui.world.month-of", { month: view.month + 1 }));
-    // The month as it stands, in words: its name from when the life began, its phase from the time spent (decision 0034).
-    const month = bandMonth(view, store.getState().beganAt);
-    expect(monthChip().textContent).toBe(`${month.name}${month.phase}`);
+    // The month in words: its name from when the life began, the part of the day from the world's clock (decision 0036).
+    const month = bandMonth(view, store.getState().beganAt, worldClockAt(Date.now()));
+    expect(monthChip().textContent).toBe(`${month.name}${month.part}`);
     expect(monthChip().textContent).not.toMatch(/\d/);
-    expect(month.phase).toBe(say("ui.month.phase.early"));
+    expect(month.part).toBe(say(`ui.day.part.${worldClockAt(Date.now()).part}`));
     expect(document.querySelector("[data-band] [data-end-month], [data-band] [data-month-count]")).toBeNull();
   });
 

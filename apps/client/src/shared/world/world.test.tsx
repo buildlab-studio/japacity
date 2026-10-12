@@ -16,12 +16,12 @@ import { ThumbBar } from "./ThumbBar";
 const naira = (amount: number): string => `₦${String(Math.round(amount / 100))}`;
 
 describe("the band", () => {
-  test("[R-WORLD-002] given a month, a place and money, when the band renders, then it shows those three with the month's name and phase, and nothing else: no Next month", () => {
-    render(<Band when="Month 6" name="The family house" money={42_000_000} formatMoney={naira} month={{ name: "April", phase: "Mid" }} />);
+  test("[R-WORLD-002] given a month, a place and money, when the band renders, then it shows those three with the month's name and the part of the day, and nothing else: no Next month", () => {
+    render(<Band when="Month 6" name="The family house" money={42_000_000} formatMoney={naira} month={{ name: "April", part: "Evening" }} />);
     expect(screen.getByText("Month 6")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "The family house" })).toBeTruthy();
     expect(screen.getByText("₦420000")).toBeTruthy();
-    expect(screen.getByRole("button", { name: say("ui.month.chip", { name: "April", phase: "Mid" }) })).toBeTruthy();
+    expect(screen.getByRole("button", { name: say("ui.month.chip", { name: "April", part: "Evening" }) })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Next month" })).toBeNull();
     expect(screen.getAllByRole("button")).toHaveLength(1);
   });

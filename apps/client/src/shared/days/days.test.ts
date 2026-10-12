@@ -135,7 +135,7 @@ describe("the days of the month", () => {
 
   test("[R-WORLD-030] given acts that spend the whole month's free time and more, when the days are counted, then they stop at four weeks and never pass the month", async () => {
     // Decision 0035, with R-WORLD-030 as amended (decision 0034): the days are the view's time spent, so it is acts, not
-    // rides, that fill them; once the free time is spent the month turns by itself (R-TURN-010).
+    // rides, that fill them; once the free time is spent the night falls and the month waits for Sleep (decision 0036).
     const free = (await adaStore()).getState().view!.halfDays.free;
     expect(dayOfView({ halfDays: { spent: free, free } })).toBe(DAYS_IN_MONTH);
     expect(dayOfView({ halfDays: { spent: free + 4, free } })).toBe(DAYS_IN_MONTH);
@@ -147,6 +147,12 @@ describe("the days of the month", () => {
     expect(day()).toBe(DAYS_IN_MONTH - 1);
     expect(DAYS_IN_MONTH).toBe(28);
     await store.getState().send({ type: "activity/now", activity: NAP, param: null });
+    expect(store.getState().view!.halfDays.spent).toBe(free);
+    expect(day()).toBe(DAYS_IN_MONTH);
+    await store.getState().send({ type: "activity/now", activity: NAP, param: null });
+    expect(day()).toBe(DAYS_IN_MONTH);
+    expect(store.getState().view!.month).toBe(month);
+    await store.getState().endMonth(true);
     await vi.waitFor(() => expect(store.getState().view!.month).toBe(month + 1));
     expect(day()).toBe(0);
     stop();

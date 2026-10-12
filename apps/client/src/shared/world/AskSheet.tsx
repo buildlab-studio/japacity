@@ -1,13 +1,15 @@
-// One action, one sheet (docs/rules/world.md R-WORLD-006). A main button the player cannot pay for is
-// shut and says how much is short, as the ride sheet does, so nothing is planned or sent that cannot be paid.
+// One action, one sheet (docs/rules/world.md R-WORLD-006). A priced act's button says the act and its price, and under
+// it the balance before stands struck beside the balance after (decision 0035). A main button the player cannot pay for
+// is shut and says how much is short, as the ride sheet does, so nothing is planned or sent that cannot be paid.
 import { Dialog } from "@base-ui/react/dialog";
 import type { Currency } from "@japacity/sim";
 import { TriangleAlert, X } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 
 import { useGame, useGameStoreIfAny } from "../../authority/GameProvider";
-import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying } from "../words/cost";
+import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying, type Money } from "../words/cost";
 import { say } from "../words/text";
+import { Balance, CENTRED, pricedLabel } from "./Balance";
 import type { Ask } from "./contract";
 
 export interface AskSheetProps {
@@ -25,27 +27,58 @@ export interface AskSheetProps {
   icon?: (name: string) => ReactNode;
 }
 
-/** The main button's second line, the figure alone for a slip, whether it is shut, and whether the line warns. */
+/** The main button's second line, the figure alone for a slip, whether it is shut, whether the line warns, and the balance. */
 interface Main {
   after: string | null;
   figure: string | null;
   shut: boolean;
   /** True when the month's dues are more than what is left after: the button stays open, the line warns. */
   warn?: boolean;
+  /** The balance before the act and after it, shown under the button; none when short or when no pocket pays. */
+  balance?: { before: Money; after: Money };
 }
 
-function mainOf(paying: AfterPaying | null, formatMoney: AskSheetProps["formatMoney"]): Main {
+/**
+ * The button's money: how much is short, the one exception everywhere; for a priced act the balance before and after
+ * under the button (R-WORLD-006, decision 0035), with the month's dues as its warning; for any other ask (a change of
+ * money, a bill from the phone) what is left after on the button's second line, as before.
+ */
+function mainOf(paying: AfterPaying | null, formatMoney: AskSheetProps["formatMoney"], priced: boolean): Main {
   if (paying === null) return { after: null, figure: null, shut: false };
   if (paying.short !== null) {
     const amount = formatMoney(paying.short.amount, paying.short.currency);
     return { after: say("ui.world.short", { amount }), figure: amount, shut: true };
   }
   const left = formatMoney(paying.left.amount, paying.left.currency);
-  if (paying.due !== null) {
-    const after = say("ui.world.left-due", { left, due: formatMoney(paying.due.amount, paying.due.currency) });
+  const due = paying.due === null ? null : formatMoney(paying.due.amount, paying.due.currency);
+  if (priced) {
+    const balance = { before: paying.before, after: paying.left };
+    if (due === null) return { after: null, figure: null, shut: false, balance };
+    const after = say("ui.world.due", { due });
+    return { after, figure: after, shut: false, warn: true, balance };
+  }
+  if (due !== null) {
+    const after = say("ui.world.left-due", { left, due });
     return { after, figure: after, shut: false, warn: true };
   }
   return { after: say("ui.world.left", { amount: left }), figure: null, shut: false };
+}
+
+/** The balance under a priced act's button, in the words of its money. */
+function BalanceOf({ balance, formatMoney, className }: { balance: NonNullable<Main["balance"]>; formatMoney: AskSheetProps["formatMoney"]; className?: string }) {
+  return (
+    <Balance
+      before={{ amount: balance.before.amount, words: formatMoney(balance.before.amount, balance.before.currency) }}
+      after={{ amount: balance.after.amount, words: formatMoney(balance.after.amount, balance.after.currency) }}
+      {...(className === undefined ? {} : { className })}
+    />
+  );
+}
+
+/** The main button's words: the act and its price when the pockets pay for it (R-WORLD-006), else the act alone. */
+function labelOf(ask: Ask, main: Main, formatMoney: AskSheetProps["formatMoney"]): string {
+  const priced = ask.priced === true && ask.cost !== null && ask.blocked === undefined && ask.note === undefined;
+  return priced && ask.cost !== null ? pricedLabel(ask.button, formatMoney(ask.cost.amount, ask.cost.currency)) : ask.button;
 }
 
 export function AskSheet(props: AskSheetProps) {
@@ -53,7 +86,7 @@ export function AskSheet(props: AskSheetProps) {
   if (store === null || props.from !== undefined) {
     const { ask, from, have = 0 } = props;
     const paying = ask === null || ask.cost === null ? null : afterHaving(from ?? have, { currency: ask.cost.currency as Currency, amount: ask.cost.amount });
-    return <Sheet {...props} main={mainOf(paying, props.formatMoney)} />;
+    return <Sheet {...props} main={mainOf(paying, props.formatMoney, ask?.priced === true)} />;
   }
   return <GameSheet {...props} />;
 }
@@ -64,7 +97,7 @@ function GameSheet(props: AskSheetProps) {
   const plan = useGame((state) => state.plan);
   const cost = props.ask?.cost ?? null;
   const paying = cost === null || view === null ? null : afterPaying(view, plannedCosts(view, plan), [{ currency: cost.currency as Currency, amount: cost.amount }], monthDues(view));
-  return <Sheet {...props} main={mainOf(paying, props.formatMoney)} />;
+  return <Sheet {...props} main={mainOf(paying, props.formatMoney, props.ask?.priced === true)} />;
 }
 
 function Sheet({ ask, formatMoney, icon, main: counted }: AskSheetProps & { main: Main }) {
@@ -110,13 +143,29 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
             <span className="text-[16px] font-bold">{ask.time}</span>
           </div>
         )}
-        {ask.cost === null ? null : (
+        {ask.does === undefined ? null : (
+          <div className={`flex items-baseline justify-between gap-3 ${ask.time === undefined ? "mt-3 border-t border-sheet-line pt-2.5" : "mt-1"}`} data-ask-does>
+            <span className="shrink-0 text-[14px] font-semibold">{say("ui.world.does")}</span>
+            <span className="truncate text-[15px] font-bold">{ask.does}</span>
+          </div>
+        )}
+        {/* The price stands on the button when the pockets pay for it; otherwise it has its own row. */}
+        {ask.cost === null || labelOf(ask, main, formatMoney) !== ask.button ? null : (
           <div className="mt-3 flex items-baseline justify-between border-y border-sheet-line py-2.5">
             <span className="text-[14px] font-semibold">{say("ui.world.costs")}</span>
             <span className="num text-[26px]">{formatMoney(ask.cost.amount, ask.cost.currency)}</span>
           </div>
         )}
-        <MainButton ask={ask} main={main} />
+        {ask.spent === undefined ? (
+          <>
+            <MainButton ask={ask} main={main} label={labelOf(ask, main, formatMoney)} />
+            {main.balance === undefined ? null : <BalanceOf balance={main.balance} formatMoney={formatMoney} className="mt-2.5 justify-center" />}
+          </>
+        ) : (
+          <p className="mt-4 rounded-[6px] bg-sheet-muted px-4 py-3.5 text-center text-[15px] font-bold" data-ask-spent>
+            {ask.spent}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -124,6 +173,7 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
 
 /** Label and second line together longer than this stack, so neither wraps out of the button at 390 px. */
 const SIDE_BY_SIDE = 34;
+
 
 /** The button's own shape stacked: the label over its second line, as tall as the two need. */
 const STACKED: CSSProperties = { height: "auto", minHeight: 58, flexDirection: "column", alignItems: "flex-start", justifyContent: "center", gap: 2, paddingTop: 10, paddingBottom: 12, textAlign: "left" };
@@ -133,13 +183,14 @@ const STACKED: CSSProperties = { height: "auto", minHeight: 58, flexDirection: "
  * they are long ("Board the plane" with a reason from the world). A line
  * that warns of the month's dues keeps the button open and carries a warning mark.
  */
-function MainButton({ ask, main }: { ask: Ask; main: Main }) {
-  const second = main.after ?? say(ask.when === "now" ? "ui.world.now" : "ui.world.counts-at-end");
-  const stacked = ask.button.length + second.length > SIDE_BY_SIDE;
+function MainButton({ ask, main, label }: { ask: Ask; main: Main; label: string }) {
+  // A priced act done at once needs no second line: the balance under the button says what is left (R-WORLD-006).
+  const second = main.after ?? (main.balance !== undefined && ask.when === "now" ? null : say(ask.when === "now" ? "ui.world.now" : "ui.world.counts-at-end"));
+  const stacked = second !== null && label.length + second.length > SIDE_BY_SIDE;
   return (
-    <button type="button" className="btn-main mt-4" style={stacked ? STACKED : undefined} onClick={ask.act} disabled={main.shut} data-ask-main data-short={main.shut ? "true" : undefined} data-ask-stacked={stacked ? "true" : undefined}>
-      <span className="leading-tight">{ask.button}</span>
-      {main.warn === true ? (
+    <button type="button" className="btn-main mt-4" style={stacked ? STACKED : second === null ? CENTRED : undefined} onClick={ask.act} disabled={main.shut} data-ask-main data-short={main.shut ? "true" : undefined} data-ask-stacked={stacked ? "true" : undefined}>
+      <span className="leading-tight">{label}</span>
+      {second === null ? null : main.warn === true ? (
         <span className="flex items-center gap-1 text-[13px] leading-snug font-bold" data-ask-warn>
           <TriangleAlert size={14} aria-hidden className="shrink-0" />
           {second}
@@ -179,8 +230,14 @@ function Slip({ ask, main, formatMoney }: { ask: Ask; main: Main; formatMoney: A
           </div>
         )}
         <div className="mt-3 border-t border-dashed border-text/30 pt-3 text-[13px] leading-snug">{ask.line}</div>
+        {main.balance === undefined ? null : (
+          <div className="mt-2 flex items-baseline justify-between gap-3 text-[12px] text-text-2" data-ask-after>
+            <span>{say("ui.world.after").toUpperCase()}</span>
+            <BalanceOf balance={main.balance} formatMoney={formatMoney} className="text-[13px] text-text" />
+          </div>
+        )}
         {main.after === null ? null : (
-          <div className={`mt-2 flex justify-between gap-3 text-[12px] ${main.shut || main.warn === true ? "font-bold text-out" : "text-text-2"}`} data-ask-after>
+          <div className={`mt-2 flex justify-between gap-3 text-[12px] ${main.shut || main.warn === true ? "font-bold text-out" : "text-text-2"}`} data-ask-after={main.balance === undefined ? "" : "due"}>
             <span>{say(main.shut ? "ui.world.short-label" : "ui.world.after").toUpperCase()}</span>
             <span className="text-right">{main.figure ?? main.after}</span>
           </div>
@@ -188,7 +245,7 @@ function Slip({ ask, main, formatMoney }: { ask: Ask; main: Main; formatMoney: A
         <div className="mt-5 flex items-center gap-2 font-sans">
           <Dialog.Close className="h-[58px] shrink-0 rounded-[6px] border-2 border-text/20 px-4 text-[14px] font-bold">{say("ui.world.not-now")}</Dialog.Close>
           <button type="button" className="btn-main justify-center" onClick={ask.act} disabled={main.shut} data-ask-main data-short={main.shut ? "true" : undefined}>
-            {ask.button}
+            {ask.rows === undefined ? labelOf(ask, main, formatMoney) : ask.button}
           </button>
         </div>
       </div>

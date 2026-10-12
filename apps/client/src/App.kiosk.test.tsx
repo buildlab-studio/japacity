@@ -118,7 +118,11 @@ describe("the street kiosk while the world runs the Friday draw", () => {
 
     fireEvent.click(kiosk.getByRole("button", { name: say("ui.lottery.more") }));
     const buy = sheet.ownerDocument.querySelector<HTMLButtonElement>("[data-kiosk-buy]");
-    expect(buy?.textContent).toBe(`${say("ui.lottery.kiosk.buy", { count: 2 })}${say("ui.lottery.kiosk.now", { cost: formatMoney(2 * tuning.ticket, "NGN") })}`);
+    // R-WORLD-006: the button says the act and its price; under it the band's naira before, struck, and after.
+    expect(buy?.textContent).toBe(say("ui.act.priced", { act: say("ui.lottery.kiosk.buy", { count: 2 }), price: formatMoney(2 * tuning.ticket, "NGN") }));
+    const naira = (store.getState().view?.pockets.NGN.bank ?? 0) + (store.getState().view?.pockets.NGN.cash ?? 0);
+    expect(sheet.ownerDocument.querySelector("[data-balance-before]")?.textContent).toBe(formatMoney(naira, "NGN"));
+    expect(sheet.ownerDocument.querySelector("[data-balance-after]")?.textContent).toBe(formatMoney(naira - 2 * tuning.ticket, "NGN"));
     await act(async () => {
       buy?.click();
       await Promise.resolve();

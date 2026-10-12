@@ -1,9 +1,9 @@
-// The month's name and phase the band carries (docs/rules/world.md R-WORLD-002; turn.md R-TURN-010; decision 0034):
-// month 0 of a life is the month of the year it began in, in Lagos; the phase is the month's free time spent, in
-// words only, never a count or a percentage.
+// The month's name the band carries (docs/rules/world.md R-WORLD-002; decision 0034): month 0 of a life is the month of
+// the year it began in, in Lagos. The month's phase by its free time spent, read where it is still needed, and the
+// world's part of the day the band says beside the name (clock.md R-CLOCK-033), in words only.
 import { describe, expect, test } from "vitest";
 
-import { monthIndexOf, monthNameOf, phaseOf, phaseWords } from "./monthName";
+import { dayPartWords, monthIndexOf, monthNameOf, phaseOf } from "./monthName";
 
 /** Noon on 15 March 2026, Lagos. */
 const MARCH = Date.UTC(2026, 2, 15, 11);
@@ -45,8 +45,11 @@ describe("the month's phase", () => {
     expect(phaseOf({ spent: 0, free: 0 })).toBe("end");
   });
 
-  test("[R-TURN-010] given each phase, when it is said, then it is Early, Mid, Late or Month end, and never a digit or a percentage", () => {
-    expect([phaseWords("early"), phaseWords("mid"), phaseWords("late"), phaseWords("end")]).toEqual(["Early", "Mid", "Late", "Month end"]);
-    for (const phase of ["early", "mid", "late", "end"] as const) expect(phaseWords(phase)).not.toMatch(/[\d%]/);
+});
+
+describe("the world's part of the day", () => {
+  test("[R-CLOCK-033] given each part of the world's day, when it is said, then it is Morning, Afternoon, Evening or Night, and never a digit or a clock time", () => {
+    expect([dayPartWords("morning"), dayPartWords("afternoon"), dayPartWords("evening"), dayPartWords("night")]).toEqual(["Morning", "Afternoon", "Evening", "Night"]);
+    for (const part of ["morning", "afternoon", "evening", "night"] as const) expect(dayPartWords(part)).not.toMatch(/[\d%:]/);
   });
 });

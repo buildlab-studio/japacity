@@ -39,17 +39,19 @@ import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
-import { actOnCard, answersNow, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
-import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned } from "./acts";
+import { useDayClock } from "../../shared/world/dayClock";
+import { bodyWords } from "../../shared/words/body";
+import { actOnCard, answersNow, effectWordsOf, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
+import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
-import { doActLine, lightBack, plainActLine, plannedMarks } from "./actLines";
+import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./actLines";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
 import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from "./FlyOver";
 import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
-import { BETTER_JOB, BOARD_WAY, MEANWHILE_WAYS, MORNING, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
+import { atNight, BETTER_JOB, BOARD_WAY, MEANWHILE_WAYS, MORNING, NIGHT, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { nudgeHere, stepOpen } from "./stepOpen";
 import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
@@ -69,9 +71,6 @@ import { namedThings } from "./mark";
 import { sameLine } from "../../shared/moment/moment";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
-
-/** Acts the scene shows (R-WORLD-005): the pot steams, the drum fills; the place says no answer for them (R-OBLIGATION-014). */
-const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]);
 
 /** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (R-CLOCK-032). */
 const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started", MORNING]);
@@ -445,7 +444,9 @@ export function City({
   const stopPick = useGame((state) => state.stopPick);
   const gameStore = useGameStoreIfAny();
   const beganAt = useGame((state) => state.beganAt);
-  // R-WORLD-002: the band's clock is the character's age, with the month's name and phase beside it; the simulation still counts months.
+  // R-WORLD-002: the band's clock is the character's age, with the month's name beside it and the world's part of the day
+  // (R-CLOCK-033), moving on the device each minute; the simulation still counts months.
+  const dayClock = useDayClock();
   const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
   const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const [asksOpen, setAsksOpen] = useState(false);
@@ -515,7 +516,8 @@ export function City({
   };
   /**
    * The bed's month end (R-WORLD-025): the month ends where the player is and the results open in the room. Held while a
-   * question waits, with the reason told in the corner. The month turning by itself when it is lived comes next (R-TURN-010).
+   * question waits, with the reason told in the corner. Nothing else turns the month: a month's time spent falls to night
+   * (decision 0036), and Sleep works at any hour of the world's day.
    */
   const endFromBed = (): void => {
     if (endBlocked !== null) {
@@ -525,6 +527,16 @@ export function City({
     cue("tap");
     void endMonth();
   };
+  /** The bed's Sleep: the month's lines wait on the phone and the bed opens them first (R-WORLD-030), then the page turns as the phone is put away. */
+  const sleep = (): void => {
+    if (signalsWaiting) {
+      setPhoneThen("month");
+      setPhoneApp(null);
+      setPhone(true);
+    } else endFromBed();
+  };
+  // R-WORLD-025: the first time a life sleeps, one small card says what a night is, once per life, before the lock screen.
+  const [nightTeach, setNightTeach] = useState(false);
   /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
   const [rideBy, setRideBy] = useState<RideChoice["id"] | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
@@ -749,7 +761,8 @@ export function City({
   }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing]);
   // The chosen thing's acts already in this month's plan say Planned and are shut.
   const pickedThing = picked?.kind === "thing" ? picked.thing : null;
-  const chosenThing = useMemo(() => (pickedThing === null ? null : withPlanned(pickedThing, plan, view)), [pickedThing, plan, view]);
+  // R-ACTIVITY-020: an act done at once that waits for sleep says so on the chip where its button was.
+  const chosenThing = useMemo(() => (pickedThing === null ? null : withSpent(withPlanned(pickedThing, plan, view), view)), [pickedThing, plan, view]);
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
   // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
@@ -803,15 +816,15 @@ export function City({
       case "out":
         setPicked({ kind: "out" });
         return;
-      // R-WORLD-025: the bed ends the month.
+      // R-WORLD-025: the bed ends the month, at any hour of the world's day. A life's first night is told once first: a
+      // life with a month behind it has slept before.
       case "end":
         setPicked(null);
-        // The month's lines wait on the phone: the bed opens them first (R-WORLD-030), then the page turns as the phone is put away.
-        if (signalsWaiting) {
-          setPhoneThen("month");
-          setPhoneApp(null);
-          setPhone(true);
-        } else endFromBed();
+        if (view.month === 0 && !wasTaught("night", view.scenario)) {
+          setNightTeach(true);
+          return;
+        }
+        sleep();
         return;
       case "plain": {
         setPicked(null);
@@ -840,6 +853,11 @@ export function City({
         setPicked(null);
         const option = act.stages === undefined ? undefined : view.activities.find((candidate) => candidate.id === act.stages);
         if (option === undefined) return;
+        // R-ACTIVITY-020: the body is spent; the act waits for sleep, and nothing is sent.
+        if (option.spent === true) {
+          tell(say("ui.act.spent"));
+          return;
+        }
         // R-ACTIVITY-015: an act done at once (a post from the laptop) is sent now, and the place's answer opens.
         if (answersNow(option.id)) {
           void actOnCard({ activity: option.id, param: option.params?.[0] ?? null }, { send, addToPlan }).then((acted) => cue(acted === "answered" ? "done" : "tap"));
@@ -939,12 +957,18 @@ export function City({
   // A result on its way is only waited for: its nudge says when it comes and opens nothing.
   // The nudge as it reads here: a step's place is not named while the player stands in it.
   const sceneAway = sceneAt !== null && sceneAt !== placeId && !(inside && insideEntry?.id === sceneAt);
-  const shownNudge =
+  // At the world's night the nudge sends the player to bed, unless a question or a person waits (R-CLOCK-033, R-WORLD-025).
+  const shownNudge = atNight(
     nudge?.about === "setpiece" && sceneAway && scene !== null
       ? { key: "ui.nudge.setpiece-away", params: { what: nameOf(scene.setpiece), place: placeName(sceneAt) }, about: "setpiece" as const }
       : nudge === null || nudge.about !== "step"
         ? nudge
-        : nudgeHere(nudge, stepThing);
+        : nudgeHere(nudge, stepThing),
+    dayClock.part,
+  );
+  const toBed = shownNudge?.key === NIGHT;
+  // The night's nudge opens the bed's chip where the bed stands; elsewhere it only says so.
+  const bed = things?.find((thing) => thing.acts.some((one) => one.kind === "end")) ?? null;
   const onlyWait = nudge !== null && WAIT_ONLY.has(nudge.key);
   // A step shut by its needs says "See Japa": its tap opens the Japa app, where the needs are listed.
   const nudgeNeeds = nudge?.about === "step" && nudge.key.endsWith(".needs");
@@ -994,12 +1018,24 @@ export function City({
   const lastLines = useGame((state) => state.lines);
   const linesSeen = useRef(lastLines);
   const [answer, setAnswer] = useState<ReportLine | null>(null);
+  const thingsNowHere = useRef(things);
+  thingsNowHere.current = things;
   useEffect(() => {
     if (linesSeen.current === lastLines) return;
     linesSeen.current = lastLines;
     const said = nowLineIn(lastLines);
     // An act done from the phone is said on the phone; the sheet answers an act done in the place.
-    if (world && !phone && said !== null && !SHOWN_BY_SCENE.has(nowActOf(said))) setAnswer(said);
+    if (!world || phone || said === null) return;
+    // R-WORLD-005: an act that repeats lands its line every time, Mama's gist over her head and the rest in the corner,
+    // and its sheet goes; what the scene shows says nothing.
+    const lands = nowLands(said, thingsNowHere.current ?? []);
+    if (lands !== null) {
+      setPicked(null);
+      if (lands.kind === "say") speak(lands.who, lands.name, lands.words);
+      else tell(lands.words);
+      return;
+    }
+    if (!SHOWN_BY_SCENE.has(nowActOf(said))) setAnswer(said);
   }, [lastLines, world, phone]);
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
@@ -1133,6 +1169,7 @@ export function City({
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
     const time = timeWordsOf(activity);
+    const does = effectWordsOf(activity);
     return {
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : school !== null ? SCHOOL_ICON : "hand",
@@ -1167,6 +1204,9 @@ export function City({
       // R-ACTIVITY-018: an act done at once says the time it takes in words.
       ...(answersNow(activity) ? { when: "now" as const } : {}),
       ...(time === null ? {} : { time }),
+      ...(does === null ? {} : { does }),
+      // R-WORLD-006: the act's button says the act and its price.
+      ...(cost === null ? {} : { priced: true as const }),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
       // R-WALLET-020: a slip is paid from earned naira only; with only topped-up naira to pay it, the kiosk is shut with its words.
@@ -1175,6 +1215,8 @@ export function City({
       ...(activity === "activity.play-lotto" && kioskCapReached(monthLines) ? { blocked: words(KIOSK_CAP) } : {}),
       // An act already in this month's plan that planning again does nothing for is shut until the month ends.
       ...(shut ? { blocked: say("ui.needs.planned") } : {}),
+      // R-ACTIVITY-020: the body is spent; the sheet says so where its button was.
+      ...(option.spent === true ? { spent: say("ui.act.spent") } : {}),
       act: () => {
         const pick = { activity: option.id, param: chosen ?? option.params?.[0] ?? null };
         void actOnCard(pick, { send, addToPlan }).then((acted) => {
@@ -1455,7 +1497,9 @@ export function City({
             when={clock}
             name={homeLine(hereId, view) ?? bandName(hereName)}
             {...bandMoney(view)}
-            month={bandMonth(view, beganAt)}
+            month={bandMonth(view, beganAt, dayClock)}
+            // R-QUALITY-007: the body's word beside the age, only when it complains.
+            body={bodyWords(view)}
             onMonth={() => {
               cue("tap");
               openCalendar(null);
@@ -1467,7 +1511,7 @@ export function City({
             more={
               !(phone || asksOpen || menu || credits || picked !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
-                  <Nudge nudge={shownNudge} {...(stepWay?.opens === undefined ? {} : { opens: stepWay.opens })} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeNeeds ? { onTap: () => { setPhoneApp("japa"); setPhone(true); } } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
+                  <Nudge nudge={shownNudge} {...(stepWay?.opens === undefined || toBed ? {} : { opens: stepWay.opens })} {...(toBed ? (bed === null ? {} : { onTap: () => setPicked({ kind: "thing", thing: bed }) }) : nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeNeeds ? { onTap: () => { setPhoneApp("japa"); setPhone(true); } } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
                   {coming === null || !(bandOpen || (peek && !chipFolds(nudge, coming, view.month))) ? null : (
                     <button type="button" className="chip press pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming onClick={() => openCalendar("coming")} aria-label={say("ui.world.coming-up")}>
                       <Clock size={14} aria-hidden />
@@ -1491,7 +1535,24 @@ export function City({
               <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />
             </div>
           ) : null}
-          <Corner hidden={!worldFree || homeTeachShown} />
+          <Corner hidden={!worldFree || homeTeachShown || nightTeach} />
+          {nightTeach ? (
+            <div className="pop pointer-events-auto fixed inset-x-3 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] mx-auto flex max-w-sm items-center gap-3 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-night-teach>
+              <p className="min-w-0 flex-1 text-[14px] leading-snug font-semibold">{say("ui.night.first")}</p>
+              <button
+                type="button"
+                className="press shrink-0 rounded-[5px] bg-action px-4 py-2.5 text-[14px] font-extrabold text-action-text"
+                onClick={() => {
+                  markTaught("night", view.scenario);
+                  setNightTeach(false);
+                  sleep();
+                }}
+                data-night-teach-ok
+              >
+                {say("ui.night.first.ok")}
+              </button>
+            </div>
+          ) : null}
           {homeTeachShown && homeTeach !== null ? (
             <div className="pop pointer-events-auto fixed inset-x-3 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] mx-auto flex max-w-sm items-start gap-2 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-home-teach={homeTeach}>
               <p className="min-w-0 flex-1 text-[14px] leading-snug">{blurbOf(homeTeach)}</p>

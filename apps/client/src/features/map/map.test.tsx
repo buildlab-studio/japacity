@@ -242,7 +242,7 @@ describe("the ride", () => {
     expect(sheet.querySelector("[data-ride-main]")?.textContent).not.toContain(say("ui.world.left", { amount: "" }).trim());
   });
 
-  test("[R-WORLD-017] given a stop picked, when the ride sheet shows, then it names the place, gives each way's fare and minutes, and the main button says what is left after", async () => {
+  test("[R-WORLD-017] [R-WORLD-006] given a stop picked, when the ride sheet shows, then it names the place, gives each way's fare and minutes, and the main button says the ride and its fare over the balance before, struck, and after", async () => {
     const view = engineView();
     const pins = lagosPins();
     const onRide = vi.fn();
@@ -265,11 +265,13 @@ describe("the ride", () => {
     const cash = view.pockets.NGN.cash + view.pockets.NGN.bank;
     const main = (): HTMLElement => sheet.querySelector("[data-ride-main]") as HTMLElement;
     const danfo = ways[0] as RideChoice;
-    expect(main().textContent).toContain(mapWords("map.go", { way: "danfo" }));
-    expect(main().textContent).toContain(say("ui.world.left", { amount: formatMoney(cash - danfo.fare, "NGN") }));
+    const balance = (which: "before" | "after"): string | null => sheet.querySelector(`[data-balance-${which}]`)?.textContent ?? null;
+    expect(main().textContent).toBe(say("ui.act.priced", { act: mapWords("map.go", { way: "danfo" }), price: formatMoney(danfo.fare, "NGN") }));
+    expect([balance("before"), balance("after")]).toEqual([formatMoney(cash, "NGN"), formatMoney(cash - danfo.fare, "NGN")]);
     const keke = ways[1] as RideChoice;
     fireEvent.click(radios.find((radio) => radio.dataset.way === "keke") as HTMLElement);
-    expect(main().textContent).toContain(say("ui.world.left", { amount: formatMoney(cash - keke.fare, "NGN") }));
+    expect(main().textContent).toBe(say("ui.act.priced", { act: mapWords("map.go", { way: "keke" }), price: formatMoney(keke.fare, "NGN") }));
+    expect([balance("before"), balance("after")]).toEqual([formatMoney(cash, "NGN"), formatMoney(cash - keke.fare, "NGN")]);
     fireEvent.click(main());
     expect(onRide).toHaveBeenCalledWith(keke, "place.bode-thomas");
     expect(screen.getByText(mapWords("map.ride.to", { way: "Keke", place: headingOf(nameOf("place.bode-thomas")) }))).toBeTruthy();

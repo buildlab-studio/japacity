@@ -46,6 +46,15 @@ export function chipNode(thing: Thing, onAct: (act: Act) => void, onStop: (act: 
       acts.append(button, stop);
       continue;
     }
+    // R-ACTIVITY-020: a spent body says so where the act's button was, and there is no button.
+    if (act.spent === true) {
+      const spent = document.createElement("p");
+      spent.dataset.actSpent = act.id;
+      spent.className = "px-1 py-2 text-[13px] font-bold whitespace-nowrap text-text-2";
+      spent.textContent = sceneWords("ui.act.spent");
+      acts.append(spent);
+      continue;
+    }
     button.className = "rounded-[5px] bg-action px-3 py-2 text-[13px] font-extrabold whitespace-nowrap text-action-text";
     button.textContent = sceneWords(act.label);
     button.onclick = () => onAct(act);

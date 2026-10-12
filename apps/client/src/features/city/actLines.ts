@@ -3,7 +3,11 @@
 // or the thing's own name), and what that does to the world may follow in the corner (`<act>.done`). A thing that
 // is not a person tells one short line in the corner (`<act>.done`). An act the scene shows (sit, lie down, cook,
 // fetch water) says nothing: the figure does it, or the pot steams and the drum fills. Pure.
+import { content } from "@japacity/content";
+import type { Id, ReportLine } from "@japacity/sim";
+
 import type { Act, Thing } from "../../shared/world/contract";
+import { nowActOf, nowLineWords } from "../../shared/words/acts";
 import { say } from "../../shared/words/text";
 import { cityWords } from "./city.words";
 import { sceneWords } from "./scene.words";
@@ -61,4 +65,30 @@ export function lightBack(lines: readonly { key: string; params: Record<string, 
   const mama = things.find((thing) => thing.id === MAMA);
   if (!paid || mama === undefined) return null;
   return { who: mama.id, name: sceneWords(mama.label), words: cityWords("city.say.light-back"), told: cityWords("city.told.light-paid"), heard: cityWords("city.heard.up-nepa") };
+}
+
+/** The acts the scene shows (the pot steams, the drum fills): the place says no line for them (R-WORLD-005). */
+export const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]);
+
+/** Gist with Mama: her own words over her head. */
+const GIST = "activity.family-time";
+
+/** A line written as someone's words, "Mama: you have eaten? Sit small.", as the bubble says it under her name. */
+function spoken(words: string): string {
+  const said = words.replace(/^[A-Z][a-z]+: /, "");
+  return said.charAt(0).toUpperCase() + said.slice(1);
+}
+
+/**
+ * Where an act done at once lands its line (R-WORLD-005; decision 0035: acts that repeat): Mama's gist over her head, as
+ * her words; any other act that repeats in the corner, every time it is done, since a repeat act is never done for the
+ * month; null for the rest, which answer in their sheet, and for what the scene shows, which says nothing.
+ */
+export function nowLands(line: Pick<ReportLine, "key" | "params">, things: readonly Pick<Thing, "id" | "label">[]): ActLine {
+  const activity = nowActOf(line);
+  if (SHOWN_BY_SCENE.has(activity)) return null;
+  const mama = things.find((thing) => thing.id === MAMA);
+  if (activity === GIST && mama !== undefined) return { kind: "say", who: mama.id, name: sceneWords(mama.label), words: spoken(nowLineWords(line)), then: null };
+  if (content.activity[activity as Id<"activity">]?.repeat !== true) return null;
+  return { kind: "tell", words: nowLineWords(line) };
 }

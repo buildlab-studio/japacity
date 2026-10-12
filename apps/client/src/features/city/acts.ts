@@ -82,8 +82,25 @@ export function actsOffered(view: Pick<PlayerView, "activities">): string[] {
   const paperShut = view.activities.filter((option) => !option.allowed && !option.done && option.missing.length > 0 && (option.missing.every((need) => need.type === "document/held") || STANDS_SHUT.has(option.id))).map((option) => option.id);
   const hunt = view.activities.find((option) => option.id === "activity.job-hunt");
   const board = hunt === undefined || hunt.done ? [] : [hunt.id, ...(hunt.params ?? [])];
+  // R-ACTIVITY-020: an act shut only because the body is spent stays on its thing, which says so where its button was.
+  const spent = view.activities.filter((option) => option.spent === true).map((option) => option.id);
   // R-TURN-006: rest is never a thing's act; an empty slot already rests, and the bed's act is to lie down at once.
-  return [...new Set([...pickable(view.activities).filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...held, ...board])];
+  return [...new Set([...pickable(view.activities).filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...held, ...board, ...spent])];
+}
+
+/**
+ * The thing with each act done at once whose body is spent marked (R-ACTIVITY-020): its chip says "You are spent. Sleep."
+ * where its button was. A sheet act opens its sheet, which says it in place of the main button.
+ */
+export function withSpent(thing: Thing, view: Pick<PlayerView, "activities">): Thing {
+  let marked = false;
+  const acts = thing.acts.map((act) => {
+    if (act.kind !== "do" || act.stages === undefined) return act;
+    if (view.activities.find((option) => option.id === act.stages)?.spent !== true) return act;
+    marked = true;
+    return { ...act, spent: true };
+  });
+  return marked ? { ...thing, acts } : thing;
 }
 
 /**

@@ -1,3 +1,5 @@
+// The month turns only when the life sleeps (docs/rules/world.md R-WORLD-025; activity.md R-ACTIVITY-020; decision 0036):
+// an act that spends the month's last free time turns nothing; the night falls, and the bed's Sleep is the way on.
 import type { Command, PlayerView, Reply } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -9,8 +11,8 @@ function at(v: number, spent: number): PlayerView {
   return { ...engineView(), v, halfDays: { spent, free: 60 } };
 }
 
-/** An authority whose first reply spends the month and whose turn starts the next one at none spent. */
-function authority(firstSpent: number, after?: (view: PlayerView) => PlayerView) {
+/** An authority whose acts spend the month to `firstSpent` and whose turn starts the next one at none spent. */
+function authority(firstSpent: number) {
   const sent: Command[] = [];
   let v = 1;
   return {
@@ -19,43 +21,33 @@ function authority(firstSpent: number, after?: (view: PlayerView) => PlayerView)
     send(command: Command): Promise<Reply> {
       sent.push(command);
       v += 1;
-      const spent = command.type === "turn/end" ? 0 : firstSpent;
-      const view = at(v, spent);
-      return Promise.resolve({ ok: true, view: after === undefined ? view : after(view), lines: [] });
+      return Promise.resolve({ ok: true, view: at(v, command.type === "turn/end" ? 0 : firstSpent), lines: [] });
     },
   };
 }
 
 const cook: Command = { type: "activity/now", activity: "activity.cook-at-home", param: null, basedOn: 0 };
 
-describe("the month turns when it is lived", () => {
-  test("[R-TURN-010] given the act that spends the month's last free time, when it is accepted, then the store ends the month by itself with the commitments and opens the results", async () => {
+describe("the month turns when the life sleeps", () => {
+  test("[R-WORLD-025] [R-ACTIVITY-020] given the act that spends the month's last free time, when it is accepted, then the store ends nothing by itself and no results open", async () => {
     const fake = authority(60);
-    const store = createGameStore(fake);
-    await store.getState().refresh();
-    await store.getState().send(cook);
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(fake.sent.map((command) => command.type)).toEqual(["activity/now", "turn/end"]);
-    expect(store.getState().reportOpen).toBe(true);
-    expect(store.getState().view?.halfDays.spent).toBe(0);
-  });
-
-  test("[R-TURN-010] given an act that leaves free time, when it is accepted, then no month ends", async () => {
-    const fake = authority(59);
     const store = createGameStore(fake);
     await store.getState().refresh();
     await store.getState().send(cook);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(fake.sent.map((command) => command.type)).toEqual(["activity/now"]);
     expect(store.getState().reportOpen).toBe(false);
+    expect(store.getState().view?.halfDays).toEqual({ spent: 60, free: 60 });
   });
 
-  test("[R-TURN-010] [R-SETPIECE-002] given the month's time spent while a question waits, when the act is accepted, then the month does not end until the question is answered", async () => {
-    const fake = authority(60, (view) => ({ ...view, interview: { ...(view.interview ?? { question: null }), question: { id: "q", words: "Why the UK?", options: [] } } as unknown as PlayerView["interview"] }));
+  test("[R-WORLD-025] given the month's time all spent, when the life sleeps, then the month ends with the commitments and the results open", async () => {
+    const fake = authority(60);
     const store = createGameStore(fake);
     await store.getState().refresh();
     await store.getState().send(cook);
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(fake.sent.map((command) => command.type)).toEqual(["activity/now"]);
+    await store.getState().endMonth(true);
+    expect(fake.sent.map((command) => command.type)).toEqual(["activity/now", "turn/end"]);
+    expect(store.getState().reportOpen).toBe(true);
+    expect(store.getState().view?.halfDays.spent).toBe(0);
   });
 });

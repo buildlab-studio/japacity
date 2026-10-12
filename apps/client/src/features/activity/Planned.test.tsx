@@ -63,7 +63,10 @@ describe("a thing started is ongoing", () => {
       expect(addButton(CLASS).disabled).toBe(false);
       expect(addButton(CLASS).textContent).not.toContain(say("ui.activity.planned"));
       expect(document.body.textContent).not.toContain(say("ui.world.counts-at-end"));
-      expect(addButton(CLASS).querySelector("[data-after]")?.textContent).toBe(say("ui.world.left", { amount: formatMoney(held - price.amount, "NGN") }));
+      // R-WORLD-006: the button says the act and its price; the balance before and after stands under it.
+      expect(addButton(CLASS).textContent).toContain(say("ui.act.priced", { act: nameOf(CLASS), price: formatMoney(price.amount, price.currency) }));
+      expect(document.querySelector("[data-balance-before]")?.getAttribute("data-balance-before")).toBe(String(held));
+      expect(document.querySelector("[data-balance-after]")?.getAttribute("data-balance-after")).toBe(String(held - price.amount));
       await act(async () => {
         fireEvent.click(addButton(CLASS));
         await Promise.resolve();

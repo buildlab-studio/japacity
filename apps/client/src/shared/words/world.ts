@@ -9,6 +9,20 @@ export const worldText: Record<string, string> = {
   "ui.world.close": "Close",
   "ui.world.left": "{amount} left",
   "ui.world.left-due": "{left} left, {due} due at the month's end",
+  // A priced act's button and the balance under it (R-WORLD-006): the act and its price, the balance before struck and after.
+  "ui.act.priced": "{act} · {price}",
+  "ui.act.balance": "{before} now, {after} after",
+  "ui.world.due": "{due} due at the month's end",
+  // The body on the band, only when it complains (R-QUALITY-007): a word, never a number.
+  "ui.body.hungry": "Hungry",
+  "ui.body.tired": "Tired",
+  "ui.body.both": "Hungry, tired",
+  // What an act does, in words, beside the time it takes (R-WORLD-006; R-QUALITY-007: the body in words only).
+  "ui.world.does": "Does",
+  "ui.act.does.fills": "fills you",
+  "ui.act.does.rests": "rests you",
+  "ui.act.does.lifts": "lifts you",
+  "ui.act.does.skill": "+{amount} {skill}",
   "ui.world.short": "{amount} short",
   "ui.world.short-label": "Short",
   "ui.world.costs": "Costs",
@@ -88,6 +102,13 @@ export const worldText: Record<string, string> = {
   // A set piece staged elsewhere waits there; the player goes to it.
   "ui.nudge.setpiece-away": "{what} is at {place}.",
   "ui.nudge.end": "Live the month, or sleep",
+  // The world's night (clock.md R-CLOCK-033; decision 0036): the bed's Sleep turns the month.
+  "ui.nudge.night": "Night. Go to bed",
+  // R-ACTIVITY-020: where an act's button was, once the body is spent.
+  "ui.act.spent": "You are spent. Sleep.",
+  // The first night of a life, told once on a small card before the lock screen (R-WORLD-025).
+  "ui.night.first": "Each night you sleep is a month of your life.",
+  "ui.night.first.ok": "Sleep",
   // The news has closed every way out at once, as the pandemic does. Japa says when it opens.
   "ui.nudge.closed.every": "Every route is closed for now",
 };
