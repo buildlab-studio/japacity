@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { CATALOG, TILED } from "./catalog";
+import { CATALOG, isTiled } from "./catalog";
 import { defaultPaths, listFiles } from "./check-assets";
 import { readManifest, sha256 } from "./manifest";
 import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, TILES } from "./publish";
@@ -86,7 +86,7 @@ describe("the committed publish", () => {
 
   test("[R-CITY-018] [R-ASSET-011] given every model with a tile, when the publish is read, then its tile is published by its name with the render's bytes, and the image manifest knows the copy", () => {
     const images = readManifest().renders;
-    const tiled = CATALOG.filter((entry) => TILED.test(entry.name));
+    const tiled = CATALOG.filter((entry) => isTiled(entry.name));
     const wrong = tiled.filter((entry) => {
       const published = manifest.files[`${TILES}/${entry.name}.png`];
       if (published === undefined) return true;

@@ -68,8 +68,15 @@ export const HUB_DISH_YAW = DEFAULT_DISH_YAW;
 
 export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile";
 
-/** The models a picture tile is cut from (design page 13, the pictures): every one but a person, whose tile is a name pill until the characters are redone. */
-export const TILED = /^(prop|shop|veh|lm|bld)_/;
+/** The kinds of model a picture tile is cut from (design page 13, the pictures): never a person, whose tile is a name pill until the characters are redone. */
+const TILED_KINDS = /^(prop|shop|veh|lm|bld)_/;
+/** Models no player is shown as a thing: the rooms' shells and the tailor's corner, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
+const UNTILED = /^(bld_room_|bld_tailor-corner$|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
+
+/** Whether a model gets the tile view: a thing a player could be shown on a choice. */
+export function isTiled(name: string): boolean {
+  return TILED_KINDS.test(name) && !UNTILED.test(name);
+}
 
 export interface CatalogEntry {
   /** The shipped name without extension: `bld_plaza`. */
@@ -506,8 +513,8 @@ const ENTRIES: CatalogEntry[] = [
   { name: "shop_viewing-centre", file: "places/bode-thomas/shop_viewing-centre.glb", place: "place.bode-thomas", source: "assets-src/shop/viewing-centre", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_viewing-centre", buildViewingCentre(HUB_DISH_YAW)) },
 ];
 
-/** Every shipped asset, each model but a person with the tile view beside its fixed views. */
-export const CATALOG: CatalogEntry[] = ENTRIES.map((entry) => (TILED.test(entry.name) && !entry.views.includes("tile") ? { ...entry, views: [...entry.views, "tile"] } : entry));
+/** Every shipped asset, each model a player could be shown as a thing with the tile view beside its fixed views. */
+export const CATALOG: CatalogEntry[] = ENTRIES.map((entry) => (isTiled(entry.name) && !entry.views.includes("tile") ? { ...entry, views: [...entry.views, "tile"] } : entry));
 
 export function findEntries(names: readonly string[]): CatalogEntry[] {
   if (names.length === 0 || names.includes("all")) return CATALOG;

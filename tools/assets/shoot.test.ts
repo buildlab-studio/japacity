@@ -1,10 +1,10 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { CATALOG, PUBLIC, ROOT, SOURCE, TILED } from "./catalog";
+import { CATALOG, isTiled, PUBLIC, ROOT, SOURCE } from "./catalog";
 import { listFiles, sourceFiles } from "./check-assets";
 import { readGlb } from "./glb";
 import { decodePng } from "./png";
@@ -69,10 +69,19 @@ describe("the fixed views", () => {
 });
 
 describe("the tile view", () => {
-  const tiled = CATALOG.filter((entry) => TILED.test(entry.name));
+  const tiled = CATALOG.filter((entry) => isTiled(entry.name));
+  const untiled = CATALOG.filter((entry) => !isTiled(entry.name));
 
-  test("[R-ASSET-020] given every model but a person, when its views are listed, then it gets the tile, and no person does", () => {
-    expect(tiled.length).toBeGreaterThan(90);
+  test("[R-ASSET-020] given the shells, sheets and grids no player is shown as a thing, when their views are listed, then none gets the tile, none is shot and none keeps a tile render", () => {
+    const shown = ["bld_room_parlour", "bld_room_compound", "bld_tailor-corner", "prop_sheet-flag_coarse", "prop_sheet-pennant_fine", "prop_water_coarse", "prop_water_fine", "prop_pole", "prop_drum-water", "prop_plank-walkway", "chr_tunde"];
+    for (const name of shown) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: false });
+    expect(CATALOG.filter((entry) => entry.name.startsWith("bld_room_") || entry.name.startsWith("prop_sheet-") || entry.name.startsWith("prop_water_")).filter((entry) => entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
+    expect(untiled.filter((entry) => entry.views.includes("tile") || existsSync(join(ROOT, entry.source, "renders", "tile.png"))).map((entry) => entry.name)).toEqual([]);
+    for (const name of ["prop_cooking-corner", "prop_bed", "veh_danfo", "lm_national-stadium", "bld_family-house", "shop_provisions"]) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: true });
+  });
+
+  test("[R-ASSET-020] given every model a player can be shown as a thing, when its views are listed, then it gets the tile, and no person does", () => {
+    expect(tiled.length).toBeGreaterThan(70);
     expect(tiled.filter((entry) => !entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
     expect(CATALOG.filter((entry) => entry.name.startsWith("chr_") && entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
     expect(CATALOG.filter((entry) => entry.views.includes("tile")).every((entry) => /^(prop|shop|veh|lm|bld)_/.test(entry.name))).toBe(true);
