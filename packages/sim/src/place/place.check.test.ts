@@ -57,7 +57,11 @@ describe("names", () => {
 
   test("[R-CITY-005] given an institution with a real name, a position or no area, when checked, then each is found", () => {
     expect(problemsWith({ ...place(VISA_CENTRE), realName: "A Real Visa Office" })).toMatch(/institution carries the real name/);
-    expect(problemsWith({ ...place(VISA_CENTRE), position: { latE3: 6430, lonE3: 3426 } })).toMatch(/would pin a real office/);
+    const mapped = { source: "osm" as const, licence: "ODbL-1.0" as const, checked: "2026-10-08" };
+    expect(problemsWith({ ...place(VISA_CENTRE), position: { latE3: 6430, lonE3: 3426 }, data: mapped })).toMatch(/would pin a real office/);
+    // Its own made-up spot is allowed (R-CITY-008 as amended 12 Oct 2026): content gives the visa centre one.
+    expect(place(VISA_CENTRE).data?.source).toBe("own");
+    expect(placeChecks(withPlace(place(VISA_CENTRE)))).toEqual([]);
     expect(problemsWith({ ...place(VISA_CENTRE), area: null })).toMatch(/institution has no area/);
   });
 
@@ -70,7 +74,8 @@ describe("names", () => {
   test("[R-CITY-005] given a stylised place with a real name, an area or a position, when checked, then each is found", () => {
     expect(problemsWith({ ...place(PARK), realName: "A Real Park" })).toMatch(/stylised place has the real name/);
     expect(problemsWith({ ...place(PARK), area: "oshodi" })).toMatch(/stylised place has the area oshodi/);
-    expect(problemsWith({ ...place(PARK), position: { latE3: 6556, lonE3: 3351 } })).toMatch(/stylised place has a position/);
+    expect(problemsWith({ ...place(PARK), position: { latE3: 6556, lonE3: 3351 }, data: { source: "osm", licence: "ODbL-1.0", checked: "2026-10-08" } })).toMatch(/stylised place has a position from the map/);
+    expect(placeChecks(withPlace({ ...place(PARK), position: { latE3: 6556, lonE3: 3351 }, data: { source: "own", licence: null, checked: "2026-10-12" } }))).toEqual([]);
   });
 });
 

@@ -34,7 +34,8 @@ function fieldProblems(key: string, place: PlaceEntry): string[] {
     case "institution":
       if (place.realName !== null) problems.push(`${id}: an institution carries the real name ${place.realName}; it is shown by plain description (R-CITY-005).`);
       if (place.area === null) problems.push(`${id}: an institution has no area (R-CITY-005).`);
-      if (place.position !== null) problems.push(`${id}: an institution has a position, which would pin a real office (R-CITY-005).`);
+      // A made-up spot of its own is allowed (R-CITY-008 as amended 12 Oct 2026); a position from the map would pin a real office.
+      if (place.position !== null && place.data?.source !== "own") problems.push(`${id}: an institution has a position from the map, which would pin a real office (R-CITY-005).`);
       break;
     case "business":
       if (place.realName !== null && place.sponsor === null) problems.push(`${id}: a business carries the real name ${place.realName} with no sponsor (R-CITY-005).`);
@@ -42,7 +43,7 @@ function fieldProblems(key: string, place: PlaceEntry): string[] {
     case "stylised":
       if (place.realName !== null) problems.push(`${id}: a stylised place has the real name ${place.realName} (R-CITY-005).`);
       if (place.area !== null) problems.push(`${id}: a stylised place has the area ${place.area} (R-CITY-005).`);
-      if (place.position !== null) problems.push(`${id}: a stylised place has a position (R-CITY-005).`);
+      if (place.position !== null && place.data?.source !== "own") problems.push(`${id}: a stylised place has a position from the map (R-CITY-005).`);
       break;
     default: {
       const never: never = place.nameKind;

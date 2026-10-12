@@ -13,12 +13,13 @@ import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
 import { ledgerReport } from "./report";
 import { EARNED_ONLY, earnedNaira } from "./wallet.logic";
+import { rideFare } from "../place/place.logic";
 
 const TUNDE: Id<"scenario"> = "scenario.tunde";
 const LOTTO: Id<"activity"> = "activity.play-lotto";
 const lottery = content.tuning.lottery;
 const luck = content.tuning.luck;
-const FARE = content.tuning.city.ride.fareKobo.keke;
+const FARE = rideFare(content, content.place["place.ojuelegba"]!.position, content.place["place.bode-thomas"]!.position, "keke");
 /** ₦50,000 topped up. */
 const TOP_UP = 5_000_000;
 
