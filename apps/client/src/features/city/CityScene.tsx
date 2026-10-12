@@ -31,7 +31,7 @@ import { markNode, showMark } from "./mark";
 import { bedLie, sleepMarkNode } from "./sleep";
 import { type LabelBox, spreadLabels } from "./labels";
 import { aimShot, clampTurn, roomShot, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
-import { thingSpot, walkBeforeAct } from "./things";
+import { thingSpot, walkBeforeAct, walkSpot } from "./things";
 import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo } from "./walk";
 import { walkableOf } from "./walk/map";
 import { findRoute } from "./walk/route";
@@ -365,7 +365,8 @@ function Place(props: PlaceProps) {
     if (asleep !== null || was === null || !walk.current.lying) return;
     walk.current.lying = false;
     const bed = things.find((thing) => thing.id === was);
-    const spot = bed === undefined ? null : thingSpot(stage, bed);
+    // Up where the walk to the bed ended, beside it, never on the mattress.
+    const spot = bed === undefined ? null : walkSpot(stage, bed, walk.current.walker);
     if (spot !== null) walk.current.walker = standAt(spot[0], spot[1], walk.current.walker.facing);
     // Only the sleep's end gets the figure up; the bed and the stage are read as they stand then.
   }, [asleep]);

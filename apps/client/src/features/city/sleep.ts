@@ -53,12 +53,12 @@ export function sleepMarkNode(): HTMLDivElement {
   node.setAttribute("aria-hidden", "true");
   node.className = "pointer-events-none absolute flex -translate-x-1/2 -translate-y-full items-end gap-0.5 font-extrabold text-on-strong [text-shadow:0_1px_3px_rgba(10,14,30,0.7)]";
   node.style.display = "none";
-  [13, 17, 22].forEach((size, index) => {
+  [15, 20, 26].forEach((size, index) => {
     const z = document.createElement("span");
     z.className = "sleep-z";
     z.textContent = "z";
     z.style.fontSize = `${String(size)}px`;
-    z.style.marginBottom = `${String(index * 9)}px`;
+    z.style.marginBottom = `${String(index * 10)}px`;
     z.style.animationDelay = `${String(index * 0.7)}s`;
     node.append(z);
   });
