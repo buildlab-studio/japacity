@@ -1,12 +1,11 @@
 // The sky and the sun by the world's clock (docs/rules/clock.md R-CLOCK-033; decision 0036). Each place keeps its one sun
 // and its one sky light (R-ASSET-006); the part of the world's day and the minute within it only turn the sun, tint both
 // lights and the sky, and light the lamps a place names. The same rule indoors and out, in every place. Pure but for the
-// hook at the foot, which reads the clock the last reply carried and the device's between replies.
+// hook at the foot, which reads the clock the last reply carried (handed in by the city, which holds the store, so the
+// scene's own chunk stays apart from it) and the device's between replies.
 import { type DayPart, time, type WorldClock, worldClockAt } from "@japacity/sim";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { Color, SRGBColorSpace } from "three";
-
-import { useGameStoreIfAny } from "../../authority/GameProvider";
 
 /** One look of the day: the sun's colour, strength, height and turn, the sky light's tint and strength, the lamps. */
 export interface Look {
@@ -178,11 +177,8 @@ export function worldNow(now: number, reply: { world: WorldClock; at: number } |
 /** The device reads the clock this often between replies: a real minute, twelve of the game's. */
 const READ_MS = 60_000;
 
-/** The part of the world's day and its minute, for the scene: pinned in development by `?clock=`, else the world's clock. */
-export function useDayClock(): Pick<WorldClock, "part" | "minute"> {
-  const store = useGameStoreIfAny();
-  const subscribe = useCallback((listener: () => void) => store?.subscribe(listener) ?? (() => undefined), [store]);
-  const world = useSyncExternalStore(subscribe, () => store?.getState().clock?.world ?? null);
+/** The part of the world's day and its minute, for the scene: pinned in development by `?clock=`, else the world's clock from the last reply's `world` and the device. */
+export function useDayClock(world: WorldClock | null): Pick<WorldClock, "part" | "minute"> {
   const [reply, setReply] = useState<{ world: WorldClock; at: number } | null>(null);
   useEffect(() => {
     if (world !== null) setReply({ world, at: Date.now() });

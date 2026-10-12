@@ -1,5 +1,7 @@
 // What the city's screen hands the 3D scene and hears back. Kept free of three.js so the screen can
 // be in the first chunk and the scene loaded only where WebGL exists.
+import type { WorldClock } from "@japacity/sim";
+
 import type { Act, Picked as WorldPicked, Shot, Thing } from "../../shared/world/contract";
 import type { Shown } from "./crowd";
 import type { ModeSettings } from "./mode";
@@ -64,6 +66,8 @@ export interface SceneProps {
   onZoomed?: (zoomed: boolean) => void;
   /** The world mode: the act done at once that landed last and when, so its answer plays where it was done (R-WORLD-005). */
   acted?: { activity: string; at: number } | null;
+  /** The world's clock the last reply carried, or null before one (R-CLOCK-033); the scene carries it on by the device's clock. */
+  worldClock?: WorldClock | null;
 }
 
 /** Read by the browser test: what the last frame drew and where the character is. */

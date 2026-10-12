@@ -680,7 +680,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
   const drag = useRef<{ x: number; turn: number } | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const { settings, looking, file, zoomed = false, onZoomed } = props;
-  const day = useDayClock();
+  const day = useDayClock(props.worldClock ?? null);
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => roomShot(shotOf(stageOf(file)), stageOf(file), file.scope), [file]);
   const rig = useRef<Rig>(wholeRig());

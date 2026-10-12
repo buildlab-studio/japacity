@@ -996,6 +996,8 @@ export function City({
   const [answer, setAnswer] = useState<ReportLine | null>(null);
   // The act done at once that landed last, so the scene plays its answer where it was done (R-WORLD-005).
   const [acted, setActed] = useState<{ activity: string; at: number } | null>(null);
+  // The world's clock the last reply carried, for the scene's sun and sky (R-CLOCK-033).
+  const worldClock = useGame((state) => state.clock?.world ?? null);
   useEffect(() => {
     if (linesSeen.current === lastLines) return;
     linesSeen.current = lastLines;
@@ -1377,6 +1379,7 @@ export function City({
                     zoomed,
                     onZoomed: setZoomed,
                     acted,
+                    worldClock,
                   }
                 : {})}
               onFrame={(frameMs) => {
