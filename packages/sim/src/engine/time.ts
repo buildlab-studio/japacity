@@ -17,8 +17,13 @@ export const MORNING_HOUR_LAGOS = 7;
 // The world's own clock (R-CLOCK-033, decision 0036): one game day runs on real time but faster than life, the same
 // moment for everyone, so a sitting sees the sun move. Each life's months turn only when that life sleeps.
 
-/** One game day in real time. */
-export const GAME_DAY_MS = 2 * HOUR_MS;
+/**
+ * One game day in real time: an hour and three quarters. Not a divisor of the real day (R-CLOCK-033 as amended, the
+ * owner's item 41): 24 hours hold 13 and five sevenths game days, so a player who sits down at the same real hour
+ * each evening meets a different hour of the game's day each day of the week, every part of it inside a week.
+ * 105 minutes split into 1,440 game minutes of 4,375 ms each, whole, so the clock's arithmetic stays in integers.
+ */
+export const GAME_DAY_MS = 105 * MINUTE_MS;
 
 /** The real moment game day 0 began at its midnight: a Friday 18:00 UTC, the same epoch as the server's ticks (R-CLOCK-002), so day 0 is a Friday. */
 export const GAME_DAY_EPOCH_MS = 1_791_568_800_000;

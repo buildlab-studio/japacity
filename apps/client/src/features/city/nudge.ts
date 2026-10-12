@@ -848,10 +848,12 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
 export const NIGHT = "ui.nudge.night";
 
 /**
- * The nudge as the world's part of the day reads it: at night "Night. Go to bed", unless something more pressing waits on
- * the player (a question asked, a person asking), which the night never covers. By day the nudge stands as it was.
+ * The nudge as the world's part of the day reads it: at night, when the body is tired, "Night. Go to bed", unless something
+ * more pressing waits on the player (a question asked, a person asking), which the night never covers. A night the body can
+ * still take is the player's (the decision 41: nobody is forced to bed; the night has its own things open), so the
+ * nudge stands as it was. By day nothing changes.
  */
-export function atNight<N extends Nudge & { about: NudgeAbout }>(nudge: N | null, part: DayPart): N | (Nudge & { about: NudgeAbout }) | null {
-  if (part !== "night" || nudge === null || nudge.about === "setpiece" || nudge.about === "offer") return nudge;
+export function atNight<N extends Nudge & { about: NudgeAbout }>(nudge: N | null, part: DayPart, tired: boolean): N | (Nudge & { about: NudgeAbout }) | null {
+  if (part !== "night" || !tired || nudge === null || nudge.about === "setpiece" || nudge.about === "offer") return nudge;
   return { key: NIGHT, about: "end" };
 }

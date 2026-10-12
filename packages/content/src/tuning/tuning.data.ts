@@ -18,6 +18,8 @@ export const tuning: Tuning = {
     quietAskCap: pounds(50),
     // R-TURN-010 (decision 0034): a life with no job lives the whole month by hand; a job takes its days and leaves ten.
     halfDays: { noJob: 60, withJob: 20 },
+    // R-OFFER-008: an ask may land as the day is lived, at a third and two thirds of the month's free time.
+    arrivalsBp: [3333, 6667],
     // R-ACTIVITY-019: a weekly thing kept as a commitment is three of it a month.
     repeatPerSlot: 3,
     // R-QUALITY-007 (decision 0035): each half-day lived takes a little off the belly and the energy; the month's rest brings

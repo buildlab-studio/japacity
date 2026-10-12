@@ -79,6 +79,7 @@ export const ReasonSchema = z.enum([
   "fee-agent",
   "fee-advice",
   "food",
+  "enjoyment",
   "bank-charge",
   "loan-repay",
   "loan-interest",
@@ -348,6 +349,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
   }),
   z.strictObject({ type: z.literal("offer/open"), offer: idOf("offer") }),
   z.strictObject({ type: z.literal("offer/close"), offer: idOf("offer") }),
+  z.strictObject({ type: z.literal("offer/come-up"), max: CountSchema }),
   z.strictObject({ type: z.literal("obligation/close"), obligationType: ObligationTypeSchema }),
   z.strictObject({ type: z.literal("obligation/relief"), obligationType: ObligationTypeSchema, bp: BpSchema }),
   z.strictObject({ type: z.literal("place/move"), to: WhereSchema, country: idOf("country").nullable() }),
@@ -401,6 +403,7 @@ export const TuningSchema = z.strictObject({
     quietAskCap: CountSchema,
     halfDays: z.strictObject({ noJob: CountSchema, withJob: CountSchema }),
     repeatPerSlot: z.int().positive(),
+    arrivalsBp: z.array(CountSchema),
     body: z.strictObject({ bellyPerHalfDay: CountSchema, energyPerHalfDay: CountSchema, restTo: CountSchema, restBy: CountSchema, lowBelow: CountSchema, hungryWellbeing: CountSchema, spentWellbeing: CountSchema, spentBelow: CountSchema }),
   }),
   quality: z.strictObject({

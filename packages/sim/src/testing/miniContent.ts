@@ -300,7 +300,7 @@ export const miniContent: Content = {
     },
   },
   tuning: {
-    turn: { cap: 24, start: 24, freeSlots: 2, freeSlotsNoJob: 3, maxLocked: 2, quietAskCap: 5000, halfDays: { noJob: 60, withJob: 20 }, repeatPerSlot: 3, body: { bellyPerHalfDay: 2, energyPerHalfDay: 1, restTo: 60, restBy: 25, lowBelow: 30, hungryWellbeing: 6, spentWellbeing: 4, spentBelow: 10 } },
+    turn: { cap: 24, start: 24, freeSlots: 2, freeSlotsNoJob: 3, maxLocked: 2, quietAskCap: 5000, halfDays: { noJob: 60, withJob: 20 }, repeatPerSlot: 3, arrivalsBp: [3333, 6667], body: { bellyPerHalfDay: 2, energyPerHalfDay: 1, restTo: 60, restBy: 25, lowBelow: 30, hungryWellbeing: 6, spentWellbeing: 4, spentBelow: 10 } },
     quality: {
       wellbeingRest: 12,
       wellbeingDriftTo: 60,

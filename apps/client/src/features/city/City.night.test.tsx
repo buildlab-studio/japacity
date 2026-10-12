@@ -6,6 +6,7 @@ import { type DayPart, type WorldClock, worldClockAt } from "@japacity/sim";
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import type { GameStore } from "../../authority/store";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/people";
@@ -150,10 +151,14 @@ describe("sleep, the way the month turns", () => {
   });
 });
 
+/** The body worn down to under thirty energy, so the night asks for bed (R-CLOCK-033 as amended). */
+const worn = (game: ReturnType<typeof newGame>): void => applyEffects(game, [{ type: "quality/add", quality: "quality.energy", amount: -50 }]);
+
 describe("the night's nudge", () => {
-  test("[R-CLOCK-033] [R-WORLD-025] given the world's night and nothing waiting on the player, when the band's second row shows, then the nudge reads Night. Go to bed, and its tap opens the bed's chip", async () => {
-    const { store, game } = await inTheParlour();
+  test("[R-CLOCK-033] [R-WORLD-025] given the world's night, a tired body and nothing waiting on the player, when the band's second row shows, then the nudge reads Night. Go to bed, and its tap opens the bed's chip", async () => {
+    const { store, game } = await inTheParlour(0, worn);
     expect(game.view().offers).toEqual([]);
+    expect(game.view().qualities.find((quality) => quality.id === "quality.energy")?.value).toBeLessThan(30);
     setPart(store, "afternoon");
     expect(document.querySelector("[data-nudge]")?.textContent ?? "").not.toContain(say(NIGHT));
     setPart(store, "night");
@@ -164,6 +169,14 @@ describe("the night's nudge", () => {
     await waitFor(() => expect(document.querySelector("[data-nudge]")).toBeNull());
   });
 
+  test("[R-CLOCK-033] given the world's night and a body that can still take it, when the band's second row shows, then the nudge stands as it was: nobody is sent to bed (the decision 41)", async () => {
+    const { store, game } = await inTheParlour();
+    expect(game.view().qualities.find((quality) => quality.id === "quality.energy")?.value).toBeGreaterThanOrEqual(30);
+    setPart(store, "night");
+    await waitFor(() => expect(found("[data-band-month]").textContent).toContain("Night"));
+    expect(document.querySelector("[data-nudge]")?.textContent ?? "").not.toContain(say(NIGHT));
+  });
+
   test("[R-CLOCK-033] given the world's night and a person asking, when the band's second row shows, then the nudge stays on the person asking", async () => {
     const { store, game } = await inTheParlour(1);
     expect(game.view().offers.length).toBeGreaterThan(0);
@@ -171,13 +184,14 @@ describe("the night's nudge", () => {
     expect((await waitFor(() => found("[data-nudge]"))).textContent).toContain(say("ui.nudge.offer"));
   });
 
-  test("[R-CLOCK-033] given the night, when the nudge is chosen, then a question or a person asking still leads, anything else gives way to bed, and by day nothing changes", () => {
-    expect(atNight({ key: "ui.nudge.offer", about: "offer" }, "night")).toEqual({ key: "ui.nudge.offer", about: "offer" });
-    expect(atNight({ key: "ui.nudge.setpiece", about: "setpiece" }, "night")).toEqual({ key: "ui.nudge.setpiece", about: "setpiece" });
-    expect(atNight({ key: "chapter.find-your-feet.item.job", about: "step" }, "night")).toEqual({ key: NIGHT, about: "end" });
-    expect(atNight({ key: "ui.nudge.report", about: "report" }, "night")).toEqual({ key: NIGHT, about: "end" });
-    for (const part of ["morning", "afternoon", "evening"] as const) expect(atNight({ key: "chapter.find-your-feet.item.job", about: "step" }, part)).toEqual({ key: "chapter.find-your-feet.item.job", about: "step" });
-    expect(atNight(null, "night")).toBeNull();
+  test("[R-CLOCK-033] given the night and a tired body, when the nudge is chosen, then a question or a person asking still leads, anything else gives way to bed; a body still fresh, or the day, changes nothing", () => {
+    expect(atNight({ key: "ui.nudge.offer", about: "offer" }, "night", true)).toEqual({ key: "ui.nudge.offer", about: "offer" });
+    expect(atNight({ key: "ui.nudge.setpiece", about: "setpiece" }, "night", true)).toEqual({ key: "ui.nudge.setpiece", about: "setpiece" });
+    expect(atNight({ key: "chapter.find-your-feet.item.job", about: "step" }, "night", true)).toEqual({ key: NIGHT, about: "end" });
+    expect(atNight({ key: "ui.nudge.report", about: "report" }, "night", true)).toEqual({ key: NIGHT, about: "end" });
+    expect(atNight({ key: "chapter.find-your-feet.item.job", about: "step" }, "night", false)).toEqual({ key: "chapter.find-your-feet.item.job", about: "step" });
+    for (const part of ["morning", "afternoon", "evening"] as const) expect(atNight({ key: "chapter.find-your-feet.item.job", about: "step" }, part, true)).toEqual({ key: "chapter.find-your-feet.item.job", about: "step" });
+    expect(atNight(null, "night", true)).toBeNull();
     expect(say(NIGHT)).toBe("Night. Go to bed");
   });
 });

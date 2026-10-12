@@ -1,5 +1,6 @@
 // Turns: docs/rules/turn.md. A turn is one month. Since decision 0034 the month is lived: now-acts spend its
 // free days (R-TURN-010) and the bank gates nothing (it goes at the online step).
+import { bp } from "../engine/int";
 import { reject } from "../engine/reject";
 import type { RegisteredKind } from "../engine/kind";
 import { turnInProgress } from "../engine/kind";
@@ -63,6 +64,17 @@ function grant(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const after = Math.min(ctx.content.tuning.turn.cap, banked + count);
   const event: TurnEvent = { type: "turn/granted", count: after - banked, banked: after };
   return [event];
+}
+
+/**
+ * How many of the arrival marks (shares of the month's free time, in basis points) one spend carries the time across:
+ * a mark at `bp` is crossed when the time was under it and is now at or past it (R-OFFER-008).
+ */
+export function arrivalsCrossed(before: number, after: number, free: number, marksBp: readonly number[]): number {
+  return marksBp.filter((markBp) => {
+    const mark = bp(free, markBp);
+    return before < mark && after >= mark;
+  }).length;
 }
 
 function spend(ctx: Ctx): BaseEvent[] {
@@ -142,6 +154,9 @@ export const turnKind: RegisteredKind<TurnSlice, TurnEvent> = {
         .filter(([quality]) => ctx.content.quality[quality] !== undefined)
         .map(([quality, per]) => ({ type: "quality/add" as const, quality, amount: -per * taken }));
       if (drain.length > 0) ctx.apply(drain, { source: "turn/spend-days", param: null, terms: {} });
+      // R-OFFER-008: an ask may land as the day is lived: one offer may come up for each arrival mark this spend crosses.
+      const crossed = arrivalsCrossed(ctx.state.turn.spent, spent, free, ctx.content.tuning.turn.arrivalsBp);
+      for (let mark = 0; mark < crossed; mark += 1) ctx.apply([{ type: "offer/come-up", max: 1 }], { source: "turn/spend-days", param: null, terms: {} });
       const event: TurnEvent = { type: "turn/days-spent", halfDays: taken, spent };
       return [event];
     },

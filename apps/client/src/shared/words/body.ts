@@ -9,6 +9,12 @@ import { say } from "./text";
 const BELLY = "quality.belly";
 const ENERGY = "quality.energy";
 
+/** True when the energy is low: the night then sends the player to bed (R-CLOCK-033 as amended; the decision 41). */
+export function tired(view: Pick<PlayerView, "qualities">): boolean {
+  const energy = view.qualities.find((quality) => quality.id === ENERGY)?.value ?? null;
+  return energy !== null && energy < content.tuning.turn.body.lowBelow;
+}
+
 /** The body's word for the band, or null when it does not complain. A view without the body says nothing. */
 export function bodyWords(view: Pick<PlayerView, "qualities">): string | null {
   const low = content.tuning.turn.body.lowBelow;
@@ -16,9 +22,9 @@ export function bodyWords(view: Pick<PlayerView, "qualities">): string | null {
   const belly = value(BELLY);
   const energy = value(ENERGY);
   const hungry = belly !== null && belly < low;
-  const tired = energy !== null && energy < low;
-  if (hungry && tired) return say("ui.body.both");
+  const worn = energy !== null && energy < low;
+  if (hungry && worn) return say("ui.body.both");
   if (hungry) return say("ui.body.hungry");
-  if (tired) return say("ui.body.tired");
+  if (worn) return say("ui.body.tired");
   return null;
 }

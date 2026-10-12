@@ -78,6 +78,8 @@ export type Reason =
   | "fee-advice"
   /** A meal or the water bought and eaten today (R-HOME-012, decision 0035), a sink. */
   | "food"
+  /** Enjoyment and spending on the street, paid as it is had (R-STREET-011, decision 0037), a sink. */
+  | "enjoyment"
   | "bank-charge"
   | "loan-repay"
   | "loan-interest"
@@ -360,6 +362,8 @@ export type Effect =
   | { type: "offer/open"; offer: Id<"offer"> }
   /** closes an open offer unanswered, as a family request handled in another life (R-PEOPLE-034). */
   | { type: "offer/close"; offer: Id<"offer"> }
+  /** The day's arrivals (R-OFFER-008): rolls as the come-up phase does and opens at most `max` offers inside the month's cap. */
+  | { type: "offer/come-up"; max: number }
   // obligation, whole life
   | { type: "obligation/close"; obligationType: ObligationType }
   /** The next charge of the open obligation of this type that applies where the character lives falls by `bp` of its amount, once (R-OBLIGATION-014). */
@@ -1159,6 +1163,8 @@ export interface Tuning {
     halfDays: { noJob: number; withJob: number };
     /** An act that repeats, kept as a commitment in a slot, runs this many times as the month turns (R-ACTIVITY-019). */
     repeatPerSlot: number;
+    /** The day's arrivals (R-OFFER-008): shares of the month's free time, in basis points, at which one offer may come up as the time is lived. */
+    arrivalsBp: number[];
     /** The body (R-QUALITY-007): what each half-day lived takes off the belly and the energy, where the month's rest brings each back to, and what a hungry or spent month takes off wellbeing. */
     body: { bellyPerHalfDay: number; energyPerHalfDay: number; restTo: number; restBy: number; lowBelow: number; hungryWellbeing: number; spentWellbeing: number; spentBelow: number };
   };
@@ -1741,6 +1747,9 @@ export interface OfferSlice {
   items: Record<string, OfferState>;
   lastOpened: Record<Id<"offer">, number>;
   timesOpened: Record<Id<"offer">, number>;
+  /** The offers opened by roll in `rolledMonth`, at the day's arrivals and the close together, for the month's cap (R-OFFER-001, R-OFFER-008). */
+  rolled: number;
+  rolledMonth: number;
 }
 
 export interface ChapterSlice {

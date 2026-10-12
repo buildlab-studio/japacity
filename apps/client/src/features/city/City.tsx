@@ -40,7 +40,7 @@ import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
-import { bodyWords } from "../../shared/words/body";
+import { bodyWords, tired } from "../../shared/words/body";
 import { actOnCard, answersNow, effectWordsOf, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
@@ -257,11 +257,17 @@ function bandName(name: string): string {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
-/** Where the player last stopped, when it is a place they can still enter (rule 7), or the hub. */
-function lastPlace(here: ViewPlace, home: string | null): string {
-  const kept = readKept(LAST_KEY)[0];
+/**
+ * Where the player last stopped, when it is a place they can still enter (rule 7) and the world's day is still the one
+ * they stopped on; once the sky has turned since, they start at home (R-CLOCK-033 as amended; the decision 41:
+ * "coming back, you resume at whatever time the world is at; if the sky has turned since you left, you start at home").
+ * With no home that can be entered, the hub.
+ */
+function lastPlace(here: ViewPlace, home: string | null, day: number | null): string {
+  const [kept, , keptDay] = readKept(LAST_KEY);
   const open = enterable(here, PLACES);
-  if (kept !== undefined && open.some((place) => place.id === kept)) return kept;
+  const sameDay = day === null || keptDay === undefined || keptDay === String(day);
+  if (kept !== undefined && sameDay && open.some((place) => place.id === kept)) return kept;
   return home !== null && open.some((place) => place.id === home) ? home : openingPlace(here, PLACES);
 }
 
@@ -601,10 +607,10 @@ export function City({
   const here = useMemo(() => ({ where, country }), [where, country]);
   // The game opens where the character lives (R-HOME-006): a start in Makoko opens on the water.
   const home = homeOf(view);
-  const [placeId, setPlaceId] = useState<string>(() => (world ? lastPlace(here, home) : openingPlace(here, PLACES)));
+  const [placeId, setPlaceId] = useState<string>(() => (world ? lastPlace(here, home, dayClock.served ? dayClock.day : null) : openingPlace(here, PLACES)));
   // A new where (home, abroad, the road) opens its own hub (R-CITY-012, R-CITY-013).
   useEffect(() => {
-    setPlaceId(world ? lastPlace(here, home) : openingPlace(here, PLACES));
+    setPlaceId(world ? lastPlace(here, home, dayClock.served ? dayClock.day : null) : openingPlace(here, PLACES));
     // The home changes only with the where or a move; a move is the player's own and keeps the place they stand in.
   }, [here, world]);
   // A move made while standing in the home just left: the character goes to the new home, as the
@@ -688,7 +694,8 @@ export function City({
   // The world mode remembers where the player stopped and where they have been (rules 5 and 7).
   useEffect(() => {
     if (!world) return;
-    keep(LAST_KEY, inside ? [placeId, "inside"] : [placeId]);
+    // The world's day is kept with the place, so a return after the sky has turned starts at home.
+    keep(LAST_KEY, [placeId, inside ? "inside" : "", ...(dayClock.served ? [String(dayClock.day)] : [])]);
     const been = readKept(BEEN_KEY);
     const here = inside && insideEntry !== null ? [placeId, insideEntry.id] : [placeId];
     const fresh = here.filter((id) => !been.includes(id));
@@ -1014,6 +1021,7 @@ export function City({
         ? nudge
         : nudgeHere(nudge, stepThing),
     dayClock.served ? dayClock.part : "afternoon",
+    tired(view),
   );
   const toBed = shownNudge?.key === NIGHT;
   // The night's nudge opens the bed's chip where the bed stands; elsewhere it only says so.

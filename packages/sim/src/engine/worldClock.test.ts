@@ -12,14 +12,17 @@ describe("the world's clock", () => {
     expect(worldClockAt(GAME_DAY_EPOCH_MS)).toMatchObject({ day: 0, minute: 0, weekday: 5, part: "night" });
   });
 
-  test("[R-CLOCK-033] given a game day of two real hours, when the clock is read through it, then the parts come in order and the day and weekday move", () => {
+  test("[R-CLOCK-033] given a game day of an hour and three quarters, when the clock is read through it, then the parts come in order, the day and weekday move, and the day does not divide the real one", () => {
     expect(worldClockAt(at(0, 6))).toMatchObject({ minute: 360, part: "morning" });
     expect(worldClockAt(at(0, 12))).toMatchObject({ part: "afternoon" });
     expect(worldClockAt(at(0, 18))).toMatchObject({ part: "evening" });
     expect(worldClockAt(at(0, 22))).toMatchObject({ part: "night" });
     expect(worldClockAt(at(1, 9))).toMatchObject({ day: 1, weekday: 6, part: "morning" });
     expect(worldClockAt(at(2, 9))).toMatchObject({ day: 2, weekday: 0 });
-    expect(GAME_DAY_MS).toBe(2 * HOUR_MS);
+    expect(GAME_DAY_MS).toBe(105 * 60 * 1000);
+    // A game minute is a whole number of milliseconds, and a real day is not a whole number of game days (item 41).
+    expect(GAME_DAY_MS % 1440).toBe(0);
+    expect((24 * HOUR_MS) % GAME_DAY_MS).not.toBe(0);
   });
 
   test("[R-CLOCK-033] [R-CLOCK-032] given a moment, when the next morning is worked out, then it is six o'clock of this day if it is still to come, else the next day's", () => {

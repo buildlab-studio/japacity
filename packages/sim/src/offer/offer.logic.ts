@@ -152,7 +152,7 @@ function scaleAsked(entry: OfferEntry, terms: Terms, factorBp: number): void {
  * offer really is. `extra` terms come with the effect that opened it
  * (R-OFFER-007) and are added to the offer's own.
  */
-function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms): BaseEvent[] {
+function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms, rolled = false): BaseEvent[] {
   const own: Terms = {};
   for (const [name, spec] of Object.entries(entry.terms)) own[name] = fixTerm(ctx, spec);
   // R-ADVICE-005, 006: an agent's kind, fee and tells; R-OFFER-006's draws do not apply.
@@ -176,7 +176,7 @@ function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms): BaseEvent[] {
     signs,
     secret: { fraud },
   };
-  return record(ctx, { type: "offer/opened", item });
+  return record(ctx, rolled ? { type: "offer/opened", item, rolled: true } : { type: "offer/opened", item });
 }
 
 // ---------------------------------------------------------------------------
@@ -516,20 +516,41 @@ function parcelShipped(ctx: Ctx): BaseEvent[] {
   return openOffer(ctx, entry, {});
 }
 
-function comeUp(ctx: Ctx): BaseEvent[] {
+/** The offers opened by roll this month so far, at the day's arrivals and the close together (R-OFFER-001 as amended, R-OFFER-008). */
+function rolledThisMonth(state: State): number {
+  return state.offer.rolledMonth === state.turn.month ? state.offer.rolled : 0;
+}
+
+/**
+ * The month's roll (R-OFFER-001): the groups in order, each entry rolled where it may be, inside the month's cap of rolled
+ * offers and the cap of open ones; at most `max` of them this time. The day's arrivals (R-OFFER-008) roll one at a time
+ * as the month's time is lived; the close rolls what the cap still allows.
+ */
+function roll(ctx: Ctx, max: number): BaseEvent[] {
   const { maxNewPerMonth, maxOpen } = ctx.content.tuning.offer;
   const events: BaseEvent[] = [];
   let opened = 0;
   // R-HOME-003: the month the settlement is cleared, no other blow comes up beside it.
   const cleared = evictedThisMonth(ctx.state);
   for (const entry of rollOrder(ctx.content)) {
-    // Checked before each roll: an offer opened this month counts toward both limits.
-    if (opened >= maxNewPerMonth || Object.keys(ctx.state.offer.items).length >= maxOpen) break;
+    // Checked before each roll: an offer opened by roll this month counts toward the month's cap, an open one toward the other.
+    if (opened >= max || rolledThisMonth(ctx.state) >= maxNewPerMonth || Object.keys(ctx.state.offer.items).length >= maxOpen) break;
     if (cleared && entry.bad === true) continue;
     if (!mayRoll(ctx, entry) || !ctx.random.chance("offer", rollChanceBp(ctx, entry))) continue;
-    events.push(...openOffer(ctx, entry, {}));
+    events.push(...openOffer(ctx, entry, {}, true));
     opened += 1;
   }
+  return events;
+}
+
+/** R-OFFER-008: the effect `offer/come-up`, the roll alone, at most `max` offers. */
+function comeUpEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "offer/come-up") throw new Error(`offer/come-up cannot carry out ${effect.type}.`);
+  return roll(ctx, effect.max);
+}
+
+function comeUp(ctx: Ctx): BaseEvent[] {
+  const events: BaseEvent[] = roll(ctx, ctx.content.tuning.offer.maxNewPerMonth);
   // R-HEALTH-002, R-HEALTH-003: illness, its relapse and its worse turn, on the stream `health`.
   events.push(...healthComeUp(ctx, (entry, terms) => openOffer(ctx, entry, terms)));
   events.push(...whipRound(ctx));
@@ -584,10 +605,15 @@ function evolve(slice: OfferSlice, event: OfferEvent): OfferSlice {
   switch (event.type) {
     case "offer/opened": {
       const { item } = event;
+      // R-OFFER-001 as amended: the month's rolled count, kept across the day's arrivals and the close.
+      const sameMonth = slice.rolledMonth === item.openedMonth;
+      const rolled = event.rolled === true ? (sameMonth ? slice.rolled + 1 : 1) : sameMonth ? slice.rolled : 0;
       return {
         items: { ...slice.items, [item.id]: item },
         lastOpened: { ...slice.lastOpened, [item.entry]: item.openedMonth },
         timesOpened: { ...slice.timesOpened, [item.entry]: (slice.timesOpened[item.entry] ?? 0) + 1 },
+        rolled,
+        rolledMonth: event.rolled === true || sameMonth ? item.openedMonth : slice.rolledMonth,
       };
     }
     case "offer/taken":
@@ -721,9 +747,9 @@ export function offerView(read: ReadCtx, item: OfferState): OfferView {
 
 export const offerKind: RegisteredKind<OfferSlice, OfferEvent> = {
   kind: "offer",
-  initial: () => ({ items: {}, lastOpened: {}, timesOpened: {} }),
+  initial: () => ({ items: {}, lastOpened: {}, timesOpened: {}, rolled: 0, rolledMonth: 0 }),
   commands: { "offer/choose": choose },
-  effects: { "offer/open": openEffect, "offer/close": closeEffect },
+  effects: { "offer/open": openEffect, "offer/close": closeEffect, "offer/come-up": comeUpEffect },
   phases: { expire, "come-up": comeUp },
   evolve,
   lines,

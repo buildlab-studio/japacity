@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { checkInvariants } from "../engine/invariants";
 import { registry } from "../kinds";
-import { freeHalfDays, freeSlots } from "./turn.logic";
+import { arrivalsCrossed, freeHalfDays, freeSlots } from "./turn.logic";
 import { stepWith } from "../engine/step";
 import type { BaseEvent, Command, Ctx, Effect, Rejection, State } from "../engine/types";
 import { miniContent } from "../testing/miniContent";
@@ -110,6 +110,21 @@ describe("turns", () => {
     game.state = result.state;
     game.endTurn();
     expect(game.state.turn.spent).toBe(0);
+  });
+
+  test("[R-TURN-010] [R-OFFER-008] given the arrival marks at a third and two thirds, when a spend is read against them, then a mark counts once, when the time was under it and is now at or past it, and one spend may cross both", () => {
+    const marks = tuning.arrivalsBp;
+    expect(marks).toEqual([3333, 6667]);
+    const first = Math.floor((60 * 3333) / 10000);
+    const second = Math.floor((60 * 6667) / 10000);
+    expect(arrivalsCrossed(0, first - 1, 60, marks)).toBe(0);
+    expect(arrivalsCrossed(first - 1, first, 60, marks)).toBe(1);
+    expect(arrivalsCrossed(first, second - 1, 60, marks)).toBe(0);
+    expect(arrivalsCrossed(second - 1, second, 60, marks)).toBe(1);
+    expect(arrivalsCrossed(0, 60, 60, marks)).toBe(2);
+    expect(arrivalsCrossed(second, 60, 60, marks)).toBe(0);
+    // With a job the month is shorter and the marks come sooner.
+    expect(arrivalsCrossed(0, Math.floor((20 * 3333) / 10000), 20, marks)).toBe(1);
   });
 
   test("[R-TURN-010] given time spent up to the month, when more is spent, then it never passes the month's free time", () => {

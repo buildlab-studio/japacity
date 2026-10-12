@@ -24,6 +24,7 @@ import type {
 import { hiddenPaths, viewWith } from "../engine/view";
 import { registry } from "../kinds";
 import { replayTo } from "../sweep/crossing.journey";
+import { freeHalfDays } from "../turn/turn.logic";
 import { legalCommands } from "../testing/legal";
 import type { Game, Loose } from "../testing/play";
 import { start } from "../testing/play";
@@ -179,6 +180,51 @@ describe("coming up", () => {
     expect(opened(first).map((item) => item.entry)).toEqual(money.slice(0, tuning.maxNewPerMonth));
     const second = subject.end();
     expect(opened(second).map((item) => item.entry)).toEqual(money.slice(2, 4));
+  });
+
+  test("[R-OFFER-008] [R-OFFER-001] given every rolled offer certain, when the month's free time is lived past a third and then past two thirds, then one offer comes up at each, at once, and the close rolls none more: the month's cap holds across the day and the close, and the next month counts afresh", () => {
+    const always = variant(Object.fromEntries(rolled.map((entry) => [entry.id, { chanceBp: CERTAIN, when: [] }])));
+    const subject = lab({ content: always });
+    const money = rolled.filter((entry) => entry.group === "money").map((entry) => entry.id).sort();
+    const free = freeHalfDays(subject.game.state, always);
+    const [firstBp, secondBp] = always.tuning.turn.arrivalsBp;
+    if (firstBp === undefined || secondBp === undefined) throw new Error("No arrival marks in the tuning.");
+    const first = bp(free, firstBp);
+    const second = bp(free, secondBp);
+    expect(first).toBeGreaterThan(0);
+    expect(second).toBeGreaterThan(first);
+    // Short of the first mark nothing comes; the half-day that reaches it brings the first money offer, no illness, no whip-round.
+    expect(opened(subject.apply([{ type: "turn/spend-days", halfDays: first - 1 }]))).toEqual([]);
+    const atFirst = subject.apply([{ type: "turn/spend-days", halfDays: 1 }]);
+    expect(opened(atFirst).map((item) => item.entry)).toEqual([money[0]]);
+    expect(own(atFirst, "offer/opened").every((event) => event.rolled === true)).toBe(true);
+    expect(subject.game.state.offer).toMatchObject({ rolled: 1, rolledMonth: subject.game.state.turn.month });
+    // Between the marks nothing; at the second, the next.
+    expect(opened(subject.apply([{ type: "turn/spend-days", halfDays: second - first - 1 }]))).toEqual([]);
+    expect(opened(subject.apply([{ type: "turn/spend-days", halfDays: 1 }])).map((item) => item.entry)).toEqual([money[1]]);
+    expect(subject.game.state.offer.rolled).toBe(tuning.maxNewPerMonth);
+    // The close turns the month first (the spend phase), so its roll is the new month's morning: the cap is fresh and it
+    // brings the next two money offers; the new month's day then has nothing left in its cap, however far it is lived.
+    const close = subject.end();
+    expect(own(close, "offer/opened").filter((event) => event.rolled === true).map((event) => event.item.entry)).toEqual(money.slice(2, 4));
+    expect(subject.game.state.offer).toMatchObject({ rolled: 2, rolledMonth: subject.game.state.turn.month });
+    expect(opened(subject.apply([{ type: "turn/spend-days", halfDays: second }]))).toEqual([]);
+    // A month whose morning brought one leaves one for the day: the cap is shared, in whichever order it is spent.
+    const oneAtClose = variant({ ...Object.fromEntries(rolled.map((entry) => [entry.id, { chanceBp: 0 }])), [money[4] ?? money[0]!]: { chanceBp: CERTAIN, when: [] } });
+    const quiet = lab({ content: oneAtClose });
+    quiet.end();
+    expect(quiet.game.state.offer.rolled).toBeLessThanOrEqual(1);
+  });
+
+  test("[R-OFFER-008] [R-OFFER-007] given an offer opened by an effect, when the month's rolled count is read, then it does not count: the effect ignores the monthly limit and leaves it to the rolls", () => {
+    const subject = lab({ content: variant({}, true) });
+    const month = subject.game.state.turn.month;
+    const byEffect = subject.apply([{ type: "offer/open", offer: "offer.nepa-bill" }]);
+    expect(opened(byEffect).map((item) => item.entry)).toEqual(["offer.nepa-bill"]);
+    expect(own(byEffect, "offer/opened").some((event) => event.rolled === true)).toBe(false);
+    expect(subject.game.state.offer.rolled === 0 || subject.game.state.offer.rolledMonth !== month).toBe(true);
+    // The come-up effect with nothing rolled in content opens nothing and leaves the count where it was.
+    expect(opened(subject.apply([{ type: "offer/come-up", max: 1 }]))).toEqual([]);
   });
 
   test("[R-OFFER-001] given only life and family offers certain, when a month comes up, then life comes before family, and family in id order", () => {
@@ -578,7 +624,7 @@ describe("opened by an effect", () => {
   test("[R-OFFER-007] given conditions that do not hold, when an effect opens the offer, then nothing opens", () => {
     const subject = lab();
     expect(subject.open("offer.recruiter-message")).toBeUndefined();
-    expect(subject.game.state.offer).toEqual({ items: {}, lastOpened: {}, timesOpened: {} });
+    expect(subject.game.state.offer).toEqual({ items: {}, lastOpened: {}, timesOpened: {}, rolled: 0, rolledMonth: 0 });
   });
 
   test("[R-OFFER-007] given the monthly limit and a cooldown, when effects open offers, then neither stops them", () => {
