@@ -55,6 +55,7 @@ import { buildTaxi, DUBAI_TAXI } from "@japacity/assets-src/veh/taxi/build";
 import { buildHome } from "@japacity/assets-src/bld/home/build";
 import { HOMES } from "@japacity/assets-src/bld/home/homes";
 import { HOMES2 } from "@japacity/assets-src/bld/home/homes2";
+import { HOMES3 } from "@japacity/assets-src/bld/home/homes3";
 import { buildCar } from "@japacity/assets-src/veh/car/build";
 import * as home from "@japacity/assets-src/prop/home/build";
 import { buildAbra } from "@japacity/assets-src/veh/abra/build";
@@ -546,6 +547,10 @@ ENTRIES.push(
   homePiece("bld_home-hostel-room", "home-hostel-room", () => buildHome(HOMES2["hostel-room"])),
   homePiece("bld_home-hostel-yard", "home-hostel-yard", () => buildHome(HOMES2["hostel-yard"])),
   homePiece("prop_bath-corner", "shared", home.buildBathCorner),
+  homePiece("bld_home-family-house", "home-family-house", () => buildHome(HOMES3.family)),
+  homePiece("bld_home-room-house", "home-room-house", () => buildHome(HOMES3.room)),
+  homePiece("bld_home-hostel-house", "home-hostel-house", () => buildHome(HOMES3.hostel)),
+  homePiece("prop_carport", "shared", home.buildCarport),
   homePiece("prop_generator", "shared", home.buildGenerator),
   homePiece("prop_clothes-line", "shared", home.buildClothesLine),
   homePiece("prop_wardrobe", "shared", home.buildWardrobe),

@@ -340,3 +340,28 @@ export function buildBathCorner(): Group {
     { x: w / 2, z: 0, width: 0.1, depth: d },
   ]);
 }
+
+/**
+ * The carport by the yard's gate: six steel posts and an open frame of beams and rafters over the car's spot, the sheet
+ * left off so the car shows from above, a strip of concrete under the car's wheels.
+ */
+export function buildCarport(): Group {
+  const g = new Group();
+  g.name = "prop_carport";
+  const w = 3.0;
+  const l = 5.2;
+  const h = 2.35;
+  for (const x of [-w / 2, w / 2]) {
+    for (const z of [-l / 2, 0, l / 2]) box(g, 0.1, h, 0.1, x, 0, z, "charcoal");
+    box(g, 0.1, 0.16, l + 0.2, x, h, 0, "charcoal");
+  }
+  for (const z of [-l / 2, l / 2]) box(g, w + 0.2, 0.14, 0.1, 0, h + 0.02, z, "charcoal");
+  // The rafters across, a little over the beams.
+  for (let i = 1; i < 6; i++) box(g, w + 0.1, 0.06, 0.06, 0, h + 0.16, -l / 2 + (i * l) / 6, "hub");
+  // The posts' feet in concrete.
+  for (const x of [-w / 2, w / 2]) for (const z of [-l / 2, 0, l / 2]) box(g, 0.22, 0.05, 0.22, x, 0, z, "concrete");
+  return setFootprint(
+    g,
+    [-w / 2, w / 2].flatMap((x) => [-l / 2, 0, l / 2].map((z) => ({ x, z, width: 0.22, depth: 0.22 }))),
+  );
+}
