@@ -34,9 +34,23 @@ interface HomeExtras {
   /** The bulb's and the lantern's light by night, as point lights at the lamps the stage names. */
   nightLights: { at: Vec3; strength: number; reach: number }[];
   /** Round 3: the rooms the camera eases in on (`&zoom=<room>`), each at round 2's distance: where it looks, how wide, how steep. */
-  zooms?: Record<string, { centre: Vec3; width: number; pitch: number }>;
+  zooms?: Record<string, Zoom>;
   /** Round 3: the whole house's lens, longer than the room's so the people at the back stand as tall as those at the front. */
   outFov?: number;
+}
+
+/**
+ * One camera state of a wide home. A room eased in on: its centre, width and pitch. A whole view (`whole`): the house
+ * fitted as the plain whole view is, turned to `yaw` degrees and set `lower` of the screen's height down, so the band and
+ * the chips over the top third of the screen leave it clear.
+ */
+interface Zoom {
+  centre: Vec3;
+  width: number;
+  pitch: number;
+  yaw?: number;
+  whole?: boolean;
+  lower?: number;
 }
 
 type HomeFile = PlaceFile & { homex: HomeExtras };
@@ -109,12 +123,17 @@ function Home({ home, night, zoom }: { home: HomeName; night: boolean; zoom: str
     const shot = stage.shot;
     if (shot === undefined) return;
     const aspect = size.width / Math.max(1, size.height);
-    const room = zoom === null ? undefined : built.file.homex.zooms?.[zoom];
+    const asked = zoom === null ? undefined : built.file.homex.zooms?.[zoom];
+    const room = asked?.whole === true ? undefined : asked;
+    const turned = asked?.whole === true ? asked : undefined;
     const fov = room === undefined ? (built.file.homex.outFov ?? SHOT_FOV) : SHOT_FOV;
     camera.fov = fov;
     camera.near = 0.5;
     camera.far = 400;
     camera.aspect = aspect;
+    // The picture moved down the screen by a share of its height: the whole view under the band.
+    if (turned?.lower !== undefined) camera.setViewOffset(size.width, size.height, 0, -turned.lower * size.height, size.width, size.height);
+    else camera.clearViewOffset();
     // Zoomed in on a room: the room's own centre and width, the rest of the house left to run off the screen's edges.
     if (room !== undefined) {
       const { position, target } = aimShot({ ...shot, centre: room.centre, farPitch: room.pitch, far: fitDistance(room.width, aspect), width: 0 }, WHOLE, { x: 0, z: 0 }, aspect);
@@ -123,12 +142,15 @@ function Home({ home, night, zoom }: { home: HomeName; night: boolean; zoom: str
       camera.updateProjectionMatrix();
       return;
     }
+    const whole = turned === undefined ? shot : { ...shot, centre: turned.centre, farPitch: turned.pitch, width: turned.width, yaw: turned.yaw ?? shot.yaw ?? 180 };
     const [width, depth] = stage.ground.size;
-    // The floor's four corners, and the far wall's top over the far two.
-    const corners = [-1, 1].flatMap((sx) => [new Vector3((sx * width) / 2, 0, depth / 2), new Vector3((sx * width) / 2, 0, -depth / 2), new Vector3((sx * width) / 2, 3.05, -depth / 2)]);
-    let far = Math.max(shot.far, fitDistance(shot.width ?? width, aspect, fov));
-    for (let tries = 0; tries < 60; tries++) {
-      const { position, target } = aimShot({ ...shot, far, width: 0 }, WHOLE, { x: 0, z: 0 }, aspect, fov);
+    // The floor's four corners, and the tops of the tall walls: the back's, and the left's too once the view is turned.
+    const floor = [-1, 1].flatMap((sx) => [-1, 1].map((sz) => new Vector3((sx * width) / 2, 0, (sz * depth) / 2)));
+    const tops = floor.filter((corner) => corner.z < 0 || (turned !== undefined && corner.x < 0)).map((corner) => new Vector3(corner.x, 3.05, corner.z));
+    const corners = [...floor, ...tops];
+    let far = Math.max(whole.far, fitDistance(whole.width ?? width, aspect, fov));
+    for (let tries = 0; tries < 80; tries++) {
+      const { position, target } = aimShot({ ...whole, far, width: 0 }, WHOLE, { x: 0, z: 0 }, aspect, fov);
       camera.position.set(...position);
       camera.lookAt(...target);
       camera.updateProjectionMatrix();
