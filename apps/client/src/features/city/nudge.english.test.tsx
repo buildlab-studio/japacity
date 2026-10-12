@@ -55,11 +55,11 @@ describe("the English result sealed until the morning", () => {
     const sealed = { ...waiting, documents: waiting.documents.map((paper) => ({ ...paper, readyMonth: waiting.month, onItsWay: waiting.month })) };
     const nudge = nudgeOf(sealed);
     expect(nudge).toMatchObject({ key: "ui.wait.morning", about: "step" });
-    expect(say(nudge.key, nudge.params)).toBe("Comes tomorrow, 7am");
+    expect(say(nudge.key, nudge.params)).toBe("Comes in the morning");
     await renderWithView(<City world results={() => <p />} />, sealed);
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
-    expect(document.querySelector("[data-nudge]")?.textContent).toBe("Comes tomorrow, 7am");
+    expect(document.querySelector("[data-nudge]")?.textContent).toBe("Comes in the morning");
     expect(document.querySelector("[data-nudge-open]")).toBeNull();
   });
 });

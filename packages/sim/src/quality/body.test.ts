@@ -57,7 +57,7 @@ describe("the body", () => {
     // The two hits land on wellbeing with the month's own source, beside its drift.
     const hits = turned.events
       .filter((event) => event.type === "quality/changed" && (event as { quality?: string }).quality === WELLBEING && (event as { source?: string }).source === "month")
-      .map((event) => (event as { amount: number }).amount);
+      .map((event) => (event as unknown as { amount: number }).amount);
     expect(hits).toContain(-body.hungryWellbeing);
     expect(hits).toContain(-body.spentWellbeing);
   });

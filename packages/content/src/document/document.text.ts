@@ -54,8 +54,8 @@ export const documentText: Record<string, string> = {
 
   // The morning (clock.md R-CLOCK-032): a result real life makes you wait for is sealed until seven the next morning in
   // Lagos. While it is sealed, the places that would name it say when it comes; the short words fit the nudge and Japa.
-  "ui.wait.morning": "Comes tomorrow, 7am",
-  "ui.wait.morning.short": "Tomorrow, 7am",
+  "ui.wait.morning": "Comes in the morning",
+  "ui.wait.morning.short": "In the morning",
   // Once its morning has come, the lock screen tells it first, as a notice from its office. {band} is the band, formatted.
   "phone.morning.notices": "This morning",
   "phone.morning.from.document.english-test": "The test centre",

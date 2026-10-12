@@ -168,8 +168,8 @@ describe("the slice", () => {
       evictionBp: home.evictionBp,
       moved: null,
       moves: [
-        // Makoko's figure is the room's rent by the month, charged whole; the compound's living is by hand (R-HOME-012).
-        { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null },
+        // Decision 0035: both homes' living is by hand; what a move takes at once is unchanged.
+        { to: MAKOKO, monthly: { currency: "NGN", amount: 0 }, now: home.makokoUpkeep, shut: null },
         { to: COMPOUND, monthly: { currency: "NGN", amount: 0 }, now: MOVE_IN, shut: "short" },
       ],
       // no yearly rent is open at the family house.

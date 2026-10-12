@@ -1,6 +1,7 @@
 // The share card's common fields (docs/rules/share.md R-SHARE-001, 002, 004).
 // Each kind says when its own card is due; this file fills the rest the same
 // way for all of them. A card is read from the state and never stored.
+import { divFloor } from "../engine/int";
 import type { Content, Id, PlayerView, ReadCtx, ReportLine, State } from "../engine/types";
 import { japacity, routePercent } from "../japacity/japacity.logic";
 
@@ -9,9 +10,15 @@ export type CardKind = Card["kind"];
 
 const STANDING: Id<"quality"> = "quality.standing";
 
-/** The activities played in the most months (R-ACTIVITY-012), most first, then by id. */
+/**
+ * The activities played in the most months (R-ACTIVITY-012), most first, then by id. An act that repeats counts each
+ * time it is done (R-ACTIVITY-019), so its count is read as months: a month's worth is `tuning.turn.repeatPerSlot`.
+ */
 export function topActivities(state: State, content: Content): Id<"activity">[] {
+  const monthsOf = (id: Id<"activity">, count: number): number =>
+    content.activity[id]?.repeat === true ? divFloor(count + content.tuning.turn.repeatPerSlot - 1, content.tuning.turn.repeatPerSlot) : count;
   return (Object.entries(state.activity.played) as [Id<"activity">, number][])
+    .map(([id, count]) => [id, monthsOf(id, count)] as [Id<"activity">, number])
     .filter(([, months]) => months > 0)
     .sort(([a, x], [b, y]) => y - x || (a < b ? -1 : a > b ? 1 : 0))
     .slice(0, content.tuning.chapter.cardLines)

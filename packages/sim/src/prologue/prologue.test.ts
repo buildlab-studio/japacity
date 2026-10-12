@@ -160,10 +160,10 @@ const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | (typeof AUTHORITY
 };
 
 describe("a new prologue", () => {
-  test("[R-PROLOGUE-001] given scenario.prologue, when a new state is built, then every quality is at its minimum but age at 192, with no money, job, documents or obligations, and the prologue open at step 0", () => {
+  test("[R-PROLOGUE-001] [R-QUALITY-007] given scenario.prologue, when a new state is built, then every quality is at its minimum but age at 192 and the body where its entry starts, with no money, job, documents or obligations, and the prologue open at step 0", () => {
     const state = newState(PROLOGUE, "seed", withPrologue);
     for (const entry of Object.values(withPrologue.quality)) {
-      expect(state.quality[entry.id]).toBe(entry.id === AGE ? withPrologue.tuning.prologue.startAgeMonths : entry.min);
+      expect(state.quality[entry.id]).toBe(entry.id === AGE ? withPrologue.tuning.prologue.startAgeMonths : (entry.start ?? entry.min));
     }
     expect(state.quality[AGE]).toBe(192);
     for (const pocket of Object.values(state.wallet.pockets)) expect(pocket).toEqual({ bank: 0, cash: 0, locked: 0 });

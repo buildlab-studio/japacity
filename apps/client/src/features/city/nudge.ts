@@ -309,7 +309,7 @@ const STEP_ACTIVITY_ALSO: Record<string, readonly string[]> = {
 
 type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities" | "goals" | "plan" | "rates">>;
 
-/** A result sealed until seven the next morning (R-CLOCK-032): "Comes tomorrow, 7am". */
+/** A result sealed until the world's next morning (R-CLOCK-032, decision 0036): "Comes in the morning". */
 export const MORNING = "ui.wait.morning";
 
 /** The nudge that sends a waiting life to the board for better pay. */

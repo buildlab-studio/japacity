@@ -93,7 +93,7 @@ describe("the result sealed until the morning", () => {
     expect(document.querySelector(`[data-paper-notice="issued-band.${ENGLISH}"]`)).toBeNull();
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
     const card = document.querySelector<HTMLElement>(`[data-paper="${ENGLISH}"]`);
-    expect(card?.querySelector("[data-paper-state]")?.textContent).toBe("Comes tomorrow, 7am");
+    expect(card?.querySelector("[data-paper-state]")?.textContent).toBe("Comes in the morning");
     expect(card?.textContent).not.toMatch(/band/i);
   });
 });
@@ -135,6 +135,6 @@ describe("the morning on the lock screen", () => {
     view.rerender(ui());
     expect(document.querySelector("[data-envelope]")).toBeNull();
     expect(document.querySelector(`[data-paper-notice="issued-band.${ENGLISH}"]`)).toBeNull();
-    expect(say("ui.wait.morning")).toBe("Comes tomorrow, 7am");
+    expect(say("ui.wait.morning")).toBe("Comes in the morning");
   });
 });

@@ -114,25 +114,24 @@ describe("the japa type, read at the send-off", () => {
     }
   });
 
-  test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan is the night reader, Ada the family anchor, Tunde the night reader and Zainab the long way round (a return)", () => {
-    // Decision 0035: the lives were re-recorded on 11 Oct 2026. Study and time with the family are acts done a few times a
-    // month now, each counted, so they lead the things done most. Aniekan's refusals are on the Gulf contract, not the
-    // way he took, and study leads his things done most: the night reader.
+  test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan, Ada and Tunde are family anchors and Zainab the long way round (a return)", () => {
+    // Decision 0036: the lives were re-recorded on 12 Oct 2026 and the card reads a repeat act's taps as months, so study no
+    // longer leads the things done most. Aniekan's refusals are on the Gulf contract, not the way he took; the sponsor's
+    // search leads his things done most, and with no reading before it his standing makes him the family anchor.
     const aniekan = sendOff("aniekan-borrower");
     expect(aniekan.routes.find((route) => route.id === aniekan.card!.route)?.refusals ?? 0).toBe(0);
-    expect(aniekan.card!.topActivities[0]).toBe("activity.learn-tech");
-    expect(japaTypeOf(aniekan)).toBe("night-reader");
-    // Ada's new life (seed golden-ada-0): her standing ends at the top, 100, with time with the family first among the
-    // things done most, so she is the family anchor before the careful saver her 23 kept months of 28 would make her.
+    expect(aniekan.card!.topActivities[0]).toBe("activity.find-sponsor");
+    expect(japaTypeOf(aniekan)).toBe("family-anchor");
+    // Ada (seed golden-ada-0): her standing ends at the top, 100, with time with the family first among the things done most,
+    // so she is the family anchor before the careful saver her kept months would make her.
     const ada = sendOff("ada-careful");
     expect(ada.card).toMatchObject({ months: 28, standing: 100 });
     expect(ada.card!.topActivities[0]).toBe("activity.family-time");
-    expect(ada.keptMonths).toBe(23);
     expect(japaTypeOf(ada)).toBe("family-anchor");
-    // Tunde (seed golden-tunde-16): study leads his things done most, and no reading before it holds: the night reader.
+    // Tunde: the senior bank job leads his things done most, time with the family second; no reading before the family anchor holds.
     const tunde = sendOff("tunde-borrower");
-    expect(tunde.card!.topActivities[0]).toBe("activity.learn-tech");
-    expect(japaTypeOf(tunde)).toBe("night-reader");
+    expect(tunde.card!.topActivities[0]).toBe("activity.job-bank-senior");
+    expect(japaTypeOf(tunde)).toBe("family-anchor");
     // Zainab came home once and went again: the long way round, before anything else.
     const zainab = sendOff("zainab-remote");
     expect(zainab.place.returns.length).toBeGreaterThan(0);

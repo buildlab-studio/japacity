@@ -21,7 +21,7 @@ describe("what is coming", () => {
     };
     const papers = comingOf(view).filter((item) => item.kind === "paper");
     expect(papers.map((item) => [item.what, item.when])).toEqual([
-      [nameOf("document.english-test"), "Tomorrow, 7am"],
+      [nameOf("document.english-test"), "In the morning"],
       [nameOf("document.passport"), undefined],
     ]);
   });

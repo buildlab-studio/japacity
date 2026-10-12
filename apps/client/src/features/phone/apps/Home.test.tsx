@@ -75,9 +75,11 @@ describe("the home card", () => {
     expect(game.state.home.place).toBe("place.makoko");
     const said = card()?.textContent ?? "";
     expect(said).toContain(phoneWords("phone.home.place.place.makoko"));
-    // R-HOME-012: Makoko's figure is the room's rent by the month, charged whole, so the card says it; the living is by hand.
-    expect(game.view().home.rent).toEqual({ currency: "NGN", amount: RENT });
-    expect(said).toContain(`${formatMoney(RENT, "NGN")} a month`);
+    // Decision 0035: R-HOME-012 leaves Makoko's upkeep uncharged as the month turns, so the card says the engine's charge,
+    // nothing a month, as living bought as you go; the room's figure was paid on the move.
+    expect(game.view().home.rent).toEqual({ currency: "NGN", amount: 0 });
+    expect(said).toContain(BY_HAND);
+    expect(said).not.toContain(`${formatMoney(RENT, "NGN")} a month`);
     expect(times(said, RISK)).toBe(1);
     expect(moveButton("place.family-house")?.disabled).toBe(true);
     expect(said).toContain(phoneWords("phone.home.shut.moved"));

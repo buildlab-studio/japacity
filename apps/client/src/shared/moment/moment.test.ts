@@ -100,7 +100,7 @@ function depositTaken(): { answer: ReportLine[]; month: ReportLine[]; view: Play
 describe("the biggest losses get their card", () => {
   // Decision 0035: in the re-recorded lives Ada is never refused an endorsement; Tunde and Zainab are, abroad-bound.
   test("[R-MOMENT-001] given the endorsement refused by the body (Tunde's and Zainab's recorded lives), when the month's lines come, then the refusal is the card, told by the body's own line", () => {
-    for (const [life, index] of [["tunde-abroad", 94], ["zainab-abroad", 99]] as const) {
+    for (const [life, index] of [["tunde-abroad", 115], ["zainab-abroad", 99]] as const) {
       const { lines, view, before } = played(life, index);
       expect(lines.map((told) => told.key)).toContain("line.route.endorsement-refused");
       const shot = momentLine(lines, view);

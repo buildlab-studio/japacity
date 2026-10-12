@@ -1,6 +1,6 @@
 import { content } from "@japacity/content";
 import type { Overlay } from "@japacity/sim";
-import { applyOverlay, newState, nextMorning, viewFor } from "@japacity/sim";
+import { applyOverlay, newState, nextGameMorning, worldClockAt, viewFor } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "../config";
@@ -37,7 +37,7 @@ describe("a new character", () => {
     expect(stored.segments[0]?.content).toBe(content.version);
     const world = (await server.deps.stores.world.tick(0))?.world;
     if (world === undefined) throw new Error("No tick 0.");
-    expect(reply.body).toEqual({ ok: true, view: viewFor({ state: stored.snapshot.state, world, content }), lines: [], clock: { tick: 0, nextTickAt: epoch + productionConfig.clock.worldTickMs, nextTurnAt: null, morningAt: nextMorning(epoch) } });
+    expect(reply.body).toEqual({ ok: true, view: viewFor({ state: stored.snapshot.state, world, content }), lines: [], clock: { tick: 0, nextTickAt: epoch + productionConfig.clock.worldTickMs, nextTurnAt: null, morningAt: nextGameMorning(epoch), world: worldClockAt(epoch) } });
     expect(reply.text).not.toContain(start.seed);
   });
 

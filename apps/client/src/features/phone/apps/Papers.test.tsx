@@ -161,7 +161,7 @@ describe("a result sealed until the morning", () => {
     const pending = (readyMonth: number): PlayerView => ({ ...view, documents: [...view.documents, { id: "document.english-test", state: "pending", readyMonth, expiresMonth: null, value: null, onItsWay: readyMonth }] });
     await openPhone(pending(view.month));
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
-    expect(document.querySelector('[data-paper="document.english-test"] [data-paper-state]')?.textContent).toBe("Comes tomorrow, 7am");
+    expect(document.querySelector('[data-paper="document.english-test"] [data-paper-state]')?.textContent).toBe("Comes in the morning");
     expect(papersOf(pending(view.month + 1)).find((row) => row.id === "document.english-test")?.state).toBe("coming");
     cleanup();
     await openPhone(pending(view.month + 1));

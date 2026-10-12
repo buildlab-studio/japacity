@@ -1,6 +1,8 @@
 import type { Command, Id, PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
+import { nextGameMorning } from "@japacity/sim";
+
 import { localAuthority, MORNING_KEY, SAVE_KEY } from "./local";
 
 const ENGLISH: Id<"document"> = "document.english-test";
@@ -55,7 +57,8 @@ describe("envelopes in the local authority", () => {
     const { authority, turned } = await testSat(storage, at);
     expect(english(turned.view)).toMatchObject({ state: "pending", readyMonth: turned.view.month });
     expect(turned.lines.some((line) => line.key.startsWith("line.document.issued") && line.params.document === ENGLISH)).toBe(false);
-    expect(authority.clock().morningAt).toBe(lagos(12, 7));
+    // Decision 0036: the morning is the world's own, the next six o'clock of the game's day.
+    expect(authority.clock().morningAt).toBe(nextGameMorning(at.now));
     expect(authority.morning()).toEqual([]);
 
     const again = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => at.now });
@@ -68,12 +71,13 @@ describe("envelopes in the local authority", () => {
     const storage = memoryStorage();
     const at = { now: lagos(11, 21) };
     await testSat(storage, at);
-    at.now = lagos(12, 7, 1);
+    const morningAt = nextGameMorning(lagos(11, 21));
+    at.now = morningAt + 60_000;
     const morning = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => at.now });
     expect(english(await morning.view())).toMatchObject({ state: "held" });
     const opened = morning.morning();
     expect(opened).toHaveLength(1);
-    expect(opened[0]).toMatchObject({ kind: "document", id: ENGLISH, opensAt: lagos(12, 7) });
+    expect(opened[0]).toMatchObject({ kind: "document", id: ENGLISH, opensAt: morningAt });
     expect(opened[0]?.held.some((line) => line.key.startsWith("line.document.issued"))).toBe(true);
     expect(morning.morning()).toEqual([]);
     expect((JSON.parse(storage.items.get(SAVE_KEY)!) as { envelopes: unknown[] }).envelopes).toEqual([]);
