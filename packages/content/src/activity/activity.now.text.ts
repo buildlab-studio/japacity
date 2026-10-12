@@ -78,9 +78,9 @@ export const activityNowText: Record<string, string> = {
   "line.activity.buy-suya.now": "The suya man knows your order. Extra pepper, no argument.",
   "line.activity.mallam-tea.now": "He remembers your father's name. You remember his tea.",
   "line.activity.pure-water.now": "Cold, in this sun. A human right with a price.",
-  "line.activity.barber.now": "Clean line. You look like somebody the embassy would like.",
+  "line.activity.barber.now": "Clean line. You looked like somebody the embassy would like.",
   "line.activity.viewing-centre.now": "Ninety minutes, one goal, and the whole street disagrees about it.",
   "line.activity.beer-joint.now": "The first one is cold. Nobody here asks about your papers.",
-  "line.activity.night-out.now": "You get home as the muezzin starts. Worth it. Ask your legs tomorrow.",
+  "line.activity.night-out.now": "You got home as the muezzin started. Worth it. Ask your legs tomorrow.",
   "line.activity.buy-clothes.now": "Bend down select, but you did not bend: the trader brought the good ones out.",
 };
