@@ -128,9 +128,10 @@ function flagTold(lines: readonly ReportLine[]): boolean {
 
 /**
  * The month's story for the results (R-WORLD-008): the lines that move the story, not money, in
- * the order the results lead with them, at most `STORY_MAX` of the month's events and then every chore. The rest of the month stays in News.
+ * the order the results lead with them, at most `max` of the month's events (`STORY_MAX` unless the sheet has less room)
+ * and then every chore. The rest of the month stays in News.
  */
-export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
+export function storyLines(lines: readonly ReportLine[], max: number = STORY_MAX): ReportLine[] {
   const tidy = tidyLines(afterPrologue(lines));
   // A hunt's offer already names the job and its pay: the offer it opens is not told again.
   const hired = tidy.some((line) => line.key === HIRED);
@@ -145,8 +146,42 @@ export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
     .filter((entry) => entry.rank !== -1)
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
     // The cash warning is said once in a life with attention (R-WALLET-019): a full month never drops it.
-    .filter((entry, at, ranked) => alwaysTold(entry.line) || ranked.slice(0, at).filter((before) => !alwaysTold(before.line)).length < STORY_MAX)
+    .filter((entry, at, ranked) => alwaysTold(entry.line) || ranked.slice(0, at).filter((before) => !alwaysTold(before.line)).length < max)
     .map((entry) => entry.line);
+}
+
+/** The month's pay as the results lead with it: the salary, the side job's pay (R-WORLD-008, the shrunk close). */
+const PAYDAY: ReadonlySet<string> = new Set(["line.activity.salary", "line.wallet.salary", "line.activity.side-pay"]);
+/** Rent paid as the month turns: a room's, a flat's, a bed space's. */
+const RENT = "line.wallet.rent";
+
+/** The most lines the month's close holds, Kept among them (12 Oct 2026: four to six lines). */
+export const CLOSE_MAX = 6;
+/** The fewest moments it keeps room for, however much pay and rent lead. */
+const MOMENTS_MIN = 2;
+
+/** The month's close as the results sheet tells it after Sleep: payday, rent when due, the moments, then Kept. */
+export interface MonthClose {
+  /** The pay that came in as the month turned, each its own line, money in. */
+  payday: MoneyLine[];
+  /** The rent taken as the month turned. */
+  rent: MoneyLine[];
+  /** The month's moments, in the story's order (the room cleared, the visa, a bill unpaid first), in the room left. */
+  moments: ReportLine[];
+}
+
+/**
+ * The month's close (R-WORLD-008): it leads with payday when there is one, then the rent
+ * when it was due, then the moments, then Kept, in four to six lines. What was bought by hand during the month (food,
+ * water, a fare) was paid as it was done and is not listed again; no living line, no "you rested". Only the lines of the
+ * month's turn (`turned`) hold the pay and the rent; the story reads the whole month (`told`).
+ */
+export function monthClose(told: readonly ReportLine[], turned: readonly ReportLine[]): MonthClose {
+  const money = moneyLines(turned);
+  const payday = money.filter((entry) => PAYDAY.has(entry.line.key) && entry.sign === 1);
+  const rent = money.filter((entry) => entry.line.key === RENT && entry.sign === -1);
+  const room = Math.max(MOMENTS_MIN, CLOSE_MAX - 1 - payday.length - rent.length);
+  return { payday, rent, moments: storyLines(told, room) };
 }
 
 /** The lines a full month never cuts: the chores, the cash warning, and the kiosk's draw. */

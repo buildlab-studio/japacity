@@ -84,7 +84,7 @@ describe("what the results read", () => {
 });
 
 describe("the results sheet", () => {
-  test("[R-WORLD-008] given the month ended, when the results show, then they say the month is done, every line with its sign in its colour, and what was kept", async () => {
+  test("[R-WORLD-008] given the month ended with a salary and the living taken, when the results show, then they say the month is done, payday leads with its figure in its colour, no living line, and what was kept comes after", async () => {
     const view = monthEnded([SALARY, UPKEEP, NEWS]);
     const { store } = await renderWithView(<Results place="Ojuelegba" />, view);
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -93,11 +93,16 @@ describe("the results sheet", () => {
     expect(within(sheet).getByText(turnWords("turn.results.title"))).toBeTruthy();
     expect(within(sheet).queryByText(/Month \d+/)).toBeNull();
     expect(sheet.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe("35000000");
-    const rows = [...sheet.querySelectorAll("[data-results-lines] li")];
-    expect(rows.map((row) => row.getAttribute("data-sign"))).toEqual(["1", "-1"]);
+    // The shrunk close: payday leads; no list of every line in and out, and no living line.
+    const payday = sheet.querySelector("[data-results-payday]");
+    expect(payday?.getAttribute("data-results-payday")).toBe("45000000");
     expect(within(sheet).getByText(`+${formatMoney(45_000_000, "NGN")}`).className).toContain("text-in");
-    expect(within(sheet).getByText(`-${formatMoney(10_000_000, "NGN")}`).className).toContain("text-out");
     expect(within(sheet).getByText(words(SALARY.key, SALARY.params))).toBeTruthy();
+    expect(within(sheet).queryByText(words(UPKEEP.key, UPKEEP.params))).toBeNull();
+    expect(within(sheet).queryByText(`-${formatMoney(10_000_000, "NGN")}`)).toBeNull();
+    expect(sheet.querySelector("[data-results-lines]")).toBeNull();
+    const order = [...sheet.querySelectorAll("[data-results-payday], [data-results-kept]")].map((node) => (node.hasAttribute("data-results-payday") ? "payday" : "kept"));
+    expect(order).toEqual(["payday", "kept"]);
     // The news line is not listed here: it lives in the phone's News app.
     expect(within(sheet).queryByText(words(NEWS.key, NEWS.params))).toBeNull();
     expect(within(sheet).getByText(turnWords("turn.results.news"))).toBeTruthy();

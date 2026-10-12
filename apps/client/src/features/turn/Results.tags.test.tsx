@@ -17,7 +17,7 @@ import { Results } from "./Results";
 const TICKET = content.tuning.luck.ticket;
 
 describe("the tags under what was kept", () => {
-  test("[R-TEXT-008] [R-WORLD-008] [R-LUCK-005] given three tickets bought on three visits, when the month's results show, then the lotto is one row with the three tickets' money and a down tag, and what was kept still counts each", async () => {
+  test("[R-TEXT-008] [R-WORLD-008] [R-LUCK-005] given three tickets bought on three visits, when the month's results show, then the lotto is said once, as a down tag with the three tickets' money, and what was kept still counts each", async () => {
     const game = newGame("scenario.ada");
     const now: ReportLine[] = [];
     for (let visit = 0; visit < 3; visit += 1) now.push(...game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" }).lines);
@@ -27,9 +27,9 @@ describe("the tags under what was kept", () => {
     expect(monthTags(lines)).toEqual([{ id: "lotto", tone: "down", key: "ui.results.tag.lotto", amount: { currency: "NGN", amount: TICKET * 3 } }]);
     const { store } = await renderWithView(<Results place="Home" />, game.view());
     act(() => store.setState({ reportOpen: true, lastMonthLines: now }));
-    const rows = [...document.querySelectorAll<HTMLElement>("[data-results-lines] li")].map((row) => row.textContent ?? "");
+    // The shrunk close lists no row of money bought by hand: the tickets are said once, by the tag.
     const lotto = words(LOTTO_TICKETS, { amount: { currency: "NGN", amount: TICKET * 3 } });
-    expect(rows.filter((row) => row.startsWith(lotto))).toHaveLength(1);
+    expect(document.querySelector("[data-world-sheet='results']")?.textContent ?? "").not.toContain(lotto);
     const tag = document.querySelector("[data-results-tag='lotto'] [data-tone]");
     expect(tag?.getAttribute("data-tone")).toBe("down");
     expect(tag?.textContent).toBe(say("ui.results.tag.lotto", { amount: { currency: "NGN", amount: TICKET * 3 } }));

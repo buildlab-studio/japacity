@@ -1,5 +1,7 @@
 // The month's results (docs/rules/world.md R-WORLD-008). The staged wins (Moment) come first; the sheet
-// opens once they have passed. `foot`: a line another feature puts under the results, placed by the shell.
+// opens once they have passed. Shrunk for the lived month: payday when there is one, the
+// rent when it was due, the month's moments, then Kept, in four to six lines; what was bought by hand during the month
+// was paid as it was done and is not listed again. `foot`: a line another feature puts under the results, placed by the shell.
 import { useEffect, useState, type ReactNode } from "react";
 
 import type { ReportLine } from "@japacity/sim";
@@ -13,7 +15,7 @@ import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
 import { inMonths, runningName, say, sayCount, words } from "../../shared/words/text";
 import { ToneTag } from "../../shared/ui/ToneTag";
-import { CHANGED_INTO, changesInto, drawMissed, drawShown, foldLotto, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, monthTags, runningOut, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
+import { CHANGED_INTO, changesInto, drawMissed, drawShown, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, type MoneyLine, monthClose, moneyLines, monthTags, runningOut, savings, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
@@ -93,10 +95,11 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   const save = savings(view);
   // An offer that opened and was answered within the month (asked around, then walked on) needs no answer now.
   const told = [...midMonth, ...report.lines].filter((line) => !(line.key === OFFER_OPENED && typeof line.params["offer"] === "string" && !view.offers.some((offer) => offer.entry === line.params["offer"])));
-  const story = storyLines(told);
+  const close = monthClose(told, report.lines);
+  const story = close.moments;
   const news = untoldLines(told).length;
   const expiring = runningOut(view);
-  const close = (): void => {
+  const back = (): void => {
     cue("close");
     setReportOpen(false);
   };
@@ -104,18 +107,53 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   return (
     <WorldSheet
       open={shown}
-      onClose={close}
+      onClose={back}
       label={clock}
       title={turnWords("turn.results.title")}
       mark="results"
       foot={
-        <button type="button" className="btn-main" onClick={close} data-results-back>
+        <button type="button" className="btn-main" onClick={back} data-results-back>
           <span className="truncate">{turnWords("turn.results.back", { place })}</span>
         </button>
       }
     >
       <div className="flex flex-col gap-4">
         {birthday ? <p className="text-[14px] font-bold text-strong" data-results-birthday>{turnWords("turn.results.birthday", { years: Math.floor(ageMonths / 12) })}</p> : null}
+        {/* Payday leads, then the rent when it was due: the month's turn in money, each its own line (the shrunk close). */}
+        {close.payday.map((entry, index) => (
+          <MoneyRow key={`payday-${String(index)}`} entry={entry} mark="payday" />
+        ))}
+        {close.rent.map((entry, index) => (
+          <MoneyRow key={`rent-${String(index)}`} entry={entry} mark="rent" />
+        ))}
+        {story.length === 0 ? null : (
+          <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
+            <h3 className="label text-text-2">{turnWords("turn.results.story")}</h3>
+            <ul className="flex flex-col">
+              {story.map((line, index) => {
+                const told = toldOnResults(line, view);
+                // R-HOME-003: the room cleared away is told in the same red as a bill unpaid.
+                const unpaid = isUnpaid(line) || isEvicted(line);
+                const lead = leadsAlone(line);
+                // The grant leads alone, larger; a bill not paid is in red though no money moved.
+                const tone = lead ? "pb-3 text-[18px] leading-tight font-bold" : unpaid ? "text-[14px] leading-snug font-semibold text-out" : "text-[14px] leading-snug font-semibold";
+                return (
+                  <li key={`${line.key}-${String(index)}`} className={`border-b border-sheet-line py-2 last:border-b-0 ${tone}`} data-story-line={line.key} data-tone={line.tone} data-unpaid={unpaid ? "true" : undefined} data-story-lead={lead ? "true" : undefined}>
+                    {line.key === READING_MISSING || line.key === READING_FITS ? <Reading line={line} /> : words(told.key, told.params)}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+
+        {/* A paper the plan needs that runs out within two months, the application not sent: one line each. */}
+        {expiring.map((paper) => (
+          <p key={paper.document} className="text-[14px] font-bold text-out" data-results-runs-out={paper.document}>
+            {say("document.reminder.runs-out", { document: runningName(paper.document), when: inMonths(paper.expiresMonth, view.month) })}
+          </p>
+        ))}
+
         {lines.length === 0 ? (
           // No money moved: said plainly, never "+₦0" (R-WORLD-008).
           <div className="flex items-baseline justify-between gap-3" data-results-kept={0}>
@@ -151,50 +189,6 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
             ))}
           </div>
         )}
-
-        {story.length === 0 ? null : (
-          <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
-            <h3 className="label text-text-2">{turnWords("turn.results.story")}</h3>
-            <ul className="flex flex-col">
-              {story.map((line, index) => {
-                const told = toldOnResults(line, view);
-                // R-HOME-003: the room cleared away is told in the same red as a bill unpaid.
-                const unpaid = isUnpaid(line) || isEvicted(line);
-                const lead = leadsAlone(line);
-                // The grant leads alone, larger; a bill not paid is in red though no money moved.
-                const tone = lead ? "pb-3 text-[18px] leading-tight font-bold" : unpaid ? "text-[14px] leading-snug font-semibold text-out" : "text-[14px] leading-snug font-semibold";
-                return (
-                  <li key={`${line.key}-${String(index)}`} className={`border-b border-sheet-line py-2 last:border-b-0 ${tone}`} data-story-line={line.key} data-tone={line.tone} data-unpaid={unpaid ? "true" : undefined} data-story-lead={lead ? "true" : undefined}>
-                    {line.key === READING_MISSING || line.key === READING_FITS ? <Reading line={line} /> : words(told.key, told.params)}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        )}
-
-        {/* A paper the plan needs that runs out within two months, the application not sent: one line each. */}
-        {expiring.map((paper) => (
-          <p key={paper.document} className="text-[14px] font-bold text-out" data-results-runs-out={paper.document}>
-            {say("document.reminder.runs-out", { document: runningName(paper.document), when: inMonths(paper.expiresMonth, view.month) })}
-          </p>
-        ))}
-
-        <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.money")}>
-          <h3 className="label text-text-2">{turnWords("turn.results.money")}</h3>
-          {lines.length === 0 ? (
-            <p className="text-[14px] text-text-2">{turnWords("turn.results.no-money")}</p>
-          ) : (
-            <ul className="flex flex-col" data-results-lines>
-              {foldLotto(lines).map(({ line, sign, amount, currency }, index) => (
-                <li key={`${line.key}-${String(index)}`} className="flex items-baseline justify-between gap-3 border-b border-sheet-line py-2 last:border-b-0" data-sign={sign}>
-                  <span className="min-w-0 flex-1 text-[14px] leading-snug">{nowLineWords(line)}</span>
-                  <span className={`num shrink-0 text-[15px] ${sign < 0 ? "text-out" : "text-in"}`}>{signed(sign, amount, currency)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
 
         {draw === null ? null : (
           <section className="flex flex-col gap-1.5" data-results-draw={draw.draw}>
@@ -234,6 +228,17 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
         {foot}
       </div>
     </WorldSheet>
+  );
+}
+
+/** A line of the month's turn in money, as the close leads with it: its words, and the figure in or out in its colour. */
+function MoneyRow({ entry, mark }: { entry: MoneyLine; mark: "payday" | "rent" }) {
+  const { line, sign, amount, currency } = entry;
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-sheet-line pb-2" data-results-payday={mark === "payday" ? amount : undefined} data-results-rent={mark === "rent" ? amount : undefined} data-sign={sign}>
+      <span className="min-w-0 flex-1 text-[15px] leading-snug font-semibold">{nowLineWords(line)}</span>
+      <span className={`num shrink-0 text-[17px] ${sign < 0 ? "text-out" : "text-in"}`}>{signed(sign, amount, currency)}</span>
+    </div>
   );
 }
 

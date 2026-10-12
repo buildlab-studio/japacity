@@ -12,7 +12,7 @@ import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
 import { markWord } from "../../shared/ui/Mark";
 import { renderWithView } from "../../shared/testing/render";
 import { say, sayCount, words } from "../../shared/words/text";
-import { kept, moneyLines, STORY_MAX, storyLines, toldOnResults, untoldLines } from "./month.results";
+import { CLOSE_MAX, kept, moneyLines, STORY_MAX, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { Results } from "./Results";
 import { turnWords } from "./turn.words";
 
@@ -23,7 +23,7 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
 }
 
 describe("the month's story on the results", () => {
-  test("[R-WORLD-008] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, after what was kept and before the money", async () => {
+  test("[R-WORLD-008] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, before what was kept, and the meal bought by hand is not listed again", async () => {
     const game = newGame("scenario.ada");
     // Decision 0035 (R-HOME-012): no living is charged as the month turns at home, so the money of the month is what was
     // paid at the act: a meal cooked mid-month, which the results count with the month's own lines.
@@ -44,9 +44,12 @@ describe("the month's story on the results", () => {
     // One line for an offer: the offer it opens is not told again.
     expect(told).not.toContain(words(offer.key, offer.params));
     expect(told.filter((row) => row === words(found.key, found.params))).toHaveLength(1);
-    // Kept first, then the story, then the money.
-    const order = [...document.querySelectorAll("[data-results-kept], [data-results-story], [data-results-lines]")].map((node) => (node.hasAttribute("data-results-kept") ? "kept" : node.hasAttribute("data-results-story") ? "story" : "money"));
-    expect(order).toEqual(["kept", "story", "money"]);
+    // The shrunk close: no pay and no rent this month, so the moments lead, then Kept; no list of money.
+    const order = [...document.querySelectorAll("[data-results-kept], [data-results-story], [data-results-lines], [data-results-payday], [data-results-rent]")].map((node) => (node.hasAttribute("data-results-kept") ? "kept" : node.hasAttribute("data-results-story") ? "story" : "money"));
+    expect(order).toEqual(["story", "kept"]);
+    // The meal was paid as it was cooked: it is in Kept, never listed again.
+    const sheetText = document.querySelector("[data-world-sheet='results']")?.textContent ?? "";
+    expect(sheetText).not.toContain(words(meal[0]!.key, meal[0]!.params));
     // The money count is still only money that moved.
     expect(document.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe(String(kept(moneyLines([...meal, ...lines])).find((net) => net.currency === "NGN")?.amount ?? 0));
   });
@@ -74,7 +77,7 @@ describe("the month's story on the results", () => {
     expect(storyLines(lines).map((each) => each.key)).toEqual(["line.document.issued", "line.document.issued-band-met", "line.wallet.flagged", "line.chapter.closed"]);
   });
 
-  test("[R-WORLD-008] given more story than fits, when the results show, then six lines stand, offers and ways out first, and the rest is left to News", async () => {
+  test("[R-WORLD-008] given more story than fits, when the results show, then the story holds six, and on the sheet five stand beside Kept, offers and ways out first, and the rest is left to News", async () => {
     const routes = Object.keys(content.route).slice(0, STORY_MAX);
     const lines = [line("line.chapter.closed", {}, "good"), ...routes.map((route) => line("line.route.heard", { route, via: "news" }, "good")), line("line.offer.opened", { offer: "offer.job" })];
     const shown = storyLines(lines);
@@ -85,7 +88,8 @@ describe("the month's story on the results", () => {
     const view = game.view();
     const { store } = await renderWithView(<Results place="Home" />, { ...view, report: { month: view.month, lines, japacityBefore: null, japacityAfter: null, attention: false } });
     act(() => store.setState({ reportOpen: true }));
-    expect(document.querySelectorAll("[data-results-story] li")).toHaveLength(STORY_MAX);
+    // Four to six lines on the close, Kept among them: no pay and no rent, so five moments.
+    expect(document.querySelectorAll("[data-results-story] li")).toHaveLength(CLOSE_MAX - 1);
     expect(screen.getByText(turnWords("turn.results.news"))).toBeDefined();
   });
 
