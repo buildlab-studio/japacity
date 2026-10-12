@@ -28,7 +28,7 @@ import { filesOf, showsFor, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { chipNode } from "./chip";
 import { markNode, showMark } from "./mark";
-import { bedLie, sleepMarkNode } from "./sleep";
+import { bedLie, othersSeen, sleepMarkNode } from "./sleep";
 import { type LabelBox, spreadLabels } from "./labels";
 import { aimShot, clampTurn, roomShot, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
 import { thingSpot, walkBeforeAct, walkSpot } from "./things";
@@ -370,6 +370,11 @@ function Place(props: PlaceProps) {
     if (spot !== null) walk.current.walker = standAt(spot[0], spot[1], walk.current.walker.facing);
     // Only the sleep's end gets the figure up; the bed and the stage are read as they stand then.
   }, [asleep]);
+  // Eyes closed: the others in the place are not seen while the sleep runs, and are back when it ends (R-WORLD-025).
+  useEffect(() => {
+    if (world === null) return;
+    othersSeen(world, asleep === null);
+  }, [world, asleep]);
   useEffect(() => {
     if (markBox === null || asleep === null) return;
     const bed = things.find((thing) => thing.id === asleep);

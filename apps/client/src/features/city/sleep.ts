@@ -4,6 +4,7 @@ import type { DayPart, Id } from "@japacity/sim";
 
 import type { PlayerCommand } from "../../authority/store";
 import type { Act, Thing } from "../../shared/world/contract";
+import type { World } from "./world";
 
 /** How long a sleep lasts before the month turns: long enough to choose to wake, short enough to wait out. */
 export const SLEEP_MS = 36_000;
@@ -63,4 +64,14 @@ export function sleepMarkNode(): HTMLDivElement {
     node.append(z);
   });
   return node;
+}
+
+/**
+ * Eyes closed (R-WORLD-025): while the sleep runs, the others in the place, the crowd, the dancers and those standing at a thing of their
+ * own, are not seen, under the wash; the sleeper alone stays. Waking, or the sleep running out, brings them back.
+ */
+export function othersSeen(world: Pick<World, "crowd" | "dancers" | "standers">, seen: boolean): void {
+  for (const placed of world.crowd) placed.figure.root.visible = seen;
+  for (const dancer of world.dancers) dancer.figure.root.visible = seen;
+  for (const figure of world.standers) figure.root.visible = seen;
 }

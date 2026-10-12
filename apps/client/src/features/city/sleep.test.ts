@@ -1,5 +1,6 @@
 // The sleep from the bed (docs/rules/world.md R-WORLD-025, R-WORLD-005; decision 0036): one fixed length, a development
 // switch that shortens it for testing, the lying pose the bed's own acts already carry, and the corner's words on waking.
+import { Object3D } from "three";
 import { describe, expect, test } from "vitest";
 
 import compoundRaw from "../../../public/assets/places/compound-room/place.json";
@@ -9,7 +10,7 @@ import roomRaw from "../../../public/assets/places/the-room/place.json";
 import { say } from "../../shared/words/text";
 import type { Thing } from "../../shared/world/contract";
 import { type PlaceFile, stageOf } from "./placeFile";
-import { bedLie, NAP, SLEEP_MS, sleepMsOf, wakeCommand, wokeWords } from "./sleep";
+import { bedLie, NAP, othersSeen, SLEEP_MS, sleepMsOf, wakeCommand, wokeWords } from "./sleep";
 import { thingsOf } from "./things";
 
 const HOMES = { parlour: parlourRaw, compound: compoundRaw, room: roomRaw, makoko: makokoRaw } as unknown as Record<string, PlaceFile>;
@@ -69,5 +70,17 @@ describe("the words on waking", () => {
     expect(say("ui.sleep.chip")).toBe("Asleep · tap to wake");
     expect(say("ui.sleep.wake")).toBe("Wake up");
     expect(say("ui.world.end-month")).toBe("Sleep");
+  });
+});
+
+describe("eyes closed", () => {
+  test("[R-WORLD-025] given the family, a dancer and someone standing at their own thing in the place, when the sleep runs, then none of them is seen, and when it ends they are all back", () => {
+    const figure = () => ({ root: new Object3D() });
+    const world = { crowd: [{ figure: figure() }, { figure: figure() }], dancers: [{ figure: figure() }], standers: [figure()] };
+    const roots = [...world.crowd.map((placed) => placed.figure.root), ...world.dancers.map((dancer) => dancer.figure.root), ...world.standers.map((stander) => stander.root)];
+    othersSeen(world as never, false);
+    expect(roots.map((root) => root.visible)).toEqual([false, false, false, false]);
+    othersSeen(world as never, true);
+    expect(roots.map((root) => root.visible)).toEqual([true, true, true, true]);
   });
 });
