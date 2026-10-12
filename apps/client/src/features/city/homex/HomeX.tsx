@@ -33,6 +33,10 @@ interface HomeExtras {
   own: Posed;
   /** The bulb's and the lantern's light by night, as point lights at the lamps the stage names. */
   nightLights: { at: Vec3; strength: number; reach: number }[];
+  /** Round 3: the rooms the camera eases in on (`&zoom=<room>`), each at round 2's distance: where it looks, how wide, how steep. */
+  zooms?: Record<string, { centre: Vec3; width: number; pitch: number }>;
+  /** Round 3: the whole house's lens, longer than the room's so the people at the back stand as tall as those at the front. */
+  outFov?: number;
 }
 
 type HomeFile = PlaceFile & { homex: HomeExtras };
@@ -48,7 +52,7 @@ const LIGHT = {
   night: { background: 0x121a3a, sky: 0x5f76b8, ground: 0x2a2a3a, skyStrength: 0.55, sun: 0x7f95d0, sunStrength: 0.35, sunAt: [-6, 14, -8] as Vec3, softness: 3 },
 };
 
-function Home({ home, night }: { home: HomeName; night: boolean }) {
+function Home({ home, night, zoom }: { home: HomeName; night: boolean; zoom: string | null }) {
   const [built, setBuilt] = useState<{ world: World; file: HomeFile; figures: Figure[]; lamps: Object3D[] } | null>(null);
   const scene = useThree((state) => state.scene);
   const camera = useThree((state) => state.camera);
@@ -105,16 +109,26 @@ function Home({ home, night }: { home: HomeName; night: boolean }) {
     const shot = stage.shot;
     if (shot === undefined) return;
     const aspect = size.width / Math.max(1, size.height);
-    camera.fov = SHOT_FOV;
+    const room = zoom === null ? undefined : built.file.homex.zooms?.[zoom];
+    const fov = room === undefined ? (built.file.homex.outFov ?? SHOT_FOV) : SHOT_FOV;
+    camera.fov = fov;
     camera.near = 0.5;
-    camera.far = 200;
+    camera.far = 400;
     camera.aspect = aspect;
+    // Zoomed in on a room: the room's own centre and width, the rest of the house left to run off the screen's edges.
+    if (room !== undefined) {
+      const { position, target } = aimShot({ ...shot, centre: room.centre, farPitch: room.pitch, far: fitDistance(room.width, aspect), width: 0 }, WHOLE, { x: 0, z: 0 }, aspect);
+      camera.position.set(...position);
+      camera.lookAt(...target);
+      camera.updateProjectionMatrix();
+      return;
+    }
     const [width, depth] = stage.ground.size;
     // The floor's four corners, and the far wall's top over the far two.
     const corners = [-1, 1].flatMap((sx) => [new Vector3((sx * width) / 2, 0, depth / 2), new Vector3((sx * width) / 2, 0, -depth / 2), new Vector3((sx * width) / 2, 3.05, -depth / 2)]);
-    let far = Math.max(shot.far, fitDistance(shot.width ?? width, aspect));
+    let far = Math.max(shot.far, fitDistance(shot.width ?? width, aspect, fov));
     for (let tries = 0; tries < 60; tries++) {
-      const { position, target } = aimShot({ ...shot, far, width: 0 }, WHOLE, { x: 0, z: 0 }, aspect);
+      const { position, target } = aimShot({ ...shot, far, width: 0 }, WHOLE, { x: 0, z: 0 }, aspect, fov);
       camera.position.set(...position);
       camera.lookAt(...target);
       camera.updateProjectionMatrix();
@@ -126,7 +140,7 @@ function Home({ home, night }: { home: HomeName; night: boolean }) {
       if (inside) break;
       far *= 1.03;
     }
-  }, [built, camera, size]);
+  }, [built, camera, size, zoom]);
 
   useEffect(() => {
     gl.shadowMap.type = PCFSoftShadowMap;
@@ -192,11 +206,13 @@ function Home({ home, night }: { home: HomeName; night: boolean }) {
 }
 
 export function HomeX({ home }: { home: HomeName }) {
-  const night = new URLSearchParams(location.search).has("night");
+  const asked = new URLSearchParams(location.search);
+  const night = asked.has("night");
+  const zoom = asked.get("zoom");
   return (
     <main style={{ position: "fixed", inset: 0 }} data-homex={home}>
       <Canvas dpr={window.devicePixelRatio} shadows gl={{ antialias: true, preserveDrawingBuffer: true }} camera={{ fov: SHOT_FOV, near: 0.5, far: 200, position: [0, 10, 14] }}>
-        <Home home={home} night={night} />
+        <Home home={home} night={night} zoom={zoom === "out" ? null : zoom} />
       </Canvas>
     </main>
   );
