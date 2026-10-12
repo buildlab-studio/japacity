@@ -1,7 +1,7 @@
 // The map's boards never cover one another (docs/rules/world.md R-WORLD-015).
 import { describe, expect, test } from "vitest";
 
-import { BOARD_GAP, BOARD_SETTLE, type BoardBox, boardsShown } from "./boards";
+import { BOARD_GAP, BOARD_SETTLE, type BoardBox, boardsShown, COMPACT_SHARE, compactUv } from "./boards";
 
 const box = (left: number, top: number, extra: Partial<BoardBox> = {}): BoardBox => ({ left, top, right: left + 110, bottom: top + 26, state: "can", home: false, picked: false, ...extra });
 
@@ -30,6 +30,12 @@ describe("the boards on the map", () => {
     expect(boardsShown([box(0, 300, { state: "been" }), box(10, 305, { state: "here" })])).toEqual([false, true]);
     expect(boardsShown([box(0, 300, { state: "been" }), box(10, 305, { picked: true })])).toEqual([false, true]);
     expect(boardsShown([box(0, 300, { state: "can" }), box(10, 305, { state: "home", home: true }), box(300, 300, { state: "here" })])).toEqual([false, true, true]);
+  });
+
+  test("[R-WORLD-015] given a board folded away, when its icon alone is drawn, then its atlas rectangle is the left share of the board's, the full height", () => {
+    expect(COMPACT_SHARE).toBe(64 / 256);
+    expect(compactUv([0.5, 0.25, 0.75, 0.3])).toEqual([0.5, 0.25, 0.5 + 0.25 * COMPACT_SHARE, 0.3]);
+    expect(compactUv([0, 0, 1, 1], 0.5)).toEqual([0, 0, 0.5, 1]);
   });
 
   test("[R-WORLD-015] given boards apart, when the map lays them out, then all show", () => {

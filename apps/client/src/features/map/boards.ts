@@ -18,6 +18,17 @@ export interface BoardBox {
 
 /** The space two boards keep between them, in pixels. */
 export const BOARD_GAP = 2;
+
+/**
+ * A folded board is not gone: it shrinks to its icon alone on its pole. The icon is the left part of the painted board,
+ * this share of its width, and the compact board is drawn square at the board's height.
+ */
+export const COMPACT_SHARE = 64 / 256;
+
+/** The atlas rectangle of a board's icon alone: the left `share` of the board's rectangle. */
+export function compactUv([u0, v0, u1, v1]: readonly [number, number, number, number], share = COMPACT_SHARE): [number, number, number, number] {
+  return [u0, v0, u0 + (u1 - u0) * share, v1];
+}
 /** The extra room a folded board waits for before it comes back, in pixels, so the edge of covering does not flicker. */
 export const BOARD_SETTLE = 12;
 

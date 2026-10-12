@@ -37,6 +37,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import type { PinState } from "../../shared/world/contract";
 import { BOUNDS, buildGrid, buildPlots, NAME_HALF, type District, type Grid, pointAlong, ROOF_GROUPS, type RoofGroup, routeLength, toXZ, WATER, type XZ } from "./layout";
 import type { MapPin } from "./pins";
+import { COMPACT_SHARE, compactUv } from "./boards";
 
 /** The map's colours: the interface's map roles for the ground, and the state colours for the stops. */
 export interface MapColours {
@@ -342,6 +343,14 @@ function boardCorners(stop: Stop, scale: number): Vector3[] {
   return [new Vector3(-halfW, 0, 0), new Vector3(halfW, 0, 0), new Vector3(halfW, height, 0), new Vector3(-halfW, height, 0)].map((corner) => corner.applyMatrix4(LEAN).add(foot));
 }
 
+/** The corners of a folded board: its icon alone, a square of the board's height centred on the pole. */
+function compactCorners(stop: Stop, scale: number): Vector3[] {
+  const height = BOARD.height * scale;
+  const halfW = (BOARD.width * scale * COMPACT_SHARE) / 2;
+  const foot = new Vector3(stop.board.x, stop.foot, stop.board.z);
+  return [new Vector3(-halfW, 0, 0), new Vector3(halfW, 0, 0), new Vector3(halfW, height, 0), new Vector3(-halfW, height, 0)].map((corner) => corner.applyMatrix4(LEAN).add(foot));
+}
+
 function paintedGeometry(stops: readonly Stop[], districts: readonly District[], atlas: Atlas): BufferGeometry {
   const positions: number[] = [];
   const uvs: number[] = [];
@@ -592,19 +601,29 @@ export function buildCityMap(pins: readonly MapPin[], options: BuildOptions): Ci
     if (object instanceof InstancedMesh) object.computeBoundingSphere();
   });
 
-  // The boards as drawn: their scale and which show. A folded board is drawn as a point at its foot.
+  // The boards as drawn: their scale and which show whole. A folded board shrinks to its icon alone on its pole, a
+  // square at the board's height, so a stop never reads as a bare pole (boards.ts, COMPACT_SHARE).
   let boardScale = 1;
   let boardsShown: boolean[] = stops.map(() => true);
   const drawBoards = (): void => {
     const position = painted.geometry.getAttribute("position");
+    const uv = painted.geometry.getAttribute("uv");
     stops.forEach((stop, index) => {
-      const [a, b, c, d] = boardCorners(stop, boardScale);
+      const at = atlas.boards[index];
+      if (at === undefined) return;
+      const whole = boardsShown[index] !== false;
+      const [a, b, c, d] = whole ? boardCorners(stop, boardScale) : compactCorners(stop, boardScale);
       if (a === undefined || b === undefined || c === undefined || d === undefined) return;
-      const foot = new Vector3(stop.board.x, stop.foot, stop.board.z);
-      const corners = boardsShown[index] === false ? [foot, foot, foot, foot, foot, foot] : [a, b, c, a, c, d];
-      corners.forEach((corner, vertex) => position.setXYZ(index * 6 + vertex, corner.x, corner.y, corner.z));
+      const made = quad([a, b, c, d], whole ? at : compactUv(at));
+      made.positions.forEach((value, slot) => {
+        if (slot % 3 === 0) position.setXYZ(index * 6 + slot / 3, value, made.positions[slot + 1] ?? 0, made.positions[slot + 2] ?? 0);
+      });
+      made.uvs.forEach((value, slot) => {
+        if (slot % 2 === 0) uv.setXY(index * 6 + slot / 2, value, made.uvs[slot + 1] ?? 0);
+      });
     });
     position.needsUpdate = true;
+    uv.needsUpdate = true;
     painted.geometry.computeBoundingSphere();
   };
 
