@@ -115,10 +115,10 @@ export function poseRotations(name: PoseName, t = 0, stride = 1): Pose {
       break;
     case "tray":
     case "trayWalk":
-      // One arm up to steady the load.
+      // One arm up to steady the load, the elbow out and the hand curled onto the basin's rim, not up through the goods.
       armsDown(22);
-      setZ("upperArmL", deg(128));
-      setZ("forearmL", deg(22));
+      setZ("upperArmL", deg(105));
+      setZ("forearmL", deg(65));
       setX("forearmR", -0.2);
       if (name === "trayWalk") {
         const sw = Math.sin(t * Math.PI * 2);
