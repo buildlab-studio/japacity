@@ -116,7 +116,13 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
             <span className="num text-[26px]">{formatMoney(ask.cost.amount, ask.cost.currency)}</span>
           </div>
         )}
-        <MainButton ask={ask} main={main} />
+        {ask.spent === undefined ? (
+          <MainButton ask={ask} main={main} />
+        ) : (
+          <p className="mt-4 rounded-[6px] bg-sheet-muted px-4 py-3.5 text-center text-[15px] font-bold" data-ask-spent>
+            {ask.spent}
+          </p>
+        )}
       </div>
     </div>
   );

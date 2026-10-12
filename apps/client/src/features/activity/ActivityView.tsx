@@ -412,6 +412,12 @@ function ActivityCard({ option }: { option: ActivityOption }) {
         ) : null}
 
         <div className="mt-auto pt-1">
+          {/* R-ACTIVITY-020: a spent body says so where the button was, and there is no button. */}
+          {option.spent === true ? (
+            <p className="rounded-[6px] bg-sheet-muted px-3 py-2.5 text-center text-[14px] font-bold" data-act-spent={option.id}>
+              {say("ui.act.spent")}
+            </p>
+          ) : (
           <Button
             small={!applying}
             variant={applying ? "primary" : "secondary"}
@@ -434,6 +440,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
               </span>
             )}
           </Button>
+          )}
           {/* An act done at once fills no slot (R-ACTIVITY-015), so it never claims the month's free time. */}
           {content.activity[option.id]?.slot === "free" && !applying && !now ? <p className="mt-1 text-[12px] text-text-2">{say("ui.activity.uses-free")}</p> : null}
         </div>

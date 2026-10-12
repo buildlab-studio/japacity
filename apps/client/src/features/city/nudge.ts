@@ -2,7 +2,7 @@
 // this order: an open set piece or interview question; an open offer; the chapter's next undone step
 // in its own nudge words; a report line waiting on the player; else the month's end.
 import { content } from "@japacity/content";
-import type { Id, PlayerView } from "@japacity/sim";
+import type { DayPart, Id, PlayerView } from "@japacity/sim";
 
 import { everyRouteClosed } from "../../shared/words/closed";
 import { shortfall as costShortfall } from "../../shared/words/cost";
@@ -842,4 +842,16 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   const goal = view.goals?.open.find((open) => open.items.some((item) => !item.met) && has(`${open.id}.first`));
   if (goal !== undefined) return { key: `${goal.id}.first`, about: "goal" };
   return { key: "ui.nudge.end", about: "end" };
+}
+
+/** The night's nudge (clock.md R-CLOCK-033; world.md R-WORLD-025; decision 0036). */
+export const NIGHT = "ui.nudge.night";
+
+/**
+ * The nudge as the world's part of the day reads it: at night "Night. Go to bed", unless something more pressing waits on
+ * the player (a question asked, a person asking), which the night never covers. By day the nudge stands as it was.
+ */
+export function atNight<N extends Nudge & { about: NudgeAbout }>(nudge: N | null, part: DayPart): N | (Nudge & { about: NudgeAbout }) | null {
+  if (part !== "night" || nudge === null || nudge.about === "setpiece" || nudge.about === "offer") return nudge;
+  return { key: NIGHT, about: "end" };
 }

@@ -1,14 +1,14 @@
-// What a life has been shown once (docs/rules/chapter.md R-CHAPTER-011; world.md R-WORLD-002, R-WORLD-005; home.md
-// R-HOME-008): the first chapter's title, the Calendar's teach card, a place's labels on its first entry and a home's
-// blurb. Kept on the device beside the save and the person, under one key of its own that goes when the life ends
+// What a life has been shown once (docs/rules/chapter.md R-CHAPTER-011; world.md R-WORLD-002, R-WORLD-005, R-WORLD-025;
+// home.md R-HOME-008): the first chapter's title, the Calendar's teach card, a place's labels on its first entry, a home's
+// blurb and the first night's card. Kept on the device beside the save and the person, under one key of its own that goes when the life ends
 // (authority/ended.ts), so a reload never shows a mark again and a new life starts with none. The life's scenario is
 // kept with the marks, so marks left by another life are never read as this one's.
 
 /** The one localStorage key the marks are kept under, beside `japacity.save` and `japacity.person`. */
 export const TAUGHT_KEY = "japacity.taught";
 
-/** The marks: the first chapter's title, the Calendar's teach card, a place's labels, a home's blurb. */
-export type TaughtMark = "title" | "calendar" | `place:${string}` | `home:${string}`;
+/** The marks: the first chapter's title, the Calendar's teach card, a place's labels, a home's blurb, the first night. */
+export type TaughtMark = "title" | "calendar" | "night" | `place:${string}` | `home:${string}`;
 
 interface Kept {
   scenario: string;

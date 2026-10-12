@@ -481,18 +481,9 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         broke(error);
         return null;
       } finally {
+        // The month turns only when the life sleeps (R-WORLD-025; decision 0036): a spent month falls to night, never to a turn.
         set({ busy: false });
-        // R-TURN-010: the month turns by itself once its free time is spent, with the commitments as they stand.
-        if (command.type !== "turn/end" && monthLived(get())) void get().endMonth();
       }
-    }
-
-    /** R-TURN-010: the month's free time is spent and nothing holds the turn (a question waiting, the life over, the results already open). */
-    function monthLived(state: GameState): boolean {
-      const { view } = state;
-      if (view === null || state.busy || state.reportOpen || view.ended) return false;
-      if (view.setpiece !== null || (view.interview?.question ?? null) !== null) return false;
-      return view.halfDays.spent >= view.halfDays.free;
     }
 
     /**

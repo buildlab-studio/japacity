@@ -88,6 +88,13 @@ export const worldText: Record<string, string> = {
   // A set piece staged elsewhere waits there; the player goes to it.
   "ui.nudge.setpiece-away": "{what} is at {place}.",
   "ui.nudge.end": "Live the month, or sleep",
+  // The world's night (clock.md R-CLOCK-033; decision 0036): the bed's Sleep turns the month.
+  "ui.nudge.night": "Night. Go to bed",
+  // R-ACTIVITY-020: where an act's button was, once the body is spent.
+  "ui.act.spent": "You are spent. Sleep.",
+  // The first night of a life, told once on a small card before the lock screen (R-WORLD-025).
+  "ui.night.first": "Each night you sleep is a month of your life.",
+  "ui.night.first.ok": "Sleep",
   // The news has closed every way out at once, as the pandemic does. Japa says when it opens.
   "ui.nudge.closed.every": "Every route is closed for now",
 };
