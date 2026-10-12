@@ -111,7 +111,7 @@ function Home({ home, night }: { home: HomeName; night: boolean }) {
     camera.aspect = aspect;
     const [width, depth] = stage.ground.size;
     // The floor's four corners, and the far wall's top over the far two.
-    const corners = [-1, 1].flatMap((sx) => [new Vector3((sx * width) / 2, 0, depth / 2), new Vector3((sx * width) / 2, 0, -depth / 2), new Vector3((sx * width) / 2, 2.2, -depth / 2)]);
+    const corners = [-1, 1].flatMap((sx) => [new Vector3((sx * width) / 2, 0, depth / 2), new Vector3((sx * width) / 2, 0, -depth / 2), new Vector3((sx * width) / 2, 3.05, -depth / 2)]);
     let far = Math.max(shot.far, fitDistance(shot.width ?? width, aspect));
     for (let tries = 0; tries < 60; tries++) {
       const { position, target } = aimShot({ ...shot, far, width: 0 }, WHOLE, { x: 0, z: 0 }, aspect);
