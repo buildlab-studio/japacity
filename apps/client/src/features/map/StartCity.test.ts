@@ -14,7 +14,8 @@ describe("the city behind the start screen", () => {
   });
 
   test("[R-ACCOUNT-029] given no list of built places, then every place of Lagos with a position stands, as the map does until the list is known", () => {
-    const lagos = Object.values(content.place).filter((place) => place.where === "home" && place.position !== null);
-    expect(startPins(null)).toHaveLength(lagos.length + 1);
+    // The family house stands at its own made-up spot as the home pin; a rented room is on the map only while lived in (R-HOME-010).
+    const lagos = Object.values(content.place).filter((place) => place.where === "home" && place.position !== null && place.id !== "place.compound-room");
+    expect(startPins(null)).toHaveLength(lagos.length);
   });
 });

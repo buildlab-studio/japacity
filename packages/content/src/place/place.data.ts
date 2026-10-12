@@ -35,7 +35,12 @@ interface Shape {
   stages?: Staged;
   crowd: PlaceEntry["crowd"];
   traditionalBp: number;
+  /** A made-up spot for a place with no address of its own, in thousandths of a degree (R-CITY-008 as amended 12 Oct 2026): the map and the fares read it. */
+  spot?: [number, number];
 }
+
+/** The day the made-up spots were placed by hand against the public places around them. */
+const OWN_SPOTS_PLACED = "2026-10-12";
 
 function slugOf(id: Id<"place">): string {
   return id.slice("place.".length);
@@ -104,8 +109,8 @@ function unnamed(
     area,
     nameKind,
     realName: null,
-    position: null,
-    data: null,
+    position: shape.spot === undefined ? null : { latE3: shape.spot[0], lonE3: shape.spot[1] },
+    data: shape.spot === undefined ? null : { source: "own", licence: null, checked: OWN_SPOTS_PLACED },
     sponsor: null,
     scope: shape.scope ?? "interior",
     hub: false,
@@ -246,31 +251,33 @@ const entries: PlaceEntry[] = [
   // Lagos: institutions, by plain description. An area and never a position.
   // The passport is a visit to Immigration: the office stands in the visa centre's hall
   // until its own room is built, as the hub's room borrows the inverter room.
-  unnamed("place.passport-office", "institution", "home", "lagos", "ikoyi", { assets: "visa-centre", stages: ["activity.get-passport"], crowd: BUSY, traditionalBp: OFFICE }),
+  unnamed("place.passport-office", "institution", "home", "lagos", "ikoyi", { spot: [6451, 3431], assets: "visa-centre", stages: ["activity.get-passport"], crowd: BUSY, traditionalBp: OFFICE }),
   // R-DOCUMENT-007: the police certificate is asked at the notice here until a station is built.
-  unnamed("place.visa-centre", "institution", "home", "lagos", "victoria-island", { stages: ["activity.apply-for-visa", "activity.apply-uk-care", "activity.apply-uk-talent", "setpiece.credibility-interview", "activity.get-police-certificate"], crowd: BUSY, traditionalBp: OFFICE }),
-  unnamed("place.english-test-centre", "institution", "home", "lagos", "ikeja", { stages: ["activity.sit-english-test", "activity.study-english"], crowd: QUIET, traditionalBp: OFFICE }),
+  unnamed("place.visa-centre", "institution", "home", "lagos", "victoria-island", { spot: [6428, 3422], stages: ["activity.apply-for-visa", "activity.apply-uk-care", "activity.apply-uk-talent", "setpiece.credibility-interview", "activity.get-police-certificate"], crowd: BUSY, traditionalBp: OFFICE }),
+  unnamed("place.english-test-centre", "institution", "home", "lagos", "ikeja", { spot: [6598, 3352], stages: ["activity.sit-english-test", "activity.study-english"], crowd: QUIET, traditionalBp: OFFICE }),
   // The staff nurse's job is on the clinic's notice, where a nurse from sixteen takes her first step (prologue.md R-PROLOGUE-010).
   // activity.md R-ACTIVITY-013: the nurse's certification on the notice, its exam sat on the chairs.
-  unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { stages: ["activity.tb-test", "activity.gulf-medical", "activity.job-nurse", "activity.nurse-certification", "setpiece.nurse-exam"], crowd: QUIET, traditionalBp: OFFICE }),
-  unnamed("place.medical-centre", "institution", "home", "lagos", "ikeja", { crowd: QUIET, traditionalBp: OFFICE }),
-  unnamed("place.university", "institution", "home", "lagos", "akoka", { scope: "exterior", stages: [], crowd: BUSY, traditionalBp: CAMPUS }),
-  unnamed("place.general-hospital", "institution", "home", "lagos", "surulere", { stages: ["offer.illness", "offer.illness-worse"], crowd: BUSY, traditionalBp: STREET }),
-  unnamed("place.church", "institution", "home", "lagos", OWN_AREA, { occasion: true, stages: ["offer.harvest"], crowd: BUSY, traditionalBp: STREET }),
-  unnamed("place.mosque", "institution", "home", "lagos", OWN_AREA, { scope: "exterior", crowd: BUSY, traditionalBp: STREET }),
+  unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { spot: [6596, 3348], stages: ["activity.tb-test", "activity.gulf-medical", "activity.job-nurse", "activity.nurse-certification", "setpiece.nurse-exam"], crowd: QUIET, traditionalBp: OFFICE }),
+  unnamed("place.medical-centre", "institution", "home", "lagos", "ikeja", { spot: [6600, 3355], crowd: QUIET, traditionalBp: OFFICE }),
+  unnamed("place.university", "institution", "home", "lagos", "akoka", { spot: [6517, 3395], scope: "exterior", stages: [], crowd: BUSY, traditionalBp: CAMPUS }),
+  unnamed("place.general-hospital", "institution", "home", "lagos", "surulere", { spot: [6499, 3351], stages: ["offer.illness", "offer.illness-worse"], crowd: BUSY, traditionalBp: STREET }),
+  unnamed("place.church", "institution", "home", "lagos", OWN_AREA, { spot: [6505, 3357], occasion: true, stages: ["offer.harvest"], crowd: BUSY, traditionalBp: STREET }),
+  unnamed("place.mosque", "institution", "home", "lagos", OWN_AREA, { spot: [6509, 3356], scope: "exterior", crowd: BUSY, traditionalBp: STREET }),
 
   // Lagos: businesses by made-up name. Shopfronts are signs on their street, in place.text.ts.
   // Its own room, not the hub's: the hub's file with nothing staged here showed only the door (R-WORLD-005).
   // activity.md R-ACTIVITY-013: the posts are written at the room's long table of laptops.
-  unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { assets: "inverter-room", stages: ["activity.tech-posts"], crowd: QUIET, traditionalBp: HUB }),
-  unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { assets: "bank-counter", stages: ["offer.held-funds", "offer.salary-loan"], crowd: FEW, traditionalBp: OFFICE }),
-  unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { stages: ["offer.held-funds-agent", "offer.gulf-agent", "activity.see-agent-office", "activity.apply-gulf-contract", "offer.agent-office"], crowd: FEW, traditionalBp: OFFICE }),
+  unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { spot: [6509, 3373], assets: "inverter-room", stages: ["activity.tech-posts"], crowd: QUIET, traditionalBp: HUB }),
+  unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { spot: [6432, 3423], assets: "bank-counter", stages: ["offer.held-funds", "offer.salary-loan"], crowd: FEW, traditionalBp: OFFICE }),
+  unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { spot: [6591, 3345], stages: ["offer.held-funds-agent", "offer.gulf-agent", "activity.see-agent-office", "activity.apply-gulf-contract", "offer.agent-office"], crowd: FEW, traditionalBp: OFFICE }),
 
   // Homes and stylised places: no real name, no area, no position, no sponsor.
   // Home opens in the compound; the house door cuts to the parlour (docs/rules/world.md R-WORLD-014).
   // home.md R-HOME-006: the settlement on the lagoon the character may live in; its scene lands with the place builder.
   lagos("place.makoko", "Makoko", "makoko", 6495, 3390, { scope: "exterior", crowd: BUSY, traditionalBp: OFFICE, stages: ["activity.job-fish-racks"] }),
+  // On a made-up street in Surulere near the hub: the spot the map and the fares read (R-CITY-008 as amended).
   unnamed("place.family-house", "stylised", "home", "lagos", null, {
+    spot: [6507, 3359],
     scope: "exterior",
     assets: "family-house-compound",
     occasion: true,
@@ -297,8 +304,9 @@ const entries: PlaceEntry[] = [
   }),
   // home.md R-HOME-010: one rented room in a shared compound in Ojuelegba, the character's home while they live there.
   // It stages nothing of its own: its things carry the home's own acts, which the family house stages (R-HOME-006,
-  // R-CITY-010), and the city opens them where the character lives. No position: it is on the map only as home.
+  // R-CITY-010), and the city opens them where the character lives. Its made-up spot is in Ojuelegba; the map shows it only as home.
   unnamed("place.compound-room", "stylised", "home", "lagos", null, {
+    spot: [6513, 3360],
     scope: "interior",
     crowd: FEW,
     traditionalBp: STREET,

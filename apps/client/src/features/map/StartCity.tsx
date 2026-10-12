@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { assetUrl, loadManifest } from "../../shared/three/manifest";
 import { nameOf } from "../../shared/words/text";
 import { CityMap } from "./CityMap";
-import type { MapPin } from "./pins";
+import { type MapPin, RENTED_HOMES } from "./pins";
 
 /** The family house, as the city places it when content gives it no position (features/city/City.tsx, FAMILY_SPOT). */
 const FAMILY_HOUSE = "place.family-house";
@@ -19,7 +19,8 @@ const LAGOS = Object.values(content.place).filter((place) => place.where === "ho
 /** The pins: the family house as home, and every built place of Lagos with a position. */
 export function startPins(built: ReadonlySet<string> | null): MapPin[] {
   const family: MapPin = { id: FAMILY_HOUSE, name: nameOf(FAMILY_HOUSE), state: "here", position: FAMILY_SPOT, things: 0 };
-  const rest = LAGOS.filter((place) => place.id !== FAMILY_HOUSE && (built === null || built.has(place.id))).map(
+  // A rented room is on the map only while lived in (R-HOME-010), never before the life begins.
+  const rest = LAGOS.filter((place) => place.id !== FAMILY_HOUSE && !RENTED_HOMES.has(place.id) && (built === null || built.has(place.id))).map(
     (place): MapPin => ({ id: place.id, name: nameOf(place.id), state: "can", position: place.position ?? FAMILY_SPOT, things: place.stages.length }),
   );
   return [family, ...rest];

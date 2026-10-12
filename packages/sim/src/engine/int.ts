@@ -107,6 +107,29 @@ export function roundDownTo(n: number, step: number): number {
   return assertResult(divFloor(n, step) * step, "roundDownTo");
 }
 
+/** n moved up to the nearest multiple of step (toward plus infinity). */
+export function roundUpTo(n: number, step: number): number {
+  return assertResult(divCeil(n, step) * step, "roundUpTo");
+}
+
+/** The whole square root of n, rounded down: the largest r with r * r at most n. n must be zero or above. */
+export function isqrt(n: number): number {
+  assertInt(n, "isqrt: n");
+  if (n < 0) throw new Error(`isqrt: n ${String(n)} is below zero.`);
+  if (n < 2) return n;
+  // Newton's steps from n itself (always at or above the root), in whole numbers, until they stop falling: about forty
+  // steps for the largest safe whole number, and no floating-point root, so every device agrees (R-ENGINE-009).
+  let r = n;
+  for (;;) {
+    const next = divFloor(r + divFloor(n, r), 2);
+    if (next >= r) break;
+    r = next;
+  }
+  while (r * r > n) r -= 1;
+  while ((r + 1) * (r + 1) <= n) r += 1;
+  return assertResult(r, "isqrt");
+}
+
 /** The rate of any currency in kobo per whole unit. Naira is always 100. */
 export function rateOf(currency: Currency, rates: Readonly<Record<ForeignCurrency, number>>): number {
   const rate = currency === "NGN" ? KOBO_PER_NAIRA : rates[currency];

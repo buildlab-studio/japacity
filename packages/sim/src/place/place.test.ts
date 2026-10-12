@@ -3,7 +3,7 @@ import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
 
 import { check } from "../engine/check";
-import { bp, divFloor, mulDiv } from "../engine/int";
+import { bp, divCeil, divFloor, mulDiv } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { Content, Currency, Effect, Id, ObligationType, ReadCtx, ReportLine, ReturnShape, State } from "../engine/types";
 import { applyEffects, readyLife, toDecision, UK as UK_ROUTE } from "../route/route.journey";
@@ -11,7 +11,7 @@ import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { flown, offeredSeed, playMonths, recordingCloses } from "./place.journey";
-import { appliesHere, bannedUntil, capitalBonus, fareHome, returnShape, withinMetres } from "./place.logic";
+import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnShape, rideFare, withinMetres } from "./place.logic";
 
 const UK: Id<"country"> = "country.uk";
 const CANADA: Id<"country"> = "country.canada";
@@ -148,9 +148,33 @@ describe("leaving", () => {
 });
 
 describe("coming home", () => {
-  test("[R-PLACE-010] given a character at home with the fare in cash, when a ride is sent, then the way's flat fare leaves cash as a fare and the ride is on record", () => {
+  test("[R-PLACE-010] given two places, when a way's fare is read, then it is the flag-down figure plus the figure a kilometre over the straight line, in fifties of naira, more for a farther place, nothing on foot, and the flag-down figure alone for a place with no position", () => {
+    const { fareKobo, farePerKmKobo } = content.tuning.city.ride;
+    const ojuelegba = content.place["place.ojuelegba"]!.position!;
+    const bode = content.place["place.bode-thomas"]!.position!;
+    const ikeja = content.place["place.computer-village"]!.position!;
+    const near = rideFare(content, ojuelegba, bode, "danfo");
+    const far = rideFare(content, ojuelegba, ikeja, "danfo");
+    expect(metresApart(ojuelegba, bode)).toBeLessThan(metresApart(ojuelegba, ikeja));
+    expect(near).toBeGreaterThan(fareKobo.danfo);
+    expect(far).toBeGreaterThan(near);
+    expect(near % 5000).toBe(0);
+    expect(far % 5000).toBe(0);
+    // Ojuelegba to Computer Village is about nine kilometres: the danfo's fare is the flag-down figure plus nine times its kilometre, rounded up to fifty naira.
+    const metres = metresApart(ojuelegba, ikeja);
+    expect(far).toBe(divCeil(fareKobo.danfo + divFloor(farePerKmKobo.danfo * metres, 1000), 5000) * 5000);
+    expect(rideFare(content, ojuelegba, ikeja, "walk")).toBe(0);
+    expect(rideFare(content, null, ikeja, "keke")).toBe(fareKobo.keke);
+    // The month's factor doubles the rounded figure, so the doubled fare is still in fifties.
+    expect(rideFare(content, ojuelegba, ikeja, "okada", 20000)).toBe(2 * rideFare(content, ojuelegba, ikeja, "okada"));
+    // Each way dearer than the last at the same distance.
+    expect(rideFare(content, ojuelegba, bode, "keke")).toBeGreaterThan(near);
+    expect(rideFare(content, ojuelegba, bode, "okada")).toBeGreaterThan(rideFare(content, ojuelegba, bode, "keke"));
+  });
+
+  test("[R-PLACE-010] given a character at home with the fare in cash, when a ride is sent, then the way's fare for the distance leaves cash as a fare and the ride is on record", () => {
     const game = start({ content });
-    const fare = content.tuning.city.ride.fareKobo.keke;
+    const fare = rideFare(content, content.place["place.ojuelegba"]!.position, content.place["place.bode-thomas"]!.position, "keke");
     const before = game.view().pockets.NGN.cash;
     const result = game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "keke" });
     expect(result.events.filter((event) => event.type === "wallet/debited")).toMatchObject([{ pocket: "cash", amount: fare, reason: "fare" }]);
@@ -159,7 +183,7 @@ describe("coming home", () => {
     expect(game.view().place.where).toBe("home");
   });
 
-  test("[R-PLACE-010] given the fuel scarcity's ask opened this month, when a ride is sent, then every fare is the scarcity's share of its flat figure and the view says the month's factor; the month after, the fares stand as they were", () => {
+  test("[R-PLACE-010] given the fuel scarcity's ask opened this month, when a ride is sent, then every fare is the scarcity's share of its figure and the view says the month's factor; the month after, the fares stand as they were", () => {
     const game = start({ content });
     const month = game.state.turn.month;
     game.state = { ...game.state, offer: { ...game.state.offer, lastOpened: { ...game.state.offer.lastOpened, "offer.fuel-scarcity": month } } };
@@ -168,7 +192,8 @@ describe("coming home", () => {
     expect(game.view().place.fareBp).toBe(scarcityBp);
     const before = game.view().pockets.NGN.cash;
     const result = game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "danfo" });
-    const doubled = bp(fareKobo.danfo, scarcityBp);
+    expect(fareKobo.danfo).toBeGreaterThan(0);
+    const doubled = rideFare(content, content.place["place.ojuelegba"]!.position, content.place["place.bode-thomas"]!.position, "danfo", scarcityBp);
     expect(result.events.find((event) => event.type === "place/rode")).toMatchObject({ way: "danfo", fare: doubled });
     expect(game.view().pockets.NGN.cash).toBe(before - doubled);
     game.endTurn([]);
@@ -193,7 +218,7 @@ describe("coming home", () => {
 
   test("[R-PLACE-010] given the fare over the cash but within the naira, when a ride is sent, then cash goes first and the bank pays the rest", () => {
     const game = start({ content });
-    const fare = content.tuning.city.ride.fareKobo.okada;
+    const fare = rideFare(content, content.place["place.ojuelegba"]!.position, content.place["place.bode-thomas"]!.position, "okada");
     const cash = game.view().pockets.NGN.cash;
     // Leave less than the fare in cash, the rest in the bank.
     const keep = fare - 1;

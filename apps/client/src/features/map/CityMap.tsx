@@ -7,7 +7,7 @@ import { PerspectiveCamera, Vector3 } from "three";
 
 import { mountCanvas } from "../../shared/three/sharedRenderer";
 
-import { boardsShown } from "./boards";
+import { BOARD_GAP, boardsShown } from "./boards";
 import { buildCityMap, type CityMap as Drawn, readColours } from "./scene";
 import { BOUNDS, districts, routeBetween, toXZ, type XZ } from "./layout";
 import { mapText, mapWords } from "./map.words";
@@ -219,6 +219,7 @@ export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
     let frame = 0;
     let last = 0;
     let boardScale = 1;
+    let shownBefore: boolean[] = [];
     const began = performance.now();
     const loop = (now: number): void => {
       frame = requestAnimationFrame(loop);
@@ -238,9 +239,9 @@ export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
         boardScale = scale;
         map.setBoardScale(scale);
       }
-      // No two boards cover each other: the one that matters less folds away until there is room.
-      map.setBoardsShown(
-        boardsShown(
+      // No two boards cover each other: the one that matters less folds away until there is room;
+      // the last answer is handed back so a board on the edge of covering does not flicker as the camera eases.
+      shownBefore = boardsShown(
           map.boardCorners().map((corners, index) => {
             const points = corners.map((corner) => screenOf(corner) ?? { x: Number.NaN, y: Number.NaN });
             const xs = points.map((point) => point.x);
@@ -248,8 +249,10 @@ export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
             const stop = map.stops[index];
             return { left: Math.min(...xs), right: Math.max(...xs), top: Math.min(...ys), bottom: Math.max(...ys), state: stop?.pin.state ?? "not", home: stop?.home ?? false, picked: stop?.pin.id === pickedId.current };
           }),
-        ),
+        BOARD_GAP,
+        shownBefore,
       );
+      map.setBoardsShown(shownBefore);
       map.tick((now - began) / 1000);
       renderer.render(map.scene, camera);
       probe.drawCalls = renderer.info.render.calls;

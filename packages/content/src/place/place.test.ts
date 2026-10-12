@@ -36,11 +36,18 @@ describe("the place table", () => {
     expect(content.place["place.road-night"]).toMatchObject({ where: "road", nameKind: "stylised" });
   });
 
-  test("[R-CITY-008] given every place with a position, when its data is read, then it was checked on a day, under 100 features in all, and only a place not found records its own source", () => {
+  test("[R-CITY-008] given every place with a position, when its data is read, then it was checked on a day, under 100 features in all; a public place not found and every made-up spot record their own source", () => {
     const pinned = places.filter((place) => place.position !== null);
     expect(pinned.length).toBeLessThan(100);
     expect(pinned.every((place) => place.data !== null && /^\d{4}-\d{2}-\d{2}$/.test(place.data.checked))).toBe(true);
-    expect(pinned.filter((place) => place.data?.source !== "osm").map((place) => place.id)).toEqual(["place.balogun-market"]);
+    // A public place carries the map's own position; the one the lookup did not find says so.
+    expect(pinned.filter((place) => place.nameKind === "public" && place.data?.source !== "osm").map((place) => place.id)).toEqual(["place.balogun-market"]);
+    // A place with no address of its own (an office known by its area, a home on a made-up street) stands at a made-up spot, its own, with no licence to carry.
+    const own = pinned.filter((place) => place.nameKind !== "public");
+    expect(own.map((place) => place.id)).toEqual(expect.arrayContaining(["place.family-house", "place.compound-room", "place.visa-centre", "place.passport-office", "place.yaba-hub"]));
+    expect(own.every((place) => place.data?.source === "own" && place.data.licence === null)).toBe(true);
+    // Their room has no spot: it stands near whoever lives there (R-WORLD-020).
+    expect(content.place["place.their-room"]?.position).toBeNull();
   });
 
   test("[R-CITY-014] given every place, when its own crowd caps are read, then each is within the tuning's caps for its mode", () => {

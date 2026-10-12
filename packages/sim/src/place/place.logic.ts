@@ -1,7 +1,7 @@
 // Place: docs/rules/place.md, R-PLACE-001 to 009, and the mechanics of coming
 // home in return.md. A character is at home, abroad in one country, or on the road.
 import { check, worldVarOr } from "../engine/check";
-import { bp, convertMinor, divFloor } from "../engine/int";
+import { bp, BP_WHOLE, convertMinor, divFloor, isqrt, mulDiv, roundUpTo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -308,6 +308,35 @@ export function withinMetres(from: { latE3: number; lonE3: number }, to: { latE3
   return dx * dx + dy * dy <= metres * metres;
 }
 
+/** A ride's fare is said in fifties of naira. */
+const FARE_STEP_KOBO = 5000;
+
+/** Metres in a straight line between two positions in thousandths of a degree, in whole numbers (no root beyond the integer one). */
+export function metresApart(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }): number {
+  const dx = Math.abs(to.lonE3 - from.lonE3) * METRES_PER_E3;
+  const dy = Math.abs(to.latE3 - from.latE3) * METRES_PER_E3;
+  return isqrt(dx * dx + dy * dy);
+}
+
+/**
+ * R-PLACE-010 as amended 12 Oct 2026: a way's fare is its flag-down figure
+ * plus its figure a kilometre times the straight-line distance between the two places, rounded up to fifty naira, then
+ * the month's factor (the fuel scarcity). A place with no position stands at its flag-down figure. On foot nothing.
+ */
+export function rideFare(
+  content: Pick<Content, "tuning">,
+  from: { latE3: number; lonE3: number } | null,
+  to: { latE3: number; lonE3: number } | null,
+  way: "danfo" | "keke" | "okada" | "walk",
+  fareBp = BP_WHOLE,
+): number {
+  const { fareKobo, farePerKmKobo } = content.tuning.city.ride;
+  if (fareKobo[way] === 0 && farePerKmKobo[way] === 0) return 0;
+  const metres = from === null || to === null ? 0 : metresApart(from, to);
+  const plain = roundUpTo(fareKobo[way] + mulDiv(farePerKmKobo[way], metres, 1000), FARE_STEP_KOBO);
+  return bp(plain, fareBp);
+}
+
 /**
  * R-PLACE-010 (decision 0011, amended 10 Oct): a ride between two places of the city. On foot there
  * is no fare, so a character with nothing can always move. The simulation keeps no place of the city,
@@ -329,7 +358,7 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (way === "walk" && to !== home && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres)) {
     return reject("not-legal", "Too far to walk.");
   }
-  const fare = bp(ctx.content.tuning.city.ride.fareKobo[way], fareBpOf(ctx));
+  const fare = rideFare(ctx.content, start.position, end.position, way, fareBpOf(ctx));
   const cause: Cause = { source: command.type, param: to, terms: { way } };
   if (fare > 0) {
     if (!ctx.check({ type: "money/min", currency: "NGN", amount: fare }).met) {

@@ -60,14 +60,14 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const pin = stable.find((candidate) => candidate.id === picked) ?? null;
   const abroad = country.id === "lagos" ? null : country.id;
   // Home stays walkable however far (R-WORLD-017).
-  const ways = useMemo(() => (pin === null || here === null ? [] : rideChoices(here.position, pin.position, abroad, view.place.fareBp, pin.id === homeId)), [pin, here, abroad, view.place.fareBp, homeId]);
+  const ways = useMemo(() => (pin === null || here === null ? [] : rideChoices(here.position, pin.position, abroad, view.place.fareBp, pin.id === homeId, { from: here.id, to: pin.id })), [pin, here, abroad, view.place.fareBp, homeId]);
 
   // A ride chosen in the place plays at once, the same ride as from the map.
   useEffect(() => {
     if (diveTo === null) return;
     const to = stable.find((candidate) => candidate.id === diveTo);
     if (to === undefined) return;
-    const choice = here === null ? undefined : rideChoices(here.position, to.position, abroad, view.place.fareBp, to.id === homeId).find((way) => way.id === diveBy);
+    const choice = here === null ? undefined : rideChoices(here.position, to.position, abroad, view.place.fareBp, to.id === homeId, { from: here.id, to: to.id }).find((way) => way.id === diveBy);
     setPicked(null);
     start(choice, to.id, diveBy);
     // The ride starts once for the place chosen.

@@ -10,7 +10,9 @@ import {
   minorToKobo,
   mulDiv,
   mulDivCeil,
+  isqrt,
   roundDownTo,
+  roundUpTo,
   valueInKobo,
 } from "./int";
 
@@ -66,6 +68,18 @@ describe("[R-ENGINE-009] whole-number arithmetic", () => {
     expect(clamp(-1, 0, 10)).toBe(0);
     expect(clamp(11, 0, 10)).toBe(10);
     expect(() => clamp(1, 5, 0)).toThrow(/above max/);
+  });
+
+  test("[R-ENGINE-009] given a whole number, when its root is taken, then it is the largest whole root at or under it, exact for squares", () => {
+    expect([0, 1, 2, 3, 4, 8, 9, 15, 16, 17, 99, 100].map(isqrt)).toEqual([0, 1, 1, 1, 2, 2, 3, 3, 4, 4, 9, 10]);
+    expect(isqrt(2_219_301 * 2_219_301)).toBe(2_219_301);
+    expect(isqrt(2_219_301 * 2_219_301 - 1)).toBe(2_219_300);
+    expect(isqrt(1_000_000_000_001)).toBe(1_000_000);
+    expect(() => isqrt(-1)).toThrow();
+  });
+
+  test("[R-ENGINE-009] given a step, when rounded up, then the value is the nearest multiple at or above", () => {
+    expect([0, 1, 4999, 5000, 5001].map((n) => roundUpTo(n, 5000))).toEqual([0, 5000, 5000, 5000, 10000]);
   });
 
   test("[R-ENGINE-009] given a step, when rounded down, then the value is a multiple of it", () => {
