@@ -140,14 +140,14 @@ const JOBS_ABROAD: Staged = [
 
 const entries: PlaceEntry[] = [
   // Lagos: public places.
-  lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { assets: "ojuelegba-front", hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet", "activity.ask-around", "activity.see-agent-stop", "offer.agent-stop", "offer.agent-promise", "offer.agent-papers"], crowd: PACKED, traditionalBp: ROADSIDE }),
+  lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { assets: "ojuelegba-front", hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet", "activity.ask-around", "activity.see-agent-stop", "offer.agent-stop", "offer.agent-promise", "offer.agent-papers", "activity.buy-suya", "activity.mallam-tea", "activity.pure-water"], crowd: PACKED, traditionalBp: ROADSIDE }),
   // streets.md R-STREET-008: a morning run, and nothing else; it is a landmark.
   lagos("place.national-stadium", "National Stadium", "surulere", 6497, 3365, { stages: ["activity.morning-run"], crowd: QUIET, traditionalBp: STREET }),
-  lagos("place.bode-thomas", "Bode Thomas Street", "surulere", 6490, 3355, { assets: "bode-thomas-front", stages: ["activity.play-lotto", "activity.bet-slip", "offer.parcel-shipped"], crowd: BUSY, traditionalBp: STREET }),
+  lagos("place.bode-thomas", "Bode Thomas Street", "surulere", 6490, 3355, { assets: "bode-thomas-front", stages: ["activity.play-lotto", "activity.bet-slip", "offer.parcel-shipped", "activity.barber", "activity.viewing-centre", "activity.beer-joint", "activity.night-out"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.adeniran-ogunsanya", "Adeniran Ogunsanya Street", "surulere", 6494, 3357, { stages: ["activity.job-teacher"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.costain", "Costain", "surulere", 6482, 3369, { crowd: BUSY, traditionalBp: ROADSIDE }),
   // The market is not a feature in OpenStreetMap: the position is Tejuosho Avenue's.
-  lagos("place.tejuosho-market", "Tejuosho Market", "yaba", 6504, 3370, { assets: "tejuosho-front", stages: ["offer.mum-shop", "activity.open-shop"], crowd: PACKED, traditionalBp: MARKET }),
+  lagos("place.tejuosho-market", "Tejuosho Market", "yaba", 6504, 3370, { assets: "tejuosho-front", stages: ["offer.mum-shop", "activity.open-shop", "activity.buy-clothes"], crowd: PACKED, traditionalBp: MARKET }),
   // The hub in Yaba: the room Ojuelegba's hub door cuts to (docs/rules/world.md R-WORLD-013).
   lagos("place.yaba", "Yaba", "yaba", 6507, 3375, {
     scope: "interior",

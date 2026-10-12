@@ -5,6 +5,7 @@ import type { ActivityEntry, Cost, Id, Requirement } from "@japacity/sim";
 
 import { dollars, naira, pct } from "../units";
 import { abroadActivityTable, foreignPocketActivityTable } from "./activity.abroad.data";
+import { enjoyActivityTable } from "./activity.enjoy.data";
 import { peopleActivityTable } from "./activity.people.data";
 import { profileActivityTable } from "./activity.profile.data";
 import { roomActivityTable } from "./activity.room.data";
@@ -578,6 +579,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...streetActivityTable,
   // obligation.md R-OBLIGATION-014: the room's basics, cooking and water.
   ...roomActivityTable,
+  // streets.md R-STREET-011: the street's enjoyment and spending (decision 0037).
+  ...enjoyActivityTable,
   // activity.md R-ACTIVITY-013: the waiting months' acts.
   ...profileActivityTable,
   // The trader's own shop.
