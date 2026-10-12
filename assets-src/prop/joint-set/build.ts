@@ -39,7 +39,7 @@ export function buildJointSet(): Group {
   // The low table on its one leg and cross foot, bottles and glasses on it.
   box(g, table, 0.04, table, 0, tableTop - 0.04, 0, "wood");
   box(g, 0.06, tableTop - 0.04, 0.06, 0, 0, 0, "darkWood");
-  for (const turn of [0, Math.PI / 2]) box(g, 0.5, 0.03, 0.06, 0, 0, 0, "darkWood", turn);
+  for (const turn of [0, Math.PI / 2]) box(g, 0.5, turn === 0 ? 0.05 : 0.07, 0.06, 0, 0, 0, "darkWood", turn);
   for (const [bx, bz, colour] of [[-0.12, 0.06, "green"], [0.1, -0.08, "darkWood"], [0.14, 0.12, "green"]] as const) {
     cylinder(g, 0.035, 0.22, bx, tableTop, bz, colour, 6, 0.03);
     cylinder(g, 0.014, 0.07, bx, tableTop + 0.22, bz, colour, 4);
