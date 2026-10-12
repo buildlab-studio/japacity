@@ -4,10 +4,10 @@
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
 import type { Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
-import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
+import { Clock, Map as MapIcon, Moon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
-import { useGame, useGameStoreIfAny, useView } from "../../authority/GameProvider";
+import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
 import { plannedShut, worldVar } from "../../authority/store";
 import { keptLookFile } from "../../authority/person";
@@ -45,6 +45,7 @@ import { actOnCard, answersNow, effectWordsOf, nowActOf, nowActsIn, nowLineIn, t
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./actLines";
+import { NAP, SLEEP_MS, sleepMsOf, wakeCommand, wokeWords } from "./sleep";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
 import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from "./FlyOver";
@@ -378,7 +379,6 @@ export interface CityMapSlot {
 
 export function City({
   adverts,
-  signalsWaiting = false,
   world = false,
   actions,
   apps,
@@ -394,8 +394,6 @@ export function City({
 }: {
   /** `adverts`: the shell's advert slots for the place on screen (R-ADVERT-001), placed beside what is said there. */
   adverts?: (place: string) => ReactNode;
-  /** Lines of the month waiting on the phone (R-WORLD-030): at home the bed opens them before the month can end. */
-  signalsWaiting?: boolean;
   /** The world mode: the place fills the screen under a see-through bar, with the fly-over as its map. */
   world?: boolean;
   /** The world mode's sheet for the actions a tapped thing stages. */
@@ -437,12 +435,9 @@ export function City({
   useEffect(() => resetLines(), []);
   const addToPlan = useGame((state) => state.addToPlan);
   const plan = useGame((state) => state.plan);
-  /** What follows once the phone is put away: the bed's Next month, when the bed opened the phone for the month's lines (R-WORLD-030). */
-  const [phoneThen, setPhoneThen] = useState<"month" | null>(null);
   const [phone, setPhone] = useState(false);
   const endMonth = useGame((state) => state.endMonth);
   const stopPick = useGame((state) => state.stopPick);
-  const gameStore = useGameStoreIfAny();
   const beganAt = useGame((state) => state.beganAt);
   // R-WORLD-002: the band's clock is the character's age, with the month's name beside it and the world's part of the day
   // (R-CLOCK-033), moving on the device each minute; the simulation still counts months.
@@ -515,28 +510,76 @@ export function City({
     setPhone(true);
   };
   /**
-   * The bed's month end (R-WORLD-025): the month ends where the player is and the results open in the room. Held while a
-   * question waits, with the reason told in the corner. Nothing else turns the month: a month's time spent falls to night
-   * (decision 0036), and Sleep works at any hour of the world's day.
+   * Sleep is a timed act from the bed, at any hour of the world's day (R-WORLD-025): the figure lies on the bed under a soft dark wash with a chip under the band,
+   * and the month turns only when the sleep runs out (`due`). Held while a question waits, with the reason told in the
+   * corner. `bed` is the thing slept on, for the scene's pose and its sleep mark.
    */
-  const endFromBed = (): void => {
+  const [asleep, setAsleep] = useState<{ bed: string; at: number; ms: number; due: boolean } | null>(null);
+  const asleepNow = useRef(asleep);
+  asleepNow.current = asleep;
+  /** True from a sleep cut short until its nap's reply lands, so the nap's own line is not told over the waking. */
+  const wokeNap = useRef(false);
+  const sleepOn = (bed: string): void => {
     if (endBlocked !== null) {
       tell(endBlocked);
       return;
     }
     cue("tap");
-    void endMonth();
+    setAsleep({ bed, at: Date.now(), ms: sleepMsOf(typeof location === "undefined" ? "" : location.search), due: false });
   };
-  /** The bed's Sleep: the month's lines wait on the phone and the bed opens them first (R-WORLD-030), then the page turns as the phone is put away. */
-  const sleep = (): void => {
-    if (signalsWaiting) {
-      setPhoneThen("month");
-      setPhoneApp(null);
-      setPhone(true);
-    } else endFromBed();
+  /**
+   * Waking before the sleep runs out makes it a nap (R-WORLD-025): no month turns, the nap is sent when the view allows
+   * one, the wash lifts, the figure gets up and the corner says the night is still yours.
+   */
+  const wake = (): void => {
+    const held = asleepNow.current;
+    if (held === null || held.due) return;
+    asleepNow.current = null;
+    setAsleep(null);
+    cue("tap");
+    const nap = wakeCommand(view.activities);
+    if (nap !== null) {
+      wokeNap.current = true;
+      void send(nap).then((reply) => {
+        if (reply?.ok !== true) wokeNap.current = false;
+      });
+    }
+    tell(say(wokeWords(dayClock.served ? dayClock.part : "afternoon")));
   };
-  // R-WORLD-025: the first time a life sleeps, one small card says what a night is, once per life, before the lock screen.
-  const [nightTeach, setNightTeach] = useState(false);
+  const asleepAt = asleep?.at ?? null;
+  useEffect(() => {
+    if (asleepAt === null) return;
+    const ms = asleepNow.current?.ms ?? SLEEP_MS;
+    const timer = window.setTimeout(() => setAsleep((held) => (held === null || held.at !== asleepAt ? held : { ...held, due: true })), Math.max(0, asleepAt + ms - Date.now()));
+    return () => window.clearTimeout(timer);
+  }, [asleepAt]);
+  // The sleep ran out: the month turns (R-WORLD-025), the same command the band once sent. Never under the phone or the
+  // map the player opened meanwhile: the turn waits for them to be put away, since nothing opens by itself over them.
+  const turning = useRef(false);
+  const sleepDue = asleep?.due === true;
+  useEffect(() => {
+    if (!sleepDue || phone || map || turning.current) return;
+    if (endBlocked !== null) {
+      tell(endBlocked);
+      setAsleep(null);
+      return;
+    }
+    turning.current = true;
+    cue("tap");
+    void endMonth().then((reply) => {
+      turning.current = false;
+      // A refused turn wakes the sleeper where they lie; a turn that lands keeps the wash until the results stand over it.
+      if (reply?.ok !== true) setAsleep(null);
+    });
+    // The turn starts once, when the sleep is due and nothing covers the room.
+  }, [sleepDue, phone, map]);
+  // The results are up (or the report has gone): the night is over, the wash lifts and the figure gets up.
+  useEffect(() => {
+    if (resultsShown || (!reportOpen && !turning.current && asleepNow.current?.due === true)) setAsleep(null);
+  }, [resultsShown, reportOpen]);
+  // R-WORLD-025: the first time a life sleeps, one small card says what a night is, once per life, before the first sleep;
+  // it holds the bed it was opened at.
+  const [nightTeach, setNightTeach] = useState<string | null>(null);
   /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
   const [rideBy, setRideBy] = useState<RideChoice["id"] | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
@@ -597,6 +640,11 @@ export function City({
   // The place the effect below last saw: a reload opens in the room it was kept in (R-WORLD-014), and only a move to
   // another place steps back outside.
   const placeSeen = useRef(placeId);
+  // A ride taken from the map while asleep leaves the bed: the sleep is cut short as a tap on the chip cuts it (R-WORLD-025).
+  useEffect(() => {
+    if (asleepNow.current !== null && !asleepNow.current.due) wake();
+    // Only a move to another place or room wakes the sleeper.
+  }, [placeId, inside]);
   useEffect(() => {
     watch.current = enterPlace(watch.current);
     if (placeSeen.current !== placeId) setInside(false);
@@ -816,15 +864,16 @@ export function City({
       case "out":
         setPicked({ kind: "out" });
         return;
-      // R-WORLD-025: the bed ends the month, at any hour of the world's day. A life's first night is told once first: a
-      // life with a month behind it has slept before.
+      // R-WORLD-025: the bed's Sleep is a timed act, at any hour of the world's day; the month turns when it runs out. A
+      // life's first night is told once first: a life with a month behind it has slept before.
       case "end":
         setPicked(null);
+        if (asleepNow.current !== null) return;
         if (view.month === 0 && !wasTaught("night", view.scenario)) {
-          setNightTeach(true);
+          setNightTeach(thing.id);
           return;
         }
-        sleep();
+        sleepOn(thing.id);
         return;
       case "plain": {
         setPicked(null);
@@ -1028,6 +1077,11 @@ export function City({
     if (linesSeen.current === lastLines) return;
     linesSeen.current = lastLines;
     const said = nowLineIn(lastLines);
+    // A sleep cut short lands as a nap (R-WORLD-025): the corner has said the player is up, so the nap's own line is not told over it.
+    if (said !== null && wokeNap.current && nowActOf(said) === NAP) {
+      wokeNap.current = false;
+      return;
+    }
     // An act done from the phone is said on the phone; the sheet answers an act done in the place.
     if (!world || phone || said === null) return;
     // The scene plays the act's answer where it was done (R-WORLD-005).
@@ -1343,7 +1397,7 @@ export function City({
     if (!world || homeHere === null || openingUp || wasTaught(`home:${homeHere}`, view.scenario)) return;
     setHomeTeach(homeHere);
   }, [world, homeHere, openingUp, view.scenario]);
-  const homeTeachShown = homeTeach !== null && homeTeach === homeHere && !covered && !resultsOpen && !cardUp && blurbOf(homeTeach) !== null;
+  const homeTeachShown = homeTeach !== null && homeTeach === homeHere && !covered && !resultsOpen && !cardUp && asleep === null && blurbOf(homeTeach) !== null;
   // R-WORLD-026: the corner and the bubble show only while nothing covers the world; the street's talk comes only then.
   const worldFree = world && looking && !covered && !resultsOpen && !cardUp && !beatShown;
   // What waits to be told goes to the corner once it shows: nothing covers the world and the home's card is put away.
@@ -1422,6 +1476,7 @@ export function City({
                     onZoomed: setZoomed,
                     acted,
                     worldClock,
+                    asleep: asleep?.bed ?? null,
                   }
                 : {})}
               onFrame={(frameMs) => {
@@ -1503,6 +1558,9 @@ export function City({
 
       {world && looking ? (
         <>
+          {/* The room dims a little while the player sleeps (R-WORLD-025): a soft dark wash over the world, on opacity alone; it
+              takes the taps meant for the room, since a sleeper does nothing until they wake. */}
+          <div aria-hidden className={`fixed inset-0 z-[36] bg-device/35 transition-opacity duration-200 ease-out ${asleep === null ? "pointer-events-none opacity-0" : "pointer-events-auto opacity-100"}`} data-sleep-wash={asleep === null ? "off" : "on"} />
           <Band
             when={clock}
             name={homeLine(hereId, view) ?? bandName(hereName)}
@@ -1519,7 +1577,7 @@ export function City({
             open={bandOpen}
             {...(coming === null ? {} : { onToggle: () => setBandOpen((open) => !open) })}
             more={
-              !(phone || asksOpen || menu || credits || picked !== null) ? (
+              !(phone || asksOpen || menu || credits || picked !== null || asleep !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
                   <Nudge nudge={shownNudge} {...(stepWay?.opens === undefined || toBed ? {} : { opens: stepWay.opens })} {...(toBed ? (bed === null ? {} : { onTap: () => setPicked({ kind: "thing", thing: bed }) }) : nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeNeeds ? { onTap: () => { setPhoneApp("japa"); setPhone(true); } } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
                   {coming === null || !(bandOpen || (peek && !chipFolds(nudge, coming, view.month))) ? null : (
@@ -1545,8 +1603,24 @@ export function City({
               <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />
             </div>
           ) : null}
-          <Corner hidden={!worldFree || homeTeachShown || nightTeach} />
-          {nightTeach ? (
+          <Corner hidden={!worldFree || homeTeachShown || nightTeach !== null} />
+          {asleep !== null && !asleep.due ? (
+            <>
+              {/* The sleep's chip under the band, with a thin bar running down over the sleep's length; a tap on it wakes (R-WORLD-025). */}
+              <div className="pointer-events-none fixed inset-x-0 top-[calc(max(10px,env(safe-area-inset-top))+80px)] z-[38] flex justify-center px-3">
+                <button type="button" onClick={wake} className="chip drop press pointer-events-auto relative inline-flex items-center gap-1.5 overflow-hidden px-3.5 pt-2 pb-2.5 text-[13px] font-bold" data-asleep>
+                  <Moon size={14} aria-hidden />
+                  <span>{say("ui.sleep.chip")}</span>
+                  <span aria-hidden className="sleep-bar absolute inset-x-0 bottom-0 h-[3px] bg-signal" style={{ animationDuration: `${String(asleep.ms)}ms` }} data-asleep-bar />
+                </button>
+              </div>
+              {/* Wake up, low on the right above the Phone button, does as the chip does. */}
+              <button type="button" onClick={wake} className="pop press pointer-events-auto fixed right-3 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] rounded-[5px] bg-action px-4 py-2.5 text-[14px] font-extrabold text-action-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" data-wake>
+                {say("ui.sleep.wake")}
+              </button>
+            </>
+          ) : null}
+          {nightTeach !== null ? (
             <div className="pop pointer-events-auto fixed inset-x-3 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] mx-auto flex max-w-sm items-center gap-3 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-night-teach>
               <p className="min-w-0 flex-1 text-[14px] leading-snug font-semibold">{say("ui.night.first")}</p>
               <button
@@ -1554,8 +1628,8 @@ export function City({
                 className="press shrink-0 rounded-[5px] bg-action px-4 py-2.5 text-[14px] font-extrabold text-action-text"
                 onClick={() => {
                   markTaught("night", view.scenario);
-                  setNightTeach(false);
-                  sleep();
+                  setNightTeach(null);
+                  sleepOn(nightTeach);
                 }}
                 data-night-teach-ok
               >
@@ -1838,18 +1912,12 @@ export function City({
             () => {
               setPhone(false);
               setPhoneApp(null);
-              // The bed opened the phone for the month's lines: putting it away goes on to the month's end,
-              // unless the month is already turning.
-              const turning = gameStore?.getState().busy === true || gameStore?.getState().reportOpen === true;
-              if (phoneThen === "month" && !turning) endFromBed();
-              setPhoneThen(null);
             },
             inside ? hereName : name,
             phoneApp,
             (stop) => {
               setPhone(false);
               setPhoneApp(null);
-              setPhoneThen(null);
               setMapPick(stop);
               setMap(true);
             },
@@ -1858,12 +1926,7 @@ export function City({
       {world && phone && handset === undefined && apps !== undefined ? (
         <Phone
           apps={apps}
-          onClose={() => {
-            setPhone(false);
-            // The bed opened the phone for the month's lines: putting it away goes on to the month's end.
-            if (phoneThen === "month") endFromBed();
-            setPhoneThen(null);
-          }}
+          onClose={() => setPhone(false)}
         />
       ) : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>

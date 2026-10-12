@@ -38,7 +38,6 @@ import { OfferView } from "./features/offer/OfferView";
 import { usePairApi } from "./features/people/pairApi";
 import { BondHead, PeopleSlots } from "./features/people/PeopleOnPhone";
 import { iconFor } from "./features/phone/icons";
-import { useSignalsWaiting } from "./features/phone/Notices";
 import { PhoneApps, usePhoneWaiting } from "./features/phone/PhoneApps";
 import { InterviewView } from "./features/interview/InterviewView";
 import { KioskSheet } from "./features/lottery/KioskSheet";
@@ -103,7 +102,6 @@ function WorldPlaying() {
   const reportOpen = useGame((state) => state.reportOpen);
   // The officer's closing line holds the asks sheet after the interview closes, until Leave the room.
   const closing = useClosingOpen();
-  const signalsWaiting = useSignalsWaiting();
   useScreenCount("world");
   useScreenCount(reportOpen ? "report" : null);
   useScreenCount(view.setpiece === null ? null : "setpiece");
@@ -111,7 +109,6 @@ function WorldPlaying() {
     <div className="min-h-dvh">
       <City
         world
-        signalsWaiting={signalsWaiting}
         adverts={(place) => <PlaceAdverts place={place} />}
         // A thing's act opens the sheet of what it stages (R-WORLD-005): an activity's card, an open offer, the set piece's question, or the chapter's steps.
         actions={(ids) => {

@@ -106,9 +106,15 @@ export const worldText: Record<string, string> = {
   "ui.nudge.night": "Night. Go to bed",
   // R-ACTIVITY-020: where an act's button was, once the body is spent.
   "ui.act.spent": "You are spent. Sleep.",
-  // The first night of a life, told once on a small card before the lock screen (R-WORLD-025).
+  // The first night of a life, told once on a small card before the first sleep (R-WORLD-025).
   "ui.night.first": "Each night you sleep is a month of your life.",
   "ui.night.first.ok": "Sleep",
+  // The bed's timed sleep (R-WORLD-025): the chip under the band, the button that wakes, and the corner's
+  // words when a sleep is cut short (the night still to be had after dark; by day, only that you are up).
+  "ui.sleep.chip": "Asleep · tap to wake",
+  "ui.sleep.wake": "Wake up",
+  "ui.sleep.woke": "Up again. The night is still yours.",
+  "ui.sleep.woke.day": "Up again.",
   // The news has closed every way out at once, as the pandemic does. Japa says when it opens.
   "ui.nudge.closed.every": "Every route is closed for now",
 };
