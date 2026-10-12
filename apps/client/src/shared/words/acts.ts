@@ -80,7 +80,7 @@ export function nowActsIn(lines: readonly ReportLine[]): string[] {
 }
 
 /** The act a now-line answers, from its params. */
-export function nowActOf(line: ReportLine): string {
+export function nowActOf(line: Pick<ReportLine, "params">): string {
   return typeof line.params.activity === "string" ? line.params.activity : "";
 }
 

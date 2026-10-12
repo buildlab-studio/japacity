@@ -44,7 +44,7 @@ import { bodyWords } from "../../shared/words/body";
 import { actOnCard, answersNow, effectWordsOf, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
-import { doActLine, lightBack, plainActLine, plannedMarks } from "./actLines";
+import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./actLines";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
 import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from "./FlyOver";
@@ -71,9 +71,6 @@ import { namedThings } from "./mark";
 import { sameLine } from "../../shared/moment/moment";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
-
-/** Acts the scene shows (R-WORLD-005): the pot steams, the drum fills; the place says no answer for them (R-OBLIGATION-014). */
-const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]);
 
 /** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (R-CLOCK-032). */
 const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started", MORNING]);
@@ -1021,12 +1018,24 @@ export function City({
   const lastLines = useGame((state) => state.lines);
   const linesSeen = useRef(lastLines);
   const [answer, setAnswer] = useState<ReportLine | null>(null);
+  const thingsNowHere = useRef(things);
+  thingsNowHere.current = things;
   useEffect(() => {
     if (linesSeen.current === lastLines) return;
     linesSeen.current = lastLines;
     const said = nowLineIn(lastLines);
     // An act done from the phone is said on the phone; the sheet answers an act done in the place.
-    if (world && !phone && said !== null && !SHOWN_BY_SCENE.has(nowActOf(said))) setAnswer(said);
+    if (!world || phone || said === null) return;
+    // R-WORLD-005: an act that repeats lands its line every time, Mama's gist over her head and the rest in the corner,
+    // and its sheet goes; what the scene shows says nothing.
+    const lands = nowLands(said, thingsNowHere.current ?? []);
+    if (lands !== null) {
+      setPicked(null);
+      if (lands.kind === "say") speak(lands.who, lands.name, lands.words);
+      else tell(lands.words);
+      return;
+    }
+    if (!SHOWN_BY_SCENE.has(nowActOf(said))) setAnswer(said);
   }, [lastLines, world, phone]);
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {

@@ -3,7 +3,8 @@
 // in the corner, about the world and never the player's own act; an act the scene shows says nothing at all.
 import { describe, expect, test } from "vitest";
 
-import { lightBack, plainActLine } from "./actLines";
+import { words } from "../../shared/words/text";
+import { lightBack, nowLands, plainActLine } from "./actLines";
 import { cityWords } from "./city.words";
 import { stageOf } from "./placeFile";
 import { builtPlaces } from "./scene.testing";
@@ -68,5 +69,31 @@ describe("an act's line as it lands", () => {
     expect(lightBack(paid, things)).toEqual({ who: "mama", name: "Mama", words: "God bless you. Light is back.", told: "Light bill paid", heard: cityWords("city.heard.up-nepa") });
     expect(lightBack([{ key: "line.offer.taken", params: { offer: "offer.nepa-bill", choice: "leave" } }], things)).toBeNull();
     expect(lightBack(paid, things.filter((thing) => thing.id !== "mama"))).toBeNull();
+  });
+});
+
+describe("where an act done at once lands its line", () => {
+  const parlour = [
+    { id: "mama", label: "scene.thing.mama" },
+    { id: "bed", label: "scene.thing.bed" },
+  ];
+  const now = (activity: string) => ({ key: `line.activity.${activity.replace(/^activity\./, "")}.now`, params: { activity } });
+
+  test("[R-WORLD-005] [R-ACTIVITY-019] given an act that repeats (a nap, a bath, jollof, the TV, the shop), when it is done, then its line is told in the corner, every time, in its own words", () => {
+    for (const activity of ["activity.nap", "activity.bucket-bath", "activity.cook-jollof", "activity.watch-tv", "activity.help-shop", "activity.study-english"]) {
+      expect(nowLands(now(activity), parlour)).toEqual({ kind: "tell", words: words(now(activity).key) });
+      // A second time the same month lands it again: a repeat act is never done for the month.
+      expect(nowLands(now(activity), parlour)).toEqual({ kind: "tell", words: words(now(activity).key) });
+    }
+  });
+
+  test("[R-WORLD-005] given gist with Mama in the parlour, when it is done, then her words land over her head under her name, never in the corner", () => {
+    const landed = nowLands(now("activity.family-time"), parlour);
+    expect(landed).toEqual({ kind: "say", who: "mama", name: sceneWords("scene.thing.mama"), words: "You have eaten? Sit small.", then: null });
+  });
+
+  test("[R-WORLD-005] given what the scene shows (the pot, the drum) or an act done once a month, when it is done, then nothing lands here: the scene shows the first, the second answers in its sheet", () => {
+    for (const activity of ["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]) expect(nowLands(now(activity), parlour)).toBeNull();
+    expect(nowLands(now("activity.job-hunt"), parlour)).toBeNull();
   });
 });

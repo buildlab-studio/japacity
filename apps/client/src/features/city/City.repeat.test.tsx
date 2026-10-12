@@ -1,13 +1,15 @@
-// An act that repeats, at its thing (docs/rules/activity.md R-ACTIVITY-019, R-ACTIVITY-018; decision 0035): time with
-// Mama answers at once each time it is asked for. Her sheet's button does it now, the sheet says the time in words, and
-// it never says it counts when the month ends or is ongoing; asked again, it is done again. The place file is the one
+// An act that repeats, at its thing (docs/rules/activity.md R-ACTIVITY-019, R-ACTIVITY-018; world.md R-WORLD-005;
+// decision 0035): time with Mama answers at once each time it is asked for. Her sheet's button does it now, and it never
+// says it counts when the month ends or is ongoing; asked again, it is done again, and each time her words land over her
+// head. The place file is the one
 // the game ships; the scene is a stand-in that hands the city the taps a player makes.
-import { fireEvent, waitFor } from "@testing-library/react";
+import { act, fireEvent, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/people";
-import { say } from "../../shared/words/text";
+import { say, words } from "../../shared/words/text";
+import { hush, linesNow, resetLines } from "../../shared/world/Lines";
 import type { Act, Thing } from "../../shared/world/contract";
 import { City } from "./City";
 
@@ -66,7 +68,8 @@ function found(selector: string): HTMLElement {
 const FAMILY = "activity.family-time";
 
 describe("an act that repeats, at its thing", () => {
-  test("[R-ACTIVITY-019] [R-ACTIVITY-018] given time with Mama, when her sheet opens twice, then each time the button does it now, the sheet says no time taken, it never counts at the month's end nor says Ongoing, and each press is sent at once", async () => {
+  test("[R-ACTIVITY-019] [R-ACTIVITY-018] [R-WORLD-005] given time with Mama, when her sheet opens twice, then each time the button does it now, the sheet says no time taken, it never counts at the month's end nor says Ongoing, each press is sent at once, and each time her words land over her head, not in the corner nor on a card", async () => {
+    resetLines();
     const game = newGame("scenario.ada");
     const { authority, store } = await renderWithGame(<City world results={() => <p />} />, game);
     fireEvent.click(await waitFor(() => found('[data-stand-in-act="house:enter"]')));
@@ -81,11 +84,14 @@ describe("an act that repeats, at its thing", () => {
       expect(main.textContent).toContain(say("ui.world.now"));
       expect(main.textContent).not.toContain(say("ui.world.counts-at-end"));
       expect(main.textContent).not.toContain(say("ui.activity.planned"));
+      act(() => hush());
       fireEvent.click(main);
       await waitFor(() => expect(authority.sent.filter((command) => command.type === "activity/now" && command.activity === FAMILY)).toHaveLength(time));
-      // The place answers in the same sheet, with Done to close it.
-      fireEvent.click(await waitFor(() => found("[data-ask-main]")));
+      // Her words land over her head, every time, and the sheet goes: no answer card with Done (R-WORLD-005).
+      await waitFor(() => expect(linesNow().speech).toMatchObject({ who: "mama", text: "You have eaten? Sit small." }));
+      expect(linesNow().speech?.name).toBeTruthy();
       await waitFor(() => expect(document.querySelector("[data-ask-form]")).toBeNull());
+      expect(linesNow().lines.map((line) => line.text)).not.toContain(words("line.activity.family-time.now"));
     }
     expect(store.getState().plan.some((pick) => pick !== null)).toBe(false);
   });
