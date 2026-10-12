@@ -1,4 +1,4 @@
-// pnpm tsx tools/assets/faces-explore.ts <out dir>
+// pnpm tsx tools/assets/faces-explore.ts <out dir> [style,style...]
 // The face exploration of the 3D revamp (the design): four people built in each face
 // style, exported and shot into a folder outside the repository, never over the shipped people in
 // public/assets. For each style a folder of glb files and pictures (front and three-quarter at the
@@ -8,7 +8,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-import { buildPerson, FACE_STYLES, type FaceStyle, type PersonSpec } from "@japacity/assets-src/people/people";
+import { buildPerson, FACE_STYLES, type FaceStyle, faceStyleFrom, type PersonSpec } from "@japacity/assets-src/people/people";
 import { ALL_PEOPLE } from "@japacity/assets-src/people/people.data";
 import { poseRotations } from "@japacity/assets-src/people/poses";
 import type { Page } from "@playwright/test";
@@ -162,12 +162,17 @@ const css = `
   img { display: block; width: 100%; image-rendering: auto; }
 `;
 
-function largeSheet(figures: Record<FaceStyle, Record<string, Figures>>): string {
+function largeSheet(styles: readonly FaceStyle[], figures: Record<FaceStyle, Record<string, Figures>>): string {
   const head = PEOPLE.map((name) => `<div class="who" style="grid-column: span 2">${LABEL[name]}<span class="sub"> front, three-quarter</span></div>`).join("");
-  const rows = FACE_STYLES.map((style) => {
+  const rows = styles.map((style) => {
     const tris = PEOPLE.map((name) => figures[style][name]?.triangles ?? 0);
     const cells = PEOPLE.flatMap((name) => VIEWS.map((view) => `<div class="cell"><img src="${style}/${name.slice(4)}_${view}_face.png"></div>`)).join("");
     return `<div class="label"><b>${STYLE_LABEL[style]}</b><span class="sub">${String(Math.min(...tris))} to ${String(Math.max(...tris))} triangles</span></div>${cells}`;
+  }).join("");
+  // With two styles or fewer there is room for the whole figures too, the middle of the shooter's views.
+  const whole = styles.length > 2 ? "" : styles.map((style) => {
+    const cells = PEOPLE.flatMap((name) => VIEWS.map((view) => `<div class="cell"><img class="whole" src="${style}/${name.slice(4)}_${view}.png"></div>`)).join("");
+    return `<div class="label"><b>${STYLE_LABEL[style]}</b><span class="sub">the whole figure</span></div>${cells}`;
   }).join("");
   return `<!doctype html><html><head><meta charset="utf-8"><title>People faces</title><style>${css}
     body { width: 1600px; height: 1000px; padding: 14px 16px; }
@@ -177,14 +182,15 @@ function largeSheet(figures: Record<FaceStyle, Record<string, Figures>>): string
     .who { font-weight: 600; padding: 0 2px; }
     .label { display: flex; flex-direction: column; gap: 4px; padding-right: 6px; }
     .cell { border-radius: 6px; overflow: hidden; aspect-ratio: 4 / 5; }
+    .whole { height: 100%; object-fit: cover; }
   </style></head><body>
     <header><h1>People faces</h1><span class="sub">The same four people from their data; only the face style changes. Head and shoulders, cut from the asset stage's front and three-quarter views. Palette only; every file inside 3,000 triangles, 3 draw calls, 150 KB.</span></header>
-    <div class="grid"><div></div>${head}${rows}</div>
+    <div class="grid"><div></div>${head}${rows}${whole}</div>
   </body></html>`;
 }
 
-function phoneSheet(): string {
-  const block = (suffix: string): string => FACE_STYLES.map((style) => {
+function phoneSheet(styles: readonly FaceStyle[]): string {
+  const block = (suffix: string): string => styles.map((style) => {
     const cells = PEOPLE.flatMap((name) => VIEWS.map((view) => `<div class="cell"><img src="${style}/${name.slice(4)}_${view}_${suffix}.png"></div>`)).join("");
     return `<div class="row"><div class="label">${STYLE_LABEL[style]}</div><div class="cells">${cells}</div></div>`;
   }).join("");
@@ -217,10 +223,11 @@ async function main(): Promise<void> {
   const outArg = process.argv[2];
   if (outArg === undefined) throw new Error("usage: tsx tools/assets/faces-explore.ts <out dir>");
   const out = resolve(outArg);
+  const styles = process.argv[3] === undefined ? FACE_STYLES : process.argv[3].split(",").map((name) => faceStyleFrom(name));
   const figures = Object.fromEntries(FACE_STYLES.map((s) => [s, {}])) as Record<FaceStyle, Record<string, Figures>>;
   const stage = await openStage();
   try {
-    for (const style of FACE_STYLES) {
+    for (const style of styles) {
       const dir = join(out, style);
       mkdirSync(dir, { recursive: true });
       for (const name of PEOPLE) {
@@ -233,8 +240,8 @@ async function main(): Promise<void> {
       }
     }
     writeFileSync(join(out, "figures.json"), `${JSON.stringify(figures, null, 2)}\n`);
-    writeFileSync(join(out, "sheet-large.html"), largeSheet(figures));
-    writeFileSync(join(out, "sheet-phone.html"), phoneSheet());
+    writeFileSync(join(out, "sheet-large.html"), largeSheet(styles, figures));
+    writeFileSync(join(out, "sheet-phone.html"), phoneSheet(styles));
     for (const [html, png, viewport, scale] of [
       ["sheet-large.html", "01-faces-large.png", { width: 1600, height: 1000 }, 1],
       ["sheet-phone.html", "02-faces-phone.png", { width: 390, height: 844 }, 3],
