@@ -223,7 +223,12 @@ body {
 .btn-main:active { transform: translateY(2px); box-shadow: inset 0 -1px 0 var(--action-edge); }
 .btn-main:disabled { opacity: 0.5; }
 .btn-dark { background: var(--strong); color: var(--on-strong); border-radius: 5px; font-weight: 800; outline: var(--band-outline); outline-offset: -1px; }
-.press:active { transform: translateY(1px); filter: brightness(0.92); }
+/* Every tappable thing squashes a little on press and springs back (the lively layer, section 7; R-WORLD-023). On its own
+   scale, so a tilt or a move it already has stays; in the components layer, so an element's own transition utility wins. */
+@layer components {
+  .press { transition-property: scale; transition-duration: 120ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1.3); }
+  .press:active { scale: 0.96; }
+}
 /* Google's standard sign-in button (R-ACCOUNT-023), to the guidelines' numbers for Android and the web: 40 px tall, a
    1 px stroke inside, 12 px before the G, the G at 20 px, 10 px after it, 12 px after the words, Google Sans Medium
    14/20. Full width, as the sheet's other ways are, the G at the left and the words in the middle, as Google's own
@@ -258,16 +263,22 @@ body {
 @keyframes drop { from { transform: translateY(-14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes phone-up { from { transform: translateY(105%) rotate(5deg); } to { transform: none; } }
 @keyframes chip-in { from { transform: translateY(8px) scale(0.9); opacity: 0; } to { transform: none; opacity: 1; } }
+/* The lively layer's appear and refuse (section 7): a sticker wobbles in and settles; a refusal shakes sideways three
+   times, short and quick. A sticker's tilt is its own rotate, so these transforms leave it be. */
+@keyframes wobble-in { 0% { transform: scale(0.6) rotate(-14deg); opacity: 0; } 55% { transform: scale(1.06) rotate(5deg); opacity: 1; } 80% { transform: scale(0.98) rotate(-2deg); } 100% { transform: none; opacity: 1; } }
+@keyframes shake { 0%, 100% { transform: none; } 16% { transform: translateX(-6px); } 33% { transform: translateX(6px); } 50% { transform: translateX(-5px); } 66% { transform: translateX(5px); } 83% { transform: translateX(-3px); } 92% { transform: translateX(3px); } }
 .rise { animation: rise 0.3s cubic-bezier(0.2, 0.9, 0.25, 1.04) both; }
 .fade { animation: fade 0.22s ease both; }
-.pop { animation: pop 0.34s cubic-bezier(0.2, 0.9, 0.25, 1.1) both; }
+.pop { animation: pop 0.26s cubic-bezier(0.2, 0.9, 0.25, 1.1) both; }
 .drop { animation: drop 0.28s ease both; }
 .phone-up { animation: phone-up 0.38s cubic-bezier(0.2, 0.9, 0.25, 1.05) both; }
 .chip-in { animation: chip-in 0.22s cubic-bezier(0.2, 0.9, 0.25, 1.1) both; }
+.wobble-in { animation: wobble-in 0.26s cubic-bezier(0.2, 0.9, 0.25, 1) both; }
+.shake { animation: shake 0.28s ease-in-out both; }
 /* Reduced motion cuts every shell motion to a fade (R-WORLD-023). The rule at the top of this file
    stops every animation with !important, so the fade must carry it too to win. */
 @media (prefers-reduced-motion: reduce) {
-  .rise, .pop, .drop, .phone-up, .chip-in, .fade { animation: fade 0.2s ease both !important; }
+  .rise, .pop, .drop, .phone-up, .chip-in, .fade, .wobble-in, .shake { animation: fade 0.2s ease both !important; }
 }
 
 /* State changes (R-WORLD-023): what opens, closes, appears or expands moves by a plain

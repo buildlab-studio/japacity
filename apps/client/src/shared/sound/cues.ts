@@ -3,7 +3,7 @@
 // made inside the first tap that plays one.
 import { soundStore } from "./sound";
 
-export type Cue = "tap" | "open" | "close" | "done" | "coin" | "whoosh" | "month";
+export type Cue = "tap" | "open" | "close" | "done" | "coin" | "whoosh" | "month" | "ding" | "thud" | "no";
 
 /** One tone: a wave from `from` hertz gliding to `to`, starting `at` seconds in, lasting `long` seconds, at `gain`. */
 interface Tone {
@@ -33,6 +33,20 @@ export const CUES: Record<Cue, readonly Tone[]> = {
     { wave: "triangle", from: 523, to: 523, at: 0, long: 0.12, gain: 0.07 },
     { wave: "triangle", from: 659, to: 659, at: 0.1, long: 0.12, gain: 0.07 },
     { wave: "triangle", from: 784, to: 784, at: 0.2, long: 0.22, gain: 0.08 },
+  ],
+  // The lively layer's answers (docs/design/13-the-lively-layer.md, section 7), each over inside 300 ms: a bright ding
+  // for a thing done, a low thud for a stamp landing with weight, a low double note falling for a refusal.
+  ding: [
+    { wave: "sine", from: 1318, to: 1318, at: 0, long: 0.2, gain: 0.07 },
+    { wave: "sine", from: 2636, to: 2636, at: 0, long: 0.12, gain: 0.02 },
+  ],
+  thud: [
+    { wave: "sine", from: 150, to: 55, at: 0, long: 0.16, gain: 0.18 },
+    { wave: "noise", from: 300, to: 120, at: 0, long: 0.07, gain: 0.08 },
+  ],
+  no: [
+    { wave: "triangle", from: 247, to: 247, at: 0, long: 0.1, gain: 0.08 },
+    { wave: "triangle", from: 196, to: 196, at: 0.13, long: 0.14, gain: 0.08 },
   ],
 };
 
