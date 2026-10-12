@@ -68,7 +68,9 @@ export function Fan({ thing, title, entries, onAct, onFallback, going = null }: 
   // The next opening reads the thing where it stands then.
   useEffect(() => () => clearFanAnchor(thing), [thing]);
 
-  if (layout === null || !layout.fits) return null;
+  // Until the scene says where the thing stands, the fan is an empty anchor it can find; with no room beside the thing, nothing.
+  if (layout === null) return <div aria-hidden className="fan pointer-events-none fixed top-0 left-0 z-[37]" data-fan={thing} />;
+  if (!layout.fits) return null;
   const places = placesAt(layout, shift);
   const range = shiftRange(layout);
   const draggable = range.min < 0;

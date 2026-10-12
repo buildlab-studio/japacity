@@ -58,6 +58,11 @@ export interface SceneProps {
   onStop?: (thing: Thing, act: Act) => void;
   /** The world mode: the thing whose name and acts float over it, or null. */
   chosen?: Thing | null;
+  /**
+   * The world mode: an act chosen outside the chip, on a button of the thing's fan, each tap a new `at`: the character walks to
+   * the thing and the act follows on arrival as a chip's does, a second tap ending the walk at once (R-WORLD-010).
+   */
+  actOn?: { thing: Thing; act: Act; at: number } | null;
   /** The world mode: a tap on open ground, which puts away the thing's acts. */
   onClear?: () => void;
   /** The world mode: true while the view is close on the character, false while it shows the whole place. */

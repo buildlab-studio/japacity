@@ -3,7 +3,7 @@
 // a tap that answers where it stands. A list is a list: a job, a route, an offer, a paper, a command or anything with a choice
 // inside keeps the thing's chip and its sheet.
 import { content } from "@japacity/content";
-import type { Currency, Id, PlayerView, SlotPick } from "@japacity/sim";
+import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 
 import { afterPaying, monthDues, plannedCosts } from "../../../shared/words/cost";
 import { formatMoney } from "../../../shared/words/format";
@@ -57,8 +57,9 @@ export function fanEntriesOf(thing: Pick<Thing, "acts">): FanEntryOf[] | null {
 export function fanActOf(thing: Pick<Thing, "acts">, stages: string): Act | null {
   const act = thing.acts.find((one) => one.stages === stages || one.more?.includes(stages) === true);
   if (act === undefined) return null;
-  const { more: _more, ...rest } = act;
-  return { ...rest, stages };
+  const narrowed: Act = { ...act, stages };
+  delete narrowed.more;
+  return narrowed;
 }
 
 /** The groups of quality a skill or a proof counts in (R-QUALITY-007). */
@@ -147,7 +148,7 @@ export function fanModel(entries: readonly FanEntryOf[], view: PlayerView, plan:
     const option = view.activities.find((candidate) => candidate.id === stages);
     if (option === undefined) return [];
     const first = option.cost[0] ?? null;
-    const cost = first === null ? null : { currency: first.currency as Currency, amount: option.cost.filter((part) => part.currency === first.currency).reduce((sum, part) => sum + part.amount, 0) };
+    const cost = first === null ? null : { currency: first.currency, amount: option.cost.filter((part) => part.currency === first.currency).reduce((sum, part) => sum + part.amount, 0) };
     const paying = cost === null || cost.amount === 0 ? null : afterPaying(view, planned, [cost], dues);
     const refusal: FanRefusal | null =
       option.spent === true
@@ -177,4 +178,9 @@ export function fanModel(entries: readonly FanEntryOf[], view: PlayerView, plan:
       },
     ];
   });
+}
+
+/** The fan stands in for the chip unless a development build is asked for the chip with `?fan=off`, to compare the two. */
+export function fanAsked(search: string, development: boolean): boolean {
+  return !(development && new URLSearchParams(search).get("fan") === "off");
 }

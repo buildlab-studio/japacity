@@ -3,7 +3,7 @@
 // a route, an offer, a paper or a command keeps its chip and its sheet. Each button carries its price and the balance
 // before and after as the sheet counts them, or the refusal the sheet would say.
 import { content } from "@japacity/content";
-import type { Id, PlayerView } from "@japacity/sim";
+import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../../shared/testing/fixtures";
@@ -13,7 +13,7 @@ import type { Thing } from "../../../shared/world/contract";
 import { stageOf } from "../placeFile";
 import { builtPlaces } from "../scene.testing";
 import { thingsOf } from "../things";
-import { fanActOf, fanEntriesOf, fanEntry, fanModel, pictureOf, tintOf } from "./fanActs";
+import { fanActOf, fanAsked, fanEntriesOf, fanEntry, fanModel, pictureOf, tintOf } from "./fanActs";
 
 function thingAt(folder: string, id: string): Thing {
   const file = builtPlaces().find((place) => place.folder === folder)?.file;
@@ -65,6 +65,15 @@ describe("the things that fan", () => {
   });
 });
 
+describe("the switch", () => {
+  test("[R-WORLD-005] given a development build asked for ?fan=off, when the fan is asked for, then the chip stands instead; a build for players always fans", () => {
+    expect(fanAsked("", true)).toBe(true);
+    expect(fanAsked("?fan=off", true)).toBe(false);
+    expect(fanAsked("?clock=night&fan=off", true)).toBe(false);
+    expect(fanAsked("?fan=off", false)).toBe(true);
+  });
+});
+
 describe("tints and pictures", () => {
   test("[R-WORLD-005] given the acts' effects and costs, when each is tinted, then a meal is food, a skill study, a gig money, a nap or a bath body, company people, and an act that changes nothing plain", () => {
     expect(tintOf(COOK)).toBe("food");
@@ -86,7 +95,7 @@ describe("tints and pictures", () => {
 });
 
 describe("what a button says", () => {
-  const view = engineView("scenario.ada" as Id<"scenario">);
+  const view = engineView("scenario.ada");
   const cooking = fanEntriesOf(thingAt("family-house-parlour", "cooking")) ?? [];
 
   test("[R-WORLD-006] given the cooking corner and the naira held, when its buttons are made, then each names its meal, its price and the balance before and after, as the sheet counts them", () => {

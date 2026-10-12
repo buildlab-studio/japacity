@@ -66,6 +66,8 @@ import { sceneWords } from "./scene.words";
 import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
+import { Fan } from "./fan/Fan";
+import { fanActOf, fanAsked, fanEntriesOf, type FanEntry, fanModel } from "./fan/fanActs";
 import { stopReached } from "./stops";
 import { KIOSK, opensKiosk, withKiosk } from "./kiosk";
 import { namedThings } from "./mark";
@@ -592,6 +594,12 @@ export function City({
   const [menu, setMenu] = useState(false);
   const [credits, setCredits] = useState(false);
   const [picked, setPicked] = useState<Picked | null>(null);
+  // The fan (docs/design/13-the-lively-layer.md section 3): `?fan=off` brings back the chip in a development build, to compare.
+  const fanOn = useMemo(() => fanAsked(typeof location === "undefined" ? "" : location.search, import.meta.env.DEV), []);
+  // The act a fan's button chose, handed to the scene to walk for, and the entry walked to until its act lands (R-WORLD-010).
+  const [fanAct, setFanAct] = useState<{ thing: Thing; act: Act; at: number } | null>(null);
+  const fanGoing = useRef<{ thing: string; activity: string; param: string | null } | null>(null);
+  const [fanGoingId, setFanGoingId] = useState<string | null>(null);
   // Lines the corner tells once it shows again: a courted partner's answer waits for the home's card to be put away (R-PEOPLE-013).
   const [toTell, setToTell] = useState<string[]>([]);
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
@@ -820,6 +828,9 @@ export function City({
   const pickedThing = picked?.kind === "thing" ? picked.thing : null;
   // R-ACTIVITY-020: an act done at once that waits for sleep says so on the chip where its button was.
   const chosenThing = useMemo(() => (pickedThing === null ? null : withSpent(withPlanned(pickedThing, plan, view), view)), [pickedThing, plan, view]);
+  // A thing whose acts are the room's or the street's acts done at once fans them out of itself in place of its chip and its sheet.
+  const fanEntries = useMemo(() => (!world || !fanOn || chosenThing === null ? null : fanEntriesOf(chosenThing)), [world, fanOn, chosenThing]);
+  const fanned = fanEntries === null ? null : chosenThing;
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
   // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
@@ -833,11 +844,24 @@ export function City({
       setPicked(scenePick);
       return;
     }
+    const going = fanGoing.current;
+    fanGoing.current = null;
+    setFanGoingId(null);
     if (asksOpen || phone || map || resultsOpen) {
       setPicked(null);
       return;
     }
     const { thing, act } = scenePick;
+    // A fan's button, once the walk has reached its thing: the act is sent as its sheet's button sends it (docs/design/13-the-lively-layer.md section 3).
+    if (going !== null && going.thing === thing.id && going.activity === act.stages) {
+      setPicked(null);
+      const costs = (view.activities.find((option) => option.id === going.activity)?.cost.length ?? 0) > 0;
+      void actOnCard({ activity: going.activity as Id<"activity">, param: going.param }, { send, addToPlan }).then((acted) => {
+        cue(acted === "answered" || acted === "planned" ? (costs ? "coin" : "done") : "tap");
+        if (acted === "full") tell(say("ui.world.full"));
+      });
+      return;
+    }
     switch (act.kind) {
       case "sheet":
         // Money is sent home from the Bank's send chooser, which shows the channels, the rate and what lands.
@@ -932,6 +956,21 @@ export function City({
         throw new Error(`Unknown act: ${String(never)}`);
       }
     }
+  };
+  // A fan's button that can be had: the scene walks to the thing, and the act lands in readPick once it is there (R-WORLD-010).
+  const fanTap = (entry: FanEntry): void => {
+    if (fanned === null) return;
+    const act = fanActOf(fanned, entry.id);
+    if (act === null) return;
+    fanGoing.current = { thing: fanned.id, activity: entry.id, param: entry.param };
+    setFanGoingId(entry.id);
+    setFanAct({ thing: fanned, act, at: Date.now() });
+  };
+  // No room beside the thing for its fan: the same acts open as the sheet its chip would open (section 3).
+  const fanFallback = (): void => {
+    const [first, ...rest] = fanEntries ?? [];
+    if (fanned === null || first === undefined) return;
+    setPicked(rest.length === 0 ? { kind: "action", activity: first.stages, ...(first.act.param === undefined ? {} : { param: first.act.param }) } : { kind: "action", activity: first.stages, more: rest.map((one) => one.stages), label: first.act.label });
   };
   // A ride plays as the fly-over's dive, then the place opens (rule 13).
   const travel = (id: string): void => {
@@ -1340,7 +1379,7 @@ export function City({
     const outside = (event: PointerEvent): void => {
       const target = event.target;
       if (!(target instanceof Element)) return;
-      if (target.closest("[data-thing-chip], [data-card]") !== null || target.tagName === "CANVAS") return;
+      if (target.closest("[data-thing-chip], [data-card], [data-fan]") !== null || target.tagName === "CANVAS") return;
       setPicked(null);
     };
     const back = (event: KeyboardEvent): void => {
@@ -1475,7 +1514,9 @@ export function City({
                     overview: true,
                     roam: ROAM,
                     ...(things === undefined ? {} : { things, marks, named: namedThings(things, stepThing), nudged: stepThing, teaching }),
-                    chosen: chosenThing,
+                    // A fanned thing asks no chip of the scene; its fan's buttons hand their acts to walk for.
+                    chosen: fanned === null ? chosenThing : null,
+                    actOn: fanAct,
                     onClear: () => setPicked(null),
                     onStop: (_thing: Thing, act: Act) => {
                       if (act.stages === undefined) return;
@@ -1666,6 +1707,9 @@ export function City({
             </div>
           ) : null}
           <SpeechBubble hidden={!worldFree} anchored={drawing && ready} />
+          {fanned !== null && fanEntries !== null && picked?.kind === "thing" ? (
+            <Fan key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} />
+          ) : null}
           <Rise rise={japa.rise} />
           {beatShown ? (
             <button type="button" onClick={() => setPartyBeat(false)} className="pop pointer-events-auto fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+124px)] z-[45] flex justify-center px-6" data-party-beat>
