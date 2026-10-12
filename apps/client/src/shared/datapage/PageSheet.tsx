@@ -93,14 +93,14 @@ export function PageSheet({ view, onClose }: { view: PlayerView; onClose: () => 
   return createPortal(
     <div className="fixed inset-0 z-[70] bg-scrim" onClick={onClose} data-page-sheet>
       <div role="dialog" aria-modal="true" aria-label={say("prologue.door.page.title")} className="rise absolute inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] mx-auto max-w-[420px]" onClick={(event) => event.stopPropagation()}>
-        <div className="band mb-2 flex items-center justify-between rounded-[6px] px-3 py-2">
+        <div className="band adire mb-2 flex items-center justify-between rounded-[6px] px-3 py-2">
           <h2 className="title text-[20px] leading-none">{say("prologue.door.page.title")}</h2>
           <button type="button" className="press flex size-9 items-center justify-center rounded-[6px] bg-white/15" onClick={onClose} aria-label={say("prologue.page.close")} autoFocus>
             <X size={18} />
           </button>
         </div>
         <DataPage page={page} />
-        <p className="band mt-2 rounded-[6px] px-3 py-2 text-[12px] leading-snug">{say(stamps.length === 0 ? "ui.page.stamps.none" : "ui.page.stamps.some")}</p>
+        <p className="band adire mt-2 rounded-[6px] px-3 py-2 text-[12px] leading-snug">{say(stamps.length === 0 ? "ui.page.stamps.none" : "ui.page.stamps.some")}</p>
       </div>
     </div>,
     document.body,

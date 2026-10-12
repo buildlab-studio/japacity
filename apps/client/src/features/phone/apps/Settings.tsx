@@ -1,5 +1,5 @@
-// Settings (docs/rules/world.md R-WORLD-018, 021, 022): the look (adire or danfo, remembered on the
-// device), the sound (the existing mute: muted fetches nothing), the city's graphics choice, and
+// Settings (docs/rules/world.md R-WORLD-018, 022): the sound (the existing mute: muted fetches nothing), the city's
+// graphics choice, and
 // the account, which the shell hands in so this folder never imports the account feature. Last,
 // "Start a new life" (account.md R-ACCOUNT-030): one sheet that names the character and their age,
 // Cancel first, and the end held to confirm, with nothing to type. At the foot, the version line (city.md
@@ -18,8 +18,6 @@ import { Button } from "../../../shared/ui/Button";
 import { Sheet } from "../../../shared/ui/Sheet";
 import { clockWords } from "../../../shared/words/quality";
 import { say } from "../../../shared/words/text";
-import type { Theme } from "../../../shared/world/contract";
-import { currentTheme, setTheme, THEMES } from "../../../shared/world/theme";
 import { Chips, Head } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -47,22 +45,10 @@ function keepGraphics(choice: GraphicsChoice): void {
 }
 
 export function Settings({ account = null, about = null }: { account?: ReactNode; about?: ReactNode }) {
-  const [theme, chooseTheme] = useState<Theme>(() => currentTheme());
   const [graphics, setGraphics] = useState<GraphicsChoice>(readGraphics);
   const muted = useSound((state) => state.muted);
   return (
     <div data-phone-app="settings">
-      <Head>{phoneWords("phone.settings.look")}</Head>
-      <Chips
-        label={phoneWords("phone.settings.look")}
-        value={theme}
-        onChange={(next) => {
-          setTheme(next);
-          chooseTheme(next);
-        }}
-        options={THEMES.map((value) => ({ value, label: say(`ui.world.theme.${value}`) }))}
-      />
-
       <Head>{phoneWords("phone.settings.sound")}</Head>
       <Chips
         label={phoneWords("phone.settings.sound")}

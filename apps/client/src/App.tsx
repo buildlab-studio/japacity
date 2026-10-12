@@ -49,6 +49,7 @@ import { SetpieceView, useClosingOpen } from "./features/setpiece/SetpieceView";
 import { Calendar, calendarOpening } from "./features/turn/Calendar";
 import { Results } from "./features/turn/Results";
 import { say } from "./shared/words/text";
+import { usePaint } from "./shared/world/paint";
 import { useScreenCount } from "./useScreenCount";
 
 /** R-WORLD-024: the old month page, its own chunk, fetched only when `?classic` asks for it. */
@@ -102,6 +103,8 @@ function WorldPlaying() {
   const reportOpen = useGame((state) => state.reportOpen);
   // The officer's closing line holds the asks sheet after the interview closes, until Leave the room.
   const closing = useClosingOpen();
+  // The sheets over the world take the night's paint when the world's clock says night (decision 0038).
+  usePaint();
   useScreenCount("world");
   useScreenCount(reportOpen ? "report" : null);
   useScreenCount(view.setpiece === null ? null : "setpiece");

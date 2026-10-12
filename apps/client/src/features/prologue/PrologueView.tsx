@@ -346,7 +346,7 @@ function Family({ draw, water, turned, hometown }: { draw: Draw | null; water: b
   return (
     <div className="min-h-[64px] [perspective:600px]" data-family={card === null ? "drawing" : "turned"}>
       <div
-        className={`flex min-h-[64px] items-center gap-2.5 rounded-[6px] px-3 py-2 transition-transform duration-300 ${card === null ? "band" : "border-2 border-strong bg-sheet"}`}
+        className={`flex min-h-[64px] items-center gap-2.5 rounded-[6px] px-3 py-2 transition-transform duration-300 ${card === null ? "band adire" : "border-2 border-strong bg-sheet"}`}
         style={{ transform: card === null ? "rotateX(0deg)" : "rotateX(360deg)" }}
       >
         {card === null ? (
@@ -436,7 +436,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   // view and only the legs are covered; the handover keeps the page at the top.
   const over: ReactNode = handover ? (
     <>
-      <div className="band-2 pointer-events-auto -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(12px,env(safe-area-inset-top))] pb-2">
+      <div className="band-2 adire pointer-events-auto -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(12px,env(safe-area-inset-top))] pb-2">
         <DoorHead title={say("prologue.door.page.title")} at={2} count={3} onBack={null} onShuffle={null} onSkip={null} />
       </div>
       <div className="pointer-events-auto mx-auto mt-2 w-full max-w-[420px]">

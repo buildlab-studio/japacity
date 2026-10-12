@@ -11,7 +11,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGame } from "../../authority/GameProvider";
 import type { MomentShot } from "../../authority/store";
 import { Counter } from "../../shared/world/Band";
-import { currentTheme } from "../../shared/world/theme";
 import { say } from "../../shared/words/text";
 import { figureWords, momentFace, type MomentFace, type MomentIcon } from "../../shared/moment/moment";
 
@@ -26,9 +25,9 @@ const ICONS: Record<MomentIcon, LucideIcon> = {
   book: BookMarked,
 };
 
-/** The game's small mark for the look in use and the ground it stands on (public/brand, README). */
-export function markFile(look: "adire" | "danfo", ground: "light" | "dark"): string {
-  return `${import.meta.env.BASE_URL}brand/japacity-mark-${look}-${ground}.svg`;
+/** The game's small mark for the ground it stands on (public/brand, README), in the game's one look (decision 0038). */
+export function markFile(ground: "light" | "dark"): string {
+  return `${import.meta.env.BASE_URL}brand/japacity-mark-adire-${ground}.svg`;
 }
 
 /**
@@ -66,10 +65,9 @@ function Figure({ face }: { face: MomentFace }) {
 export function MomentFaceView({ face }: { face: MomentFace }) {
   const Icon = ICONS[face.icon];
   const dark = face.tone === "bad";
-  const look = currentTheme();
   return (
     <article className={`pop w-full max-w-[380px] overflow-hidden rounded-[6px] shadow-[0_24px_60px_rgba(5,8,20,0.55)] ${dark ? "bg-strong text-on-strong" : "panel"}`} data-moment-card={face.kind} data-moment-tone={face.tone}>
-      <header className="band relative flex items-center gap-3 px-4 pt-4 pb-3.5 pr-12">
+      <header className="band adire relative flex items-center gap-3 px-4 pt-4 pb-3.5 pr-12">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-[5px] bg-sheet text-strong">
           <Icon size={26} aria-hidden />
         </div>
@@ -96,7 +94,7 @@ export function MomentFaceView({ face }: { face: MomentFace }) {
         )}
       </div>
       <footer className={`flex items-center gap-2.5 border-t px-5 py-3.5 ${dark ? "border-on-strong/15" : "border-sheet-line"}`} data-moment-sign>
-        <img src={markFile(look, dark ? "dark" : "light")} alt={face.mark} draggable={false} className="size-8 shrink-0" data-moment-mark />
+        <img src={markFile(dark ? "dark" : "light")} alt={face.mark} draggable={false} className="size-8 shrink-0" data-moment-mark />
         <span className="text-[17px] leading-none font-extrabold tracking-[-0.01em]" data-moment-address>
           {face.address}
         </span>

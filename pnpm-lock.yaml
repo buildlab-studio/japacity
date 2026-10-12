@@ -77,6 +77,9 @@ importers:
       '@fontsource/danfo':
         specifier: ^5.3.0
         version: 5.3.0
+      '@fontsource/rubik':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@japacity/assets':
         specifier: workspace:*
         version: link:../../packages/assets
@@ -1376,6 +1379,9 @@ packages:
 
   '@fontsource/danfo@5.3.0':
     resolution: {integrity: sha512-AG42HniFn9gLVttcN73plM3tk/H5/2UK1595ND9/XkFcBu9olDMizW+ygGNeQE+MC0XEH/5x/78vqqCzcWfExg==}
+
+  '@fontsource/rubik@5.3.0':
+    resolution: {integrity: sha512-Nks2mn7vlE1jZVHuVgoKU2Ejqjvd+GJzLRdraCjo1xc79oo7O6vJ8pcvSfmKPGX3/Ln7nt09XWFzPeu2jWf0xQ==}
 
   '@gltf-transform/core@4.5.1':
     resolution: {integrity: sha512-OWgBYssKHKoXMIrMb2N20jXqWRnMP9HdtcTFQBEAJtz4P+OOxx5fozl5eAeK7nktIs5uDE/lu4NbkE5VCZaR9g==}
@@ -5152,6 +5158,8 @@ snapshots:
   '@floating-ui/utils@0.2.12': {}
 
   '@fontsource/danfo@5.3.0': {}
+
+  '@fontsource/rubik@5.3.0': {}
 
   '@gltf-transform/core@4.5.1':
     dependencies:

@@ -427,7 +427,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
         over={
           <>
             {/* The header on the theme's band, as the design's page has it, so its chalk reads over the compound. */}
-            <div className="band-2 pointer-events-auto -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(12px,env(safe-area-inset-top))] pb-2">{head}</div>
+            <div className="band-2 adire pointer-events-auto -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(12px,env(safe-area-inset-top))] pb-2">{head}</div>
             <div className="pointer-events-auto mx-auto mt-3 w-full max-w-[420px]">
               <DataPage page={fieldsOf(draft)} print />
             </div>

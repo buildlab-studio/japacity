@@ -171,7 +171,6 @@ export const phoneText: Record<string, string> = {
 
   "phone.news.month": "{when}",
 
-  "phone.settings.look": "Look",
   "phone.settings.sound": "Sound",
   "phone.settings.sound.on": "On",
   "phone.settings.sound.off": "Off",

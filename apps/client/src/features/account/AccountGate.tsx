@@ -214,7 +214,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   // screens are the door's first, and carry no title over the figure; the sheet's words carry them.
   const marked = typeof standing === "object" || shown === "returning";
   const top = (
-    <div className="band-2 -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(20px,env(safe-area-inset-top))] pb-4" data-account-top>
+    <div className="band-2 adire -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(20px,env(safe-area-inset-top))] pb-4" data-account-top>
       <Wordmark ground="dark" />
     </div>
   );

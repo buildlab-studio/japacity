@@ -58,7 +58,7 @@ describe("Google's own button", () => {
     expect(rule).toContain("font-weight: 500;");
     expect(rule).toContain("line-height: 20px;");
     expect(CSS).toMatch(/:root \{[^}]*--google-fill: #ffffff;\s*--google-stroke: #747775;\s*--google-text: #1f1f1f;/);
-    expect(CSS).toMatch(/:root\[data-surface="dark"\] \{[^}]*--google-fill: #131314;\s*--google-stroke: #8e918f;\s*--google-text: #e3e3e3;/);
+    expect(CSS).toMatch(/:root\[data-paint="night"\],\n\[data-paint="night"\] \{[^}]*--google-fill: #131314;\s*--google-stroke: #8e918f;\s*--google-text: #e3e3e3;/);
     expect(CSS).toContain('src: url("/fonts/google-sans-500-latin.woff2") format("woff2");');
   });
 });

@@ -1,14 +1,16 @@
 @import "tailwindcss";
 /* The full index, never latin.css alone: the naira sign and Yoruba and Igbo
-   letters sit in the latin-ext and vietnamese subsets. */
+   letters sit in the latin-ext and vietnamese subsets. Danfo is the wordmark's face alone. */
 @import "@fontsource/danfo/index.css";
+/* Rubik, the interface's one face (docs/design/13-the-lively-layer.md, section 2), at the two weights the layer uses and
+   latin only: Rubik draws neither the naira sign nor the Yoruba letters with a dot below in any subset, so the larger
+   ones would buy nothing; those letters fall back to the system's face behind it. */
+@import "@fontsource/rubik/latin-500.css";
+@import "@fontsource/rubik/latin-700.css";
 
-/* The world-first role tokens (docs/rules/world.md R-WORLD-021). A component names a role, never a
-   colour. Two themes share the roles: adire (the default) and danfo (data-ui="danfo" on <html>).
-   The 3D world keeps its own colours in both.
-   Sheets take their colour from the theme, never a stock warm off-white. The default is the wash
-   treatment (the sheet tinted by the theme: indigo-white, or newsprint grey); data-surface="dark" and
-   data-surface="print" on <html> hold the two others for the maintainer to compare. No screen offers them. */
+/* The role tokens (docs/rules/world.md R-WORLD-021). A component names a role, never a colour. One look, two paints
+   (decision 0038, the lively layer): the day's pale sky here, and the night's navy under data-paint="night" on <html>,
+   set from the world's clock (shared/world/paint.ts). The 3D world keeps its own colours in both. */
 :root {
   color-scheme: light;
   --strong: #1c2a5e;
@@ -16,30 +18,42 @@
   --on-strong: #f3efe6;
   --strong-label: rgba(243, 239, 230, 0.72);
   --band-outline: none;
+  /* The adire circles: on the travel data page and behind the wordmark only (the .adire class), never on an everyday surface. */
   --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg fill='none' stroke='%23f3efe6' stroke-opacity='.16' stroke-width='2'%3E%3Ccircle cx='22' cy='22' r='15'/%3E%3Ccircle cx='22' cy='22' r='8'/%3E%3C/g%3E%3Ccircle cx='22' cy='22' r='2.5' fill='%23f3efe6' fill-opacity='.16'/%3E%3C/svg%3E");
   --wall: #1c2a5e;
   --wall-text: #f3efe6;
   --screen: #eef1f8;
-  --sheet: #f1f3f9;
+  --sheet: #eaf3fb;
   --sheet-2: #ffffff;
-  --sheet-muted: #e1e6f2;
-  --sheet-pattern: none;
+  --sheet-muted: #dae8f5;
   --text: #131a33;
   --text-2: #56607e;
   --sheet-line: rgba(28, 42, 94, 0.12);
-  /* A chosen row in a list: the theme's strong colour with its label colour for marks. */
+  /* The lively layer's edge: a thin navy line round a card, a pill and a sticker button. */
+  --edge: #1c2a5e;
+  --edge-width: 1px;
+  /* Soft tints by kind of act: food peach, study blue, money green, body lilac, people rose; anything else the sheet's. */
+  --tint-food: #ffe8dc;
+  --tint-study: #dde9fb;
+  --tint-money: #dcf5e6;
+  --tint-body: #ebe3f7;
+  --tint-people: #fde0e8;
+  --tint-plain: #eaf3fb;
+  /* A chosen row in a list: the strong colour with its label colour for marks. */
   --pick: var(--strong);
   --on-pick: var(--on-strong);
   --pick-mark: var(--signal);
   --action: #f2b705;
   --action-text: #131a33;
   --action-edge: #131a33;
+  /* The underside of the one yellow action, which flattens on press. */
+  --action-under: #1c2a5e;
   --signal: #f2b705;
   --in: #2a8656;
   --out: #c23a2a;
   --scrim: rgba(12, 16, 34, 0.5);
   --device: #0d1124;
-  /* The drawn map's water takes the design's lagoon tone in both looks (R-WORLD-021). */
+  /* The drawn map's water takes the design's lagoon tone (R-WORLD-021). */
   --water: #5f9fc0;
   --land: #ece5d5;
   --land-2: #e1d8c4;
@@ -47,7 +61,7 @@
   --map-label: #5d564a;
   --paper-bill: #fbf7ec;
   --paper-ticket: #fff3c4;
-  /* A line in the world, said over a person or told in the corner (R-WORLD-026): off-white in both themes, lighter than the band. */
+  /* A line in the world, said over a person or told in the corner (R-WORLD-026): off-white, lighter than the band. */
   --said: #f6f6f3;
   --on-said: #25221d;
   --app-calendar: #1f6f78;
@@ -65,7 +79,7 @@
   --google-fill: #ffffff;
   --google-stroke: #747775;
   --google-text: #1f1f1f;
-  /* Older names, kept as aliases of the roles so they follow the theme and the surface. */
+  /* Older names, kept as aliases of the roles so they follow the paint. */
   --ink: var(--text);
   --accent: var(--action);
   --accent-ink: var(--action-text);
@@ -73,88 +87,35 @@
   --bad: var(--out);
 }
 
-:root[data-ui="danfo"] {
-  --strong: #17140f;
-  --strong-2: #17140f;
-  --on-strong: #f6f1e4;
-  --strong-label: #f2b705;
-  --band-outline: 1px solid rgba(255, 255, 255, 0.14);
-  --pattern: none;
-  --wall: #f6f1e4;
-  --wall-text: #17140f;
-  --screen: #ecece7;
-  --sheet: #eeeeea;
-  --sheet-2: #fafaf8;
-  --sheet-muted: #e0e0da;
-  --text: #17140f;
-  --text-2: #5b5b55;
-  --sheet-line: rgba(23, 20, 15, 0.13);
-  /* A chosen row in a list, the same role as adire's: the strong colour, its label colour for marks. */
-  --pick: #17140f;
-  --on-pick: #f6f1e4;
-  --pick-mark: #f2b705;
-  --scrim: rgba(10, 9, 6, 0.55);
-  --device: #17140f;
-  --water: #5f9fc0;
-  --land: #efe7d3;
-  --land-2: #e4dac2;
-  --road: #ffffff;
-  --map-label: #5e574a;
-  --app-chats: #17140f;
-}
-
-/* Sheets the colour of the bar. The pick flips so it still stands out: chalk on adire, yellow on danfo. */
-:root[data-surface="dark"] {
+/* The night paint: the same shapes in navy, cream ink and cream edges, the yellow action unchanged; its underside turns
+   cream with the edges so the press still reads on navy. A part of the page may carry the attribute too (the lively
+   preview shows the two paints side by side), so every token that reads another is set again here. */
+:root[data-paint="night"],
+[data-paint="night"] {
   color-scheme: dark;
   --google-fill: #131314;
   --google-stroke: #8e918f;
   --google-text: #e3e3e3;
-  --sheet: #18234f;
-  --sheet-2: #22306a;
-  --sheet-muted: #2b3a7a;
-  --screen: #141d42;
-  --sheet-line: rgba(243, 239, 230, 0.13);
+  --sheet: #1c2a5e;
+  --sheet-2: #243470;
+  --sheet-muted: #2e3f80;
+  --screen: #18234f;
+  --sheet-line: rgba(243, 239, 230, 0.14);
   --text: #f3efe6;
   --text-2: #aab3d6;
+  --edge: #f3efe6;
+  --tint-food: #5c3a30;
+  --tint-study: #2c4475;
+  --tint-money: #22533b;
+  --tint-body: #443868;
+  --tint-people: #5e2f45;
+  --tint-plain: #1c2a5e;
   --action-edge: #0b1130;
+  --action-under: #f3efe6;
   --pick: #f3efe6;
   --on-pick: #131a33;
   --pick-mark: #131a33;
-}
-/* White paper with a faint dot pattern and firmer hairlines, like a printed form. */
-:root[data-surface="print"] {
-  --sheet: #ffffff;
-  --sheet-2: #f6f7fb;
-  --sheet-muted: #eceff6;
-  --screen: #ffffff;
-  --sheet-line: rgba(28, 42, 94, 0.2);
-  --text-2: #56607e;
-  --sheet-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='11' cy='11' r='1.1' fill='%231c2a5e' fill-opacity='.07'/%3E%3C/svg%3E");
-}
-:root[data-ui="danfo"][data-surface="dark"] {
-  --google-fill: #131314;
-  --google-stroke: #8e918f;
-  --google-text: #e3e3e3;
-  --sheet: #1d1b17;
-  --sheet-2: #2a2722;
-  --sheet-muted: #36322b;
-  --screen: #17140f;
-  --sheet-line: rgba(246, 241, 228, 0.13);
-  --text: #f6f1e4;
-  --text-2: #b8b2a4;
-  --action-edge: #000000;
-  --pick: #f2b705;
-  --on-pick: #17140f;
-  --pick-mark: #17140f;
-}
-:root[data-ui="danfo"][data-surface="print"] {
-  --sheet: #ffffff;
-  --sheet-2: #f7f7f4;
-  --sheet-muted: #efefea;
-  --screen: #ffffff;
-  --sheet-line: rgba(23, 20, 15, 0.2);
-  --text-2: #5b5b55;
-  --sheet-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='11' cy='11' r='1.1' fill='%2317140f' fill-opacity='.07'/%3E%3C/svg%3E");
+  --ink: var(--text);
 }
 
 @theme inline {
@@ -186,9 +147,28 @@
   --color-good: var(--good);
   --color-bad: var(--bad);
 
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Ubuntu, sans-serif;
-  /* Danfo is for the japacity number and chapter titles only. */
+  --color-edge: var(--edge);
+  --color-action-under: var(--action-under);
+  --color-tint-food: var(--tint-food);
+  --color-tint-study: var(--tint-study);
+  --color-tint-money: var(--tint-money);
+  --color-tint-body: var(--tint-body);
+  --color-tint-people: var(--tint-people);
+  --color-tint-plain: var(--tint-plain);
+
+  --font-sans: "Rubik", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Ubuntu, sans-serif;
+  /* Danfo is for the wordmark only. */
   --font-display: "Danfo", system-ui, sans-serif;
+}
+
+/* The lively layer's three sizes (docs/design/13-the-lively-layer.md, section 2): titles and money, the body, chips. */
+@theme {
+  --text-title: 22px;
+  --text-title--line-height: 1.15;
+  --text-body: 16px;
+  --text-body--line-height: 1.3;
+  --text-chip: 12px;
+  --text-chip--line-height: 1.35;
 }
 
 /* Google Sans Medium, the face Google's branding guidelines name for its sign-in button, and only there (OFL-1.1: the
@@ -225,8 +205,10 @@ body {
 }
 
 /* The world's bands, chips and the one main button (world.md R-WORLD-002, 006, 021, 023). */
-.band { background-color: var(--strong); background-image: var(--pattern); color: var(--on-strong); outline: var(--band-outline); outline-offset: -1px; }
-.band-2 { background-color: var(--strong-2); background-image: var(--pattern); color: var(--on-strong); outline: var(--band-outline); outline-offset: -1px; }
+.band { background-color: var(--strong); color: var(--on-strong); outline: var(--band-outline); outline-offset: -1px; }
+.band-2 { background-color: var(--strong-2); color: var(--on-strong); outline: var(--band-outline); outline-offset: -1px; }
+/* The adire circles over a band, where they stay (decision 0038): the travel data page, behind the wordmark, the door. */
+.adire { background-image: var(--pattern); }
 .label-strong { color: var(--strong-label); }
 .wall { background-color: var(--wall); background-image: var(--pattern); color: var(--wall-text); }
 .num { font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: -0.02em; }

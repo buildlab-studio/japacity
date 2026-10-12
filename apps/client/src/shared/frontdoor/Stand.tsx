@@ -55,7 +55,7 @@ export function Stand({ look, style, mark, head, name, caption, children }: Stan
       <img src={shown.picture} alt="" draggable={false} data-gate-standin className="pointer-events-none absolute top-[16%] left-1/2 h-[74%] -translate-x-1/2 object-contain" />
     );
   return (
-    <div className="band-2 fixed inset-0 flex flex-col overflow-hidden" data-gate={mark} data-look={shown?.id} data-stand>
+    <div className="band-2 adire fixed inset-0 flex flex-col overflow-hidden" data-gate={mark} data-look={shown?.id} data-stand>
       {backdrop === null ? null : (
         <>
           {/* Under everything on the screen, over the band's own colour: the backdrop, then the band again, see-through. */}
@@ -64,7 +64,7 @@ export function Stand({ look, style, mark, head, name, caption, children }: Stan
               <Backdrop kind={backdrop} look={shown?.file ?? "shared/chr/chr_ada.glb"} />
             </Suspense>
           </div>
-          <div className="band-2 pointer-events-none absolute inset-0 -z-10" style={{ opacity: SCRIM, outline: "none" }} data-scrim aria-hidden />
+          <div className="band-2 adire pointer-events-none absolute inset-0 -z-10" style={{ opacity: SCRIM, outline: "none" }} data-scrim aria-hidden />
         </>
       )}
       <div className="shrink-0 px-3 pt-[max(12px,env(safe-area-inset-top))]">{head}</div>
