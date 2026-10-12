@@ -66,7 +66,7 @@ function found(selector: string): HTMLElement {
 const FAMILY = "activity.family-time";
 
 describe("an act that repeats, at its thing", () => {
-  test("[R-ACTIVITY-019] [R-ACTIVITY-018] given time with Mama, when her sheet opens twice, then each time the button does it now, the sheet says a morning, it never counts at the month's end nor says Ongoing, and each press is sent at once", async () => {
+  test("[R-ACTIVITY-019] [R-ACTIVITY-018] given time with Mama, when her sheet opens twice, then each time the button does it now, the sheet says no time taken, it never counts at the month's end nor says Ongoing, and each press is sent at once", async () => {
     const game = newGame("scenario.ada");
     const { authority, store } = await renderWithGame(<City world results={() => <p />} />, game);
     fireEvent.click(await waitFor(() => found('[data-stand-in-act="house:enter"]')));
@@ -74,8 +74,9 @@ describe("an act that repeats, at its thing", () => {
     for (let time = 1; time <= 2; time += 1) {
       fireEvent.click(found('[data-stand-in-act="mama:family-time"]'));
       const main = await waitFor(() => found("[data-ask-main]"));
-      expect(found("[data-ask-time]").textContent).toBe(`${say("ui.world.takes")}${say("ui.world.time.morning")}`);
-      expect(say("ui.world.time.morning")).toBe("A morning");
+      // Gist takes no time (R-ACTIVITY-020: halfDays 0), so the sheet names none; what it does stands instead.
+      expect(document.querySelector("[data-ask-time]")).toBeNull();
+      expect(found("[data-ask-does]").textContent).toBe(`${say("ui.world.does")}Lifts you`);
       expect(main.hasAttribute("disabled")).toBe(false);
       expect(main.textContent).toContain(say("ui.world.now"));
       expect(main.textContent).not.toContain(say("ui.world.counts-at-end"));

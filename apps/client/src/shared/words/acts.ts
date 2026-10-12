@@ -4,7 +4,7 @@ import { content } from "@japacity/content";
 import type { Id, Reply, ReportLine, SlotPick } from "@japacity/sim";
 
 import type { ServerRejection } from "../net/contract";
-import { hasWords, say, words } from "./text";
+import { hasWords, nameOf, say, words } from "./text";
 
 const NOW_LINE = /^line\.activity\.[a-z0-9-]+\.now$/;
 
@@ -22,8 +22,34 @@ export function timeWordsOf(activity: string): string | null {
   const entry = content.activity[activity as keyof typeof content.activity];
   if (entry === undefined || entry.when !== "now" || entry.purchase === true) return null;
   const half = entry.halfDays ?? 1;
+  // An act that takes no time (gist, a look) says none (R-ACTIVITY-020).
+  if (half <= 0) return null;
   const span = half <= 1 ? "morning" : half < 4 ? "day" : half < 6 ? "weekend" : half < 10 ? "half-week" : "week";
   return say(`ui.world.time.${span}`);
+}
+
+/** The body's qualities and what an act that adds to them does, in words (R-QUALITY-007: never a figure for the body). */
+const BODY_DOES: Readonly<Record<string, string>> = { "quality.belly": "ui.act.does.fills", "quality.energy": "ui.act.does.rests", "quality.wellbeing": "ui.act.does.lifts" };
+
+/** The groups of quality an act's sheet may name with its figure: a skill or a proof ("+2 English"). */
+const SKILLS: ReadonlySet<string> = new Set(["skills", "proof"]);
+
+/**
+ * What an act does, in words, on one line (R-WORLD-006): from its `quality/add` effects, short: "Fills you" for the belly,
+ * "rests you" for the energy, "lifts you" for wellbeing, and a skill with its figure, "+2 English". Null when it adds
+ * none of these.
+ */
+export function effectWordsOf(activity: string): string | null {
+  const entry = content.activity[activity as keyof typeof content.activity];
+  if (entry === undefined) return null;
+  const parts = entry.effects.flatMap((effect) => {
+    if (effect.type !== "quality/add" || effect.amount <= 0) return [];
+    const body = BODY_DOES[effect.quality];
+    if (body !== undefined) return [say(body)];
+    return SKILLS.has(content.quality[effect.quality]?.group ?? "") ? [say("ui.act.does.skill", { amount: effect.amount, skill: nameOf(effect.quality) })] : [];
+  });
+  const line = [...new Set(parts)].join(", ");
+  return line === "" ? null : line.charAt(0).toUpperCase() + line.slice(1);
 }
 
 /** Rest, which an empty slot already is (R-TURN-006): never planned, never a thing's act, never in a picker. */

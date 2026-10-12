@@ -25,20 +25,29 @@ function naira(view: PlayerView): number {
   return view.pockets.NGN.bank + view.pockets.NGN.cash;
 }
 
+/** The balance under the card's button, before or after, in kobo (R-WORLD-006). */
+function balance(which: "before" | "after"): number | null {
+  const value = document.querySelector(`[data-balance-${which}]`)?.getAttribute(`data-balance-${which}`);
+  return value === undefined || value === null ? null : Number(value);
+}
+
 /** An activity the player may do, at the cost given, as the view would offer it. */
 function offered(id: ActivityOption["id"], amount: number, affordable = true): ActivityOption {
   return { id, allowed: true, missing: [], params: null, cost: [{ currency: "NGN", amount }], affordable, when: content.activity[id]?.when ?? "month", done: false };
 }
 
 describe("the picker's cards and money", () => {
-  test("[R-WORLD-006] given an activity that costs money, when its card shows, then the button says what is left after, counting the bank and the cash", async () => {
+  test("[R-WORLD-006] given an activity that costs money, when its card shows, then the button says the act and its price, and under it the balance before, struck, and after, counting the bank and the cash", async () => {
     const view = engineView("scenario.ada");
     const cost = content.activity[TB]?.cost[0]?.amount;
     if (typeof cost !== "number") throw new Error("The TB test has no fixed fee.");
     await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(TB, cost)] });
     const button = addButton(TB);
     expect(button.disabled).toBe(false);
-    expect(button.querySelector("[data-after]")?.textContent).toBe(say("ui.world.left", { amount: formatMoney(naira(view) - cost, "NGN") }));
+    expect(button.textContent).toContain(say("ui.act.priced", { act: nameOf(TB), price: formatMoney(cost, "NGN") }));
+    expect(button.querySelector("[data-after]")).toBeNull();
+    expect(balance("before")).toBe(naira(view));
+    expect(balance("after")).toBe(naira(view) - cost);
   });
 
   test("[R-WORLD-006] given an activity that costs one kobo more than the player has, when its card shows, then the button is shut and says how much is short, and nothing is planned", async () => {
@@ -51,7 +60,7 @@ describe("the picker's cards and money", () => {
     expect(store.getState().plan.every((pick) => pick === null)).toBe(true);
   });
 
-  test("[R-WORLD-006] given a plan that already pays for one activity, when another card shows, then what is left is after both, and one the plan leaves too little for is shut as short", async () => {
+  test("[R-WORLD-006] given a plan that already pays for one activity, when another card shows, then the balance after is after both, and one the plan leaves too little for is shut as short", async () => {
     const view = engineView("scenario.ada");
     const first = 2_500_000;
     const second = naira(view) - first;
@@ -59,11 +68,12 @@ describe("the picker's cards and money", () => {
     // that pays is a course and then a second month-act beside it (decision 0035: two that still take the month).
     expect([CERTIFICATE, MASTERS].every((id) => plannable(id))).toBe(true);
     const { store } = await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(CERTIFICATE, first), offered(MASTERS, first), offered(TB, second)] });
-    expect(addButton(TB).querySelector("[data-after]")?.textContent).toBe(say("ui.world.left", { amount: formatMoney(first, "NGN") }));
+    expect([balance("before"), balance("after")]).toEqual([naira(view), first]);
     act(() => {
       store.getState().addToPlan({ activity: CERTIFICATE, param: null });
     });
-    expect(addButton(TB).querySelector("[data-after]")?.textContent).toBe(say("ui.world.left", { amount: formatMoney(0, "NGN") }));
+    // The balance before is what the plan leaves; after the act, nothing.
+    expect([balance("before"), balance("after")]).toEqual([naira(view) - first, 0]);
     expect(addButton(TB).disabled).toBe(false);
     act(() => {
       store.getState().addToPlan({ activity: MASTERS, param: null });

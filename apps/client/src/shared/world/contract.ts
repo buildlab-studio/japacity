@@ -131,6 +131,10 @@ export interface Ask {
   when?: "now" | "month";
   /** The month's free time the act takes, in words ("A morning", "A day"), for an act done at once (R-ACTIVITY-018). */
   time?: string;
+  /** What the act does, in words, on one line ("Fills you, lifts you"), from its effects (R-WORLD-006). */
+  does?: string;
+  /** An act with a price: the main button says the act and its price ("Indomie and egg · ₦1,500"), R-WORLD-006. */
+  priced?: true;
   /** A reason the act cannot happen yet, in words; the main button is shut and says it (R-WORLD-006). */
   blocked?: string;
   /** A second line for the main button in place of what is left after, when the cost does not come from the pockets. */

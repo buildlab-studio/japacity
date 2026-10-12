@@ -40,7 +40,7 @@ import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
-import { actOnCard, answersNow, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
+import { actOnCard, answersNow, effectWordsOf, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
 import { doActLine, lightBack, plainActLine, plannedMarks } from "./actLines";
@@ -1159,6 +1159,7 @@ export function City({
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
     const time = timeWordsOf(activity);
+    const does = effectWordsOf(activity);
     return {
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : school !== null ? SCHOOL_ICON : "hand",
@@ -1193,6 +1194,9 @@ export function City({
       // R-ACTIVITY-018: an act done at once says the time it takes in words.
       ...(answersNow(activity) ? { when: "now" as const } : {}),
       ...(time === null ? {} : { time }),
+      ...(does === null ? {} : { does }),
+      // R-WORLD-006: the act's button says the act and its price.
+      ...(cost === null ? {} : { priced: true as const }),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
       // R-WALLET-020: a slip is paid from earned naira only; with only topped-up naira to pay it, the kiosk is shut with its words.

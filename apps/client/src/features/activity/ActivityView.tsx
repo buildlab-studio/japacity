@@ -9,7 +9,8 @@ import { useState } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { plannedShut } from "../../authority/store";
 import { bondName, timeWith } from "../../shared/sim/people";
-import { actOnCard, answersNow, pickable, timeWordsOf } from "../../shared/words/acts";
+import { actOnCard, answersNow, effectWordsOf, pickable, timeWordsOf } from "../../shared/words/acts";
+import { Balance, pricedLabel } from "../../shared/world/Balance";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
 import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } from "../../shared/words/cost";
@@ -253,9 +254,9 @@ function cannotPayWords(view: PlayerView, option: ActivityOption, planned: reado
   return say("ui.activity.short", { short, cost: costs, have: formatMoney(gap.have, "NGN") });
 }
 
-/** The button's second line: what is left after, or how much is short, as the ask card says it. */
-function afterWords(paying: AfterPaying): string {
-  return paying.short === null ? say("ui.world.left", { amount: formatMoney(paying.left.amount, paying.left.currency) }) : say("ui.world.short", { amount: formatMoney(paying.short.amount, paying.short.currency) });
+/** The button's second line when the money is short, as the ask card says it. */
+function afterWords(paying: Extract<AfterPaying, { short: Money }>): string {
+  return say("ui.world.short", { amount: formatMoney(paying.short.amount, paying.short.currency) });
 }
 
 /** Why an activity with a choice inside it has nothing to choose yet, in a few words for its button. */
@@ -281,7 +282,8 @@ function buttonLine(option: ActivityOption, paying: AfterPaying | null, view: Pl
     const foreign = foreignNeed(view, option);
     return { words: foreign === null ? say("ui.needs.money") : say("ui.needs.foreign", { currency: moneyName(foreign.currency) }), kind: "short" };
   }
-  return paying === null ? null : { words: afterWords(paying), kind: "left" };
+  // What is left after stands under the button as the balance before and after (R-WORLD-006), not on the button.
+  return null;
 }
 
 function ActivityCard({ option }: { option: ActivityOption }) {
@@ -292,9 +294,11 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const ended = view.ended;
   const [param, setParam] = useState<string>("");
   const name = nameOf(option.id);
+  const costWords = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
   const blurb = blurbOf(option.id);
   const counts = countsWords(option.id);
   const time = timeWordsOf(option.id);
+  const does = effectWordsOf(option.id);
   // R-TURN-006: an activity that fills no slot can be planned however full the month is.
   // R-ACTIVITY-015: an act done at once fills no slot either, so a full month never shuts it.
   const now = answersNow(option.id);
@@ -343,6 +347,11 @@ function ActivityCard({ option }: { option: ActivityOption }) {
         {time === null ? null : (
           <p className="text-sm font-medium" data-time>
             {time}
+          </p>
+        )}
+        {does === null ? null : (
+          <p className="text-sm font-medium" data-does>
+            {does}
           </p>
         )}
         {counts === null ? null : (
@@ -431,15 +440,19 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             ) : (
               <>
                 <Plus size={16} />
-                {already ? say("ui.activity.planned") : full && option.allowed ? say("ui.activity.full") : name}
+                {already ? say("ui.activity.planned") : full && option.allowed ? say("ui.activity.full") : option.cost.length === 0 ? name : pricedLabel(name, costWords)}
               </>
             )}
             {line === null ? null : (
-              <span className={`text-xs font-semibold ${line.kind === "left" ? "opacity-80" : line.kind === "short" ? "text-bad" : ""}`} data-after={line.kind}>
+              <span className={`text-xs font-semibold ${line.kind === "short" ? "text-bad" : ""}`} data-after={line.kind}>
                 {line.words}
               </span>
             )}
           </Button>
+          )}
+          {/* R-WORLD-006: under a priced act's button, the balance before struck and the balance after; nothing moves until the tap. */}
+          {option.spent === true || paying === null || paying.short !== null || !canAdd ? null : (
+            <Balance className="mt-2 justify-start" before={{ amount: paying.before.amount, words: formatMoney(paying.before.amount, paying.before.currency) }} after={{ amount: paying.left.amount, words: formatMoney(paying.left.amount, paying.left.currency) }} />
           )}
           {/* An act done at once fills no slot (R-ACTIVITY-015), so it never claims the month's free time. */}
           {content.activity[option.id]?.slot === "free" && !applying && !now ? <p className="mt-1 text-[12px] text-text-2">{say("ui.activity.uses-free")}</p> : null}

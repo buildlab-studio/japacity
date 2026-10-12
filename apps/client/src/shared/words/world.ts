@@ -9,6 +9,16 @@ export const worldText: Record<string, string> = {
   "ui.world.close": "Close",
   "ui.world.left": "{amount} left",
   "ui.world.left-due": "{left} left, {due} due at the month's end",
+  // A priced act's button and the balance under it (R-WORLD-006): the act and its price, the balance before struck and after.
+  "ui.act.priced": "{act} · {price}",
+  "ui.act.balance": "{before} now, {after} after",
+  "ui.world.due": "{due} due at the month's end",
+  // What an act does, in words, beside the time it takes (R-WORLD-006; R-QUALITY-007: the body in words only).
+  "ui.world.does": "Does",
+  "ui.act.does.fills": "fills you",
+  "ui.act.does.rests": "rests you",
+  "ui.act.does.lifts": "lifts you",
+  "ui.act.does.skill": "+{amount} {skill}",
   "ui.world.short": "{amount} short",
   "ui.world.short-label": "Short",
   "ui.world.costs": "Costs",

@@ -59,7 +59,7 @@ export function plannedCosts(view: Pick<PlayerView, "activities">, plan: readonl
  * What is left once a cost is paid, or how much is short: never both. `due` is what falls due at
  * the month's end in the same currency, when what is left (and the month's pay) will not meet it.
  */
-export type AfterPaying = { left: Money; short: null; due: Money | null } | { left: null; short: Money };
+export type AfterPaying = { left: Money; short: null; due: Money | null; before: Money } | { left: null; short: Money };
 
 /** What the view says of pay: the jobs held and the offers open (docs/rules/wallet.md R-WALLET-016). */
 export type PayView = Pick<PlayerView, "job" | "offers">;
@@ -119,19 +119,28 @@ export function afterPaying(view: Pockets, planned: readonly Money[], costs: rea
     const need = all.filter((cost) => cost.currency === only).reduce((sum, cost) => sum + cost.amount, 0);
     if (pocket.bank + pocket.cash >= need) {
       const left = { currency: only, amount: pocket.bank + pocket.cash - need };
-      return { left, short: null, due: dueOver(left, dues) };
+      // The balance before: what the pockets hold less what the month's plan already pays for (R-WORLD-006).
+      const planned = plannedIn(all, costs, only);
+      return { left, short: null, due: dueOver(left, dues), before: { currency: only, amount: pocket.bank + pocket.cash - planned } };
     }
   }
   const gap = shortfall(view, all);
   if (gap.short > 0) return { left: null, short: { currency: "NGN", amount: gap.short } };
   // What is left is the naira the band will read after: the cash too, though only the bank buys foreign money.
-  const left: Money = { currency: "NGN", amount: view.pockets.NGN.bank + view.pockets.NGN.cash - gap.need };
-  return { left, short: null, due: dueOver(left, dues) };
+  const held = view.pockets.NGN.bank + view.pockets.NGN.cash;
+  const left: Money = { currency: "NGN", amount: held - gap.need };
+  return { left, short: null, due: dueOver(left, dues), before: { currency: "NGN", amount: held - shortfall(view, planned).need } };
+}
+
+/** What the month's plan already pays in one currency: every cost but the act's own. */
+function plannedIn(all: readonly Money[], costs: readonly Money[], currency: Currency): number {
+  const sum = (moneys: readonly Money[]): number => moneys.filter((cost) => cost.currency === currency).reduce((total, cost) => total + cost.amount, 0);
+  return sum(all) - sum(costs);
 }
 
 /** The same for money the caller has counted itself (a bill paid now from held funds): one figure in the cost's currency. */
 export function afterHaving(have: number, cost: Money): AfterPaying {
-  return have >= cost.amount ? { left: { currency: cost.currency, amount: have - cost.amount }, short: null, due: null } : { left: null, short: { currency: cost.currency, amount: cost.amount - have } };
+  return have >= cost.amount ? { left: { currency: cost.currency, amount: have - cost.amount }, short: null, due: null, before: { currency: cost.currency, amount: have } } : { left: null, short: { currency: cost.currency, amount: cost.amount - have } };
 }
 
 /**

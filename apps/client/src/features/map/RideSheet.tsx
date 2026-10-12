@@ -5,6 +5,7 @@ import { Bike, Bus, CarTaxiFront, Footprints, X } from "lucide-react";
 import { useState } from "react";
 
 import { blurbOf, say, words } from "../../shared/words/text";
+import { Balance, pricedLabel } from "../../shared/world/Balance";
 import type { RideChoice } from "../../shared/world/contract";
 import { mapWords } from "./map.words";
 import type { MapPin } from "./pins";
@@ -74,10 +75,14 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
     if (here) return { label: mapWords("map.stay"), after: null, disabled: false };
     if (locked || way === undefined) return { label: mapWords("map.not-yet"), after: null, disabled: true };
     const label = way.id === "walk" ? mapWords(home ? "map.walk-home" : "map.walk") : mapWords(home ? "map.go-home" : "map.go", { way: way.label.toLowerCase() });
-    if (short) return { label, after: mapWords("map.short", { amount: formatMoney(-left) }), disabled: true };
     if (way.fare === 0) return { label, after: null, disabled: false };
-    return { label, after: say("ui.world.left", { amount: formatMoney(left) }), disabled: false };
+    // R-WORLD-006: the button says the ride and its fare; short, it says how much instead, the one exception.
+    const priced = pricedLabel(label, formatMoney(way.fare));
+    if (short) return { label: priced, after: mapWords("map.short", { amount: formatMoney(-left) }), disabled: true };
+    return { label: priced, after: null, disabled: false };
   })();
+  // The balance before the fare, struck, and after it, under the button; nothing moves until the tap.
+  const balance = here || locked || way === undefined || way.fare === 0 || short ? null : { before: have, after: left };
 
   return (
     <div role="dialog" aria-label={headingOf(pin.name)} className="pointer-events-auto absolute inset-x-0 bottom-0 z-[3]" data-ride-sheet={pin.id}>
@@ -126,10 +131,11 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
               })}
             </div>
           )}
-          <button type="button" className="btn-main mt-3" disabled={main.disabled} onClick={() => (here ? (onStay ?? onClose)() : way === undefined ? undefined : onChoose(way))} data-ride-main>
+          <button type="button" className={`btn-main mt-3 ${main.after === null ? "justify-center" : ""}`} disabled={main.disabled} onClick={() => (here ? (onStay ?? onClose)() : way === undefined ? undefined : onChoose(way))} data-ride-main>
             <span>{main.label}</span>
             {main.after === null ? null : <span className="text-[13px] font-semibold opacity-80">{main.after}</span>}
           </button>
+          {balance === null ? null : <Balance className="mt-2.5 justify-center" before={{ amount: balance.before, words: formatMoney(balance.before) }} after={{ amount: balance.after, words: formatMoney(balance.after) }} />}
         </div>
       </div>
     </div>
