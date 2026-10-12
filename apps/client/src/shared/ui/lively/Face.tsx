@@ -16,7 +16,7 @@ export function Face({ name, className = "" }: { name: string; className?: strin
   const mark = faceMark(name);
   return (
     <span className={`pill py-1 pr-3 pl-1 ${className}`} data-face={name}>
-      <span className="flex size-6 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white" style={{ background: mark.colour }} aria-hidden="true" data-face-mark>
+      <span className="face-mark flex size-6 shrink-0 items-center justify-center text-[13px] font-bold text-white" style={{ background: mark.colour }} aria-hidden="true" data-face-mark>
         {mark.initial}
       </span>
       {name}

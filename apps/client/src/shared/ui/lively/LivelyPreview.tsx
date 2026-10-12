@@ -81,7 +81,7 @@ function PaintPanel({ paint }: { paint: Paint }) {
     <section data-paint={paint} data-preview-paint className="flex min-w-0 flex-col gap-3.5 rounded-[24px] bg-sheet p-4 text-text" aria-label={paint === "day" ? "Day" : "Night"}>
       <div className="flex items-center justify-between gap-2">
         <Pill>{paint === "day" ? "☀️ Afternoon" : "🌙 Night"}</Pill>
-        <span className="num rounded-full bg-tint-money px-3 py-1 text-title font-bold">₦48,500</span>
+        <span className="num rounded-[14px] bg-tint-money px-3 py-1 text-title font-bold">₦48,500</span>
       </div>
 
       <div className="flex items-center gap-3.5">

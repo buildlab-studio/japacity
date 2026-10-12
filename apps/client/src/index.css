@@ -323,6 +323,8 @@ body {
   line-height: 1.2;
   white-space: nowrap;
 }
+/* A person's flat round mark beside their name (the lively Face). */
+.face-mark { border-radius: 50%; }
 .lively-card {
   border: var(--edge-width) solid var(--edge);
   border-radius: 20px;

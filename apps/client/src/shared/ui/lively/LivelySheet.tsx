@@ -36,8 +36,8 @@ export function LivelySheet({ open, onOpenChange, title, line, picture, containe
           {...(container === undefined ? {} : { initialFocus: false })}
           data-lively-sheet
         >
-          <Dialog.Close aria-label={say("ui.report.close")} className="mx-auto flex h-7 w-20 shrink-0 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-text/40" data-lively-handle>
-            <span className="h-[5px] w-10 rounded-full bg-text/25" />
+          <Dialog.Close aria-label={say("ui.report.close")} className="mx-auto flex h-7 w-20 shrink-0 items-center justify-center rounded-[10px] outline-none focus-visible:ring-2 focus-visible:ring-text/40" data-lively-handle>
+            <span className="h-[5px] w-10 rounded-[3px] bg-text/25" />
           </Dialog.Close>
           <div className="mt-1 mb-3.5 flex items-center gap-3.5">
             {picture}
