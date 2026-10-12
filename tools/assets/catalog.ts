@@ -43,10 +43,14 @@ import * as furniture from "@japacity/assets-src/prop/furniture";
 import * as basics from "@japacity/assets-src/places/room-basics/build";
 import { buildStall } from "@japacity/assets-src/prop/stall";
 import { buildStreetBench } from "@japacity/assets-src/prop/street-bench/build";
+import { buildSuyaGrill } from "@japacity/assets-src/prop/suya-grill/build";
+import { buildJointSet } from "@japacity/assets-src/prop/joint-set/build";
 import { buildTrolley } from "@japacity/assets-src/prop/trolley/build";
+import { buildBarberKiosk } from "@japacity/assets-src/shop/barber-kiosk/build";
 import { buildContainerPhones } from "@japacity/assets-src/shop/container-phones/build";
 import { buildLottoKiosk } from "@japacity/assets-src/shop/lotto-kiosk/build";
 import { buildProvisions } from "@japacity/assets-src/shop/provisions/build";
+import { buildViewingCentre } from "@japacity/assets-src/shop/viewing-centre/build";
 import { buildTaxi, DUBAI_TAXI } from "@japacity/assets-src/veh/taxi/build";
 import { buildAbra } from "@japacity/assets-src/veh/abra/build";
 import { buildLabourBus } from "@japacity/assets-src/veh/labour-bus/build";
@@ -187,6 +191,8 @@ function gridEntry(piece: GridPiece, level: MeshLevel): CatalogEntry {
 }
 
 const PLACES_M6 = "Written as code from the kit for the world-first places";
+/** The agent that built the street's things of decision 0037. */
+const STREET = "Written as code from the kit";
 
 /** Each interior's room, its folder under places/ by the room's name (R-WORLD-011). */
 const ROOM_FOLDERS: Record<RoomName, string> = {
@@ -489,6 +495,11 @@ export const CATALOG: CatalogEntry[] = [
   basicsPiece("prop_lantern", "shared", "shared", basics.buildLantern),
   basicsPiece("prop_water-drum", "family-house-parlour", "place.family-house", basics.buildWaterDrum),
   basicsPiece("prop_drum-water", "family-house-parlour", "place.family-house", basics.buildDrumWater),
+  // The street's things of decision 0037 (streets.md R-STREET-011): the suya spot staged on Ojuelegba, the joint's chairs, the barber's kiosk and the viewing centre on Bode Thomas.
+  { name: "prop_suya-grill", file: "shared/prop/prop_suya-grill.glb", place: "shared", source: "assets-src/prop/suya-grill", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_suya-grill", buildSuyaGrill()) },
+  { name: "prop_joint-set", file: "shared/prop/prop_joint-set.glb", place: "shared", source: "assets-src/prop/joint-set", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_joint-set", buildJointSet()) },
+  { name: "shop_barber-kiosk", file: "places/bode-thomas/shop_barber-kiosk.glb", place: "place.bode-thomas", source: "assets-src/shop/barber-kiosk", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_barber-kiosk", buildBarberKiosk("place.bode-thomas.sign.9", { board: "white", ink: "red", painted: true }), true) },
+  { name: "shop_viewing-centre", file: "places/bode-thomas/shop_viewing-centre.glb", place: "place.bode-thomas", source: "assets-src/shop/viewing-centre", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_viewing-centre", buildViewingCentre(HUB_DISH_YAW)) },
 ];
 
 export function findEntries(names: readonly string[]): CatalogEntry[] {

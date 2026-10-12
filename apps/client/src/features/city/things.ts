@@ -1,6 +1,8 @@
 // The things in a place (docs/rules/world.md R-WORLD-005): a model copy the player can tap, with
 // its name and one or two acts. A place file declares them in `stage.things`; where and how far the
 // character walks for one, and which of its acts the view lets happen today, are read here. Pure.
+import type { DayPart } from "@japacity/sim";
+
 import { MAX_ACTS } from "../../../../../tools/assets/world-check";
 import type { Act, Thing } from "../../shared/world/contract";
 import type { Stage } from "./placeFile";
@@ -154,14 +156,52 @@ export function stagedNow(offered: ReadonlySet<string>, staged: ReadonlySet<stri
   };
 }
 
+/** The parts of the world's day in their order from the morning (clock.md R-CLOCK-033). */
+const DAY_PARTS: readonly DayPart[] = ["morning", "afternoon", "evening", "night"];
+
+/** Whether an act is open at the world's part of the day: every act with no hours is; with no part read, the hours are not. */
+function openAt(act: Act, part: DayPart | undefined): boolean {
+  return part === undefined || act.parts === undefined || act.parts.includes(part);
+}
+
+/** The first part of the day after `part`, going round, in which any of the acts opens. */
+function opensNext(acts: readonly Act[], part: DayPart): DayPart | undefined {
+  const from = DAY_PARTS.indexOf(part);
+  return [1, 2, 3].map((step) => DAY_PARTS[(from + step) % DAY_PARTS.length]).find((next) => next !== undefined && acts.some((act) => act.parts?.includes(next) === true));
+}
+
+/**
+ * A thing shut by the hour (R-CLOCK-033, R-WORLD-005): it still stands with one plain act naming the part it opens in, and
+ * its line, told in the corner, says why it is shut, in the words of its first act's `.shut`.
+ */
+function shutAct(acts: readonly Act[], part: DayPart): Act | null {
+  const next = opensNext(acts, part);
+  const first = acts[0];
+  if (next === undefined || first === undefined) return null;
+  return { id: "shut", label: `city.act.opens-${next}`, kind: "plain", tells: `${first.label}.shut` };
+}
+
+/** What an act keeps when its sheet lists fewer entries: where and how the figure takes the thing, and its hours. */
+function keptOf(act: Act): Partial<Act> {
+  return {
+    ...(act.pose === undefined ? {} : { pose: act.pose }),
+    ...(act.seat === undefined ? {} : { seat: act.seat }),
+    ...(act.top === undefined ? {} : { top: act.top }),
+    ...(act.parts === undefined ? {} : { parts: act.parts }),
+  };
+}
+
 /**
  * The things the player can act on now: an act that opens an activity's sheet stays only while the
  * view offers that activity, and a thing left with no act shows no label. Other acts always stay.
+ * An act open only at some parts of the world's day (R-CLOCK-033) stays only in them; a thing that
+ * leaves with no act stands shut, saying when it opens.
  */
-export function thingsNow(things: readonly Thing[], offered: (stages: string) => boolean): Thing[] {
+export function thingsNow(things: readonly Thing[], offered: (stages: string) => boolean, part?: DayPart): Thing[] {
   return things.flatMap((thing) => {
+    const closed = thing.acts.filter((act) => !openAt(act, part));
     // A sheet act stays while any entry it lists can open; the sheet shows only those that can.
-    const acts = thing.acts.flatMap((act): Act[] => {
+    const acts = thing.acts.filter((act) => openAt(act, part)).flatMap((act): Act[] => {
       // An act that stands in for others shows only while none of them can open.
       if (act.unless?.some(offered) === true) return [];
       if (act.kind === "command") return offered(`command:${act.command ?? ""}`) ? [act] : [];
@@ -174,9 +214,13 @@ export function thingsNow(things: readonly Thing[], offered: (stages: string) =>
       // An act that names what stands in its place while nothing it lists can open shows that instead (the bed's Lie down).
       if (stages === undefined) return act.otherwise === undefined ? [] : [act.otherwise];
       const more = listed.slice(1);
-      return [{ id: act.id, label: act.label, kind: act.kind, stages, ...(more.length === 0 ? {} : { more }) }];
+      return [{ id: act.id, label: act.label, kind: act.kind, stages, ...(more.length === 0 ? {} : { more }), ...keptOf(act) }];
     });
-    return acts.length === 0 ? [] : [acts.length === thing.acts.length && acts.every((act, index) => act === thing.acts[index]) ? thing : { ...thing, acts }];
+    if (acts.length === 0) {
+      const shut = part === undefined ? null : shutAct(closed, part);
+      return shut === null ? [] : [{ ...thing, acts: [shut] }];
+    }
+    return [acts.length === thing.acts.length && acts.every((act, index) => act === thing.acts[index]) ? thing : { ...thing, acts }];
   });
 }
 

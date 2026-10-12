@@ -807,13 +807,15 @@ export function City({
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
+  // The world's part of the day decides which things are open (R-CLOCK-033): the viewing centre and the joint from the evening.
+  const dayPart = dayClock.served ? dayClock.part : "afternoon";
   const things = useMemo(() => {
     if (!world || file === null) return undefined;
     const offered = new Set(activityKey.split("|"));
     const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? []), ...homeStagesAt(placeId, home, here, PLACES), ...byHandAt(placeId, home, here, content.activity)]);
     // Someone standing as themselves (their room's partner) has no act, so is kept past the acts' filter: a tap shows their name (R-PEOPLE-054).
-    return [...thingsNow(withMoreAt(withMeetings(thingsOf(stageOf(file)), meetPlace, standing), meetPlace), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow)), ...standingAsThemselves(stageOf(file))];
-  }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing]);
+    return [...thingsNow(withMoreAt(withMeetings(thingsOf(stageOf(file)), meetPlace, standing), meetPlace), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow), dayPart), ...standingAsThemselves(stageOf(file))];
+  }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing, dayPart]);
   // The chosen thing's acts already in this month's plan say Planned and are shut.
   const pickedThing = picked?.kind === "thing" ? picked.thing : null;
   // R-ACTIVITY-020: an act done at once that waits for sleep says so on the chip where its button was.

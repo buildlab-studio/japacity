@@ -30,8 +30,8 @@ function wordsFor(key: string): string | null {
  * The line of a plain act (no cost, no story) as it lands: the person's words when someone speaks, else the
  * corner's line, else nothing.
  */
-export function plainActLine(thing: Pick<Thing, "id" | "label">, act: Pick<Act, "label">): ActLine {
-  const told = wordsFor(`${act.label}.done`);
+export function plainActLine(thing: Pick<Thing, "id" | "label">, act: Pick<Act, "label"> & Partial<Pick<Act, "tells">>): ActLine {
+  const told = wordsFor(act.tells ?? `${act.label}.done`);
   const says = wordsFor(`${act.label}.says`);
   if (says !== null) return { kind: "say", who: thing.id, name: wordsFor(`${act.label}.who`) ?? sceneWords(thing.label), words: says, then: told };
   return told === null ? null : { kind: "tell", words: told };

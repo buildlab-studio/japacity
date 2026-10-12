@@ -6,6 +6,7 @@ import type { Act, Thing } from "../../shared/world/contract";
 import { type PlaceFile, stageOf } from "./placeFile";
 import { builtPlaces } from "./scene.testing";
 import { sceneWords } from "./scene.words";
+import { plainActLine } from "./actLines";
 import { MAX_ACTS, stagedNow, STOP_SHORT, thingSpot, thingsNow, thingsOf, vehicleOf, walkSpot } from "./things";
 
 const street = (bodeThomas as unknown as PlaceFile).stage;
@@ -255,5 +256,53 @@ describe("the things of the built places", () => {
     expect(box.acts.map((act) => [act.id, act.kind, act.app])).toEqual([["papers", "app", "papers"]]);
     expect(sceneWords(box.label)).toBe("Papers box");
     expect(box.acts.map((act) => sceneWords(act.label))).toEqual(["Look in the box"]);
+  });
+});
+
+describe("the hours a thing keeps", () => {
+  const match: Act = { id: "match", label: "city.act.match", kind: "sheet", stages: "activity.viewing-centre", parts: ["evening", "night"], pose: "sit", seat: [1, 2, Math.PI] };
+  const viewing: Thing = { id: "viewing", file: "places/x/shop_viewing-centre.glb", copy: 0, label: "city.thing.viewing", acts: [match] };
+  const drink: Act = { id: "drink", label: "city.act.joint", kind: "sheet", stages: "activity.beer-joint", more: ["activity.night-out"], parts: ["evening", "night"], pose: "sit", seat: [3, 4, 0] };
+  const joint: Thing = { id: "joint", file: "shared/prop/prop_joint-set.glb", copy: 0, label: "city.thing.joint", acts: [drink] };
+  const late: Thing = { id: "late", file: "x.glb", copy: 0, label: "city.thing.joint", acts: [{ ...drink, parts: ["night"] }] };
+  const all = () => true;
+
+  test("[R-CLOCK-033] [R-WORLD-005] given a thing open in the evening and at night, when the world stands in either, then its act stands as the file gives it, the seat and the pose kept", () => {
+    for (const part of ["evening", "night"] as const) {
+      expect(thingsNow([viewing], all, part)[0]).toBe(viewing);
+      expect(thingsNow([joint], all, part)[0]).toBe(joint);
+    }
+    // With the night out not offered, the joint's act still sits the figure at its table.
+    expect(thingsNow([joint], (stages) => stages === "activity.beer-joint", "evening")[0]?.acts[0]).toMatchObject({ id: "drink", stages: "activity.beer-joint", pose: "sit", seat: [3, 4, 0], parts: ["evening", "night"] });
+    expect(thingsNow([joint], (stages) => stages === "activity.beer-joint", "evening")[0]?.acts[0]?.more).toBeUndefined();
+  });
+
+  test("[R-CLOCK-033] [R-WORLD-005] given a thing open in the evening and at night, when the world stands in the morning or the afternoon, then it still stands with one plain act saying when it opens, its line saying it is shut, no seat and no pose", () => {
+    for (const part of ["morning", "afternoon"] as const) {
+      const [shut] = thingsNow([viewing], all, part);
+      expect(shut?.id).toBe("viewing");
+      expect(shut?.acts).toEqual([{ id: "shut", label: "city.act.opens-evening", kind: "plain", tells: "city.act.match.shut" }]);
+      expect(sceneWords("city.act.opens-evening")).toBe("Opens in the evening");
+      expect(plainActLine(viewing, shut?.acts[0] ?? match)).toEqual({ kind: "tell", words: "Shut till evening. The screen is dark." });
+      const [stacked] = thingsNow([joint], all, part);
+      expect(stacked?.acts).toEqual([{ id: "shut", label: "city.act.opens-evening", kind: "plain", tells: "city.act.joint.shut" }]);
+      expect(plainActLine(joint, stacked?.acts[0] ?? drink)).toEqual({ kind: "tell", words: "The chairs are stacked. Come back in the evening." });
+    }
+    // Shut by the hour it says so whether or not the view offers the act: the hour is the reason it is shut.
+    expect(thingsNow([viewing], () => false, "morning")[0]?.acts[0]?.label).toBe("city.act.opens-evening");
+  });
+
+  test("[R-CLOCK-033] [R-WORLD-005] given a thing open only at night, when the world stands in the evening, then its shut act names the night, the first part it opens in", () => {
+    expect(thingsNow([late], all, "evening")[0]?.acts[0]?.label).toBe("city.act.opens-night");
+    expect(thingsNow([late], all, "morning")[0]?.acts[0]?.label).toBe("city.act.opens-night");
+    expect(sceneWords("city.act.opens-night")).toBe("Opens at night");
+    expect(thingsNow([late], all, "night")[0]).toBe(late);
+  });
+
+  test("[R-CLOCK-033] [R-WORLD-005] given acts with no hours and a thing open by the hour but not offered, when the things are read, then the first stand at every part and the second goes as before", () => {
+    for (const part of ["morning", "afternoon", "evening", "night"] as const) expect(thingsNow([kiosk], all, part)[0]).toBe(kiosk);
+    expect(thingsNow([viewing], () => false, "evening")).toEqual([]);
+    // Read with no part (a test of the acts alone), the hours are not read.
+    expect(thingsNow([viewing], all)[0]).toBe(viewing);
   });
 });
