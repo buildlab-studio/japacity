@@ -1,6 +1,7 @@
-// pnpm exec tsx tools/assets/tiles-missing.ts: the ids whose picture is still an emoji standing in for a model
-// (apps/client/src/shared/tiles/tiles.data.ts), by kind, so the maintainer knows which models to commission.
-import { standIns, TILE_TABLE } from "../../apps/client/src/shared/tiles/tiles.data";
+// pnpm exec tsx apps/client/src/shared/tiles/missing.ts: the ids whose picture is still an emoji standing in for a
+// model (tiles.data.ts), by kind, so the maintainer knows which models to commission. It lives beside the table because
+// nothing outside apps/client may import from it (tests/boundaries.test.ts).
+import { standIns, TILE_TABLE } from "./tiles.data";
 
 export function missingListing(): string {
   const missing = standIns();

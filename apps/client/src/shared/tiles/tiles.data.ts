@@ -2,7 +2,7 @@
 // the model whose tile it shows (tools/assets/shoot.ts, the tile view, published under public/assets/tiles) or to an
 // emoji standing in until a model exists. Each is decided by what the thing is: a meal shows the cooking corner until
 // a dish is modelled, an act at a thing in the world shows that thing when the thing is what the act is about. The
-// stand-ins are the list of models to commission (`pnpm exec tsx tools/assets/tiles-missing.ts`).
+// stand-ins are the list of models to commission (`pnpm exec tsx apps/client/src/shared/tiles/missing.ts`).
 
 /** A model's tile, by the model's name, or an emoji standing in for a model not yet made. */
 export type TileRow = string | { emoji: string; standIn: true };
