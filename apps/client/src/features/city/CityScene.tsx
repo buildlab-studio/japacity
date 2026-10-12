@@ -27,6 +27,7 @@ import { type Look, lookAt, mixLooks, mixSeen, ownHeightOf, skyLightOf, skyOf, s
 import { filesOf, showsFor, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { chipNode } from "./chip";
+import { anchorFan } from "./fan/anchor";
 import { markNode, showMark } from "./mark";
 import { bedLie, othersSeen, sleepMarkNode } from "./sleep";
 import { type LabelBox, spreadLabels } from "./labels";
@@ -62,6 +63,8 @@ const BACK_DEPTH = 0.12;
 const LIE_LENGTH = 1.6;
 /** A label, and a thing's acts, float this high over the thing's spot. */
 const LABEL_Y = 2.6;
+/** The fan's hinge stands on the thing's body, under its label (docs/design/13-the-lively-layer.md section 3). */
+const FAN_Y = 0.9;
 /** How high over the bed the sleep mark floats, clear of the lying figure (R-WORLD-025). */
 const SLEEP_MARK_Y = 1.5;
 /** The sun's shadow covers the place's width and this much round it, in metres. */
@@ -278,18 +281,29 @@ function Place(props: PlaceProps) {
     for (const { thing, node } of labels.current) showMark(node, { named: names.has(thing.id), teaching, pulse: nudged === thing.id, state: marks?.[thing.id] });
   }, [things, markBox, namedKey, nudged, teaching, marks]);
 
+  /** An act chosen on a thing, from its chip or its fan: it follows once the character has walked to the thing (R-WORLD-010). */
+  const actFor = (thing: Thing, act: Act): void => {
+    const pending = walk.current.pending;
+    // Tapping an act again ends the walk at once (R-WORLD-010).
+    if (pending !== null && pending.thing.id === thing.id && pending.act.id === act.id && pending.act.stages === act.stages && walk.current.walker.target !== null) walk.current.walker = stepWalk(walk.current.walker, 3600, walk.current.speed);
+    // Acts opened for a thing the character was not sent to (the nudge's way) still wait for the walk: the words start at the thing.
+    else if (walk.current.walker.target === null) walkForRef.current(thing);
+    walk.current.pending = { thing, act };
+  };
+  const actForRef = useRef(actFor);
+  actForRef.current = actFor;
+  // A button of the fan, which the shell draws, hands its act here to walk for (docs/design/13-the-lively-layer.md section 3).
+  const actOn = props.actOn ?? null;
+  useEffect(() => {
+    if (actOn !== null) actForRef.current(actOn.thing, actOn.act);
+  }, [actOn]);
+
   // The chosen thing's acts float over it until another tap puts them away.
   useEffect(() => {
     if (markBox === null || chosen === null) return;
     const node = chipNode(
       chosen,
-      (act) => {
-        // Tapping an act again ends the walk at once (R-WORLD-010).
-        if (walk.current.pending?.act === act && walk.current.walker.target !== null) walk.current.walker = stepWalk(walk.current.walker, 3600, walk.current.speed);
-        // Acts opened for a thing the character was not sent to (the nudge's way) still wait for the walk: the words start at the thing.
-        else if (walk.current.walker.target === null) walkForRef.current(chosen);
-        walk.current.pending = { thing: chosen, act };
-      },
+      (act) => actForRef.current(chosen, act),
       (act) => stopRef.current?.(chosen, act),
     );
     markBox.append(node);
@@ -597,10 +611,21 @@ function Place(props: PlaceProps) {
         bubble.style.visibility = spot.shown ? "visible" : "hidden";
       }
     }
+    // The fan follows its thing as the camera eases, as the marks do, and says where the thing first stood so the fan can
+    // lay out its buttons once (docs/design/13-the-lively-layer.md section 3); off the screen it hides until the thing is back.
+    const fan = document.querySelector<HTMLElement>("[data-fan]");
+    const fanned = fan === null ? undefined : things.find((thing) => thing.id === fan.dataset.fan);
+    if (fan !== null) {
+      const spot = fanned === undefined ? null : thingSpot(stage, fanned);
+      const at = spot === null ? null : onScreen(state.camera, state.size, spot[0], FAN_Y, spot[1]);
+      anchorFan(fan.dataset.fan ?? "", at);
+      fan.style.visibility = at === null ? "hidden" : "";
+      if (at !== null) fan.style.transform = `translate(${String(at.x)}px, ${String(at.y)}px)`;
+    }
     const laid: { node: HTMLElement; box: LabelBox }[] = [];
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
-      const at = spot === null || chip.current?.thing.id === thing.id || (voice !== null && speaker?.id === thing.id) ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
+      const at = spot === null || chip.current?.thing.id === thing.id || fanned?.id === thing.id || (voice !== null && speaker?.id === thing.id) ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
       // No mark while the opening words stand over the world (R-WORLD-001).
       node.style.display = at === null || labelsHidden ? "none" : "";
       if (at !== null && !labelsHidden) laid.push({ node, box: { x: within(at.x, node), y: at.y, width: node.offsetWidth, height: node.offsetHeight } });
