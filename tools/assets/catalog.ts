@@ -51,9 +51,11 @@ import { buildContainerPhones } from "@japacity/assets-src/shop/container-phones
 import { buildLottoKiosk } from "@japacity/assets-src/shop/lotto-kiosk/build";
 import { buildProvisions } from "@japacity/assets-src/shop/provisions/build";
 import { buildViewingCentre } from "@japacity/assets-src/shop/viewing-centre/build";
-import { buildTaxi, DUBAI_TAXI, OWN_CAR } from "@japacity/assets-src/veh/taxi/build";
+import { buildTaxi, DUBAI_TAXI } from "@japacity/assets-src/veh/taxi/build";
 import { buildHome } from "@japacity/assets-src/bld/home/build";
 import { HOMES } from "@japacity/assets-src/bld/home/homes";
+import { HOMES2 } from "@japacity/assets-src/bld/home/homes2";
+import { buildCar } from "@japacity/assets-src/veh/car/build";
 import * as home from "@japacity/assets-src/prop/home/build";
 import { buildAbra } from "@japacity/assets-src/veh/abra/build";
 import { buildLabourBus } from "@japacity/assets-src/veh/labour-bus/build";
@@ -536,7 +538,14 @@ ENTRIES.push(
   homePiece("bld_home-family", "home-family", () => buildHome(HOMES.family)),
   homePiece("bld_home-room", "home-room", () => buildHome(HOMES.room)),
   homePiece("bld_home-hostel", "home-hostel", () => buildHome(HOMES.hostel)),
-  homePiece("veh_car", "shared", () => buildTaxi(OWN_CAR)),
+  homePiece("veh_car", "shared", () => buildCar()),
+  homePiece("bld_home-family-room", "home-family-room", () => buildHome(HOMES2["family-room"])),
+  homePiece("bld_home-family-yard", "home-family-yard", () => buildHome(HOMES2["family-yard"])),
+  homePiece("bld_home-room-room", "home-room-room", () => buildHome(HOMES2["room-room"])),
+  homePiece("bld_home-room-yard", "home-room-yard", () => buildHome(HOMES2["room-yard"])),
+  homePiece("bld_home-hostel-room", "home-hostel-room", () => buildHome(HOMES2["hostel-room"])),
+  homePiece("bld_home-hostel-yard", "home-hostel-yard", () => buildHome(HOMES2["hostel-yard"])),
+  homePiece("prop_bath-corner", "shared", home.buildBathCorner),
   homePiece("prop_generator", "shared", home.buildGenerator),
   homePiece("prop_clothes-line", "shared", home.buildClothesLine),
   homePiece("prop_wardrobe", "shared", home.buildWardrobe),
