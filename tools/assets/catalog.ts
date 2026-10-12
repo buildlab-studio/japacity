@@ -51,7 +51,10 @@ import { buildContainerPhones } from "@japacity/assets-src/shop/container-phones
 import { buildLottoKiosk } from "@japacity/assets-src/shop/lotto-kiosk/build";
 import { buildProvisions } from "@japacity/assets-src/shop/provisions/build";
 import { buildViewingCentre } from "@japacity/assets-src/shop/viewing-centre/build";
-import { buildTaxi, DUBAI_TAXI } from "@japacity/assets-src/veh/taxi/build";
+import { buildTaxi, DUBAI_TAXI, OWN_CAR } from "@japacity/assets-src/veh/taxi/build";
+import { buildHome } from "@japacity/assets-src/bld/home/build";
+import { HOMES } from "@japacity/assets-src/bld/home/homes";
+import * as home from "@japacity/assets-src/prop/home/build";
 import { buildAbra } from "@japacity/assets-src/veh/abra/build";
 import { buildLabourBus } from "@japacity/assets-src/veh/labour-bus/build";
 import { buildDanfo, buildKeke, buildOkada } from "@japacity/assets-src/veh/vehicles";
@@ -513,6 +516,41 @@ const ENTRIES: CatalogEntry[] = [
   { name: "shop_barber-kiosk", file: "places/bode-thomas/shop_barber-kiosk.glb", place: "place.bode-thomas", source: "assets-src/shop/barber-kiosk", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_barber-kiosk", buildBarberKiosk("place.bode-thomas.sign.9", { board: "white", ink: "red", painted: true }), true) },
   { name: "shop_viewing-centre", file: "places/bode-thomas/shop_viewing-centre.glb", place: "place.bode-thomas", source: "assets-src/shop/viewing-centre", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_viewing-centre", buildViewingCentre(HUB_DISH_YAW)) },
 ];
+
+/** The home redesign's first pass: the three homes' shells, the car, and the small things the kit lacked. */
+const HOME_AGENT = "Written as code from the kit (an exploration)";
+function homePiece(name: string, folder: string, build: () => Group): CatalogEntry {
+  const [prefix = "", slug = ""] = name.split("_");
+  const shared = folder === "shared";
+  return {
+    name,
+    file: shared ? `shared/${prefix}/${name}.glb` : `places/${folder}/${name}.glb`,
+    place: shared ? "shared" : `place.${folder}`,
+    source: prefix === "prop" ? `assets-src/prop/home/${slug}` : `assets-src/${prefix}/${slug}`,
+    author: HOME_AGENT,
+    views: [...ELEVATIONS, "phone"],
+    build: () => staticModel(name, build()),
+  };
+}
+ENTRIES.push(
+  homePiece("bld_home-family", "home-family", () => buildHome(HOMES.family)),
+  homePiece("bld_home-room", "home-room", () => buildHome(HOMES.room)),
+  homePiece("bld_home-hostel", "home-hostel", () => buildHome(HOMES.hostel)),
+  homePiece("veh_car", "shared", () => buildTaxi(OWN_CAR)),
+  homePiece("prop_generator", "shared", home.buildGenerator),
+  homePiece("prop_clothes-line", "shared", home.buildClothesLine),
+  homePiece("prop_wardrobe", "shared", home.buildWardrobe),
+  homePiece("prop_rug", "shared", home.buildRug),
+  homePiece("prop_potted-plant", "shared", home.buildPottedPlant),
+  homePiece("prop_slippers", "shared", home.buildSlippers),
+  homePiece("prop_crates", "shared", home.buildCrates),
+  homePiece("prop_fan", "shared", home.buildFan),
+  homePiece("prop_kitchen-shelf", "shared", home.buildKitchenShelf),
+  homePiece("prop_bucket", "shared", home.buildBucket),
+  homePiece("prop_mattress", "shared", home.buildMattress),
+  homePiece("prop_bunk-bed", "shared", home.buildBunkBed),
+  homePiece("prop_small-shelf", "shared", home.buildSmallShelf),
+);
 
 /** Every shipped asset, each model a player could be shown as a thing with the tile view beside its fixed views. */
 export const CATALOG: CatalogEntry[] = ENTRIES.map((entry) => (isTiled(entry.name) && !entry.views.includes("tile") ? { ...entry, views: [...entry.views, "tile"] } : entry));
