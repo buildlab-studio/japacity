@@ -39,6 +39,15 @@
   --tint-body: #ebe3f7;
   --tint-people: #fde0e8;
   --tint-plain: #eaf3fb;
+  /* The white a sticker is cut from, round a picture and a sticker chip. */
+  --cut: #ffffff;
+  /* A person's flat mark beside their name (the lively Face), picked by the name; the same in both paints. */
+  --face-1: #c2185b;
+  --face-2: #2a8656;
+  --face-3: #2c3f87;
+  --face-4: #d4602e;
+  --face-5: #7a3b69;
+  --face-6: #1f6f78;
   /* A chosen row in a list: the strong colour with its label colour for marks. */
   --pick: var(--strong);
   --on-pick: var(--on-strong);
@@ -110,6 +119,7 @@
   --tint-body: #443868;
   --tint-people: #5e2f45;
   --tint-plain: #1c2a5e;
+  --cut: #f3efe6;
   --action-edge: #0b1130;
   --action-under: #f3efe6;
   --pick: #f3efe6;
@@ -255,6 +265,75 @@ body {
 .google-button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 .google-button:disabled { opacity: 0.38; cursor: not-allowed; }
 
+/* The lively layer's primitives (docs/design/13-the-lively-layer.md, section 2; shared/ui/lively). A sticker is a picture
+   cut with a 3 px edge and a soft shadow; a sticker chip is a tilted pill with the same edge; the one action is yellow
+   with a 4 px underside that flattens on press; a pill and a card are white with the thin edge. */
+.sticker-cut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  filter: drop-shadow(3px 0 0 var(--cut)) drop-shadow(-3px 0 0 var(--cut)) drop-shadow(0 3px 0 var(--cut)) drop-shadow(0 -3px 0 var(--cut)) drop-shadow(0 6px 5px rgba(20, 40, 50, 0.28));
+}
+.sticker-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 9px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+  color: var(--text);
+  box-shadow: 0 0 0 2px var(--cut), 0 3px 6px rgba(20, 40, 50, 0.18);
+}
+.press-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 0 22px;
+  border: 2px solid var(--action-under);
+  border-radius: 16px;
+  background: var(--action);
+  color: var(--action-text);
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow: 0 4px 0 var(--action-under);
+  transition-property: translate;
+  transition-duration: 90ms;
+  transition-timing-function: ease-out;
+}
+.press-button:active:not(:disabled) { translate: 0 3px; box-shadow: 0 1px 0 var(--action-under); }
+.press-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.press-button:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: var(--edge-width) solid var(--edge);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  background: var(--sheet-2);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.lively-card {
+  border: var(--edge-width) solid var(--edge);
+  border-radius: 20px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 6px 16px rgba(19, 26, 51, 0.1);
+}
+/* On a laptop the band, the nudge, the thumbs, the toasts, the teaching cards and the phone stand in a centred column of
+   phone width, and the world fills the screen around it (section 2; the lively column). */
+.centred-column { width: 100%; max-width: 430px; margin-inline: auto; }
+
 @keyframes rise { from { transform: translateY(110%); } to { transform: translateY(0); } }
 /* The calendar's top page flipping up over the rings, on the spot (R-WORLD-027). */
 @keyframes flip-page { 0% { transform: perspective(70px) rotateX(0deg); } 100% { transform: perspective(70px) rotateX(180deg); } }
@@ -294,6 +373,9 @@ body {
 @media (min-width: 64rem) {
   .motion-sheet[data-starting-style], .motion-sheet[data-ending-style] { transform: translateX(100%); }
 }
+/* A lively sheet rises from the foot and sinks back the same way, on a phone and in the laptop's column alike. */
+.motion-rise { transition-property: transform, opacity; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
+.motion-rise[data-starting-style], .motion-rise[data-ending-style] { transform: translateY(100%); }
 /* A world sheet rises as the design's does (.rise); closing, it sinks back the same way. */
 .motion-sink { transition-property: transform, opacity; transition-duration: 200ms; transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
 .motion-sink[data-ending-style] { transform: translateY(100%); }
