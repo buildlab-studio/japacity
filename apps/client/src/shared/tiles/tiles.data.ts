@@ -66,7 +66,7 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.play-lotto": "shop_lotto-kiosk",
   "activity.bet-slip": "bld_bode-thomas-betting",
   "activity.morning-run": stand("👟"),
-  "activity.sleep-rough": "lm_third-mainland-span",
+  "activity.sleep-rough": "prop_cooking-fire",
   "activity.safe-ride": "veh_taxi",
   // Asking and seeing people.
   "activity.ask-around": "veh_danfo",
@@ -159,20 +159,21 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "offer.roof": "bld_family-house",
   "offer.mum-shop": "prop_market-stall",
   "offer.fuel-scarcity": "veh_danfo",
-  "offer.bridge-night": "lm_third-mainland-span",
+  "offer.bridge-night": "prop_cooking-fire",
   "offer.nepa-bill": stand("💡"),
   "offer.brother-fees": stand("📚"),
   "offer.street-find-uk": stand("👛"),
   "offer.street-find-uae": stand("👛"),
   "offer.bridge-theft": stand("🎒"),
   "offer.bridge-mosquitoes": stand("🦟"),
-  // The places with a built model: the building that names it, or the thing inside an interior.
+  // The places with a built model: the building that names it, or the thing inside an interior. The bridge's span reads
+// as a thin line in a square, so the bridge shows the drum fire its sleepers keep under it.
   "place.ojuelegba": "bld_flyover-span",
   "place.bode-thomas": "bld_bode-thomas-betting",
   "place.computer-village": "bld_phone-plaza",
   "place.tejuosho-market": "bld_market-block",
   "place.national-stadium": "lm_national-stadium",
-  "place.third-mainland-bridge": "lm_third-mainland-span",
+  "place.third-mainland-bridge": "prop_cooking-fire",
   "place.makoko": "bld_makoko-house_b",
   "place.airport-lagos": "bld_terminal-front",
   "place.family-house": "bld_family-house",
