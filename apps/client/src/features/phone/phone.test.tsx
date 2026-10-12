@@ -6,7 +6,6 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { soundStore } from "../../shared/sound/sound";
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { THEME_KEY } from "../../shared/world/contract";
 import type { PairTalk } from "./apps/Chats";
 import { GRAPHICS_KEY } from "./apps/Settings";
 import { familyFeedLines } from "./feed";
@@ -21,7 +20,6 @@ const NOON = () => new Date(2026, 9, 8, 12, 5);
 beforeEach(() => {
   localStorage.clear();
   reloadSeen();
-  delete document.documentElement.dataset.ui;
 });
 
 async function openPhone(view: PlayerView, extra: { talk?: PairTalk; onClose?: () => void } = {}) {
@@ -103,9 +101,13 @@ describe("the handset", () => {
     fireEvent.click(screen.getByRole("button", { name: "Make the phone bigger" }));
     expect(phone?.getAttribute("data-grown")).toBe("true");
     // grown, the handset is laid out at the screen's width, straight, and gets
-    // there by one transform from the box it left, never by animating its edges (R-WORLD-023).
+    // there by one transform from the box it left, never by animating its edges (R-WORLD-023). Restated 12 Oct 2026
+    // (decision 0038): the screen's width up to the centred column's, so on a phone the whole screen and on a laptop the
+    // column of phone width the band and the thumbs stand in.
     const handset = document.querySelector("[data-handset]");
-    expect(handset?.className).toContain("w-[calc(100vw-16px)]");
+    expect(handset?.className).toContain("w-[calc(100%-16px)]");
+    expect(handset?.parentElement?.hasAttribute("data-centred-column")).toBe(true);
+    expect(handset?.parentElement?.className).toContain("inset-0");
     expect(handset?.className).toContain("handset-grown");
     expect(handset?.className).toContain("motion-handset");
     expect(handset?.className).not.toMatch(/transition-\[|duration-/);
@@ -307,15 +309,13 @@ describe("what the phone carries", () => {
 });
 
 describe("settings", () => {
-  test("[R-WORLD-021] given Settings, when danfo is chosen, then the root carries it and the device remembers it; adire takes it off", async () => {
+  test("[R-WORLD-021] given Settings, when it opens, then it offers no choice of look: the game has one, painted by the world's clock (decision 0038)", async () => {
     await openPhone(engineView());
     openApp("settings");
-    fireEvent.click(screen.getByRole("radio", { name: "Danfo" }));
-    expect(document.documentElement.dataset.ui).toBe("danfo");
-    expect(localStorage.getItem(THEME_KEY)).toBe("danfo");
-    fireEvent.click(screen.getByRole("radio", { name: "Adire" }));
+    expect(screen.queryByRole("radio", { name: "Danfo" })).toBeNull();
+    expect(screen.queryByRole("radio", { name: "Adire" })).toBeNull();
+    expect(screen.queryByText("Look")).toBeNull();
     expect(document.documentElement.dataset.ui).toBeUndefined();
-    expect(localStorage.getItem(THEME_KEY)).toBe("adire");
   });
 
   test("[R-WORLD-022] given Settings, when the sound is turned off and on, then the existing mute follows", async () => {

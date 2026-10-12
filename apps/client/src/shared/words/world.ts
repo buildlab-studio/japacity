@@ -51,9 +51,6 @@ export const worldText: Record<string, string> = {
   "ui.world.ask-of": "{n} of {count}",
   "ui.world.ask-next": "Next",
   "ui.world.ask-back": "Back",
-  "ui.world.theme": "Look",
-  "ui.world.theme.adire": "Adire",
-  "ui.world.theme.danfo": "Danfo",
 
   "ui.world.added": "Added to the month",
   "ui.world.planned": "{what}: planned.",

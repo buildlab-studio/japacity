@@ -8,9 +8,7 @@ afterEach(() => {
 import { say } from "../words/text";
 import { AskSheet } from "./AskSheet";
 import { Band } from "./Band";
-import { THEME_KEY } from "./contract";
 import { Nudge } from "./Nudge";
-import { restoreTheme, setTheme } from "./theme";
 import { ThumbBar } from "./ThumbBar";
 
 const naira = (amount: number): string => `₦${String(Math.round(amount / 100))}`;
@@ -100,21 +98,5 @@ describe("the sheet", () => {
     fireEvent.click(screen.getByRole("button", { name: "Not now" }));
     expect(dismiss).toHaveBeenCalledTimes(1);
     expect(document.querySelector("[data-ask-form]")?.getAttribute("data-ask-form")).toBe("slip");
-  });
-});
-
-describe("the theme", () => {
-  test("[R-WORLD-021] given a theme is set, when it is set and restored, then the attribute on the root follows it and the device remembers it", () => {
-    const root = { dataset: {} as DOMStringMap };
-    const kept = new Map<string, string>();
-    const storage = { getItem: (key: string) => kept.get(key) ?? null, setItem: (key: string, value: string) => void kept.set(key, value) };
-    setTheme("danfo", root, storage);
-    expect(root.dataset.ui).toBe("danfo");
-    expect(kept.get(THEME_KEY)).toBe("danfo");
-    const fresh = { dataset: {} as DOMStringMap };
-    expect(restoreTheme(fresh, storage)).toBe("danfo");
-    expect(fresh.dataset.ui).toBe("danfo");
-    setTheme("adire", root, storage);
-    expect(root.dataset.ui).toBeUndefined();
   });
 });

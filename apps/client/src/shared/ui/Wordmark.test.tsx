@@ -4,9 +4,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
-import { setTheme } from "../world/theme";
 import { say } from "../words/text";
 import { Wordmark, wordmarkFile } from "./Wordmark";
 // Registers Testing Library's cleanup for this file.
@@ -18,10 +17,6 @@ const GROUNDS = ["light", "dark"] as const;
 /** The looks' own colours (index.css): the danfo yellow both share, and each look's ink. */
 const YELLOW = "#f2b705";
 const INK = { adire: "#1c2a5e", danfo: "#17140f" } as const;
-
-afterEach(() => {
-  setTheme("adire", document.documentElement, null);
-});
 
 describe("the wordmark's files", () => {
   test("[R-ACCOUNT-029] given each look and each ground, then the mark and the wordmark are there, the game's name as their title, in the danfo yellow and the look's ink alone, with no gradient, filter, shadow, picture or text", () => {
@@ -41,15 +36,15 @@ describe("the wordmark's files", () => {
 });
 
 describe("the wordmark on a screen", () => {
-  test("[R-ACCOUNT-029] given each look, then the wordmark shows the file for that look and its ground, its words the game's name", () => {
+  test("[R-ACCOUNT-029] given each ground, then the wordmark shows the game's one look's file for that ground, its words the game's name", () => {
     const { unmount } = render(<Wordmark ground="light" />);
-    expect(screen.getByRole("img", { name: say("ui.game") }).getAttribute("src")).toBe(wordmarkFile("adire", "light"));
+    expect(screen.getByRole("img", { name: say("ui.game") }).getAttribute("src")).toBe(wordmarkFile("light"));
+    expect(wordmarkFile("light")).toMatch(/brand\/japacity-wordmark-adire-light\.svg$/);
     unmount();
-    setTheme("danfo", document.documentElement, null);
     render(<Wordmark ground="dark" />);
     const shown = screen.getByRole("img", { name: say("ui.game") });
-    expect(shown.getAttribute("src")).toBe(wordmarkFile("danfo", "dark"));
-    expect(shown.getAttribute("src")).toMatch(/brand\/japacity-wordmark-danfo-dark\.svg$/);
+    expect(shown.getAttribute("src")).toBe(wordmarkFile("dark"));
+    expect(shown.getAttribute("src")).toMatch(/brand\/japacity-wordmark-adire-dark\.svg$/);
     expect(shown.getAttribute("alt")).toBe("Japacity");
   });
 });

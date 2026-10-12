@@ -3,6 +3,7 @@
 import { Map as MapIcon, Smartphone } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { CentredColumn } from "../ui/lively/CentredColumn";
 import { say } from "../words/text";
 
 export interface ThumbBarProps {
@@ -16,16 +17,19 @@ export function ThumbBar({ onMap, onPhone, phoneWaiting, hidden = false }: Thumb
   return (
     <nav
       aria-label={say("ui.tabs")}
-      className={`pointer-events-none fixed inset-x-0 bottom-0 z-[38] flex items-end justify-between px-3 pb-[max(14px,env(safe-area-inset-bottom))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`}
+      className={`pointer-events-none fixed inset-x-0 bottom-0 z-[38] px-3 pb-[max(14px,env(safe-area-inset-bottom))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`}
       aria-hidden={hidden}
       data-thumb-bar
     >
-      <ThumbButton label={say("ui.world.map")} onClick={onMap} id="map">
-        <MapIcon size={24} />
-      </ThumbButton>
-      <ThumbButton label={say("ui.world.phone")} onClick={onPhone} id="phone" dot={phoneWaiting}>
-        <Smartphone size={24} />
-      </ThumbButton>
+      {/* On a laptop the thumbs stand at the column's two sides, not the screen's (decision 0038). */}
+      <CentredColumn className="flex items-end justify-between">
+        <ThumbButton label={say("ui.world.map")} onClick={onMap} id="map">
+          <MapIcon size={24} />
+        </ThumbButton>
+        <ThumbButton label={say("ui.world.phone")} onClick={onPhone} id="phone" dot={phoneWaiting}>
+          <Smartphone size={24} />
+        </ThumbButton>
+      </CentredColumn>
     </nav>
   );
 }

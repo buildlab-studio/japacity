@@ -56,7 +56,7 @@ describe("the moment card on screen", () => {
     expect(within(face).getByText(say("moment.robbed.caption"))).toBeDefined();
     expect(within(face).getByText(say("moment.robbed.phone", { phone: naira(6_000_000) }))).toBeDefined();
     const sign = face.querySelector<HTMLElement>("[data-moment-sign]")!;
-    expect(sign.querySelector("img")?.getAttribute("src")).toBe(markFile("adire", "dark"));
+    expect(sign.querySelector("img")?.getAttribute("src")).toBe(markFile("dark"));
     expect(sign.querySelector("img")?.getAttribute("alt")).toBe("Japacity");
     expect(sign.textContent).toBe("japacity.app");
     // The sign-off is the card's last part, so a crop of the card keeps it.
@@ -70,7 +70,7 @@ describe("the moment card on screen", () => {
     const face = card.querySelector<HTMLElement>("[data-moment-card='won']")!;
     expect(face.dataset["momentTone"]).toBe("good");
     expect(face.className).toContain("panel");
-    expect(face.querySelector("[data-moment-mark]")?.getAttribute("src")).toBe(markFile("adire", "light"));
+    expect(face.querySelector("[data-moment-mark]")?.getAttribute("src")).toBe(markFile("light"));
   });
 
   test("[R-MOMENT-003] given the card, then it stands centred no wider than 380 px, 16 px in from the sides, with the line, the figure, the kicker and the address at their sizes", async () => {

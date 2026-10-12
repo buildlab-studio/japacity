@@ -113,6 +113,8 @@ describe("sleep, the way the month turns", () => {
     const card = found("[data-night-teach]");
     expect(card.textContent).toContain("Each night you sleep is a month of your life.");
     expect(card.textContent).toContain(say("ui.night.first"));
+    // On a laptop the card stands in the centred column with the world around it (decision 0038).
+    expect(card.closest("[data-centred-column]")).not.toBeNull();
     expect(turns(authority.sent)).toBe(0);
     fireEvent.click(found("[data-night-teach-ok]"));
     // The card's Sleep starts the bed's timed sleep: the month turns once it runs out, not at the tap (R-WORLD-025 as

@@ -36,6 +36,7 @@ import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
 import { Corner, hear, hush, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
+import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
@@ -1667,14 +1668,17 @@ export function City({
                   <span aria-hidden className="sleep-bar absolute inset-x-0 bottom-0 h-[3px] bg-signal" style={{ animationDuration: `${String(asleep.ms)}ms` }} data-asleep-bar />
                 </button>
               </div>
-              {/* Wake up, low on the right above the Phone button, does as the chip does. */}
-              <button type="button" onClick={wake} className="pop press pointer-events-auto fixed right-3 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] rounded-[5px] bg-action px-4 py-2.5 text-[14px] font-extrabold text-action-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" data-wake>
-                {say("ui.sleep.wake")}
-              </button>
+              {/* Wake up, low on the right above the Phone button (in the centred column on a laptop), does as the chip does. */}
+              <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] flex justify-end px-3">
+                <button type="button" onClick={wake} className="pop press pointer-events-auto rounded-[5px] bg-action px-4 py-2.5 text-[14px] font-extrabold text-action-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" data-wake>
+                  {say("ui.sleep.wake")}
+                </button>
+              </CentredColumn>
             </>
           ) : null}
           {nightTeach !== null ? (
-            <div className="pop pointer-events-auto fixed inset-x-3 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] mx-auto flex max-w-sm items-center gap-3 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-night-teach>
+            <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] px-3">
+            <div className="pop pointer-events-auto mx-auto flex max-w-sm items-center gap-3 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-night-teach>
               <p className="min-w-0 flex-1 text-[14px] leading-snug font-semibold">{say("ui.night.first")}</p>
               <button
                 type="button"
@@ -1689,9 +1693,11 @@ export function City({
                 {say("ui.night.first.ok")}
               </button>
             </div>
+            </CentredColumn>
           ) : null}
           {homeTeachShown && homeTeach !== null ? (
-            <div className="pop pointer-events-auto fixed inset-x-3 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] mx-auto flex max-w-sm items-start gap-2 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-home-teach={homeTeach}>
+            <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] px-3">
+            <div className="pop pointer-events-auto mx-auto flex max-w-sm items-start gap-2 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-home-teach={homeTeach}>
               <p className="min-w-0 flex-1 text-[14px] leading-snug">{blurbOf(homeTeach)}</p>
               <button
                 type="button"
@@ -1706,6 +1712,7 @@ export function City({
                 <X size={16} aria-hidden />
               </button>
             </div>
+            </CentredColumn>
           ) : null}
           <SpeechBubble hidden={!worldFree} anchored={drawing && ready} />
           {fanned !== null && fanEntries !== null && picked?.kind === "thing" ? (

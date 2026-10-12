@@ -1,7 +1,7 @@
 {
   "note": "Written by tools/assets/publish.ts (pnpm assets:publish). Every file under public/assets, published beside it under a name carrying the hash of its contents (city.md R-CITY-018). Never edit by hand.",
   "files": {
-    "credits.json": "credits.37f8abb37d79.json",
+    "credits.json": "credits.01d980f8f489.json",
     "places/agent-office/bld_room_agent.glb": "places/agent-office/bld_room_agent.582e7559f221.glb",
     "places/agent-office/place.json": "places/agent-office/place.33c9b492195c.json",
     "places/airport-lagos/bld_terminal-front.glb": "places/airport-lagos/bld_terminal-front.44b09a84f4a0.glb",

@@ -11,7 +11,7 @@ import { say } from "../words/text";
 export function FamilyFace({ card, label }: { card: { title: string; tags: readonly { tone: Tone; words: string }[] } | null; label: string }) {
   return (
     <div
-      className={`flex min-h-[62px] items-center gap-2.5 rounded-[6px] px-3 py-2 ${card === null ? "band" : "border-2 border-strong bg-sheet"}`}
+      className={`flex min-h-[62px] items-center gap-2.5 rounded-[6px] px-3 py-2 ${card === null ? "band adire" : "border-2 border-strong bg-sheet"}`}
       data-family={card === null ? "face-down" : "turned"}
     >
       {card === null ? (

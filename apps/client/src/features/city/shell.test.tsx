@@ -601,6 +601,8 @@ describe("once per life", () => {
     const card = document.querySelector("[data-home-teach]");
     expect(card?.getAttribute("data-home-teach")).toBe("place.family-house");
     expect(card?.textContent).toContain(words("place.family-house.blurb"));
+    // On a laptop the card stands in the centred column with the world around it (decision 0038).
+    expect(card?.closest("[data-centred-column]")).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.home.teach.close") }));
     expect(document.querySelector("[data-home-teach]")).toBeNull();
     document.body.innerHTML = "";

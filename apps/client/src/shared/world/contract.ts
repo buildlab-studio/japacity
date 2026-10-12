@@ -209,6 +209,3 @@ export interface Here {
   inside: boolean;
 }
 
-/** The theme (R-WORLD-021). */
-export type Theme = "adire" | "danfo";
-export const THEME_KEY = "japacity.theme";
