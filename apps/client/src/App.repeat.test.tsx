@@ -2,20 +2,21 @@
 // Mama answers at once each time it is asked for. Her sheet, which holds her shop beside it (R-WORLD-005: a third act goes
 // on a sheet), does it now with its card's button, the card says the time in words, and it never says it counts when the
 // month ends or is ongoing; asked again, it is done again. The place file is the one the game ships; the scene is a
-// stand-in that hands the city the taps a player makes, and the sheet lists the cards as the game's own picker does.
+// stand-in that hands the city the taps a player makes, and the sheet lists the cards with the game's own picker, composed as
+// the shell composes them.
 import { fireEvent, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { newGame } from "../../shared/testing/fixtures";
-import { renderWithGame } from "../../shared/testing/people";
-import { nameOf, say } from "../../shared/words/text";
-import { ActivityPicker } from "../activity/ActivityView";
-import type { Act, Thing } from "../../shared/world/contract";
-import { City } from "./City";
+import { newGame } from "./shared/testing/fixtures";
+import { renderWithGame } from "./shared/testing/people";
+import { nameOf, say } from "./shared/words/text";
+import { ActivityPicker } from "./features/activity/ActivityView";
+import type { Act, Thing } from "./shared/world/contract";
+import { City } from "./features/city/City";
 
 type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act };
 
-vi.mock("./CityScene", () => ({
+vi.mock("./features/city/CityScene", () => ({
   default: ({ things, onPick, acted }: { things?: Thing[]; onPick: (pick: Pick) => void; acted?: { activity: string; at: number } | null }) => (
     <div data-stand-in-scene data-stand-in-acted={acted?.activity ?? ""}>
       {(things ?? []).map((thing) => (
@@ -31,11 +32,11 @@ vi.mock("./CityScene", () => ({
 }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../../shared/three/manifest")>();
+vi.mock("./shared/three/manifest", async (original) => {
+  const real = await original<typeof import("./shared/three/manifest")>();
   const fs = await import("node:fs");
   const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "..", "public", "assets");
+  const assets = path.join(import.meta.dirname, "..", "public", "assets");
   return {
     ...real,
     loadManifest: () => Promise.resolve({ files: {} }),
