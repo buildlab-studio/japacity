@@ -4,7 +4,7 @@
 // hook at the foot, which reads the clock the last reply carried and the device's between replies.
 import { type DayPart, time, type WorldClock, worldClockAt } from "@japacity/sim";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import { Color } from "three";
+import { Color, SRGBColorSpace } from "three";
 
 import { useGameStoreIfAny } from "../../authority/GameProvider";
 
@@ -18,9 +18,11 @@ export interface Look {
   height: number | null;
   /** Degrees the sun is turned about the vertical from the place's own direction; the morning's and the evening's are opposite. */
   turn: number;
-  /** The tint the sky leans to, as 8-bit sRGB, and how far: 0 is the place's own sky. */
+  /** The tint the sky behind the place leans to, as 8-bit sRGB, and how far: 0 is the place's own sky. */
   tint: number;
   tintShare: number;
+  /** The tint the sky light itself leans to, by the same share: a pale backdrop can still light the room warm, a navy night still show it in moonlight. */
+  lightTint: number;
   /** The hemisphere light's intensity. */
   skyStrength: number;
   /** How much of the ground's colour the hemisphere's lower half keeps: dark at night. */
@@ -32,14 +34,14 @@ export interface Look {
 }
 
 /** The afternoon's sun and sky as every place was lit before the clock: its own sun, a white light, its own sky. */
-const NOON: Look = { sun: 0xfff0d0, sunStrength: 2, height: null, turn: 0, tint: 0xffffff, tintShare: 0, skyStrength: 1.1, groundShare: 1, softness: 1, lamps: 0 };
+const NOON: Look = { sun: 0xfff0d0, sunStrength: 2, height: null, turn: 0, tint: 0xffffff, tintShare: 0, lightTint: 0xffffff, skyStrength: 1.1, groundShare: 1, softness: 1, lamps: 0 };
 
 /** Each part's look at its start and at its end; within a part the look moves from one to the other with the minute. */
 export const LOOKS: Record<DayPart, { from: Look; to: Look }> = {
   // A low warm sun, long soft shadows, a pale sky, rising toward the day's full light.
   morning: {
-    from: { sun: 0xffb877, sunStrength: 2.3, height: 16, turn: -65, tint: 0xf4ead8, tintShare: 0.55, skyStrength: 1.0, groundShare: 0.85, softness: 3, lamps: 0.25 },
-    to: { sun: 0xfff1d8, sunStrength: 2.1, height: 48, turn: -20, tint: 0xf6efe2, tintShare: 0.25, skyStrength: 1.1, groundShare: 1, softness: 1.5, lamps: 0 },
+    from: { sun: 0xffa860, sunStrength: 2.6, height: 16, turn: -65, tint: 0xeef1ef, tintShare: 0.7, lightTint: 0xf2eee6, skyStrength: 0.8, groundShare: 0.8, softness: 3, lamps: 0 },
+    to: { sun: 0xfff1d8, sunStrength: 2.1, height: 48, turn: -20, tint: 0xf3f0e6, tintShare: 0.3, lightTint: 0xfff0d8, skyStrength: 1.05, groundShare: 1, softness: 1.5, lamps: 0 },
   },
   // Full white light, the place as it was always lit, the sun moving over toward the evening's side.
   afternoon: {
@@ -48,13 +50,13 @@ export const LOOKS: Record<DayPart, { from: Look; to: Look }> = {
   },
   // An orange sun low on the other side, the sky warming, then dusk and the lamps coming on.
   evening: {
-    from: { sun: 0xff9b52, sunStrength: 2.2, height: 14, turn: 115, tint: 0xf2a774, tintShare: 0.5, skyStrength: 0.85, groundShare: 0.8, softness: 2.5, lamps: 0.5 },
-    to: { sun: 0xd0684a, sunStrength: 0.9, height: 5, turn: 125, tint: 0x5d4f86, tintShare: 0.75, skyStrength: 0.6, groundShare: 0.45, softness: 3, lamps: 1 },
+    from: { sun: 0xff9b52, sunStrength: 2.2, height: 14, turn: 115, tint: 0xf2a774, tintShare: 0.5, lightTint: 0xf0a070, skyStrength: 0.85, groundShare: 0.8, softness: 2.5, lamps: 0.5 },
+    to: { sun: 0xd0684a, sunStrength: 0.9, height: 5, turn: 125, tint: 0x3b3768, tintShare: 0.85, lightTint: 0x9a88c0, skyStrength: 0.9, groundShare: 0.45, softness: 3, lamps: 1 },
   },
   // A deep blue sky with the sun almost out: the room is lit by its bulb and the lantern.
   night: {
-    from: { sun: 0x6f86c8, sunStrength: 0.35, height: 42, turn: 180, tint: 0x1d2c5a, tintShare: 0.9, skyStrength: 0.55, groundShare: 0.3, softness: 2, lamps: 1 },
-    to: { sun: 0x6f86c8, sunStrength: 0.35, height: 42, turn: 180, tint: 0x1d2c5a, tintShare: 0.9, skyStrength: 0.55, groundShare: 0.3, softness: 2, lamps: 1 },
+    from: { sun: 0x6f86c8, sunStrength: 0.35, height: 42, turn: 180, tint: 0x0e1735, tintShare: 0.95, lightTint: 0x6a82c4, skyStrength: 1.1, groundShare: 0.3, softness: 2, lamps: 1 },
+    to: { sun: 0x6f86c8, sunStrength: 0.35, height: 42, turn: 180, tint: 0x0e1735, tintShare: 0.95, lightTint: 0x6a82c4, skyStrength: 1.1, groundShare: 0.3, softness: 2, lamps: 1 },
   },
 };
 
@@ -75,8 +77,18 @@ export function progressIn(part: DayPart, minute: number): number {
   return Math.min(1, Math.max(0, into / length));
 }
 
+/**
+ * Two colours mixed as they are written and seen (sRGB), not in light's own linear terms, where a little of a bright sky
+ * would grey a whole night: the share of navy is the share seen.
+ */
+export function mixSeen(from: Color, to: Color, share: number): Color {
+  const a = from.getRGB({ r: 0, g: 0, b: 0 }, SRGBColorSpace);
+  const b = to.getRGB({ r: 0, g: 0, b: 0 }, SRGBColorSpace);
+  return new Color().setRGB(a.r + (b.r - a.r) * share, a.g + (b.g - a.g) * share, a.b + (b.b - a.b) * share, SRGBColorSpace);
+}
+
 function mixColour(from: number, to: number, share: number): number {
-  return new Color(from).lerp(new Color(to), share).getHex();
+  return mixSeen(new Color(from), new Color(to), share).getHex();
 }
 
 function mixNumber(from: number, to: number, share: number): number {
@@ -92,6 +104,7 @@ export function mixLooks(from: Look, to: Look, share: number, ownHeight: number)
     turn: mixNumber(from.turn, to.turn, share),
     tint: mixColour(from.tint, to.tint, share),
     tintShare: mixNumber(from.tintShare, to.tintShare, share),
+    lightTint: mixColour(from.lightTint, to.lightTint, share),
     skyStrength: mixNumber(from.skyStrength, to.skyStrength, share),
     groundShare: mixNumber(from.groundShare, to.groundShare, share),
     softness: mixNumber(from.softness, to.softness, share),
@@ -125,9 +138,14 @@ export function sunAt(sun: readonly [number, number, number], look: Pick<Look, "
   return [Math.cos(flat) * across, Math.sin(height) * far, Math.sin(flat) * across];
 }
 
-/** The sky's colour for a look: the place's own sky leaning toward the look's tint. */
+/** The sky's colour behind the place for a look: the place's own sky leaning toward the look's tint. */
 export function skyOf(own: Color, look: Pick<Look, "tint" | "tintShare">): Color {
-  return own.clone().lerp(new Color(look.tint), look.tintShare);
+  return mixSeen(own, new Color(look.tint), look.tintShare);
+}
+
+/** The sky light's own colour for a look: the place's own sky leaning toward the look's light tint. */
+export function skyLightOf(own: Color, look: Pick<Look, "lightTint" | "tintShare">): Color {
+  return mixSeen(own, new Color(look.lightTint), look.tintShare);
 }
 
 /** The parts the development switch may pin, each at a minute that reads as that part. */

@@ -12,6 +12,7 @@ import {
   Color,
   DataTexture,
   DoubleSide,
+  LinearFilter,
   Group,
   IcosahedronGeometry,
   Float32BufferAttribute,
@@ -458,7 +459,7 @@ export function leaves(count: number, span: number, depth: number, color: Color)
  * the rim and on its own beat: the bucket bath's water off the drum. Opaque, shrinking to nothing, one draw call.
  */
 export function drops(count: number, width: number, depth: number, fall: number, color: Color): InstancedMesh {
-  const geometry = seeded(new IcosahedronGeometry(0.035, 0), count);
+  const geometry = seeded(new IcosahedronGeometry(0.075, 0), count);
   geometry.setAttribute("aFall", new InstancedBufferAttribute(new Float32Array(count).fill(fall), 1));
   const mesh = new InstancedMesh(geometry, motionMaterial("drop", color), count);
   const at = new Matrix4();
@@ -511,6 +512,9 @@ function halo(): DataTexture {
     }
   }
   haloTexture = new DataTexture(data, HALO_TEXELS, HALO_TEXELS);
+  // Smooth between its texels, so a halo drawn large stays a soft round and never shows its squares.
+  haloTexture.magFilter = LinearFilter;
+  haloTexture.minFilter = LinearFilter;
   haloTexture.needsUpdate = true;
   return haloTexture;
 }

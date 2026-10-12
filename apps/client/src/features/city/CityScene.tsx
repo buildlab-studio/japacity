@@ -23,7 +23,7 @@ import { glowAt, loadGrids } from "../../shared/three/motion";
 import { poseFigure } from "../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { limitMotion } from "./limits";
-import { type Look, lookAt, mixLooks, ownHeightOf, skyOf, sunAt, useDayClock } from "./daylight";
+import { type Look, lookAt, mixLooks, mixSeen, ownHeightOf, skyLightOf, skyOf, sunAt, useDayClock } from "./daylight";
 import { filesOf, showsFor, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { chipNode } from "./chip";
@@ -228,7 +228,7 @@ function Place(props: PlaceProps) {
   const { part, minute } = props.day;
   const target = useMemo(() => lookAt(part, minute, stage.light.sun), [part, minute, stage.light.sun]);
   const look = useRef<Look | null>(null);
-  const daylit = useRef<{ look: Look | null; sun: [number, number, number]; sky: Color; ground: Color; background: Color; fog: Color }>({ look: null, sun: [0, 0, 0], sky: new Color(), ground: new Color(), background: new Color(), fog: new Color() });
+  const daylit = useRef<{ look: Look | null; sun: [number, number, number]; sky: Color; light: Color; ground: Color; background: Color; fog: Color }>({ look: null, sun: [0, 0, 0], sky: new Color(), light: new Color(), ground: new Color(), background: new Color(), fog: new Color() });
   const lamps = useRef<Object3D[]>([]);
   const fx = useRef<{ objects: Object3D[]; from: number; to: number }[]>([]);
 
@@ -504,9 +504,11 @@ function Place(props: PlaceProps) {
       lit.look = day;
       lit.sun = sunAt(stage.light.sun, day);
       lit.sky.copy(skyOf(colourOf(stage.light.sky), day));
+      lit.light.copy(skyLightOf(colourOf(stage.light.sky), day));
       lit.ground.copy(colourOf(stage.light.ground)).multiplyScalar(day.groundShare);
-      lit.background.copy(lit.sky).lerp(lit.ground, settings.haze.sky);
-      lit.fog.copy(lit.sky).lerp(lit.ground, settings.haze.fog);
+      // The haze leans the sky toward the ground less as the ground goes dark, so the night stays blue.
+      lit.background.copy(mixSeen(lit.sky, lit.ground, settings.haze.sky * day.groundShare));
+      lit.fog.copy(mixSeen(lit.sky, lit.ground, settings.haze.fog * day.groundShare));
       for (const lamp of lamps.current) glowAt(lamp, day.lamps);
     }
     const light = sun.current;
@@ -522,7 +524,7 @@ function Place(props: PlaceProps) {
     }
     const sky = skyLight.current;
     if (sky !== null) {
-      sky.color.copy(lit.sky);
+      sky.color.copy(lit.light);
       sky.groundColor.copy(lit.ground);
       sky.intensity = day.skyStrength;
     }

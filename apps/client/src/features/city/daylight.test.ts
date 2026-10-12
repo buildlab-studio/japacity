@@ -5,7 +5,7 @@ import { Color } from "three";
 import { describe, expect, test } from "vitest";
 
 import parlourRaw from "../../../public/assets/places/family-house-parlour/place.json";
-import { LOOKS, lookAt, ownHeightOf, pinnedClock, pinnedPart, progressIn, skyOf, sunAt, worldNow } from "./daylight";
+import { LOOKS, lookAt, ownHeightOf, pinnedClock, pinnedPart, progressIn, skyLightOf, skyOf, sunAt, worldNow } from "./daylight";
 import { type PlaceFile, stageOf } from "./placeFile";
 
 const SUN = stageOf(parlourRaw as unknown as PlaceFile).light.sun;
@@ -65,8 +65,14 @@ describe("the sky and the sun by the world's clock", () => {
     expect(sky.b).toBeGreaterThan(sky.r);
     expect(lum(sky.getHex())).toBeLessThan(0.15);
     expect(night.sunStrength).toBeLessThan(noon.sunStrength / 4);
-    expect(night.skyStrength).toBeLessThan(noon.skyStrength);
+    // The sky light's colour by its strength: far under the afternoon's.
+    const own = new Color(0xf3d9a4);
+    expect(lum(skyLightOf(own, night).getHex()) * night.skyStrength).toBeLessThan((lum(skyLightOf(own, noon).getHex()) * noon.skyStrength) / 2);
     expect(night.lamps).toBe(1);
+    // The sky light is moonlit, still blue, so the room reads dark but seen.
+    const moon = skyLightOf(new Color(0xf3d9a4), night);
+    expect(moon.b).toBeGreaterThan(moon.r);
+    expect(lum(moon.getHex())).toBeGreaterThan(lum(sky.getHex()));
     const late = lookAt("night", 5 * HOUR + 59, SUN);
     expect(late.sun).not.toBe(night.sun);
     expect(Math.abs(late.sunStrength - LOOKS.morning.from.sunStrength)).toBeLessThan(0.1);
