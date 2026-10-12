@@ -36,10 +36,9 @@ describe("the street's things", () => {
     expect(figures.bytes).toBeLessThanOrEqual(budget.bytes);
     expect(checkPalette(doc)).toEqual([]);
     expect(Math.abs(figures.minY)).toBeLessThanOrEqual(0.01);
-    if (prefix === "shop") {
-      expect(figures.maxY).toBeGreaterThanOrEqual(budgets.asset.shop.heightMin);
-      expect(figures.maxY).toBeLessThanOrEqual(budgets.asset.shop.heightMax);
-    }
+    const [low, high] = prefix === "shop" ? [budgets.asset.shop.heightMin, budgets.asset.shop.heightMax] : [0, Infinity];
+    expect(figures.maxY).toBeGreaterThanOrEqual(low);
+    expect(figures.maxY).toBeLessThanOrEqual(high);
   });
 
   test.each(STREET_THINGS)("[R-ASSET-030] [R-ASSET-012] given $name, when it is built, then it records the ground it blocks and carries its lettered boards as anchors with text keys, never as words", ({ name, signs }) => {
@@ -56,7 +55,7 @@ describe("the street's things", () => {
     for (const [name, height] of [["shop_barber-kiosk", 3.0], ["shop_viewing-centre", 3.2]] as const) {
       const bytes = await writeGlb(toDocument(entry(name).build()));
       const figures = measure(await readGlb(bytes), bytes.byteLength);
-      expect(Math.abs(figures.maxY - height), name).toBeLessThanOrEqual(0.5);
+      expect({ name, near: Math.abs(figures.maxY - height) <= 0.5 }).toEqual({ name, near: true });
     }
   });
 });

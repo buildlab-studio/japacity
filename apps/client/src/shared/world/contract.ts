@@ -1,6 +1,7 @@
 // The world-first contract (docs/rules/world.md): what the shell, the scene, the map, the phone and
 // the places hand each other. Each feature implements its side against these types and nothing else,
 // so the pieces can be built apart and composed in App.tsx. Plain data only; no three.js here.
+import type { DayPart } from "@japacity/sim";
 import type { ReactNode } from "react";
 
 /** A spot in a place: x, z in metres, and the turn about +Y in radians. */
@@ -62,6 +63,13 @@ export interface Act {
   planned?: boolean;
   /** R-ACTIVITY-020: the act takes effort and the body is spent: its chip says so where its button was. */
   spent?: boolean;
+  /**
+   * The parts of the world's day the act is open in (clock.md R-CLOCK-033, world.md R-WORLD-005): the viewing centre from the
+   * evening, the joint in the evening and at night. Open at every part when not given.
+   */
+  parts?: DayPart[];
+  /** For `plain`: the words key of the line told in the corner, when it is not the label's `.done` (a shut thing's reason). */
+  tells?: string;
 }
 
 /**
