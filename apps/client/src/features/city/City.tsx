@@ -1655,7 +1655,8 @@ export function City({
             </div>
           ) : null}
           {/* A sleeper hears nothing: the corner keeps its lines until they wake (R-WORLD-025), and leaves Wake up clear. */}
-          <Corner hidden={!worldFree || homeTeachShown || nightTeach !== null || asleep !== null} />
+          {/* An open fan keeps the corner clear: the fan's buttons may run down to the thumbs (docs/design/13-the-lively-layer.md section 5). */}
+          <Corner hidden={!worldFree || homeTeachShown || nightTeach !== null || asleep !== null || fanned !== null} />
           {asleep !== null && !asleep.due ? (
             <>
               {/* The sleep's chip under the band, with a thin bar running down over the sleep's length; a tap on it wakes (R-WORLD-025). */}

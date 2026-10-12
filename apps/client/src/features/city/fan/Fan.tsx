@@ -3,7 +3,7 @@
 // before struck and after beside it, or what stands in the way. The scene's frame loop moves the fan with its thing every
 // frame (CityScene, `[data-fan]`, as the marks and the speech bubble); the layout is read once from where the thing first
 // stood, and when the free side cannot hold it the caller opens the sheet of the same acts.
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent } from "react";
 
 import { cue } from "../../../shared/sound/cues";
 import { say } from "../../../shared/words/text";
@@ -33,26 +33,36 @@ const DRAG_PX = 6;
 /** The space kept clear under the band and over the thumbs when nothing is measured (a page with neither yet). */
 const BAND_GAP = 8;
 
-/** What covers the top and the foot of the screen now: the band, and the thumbs. */
+/** What covers the top and the foot of the screen now: the band, and the thumbs with any small card standing over them. */
 function insetsNow(): { top: number; bottom: number } {
   const band = document.querySelector("[data-band]")?.getBoundingClientRect().bottom ?? 0;
-  const thumbs = [...document.querySelectorAll("[data-thumb]")].map((node) => node.getBoundingClientRect().top).filter((top) => top > 0);
+  const thumbs = [...document.querySelectorAll("[data-thumb], [data-home-teach], [data-night-teach]")].map((node) => node.getBoundingClientRect().top).filter((top) => top > 0);
   const foot = thumbs.length === 0 ? window.innerHeight : Math.min(...thumbs);
   return { top: band + BAND_GAP, bottom: window.innerHeight - foot + BAND_GAP };
 }
 
 /** The layout for a thing first seen at `point`, on the screen as it is now. */
-function layoutAt(point: NonNullable<ReturnType<typeof fanAnchor>>, count: number): FanLayout {
+function layoutAt(point: NonNullable<ReturnType<typeof fanAnchor>>, count: number, label: number | null): FanLayout {
   const screen = { width: window.innerWidth, height: window.innerHeight };
   // A thing off the screen gets a point off it, which never fits: the sheet opens.
   const at = point === "off" ? { x: -1, y: -1 } : point;
-  return fanLayout({ at, screen, count, inset: insetsNow(), ...fanSizes(screen.width) });
+  const sizes = fanSizes(screen.width);
+  return fanLayout({ at, screen, count, inset: insetsNow(), ...sizes, label: label ?? sizes.label });
 }
 
 export function Fan({ thing, title, entries, onAct, onFallback, going = null }: FanProps) {
   const point = useSyncExternalStore(subscribeFanAnchor, () => fanAnchor(thing));
   const count = entries.length;
-  const layout = useMemo(() => (point === null ? null : layoutAt(point, count)), [point, count]);
+  // The labels' width as drawn, read once after the first layout: a long name or a large balance may need more room than the
+  // measure the layout starts from, and the fan lays out again with it, or hands over to the sheet (before the first paint).
+  const [label, setLabel] = useState<number | null>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const layout = useMemo(() => (point === null ? null : layoutAt(point, count, label)), [point, count, label]);
+  useLayoutEffect(() => {
+    if (label !== null || layout === null || !layout.fits || root.current === null) return;
+    const widest = Math.max(0, ...[...root.current.querySelectorAll<HTMLElement>(".fan-labels")].map((node) => node.scrollWidth));
+    if (widest > layout.sizes.label) setLabel(Math.ceil(widest));
+  }, [layout, label]);
   const [shift, setShift] = useState(0);
   const [shaking, setShaking] = useState<{ id: string; n: number } | null>(null);
   const drag = useRef<{ y: number; from: number; moved: boolean } | null>(null);
@@ -112,6 +122,7 @@ export function Fan({ thing, title, entries, onAct, onFallback, going = null }: 
 
   return (
     <div
+      ref={root}
       role="group"
       aria-label={title}
       className="fan pointer-events-none fixed top-0 left-0 z-[37]"

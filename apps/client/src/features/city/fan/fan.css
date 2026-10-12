@@ -56,13 +56,15 @@
   animation: fan-spring 260ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
+/* The button is the disc's own box, centred on the item's point; its labels stand outside it. */
 .fan-button {
   position: absolute;
-  left: 0;
-  top: 0;
+  left: calc(var(--fan-button) / -2);
+  top: calc(var(--fan-button) / -2);
   display: block;
-  width: 0;
-  height: 0;
+  width: var(--fan-button);
+  height: var(--fan-button);
+  border-radius: 50%;
   padding: 0;
   border: 0;
   background: none;
@@ -72,8 +74,8 @@
 
 .fan-disc {
   position: absolute;
-  left: calc(var(--fan-button) / -2);
-  top: calc(var(--fan-button) / -2);
+  left: 0;
+  top: 0;
   display: flex;
   width: var(--fan-button);
   height: var(--fan-button);
@@ -111,7 +113,7 @@
 
 .fan-labels {
   position: absolute;
-  top: 0;
+  top: 50%;
   display: flex;
   width: max-content;
   max-width: var(--fan-label);
@@ -122,8 +124,8 @@
   text-align: left;
 }
 
-[data-fan-side="right"] .fan-labels { left: calc(var(--fan-button) / 2 + var(--fan-gap)); }
-[data-fan-side="left"] .fan-labels { right: calc(var(--fan-button) / 2 + var(--fan-gap)); align-items: flex-end; text-align: right; }
+[data-fan-side="right"] .fan-labels { left: calc(100% + var(--fan-gap)); }
+[data-fan-side="left"] .fan-labels { right: calc(100% + var(--fan-gap)); align-items: flex-end; text-align: right; }
 
 .fan-name {
   display: inline-block;
@@ -141,7 +143,7 @@
 .fan-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 [data-fan-side="left"] .fan-row { flex-direction: row-reverse; }
@@ -149,10 +151,10 @@
 .fan-price {
   border: 2px solid var(--fan-edge);
   border-radius: 10px;
-  padding: 2px 9px;
+  padding: 2px 7px;
   background: var(--fan-yellow);
   color: var(--action-text, #131a33);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1.25;
   white-space: nowrap;
@@ -165,10 +167,10 @@
   align-items: flex-start;
   gap: 1px;
   border-radius: 8px;
-  padding: 2px 6px;
+  padding: 2px 5px;
   background: rgba(255, 255, 255, 0.94);
   color: #1c2a5e;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.2;
   white-space: nowrap;
 }
