@@ -16,7 +16,10 @@ export interface LivelySheetProps {
   line?: string;
   /** The thing's picture, a sticker. */
   picture?: ReactNode;
-  /** Where the sheet is drawn: the page by default, or a box of its own (a preview stands two paints side by side). */
+  /**
+   * Where the sheet is drawn: over the page by default, modal; or in a box of its own, which holds it as its containing
+   * block, and then it is not modal over the rest of the page (a preview stands two paints side by side).
+   */
   container?: RefObject<HTMLElement | null>;
   className?: string;
   children: ReactNode;
@@ -24,14 +27,16 @@ export interface LivelySheetProps {
 
 export function LivelySheet({ open, onOpenChange, title, line, picture, container, className = "", children }: LivelySheetProps) {
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root open={open} onOpenChange={onOpenChange} modal={container === undefined}>
       <Dialog.Portal {...(container === undefined ? {} : { container })}>
         <Dialog.Backdrop className="motion-scrim fixed inset-0 z-40 bg-scrim data-ending-style:pointer-events-none data-closed:pointer-events-none" />
         <Dialog.Popup
           className={`motion-rise fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[88dvh] w-full max-w-[430px] flex-col overflow-y-auto rounded-t-[26px] border-t-[length:var(--edge-width)] border-edge bg-sheet px-4 pt-1 pb-[max(22px,env(safe-area-inset-bottom))] text-text shadow-[0_-10px_30px_rgba(0,0,0,0.18)] outline-hidden data-ending-style:pointer-events-none data-closed:pointer-events-none ${className}`}
+          // A sheet in a box of its own leaves the page's focus where it was.
+          {...(container === undefined ? {} : { initialFocus: false })}
           data-lively-sheet
         >
-          <Dialog.Close aria-label={say("ui.report.close")} className="mx-auto flex h-7 w-20 shrink-0 items-center justify-center" data-lively-handle>
+          <Dialog.Close aria-label={say("ui.report.close")} className="mx-auto flex h-7 w-20 shrink-0 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-text/40" data-lively-handle>
             <span className="h-[5px] w-10 rounded-full bg-text/25" />
           </Dialog.Close>
           <div className="mt-1 mb-3.5 flex items-center gap-3.5">

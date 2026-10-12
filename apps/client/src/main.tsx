@@ -1,11 +1,15 @@
 import "./index.css";
 
-import { StrictMode } from "react";
+import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 
 import { App } from "./App";
 import { sayBuild } from "./shared/stamp/stamp";
 import { installSoundWake } from "./shared/sound/sound";
+import { livelyAsked } from "./shared/ui/lively/preview";
+
+/** The lively layer's preview, development only: its own chunk, and none at all in a build for players. */
+const LivelyPreview = import.meta.env.DEV ? lazy(() => import("./shared/ui/lively/LivelyPreview").then((page) => ({ default: page.LivelyPreview }))) : null;
 
 const container = document.getElementById("root");
 if (container === null) {
@@ -19,6 +23,12 @@ installSoundWake(document);
 
 createRoot(container).render(
   <StrictMode>
-    <App />
+    {LivelyPreview !== null && livelyAsked(location.search) ? (
+      <Suspense fallback={null}>
+        <LivelyPreview />
+      </Suspense>
+    ) : (
+      <App />
+    )}
   </StrictMode>,
 );
