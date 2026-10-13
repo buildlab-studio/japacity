@@ -7,6 +7,8 @@ import { join } from "node:path";
 
 import type { BuildEnvironmentOptions, Plugin } from "vite";
 
+import { LICENCES_FILE } from "./licences";
+
 /**
  * The console calls a build for players drops. Two stay: `console.error`, through which the app's boundary says a
  * screen that broke (analytics.md R-ANALYTICS-002, CountedBoundary.tsx) and the libraries report a real fault, and
@@ -33,8 +35,7 @@ export const DROPPED_CONSOLE = [
   "console.profileEnd",
 ] as const;
 
-/** The file beside the page that holds every bundled library's licence, as each package ships it. */
-export const LICENCES_FILE = "licenses.txt";
+export { LICENCES_FILE };
 
 /** Whether a `vite build` in this mode is one for players: every mode but development (production and staging alike). */
 export function forPlayers(command: "build" | "serve", mode: string): boolean {

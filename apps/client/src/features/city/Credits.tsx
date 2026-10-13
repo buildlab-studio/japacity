@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { loadJson, loadManifest } from "../../shared/three/manifest";
-import { LICENCES_FILE } from "../../shared/shipping/shipping";
+import { LICENCES_FILE } from "../../shared/shipping/licences";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cityWords } from "./city.words";
 
