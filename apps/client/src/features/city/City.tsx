@@ -54,7 +54,6 @@ import { NAP, SLEEP_MS, sleepMsOf, wakeCommand, wokeWords } from "./sleep";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
 import { crowdTuning } from "./limits";
-import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
 import { atNight, BETTER_JOB, BOARD_WAY, MEANWHILE_WAYS, MORNING, NIGHT, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { nudgeHere, stepOpen } from "./stepOpen";
@@ -81,6 +80,8 @@ import { KIOSK, opensKiosk, withKiosk } from "./kiosk";
 import { namedThings } from "./mark";
 import { sameLine } from "../../shared/moment/moment";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
+import { onMap } from "../../shared/world/rentedHomes";
+import { LoadingNote } from "./LoadingNote";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
 
 /** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (R-CLOCK-032). */
@@ -97,7 +98,7 @@ const Bag = lazy(() => import("./Bag"));
 
 const city = content.tuning.city;
 const PLACES = Object.values(content.place);
-/** How long a line overheard stays before the next is heard, off the world (the classic page). */
+/** How long a line overheard stays before the next is heard, off the world (the road's city behind its panel). */
 const HEARD_MS = 9000;
 const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
@@ -410,7 +411,6 @@ export function City({
   adverts,
   world = false,
   actions,
-  apps,
   results,
   asks,
   asksAt,
@@ -427,8 +427,6 @@ export function City({
   world?: boolean;
   /** The world mode's sheet for the actions a tapped thing stages. */
   actions?: (ids: string[]) => ReactNode;
-  /** The world mode's phone: the support pages as apps (section 2b). Retired: `phone` replaces it. */
-  apps?: readonly PhoneApp[];
   /** The world mode's results sheet when a month ends (R-WORLD-008), given the name of where the player is. */
   results?: (place: string) => ReactNode;
   /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (R-WORLD-003). A list shows one at a time, with Next (R-WORLD-006). */
@@ -489,7 +487,7 @@ export function City({
   // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
   const reportOpen = useGame((state) => state.reportOpen);
-  // R-WORLD-008: the old page's moment cards are not shown over the world; a big line (the flight, a win) is told in the corner and passes.
+  // R-WORLD-008: no full-screen moment over the world; a big line (the flight, a win) is told in the corner and passes.
   const moments = useGame((state) => state.moments);
   const nextMoment = useGame((state) => state.nextMoment);
   const momentCards = useGame((state) => state.momentCards);
@@ -672,7 +670,7 @@ export function City({
   // An open set piece is shown where it is staged (R-CITY-011); staged elsewhere, it waits there and the nudge says so, since the city never moves the player without a ride.
   const scene = openScene(view, PLACES);
   const sceneAt = scene?.place ?? null;
-  // The old page's city still shows the set piece where it is staged (it has no rides to get there).
+  // The city off the world (the road's) still shows the set piece where it is staged (it has no rides to get there).
   useEffect(() => {
     if (!world && sceneAt !== null) setPlaceId(sceneAt);
   }, [world, sceneAt]);
@@ -1059,6 +1057,8 @@ export function City({
     return places
       // R-WORLD-020: their room opens only once a bond is courting.
       // R-WORLD-014: the family house stays on the map for every life in Nigeria, home or not (the people met there, R-WORLD-020).
+      // R-HOME-010, R-HOME-002: a rented room or the hostel stands on the map only as the home lived in, never as a stop to visit.
+      .filter((place) => onMap(place.id, home))
       .filter((place) => (place.id === THEIR_ROOM ? roomOpen(view) && shipped?.has(place.id) === true : place.position !== null || place.id === home || (place.id === FAMILY_HOUSE && where === "home") || (place.area !== null && shipped?.has(place.id) === true)) && (shipped === null || shipped.has(place.id) || place.id === home || (place.id === FAMILY_HOUSE && where === "home")))
       .map((place) => {
         const reached = stopReached(view.chapter, where, place.id, early);
@@ -1888,7 +1888,7 @@ export function City({
           )}
 
           <div className="flex flex-col gap-2 lg:max-w-md">
-            {loading ? <p className="pointer-events-auto rounded-md bg-sheet/90 px-3 py-2 text-sm">{cityWords("city.loading", { place: name, percent })}</p> : null}
+            {loading ? <LoadingNote place={name} percent={percent} /> : null}
             {failed === null ? null : <p className="pointer-events-auto rounded-md bg-sheet/90 px-3 py-2 text-sm text-bad">{cityWords("city.failed", { place: name })}</p>}
             {/* In the world only the band, the nudge and the two thumb buttons stand over the place (R-WORLD-001): the question, the offers and the month's lines open from the nudge, the results and the phone. */}
             {!world && scene !== null && scene.place === placeId ? (
@@ -1933,7 +1933,7 @@ export function City({
             <MapIcon size={16} />
             {cityWords("city.look")}
           </Button>
-          {loading ? <p className="rounded-md bg-sheet-2/95 px-2 py-1 text-xs text-text-2 shadow-sm">{cityWords("city.loading", { place: name, percent })}</p> : null}
+          {loading ? <LoadingNote place={name} percent={percent} small /> : null}
         </div>
       )}
 
@@ -2094,12 +2094,6 @@ export function City({
             },
           )
         : null}
-      {world && phone && handset === undefined && apps !== undefined ? (
-        <Phone
-          apps={apps}
-          onClose={() => setPhone(false)}
-        />
-      ) : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>
         {picked?.kind === "ride" ? (
           <ul className="flex flex-col gap-1" aria-label={cityWords("city.ride.title")} data-ride-list>

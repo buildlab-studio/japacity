@@ -5,6 +5,7 @@
 import { content } from "@japacity/content";
 import type { ReactNode } from "react";
 
+import { counting } from "../../shared/analytics/start";
 import { useJapaMark } from "../../shared/world/briefHanded";
 import { Tile } from "../../shared/tiles/Tile";
 import { TILE_TABLE } from "../../shared/tiles/tiles.data";
@@ -37,6 +38,20 @@ const ICON: Record<AppId, string> = {
   lotto: "ticket",
   bills: "receipt",
   news: "newspaper",
+  settings: "settings",
+};
+
+/** R-ANALYTICS-002: each opening of an app counts its screen once, keyed by the feature that leads it. */
+export const APP_SCREEN: Record<AppId, string> = {
+  calendar: "turn",
+  bank: "wallet",
+  chats: "people",
+  japa: "route",
+  papers: "document",
+  jobs: "activity",
+  lotto: "lottery",
+  bills: "obligation",
+  news: "news",
   settings: "settings",
 };
 
@@ -87,7 +102,7 @@ function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Open
 }
 
 /** The apps, each with its dot from what the player has not seen. */
-export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null, briefs = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null; briefs?: ReactNode } = {}): PhoneApp[] {
+export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null, briefs = null, warnings = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null; briefs?: ReactNode; warnings?: ReactNode } = {}): PhoneApp[] {
   const view = useView();
   // A brief handed changes no view, so its mark is read as it is kept.
   useJapaMark(view.scenario);
@@ -99,6 +114,7 @@ export function usePhoneApps({ account = null, about = null, opening = null, cal
     tint: `--app-${id}`,
     screen: (
       <>
+        {warnings}
         <Refused />
         {screenOf(id, account, about, opening?.app === id ? opening.act : null, { calendar, cards, briefs })}
       </>
@@ -142,6 +158,11 @@ export interface PhoneAppsProps {
   onMap?: (stop: string) => void;
   /** The road's log for Japa, from the shell (the plan 16). */
   briefs?: ReactNode;
+  /**
+   * The warnings that stand, from the shell: the status clock abroad (status.md R-STATUS-003) and being run down
+   * (health.md R-HEALTH-007), above every app whichever is open and on the phone's home above its notices.
+   */
+  warnings?: ReactNode;
 }
 
 /** The place's picture for the wallpaper's pill: the place whose name the shell hands in, where the tiles have one. */
@@ -151,10 +172,10 @@ function areaPicture(area: string): ReactNode {
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null, warnings = null }: PhoneAppsProps) {
   const view = useView();
   const [app, act] = start === null ? [null, null] : start.split(":");
-  const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards, briefs });
+  const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards, briefs, warnings });
   const marks = marksOf(view);
   return (
     <PhoneTalk value={talk}>
@@ -166,9 +187,20 @@ export function PhoneApps({ onClose, area, account = null, about = null, talk = 
           when={todayWords(now?.())}
           areaPicture={areaPicture(area)}
           start={app ?? null}
-          notices={<Notices />}
+          notices={
+            <>
+              {warnings === null ? null : (
+                <div className="mt-4 px-4 empty:hidden" data-phone-warnings>
+                  {warnings}
+                </div>
+              )}
+              <Notices />
+            </>
+          }
           onOpen={(id) => {
-            if ((APP_IDS as readonly string[]).includes(id)) markSeen(id as AppId, marks[id as AppId]);
+            if (!(APP_IDS as readonly string[]).includes(id)) return;
+            markSeen(id as AppId, marks[id as AppId]);
+            counting().count("screen/opened", APP_SCREEN[id as AppId]);
           }}
           {...(now === undefined ? {} : { now })}
           {...(onMap === undefined ? {} : { onMap })}

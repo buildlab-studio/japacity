@@ -15,7 +15,7 @@ import { LAND, ROADS } from "./geometry";
 import { buildGraph, midway, routeBetween, routeChannel } from "./route";
 import { inside, near, nearLine, scatter, sequence, TUNING } from "./scatter";
 import { curve, loop } from "./smooth";
-import { APART, nameOf, namesShown, placeStops, ringOf, spread } from "./stops";
+import { APART, type NameBox, nameOf, namesShown, placeNames, placeStops, ringOf, spread } from "./stops";
 
 const PUBLIC = join(import.meta.dirname, "..", "..", "..", "..", "public", "assets", "places");
 /** The places of Lagos with a published model and a position, as the map stands them. */
@@ -170,6 +170,40 @@ describe("the stickers, the rings and the names", () => {
     const shown = namesShown([box("here", 100, 100, "here"), box("home", 110, 104, "home"), box("covered", 120, 98, "new"), box("clear", 300, 300, "new"), box("second", 305, 302, "new")]);
     // Of two never-visited names on each other, the one nearer the foot of the screen shows.
     expect([...shown].sort()).toEqual(["here", "home", "second"]);
+  });
+
+  test("[R-WORLD-015] given many places never visited, when a card chooses its names, then only a few show, the nearest the card's middle first and only those on the part seen, and the open map shows none of them", () => {
+    const box = (id: string, x: number, y: number, name: NameBox["name"] = "new"): NameBox => ({ id, x, y, width: 60, height: 18, name });
+    const quiet = [box("a", 100, 100), box("b", 100, 300), box("c", 100, 500), box("d", 300, 100), box("e", 300, 300), box("f", 300, 500), box("off", 900, 300)];
+    const card = placeNames([box("here", 200, 300, "here"), ...quiet], { newest: 3, centre: [200, 300], seen: [0, 0, 400, 600] });
+    expect(card.has("here")).toBe(true);
+    const fresh = [...card.keys()].filter((id) => id !== "here");
+    expect(fresh).toHaveLength(3);
+    // The two beside the middle first, then the nearest of the rest; never the one off the card.
+    expect(fresh.slice(0, 2).sort()).toEqual(["b", "e"]);
+    expect(fresh).not.toContain("off");
+    const open = placeNames([box("here", 200, 300, "here"), box("home", 600, 600, "home"), ...quiet], { newest: 0 });
+    expect([...open.keys()].sort()).toEqual(["here", "home"]);
+  });
+
+  test("[R-WORLD-015] given here, home and the hub's names meeting where districts meet, when the names are placed, then every one shows and each moves clear so no two cover each other", () => {
+    const box = (id: string, x: number, y: number, name: NameBox["name"]): NameBox => ({ id, x, y, width: 90, height: 22, name });
+    const boxes = [box("here", 200, 200, "here"), box("home", 206, 204, "home"), box("hub", 196, 198, "picked")];
+    const placed = placeNames(boxes);
+    expect([...placed.keys()].sort()).toEqual(["here", "home", "hub"]);
+    const moved = boxes.map((b) => {
+      const [dx, dy] = placed.get(b.id) ?? [0, 0];
+      return { ...b, x: b.x + dx, y: b.y + dy };
+    });
+    for (const one of moved) {
+      for (const other of moved) {
+        if (one === other) continue;
+        const apart = Math.abs(one.x - other.x) * 2 >= one.width + other.width || Math.abs(one.y - other.y) * 2 >= one.height + other.height;
+        expect(apart).toBe(true);
+      }
+    }
+    // Where the player stands keeps its own place; the others move.
+    expect(placed.get("here")).toEqual([0, 0]);
   });
 });
 

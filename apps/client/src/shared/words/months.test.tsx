@@ -9,7 +9,6 @@ import { describe, expect, test } from "vitest";
 import { DocumentView } from "../../features/document/DocumentView";
 import { GoalView } from "../../features/goal/GoalView";
 import { OfferView } from "../../features/offer/OfferView";
-import { TurnView } from "../../features/turn/TurnView";
 import { newGame, openOffer, richAbroadView, richView } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { monthEnding, playerMonth } from "./format";
@@ -77,15 +76,10 @@ describe("one count for months", () => {
     const done = view.goals.done[0];
     if (done === undefined) throw new Error("No goal done in the view.");
     const report = { month: done.month, lines: [], japacityBefore: null, japacityAfter: null, attention: false };
-    await renderWithView(
-      <>
-        <TurnView />
-        <GoalView />
-      </>,
-      { ...view, report },
-    );
+    await renderWithView(<GoalView />, { ...view, report });
     expect(screen.getByText(say("ui.goal.done-item", { goal: nameOf(done.id), month: monthEnding(done.month) }))).toBeDefined();
-    expect(screen.getAllByText(say("ui.report.title", { month: monthEnding(done.month) })).length).toBeGreaterThan(0);
+    // The old page also titled the report "Month N"; the world shows no month number (R-WORLD-002), so the goal's date
+    // is the one month count left on screen.
   });
 
   test("given a requirement on the months played, then it names the first month the header shows it met", () => {

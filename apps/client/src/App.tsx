@@ -1,8 +1,7 @@
 // The shell. Once a life is playing, the world is the game (docs/rules/world.md R-WORLD-001): the
 // place fills the screen, the support pages live in the phone, and the month plans and ends from
 // sheets over the scene. The prologue, the life chooser, the road, the ending and the invite page
-// keep their own screens. The old month page stays behind `?classic` (R-WORLD-024), loaded only
-// when asked for. The admin page is its own chunk too, fetched only at /admin (R-MODERATION-012).
+// keep their own screens. The admin page is its own chunk, fetched only at /admin (R-MODERATION-012).
 import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 
 import { bootGame } from "./authority/boot";
@@ -30,6 +29,7 @@ import { CardView } from "./features/card/ShareCard";
 import { ChapterView } from "./features/chapter/ChapterView";
 import { City } from "./features/city/City";
 import { CreditsRow } from "./features/city/Credits";
+import { GuidesMenu } from "./features/guides/GuidesMenu";
 import { Map } from "./features/map/Map";
 import { MomentCard } from "./features/moment/MomentCard";
 import { HeldShareCard } from "./features/notify/held";
@@ -42,6 +42,8 @@ import { iconFor } from "./features/phone/icons";
 import { PhoneApps, usePhoneWaiting } from "./features/phone/PhoneApps";
 import { InterviewView } from "./features/interview/InterviewView";
 import { KioskSheet } from "./features/lottery/KioskSheet";
+import { RunDownBanner } from "./features/health/RunDownBanner";
+import { ClockBanner } from "./features/status/StatusView";
 import { PageHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
 import { RoadView } from "./features/road/RoadView";
 import { ScenarioView } from "./features/scenario/ScenarioView";
@@ -54,8 +56,6 @@ import { say } from "./shared/words/text";
 import { usePaint } from "./shared/world/paint";
 import { useScreenCount } from "./useScreenCount";
 
-/** R-WORLD-024: the old month page, its own chunk, fetched only when `?classic` asks for it. */
-const Classic = lazy(() => import("./Classic"));
 const StartCity = lazy(() => import("./features/map/StartCity"));
 
 /** Whether WebGL draws here, asked once: each ask makes a context. */
@@ -88,13 +88,14 @@ function AdminGate({ children }: { children: ReactNode }) {
   );
 }
 
-/** R-WORLD-024: `?classic` opens the old month page instead of the world. */
-export function classicAsked(search: string): boolean {
-  return new URLSearchParams(search).has("classic");
-}
-
-function classicMode(): boolean {
-  return typeof location !== "undefined" && classicAsked(location.search);
+/** The warnings that stand, above every app on the phone: the status clock abroad (R-STATUS-003) and being run down (R-HEALTH-007). */
+function PhoneWarnings() {
+  return (
+    <>
+      <ClockBanner className="mb-3" />
+      <RunDownBanner className="mb-3" />
+    </>
+  );
 }
 
 /** The world is the game: the place fills the screen under a see-through bar, the month plays in the scene, and the map is a fly-over. */
@@ -145,14 +146,14 @@ function WorldPlaying() {
             <AccountButton more={<NotifySetting />} />
             <ReadyEntry />
           </>
-        } about={<CreditsRow />} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <PeopleSlots api={talk} /> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
+        } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <PeopleSlots api={talk} /> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}
         // R-LOTTERY-001: online the street kiosk sells the Friday draw from its own sheet.
         kiosk={(close, label) => <KioskSheet open onClose={close} label={label} />}
       />
-      {/* The share card opens full screen when it is due; its tile on the old page has no place in the world. */}
+      {/* The share card opens full screen when it is due; its tile has no place in the world. */}
       <div hidden>
         <HeldShareCard>
           <CardView />
@@ -225,12 +226,6 @@ function Screen() {
   if (prologueJustClosed(lines) && handedOver !== view.v) return <PageHandover onDone={() => setHandedOver(view.v)} />;
   if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;
   if (view.place.where === "road") return <RoadView offers={(only) => <OfferView only={only} />} city={<City adverts={(place) => <PlaceAdverts place={place} />} />} />;
-  if (classicMode())
-    return (
-      <Suspense fallback={<p className="p-4 text-text-2">{say("ui.loading")}</p>}>
-        <Classic />
-      </Suspense>
-    );
   return <WorldPlaying />;
 }
 

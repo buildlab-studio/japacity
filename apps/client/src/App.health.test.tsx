@@ -1,15 +1,15 @@
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { App } from "../../App";
-import { createGameStore } from "../../authority/store";
-import { chargedLivingGame, engineView, fakeAuthority, viewAfter } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
-import { nameOf, say } from "../../shared/words/text";
-import { RunDownBanner } from "./RunDownBanner";
-import { onTheClassicPage } from "../../shared/testing/classic";
+import { App } from "./App";
+import { createGameStore } from "./authority/store";
+import { chargedLivingGame, engineView, fakeAuthority, viewAfter } from "./shared/testing/fixtures";
+import { found, renderWithView } from "./shared/testing/render";
+import { nameOf, say } from "./shared/words/text";
+import { phoneWords } from "./features/phone/phone.words";
+import { RunDownBanner } from "./features/health/RunDownBanner";
 
 const WELLBEING = "quality.wellbeing";
 const health = content.tuning.health;
@@ -32,9 +32,6 @@ function runDownView(): PlayerView {
   return view;
 }
 
-// The old month page these tests drive opens only with ?classic (R-WORLD-024).
-onTheClassicPage();
-
 describe("the run-down warning", () => {
   test("[R-HEALTH-007] given wellbeing under the line two months running, then the banner names it with wellbeing against the line", async () => {
     const view = runDownView();
@@ -50,17 +47,19 @@ describe("the run-down warning", () => {
     expect(document.querySelector("[data-run-down]")).toBeNull();
   });
 
-  test("[R-HEALTH-007] given the warning stands, then the banner is above every tab, whichever tab is open", async () => {
+  test("[R-HEALTH-007] given the warning stands, then the banner is on the phone's home and above every app, whichever app is open", async () => {
     const store = createGameStore(fakeAuthority(runDownView()));
     await store.getState().refresh();
     render(<App store={store} />);
-    // The old page is its own chunk: it is in once its tab bar is.
-    await screen.findByRole("button", { name: say("ui.tab.month") });
-    for (const tab of ["month", "you", "money", "japa", "news"]) {
-      fireEvent.click(screen.getByRole("button", { name: say(`ui.tab.${tab}`) }));
-      const banner = document.querySelector("[data-run-down]");
-      expect(banner).not.toBeNull();
-      expect(banner?.closest("[data-tab]")).toBeNull();
+    // The world is the game (R-WORLD-001): the old page's tabs are the phone's apps (R-WORLD-018).
+    fireEvent.click(await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 }));
+    await waitFor(() => expect(document.querySelector("[data-phone-warnings] [data-run-down]")).not.toBeNull());
+    for (const app of ["calendar", "bank", "japa", "chats", "news"]) {
+      fireEvent.click(await waitFor(() => found(`[data-app="${app}"]`)));
+      // Above the app's own screen, never inside it.
+      const banner = await waitFor(() => found(`[data-app-screen="${app}"] > [data-run-down]`));
+      expect(banner.parentElement?.firstElementChild).toBe(banner);
+      fireEvent.click(screen.getByRole("button", { name: phoneWords("phone.back") }));
     }
   });
 });

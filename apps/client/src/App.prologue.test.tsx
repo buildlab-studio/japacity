@@ -1,16 +1,17 @@
 import { content } from "@japacity/content";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "./App";
 import { bootGame } from "./authority/boot";
 import { FULL_PROLOGUE_KEY } from "./shared/frontdoor/archetypes";
 import { startArchetype } from "./shared/frontdoor/frontDoor.testing";
 import type { GameStore } from "./authority/store";
+import { playerMonth } from "./shared/words/format";
 import { nameOf, say, words } from "./shared/words/text";
+import type { Act, Thing } from "./shared/world/contract";
 // Registers Testing Library's cleanup for this file.
-import "./shared/testing/render";
-import { onTheClassicPage } from "./shared/testing/classic";
+import { found } from "./shared/testing/render";
 
 const PROLOGUE = "scenario.prologue";
 const HUNT = "activity.job-hunt";
@@ -37,9 +38,44 @@ async function moved(store: GameStore, v: number): Promise<void> {
   });
 }
 
-// The old month page these tests drive opens only with ?classic (R-WORLD-024).
-onTheClassicPage();
+type Pick = { kind: "act"; thing: Thing; act: Act };
+
+// The world's scene is a stand-in that hands the city the taps a player makes on the things of the place file the game ships.
+vi.mock("./features/city/CityScene", () => ({
+  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
+    <div data-stand-in-scene>
+      {(things ?? []).flatMap((thing) =>
+        thing.acts.map((one) => <button key={`${thing.id}:${one.id}`} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />),
+      )}
+    </div>
+  ),
+}));
+
+// The place files the game ships, read from the disk in place of the server.
+vi.mock("./shared/three/manifest", async (original) => {
+  const real = await original<typeof import("./shared/three/manifest")>();
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const assets = path.join(import.meta.dirname, "..", "public", "assets");
+  return {
+    ...real,
+    loadManifest: () => Promise.resolve({ files: {} }),
+    loadJson: (_manifest: unknown, under: string) => {
+      const file = path.join(assets, under);
+      return Promise.resolve(fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as unknown) : null);
+    },
+  };
+});
+
+/** From the handover on, the world draws its place (City.tsx canDraw); the scene is the stand-in above. */
+function worldDraws(): void {
+  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+}
+
 afterEach(() => {
+  vi.restoreAllMocks();
+  Reflect.deleteProperty(window, "WebGL2RenderingContext");
   localStorage.clear();
 });
 
@@ -64,22 +100,33 @@ describe("a life from sixteen in the app", () => {
     }
     expect(store.getState().view?.prologue).toBeNull();
 
+    // The world opens in the hub's room, where the job board stands.
+    localStorage.setItem("japacity.city.last", JSON.stringify(["place.yaba"]));
+    worldDraws();
     fireEvent.click(await screen.findByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
-    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) }, { timeout: 10_000 })).toBeDefined();
+    // The world opens on month 1 (R-WORLD-001): its band, with no month number on it (R-WORLD-002).
+    await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull(), { timeout: 10_000 });
+    expect(playerMonth(store.getState().view?.month ?? -1)).toBe(1);
 
-    // A hunt that finds work brings a job offer; accepting it is the first job.
+    // A hunt that finds work brings a job offer; accepting it from the world's asks is the first job. The hunt is the board's
+    // act in the hub's room; the month ends as the bed's sleep runs out (R-WORLD-025), the store's own End month here.
     for (let month = 1; month <= 12 && store.getState().view?.job.id === null; month += 1) {
       const offer = store.getState().view?.offers.find((open) => open.entry === JOB_OFFER);
       if (offer !== undefined) {
         const v = store.getState().view?.v ?? 0;
-        fireEvent.click(screen.getByRole("button", { name: words(`${JOB_OFFER}.choice.accept`) }));
+        fireEvent.click(await waitFor(() => found("[data-nudge] [data-nudge-open]")));
+        fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${words(`${JOB_OFFER}.choice.accept`)}`) }));
         await moved(store, v);
         break;
       }
       const v = store.getState().view?.v ?? 0;
-      fireEvent.click(screen.getByRole("button", { name: `${nameOf(HUNT)}` }));
-      fireEvent.click(screen.getByRole("button", { name: say("ui.month.end") }));
+      fireEvent.click(await waitFor(() => found('[data-stand-in-act="jobs:jobs"]'), { timeout: 5000 }));
+      fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${nameOf(HUNT)}`) }));
+      // The hunt is done at once (R-ACTIVITY-015); its answer in, the month ends.
       await moved(store, v);
+      const sent = store.getState().view?.v ?? 0;
+      await act(() => store.getState().endMonth());
+      await moved(store, sent);
       act(() => {
         store.getState().setReportOpen(false);
         while (store.getState().moments.length > 0) store.getState().nextMoment();

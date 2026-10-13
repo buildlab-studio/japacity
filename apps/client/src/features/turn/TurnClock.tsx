@@ -1,9 +1,11 @@
-// The time to the next banked month, counted down on the device (R-CLOCK-007).
-// The server keeps the clock; reaching zero only fetches the view, and the
-// bank on screen changes only when the view does. Nothing shows offline.
+// The months held to play, from the view, and the time to the next one, counted down on the device (R-CLOCK-007). The
+// server keeps the clock; reaching zero only fetches the view, and the months shown change only when the view does.
+// Nothing counts down offline. Kept for R-CLOCK-007 since the month page that showed it went: the world shows no
+// months held (the month turns when it is lived, decision 0034), and the Calendar keeps no count of them (R-WORLD-007),
+// so it waits here, unmounted, for the rule to give it a home in the world or to retire it.
 import { useEffect, useRef, useState } from "react";
 
-import { useGame } from "../../authority/GameProvider";
+import { useGame, useView } from "../../authority/GameProvider";
 import { say } from "../../shared/words/text";
 
 const SECOND_MS = 1000;
@@ -20,6 +22,7 @@ export function waitWords(ms: number): string {
   return hours > 0 ? say("ui.clock.hours", { hours, minutes: String(minutes).padStart(2, "0") }) : say("ui.clock.minutes", { minutes });
 }
 
+/** The countdown to the next month held, or nothing without a clock. */
 export function TurnClock() {
   const nextTurnAt = useGame((state) => state.clock?.nextTurnAt);
   const refresh = useGame((state) => state.refresh);
@@ -46,8 +49,21 @@ export function TurnClock() {
   if (nextTurnAt === undefined) return null;
   const words = nextTurnAt === null ? say("ui.clock.full") : now >= nextTurnAt ? say("ui.clock.arriving") : say("ui.clock.next", { wait: waitWords(nextTurnAt - now) });
   return (
-    <span className="text-xs text-text-2" data-turn-clock>
+    <span className="text-[13px] text-text-2" data-turn-clock>
       {words}
     </span>
+  );
+}
+
+/** The months held to play and the countdown to the next, one quiet card (R-CLOCK-007). */
+export function MonthsHeld() {
+  const view = useView();
+  return (
+    <div className="lively-card flex flex-col gap-0.5 px-3 py-2.5" data-months-held-card>
+      <span className="text-[15px] font-bold" data-months-held>
+        {say("ui.month.banked", { banked: view.turns.banked, cap: view.turns.cap })}
+      </span>
+      <TurnClock />
+    </div>
   );
 }

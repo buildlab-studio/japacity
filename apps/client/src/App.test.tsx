@@ -1,5 +1,5 @@
 import { content } from "@japacity/content";
-import { fireEvent, screen } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -7,21 +7,19 @@ import { App } from "./App";
 import { bootGame } from "./authority/boot";
 import { SAVE_KEY } from "./authority/local";
 import { askReadyLives, startReadyLife } from "./shared/frontdoor/frontDoor.testing";
+import { turnWords } from "./features/turn/turn.words";
+import { monthEnding, playerMonth } from "./shared/words/format";
 import { say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
-import { onTheClassicPage } from "./shared/testing/classic";
 
 function memoryStorage() {
   const items = new Map<string, string>();
   return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
 }
 
-// The old month page these tests drive opens only with ?classic (R-WORLD-024).
-onTheClassicPage();
-
 describe("the app", () => {
-  test("given no save, when a life is picked and a month ended, then the report shows month 1", async () => {
+  test("given no save, when a life is picked and a month ended, then the results of month 1 open over the world", async () => {
     // Through the front door to the first ready life, on a run Settings asked for (R-PROLOGUE-013).
     askReadyLives();
     const store = bootGame({ storage: memoryStorage(), fastClock: true });
@@ -30,15 +28,21 @@ describe("the app", () => {
     expect(screen.getByRole("heading", { name: say("ui.door.ready.title") })).toBeDefined();
 
     await startReadyLife(Object.keys(content.scenario)[0]!);
-    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) }, { timeout: 10_000 })).toBeDefined();
-    // With no route yet the header shows no japacity label and no placeholder beside it.
-    const header = document.querySelector("header")!;
-    expect(header.textContent).not.toContain("--");
-    expect(header.querySelector("[data-japacity-figure]")).toBeNull();
-    expect([...header.querySelectorAll("span")].filter((span) => span.textContent.includes(say("ui.japacity.title")))).toEqual([]);
+    // The world opens on month 1 (R-WORLD-001): the band, and no month number on it (R-WORLD-002).
+    await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull(), { timeout: 10_000 });
+    expect(playerMonth(store.getState().view?.month ?? -1)).toBe(1);
+    // With no route yet the band shows no japacity label and no placeholder beside it.
+    const band = document.querySelector("[data-band]")!;
+    expect(band.textContent).not.toContain("--");
+    expect(document.querySelector("[data-japacity-figure]")).toBeNull();
+    expect([...band.querySelectorAll("span")].filter((span) => span.textContent.includes(say("ui.japacity.title")))).toEqual([]);
 
-    fireEvent.click(screen.getByRole("button", { name: say("ui.month.end") }));
-    expect(await screen.findByRole("dialog", { name: say("ui.report.title", { month: 1 }) })).toBeDefined();
+    // The month ends as the bed's sleep runs out (R-WORLD-025), the store's own End month; the results of month 1 open over the world.
+    await act(() => store.getState().endMonth());
+    expect(await screen.findByRole("dialog", { name: turnWords("turn.results.title") }, { timeout: 10_000 })).toBeDefined();
+    expect(document.querySelector("[data-world-sheet='results']")).not.toBeNull();
+    // The report is month 1's, as the old page titled it "Month 1".
+    expect(monthEnding(store.getState().view?.report?.month ?? -1)).toBe(1);
   });
 
   test("given a save for older content, then the life chooser says the save could not come along", () => {

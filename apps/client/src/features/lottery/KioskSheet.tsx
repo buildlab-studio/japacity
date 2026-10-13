@@ -2,7 +2,7 @@
 // runs the Friday draw, a tap on the kiosk in the world opens this sheet in place of the offline slip. Its face holds
 // the jackpot standing and whether it rolled over, the close counting down, the price and the cap, the tickets held,
 // how many to buy, and one button that says the act and sends `lottery/buy`. The odds, the draw's seal and the last
-// draw with its check fold behind a tap on a row. Built from the classic page's pieces (LotteryView.tsx).
+// draw with its check fold behind a tap on a row. Built from the pieces LotteryView.tsx exports.
 import { ChevronDown } from "lucide-react";
 import { useState, type ReactNode } from "react";
 

@@ -5,7 +5,7 @@ import { Color } from "three";
 import { describe, expect, test } from "vitest";
 
 import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
-import { LOOKS, lookAt, ownHeightOf, pinnedClock, pinnedPart, progressIn, ROOM_LIGHT, roomLook, skyLightOf, skyOf, sunAt, worldNow } from "./daylight";
+import { lightKindOf, LOOKS, lookAt, ownHeightOf, PLACE_LIGHT, pinnedClock, pinnedPart, placeLook, progressIn, ROOM_LIGHT, roomLook, skyLightOf, skyOf, sunAt, worldNow } from "./daylight";
 import { type PlaceFile, stageOf } from "./placeFile";
 
 const SUN = stageOf(parlourRaw as unknown as PlaceFile).light.sun;
@@ -122,5 +122,41 @@ describe("the rooms' light (the design)", () => {
     expect(roomLook(night).lamps).toBe(night.lamps);
     expect(roomLook(night).sun).toBe(night.sun);
     expect(roomLook(night).sunStrength).toBeLessThan(room.sunStrength);
+  });
+
+  test("[R-ASSET-006] given a street and an office, when their light is read, then both take the layer's pale, cool sky light and pale sky in place of the sand, the office a warm floor bounce at the rooms' strengths and the street its own ground with the fog fading into the pale sky", () => {
+    for (const kind of ["street", "office"] as const) {
+      const light = PLACE_LIGHT[kind];
+      expect(light.sky).toBe(ROOM_LIGHT.sky);
+      expect(light.backdrop).toBe(ROOM_LIGHT.backdrop);
+      // Paler and cooler than the old sand sky the places took: lighter, and its blue above its red.
+      expect(lum(light.backdrop)).toBeGreaterThan(lum(0xf3d9a4));
+      expect(warmth(light.sky)).toBeLessThan(0);
+      expect(warmth(light.sun)).toBeGreaterThan(0);
+    }
+    expect(PLACE_LIGHT.office).toEqual({ ...PLACE_LIGHT.room });
+    expect(PLACE_LIGHT.street.ground).toBeNull();
+    expect(PLACE_LIGHT.street.haze).toBe(true);
+    expect(PLACE_LIGHT.office.haze).toBe(false);
+  });
+
+  test("[R-ASSET-006] given place files, when the light each asks for is read, then a home's room light stays the room's, any other indoor place is an office and every outdoor place a street", () => {
+    expect(lightKindOf({ scope: "interior", stage: { light: { room: true } } })).toBe("room");
+    expect(lightKindOf({ scope: "exterior", stage: { light: { room: true } } })).toBe("room");
+    expect(lightKindOf({ scope: "interior", stage: { light: {} } })).toBe("office");
+    expect(lightKindOf({ scope: "exterior", stage: { light: {} } })).toBe("street");
+    expect(lightKindOf({ scope: "exterior", stage: null })).toBe("street");
+  });
+
+  test("[R-CLOCK-033] given a street by day, when its look is read, then its sun is warmed toward the warm one and its lights stand at the street's noon strengths; at night its lamps and sun are the night's own", () => {
+    const noon = lookAt("afternoon", time.AFTERNOON_HOUR * HOUR, SUN);
+    const street = placeLook(noon, "street");
+    expect(street.sunStrength).toBeCloseTo(PLACE_LIGHT.street.sunStrength, 6);
+    expect(street.skyStrength).toBeCloseTo(PLACE_LIGHT.street.skyStrength, 6);
+    expect(warmth(street.sun)).toBeGreaterThan(warmth(noon.sun));
+    expect(placeLook(noon, "room")).toEqual(roomLook(noon));
+    const night = lookAt("night", 0, SUN);
+    expect(placeLook(night, "street").lamps).toBe(night.lamps);
+    expect(placeLook(night, "street").sun).toBe(night.sun);
   });
 });

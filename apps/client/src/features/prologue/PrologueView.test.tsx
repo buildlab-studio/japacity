@@ -13,7 +13,7 @@ import { say, sayCount, words } from "../../shared/words/text";
 import { drawSentences, PrologueView, whyNot } from "./PrologueView";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
-import { onTheClassicPage } from "../../shared/testing/classic";
+import { playerMonth } from "../../shared/words/format";
 
 const PROLOGUE = "scenario.prologue";
 
@@ -69,9 +69,6 @@ async function walk(seed: string, pick: Pick): Promise<{ steps: string[]; greyed
   return { steps, greyed, game };
 }
 
-// The old month page these tests drive opens only with ?classic (R-WORLD-024).
-onTheClassicPage();
-
 describe("the prologue screen", () => {
   test("[R-PROLOGUE-008] given a new life from sixteen, when it opens, then the opening card shows with its one answer and nothing drawn yet", async () => {
     const game = newGame(PROLOGUE);
@@ -97,7 +94,9 @@ describe("the prologue screen", () => {
 
     expect(await screen.findByRole("heading", { name: words("line.prologue.closed") })).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
-    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeDefined();
+    // The world opens on month 1 (R-WORLD-001): its band, with no month number on it (R-WORLD-002).
+    await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull());
+    expect(playerMonth(game.view().month)).toBe(1);
   });
 
   test("[R-PROLOGUE-008] given a life from sixteen, when every card is answered with the last answer open, then a second path is walked to the handover", async () => {

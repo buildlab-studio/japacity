@@ -23,7 +23,7 @@ import { glowAt, loadGrids } from "../../shared/three/motion";
 import { poseFigure } from "../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { limitMotion } from "./limits";
-import { type Look, lookAt, mixLooks, mixSeen, ownHeightOf, ROOM_LIGHT, roomLook, skyLightOf, skyOf, sunAt, useDayClock } from "./daylight";
+import { lightKindOf, type Look, lookAt, mixLooks, ownHeightOf, PLACE_LIGHT, placeLook, ROOM_LIGHT, skyLightOf, skyOf, sunAt, useDayClock } from "./daylight";
 import { filesOf, type Room, showsFor, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { chipNode } from "./chip";
@@ -37,7 +37,7 @@ import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo
 import { walkableOf } from "./walk/map";
 import { findRoute } from "./walk/route";
 import { SHEET_KINDS } from "../../../../../tools/assets/world-check";
-import { animateWorld, buildWorld, colourOf, lampsOf, motionOf, skyColours, type World } from "./world";
+import { animateWorld, buildWorld, colourOf, lampsOf, motionOf, type World } from "./world";
 import { failureOf } from "../../shared/net/http";
 
 /** How much further the fog stands while looking from above, so the plan is not lost in it. */
@@ -256,12 +256,10 @@ function Place(props: PlaceProps) {
   const peopleKey = people.map((shown) => `${shown.person.file}:${String(shown.tag)}`).join("|");
   // The day's look by the world's clock, and the look the lights stand at now, easing toward it (R-CLOCK-033).
   const { part, minute } = props.day;
-  // The rooms' light (the design): a room's look is warmed and brightened by day, its own sky pale and cool.
-  const roomLit = stage.light.room === true;
-  const target = useMemo(() => {
-    const look = lookAt(part, minute, stage.light.sun);
-    return roomLit ? roomLook(look) : look;
-  }, [part, minute, stage.light.sun, roomLit]);
+  // The layer's light (the design): a home's rooms, an office or a street, each warmed by day under a pale, cool sky.
+  const kind = lightKindOf({ scope: file.scope, stage });
+  const placeLight = PLACE_LIGHT[kind];
+  const target = useMemo(() => placeLook(lookAt(part, minute, stage.light.sun), kind), [part, minute, stage.light.sun, kind]);
   const look = useRef<Look | null>(null);
   const daylit = useRef<{ look: Look | null; sun: [number, number, number]; sky: Color; light: Color; ground: Color; background: Color; fog: Color }>({ look: null, sun: [0, 0, 0], sky: new Color(), light: new Color(), ground: new Color(), background: new Color(), fog: new Color() });
   const lamps = useRef<Object3D[]>([]);
@@ -639,13 +637,14 @@ function Place(props: PlaceProps) {
     if (lit.look !== day) {
       lit.look = day;
       lit.sun = sunAt(stage.light.sun, day);
-      // A room's own sky is the rooms' pale one, its sky light cool and its floor's bounce warm (the design).
-      lit.sky.copy(skyOf(roomLit ? new Color(ROOM_LIGHT.backdrop) : colourOf(stage.light.sky), day));
-      lit.light.copy(skyLightOf(roomLit ? new Color(ROOM_LIGHT.sky) : colourOf(stage.light.sky), day));
-      lit.ground.copy(roomLit ? new Color(ROOM_LIGHT.ground) : colourOf(stage.light.ground)).multiplyScalar(day.groundShare);
-      // The haze leans the sky toward the ground less as the ground goes dark, so the night stays blue; a room has no haze.
-      lit.background.copy(roomLit ? lit.sky : mixSeen(lit.sky, lit.ground, settings.haze.sky * day.groundShare));
-      lit.fog.copy(roomLit ? lit.sky : mixSeen(lit.sky, lit.ground, settings.haze.fog * day.groundShare));
+      // Every place's sky is the layer's pale one and its sky light cool; a room's and an office's floor bounce warm, a
+      // street's its own ground (the design). The pale sky stands behind in place of the old sand haze,
+      // and a street's fog fades its far end into that sky; the clock tints it, so the night stays blue.
+      lit.sky.copy(skyOf(new Color(placeLight.backdrop), day));
+      lit.light.copy(skyLightOf(new Color(placeLight.sky), day));
+      lit.ground.copy(placeLight.ground === null ? colourOf(stage.light.ground) : new Color(placeLight.ground)).multiplyScalar(day.groundShare);
+      lit.background.copy(lit.sky);
+      lit.fog.copy(lit.sky);
       for (const lamp of lamps.current) glowAt(lamp, day.lamps);
       for (const { point, strength } of lights.current) point.intensity = strength * day.lamps;
     }
@@ -863,7 +862,8 @@ function Place(props: PlaceProps) {
     }
   };
 
-  const { sky, background, fog } = useMemo(() => skyColours(stage.light.sky, stage.light.ground, settings.haze), [stage.light.sky, stage.light.ground, settings.haze]);
+  // The first frame's colours, before the clock's look eases in: the layer's pale sky behind and in the fog.
+  const { sky, background, fog } = useMemo(() => ({ sky: new Color(placeLight.sky), background: new Color(placeLight.backdrop), fog: new Color(placeLight.backdrop) }), [placeLight]);
   const reach = raised ? Math.max(shot.width ?? 0, 16) / 2 + SHADOW_MARGIN : 24;
   return (
     <>

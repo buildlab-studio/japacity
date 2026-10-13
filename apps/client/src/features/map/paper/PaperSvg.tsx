@@ -18,7 +18,7 @@ export const BLEED = 500;
 const n = String;
 
 /** The landmarks, each a small drawing at three fifths of the round's size: the theatre's hat, the towers, the toll gate. */
-function Theatre({ at: [x, y] }: { at: Point }) {
+export function Theatre({ at: [x, y] }: { at: Point }) {
   return (
     <g transform={`translate(${n(x)},${n(y)}) scale(0.6)`} className="lm">
       <ellipse cx="0" cy="8" rx="30" ry="10" className="lm-park" />
@@ -31,7 +31,7 @@ function Theatre({ at: [x, y] }: { at: Point }) {
   );
 }
 
-function Towers({ at: [x, y], size = 60 }: { at: Point; size?: number }) {
+export function Towers({ at: [x, y], size = 60 }: { at: Point; size?: number }) {
   return (
     <g transform={`translate(${n(x)},${n(y)}) scale(${n(size / 100)})`} className="lm">
       <rect x="-22" y="-30" width="14" height="40" rx="1.5" fill="#9FCBE3" className="lm-edge" />
@@ -47,7 +47,7 @@ function Towers({ at: [x, y], size = 60 }: { at: Point; size?: number }) {
   );
 }
 
-function Tower({ at: [x, y] }: { at: Point }) {
+export function Tower({ at: [x, y] }: { at: Point }) {
   return (
     <g transform={`translate(${n(x)},${n(y)}) scale(0.55)`} className="lm">
       <rect x="-11" y="-40" width="22" height="48" rx="2" fill="#A9D7EE" className="lm-edge" />

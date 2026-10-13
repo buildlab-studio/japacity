@@ -16,6 +16,7 @@ import { Map } from "../Map";
 import { tileOf } from "../../../shared/tiles/tiles.data";
 import { mapPins, type MapPin } from "../pins";
 import { FOLD_MS } from "./fold";
+import { NEWEST } from "./World";
 // Loaded here, so the map screen's own lazy load of it settles at once.
 import "./PaperMap";
 
@@ -164,5 +165,27 @@ describe("the folding map", () => {
     expect(tileOf("place.ojuelegba")).toEqual({ model: "bld_flyover-span" });
     await open({ step: "place.passport-office" });
     expect(document.querySelector('[data-card="island"] [data-pin="place.passport-office"] [data-picture]')?.getAttribute("data-picture")).toBe("prop_bank-counter+flag");
+  });
+
+  test("[R-WORLD-015] given the map folded at the start of a life, when the card and the open map show their names, then the card names at most a few places never visited and the open map none", async () => {
+    vi.useFakeTimers();
+    await open();
+    const card = document.querySelectorAll('[data-card="ojuelegba"] [data-name="new"]');
+    expect(card.length).toBeGreaterThan(0);
+    expect(card.length).toBeLessThanOrEqual(NEWEST);
+    fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);
+    act(() => {
+      vi.advanceTimersByTime(FOLD_MS + 300);
+    });
+    expect(document.querySelectorAll('[data-open-map] [data-name="new"]')).toHaveLength(0);
+    expect(document.querySelector('[data-open-map] [data-name="here"]')).not.toBeNull();
+    expect(document.querySelector('[data-open-map] [data-name="home"]')).not.toBeNull();
+  });
+
+  test("[R-WORLD-015] given the strip, when it is drawn, then it reads as the whole city folded: the theatre's hat, the island's and Victoria Island's towers standing on it, and its folds", async () => {
+    await open();
+    const marks = [...document.querySelectorAll<HTMLElement>("[data-strip] [data-strip-landmark]")].map((mark) => mark.dataset.stripLandmark);
+    expect(marks).toEqual(["theatre", "towers", "towers-vi", "tower"]);
+    expect(document.querySelector("[data-strip] .paper-folds")).not.toBeNull();
   });
 });

@@ -14,7 +14,7 @@ export const cityText: Record<string, string> = {
   "city.places": "Places",
   "city.places.title": "Where you can go",
   "city.here": "You are here",
-  "city.loading": "Getting {place} ready: {percent}%",
+  "city.loading": "Getting {place} ready",
   "city.failed": "{place} could not be shown. Your month is not affected.",
   "city.unbuilt": "Not built yet: open ground for now.",
   "city.band.quiet": "Quiet",

@@ -154,15 +154,42 @@ export function skyLightOf(own: Color, look: Pick<Look, "lightTint" | "tintShare
  */
 export const ROOM_LIGHT = { sky: 0xdfe8f4, ground: 0xcdb48c, backdrop: 0xeef1f8, sun: 0xffdcaa, skyStrength: 1.35, sunStrength: 2.3, lamp: 0xffb46a } as const;
 
-/** The day's look in a room: the sun warmed toward the room's own by day and both lights as strong as the room's are at noon. */
-export function roomLook(look: Look): Look {
+/** Which of the layer's lights a place takes: a home's rooms, an office or another room, or a street (the design). */
+export type LightKind = "room" | "office" | "street";
+
+/**
+ * The layer's light for every place (the design): the paler, cooler sky light with the warm sun, the
+ * pale sky behind in place of the old sand haze. `ground` is the floor's bounce, null where the place's own ground
+ * colour bounces (a street's road and laterite); `warm` is how far the sun leans toward the warm one by day; `haze`
+ * whether the fog still fades the far end, into the pale sky. An office takes the rooms' numbers: a warmer, lighter floor.
+ */
+export const PLACE_LIGHT: Record<LightKind, { sky: number; ground: number | null; backdrop: number; sun: number; warm: number; skyStrength: number; sunStrength: number; haze: boolean }> = {
+  room: { sky: ROOM_LIGHT.sky, ground: ROOM_LIGHT.ground, backdrop: ROOM_LIGHT.backdrop, sun: ROOM_LIGHT.sun, warm: 0.6, skyStrength: ROOM_LIGHT.skyStrength, sunStrength: ROOM_LIGHT.sunStrength, haze: false },
+  office: { sky: ROOM_LIGHT.sky, ground: ROOM_LIGHT.ground, backdrop: ROOM_LIGHT.backdrop, sun: ROOM_LIGHT.sun, warm: 0.6, skyStrength: ROOM_LIGHT.skyStrength, sunStrength: ROOM_LIGHT.sunStrength, haze: false },
+  street: { sky: ROOM_LIGHT.sky, ground: null, backdrop: ROOM_LIGHT.backdrop, sun: ROOM_LIGHT.sun, warm: 0.45, skyStrength: 1.25, sunStrength: 2.15, haze: true },
+};
+
+/** The light a place file asks for: a home's `light.room`, any other indoor place an office's, every outdoor place a street's. */
+export function lightKindOf(file: { scope: "exterior" | "interior"; stage?: { light: { room?: boolean } } | null }): LightKind {
+  if (file.stage?.light.room === true) return "room";
+  return file.scope === "interior" ? "office" : "street";
+}
+
+/** The day's look under a kind of light: the sun warmed toward the warm one by day and both lights as strong as the kind's are at noon. */
+export function placeLook(look: Look, kind: LightKind): Look {
+  const light = PLACE_LIGHT[kind];
   const day = 1 - look.lamps;
   return {
     ...look,
-    sun: mixColour(look.sun, ROOM_LIGHT.sun, 0.6 * day),
-    sunStrength: look.sunStrength * (ROOM_LIGHT.sunStrength / NOON.sunStrength),
-    skyStrength: look.skyStrength * (ROOM_LIGHT.skyStrength / NOON.skyStrength),
+    sun: mixColour(look.sun, light.sun, light.warm * day),
+    sunStrength: look.sunStrength * (light.sunStrength / NOON.sunStrength),
+    skyStrength: look.skyStrength * (light.skyStrength / NOON.skyStrength),
   };
+}
+
+/** The day's look in a room: the sun warmed toward the room's own by day and both lights as strong as the room's are at noon. */
+export function roomLook(look: Look): Look {
+  return placeLook(look, "room");
 }
 
 /** The parts the development switch may pin, each at a minute that reads as that part. */

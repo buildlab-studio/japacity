@@ -9,8 +9,7 @@ import { engineView } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
 import { deferred } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
-import { TurnBar } from "./TurnBar";
-import { waitWords } from "./TurnClock";
+import { MonthsHeld, waitWords } from "./TurnClock";
 
 const NOW = 5_000_000;
 
@@ -25,15 +24,17 @@ afterEach(() => {
 
 const banked = (view: PlayerView) => say("ui.month.banked", { banked: view.turns.banked, cap: view.turns.cap });
 
-describe("the clock on the turn bar", () => {
-  test("[R-CLOCK-007] given the next turn 90 minutes away, then the bar counts down to it", async () => {
+// Moved from the old month page's bar to the months held and the countdown on their own: the world has no place for them
+// yet (TurnClock.tsx says why), so the rule is held against the card itself.
+describe("the months held and the countdown", () => {
+  test("[R-CLOCK-007] given the next turn 90 minutes away, then the card counts down to it", async () => {
     const view = engineView();
     const store = createGameStore({ view: () => Promise.resolve(view), send: () => Promise.reject(new Error("unused")) });
     await store.getState().refresh();
     store.getState().heard({ kind: "clock", clock: { tick: 1, nextTickAt: NOW + 1, nextTurnAt: NOW + 90 * 60_000, morningAt: 0, world: worldClockAt(0) } });
     render(
       <GameProvider store={store}>
-        <TurnBar />
+        <MonthsHeld />
       </GameProvider>,
     );
     expect(screen.getByText(say("ui.clock.next", { wait: waitWords(90 * 60_000) }))).toBeDefined();
@@ -54,7 +55,7 @@ describe("the clock on the turn bar", () => {
     store.getState().heard({ kind: "clock", clock: { tick: 1, nextTickAt: NOW + 10_000_000, nextTurnAt: NOW + 3_000, morningAt: 0, world: worldClockAt(0) } });
     render(
       <GameProvider store={store}>
-        <TurnBar />
+        <MonthsHeld />
       </GameProvider>,
     );
     await act(() => vi.advanceTimersByTimeAsync(2_999));
@@ -70,13 +71,13 @@ describe("the clock on the turn bar", () => {
     expect(screen.getByText(banked(after))).toBeDefined();
   });
 
-  test("[R-CLOCK-007] given a full bank, then no countdown runs and the bar says so; offline there is no clock at all", async () => {
+  test("[R-CLOCK-007] given a full bank, then no countdown runs and the card says so; offline there is no clock at all", async () => {
     const view = engineView();
     const store = createGameStore({ view: () => Promise.resolve(view), send: () => Promise.reject(new Error("unused")) });
     await store.getState().refresh();
     const { unmount } = render(
       <GameProvider store={store}>
-        <TurnBar />
+        <MonthsHeld />
       </GameProvider>,
     );
     expect(document.querySelector("[data-turn-clock]")).toBeNull();
@@ -84,7 +85,7 @@ describe("the clock on the turn bar", () => {
     store.getState().heard({ kind: "clock", clock: { tick: 1, nextTickAt: NOW + 1, nextTurnAt: null, morningAt: 0, world: worldClockAt(0) } });
     render(
       <GameProvider store={store}>
-        <TurnBar />
+        <MonthsHeld />
       </GameProvider>,
     );
     expect(screen.getByText(say("ui.clock.full"))).toBeDefined();

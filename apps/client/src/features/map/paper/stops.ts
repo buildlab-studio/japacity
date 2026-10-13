@@ -2,7 +2,7 @@
 // sticker, and the sticker is the pin. Where it stands comes from content's position through the one fit; places a
 // few hundred metres apart are eased apart by a fixed, ordered spread so neither hides the other. One rule for rings
 // and names in every zoom: a ring only where the player stands, on the stop picked and on the step's place; a name on
-// those, on home, and on a place never visited.
+// those, on home, and on a place never visited (on a card only, a few at a time); names that meet move clear of each other.
 import type { PinState } from "../../../shared/world/contract";
 import { type CardId, cardOf } from "./districts";
 import { type Point, type Position, toPaper } from "./fit";
@@ -114,16 +114,61 @@ export interface NameBox {
 
 const RANK: Readonly<Record<Name, number>> = { here: 0, picked: 1, step: 2, home: 3, new: 4 };
 
+/** How the names are chosen in one view. */
+export interface NameRule {
+  /** The space kept between two names, in pixels. */
+  gap?: number;
+  /** The most never-visited names shown at once: a few on a card, none on the open map or the strip. */
+  newest?: number;
+  /** Where the view's middle stands, in the boxes' pixels: the never-visited names nearest it show first. */
+  centre?: readonly [number, number] | null;
+  /** The part of the view on screen, as x0, y0, x1, y1 in the boxes' pixels: a never-visited name not whole on it is not shown. */
+  seen?: readonly [number, number, number, number] | null;
+}
+
+/** Where a shown name stands: how far it is moved from its own place under or over its sticker, in pixels. */
+export type NameShift = readonly [number, number];
+
 /**
- * Which names show. Every name but a place never visited always shows; a never-visited place's name shows only where it
- * covers no name already shown, the nearer the foot of the screen first, so the quiet names never pile up.
+ * Which names show and where. Every name that matters always shows (where the player stands, the stop picked, the
+ * step's place, home); where one would cover a name already placed, it moves clear: further down, then up, then to a
+ * side, by its own height or half its width, so here, home and the hub never pile up where districts meet. A name of a
+ * place never visited shows only where it covers none, and only the first few of them, the nearest the view's middle
+ * first (else the nearer the foot of the screen), so the quiet names never crowd a card.
  */
-export function namesShown(boxes: readonly NameBox[], gap = 4): Set<string> {
-  const order = [...boxes].sort((a, b) => RANK[a.name] - RANK[b.name] || b.y - a.y || (a.id < b.id ? -1 : 1));
+export function placeNames(boxes: readonly NameBox[], rule: NameRule = {}): Map<string, NameShift> {
+  const gap = rule.gap ?? 4;
+  const newest = rule.newest ?? Number.POSITIVE_INFINITY;
+  const centre = rule.centre ?? null;
+  const seen = rule.seen ?? null;
+  const away = (box: NameBox): number => (centre === null ? -box.y : Math.hypot(box.x - centre[0], box.y - centre[1]));
+  const order = [...boxes].sort((a, b) => RANK[a.name] - RANK[b.name] || (a.name === "new" ? away(a) - away(b) : b.y - a.y) || (a.id < b.id ? -1 : 1));
   const kept: NameBox[] = [];
+  const shifts = new Map<string, NameShift>();
+  const covers = (box: NameBox): boolean =>
+    kept.some((other) => Math.abs(other.x - box.x) * 2 < other.width + box.width + gap * 2 && Math.abs(other.y - box.y) * 2 < other.height + box.height + gap * 2);
+  let fresh = 0;
   for (const box of order) {
-    const covers = kept.some((other) => Math.abs(other.x - box.x) * 2 < other.width + box.width + gap * 2 && Math.abs(other.y - box.y) * 2 < other.height + box.height + gap * 2);
-    if (box.name !== "new" || !covers) kept.push(box);
+    if (box.name === "new") {
+      if (fresh >= newest || covers(box)) continue;
+      // Whole on the part seen, or not at all: a quiet name cut by the card's edge says nothing.
+      if (seen !== null && (box.x - box.width / 2 < seen[0] || box.x + box.width / 2 > seen[2] || box.y - box.height / 2 < seen[1] || box.y + box.height / 2 > seen[3])) continue;
+      fresh += 1;
+      kept.push(box);
+      shifts.set(box.id, [0, 0]);
+      continue;
+    }
+    const step = box.height + gap;
+    const side = Math.round(box.width / 2 + gap);
+    const tries: NameShift[] = [[0, 0], [0, step], [0, -step], [0, 2 * step], [side, 0], [-side, 0], [side, step], [-side, step]];
+    const shift = tries.find(([dx, dy]) => !covers({ ...box, x: box.x + dx, y: box.y + dy })) ?? [0, 0];
+    kept.push({ ...box, x: box.x + shift[0], y: box.y + shift[1] });
+    shifts.set(box.id, shift);
   }
-  return new Set(kept.map((box) => box.id));
+  return shifts;
+}
+
+/** Which names show, wherever each stands (`placeNames`). */
+export function namesShown(boxes: readonly NameBox[], gap = 4): Set<string> {
+  return new Set(placeNames(boxes, { gap }).keys());
 }

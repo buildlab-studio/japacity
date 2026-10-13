@@ -41,6 +41,7 @@ import { ROOMS, type RoomName } from "@japacity/assets-src/bld/room/rooms";
 import { buildTailorCorner } from "@japacity/assets-src/bld/tailor/build";
 import * as furniture from "@japacity/assets-src/prop/furniture";
 import * as basics from "@japacity/assets-src/places/room-basics/build";
+import * as street from "@japacity/assets-src/prop/street/build";
 import { buildStall } from "@japacity/assets-src/prop/stall";
 import { buildStreetBench } from "@japacity/assets-src/prop/street-bench/build";
 import { buildSuyaGrill } from "@japacity/assets-src/prop/suya-grill/build";
@@ -106,6 +107,7 @@ export interface CatalogEntry {
 
 const LEAD = "The lead, written as code in the design; ported to the pipeline by the pipeline work";
 const LAB = "Written as code; ported to the pipeline by the pipeline work";
+const STREET_AGENT = "Written as code from the kit (the lively layer, the streets' and offices' dressing)";
 const ELEVATIONS: ViewName[] = ["front", "back", "left", "right", "threeQuarter"];
 const PLACES_A = "Written as code from the kit";
 /** Every dish in Peckham faces one way (R-ASSET-019); the terraces stand turned a quarter either way, so the yaw is given per side. */
@@ -378,6 +380,21 @@ const ENTRIES: CatalogEntry[] = [
       return staticModel("prop_pole", setFootprint(g, [lowBox(g)]));
     },
   },
+  // The street's and the office's dressing (the design), shared by every place that stands them.
+  ...([
+    ["prop_poster-board", street.buildPosterBoard],
+    ["prop_cooler-stand", street.buildCoolerStand],
+    ["prop_mat", street.buildMat],
+    ["prop_office-cabinet", street.buildOfficeCabinet],
+  ] as const).map(([name, build]): CatalogEntry => ({
+    name,
+    file: `shared/prop/${name}.glb`,
+    place: "shared",
+    source: `assets-src/prop/street/${name.slice("prop_".length)}`,
+    author: STREET_AGENT,
+    views: [...ELEVATIONS, "phone"],
+    build: () => staticModel(name, build()),
+  })),
   {
     name: "prop_stall",
     file: "shared/prop/prop_stall.glb",

@@ -3,7 +3,7 @@
 // mode reaching the feedback form.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "./App";
@@ -15,12 +15,12 @@ import { countInto, countSound } from "./shared/analytics/start";
 import { makeCounters, type CounterRow } from "./shared/analytics/counters";
 import { City } from "./features/city/City";
 import { cityWords } from "./features/city/city.words";
+import { phoneWords } from "./features/phone/phone.words";
 import { chooseGraphics, graphicsMode, setGraphicsMode } from "./shared/graphics/mode";
 import type { AccountApi } from "./shared/net/auth";
 import { abroadView, engineView, fakeAuthority } from "./shared/testing/fixtures";
-import { renderWithView } from "./shared/testing/render";
+import { found, renderWithView } from "./shared/testing/render";
 import { say } from "./shared/words/text";
-import { onTheClassicPage } from "./shared/testing/classic";
 
 vi.mock("./shared/card/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
 
@@ -51,16 +51,21 @@ async function playing(view: PlayerView = engineView("scenario.tunde")) {
   return store;
 }
 
-// The old month page these tests drive opens only with ?classic (R-WORLD-024).
-onTheClassicPage();
-
 describe("the interface counters", () => {
-  test("[R-ANALYTICS-002] given the shell, when tabs are opened, then each opening counts its screen once, keyed by the feature that leads it", async () => {
+  test("[R-ANALYTICS-002] given the world, when the phone's apps are opened, then each opening counts its screen once, keyed by the feature that leads it", async () => {
     await playing();
-    const nav = await screen.findByRole("navigation", { name: say("ui.tabs") }, { timeout: 10_000 });
-    fireEvent.click(within(nav).getByRole("button", { name: say("ui.tab.people") }));
-    fireEvent.click(within(nav).getByRole("button", { name: say("ui.tab.money") }));
-    fireEvent.click(within(nav).getByRole("button", { name: say("ui.tab.people") }));
+    // The world is the game (R-WORLD-001): the old page's tabs are the phone's apps (R-WORLD-018).
+    const phoneThumb = await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 });
+    const openApp = async (id: string) => {
+      fireEvent.click(await waitFor(() => found(`[data-app="${id}"]`)));
+      fireEvent.click(await screen.findByRole("button", { name: phoneWords("phone.back") }));
+    };
+    fireEvent.click(phoneThumb);
+    // The month plan the old page opened on is the Calendar app (R-WORLD-018).
+    await openApp("calendar");
+    await openApp("chats");
+    await openApp("bank");
+    await openApp("chats");
     const screens = sent().filter((row) => row.name === "screen/opened");
     expect(screens).toEqual(
       expect.arrayContaining([

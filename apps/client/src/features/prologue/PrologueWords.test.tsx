@@ -14,7 +14,6 @@ import { say, words } from "../../shared/words/text";
 import { firstStep, situationLine, whyNot } from "./PrologueView";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
-import { onTheClassicPage } from "../../shared/testing/classic";
 
 const PROLOGUE = "scenario.prologue";
 
@@ -22,8 +21,6 @@ const PROLOGUE = "scenario.prologue";
 function storyChip(id: string): string {
   return document.querySelector(`[data-handover-story] [data-fact='${id}']`)?.textContent ?? "";
 }
-
-onTheClassicPage();
 
 function card(): HTMLElement {
   const found = document.querySelector<HTMLElement>("[data-prologue-card]");

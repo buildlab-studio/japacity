@@ -14,7 +14,7 @@ import { PaperSvg, type Variant } from "./PaperSvg";
 import { PlacePicture } from "./PlacePicture";
 import { midway } from "./route";
 import { curve } from "./smooth";
-import { type Marks, type Name, nameOf, namesShown, type Placed, ringOf } from "./stops";
+import { type Marks, type Name, nameOf, type NameShift, placeNames, type Placed, ringOf } from "./stops";
 import type { TileUrl } from "./useTiles";
 
 /** Where a view puts the paper: moved by (x, y) screen pixels, then zoomed by sx across and sy down. */
@@ -70,12 +70,24 @@ function nameWords(kind: Name, name: string): string {
   return headingOf(name);
 }
 
+/** The most never-visited names a card shows at once (the notes item 12: a few at a time). */
+export const NEWEST = 3;
+/** The paper drawn round a card's own view, in paper units (CardView's `within`). */
+const MARGIN = 20;
+
+/** A name moved clear of another, as its own offset in the pin's pixels. */
+function shiftStyle(shift: NameShift | undefined): CSSProperties | undefined {
+  if (shift === undefined || (shift[0] === 0 && shift[1] === 0)) return undefined;
+  return { "--nx": `${String(shift[0])}px`, "--ny": `${String(shift[1])}px` } as CSSProperties;
+}
+
 export const World = memo(function World({ variant, frame, uid, stops = [], names = (id) => id, marks = { home: null, picked: null, step: null }, tiles, pinPx = 50, route = null, within = null, onPick, className = "", style }: WorldProps) {
   const z = frame.sx;
   const routeD = useMemo(() => (route === null ? null : curve(route)), [route]);
   const danfo = useMemo(() => (route === null || route.length < 2 ? null : midway(route)), [route]);
   const folded = variant === "folded";
-  // Which names show: every one that matters, and a never-visited place's only where it covers none of those.
+  // Which names show and where: every one that matters, moved clear of another where they meet; a never-visited
+  // place's only on a card, a few at a time, the nearest the card's middle first, and only where it covers none.
   const shown = useMemo(() => {
     const boxes = stops.flatMap((stop) => {
       const kind = nameOf(stop, marks);
@@ -85,8 +97,11 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
       const up = kind === "picked" || kind === "step";
       return [{ id: stop.id, x: stop.at[0] * z, y: stop.at[1] * z + (up ? -size : size * 0.4), width: text.length * 7 + 22, height: up ? 30 : 22, name: kind }];
     });
-    return namesShown(boxes);
-  }, [stops, marks, pinPx, names, z]);
+    // The card draws the paper it shows and a margin of twenty units round it; the names count only on the part seen.
+    const seen = within === null ? null : ([(within[0] + MARGIN) * z, (within[1] + MARGIN) * z, (within[2] - MARGIN) * z, (within[3] - MARGIN) * z] as const);
+    const centre = seen === null ? null : ([(seen[0] + seen[2]) / 2, (seen[1] + seen[3]) / 2] as const);
+    return placeNames(boxes, variant === "card" ? { newest: NEWEST, centre, seen } : { newest: 0 });
+  }, [stops, marks, pinPx, names, z, variant, within]);
 
   return (
     <div
@@ -130,7 +145,7 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
                 {ring === null ? null : <span className="paper-ring" data-ring={ring} aria-hidden />}
                 <PlacePicture id={stop.id} size={size} tiles={tiles} />
                 {kind === null || !shown.has(stop.id) ? null : (
-                  <span className="paper-name" data-name={kind} aria-hidden>
+                  <span className="paper-name" data-name={kind} style={shiftStyle(shown.get(stop.id))} aria-hidden>
                     {nameWords(kind, name)}
                     {kind === "picked" || kind === "step" ? <b className="ml-1">›</b> : null}
                   </span>
