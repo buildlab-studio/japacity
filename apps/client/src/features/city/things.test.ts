@@ -161,11 +161,24 @@ describe("lying on a thing", () => {
   test("[R-WORLD-005] given every bed and the couch, when its rest act is read, then it names the top it is lain on, the bed's on its mattress and under its pillow's top, and the bed's head toward its pillow", () => {
     const lain = builtPlaces().flatMap(({ folder, file }) => (stageOf(file).things ?? []).flatMap((thing) => thing.acts.filter((act) => act.pose === "lie").map((act) => ({ folder, thing, act }))));
     const beds = lain.filter(({ thing }) => thing.file.endsWith("prop_bed.glb"));
-    expect(beds.map(({ folder }) => folder).sort()).toEqual(["compound-room", "family-house-parlour", "the-room"]);
-    // The pillow is at the bed's -z end and the head goes toward the seat's facing.
-    for (const { folder, act } of beds) {
+    expect(beds.map(({ folder }) => folder).sort()).toEqual(["home-room-house", "the-room"]);
+    /** The turn of the copy a thing stands at. */
+    const turnOf = (folder: string, thing: Thing): number => stageOf(builtPlaces().find((built) => built.folder === folder)?.file ?? ({} as PlaceFile)).models.find((model) => model.file === thing.file)?.at[thing.copy]?.[2] ?? 0;
+    // The pillow is at the bed's -z end and the head goes toward the seat's facing: the bed's own turn and a half turn.
+    const headToPillow = (folder: string, thing: Thing, act: Act): boolean => Math.cos((act.seat?.[2] ?? 0) - turnOf(folder, thing) - Math.PI) > 0.99;
+    for (const { folder, thing, act } of beds) {
       const top = act.top ?? 0;
-      expect({ folder, onMattress: top >= 0.6 && top < 0.72, headToPillow: Math.cos(act.seat?.[2] ?? 0) < -0.99 }).toEqual({ folder, onMattress: true, headToPillow: true });
+      expect({ folder, onMattress: top >= 0.6 && top < 0.72, headToPillow: headToPillow(folder, thing, act) }).toEqual({ folder, onMattress: true, headToPillow: true });
+    }
+    // The family house's mattress on the floor (its sheet at 0.19 m, its pillow to 0.29) and the hostel's lower bunk (its
+    // mattress at 0.48 m, its pillow to 0.56; assets-src/prop/home/build.ts): each lain on, under the pillow's top, head to it.
+    for (const [file, low, high] of [["prop_mattress.glb", 0.16, 0.29], ["prop_bunk-bed.glb", 0.48, 0.56]] as const) {
+      const found = lain.filter(({ thing }) => thing.file.endsWith(file));
+      expect({ file, found: found.length > 0 }).toEqual({ file, found: true });
+      for (const { folder, thing, act } of found) {
+        const top = act.top ?? 0;
+        expect({ folder, file, onMattress: top >= low && top < high, headToPillow: headToPillow(folder, thing, act) }).toEqual({ folder, file, onMattress: true, headToPillow: true });
+      }
     }
     const couch = lain.find(({ thing }) => thing.file.endsWith("prop_sofa.glb"));
     expect(couch?.act.top).toBe(0.48);
@@ -185,11 +198,12 @@ describe("the things of the built places", () => {
     }
   });
 
-  test("[R-WORLD-025] [R-TURN-006] [R-ACTIVITY-019] given the bed at home, in a compound and in the room abroad, when their acts are read, then each offers a nap on its sheet lain on the bed, and Sleep, the band's own act; while no nap can be had, Lie down stands in its place, done at once with the lying pose and no slot", () => {
-    for (const folder of ["family-house-parlour", "compound-room", "the-room"]) {
+  test("[R-WORLD-025] [R-TURN-006] [R-ACTIVITY-019] given the bed at home, in a compound, in the hostel and in the room abroad, when their acts are read, then each offers a nap on its sheet lain on the bed, and Sleep, the band's own act; while no nap can be had, Lie down stands in its place, done at once with the lying pose and no slot", () => {
+    for (const folder of ["home-family-house", "home-room-house", "home-hostel-house", "the-room"]) {
       const found = builtPlaces().find((built) => built.folder === folder);
       if (found === undefined) throw new Error(`No ${folder}`);
-      const bed = (stageOf(found.file).things ?? []).find((thing) => thing.file.endsWith("prop_bed.glb"));
+      // The thing the month turns from: the bed, the family house's mattress, the hostel's bunk.
+      const bed = (stageOf(found.file).things ?? []).find((thing) => thing.acts.some((act) => act.kind === "end"));
       if (bed === undefined) throw new Error(`No bed in ${folder}`);
       expect(bed.acts.map((act) => [act.id, act.kind, act.stages, act.pose])).toEqual([
         ["nap", "sheet", "activity.nap", "lie"],
@@ -210,8 +224,8 @@ describe("the things of the built places", () => {
     }
   });
 
-  test("[R-WORLD-005] [R-WORLD-025] [R-ACTIVITY-019] given the parlour, when its things are read, then the cooking corner offers both meals on one sheet, the drum the water and the bath on one, the television Nollywood with Papa from the sofa, Mama her gist and her shop on one beside the bills, and the table the study, the course, the portfolio and the night support on one beside the fees", () => {
-    const found = builtPlaces().find((built) => built.folder === "family-house-parlour");
+  test("[R-WORLD-005] [R-WORLD-025] [R-ACTIVITY-019] given the family house, when its things are read, then the cooking corner offers both meals on one sheet, the drum the water and the bath on one, the television Nollywood with Papa from the sofa, Mama her gist and her shop on one beside the bills, and the table the study, the course, the portfolio and the night support on one beside the fees", () => {
+    const found = builtPlaces().find((built) => built.folder === "home-family-house");
     if (found === undefined) throw new Error("No parlour");
     const stage = stageOf(found.file);
     const acts = (id: string) => (stage.things ?? []).find((thing) => thing.id === id)?.acts.map((act) => [act.kind, act.stages ?? null, act.more ?? null, sceneWords(act.label)]);
@@ -240,8 +254,8 @@ describe("the things of the built places", () => {
     expect(thingsNow(cooking === undefined ? [] : [cooking], (stages) => stages === "activity.cook-at-home")[0]?.acts[0]).toEqual({ id: "cook", label: "city.act.cook", kind: "sheet", stages: "activity.cook-at-home" });
   });
 
-  test("[R-WORLD-019] given the parlour, when its papers box is read, then it stands at the bed, its one act opens the Papers app, and its words resolve", () => {
-    const found = builtPlaces().find((built) => built.folder === "family-house-parlour");
+  test("[R-WORLD-019] given the family house, when its papers box is read, then it stands at the bed, its one act opens the Papers app, and its words resolve", () => {
+    const found = builtPlaces().find((built) => built.folder === "home-family-house");
     if (found === undefined) throw new Error("No parlour");
     const stage = stageOf(found.file);
     const box = (stage.things ?? []).find((thing) => thing.id === "papers-box");
@@ -249,7 +263,8 @@ describe("the things of the built places", () => {
     expect(box.file).toBe("places/family-house-parlour/prop_papers-box.glb");
     const copyOf = (file: string) => stage.models.find((model) => model.file === file)?.at[0];
     const tin = copyOf(box.file);
-    const bed = copyOf("shared/prop/prop_bed.glb");
+    // The bed is your corner's mattress.
+    const bed = copyOf((stage.things ?? []).find((thing) => thing.acts.some((act) => act.kind === "end"))?.file ?? "");
     if (tin === undefined || bed === undefined) throw new Error("The box or the bed stands nowhere");
     expect(Math.hypot(tin[0] - bed[0], tin[1] - bed[1])).toBeLessThan(1.5);
     // the box's sheet of papers went to the phone.

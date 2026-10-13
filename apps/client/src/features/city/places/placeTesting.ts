@@ -10,7 +10,7 @@ import { expect } from "vitest";
 import budgets from "../../../../../../assets-src/budgets.json";
 import { type Measured, measureFile, placeTotals, type PlaceFile as CheckedPlace, type PlaceTotals } from "../../../../../../tools/assets/check-assets";
 import { crowdSize } from "../crowd";
-import type { PlaceFile, Spot, Stage } from "../placeFile";
+import { CAR_FILE, type PlaceFile, type Spot, type Stage } from "../placeFile";
 
 const ROOT = join(import.meta.dirname, "..", "..", "..", "..", "..", "..");
 const PUBLIC = join(ROOT, "apps", "client", "public", "assets");
@@ -55,7 +55,9 @@ export function rowOf(file: PlaceFile): { drawCalls: number; triangles: number }
 /** Every model's copies counted once, the most of any dressing's, with what the room shows of the month's plan, as the file's instances. */
 export function instancesOf(stage: Stage): { file: string; count: number }[] {
   const counts = new Map<string, number>();
-  const extra = [...(stage.dressings ?? []).flatMap((dressing) => dressing.models), ...(stage.shows ?? []).flatMap((show) => show.models)];
+  // A home's car at its spot is counted too, so the most in view holds once the life has a car.
+  const car = stage.car === undefined ? [] : [{ file: CAR_FILE, at: [stage.car] }];
+  const extra = [...(stage.dressings ?? []).flatMap((dressing) => dressing.models), ...(stage.shows ?? []).flatMap((show) => show.models), ...car];
   for (const model of [...stage.models, ...extra]) counts.set(model.file, Math.max(counts.get(model.file) ?? 0, model.at.length));
   return [...counts].map(([file, count]) => ({ file, count }));
 }

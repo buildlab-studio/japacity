@@ -4,8 +4,8 @@
 // says "Ongoing" whenever it shows.
 import { describe, expect, test } from "vitest";
 
-import compoundFile from "../../../public/assets/places/compound-room/place.json";
-import parlourFile from "../../../public/assets/places/family-house-parlour/place.json";
+import compoundFile from "../../../public/assets/places/home-room-house/place.json";
+import parlourFile from "../../../public/assets/places/home-family-house/place.json";
 import { engineView, newGame } from "../../shared/testing/fixtures";
 import { answersNow, nowActsIn } from "../../shared/words/acts";
 import { say } from "../../shared/words/text";
@@ -40,7 +40,7 @@ describe("the room's basics at the tap", () => {
   });
 
   test("[R-WORLD-005] [R-TEXT-008] [R-TURN-006] given the bed and the sofa, when Lie down lands, then no line is told: the figure lies down, and no thing's act plans rest", () => {
-    for (const id of ["bed", "sofa"]) {
+    for (const id of ["mattress", "sofa"]) {
       const thing = things.find((candidate) => candidate.id === id);
       // The bed's Lie down stands in for its nap while no nap can be had (decision 0035, R-ACTIVITY-019).
       const lie = thing?.acts.flatMap((act) => [act, ...(act.otherwise === undefined ? [] : [act.otherwise])]).find((act) => act.id === "lie");

@@ -75,7 +75,6 @@ describe("an act that repeats, at its thing", () => {
     resetLines();
     const game = newGame("scenario.ada");
     const { authority, store } = await renderWithGame(<City world results={() => <p />} actions={(ids) => <ActivityPicker only={ids} />} />, game);
-    fireEvent.click(await waitFor(() => found('[data-stand-in-act="house:enter"]')));
     await waitFor(() => found('[data-stand-in-act="mama:family-time"]'), { timeout: 3000 });
     for (let time = 1; time <= 2; time += 1) {
       fireEvent.click(found('[data-stand-in-act="mama:family-time"]'));
@@ -106,7 +105,6 @@ describe("an act the scene shows, from its sheet", () => {
   test("[R-WORLD-005] [R-ACTIVITY-019] given the cooking corner's sheet with both meals, when Indomie and egg is cooked from its card, then it is sent at once, no card answers it, the sheet closes so the pot is seen, and the scene is handed the act to show where it was done", async () => {
     const game = newGame("scenario.ada");
     const { authority } = await renderWithGame(<City world results={() => <p />} actions={(ids) => <ActivityPicker only={ids} />} />, game);
-    fireEvent.click(await waitFor(() => found('[data-stand-in-act="house:enter"]')));
     fireEvent.click(await waitFor(() => found('[data-stand-in-act="cooking:cook"]'), { timeout: 3000 }));
     const picker = await waitFor(() => found("[data-activity-picker]"));
     const cook = picker.querySelector<HTMLButtonElement>(`button[aria-label="${nameOf(COOK)}"]`);

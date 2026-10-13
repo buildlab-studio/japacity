@@ -62,7 +62,7 @@ describe("an act's line as it lands", () => {
   });
 
   test("[R-WORLD-005] [R-WORLD-026] given the light bill paid in the parlour, when the answer lands, then Mama says the light is back over her head, the corner tells the bill paid and the next compound is heard after; elsewhere, or for the bill left, nothing", () => {
-    const parlour = builtPlaces().find(({ folder }) => folder === "family-house-parlour");
+    const parlour = builtPlaces().find(({ folder }) => folder === "home-family-house");
     if (parlour === undefined) throw new Error("No parlour.");
     const things = thingsOf(stageOf(parlour.file));
     const paid = [{ key: "line.offer.taken", params: { offer: "offer.nepa-bill", choice: "pay" } }];

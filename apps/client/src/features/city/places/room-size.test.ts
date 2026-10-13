@@ -1,7 +1,6 @@
 // The room at its new length (docs/rules/world.md R-WORLD-011 as amended on 10 Oct 2026, the review item
-// 15): the parlour at home and the room abroad are about 16 by 9 metres, so seen down their length they fill
-// a phone held upright. The room in a compound is the size such a room is, about 4 by 3.5 metres, its five things
-// close around the character. Refurnished so nothing floats: every piece
+// 15): the room abroad is about 16 by 9 metres, so seen down its length it fills a phone held upright. The homes at
+// home are wide floors since the home's wave (homes.test.ts). Refurnished so nothing floats: every piece
 // stands on the floor between the walls, what stood against a wall still does, and both modes stay inside the
 // indoor row's budget. Read from the shipped files, measured as the build check measures them, and passed through
 // the place check itself.
@@ -10,23 +9,15 @@ import { describe, expect, test } from "vitest";
 
 import { ROOMS } from "../../../../../../assets-src/bld/room/rooms";
 import { checkLimits, type LimitedFile, walkableSize } from "../../../../../../tools/assets/world-check";
-import parlourRaw from "../../../../public/assets/places/family-house-parlour/place.json";
-import compoundRaw from "../../../../public/assets/places/compound-room/place.json";
 import roomRaw from "../../../../public/assets/places/the-room/place.json";
 import { type PlaceFile, stageOf } from "../placeFile";
 import { measured, rowOf, totalsOf } from "./placeTesting";
 
-const parlour = parlourRaw as unknown as PlaceFile;
 const room = roomRaw as unknown as PlaceFile;
-const compound = compoundRaw as unknown as PlaceFile;
 const LONG: readonly [number, number] = [16, 9];
-const COMPOUND_ROOM: readonly [number, number] = [4, 3.5];
-const ROOMS_HERE = [
-  { name: "the parlour", file: parlour, shell: ROOMS.parlour, size: LONG, side: -1, against: ["prop_tv-stand.glb", "prop_bed.glb"] },
-  { name: "the room abroad", file: room, shell: ROOMS.abroad, size: LONG, side: 1, against: ["prop_bed.glb", "prop_window-frame.glb", "prop_side-table.glb"] },
-  // home.md R-HOME-010: the room in a compound, its mattress against the back wall.
-  { name: "the room in a compound", file: compound, shell: ROOMS.compound, size: COMPOUND_ROOM, side: 1, against: ["prop_bed.glb"] },
-] as const;
+// The homes at home are wide floors now, their sizes and pieces tested in homes.test.ts; the room
+// abroad keeps its length.
+const ROOMS_HERE = [{ name: "the room abroad", file: room, shell: ROOMS.abroad, size: LONG, side: 1, against: ["prop_bed.glb", "prop_window-frame.glb", "prop_side-table.glb"] }] as const;
 
 /** Each copy of each model but the room's own shell, with its footprint boxes' extents in the place's frame. */
 async function extents(file: PlaceFile): Promise<{ file: string; x0: number; x1: number; z0: number; z1: number }[]> {

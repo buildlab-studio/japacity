@@ -152,7 +152,8 @@ export function buildPottedPlant(): Group {
 
 /** One slipper's sole and strap, in its own frame, pointing +Z. */
 function slipper(g: Object3D, x: number, z: number, ry: number, sole: PaletteName, strap: PaletteName): void {
-  const s = at(g, x, z, ry);
+  // On the mat, its sole clear of the mat's top (R-WORLD-012).
+  const s = at(g, x, z, ry, 0.02);
   box(s, 0.1, 0.025, 0.26, 0, 0, 0, sole);
   box(s, 0.11, 0.035, 0.05, 0, 0.025, 0.04, strap);
 }

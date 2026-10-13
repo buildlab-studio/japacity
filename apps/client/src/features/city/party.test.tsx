@@ -5,7 +5,7 @@ import type { ReportLine } from "@japacity/sim";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import familyFile from "../../../public/assets/places/family-house-compound/place.json";
+import familyFile from "../../../public/assets/places/home-family-house/place.json";
 import { richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { City, dressedBy, partyThrown } from "./City";

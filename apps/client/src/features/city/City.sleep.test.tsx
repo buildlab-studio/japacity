@@ -84,8 +84,7 @@ async function byTheBed(part: DayPart = "afternoon") {
   // The home's one small card was read in an earlier sitting, so the corner is not under it.
   markTaught("home:place.family-house", "scenario.ada");
   const rendered = await renderWithGame(<City world results={(place) => <p data-results-for={place} />} phone={(close) => <button type="button" data-stand-in-phone onClick={close} />} />, game);
-  fireEvent.click(await waitFor(() => found('[data-stand-in-act="house:enter"]')));
-  await waitFor(() => found('[data-stand-in-thing="bed"]'), { timeout: 3000 });
+  await waitFor(() => found('[data-stand-in-thing="mattress"]'), { timeout: 3000 });
   setPart(rendered.store, part);
   vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
   return { game, ...rendered };
@@ -106,14 +105,14 @@ describe("sleep, a timed act from the bed", () => {
     const { authority } = await byTheBed();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
     expect(washOn()).toBe(false);
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     await pass(0);
     const chip = found("[data-asleep]");
     expect(chip.textContent).toContain("Asleep · tap to wake");
     expect(chip.querySelector("[data-asleep-bar]")).not.toBeNull();
     expect(found("[data-wake]").textContent).toBe(say("ui.sleep.wake"));
     expect(washOn()).toBe(true);
-    expect(found("[data-stand-in-scene]").dataset.standInAsleep).toBe("bed");
+    expect(found("[data-stand-in-scene]").dataset.standInAsleep).toBe("mattress");
     expect(document.querySelector("[data-nudge]")).toBeNull();
     expect(document.querySelector('[data-thumb="map"]')).not.toBeNull();
     expect(document.querySelector('[data-thumb="phone"]')).not.toBeNull();
@@ -137,7 +136,7 @@ describe("sleep, a timed act from the bed", () => {
   test("[R-WORLD-025] given a sleep under way, when the chip is tapped before it runs out, then the nap is sent and no turn/end, the chip, Wake up and the wash go, the figure gets up, and the corner says Up again by day", async () => {
     const { authority, game } = await byTheBed("afternoon");
     expect(game.view().activities.find((option) => option.id === NAP)?.allowed).toBe(true);
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     await pass(SLEEP_MS / 2);
     fireEvent.click(found("[data-asleep]"));
     await pass(0);
@@ -157,7 +156,7 @@ describe("sleep, a timed act from the bed", () => {
 
   test("[R-WORLD-025] given a sleep at the world's night, when Wake up is tapped, then it does as the chip does, and the corner says the night is still yours", async () => {
     const { authority } = await byTheBed("night");
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     await pass(1000);
     fireEvent.click(found("[data-wake]"));
     await pass(0);
@@ -171,7 +170,7 @@ describe("sleep, a timed act from the bed", () => {
 
   test("[R-WORLD-025] given a sleep under way, when the phone is opened from its button and the sleep runs out under it, then the month waits for the phone to be put away, then turns once", async () => {
     const { authority } = await byTheBed();
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     await pass(0);
     fireEvent.click(found('[data-thumb="phone"]'));
     expect(document.querySelector("[data-stand-in-phone]")).not.toBeNull();
@@ -184,7 +183,7 @@ describe("sleep, a timed act from the bed", () => {
 
   test("[R-WORLD-025] given a sleep under way, when the world's night falls, then the nudge stays hidden until the sleep is over, and comes back on waking", async () => {
     const { store } = await byTheBed();
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     await pass(0);
     setPart(store, "night");
     expect(document.querySelector("[data-nudge]")).toBeNull();

@@ -1,6 +1,6 @@
 // What the scene's tests read: every built place's file as the client sees it, and a camera drawn
 // the way the scene draws it, so a test can ask where a point of the place falls on the screen.
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { PerspectiveCamera, Vector3 } from "three";
@@ -10,10 +10,10 @@ import { SHOT_FOV, SHOT_NEAR_PLANE } from "./shot";
 
 const PLACES = join(import.meta.dirname, "..", "..", "..", "public", "assets", "places");
 
-/** Every place file shipped under public/assets/places, by its folder. */
+/** Every place file shipped under public/assets/places, by its folder; a folder of shared models only has none. */
 export function builtPlaces(): { folder: string; file: PlaceFile }[] {
   return readdirSync(PLACES, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && existsSync(join(PLACES, entry.name, "place.json")))
     .map((entry) => ({ folder: entry.name, file: JSON.parse(readFileSync(join(PLACES, entry.name, "place.json"), "utf8")) as PlaceFile }));
 }
 

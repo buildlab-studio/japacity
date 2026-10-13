@@ -8,7 +8,6 @@ import { tilesAsked } from "./shared/tiles/asked";
 import { sayBuild } from "./shared/stamp/stamp";
 import { installSoundWake } from "./shared/sound/sound";
 import { livelyAsked } from "./shared/ui/lively/preview";
-import { homeAsked } from "./features/city/homex/asked";
 
 /** The lively layer's preview, development only: its own chunk, and none at all in a build for players. */
 const LivelyPreview = import.meta.env.DEV ? lazy(() => import("./shared/ui/lively/LivelyPreview").then((page) => ({ default: page.LivelyPreview }))) : null;
@@ -23,10 +22,6 @@ sayBuild(document);
 // The first tap anywhere wakes sound silently, so a scene that speaks never waits on the browser (audio page, section 7).
 installSoundWake(document);
 
-/** The home redesign's scenes, development only (`?homex=family|room|hostel`, `&night`): their own chunk, none in a player's build. */
-const HomeX = import.meta.env.DEV ? lazy(() => import("./features/city/homex/HomeX")) : null;
-const home = homeAsked(location.search);
-
 // `?tiles` in development only: the contact sheet of every picture tile. A player's build drops it with its chunk.
 const TileSheet = import.meta.env.DEV ? lazy(() => import("./shared/tiles/TileSheet")) : null;
 
@@ -35,10 +30,6 @@ createRoot(container).render(
     {TileSheet !== null && tilesAsked(location.search) ? (
       <Suspense fallback={null}>
         <TileSheet />
-      </Suspense>
-    ) : HomeX !== null && home !== null ? (
-      <Suspense fallback={null}>
-        <HomeX home={home} />
       </Suspense>
     ) : LivelyPreview !== null && livelyAsked(location.search) ? (
       <Suspense fallback={null}>

@@ -7,8 +7,7 @@ import { content, meetingThings, partnerMeetings, text } from "@japacity/content
 import type { Id, PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import yardRaw from "../../../public/assets/places/family-house/place.json";
-import parlourRaw from "../../../public/assets/places/family-house-parlour/place.json";
+import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
 import theirRoom from "../../../public/assets/places/their-room/place.json";
 import yabaHub from "../../../public/assets/places/yaba-hub/place.json";
 import { courted, eagerContent, partnered, peopleGame, TOBI } from "../../shared/testing/people";
@@ -75,7 +74,7 @@ describe("a person standing where content meets them", () => {
     expect(tobi).toMatchObject({ label: `${TOBI}.name`, mark: "computer" });
     expect(tobi?.acts).toEqual([expect.objectContaining({ kind: "command", command: COURT, with: TOBI })]);
     // Mama, Papa and the rest of the parlour keep their things.
-    expect(things.map((thing) => thing.id)).toEqual(expect.arrayContaining(["mama", "papa", "sofa", "table", "door"]));
+    expect(things.map((thing) => thing.id)).toEqual(expect.arrayContaining(["mama", "papa", "sofa", "table", "out"]));
     // The meetup's two stand only in December.
     expect(standingAt(HUB, view.people.candidates, false)).toEqual([]);
     for (const place of ["place.ojuelegba", "place.yaba-hub", THEIR_ROOM, "place.bode-thomas"]) expect(standingAt(place, view.people.candidates, true)).toEqual([]);
@@ -124,8 +123,8 @@ describe("a person standing where content meets them", () => {
       const standers = (stage.standing ?? []).filter((one) => one.thing === meeting.met.thing && (one.person === undefined || one.person === meeting.person));
       expect(standers, `someone stands for ${meeting.person}`).toHaveLength(1);
       expect(thingSpot(stage, thing!)).toEqual([standers[0]?.at[0], standers[0]?.at[1]]);
-      // The kit the place already uses: the hub's sample, or the family house's yard for the parlour's guests.
-      expect([...file!.people.sample, ...(meeting.met.place === HOUSE ? yardRaw.people.sample : [])]).toContain(standers[0]?.file);
+      // The kit the place already uses: the hub's sample, or the family house's own for its guests.
+      expect(file!.people.sample).toContain(standers[0]?.file);
     }
   });
 

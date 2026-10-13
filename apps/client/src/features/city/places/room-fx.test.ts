@@ -5,17 +5,20 @@
 import { Group, InstancedMesh, Mesh, Sprite } from "three";
 import { describe, expect, test } from "vitest";
 
-import compoundRaw from "../../../../public/assets/places/compound-room/place.json";
+import compoundRaw from "../../../../public/assets/places/home-room-house/place.json";
+import hostelRaw from "../../../../public/assets/places/home-hostel-house/place.json";
 import makokoRaw from "../../../../public/assets/places/makoko/place.json";
-import parlourRaw from "../../../../public/assets/places/family-house-parlour/place.json";
+import parlourRaw from "../../../../public/assets/places/home-family-house/place.json";
 import roomRaw from "../../../../public/assets/places/the-room/place.json";
 import { type PlaceFile, showPlanned, showsFor, type Stage, stageOf } from "../placeFile";
 import { lampsOf, motionOf } from "../world";
 
+// The family house, whose parlour, table and lanterns are where these acts answer.
 const parlour = stageOf(parlourRaw as unknown as PlaceFile);
 const HOMES = [
   { name: "the parlour", stage: parlour, drum: "prop_water-drum.glb" },
   { name: "the room in a compound", stage: stageOf(compoundRaw as unknown as PlaceFile), drum: "prop_water-drum.glb" },
+  { name: "the hostel room", stage: stageOf(hostelRaw as unknown as PlaceFile), drum: "prop_water-drum.glb" },
   { name: "Makoko", stage: stageOf(makokoRaw as unknown as PlaceFile), drum: "prop_water-drum.glb" },
 ] as const;
 
@@ -60,13 +63,14 @@ describe("what the home's acts show", () => {
   test("[R-WORLD-005] [R-ACTIVITY-019] given Nollywood with Papa, when its answer is read, then the television's screen flickers while it plays and its light spills into the room; only the parlour has a television", () => {
     const [tv] = showsFor(parlour, "activity.watch-tv");
     if (tv === undefined) throw new Error("No television's answer");
-    const [x, z] = copyOf(parlour, "prop_tv-stand.glb");
+    const [x = 0, z = 0, turn = 0] = copyOf(parlour, "prop_tv-stand.glb");
     const screen = tv.motion.find((motion) => motion.kind === "flicker");
     if (screen === undefined) throw new Error("No flicker");
-    // The stand's screen is 1.1 by 0.6 m, its bottom edge 0.71 m up, its face at the stand's front.
+    // The stand's screen is 1.1 by 0.6 m, its bottom edge 0.71 m up, its face at the stand's front, turned as the stand is.
     expect(screen.size).toEqual([1.1, 0.6]);
     expect(screen.at[1]).toBeCloseTo(0.71, 6);
-    expect(near(screen.at, x ?? 0, (z ?? 0) + 0.015, 0.01)).toBe(true);
+    expect(near(screen.at, x + Math.sin(turn) * 0.015, z + Math.cos(turn) * 0.015, 0.01)).toBe(true);
+    expect(screen.ry ?? 0).toBeCloseTo(turn, 3);
     expect(tv.motion.some((motion) => motion.kind === "glow")).toBe(true);
     expect(tv.seconds ?? 0).toBeGreaterThanOrEqual(6);
     for (const { stage } of HOMES.slice(1)) expect(showsFor(stage, "activity.watch-tv")).toEqual([]);

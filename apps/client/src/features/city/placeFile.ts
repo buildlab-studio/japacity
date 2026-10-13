@@ -108,6 +108,8 @@ export interface Stage {
   things?: Thing[];
   /** The place a door here opens into, as a place id (world.md R-WORLD-013): a room is just another place. */
   inside?: string;
+  /** A home's car spot, in its yard or by its gate: the car stands there while the life has one, else it is empty. */
+  car?: Spot;
 }
 
 /** A warm point of light the place shows as the day goes (R-CLOCK-033): where, how wide its halo, and whether a bulb hangs there. */
@@ -246,8 +248,23 @@ export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<
     ...(plain.shot === undefined ? {} : { shot: plain.shot }),
     ...(plain.things === undefined ? {} : { things: plain.things }),
     ...(plain.inside === undefined ? {} : { inside: plain.inside }),
+    ...(plain.car === undefined ? {} : { car: plain.car }),
   };
   return { file: { ...file, stage: dressed }, crowd: dressing.crowd };
+}
+
+/** The car a home shows at its car spot. */
+export const CAR_FILE = "shared/veh/veh_car.glb";
+
+/**
+ * A home as the life's car leaves it: while the life has a car it stands at the home's car spot, the
+ * parents' yard or your own spot by the gate; with none the spot is empty. The same file when nothing changes. Parked
+ * before the place is dressed, so a dressing that clears the yard (the send-off) takes the car out with it.
+ */
+export function parkCar(file: PlaceFile, owns: boolean): PlaceFile {
+  const stage = stageOf(file);
+  if (!owns || stage.car === undefined) return file;
+  return { ...file, stage: { ...stage, models: [...stage.models, { file: CAR_FILE, at: [stage.car] }] } };
 }
 
 /**

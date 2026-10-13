@@ -33,10 +33,10 @@ function withOption(view: PlayerView, id: string, change: Partial<PlayerView["ac
 
 describe("the things that fan", () => {
   test("[R-WORLD-005] given the family house's parlour, when its things are read, then the cooking corner fans both meals in the sheet's order, the drum its water and bath, the TV its film; the bed, Mama, the table, the papers box and the door keep their chips", () => {
-    expect(fanEntriesOf(thingAt("family-house-parlour", "cooking"))?.map((one) => one.stages)).toEqual([COOK, JOLLOF]);
-    expect(fanEntriesOf(thingAt("family-house-parlour", "drum"))?.map((one) => one.stages)).toEqual(["activity.fetch-water", "activity.bucket-bath"]);
-    expect(fanEntriesOf(thingAt("family-house-parlour", "tv"))?.map((one) => one.stages)).toEqual(["activity.watch-tv"]);
-    for (const id of ["bed", "mama", "table", "papers-box", "door", "sofa", "bag"]) expect(fanEntriesOf(thingAt("family-house-parlour", id))).toBeNull();
+    expect(fanEntriesOf(thingAt("home-family-house", "cooking"))?.map((one) => one.stages)).toEqual([COOK, JOLLOF]);
+    expect(fanEntriesOf(thingAt("home-family-house", "drum"))?.map((one) => one.stages)).toEqual(["activity.fetch-water", "activity.bucket-bath"]);
+    expect(fanEntriesOf(thingAt("home-family-house", "tv"))?.map((one) => one.stages)).toEqual(["activity.watch-tv"]);
+    for (const id of ["mattress", "mama", "table", "papers-box", "out", "sofa", "bag"]) expect(fanEntriesOf(thingAt("home-family-house", id))).toBeNull();
   });
 
   test("[R-WORLD-005] given the street at Ojuelegba and Bode Thomas, when their things are read, then the suya grill, the mallam's bench, the barber and the joint fan; the hub's door, the motor park and the rides keep their chips", () => {
@@ -96,7 +96,7 @@ describe("tints and pictures", () => {
 
 describe("what a button says", () => {
   const view = engineView("scenario.ada");
-  const cooking = fanEntriesOf(thingAt("family-house-parlour", "cooking")) ?? [];
+  const cooking = fanEntriesOf(thingAt("home-family-house", "cooking")) ?? [];
 
   test("[R-WORLD-006] given the cooking corner and the naira held, when its buttons are made, then each names its meal, its price and the balance before and after, as the sheet counts them", () => {
     const entries = fanModel(cooking, view, []);
@@ -111,7 +111,7 @@ describe("what a button says", () => {
   });
 
   test("[R-WORLD-006] given a free act, when its button is made, then it carries no price and no balance", () => {
-    const drum = fanEntriesOf(thingAt("family-house-parlour", "drum")) ?? [];
+    const drum = fanEntriesOf(thingAt("home-family-house", "drum")) ?? [];
     const entries = fanModel(drum, view, []);
     expect(entries[0]?.price).toBeNull();
     expect(entries[0]?.balance).toBeNull();

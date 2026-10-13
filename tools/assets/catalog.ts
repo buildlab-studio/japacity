@@ -53,8 +53,6 @@ import { buildProvisions } from "@japacity/assets-src/shop/provisions/build";
 import { buildViewingCentre } from "@japacity/assets-src/shop/viewing-centre/build";
 import { buildTaxi, DUBAI_TAXI } from "@japacity/assets-src/veh/taxi/build";
 import { buildHome } from "@japacity/assets-src/bld/home/build";
-import { HOMES } from "@japacity/assets-src/bld/home/homes";
-import { HOMES2 } from "@japacity/assets-src/bld/home/homes2";
 import { HOMES3 } from "@japacity/assets-src/bld/home/homes3";
 import { buildCar } from "@japacity/assets-src/veh/car/build";
 import * as home from "@japacity/assets-src/prop/home/build";
@@ -76,8 +74,8 @@ export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "p
 
 /** The kinds of model a picture tile is cut from (design page 13, the pictures): never a person, whose tile is a name pill until the characters are redone. */
 const TILED_KINDS = /^(prop|shop|veh|lm|bld)_/;
-/** Models no player is shown as a thing: the rooms' shells and the tailor's corner, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
-const UNTILED = /^(bld_room_|bld_tailor-corner$|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
+/** Models no player is shown as a thing: the rooms' and the homes' shells and the tailor's corner, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
+const UNTILED = /^(bld_room_|bld_home-|bld_tailor-corner$|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
 
 /** Whether a model gets the tile view: a thing a player could be shown on a choice. */
 export function isTiled(name: string): boolean {
@@ -520,7 +518,7 @@ const ENTRIES: CatalogEntry[] = [
   { name: "shop_viewing-centre", file: "places/bode-thomas/shop_viewing-centre.glb", place: "place.bode-thomas", source: "assets-src/shop/viewing-centre", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_viewing-centre", buildViewingCentre(HUB_DISH_YAW)) },
 ];
 
-/** The home redesign's first pass: the three homes' shells, the car, and the small things the kit lacked. */
+/** The homes as one wide floor each, the car, and the small things the kit lacked. */
 const HOME_AGENT = "Written as code from the kit (an exploration)";
 function homePiece(name: string, folder: string, build: () => Group): CatalogEntry {
   const [prefix = "", slug = ""] = name.split("_");
@@ -531,21 +529,13 @@ function homePiece(name: string, folder: string, build: () => Group): CatalogEnt
     place: shared ? "shared" : `place.${folder}`,
     source: prefix === "prop" ? `assets-src/prop/home/${slug}` : `assets-src/${prefix}/${slug}`,
     author: HOME_AGENT,
-    views: [...ELEVATIONS, "phone"],
+    // A building's plan as every building's (R-ASSET-020).
+    views: prefix === "bld" ? [...ELEVATIONS, "plan", "phone"] : [...ELEVATIONS, "phone"],
     build: () => staticModel(name, build()),
   };
 }
 ENTRIES.push(
-  homePiece("bld_home-family", "home-family", () => buildHome(HOMES.family)),
-  homePiece("bld_home-room", "home-room", () => buildHome(HOMES.room)),
-  homePiece("bld_home-hostel", "home-hostel", () => buildHome(HOMES.hostel)),
   homePiece("veh_car", "shared", () => buildCar()),
-  homePiece("bld_home-family-room", "home-family-room", () => buildHome(HOMES2["family-room"])),
-  homePiece("bld_home-family-yard", "home-family-yard", () => buildHome(HOMES2["family-yard"])),
-  homePiece("bld_home-room-room", "home-room-room", () => buildHome(HOMES2["room-room"])),
-  homePiece("bld_home-room-yard", "home-room-yard", () => buildHome(HOMES2["room-yard"])),
-  homePiece("bld_home-hostel-room", "home-hostel-room", () => buildHome(HOMES2["hostel-room"])),
-  homePiece("bld_home-hostel-yard", "home-hostel-yard", () => buildHome(HOMES2["hostel-yard"])),
   homePiece("prop_bath-corner", "shared", home.buildBathCorner),
   homePiece("bld_home-family-house", "home-family-house", () => buildHome(HOMES3.family)),
   homePiece("bld_home-room-house", "home-room-house", () => buildHome(HOMES3.room)),

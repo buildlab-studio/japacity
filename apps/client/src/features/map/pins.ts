@@ -40,7 +40,7 @@ export interface PinsInput {
  * Until the published models are known every place with a position stands, as the city's list did.
  */
 /** A rented home is on the map only while it is lived in (home.md R-HOME-010); the family house keeps its place. */
-export const RENTED_HOMES: ReadonlySet<string> = new Set(["place.compound-room"]);
+export const RENTED_HOMES: ReadonlySet<string> = new Set(["place.compound-room", "place.hostel-room"]);
 
 export function mapPins({ places, here, home, homeSpot, been, built, open, name }: PinsInput): MapPin[] {
   return places

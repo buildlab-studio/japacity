@@ -4,7 +4,7 @@ import { time, worldClockAt } from "@japacity/sim";
 import { Color } from "three";
 import { describe, expect, test } from "vitest";
 
-import parlourRaw from "../../../public/assets/places/family-house-parlour/place.json";
+import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
 import { LOOKS, lookAt, ownHeightOf, pinnedClock, pinnedPart, progressIn, skyLightOf, skyOf, sunAt, worldNow } from "./daylight";
 import { type PlaceFile, stageOf } from "./placeFile";
 

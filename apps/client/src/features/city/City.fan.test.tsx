@@ -94,7 +94,6 @@ async function inTheParlour(before: (game: ReturnType<typeof newGame>) => void =
   const game = newGame("scenario.ada");
   before(game);
   const rendered = await renderWithGame(<City world results={(place) => <p data-results-for={place} />} />, game);
-  fireEvent.click(await waitFor(() => found('[data-stand-in-act="house:enter"]')));
   await waitFor(() => found('[data-stand-in-thing="cooking"]'), { timeout: 3000 });
   return { game, ...rendered };
 }
@@ -175,8 +174,8 @@ describe("the cooking corner's fan", () => {
 
   test("[R-WORLD-005] given a thing whose acts are not done at once (the bed's sleep, Mama's bill), when it is tapped, then its chip is asked of the scene and no fan opens", async () => {
     await inTheParlour();
-    fireEvent.click(found('[data-stand-in-thing="bed"]'));
-    expect(found("[data-stand-in-scene]").dataset.standInChosen).toBe("bed");
+    fireEvent.click(found('[data-stand-in-thing="mattress"]'));
+    expect(found("[data-stand-in-scene]").dataset.standInChosen).toBe("mattress");
     expect(document.querySelector("[data-fan]")).toBeNull();
   });
 
