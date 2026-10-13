@@ -5,8 +5,9 @@
 import { Minus, Plus } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-import { agePointsCount, type Archetype, ARCHETYPES, opensChips, savingsOf } from "../../shared/frontdoor/archetypes";
-import { LIFE_THINGS, wayPicture } from "../../shared/frontdoor/lives";
+import { agePointsCount, type Archetype, ARCHETYPES, savingsOf } from "../../shared/frontdoor/archetypes";
+import { LIFE_THINGS } from "../../shared/frontdoor/lives";
+import { WayChips } from "../../shared/frontdoor/WayChips";
 import { FaceSticker, ModelPicture } from "../../shared/frontdoor/LookPicture";
 import { ageStepWords } from "../../shared/datapage/age";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
@@ -28,22 +29,6 @@ export interface LifeProps {
   older: number;
   open: readonly number[];
   onStep: (by: number) => void;
-}
-
-/** The ways a life opens, as picture chips: the picture the table holds for each, and its words. */
-export function WayChips({ id, mark }: { id: string; mark?: string }) {
-  return (
-    <div className="flex flex-wrap justify-center gap-2" {...(mark === undefined ? {} : { [mark]: "" })}>
-      {opensChips(id).map((way, at) => {
-        const picture = wayPicture(way);
-        return (
-          <StickerChip key={way} tint="plain" tilt={at % 2 === 0 ? -2.5 : 2} className="bg-sheet-2! px-3! py-1.5! text-[14px]!">
-            {picture === null ? null : <Tile of={picture} size={20} />} <span data-way>{way}</span>
-          </StickerChip>
-        );
-      })}
-    </div>
-  );
 }
 
 /** One life's card: its thing on the tint of its kind with your face, the tag, the name, the life in words, what it was, the savings. */

@@ -63,8 +63,6 @@ import { buildLabourBus } from "@japacity/assets-src/veh/labour-bus/build";
 import { buildDanfo, buildKeke, buildOkada } from "@japacity/assets-src/veh/vehicles";
 import { Group } from "three";
 
-import { ROSTER } from "../../apps/client/src/features/city/roster";
-
 import { type BakedModel, bakeGroup, linearColour } from "./bake";
 
 export const ROOT = join(import.meta.dirname, "..", "..");
@@ -78,8 +76,11 @@ export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "p
 
 /** A look's portraits for the front door (prologue.md R-PROLOGUE-009, 013): the face for the look strip and the life cards, the whole figure with a hand on the hip, and the figure cheering on the page after Begin. */
 export const PORTRAITS: readonly ViewName[] = ["face", "figure", "cheer"];
-/** The people the front door offers as a look: the city's passers-by (the client's `LOOKS`, from the same roster). */
-const DOOR_LOOKS: ReadonlySet<string> = new Set(ROSTER.filter((person) => person.role === "passer-by").map((person) => person.file.slice("shared/chr/".length, -".glb".length)));
+/**
+ * The people the front door offers as a look: the city's passers-by, the client's `LOOKS` from its roster. Named here,
+ * since the tools never import the client; the client's test of the door's pictures proves each look has its portraits.
+ */
+const DOOR_LOOKS: ReadonlySet<string> = new Set(["chr_ada", "chr_amaka", "chr_bayo", "chr_bisi", "chr_dayo", "chr_emeka", "chr_femi", "chr_kemi", "chr_kunle", "chr_ngozi", "chr_sade", "chr_segun", "chr_tobi", "chr_tolani", "chr_tunde", "chr_zainab"]);
 
 /** Whether a model gets the portraits: a person the door offers as a look. */
 export function isPortrayed(name: string): boolean {

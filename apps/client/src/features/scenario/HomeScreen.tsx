@@ -46,7 +46,7 @@ function HomePicture({ home, className = "", size }: { home: Home | "self-contai
 export function Board({ look, name, caption, thing, onYou, onLife }: { look: string; name: string; caption: string; thing: string | null; onYou: (() => void) | null; onLife: (() => void) | null }) {
   return (
     <div className="band-pill mx-5 mt-3 flex items-center gap-2.5 py-1.5 pr-3.5 pl-1.5" data-door-board>
-      <button type="button" className="shrink-0 rounded-full" aria-label={say("ui.door.edit.you")} onClick={onYou ?? undefined} disabled={onYou === null} data-door-edit="you">
+      <button type="button" className="shrink-0" aria-label={say("ui.door.edit.you")} onClick={onYou ?? undefined} disabled={onYou === null} data-door-edit="you">
         <FaceSticker look={look} size={40} tint="food" />
       </button>
       <button type="button" className="min-w-0 flex-1 truncate text-left text-[14px] font-bold" aria-label={say("ui.door.edit.life")} onClick={onLife ?? undefined} disabled={onLife === null} data-door-edit="life">

@@ -38,7 +38,8 @@ function PhotoCard({ look, style, name }: { look: string; style: LookStyle | und
     <div className="relative mx-auto mt-4 h-[clamp(240px,calc(100dvh-540px),318px)] w-[302px] max-w-[calc(100%-56px)]" data-door-photo>
       <div className="door-card absolute inset-0 rotate-[-2.5deg] p-2.5">
         <div className="door-photo relative h-full overflow-hidden rounded-[14px]">
-          <span className="door-sun absolute top-[22px] right-[26px] size-[58px] rounded-full" aria-hidden />
+          <span className="door-arch absolute bottom-0 left-1/2 h-[62%] w-[56%] -translate-x-1/2" aria-hidden />
+          <span className="door-sun absolute top-[22px] right-[26px] size-[58px]" aria-hidden />
           <FigurePicture look={look} style={style} className="absolute bottom-[-6px] left-1/2 h-[calc(100%+6px)] max-w-none -translate-x-1/2 transition-opacity duration-200" />
         </div>
       </div>
@@ -113,7 +114,7 @@ export function YouScreen({ look, style, name, typed, problem, tried, onName, on
           {LOOKS.map((one, index) => {
             const on = one.id === look;
             return (
-              <button key={one.id} type="button" role="radio" aria-checked={on} aria-label={say("ui.door.look.one", { n: index + 1 })} data-look={one.id} onClick={() => onLook(one.id)} className="relative shrink-0 rounded-full">
+              <button key={one.id} type="button" role="radio" aria-checked={on} aria-label={say("ui.door.look.one", { n: index + 1 })} data-look={one.id} onClick={() => onLook(one.id)} className="relative shrink-0">
                 <FaceSticker look={one.id} size={66} on={on} tilt={index % 2 === 0 ? -3 : 3} tint={DISCS[index % DISCS.length] ?? "plain"} />
                 {on ? (
                   <span className="door-tick absolute right-[-6px] bottom-[-4px]" aria-hidden>

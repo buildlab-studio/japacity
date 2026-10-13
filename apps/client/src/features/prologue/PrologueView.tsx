@@ -30,7 +30,7 @@ import { homePicture, LIFE_THINGS } from "../../shared/frontdoor/lives";
 import { plannedYears } from "../../shared/frontdoor/planned";
 import { FigurePicture, ModelPicture } from "../../shared/frontdoor/LookPicture";
 import { readDoor } from "../../shared/datapage/door";
-import { WayChips } from "../scenario/LifeScreen";
+import { WayChips } from "../../shared/frontdoor/WayChips";
 import { pageOf } from "../../shared/datapage/PageSheet";
 import { presetWait } from "../../shared/net/pace";
 import { readyPercent, readyWords } from "../../shared/words/ready";
