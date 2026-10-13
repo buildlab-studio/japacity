@@ -74,6 +74,13 @@ describe("talk overheard abroad", () => {
     expect(said.filter((words) => /\byard\b/i.test(words))).toEqual([]);
   });
 
+  test("[R-WORLD-026] given the hostel room, when its own lines are read, then each is the corridor's: the line of buckets, the next room's noise, the shared nook; none could be the family's or the compound's", () => {
+    const said = placeLines("place.hostel-room").map((key) => heardWords(key, {}));
+    expect(said.length).toBeGreaterThanOrEqual(2);
+    expect(said.length).toBeLessThanOrEqual(3);
+    for (const words of said) expect({ words, corridor: /bucket|room four|nook|gate/i.test(words), elsewhere: /compound|mama|landlord/i.test(words) }).toEqual({ words, corridor: true, elsewhere: false });
+  });
+
   test("[R-WORLD-026] given the family house, when its own lines are read, then each is the family's: a father, Mama or an uncle, never a line any home could hear", () => {
     const said = placeLines("place.family-house").map((key) => heardWords(key, {}));
     expect(said.length).toBeGreaterThanOrEqual(3);

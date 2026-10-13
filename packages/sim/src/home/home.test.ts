@@ -17,6 +17,8 @@ import { standInWorld } from "../world/standIn";
 const MAKOKO = "place.makoko" as const;
 const FAMILY = "place.family-house" as const;
 const COMPOUND = "place.compound-room" as const;
+/** The fourth home, a hostel room by the month (hostel.test.ts). */
+const HOSTEL = "place.hostel-room" as const;
 const FAMILY_UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";
 const TAKEN_IN: Id<"offer"> = "offer.taken-in";
@@ -145,6 +147,8 @@ describe("the numbers", () => {
       returnStanding: -5,
       compound: { rentYear: 350_000_00, feesBp: 2000, upkeep: 50_000_00 },
       selfContainRentYear: 700_000_00,
+      // the plan section 2: a hostel room's month, about half the room in a compound's month of rent.
+      hostelRentKobo: 15_000_00,
       // R-HOME-012 (decision 0035): the whole of living at home is lived by hand.
       livingByHandBp: 10000,
     });
@@ -171,6 +175,8 @@ describe("the slice", () => {
         // Decision 0035: both homes' living is by hand; what a move takes at once is unchanged.
         { to: MAKOKO, monthly: { currency: "NGN", amount: 0 }, now: home.makokoUpkeep, shut: null },
         { to: COMPOUND, monthly: { currency: "NGN", amount: 0 }, now: MOVE_IN, shut: "short" },
+        // The hostel's month is its rent, which is never lived by hand.
+        { to: HOSTEL, monthly: { currency: "NGN", amount: home.hostelRentKobo }, now: home.hostelRentKobo, shut: null },
       ],
       // no yearly rent is open at the family house.
       roomRent: null,
@@ -609,19 +615,22 @@ describe("the home card's moves", () => {
     expect(game.view().home.moves).toEqual([
       { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null },
       { to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: null },
+      { to: HOSTEL, monthly: { currency: "NGN", amount: home.hostelRentKobo }, now: home.hostelRentKobo, shut: null },
     ]);
   });
 
   test("[R-HOME-008] given Ada short of the first month's rent, when the view is read, then the move is shut as short and the command refuses it the same way; once moved, the move back is shut as moved and refused", () => {
     const game = ada(CHARGED_NEVER);
     setNaira(game, 0, home.makokoUpkeep - 1);
-    expect(game.view().home.moves.map((move) => move.shut)).toEqual(["short", "short"]);
+    // The hostel's first month is less than Makoko's, so it alone stays open.
+    expect(game.view().home.moves.map((move) => move.shut)).toEqual(["short", "short", null]);
     game.expectRejected({ type: "home/move", to: MAKOKO }, "cannot-afford");
     setNaira(game, 0, 5_000_000_00);
     game.accept({ type: "home/move", to: MAKOKO });
     expect(game.view().home.moves).toEqual([
       { to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" },
       { to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: "moved" },
+      { to: HOSTEL, monthly: { currency: "NGN", amount: home.hostelRentKobo }, now: home.hostelRentKobo, shut: "moved" },
     ]);
     game.expectRejected({ type: "home/move", to: FAMILY }, "not-legal");
   });

@@ -17,6 +17,7 @@ export const homeText: Record<string, string> = {
   "phone.home.place.place.family-house": "The family house",
   "phone.home.place.place.makoko": "A room on the water in Makoko",
   "phone.home.place.place.compound-room": "A room in a compound in Ojuelegba",
+  "phone.home.place.place.hostel-room": "A hostel room in Yaba",
   "phone.home.none": "Nowhere of your own right now.",
   "phone.home.guest": "{who} took you in. You stay {until}.",
   "phone.home.charge": "{amount} a month",
@@ -25,6 +26,7 @@ export const homeText: Record<string, string> = {
   "phone.home.charge.place.family-house": "Your share for the house: {amount} a month. Papa pays the rest.",
   "phone.home.charge.place.compound-room": "Living costs {amount} a month",
   "phone.home.charge.place.makoko": "Rent {amount} a month",
+  "phone.home.charge.place.hostel-room": "Rent {amount} a month, paid ahead at each month's end",
   // R-HOME-010: the room's year and when it is next taken.
   "phone.home.rent-year": "Rent {amount} a year, next in {count} months",
   "phone.home.rent-year.one": "Rent {amount} a year, next due next month",
@@ -37,11 +39,13 @@ export const homeText: Record<string, string> = {
   "phone.home.move.place.makoko": "Move to Makoko",
   "phone.home.move.place.family-house": "Move back to the family house",
   "phone.home.move.place.compound-room": "Rent a room in Ojuelegba",
+  "phone.home.move.place.hostel-room": "Take a hostel room in Yaba",
   "phone.home.move.line.place.makoko": "A room on the water for {amount} a month. The first month is paid now.",
   "phone.home.move.line.place.family-house": "Back home: your share for the house {amount} a month, food and light included, and Papa pays the rest. Your people will talk.",
   // R-HOME-010: from the room, the year paid is gone.
   "phone.home.move.line.from.place.compound-room.place.family-house": "Back home: your share for the house {amount} a month, food and light included, and Papa pays the rest. The year's rent stays with the landlord. Your people will talk.",
   "phone.home.move.line.place.compound-room": "A room of your own. {now} now for the year's rent and fees, then {amount} a month to live.",
+  "phone.home.move.line.place.hostel-room": "One small room off a long corridor, by the month. {now} now for the first month, then {amount} at each month's end. No year's rent to find.",
   // R-HOME-012 (decision 0035): the same moves where the living is bought as you go, with no figure a month for it.
   "phone.home.move.line.place.makoko.by-hand": "A room on the water. {now} now for the room. Living is bought as you go.",
   "phone.home.move.line.place.family-house.by-hand": "Back home: a free roof and Mama's pot. Your share for the house is what you buy as you go, and Papa pays the rest. Your people will talk.",

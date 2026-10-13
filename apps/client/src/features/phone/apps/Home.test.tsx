@@ -159,6 +159,24 @@ describe("the home card", () => {
     now.unmount();
   });
 
+  test("[R-HOME-007] [R-HOME-008] given Ada at the family house with a month's hostel rent, when she takes the hostel room from the card, then the button says the first month, the ask says the month by month rent and no year's rent, and once moved the card says the rent a month", async () => {
+    const month = content.tuning.home.hostelRentKobo;
+    const game = newGame();
+    setPockets(game, { NGN: month });
+    const { unmount } = await openBills(game);
+    expect(moveButton("place.hostel-room")?.disabled).toBe(false);
+    expect(moveButton("place.hostel-room")?.textContent).toBe(`${phoneWords("phone.home.move.place.hostel-room")}: ${formatMoney(month, "NGN")}`);
+    fireEvent.click(moveButton("place.hostel-room")!);
+    expect(document.body.textContent).toContain(phoneWords("phone.home.move.line.place.hostel-room", { amount: { currency: "NGN", amount: month }, now: { currency: "NGN", amount: month } }));
+    unmount();
+    game.accept({ type: "home/move", to: "place.hostel-room" });
+    const after = await openBills(game);
+    expect(after.card()?.textContent).toContain(phoneWords("phone.home.place.place.hostel-room"));
+    expect(document.querySelector("[data-home-charge]")?.textContent).toBe(phoneWords("phone.home.charge.place.hostel-room", { amount: { currency: "NGN", amount: month } }));
+    expect(document.querySelector("[data-home-rent-year]")).toBeNull();
+    after.unmount();
+  });
+
   test("[R-HOME-010] [R-HOME-007] given Ada at the family house, when Bills opens, then no yearly rent shows and her charge reads as her share for the house, Papa paying the rest", async () => {
     const game = newGame();
     const { unmount } = await openBills(game);

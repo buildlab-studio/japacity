@@ -169,7 +169,7 @@ export type ReturnShape = "removed" | "assisted" | "broke" | "by-choice" | "with
 export type HomeMoveShut = "moved" | "short";
 
 /** Where the character lives at home: docs/rules/home.md R-HOME-001, the three home places. */
-export type HomePlace = "place.family-house" | "place.makoko" | "place.compound-room";
+export type HomePlace = "place.family-house" | "place.makoko" | "place.compound-room" | "place.hostel-room";
 /** Who takes the character in after an eviction (R-HOME-004). */
 export type HomeHost = "friend" | "someone";
 /** What a status lets you do for work: docs/rules/status.md R-STATUS-002. */
@@ -1359,6 +1359,8 @@ export interface Tuning {
     compound: { rentYear: number; feesBp: number; upkeep: number };
     /** The self-contain's rent a year, shown on the door as a goal (R-PROLOGUE-013). */
     selfContainRentYear: number;
+    /** A hostel room's rent a month, in kobo: about half the room in a compound's month of rent. */
+    hostelRentKobo: number;
     /** R-HOME-012 (decision 0035): the share of a naira upkeep that is lived by hand (meals, water, fares, data) and never charged as the month turns. */
     livingByHandBp: number;
   };

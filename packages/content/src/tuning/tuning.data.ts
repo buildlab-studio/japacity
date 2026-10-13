@@ -278,6 +278,9 @@ export const tuning: Tuning = {
     returnStanding: -5,
     compound: { rentYear: naira(350000), feesBp: pct(20), upkeep: naira(50000) },
     selfContainRentYear: naira(700000),
+    // A hostel room of your own, rented by the month: about half the room in a compound's month of
+    // rent (350,000 naira a year, about 29,200 a month); a working figure, to be tuned by play.
+    hostelRentKobo: naira(15000),
     // R-HOME-012 (decision 0035): at home the whole of living is lived by hand, meals, water, fares and data as acts; nothing of it is charged as the month turns.
     livingByHandBp: pct(100),
   },

@@ -19,8 +19,9 @@ describe("what follows a commit", () => {
     const character = await newLife(server, "acc-1");
     const first = utcDay(server.deps.now());
     // Since decision 0035 a month at home charges no living as it turns, so a month rested with no job moves no money and
-    // the day's totals would not change; the first day's month eats a meal, paid at once, so money moves that day.
-    accepted((await send(server, "acc-1", { type: "activity/now", activity: "activity.cook-at-home", param: null, basedOn: 0 })).body);
+    // the day's totals would not change; the first day's month eats a meal, paid at once, so money moves that day. The
+    // family house's pot is free, so the meal is one of your own, bought.
+    accepted((await send(server, "acc-1", { type: "activity/now", activity: "activity.cook-own", param: null, basedOn: 0 })).body);
     accepted((await send(server, "acc-1", restMonth({ v: 1 }))).body);
     const marked = await server.deps.stores.ledger.mark(character);
     expect(marked?.day).toBe(first);

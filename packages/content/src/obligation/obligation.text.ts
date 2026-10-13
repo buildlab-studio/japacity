@@ -6,6 +6,7 @@ export const obligationText: Record<string, string> = {
   "obligation.upkeep-makoko.name": "Room in Makoko",
   "obligation.upkeep-compound.name": "Living costs in your room",
   "obligation.rent-compound.name": "Rent on your room",
+  "obligation.upkeep-hostel.name": "Rent on your hostel room",
   "obligation.home-support.name": "Money sent home",
   "obligation.salary-loan.name": "Salary loan",
   "obligation.quick-loan.name": "QuickNaira loan",

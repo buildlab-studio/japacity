@@ -1,7 +1,8 @@
 // Home: where the character lives in Lagos (docs/rules/home.md). The family house, a room on the
 // lagoon in Makoko that costs far less until a month the settlement is cleared (then someone takes
 // the character in, or the family does), or a room in a compound in Ojuelegba, its year's rent paid
-// upfront the Lagos way (R-HOME-010). Nothing here moves money between lives (R-PEOPLE-004).
+// upfront the Lagos way (R-HOME-010), or a hostel room rented by the month. Nothing here moves
+// money between lives (R-PEOPLE-004).
 import { check, resolveAmount } from "../engine/check";
 import { bp, divCeil, divFloor } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
@@ -37,11 +38,17 @@ import type { HomeEvent } from "./home.events";
 export const FAMILY_HOUSE: HomePlace = "place.family-house";
 export const MAKOKO: HomePlace = "place.makoko";
 export const COMPOUND: HomePlace = "place.compound-room";
-const HOMES: readonly HomePlace[] = [FAMILY_HOUSE, MAKOKO, COMPOUND];
+/** A hostel room of your own, rented by the month: the cheap way out of the family house. */
+export const HOSTEL: HomePlace = "place.hostel-room";
+const HOMES: readonly HomePlace[] = [FAMILY_HOUSE, MAKOKO, COMPOUND, HOSTEL];
 export const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";
 /** R-HOME-010: the room in a compound's own upkeep, and its year's rent. */
 export const COMPOUND_UPKEEP: Id<"obligation"> = "obligation.upkeep-compound";
 export const COMPOUND_RENT: Id<"obligation"> = "obligation.rent-compound";
+/** The hostel room's rent by the month, a rent like the room's year, named as the home's own charge. */
+export const HOSTEL_RENT: Id<"obligation"> = "obligation.upkeep-hostel";
+/** The rent each rented room is held by: gone, the room is lost (R-HOME-011). */
+const ROOM_RENT: Readonly<Partial<Record<HomePlace, Id<"obligation">>>> = { [COMPOUND]: COMPOUND_RENT, [HOSTEL]: HOSTEL_RENT };
 /** The upkeep a room of one's own charges in place of the family's. */
 const ROOM_UPKEEP: Readonly<Partial<Record<HomePlace, Id<"obligation">>>> = { [MAKOKO]: MAKOKO_UPKEEP, [COMPOUND]: COMPOUND_UPKEEP };
 const ROOM_UPKEEPS: readonly Id<"obligation">[] = [MAKOKO_UPKEEP, COMPOUND_UPKEEP];
@@ -86,13 +93,15 @@ export function compoundMoveIn(home: Tuning["home"]): number {
   return home.compound.rentYear + bp(home.compound.rentYear, home.compound.feesBp);
 }
 
-/** R-HOME-008: what a move takes at once: Makoko's first month's rent, the room's year and fees, nothing for the family house. */
+/** R-HOME-008: what a move takes at once: Makoko's first month's rent, the room's year and fees, the hostel's first month, nothing for the family house. */
 function takesNow(home: Tuning["home"], to: HomePlace): number {
   switch (to) {
     case "place.makoko":
       return home.makokoUpkeep;
     case "place.compound-room":
       return compoundMoveIn(home);
+    case "place.hostel-room":
+      return home.hostelRentKobo;
     case "place.family-house":
       return 0;
     default: {
@@ -173,6 +182,8 @@ function familyUpkeep(read: ReadCtx): Effect[] {
 function monthlyAt(read: ReadCtx, to: HomePlace): number {
   if (to === MAKOKO) return livingCharge(read, MAKOKO_UPKEEP, read.content.tuning.home.makokoUpkeep);
   if (to === COMPOUND) return livingCharge(read, COMPOUND_UPKEEP, read.content.tuning.home.compound.upkeep);
+  // The hostel's month is its rent, which is never lived by hand.
+  if (to === HOSTEL) return read.content.tuning.home.hostelRentKobo;
   return familyUpkeep(read).reduce((sum, effect) => {
     if (effect.type !== "obligation/open") return sum;
     const amount = effect.amount === undefined ? (read.content.obligation[effect.obligation]?.amount ?? 0) : resolveAmount(read, effect.amount);
@@ -263,6 +274,10 @@ function moveTo(ctx: Ctx, to: HomePlace, cause: Cause, charge: boolean, putOut =
     if (charge && rent > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "any", amount: rent, reason: "rent" });
     effects.push({ type: "obligation/open", obligation: COMPOUND_RENT, amount: tuning.home.compound.rentYear });
     effects.push({ type: "obligation/open", obligation: COMPOUND_UPKEEP, amount: tuning.home.compound.upkeep });
+  } else if (to === HOSTEL) {
+    // the plan section 2: the first month's rent on the move, then the month's rent from this month's end, paid ahead.
+    if (charge && rent > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "any", amount: rent, reason: "rent" });
+    effects.push({ type: "obligation/open", obligation: HOSTEL_RENT, amount: tuning.home.hostelRentKobo });
   } else if (to === MAKOKO) {
     if (charge && rent > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "any", amount: rent, reason: "upkeep" });
     effects.push({ type: "obligation/open", obligation: MAKOKO_UPKEEP, amount: rent });
@@ -372,8 +387,10 @@ function clocks(ctx: Ctx): BaseEvent[] {
   const month = ctx.state.turn.month;
   // R-HOME-011: a rent gone bad sends the character back to the family house, as an eviction from Makoko does. The
   // rent's default closed it (the landlord took the room back), so a room lived in with no rent open is a room lost.
-  const renting = Object.values(ctx.state.obligation.items).some((item) => item.entry === COMPOUND_RENT);
-  if (!renting && homeOf(ctx.state, ctx.content).place === COMPOUND) {
+  const lives = homeOf(ctx.state, ctx.content).place;
+  const held = lives === null ? undefined : ROOM_RENT[lives];
+  const renting = Object.values(ctx.state.obligation.items).some((item) => item.entry === held);
+  if (held !== undefined && !renting) {
     return moveTo(ctx, FAMILY_HOUSE, { source: "home.put-out", param: null, terms: {} }, false, true);
   }
   if (home.guest !== null && month >= home.guest.until && !Object.values(ctx.state.offer.items).some((item) => item.entry === WHERE_NEXT)) {
@@ -381,8 +398,8 @@ function clocks(ctx: Ctx): BaseEvent[] {
     ctx.apply([{ type: "offer/open", offer: WHERE_NEXT }], { source: "home.stay-ended", param: null, terms: { rent: makokoUpkeep, months: guestMonths } });
     return [];
   }
-  const lives = upkeepItems(ctx.state, ctx.content).some((item) => item.entry === MAKOKO_UPKEEP);
-  if (homeOf(ctx.state, ctx.content).place !== MAKOKO || !lives) return [];
+  const onWater = upkeepItems(ctx.state, ctx.content).some((item) => item.entry === MAKOKO_UPKEEP);
+  if (lives !== MAKOKO || !onWater) return [];
   const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
   if (!ctx.random.chance("home", evictionChanceBp(read))) return [];
   const lost = Math.min(ctx.state.wallet.pockets.NGN.cash, ctx.content.tuning.home.evictionLossNaira);
@@ -485,12 +502,14 @@ function roomRent(read: ReadCtx): PlayerView["home"]["roomRent"] {
 export function homeView(read: ReadCtx): PlayerView["home"] {
   const lives = homeOf(read.state, read.content);
   const charge = lives.place === null ? undefined : upkeepWhereLiving(read.state, read.content, lives.place);
+  // The hostel's charge a month is its rent.
+  const hostel = lives.place === HOSTEL ? Object.values(read.state.obligation.items).find((item) => item.entry === HOSTEL_RENT) : undefined;
   const atHome = read.state.place.where === "home";
   return {
     place: lives.place,
     since: lives.since,
     guest: lives.guest,
-    rent: charge === undefined ? null : { currency: "NGN", amount: livingCharge(read, charge.entry, charge.amount) },
+    rent: hostel !== undefined ? { currency: "NGN", amount: hostel.amount } : charge === undefined ? null : { currency: "NGN", amount: livingCharge(read, charge.entry, charge.amount) },
     evictionBp: evictionChanceBp(read),
     moved: lives.moved,
     moves: atHome

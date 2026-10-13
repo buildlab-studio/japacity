@@ -175,9 +175,11 @@ describe("moving into the room", () => {
     expect(game.view().home.moves).toEqual([
       { to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" },
       { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: "moved" },
+      // The fourth home, a hostel room by the month.
+      { to: "place.hostel-room", monthly: { currency: "NGN", amount: home.hostelRentKobo }, now: home.hostelRentKobo, shut: "moved" },
     ]);
     month(game);
-    expect(game.view().home.moves.map((move) => move.shut)).toEqual([null, null]);
+    expect(game.view().home.moves.map((move) => move.shut)).toEqual([null, null, null]);
   });
 });
 

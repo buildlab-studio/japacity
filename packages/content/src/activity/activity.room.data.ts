@@ -7,8 +7,17 @@ import { tuning } from "../tuning/tuning.data";
 
 const { room } = tuning;
 
-/** Living in the room in a compound (home.md R-HOME-010): its upkeep is open. */
-const COMPOUND: Requirement = { type: "obligation/has", obligationType: "upkeep", obligation: "obligation.upkeep-compound" };
+/**
+ * Living where the drum is filled free from a tap: the room in a compound (home.md R-HOME-010), its upkeep open, or a
+ * hostel room, its rent open.
+ */
+const COMPOUND: Requirement = {
+  type: "any",
+  of: [
+    { type: "obligation/has", obligationType: "upkeep", obligation: "obligation.upkeep-compound" },
+    { type: "obligation/has", obligationType: "rent", obligation: "obligation.upkeep-hostel" },
+  ],
+};
 
 /** A meal's lift: full, and a little better for it. */
 const MEAL: ActivityEntry["effects"] = [
