@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import { ActivityView } from "../../features/activity/ActivityView";
 import { ObligationView } from "../../features/obligation/ObligationView";
-import { RouteView } from "../../features/route/RouteView";
+import { Japa } from "../../features/phone/apps/Japa";
 import { DECEMBER } from "../../features/setpiece/DecemberScene";
 import { nudgeOf } from "../../features/city/nudge";
 import { engineView, richView } from "../testing/fixtures";
@@ -48,10 +48,13 @@ describe("words that mislead", () => {
     const base = richView();
     const reasons = ["sponsor", "agent", "endorsement"];
     const routes = base.routes.map((route) => (route.lastRefusal === null ? route : { ...route, lastRefusal: { ...route.lastRefusal, reasons } }));
-    await renderWithView(<RouteView />, { ...base, routes });
+    // Moved from the old month page's route cards to Japa's way files: the reasons under the last refusal.
+    await renderWithView(<Japa />, { ...base, routes });
     for (const reason of reasons) {
       expect(uiText[`ui.refusal.${reason}`]).toBeDefined();
-      expect(screen.getByText(say(`ui.refusal.${reason}`))).toBeDefined();
+      const shown = Array.from(document.querySelectorAll(`[data-refusal-reason="${reason}"]`)).map((item) => item.textContent);
+      expect(shown.length).toBeGreaterThan(0);
+      for (const words_ of shown) expect(words_).toBe(say(`ui.refusal.${reason}`));
     }
   });
 

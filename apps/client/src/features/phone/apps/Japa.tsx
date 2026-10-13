@@ -26,6 +26,7 @@ import { blurbOf, hasWords, inMonths, nameOf, runningName, say, sayCount, words 
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
 import { PicCard, PicTile, WordChip } from "../ui";
+import { Goals, StepBar, WayFiles } from "./JapaWays";
 import { RoutePage } from "./PlanSwitch";
 
 const OFFICIAL = "activity.look-into-route";
@@ -240,7 +241,7 @@ export function remindersOf(view: PlayerView): ReminderRow[] {
 }
 
 /** A step, ticked or not; `way`: where an unticked step is taken, or when it comes, on a small line under it. */
-function Step({ met, children, way }: { met: boolean; children: string; way?: string }) {
+function Step({ met, children, way, bar }: { met: boolean; children: string; way?: string; bar?: { have: number; need: number } }) {
   return (
     <li className="flex items-start gap-2.5 px-3 py-2" data-met={met ? "true" : "false"}>
       {/* Done is the mark, with its word for a screen reader (R-TEXT-008); a step still to take is an empty ring. */}
@@ -252,7 +253,9 @@ function Step({ met, children, way }: { met: boolean; children: string; way?: st
         <Circle size={18} className="mt-0.5 shrink-0 text-text-2" aria-hidden />
       )}
       <span className="min-w-0">
-        <span className={`block text-[15px] font-semibold ${met ? "text-text-2" : ""}`}>{children}</span>
+        {/* A step done is struck through as well as ticked; a slow step not yet done shows how far it has come as a bar. */}
+        <span className={`block text-[15px] font-semibold ${met ? "text-text-2 line-through" : ""}`}>{children}</span>
+        {bar === undefined ? null : <StepBar have={bar.have} need={bar.need} label={children} />}
         {way === undefined ? null : (
           <span className="block text-[13px] text-text-2" data-step-way>
             {way}
@@ -329,6 +332,8 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
           <p className="text-[14px]">{words(held.nextStep)}</p>
         </>
       )}
+      <WayFiles view={view} />
+      <Goals view={view} />
       <PapersButton view={view} onOpen={onPapers} />
     </div>
   );
@@ -545,11 +550,13 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
         {route === null || route.state === "heard"
           ? null
           : route.checklist.map((item) => (
-              <Step key={item.id} met={item.met} {...stepWay(route.id, item)}>
+              <Step key={item.id} met={item.met} {...stepWay(route.id, item)} {...(!item.met && item.have !== null && item.need !== null ? { bar: { have: item.have, need: item.need } } : {})}>
                 {checklistWords(route.id, item.id)}
               </Step>
             ))}
       </ul>
+      <WayFiles view={view} />
+      <Goals view={view} />
       <PapersButton view={view} onOpen={openPapers} />
     </div>
   );

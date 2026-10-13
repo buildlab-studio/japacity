@@ -7,8 +7,10 @@ import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { DocumentView } from "../../features/document/DocumentView";
-import { GoalView } from "../../features/goal/GoalView";
 import { OfferView } from "../../features/offer/OfferView";
+import { Japa } from "../../features/phone/apps/Japa";
+import { agoWords } from "../../features/phone/apps/JapaWays";
+import { phoneWords } from "../../features/phone/phone.words";
 import { newGame, openOffer, richAbroadView, richView } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { monthEnding, playerMonth } from "./format";
@@ -76,10 +78,13 @@ describe("one count for months", () => {
     const done = view.goals.done[0];
     if (done === undefined) throw new Error("No goal done in the view.");
     const report = { month: done.month, lines: [], japacityBefore: null, japacityAfter: null, attention: false };
-    await renderWithView(<GoalView />, { ...view, report });
-    expect(screen.getByText(say("ui.goal.done-item", { goal: nameOf(done.id), month: monthEnding(done.month) }))).toBeDefined();
-    // The old page also titled the report "Month N"; the world shows no month number (R-WORLD-002), so the goal's date
-    // is the one month count left on screen.
+    // Moved from the old goals panel to Japa's goals. The world shows no month number (R-WORLD-002), so the date
+    // is said as months ago, counted from the report's own month: a goal done as the report's month ended reads as its
+    // report does, "this month" when the report is this month's, and so on back.
+    await renderWithView(<Japa />, { ...view, report });
+    expect(document.querySelector(`[data-goal-done="${done.id}"]`)?.textContent).toBe(phoneWords("phone.japa.goal.done", { goal: nameOf(done.id), when: agoWords(done.month, view.month) }));
+    expect(agoWords(done.month, view.month)).toBe(agoWords(report.month, view.month));
+    expect(document.querySelector("[data-goals]")?.textContent).not.toMatch(/month \d+/i);
   });
 
   test("given a requirement on the months played, then it names the first month the header shows it met", () => {

@@ -1,0 +1,91 @@
+// The deposit and the plane in the world (docs/rules/world.md R-WORLD-005, R-WORLD-006; route.md; chapter.md R-CHAPTER-006):
+// the bank's counter carries Pay the deposit for the university that made an offer, and the airport's gate Board the plane
+// once a visa is granted; each opens its card and the one button sends the command. Moved from the old month page's route
+// card (features/route/RouteView), whose buttons sent the same commands. The scene is a stand-in that hands the city the
+// taps a player makes; the place files are the ones the game ships.
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import type { PlayerView } from "@japacity/sim";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
+import { richView } from "./shared/testing/fixtures";
+import { renderWithView } from "./shared/testing/render";
+import { say } from "./shared/words/text";
+import type { Act, Thing } from "./shared/world/contract";
+import { City } from "./features/city/City";
+
+type Pick = { kind: "act"; thing: Thing; act: Act };
+
+vi.mock("./features/city/CityScene", () => ({
+  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
+    <div data-stand-in-scene>
+      {(things ?? []).map((thing) => (
+        <span key={thing.id}>
+          {thing.acts.map((one) => (
+            <button key={one.id} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />
+          ))}
+        </span>
+      ))}
+    </div>
+  ),
+}));
+
+// The place files the game ships, read from the disk in place of the server.
+vi.mock("./shared/three/manifest", async (original) => {
+  const real = await original<typeof import("./shared/three/manifest")>();
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const assets = path.join(import.meta.dirname, "..", "public", "assets");
+  return {
+    ...real,
+    loadManifest: () => Promise.resolve({ files: {} }),
+    loadJson: (_manifest: unknown, under: string) => {
+      const file = path.join(assets, under);
+      return Promise.resolve(fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as unknown) : null);
+    },
+  };
+});
+
+beforeEach(() => {
+  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  window.localStorage.clear();
+});
+
+function found(selector: string): HTMLElement {
+  const one = document.querySelector<HTMLElement>(selector);
+  if (one === null) throw new Error(`Nothing at ${selector}.`);
+  return one;
+}
+
+describe("the deposit and the plane in the world", () => {
+  test("[R-WORLD-006] given a school offer and no deposit, when the bank's counter is asked to pay the deposit, then route/pay-deposit names the school", async () => {
+    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.olokun-office"]));
+    // Enough in the naira bank for the deposit, so the card's one button is open (a short balance shuts it, R-WORLD-006).
+    const rich = richView();
+    const view: PlayerView = { ...rich, pockets: { ...rich.pockets, NGN: { ...rich.pockets.NGN, bank: 9_000_000_000 } } };
+    const { authority } = await renderWithView(<City world />, view);
+    fireEvent.click(await waitFor(() => found('[data-stand-in-act="counter:deposit"]'), { timeout: 3000 }));
+    const card = await screen.findByRole("dialog");
+    expect(within(card).getByRole("heading").textContent).toBe(say("ui.route.pay-deposit"));
+    expect(found("[data-ask-main]").getAttribute("data-short")).toBeNull();
+    fireEvent.click(found("[data-ask-main]"));
+    await waitFor(() => expect(authority.sent).toEqual([{ type: "route/pay-deposit", route: "route.uk-masters", school: "school.northgate", basedOn: view.v }]));
+  });
+
+  test("[R-CHAPTER-006] given a granted visa, when the plane is boarded at the airport's gate, then route/depart is sent", async () => {
+    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.airport-lagos"]));
+    const rich = richView();
+    const view: PlayerView = { ...rich, routes: rich.routes.map((route) => ({ ...route, state: "granted" })) };
+    const { authority } = await renderWithView(<City world />, view);
+    fireEvent.click(await waitFor(() => found('[data-stand-in-act="gate:depart"]'), { timeout: 3000 }));
+    const card = await screen.findByRole("dialog");
+    expect(within(card).getByRole("heading").textContent).toBe(say("ui.route.depart"));
+    fireEvent.click(found("[data-ask-main]"));
+    await waitFor(() => expect(authority.sent).toEqual([{ type: "route/depart", route: "route.uk-masters", basedOn: view.v }]));
+  });
+});
