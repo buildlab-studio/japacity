@@ -1,10 +1,17 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// The recorded lives are the simulation's own data, replayed here through the client's save.
+// The recorded lives are the simulation's own data, replayed here through the client's save. The month is lived in the
+// world (docs/rules/world.md R-WORLD-025, R-WORLD-030): acts on the home's things, the bed's Sleep turning it, the results
+// over the scene.
 import { content, text } from "../../../packages/content/src/index";
+import type { Id } from "../../../packages/sim/src/engine/types";
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
+import { start } from "../../../packages/sim/src/testing/play";
 import { standInWorld } from "../../../packages/sim/src/world/standIn";
-import { startReadyLife, startArchetype } from "./door";
+import { startArchetype, startReadyLife } from "./door";
+import { backFromResults, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, seedSave, sleepTheMonth } from "./live";
+
+test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
 /** Text that must never reach the player: kobo, a raw object, a missing value, a words key with no words. */
 const BROKEN: readonly [string, RegExp][] = [
@@ -28,69 +35,111 @@ async function expectNothingBroken(page: Page, when: string): Promise<void> {
   for (const [what, pattern] of BROKEN) expect(shown.match(pattern)?.[0], `${what} on screen ${when}`).toBeUndefined();
 }
 
-async function plan(page: Page, activity: string): Promise<void> {
-  const add = page.getByRole("button", { name: activity, exact: true });
-  if (await add.isEnabled()) await add.click();
+/** The band's age, "23 yrs 2 mo": the clock a month lived moves on (R-WORLD-002). */
+async function bandAge(page: Page): Promise<string> {
+  const said = (await page.locator("[data-band]").textContent()) ?? "";
+  return /\d+ yrs \d+ mo/.exec(said)?.[0] ?? "";
 }
 
-test("a new player picks a life, ends a month and reads the report", async ({ page }) => {
-  await page.goto("/?classic");
+/** One month older than an age as the band says it. */
+function aMonthOn(age: string): string {
+  const [years, months] = (age.match(/\d+/g) ?? []).map(Number);
+  const next = (years ?? 0) * 12 + (months ?? 0) + 1;
+  return `${String(Math.floor(next / 12))} yrs ${String(next % 12)} mo`;
+}
 
-  // A fresh browser has no save, so the life chooser comes first.
-  await expect(page.getByRole("heading", { name: "Who are you?" })).toBeVisible();
+/** An act whose sheet opens over the place (R-WORLD-005): the thing's act, then the sheet's own button for the act chosen. */
+async function actBySheet(page: Page, thing: string, act: string, button: RegExp): Promise<void> {
+  await doAct(page, thing, act);
+  const sheet = page.getByRole("dialog");
+  await sheet.getByRole("button", { name: button }).last().click();
+  await expect(page.getByRole("dialog")).toHaveCount(0, { timeout: 15_000 });
+}
+
+/**
+ * A now-act from the fan (R-WORLD-034): it is done at once, or, when the act asks first, its card opens once the character
+ * has walked to the thing and its own button (the act's name) does it. Either way the fan closes and no sheet is left.
+ */
+async function fanActDone(page: Page, thing: string, activity: string, button: RegExp): Promise<void> {
+  await fanAct(page, thing, activity);
+  const asked = page.getByRole("dialog").getByRole("button", { name: button });
+  if (await asked.last().waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await asked.last().click();
+  await expect(page.getByRole("dialog")).toHaveCount(0, { timeout: 15_000 });
+  await expect(page.locator(`[data-fan="${thing}"]`)).toHaveCount(0, { timeout: 10_000 });
+}
+
+test("a new player picks a life, lives a month and reads its results", async ({ page }) => {
+  test.setTimeout(150_000);
+  await page.goto(`/${LIVED}`);
+
+  // A fresh browser has no save, so the start screen and the door come first.
+  await expect(page.getByRole("button", { name: /^Next/ }).first()).toBeVisible({ timeout: 20_000 });
   await startReadyLife(page);
+  await expect(page.locator("[data-band]")).toBeVisible();
+  await placeReady(page);
+  await passHomeTeach(page);
+  const age = await bandAge(page);
+  expect(age).not.toBe("");
 
-  await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Next month" }).click();
-
-  const report = page.getByRole("dialog");
-  await expect(report).toBeVisible();
-  await expect(report.getByRole("heading", { name: "Month 1" })).toBeVisible();
-  await expect(report.getByText(/^Japacity: /)).toBeVisible();
-
-  await report.getByRole("button", { name: "Close" }).click();
-  await expect(page.getByRole("heading", { name: "Month 2", exact: true })).toBeVisible();
+  const results = await sleepTheMonth(page);
+  await expect(results.getByRole("heading", { name: "The month is done" })).toBeVisible();
+  await expect(results.locator("[data-results-kept]")).toBeVisible();
+  await expect(results).toContainText(aMonthOn(age));
+  await backFromResults(page);
+  expect(await bandAge(page)).toBe(aMonthOn(age));
 
   // The life survives a reload.
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Month 2", exact: true })).toBeVisible();
+  await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator("[data-band]")).toContainText(aMonthOn(age));
 });
 
-test("three months of play show no kobo, raw object, missing value or bare key", async ({ page }) => {
-  await page.goto("/?classic");
+test("three months of play show no kobo, raw object, missing value or bare key", async ({ page }, info) => {
+  test.skip(info.project.name !== "Pixel 7", "The month's acts are tapped at phone size");
+  test.setTimeout(300_000);
+  await page.goto(`/${LIVED}`);
   await startReadyLife(page);
-  await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
+  await placeReady(page);
+  await passHomeTeach(page);
   await expectNothingBroken(page, "at the start");
+  await intoTheRoom(page);
 
-  const months = [
-    ["Look for a job", "Apply for a passport", "Ask around at the motor park"],
-    ["Look for a job", "Take a side gig", "Study for the English test"],
-    // rest is never planned, an empty slot rests; time with family and a run fill the month.
-    ["Take a side gig", "Time with family", "Morning run"],
+  // Each month, acts on the home's things: from the fan (R-WORLD-034) and from a thing's sheet (R-WORLD-005).
+  const months: ((page: Page) => Promise<void>)[] = [
+    async (here) => {
+      await fanActDone(here, "cooking", "activity.cook-at-home", /^Indomie and egg/);
+      await actBySheet(here, "table", "study", /^Study for the English test/);
+    },
+    async (here) => {
+      await actBySheet(here, "mama", "family-time", /^Time with family/);
+      await fanActDone(here, "drum", "activity.fetch-water", /^Fetch water/);
+    },
+    async (here) => {
+      await fanActDone(here, "tv", "activity.watch-tv", /^Nollywood with Papa/);
+      await fanActDone(here, "drum", "activity.bucket-bath", /^Bucket bath/);
+    },
   ];
-  for (const [index, activities] of months.entries()) {
+  for (const [index, play] of months.entries()) {
     const month = index + 1;
-    for (const activity of activities) await plan(page, activity);
-    await page.getByRole("button", { name: "Next month" }).click();
-    // A staged moment may come first (an answer told over the page, R-WORLD-008); Carry on takes it away.
-    const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
-    for (let shown = 0; shown < 5 && (await carryOn.isVisible().catch(() => false)); shown += 1) await carryOn.click();
-    const report = page.getByRole("dialog");
-    await expect(report.getByRole("heading", { name: `Month ${String(month)}` })).toBeVisible();
-    await expectNothingBroken(page, `in the report for month ${String(month)}`);
-    await report.getByRole("button", { name: "Close" }).click();
-    await expect(page.getByRole("heading", { name: `Month ${String(month + 1)}`, exact: true })).toBeVisible();
-    // What was started carries on into the next month by itself (R-WORLD-007): no Same again, and the free time is said in words.
-    await expect(page.getByRole("button", { name: "Same again" })).toHaveCount(0);
-    await expect(page.getByText(/^Free time: (you rest|all used|[a-z]+ left)$/)).toBeVisible();
-    const remove = page.getByRole("button", { name: /^Take out/ });
-    while ((await remove.count()) > 0) await remove.first().click();
+    await play(page);
+    await expectNothingBroken(page, `after the acts of month ${String(month)}`);
+    const results = await sleepTheMonth(page);
+    await expect(results.getByRole("heading", { name: "The month is done" })).toBeVisible();
+    await expectNothingBroken(page, `in the results of month ${String(month)}`);
+    await backFromResults(page);
+    // What was started carries on into the next month by itself (R-WORLD-007): the Calendar says it, with no Same again.
+    await page.locator("[data-band-month]").click();
+    const calendar = page.locator("[data-app-screen='calendar']");
+    await expect(calendar.locator("[data-calendar]").first()).toBeVisible();
+    await expect(calendar.getByRole("button", { name: "Same again" })).toHaveCount(0);
+    await expectNothingBroken(page, `in the Calendar of month ${String(month + 1)}`);
+    await putPhoneAway(page);
     await expectNothingBroken(page, `in month ${String(month + 1)}`);
   }
 });
 
-test("[R-PROLOGUE-014] a life from sixteen fills its page with no card, waits on it, and opens the first month on Go", async ({ page }) => {
-  await page.goto("/?classic");
+test("[R-PROLOGUE-014] a life from sixteen fills its page with no card, waits on it, and opens the world on Go", async ({ page }) => {
+  await page.goto(`/${LIVED}`);
   await startArchetype(page, "The developer", 30_000, true);
 
   // The years go by on the page with no card (prologue.md R-PROLOGUE-010, 014).
@@ -107,8 +156,9 @@ test("[R-PROLOGUE-014] a life from sixteen fills its page with no card, waits on
   await page.waitForTimeout(4_000);
   await expect(handover).toBeVisible();
   await handover.getByRole("button", { name: "Go", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible({ timeout: 6_000 });
-  await expectNothingBroken(page, "in the first month");
+  await expect(page.locator("[data-band]")).toBeVisible({ timeout: 6_000 });
+  await expect(handover).toHaveCount(0);
+  await expectNothingBroken(page, "in the world");
 });
 
 /** Ada's recorded life up to the flight: the client loads it as a save through the local authority. */
@@ -118,53 +168,65 @@ function adaBeforeFlight(): string {
   return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, -1) }, clock: { anchor: 0 } });
 }
 
-/** On a phone a panel is behind its tab; on a desktop every panel shows and the tab bar is hidden. */
-async function openTab(page: Page, name: string): Promise<void> {
-  const tabs = page.getByRole("navigation", { name: "Sections" });
-  // The bar is there once the shell has drawn; right after a reload it is not yet, and its absence would read as a desktop.
-  await page.getByRole("banner").waitFor();
-  if (await tabs.isVisible()) await tabs.getByRole("button", { name }).click();
-}
-
-/** Ada's save goes in once per tab, so a reload keeps what was played since. */
-async function seedAda(page: Page): Promise<void> {
-  await page.addInitScript((stored) => {
-    if (sessionStorage.getItem("seeded") === null) {
-      localStorage.setItem("japacity.save", stored);
-      sessionStorage.setItem("seeded", "1");
-    }
-  }, adaBeforeFlight());
-  await page.goto("/?classic");
-}
-
 /**
- * R-SHARE-001: the recorded life loads in the month after its decision day, so
- * the granted card is still due and opens over the page first; it is closed.
+ * R-SHARE-001: the recorded life loads in the month after its decision day, so the granted card is still due and opens
+ * over the world first; it is closed.
  */
 async function closeGranted(page: Page): Promise<void> {
   const granted = page.getByRole("dialog", { name: text["share.granted.title"] ?? "share.granted.title" });
-  await expect(granted).toBeVisible();
+  await expect(granted).toBeVisible({ timeout: 30_000 });
   await expect(granted.locator("[data-share-card='granted']")).toBeVisible();
   await granted.getByRole("button", { name: "Close" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 }
 
+/** The ride to a stop the map holds open (R-WORLD-015, R-WORLD-017), by the stop's button beside the painted map. */
+async function rideTo(page: Page, id: string): Promise<void> {
+  await page.locator('[data-thumb="map"]').click();
+  await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
+  await page.evaluate((stop) => document.querySelector<HTMLButtonElement>(`[data-stop="${stop}"]`)?.click(), id);
+  await page.locator(`[data-ride-sheet="${id}"] [data-ride-main]`).click();
+  await page.waitForFunction((stop) => {
+    const city = (window as unknown as { __city?: { ready?: boolean; place?: string } }).__city;
+    return city?.place === stop && city.ready === true;
+  }, id, { timeout: 90_000 });
+}
+
+/** The send-off card opens once the flight's moment is closed; it is closed in turn (R-CHAPTER-006). */
+async function closeSendOff(page: Page): Promise<void> {
+  const card = page.locator("[data-share-card='send-off']");
+  await expect(card).toBeVisible();
+  await expect(card.getByText("Japacity is a game.")).toBeVisible();
+  await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
+  await expect(page.locator("[data-share-card]")).toHaveCount(0);
+}
+
+/** At the airport's departures, Board the plane (R-CHAPTER-006, route/depart): the landing takes the whole screen, then the send-off. */
 async function boardThePlane(page: Page): Promise<void> {
   await closeGranted(page);
-  await openTab(page, "Japa");
-  await page.getByRole("button", { name: "Board the plane" }).click();
-  const moment = page.getByRole("dialog");
-  await expect(moment).toBeVisible();
-  await expect(moment.getByRole("heading", { name: /fl(y|ew) out/i })).toBeVisible();
-  await expectNothingBroken(page, "on the flight");
-  await moment.getByRole("button", { name: "Carry on" }).click();
-  // R-CHAPTER-006: the send-off card follows the flight's moment.
+  await placeReady(page);
+  await rideTo(page, "place.airport-lagos");
+  await doAct(page, "gate", "depart");
+  const board = page.locator("[data-ask-main]");
+  await expect(board).toContainText("Board the plane");
+  await board.click();
+  const moment = page.locator("[data-moment-screen]");
+  await expect(moment).toBeVisible({ timeout: 30_000 });
+  const box = await moment.boundingBox();
+  const size = page.viewportSize();
+  expect(box !== null && size !== null && box.width >= size.width && box.height >= size.height).toBe(true);
+  await expect(moment).toContainText(/landed/i);
+  await expectNothingBroken(page, "on the landing");
+  await moment.getByRole("button", { name: "Close" }).click();
   await closeSendOff(page);
+  await passCards(page);
+  await placeReady(page);
+  await passHomeTeach(page);
 }
 
 /**
- * The months abroad to play before the December visit opens: it opens as a
- * December month ends, and the world, not the recorded seed, says which month that is.
+ * The months abroad to live before the December visit opens: it opens as a December month ends, and the world, not the
+ * recorded seed, says which month that is.
  */
 function monthsToDecember(): number {
   const save = lifeSaves["ada-careful"];
@@ -176,111 +238,101 @@ function monthsToDecember(): number {
   throw new Error("No December in the year after the flight.");
 }
 
-/** Ends the month, steps through any staged moments, reads the report and closes it. */
-async function endMonthAndRead(page: Page, when: string): Promise<void> {
-  await openTab(page, "Month");
-  await page.getByRole("button", { name: "Next month" }).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
-  for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) await carryOn.click();
-  const report = page.getByRole("dialog");
-  await expect(report.getByRole("heading", { name: /^Month \d+$/ })).toBeVisible();
+/** Sleeps the month through, reads the results for broken text and goes back to the place. */
+async function liveMonthAndRead(page: Page, when: string): Promise<void> {
+  const results = await sleepTheMonth(page);
+  await expect(results.getByRole("heading", { name: "The month is done" })).toBeVisible();
   await expectNothingBroken(page, when);
-  await report.getByRole("button", { name: "Close" }).click();
+  await backFromResults(page);
 }
 
-/** The send-off card opens once the report is closed; it is closed in turn. */
-async function closeSendOff(page: Page): Promise<void> {
-  const card = page.locator("[data-share-card='send-off']");
-  await expect(card).toBeVisible();
-  await expect(card.getByText("Japacity is a game.")).toBeVisible();
-  await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-}
-
-test("a recorded life boards the plane, the flight gets the whole screen, and life abroad has its own tabs", async ({ page }) => {
-  await seedAda(page);
+test("a recorded life boards the plane, the landing gets the whole screen, and life abroad has its own money, room and visa", async ({ page }, info) => {
+  test.skip(info.project.name !== "Pixel 7", "The world is lived at phone size");
+  test.setTimeout(240_000);
+  await seedSave(page, adaBeforeFlight());
+  await page.goto(`/${LIVED}`);
   await boardThePlane(page);
 
-  const tabs = page.getByRole("navigation", { name: "Sections" });
-
-  // The bar is there once the shell has drawn; right after a reload it is not yet, and its absence would read as a desktop.
-
-  await page.getByRole("banner").waitFor();
-  if (await tabs.isVisible()) {
-    await expect(tabs.getByRole("button")).toHaveText(["Month", "You", "Money", "Status", "People", "Home"]);
-  }
-  await openTab(page, "Status");
-  await expect(page.getByRole("heading", { name: "Status", exact: true })).toBeVisible();
-  await openTab(page, "Home");
-  await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
+  // Abroad: the band counts the country's money and names the room there; the Japa app holds the visa and the landing.
+  await expect(page.locator("[data-band]")).toContainText("£");
+  const abroad = await placeNow(page);
+  expect(abroad).not.toBe("place.family-house");
+  const japa = await openApp(page, "japa");
+  await expect(japa.locator("[data-japa-visa]")).toBeVisible();
+  await expect(japa.locator("[data-landing]")).toBeVisible();
   await expectNothingBroken(page, "on landing");
+  await putPhoneAway(page);
 
   // The life abroad survives a reload; the card closed before it stays closed, since the month's memory keeps that (R-WORLD-008).
   await page.reload();
-  await openTab(page, "Home");
+  await placeReady(page);
   await expect(page.locator("[data-share-card]")).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
+  expect(await placeNow(page)).toBe(abroad);
+  await expect(page.locator("[data-band]")).toContainText("£");
 
-  // A month abroad and its report; the card had its month and does not come back, after a reload either.
-  await endMonthAndRead(page, "in the first report abroad");
+  // A month abroad and its results; the card had its month and does not come back, after a reload either.
+  await liveMonthAndRead(page, "in the first results abroad");
+  await passCards(page);
   await expect(page.locator("[data-share-card]")).toHaveCount(0);
   await page.reload();
-  await openTab(page, "Home");
-  await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
+  await placeReady(page);
+  expect(await placeNow(page)).toBe(abroad);
   await expect(page.locator("[data-share-card]")).toHaveCount(0);
 });
 
-test("a life abroad answers the December visit, changes money and comes home", async ({ page }) => {
-  await seedAda(page);
+test("a life abroad answers the December visit and changes money", async ({ page }, info) => {
+  test.skip(info.project.name !== "Pixel 7", "The world is lived at phone size");
+  test.setTimeout(420_000);
+  await seedSave(page, adaBeforeFlight());
+  await page.goto(`/${LIVED}`);
   await boardThePlane(page);
 
-  // December: the visit takes the whole screen once the report is closed.
+  // December: the visit waits on its answers once the December month has ended; its line under the band opens it.
   const months = monthsToDecember();
-  for (let month = 1; month < months; month += 1) await endMonthAndRead(page, `in report ${String(month)} abroad`);
-  await endMonthAndRead(page, "in the December report");
-  const scene = page.getByRole("dialog");
-  await expect(scene.locator("[data-scene='setpiece.december']")).toBeVisible();
+  for (let month = 1; month <= months; month += 1) await liveMonthAndRead(page, `in results ${String(month)} abroad`);
+  await passCards(page);
+  const nudge = page.locator("[data-nudge-open]");
+  await expect(nudge).toHaveText("Answer what you were asked");
+  await nudge.click();
+  // The line opens the asks, the December tile first, and the visit's scene over them; the tile's Answer now opens it when it has not.
+  const asks = page.locator("[data-world-sheet='asks']");
+  await expect(asks.locator("[data-december-tile]")).toBeAttached();
+  const scene = page.locator("[data-scene='setpiece.december']");
+  if (!(await scene.waitFor({ state: "visible", timeout: 3000 }).then(() => true, () => false))) await asks.locator("[data-december-tile] button").click();
+  await expect(scene).toBeVisible();
   await expectNothingBroken(page, "in the December visit");
   const go = scene.locator("[data-answer='go']");
   await expect(go.getByRole("button")).toBeDisabled();
   await expect(go.getByText(/You cannot do that now/)).toBeVisible();
   await scene.locator("[data-answer='stay']").getByRole("button").click();
+  // The rest of the visit's questions, each by its first answer allowed, until the scene is done.
+  for (let question = 0; question < 6 && (await scene.count()) > 0; question += 1) {
+    await scene.locator("[data-answer][data-allowed='true']").first().getByRole("button").click({ timeout: 5000 }).catch(() => undefined);
+    await page.waitForTimeout(400);
+  }
+  await expect(scene).toHaveCount(0);
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.locator("[data-december-tile]")).toHaveCount(0);
 
-  // Dollars into naira at the bank, so the fare home can be bought.
-  await openTab(page, "Money");
-  await page.getByRole("button", { name: "Change money" }).click();
-  const sheet = page.getByRole("dialog");
-  await sheet.getByLabel("From").selectOption({ label: "Dollars" });
-  await sheet.getByLabel("To").selectOption({ label: "Naira" });
-  await sheet.getByLabel("Amount").fill("5000");
-  await sheet.getByRole("button", { name: "Do it" }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-
-  // Home, by choice.
-  await openTab(page, "Home");
-  await expect(page.getByText("Today you would come home by choice.", { exact: false })).toBeVisible();
-  await page.getByRole("button", { name: "Go home", exact: true }).click();
-  await page.getByRole("button", { name: "Yes, go" }).click();
-  const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
-  for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) await carryOn.click();
-
-  const tabs = page.getByRole("navigation", { name: "Sections" });
-
-  // The bar is there once the shell has drawn; right after a reload it is not yet, and its absence would read as a desktop.
-
-  await page.getByRole("banner").waitFor();
-  if (await tabs.isVisible()) await expect(tabs.getByRole("button")).toHaveText(["Month", "You", "Money", "Japa", "People", "News"]);
-  await openTab(page, "You");
-  await expect(page.getByRole("list", { name: "Times you came home" })).toContainText("by choice");
-  await expectNothingBroken(page, "back home");
+  // Dollars into naira at the bank (R-WALLET-005), the money held at home for the fare back.
+  const bank = await openApp(page, "bank");
+  const naira = async () => Number(((await bank.locator("[data-held='NGN']").textContent()) ?? "").replace(/[^\d]/g, ""));
+  const dollars = async () => Number(((await bank.locator("[data-held='USD']").textContent()) ?? "").replace(/[^\d]/g, ""));
+  const [nairaBefore, dollarsBefore] = [await naira(), await dollars()];
+  await bank.locator("[data-held='USD']").getByRole("button").click();
+  const chooser = bank.locator("[data-chooser='change']");
+  await chooser.getByRole("radiogroup", { name: /into|to/i }).getByRole("radio", { name: "Naira" }).click();
+  await chooser.locator("[data-go='change']").click();
+  await page.locator("[data-ask-main]").click();
+  await expect.poll(dollars).toBeLessThan(dollarsBefore);
+  await expect.poll(naira).toBeGreaterThan(nairaBefore);
+  await expectNothingBroken(page, "after changing money");
 });
 
-/** The header's japacity figure: its face and size as the browser draws it. */
-async function headerFigure(page: Page): Promise<{ family: string; size: number }> {
-  const figure = page.locator("header [data-japacity-figure]");
+/** The japacity figure in the Japa app: its face and size as the browser draws it. */
+async function japaFigure(page: Page): Promise<{ family: string; size: number }> {
+  const japa = await openApp(page, "japa");
+  const figure = japa.locator("[data-japa-percent]");
   await expect(figure).toBeVisible();
   return figure.evaluate((element) => {
     const style = getComputedStyle(element);
@@ -288,60 +340,71 @@ async function headerFigure(page: Page): Promise<{ family: string; size: number 
   });
 }
 
-test.describe("the header on a 390 px phone", () => {
-  test.use({ viewport: { width: 390, height: 844 } });
+for (const [where, viewport] of [["a 390 px phone", { width: 390, height: 844 }], ["a desktop", { width: 1280, height: 800 }]] as const) {
+  test.describe(`the japacity figure on ${where}`, () => {
+    test.use({ viewport });
 
-  test("the japacity figure is set in the body face, large enough to read, and the game's name is not said twice", async ({ page }) => {
-    await seedAda(page);
-    const { family, size } = await headerFigure(page);
-    expect(family).not.toMatch(/Danfo/);
-    expect(size).toBeGreaterThanOrEqual(18);
-    // The game's name stays for screen readers but takes no room beside the japacity label.
-    const name = await page.locator("header h1").boundingBox();
-    expect(name?.width ?? 0).toBeLessThanOrEqual(1);
+    test("the japacity figure is set in the body face, large enough to read, and the game's name is said once", async ({ page }) => {
+      test.setTimeout(120_000);
+      await seedSave(page, adaBeforeFlight());
+      await page.goto(`/${LIVED}`);
+      await closeGranted(page);
+      const { family, size } = await japaFigure(page);
+      expect(family).not.toMatch(/Danfo/);
+      expect(family).toMatch(/Rubik/);
+      expect(size).toBeGreaterThanOrEqual(24);
+      // No page header names the game over the world (R-WORLD-001), and the app says Japacity once, over its figure.
+      await expect(page.locator("header h1")).toHaveCount(0);
+      const head = await page.locator("[data-app-screen='japa'] [data-japa-head]").textContent();
+      expect(head?.match(/japacity/gi) ?? []).toHaveLength(1);
+    });
   });
-});
+}
 
-test.describe("the header on a desktop", () => {
-  test.use({ viewport: { width: 1280, height: 800 } });
-
-  test("the japacity figure keeps the display face, larger", async ({ page }) => {
-    await seedAda(page);
-    const { family, size } = await headerFigure(page);
-    expect(family).toMatch(/Danfo/);
-    expect(size).toBeGreaterThanOrEqual(24);
-  });
-});
+/** Tunde's life played by the simulation until the tutoring is offered: the job hunt asked for it each month, at most twelve. */
+function tundeOfferedTutoring(): string {
+  const game = start({ scenario: "scenario.tunde", content });
+  const tutoring = "activity.weekend-tutoring" as Id<"activity">;
+  const offered = () => game.view().offers.some((offer) => offer.terms.job === tutoring);
+  for (let month = 0; month < 12 && !offered(); month += 1) {
+    if (game.state.turn.banked === 0) game.grant(1);
+    game.endTurn([{ activity: "activity.job-hunt", param: tutoring }] as Parameters<typeof game.endTurn>[0]);
+  }
+  if (!offered()) throw new Error("The tutoring was never offered.");
+  if (game.state.turn.banked === 0) game.grant(1);
+  return JSON.stringify({ save: game.save, clock: { anchor: 0 } });
+}
 
 test.describe("the side job on a 390 px phone", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("a side job's words keep the card's width, with the quit button under them", async ({ page }) => {
-    await page.goto("/?classic");
-    await startReadyLife(page);
-    await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
+  test("a side job taken in Jobs keeps its words whole across the row, with the quit button beside them inside the screen", async ({ page }) => {
+    test.setTimeout(120_000);
+    await seedSave(page, tundeOfferedTutoring());
+    await page.goto(`/${LIVED}`);
+    await passCards(page);
+    await placeReady(page);
+    await passHomeTeach(page, 2000);
 
-    const side = page.locator("[data-side-job]");
-    for (let month = 0; month < 12 && !(await side.isVisible()); month += 1) {
-      await openTab(page, "Month");
-      const accept = page.getByRole("button", { name: /^Accept/ });
-      if (await accept.isVisible()) {
-        await accept.click();
-        continue;
-      }
-      const hunt = page.locator("li", { has: page.getByRole("heading", { name: "Look for a job", exact: true }) });
-      await hunt.getByRole("radio", { name: /^Weekend tutoring/ }).click();
-      await page.getByRole("button", { name: "Look for a job", exact: true }).click();
-      await endMonthAndRead(page, `while looking for a side job, month ${String(month + 1)}`);
-    }
-
+    const jobs = await openApp(page, "jobs");
+    const offer = jobs.locator("[data-offer]", { hasText: /tutoring/i }).first();
+    await offer.getByRole("radio").click();
+    await jobs.locator("[data-take-offer]").click();
+    await page.locator("[data-ask-main]").click();
+    const side = jobs.locator("[data-job-row]", { hasText: /tutoring/i });
     await expect(side).toBeVisible();
-    const words = await side.locator("[data-side-words]").boundingBox();
-    const quit = await side.getByRole("button", { name: "Quit the side job" }).boundingBox();
-    const card = await side.boundingBox();
-    expect(words !== null && quit !== null && card !== null).toBe(true);
-    if (words === null || quit === null || card === null) return;
-    expect(quit.y).toBeGreaterThanOrEqual(words.y + words.height);
-    expect(words.width).toBeGreaterThan(card.width * 0.8);
+    await expectNothingBroken(page, "on the side job");
+
+    const row = await side.boundingBox();
+    const words = await side.locator("p").first().boundingBox();
+    const quit = await side.getByRole("button", { name: "Quit" }).boundingBox();
+    const screen = await jobs.boundingBox();
+    expect(row !== null && words !== null && quit !== null && screen !== null).toBe(true);
+    if (row === null || words === null || quit === null || screen === null) return;
+    // The name is whole, never cut: it fits the room the row gives it.
+    expect(await side.locator("p").first().evaluate((name) => name.scrollWidth <= name.clientWidth)).toBe(true);
+    expect(quit.x).toBeGreaterThanOrEqual(words.x + words.width);
+    expect(quit.x + quit.width).toBeLessThanOrEqual(screen.x + screen.width);
+    expect(words.width).toBeGreaterThan(row.width * 0.5);
   });
 });
