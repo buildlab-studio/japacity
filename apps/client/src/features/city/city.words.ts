@@ -41,9 +41,6 @@ export const cityText: Record<string, string> = {
   "city.map.no-visa": "No visa yet",
   "city.map.not-open": "Not in this life yet",
   "city.hud.month": "Month {month}",
-  "city.phone": "Phone",
-  "city.phone.back": "Back",
-  "city.phone.apps": "Apps",
   // The band says what a home is, in few words (R-WORLD-002).
   "city.home.compound-room": "Your room, a compound in Ojuelegba",
   "city.home.hostel-room": "Your hostel room, Yaba",
