@@ -36,16 +36,19 @@ export function WorldSheet({ open, onClose, label, title, children, foot, mark }
         <Dialog.Backdrop className="motion-scrim fixed inset-0 z-40 bg-scrim/60 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
         <Dialog.Popup className="motion-sink fixed inset-x-0 bottom-0 z-50 outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none" data-world-sheet={mark}>
           <SheetClose.Provider value={onClose}>
-          <div className="panel rise mx-2 mb-2 flex max-h-[min(78dvh,640px)] flex-col overflow-hidden">
-            <div className="band relative shrink-0 px-4 pt-4 pb-3 pr-12">
-              <Dialog.Description className="label label-strong truncate">{label}</Dialog.Description>
-              <Dialog.Title className="title text-[24px] leading-tight">{title}</Dialog.Title>
-              <Dialog.Close aria-label={say("ui.world.close")} className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-[5px] text-on-strong/80">
+          {/* The lively sheet (docs/design/13-the-lively-layer.md section 2): the sheet's pale sky, a 26 px top, the handle,
+              a title of a few words over a small line, in the centred column on a laptop; navy at night. */}
+          <div className="rise mx-auto flex max-h-[min(86dvh,700px)] w-full max-w-[430px] flex-col overflow-hidden rounded-t-[26px] bg-sheet text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]" data-lively-frame>
+            <div className="relative shrink-0 px-4 pt-2 pr-12 pb-1">
+              <span aria-hidden className="mx-auto mb-2 block h-[5px] w-10 rounded-[3px] bg-text/25" />
+              <Dialog.Description className="truncate text-[13px] font-medium text-text-2">{label}</Dialog.Description>
+              <Dialog.Title className="text-title font-bold">{title}</Dialog.Title>
+              <Dialog.Close aria-label={say("ui.world.close")} className="press absolute top-3 right-3 flex size-9 items-center justify-center rounded-full text-text-2">
                 <X size={18} />
               </Dialog.Close>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div>
-            {foot === undefined ? null : <div className="shrink-0 border-t border-sheet-line p-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))]">{foot}</div>}
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-2 pb-4">{children}</div>
+            {foot === undefined ? null : <div className="shrink-0 px-4 pt-2 pb-[max(16px,env(safe-area-inset-bottom))]">{foot}</div>}
           </div>
           </SheetClose.Provider>
         </Dialog.Popup>

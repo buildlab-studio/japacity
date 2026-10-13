@@ -67,6 +67,16 @@ export const livelyText: Record<string, string> = {
   "ui.brief.count.8": "Eight",
   "ui.brief.count.9": "Nine",
   "ui.brief.count.10": "Ten",
+  // The ask: who asks, a title in their voice, the kind as a chip.
+  "ui.ask.unknown": "Unknown number",
+  "ui.ask.someone": "Someone you know",
+  "ui.ask.group.family": "Family",
+  "ui.ask.group.job": "Work",
+  "ui.ask.group.money": "Money",
+  "ui.ask.group.life": "Life",
+  "ui.ask.group.road": "The road",
+  "ui.ask.group.abroad": "Abroad",
+  "ui.ask.group.return": "Home",
   // The talk budget: someone near the player, and a longer line opened in its sheet.
   "ui.talk.someone": "Someone nearby",
   "ui.talk.open": "{name} has more to say",

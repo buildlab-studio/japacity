@@ -609,3 +609,25 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   line-height: 1;
   box-shadow: 0 0 0 1.5px #1c2a5e, 0 3px 0 #1c2a5e;
 }
+/* The ask: each reply a white row with the edge, its price a yellow pill with the navy
+   underside, "Free" the same pill; the asker's mark a large flat round with a ring. */
+.ask-reply {
+  border-radius: 20px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 0 0 1.5px var(--edge);
+}
+.ask-price {
+  border: 2px solid var(--action-under);
+  border-radius: 12px;
+  padding: 4px 12px;
+  background: var(--action);
+  color: var(--action-text);
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 var(--action-under);
+}
+.ask-mark { box-shadow: 0 0 0 4px var(--sheet-2), 0 0 0 5.5px var(--edge), 0 5px 0 5.5px var(--edge); }
+/* An honest ask's main answer: the same white row with the navy underside, the press it invites (R-ADVICE-006). */
+.ask-reply-main { box-shadow: 0 0 0 2px var(--edge), 0 4px 0 2px var(--edge); }

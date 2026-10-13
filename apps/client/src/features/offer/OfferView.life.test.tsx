@@ -72,15 +72,16 @@ describe("the luck offers and the offers abroad, from the engine", () => {
       openOffer(game, entry);
       await renderWithView(<OfferView />, game.view());
       const buttons = within(cardOf(entry)).getAllByRole("button");
-      expect(buttons.map((button) => button.className.includes("bg-accent"))).toEqual(buttons.map(() => false));
-      expect(buttons[0]!.textContent).toBe(text[`${entry}.choice.${no}`]);
-      expect(buttons[1]!.textContent).toContain(text[`${entry}.choice.${pay}`]!);
+      // The lively ask marks its main answer; a possible scam has none.
+      expect(buttons.map((button) => button.hasAttribute("data-reply-main"))).toEqual(buttons.map(() => false));
+      expect(buttons[0]!.querySelector("[data-reply-label]")?.textContent).toBe(text[`${entry}.choice.${no}`]);
+      expect(buttons[1]!.querySelector("[data-reply-label]")?.textContent).toContain(text[`${entry}.choice.${pay}`]!);
       cleanup();
     }
     const game = newGame();
     openOffer(game, "offer.roof");
     await renderWithView(<OfferView />, game.view());
-    expect(within(cardOf("offer.roof")).getAllByRole("button")[0]!.className).toContain("bg-accent");
+    expect(within(cardOf("offer.roof")).getAllByRole("button")[0]!.hasAttribute("data-reply-main")).toBe(true);
   });
 
   test("[R-LUCK-010] given the scholarship round on Ada's life with a school's offer held, then it shows in content's words with nothing to pay", async () => {
