@@ -26,8 +26,8 @@ export const adviceText: Record<string, string> = {
 
   // The agent at the stop.
   "offer.agent-stop.name": "An agent at the stop",
-  "offer.agent-stop.title": "A man at the stop says he can help",
-  "offer.agent-stop.body": "'I can sort the route for you, fast. My fee is {fee}.'",
+  "offer.agent-stop.title": "I can help",
+  "offer.agent-stop.body": "'I can sort the route for you fast, and my fee is {fee}.'",
   "offer.agent-stop.who.1.name": "Efosa",
   "offer.agent-stop.who.2.name": "Timi",
   "offer.agent-stop.who.3.name": "Nsikak",
@@ -42,7 +42,7 @@ export const adviceText: Record<string, string> = {
   "offer.agent-stop.sign.no-licence": "He has no licence number to give.",
   "offer.agent-stop.sign.holds-passport": "He wants to keep your passport.",
   "offer.agent-stop.sign.no-passport": "He says: \"No passport needed, we will arrange everything.\"",
-  "offer.agent-stop.sign.pay-today": "He says pay today or the slot goes.",
+  "offer.agent-stop.sign.pay-today": "He says pay today or someone else takes it.",
   "offer.agent-stop.sign.price-low": "His price is far below the official fees.",
   "offer.agent-stop.sign.friend-warned": "Sounds like the one your friend warned about.",
   "offer.agent-stop.sign.look-office": "You asked where his office is.",
@@ -54,8 +54,8 @@ export const adviceText: Record<string, string> = {
 
   // The desk in the agent's office.
   "offer.agent-office.name": "The travel desk upstairs",
-  "offer.agent-office.title": "The travel desk upstairs",
-  "offer.agent-office.body": "'I can move your papers along. My fee is {fee}.'",
+  "offer.agent-office.title": "Papers, moved faster",
+  "offer.agent-office.body": "'I can move your papers along, and my fee is {fee}.'",
   "offer.agent-office.who.1.name": "Ameh",
   "offer.agent-office.choice.take": "Pay him",
   "offer.agent-office.choice.look-office": "Ask to see his office",
@@ -68,7 +68,7 @@ export const adviceText: Record<string, string> = {
   "offer.agent-office.sign.no-licence": "He has no licence number to give.",
   "offer.agent-office.sign.holds-passport": "He wants to keep your passport.",
   "offer.agent-office.sign.no-passport": "He says: \"No passport needed, we will arrange everything.\"",
-  "offer.agent-office.sign.pay-today": "He says pay today or the slot goes.",
+  "offer.agent-office.sign.pay-today": "He says pay today or someone else takes it.",
   "offer.agent-office.sign.price-low": "His price is far below the official fees.",
   "offer.agent-office.sign.friend-warned": "Sounds like the one your friend warned about.",
   "offer.agent-office.sign.look-office": "You saw his office. His name is on the door.",
@@ -78,8 +78,8 @@ export const adviceText: Record<string, string> = {
 
   // The chaser a friend puts you onto, about the paper of yours being made (R-ADVICE-013).
   "offer.agent-chaser.name": "A chaser your friend knows",
-  "offer.agent-chaser.title": "Terna sends you a number",
-  "offer.agent-chaser.body": "Terna sends her number: 'She follows up papers for people. Her fee is {fee}.'",
+  "offer.agent-chaser.title": "Terna's contact",
+  "offer.agent-chaser.body": "Terna sends her number: 'She follows up papers for people, and her fee is {fee}.'",
   "offer.agent-chaser.who.1.name": "Hadiza",
   "offer.agent-chaser.pitch.chaser": "She will chase it for you: the calls, the queues, the follow-up.",
   "offer.agent-chaser.choice.take": "Pay her",
@@ -93,7 +93,7 @@ export const adviceText: Record<string, string> = {
   "offer.agent-chaser.sign.no-licence": "She has no registration to give.",
   "offer.agent-chaser.sign.holds-passport": "She wants to keep your passport.",
   "offer.agent-chaser.sign.no-passport": "She says: \"No passport needed, we will arrange everything.\"",
-  "offer.agent-chaser.sign.pay-today": "She says pay today or the slot goes.",
+  "offer.agent-chaser.sign.pay-today": "She says pay today or someone else takes it.",
   "offer.agent-chaser.sign.price-low": "Her price is far below the official fees.",
   "offer.agent-chaser.sign.friend-warned": "Sounds like the one your friend warned about.",
   "offer.agent-chaser.sign.look-office": "She works from a desk by the gate. People know her there.",
@@ -112,14 +112,14 @@ export const adviceText: Record<string, string> = {
 
   // What an overpromiser leaves behind (R-ADVICE-005).
   "offer.agent-promise.name": "The agent's promise",
-  "offer.agent-promise.title": "The agent's promise",
-  "offer.agent-promise.body": "'It will all be sorted by the month I told you. Just wait.'",
+  "offer.agent-promise.title": "Trust me",
+  "offer.agent-promise.body": "'It will all be sorted by the month I told you, just wait.'",
   "offer.agent-promise.choice.wait": "Take his word",
 
   // What a scammer sells after the fee (R-ADVICE-008).
   "offer.agent-papers.name": "Papers made to order",
-  "offer.agent-papers.title": "He has another offer",
-  "offer.agent-papers.body": "'The real papers are slow. I can make them for {fee} more.' A route that checks will refuse them, and the mark stays on your record.",
+  "offer.agent-papers.title": "Papers, made fast",
+  "offer.agent-papers.body": "'The real papers are slow, so I can make them for {fee} more,' but a route that checks will refuse them, and the mark stays on your record.",
   "offer.agent-papers.choice.transcript": "A transcript",
   "offer.agent-papers.choice.tb-certificate": "A TB certificate",
   "offer.agent-papers.choice.medical": "A medical",
@@ -132,7 +132,7 @@ export const adviceText: Record<string, string> = {
   "advice.tell.no-licence.name": "he had no licence number",
   "advice.tell.holds-passport.name": "he wanted to keep your passport",
   "advice.tell.no-passport.name": "he said no passport was needed",
-  "advice.tell.pay-today.name": "he said pay today or lose the slot",
+  "advice.tell.pay-today.name": "he said pay today or lose it",
   "advice.tell.price-low.name": "his price was far below the official fees",
   "advice.tell.friend-warned.name": "a friend had warned about one like him",
 

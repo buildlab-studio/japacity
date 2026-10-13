@@ -22,14 +22,19 @@ function waitFor(afterMs: number, ms: number): number[] {
 }
 
 describe("starting mode", () => {
-  test("[R-CITY-019] given a phone, when the city opens, then it starts in low", () => {
-    expect(startingMode(phone, city)).toBe("low");
-    expect(startingMode({ ...desktop, finePointer: false }, city)).toBe("low");
+  test("[R-CITY-019] given a phone with a sharp screen and enough memory, or a memory the browser keeps to itself, when the city opens, then it starts in high; a coarse screen or little memory starts in low", () => {
+    expect(startingMode({ ...phone, pixelRatio: 3 }, city)).toBe("high");
+    expect(startingMode({ ...phone, pixelRatio: 3, memory: null }, city)).toBe("high");
+    expect(startingMode({ ...phone, pixelRatio: 3, memory: 4 }, city)).toBe("high");
+    expect(startingMode({ ...phone, pixelRatio: 3, memory: 2 }, city)).toBe("low");
+    expect(startingMode({ ...phone, pixelRatio: 1 }, city)).toBe("low");
+    expect(startingMode({ ...desktop, finePointer: false, pixelRatio: 1 }, city)).toBe("low");
   });
 
-  test("[R-CITY-019] given a fine pointer, when the window is at the desktop width or one pixel under, then it starts in high or low", () => {
+  test("[R-CITY-019] given a fine pointer, when the window is at the desktop width it starts in high; one pixel under, it is judged as a phone is, by its screen and memory", () => {
     expect(startingMode(desktop, city)).toBe("high");
-    expect(startingMode({ ...desktop, width: city.desktopMinWidth - 1 }, city)).toBe("low");
+    expect(startingMode({ ...desktop, width: city.desktopMinWidth - 1, pixelRatio: 1 }, city)).toBe("low");
+    expect(startingMode({ ...desktop, width: city.desktopMinWidth - 1, pixelRatio: 2 }, city)).toBe("high");
   });
 
   test("[R-CITY-019] given the player fixed a mode in settings, when the city opens on any device, then that mode is used and kept per device", () => {

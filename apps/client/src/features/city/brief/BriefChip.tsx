@@ -85,7 +85,7 @@ export function BriefChip({ brief, moment, toast, onTap, onTucked }: { brief: Br
  * The marker on the step's thing (section 4): a white pill with the thing to do and an arrow, a soft bounce, and a yellow
  * ring at its feet that breathes. The scene stands both over the thing each frame (`[data-marker]`, `[data-marker-ring]`).
  */
-export function Marker({ thing, words, picture }: { thing: string; words: string; picture: string }) {
+export function Marker({ thing, words, picture, onTap }: { thing: string; words: string; picture: string; onTap?: () => void }) {
   return (
     <>
       <div className="pointer-events-none fixed top-0 left-0 z-[36]" style={{ visibility: "hidden" }} aria-hidden data-marker-ring={thing}>
@@ -93,12 +93,12 @@ export function Marker({ thing, words, picture }: { thing: string; words: string
       </div>
       <div className="pointer-events-none fixed top-0 left-0 z-[37]" style={{ visibility: "hidden" }} role="note" aria-label={words} data-marker={thing}>
         <div className="marker-bounce flex -translate-x-1/2 -translate-y-full flex-col items-center">
-          <span className="marker-pill flex items-center gap-1.5 py-1.5 pr-3 pl-1.5 text-[14px] font-bold whitespace-nowrap">
+          <button type="button" onClick={onTap} className="marker-pill pointer-events-auto flex items-center gap-1.5 py-1.5 pr-3 pl-1.5 text-[14px] font-bold whitespace-nowrap" aria-label={words} data-marker-tap={thing}>
             <span className="sticker-cut" style={{ rotate: "-6deg" }}>
               <Tile of={picture} size={22} />
             </span>
             {words}
-          </span>
+          </button>
           <span className="marker-arrow mt-1 block h-0 w-0 border-x-[9px] border-t-[12px] border-x-transparent" />
         </div>
       </div>

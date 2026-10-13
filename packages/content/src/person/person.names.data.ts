@@ -222,8 +222,8 @@ export const lifePeople: Record<Id<"scenario">, NamedPerson> = {
  * place and guide words are scenery kept by their own checks.
  */
 export const namedPeople: NamedPerson[] = [
-  { name: "Kunle", people: "yoruba", role: "agent", keys: ["offer.held-funds-agent.name", "offer.held-funds-agent.title", "obligation.held-funds-agent.name"] },
-  { name: "Terna", people: "tiv", role: "friend", keys: ["offer.send-off-party.name", "offer.send-off-party.title", "prologue.friend.card", "chats.from.friend", "offer.agent-chaser.title", "offer.agent-chaser.body"] },
+  { name: "Kunle", people: "yoruba", role: "agent", keys: ["offer.held-funds-agent.name", "offer.held-funds-agent.who", "obligation.held-funds-agent.name"] },
+  { name: "Terna", people: "tiv", role: "friend", keys: ["offer.send-off-party.name", "offer.send-off-party.who", "offer.agent-chaser.who", "prologue.friend.card", "chats.from.friend", "offer.agent-chaser.title", "offer.agent-chaser.body"] },
   { name: "Tobi", people: "yoruba", role: "partner", keys: ["person.tobi-bank.name"] },
   { name: "Hauwa", people: "hausa-fulani", role: "partner", keys: ["person.amaka-nurse.name"] },
   { name: "Kelechi", people: "igbo", role: "partner", keys: ["person.kelechi-dev.name"] },

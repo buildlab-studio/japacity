@@ -304,7 +304,7 @@ export const chapterText: Record<string, string> = {
 
   // Report lines. The interface shows the chapter's close words with the
   // first, and the next chapter's opening words with the second.
-  "line.chapter.closed": "Chapter done: {chapter}.",
+  "line.chapter.closed": "Done: {chapter}.",
   "line.chapter.opened": "Next: {chapter}.",
   // A grant withdrawn before the flight reopens the chapters it closed (R-CHAPTER-003).
   "line.chapter.reopened": "The visa is gone. Back to {chapter}.",

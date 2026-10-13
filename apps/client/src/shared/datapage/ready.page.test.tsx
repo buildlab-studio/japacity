@@ -6,6 +6,7 @@ import { Japa } from "../../features/phone/apps/Japa";
 import { newGame, viewAfter } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { say } from "../words/text";
+import { readyWords } from "../words/ready";
 import { pageOf } from "./PageSheet";
 
 const CARE = "route.uk-care";
@@ -21,7 +22,7 @@ describe("one figure for how ready", () => {
     expect(plan).toBeGreaterThan(0);
     await renderWithView(<Japa />, view);
     expect(document.querySelector("[data-japa-percent]")?.getAttribute("data-japa-percent")).toBe(String(plan));
-    expect(pageOf(view, null).ready).toBe(say("prologue.page.ready.figure", { percent: plan }));
+    expect(pageOf(view, null).ready).toBe(readyWords(plan));
     expect(pageOf(view, null).strip?.percent).toBe(plan);
   });
 
@@ -30,6 +31,6 @@ describe("one figure for how ready", () => {
     expect(view.plan.route).toBeNull();
     await renderWithView(<Japa />, view);
     expect(document.querySelector("[data-japa-percent]")).toBeNull();
-    expect(pageOf(view, null).ready).toBe(say("prologue.page.ready.figure", { percent: 0 }));
+    expect(pageOf(view, null).ready).toBe(say("prologue.page.ready.band.0"));
   });
 });

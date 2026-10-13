@@ -72,6 +72,25 @@ export const worldText: Record<string, string> = {
   "ui.world.stop": "Stop",
   "ui.world.stop-act": "Stop {what}",
   "ui.world.step-outside": "Step outside",
+  // The bag's Go home in the room abroad (return.md R-RETURN-002, R-RETURN-006; place.md R-PLACE-011): the shape the return
+  // would take today in one line, what ends and what waits as chips, the fare on the one button.
+  "ui.world.go-home": "Go home",
+  "ui.world.go-home.title.assisted": "Assisted return",
+  "ui.world.go-home.button.assisted": "Take the ticket",
+  "ui.world.go-home.line.by-choice": "You would land home by choice, and people will still ask why.",
+  "ui.world.go-home.line.with-papers": "You would land home with your papers, and the door here stays open.",
+  "ui.world.go-home.line.broke": "You would land home with the fare and not much more.",
+  "ui.world.go-home.line.assisted": "The agency books the flight, and you go home with what you have.",
+  "ui.world.go-home.line.removed": "You would be sent home.",
+  "ui.world.go-home.line.none": "No way home today: the fare cannot be paid while your status here holds.",
+  "ui.world.go-home.status": "Your status here ends",
+  "ui.world.go-home.family": "The family house takes you back",
+  "ui.world.go-home.standing.up": "Standing at home rises",
+  "ui.world.go-home.standing.same": "Standing at home holds",
+  "ui.world.go-home.standing.down": "Standing at home falls",
+  "ui.world.go-home.december": "December fare",
+  "ui.world.go-home.short": "Short of the fare",
+  "ui.world.go-home.none": "No way home today",
 
   "ui.nudge.setpiece": "Answer what you were asked",
   "ui.nudge.offer": "Answer the person asking",
@@ -95,7 +114,7 @@ export const worldText: Record<string, string> = {
   "ui.nudge.done-now": "Done. The answer is due this month.",
   "ui.nudge.hunt-planned": "Applied for better pay. Live the month.",
   // A chapter with every item met closes when the page turns.
-  "ui.nudge.chapter-done": "The chapter is done. Live the month.",
+  "ui.nudge.chapter-done": "That brief is done. Live the month.",
   // A set piece staged elsewhere waits there; the player goes to it.
   "ui.nudge.setpiece-away": "{what} is at {place}.",
   "ui.nudge.end": "Live the month, or sleep",

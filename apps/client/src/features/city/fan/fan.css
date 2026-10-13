@@ -7,7 +7,8 @@
 .fan {
   --fan-edge: var(--edge, var(--strong, #1c2a5e));
   --fan-pill: var(--sheet-2, #ffffff);
-  --fan-ink: var(--strong, #1c2a5e);
+  /* The name's ink is the paint's own: navy by day, cream on the navy pill at night. */
+  --fan-ink: var(--text, var(--strong, #1c2a5e));
   --fan-yellow: var(--action, #f2b705);
   font-variant-numeric: tabular-nums;
 }

@@ -84,7 +84,7 @@ export const momentText: Record<string, string> = {
   "moment.landed.caption.one": "month from Lagos to here",
 
   // A chapter closing (chapter.md): its own closing line, the figure japacity at home and the months after the flight.
-  "moment.chapter.kicker": "Chapter done",
+  "moment.chapter.kicker": "Brief done",
   "moment.chapter.caption.japacity": "Japacity, how ready you are to go",
   "moment.chapter.caption": "months played",
   "moment.chapter.caption.one": "month played",

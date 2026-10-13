@@ -57,7 +57,7 @@ function CardFace({ shown }: { shown: InviteShown }) {
   const fill = card.looking.fillKey === null ? "" : (text[card.looking.fillKey] ?? "");
   return (
     <figure className="flex flex-col gap-1 rounded-md border-2 border-ink bg-sheet p-4" data-invite-card>
-      <p className="font-display text-2xl">{text[card.name] ?? say("ui.invite.someone")}</p>
+      <p className="text-2xl font-bold">{text[card.name] ?? say("ui.invite.someone")}</p>
       <p className="text-sm">
         {card.japacity.percent === null ? say("ui.people.invite.japacity-none") : say("ui.people.invite.japacity", { percent: `${String(card.japacity.percent)}%` })}
         {card.japacity.route === null ? null : <span className="text-text-2">, {runningName(card.japacity.route)}</span>}

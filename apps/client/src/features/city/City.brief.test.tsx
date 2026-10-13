@@ -121,6 +121,13 @@ describe("the road in the world, only in the moment", () => {
     expect(found("[data-stand-in-scene]").dataset.standInChosen).toBe("jobs");
   });
 
+  test("[R-WORLD-003] [R-WORLD-005] given the marker on the step's thing, when its pill is tapped, then the thing is picked as the chip's tap picks it, whoever stands in front of the thing", async () => {
+    await standing("place.yaba", engineView());
+    await waitFor(() => found("[data-marker-tap]"));
+    fireEvent.click(found("[data-marker-tap='jobs']"));
+    expect(found("[data-stand-in-scene]").dataset.standInChosen).toBe("jobs");
+  });
+
   test("[R-WORLD-003] given the chip at the step's place, when a thing comes in, then its dot ticks, the giver's toast rides under the chip in their words for three seconds, then goes", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     try {

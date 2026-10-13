@@ -3,6 +3,8 @@
 // do, and the pair moves on every few seconds. The scene stands each over its resident (`[data-emote-slot]`).
 import { useEffect, useState } from "react";
 
+import { say } from "../../shared/words/text";
+
 import type { Role } from "./roster";
 
 /** How long a pair of emotes stands before the next pair. */
@@ -34,7 +36,7 @@ export function emotesFor(people: readonly { slot: number; kind: "resident" | "p
 }
 
 /** The emotes over the crowd, while the world is free and settled. */
-export function Emotes({ people, hidden }: { people: readonly { slot: number; kind: "resident" | "player"; person: { role: Role } }[]; hidden: boolean }) {
+export function Emotes({ people, hidden, onTap }: { people: readonly { slot: number; kind: "resident" | "player"; person: { role: Role } }[]; hidden: boolean; onTap?: (slot: number) => void }) {
   const [turn, setTurn] = useState(0);
   useEffect(() => {
     if (hidden) return;
@@ -46,9 +48,10 @@ export function Emotes({ people, hidden }: { people: readonly { slot: number; ki
     <>
       {emotesFor(people, turn).map((emote) => (
         <div key={`${String(turn)}-${String(emote.slot)}`} className="pointer-events-none fixed top-0 left-0 z-[36]" style={{ visibility: "hidden" }} aria-hidden data-emote-slot={emote.slot}>
-          <span className="talk-emote pop -translate-x-1/2 -translate-y-full" data-emote={emote.emoji}>
+          {/* A picture over a head reads as a button on a phone, so a tap on it is a tap on that person: their line comes up. */}
+          <button type="button" onClick={() => onTap?.(emote.slot)} className="talk-emote pop pointer-events-auto -translate-x-1/2 -translate-y-full" data-emote={emote.emoji} data-emote-tap={emote.slot} aria-label={say("ui.talk.open.someone")}>
             {emote.emoji}
-          </span>
+          </button>
         </div>
       ))}
     </>

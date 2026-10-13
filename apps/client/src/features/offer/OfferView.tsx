@@ -143,9 +143,9 @@ const ASKER_BY_GROUP: Readonly<Record<string, string>> = { family: "Mama", job: 
 /** The picture in the corner of the asker's mark, by the offer's group: a stand-in until the asks have tiles. */
 const ASK_PICTURE: Readonly<Record<string, string>> = { family: "💡", job: "💼", money: "💸", life: "📱", road: "🧳", abroad: "✈️", return: "🏠" };
 
-/** The asker's name: the ask's own where the interface names one, an unknown number for a scam, else by the group. */
+/** The asker's name: the ask's own where content names one, an unknown number for a scam, else by the group. */
 export function askerOf(offer: Pick<Offer, "entry">): string {
-  if (hasWords(`ui.ask.${offer.entry}.who`)) return say(`ui.ask.${offer.entry}.who`);
+  if (hasWords(`${offer.entry}.who`)) return say(`${offer.entry}.who`);
   if (mayBeScam(offer)) return say("ui.ask.unknown");
   return ASKER_BY_GROUP[content.offer[offer.entry]?.group ?? ""] ?? say("ui.ask.someone");
 }
