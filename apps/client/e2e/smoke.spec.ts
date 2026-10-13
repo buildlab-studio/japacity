@@ -79,9 +79,10 @@ async function fanActDone(page: Page, thing: string, activity: string, button: R
       settled = true;
     } else if ((await fan.count()) === 0 && (await card.count()) === 0) {
       if (settled) break;
-      // A short beat more, in case a card is still on its way.
+      // A beat more, in case a card is still on its way: on a loaded machine the scene's second report of the walk's end
+      // can open the act's card seconds after the act was done (open: City.tsx's fan walk, fanGoing).
       settled = true;
-      await page.waitForTimeout(1500);
+      await asked.last().waitFor({ state: "visible", timeout: 8000 }).catch(() => undefined);
       continue;
     }
     await page.waitForTimeout(250);
