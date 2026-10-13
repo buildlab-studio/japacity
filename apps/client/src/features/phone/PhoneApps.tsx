@@ -53,6 +53,8 @@ export type CalendarScreen = (opening: string | null) => ReactNode;
 interface Handed {
   calendar: CalendarScreen | null;
   cards: PaperCards | null;
+  /** The road's log for Japa (the plan 16): the briefs handed so far, from the shell. */
+  briefs: ReactNode;
 }
 
 function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Opening, handed: Handed): ReactNode {
@@ -64,7 +66,7 @@ function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Open
     case "chats":
       return <Chats />;
     case "japa":
-      return <Japa />;
+      return <Japa briefs={handed.briefs} />;
     case "papers":
       return <Papers opening={opening} cards={handed.cards} />;
     case "jobs":
@@ -85,7 +87,7 @@ function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Open
 }
 
 /** The apps, each with its dot from what the player has not seen. */
-export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null } = {}): PhoneApp[] {
+export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null, briefs = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null; briefs?: ReactNode } = {}): PhoneApp[] {
   const view = useView();
   // A brief handed changes no view, so its mark is read as it is kept.
   useJapaMark(view.scenario);
@@ -98,7 +100,7 @@ export function usePhoneApps({ account = null, about = null, opening = null, cal
     screen: (
       <>
         <Refused />
-        {screenOf(id, account, about, opening?.app === id ? opening.act : null, { calendar, cards })}
+        {screenOf(id, account, about, opening?.app === id ? opening.act : null, { calendar, cards, briefs })}
       </>
     ),
     waiting: waiting[id],
@@ -138,6 +140,8 @@ export interface PhoneAppsProps {
   cards?: PaperCards | null;
   /** Puts the phone away onto the map at a stop, from the shell: a paper's visit (R-WORLD-019). */
   onMap?: (stop: string) => void;
+  /** The road's log for Japa, from the shell (the plan 16). */
+  briefs?: ReactNode;
 }
 
 /** The place's picture for the wallpaper's pill: the place whose name the shell hands in, where the tiles have one. */
@@ -147,10 +151,10 @@ function areaPicture(area: string): ReactNode {
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null }: PhoneAppsProps) {
   const view = useView();
   const [app, act] = start === null ? [null, null] : start.split(":");
-  const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards });
+  const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards, briefs });
   const marks = marksOf(view);
   return (
     <PhoneTalk value={talk}>

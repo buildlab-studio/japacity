@@ -11,6 +11,10 @@ export const livelyText: Record<string, string> = {
   "ui.brief.next-road": "Next on the road",
   "ui.brief.done": "Done",
   "ui.brief.label": "{title}, from {name}",
+  // The road's log in the Japa app (the plan 16): the briefs handed so far, the one carried now, and the next.
+  "ui.brief.log": "Your briefs",
+  "ui.brief.carrying": "Carrying",
+  "ui.brief.next": "Next",
   // The ask: who asks, a title in their voice, the kind as a chip.
   "ui.ask.unknown": "Unknown number",
   "ui.ask.someone": "Someone you know",

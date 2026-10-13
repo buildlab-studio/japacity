@@ -16,7 +16,7 @@ import { PressButton } from "../../../shared/ui/lively/PressButton";
 import { Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 import { jobOffers } from "../seen";
-import { GhostButton, MoneyChip, PicCard, WordChip } from "../ui";
+import { GhostButton, MoneyChip, PicCard, PicTile, WordChip } from "../ui";
 
 /**
  * A job's pay a month as words: the view's figure as the wallet will book it (R-WALLET-016), or null when the view
@@ -210,7 +210,10 @@ export function Jobs() {
     <div data-phone-app="jobs" className="flex flex-col gap-2">
       <Head>{phoneWords("phone.jobs.held")}</Head>
       {job === null ? (
-        <PicCard pic={HUNT} tint="study" title={say("ui.job.none")} data-job-none />
+        <div className="lively-card flex items-center gap-3 p-3" data-job-none>
+          <PicTile of={HUNT} size={48} tint="study" />
+          <p className="min-w-0 flex-1 text-[15px] leading-snug">{say("ui.job.none")}</p>
+        </div>
       ) : (
         <JobRow id={job} name={nameOf(job)} pay={payWords(job, view.job.pay, view)} lines={[raised, months]} act={view.ended ? null : () => quit(false)} actLabel={phoneWords("phone.jobs.quit")} />
       )}
