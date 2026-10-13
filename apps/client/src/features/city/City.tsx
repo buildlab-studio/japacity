@@ -15,7 +15,6 @@ import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
-import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
 import { formatMoney } from "../../shared/words/format";
@@ -68,6 +67,10 @@ import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene,
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { Fan } from "./fan/Fan";
+import { type Brief, briefOf, DONE_TOAST_MS, doneToast, itemsDone, markerAllowed, nextBase, briefTitle } from "./brief/brief";
+import { ChapterClose, MissionCard } from "./brief/BriefCards";
+import { BriefChip, Marker } from "./brief/BriefChip";
+import { briefHanded, handBrief } from "../../shared/world/briefHanded";
 import { fanActOf, fanAsked, fanEntriesOf, type FanEntry, fanModel } from "./fan/fanActs";
 import { stopReached } from "./stops";
 import { KIOSK, opensKiosk, withKiosk } from "./kiosk";
@@ -78,6 +81,12 @@ import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, ro
 
 /** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (R-CLOCK-032). */
 const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started", MORNING]);
+/**
+ * The nudges that stand under the band whatever the place (the plan 16): someone waiting on the player (a question, an
+ * offer) and the dues abroad; the night's bed comes as its own moment. The road's step shows only in the moment, as the
+ * brief's chip; the news and the month's end wait on the phone.
+ */
+const STANDING_NUDGES: ReadonlySet<string> = new Set(["setpiece", "offer", "dues"]);
 
 const CityScene = lazy(() => import("./CityScene"));
 const Bag = lazy(() => import("./Bag"));
@@ -135,25 +144,24 @@ function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" 
 }
 /** The first chapter by order (R-CHAPTER-001): its opening is a title over the world, never a card (R-CHAPTER-011). */
 const FIRST_CHAPTER = Object.values(content.chapter).reduce<{ id: string; order: number } | null>((first, entry) => (first === null || entry.order < first.order ? { id: entry.id, order: entry.order } : first), null)?.id ?? null;
-/** How long the first chapter's title stands over the world (R-CHAPTER-011). */
-export const TITLE_MS = 2000;
 /** How long every name shows over its mark on a place's first entry in a life, before the names fade (R-WORLD-005). */
 export const TEACH_MS = 2000;
 /** The beat in the room after the month ends, before the scene goes dark for the results (R-WORLD-025): short, never a wait. */
 export const RESULTS_BEAT_MS = 300;
 
-/** The first chapter's title over the world for a moment, with nothing to press: the nudge under the band gives the first step. */
-function ChapterTitle({ chapter, onGone }: { chapter: string; onGone: () => void }) {
-  useEffect(() => {
-    const timer = window.setTimeout(onGone, TITLE_MS);
-    return () => window.clearTimeout(timer);
-    // The title's moment runs once, as the world opens.
-  }, []);
-  return (
-    <div className="pointer-events-none fixed inset-x-0 top-[34%] z-[40] flex justify-center px-6" role="status" data-opening={chapter} data-opening-title>
-      <p className="band title pop rounded-[6px] px-5 py-3 text-center text-[28px] leading-tight shadow-[0_12px_30px_rgba(10,14,30,0.35)]">{nameOf(chapter)}</p>
-    </div>
-  );
+/**
+ * The giver's words on a chapter's mission card (the brief, design page 13 section 4): the first chapter's opening for this
+ * life's path, a later chapter's own opening.
+ */
+function briefLine(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets">): string {
+  return words(openingKey(view));
+}
+
+/** A closed chapter as its brief, every thing in, for the close's card (section 4). */
+function closedBrief(chapter: string, view: Pick<PlayerView, "chapter">): Brief | null {
+  const entry = content.chapter[chapter as Id<"chapter">];
+  if (entry === undefined) return null;
+  return briefOf({ chapter: { current: chapter as Id<"chapter">, items: entry.items.map((item) => ({ id: item.id, met: true })), done: view.chapter.done, closes: true, next: view.chapter.current } }, hasWords(`${chapter}.close`) ? words(`${chapter}.close`) : "");
 }
 
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
@@ -1456,6 +1464,51 @@ export function City({
     for (const line of toTell) tell(line);
     setToTell([]);
   }, [toTell, worldFree, homeTeachShown]);
+  // The road in the world, only in the moment (the plan 16; design page 13 section 4). The brief of the chapter the life
+  // is in; the chip for a moment after its card is handed; a done thing's toast; the close's card once a chapter closes.
+  const brief = useMemo(() => (world ? briefOf(view, briefLine(view)) : null), [world, view]);
+  const [handed, setHanded] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ words: string; at: number } | null>(null);
+  const chapterBefore = useRef<PlayerView["chapter"] | null>(world ? view.chapter : null);
+  useEffect(() => {
+    const before = chapterBefore.current;
+    chapterBefore.current = view.chapter;
+    if (!world) return;
+    const done = itemsDone(before, view.chapter);
+    if (done.length === 0) return;
+    const left = view.chapter.items.filter((item) => !item.met).length;
+    if (left === 0) return;
+    cue("ding");
+    setToast({ words: doneToast(left), at: Date.now() });
+  }, [world, view.chapter]);
+  useEffect(() => {
+    if (toast === null) return;
+    const timer = window.setTimeout(() => setToast(null), DONE_TOAST_MS);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+  // The chapters already closed when the world opened are never closed again on screen; one that closes while it is open is.
+  const closedSeen = useRef(new Set<string>(view.chapter.done));
+  const [closedNow, setClosedNow] = useState<string | null>(null);
+  useEffect(() => {
+    if (!world || closedNow !== null) return;
+    const fresh = view.chapter.done.find((chapter) => !closedSeen.current.has(chapter));
+    if (fresh !== undefined) setClosedNow(fresh);
+  }, [world, view.chapter.done, closedNow]);
+  const closeBrief = useMemo(() => (closedNow === null ? null : closedBrief(closedNow, view)), [closedNow, view]);
+  const closeShown = closeBrief !== null && worldFree && !resultsShown && asleep === null;
+  /** Hands the brief of the chapter the life is in: the Japa app takes a dot and the chip stands, then tucks into the phone. */
+  const handOver = (chapter: string | null): void => {
+    if (chapter === null || briefHanded(view.scenario, chapter)) return;
+    handBrief(view.scenario, chapter);
+    setHanded(chapter);
+  };
+  // At the step's place, or beside its person, the chip comes back with its dots and the marker stands on the thing to do;
+  // never on the joint, the barber, the suya man or the club (section 4).
+  const stepThingEntry = stepThing === null ? undefined : things?.find((thing) => thing.id === stepThing);
+  const markable = stepThingEntry !== undefined && markerAllowed(stepThingEntry);
+  const atStep = brief !== null && stepWay !== null && nudge?.about === "step" && !onlyWait && ((stepThing !== null && markable) || (stepThing === null && stepWay.go !== null && stepWay.go === hereId));
+  const chipMoment = brief === null ? null : handed === brief.chapter ? ("handed" as const) : toast !== null ? ("done" as const) : atStep ? ("here" as const) : null;
+  const nowItem = brief?.items.find((item) => item.now) ?? null;
   const heardNth = useRef(0);
   useStreetTalk(() => {
     if (entry === null) return null;
@@ -1632,7 +1685,11 @@ export function City({
             more={
               !(phone || asksOpen || menu || credits || picked !== null || asleep !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
+                  {brief !== null && chipMoment !== null ? (
+                    <BriefChip brief={brief} moment={chipMoment} toast={chipMoment === "done" ? (toast?.words ?? null) : null} {...(chipMoment === "here" && nudgeGoes ? { onTap: followStep } : {})} onTucked={() => setHanded(null)} />
+                  ) : shownNudge !== null && (STANDING_NUDGES.has(shownNudge.about) || toBed) ? (
                   <Nudge nudge={shownNudge} {...(stepWay?.opens === undefined || toBed ? {} : { opens: stepWay.opens })} {...(toBed ? (bed === null ? {} : { onTap: () => setPicked({ kind: "thing", thing: bed }) }) : nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeNeeds ? { onTap: () => { setPhoneApp("japa"); setPhone(true); } } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
+                  ) : null}
                   {coming === null || !(bandOpen || (peek && !chipFolds(nudge, coming, view.month))) ? null : (
                     <button type="button" className="chip press pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming onClick={() => openCalendar("coming")} aria-label={say("ui.world.coming-up")}>
                       <Clock size={14} aria-hidden />
@@ -1644,7 +1701,7 @@ export function City({
             }
           />
           <ThumbBar onMap={() => { firstUse.tap("map"); setMap(true); }} onPhone={() => { firstUse.tap("phone"); setPhoneApp(null); setPhone(true); }} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen} />
-          <FirstUseLabels tapped={firstUse.tapped} hidden={map || resultsOpen || covered} />
+          <FirstUseLabels tapped={firstUse.tapped} hidden={map || resultsOpen || covered || openingUp} />
           {zoomed && !map ? (
             <button type="button" onClick={() => setZoomed(false)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
               {say("ui.world.whole")}
@@ -1728,38 +1785,32 @@ export function City({
             </button>
           ) : null}
           <Cut cutting={cutting} />
-          {openingUp && FIRST_CHAPTER !== null && view.chapter.current === FIRST_CHAPTER ? (
-            <ChapterTitle
-              chapter={FIRST_CHAPTER}
-              onGone={() => {
-                // R-CHAPTER-011: once per life; the mark is kept beside the save, so a reload never shows the title again.
-                markTaught("title", view.scenario);
+          {/* The chapter's brief is handed as a mission card by its person (design page 13 section 4; R-CHAPTER-011 as the hand
+              redraws it): the first chapter's once in a life, a later chapter's until a month is played. Let's go carries it. */}
+          {openingUp && brief !== null ? (
+            <MissionCard
+              brief={brief}
+              onGo={() => {
+                if (view.chapter.current === FIRST_CHAPTER) markTaught("title", view.scenario);
                 setOpeningSeen(true);
+                handOver(view.chapter.current);
               }}
             />
-          ) : openingUp && view.chapter.current !== null ? (
-            <FullScreen
-              open
-              onClose={() => setOpeningSeen(true)}
-              title={nameOf(view.chapter.current)}
-              tone="over"
-            >
-              <div className="flex max-w-sm flex-col items-center gap-5 text-center" data-opening={view.chapter.current}>
-                <p className="label label-strong text-[11px] tracking-[0.3em] uppercase opacity-80">{nameOf(view.chapter.current)}</p>
-                <p className="text-[24px] leading-snug font-bold">{words(openingKey(view))}</p>
-                <p className="text-[15px] opacity-90">{say(shownNudge?.key ?? "ui.nudge.end", shownNudge?.params ?? {})}</p>
-                <Button
-                  onClick={() => {
-                    setOpeningSeen(true);
-                    if (nudgeGoes) followStep();
-                  }}
-                  data-opening-go
-                >
-                  {say("ui.opening.go")}
-                </Button>
-              </div>
-            </FullScreen>
           ) : null}
+          {closeShown && closeBrief !== null && closedNow !== null ? (
+            <ChapterClose
+              brief={closeBrief}
+              line={hasWords(`${closedNow}.close`) ? words(`${closedNow}.close`) : ""}
+              next={brief}
+              after={brief === null ? null : ((next) => (next === null ? null : { chapter: next, title: briefTitle(next) }))(brief.next?.chapter ?? nextBase(brief.chapter))}
+              onGo={() => {
+                closedSeen.current.add(closedNow);
+                setClosedNow(null);
+                handOver(view.chapter.current);
+              }}
+            />
+          ) : null}
+          {atStep && stepThing !== null && markable && nowItem !== null && worldFree && fanned === null && picked === null ? <Marker thing={stepThing} words={nowItem.words} picture={nowItem.picture} /> : null}
         </>
       ) : null}
       {looking ? (

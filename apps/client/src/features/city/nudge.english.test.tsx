@@ -40,11 +40,13 @@ describe("the English result on its way", () => {
     expect(say(nudgeOf(planned, undefined, ["activity.sit-english-test"]).key)).toBe("Test booked. Live the month.");
   });
 
-  test("[R-WORLD-003] given the result pending, when the world shows the nudge, then it opens nothing: the result comes by itself", async () => {
+  test("[R-WORLD-003] given the result pending, when the world shows, then nothing under the band opens anything: the result comes by itself, and the road shows only the brief's chip for its moment", async () => {
     await renderWithView(<City world results={() => <p />} />, waitingOnResult());
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
-    expect(document.querySelector("[data-nudge]")?.textContent).toBe("Your result comes next month");
+    // The wait is the Japa app's to tell (the plan 16): in the world only the chip of the brief just handed stands.
+    expect(document.querySelector("[data-nudge]")?.getAttribute("data-brief-chip")).toBe("handed");
+    expect(document.querySelector("[data-nudge]")?.textContent).not.toContain("Your result comes next month");
     expect(document.querySelector("[data-nudge-open]")).toBeNull();
   });
 });
@@ -59,7 +61,8 @@ describe("the English result sealed until the morning", () => {
     await renderWithView(<City world results={() => <p />} />, sealed);
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
-    expect(document.querySelector("[data-nudge]")?.textContent).toBe("Comes in the morning");
+    // The wait is the Japa app's to tell (the plan 16): in the world only the chip of the brief just handed stands.
+    expect(document.querySelector("[data-nudge]")?.getAttribute("data-brief-chip")).toBe("handed");
     expect(document.querySelector("[data-nudge-open]")).toBeNull();
   });
 });

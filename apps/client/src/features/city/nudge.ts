@@ -154,6 +154,11 @@ export function stepStopOf(chapter: Pick<PlayerView["chapter"], "current" | "ite
   return chapter.current === null || step === undefined ? null : (STEP_WAYS[`${chapter.current}.${step}`]?.go ?? null);
 }
 
+/** Where one item of a chapter is done, from the tables: the mission card names its place under it (the brief, design page 13 section 4). */
+export function itemWayOf(chapter: string, item: string): StepWay | null {
+  return STEP_WAYS[`${chapter}.${item}`] ?? null;
+}
+
 /** The fish racks beside the room in Makoko, else the board in town that lists them too (R-ACTIVITY-017). */
 const RACKS_WAY: StepWay = { go: "place.makoko", at: ["place.makoko:racks", "place.yaba:jobs", "place.ojuelegba:hub"] };
 

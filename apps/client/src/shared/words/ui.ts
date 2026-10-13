@@ -5,6 +5,7 @@
 import { boardsWords } from "./boards";
 import { coloursText } from "./colours";
 import { daysText } from "./days";
+import { livelyText } from "./lively";
 import { lotteryWords } from "./lottery";
 import { onlineText } from "./online";
 import { peopleText } from "./people";
@@ -17,6 +18,7 @@ export const uiText: Record<string, string> = {
   ...boardsWords,
   ...peopleText,
   ...worldText,
+  ...livelyText,
   ...profileText,
   ...daysText,
   ...coloursText,

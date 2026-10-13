@@ -9,7 +9,7 @@ import { describe, expect, test } from "vitest";
 
 import { applyEffects, readyLife, slot } from "../../../../../packages/sim/src/route/route.journey";
 import { renderWithView } from "../../shared/testing/render";
-import { inMonths, say } from "../../shared/words/text";
+import { inMonths } from "../../shared/words/text";
 import { City, chipFolds } from "./City";
 import { cityWords } from "./city.words";
 import { soonest } from "../../shared/words/coming";
@@ -50,7 +50,7 @@ describe("the band after a refusal", () => {
     expect(chipFolds({ ...nudge, about: "end" }, coming, view.month)).toBe(false);
   });
 
-  test("[R-WORLD-002] given the endorsement refused, when the band's row peeks, then the nudge says the wait once and no chip says it again; the handle still opens the chip", async () => {
+  test("[R-WORLD-002] given the endorsement refused, when the band's row peeks at the hub, then the brief's chip stands alone and no coming chip says the wait again; the handle still opens the coming chip", async () => {
     localStorage.setItem("japacity.city.last", JSON.stringify(["place.yaba"]));
     const view = refusedView();
     await renderWithView(<City world results={(at) => <p data-results-for={at} />} />, view);
@@ -58,7 +58,8 @@ describe("the band after a refusal", () => {
     if (go !== null) fireEvent.click(go);
     const mapClose = screen.queryByRole("button", { name: cityWords("city.close") });
     if (mapClose !== null) fireEvent.click(mapClose);
-    expect(document.body.textContent).toContain(say(`${FILE}.item.endorsement.wait`, { when: inMonths(soonest(view)!.month, view.month) }));
+    // At the step's place the road's chip comes back (the plan 16); the wait itself is the Japa app's to tell.
+    expect(document.querySelector("[data-brief-chip]")?.getAttribute("data-brief-chip")).toBe("here");
     expect(document.querySelector("[data-coming]")).toBeNull();
     const handle = document.querySelector<HTMLElement>("[data-band-handle]");
     expect(handle).not.toBeNull();

@@ -622,10 +622,26 @@ function Place(props: PlaceProps) {
       fan.style.visibility = at === null ? "hidden" : "";
       if (at !== null) fan.style.transform = `translate(${String(at.x)}px, ${String(at.y)}px)`;
     }
+    // The marker on the step's thing stands over it, its ring at the thing's feet, as the camera eases (the brief, design
+    // page 13 section 4); off the screen both hide until the thing is back.
+    const marker = document.querySelector<HTMLElement>("[data-marker]");
+    const ring = document.querySelector<HTMLElement>("[data-marker-ring]");
+    const markedId = marker?.dataset.marker ?? ring?.dataset.markerRing ?? null;
+    const marked = markedId === null ? undefined : things.find((thing) => thing.id === markedId);
+    const markSpot = marked === undefined ? null : thingSpot(stage, marked);
+    for (const [node, height] of [
+      [marker, LABEL_Y],
+      [ring, 0.05],
+    ] as const) {
+      if (node === null) continue;
+      const at = markSpot === null ? null : onScreen(state.camera, state.size, markSpot[0], height, markSpot[1], 1.05);
+      node.style.visibility = at === null ? "hidden" : "visible";
+      if (at !== null) node.style.transform = `translate(${String(node === marker ? within(at.x, node.firstElementChild instanceof HTMLElement ? node.firstElementChild : node) : at.x)}px, ${String(at.y)}px)`;
+    }
     const laid: { node: HTMLElement; box: LabelBox }[] = [];
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
-      const at = spot === null || chip.current?.thing.id === thing.id || fanned?.id === thing.id || (voice !== null && speaker?.id === thing.id) ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
+      const at = spot === null || chip.current?.thing.id === thing.id || fanned?.id === thing.id || marked?.id === thing.id || (voice !== null && speaker?.id === thing.id) ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
       // No mark while the opening words stand over the world (R-WORLD-001).
       node.style.display = at === null || labelsHidden ? "none" : "";
       if (at !== null && !labelsHidden) laid.push({ node, box: { x: within(at.x, node), y: at.y, width: node.offsetWidth, height: node.offsetHeight } });

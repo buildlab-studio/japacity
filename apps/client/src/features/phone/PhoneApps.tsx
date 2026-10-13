@@ -4,6 +4,7 @@
 // from other features (the account's settings, the pair routes) the shell hands in.
 import type { ReactNode } from "react";
 
+import { useJapaMark } from "../../shared/world/briefHanded";
 import { useGame, useView } from "../../authority/GameProvider";
 import { todayWords } from "../../shared/words/format";
 import type { PhoneApp } from "../../shared/world/contract";
@@ -82,6 +83,8 @@ function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Open
 /** The apps, each with its dot from what the player has not seen. */
 export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null } = {}): PhoneApp[] {
   const view = useView();
+  // A brief handed changes no view, so its mark is read as it is kept.
+  useJapaMark(view.scenario);
   const waiting = waitingOf(marksOf(view), useSeen());
   return APP_IDS.map((id) => ({
     id,
@@ -101,6 +104,8 @@ export function usePhoneApps({ account = null, about = null, opening = null, cal
 /** True when any app has something the player has not seen, or a line of the month waits (R-WORLD-030): the dot on the Phone button. */
 export function usePhoneWaiting(): boolean {
   const view = useView();
+  // A brief handed changes no view, so its mark is read as it is kept.
+  useJapaMark(view.scenario);
   const waiting = waitingOf(marksOf(view), useSeen());
   const signals = useSignalsWaiting();
   // A result whose morning has come waits on the lock screen (R-CLOCK-032).

@@ -102,7 +102,7 @@ export function FirstUseLabels({ tapped, hidden }: { tapped: ReadonlySet<FirstTh
       {FIRST_THUMBS.map((thumb) => (
         <div key={thumb.id} className={`flex h-16 items-end ${thumb.id === "map" ? "pl-[70px]" : "pr-[70px]"}`}>
           {tapped.has(thumb.id) ? null : (
-            <span className="pill fade text-[12px] leading-tight" data-first-label={thumb.id}>
+            <span className="fade rounded-full border border-edge bg-sheet-2 px-2 py-1 text-[12px] leading-tight font-bold" data-first-label={thumb.id}>
               {say(thumb.words)}
             </span>
           )}
