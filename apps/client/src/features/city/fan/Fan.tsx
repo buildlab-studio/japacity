@@ -6,6 +6,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent } from "react";
 
 import { cue } from "../../../shared/sound/cues";
+import { Tile } from "../../../shared/tiles/Tile";
+import { Sticker } from "../../../shared/ui/lively/Sticker";
 import { say } from "../../../shared/words/text";
 import { clearFanAnchor, fanAnchor, subscribeFanAnchor } from "./anchor";
 import type { FanEntry } from "./fanActs";
@@ -176,8 +178,11 @@ export function Fan({ thing, title, entries, onAct, onFallback, going = null, on
                 tabIndex={place.folded ? -1 : 0}
               >
                 <span className="fan-disc" aria-hidden>
+                  {/* The act's tile, cut as a sticker (the lively Sticker), tilted one way and the next the other. */}
                   <span className={`fan-sticker${index % 2 === 0 ? " fan-tilt-left" : " fan-tilt-right"}`} data-fan-picture={entry.picture}>
-                    {entry.picture}
+                    <Sticker alt={entry.name} tilt={0}>
+                      <Tile of={entry.picture} size={Math.round(layout.sizes.button * 0.62)} />
+                    </Sticker>
                   </span>
                 </span>
                 <span className="fan-labels" aria-hidden>

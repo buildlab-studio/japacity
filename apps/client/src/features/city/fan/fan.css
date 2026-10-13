@@ -94,11 +94,10 @@
   box-shadow: 0 0 0 3px #ffffff, 0 0 0 4.5px var(--fan-edge), 0 1px 0 4.5px var(--fan-edge), 0 6px 12px rgba(0, 0, 0, 0.25);
 }
 
+/* The act's tile, cut by the lively Sticker; this box only tilts it. */
 .fan-sticker {
   display: inline-flex;
-  font-size: calc(var(--fan-button) * 0.47);
   line-height: 1;
-  filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 6px 5px rgba(20, 40, 50, 0.3));
 }
 
 .fan-item[data-fan-refused="locked"] .fan-sticker,

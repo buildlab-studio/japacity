@@ -85,36 +85,6 @@ export function tintOf(activity: string): FanTint {
   return "plain";
 }
 
-/**
- * The picture on each button until the tiles of the game's own models land (section 2, "Pictures"): an emoji stand-in by
- * the act. The lead swaps these for `<Tile of=...>` once `shared/tiles` is on the branch.
- */
-const STAND_IN: Readonly<Record<string, string>> = {
-  "activity.cook-at-home": "🍜",
-  "activity.cook-jollof": "🥘",
-  "activity.nap": "🛏️",
-  "activity.bucket-bath": "🧽",
-  "activity.watch-tv": "📺",
-  "activity.help-shop": "🛒",
-  "activity.fetch-water": "🪣",
-  "activity.fill-drum": "🛢️",
-  "activity.buy-suya": "🍢",
-  "activity.mallam-tea": "🍵",
-  "activity.pure-water": "💧",
-  "activity.barber": "💈",
-  "activity.viewing-centre": "⚽",
-  "activity.beer-joint": "🍺",
-  "activity.night-out": "🪩",
-  "activity.buy-clothes": "👕",
-  "activity.buy-phone": "📱",
-  "activity.tech-posts": "💻",
-};
-const NO_PICTURE = "✨";
-
-export function pictureOf(activity: string): string {
-  return STAND_IN[activity] ?? NO_PICTURE;
-}
-
 /** Why a button cannot be had, in the words the sheet would use (R-WORLD-006, R-ACTIVITY-020). */
 export interface FanRefusal {
   kind: "spent" | "short" | "locked";
@@ -126,6 +96,7 @@ export interface FanEntry {
   /** The activity it sends. */
   id: string;
   name: string;
+  /** The id whose tile is the button's picture: the act itself, as the tile table maps it (shared/tiles). */
   picture: string;
   tint: FanTint;
   /** The price in words, or null when it is free. */
@@ -172,7 +143,7 @@ export function fanModel(entries: readonly FanEntryOf[], view: PlayerView, plan:
       {
         id: stages,
         name: nameOf(stages),
-        picture: pictureOf(stages),
+        picture: stages,
         tint: tintOf(stages),
         price: cost === null || cost.amount === 0 ? null : formatMoney(cost.amount, cost.currency),
         balance,
