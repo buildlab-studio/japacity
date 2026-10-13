@@ -1,27 +1,40 @@
-// Bank (docs/rules/world.md R-WORLD-018, 019): the balance as a counter, what is saved toward the
-// move, the last few money lines, and the two acts the wallet offers, Change money and Move money,
-// each chosen with a few chips and confirmed on its own card. Abroad the country's money stands
-// first, the naira and the dollars after it each with Change money, and a month whose dues pass the
-// country's money held leads with the gap and the way. Once flown, the
+// Bank (docs/rules/world.md R-WORLD-018, 019): at home it opens on the passbook (the design; the
+// lively after set's phone-bank): the money held for the road against the plan's whole cost, the stamps as stickers, last
+// month in and out as chips, the roads as cards with one tap each and the pace line, every figure the simulation's. Behind
+// it, in the same dress, the rest of the bank: what is saved toward the move in the way's own money, the last money lines,
+// and the two acts the wallet offers, Change money and Move money, each chosen with a few chips and confirmed on its own
+// card. Abroad the country's money stands first, the naira and the dollars after it each with Change money, and a month
+// whose dues pass the country's money held leads with the gap and the way. Once flown, the
 // move's target is gone.
 import { content } from "@japacity/content";
-import { int, type Currency, type ForeignCurrency, type PlayerView, type Pocket, type ReportLine } from "@japacity/sim";
+import { int, type Currency, type ForeignCurrency, type Id, type OfferView, type PassbookRoad, type PassbookView, type PlayerView, type Pocket, type ReportLine } from "@japacity/sim";
 import { ArrowLeftRight, CircleAlert, MoveVertical, Send } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
+import { PhoneNav } from "../../../shared/phone/nav";
+import { cue } from "../../../shared/sound/cues";
+import { Tile } from "../../../shared/tiles/Tile";
+import { LivelyCard } from "../../../shared/ui/lively/LivelyCard";
+import { Sticker } from "../../../shared/ui/lively/Sticker";
+import { StickerChip } from "../../../shared/ui/lively/StickerChip";
+import type { Tint } from "../../../shared/ui/lively/tint";
+import { TINTS } from "../../../shared/ui/lively/tint";
+import { requirementSentence } from "../../../shared/words/requirement";
+import { offerParams } from "../../offer/terms";
 import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { REMIT_CHANNELS, remitQuote, type RemitChannel } from "../../../shared/sim/remit";
 import { CURRENCIES, formatBp, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
 import { chargeShown, type MoneyLine, moneyLines } from "../../../shared/words/money";
-import { lowerFirst, say, words } from "../../../shared/words/text";
+import { hasWords, lowerFirst, nameOf, runningName, say, words } from "../../../shared/words/text";
 import { savedFor, savingsOf, savingsRoute } from "../../../shared/words/savings";
 import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
-import { Chips, Head, useAsk } from "../act";
+import { Chips, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 import { abroadWords, changeFirst, currencyList } from "./abroad";
+import { passbookCount, passbookWords, shortNaira } from "./passbook.words";
 
 /** The currencies this life deals in: the home three, and the country's own once abroad. */
 function dealtIn(view: Pick<PlayerView, "place">): Currency[] {
@@ -194,7 +207,7 @@ function ChangeChooser({ onAsk, start }: { onAsk: ReturnType<typeof useAsk>["ope
     set(value);
   };
   return (
-    <div ref={shown} className="mt-3 flex flex-col gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 p-3" data-chooser="change">
+    <div ref={shown} className="lively-card flex flex-col gap-2.5 p-3" data-chooser="change">
       <Chips shown label={phoneWords("phone.bank.where")} value={via} onChange={pick(setVia)} options={[{ value: "bank", label: say("ui.wallet.via.bank") }, { value: "aboki", label: say("ui.wallet.via.aboki") }]} />
       <Chips shown label={phoneWords("phone.bank.from")} value={from} onChange={pick(setFrom)} options={currencies.map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
       <Chips shown label={phoneWords("phone.bank.into")} value={to} onChange={pick(setTo)} options={currencies.filter((currency) => currency !== from).map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
@@ -209,7 +222,7 @@ function ChangeChooser({ onAsk, start }: { onAsk: ReturnType<typeof useAsk>["ope
       ) : (
         <button
           type="button"
-          className="btn-main"
+          className="press-button w-full"
           data-go="change"
           onClick={() => {
             dismiss();
@@ -251,7 +264,7 @@ function MoveChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
   const source = to === "bank" ? view.pockets[currency].cash : view.pockets[currency].bank;
   const amount = shareOf(source, share);
   return (
-    <div className="mt-3 flex flex-col gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 p-3" data-chooser="move">
+    <div className="lively-card flex flex-col gap-2.5 p-3" data-chooser="move">
       <Chips shown label={say("ui.wallet.currency")} value={currency} onChange={setCurrency} options={currencies.map((value) => ({ value, label: currencyWords(value) }))} />
       <Chips shown label={say("ui.wallet.to")} value={to} onChange={setTo} options={[{ value: "bank", label: phoneWords("phone.bank.to-bank") }, { value: "cash", label: phoneWords("phone.bank.to-cash") }]} />
       <Chips shown label={phoneWords("phone.bank.how-much")} value={share} onChange={setShare} options={SHARES.map((value) => ({ value, label: phoneWords(`phone.bank.${value}`) }))} />
@@ -260,7 +273,7 @@ function MoveChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
       ) : (
         <button
           type="button"
-          className="btn-main"
+          className="press-button w-full"
           data-go="move"
           onClick={() =>
             onAsk({
@@ -314,13 +327,13 @@ function SendChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
   const [channel, setChannel] = useState<RemitChannel>("app");
   const [share, setShare] = useState<Share>("quarter");
   const currency = chosen !== null && options.includes(chosen) ? chosen : (options[0] ?? null);
-  if (currency === null) return <p className="mt-3 text-[14px] text-text-2" data-chooser="send">{say("ui.remit.nothing")}</p>;
+  if (currency === null) return <p className="lively-card p-3 text-[14px] text-text-2" data-chooser="send">{say("ui.remit.nothing")}</p>;
   const amount = shareOf(view.pockets[currency].bank, share);
   const quote = amount > 0 ? remitQuote(view.rates, content.tuning.remit, currency, amount) : null;
   const terms = quote?.[channel] ?? null;
   const sent = formatMoney(amount, currency);
   return (
-    <div className="mt-3 flex flex-col gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 p-3" data-chooser="send">
+    <div className="lively-card flex flex-col gap-2.5 p-3" data-chooser="send">
       {options.length > 1 ? <Chips shown label={say("ui.wallet.currency")} value={currency} onChange={setCurrency} options={options.map((value) => ({ value, label: currencyWords(value) }))} /> : null}
       <div role="radiogroup" aria-label={say("ui.remit.channel")} className="flex flex-col gap-1.5">
         <span className="label text-[10px] text-text-2" aria-hidden>
@@ -351,7 +364,7 @@ function SendChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
           </p>
           <button
             type="button"
-            className="btn-main"
+            className="press-button w-full"
             data-go="send"
             onClick={() =>
               onAsk({
@@ -389,10 +402,10 @@ function DuesGapCard({ onChange }: { onChange: (start: ChangeStart) => void }) {
   if (gap === null) return null;
   const from = changeFirst(gap.from);
   return (
-    <div className="mb-3 rounded-[6px] border-l-4 border-out bg-sheet-2 px-3 py-2.5" role="alert" data-dues-gap={gap.currency}>
+    <div className="lively-card px-3 py-2.5 shadow-[inset_5px_0_0_var(--out)]" role="alert" data-dues-gap={gap.currency}>
       <p className="text-[15px] font-bold">{abroadWords("phone.bank.dues", { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) })}</p>
       {from === null ? null : (
-        <button type="button" className="press mt-2 flex min-h-11 w-full items-center gap-2 rounded-[5px] btn-dark px-3 text-left text-[14px] font-bold" onClick={() => onChange({ from, to: gap.currency })}>
+        <button type="button" className="press mt-2 flex min-h-11 w-full items-center gap-2 rounded-[14px] btn-dark px-3 text-left text-[14px] font-bold" onClick={() => onChange({ from, to: gap.currency })}>
           <ArrowLeftRight size={16} className="shrink-0" aria-hidden />
           <span>{opening(abroadWords("phone.bank.dues.way", { from: currencyList(gap.from), to: lowerFirst(currencyWords(gap.currency)) }))}</span>
         </button>
@@ -412,8 +425,8 @@ function HeldElsewhere({ local, onChange }: { local: Currency; onChange: (start:
   const held = heldElsewhere(view, local);
   if (held.length === 0) return null;
   return (
-    <div data-change-pairs>
-      <Head>{say("ui.wallet.convert")}</Head>
+    <LivelyCard className="p-3" data-change-pairs>
+      <Part>{say("ui.wallet.convert")}</Part>
       <ul className="flex flex-col divide-y divide-sheet-line">
         {held.map((currency) => (
           <li key={currency} className="flex items-center justify-between gap-3 py-2" data-held={currency}>
@@ -421,15 +434,361 @@ function HeldElsewhere({ local, onChange }: { local: Currency; onChange: (start:
               <span className="block text-[13px] text-text-2">{currencyWords(currency)}</span>
               <span className="num block text-[17px]">{formatMoney(view.pockets[currency].bank + view.pockets[currency].cash, currency)}</span>
             </span>
-            <button type="button" className="press flex min-h-10 shrink-0 items-center gap-1.5 rounded-[5px] border border-sheet-line bg-sheet-2 px-3 text-[13px] font-bold" onClick={() => onChange({ from: currency, to: local })}>
+            <button type="button" className="press flex min-h-10 shrink-0 items-center gap-1.5 rounded-[12px] border-2 border-edge bg-sheet-2 px-3 text-[13px] font-bold shadow-[0_2px_0_var(--edge)]" onClick={() => onChange({ from: currency, to: local })}>
               <ArrowLeftRight size={15} aria-hidden />
               {abroadWords("phone.bank.pair", { from: currencyWords(currency), to: lowerFirst(currencyWords(local)) })}
             </button>
           </li>
         ))}
       </ul>
+    </LivelyCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// The passbook: the Bank's first page at home. Every figure is the view's (PlayerView.passbook); nothing is worked here.
+// ---------------------------------------------------------------------------
+
+/** A small heading over a part of the page. */
+function Part({ children }: { children: string }) {
+  return <h3 className="mt-1 mb-2 px-0.5 text-[14px] font-bold text-text-2">{children}</h3>;
+}
+
+/** The pace line: the whole money chapter in one sentence, its months in green. */
+function paceLine(view: PlayerView, book: PassbookView): { lead: string; months: number | null; best: { words: string; months: number } | null } {
+  if (book.target === null) {
+    const lean = view.plan.route;
+    return { lead: lean === null ? passbookWords("passbook.pace.no-plan") : passbookWords("passbook.pace.unread", { route: runningName(lean) }), months: null, best: null };
+  }
+  if (book.months === 0) return { lead: passbookWords("passbook.pace.ready"), months: null, best: null };
+  const best = book.roads.find((road) => road.road === book.best && road.months !== null) ?? null;
+  const bestWords = best === null ? null : { words: withRoad(best), months: best.months ?? 0 };
+  if (book.months === null) return { lead: passbookWords(book.pace === null ? "passbook.pace.none" : "passbook.pace.stuck"), months: null, best: bestWords };
+  return { lead: book.months === 1 ? passbookWords("passbook.pace.one") : passbookWords("passbook.pace", { months: FIGURE }), months: book.months === 1 ? null : book.months, best: bestWords };
+}
+
+/** Where a figure stands in a sentence, so the figure can be drawn apart, in green. */
+const FIGURE = "\u0001";
+
+/** "With the mid-level developer job:", the road's own words before its months. */
+function withRoad(road: PassbookRoad): string {
+  const key = road.road === "family" && road.via !== "activity.ask-family-loan" && road.via !== "offer.family-loan" ? "passbook.with.family-meeting" : `passbook.with.${road.road}`;
+  return passbookWords(key, { job: runningName(road.via), months: FIGURE }).split(FIGURE)[0] ?? "";
+}
+
+function PaceLine({ view, book }: { view: PlayerView; book: PassbookView }) {
+  const line = paceLine(view, book);
+  const [before, after] = line.months === null ? [line.lead, ""] : line.lead.split(FIGURE);
+  return (
+    <p className="mt-2 text-[14px] leading-snug" data-pace>
+      {before}
+      {line.months === null ? null : <b className="text-[var(--money-ink)]">{line.months}</b>}
+      {after}
+      {line.best === null ? null : (
+        <>
+          {" "}
+          <span data-pace-best={line.best.months}>
+            {line.best.words}
+            <b className="text-[var(--money-ink)]">{line.best.months === 0 ? passbookWords("passbook.with.now") : line.best.months}</b>.
+          </span>
+        </>
+      )}
+    </p>
+  );
+}
+
+/** The bar: what is held against the target, the plane where the money has got to. */
+function HeldBar({ book }: { book: PassbookView }) {
+  if (book.target === null) return null;
+  const share = Math.min(100, Math.floor((book.held * 100) / Math.max(1, book.target.total)));
+  return (
+    <div className="relative mt-2.5 mb-1 h-3.5 rounded-full bg-sheet shadow-[inset_0_0_0_1.5px_var(--sheet-line)]" role="progressbar" aria-valuemin={0} aria-valuemax={book.target.total} aria-valuenow={Math.min(book.held, book.target.total)} aria-label={passbookWords("passbook.held")}>
+      <div className="h-full rounded-full bg-[var(--tick)] transition-[width] duration-300" style={{ width: `${String(share)}%` }} />
+      <span className="absolute -top-3 wobble-in" style={{ left: `calc(${String(share)}% - 14px)` }}>
+        <Sticker emoji="✈️" alt="" size={22} tilt={-8} />
+      </span>
     </div>
   );
+}
+
+function PassbookCard({ view, book, shown, others }: { view: PlayerView; book: PassbookView; shown: Currency; others: Currency[] }) {
+  return (
+    <LivelyCard className="rise p-3" data-passbook>
+      <div className="text-[12px] font-bold text-text-2">{passbookWords("passbook.held")}</div>
+      <div className="mt-0.5 flex flex-wrap items-baseline gap-x-1.5">
+        <span className="num text-[26px] font-bold leading-tight" data-passbook-held={book.held}>
+          {formatMoney(book.held, "NGN")}
+        </span>
+        {book.target === null ? null : (
+          <span className="text-[14px] text-text-2" data-passbook-target={book.target.total}>
+            {passbookWords("passbook.of", { target: shortNaira(book.target.total) })}
+          </span>
+        )}
+      </div>
+      <HeldBar book={book} />
+      <PaceLine view={view} book={book} />
+      {/* The pockets as chips, each money where it is held. */}
+      <div className="mt-2.5 flex flex-wrap gap-1.5" data-bank-balance={shown}>
+        <StickerChip tint="plain" tilt={-1.5}>{passbookWords("passbook.cash", { amount: formatMoney(view.pockets[shown].cash, shown) })}</StickerChip>
+        <StickerChip tint="study" tilt={1.5}>
+          <span>{passbookWords("passbook.bank")}</span>
+          <Counter value={view.pockets[shown].bank} format={(value) => formatMoney(value, shown)} />
+        </StickerChip>
+        {others.length === 0 ? null : (
+          <StickerChip tilt={-1} className="whitespace-normal">
+            {phoneWords("phone.bank.also", {
+              amounts: others
+                .flatMap((currency) => (["bank", "cash"] as const).filter((pocket) => view.pockets[currency][pocket] > 0).map((pocket) => phoneWords(`phone.bank.also.${pocket}`, { amount: formatMoney(view.pockets[currency][pocket], currency) })))
+                .join(", "),
+            })}
+          </StickerChip>
+        )}
+      </div>
+    </LivelyCard>
+  );
+}
+
+/** The stamps as round stickers: each reached one filled, with its month told; those to come dashed. */
+function Stamps({ book }: { book: PassbookView }) {
+  if (book.stamps.length === 0) return null;
+  return (
+    <section data-stamps>
+      <Part>{passbookWords("passbook.stamps")}</Part>
+      <ul className="flex justify-between gap-1 px-1">
+        {book.stamps.map((stamp, index) => {
+          const reached = stamp.month !== null;
+          const caption = stamp.target ? passbookWords(reached ? "passbook.stamp.ready" : "passbook.stamp.all-in") : reached ? passbookWords("passbook.stamp.heard") : "";
+          return (
+            <li
+              key={`${String(stamp.at)}-${String(stamp.target)}`}
+              className={`flex size-[62px] shrink-0 flex-col items-center justify-center rounded-full text-center leading-tight ${reached ? "pop bg-tint-money text-[var(--money-ink)] shadow-[0_0_0_3px_var(--cut),0_0_0_4.5px_var(--money-ink),0_5px_8px_rgba(0,0,0,0.18)]" : "border-2 border-dashed border-text-2/50 text-text-2"}`}
+              style={reached ? { rotate: `${String(index % 2 === 0 ? -8 : 6)}deg`, animationDelay: `${String(index * 60)}ms` } : undefined}
+              data-stamp={stamp.at}
+              data-stamp-reached={reached ? stamp.month : undefined}
+              data-stamp-target={stamp.target ? "" : undefined}
+            >
+              <span className={`text-[14px] font-bold ${reached ? "" : "text-text"}`}>{shortNaira(stamp.at)}</span>
+              {caption === "" ? null : <span className="text-[10px] font-semibold">{caption}</span>}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/** Last month's money in and out, each money as its own chip; the lines whole are under Lately. */
+function LastMonth({ view, lastMonth }: { view: PlayerView; lastMonth: readonly ReportLine[] }) {
+  if (view.report === null) return null;
+  const totals = new Map<string, { sign: 1 | -1; currency: Currency; amount: number }>();
+  for (const { sign, currency, amount } of moneyLines([...lastMonth, ...view.report.lines])) {
+    const key = `${String(sign)}-${currency}`;
+    totals.set(key, { sign, currency, amount: (totals.get(key)?.amount ?? 0) + amount });
+  }
+  const chips = [...totals.values()].filter((each) => each.amount > 0).sort((a, b) => b.sign - a.sign);
+  if (chips.length === 0) return null;
+  return (
+    <section data-last-month>
+      <Part>{passbookWords("passbook.last-month")}</Part>
+      <div className="flex flex-wrap gap-2">
+        {chips.map((chip, index) => (
+          <span key={`${String(chip.sign)}-${chip.currency}`} className="pop" data-last-month-chip={chip.sign > 0 ? "in" : "out"}>
+            <StickerChip tint={chip.sign > 0 ? "money" : "plain"} tilt={index % 2 === 0 ? -1.5 : 1}>
+              {passbookWords(chip.sign > 0 ? "passbook.in" : "passbook.out", { amount: formatMoney(chip.amount, chip.currency) })}
+            </StickerChip>
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const ROAD_TINT: Record<PassbookRoad["road"], Tint> = { ladder: "money", side: "money", ajo: "people", family: "people", scholarship: "study" };
+
+/** The offer standing open for a road, from the view. */
+function offerOf(view: PlayerView, road: PassbookRoad): OfferView | null {
+  return road.offer === null ? null : (view.offers.find((offer) => offer.id === road.offer) ?? null);
+}
+
+/** The choice that takes an offer: the first that does something. */
+function takeChoice(offer: OfferView): string | null {
+  return content.offer[offer.entry]?.choices.find((choice) => choice.effects.length > 0)?.id ?? null;
+}
+
+/** A road's title and its one line, in the passbook's words, from the view's own figures. */
+function roadWords(view: PlayerView, road: PassbookRoad): { title: string; line: string } {
+  const offer = offerOf(view, road);
+  switch (road.road) {
+    case "ladder":
+    case "side": {
+      const pay = content.activity[road.via as keyof typeof content.activity]?.pay;
+      const amount = pay === undefined || pay === null || typeof pay.amount !== "number" ? null : formatMoney(pay.amount, pay.currency);
+      return { title: nameOf(road.via), line: amount === null ? "" : passbookWords(road.road === "ladder" ? "passbook.road.pay" : "passbook.road.side", { amount }) };
+    }
+    case "ajo": {
+      const circle = content.obligation["obligation.ajo"];
+      const share = circle?.amount ?? 0;
+      const count = circle?.term ?? 0;
+      const line = road.state === "taken" ? passbookWords("passbook.road.ajo.taken") : road.state === "open" ? passbookWords("passbook.road.ajo.open") : passbookWords("passbook.road.ajo.line", { share: formatMoney(share, "NGN"), count, pot: formatMoney(share * count, "NGN") });
+      return { title: passbookWords("passbook.road.ajo"), line };
+    }
+    case "family": {
+      const meeting = road.via === "activity.family-meeting" || (offer !== null && offer.entry !== "offer.family-loan");
+      return meeting
+        ? { title: passbookWords("passbook.road.family-meeting"), line: passbookWords("passbook.road.family-meeting.line", { amount: shortNaira(road.lump) }) }
+        : { title: passbookWords("passbook.road.family"), line: passbookWords("passbook.road.family.line", { amount: shortNaira(road.lump) }) };
+    }
+    case "scholarship":
+      return { title: nameOf(road.via), line: road.state === "open" ? passbookWords("passbook.road.scholarship.line", { amount: shortNaira(road.lump) }) : passbookWords("passbook.road.scholarship.wait") };
+    default: {
+      const never: never = road.road;
+      throw new Error(`Unknown road ${String(never)}`);
+    }
+  }
+}
+
+/** What a road still needs, said as "why not" says it; a road waiting only on a person asking says so in its line. */
+function needsWords(view: PlayerView, road: PassbookRoad): string | null {
+  if (road.needs.length === 0) return null;
+  return passbookWords("passbook.road.needs", { needs: road.needs.map((need) => lowerFirst(requirementSentence(need, { routes: view.routes }))).join(", ") });
+}
+
+function RoadCard({ view, road, onTap }: { view: PlayerView; road: PassbookRoad; onTap: (road: PassbookRoad) => boolean }) {
+  const [refused, setRefused] = useState(false);
+  const { title, line } = roadWords(view, road);
+  const needs = needsWords(view, road);
+  const months = road.state === "taken" ? null : road.months;
+  return (
+    <li>
+      <button
+        type="button"
+        className={`lively-card press flex w-full items-center gap-2.5 p-2.5 text-left ${refused ? "shake" : ""}`}
+        onClick={() => {
+          const acted = onTap(road);
+          if (!acted) {
+            cue("no");
+            setRefused(true);
+          } else cue("tap");
+        }}
+        onAnimationEnd={() => setRefused(false)}
+        data-road={road.road}
+        data-road-state={road.state}
+      >
+        <span className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] ${TINTS[ROAD_TINT[road.road]]}`}>
+          <Sticker alt="" size={30} tilt={-6}>
+            <Tile of={road.via} size={30} />
+          </Sticker>
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[16px] font-bold leading-tight">{title}</span>
+          {line === "" ? null : <span className="block text-[13px] leading-snug text-text-2">{line}</span>}
+          {needs === null ? null : (
+            <span className="block text-[12px] leading-snug text-text-2" data-road-needs>
+              {needs}
+            </span>
+          )}
+        </span>
+        {road.state === "taken" ? (
+          <StickerChip tint="money" tilt={2}>
+            {passbookWords("passbook.road.taken")}
+          </StickerChip>
+        ) : months === null ? null : (
+          <span data-road-months={months}>
+            <StickerChip tint={road.road === view.passbook?.best ? "money" : "plain"} tilt={2}>
+              {passbookCount("passbook.road.months", months)}
+            </StickerChip>
+          </span>
+        )}
+      </button>
+    </li>
+  );
+}
+
+/** The roads as cards, one tap each: the job board for a job, the ask's own card for an offer or a call. */
+function Roads({ view, book, onAsk }: { view: PlayerView; book: PassbookView; onAsk: ReturnType<typeof useAsk>["open"] }) {
+  const nav = use(PhoneNav);
+  if (book.roads.length === 0) return null;
+  const tap = (road: PassbookRoad): boolean => {
+    if (road.state === "taken") return false;
+    if (road.road === "ladder" || road.road === "side") {
+      nav.openApp("jobs");
+      return true;
+    }
+    if (road.state !== "open") return false;
+    const offer = offerOf(view, road);
+    if (offer !== null) {
+      const choice = takeChoice(offer);
+      if (choice === null) return false;
+      const params = offerParams(offer);
+      onAsk({
+        form: "card",
+        icon: road.road === "family" ? "house" : "landmark",
+        who: nameOf(offer.entry),
+        title: say(`${offer.entry}.title`),
+        line: say(`${offer.entry}.body`, params),
+        cost: null,
+        button: say(`${offer.entry}.choice.${choice}`),
+        when: "now",
+        command: { type: "offer/choose", offer: offer.id, choice },
+        done: hasWords(`${offer.entry}.said.${choice}`) ? say(`${offer.entry}.said.${choice}`) : say(`${offer.entry}.choice.${choice}`),
+      });
+      return true;
+    }
+    // A road that is an act to do now: the family's call, or the family meeting.
+    if (road.road !== "family") return false;
+    const meeting = road.via === "activity.family-meeting";
+    onAsk({
+      form: "card",
+      icon: "house",
+      who: nameOf(road.via),
+      title: passbookWords(meeting ? "passbook.road.family-meeting" : "passbook.road.family.ask"),
+      line: meeting ? (hasWords(`${road.via}.blurb`) ? say(`${road.via}.blurb`) : "") : passbookWords("passbook.road.family.ask.line"),
+      cost: null,
+      button: passbookWords(meeting ? "passbook.road.family-meeting.go" : "passbook.road.family.call"),
+      when: "now",
+      command: { type: "activity/now", activity: road.via as Id<"activity">, param: null },
+      done: hasWords(`line.${road.via}.now`) ? say(`line.${road.via}.now`) : nameOf(road.via),
+    });
+    return true;
+  };
+  return (
+    <section data-roads>
+      <Part>{passbookWords("passbook.roads")}</Part>
+      <ul className="flex flex-col gap-2">
+        {book.roads.map((road) => (
+          <RoadCard key={road.road} view={view} road={road} onTap={tap} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** The balance as a card: abroad, where the country's money stands first, and in a life that has ended. */
+function BalanceCard({ view, shown, others }: { view: PlayerView; shown: Currency; others: Currency[] }) {
+  return (
+    <LivelyCard className="rise p-3" data-bank-balance={shown}>
+      <div className="text-[12px] font-bold text-text-2">{phoneWords("phone.bank.balance")}</div>
+      <Counter value={view.pockets[shown].bank} format={(value) => formatMoney(value, shown)} className="num block text-[26px] font-bold leading-tight" />
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        <StickerChip tilt={-1.5}>{phoneWords("phone.bank.cash", { amount: formatMoney(view.pockets[shown].cash, shown) })}</StickerChip>
+        {others.length === 0 ? null : (
+          // Each other money says where it is held, the bank or cash.
+          <StickerChip tilt={1} className="whitespace-normal">
+            {phoneWords("phone.bank.also", {
+              amounts: others
+                .flatMap((currency) => (["bank", "cash"] as const).filter((pocket) => view.pockets[currency][pocket] > 0).map((pocket) => phoneWords(`phone.bank.also.${pocket}`, { amount: formatMoney(view.pockets[currency][pocket], currency) })))
+                .join(", "),
+            })}
+          </StickerChip>
+        )}
+      </div>
+    </LivelyCard>
+  );
+}
+
+/** A foot act: white with the navy edge and its underside, navy when its chooser is open. */
+function footButton(open: boolean): string {
+  return `press flex min-h-[46px] flex-1 items-center justify-center gap-1.5 rounded-[14px] border-2 border-edge px-3 text-[15px] font-bold whitespace-nowrap shadow-[0_3px_0_var(--edge)] ${open ? "bg-[var(--strong)] text-on-strong" : "bg-sheet-2 text-text"}`;
 }
 
 /** `opening`: a chooser to open on, as the room's phone opens Send money home. */
@@ -460,87 +819,90 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
     setChoosing("change");
   };
 
+  // What a choice opens settles in where it was tapped, and comes into view over the foot (R-WORLD-023).
+  const chooser = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (choosing !== null && typeof chooser.current?.scrollIntoView === "function") chooser.current.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [choosing]);
+  const book = abroad ? null : view.passbook;
+
   return (
-    <div data-phone-app="bank">
+    <div data-phone-app="bank" className="flex flex-col gap-3">
       {abroad && !view.ended ? <DuesGapCard onChange={changeFrom} /> : null}
-      <div className="band rounded-[6px] px-4 py-3" data-bank-balance={shown}>
-        <div className="label label-strong">{phoneWords("phone.bank.balance")}</div>
-        <Counter value={view.pockets[shown].bank} format={(value) => formatMoney(value, shown)} className="block text-[34px] leading-tight" />
-        <div className="text-[13px] opacity-85">{phoneWords("phone.bank.cash", { amount: formatMoney(view.pockets[shown].cash, shown) })}</div>
-        {abroad || others.length === 0 ? null : (
-          // Each other money says where it is held, the bank or cash.
-          <div className="text-[13px] opacity-85" data-bank-also>
-            {phoneWords("phone.bank.also", {
-              amounts: others
-                .flatMap((currency) => (["bank", "cash"] as const).filter((pocket) => view.pockets[currency][pocket] > 0).map((pocket) => phoneWords(`phone.bank.also.${pocket}`, { amount: formatMoney(view.pockets[currency][pocket], currency) })))
-                .join(", "),
-            })}
-          </div>
-        )}
-      </div>
+      {book === null ? <BalanceCard view={view} shown={shown} others={abroad ? [] : others} /> : <PassbookCard view={view} book={book} shown={shown} others={others} />}
       {abroad && !view.ended ? <HeldElsewhere local={local} onChange={changeFrom} /> : null}
+      {book === null ? null : (
+        <>
+          <Stamps book={book} />
+          <LastMonth view={view} lastMonth={lastMonth} />
+          {view.ended ? null : <Roads view={view} book={book} onAsk={open} />}
+        </>
+      )}
 
       {abroad ? null : (
-        <>
-          <Head>{phoneWords("phone.bank.savings")}</Head>
+        <LivelyCard className="p-3" data-bank-saved>
+          <Part>{phoneWords("phone.bank.savings")}</Part>
           {savings === null ? (
             <p className="text-[14px] text-text-2" data-savings-none>
               {phoneWords(noFigureKey(view))}
             </p>
           ) : (
             <div data-savings>
-              <div className="h-2.5 overflow-hidden rounded-[2px] bg-sheet-muted" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>
-                <div className="h-full rounded-[2px] bg-in" style={{ width: `${String(Math.min(100, Math.floor((savings.shown * 100) / savings.required)))}%` }} />
+              <div className="h-2.5 overflow-hidden rounded-full bg-sheet shadow-[inset_0_0_0_1.5px_var(--sheet-line)]" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>
+                <div className="h-full rounded-full bg-[var(--tick)]" style={{ width: `${String(Math.min(100, Math.floor((savings.shown * 100) / savings.required)))}%` }} />
               </div>
-              <p className="num mt-1 text-[15px]" data-savings-met={savings.shown >= savings.required ? "true" : undefined}>
+              <p className="num mt-1.5 text-[15px]" data-savings-met={savings.shown >= savings.required ? "true" : undefined}>
                 {phoneWords(savingsKey(view, savings), { shown: formatMoney(savings.shown, savings.currency), required: formatMoney(savings.required, savings.currency) })}
               </p>
             </div>
           )}
-        </>
+        </LivelyCard>
       )}
 
-      <Head>{phoneWords("phone.bank.lines")}</Head>
-      {lately.length === 0 ? (
-        <p className="text-[14px] text-text-2">{phoneWords("phone.bank.lines.none")}</p>
-      ) : (
-        <ul className="flex flex-col divide-y divide-sheet-line" data-money-lines>
-          {lately.map(({ line, sign }, index) => (
-            <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${sign > 0 ? "text-in" : "text-out"}`} data-sign={sign}>
-              {words(line.key, line.params)}
-            </li>
-          ))}
-        </ul>
+      <LivelyCard className="p-3" data-bank-lately>
+        <Part>{phoneWords("phone.bank.lines")}</Part>
+        {lately.length === 0 ? (
+          <p className="text-[14px] text-text-2">{phoneWords("phone.bank.lines.none")}</p>
+        ) : (
+          <ul className="flex flex-col divide-y divide-sheet-line" data-money-lines>
+            {lately.map(({ line, sign }, index) => (
+              <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${sign > 0 ? "text-[var(--money-ink)]" : "text-text"}`} data-sign={sign}>
+                {words(line.key, line.params)}
+              </li>
+            ))}
+          </ul>
+        )}
+      </LivelyCard>
+
+      {view.ended || choosing === null ? null : (
+        <div key={choosing} ref={chooser} className="motion-reveal">
+          {choosing === "change" ? <ChangeChooser key={start === undefined ? "free" : `${start.from}-${start.to}`} onAsk={open} {...(start === undefined ? {} : { start })} /> : choosing === "move" ? <MoveChooser onAsk={open} /> : <SendChooser onAsk={open} />}
+        </div>
       )}
 
       {view.ended ? null : (
-        <>
-          <div className="mt-4 grid grid-cols-2 gap-2">
+        // The acts stand at the foot of the screen, over the page as it scrolls, as the after set draws them.
+        <div className="sticky bottom-0 -mx-3 -mb-3 bg-[linear-gradient(transparent,var(--sheet)_22px)] px-3 pt-6 pb-3" data-bank-foot>
+          <div className="flex gap-2">
             {/* Abroad with other monies held, Change money heads their pairs above; it is not said again here. */}
             {pairsShown ? null : (
-              <button type="button" className={`press flex min-h-12 items-center justify-center gap-2 rounded-[6px] text-[14px] font-bold ${choosing === "change" ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`} aria-expanded={choosing === "change"} onClick={() => toggle("change")}>
+              <button type="button" className={footButton(choosing === "change")} aria-expanded={choosing === "change"} onClick={() => toggle("change")}>
                 <ArrowLeftRight size={17} aria-hidden />
                 {say("ui.wallet.convert")}
               </button>
             )}
-            <button type="button" className={`press flex min-h-12 items-center justify-center gap-2 rounded-[6px] text-[14px] font-bold ${choosing === "move" ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`} aria-expanded={choosing === "move"} onClick={() => toggle("move")}>
+            <button type="button" className={footButton(choosing === "move")} aria-expanded={choosing === "move"} onClick={() => toggle("move")}>
               <MoveVertical size={17} aria-hidden />
               {say("ui.wallet.move")}
             </button>
           </div>
           {abroad ? (
-            <button type="button" className={`press mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[14px] font-bold ${choosing === "send" ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`} aria-expanded={choosing === "send"} onClick={() => toggle("send")} data-bank-act="send">
+            <button type="button" className={`${footButton(choosing === "send")} mt-2 w-full`} aria-expanded={choosing === "send"} onClick={() => toggle("send")} data-bank-act="send">
               <Send size={17} aria-hidden />
               {say("ui.remit.title")}
             </button>
           ) : null}
-          {/* What a choice opens settles in where it was tapped (R-WORLD-023). */}
-          {choosing === null ? null : (
-            <div key={choosing} className="motion-reveal">
-              {choosing === "change" ? <ChangeChooser key={start === undefined ? "free" : `${start.from}-${start.to}`} onAsk={open} {...(start === undefined ? {} : { start })} /> : choosing === "move" ? <MoveChooser onAsk={open} /> : <SendChooser onAsk={open} />}
-            </div>
-          )}
-        </>
+        </div>
       )}
       {sheet}
     </div>
