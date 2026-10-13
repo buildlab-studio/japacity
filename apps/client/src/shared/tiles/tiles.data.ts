@@ -161,8 +161,6 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "offer.laptop-fault": "prop_repair-table",
   "offer.join-ajo": stand("🤝"),
   "offer.family-loan": "prop_sofa",
-  "offer.family-pledge": "prop_parlour-set",
-  "offer.family-pledge-small": "prop_parlour-set",
   "offer.scholarship-round": stand("🎓"),
   "offer.send-off-party": "prop_party-set",
   "offer.family-send-off": "prop_party-set",
