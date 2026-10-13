@@ -5,7 +5,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { ActivityView } from "../../features/activity/ActivityView";
-import { ObligationView } from "../../features/obligation/ObligationView";
+import { Bills } from "../../features/phone/apps/Bills";
 import { Japa } from "../../features/phone/apps/Japa";
 import { DECEMBER } from "../../features/setpiece/DecemberScene";
 import { nudgeOf } from "../../features/city/nudge";
@@ -71,7 +71,8 @@ describe("words that mislead", () => {
     const loan = base.obligations.find((owed) => owed.missed > 0);
     if (loan === undefined) throw new Error("The rich view has no missed payment.");
     const obligations = base.obligations.map((owed) => (owed === loan ? { ...owed, monthsLeft: 1, missed: 1 } : owed));
-    await renderWithView(<ObligationView />, { ...base, obligations } satisfies PlayerView);
+    // Moved from the old obligations panel to the phone's Bills.
+    await renderWithView(<Bills />, { ...base, obligations } satisfies PlayerView);
     expect(screen.getByText("1 month left")).toBeDefined();
     expect(screen.getByText("Missed 1 payment in a row")).toBeDefined();
     expect(document.body.textContent).not.toMatch(/\b1 (months|questions|payments)\b/);

@@ -1,14 +1,15 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+// The team's corner (docs/rules/moderation.md R-MODERATION-007, 016, 020), moved from the old menu's moderation corner
+// (features/moderation/moderation.test.tsx): the feedback box and the notice. Their two rows in the phone's Settings
+// are features/phone/apps/Settings.moderation.test.tsx.
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { engineView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
-import { setGraphicsMode } from "../../shared/graphics/mode";
-import type { ModerationApi, Standing } from "../../shared/moderation/api";
-import { ModerationProvider } from "../../shared/moderation/ModerationProvider";
-import { reasonWords, words } from "../../shared/moderation/moderation.words";
-import { fakeModeration } from "../../shared/testing/moderation";
-import { FeedbackForm, ModerationMenu, NoticeView } from "./ModerationMenu";
+import { setGraphicsMode } from "../graphics/mode";
+import type { ModerationApi, Standing } from "./api";
+import { reasonWords, words } from "./moderation.words";
+import { fakeModeration } from "../testing/moderation";
+import "../testing/render";
+import { FeedbackForm, NoticeView } from "./Feedback";
 
 describe("feedback", () => {
   function form(moderation: ModerationApi) {
@@ -80,34 +81,5 @@ describe("the team's notice and the appeal", () => {
   test("[R-MODERATION-007] given a decided report, when the notice shows, then it says the outcome and not what was done", () => {
     render(<NoticeView moderation={fakeModeration()} standing={{ ...standing, actions: [] }} onChange={() => undefined} />);
     expect(screen.getByText(words("ui.notice.report.no-action"))).toBeTruthy();
-  });
-
-  test("[R-MODERATION-020] [R-MODERATION-016] given the game online, when the menu shows, then the feedback button is there, and the notice only once the team has decided something", async () => {
-    const quiet = fakeModeration();
-    await renderWithView(
-      <ModerationProvider api={quiet}>
-        <ModerationMenu />
-      </ModerationProvider>,
-      engineView(),
-    );
-    expect(screen.getByRole("button", { name: words("ui.feedback") })).toBeTruthy();
-    await act(async () => {
-      await Promise.resolve();
-    });
-    expect(screen.queryByRole("button", { name: words("ui.notice") })).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: words("ui.feedback") }));
-    expect(await screen.findByRole("dialog", { name: words("ui.feedback.title") })).toBeTruthy();
-  });
-
-  test("[R-MODERATION-016] given an action on the account, when the menu shows, then the notice button opens it", async () => {
-    await renderWithView(
-      <ModerationProvider api={fakeModeration({ standing: () => Promise.resolve({ ok: true, standing }) })}>
-        <ModerationMenu />
-      </ModerationProvider>,
-      engineView(),
-    );
-    fireEvent.click(await screen.findByRole("button", { name: words("ui.notice") }));
-    expect(await screen.findByRole("dialog", { name: words("ui.notice.title") })).toBeTruthy();
   });
 });

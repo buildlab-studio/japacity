@@ -1,17 +1,17 @@
-// The menu's moderation corner: the feedback button on every screen that has
-// the menu (R-MODERATION-020), and, when the team has acted on this account
-// or decided one of its reports, the notice with its one appeal per action
-// (R-MODERATION-007, R-MODERATION-016).
+// The team's corner of the game (moderation.md): the feedback box (R-MODERATION-020), and, when the team has acted on
+// this account or decided one of its reports, the notice with its one appeal per action (R-MODERATION-007,
+// R-MODERATION-016). In the world they are two rows in the phone's Settings, the game's menu now; the broken screen's
+// Tell us opens the same box (analytics.md R-ANALYTICS-002).
 import { BellDot, MessageSquareText } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
-import { Button } from "../../shared/ui/Button";
-import { Sheet } from "../../shared/ui/Sheet";
-import { graphicsMode } from "../../shared/graphics/mode";
-import { buildNumber, type ModerationApi, type Standing } from "../../shared/moderation/api";
-import { useModeration } from "../../shared/moderation/ModerationProvider";
-import { anyReasonWords, words } from "../../shared/moderation/moderation.words";
+import { Button } from "../ui/Button";
+import { Sheet } from "../ui/Sheet";
+import { graphicsMode } from "../graphics/mode";
+import { buildNumber, type ModerationApi, type Standing } from "./api";
+import { useModeration } from "./ModerationProvider";
+import { anyReasonWords, words } from "./moderation.words";
 
 /** The screen feedback is sent from, as the game's own state names it. */
 export function useScreenName(): string {
@@ -119,7 +119,7 @@ export function NoticeView({ moderation, standing, onChange }: { moderation: Mod
       {standing.actions.length === 0 ? null : (
         <ul className="flex flex-col gap-3">
           {standing.actions.map((action) => (
-            <li key={action.entry} className="flex flex-col gap-2 rounded-md border border-sheet-line bg-sheet-2 p-4">
+            <li key={action.entry} className="lively-card flex flex-col gap-2 p-3.5">
               <p>{actionWords(action)}</p>
               {action.appeal === null ? (
                 <>
@@ -139,7 +139,7 @@ export function NoticeView({ moderation, standing, onChange }: { moderation: Mod
       )}
       {standing.reports.length === 0 ? null : (
         <section className="flex flex-col gap-2">
-          <h3 className="text-sm font-semibold tracking-wide text-text-2 uppercase">{words("ui.notice.reports")}</h3>
+          <h3 className="text-[15px] font-semibold text-text-2">{words("ui.notice.reports")}</h3>
           <ul className="flex flex-col gap-1">
             {standing.reports.map((report) => (
               <li key={report.id} className="flex justify-between gap-3">
@@ -159,8 +159,11 @@ export function NoticeView({ moderation, standing, onChange }: { moderation: Mod
   );
 }
 
-/** The menu's two buttons. Nothing when the game runs without a server. */
-export function ModerationMenu() {
+/**
+ * The team's two rows in the phone's Settings: Feedback always, and the team's notice once the team has decided
+ * something. Nothing when the game runs without a server.
+ */
+export function ModerationRows() {
   const moderation = useModeration();
   const screen = useScreenName();
   const [open, setOpen] = useState<"feedback" | "notice" | null>(null);
@@ -182,15 +185,17 @@ export function ModerationMenu() {
   const decided = standing !== null && (standing.actions.length > 0 || standing.reports.some((report) => report.status === "decided"));
 
   return (
-    <>
+    <div className="mt-3 flex flex-col gap-2" data-moderation-rows>
       {decided ? (
-        <Button small variant="quiet" aria-label={words("ui.notice")} onClick={() => setOpen("notice")}>
-          <BellDot size={18} />
-        </Button>
+        <button type="button" className="phone-ghost w-full" onClick={() => setOpen("notice")}>
+          <BellDot size={18} aria-hidden />
+          {words("ui.notice")}
+        </button>
       ) : null}
-      <Button small variant="quiet" aria-label={words("ui.feedback")} onClick={() => setOpen("feedback")}>
-        <MessageSquareText size={18} />
-      </Button>
+      <button type="button" className="phone-ghost w-full" onClick={() => setOpen("feedback")}>
+        <MessageSquareText size={18} aria-hidden />
+        {words("ui.feedback")}
+      </button>
       <Sheet open={open === "feedback"} onOpenChange={(next) => setOpen(next ? "feedback" : null)} title={words("ui.feedback.title")} description={words("ui.feedback.intro")}>
         <FeedbackForm moderation={moderation} screen={screen} max={FEEDBACK_MAX_CHARS} />
       </Sheet>
@@ -199,6 +204,6 @@ export function ModerationMenu() {
           <NoticeView moderation={moderation} standing={standing} onChange={() => setAsked((count) => count + 1)} />
         </Sheet>
       )}
-    </>
+    </div>
   );
 }
