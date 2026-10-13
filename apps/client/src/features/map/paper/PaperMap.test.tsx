@@ -13,6 +13,7 @@ import { renderWithView } from "../../../shared/testing/render";
 import { nameOf } from "../../../shared/words/text";
 import type { CountryChoice } from "../../../shared/world/contract";
 import { Map } from "../Map";
+import { tileOf } from "../../../shared/tiles/tiles.data";
 import { mapPins, type MapPin } from "../pins";
 import { FOLD_MS } from "./fold";
 
@@ -150,5 +151,12 @@ describe("the folding map", () => {
     expect(document.querySelectorAll('[data-card="ojuelegba"] [data-pin="place.ojuelegba"]')).toHaveLength(1);
     expect(screen.getByRole("list", { name: "Stops" })).toBeTruthy();
     expect(document.querySelector('[data-pin="place.ojuelegba"]')?.getAttribute("aria-label")).toBe("Ojuelegba");
+  });
+
+  test("[R-WORLD-015] given the passport office and Ojuelegba, when their stickers stand on the map, then each has a picture of its own: a counter with the flag flying behind it, and the flyover", async () => {
+    expect(tileOf("place.passport-office")).toEqual({ model: "prop_bank-counter" });
+    expect(tileOf("place.ojuelegba")).toEqual({ model: "bld_flyover-span" });
+    await open({ step: "place.passport-office" });
+    expect(document.querySelector('[data-card="island"] [data-pin="place.passport-office"] [data-picture]')?.getAttribute("data-picture")).toBe("prop_bank-counter+flag");
   });
 });
