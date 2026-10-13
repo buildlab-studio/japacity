@@ -10,6 +10,7 @@ import { standInWorld } from "../../../packages/sim/src/index";
 import type { Command, World } from "../../../packages/sim/src/index";
 import { start, type Game } from "../../../packages/sim/src/testing/play";
 import { passOpeningWords } from "./door";
+import { openApp, passCards, passHomeTeach, placeReady } from "./live";
 
 /** The second dev server, built with VITE_SERVER_URL pointing at itself, so every /api request is same-origin and faked here. */
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
@@ -77,12 +78,18 @@ function viewOf(game: Game): Answer {
   return { body: { ok: true, view: game.view(), lines: [], clock: CLOCK } };
 }
 
-/** On a phone a panel is behind its tab; on a desktop every panel shows and the tab bar is hidden. */
-async function openTab(page: Page, name: string): Promise<void> {
-  const tabs = page.getByRole("navigation", { name: "Sections" });
-  // The bar is there once the shell has drawn; right after a reload it is not yet, and its absence would read as a desktop.
-  await page.getByRole("banner").waitFor();
-  if (await tabs.isVisible()) await tabs.getByRole("button", { name }).click();
+/**
+ * The world as an online life opens it, with nothing standing over the place: the chapter's opening words passed, the
+ * home's teach card put away (R-HOME-008), and the place drawn.
+ */
+async function intoTheWorld(page: Page): Promise<void> {
+  await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
+  await page.goto("/");
+  await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
+  await passOpeningWords(page);
+  await placeReady(page);
+  await passHomeTeach(page);
+  await passCards(page);
 }
 
 function friendGame(): Game {
@@ -124,7 +131,7 @@ test("[R-SERVER-032] while sign-ups are switched off, a new visitor sees the ful
     "GET /api/view": SIGNED_OUT,
     "GET /api/age": { status: 503, body: { ok: false, code: "switched-off", detail: "Sign-ups are closed for now.", retryAfter: 30 } },
   });
-  await page.goto("/?classic");
+  await page.goto("/");
   await expect(page.getByRole("heading", { name: "Japacity is full right now. Try again shortly." })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByRole("button", { name: "Check again" })).toBeDisabled();
   await expect(page.getByRole("combobox", { name: "Day" })).toHaveCount(0);
@@ -188,13 +195,17 @@ test("[R-MODERATION-003] a friend's conversation carries block and report, and a
     },
     "GET /api/moderation/standing": { body: { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } } },
   });
-  await page.goto("/?classic");
-  await expect(page.getByRole("heading", { name: /^Month \d+$/ }).first()).toBeVisible({ timeout: 20_000 });
-  await openTab(page, "People");
-  const thread = page.locator(`[data-conversation="${PAIR}"]`);
-  await expect(thread.locator('[data-row="m1"]')).toBeVisible();
+  test.setTimeout(150_000);
+  await intoTheWorld(page);
+  // The friend's conversation is in the phone's Chats, under the bond's head (R-WORLD-018).
+  const bond = game.view().people.bonds.find((one) => one.pair === PAIR)?.id ?? "";
+  const chats = await openApp(page, "chats");
+  await chats.locator(`[data-chat-row="${bond}"]`).click();
+  const thread = chats.locator(`[data-chat="${PAIR}"]`);
+  await expect(thread.locator("[data-thread] li").first()).toBeVisible();
+  await expect(thread.locator("[data-thread] li")).toHaveCount(2);
   await expect(thread.locator('[data-moderation="conversation"]').getByRole("button", { name: "Block" })).toBeVisible();
-  await expect(page.locator('[data-moderation="pair"]')).toBeVisible();
+  await expect(chats.locator('[data-moderation="pair"]')).toBeVisible();
   await thread.evaluate((element) => element.scrollIntoView({ block: "center" }));
   await shoot(page, "conversation", info.project.name);
 
@@ -224,14 +235,14 @@ test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the gam
     "GET /api/adverts/image/creative-1/1": { body: POSTER, type: "image/svg+xml" },
     "GET /api/moderation/standing": { body: { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } } },
   });
-  await page.goto("/?classic");
-  await expect(page.getByRole("heading", { name: /^Month \d+$/ }).first()).toBeVisible({ timeout: 20_000 });
-  await openTab(page, "News");
-  const tile = page.locator("[data-advert-slot='advert.phone-tile']");
-  await expect(tile).toBeVisible();
+  test.setTimeout(150_000);
+  await intoTheWorld(page);
+  // The sponsored tile stands on the phone's home among its tiles (R-ADVERT-002), one at most.
+  await page.locator('[data-thumb="phone"]').click();
+  const tile = page.locator("[data-phone] [data-advert-slot='advert.phone-tile']");
+  await expect(tile).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator("[data-phone] [data-advert-slot]")).toHaveCount(1);
   await expect(tile.getByText("Advert")).toBeVisible();
-  // The action bar and the tab bar cover the foot of a phone's screen, so the tile is brought to the middle.
-  await tile.evaluate((element) => element.scrollIntoView({ block: "center" }));
   await shoot(page, "phone-tile", info.project.name);
 
   await tile.getByRole("button").click();
@@ -307,11 +318,16 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
     await expect(sheet.locator("[data-lottery-close]")).toBeVisible();
     await expect(sheet.locator("[data-lottery-odds]")).toHaveCount(0);
 
-    // Two picked: the button says the act and its cost, paid now.
+    // Two picked: the button says the act and its price, and under it the balance before, struck, and after (R-WORLD-006,
+    // as decision 0036 put the price on the button in place of "paid now").
     await sheet.getByRole("button", { name: "One more ticket" }).click();
     const buy = page.locator("[data-kiosk-buy]");
     await expect(buy).toContainText("Buy 2 tickets");
-    await expect(buy).toContainText("paid now");
+    const price = 2 * (game.view().lottery?.ticket ?? 0);
+    expect(price).toBeGreaterThan(0);
+    await expect(buy).toContainText(`₦${Math.round(price / 100).toLocaleString("en-US")}`);
+    await expect(page.locator("[data-balance-before]")).toBeVisible();
+    await expect(page.locator("[data-balance-after]")).toBeVisible();
     await shoot(page, "kiosk-online", info.project.name);
     // The odds fold behind their row (R-WORLD-006).
     await sheet.locator('[data-kiosk-fold="odds"] button').click();
