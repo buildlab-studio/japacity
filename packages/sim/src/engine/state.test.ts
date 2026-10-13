@@ -34,6 +34,11 @@ function olderState(state: State, renames: Record<string, string>, version: stri
   return older as State;
 }
 
+/** A copy of `value` without the named keys. */
+function without(value: object, keys: readonly string[]): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(value).filter(([key]) => !keys.includes(key)));
+}
+
 const MINI_RENAMES = { "scenario.worker": "scenario.labourer", "route.mini": "route.small" };
 const miniTwo: Content = { ...(renamedDeep(miniContent, MINI_RENAMES) as Content), version: "mini.2", renames: MINI_RENAMES };
 
@@ -100,9 +105,9 @@ describe("upgradeState", () => {
    * `offer.rolled` or `offer.rolledMonth`, no body qualities, schema 3.
    */
   function schemaThree(state: State, version: string): State {
-    const { spent: _spent, ...turn } = state.turn;
-    const { rolled: _rolled, rolledMonth: _rolledMonth, ...offer } = state.offer;
-    const { "quality.belly": _belly, "quality.energy": _energy, ...quality } = state.quality;
+    const turn = without(state.turn, ["spent"]);
+    const offer = without(state.offer, ["rolled", "rolledMonth"]);
+    const quality = without(state.quality, ["quality.belly", "quality.energy"]);
     return { ...state, schema: 3, content: version, turn, offer, quality } as unknown as State;
   }
 

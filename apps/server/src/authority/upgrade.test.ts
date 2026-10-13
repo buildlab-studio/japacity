@@ -63,6 +63,11 @@ async function storeLife(server: TestServer, save: FlatSave): Promise<{ id: stri
   return { id, worlds };
 }
 
+/** A copy of `value` without the named keys. */
+function without(value: object, keys: readonly string[]): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(value).filter(([key]) => !keys.includes(key)));
+}
+
 describe("old saves", () => {
   test.each(Object.entries(lifeSaves))(
     "[R-SERVER-020] [R-SERVER-021] [R-SERVER-023] given the golden life %s stored under the previous content, when its view is fetched under the current one, then its end state is upgraded, checked and made the base of a new segment in that one transaction",
@@ -145,9 +150,9 @@ describe("old saves", () => {
     await signUp(server, "acc-1");
     const id = "character-schema-3";
     const fresh = newState("scenario.tunde", "seed-3", previous);
-    const { spent: _spent, ...turn } = fresh.turn;
-    const { rolled: _rolled, rolledMonth: _rolledMonth, ...offer } = fresh.offer;
-    const { "quality.belly": _belly, "quality.energy": _energy, ...quality } = fresh.quality;
+    const turn = without(fresh.turn, ["spent"]);
+    const offer = without(fresh.offer, ["rolled", "rolledMonth"]);
+    const quality = without(fresh.quality, ["quality.belly", "quality.energy"]);
     const older = { ...fresh, schema: 3, turn, offer, quality } as unknown as State;
     const start = { scenario: fresh.scenario, seed: fresh.seed, worldSeed: "golden-world" };
     await server.deps.stores.player.create({ id, account: "acc-1", refilledAt: server.deps.now(), content: previous.version, start, state: older });
