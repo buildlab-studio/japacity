@@ -2,5 +2,5 @@
 
 /** Whether the address asks for the contact sheet of every tile (development only). */
 export function tilesAsked(search: string): boolean {
-  return new URLSearchParams(search).has("tiles");
+  return import.meta.env.DEV && new URLSearchParams(search).has("tiles");
 }

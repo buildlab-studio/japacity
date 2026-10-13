@@ -17,7 +17,7 @@ const PARTS: readonly DayPart[] = ["morning", "afternoon", "evening", "night"];
  * null otherwise, and always null in a build for players.
  */
 export function devClockPart(search: string, dev: boolean = import.meta.env.DEV): DayPart | null {
-  if (!dev) return null;
+  if (!import.meta.env.DEV || !dev) return null;
   const asked = new URLSearchParams(search).get("clock");
   return PARTS.find((part) => part === asked) ?? null;
 }
