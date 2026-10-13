@@ -11,12 +11,11 @@ import { useState, type ReactNode } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { BlockReport } from "../../shared/moderation/BlockReport";
 import { bondName, endCost, endedHow, interviewName, personOf, slotKind, slotOrder, stepsFor, TOGETHER, type BondView, type SlotView } from "../../shared/sim/people";
-import { Button } from "../../shared/ui/Button";
-import { Card, Tag } from "../../shared/ui/Panel";
+import { StickerChip } from "../../shared/ui/lively/StickerChip";
 import { countWords } from "../../shared/words/count";
 import { countryWords } from "../../shared/words/people";
 import { blurbOf, forMonths, hasWords, lowerFirst, monthsAgo, nameOf, runningName, say, sayCount } from "../../shared/words/text";
-import { Answered, End, Facts, Held, Joint, Mark, momentsLeft, Pending, Proposals, Warnings } from "./BondCard";
+import { Answered, BondFace, End, Facts, Held, Joint, Mark, momentsLeft, Pending, Proposals, Warnings } from "./BondCard";
 import { AfterEarlyWin, InviteMaker, InviteOut } from "./InviteCard";
 import type { PairApi } from "./pairApi";
 
@@ -54,23 +53,28 @@ export function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: 
       <InviteMaker slot={slotKey} />
     ) : (
       <div>
-        <Button small variant="quiet" onClick={() => setInviting(true)} {...(open === undefined ? {} : { "data-invite-open": open })}>
+        <button type="button" className="phone-ghost press" onClick={() => setInviting(true)} {...(open === undefined ? {} : { "data-invite-open": open })}>
           {label}
-        </Button>
+        </button>
       </div>
     );
   return (
     <li>
-      <Card className="flex flex-col gap-2" data-slot={slotKey} data-state={slot.state}>
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold tracking-wide text-text-2 uppercase">{slotTitle(slotKey)}</span>
-            <span className="flex items-center gap-2 font-semibold">
+      <div className="lively-card flex flex-col gap-2.5 p-3" data-slot={slotKey} data-state={slot.state}>
+        <div className="flex items-start gap-3">
+          {bond === null ? null : <BondFace bond={bond} />}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="text-[13px] font-semibold text-text-2">{slotTitle(slotKey)}</span>
+            <span className="flex flex-wrap items-center gap-2 text-[16px] font-bold">
               {name ?? say(`ui.people.slot.state.${slot.state}`)}
               {slot.label === null ? null : <Mark label={slot.label} />}
             </span>
           </div>
-          {bond === null || kind === "sibling" ? null : <Tag>{say(`ui.people.stage.${bond.stage}`)}</Tag>}
+          {bond === null || kind === "sibling" ? null : (
+            <StickerChip tint="people" tilt={3} className="shrink-0 text-[12px] font-bold">
+              {say(`ui.people.stage.${bond.stage}`)}
+            </StickerChip>
+          )}
         </div>
         {parent !== null && slot.state === "computer" ? <p className="text-sm text-text-2">{say(`ui.people.parent.blurb.${parent}`)}</p> : null}
         {blurb === null ? null : <p className="text-sm text-text-2">{blurb}</p>}
@@ -81,7 +85,7 @@ export function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: 
         {slot.state === "invited" && slot.invite !== null ? <InviteOut slot={slotKey} invite={slot.invite} api={api} /> : null}
         {kind === "partner" && slot.state === "empty" && !view.ended ? <AfterEarlyWin>{invite(say("ui.people.partner.invite"), slotKey)}</AfterEarlyWin> : null}
         {kind === "sibling" && slot.state === "computer" && !view.ended ? <AfterEarlyWin>{invite(say("ui.people.sibling.invite"))}</AfterEarlyWin> : null}
-      </Card>
+      </div>
     </li>
   );
 }
@@ -91,10 +95,10 @@ export function Sponsoring() {
   const { people, month } = useView();
   if (people.sponsoring === null && people.barUntilMonth === null) return null;
   return (
-    <Card className="flex flex-col gap-1 text-sm" data-sponsoring>
+    <div className="lively-card flex flex-col gap-1 p-3 text-[14px]" data-sponsoring>
       {people.sponsoring === null ? null : <p>{say("ui.people.sponsoring", { route: nameOf(people.sponsoring.route), when: lowerFirst(monthsAgo(people.sponsoring.month, month)) })}</p>}
       {people.barUntilMonth === null ? null : <p className="text-bad">{say("ui.people.bar", { when: forMonths(people.barUntilMonth, month) })}</p>}
-    </Card>
+    </div>
   );
 }
 

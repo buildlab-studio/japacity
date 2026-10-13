@@ -1,16 +1,20 @@
 // One bond: its stage, who it is with and how they are marked, what is known
 // of them, the proposals both ways, the joint and
 // its consents, the stand-in, and ending it with its cost said first
-// (docs/rules/people.md R-PEOPLE-013 to 018, 021, 035 to 045, 051).
+// (docs/rules/people.md R-PEOPLE-013 to 018, 021, 035 to 045, 051). Dressed as the lively layer's cards (design page 13
+// section 2): the person's face sticker over what is known of them, the mark and the facts as sticker chips, white cards
+// for what waits, the pressed yellow button for the one action and ghost buttons for the rest.
 import { content } from "@japacity/content";
 import type { Id, PlayerView, ReportLine } from "@japacity/sim";
 import { Heart, TriangleAlert } from "lucide-react";
-import { useId, useState } from "react";
+import { type ComponentProps, type ReactNode, useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { FaceSticker } from "../../shared/frontdoor/LookPicture";
+import { lookForName } from "../../shared/frontdoor/looks";
 import { bondName, endCost, interviewName, jointRoutes, monthsWithout, personOf, stepsFor, TOGETHER, type BondView } from "../../shared/sim/people";
-import { Button } from "../../shared/ui/Button";
-import { Tag } from "../../shared/ui/Panel";
+import { PressButton } from "../../shared/ui/lively/PressButton";
+import { StickerChip } from "../../shared/ui/lively/StickerChip";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { formatBand, formatBp, formatMoney, formatNumber } from "../../shared/words/format";
 import { countryWords, jobWords } from "../../shared/words/people";
@@ -18,13 +22,25 @@ import { inMonths, nameOf, runningName, say, sayCount } from "../../shared/words
 
 const MONTHS_PER_YEAR = 12;
 
-/** The quiet mark beside a name: who the other side is (R-PEOPLE-051, R-PEOPLE-054). */
+/** A ghost button: the layer's white button with the navy edge, for every choice that is not the surface's one action. */
+function Ghost({ className = "", ...rest }: ComponentProps<"button">) {
+  return <button type="button" className={`phone-ghost press ${className}`} {...rest} />;
+}
+
+/** The quiet mark beside a name: who the other side is (R-PEOPLE-051, R-PEOPLE-054), as a small sticker chip. */
 export function Mark({ label }: { label: BondView["label"] }) {
   return (
-    <span title={label === "computer" ? say("ui.people.mark.computer.long") : undefined}>
-      <Tag>{say(`ui.people.mark.${label}`)}</Tag>
+    <span title={label === "computer" ? say("ui.people.mark.computer.long") : undefined} data-mark-label={label}>
+      <StickerChip tilt={-3} className="text-[12px] font-bold">
+        {say(`ui.people.mark.${label}`)}
+      </StickerChip>
     </span>
   );
+}
+
+/** The person's face, a round sticker: one of the door's looks picked from their name, since no look travels with a bond. */
+export function BondFace({ bond, size = 44 }: { bond: Pick<BondView, "id" | "role" | "label" | "person" | "facts">; size?: number }) {
+  return <FaceSticker look={lookForName(bondName(bond))} size={size} tilt={-4} tint="people" />;
 }
 
 function routeState(state: string): string {
@@ -56,11 +72,16 @@ export function Facts({ bond }: { bond: BondView }) {
   if (facts.funds !== null && typeof facts.funds.amount === "number") items.push(say("ui.people.facts.funds", { amount: formatMoney(facts.funds.amount, facts.funds.currency) }));
   if (facts.joint !== null) items.push(say("ui.people.facts.joint", { route: nameOf(facts.joint.route), state: routeState(facts.joint.state) }));
   return (
-    <div className="flex flex-col gap-1">
-      <h4 className="text-sm font-semibold">{say("ui.people.facts")}</h4>
-      <ul className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-text-2">
-        {items.map((item) => (
-          <li key={item}>{item}</li>
+    <div className="flex flex-col gap-2" data-bond-facts>
+      <div className="flex items-center gap-2.5">
+        <BondFace bond={bond} size={40} />
+        <h4 className="text-[16px] font-bold">{say("ui.people.facts")}</h4>
+      </div>
+      <ul className="flex flex-wrap gap-1.5 text-[13px]">
+        {items.map((item, index) => (
+          <li key={item} className="sticker-chip bg-sheet-2" style={{ rotate: `${String(index % 2 === 0 ? -1.5 : 1.5)}deg` }} data-sticker-chip>
+            {item}
+          </li>
         ))}
       </ul>
     </div>
@@ -77,31 +98,31 @@ export function Pending({ bond }: { bond: BondView }) {
   const { mine, theirs } = bond.pending;
   if (mine === null && theirs === null) return null;
   return (
-    <div className="flex flex-col gap-2 rounded-md bg-sheet-muted p-3 text-sm">
+    <div className="lively-card flex flex-col gap-2.5 p-3 text-[14px]" data-bond-pending>
       {mine === null ? null : (
         <div className="flex flex-wrap items-center gap-2">
-          <p className="flex-1">
+          <p className="flex-1 leading-snug">
             {mine.step === "joint" && mine.route !== null ? say("ui.people.pending.mine.joint", { route: runningName(mine.route) }) : say("ui.people.pending.mine", { step: stepWords(mine) })}
           </p>
-          <Button small disabled={busy} onClick={() => void send({ type: "people/withdraw", bond: bond.id })}>
+          <Ghost disabled={busy} onClick={() => void send({ type: "people/withdraw", bond: bond.id })}>
             {say("ui.people.withdraw")}
-          </Button>
+          </Ghost>
         </div>
       )}
       {theirs === null ? null : (
         <div className="flex flex-col gap-2">
-          <p className="font-medium">
+          <p className="text-[16px] leading-snug font-bold">
             {theirs.step === "joint" && theirs.route !== null
               ? say("ui.people.pending.theirs.joint", { route: runningName(theirs.route), lead: say(`ui.people.lead.${theirs.lead ?? "them"}`) })
               : say("ui.people.pending.theirs", { step: stepWords(theirs) })}
           </p>
           <div className="flex flex-wrap gap-2">
-            <Button small variant="primary" disabled={busy} onClick={() => void send({ type: "people/answer", bond: bond.id, step: theirs.step, yes: true })}>
+            <PressButton className="flex-1" disabled={busy} onClick={() => void send({ type: "people/answer", bond: bond.id, step: theirs.step, yes: true })}>
               {say("ui.people.answer.yes")}
-            </Button>
-            <Button small disabled={busy} onClick={() => void send({ type: "people/answer", bond: bond.id, step: theirs.step, yes: false })}>
+            </PressButton>
+            <Ghost disabled={busy} onClick={() => void send({ type: "people/answer", bond: bond.id, step: theirs.step, yes: false })}>
               {say("ui.people.answer.no")}
-            </Button>
+            </Ghost>
           </div>
         </div>
       )}
@@ -117,11 +138,11 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
   const routes = jointRoutes(view);
   const [route, setRoute] = useState<Id<"route"> | null>(routes[0] ?? null);
   const [lead, setLead] = useState<"me" | "them">("me");
-  if (routes.length === 0) return <p className="text-sm text-text-2">{say("ui.people.propose.joint.none")}</p>;
+  if (routes.length === 0) return <p className="text-[14px] text-text-2">{say("ui.people.propose.joint.none")}</p>;
   const chosen = route !== null && routes.includes(route) ? route : (routes[0] ?? null);
   return (
     <form
-      className="flex flex-col gap-2 rounded-md border border-sheet-line p-3 text-sm"
+      className="lively-card flex flex-col gap-2 p-3 text-[14px]"
       aria-label={say("ui.people.propose.joint")}
       onSubmit={(event) => {
         event.preventDefault();
@@ -131,10 +152,10 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
         });
       }}
     >
-      <label htmlFor={`${id}-route`} className="font-medium">
+      <label htmlFor={`${id}-route`} className="font-bold">
         {say("ui.people.propose.joint.route")}
       </label>
-      <select id={`${id}-route`} value={chosen ?? ""} onChange={(event) => setRoute(event.target.value as Id<"route">)} className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3">
+      <select id={`${id}-route`} value={chosen ?? ""} onChange={(event) => setRoute(event.target.value as Id<"route">)} className="lively-card min-h-12 px-3 text-[16px] font-semibold">
         {routes.map((value) => (
           <option key={value} value={value}>
             {nameOf(value)}
@@ -142,7 +163,7 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
         ))}
       </select>
       <fieldset className="flex flex-col gap-1">
-        <legend className="font-medium">{say("ui.people.propose.joint.lead")}</legend>
+        <legend className="font-bold">{say("ui.people.propose.joint.lead")}</legend>
         {(["me", "them"] as const).map((value) => (
           <label key={value} className="flex min-h-11 items-center gap-2">
             <input type="radio" name={`${id}-lead`} value={value} checked={lead === value} onChange={() => setLead(value)} className="size-5" />
@@ -150,11 +171,9 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
           </label>
         ))}
       </fieldset>
-      <div>
-        <Button small type="submit" variant="primary" disabled={busy || chosen === null}>
-          {say("ui.people.propose.joint.send")}
-        </Button>
-      </div>
+      <PressButton type="submit" className="w-full" disabled={busy || chosen === null}>
+        {say("ui.people.propose.joint.send")}
+      </PressButton>
     </form>
   );
 }
@@ -175,8 +194,8 @@ export function Held({ bond }: { bond: BondView }) {
   if (bond.pending.theirs !== null || bond.pending.mine !== null || view.ended) return null;
   const left = momentsLeft(bond);
   const until = coolingUntil(view, bond);
-  if (bond.stage === "courting" && left > 0) return <p className="text-sm text-text-2">{sayCount("ui.people.courting.next", left, { count: left })}</p>;
-  if (until !== null && stepsFor(view, bond).length > 0) return <p className="text-sm text-text-2">{say("ui.people.cooldown", { when: inMonths(until, view.month) })}</p>;
+  if (bond.stage === "courting" && left > 0) return <p className="text-[14px] leading-snug text-text-2">{sayCount("ui.people.courting.next", left, { count: left })}</p>;
+  if (until !== null && stepsFor(view, bond).length > 0) return <p className="text-[14px] leading-snug text-text-2">{say("ui.people.cooldown", { when: inMonths(until, view.month) })}</p>;
   return null;
 }
 
@@ -191,27 +210,38 @@ export function Proposals({ bond, onSent }: { bond: BondView; onSent: (lines: Re
     void send({ type: "people/propose", bond: bond.id, step }).then((reply) => {
       if (reply?.ok === true) onSent(reply.lines);
     });
+  // One yellow button a surface: the first step there is to ask; any other is a ghost beside it.
+  const main = steps.includes("partner") ? "partner" : steps.includes("marry") ? "marry" : null;
+  const asked = (step: "partner" | "marry", children: ReactNode) =>
+    step === main ? (
+      <PressButton className="flex-1" disabled={busy} onClick={() => propose(step)}>
+        {children}
+      </PressButton>
+    ) : (
+      <Ghost disabled={busy} onClick={() => propose(step)}>
+        {children}
+      </Ghost>
+    );
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" data-bond-proposals>
       <div className="flex flex-wrap gap-2">
-        {steps.includes("partner") ? (
-          <Button small variant="primary" disabled={busy} onClick={() => propose("partner")}>
-            <Heart size={14} />
-            {say("ui.people.propose.partner")}
-          </Button>
-        ) : null}
-        {steps.includes("marry") ? (
-          <Button small variant="primary" disabled={busy} onClick={() => propose("marry")}>
-            {say("ui.people.propose.marry")}
-          </Button>
-        ) : null}
+        {steps.includes("partner")
+          ? asked(
+              "partner",
+              <>
+                <Heart size={16} aria-hidden />
+                {say("ui.people.propose.partner")}
+              </>,
+            )
+          : null}
+        {steps.includes("marry") ? asked("marry", say("ui.people.propose.marry")) : null}
         {steps.includes("joint") ? (
-          <Button small aria-expanded={joint} onClick={() => setJoint(!joint)}>
+          <Ghost aria-expanded={joint} onClick={() => setJoint(!joint)}>
             {say("ui.people.propose.joint")}
-          </Button>
+          </Ghost>
         ) : null}
       </div>
-      {steps.includes("marry") ? <p className="text-xs text-text-2">{say("ui.people.propose.marry-share", { amount: formatMoney(content.tuning.people.weddingShare, "NGN") })}</p> : null}
+      {steps.includes("marry") ? <p className="text-[12px] text-text-2">{say("ui.people.propose.marry-share", { amount: formatMoney(content.tuning.people.weddingShare, "NGN") })}</p> : null}
       {joint ? <JointForm bond={bond} onSent={onSent} /> : null}
     </div>
   );
@@ -234,33 +264,44 @@ export function Joint({ bond }: { bond: BondView }) {
       if (change.standInMay !== undefined) setStandIn(change.standInMay);
     });
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-sheet-line p-3 text-sm" data-joint>
-      <h4 className="font-semibold">{say("ui.people.joint")}</h4>
+    <div className="lively-card flex flex-col gap-2 p-3 text-[14px]" data-joint>
+      <h4 className="text-[16px] font-bold">{say("ui.people.joint")}</h4>
       <p>{say("ui.people.joint.on", { route: nameOf(joint.route), lead: say(`ui.people.joint.lead.${joint.lead}`) })}</p>
       {joint.myScore === null || joint.theirScore === null ? null : <p>{say("ui.people.joint.scores", { mine: formatNumber(joint.myScore), theirs: formatNumber(joint.theirScore) })}</p>}
-      <h5 className="font-medium">{say("ui.people.consent")}</h5>
-      <div className="flex flex-wrap gap-2">
-        <Button small aria-pressed={funds === true} disabled={busy} onClick={() => consent({ countFunds: true })}>
-          {say("ui.people.consent.funds.yes")}
-        </Button>
-        <Button small aria-pressed={funds === false} disabled={busy} onClick={() => consent({ countFunds: false })}>
-          {say("ui.people.consent.funds.no")}
-        </Button>
-      </div>
-      <p className="text-xs text-text-2">{say("ui.people.consent.funds.help")}</p>
+      <h5 className="font-bold">{say("ui.people.consent")}</h5>
+      <Segment
+        options={[
+          { on: funds === true, words: say("ui.people.consent.funds.yes"), pick: () => consent({ countFunds: true }) },
+          { on: funds === false, words: say("ui.people.consent.funds.no"), pick: () => consent({ countFunds: false }) },
+        ]}
+        busy={busy}
+      />
+      <p className="text-[12px] text-text-2">{say("ui.people.consent.funds.help")}</p>
       {bond.label === "computer" ? null : (
         <>
-          <div className="flex flex-wrap gap-2">
-            <Button small aria-pressed={standIn === true} disabled={busy} onClick={() => consent({ standInMay: true })}>
-              {say("ui.people.consent.stand-in.yes")}
-            </Button>
-            <Button small aria-pressed={standIn === false} disabled={busy} onClick={() => consent({ standInMay: false })}>
-              {say("ui.people.consent.stand-in.no")}
-            </Button>
-          </div>
-          <p className="text-xs text-text-2">{say("ui.people.consent.stand-in.help")}</p>
+          <Segment
+            options={[
+              { on: standIn === true, words: say("ui.people.consent.stand-in.yes"), pick: () => consent({ standInMay: true }) },
+              { on: standIn === false, words: say("ui.people.consent.stand-in.no"), pick: () => consent({ standInMay: false }) },
+            ]}
+            busy={busy}
+          />
+          <p className="text-[12px] text-text-2">{say("ui.people.consent.stand-in.help")}</p>
         </>
       )}
+    </div>
+  );
+}
+
+/** Two choices of one consent as a segmented pill, the one made lit; each keeps its pressed state for a screen reader. */
+function Segment({ options, busy }: { options: readonly { on: boolean; words: string; pick: () => void }[]; busy: boolean }) {
+  return (
+    <div className="phone-segment flex w-full p-1" data-segment>
+      {options.map((option) => (
+        <button key={option.words} type="button" aria-pressed={option.on} disabled={busy} onClick={option.pick} className={`press min-h-11 flex-1 px-3 text-[14px] leading-tight font-bold ${option.on ? "phone-segment-on" : ""}`}>
+          {option.words}
+        </button>
+      ))}
     </div>
   );
 }
@@ -281,30 +322,26 @@ export function End({ bond, asked = false, onKeep }: { bond: BondView; asked?: b
   if (!asking) {
     return (
       <div>
-        <Button small variant="quiet" onClick={() => setAsking(true)}>
-          {say("ui.people.end")}
-        </Button>
+        <Ghost onClick={() => setAsking(true)}>{say("ui.people.end")}</Ghost>
       </div>
     );
   }
   return (
-    <div role="group" aria-label={say("ui.people.end")} className="flex flex-col gap-2 rounded-md border border-bad p-3 text-sm">
-      <p>{costWords}</p>
+    <div role="group" aria-label={say("ui.people.end")} className="lively-card flex flex-col gap-2 p-3 text-[14px]" data-bond-end>
+      <p className="text-[16px] leading-snug font-bold">{costWords}</p>
       {cost.joint ? <p>{say("ui.people.end.joint")}</p> : null}
       <div className="flex flex-wrap gap-2">
-        <Button small disabled={busy} onClick={() => void send({ type: "people/end", bond: bond.id }).then(() => setAsking(false))}>
+        <Ghost className="text-bad" disabled={busy} onClick={() => void send({ type: "people/end", bond: bond.id }).then(() => setAsking(false))}>
           {say("ui.people.end.confirm")}
-        </Button>
-        <Button
-          small
-          variant="quiet"
+        </Ghost>
+        <Ghost
           onClick={() => {
             setAsking(asked);
             onKeep?.();
           }}
         >
           {say("ui.people.end.keep")}
-        </Button>
+        </Ghost>
       </div>
     </div>
   );
@@ -327,9 +364,9 @@ export function Warnings({ bond, view }: { bond: BondView; view: PlayerView }) {
   }
   if (warnings.length === 0) return null;
   return (
-    <ul className="flex flex-col gap-1 text-sm">
+    <ul className="flex flex-col gap-1.5 text-[14px]" data-bond-warnings>
       {warnings.map((warning) => (
-        <li key={warning} className="flex items-start gap-2">
+        <li key={warning} className="lively-card flex items-start gap-2 p-2.5 leading-snug">
           <TriangleAlert size={16} className="mt-0.5 shrink-0 text-bad" />
           {warning}
         </li>
@@ -346,7 +383,7 @@ export function Answered({ lines }: { lines: ReportLine[] }) {
   const declined = lines.some((line) => line.key === DECLINED);
   const months = content.tuning.people.proposeCooldown;
   return (
-    <div role="status" className="flex flex-col gap-1 rounded-md bg-sheet-muted p-3 text-sm">
+    <div role="status" className="lively-card flex flex-col gap-1 p-3 text-[14px]">
       <ReportLines lines={lines} />
       {declined ? <p className="text-text-2">{sayCount("ui.people.declined.cooldown", months, { months })}</p> : null}
     </div>

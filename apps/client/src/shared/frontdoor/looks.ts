@@ -60,3 +60,23 @@ export function namesFor(sex: "f" | "m", roll: number): string[] {
   }
   return names;
 }
+
+/** The sex a given name suits in the pool, or null where the pool gives it to both or does not hold it. */
+function sexOfName(name: string): "f" | "m" | null {
+  const first = name.trim().split(/\s+/)[0] ?? "";
+  const found = namePool.find((entry) => text[`person.name.${String(entry.n)}`] === first);
+  return found === undefined || found.sex === "either" ? null : found.sex;
+}
+
+/**
+ * A face for someone the game names but gives no look (a computer partner, a sibling, the player on an invite card with
+ * no look kept): one of the door's looks, of the sex the name suits where the pool says, picked from the name so the
+ * same name always wears the same face.
+ */
+export function lookForName(name: string): string {
+  const sex = sexOfName(name);
+  const looks = sex === null ? LOOKS : LOOKS.filter((look) => look.sex === sex);
+  const sum = [...name].reduce((total, letter) => total + (letter.codePointAt(0) ?? 0), 0);
+  return (looks[sum % Math.max(1, looks.length)] ?? LOOKS[0])?.id ?? "chr_ada";
+}
+
