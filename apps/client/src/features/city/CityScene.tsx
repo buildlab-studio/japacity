@@ -15,7 +15,7 @@ import { Box3, type Camera, Color, type DirectionalLight, Fog, type HemisphereLi
 import { keptStyleOf } from "../../authority/person";
 import { wear } from "../../shared/frontdoor/colours";
 import type { Act, Shot, Thing } from "../../shared/world/contract";
-import { bubbleSpot } from "../../shared/world/Lines";
+import { bubbleSpot, NEAR_SPEAKER } from "../../shared/world/Lines";
 import { advanceClock } from "../../shared/three/clock";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest } from "../../shared/three/manifest";
@@ -139,6 +139,25 @@ interface Rig {
 const wholeRig = (): Rig => ({ zoom: 1, zoomTo: 1, turn: 0, pinching: false });
 
 /** Where a point of the place falls on the screen, in CSS pixels, or null when it is off it or behind the camera. */
+/** How far a resident may stand from the player's figure and still be heard (the talk budget), in metres. */
+const NEAR_M = 7;
+/** How far over a resident's feet their emote stands. */
+const EMOTE_Y = 2.2;
+const emoteAt = new Vector3();
+const nearAt = new Vector3();
+
+/** The spot of the resident nearest the player's figure within NEAR_M, as [x, z], or null when none stands near. */
+function nearestResident(world: { crowd: readonly { figure: { root: Object3D } }[] } | null, x: number, z: number): [number, number] | null {
+  let best: [number, number] | null = null;
+  let far = NEAR_M;
+  for (const entry of world?.crowd ?? []) {
+    entry.figure.root.getWorldPosition(nearAt);
+    const distance = Math.hypot(nearAt.x - x, nearAt.z - z);
+    if (distance < far) [far, best] = [distance, [nearAt.x, nearAt.z]];
+  }
+  return best;
+}
+
 function onScreen(camera: Camera, size: { width: number; height: number }, x: number, y: number, z: number, margin = 1): { x: number; y: number } | null {
   const at = new Vector3(x, y, z).project(camera);
   if (at.z > 1 || Math.abs(at.x) > margin || Math.abs(at.y) > margin) return null;
@@ -600,7 +619,9 @@ function Place(props: PlaceProps) {
     // A person's words stand over them as the camera moves (R-WORLD-005): the bubble follows its speaker, whose label gives way to it.
     const bubble = document.querySelector<HTMLElement>("[data-speech]");
     const speaker = bubble === null ? undefined : things.find((thing) => thing.id === bubble.dataset.speech);
-    const voice = speaker === undefined ? null : thingSpot(stage, speaker);
+    // The street's line is given to the resident nearest the player's figure, and only while one stands near (the talk budget).
+    const nearest = bubble?.dataset.speech === NEAR_SPEAKER ? nearestResident(world, next.x, next.z) : null;
+    const voice = nearest ?? (speaker === undefined ? null : thingSpot(stage, speaker));
     if (bubble !== null) {
       if (voice === null) bubble.style.visibility = "hidden";
       else {
@@ -610,6 +631,18 @@ function Place(props: PlaceProps) {
         bubble.style.transform = `translate(${String(spot.x)}px, ${String(spot.y)}px)`;
         bubble.style.visibility = spot.shown ? "visible" : "hidden";
       }
+    }
+    // The emotes stand over the residents they belong to, held over them as they idle (the talk budget's pictures).
+    for (const node of document.querySelectorAll<HTMLElement>("[data-emote-slot]")) {
+      const placed = world?.crowd.find((entry) => String(entry.slot) === node.dataset.emoteSlot);
+      if (placed === undefined) {
+        node.style.visibility = "hidden";
+        continue;
+      }
+      placed.figure.root.getWorldPosition(emoteAt);
+      const at = onScreen(state.camera, state.size, emoteAt.x, emoteAt.y + EMOTE_Y, emoteAt.z, 1.05);
+      node.style.visibility = at === null ? "hidden" : "visible";
+      if (at !== null) node.style.transform = `translate(${String(at.x)}px, ${String(at.y)}px)`;
     }
     // The fan follows its thing as the camera eases, as the marks do, and says where the thing first stood so the fan can
     // lay out its buttons once (docs/design/13-the-lively-layer.md section 3); off the screen it hides until the thing is back.

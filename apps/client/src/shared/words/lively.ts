@@ -67,4 +67,7 @@ export const livelyText: Record<string, string> = {
   "ui.brief.count.8": "Eight",
   "ui.brief.count.9": "Nine",
   "ui.brief.count.10": "Ten",
+  // The talk budget: someone near the player, and a longer line opened in its sheet.
+  "ui.talk.someone": "Someone nearby",
+  "ui.talk.open": "{name} has more to say",
 };

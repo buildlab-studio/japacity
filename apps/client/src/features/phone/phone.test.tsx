@@ -14,10 +14,13 @@ import { APP_IDS, marksOf, reloadSeen, SEEN_KEY, waitingOf } from "./seen";
 import { todayWords } from "../../shared/words/format";
 import { inMonths, nameOf } from "../../shared/words/text";
 import { phoneWords } from "./phone.words";
+import { resetLines } from "../../shared/world/Lines";
 
 const NOON = () => new Date(2026, 9, 8, 12, 5);
 
 beforeEach(() => {
+  // The corner starts empty, as a new screen does: a line told in the last test is not this one's.
+  resetLines();
   localStorage.clear();
   reloadSeen();
 });

@@ -1,50 +1,65 @@
-// How the world talks (docs/rules/world.md R-WORLD-005, R-WORLD-026; the design). A person
-// says their words in a bubble over their own head, in the scene; what happens, and the street's talk, roll into the
-// bottom corner, one short line each, the newest at the bottom, gone after a few seconds. Nothing is narrated in a
-// card across the middle of the world: Mama says "You have eaten? Sit small." over her head, and the corner says
-// "Mama presses a bag of oranges on you."
+// How the world talks (docs/rules/world.md R-WORLD-005, R-WORLD-026; the talk budget, docs/design/13-the-lively-layer.md
+// section 5; the plan 6). Two channels and nothing more: pictures over the crowd cost no reading, and words over a
+// person come one bubble at a time, at most eight words, for about four seconds, an ambient line then at least twenty of
+// quiet. A longer line never floats: the person shows "…" and a tap opens it in a sheet with their name. The bottom corner
+// is for the player's own act's answer alone ("Mama presses a bag of oranges on you."), one line at a time; the street's
+// talk tied to nobody no longer stands there.
 import { useEffect, useRef, useSyncExternalStore } from "react";
 
 import { CentredColumn } from "../ui/lively/CentredColumn";
+import { Face, faceMark } from "../ui/lively/Face";
+import { LivelySheet } from "../ui/lively/LivelySheet";
+import { say } from "../words/text";
 
-/** A told line stays this long in the corner (the design's `toast`). */
+/** A told line stays this long in the corner. */
 export const TOLD_MS = 7000;
-/** A heard line, the street's talk, stays this long (the design's `hear`). */
-export const HEARD_MS = 8000;
-/** A person's words stay over their head this long, unless tapped away (the design's `say`). */
-export const SPEECH_MS = 5200;
-/** The street's talk comes this often while nothing covers the world (R-WORLD-026). */
+/** A person's words stay over their head this long, unless tapped away (the talk budget: about four seconds). */
+export const SPEECH_MS = 4000;
+/** After an ambient line, at least this long before the next one floats (the talk budget). */
+export const QUIET_MS = 20000;
+/** The street's turn comes this often while nothing covers the world; the quiet still holds it back. */
 export const TALK_EVERY_MS = 9000;
-/** The corner holds this many lines; the oldest goes as a new one comes in. */
-export const CORNER_MAX = 3;
-/** The street's talk waits while the corner holds this many lines or more. */
-const TALK_ROOM = 2;
-/** The lines' opacity, oldest to newest, when the corner is full. */
-const FADE = [0.55, 0.8, 1] as const;
+/** The most words a bubble holds; a longer line shows "…" and opens in a sheet. */
+export const WORDS_MAX = 8;
+/** The corner shows one line at a time; the others wait their turn. */
+export const CORNER_MAX = 1;
+/** Who speaks an ambient line: the resident nearest the player's figure, found by the scene. */
+export const NEAR_SPEAKER = "crowd:near";
 
-/** "told": what happened. "heard": the street's talk, tied to nobody. */
+/** "told": the player's own act's answer, in the corner. */
 export interface Line {
   id: number;
   text: string;
-  kind: "told" | "heard";
+  kind: "told";
+  /** How long it stands once it is shown. */
+  ms: number;
 }
 
-/** Someone in the scene speaking: `who` is the thing they stand at, `name` is said small over their words. */
+/**
+ * Someone in the scene speaking: `who` is the thing they stand at (or the resident nearest, `NEAR_SPEAKER`), `name` is
+ * said small over their words. A long line shows "…" until tapped open.
+ */
 export interface Speech {
   id: number;
   who: string;
   name: string;
   text: string;
+  long: boolean;
+  ambient: boolean;
 }
 
 interface Said {
   lines: readonly Line[];
   speech: Speech | null;
+  /** A long line opened in its sheet. */
+  open: Speech | null;
 }
 
-let said: Said = { lines: [], speech: null };
+let said: Said = { lines: [], speech: null, open: null };
 let lastId = 0;
 let speechTimer: number | undefined;
+/** When the last ambient bubble went, for the quiet after it. */
+let quietSince = -Infinity;
 const timers = new Set<number>();
 const listeners = new Set<() => void>();
 
@@ -53,35 +68,79 @@ function change(next: Partial<Said>): void {
   for (const listener of listeners) listener();
 }
 
-function add(text: string, kind: Line["kind"], ms: number): void {
-  lastId += 1;
-  const id = lastId;
-  change({ lines: [...said.lines, { id, text, kind }].slice(-CORNER_MAX) });
+/** How many words a line holds. */
+export function wordCount(text: string): number {
+  return text.trim().split(/\s+/).filter((word) => word !== "").length;
+}
+
+/** True when a line is too long to float: it shows "…" and opens in a sheet (the talk budget). */
+export function isLong(text: string): boolean {
+  return wordCount(text) > WORDS_MAX;
+}
+
+/** The most lines waiting their turn in the corner. */
+const CORNER_QUEUE = 3;
+/** Lines told within this long of the one showing belong with it and wait their turn; a later one answers a new tap. */
+export const JOIN_MS = 1000;
+/** When the line showing was told. */
+let headAt = -Infinity;
+
+/** Starts the corner's first line on its time: when it goes, the next waiting takes its turn. */
+function runHead(): void {
+  const head = said.lines[0];
+  if (head === undefined) return;
+  headAt = Date.now();
   const timer = window.setTimeout(() => {
     timers.delete(timer);
-    if (said.lines.some((line) => line.id === id)) change({ lines: said.lines.filter((line) => line.id !== id) });
-  }, ms);
+    if (said.lines[0]?.id !== head.id) return;
+    change({ lines: said.lines.slice(1) });
+    runHead();
+  }, head.ms);
   timers.add(timer);
 }
 
-/** What happened, told in the bottom corner: the parcel collected, the fare paid, Mama's oranges. */
+/**
+ * The player's own act's answer, told in the bottom corner, one line at a time (the talk budget): the parcel collected,
+ * the fare paid, Mama's oranges. A line told with the one showing (within JOIN_MS) waits its turn after it; a line told
+ * later answers a new tap and takes the corner at once.
+ */
 export function tell(text: string, ms = TOLD_MS): void {
-  add(text, "told", ms);
+  lastId += 1;
+  const line = { id: lastId, text, kind: "told" as const, ms };
+  if (said.lines.length > 0 && Date.now() - headAt <= JOIN_MS) {
+    change({ lines: [...said.lines, line].slice(0, CORNER_QUEUE) });
+    return;
+  }
+  change({ lines: [line] });
+  runHead();
 }
 
-/** The street's talk, tied to nobody, in the same corner. */
-export function hear(text: string, ms = HEARD_MS): void {
-  add(text, "heard", ms);
+function put(who: string, name: string, text: string, ambient: boolean, ms: number): void {
+  lastId += 1;
+  const id = lastId;
+  change({ speech: { id, who, name, text, long: isLong(text), ambient } });
+  if (speechTimer !== undefined) window.clearTimeout(speechTimer);
+  speechTimer = window.setTimeout(() => hush(id), ms);
 }
 
 /** Someone in the scene says it, over their head; one speaker at a time, so a new one takes the last one's place. */
 export function speak(who: string, name: string, text: string, ms = SPEECH_MS): void {
-  lastId += 1;
-  const id = lastId;
-  change({ speech: { id, who, name, text } });
-  if (speechTimer !== undefined) window.clearTimeout(speechTimer);
-  speechTimer = window.setTimeout(() => hush(id), ms);
+  put(who, name, text, false, ms);
 }
+
+/**
+ * The street's talk, tied to nobody, given to the resident nearest the player (the talk budget): it floats only while no
+ * one speaks and the quiet after the last ambient line has passed. True when it floated.
+ */
+export function murmur(text: string, now: number = Date.now()): boolean {
+  if (said.speech !== null || now - quietSince < QUIET_MS) return false;
+  quietSince = now + SPEECH_MS;
+  put(NEAR_SPEAKER, say("ui.talk.someone"), text, true, SPEECH_MS);
+  return true;
+}
+
+/** The street's talk heard: an ambient line, as `murmur`. */
+export const hear = (text: string): boolean => murmur(text);
 
 /** Takes the words down: those with this id, or whoever is speaking. */
 export function hush(id?: number): void {
@@ -89,13 +148,20 @@ export function hush(id?: number): void {
   change({ speech: null });
 }
 
-/** Clears the corner and the bubble at once, for a new life or a test. */
+/** Opens a long line in its sheet, with the speaker's name; the bubble goes. */
+export function listen(speech: Speech): void {
+  change({ open: speech, speech: null });
+}
+
+/** Clears the corner, the bubble and the quiet at once, for a new life or a test. */
 export function resetLines(): void {
   for (const timer of timers) window.clearTimeout(timer);
   timers.clear();
   if (speechTimer !== undefined) window.clearTimeout(speechTimer);
   speechTimer = undefined;
-  change({ lines: [], speech: null });
+  quietSince = -Infinity;
+  headAt = -Infinity;
+  change({ lines: [], speech: null, open: null });
 }
 
 function subscribe(listener: () => void): () => void {
@@ -103,7 +169,7 @@ function subscribe(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
-/** What is said now: the corner's lines and the one speaking. */
+/** What is said now: the corner's lines, the one speaking, the long line opened. */
 export function useLines(): Said {
   return useSyncExternalStore(
     subscribe,
@@ -118,8 +184,9 @@ export function linesNow(): Said {
 }
 
 /**
- * The street's own talk (R-WORLD-026): a line at once when the world is free, then one every TALK_EVERY_MS while it
- * stays free, never while someone speaks or the corner already holds two lines. `next` gives the line to hear.
+ * The street's own talk (the talk budget): a turn at once when the world is free, then one every TALK_EVERY_MS while it
+ * stays free; each turn offers an ambient line, which floats only when no one speaks and the quiet has passed. `next`
+ * gives the line.
  */
 export function useStreetTalk(next: () => string | null, free: boolean): void {
   const nextRef = useRef(next);
@@ -127,9 +194,9 @@ export function useStreetTalk(next: () => string | null, free: boolean): void {
   useEffect(() => {
     if (!free) return;
     const talk = (): void => {
-      if (said.speech !== null || said.lines.length >= TALK_ROOM) return;
+      if (said.speech !== null || Date.now() - quietSince < QUIET_MS) return;
       const line = nextRef.current();
-      if (line !== null) hear(line);
+      if (line !== null) murmur(line);
     };
     talk();
     const timer = window.setInterval(talk, TALK_EVERY_MS);
@@ -137,33 +204,21 @@ export function useStreetTalk(next: () => string | null, free: boolean): void {
   }, [free]);
 }
 
-/** One line in the corner, off-white with dark text in both themes. */
-function CornerLine({ line, opacity }: { line: Line; opacity: number }) {
-  const mark = line.kind === "told" ? { "data-told": "" } : { "data-heard": "", "data-chatter": "" };
-  return (
-    <p className={`said rise rounded-[8px] px-3 py-1.5 text-[13px] leading-snug transition-opacity duration-300 ${line.kind === "heard" ? "said-heard font-semibold" : "font-bold"}`} style={{ opacity }} {...mark}>
-      {line.text}
-    </p>
-  );
-}
-
 /**
- * The bottom corner, above the Map button (R-WORLD-026): up to three lines, the newest at the bottom, the older fading.
- * In the world it hides while anything covers it. Over the phone (`told`) it shows only what was told, so a line an
- * act on the phone made is read while the phone covers the world.
+ * The bottom corner, above the thumbs (the talk budget): the line the player's own act was answered with, one at a time,
+ * as a pill. In the world it hides while anything covers it; over the phone (`told`) it still shows, so a line an act on the
+ * phone made is read while the phone covers the world.
  */
 export function Corner({ hidden = false, told = false }: { hidden?: boolean; told?: boolean }) {
   const { lines } = useLines();
-  const shown = told ? lines.filter((line) => line.kind === "told") : lines;
-  if (hidden || shown.length === 0) return null;
+  const line = lines[0];
+  if (hidden || line === undefined) return null;
   return (
-    // On a laptop the corner is the centred column's, beside its Map (decision 0038).
-    <CentredColumn className={`pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] px-3 ${told ? "z-[45]" : "z-[36]"}`}>
-      <div className="flex max-w-[80%] flex-col items-start gap-1.5" role="status" data-corner>
-        {shown.map((line, index) => (
-          <CornerLine key={line.id} line={line} opacity={FADE[index + CORNER_MAX - shown.length] ?? 1} />
-        ))}
-      </div>
+    // On a laptop the corner is the centred column's (decision 0038).
+    <CentredColumn className={`pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+84px)] flex justify-center px-3 ${told ? "z-[45]" : "z-[36]"}`}>
+      <p key={line.id} className="talk-corner rise max-w-[86%] px-4 py-1.5 text-center text-[14px] leading-snug font-bold" role="status" data-corner data-told>
+        {line.text}
+      </p>
     </CentredColumn>
   );
 }
@@ -184,31 +239,47 @@ export function bubbleSpot(at: { x: number; y: number; z: number }, size: { widt
 }
 
 /**
- * The bubble over whoever is speaking. With a scene drawn (`anchored`) the scene moves it each frame over the speaker
- * (`bubbleSpot`) and it stays hidden until then; with none it stands over the corner. A tap takes it down.
+ * The bubble over whoever is speaking: the lively bubble with the speaker's name pill over their words. With a scene
+ * drawn (`anchored`) the scene moves it each frame over the speaker (`bubbleSpot`) and it stays hidden until then; with
+ * none it stands over the corner. A tap takes a short line down; a long one shows "…" and a tap opens it in a sheet.
  */
 export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; anchored: boolean }) {
-  const { speech } = useLines();
-  if (speech === null || hidden) return null;
+  const { speech, open } = useLines();
   return (
-    <button
-      type="button"
-      onClick={() => hush(speech.id)}
-      className={`pointer-events-auto fixed z-[37] w-max max-w-[240px] text-left ${anchored ? "top-0 left-0" : "bottom-[calc(max(14px,env(safe-area-inset-bottom))+150px)] left-1/2 -translate-x-1/2"}`}
-      style={anchored ? { visibility: "hidden" } : undefined}
-      data-speech={speech.who}
-    >
-      <span key={speech.id} className={`pop block ${anchored ? "-translate-x-1/2 -translate-y-full" : ""}`}>
-        <span className="said block rounded-[12px] px-3 py-2">
-          <span className="block text-[11px] font-bold opacity-60" data-speech-name>
-            {speech.name}
+    <>
+      {speech === null || hidden ? null : (
+        <button
+          type="button"
+          onClick={() => (speech.long ? listen(speech) : hush(speech.id))}
+          className={`pointer-events-auto fixed z-[37] w-max max-w-[280px] text-left ${anchored ? "top-0 left-0" : "bottom-[calc(max(14px,env(safe-area-inset-bottom))+150px)] left-1/2 -translate-x-1/2"}`}
+          style={anchored ? { visibility: "hidden" } : undefined}
+          aria-label={speech.long ? say("ui.talk.open", { name: speech.name }) : undefined}
+          data-speech={speech.who}
+          {...(speech.long ? { "data-speech-long": "" } : {})}
+        >
+          <span key={speech.id} className={`pop block ${anchored ? "-translate-x-1/2 -translate-y-full" : ""}`}>
+            <span className="talk-bubble block px-3 py-2">
+              <span className="mb-1 flex items-center gap-1.5 text-[13px] font-bold">
+                <span className="face-mark flex size-5 shrink-0 items-center justify-center text-[11px] text-white" style={{ background: faceMark(speech.name).colour }} aria-hidden>
+                  {faceMark(speech.name).initial}
+                </span>
+                <span data-speech-name>{speech.name}</span>
+              </span>
+              <span className="block text-[15px] leading-snug" data-speech-words>
+                {speech.long ? "…" : speech.text}
+              </span>
+            </span>
+            <span className="talk-tail mx-auto block h-0 w-0 border-x-[8px] border-t-[9px] border-x-transparent" aria-hidden />
           </span>
-          <span className="block text-[15px] leading-snug font-semibold" data-speech-words>
-            {speech.text}
-          </span>
-        </span>
-        <span className="said-tail mx-auto block h-0 w-0 border-x-[8px] border-t-[9px] border-x-transparent" aria-hidden />
-      </span>
-    </button>
+        </button>
+      )}
+      {open === null ? null : (
+        <LivelySheet open onOpenChange={(next) => (next ? undefined : change({ open: null }))} title={open.name} picture={<Face name={open.name} />}>
+          <p className="pb-2 text-[17px] leading-snug" data-talk-open>
+            “{open.text}”
+          </p>
+        </LivelySheet>
+      )}
+    </>
   );
 }

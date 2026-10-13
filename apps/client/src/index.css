@@ -582,3 +582,30 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   .marker-bounce, .marker-ring { animation: none !important; }
   .brief-chip-tuck { transition: opacity 200ms ease !important; transform: none; }
 }
+/* The talk (the talk budget, design page 13 section 5): the lively bubble with its edge and underside, its tail; the
+   corner's pill for the player's own act's answer; and the emotes, a picture in a round bubble over a person. */
+.talk-bubble {
+  border-radius: 16px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 0 0 1.5px var(--edge), 0 4px 0 var(--edge);
+}
+.talk-tail { border-top-color: var(--edge); }
+.talk-corner {
+  border-radius: 9999px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 0 0 1.5px var(--edge), 0 3px 0 var(--edge);
+}
+.talk-emote {
+  display: flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #ffffff;
+  font-size: 19px;
+  line-height: 1;
+  box-shadow: 0 0 0 1.5px #1c2a5e, 0 3px 0 #1c2a5e;
+}

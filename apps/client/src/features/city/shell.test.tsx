@@ -11,7 +11,8 @@ import { inMonths, say, words } from "../../shared/words/text";
 import { bandMonth } from "../../shared/world/Band";
 import { forgetTaught, wasTaught } from "../../shared/world/taught";
 import { TUCK_MS, TUCK_SLIDE_MS } from "./brief/brief";
-import { City, type CityMapSlot, homeLine, RESULTS_BEAT_MS } from "./City";
+import { NEAR_SPEAKER } from "../../shared/world/Lines";
+import { ARRIVE_QUIET_MS, City, type CityMapSlot, homeLine, RESULTS_BEAT_MS } from "./City";
 import { cityWords } from "./city.words";
 import { nudgeOf, stepWayOf } from "./nudge";
 
@@ -189,23 +190,25 @@ describe("the band and the thumb buttons", () => {
 });
 
 describe("street talk", () => {
-  test("[R-WORLD-026] given a place with overheard lines, when the world shows, then one line of chatter stands in the bottom corner, changes with time, and hides while a sheet is open", async () => {
+  test("[R-WORLD-026] given a place with overheard lines, when the world shows, then nothing is said in the first seconds, then a line floats over the resident nearest, never in the corner, and it hides while a sheet is open", async () => {
     vi.useFakeTimers();
     try {
       await opened(world(), engineView());
-      const chatter = (): HTMLElement | null => document.querySelector<HTMLElement>("[data-chatter]");
-      expect(chatter()).not.toBeNull();
-      const first = chatter()?.textContent ?? "";
+      // The home's small card is put away, so the world is free.
+      const teach = document.querySelector<HTMLElement>("[data-home-teach-ok]");
+      if (teach !== null) fireEvent.click(teach);
+      const talk = (): HTMLElement | null => document.querySelector<HTMLElement>(`[data-speech='${NEAR_SPEAKER}']`);
+      expect(talk()).toBeNull();
+      act(() => {
+        vi.advanceTimersByTime(ARRIVE_QUIET_MS);
+      });
+      expect(talk()).not.toBeNull();
+      const first = talk()?.querySelector("[data-speech-words]")?.textContent ?? "";
       expect(first.length).toBeGreaterThan(0);
       expect(first).not.toMatch(/[\u2013\u2014]/);
-      const seen = new Set([first]);
-      for (let turn = 0; turn < 6; turn += 1) {
-        void act(() => vi.advanceTimersByTime(9000));
-        seen.add(chatter()?.textContent ?? "");
-      }
-      expect(seen.size).toBeGreaterThan(1);
+      expect(document.querySelector("[data-corner] [data-chatter], [data-heard]")).toBeNull();
       fireEvent.click(monthChip());
-      expect(chatter()).toBeNull();
+      expect(talk()).toBeNull();
     } finally {
       vi.useRealTimers();
     }

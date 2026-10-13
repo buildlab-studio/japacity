@@ -33,7 +33,9 @@ import type { Act, Ask, RideChoice, Thing } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
-import { Corner, hear, hush, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
+import { Corner, hush, murmur, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
+import { calloutsShown } from "../../shared/world/callouts";
+import { Emotes } from "./emotes";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
@@ -179,6 +181,8 @@ export const PARTY_BEAT_MS = 6000;
 
 /** How long after a person's words what follows is told in the corner, as designed. */
 const THEN_MS = 1400;
+/** The quiet on arriving in a place before anyone in it speaks (the talk budget). */
+export const ARRIVE_QUIET_MS = 3000;
 /** How long after Mama's words the next compound is heard. */
 const UP_NEPA_MS = 2200;
 
@@ -1509,13 +1513,24 @@ export function City({
   const atStep = brief !== null && stepWay !== null && nudge?.about === "step" && !onlyWait && ((stepThing !== null && markable) || (stepThing === null && stepWay.go !== null && stepWay.go === hereId));
   const chipMoment = brief === null ? null : handed === brief.chapter ? ("handed" as const) : toast !== null ? ("done" as const) : atStep ? ("here" as const) : null;
   const nowItem = brief?.items.find((item) => item.now) ?? null;
+  // Nothing speaks in the first seconds in a new place, so the place is seen before it is heard (the talk budget).
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    setSettled(false);
+    const timer = window.setTimeout(() => setSettled(true), ARRIVE_QUIET_MS);
+    return () => window.clearTimeout(timer);
+  }, [placeId, inside]);
+  // At most three callouts over the scene (the talk budget): the fan, the road's chip and the marker come first, the bubble waits.
+  const rowShown = !(phone || asksOpen || menu || credits || picked !== null || asleep !== null);
+  const markerShown = atStep && stepThing !== null && markable && nowItem !== null && worldFree && fanned === null && picked === null;
+  const callouts = calloutsShown({ fan: fanned !== null, chip: rowShown && chipMoment !== null, marker: markerShown, bubble: true });
   const heardNth = useRef(0);
   useStreetTalk(() => {
     if (entry === null) return null;
     const heardNow = overheard(view, entry.id, date, heardNth.current);
     heardNth.current += 1;
     return heardNow === null ? null : heardWords(heardNow.key, heardNow.params);
-  }, worldFree);
+  }, worldFree && settled && callouts.bubble && !homeTeachShown);
   // A person speaks only in the place they stand in: going elsewhere takes their words down.
   useEffect(() => hush(), [placeId, inside]);
   // R-WORLD-005: the light bill paid at home, Mama says so over her head, the corner tells the bill paid, and a moment later the next compound is heard.
@@ -1530,7 +1545,7 @@ export function City({
     speak(light.who, light.name, light.words);
     tell(light.told);
     const heard = light.heard;
-    const timer = window.setTimeout(() => hear(heard), UP_NEPA_MS);
+    const timer = window.setTimeout(() => murmur(heard), UP_NEPA_MS);
     return () => window.clearTimeout(timer);
   }, [lastLines, world]);
   // The thing's label says what of it is planned this month (R-WORLD-005).
@@ -1772,7 +1787,8 @@ export function City({
             </div>
             </CentredColumn>
           ) : null}
-          <SpeechBubble hidden={!worldFree} anchored={drawing && ready} />
+          <SpeechBubble hidden={!worldFree || !callouts.bubble} anchored={drawing && ready} />
+          {drawing && ready && sample !== null ? <Emotes people={sample.people} hidden={!worldFree || !settled || asleep !== null || openingUp} /> : null}
           {fanned !== null && fanEntries !== null && picked?.kind === "thing" ? (
             <Fan key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} />
           ) : null}
@@ -1810,7 +1826,7 @@ export function City({
               }}
             />
           ) : null}
-          {atStep && stepThing !== null && markable && nowItem !== null && worldFree && fanned === null && picked === null ? <Marker thing={stepThing} words={nowItem.words} picture={nowItem.picture} /> : null}
+          {markerShown && stepThing !== null && nowItem !== null ? <Marker thing={stepThing} words={nowItem.words} picture={nowItem.picture} /> : null}
         </>
       ) : null}
       {looking ? (

@@ -61,8 +61,8 @@ describe("the English result sealed until the morning", () => {
     await renderWithView(<City world results={() => <p />} />, sealed);
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
-    // The wait is the Japa app's to tell (the plan 16): in the world only the chip of the brief just handed stands.
-    expect(document.querySelector("[data-nudge]")?.getAttribute("data-brief-chip")).toBe("handed");
+    // The wait is the Japa app's to tell (the plan 16): in the world nothing says it under the band.
+    expect(document.querySelector("[data-nudge]")?.textContent ?? "").not.toContain("Comes in the morning");
     expect(document.querySelector("[data-nudge-open]")).toBeNull();
   });
 });
