@@ -5,7 +5,7 @@
 import { type Footprint, type FootprintBox } from "@japacity/assets";
 import { describe, expect, test } from "vitest";
 
-import { arrangedIn, ARRANGED_KEY, forgetArranged, keepArranged } from "../../shared/world/arranged";
+import { arrangedIn, ARRANGED_KEY, forgetArranged, keepArranged, keepTurn, turnIn } from "../../shared/world/arranged";
 import { boxesOverlap, misfit, QUARTER, turned } from "./arrange";
 import { buyModeAt, liftable, ownedThingId, showOwned } from "./owned";
 import type { PlaceFile, Stage } from "./placeFile";
@@ -153,5 +153,35 @@ describe("the room's arrangement beside the save", () => {
     expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({ "thing.tv": [0, 1, 0] });
     storage.setItem(ARRANGED_KEY, "not json");
     expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({});
+  });
+
+  test("[R-WORLD-009] [R-WORLD-029] given a wide home's view turned, when the life is reloaded, then the home opens on the quarter it was left on, each home its own, beside the arrangement without disturbing it; another life reads the house unturned, and a new life forgets it", () => {
+    const storage = memoryStorage();
+    expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(0);
+    keepArranged("place.compound-room", "thing.fan", [1, 2, QUARTER], "scenario.ada", storage);
+    expect(keepTurn("place.family-house", 3, "scenario.ada", storage)).toBe(3);
+    expect(keepTurn("place.compound-room", 5, "scenario.ada", storage)).toBe(1);
+    expect(keepTurn("place.hostel-room", -1, "scenario.ada", storage)).toBe(3);
+    expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(3);
+    expect(turnIn("place.compound-room", "scenario.ada", storage)).toBe(1);
+    expect(turnIn("place.hostel-room", "scenario.ada", storage)).toBe(3);
+    expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({ "thing.fan": [1, 2, QUARTER] });
+    keepArranged("place.compound-room", "thing.tv", [0, 1, 0], "scenario.ada", storage);
+    expect(turnIn("place.compound-room", "scenario.ada", storage)).toBe(1);
+    expect(turnIn("place.family-house", "scenario.tunde", storage)).toBe(0);
+    forgetArranged(storage);
+    expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(0);
+  });
+
+  test("[R-WORLD-009] given a kept turn that is not a quarter, when it is read, then it is dropped and the house opens unturned", () => {
+    const storage = memoryStorage();
+    storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.ada", homes: {}, turns: { "place.family-house": 1.5, "place.hostel-room": "2", "place.compound-room": 2 } }));
+    expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(0);
+    expect(turnIn("place.hostel-room", "scenario.ada", storage)).toBe(0);
+    expect(turnIn("place.compound-room", "scenario.ada", storage)).toBe(2);
+    // An arrangement kept before the turn was kept still reads.
+    storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.ada", homes: { "place.compound-room": { "thing.tv": [0, 1, 0] } } }));
+    expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({ "thing.tv": [0, 1, 0] });
+    expect(turnIn("place.compound-room", "scenario.ada", storage)).toBe(0);
   });
 });

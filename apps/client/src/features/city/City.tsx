@@ -43,7 +43,7 @@ import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { PressButton } from "../../shared/ui/lively/PressButton";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
-import { type Arranged, arrangedIn, keepArranged } from "../../shared/world/arranged";
+import { type Arranged, arrangedIn, keepArranged, keepTurn, turnIn } from "../../shared/world/arranged";
 import { buyModeAt, showOwned } from "./owned";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
@@ -64,6 +64,7 @@ import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, filesOf, openGround, parkCar, type PlaceFile, showPlanned, stageOf } from "./placeFile";
+import { shotOf, turnsRound } from "./shot";
 import { HOUSE, insideOf, roomOf } from "./room";
 import { personOf, personOfLook } from "./roster";
 import type { Picked, ScenePick } from "./scene.types";
@@ -771,6 +772,16 @@ export function City({
     setZoomed(false);
     setPicked(null);
   }, [inside]);
+  // A wide home turns a quarter at a time and opens as it was left: the quarter kept beside the
+  // save, by home, read anew for each place so the house never swings round on the way in.
+  const turnable = world && !inside && file !== null && (stageOf(file).rooms?.length ?? 0) > 0 && turnsRound(shotOf(stageOf(file)));
+  const [turns, setTurns] = useState<Record<string, number>>({});
+  const turnQuarter = useMemo(() => turns[placeId] ?? turnIn(placeId, view.scenario), [turns, placeId, view.scenario]);
+  useEffect(() => setTurns({}), [view.scenario]);
+  const turnHouse = (quarter: number): void => {
+    const kept = keepTurn(placeId, quarter, view.scenario);
+    setTurns((was) => ({ ...was, [placeId]: kept }));
+  };
   const settings = modeSettings(mode, device(), city);
   const others = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? presence.others : []), [presence, placeId]);
   const today = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? (presence.today ?? []) : []), [presence, placeId]);
@@ -1682,6 +1693,7 @@ export function City({
                     onClear: () => setPicked(null),
                     zoomed,
                     onZoomed: setZoomed,
+                    ...(turnable ? { turn: turnQuarter, onTurned: turnHouse } : {}),
                     acted,
                     worldClock,
                     asleep: asleep?.bed ?? null,
@@ -1798,7 +1810,14 @@ export function City({
               ) : null
             }
           />
-          <ThumbBar onMap={() => { firstUse.tap("map"); if (cityMap !== undefined) setMap(true); }} onPhone={() => { firstUse.tap("phone"); setPhoneApp(null); setPhone(true); }} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen || closeShown} />
+          <ThumbBar
+            onMap={() => { firstUse.tap("map"); if (cityMap !== undefined) setMap(true); }}
+            onPhone={() => { firstUse.tap("phone"); setPhoneApp(null); setPhone(true); }}
+            phoneWaiting={phoneWaiting ?? view.offers.length > 0}
+            hidden={map || resultsOpen || closeShown}
+            // The house turns a quarter round from its button; it steps back while a sheet, the phone, the map or a fan is open.
+            {...(turnable ? { onTurn: () => { cue("tap"); turnHouse(turnQuarter + 1); }, turnHidden: !worldFree || picked !== null || fanned !== null || asleep !== null || homeTeachShown || openingUp } : {})}
+          />
           <FirstUseLabels tapped={firstUse.tapped} hidden={map || resultsOpen || covered || openingUp || closeShown} />
           {zoomed && !map ? (
             <button type="button" onClick={() => setZoomed(false)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>

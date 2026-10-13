@@ -5,6 +5,8 @@ export const worldText: Record<string, string> = {
   "ui.world.map": "Map",
   "ui.world.phone": "Phone",
   "ui.world.whole": "See the whole place",
+  // The round button that turns a wide home a quarter round.
+  "ui.world.other-side": "See another side",
   "ui.world.not-now": "Not now",
   "ui.world.close": "Close",
   "ui.world.left": "{amount} left",
