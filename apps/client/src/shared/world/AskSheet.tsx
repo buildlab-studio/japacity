@@ -97,7 +97,7 @@ function GameSheet(props: AskSheetProps) {
   const view = useGame((state) => state.view);
   const plan = useGame((state) => state.plan);
   const cost = props.ask?.cost ?? null;
-  const paying = cost === null || view === null ? null : afterPaying(view, plannedCosts(view, plan), [{ currency: cost.currency as Currency, amount: cost.amount }], monthDues(view));
+  const paying = cost === null || view === null ? null : afterPaying(view, plannedCosts(view, plan), [{ currency: cost.currency as Currency, amount: cost.amount }], props.ask?.dues === false ? null : monthDues(view));
   return <Sheet {...props} main={mainOf(paying, props.formatMoney, props.ask?.priced === true)} />;
 }
 

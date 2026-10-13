@@ -41,6 +41,8 @@ export function goHomeAsk(view: Pick<PlayerView, "place" | "ended">, hands: { wh
     ...(cost === null ? {} : { priced: true as const }),
     ...(blocked === undefined ? {} : { blocked }),
     ...(facts.length === 0 ? {} : { facts }),
+    // R-RETURN-006: the bills abroad close on the way home, so the month's dues there are no warning on the button.
+    dues: false,
     button: say(assisted ? "ui.world.go-home.button.assisted" : "ui.world.go-home"),
     act: hands.go,
     dismiss: hands.dismiss,

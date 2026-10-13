@@ -103,6 +103,8 @@ describe("the bag's Go home", () => {
     const main = found("[data-ask-main]");
     expect(main.textContent).toContain(formatMoney(way.fare.amount, way.fare.currency));
     expect(card.querySelectorAll("[data-ask-main]")).toHaveLength(1);
+    // R-RETURN-006: the bills abroad close on the way home, so the button warns of no dues there.
+    expect(main.querySelector("[data-ask-warn]")).toBeNull();
     fireEvent.click(main);
     await waitFor(() => expect(authority.sent.map((command) => command.type)).toContain("return/home"));
   });

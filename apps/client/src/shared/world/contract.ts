@@ -158,6 +158,8 @@ export interface Ask {
   spent?: string;
   /** What the act means, a few words each, as chips under the line: the bag's Go home says what ends and what waits (return.md). */
   facts?: string[];
+  /** False when the act ends the month's dues, so the button warns of none: the way home closes the bills abroad (R-RETURN-006). */
+  dues?: false;
 }
 
 /** A pin on the map (R-WORLD-015). */
