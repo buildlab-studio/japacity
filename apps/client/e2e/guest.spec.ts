@@ -60,9 +60,18 @@ async function fakeServer(page: Page, answers: Record<string, Answer>, sent: str
   await page.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({ contentType: "text/javascript", body: TURNSTILE }));
 }
 
-/** The second chapter's card opens over the world as it loads; the asks wait until it is gone (R-ACCOUNT-023). */
+/**
+ * The second chapter's mission card opens over the world as it loads, handed by its person (design page 13 section 4);
+ * the asks wait until its Let's go is pressed (R-ACCOUNT-023).
+ */
 async function pastTheCard(page: Page): Promise<void> {
-  await page.getByRole("dialog", { name: "Build the file" }).getByRole("button", { name: "Go" }).click({ timeout: 20_000 });
+  const card = page.locator("[data-brief='chapter.build-the-file']");
+  await expect(card).toBeVisible({ timeout: 20_000 });
+  // The keep-this-life ask never stands over the card (R-ACCOUNT-023: never over a moment or another card that is up).
+  await page.waitForTimeout(1500);
+  await expect(page.getByRole("dialog", { name: "Keep this life" })).toHaveCount(0);
+  await card.getByRole("button", { name: "Let's go" }).click();
+  await expect(card).toHaveCount(0);
 }
 
 /** A guest's life past its first chapter, so the early win is in and the first ask is due. */
