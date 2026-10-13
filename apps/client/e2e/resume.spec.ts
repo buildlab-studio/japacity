@@ -171,8 +171,11 @@ test("[R-ENGINE-015] Begin with no answer shows the card over the door, a reload
   expect(faked.scenarios).toHaveLength(1);
 });
 
-test("[R-ENGINE-015] a slow start says Still opening, and a view that never comes shows the card with Retry", async ({ page }, info) => {
+test("[R-ENGINE-015] a slow start for a player whose life is kept on this device says Still opening, and a view that never comes shows the card with Retry", async ({ page }, info) => {
   const faked = await fakeServer(page);
+  // "Opening your life" and its "Still opening..." are for a player this device keeps a life for (R-ENGINE-015, amended
+  // 11 Oct 2026); a new visitor sees the start screen's frame instead, as the next test proves.
+  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
   let slow = true;
   // Each read waits six seconds before it fails, so the second line has its turn before the card.
   faked.hold.set("GET /api/view", async (route) => {
@@ -188,6 +191,27 @@ test("[R-ENGINE-015] a slow start says Still opening, and a view that never come
   await expect(card).toBeVisible({ timeout: 40_000 });
   await noBrowserWords(page);
   await shoot(page, "resume-09-view-no-answer", info.project.name);
+  slow = false;
+  await card.getByRole("button", { name: "Retry" }).click();
+  await expect(page.locator("#door-name")).toBeVisible({ timeout: 30_000 });
+});
+
+test("[R-ENGINE-015] a new visitor with no life on this device never sees Opening your life while the view is slow: the start screen's frame stands, and the card comes in it with Retry", async ({ page }) => {
+  const faked = await fakeServer(page);
+  let slow = true;
+  faked.hold.set("GET /api/view", async (route) => {
+    if (!slow) return false;
+    await new Promise((resolve) => setTimeout(resolve, 6_000));
+    await route.abort("failed");
+    return true;
+  });
+  await page.goto("/");
+  const card = page.getByRole("alertdialog", { name: "The server did not answer." });
+  await expect(card).toBeVisible({ timeout: 40_000 });
+  await expect(page.locator("[data-start-trouble]")).toBeVisible();
+  await expect(page.getByText("Opening your life")).toHaveCount(0);
+  await expect(page.getByText("Still opening...")).toHaveCount(0);
+  await noBrowserWords(page);
   slow = false;
   await card.getByRole("button", { name: "Retry" }).click();
   await expect(page.locator("#door-name")).toBeVisible({ timeout: 30_000 });
