@@ -1758,7 +1758,7 @@ export function City({
               {/* The sleep's chip under the band, with a thin bar running down over the sleep's length; a tap on it wakes (R-WORLD-025). */}
               <div className="pointer-events-none fixed inset-x-0 top-[calc(max(10px,env(safe-area-inset-top))+80px)] z-[38] flex justify-center px-3">
                 <button type="button" onClick={wake} className="brief-chip drop press pointer-events-auto relative inline-flex items-center gap-2 overflow-hidden py-1.5 pr-4 pl-1.5 text-[15px] font-bold" data-asleep>
-                  <span className="flex size-8 items-center justify-center rounded-full bg-tint-body text-[17px]" aria-hidden>
+                  <span className="chip-pic flex size-8 items-center justify-center bg-tint-body text-[17px]" aria-hidden>
                     🌙
                   </span>
                   <span>{say("ui.sleep.chip")}</span>

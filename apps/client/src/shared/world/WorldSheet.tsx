@@ -43,7 +43,7 @@ export function WorldSheet({ open, onClose, label, title, children, foot, mark }
               <span aria-hidden className="mx-auto mb-2 block h-[5px] w-10 rounded-[3px] bg-text/25" />
               <Dialog.Description className="truncate text-[13px] font-medium text-text-2">{label}</Dialog.Description>
               <Dialog.Title className="text-title font-bold">{title}</Dialog.Title>
-              <Dialog.Close aria-label={say("ui.world.close")} className="press absolute top-3 right-3 flex size-9 items-center justify-center rounded-full text-text-2">
+              <Dialog.Close aria-label={say("ui.world.close")} className="press absolute top-3 right-3 flex size-9 items-center justify-center rounded-[12px] text-text-2">
                 <X size={18} />
               </Dialog.Close>
             </div>

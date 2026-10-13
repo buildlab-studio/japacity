@@ -154,7 +154,7 @@ export function Band({ when, name, money, formatMoney, month, body = null, onMon
     <CentredColumn className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(12px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>
       <div className="band-pill pointer-events-auto flex min-h-[52px] items-center gap-2 py-1.5 pr-1.5 pl-2" data-band-pill>
         {sky === undefined ? null : (
-          <span className="band-sky flex size-8 shrink-0 items-center justify-center rounded-full text-[18px] leading-none" aria-hidden data-band-sky={sky}>
+          <span className="band-sky flex size-8 shrink-0 items-center justify-center text-[18px] leading-none" aria-hidden data-band-sky={sky}>
             {SKY_PICTURES[sky]}
           </span>
         )}

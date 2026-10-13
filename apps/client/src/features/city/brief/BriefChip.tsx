@@ -16,7 +16,7 @@ function Dots({ brief }: { brief: Brief }) {
   return (
     <span className="flex items-center gap-[3px]" aria-hidden data-brief-dots>
       {briefDots(brief.items).map((dot, index) => (
-        <i key={`${brief.items[index]?.id ?? String(index)}-${dot}`} className={`brief-dot brief-dot-${dot} ${dot === "done" ? "pop" : ""} block size-[7px] rounded-full`} data-dot={dot} />
+        <i key={`${brief.items[index]?.id ?? String(index)}-${dot}`} className={`brief-dot brief-dot-${dot} ${dot === "done" ? "pop" : ""} block size-[7px]`} data-dot={dot} />
       ))}
     </span>
   );
@@ -56,7 +56,7 @@ export function BriefChip({ brief, moment, toast, onTap, onTucked }: { brief: Br
         aria-label={brief.title}
         {...(onTap === undefined ? {} : { "data-nudge-open": "" })}
       >
-        <span className="flex size-[30px] shrink-0 items-center justify-center rounded-full bg-tint-plain">
+        <span className="chip-pic flex size-[30px] shrink-0 items-center justify-center bg-tint-plain">
           <span className="sticker-cut" style={{ rotate: "-8deg" }}>
             <Tile of={brief.picture} size={24} />
           </span>

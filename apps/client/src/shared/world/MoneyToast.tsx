@@ -48,7 +48,7 @@ export function MoneyToast({ toast, onGone }: { toast: MoneyIn; onGone: () => vo
       <span ref={pill} className="band-money relative shrink-0 px-3 py-1.5 text-[18px]" data-money-toast-amount>
         {toast.amount}
         {flight === null ? null : (
-          <span aria-hidden className="coin-fly absolute top-0 left-1/2 block size-6 -translate-x-1/2 rounded-full text-[18px] leading-6" style={{ ["--tx" as string]: `${String(flight.x)}px`, ["--ty" as string]: `${String(flight.y)}px` }} data-coin>
+          <span aria-hidden className="coin-fly absolute top-0 left-1/2 block size-6 -translate-x-1/2 text-[18px] leading-6" style={{ ["--tx" as string]: `${String(flight.x)}px`, ["--ty" as string]: `${String(flight.y)}px` }} data-coin>
             🪙
           </span>
         )}

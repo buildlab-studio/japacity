@@ -133,7 +133,7 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
           <Dialog.Description className="truncate text-[13px] font-medium text-text-2">{ask.who}</Dialog.Description>
           <Dialog.Title className="text-title leading-tight font-bold">{ask.title}</Dialog.Title>
         </div>
-        <Dialog.Close aria-label={say("ui.world.close")} className="press absolute top-1 right-3 flex size-9 items-center justify-center rounded-full text-text-2">
+        <Dialog.Close aria-label={say("ui.world.close")} className="press absolute top-1 right-3 flex size-9 items-center justify-center rounded-[12px] text-text-2">
           <X size={18} />
         </Dialog.Close>
       </div>

@@ -42,7 +42,7 @@ function ItemTile({ item, index }: { item: BriefItem; index: number }) {
         )}
       </span>
       {item.met ? (
-        <span className="brief-tick pop absolute -top-1.5 -right-1 flex size-6 items-center justify-center rounded-full text-[14px] font-bold text-white" aria-label={say("ui.brief.done")} data-brief-tick>
+        <span className="brief-tick pop absolute -top-1.5 -right-1 flex size-6 items-center justify-center text-[14px] font-bold text-white" aria-label={say("ui.brief.done")} data-brief-tick>
           ✓
         </span>
       ) : null}

@@ -238,7 +238,7 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
     <li className="flex flex-col gap-3" data-ask={offer.entry}>
       {/* The asker: a large flat mark with a picture of what it is about, their name pill, the title in their voice. */}
       <div className="flex items-center gap-3">
-        <span className="ask-mark relative flex size-[76px] shrink-0 items-center justify-center rounded-full text-[34px] font-bold text-white" style={{ background: scam ? "#6b7a90" : mark.colour }} aria-hidden>
+        <span className="ask-mark relative flex size-[76px] shrink-0 items-center justify-center text-[34px] font-bold text-white" style={{ background: scam ? "#6b7a90" : mark.colour }} aria-hidden>
           {scam ? "?" : mark.initial}
           <span className="sticker-cut absolute -right-2 -bottom-1 text-[24px]" style={{ rotate: "8deg" }}>
             {ASK_PICTURE[group] ?? "📱"}

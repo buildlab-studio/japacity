@@ -8,7 +8,6 @@ import { describe, expect, test, vi } from "vitest";
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { japaMark } from "../../shared/world/briefHanded";
-import { marksOf, waitingOf } from "../phone/seen";
 import { say, words } from "../../shared/words/text";
 import { TUCK_MS, TUCK_SLIDE_MS } from "./brief/brief";
 import { City } from "./City";
@@ -42,9 +41,8 @@ describe("the first brief", () => {
         vi.advanceTimersByTime(TUCK_MS + TUCK_SLIDE_MS + 50);
       });
       expect(document.querySelector("[data-brief-chip]")).toBeNull();
-      // The Japa app carries the brief's dot until it is opened, and with it the Phone thumb (R-WORLD-004, R-WORLD-018).
-      expect(waitingOf(marksOf(view), {}).japa).toBe(true);
-      expect(waitingOf(marksOf(view), { japa: view.chapter.current ?? "" }).japa).toBe(false);
+      // The Japa app's mark is the brief carried, so its dot shows until it is opened (features/phone's own test).
+      expect(japaMark(view.scenario)).toBe(view.chapter.current);
     } finally {
       vi.useRealTimers();
     }

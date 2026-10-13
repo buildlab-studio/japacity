@@ -95,7 +95,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
       <div className="rise mx-auto w-full max-w-[430px] overflow-hidden rounded-t-[26px] bg-sheet px-4 pt-2 pb-[max(16px,env(safe-area-inset-bottom))] text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]">
         <div className="relative">
           <span aria-hidden className="mx-auto mb-2 block h-[5px] w-10 rounded-[3px] bg-text/25" />
-          <button type="button" onClick={onClose} aria-label={mapWords("map.not-now")} className="press absolute top-0 right-0 flex size-9 items-center justify-center rounded-full text-text-2">
+          <button type="button" onClick={onClose} aria-label={mapWords("map.not-now")} className="press absolute top-0 right-0 flex size-9 items-center justify-center rounded-[12px] text-text-2">
             <X size={18} />
           </button>
         </div>

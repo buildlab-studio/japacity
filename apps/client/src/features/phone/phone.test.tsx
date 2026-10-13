@@ -15,6 +15,7 @@ import { todayWords } from "../../shared/words/format";
 import { inMonths, nameOf } from "../../shared/words/text";
 import { phoneWords } from "./phone.words";
 import { resetLines } from "../../shared/world/Lines";
+import { handBrief } from "../../shared/world/briefHanded";
 
 const NOON = () => new Date(2026, 9, 8, 12, 5);
 
@@ -335,5 +336,18 @@ describe("settings", () => {
     openApp("settings");
     fireEvent.click(screen.getByRole("radio", { name: "High" }));
     expect(localStorage.getItem(GRAPHICS_KEY)).toBe("high");
+  });
+});
+
+describe("the brief's dot on Japa", () => {
+  test("[R-WORLD-018] [R-WORLD-004] given a brief handed (design page 13 section 4), when the phone's marks are read, then Japa carries a dot until it is opened, and a new brief brings it back", () => {
+    const view = engineView();
+    expect(waitingOf(marksOf(view), {}).japa).toBe(false);
+    handBrief(view.scenario, "chapter.find-your-feet");
+    expect(marksOf(view).japa).toBe("chapter.find-your-feet");
+    expect(waitingOf(marksOf(view), {}).japa).toBe(true);
+    expect(waitingOf(marksOf(view), { japa: "chapter.find-your-feet" }).japa).toBe(false);
+    handBrief(view.scenario, "chapter.build-the-file");
+    expect(waitingOf(marksOf(view), { japa: "chapter.find-your-feet" }).japa).toBe(true);
   });
 });
