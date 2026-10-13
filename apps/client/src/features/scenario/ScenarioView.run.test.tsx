@@ -350,7 +350,7 @@ describe("the run through the front door", () => {
       expect(goal.textContent).toBe(`${say("ui.door.home.self-contain")} · ${say("ui.door.home.where.self-contain")}${say("ui.door.home.costs.self-contain", { amount: formatMoney(84000000, "NGN") })}${say("ui.door.home.goal")}${reached ? say("ui.door.home.reached") : ""}`);
       expect(goal.querySelector("[data-home-reached]") !== null).toBe(reached);
     }
-    expect(say("ui.door.home.costs.family-house", { amount: "₦95,000" })).toBe("Then ₦95,000 a month · family around");
+    expect(say("ui.door.home.costs.family-house", { amount: "₦95,000" })).toBe("Your share about ₦95,000 a month, as you go · family around");
     expect(ARCHETYPES.filter((tile) => selfContainReached(tile, 0)).map((tile) => tile.id)).toEqual(["accountant", "trader"]);
     // The room's ₦50,000 is living costs, its rent a year's apart (the review builder's report). Restated 11 Oct 2026 (the
     // : the door says what moving in takes with the agent's and the agreement's fees, as Bills does,
