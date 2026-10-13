@@ -1,6 +1,6 @@
-// The front door in the app, on the real content (prologue.md R-PROLOGUE-009, 010, 013, 014): a person built over the
-// family compound from a look, a name filled from the pool (a dice, or typed) and an archetype, never a named life
-// picked; the preset played for the archetype with no card; the page as the handover saying who the person is; the
+// The front door in the app, on the real content (prologue.md R-PROLOGUE-009, 010, 013, 014): a person built on the
+// door's sky (the door's second design) from a look, a name filled from the pool (a dice, or typed) and an archetype, never a
+// named life picked; the preset played for the archetype with no card; the page as the handover saying who the person is; the
 // look kept beside the save and drawn by the city and the rides.
 import { content, namePool, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
@@ -50,9 +50,10 @@ function door(): { store: GameStore; storage: ReturnType<typeof memoryStorage> }
   return { store, storage };
 }
 
+/** What the door's screen says under its head, the sheet's words before the door's second design. */
 function sheet(): HTMLElement {
-  const found = document.querySelector<HTMLElement>("[data-gate-sheet]");
-  if (found === null) throw new Error("No sheet over the gate.");
+  const found = document.querySelector<HTMLElement>("[data-door-body]");
+  if (found === null) throw new Error("No door screen.");
   return found;
 }
 
@@ -80,18 +81,17 @@ afterEach(() => {
 });
 
 describe("the front door", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given no save, when the game opens, then the figure stands on its turntable over a sheet that asks who you are, with a name already filled from the pool, the body, and the look strip of the city's passers-by for that body on the same screen, and no named life anywhere", async () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given no save, when the game opens, then you stand whole on a photo card under the question who you are, with a name already filled from the pool and the look strip of every one of the city's passers-by on the same screen, and no named life anywhere", async () => {
     door();
     expect(await screen.findByRole("heading", { name: say("ui.life.title") }, { timeout: 10_000 })).toBeDefined();
-    // Never a bare page: the figure on its turntable over the theme's band (the design's door), the compound behind the page.
-    expect(document.querySelector("[data-gate] [data-turntable]")).not.toBeNull();
-    // The body filters the strip: each body's looks in turn, and the two bodies together are every passer-by.
+    // Never a bare page: you stand whole on a photo card as a sticker (the door's second design), never on a turntable.
+    expect(document.querySelector("[data-gate] [data-door-photo] [data-figure]")).not.toBeNull();
+    expect(document.querySelector("[data-gate] [data-turntable], canvas")).toBeNull();
+    // One strip of face stickers: every passer-by, both bodies (the body row is gone with A's 01).
     const shown = (): string[] => within(screen.getByRole("radiogroup", { name: say("ui.door.look") })).getAllByRole("radio").map((one) => one.getAttribute("data-look") ?? "");
-    const first = lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))!.sex;
-    expect(shown()).toEqual(LOOKS.filter((one) => one.sex === first).map((one) => one.id));
-    fireEvent.click(screen.getByRole("button", { name: say(`ui.door.body.${first === "f" ? "m" : "f"}`) }));
-    expect(shown()).toEqual(LOOKS.filter((one) => one.sex !== first).map((one) => one.id));
-    fireEvent.click(screen.getByRole("button", { name: say(`ui.door.body.${first}`) }));
+    expect(shown()).toEqual(LOOKS.map((one) => one.id));
+    expect(screen.queryByRole("button", { name: say("ui.door.body.f") })).toBeNull();
+    expect(lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))).not.toBeNull();
     const passersBy = ROSTER.filter((person) => person.role === "passer-by").map((person) => person.file);
     expect(LOOKS.map((look) => look.file).sort()).toEqual([...passersBy].sort());
     for (const id of ["chr_ada", "chr_tunde", "chr_zainab", "chr_ngozi", "chr_tobi", "chr_femi", "chr_kemi", "chr_bisi"]) expect(LOOKS.some((look) => look.id === id)).toBe(true);
@@ -104,7 +104,8 @@ describe("the front door", () => {
     const said: string[] = [sheet().textContent];
     await toTheArchetypes();
     said.push(sheet().textContent);
-    expect(document.querySelector("[data-gate] [data-turntable]")).not.toBeNull();
+    // The lives carry your face beside each life's thing.
+    expect(document.querySelector("[data-gate] [data-archetype] [data-face-sticker]")).not.toBeNull();
     // No starting life's person is offered: not by full name.
     const fullNames = FIXED.map((id) => text[`${id}.name`] ?? "");
     expect(said.filter((words) => fullNames.some((name) => words.includes(name)))).toEqual([]);
@@ -115,8 +116,6 @@ describe("the front door", () => {
     door();
     const box = () => screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
     for (const look of [LOOKS.find((one) => one.sex === "m")!, LOOKS.find((one) => one.sex === "f")!]) {
-      // The strip shows the body's looks: the body first, then the look.
-      fireEvent.click(document.querySelector(`[data-body="${look.sex}"]`)!);
       fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
       expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(look.id);
       const names = [box().value];
@@ -154,7 +153,6 @@ describe("the front door", () => {
     // Settings' run opens on the ready lives; the look is a screen back.
     fireEvent.click(await screen.findByRole("button", { name: say("ui.door.back") }, { timeout: 10_000 }));
     const look = LOOKS.find((one) => one.id === "chr_femi")!;
-    fireEvent.click(document.querySelector(`[data-body="${look.sex}"]`)!);
     fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
     await startReadyLife("scenario.ngozi", "Obinna");
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.ngozi"));
@@ -167,7 +165,7 @@ describe("the front door", () => {
     expect(ownFile("scenario.ngozi", null)).toBe("shared/chr/chr_ngozi.glb");
   });
 
-  test("[R-PROLOGUE-013] given a run Settings asked for, then it opens on the five fixed lives unnamed by their kind and blurb, each with Pick, and a pick goes on to the page, whose Begin starts that life", async () => {
+  test("[R-PROLOGUE-013] given a run Settings asked for, then it opens on the five fixed lives unnamed by their kind and blurb, each with Pick, and a pick goes on to Where you live, whose Begin starts that life", async () => {
     askReadyLives();
     const { store } = door();
     // It opens on the ready lives themselves.
@@ -191,23 +189,23 @@ describe("the front door", () => {
     expect(store.getState().view?.prologue).toBeNull();
   });
 
-  test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the seven archetypes, then each tile says its name and its tag, one line of what it was and its savings, the chosen one the routes it opens as chips, and every tile reads out its one line of what it opens; no more", async () => {
+  test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the seven archetypes, then each life's card says its tag, its name, the life in a few words, one line of what it was and its savings, the chosen one's routes stand as chips under the cards, and every card reads out its one line of what it opens; no more", async () => {
     door();
     await toTheArchetypes();
     const tiles = [...document.querySelectorAll<HTMLElement>("[data-archetype]")];
     expect(tiles.map((tile) => tile.dataset["archetype"])).toEqual(ARCHETYPES.map((archetype) => archetype.id));
     for (const tile of tiles) {
       const id = tile.dataset["archetype"]!;
-      const lines = [...tile.children].map((line) => line.textContent);
-      const head = [`${say(`prologue.archetype.${id}.name`)}${say(`ui.door.tag.${id}`)}`, say(`prologue.archetype.${id}.was`), say("ui.door.tile.savings", { amount: formatMoney(savingsOf(archetypeOf(id)!), "NGN") })];
-      expect(lines).toEqual(tile.getAttribute("aria-checked") === "true" ? [...head, opensChips(id).map((way) => ` ${way}`).join("")] : head);
+      expect(tile.textContent).toBe(`${say(`ui.door.tag.${id}`)}${say(`prologue.archetype.${id}.name`)}${say(`prologue.archetype.${id}.life`)}${say(`prologue.archetype.${id}.was`)}${say("ui.door.tile.savings", { amount: formatMoney(savingsOf(archetypeOf(id)!), "NGN") })}`);
       expect(tile.getAttribute("aria-description")).toMatch(/^Opens: /);
     }
+    const chosen = tiles.find((tile) => tile.getAttribute("aria-checked") === "true")!.dataset["archetype"]!;
+    expect([...document.querySelectorAll("[data-tile-opens] [data-way]")].map((way) => way.textContent)).toEqual(opensChips(chosen));
   });
 });
 
 describe("a life from sixteen built from an archetype", () => {
-  test("[R-PROLOGUE-010] [R-PROLOGUE-014] given the nurse's tile, when the prologue opens, then the client sends her preset at every step with no card, the page fills over the compound, and as the handover it names her and her archetype above the family, the years and the first step", async () => {
+  test("[R-PROLOGUE-010] [R-PROLOGUE-014] given the nurse's tile, when the prologue opens, then the client sends her preset at every step with no card, the page fills on the door's sky, and as the handover it names her and her archetype above the family, the years and the first step", async () => {
     const nurse = archetypeOf("nurse")!;
     const { store, storage } = door();
     await startArchetype("nurse");
@@ -220,7 +218,9 @@ describe("a life from sixteen built from an archetype", () => {
       { timeout: 10_000, interval: 5 },
     );
     expect(card).toBe(false);
-    expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
+    // The page stands on the door's sky, no compound drawn behind it (the door's second design).
+    expect(document.querySelector("[data-gate='handover'][data-door-frame]")).not.toBeNull();
+    expect(document.querySelector("[data-gate] [data-front-scene]")).toBeNull();
     // Every step was sent with one of her answers, the exam, the strike, the send-off and the home included.
     const raw = JSON.parse(storage.getItem(SAVE_KEY)!) as { save: Parameters<typeof savedCommands>[0] };
     const chosen = savedCommands(raw.save).flatMap(({ command }) => (command.type === "prologue/choose" ? [command] : []));

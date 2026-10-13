@@ -52,7 +52,7 @@ function handedOver(id: string, older: number, seed: string): { months: number; 
 const passed = (life: { trail: { step: string }[] }, step: string): boolean => life.trail.some((one) => one.step === step);
 
 describe("the door's age and the page's", () => {
-  test.each(ARCHETYPES.map((archetype) => archetype.id))("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given the %s's tile with the age under it, when the age shows and the page is printed, then both say the year its path reaches with no setback, the year its tile says, and never \"about\"", (id) => {
+  test.each(ARCHETYPES.map((archetype) => archetype.id))("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given the %s's tile with the age under it, when the age shows and Where you live says it as the page prints it, then both say the year its path reaches with no setback, the year its tile says, and never \"about\"", (id) => {
     door();
     fireEvent.change(screen.getByRole("textbox", { name: say("prologue.door.name.title") }), { target: { value: "Bola" } });
     fireEvent.click(next(say("ui.door.next")));
@@ -62,9 +62,10 @@ describe("the door's age and the page's", () => {
     expect(document.querySelector("[data-age-years]")?.textContent).toBe(say("prologue.door.age.years", { years: year }));
     expect(document.querySelector("[data-age-give]")).toBeNull();
     expect(document.querySelector("[data-door-age]")?.textContent).not.toMatch(/about|give or take/i);
-    fireEvent.click(next(say("prologue.door.print")));
-    expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.years", { years: year }));
-    expect(document.querySelector("[data-page] [data-field='age']")?.textContent).not.toMatch(/about/i);
+    fireEvent.click(next(say("ui.door.next")));
+    // Where you live heads itself with the age as the page will print it, after Begin (the door's second design).
+    expect(document.querySelector("[data-door-board]")?.textContent).toContain(say("prologue.page.age.years", { years: year }));
+    expect(document.querySelector("[data-door-board]")?.textContent).not.toMatch(/about/i);
   });
 
   test("[R-PROLOGUE-004] [R-PROLOGUE-009] given nurses stepped two years older on the door, when some retake the exam and some pass, then every one of them starts in the year picked, and at her own year none retakes", () => {

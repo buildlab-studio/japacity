@@ -1,6 +1,6 @@
-// "Make it yours" on the door's first screen (prologue.md R-PROLOGUE-015): under the look strip, swatches for the
-// skin, the hair and the top, and a printed top's fabric, each starting as the look was made, with the way back to as
-// made. The style is kept with the person beside the save, the page prints the look in it, and none of it reaches the
+// "Make it yours" on the door's first screen (prologue.md R-PROLOGUE-015): under the look strip, opened on a tap (the
+// door's round 2), swatches for the skin, the hair and the top, and a printed top's fabric, each starting as the look
+// was made, with the way back to as made. The style is kept with the person beside the save, the page prints the look in it, and none of it reaches the
 // simulation.
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
@@ -38,6 +38,10 @@ function door(save = memoryStorage()): GameStore {
 }
 
 const lookShown = (): string => document.querySelector("[data-gate]")?.getAttribute("data-look") ?? "";
+/** Opens "Make it yours" under the look strip. */
+const openYours = (): void => {
+  fireEvent.click(screen.getByRole("button", { name: say("ui.door.yours") }));
+};
 const swatch = (part: string, colour: string) => document.querySelector<HTMLElement>(`[data-swatches='${part}'] [data-swatch='${colour}']`)!;
 const chosen = (part: string): string | null => document.querySelector(`[data-swatches='${part}'] [aria-checked='true']`)?.getAttribute("data-swatch") ?? null;
 
@@ -45,10 +49,15 @@ const chosen = (part: string): string | null => document.querySelector(`[data-sw
 const SENATOR: OwnColours = { skin: "skin4", hair: "hair", top: "cream", fabric: null };
 
 describe("Make it yours", () => {
-  test("[R-PROLOGUE-015] given the first screen and the figure read, then under the look strip are the skin, the hair and the top, each with the look's own colour chosen, and no fabric for a plain top", () => {
+  test("[R-PROLOGUE-015] given the first screen, \"Make it yours\" opened and the figure read, then under the look strip are the skin, the hair and the top, each with the look's own colour chosen, and no fabric for a plain top", () => {
     door();
     expect(document.querySelector("[data-yours]")).toBeNull();
+    // Shut until it is opened: the figure read alone shows no rows.
     act(() => reportOwn(lookShown(), SENATOR));
+    expect(document.querySelector("[data-yours]")).toBeNull();
+    expect(screen.getByRole("button", { name: say("ui.door.yours") }).getAttribute("aria-expanded")).toBe("false");
+    openYours();
+    expect(screen.getByRole("button", { name: say("ui.door.yours") }).getAttribute("aria-expanded")).toBe("true");
     const rows = document.querySelector("[data-yours]");
     expect(rows).not.toBeNull();
     expect(document.querySelector("[data-looks]")!.compareDocumentPosition(rows!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -66,6 +75,7 @@ describe("Make it yours", () => {
 
   test("[R-PROLOGUE-015] given a head with no hair to read and a printed top, then there is no hair row and the fabric row starts at the look's own print", () => {
     door();
+    openYours();
     act(() => reportOwn(lookShown(), { skin: "skin3", hair: null, top: "indigo", fabric: "ankara" }));
     expect(document.querySelector("[data-yours-row='hair']")).toBeNull();
     expect([...document.querySelectorAll("[data-fabrics] [data-fabric]")].map((one) => one.textContent)).toEqual(["Plain", "Ankara", "Adire", "Aso-oke"]);
@@ -79,6 +89,7 @@ describe("Make it yours", () => {
 
   test("[R-PROLOGUE-015] given picks, then each is kept with the run, picking the look's own colour takes that part back, and Back to as made takes all of them back", () => {
     door();
+    openYours();
     act(() => reportOwn(lookShown(), SENATOR));
     fireEvent.click(swatch("skin", "skin1"));
     fireEvent.click(swatch("hair", "gold"));
@@ -99,11 +110,12 @@ describe("Make it yours", () => {
     const save = memoryStorage();
     const store = door(save);
     const look = lookShown();
+    openYours();
     act(() => reportOwn(look, SENATOR));
     fireEvent.click(swatch("skin", "skin1"));
     fireEvent.click(swatch("top", "charcoal"));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.skip")}`) }));
-    await waitFor(() => expect(document.querySelector("[data-page]")).not.toBeNull());
+    await waitFor(() => expect(document.querySelector("[data-door-home]")).not.toBeNull());
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
     await waitFor(() => expect(store.getState().choosingLife).toBe(false), { timeout: 4000 });
     expect(readPerson()).toMatchObject({ look, style: { skin: "skin1", top: "charcoal" } });

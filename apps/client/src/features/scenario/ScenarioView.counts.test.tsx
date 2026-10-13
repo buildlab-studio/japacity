@@ -57,9 +57,9 @@ describe("the front door's screens counted", () => {
   test("[R-ANALYTICS-002] [R-ANALYTICS-008] given a new player who goes Next, Next, then back to the tiles and on to the page again, when the counters are sent, then each door and the page are counted each time they opened", () => {
     const door = countedDoor();
     fireEvent.click(next(say("ui.door.next")));
-    fireEvent.click(next(say("prologue.door.print")));
+    fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
-    fireEvent.click(next(say("prologue.door.print")));
+    fireEvent.click(next(say("ui.door.next")));
 
     expect(door.rows()).toEqual([
       { name: "screen/opened", key: "door-1", count: 1 },

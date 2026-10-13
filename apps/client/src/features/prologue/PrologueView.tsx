@@ -27,6 +27,7 @@ import { DataPage, type PageFields } from "../../shared/datapage/DataPage";
 import { JapacityLine, StatBox } from "../../shared/datapage/PageParts";
 import { DoorAction, DoorFrame } from "../../shared/frontdoor/DoorFrame";
 import { homePicture, LIFE_THINGS } from "../../shared/frontdoor/lives";
+import { plannedYears } from "../../shared/frontdoor/planned";
 import { FigurePicture, ModelPicture } from "../../shared/frontdoor/LookPicture";
 import { readDoor } from "../../shared/datapage/door";
 import { WayChips } from "../scenario/LifeScreen";
@@ -459,7 +460,9 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
     family: shown ? familyCard(kept, water, view.hometown).means : "",
     from: shown && view.hometown !== null ? hometownWords(view.hometown) : "",
   };
-  const years = yearChips(trail, view, water);
+  const lived = yearChips(trail, view, water);
+  // While the years go by, the years the tile will pass and has not yet are listed as not yet, and fill as they are lived.
+  const years = handover || archetype === null ? lived : [...lived, ...plannedYears(archetype).flatMap((planned): YearChip[] => (lived.some((chip) => chip.id === planned.id) ? [] : [{ id: planned.id, icon: planned.icon, label: planned.label, note: planned.note ?? null, state: planned.state ?? null }]))];
   // Where the life starts stands beside the cheering figure with the home's picture; the story's other chips stay in the grid.
   const told = handover ? storyChips(view) : [];
   const starts = told.find((chip) => chip.id === "home") ?? null;
@@ -482,12 +485,9 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
     <div onClick={handover ? finish : undefined} data-page-handover={handover ? "" : undefined} data-page-running={handover ? undefined : ""} data-v={view.v}>
       <DoorFrame mark={handover ? "handover" : "years"} look={look} title={null} {...(foot === undefined ? {} : { foot })}>
         <div className="px-5 pt-4 text-center">
-          <h1 className="text-[24px] leading-tight font-bold">{say(handover ? "ui.door.page.printed" : "prologue.door.page.title")}</h1>
-          {named ? (
-            <p className="mt-0.5 text-[14px] text-text-2">{handover ? say("ui.door.page.over", { name: person.name }) : say("ui.profile.age", { years: ageYears(view) })}</p>
-          ) : (
-            <p className="mt-0.5 text-[14px] text-text-2">{words(PROLOGUE_CLOSED)}</p>
-          )}
+          {/* A life with no name of its own (a fixed life a test starts) is told by the prologue's closing line instead. */}
+          <h1 className="text-[24px] leading-tight font-bold">{named ? say(handover ? "ui.door.page.printed" : "prologue.door.page.title") : words(PROLOGUE_CLOSED)}</h1>
+          <p className="mt-0.5 text-[14px] text-text-2">{named && handover ? say("ui.door.page.over", { name: person.name }) : say("ui.profile.age", { years: ageYears(view) })}</p>
         </div>
         <div className="relative mx-5 mt-4 -rotate-2" data-gate-sheet={handover ? "handover" : "years"}>
           <DataPage page={page} print />

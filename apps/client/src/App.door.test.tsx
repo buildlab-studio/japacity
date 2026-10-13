@@ -103,7 +103,7 @@ async function toTheDoor(): Promise<string> {
 /** Next, Print my page: the page. */
 function toThePage(): void {
   fireEvent.click(next(say("ui.door.next")));
-  fireEvent.click(next(say("prologue.door.print")));
+  fireEvent.click(next(say("ui.door.next")));
 }
 
 describe("the username a name fills in", () => {

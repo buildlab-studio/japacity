@@ -68,7 +68,7 @@ describe("the front door online", () => {
     await toTheArchetypes("Ifeoma");
     fireEvent.click(await screen.findByRole("radio", { name: say("prologue.archetype.nurse.name") }));
     for (let step = 0; step < OLDER; step += 1) fireEvent.click(screen.getByRole("button", { name: say("prologue.door.age.older") }));
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("prologue.door.print")}`) }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
 
     const trade = say("ui.page.lived.trade");

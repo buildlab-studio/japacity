@@ -12,15 +12,14 @@
 // username, filled in from the name and changed there, and the guest line; Begin makes the guest life before the character.
 import { content } from "@japacity/content";
 import { type Id } from "@japacity/sim";
-import { Award, BookOpen, Flag, GraduationCap, Hammer, Store } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { useScreenCount } from "../../useScreenCount";
 import { authorityMode } from "../../authority/mode";
 import { keepPerson } from "../../authority/person";
-import { blurbOf, say, words } from "../../shared/words/text";
-import { type Archetype, ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf, throughUniversity } from "../../shared/frontdoor/archetypes";
+import { blurbOf, say } from "../../shared/words/text";
+import { ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf } from "../../shared/frontdoor/archetypes";
 import { DoorAction, DoorFrame } from "../../shared/frontdoor/DoorFrame";
 import { fitHome } from "../../shared/frontdoor/homes";
 import { StartHook } from "../../shared/frontdoor/Hook";
@@ -28,7 +27,6 @@ import { gateLook } from "../../shared/frontdoor/Gate";
 import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
 import { isMade } from "../../shared/frontdoor/style";
 import { takeReadyAsk } from "../../shared/frontdoor/ready";
-import type { FactChipProps } from "../../shared/ui/FactChip";
 import { madePhoto } from "../../shared/datapage/photo";
 import { type DoorDraft, type DoorStage, keepDoor, readDoor } from "../../shared/datapage/door";
 import { nameProblem } from "../../shared/datapage/name";
@@ -39,6 +37,7 @@ import { LifeScreen } from "./LifeScreen";
 import { YouScreen } from "./YouScreen";
 
 export { fitHome, homeDue, homeFigures, pocketIn, selfContainReached, selfContainYear, startIn } from "../../shared/frontdoor/homes";
+export { plannedYears } from "../../shared/frontdoor/planned";
 
 /** The ready lives: every scenario but the life from sixteen, each named by its kind, never its person. */
 const READY = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);
@@ -116,23 +115,6 @@ function captionOf(draft: DoorDraft): string {
   const path = pathWords(draft);
   if (years === null) return path;
   return say("ui.door.caption", { path, age: say("prologue.page.age.years", { years }) });
-}
-
-/** The years a tile's life will pass, as chips not yet lived: the page fills them as the years go by (R-PROLOGUE-014). */
-export function plannedYears(archetype: Archetype): (FactChipProps & { id: string })[] {
-  const first = (step: string): string => archetype.preset[step]?.[0] ?? "";
-  const waec = { id: "waec", icon: Award, label: say("ui.page.year.waec"), note: words(`prologue.subjects.answer.${first("subjects")}`), state: "waiting" as const };
-  if (throughUniversity(archetype)) {
-    return [
-      waec,
-      { id: "exam", icon: BookOpen, label: say("ui.page.year.exam"), note: null, state: "waiting" },
-      { id: "university", icon: GraduationCap, label: say("ui.page.year.university"), note: words(`prologue.course.answer.${first("course")}`), state: "waiting" },
-      { id: "service", icon: Flag, label: say("ui.page.year.service"), note: null, state: "waiting" },
-    ];
-  }
-  if (first("after-school") === "apprentice") return [waec, { id: "master", icon: Hammer, label: say("ui.page.year.master"), note: words(`prologue.master.answer.${first("master")}`), state: "waiting" }];
-  const years = Math.round((content.prologue["shop"]?.months ?? 0) / 12);
-  return [waec, { id: "shop", icon: Store, label: say("ui.page.year.shop"), note: say("ui.page.year.shop.years", { count: years }), state: "waiting" }];
 }
 
 /** The guest start the gate hands in online (account.md R-ACCOUNT-021, 024, 029); the account feature's GuestDoor. */

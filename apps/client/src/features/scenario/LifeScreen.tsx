@@ -38,7 +38,7 @@ export function WayChips({ id, mark }: { id: string; mark?: string }) {
         const picture = wayPicture(way);
         return (
           <StickerChip key={way} tint="plain" tilt={at % 2 === 0 ? -2.5 : 2} className="bg-sheet-2! px-3! py-1.5! text-[14px]!">
-            {picture === null ? null : <Tile of={picture} size={20} />} {way}
+            {picture === null ? null : <Tile of={picture} size={20} />} <span data-way>{way}</span>
           </StickerChip>
         );
       })}

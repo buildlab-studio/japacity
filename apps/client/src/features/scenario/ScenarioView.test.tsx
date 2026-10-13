@@ -1,7 +1,7 @@
 // The front door where a life is started only once (prologue.md R-PROLOGUE-011): there the
 // family's draw is made once, so the tiles say the years may go another way. Where a life may be started over, the
 // authority keeps the tile's path open instead, and the tiles say nothing of it.
-import { render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
@@ -40,18 +40,24 @@ describe("the tiles' words on one life", () => {
 });
 
 describe("the door's first screen", () => {
-  test("[R-PROLOGUE-013] given the door's first screen, then the lockup heads it once, in the dark ground's file, and the screen's own question is still its heading", async () => {
-    // A run kept from the tests above would open past the first screen.
-    localStorage.clear();
-    door(true);
-    await waitFor(() => {
-      if (document.querySelector("[data-gate='you']") === null) throw new Error("No first screen yet.");
-    });
-    const marks = screen.getAllByRole("img", { name: say("ui.game") });
-    expect(marks).toHaveLength(1);
-    expect(marks[0]?.getAttribute("src")).toMatch(/brand\/japacity-lockup-dark\.svg$/);
-    expect(document.querySelector("[data-wordmark='dark']")).not.toBeNull();
-    expect(screen.queryByText(say("ui.game"))).toBeNull();
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(say("ui.life.title"));
+  test("[R-PROLOGUE-013] given the door's first screen by day and by night, then the lockup heads it once, in the light ground's file on the day's pale sky and the dark ground's on the night's navy, and the screen's own question is still its heading (the door's second design)", async () => {
+    for (const [paint, ground] of [["day", "light"], ["night", "dark"]] as const) {
+      // A run kept from the tests above would open past the first screen.
+      localStorage.clear();
+      history.replaceState(null, "", `/?paint=${paint}`);
+      door(true);
+      await waitFor(() => {
+        if (document.querySelector("[data-gate='you']") === null) throw new Error("No first screen yet.");
+      });
+      expect(document.documentElement.dataset["paint"]).toBe(paint);
+      const marks = screen.getAllByRole("img", { name: say("ui.game") });
+      expect(marks).toHaveLength(1);
+      expect(marks[0]?.getAttribute("src")).toMatch(new RegExp(`brand/japacity-lockup-${ground}\\.svg$`));
+      expect(document.querySelector(`[data-wordmark='${ground}']`)).not.toBeNull();
+      expect(screen.queryByText(say("ui.game"))).toBeNull();
+      expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(say("ui.life.title"));
+      cleanup();
+    }
+    history.replaceState(null, "", "/");
   });
 });
