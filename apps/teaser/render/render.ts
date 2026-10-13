@@ -25,7 +25,7 @@ async function main(): Promise<void> {
   const out = outPath(process.argv.slice(2));
   const started = Date.now();
   const serveUrl = await bundle({ entryPoint: join(PACKAGE, "src", "index.ts"), publicDir: join(PACKAGE, "public") });
-  const composition = await selectComposition({ serveUrl, id: "Teaser" });
+  const composition = await selectComposition({ serveUrl, id: "Lead" });
   mkdirSync(dirname(out), { recursive: true });
   await renderMedia({ serveUrl, composition, codec: "h264", crf: CRF, imageFormat: "jpeg", jpegQuality: 92, muted: true, pixelFormat: "yuv420p", colorSpace: "bt709", outputLocation: out });
   const seconds = Math.round((Date.now() - started) / 1000);
