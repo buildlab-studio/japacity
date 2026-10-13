@@ -19,6 +19,7 @@ import { Head } from "../act";
 import { familyFeedLines } from "../feed";
 import { phoneWords } from "../phone.words";
 import { troubleWords } from "../../../shared/words/trouble";
+import { BlockReport } from "../../../shared/moderation/BlockReport";
 
 /** The server's pair routes the phone needs: the shell hands in the people feature's own, or null offline. */
 export interface PairTalk {
@@ -155,6 +156,7 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
   const phrase = phraseId === null ? undefined : content.phrase[phraseId];
   const fills = phrase === undefined ? [] : fillOptions(phrase, content, view);
   const chosenFill = phrase?.fill === null ? null : fill !== null && fills.includes(fill) ? fill : (fills[0] ?? null);
+  const theirs = rows.filter((row) => them !== null && row.sender === them).map((row) => row.id);
 
   const fetchAfter = useCallback(
     async (after: string | null) => {
@@ -262,6 +264,10 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
           {refusal}
         </p>
       )}
+      {/* Block and report on the conversation itself, citing their messages (moderation.md R-MODERATION-003). */}
+      <div className="mt-3">
+        <BlockReport who={{ pair, name }} cites={theirs.length > 0 ? { messages: theirs } : { pair }} surface="conversation" />
+      </div>
     </div>
   );
 }
