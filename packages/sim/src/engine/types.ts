@@ -1196,6 +1196,8 @@ export interface Tuning {
     cashUpTo: number;
     /** Naira cash over this at a month's close draws the once-in-a-life warning (R-WALLET-019). */
     cashWarnAt: number;
+    /** The passbook's stamps, in kobo held for the road, lowest first; the road's own target is the last stamp (the passbook). */
+    stamps: number[];
   };
   rate: {
     start: Record<ForeignCurrency, number>;
@@ -1595,6 +1597,15 @@ export interface WalletSlice {
    * when a debit outruns the earned share; never above the naira bank and cash, never negative, missing while zero so no state hash moves.
    */
   marked?: number;
+  /**
+   * The passbook's pace: the month in hand's money in less out, by currency, as the month's net counts it, less the road's
+   * own fees and the flight, which the target counts already. Missing until money moves in the month, cleared as it closes.
+   */
+  paceNet?: Partial<Record<Currency, number>>;
+  /** The passbook's pace: the last three closed months' kept for the road, in kobo at the official rate, oldest first. Missing until the first. */
+  nets?: number[];
+  /** The passbook's stamps reached, each once, with the month it was reached; `target` marks the road's own figure reached. Missing until the first. */
+  stamps?: { at: number; month: number; target?: true }[];
 }
 
 export interface DocumentState {
@@ -2333,4 +2344,42 @@ export interface PlayerView {
     roomRent: { year: number; fees: number; dueIn: number } | null;
   };
   report: TurnReport | null;
+  /** The passbook (the Bank's first page): the money held for the road against the plan's target, the stamps, the pace and the roads. Null away from home or once the life has ended. */
+  passbook: PassbookView | null;
+}
+
+/** A road to the target (the passbook): a job a rung up, a side job, the street's circle, a family loan, a scholarship. */
+export type PassbookRoadKind = "ladder" | "side" | "ajo" | "family" | "scholarship";
+
+export interface PassbookRoad {
+  road: PassbookRoadKind;
+  /** The thing the road is: the job or side job to hunt, the act to ask with, or the offer that opens it. */
+  via: Id<"activity"> | Id<"offer">;
+  /** `taken`: held now; `open`: it can be taken now; `shut`: it waits on what `needs` lists, or on the street to ask. */
+  state: "taken" | "open" | "shut";
+  /** The requirements not yet met. */
+  needs: Requirement[];
+  /** The offer's instance while it stands open, to answer it by. Null otherwise. */
+  offer: string | null;
+  /** What it adds to the pace a month, and brings at once, in kobo at the official rate. */
+  monthly: number;
+  lump: number;
+  /** Whole months to the target with it taken, 0 when it would reach it at once; null with no target or no pace. */
+  months: number | null;
+}
+
+export interface PassbookView {
+  /** The money held for the road: the bank and the cash in every money, in kobo at the official rate. Locked money is not counted. */
+  held: number;
+  /** The plan's whole cost in kobo once its way is looked into: the funds still to show, the fees ahead in every money, the flight. Null with no plan to count. */
+  target: { route: Id<"route">; total: number; funds: number; fees: number; flight: number } | null;
+  /** The stamps in the order of their figures: each fixed one under the target or reached, and the target's own last; `month` when it was reached. */
+  stamps: { at: number; month: number | null; target: boolean }[];
+  /** What the last three closed months kept for the road, a month, in kobo, rounded down; null before a month has closed. */
+  pace: number | null;
+  /** Whole months to the target at this pace: 0 when it is held already; null with no target or no pace above nothing. */
+  months: number | null;
+  roads: PassbookRoad[];
+  /** The road not taken that reaches the target soonest, sooner than the pace alone; null when none does. */
+  best: PassbookRoadKind | null;
 }

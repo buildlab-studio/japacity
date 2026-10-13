@@ -427,6 +427,7 @@ export const TuningSchema = z.strictObject({
     flagDepositAbove: CountSchema,
     cashUpTo: CountSchema,
     cashWarnAt: CountSchema,
+    stamps: z.array(z.int().positive()),
   }),
   rate: z.strictObject({
     start: z.record(ForeignCurrencySchema, z.int().positive()),

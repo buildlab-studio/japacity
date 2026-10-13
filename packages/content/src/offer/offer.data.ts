@@ -923,6 +923,37 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     ],
     onExpire: null,
   },
+  // The family's loan (the passbook's family road): opened only by the call to Papa. The house lends what it can, by its
+  // means; the money is the bank's to explain on a file (flagged, as a family's gift is), and the house's stake is its
+  // price: no deadline, nothing charged.
+  "offer.family-loan": {
+    id: "offer.family-loan",
+    group: "money",
+    when: [{ type: "quality/min", quality: "quality.standing", value: 40 }],
+    chanceBp: 0,
+    cooldown: 0,
+    maxTimes: 1,
+    expiresAfter: 3,
+    terms: {
+      amount: { from: "quality", quality: "quality.family-means", times: naira(50000) },
+    },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "take",
+        requires: [],
+        pick: null,
+        effects: [
+          { type: "money/add", currency: "NGN", pocket: "bank", amount: { term: "amount" }, reason: "loan", flagged: true },
+          { type: "quality/add", quality: "quality.family-stake", amount: 1 },
+        ],
+        fraudEffects: null,
+      },
+      { id: "no", requires: [], pick: null, effects: [], fraudEffects: null },
+    ],
+    onExpire: null,
+  },
   "offer.job": {
     id: "offer.job",
     // A hunt lands at home and abroad (R-LADDER-001).

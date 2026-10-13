@@ -57,6 +57,7 @@ export const VIEW_KEYS = [
   "interview",
   "adverts",
   "home",
+  "passbook",
 ] as const satisfies readonly (keyof PlayerView)[];
 
 export const VIEW_KEYS_COMPLETE: [Exclude<keyof PlayerView, (typeof VIEW_KEYS)[number]>] extends [never] ? true : never = true;

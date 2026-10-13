@@ -59,6 +59,8 @@ export const activityText: Record<string, string> = {
   "activity.apply-to-school.blurb": "You send your papers to one university. Its answer comes in.",
   "activity.family-meeting.name": "Call a family meeting",
   "activity.family-meeting.blurb": "You show them the offer letter and ask what they can do.",
+  "activity.ask-family-loan.name": "Ask Papa for a loan",
+  "activity.ask-family-loan.blurb": "A call home to ask what the house can lend toward the move.",
   "activity.tb-test.name": "Take the TB test",
   "activity.tb-test.blurb": "You go to the approved clinic for the chest X-ray.",
   "activity.get-police-certificate.name": "Ask for a police certificate",

@@ -88,4 +88,13 @@ export const momentText: Record<string, string> = {
   "moment.chapter.caption.japacity": "Japacity, how ready you are to go",
   "moment.chapter.caption": "months played",
   "moment.chapter.caption.one": "month played",
+
+  // A stamp in the passbook (the design): a milestone held for the road, and the road's own figure.
+  "moment.held.kicker": "Held for the road",
+  "moment.held.kicker.ready": "Money ready",
+  "moment.held.title": "Mama heard",
+  "moment.held.line": "By evening the whole street knows you are saving for something.",
+  "moment.held.line.ready": "Fees, flight and all, in one place. Now it only has to stay there.",
+  "moment.held.caption": "held for the road",
+  "moment.held.caption.ready": "everything the road costs, held",
 };

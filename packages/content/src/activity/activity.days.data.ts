@@ -39,6 +39,7 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.call-someone": 1,
   "activity.call-home": 1,
   "activity.family-meeting": 2,
+  "activity.ask-family-loan": 1,
   "activity.buy-car-finance": 2,
   "activity.rent-flat-uk": 2,
   "activity.rent-flat-ca": 2,

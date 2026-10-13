@@ -5,7 +5,7 @@
 // Close, dismisses it, and the sheet under it is as it was (R-MOMENT-006). It is no share card: nothing is drawn to an
 // image, offered or sent (R-MOMENT-007).
 import { Dialog } from "@base-ui/react/dialog";
-import { BanknoteX, BookMarked, Bus, FileX, Luggage, PhoneOff, PlaneLanding, Ticket, X, type LucideIcon } from "lucide-react";
+import { BanknoteX, BookMarked, Bus, FileX, Luggage, PhoneOff, PiggyBank, PlaneLanding, Ticket, X, type LucideIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
@@ -24,6 +24,7 @@ const ICONS: Record<MomentIcon, LucideIcon> = {
   ticket: Ticket,
   "plane-landing": PlaneLanding,
   book: BookMarked,
+  "piggy-bank": PiggyBank,
 };
 
 export { markFile };

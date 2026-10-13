@@ -30,6 +30,7 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.call-someone": "once",
   "activity.call-home": "once",
   "activity.family-meeting": "once",
+  "activity.ask-family-loan": "once",
   // Buying a phone and the shopping abroad.
   "activity.buy-phone": "purchase",
   "activity.street-shopping-uk": "purchase",

@@ -216,6 +216,15 @@ export const offerText: Record<string, string> = {
   "offer.family-pledge-small.said.accept": "You took what your parents could give, with thanks. Their account now stands behind your file.",
   "offer.family-pledge-small.said.decline": "You told your mother to keep it. She did not argue.",
 
+  "offer.family-loan.name": "Papa's loan",
+  "offer.family-loan.title": "Papa can lend",
+  "offer.family-loan.body":
+    "Papa, on the phone: 'I have asked your mother. We can find {amount}. Nobody is asking for it back this year. But at Christmas, when your uncles ask, you will tell them what it is for.'",
+  "offer.family-loan.choice.take": "Take it, with thanks",
+  "offer.family-loan.choice.no": "Tell him to keep it",
+  "offer.family-loan.said.take": "Papa sent it the same evening. The house has a stake in this move now.",
+  "offer.family-loan.said.no": "You told Papa to keep it for the house. He sounded relieved, then ashamed of it.",
+
   "offer.job.name": "A job offer",
   "offer.job.title": "A job offer",
   "offer.job.body": "'We would like you to start on the first.'",

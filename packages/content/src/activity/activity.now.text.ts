@@ -22,6 +22,7 @@ export const activityNowText: Record<string, string> = {
   "line.activity.call-someone.now": "They pick up on the second ring.",
   "line.activity.call-home.now": "Mummy picks up. The line is bad, but she hears you.",
   "line.activity.family-meeting.now": "Your uncle clears his throat. The family is listening.",
+  "line.activity.ask-family-loan.now": "Papa listens to the end before he says anything.",
   "line.activity.buy-phone.now": "The seller says: London used, clean. The phone is yours.",
   "line.activity.street-shopping-uk.now": "Bags in hand. Rye Lane has everything from home.",
   "line.activity.street-shopping-uae.now": "The man in the souk names his price, and you name yours.",

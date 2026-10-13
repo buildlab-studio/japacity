@@ -9,10 +9,10 @@ import { formatMoney, formatNumber } from "../words/format";
 import { formatParam, hasWords, nameOf, say, sayCount } from "../words/text";
 
 /** The kinds of moment, each with its words under `moment.<kind>` in content. */
-export type MomentKind = "granted" | "refused" | "agent" | "deposit" | "robbed" | "won" | "landed" | "chapter";
+export type MomentKind = "granted" | "refused" | "agent" | "deposit" | "robbed" | "won" | "landed" | "chapter" | "held";
 
 /** A card's icon, by name; the card maps each to its drawing. */
-export type MomentIcon = "luggage" | "file-x" | "phone-off" | "banknote-x" | "bus" | "ticket" | "plane-landing" | "book";
+export type MomentIcon = "luggage" | "file-x" | "phone-off" | "banknote-x" | "bus" | "ticket" | "plane-landing" | "book" | "piggy-bank";
 
 /** One entry of the list: the line that makes the moment, and whether a given line of that key does. */
 export interface MomentEntry {
@@ -46,6 +46,9 @@ export const MOMENTS: readonly MomentEntry[] = [
   { kind: "won", key: "line.activity.lotto-won", icon: "ticket", tone: "good", is: bigWin },
   { kind: "landed", key: "line.route.departed", icon: "plane-landing", tone: "good" },
   { kind: "chapter", key: "line.chapter.closed", icon: "book", tone: "good" },
+  // The passbook's stamps (the design): the road's own figure held before a milestone on the way.
+  { kind: "held", key: "line.passbook.ready", icon: "piggy-bank", tone: "good" },
+  { kind: "held", key: "line.passbook.stamped", icon: "piggy-bank", tone: "good" },
 ];
 
 function entryFor(line: ReportLine): MomentEntry | null {
@@ -63,7 +66,8 @@ export function momentLine(lines: readonly ReportLine[], view: Pick<PlayerView, 
   const told = tidyLines(lines);
   for (const entry of MOMENTS) {
     const made = told.filter((line) => entryFor(line) === entry && (entry.kind !== "deposit" || depositPaid([...earlier, ...lines]) !== null));
-    const line = entry.kind === "chapter" ? made.at(-1) : made[0];
+    // Of several chapters closed at once the last is told; of several stamps reached at one close, the highest.
+    const line = entry.kind === "chapter" || entry.kind === "held" ? made.at(-1) : made[0];
     if (line !== undefined) return line;
   }
   return null;
@@ -246,6 +250,16 @@ function chapter(line: ReportLine, view: PlayerView): Built {
   return { title: say(`${id}.title`), line: say(`${id}.close`), figure, chip: null };
 }
 
+/** A passbook stamp: the sum held, with Mama hearing of it; the road's own figure names the way and says the money is ready. */
+function held(line: ReportLine): Built {
+  const amount = moneyParamOf(line, "amount") ?? { currency: "NGN", amount: 0 };
+  if (line.key === "line.passbook.ready") {
+    const route = stringParam(line, "route") ?? "";
+    return { title: nameOf(route), kicker: say("moment.held.kicker.ready"), line: say("moment.held.line.ready"), figure: moneyFigure(amount, "moment.held.caption.ready"), chip: null };
+  }
+  return { title: say("moment.held.title"), line: say("moment.held.line"), figure: moneyFigure(amount, "moment.held.caption"), chip: null };
+}
+
 function built(entry: MomentEntry, line: ReportLine, view: PlayerView, before: PlayerView | null, earlier: readonly ReportLine[]): Built | null {
   switch (entry.kind) {
     case "granted":
@@ -264,6 +278,8 @@ function built(entry: MomentEntry, line: ReportLine, view: PlayerView, before: P
       return landed(line, view);
     case "chapter":
       return chapter(line, view);
+    case "held":
+      return held(line);
     default: {
       const never: never = entry.kind;
       throw new Error(`Unknown moment ${String(never)}`);

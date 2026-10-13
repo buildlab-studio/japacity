@@ -34,8 +34,12 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.watch-tv": "prop_tv-stand",
   "activity.family-time": "prop_sofa",
   "activity.family-meeting": "prop_parlour-set",
+  "activity.ask-family-loan": "prop_sofa",
   "activity.help-shop": "prop_market-stall",
   "activity.night-support": stand("🎧"),
+  // The passbook's roads: the side jobs at home, the street's circle, the family's ask and the scholarship.
+  "activity.ride-driving": stand("🚗"),
+  "activity.weekend-tutoring": stand("📚"),
   // Study and work at a desk.
   "activity.study-english": "prop_test-desk",
   "activity.sit-english-test": "prop_test-desk",
@@ -155,6 +159,9 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "offer.salary-loan": "prop_bank-counter",
   "offer.parcel-shipped": "shop_provisions",
   "offer.laptop-fault": "prop_repair-table",
+  "offer.join-ajo": stand("🤝"),
+  "offer.family-loan": "prop_sofa",
+  "offer.scholarship-round": stand("🎓"),
   "offer.send-off-party": "prop_party-set",
   "offer.family-send-off": "prop_party-set",
   "offer.family-pledge": "prop_parlour-set",

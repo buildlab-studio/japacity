@@ -401,6 +401,25 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     counts: [UK],
   },
+  // The family's loan (the passbook's family road; the design): a call to Papa from home, once
+  // the life stands well with the house and the house has something to give. No deadline, so nothing is charged; the
+  // house's stake in the move is its price, and a life whose family already pledged has asked once.
+  "activity.ask-family-loan": {
+    id: "activity.ask-family-loan",
+    slot: "free",
+    requires: [
+      { type: "place/is", where: "home" },
+      { type: "quality/min", quality: "quality.standing", value: 40 },
+      { type: "quality/min", quality: "quality.family-means", value: 10 },
+      { type: "quality/max", quality: "quality.family-stake", value: 0 },
+    ],
+    param: null,
+    cost: [],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "offer/open", offer: "offer.family-loan" }],
+    counts: [],
+  },
   "activity.tb-test": {
     id: "activity.tb-test",
     slot: "free",

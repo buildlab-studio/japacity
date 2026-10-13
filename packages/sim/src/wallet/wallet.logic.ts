@@ -34,6 +34,7 @@ import type {
   World,
 } from "../engine/types";
 
+import { heldForRoad, netsAfter, passbookOpen, passbookView, roadTarget } from "./passbook";
 import type { AnyPocket, RemitChannel, WalletEvent } from "./wallet.events";
 import { CURRENCIES, officialRates, streetRates } from "./wallet.rates";
 
@@ -596,7 +597,18 @@ const NOT_THE_MONTHS: ReadonlySet<Reason> = new Set<Reason>(["move", "convert", 
 function withMonthNet(slice: WalletSlice, state: State, currency: Currency, change: number, reason: Reason): WalletSlice {
   if (state.prologue.open || NOT_THE_MONTHS.has(reason)) return slice;
   const net = slice.monthNet ?? {};
-  return { ...slice, monthNet: { ...net, [currency]: (net[currency] ?? 0) + change } };
+  return withPaceNet({ ...slice, monthNet: { ...net, [currency]: (net[currency] ?? 0) + change } }, currency, change, reason);
+}
+
+/** The road's own costs (the passbook): its target counts the fees ahead and the flight, so paying them moves no pace. */
+const THE_ROADS: ReadonlySet<Reason> = new Set<Reason>(["fee-document", "fee-test", "fee-school", "fee-visa", "fee-surcharge", "flight"]);
+
+/** The passbook's pace: the month's net as the results count it, every money, the road's own costs aside. */
+function withPaceNet(slice: WalletSlice, currency: Currency, change: number, reason: Reason): WalletSlice {
+  const net = slice.paceNet ?? {};
+  // A road's fee still marks the month as one that moved money; it adds nothing to what was kept.
+  if (THE_ROADS.has(reason)) return { ...slice, paceNet: net };
+  return { ...slice, paceNet: { ...net, [currency]: (net[currency] ?? 0) + change } };
 }
 
 /**
@@ -612,11 +624,42 @@ function cashWarning(state: State, content: Content): WalletEvent[] {
 /** As the month closes, it is told with its net in the money of the place where it ended. A month that moved nothing tells nothing. */
 function closeMonth(ctx: Ctx): BaseEvent[] {
   const warned = cashWarning(ctx.state, ctx.content);
+  // The passbook reads a month that moved money, as the month's net does; a month that moved nothing tells nothing.
+  const passbook = ctx.state.wallet.paceNet === undefined ? [] : [...paced(ctx), ...stamped(ctx)];
   const net = ctx.state.wallet.monthNet;
-  if (net === undefined) return warned;
+  if (net === undefined) return [...warned, ...passbook];
   const currency = placeCurrency(ctx.state, ctx.content);
   const closed: WalletEvent = { type: "wallet/month-closed", currency, net: net[currency] ?? 0 };
-  return [closed, ...warned];
+  return [closed, ...warned, ...passbook];
+}
+
+/**
+ * The passbook's pace: a month closed at home keeps its net for the road, every money at the official rate, the road's
+ * own costs aside. Away from home the pace waits, and its month is let go.
+ */
+function paced(ctx: Ctx): WalletEvent[] {
+  const net = ctx.state.wallet.paceNet;
+  if (!passbookOpen(ctx.state)) return [{ type: "wallet/paced", kept: 0 }];
+  const official = officialRates(ctx.world);
+  const kept = CURRENCIES.reduce((sum, currency) => sum + valueInKobo(net?.[currency] ?? 0, currency, official), 0);
+  return [{ type: "wallet/paced", kept }];
+}
+
+/**
+ * The passbook's stamps: at a month's close at home, each fixed figure the money held for the road has reached, and the
+ * plan's own target once it is held, each once in a life with the month it was reached.
+ */
+function stamped(ctx: Ctx): WalletEvent[] {
+  if (!passbookOpen(ctx.state)) return [];
+  const held = heldForRoad(ctx.state, ctx.world);
+  const month = ctx.state.turn.month;
+  const reached = ctx.state.wallet.stamps ?? [];
+  const events: WalletEvent[] = ctx.content.tuning.wallet.stamps
+    .filter((at) => held >= at && !reached.some((stamp) => stamp.target !== true && stamp.at === at))
+    .map((at) => ({ type: "wallet/stamped", at, month, target: false, route: null }));
+  const target = roadTarget(ctx);
+  if (target !== null && held >= target.total && !reached.some((stamp) => stamp.target === true)) events.push({ type: "wallet/stamped", at: target.total, month, target: true, route: target.route });
+  return events;
 }
 
 /** The slice with the month's net cleared, and the month counted when it was kept. */
@@ -690,6 +733,14 @@ function evolve(slice: WalletSlice, event: WalletEvent, state: State): WalletSli
       return monthClosed(slice, event.net);
     case "wallet/cash-warned":
       return { ...slice, cashWarned: true };
+    case "wallet/paced": {
+      const rest: WalletSlice = { ...slice };
+      delete rest.paceNet;
+      // Away from home the month is let go and the pace keeps what it had.
+      return passbookOpen(state) ? { ...rest, nets: netsAfter(slice.nets, event.kept) } : rest;
+    }
+    case "wallet/stamped":
+      return { ...slice, stamps: [...(slice.stamps ?? []), { at: event.at, month: event.month, ...(event.target ? { target: true as const } : {}) }] };
     default: {
       const never: never = event;
       throw new Error(`Unknown wallet event ${JSON.stringify(never)}.`);
@@ -735,6 +786,14 @@ function lines(event: WalletEvent): ReportLine[] {
     case "wallet/cash-warned":
       // R-WALLET-019: someone who cares says it, with no figure; moving the money stays the player's act.
       return [{ ...line("line.wallet.cash-warning", {}, "plain"), attention: true }];
+    case "wallet/stamped": {
+      // The passbook: a stamp is told as people tell it, its figure in naira; the road's own figure names the way.
+      const amount: MoneyParam = { currency: "NGN", amount: event.at };
+      if (event.target) return [{ ...line("line.passbook.ready", { amount, route: event.route ?? "" }, "good"), attention: true }];
+      return [{ ...line("line.passbook.stamped", { amount }, "good"), attention: true }];
+    }
+    case "wallet/paced":
+      return [];
     case "wallet/arrived":
     case "wallet/lots-dropped":
     case "wallet/bought":
@@ -866,5 +925,6 @@ export const walletKind: RegisteredKind<WalletSlice, WalletEvent> = {
     bankAllowanceLeft: allowanceShown(read),
     keptMonths: read.state.wallet.keptMonths ?? 0,
     wallet: { marked: markedOf(read.state.wallet) },
+    passbook: passbookView(read),
   }),
 };

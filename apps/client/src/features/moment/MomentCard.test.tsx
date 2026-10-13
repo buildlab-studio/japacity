@@ -211,11 +211,14 @@ describe("the moment card on screen", () => {
       "line.chapter.closed": { chapter: "chapter.build-the-file" },
       "line.route.endorsement-refused": { route: "route.uk-talent" },
       "line.route.road-fraud": { route: "route.road" },
+      // The passbook's stamps: a milestone held, and the road's own figure on its way.
+      "line.passbook.stamped": { amount: naira(100_000_000) },
+      "line.passbook.ready": { amount: naira(273_000_000), route: "route.uk-care" },
     };
     // the deposit's card reads its figure from the month's lines where the pitch was
     // taken, and the endorsement's refusal has its own kicker.
     const deposit = [line("line.wallet.fee-agent", { amount: naira(30_000_000) }, { tone: "bad" }), line("line.offer.taken", { offer: "offer.road-cousin", choice: "take" })];
-    const kickers: Record<string, string> = { "line.route.endorsement-refused": "moment.refused.kicker.endorsement" };
+    const kickers: Record<string, string> = { "line.route.endorsement-refused": "moment.refused.kicker.endorsement", "line.passbook.ready": "moment.held.kicker.ready" };
     for (const entry of MOMENTS) {
       const made = line(entry.key, params[entry.key] ?? {}, { big: true, tone: entry.tone === "bad" ? "bad" : "good" });
       act(() => store.setState({ momentCards: [{ line: made, view, before: null, ...(entry.kind === "deposit" ? { told: [...deposit, made] } : {}) }] }));

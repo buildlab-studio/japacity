@@ -66,7 +66,8 @@ describe("which outcomes are moments", () => {
     expect(momentLine([robbed, refused], AT_HOME)).toBe(refused);
     expect(momentLine([line("line.activity.played", { activity: "activity.rest" })], AT_HOME)).toBeNull();
     // the endorsement's own refusal is a refusal, and the deposit lost follows the agent.
-    expect(MOMENTS.map((entry) => entry.kind)).toEqual(["refused", "refused", "granted", "robbed", "agent", "deposit", "won", "won", "landed", "chapter"]);
+    // the stamps follow the chapter, the road's own figure first.
+    expect(MOMENTS.map((entry) => entry.kind)).toEqual(["refused", "refused", "granted", "robbed", "agent", "deposit", "won", "won", "landed", "chapter", "held", "held"]);
   });
 
   test("[R-MOMENT-001] given the road or a life that has ended, then nothing is a moment", () => {
