@@ -63,6 +63,8 @@ import { buildLabourBus } from "@japacity/assets-src/veh/labour-bus/build";
 import { buildDanfo, buildKeke, buildOkada } from "@japacity/assets-src/veh/vehicles";
 import { Group } from "three";
 
+import { ROSTER } from "../../apps/client/src/features/city/roster";
+
 import { type BakedModel, bakeGroup, linearColour } from "./bake";
 
 export const ROOT = join(import.meta.dirname, "..", "..");
@@ -72,7 +74,17 @@ export const PUBLIC = join(ROOT, "apps", "client", "public", "assets");
 /** The way every dish in the hub faces, in the frame of its unturned buildings (R-ASSET-019). */
 export const HUB_DISH_YAW = DEFAULT_DISH_YAW;
 
-export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile";
+export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile" | "face" | "figure" | "cheer";
+
+/** A look's portraits for the front door (prologue.md R-PROLOGUE-009, 013): the face for the look strip and the life cards, the whole figure with a hand on the hip, and the figure cheering on the page after Begin. */
+export const PORTRAITS: readonly ViewName[] = ["face", "figure", "cheer"];
+/** The people the front door offers as a look: the city's passers-by (the client's `LOOKS`, from the same roster). */
+const DOOR_LOOKS: ReadonlySet<string> = new Set(ROSTER.filter((person) => person.role === "passer-by").map((person) => person.file.slice("shared/chr/".length, -".glb".length)));
+
+/** Whether a model gets the portraits: a person the door offers as a look. */
+export function isPortrayed(name: string): boolean {
+  return DOOR_LOOKS.has(name);
+}
 
 /** The kinds of model a picture tile is cut from (design page 13, the pictures): never a person, whose tile is a name pill until the characters are redone. */
 const TILED_KINDS = /^(prop|shop|veh|lm|bld)_/;
@@ -485,7 +497,7 @@ const ENTRIES: CatalogEntry[] = [
       place: "shared",
       source: `assets-src/people/${spec.name.slice(4)}`,
       author: LAB,
-      views: [...ELEVATIONS, "phone"],
+      views: isPortrayed(spec.name) ? [...ELEVATIONS, "phone", ...PORTRAITS] : [...ELEVATIONS, "phone"],
       pose: spec.carry === undefined ? "stand" : "tray",
       // JAPACITY_FACE names a face style for an exploration's export; unset, the shipped style.
       build: () => personModel(buildPerson(spec, faceStyleFrom(process.env.JAPACITY_FACE))),

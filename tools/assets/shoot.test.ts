@@ -4,11 +4,11 @@ import { join } from "node:path";
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { CATALOG, isTiled, PUBLIC, ROOT, SOURCE } from "./catalog";
+import { CATALOG, isPortrayed, isTiled, PORTRAITS, PUBLIC, ROOT, SOURCE } from "./catalog";
 import { listFiles, sourceFiles } from "./check-assets";
 import { readGlb } from "./glb";
 import { decodePng } from "./png";
-import { mergeRecords, PHONE_SHOT, type RenderRecord, TILE_SHOT, viewsAsked } from "./shoot";
+import { FACE_SHOT, FIGURE_SHOT, mergeRecords, PHONE_SHOT, PORTRAIT_POSES, type RenderRecord, TILE_SHOT, viewsAsked } from "./shoot";
 import { signText } from "./stage-browser";
 
 const config = JSON.parse(readFileSync(join(SOURCE, "review.config.json"), "utf8")) as { phoneShot: Record<string, number>; criteria: { key: string }[] };
@@ -135,5 +135,40 @@ describe("the tile view", () => {
     // Tighter than the three-quarter view: the asset's longer side spans most of the square, with a margin for the sticker's edge.
     expect(Math.max(maxX - minX, maxY - minY)).toBeGreaterThan(380);
     expect(Math.min(minX, minY, 511 - maxX, 511 - maxY)).toBeGreaterThanOrEqual(8);
+  });
+});
+
+describe("the door's portraits", () => {
+  const portrayed = CATALOG.filter((entry) => PORTRAITS.some((view) => entry.views.includes(view)));
+  const read = (source: string, view: string) => decodePng(readFileSync(join(ROOT, source, "renders", `${view}.png`)));
+
+  test("[R-ASSET-020] [R-PROLOGUE-009] given the people, when their views are listed, then each look the door offers, and only those, gets its face, its whole figure and its cheer, and none of them the tile", () => {
+    expect(portrayed.map((entry) => entry.name).sort()).toEqual(CATALOG.filter((entry) => isPortrayed(entry.name)).map((entry) => entry.name).sort());
+    expect(portrayed.length).toBe(16);
+    for (const entry of portrayed) expect({ name: entry.name, views: entry.views.filter((view) => PORTRAITS.includes(view)), tile: entry.views.includes("tile") }).toEqual({ name: entry.name, views: [...PORTRAITS], tile: false });
+    expect(portrayed.every((entry) => entry.name.startsWith("chr_"))).toBe(true);
+    for (const name of ["chr_hawker_a", "chr_hawker_b"]) expect(isPortrayed(name)).toBe(false);
+  });
+
+  test("[R-ASSET-020] given the portraits' shots, when their numbers and poses are read, then the face is 128 CSS pixels square and the figure 200 by 400, both at device scale 2, in the game's stand, hip and cheer poses, on the stage's clear ground", () => {
+    expect(FACE_SHOT).toEqual({ width: 128, height: 128, deviceScaleFactor: 2 });
+    expect(FIGURE_SHOT).toEqual({ width: 200, height: 400, deviceScaleFactor: 2 });
+    expect(PORTRAIT_POSES).toEqual({ face: "stand", figure: "hip", cheer: "cheer" });
+    expect(stage).toMatch(/case "face":\s*case "figure":\s*case "cheer":/);
+    expect(stage).toMatch(/const CLEAR_VIEWS: readonly ViewName\[\] = \["tile", "face", "figure", "cheer"\]/);
+  });
+
+  test.each(portrayed.map((entry) => ({ name: entry.name, source: entry.source })))("[R-ASSET-011] given $name's portraits, when they are read, then the face is 256 pixels square and the figures 400 by 800, each clear at its corners with the person filling it", ({ source }) => {
+    for (const [view, width, height] of [["face", 256, 256], ["figure", 400, 800], ["cheer", 400, 800]] as const) {
+      const image = read(source, view);
+      expect({ view, size: [image.width, image.height] }).toEqual({ view, size: [width, height] });
+      const alphaAt = (x: number, y: number): number => image.pixels[(y * image.width + x) * 4 + 3] ?? 255;
+      expect({ view, corners: [alphaAt(0, 0), alphaAt(width - 1, 0), alphaAt(0, height - 1), alphaAt(width - 1, height - 1)] }).toEqual({ view, corners: [0, 0, 0, 0] });
+      let filled = 0;
+      for (let y = 0; y < height; y += 4) for (let x = 0; x < width; x += 4) if (alphaAt(x, y) >= 128) filled += 1;
+      // A person stands in the picture: a fair share of it is the figure, never a speck or a cropped blur.
+      const share = filled / ((width / 4) * (height / 4));
+      expect({ view, enough: share > (view === "face" ? 0.2 : 0.15), notAll: share < 0.9 }).toEqual({ view, enough: true, notAll: true });
+    }
   });
 });

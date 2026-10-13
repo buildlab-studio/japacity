@@ -2,12 +2,13 @@
 // of its contents, beside its source, and writes the manifest the city's loader reads (city.md
 // R-CITY-018). A file whose contents change gets a new name, so the browser may keep every published
 // file for good. The build check skips the hashed copies and the manifest (check-assets.ts).
-// First it copies each model's tile render to tiles/<name>.png, so the interface's pictures are
-// published as the models are (design page 13, the pictures).
+// First it copies each model's tile render to tiles/<name>.png, and each look's portraits to
+// tiles/<name>-face.png, -figure.png and -cheer.png, so the interface's pictures are published as
+// the models are (design page 13, the pictures; the front door's faces and figures).
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
-import { CATALOG, type CatalogEntry } from "./catalog";
+import { CATALOG, type CatalogEntry, PORTRAITS, type ViewName } from "./catalog";
 import { defaultPaths, isPublishedCopy, listFiles, TILES } from "./check-assets";
 import { hashedName, readManifest, sha256, writeManifest } from "./manifest";
 
@@ -50,21 +51,41 @@ export function publish(folder: string): PublishManifest {
   return manifest;
 }
 
+/** A picture published under tiles: the asset, the view it is a render of (the tile when left out). */
+export interface TilePicture {
+  name: string;
+  source: string;
+  view?: ViewName;
+}
+
+/** The name a picture is published under: the asset's own for its tile, `<asset>-<view>` for a portrait. */
+export function tileName(picture: Pick<TilePicture, "name" | "view">): string {
+  return picture.view === undefined || picture.view === "tile" ? picture.name : `${picture.name}-${picture.view}`;
+}
+
+/** Every picture the catalog publishes under tiles: each model's tile, and each look's portraits. */
+export function tilePictures(entries: readonly Pick<CatalogEntry, "name" | "source" | "views">[]): TilePicture[] {
+  return entries.flatMap((entry) => [
+    ...(entry.views.includes("tile") ? [{ name: entry.name, source: entry.source }] : []),
+    ...PORTRAITS.filter((view) => entry.views.includes(view)).map((view) => ({ name: entry.name, source: entry.source, view })),
+  ]);
+}
+
 /**
- * Copies each asset's renders/tile.png to tiles/<name>.png under the folder and removes any tile no
- * asset names, its hashed copies with it. Returns each copy's hash by its path from the root, for
- * the image manifest (R-ASSET-011): a tile is a render the shooter wrote, only published.
+ * Copies each asset's renders/<view>.png (the tile's by default) to tiles/<name>.png under the folder
+ * and removes any tile no asset names, its hashed copies with it. Returns each copy's hash by its path
+ * from the root, for the image manifest (R-ASSET-011): a tile is a render the shooter wrote, only published.
  */
-export function copyTiles(entries: readonly Pick<CatalogEntry, "name" | "source">[], root: string, folder: string, from = relative(root, folder)): Record<string, string> {
+export function copyTiles(entries: readonly TilePicture[], root: string, folder: string, from = relative(root, folder)): Record<string, string> {
   const into = join(folder, TILES);
   mkdirSync(into, { recursive: true });
-  const names = new Set(entries.map((entry) => `${entry.name}.png`));
+  const names = new Set(entries.map((entry) => `${tileName(entry)}.png`));
   for (const stale of listFiles(into).filter((file) => !names.has(isPublishedCopy(file) ? file.replace(/\.[0-9a-f]+\.png$/, ".png") : file))) rmSync(join(into, stale));
   const hashes: Record<string, string> = {};
   for (const entry of entries) {
-    const render = join(root, entry.source, "renders", "tile.png");
-    copyFileSync(render, join(into, `${entry.name}.png`));
-    hashes[`${from}/${TILES}/${entry.name}.png`] = sha256(readFileSync(render));
+    const render = join(root, entry.source, "renders", `${entry.view ?? "tile"}.png`);
+    copyFileSync(render, join(into, `${tileName(entry)}.png`));
+    hashes[`${from}/${TILES}/${tileName(entry)}.png`] = sha256(readFileSync(render));
   }
   return hashes;
 }
@@ -72,7 +93,7 @@ export function copyTiles(entries: readonly Pick<CatalogEntry, "name" | "source"
 function main(): void {
   const root = join(import.meta.dirname, "..", "..");
   const folder = defaultPaths(root).public;
-  const tiles = copyTiles(CATALOG.filter((entry) => entry.views.includes("tile")), root, folder);
+  const tiles = copyTiles(tilePictures(CATALOG), root, folder);
   const images = readManifest();
   const prefix = `${relative(root, folder)}/${TILES}/`;
   images.renders = { ...Object.fromEntries(Object.entries(images.renders).filter(([path]) => !path.startsWith(prefix))), ...tiles };

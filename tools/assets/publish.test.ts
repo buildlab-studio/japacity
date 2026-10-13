@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { CATALOG, isTiled } from "./catalog";
 import { defaultPaths, listFiles } from "./check-assets";
 import { readManifest, sha256 } from "./manifest";
-import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, TILES } from "./publish";
+import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, tileName, tilePictures, TILES } from "./publish";
 
 const ROOT = join(import.meta.dirname, "..", "..");
 
@@ -64,6 +64,33 @@ describe("the tiles", () => {
   });
 });
 
+describe("the door's portraits", () => {
+  test("[R-CITY-018] [R-ASSET-011] given a look with its face, figure and cheer renders, when the tiles are copied, then each lands under tiles as the look's name and the view's, beside the things' tiles", () => {
+    const work = mkdtempSync(join(tmpdir(), "portraits-"));
+    try {
+      const folder = join(work, "public");
+      mkdirSync(join(work, "src", "ada", "renders"), { recursive: true });
+      for (const view of ["face", "figure", "cheer"]) writeFileSync(join(work, "src", "ada", "renders", `${view}.png`), `${view} ada`);
+      mkdirSync(join(work, "src", "a", "renders"), { recursive: true });
+      writeFileSync(join(work, "src", "a", "renders", "tile.png"), "tile a");
+      const pictures = tilePictures([
+        { name: "prop_a", source: "src/a", views: ["front", "tile"] },
+        { name: "chr_ada", source: "src/ada", views: ["front", "phone", "face", "figure", "cheer"] },
+        { name: "chr_hawker", source: "src/hawker", views: ["front", "phone"] },
+      ]);
+      expect(pictures.map(tileName)).toEqual(["prop_a", "chr_ada-face", "chr_ada-figure", "chr_ada-cheer"]);
+      const hashes = copyTiles(pictures, work, folder, "public");
+      expect(listFiles(join(folder, TILES))).toEqual(["chr_ada-cheer.png", "chr_ada-face.png", "chr_ada-figure.png", "prop_a.png"]);
+      expect(readFileSync(join(folder, TILES, "chr_ada-figure.png"), "utf8")).toBe("figure ada");
+      expect(hashes["public/tiles/chr_ada-face.png"]).toBe(sha256(Buffer.from("face ada")));
+      // A portrait's name never reads as a published copy's hash.
+      expect(hashInName("chr_ada-face.png")).toBeNull();
+    } finally {
+      rmSync(work, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("the committed publish", () => {
   const folder = defaultPaths(ROOT).public;
   const manifest = JSON.parse(readFileSync(join(folder, MANIFEST_FILE), "utf8")) as PublishManifest;
@@ -94,6 +121,16 @@ describe("the committed publish", () => {
       return sha256(readFileSync(join(folder, published))) !== sha256(render) || images[`apps/client/public/assets/${TILES}/${entry.name}.png`] !== sha256(render);
     });
     expect(wrong.map((entry) => entry.name)).toEqual([]);
-    expect(Object.keys(manifest.files).filter((path) => path.startsWith(`${TILES}/`))).toHaveLength(tiled.length);
+    // Beside the things' tiles, the door's looks' portraits (face, figure and cheer for each look), and nothing else.
+    const portraits = tilePictures(CATALOG).filter((picture) => picture.view !== undefined);
+    expect(portraits).toHaveLength(48);
+    const unpublished = portraits.filter((picture) => {
+      const published = manifest.files[`${TILES}/${tileName(picture)}.png`];
+      if (published === undefined) return true;
+      const render = readFileSync(join(ROOT, picture.source, "renders", `${picture.view ?? "tile"}.png`));
+      return sha256(readFileSync(join(folder, published))) !== sha256(render) || images[`apps/client/public/assets/${TILES}/${tileName(picture)}.png`] !== sha256(render);
+    });
+    expect(unpublished.map(tileName)).toEqual([]);
+    expect(Object.keys(manifest.files).filter((path) => path.startsWith(`${TILES}/`))).toHaveLength(tiled.length + portraits.length);
   });
 });

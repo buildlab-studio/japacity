@@ -19,6 +19,7 @@ import {
   checkPlace,
   checkRegister,
   checkTiles,
+  PORTRAIT_VIEWS,
   defaultPaths,
   expectedCredits,
   type Measured,
@@ -199,6 +200,14 @@ describe("tiles", () => {
     expect(checkTiles([{ path: "tiles/prop_a.png", bytes: Uint8Array.from([9]) }, { path: "tiles/veh_b.png", bytes: Uint8Array.from([4]) }], renders)).toEqual([expect.stringMatching(/tiles\/prop_a\.png differs from prop_a's tile render/)]);
     expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }, { path: "tiles/veh_b.png", bytes: Uint8Array.from([4]) }, { path: "tiles/prop_c.png", bytes: tile }], renders)).toEqual([expect.stringMatching(/tiles\/prop_c\.png is no model's tile/)]);
     expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }], renders)).toEqual([expect.stringMatching(/veh_b's tile render is not published/)]);
+  });
+
+  test("[R-ASSET-011] given a look's portraits under tiles, when they are checked, then each passes as its render by the look's name and the view's, and an unpublished portrait fails", () => {
+    const face = Uint8Array.from([5]);
+    const renders = new Map([["chr_ada-face", face]]);
+    expect(PORTRAIT_VIEWS).toEqual(["face", "figure", "cheer"]);
+    expect(checkTiles([{ path: "tiles/chr_ada-face.png", bytes: face }], renders)).toEqual([]);
+    expect(checkTiles([], renders)).toEqual([expect.stringMatching(/chr_ada-face's tile render is not published/)]);
   });
 
   test("[R-ASSET-009] given the files under public/assets, when they are sorted, then a tile is a picture of a model and not a model of its own, so it needs no register row or budget", () => {
