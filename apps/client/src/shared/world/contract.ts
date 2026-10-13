@@ -206,6 +206,8 @@ export interface PhoneApp {
   screen: ReactNode;
   /** A dot on the tile: something the player has not seen. */
   waiting: boolean;
+  /** A few words of what is there now, as a pill beside the app's name in its head ("5 open", "Rent in 3 months"); never days. */
+  context?: string | null;
 }
 
 /** Where the player is, for the shell's band and the home point (R-WORLD-014). */

@@ -239,7 +239,15 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                     <span className="phone-app-tile flex size-10 shrink-0 items-center justify-center rounded-[12px] text-white" style={{ background: `var(${app.tint})` }} aria-hidden data-app-tile>
                       <PhoneIcon name={app.icon} size={20} />
                     </span>
-                    <h2 className="min-w-0 flex-1 truncate text-[24px] leading-tight font-bold">{app.name}</h2>
+                    <div className="flex min-w-0 flex-1 items-center gap-2">
+                      <h2 className="min-w-0 truncate text-[24px] leading-tight font-bold">{app.name}</h2>
+                      {/* What is there now, as a pill beside the name (the notes item 19). */}
+                      {app.context === undefined || app.context === null ? null : (
+                        <span className="pill shrink-0 truncate px-2.5 py-1 text-[13px] font-bold" data-app-context>
+                          {app.context}
+                        </span>
+                      )}
+                    </div>
                     {grow}
                   </div>
                   <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pt-1 pb-3" data-app-screen={app.id}>

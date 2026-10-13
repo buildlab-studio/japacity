@@ -28,8 +28,8 @@ describe("the ask in the person's voice", () => {
   test("[R-TEXT-007] given every ask in content, when who asks is read, then each names its person, and only the scam text is an unknown number", () => {
     const unnamed = offers.filter((id) => askerOf({ entry: id as never }) === say("ui.ask.someone"));
     expect(unnamed).toEqual([]);
-    expect(askerOf({ entry: "offer.telco-promo" as never })).toBe(say("ui.ask.unknown"));
-    expect([askerOf({ entry: "offer.salary-loan" as never }), askerOf({ entry: "offer.brother-fees" as never }), askerOf({ entry: "offer.fuel-scarcity" as never })]).toEqual(["Your bank", "Your brother", "The conductor"]);
+    expect(askerOf({ entry: "offer.telco-promo" })).toBe(say("ui.ask.unknown"));
+    expect([askerOf({ entry: "offer.salary-loan" }), askerOf({ entry: "offer.brother-fees" }), askerOf({ entry: "offer.fuel-scarcity" })]).toEqual(["Your bank", "Your brother", "The conductor"]);
   });
 
   test("[R-TEXT-007] [R-TEXT-005] given every ask's line, when it is read, then it is one sentence and says no percentage", () => {

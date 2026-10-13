@@ -27,6 +27,7 @@ import { Settings } from "./apps/Settings";
 import { Notices, useSignalsWaiting } from "./Notices";
 import { Phone } from "./Phone";
 import { phoneWords } from "./phone.words";
+import { appContext } from "./context";
 import { APP_IDS, type AppId, markSeen, marksOf, useSeen, waitingOf } from "./seen";
 
 const ICON: Record<AppId, string> = {
@@ -128,6 +129,8 @@ export function usePhoneApps({ account = null, about = null, opening = null, cal
       </>
     ),
     waiting: waiting[id],
+    // the notes item 19: Jobs, Lotto, Bills and Bank say what is there now beside their name.
+    context: appContext(id, view),
   }));
 }
 
