@@ -1,13 +1,17 @@
-// The ride sheet (docs/rules/world.md R-WORLD-017): picking a stop raises a card at the foot of the
-// map with the place's name and a line about it, the ways to go with a fare and minutes each, and one
-// main button that says what is left after. The map stays in view above it.
-import { Bike, Bus, CarTaxiFront, Footprints, X } from "lucide-react";
+// The ride sheet (docs/rules/world.md R-WORLD-017), dressed as the after set's map-stop-picked-ride-sheet: picking a
+// stop raises a sheet at the foot of the map with the place's own picture, its name and state, a line about it, the
+// ways to go as picture tiles with the fare and minutes under each, the balance before struck through and after, and
+// one yellow Go that says the ride and its fare. The map stays in view above it.
+import { Footprints } from "lucide-react";
 import { useState } from "react";
 
+import { PressButton } from "../../shared/ui/lively/PressButton";
 import { blurbOf, say, words } from "../../shared/words/text";
-import { Balance, CENTRED, pricedLabel } from "../../shared/world/Balance";
+import { Balance, pricedLabel } from "../../shared/world/Balance";
 import type { RideChoice } from "../../shared/world/contract";
 import { mapWords } from "./map.words";
+import { useTiles } from "./paper/useTiles";
+import { PlacePicture } from "./paper/World";
 import type { MapPin } from "./pins";
 
 export interface RideSheetProps {
@@ -26,7 +30,8 @@ export interface RideSheetProps {
   by?: RideChoice["id"];
 }
 
-const WAY_ICON = { danfo: Bus, keke: CarTaxiFront, okada: Bike, walk: Footprints } as const;
+/** Each way's picture: the vehicle's own tile; on foot, the footprints. */
+const WAY_MODEL: Readonly<Record<RideChoice["id"], string | null>> = { danfo: "veh_danfo", keke: "veh_keke", okada: "veh_okada", walk: null };
 
 /** The first sentence of a place's blurb: a line about it. */
 function firstSentence(blurb: string): string {
@@ -41,6 +46,13 @@ export function lineOf(pin: MapPin): string {
   const blurb = blurbOf(pin.id);
   if (blurb !== null && blurb.trim() !== "") return firstSentence(blurb);
   return mapWords(pin.state === "here" ? "map.line.here" : "map.line.things", { things: pin.things });
+}
+
+/** The state chip's colour: green to go, the sheet's own for a place been to or where you stand, yellow for not yet. */
+function toneOf(pin: MapPin, home: boolean): string {
+  if (pin.state === "not") return "ride-state-soft";
+  if (pin.state === "here" || home) return "ride-state-plain";
+  return pin.state === "can" ? "ride-state-good" : "ride-state-plain";
 }
 
 function tagOf(pin: MapPin, home: boolean): string {
@@ -84,59 +96,73 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
   // The balance before the fare, struck, and after it, under the button; nothing moves until the tap.
   const balance = here || locked || way === undefined || way.fare === 0 || short ? null : { before: have, after: left };
 
+  const tiles = useTiles();
+
   return (
     <div role="dialog" aria-label={headingOf(pin.name)} className="pointer-events-auto absolute inset-x-0 bottom-0 z-[3]" data-ride-sheet={pin.id}>
-      <div className="panel rise mx-2 mb-2 overflow-hidden">
-        <div className="band relative flex items-end gap-3 px-4 pt-3.5 pb-3">
+      <div className="rise mx-auto max-w-[430px] rounded-t-[26px] border-t-[length:var(--edge-width)] border-edge bg-sheet px-4 pt-1 pb-[max(20px,env(safe-area-inset-bottom))] text-text shadow-[0_-10px_30px_rgba(0,0,0,0.18)]">
+        <button type="button" onClick={onClose} aria-label={mapWords("map.not-now")} className="mx-auto flex h-7 w-20 items-center justify-center rounded-[10px] outline-none focus-visible:ring-2 focus-visible:ring-text/40" data-ride-close>
+          <span className="h-[5px] w-10 rounded-[3px] bg-text/25" />
+        </button>
+        <div className="mb-3 flex items-center gap-3">
+          <span className="flex size-16 shrink-0 items-center justify-center rounded-[16px] bg-sheet-muted" style={{ rotate: "-5deg" }} aria-hidden>
+            <PlacePicture id={pin.id} size={56} tiles={tiles} />
+          </span>
           <div className="min-w-0 flex-1">
-            <div className="label label-strong truncate" data-ride-tag>
-              {tagOf(pin, home)}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <h2 className="text-[22px] leading-tight font-semibold">{headingOf(pin.name)}</h2>
+              <span className={`ride-state ${toneOf(pin, home)}`} data-ride-tag>
+                {tagOf(pin, home)}
+              </span>
             </div>
-            <h2 className="title text-[23px] leading-tight">{headingOf(pin.name)}</h2>
+            <p className="mt-0.5 text-[14px] leading-snug text-text-2" data-ride-line>
+              {lineOf(pin)}
+            </p>
           </div>
-          <button type="button" onClick={onClose} aria-label={mapWords("map.not-now")} className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-[5px] text-on-strong/80">
-            <X size={18} />
-          </button>
         </div>
-        <div className="p-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))]">
-          <p className="text-[14px] leading-snug text-text-2" data-ride-line>
-            {lineOf(pin)}
-          </p>
-          {here || locked ? null : (
-            <div role="radiogroup" aria-label={mapWords("map.ways")} className="mt-3 grid grid-cols-4 gap-1.5">
-              {ways.map((choice) => {
-                const Icon = WAY_ICON[choice.id];
-                const on = choice.id === chosen;
-                const shut = choice.shut !== undefined;
-                return (
-                  <button
-                    key={choice.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={on}
-                    disabled={shut}
-                    onClick={() => setChosen(choice.id)}
-                    data-way={choice.id}
-                    data-shut={choice.shut}
-                    className={`press flex flex-col items-start gap-0.5 rounded-[6px] border-2 px-2.5 py-2 text-left ${on ? "border-signal bg-sheet-2" : "border-sheet-line bg-sheet"} ${shut ? "opacity-50" : ""}`}
-                  >
-                    <span className="flex items-center gap-1.5 text-[13px] font-bold">
-                      <Icon size={15} aria-hidden />
-                      {choice.label}
-                    </span>
-                    <span className="num text-[17px]">{choice.fare === 0 ? say(choice.id === "walk" ? "ui.world.free" : "ui.world.pass") : formatMoney(choice.fare)}</span>
-                    <span className="text-[12px] text-text-2">{shut ? mapWords("map.way.walk-far") : mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          <button type="button" className="btn-main mt-3" style={main.after === null ? CENTRED : undefined} disabled={main.disabled} onClick={() => (here ? (onStay ?? onClose)() : way === undefined ? undefined : onChoose(way))} data-ride-main>
-            <span>{main.label}</span>
-            {main.after === null ? null : <span className="text-[13px] font-semibold opacity-80">{main.after}</span>}
-          </button>
-          {balance === null ? null : <Balance className="mt-2.5 justify-center" before={{ amount: balance.before, words: formatMoney(balance.before) }} after={{ amount: balance.after, words: formatMoney(balance.after) }} />}
-        </div>
+        {here || locked ? null : (
+          <div role="radiogroup" aria-label={mapWords("map.ways")} className="mb-3.5 grid grid-cols-4 gap-2">
+            {ways.map((choice) => {
+              const on = choice.id === chosen;
+              const shut = choice.shut !== undefined;
+              const model = WAY_MODEL[choice.id];
+              const url = model === null ? null : tiles(model);
+              return (
+                <button
+                  key={choice.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  disabled={shut}
+                  onClick={() => setChosen(choice.id)}
+                  data-way={choice.id}
+                  data-shut={choice.shut}
+                  className={`ride-way press flex flex-col items-center gap-0.5 rounded-[16px] px-1 pt-2 pb-2 text-center ${on ? "ride-way-on" : ""} ${shut ? "opacity-50" : ""}`}
+                >
+                  <span className="flex h-[46px] items-center" aria-hidden>
+                    {model === null ? (
+                      <span className="sticker-cut text-text" style={{ rotate: on ? "-6deg" : "-3deg" }}>
+                        <Footprints size={34} strokeWidth={2.2} />
+                      </span>
+                    ) : (
+                      <span className="sticker-cut" style={{ rotate: on ? "-6deg" : "-3deg" }}>
+                        {url === null ? <span className="block size-11" /> : <img src={url} alt="" width={44} height={44} draggable={false} className="block object-contain" />}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-[13px] font-semibold">{choice.label}</span>
+                  <span className="text-[14px] font-semibold">{choice.fare === 0 ? say(choice.id === "walk" ? "ui.world.free" : "ui.world.pass") : formatMoney(choice.fare)}</span>
+                  <span className="text-[11px] leading-tight text-text-2">{shut ? mapWords("map.way.walk-far") : mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {balance === null ? null : <Balance className="mb-2.5 justify-center text-[13px]" before={{ amount: balance.before, words: formatMoney(balance.before) }} after={{ amount: balance.after, words: formatMoney(balance.after) }} />}
+        <PressButton className="w-full flex-col gap-0" disabled={main.disabled} onClick={() => (here ? (onStay ?? onClose)() : way === undefined ? undefined : onChoose(way))} data-ride-main>
+          <span>{main.label}</span>
+          {main.after === null ? null : <span className="text-[13px] font-semibold opacity-80">{main.after}</span>}
+        </PressButton>
       </div>
     </div>
   );

@@ -22,7 +22,7 @@ const card = (id: CardId, model: string, centre: readonly [number, number], zoom
 
 export const CARDS: readonly Card[] = [
   card("ikeja", "bld_phone-plaza", [6588, 3337], 230),
-  card("yaba", "bld_market-block", [6510, 3378], 280),
+  card("yaba", "bld_market-block", [6505, 3375], 300),
   card("ojuelegba", "bld_flyover-span", [6512, 3361], 300),
   card("surulere", "lm_national-stadium", [6501, 3360], 290),
   card("bode", "bld_bode-thomas-betting", [6487, 3353], 290),

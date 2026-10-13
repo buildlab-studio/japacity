@@ -209,3 +209,13 @@
   .paper-track, .paper-pager { transition: opacity 200ms ease !important; }
   .paper-fade { transition: opacity 200ms ease !important; }
 }
+
+/* The ride sheet's picture tiles and state chip. */
+.ride-way { background: var(--sheet-2); box-shadow: inset 0 0 0 1.5px var(--sheet-line); color: var(--text); }
+.ride-way-on { background: var(--paper-ticket); color: #1b2a4a; box-shadow: 0 0 0 2.5px var(--edge), 0 3px 0 2.5px var(--edge); }
+.ride-way-on .text-text-2 { color: #5e6b80; }
+.ride-state { display: inline-flex; align-items: center; border-radius: 8px; padding: 3px 8px; font-size: 12px; font-weight: 600; line-height: 1.35; white-space: nowrap; rotate: 3deg; box-shadow: 0 0 0 2px var(--cut), 0 3px 5px rgba(20, 40, 50, 0.18); }
+.ride-state-good { background: var(--tint-money); color: var(--in); }
+.ride-state-plain { background: var(--sheet-muted); color: var(--text); }
+.ride-state-soft { background: var(--paper-ticket); color: #8a6400; }
+[data-paint="night"] .ride-state-good { color: #9be3b9; }

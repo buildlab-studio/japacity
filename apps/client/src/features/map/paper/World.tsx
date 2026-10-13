@@ -43,7 +43,7 @@ export function sizeOf(id: string): number {
 }
 
 /** A place's picture: its tile from the table, or the emoji standing in. */
-function PlacePicture({ id, size, tiles }: { id: string; size: number; tiles: TileUrl }) {
+export function PlacePicture({ id, size, tiles }: { id: string; size: number; tiles: TileUrl }) {
   const picture = tileOf(id);
   if (!("model" in picture)) {
     return (

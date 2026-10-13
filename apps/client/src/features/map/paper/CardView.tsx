@@ -11,16 +11,27 @@ import type { Marks, Placed } from "./stops";
 import type { TileUrl } from "./useTiles";
 import { type Frame, World } from "./World";
 
-/** A card's own frame: its district's middle in the middle of the box; lifted so a stop picked stands clear of the sheet. */
+/** How far in from a card's side edges a stop picked is kept, so its name stands whole. */
+const SIDE = 120;
+
+/**
+ * A card's own frame: its district's middle in the middle of the box; with a stop picked, moved so the stop stands clear
+ * of the sheet below and far enough from the sides for its name.
+ */
 export function cardFrame(card: Card, width: number, height: number, lift: Point | null = null): Frame {
   const z = card.zoom / 100;
+  let x = width / 2 - z * card.centre[0];
   let y = height / 2 - z * card.centre[1];
   if (lift !== null) {
-    const shown = y + lift[1] * z;
+    const down = y + lift[1] * z;
     const want = Math.round(height * 0.34);
-    if (shown > want) y -= shown - want;
+    if (down > want) y -= down - want;
+    const across = x + lift[0] * z;
+    const side = Math.min(SIDE, Math.round(width / 2));
+    if (across > width - side) x -= across - (width - side);
+    if (across < side) x += side - across;
   }
-  return { x: width / 2 - z * card.centre[0], y, sx: z, sy: z };
+  return { x, y, sx: z, sy: z };
 }
 
 export interface CardViewProps {
