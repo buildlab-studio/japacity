@@ -53,6 +53,7 @@ import {
   overtimePay,
   raisedJob,
 } from "./activity.pay";
+import { withThings } from "../thing/thing.mods";
 import { EARNED_ONLY, earnedNaira, pocketFor } from "../wallet/wallet.logic";
 import { officialRates } from "../wallet/wallet.rates";
 import type { Judge } from "../japacity/japacity.logic";
@@ -931,8 +932,10 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "activity/now") throw new Error(`activity/now cannot handle ${command.type}.`);
   const pick = { activity: command.activity, param: command.param ?? null };
   if (!isPick(pick)) return reject("not-legal", "The act is not an activity and a param.");
-  const entry = ctx.content.activity[pick.activity];
-  if (entry === undefined) return reject("unknown-id", `${pick.activity} is not an activity in content.`);
+  const plain = ctx.content.activity[pick.activity];
+  if (plain === undefined) return reject("unknown-id", `${pick.activity} is not an activity in content.`);
+  // : the things that work now change the act's time, price and lift.
+  const entry = withThings(ctx, plain);
   if ((entry.slot !== "free" && entry.slot !== "none") || !answersNow(entry)) return reject("not-legal", `${entry.id} fills the month: it is a slot pick, not an act now.`);
   if (doneThisMonth(ctx.state, entry)) return reject("not-legal", `${entry.id} was done this month already. It runs once a month.`);
   // R-ACTIVITY-020 (decision 0036): an act that takes effort waits for sleep once the body is spent; what takes none is always open.
@@ -984,8 +987,9 @@ function closeMonth(ctx: Ctx): BaseEvent[] {
 
 /** One slot (R-ACTIVITY-003, R-ACTIVITY-004): checked again, paid, then its effects. A failure pays nothing. */
 function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
-  const entry = ctx.content.activity[pick.activity];
-  if (entry === undefined) throw new Error(`The slot names ${pick.activity}, which the turn check let through.`);
+  const plain = ctx.content.activity[pick.activity];
+  if (plain === undefined) throw new Error(`The slot names ${pick.activity}, which the turn check let through.`);
+  const entry = withThings(ctx, plain);
   // R-ACTIVITY-013: an act done once a month at most; a second pick of it fails as a slot, with nothing paid.
   const again = entry.once === true && turnSlots(ctx).slice(0, slot).some((earlier) => earlier.activity === entry.id);
   const why = again ? "requirements" : slotProblem(ctx, entry, pick, true);
@@ -1241,7 +1245,8 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
   const abroad = read.state.place.where === "abroad";
   return Object.values(read.content.activity)
     .filter((entry) => (entry.slot === "free" || entry.slot === "none") && (!abroad || appliesHere(entry, read.state)))
-    .map((entry) => {
+    .map((plain) => {
+      const entry = withThings(read, plain);
       const params = paramsFor(read, entry, judge);
       const waiting = entry.param === "school" && params?.length === 0 ? schoolWait(read) : [];
       const missing = [...entry.requires.filter((requirement) => !judge(requirement).met), ...waiting];
@@ -1261,6 +1266,8 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
         done,
         ...(sure ? { sure: true as const } : {}),
         ...(spent ? { spent: true as const } : {}),
+        // : a thing owned changed the act's time.
+        ...(entry.halfDays !== plain.halfDays && entry.halfDays !== undefined ? { halfDays: entry.halfDays } : {}),
       };
     });
 }

@@ -25,6 +25,8 @@ import { familyText } from "./family/family.text";
 import { goalTable } from "./goal/goal.data";
 import { goalText } from "./goal/goal.text";
 import { homeText } from "./home/home.text";
+import { thingTable } from "./thing/thing.data";
+import { thingText } from "./thing/thing.text";
 import { guideTable } from "./guide/guide.data";
 import { guideText } from "./guide/guide.text";
 import { lotteryText } from "./lottery/lottery.text";
@@ -129,6 +131,8 @@ export const content: Content = {
   person: personTable,
   phrase: phraseTable,
   interview: interviewTable,
+  // The market's things for the home.
+  thing: thingTable,
   people: { spots: peopleSpots },
   // The tables (adverts.md, guides.md, analytics.md).
   advert: advertTable,
@@ -156,6 +160,7 @@ export const textTables: Record<string, Record<string, string>> = {
   goal: goalText,
   guide: guideText,
   home: homeText,
+  thing: thingText,
   interview: interviewText,
   lottery: lotteryText,
   moment: momentText,

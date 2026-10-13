@@ -10,7 +10,7 @@ import type { BaseEvent, Content, Id, Save, State } from "./types";
 export const FIRST_INSTANCE = 1;
 
 /** The shape of the state this code builds. */
-export const STATE_SCHEMA = 3;
+export const STATE_SCHEMA = 4;
 
 /** A counter-backed IdSource, and a way to read where it got to. */
 export function idSource(start: number): IdSource & { peek(): number } {

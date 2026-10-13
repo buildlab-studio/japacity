@@ -286,4 +286,8 @@ export const tuning: Tuning = {
     // R-HOME-012 (decision 0035): at home the whole of living is lived by hand, meals, water, fares and data as acts; nothing of it is charged as the month turns.
     livingByHandBp: pct(100),
   },
+  // The market: the car's fuel as its fare, by distance as the rides are (R-PLACE-010): 300 naira to
+  // start and park, 100 a kilometre (petrol at about 1,000 naira a litre, a used car at about 10 km a litre), so a
+  // drive is dearer than the danfo and cheaper than the okada or a ride app; at the pace of the city's traffic.
+  thing: { drive: { fareKobo: naira(300), farePerKmKobo: naira(100), metresPerMinute: 400 } },
 };

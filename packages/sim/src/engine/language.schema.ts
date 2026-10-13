@@ -107,6 +107,8 @@ export const ReasonSchema = z.enum([
   "win",
   "pot-top-up",
   "ticket",
+  "goods",
+  "running",
   "wedding",
   "undertaking",
   "assistance",
@@ -369,6 +371,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("turn/finish") }),
   z.strictObject({ type: z.literal("home/move"), place: HomePlaceSchema }),
   z.strictObject({ type: z.literal("home/guest"), host: HomeHostSchema }),
+  z.strictObject({ type: z.literal("things/sell-off") }),
 ]);
 
 export type EffectMatches = Proof<Same<z.infer<typeof EffectSchema>, Effect>>;
@@ -601,6 +604,8 @@ export const TuningSchema = z.strictObject({
   interview: z.strictObject({ ask: CountSchema, decoys: CountSchema, passBp: BpSchema, failBp: BpSchema, caughtBelowBp: BpSchema, thinMoments: CountSchema, thinMonths: CountSchema, doubtBp: BpSchema, standInRecallBp: BpSchema, caughtStanding: IntSchema }),
   undertaking: z.strictObject({ months: CountSchema, assistanceUnder: CountSchema }),
   home: HomeTuningSchema,
+  // The market: the car's way on the map, priced by distance as the rides are (R-PLACE-010).
+  thing: z.strictObject({ drive: z.strictObject({ fareKobo: CountSchema, farePerKmKobo: CountSchema, metresPerMinute: z.int().positive() }) }),
 });
 
 export type TuningMatches = Proof<Same<z.infer<typeof TuningSchema>, Tuning>>;

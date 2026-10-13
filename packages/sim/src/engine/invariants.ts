@@ -6,7 +6,7 @@ import type { Content, State } from "./types";
 
 export function checkInvariantsWith(kinds: Registry, state: State, content: Content): string[] {
   const problems: string[] = [];
-  if (state.schema !== 1 && state.schema !== 3) problems.push(`The state's schema is ${String(state.schema)}.`);
+  if (state.schema !== 1 && state.schema !== 4) problems.push(`The state's schema is ${String(state.schema)}.`);
   if (state.content !== content.version) problems.push(`The state is for content ${state.content}, not ${content.version}.`);
   if (!Number.isSafeInteger(state.v) || state.v < 0) problems.push(`The version is ${String(state.v)}.`);
   if (!Number.isSafeInteger(state.tick) || state.tick < 0) problems.push(`The tick is ${String(state.tick)}.`);

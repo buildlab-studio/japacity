@@ -1,4 +1,4 @@
-import type { Id, ReturnShape, Where } from "../engine/types";
+import type { Id, ReturnShape, RideWay, Where } from "../engine/types";
 
 export type PlaceEvent =
   /** R-PLACE-002 and 004: the character is somewhere new from this month. */
@@ -12,4 +12,4 @@ export type PlaceEvent =
   /** R-RETURN-005: the December visit opened in this month of the character's (R-PLACE-009's `decemberMonth`). */
   | { type: "place/december-opened"; month: number }
   /** R-PLACE-010: a ride inside the city, its fare paid from cash. */
-  | { type: "place/rode"; from: Id<"place">; to: Id<"place">; way: "danfo" | "keke" | "okada" | "walk"; fare: number };
+  | { type: "place/rode"; from: Id<"place">; to: Id<"place">; way: RideWay; fare: number };
