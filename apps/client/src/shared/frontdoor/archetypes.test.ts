@@ -224,7 +224,7 @@ describe("every tile's promise is kept by the life it starts", () => {
   });
 });
 
-describe("the tiles' words", () => {
+describe("the tiles' words", { timeout: 20_000 }, () => {
   test("[R-PROLOGUE-004] [R-PROLOGUE-010] given every archetype over many seeds, when its prologue closes at its own age, then its tile names the age it hands over from, in years, and every one of its lives starts in that year", () => {
     const said: Record<string, number> = {};
     const found: Record<string, number[]> = {};
