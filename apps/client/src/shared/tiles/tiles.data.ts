@@ -4,11 +4,19 @@
 // a dish is modelled, an act at a thing in the world shows that thing when the thing is what the act is about. The
 // stand-ins are the list of models to commission (`pnpm exec tsx apps/client/src/shared/tiles/missing.ts`).
 
-/** A model's tile, by the model's name, or an emoji standing in for a model not yet made. */
-export type TileRow = string | { emoji: string; standIn: true };
+/**
+ * The acts that are no activity of the simulation (R-WORLD-034): a pose, the bed's Sleep, a bill, the papers, the bag, the
+ * way out and in, a word with someone, a look, a ride, the way home, a stop and a shut thing. Each is a small glyph drawn as
+ * the layer's sticker (glyphs.tsx), keyed `act.<glyph>`; it is drawn, so it stands in for nothing.
+ */
+export const ACT_GLYPHS = ["sit", "lie", "sleep", "pay", "papers", "pack", "out", "in", "talk", "look", "ride", "home", "stop", "shut"] as const;
+export type ActGlyph = (typeof ACT_GLYPHS)[number];
 
-/** What a tile draws: a model's published picture or a stand-in. */
-export type TilePicture = { model: string } | { emoji: string; standIn: true };
+/** A model's tile, by the model's name, an emoji standing in for a model not yet made, or an act's drawn glyph. */
+export type TileRow = string | { emoji: string; standIn: true } | { glyph: ActGlyph };
+
+/** What a tile draws: a model's published picture, a stand-in or an act's glyph. */
+export type TilePicture = { model: string } | { emoji: string; standIn: true } | { glyph: ActGlyph };
 
 const stand = (emoji: string): TileRow => ({ emoji, standIn: true });
 
@@ -282,6 +290,8 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "market.laptop": "prop_laptop-desk",
   "market.phone": "prop_phone",
   "market.car": "veh_car",
+  // The acts with no activity of their own (the fan for every thing): each its drawn glyph.
+  ...(Object.fromEntries(ACT_GLYPHS.map((glyph) => [`act.${glyph}`, { glyph }])) as Record<`act.${ActGlyph}`, TileRow>),
 };
 
 /** The picture key of a thing of the market: `thing.fan` shows `market.fan`. */
@@ -302,9 +312,14 @@ export function tileOf(id: string): TilePicture {
   return typeof row === "string" ? { model: row } : row;
 }
 
+/** The key of an act's glyph. */
+export function glyphTile(glyph: ActGlyph): string {
+  return `act.${glyph}`;
+}
+
 /** Every id still on a stand-in, sorted, with its emoji: the models to commission. */
 export function standIns(): { id: string; emoji: string }[] {
   return Object.entries(TILE_TABLE)
-    .flatMap(([id, row]) => (typeof row === "string" ? [] : [{ id, emoji: row.emoji }]))
+    .flatMap(([id, row]) => (typeof row === "string" || !("standIn" in row) ? [] : [{ id, emoji: row.emoji }]))
     .sort((a, b) => a.id.localeCompare(b.id));
 }

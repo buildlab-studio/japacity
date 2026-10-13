@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { HOME_FILES, marketTile, PHONE_PICTURES, standIns, TILE_TABLE, tileOf } from "./tiles.data";
+import { ACT_GLYPHS, glyphTile, HOME_FILES, marketTile, PHONE_PICTURES, standIns, TILE_TABLE, tileOf } from "./tiles.data";
 
 const ASSETS = join(import.meta.dirname, "..", "..", "..", "public", "assets");
 
@@ -77,10 +77,12 @@ describe("the table of pictures", () => {
     expect([...new Set(models)].filter((model) => published[`tiles/${model}.png`] === undefined)).toEqual([]);
   });
 
-  test("given every row, when it is read, then it names something there is: an act, an offer, a place, a paper or a way out in content, a home's thing, or one of the phone's own pictures", () => {
+  test("given every row, when it is read, then it names something there is: an act, an offer, a place, a paper or a way out in content, a home's thing, one of the phone's own pictures, or an act's glyph", () => {
     const things = new Set(homeThings.map((thing) => `thing.${thing.id}`));
     const unknown = Object.keys(TILE_TABLE).filter((id) => {
       if (id.startsWith("thing.")) return !things.has(id);
+      // The acts' glyphs (R-WORLD-034): `act.<glyph>` for each glyph drawn, and only those.
+      if (id.startsWith("act.")) return !(ACT_GLYPHS as readonly string[]).includes(id.slice("act.".length));
       if (id.startsWith("phone.")) return !PHONE_PICTURES.includes(id);
       // The market's things: `market.<slug>` for the thing `thing.<slug>` of content.
       if (id.startsWith("market.")) return !(`thing.${id.slice("market.".length)}` in content.thing);
@@ -92,10 +94,18 @@ describe("the table of pictures", () => {
   });
 
   test("given a stand-in, when it is read, then it is one emoji marked as standing in, and the list of stand-ins names exactly those rows", () => {
-    const rows = Object.entries(TILE_TABLE);
-    const standing = rows.flatMap(([id, row]) => (typeof row === "string" ? [] : [{ id, standIn: row.standIn, emoji: row.emoji.length > 0 && row.emoji.length <= 8 }]));
+    // Every row that is neither a model nor an act's drawn glyph is a stand-in.
+    const rows = Object.entries(TILE_TABLE).filter(([id]) => !id.startsWith("act."));
+    const standing = rows.flatMap(([id, row]) => (typeof row === "string" ? [] : [{ id, standIn: "standIn" in row && row.standIn, emoji: "emoji" in row && row.emoji.length > 0 && row.emoji.length <= 8 }]));
     expect(standing.filter((row) => !row.standIn || !row.emoji)).toEqual([]);
     expect(standIns().map((row) => row.id)).toEqual(rows.filter(([, row]) => typeof row !== "string").map(([id]) => id).sort());
+  });
+
+  test("[R-WORLD-034] given the acts with no activity of their own, when their pictures are asked for, then each kind has its drawn glyph, none stands in, and the glyph rows are exactly those", () => {
+    expect([...ACT_GLYPHS]).toEqual(expect.arrayContaining(["sit", "lie", "sleep", "pay", "papers", "pack", "out", "talk"]));
+    for (const glyph of ACT_GLYPHS) expect(tileOf(glyphTile(glyph))).toEqual({ glyph });
+    expect(Object.keys(TILE_TABLE).filter((id) => id.startsWith("act.")).sort()).toEqual(ACT_GLYPHS.map(glyphTile).sort());
+    expect(standIns().filter((row) => row.id.startsWith("act."))).toEqual([]);
   });
 
   test("[R-HOME-001] given every thing of the market, when the phone's Market asks for its picture, then the table has a row for it naming a model, never a stand-in", () => {

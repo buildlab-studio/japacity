@@ -31,4 +31,14 @@ describe("a tile", () => {
     expect(tile.textContent).toBe("💧");
     expect(tile.style.width).toBe("64px");
   });
+
+  test("[R-WORLD-034] given an act with no activity of its own, when its glyph is drawn, then it is the drawing itself at the size asked, standing in for nothing, and fetches nothing", () => {
+    const { container } = render(<Tile of="act.sit" size={40} />);
+    const tile = container.querySelector<HTMLElement>("[data-tile='act.sit']")!;
+    expect(tile.dataset.glyph).toBe("sit");
+    expect(tile.hasAttribute("data-stand-in")).toBe(false);
+    expect(tile.querySelector("img")).toBeNull();
+    expect(tile.querySelector("svg[data-glyph-drawing='sit']")?.getAttribute("width")).toBe("40");
+    expect(tile.style.width).toBe("40px");
+  });
 });
