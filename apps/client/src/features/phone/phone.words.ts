@@ -134,6 +134,10 @@ export const phoneText: Record<string, string> = {
   "phone.jobs.side": "Side job",
   "phone.jobs.offers": "Offers",
   "phone.jobs.offers.none": "No job offers right now.",
+  // The board where jobs go up, while no offer waits: a way to the map ("Hope is free").
+  "phone.jobs.board": "The board at {place}",
+  "phone.jobs.board.line": "Jobs go up there. Hope is free.",
+  "phone.jobs.board.go": "Show me {place}",
   "phone.jobs.quit": "Quit",
   "phone.jobs.take": "Take it",
   "phone.jobs.answer-by": "Answer {when}",
@@ -158,6 +162,7 @@ export const phoneText: Record<string, string> = {
   "phone.lotto.none-held": "You had no ticket in it.",
   "phone.lotto.winners": "Winning tickets",
   "phone.lotto.buy-where": "Tickets are sold at the kiosk.",
+  "phone.lotto.go": "Show me the kiosk",
 
   "phone.bills.auto": "Taken at the month's end.",
   "phone.bills.pay": "Pay now",

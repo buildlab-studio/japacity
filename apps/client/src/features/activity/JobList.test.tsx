@@ -144,21 +144,23 @@ describe("the jobs list on the hunt's card", () => {
   });
 });
 
-describe("the jobs list as rows on the sheet", () => {
+describe("the jobs list as picture cards", () => {
   const nameOfJob = (id: string) => text[`${id}.name`] ?? id;
   const applyButton = () => screen.getByRole("button", { name: `${nameOfJob(HUNT)}` });
 
-  test("[R-WORLD-021] given the hunt's card, when the list shows, then the rows sit on the sheet with no radio circle, and only the chosen row fills with the pick colour", async () => {
+  test("[R-WORLD-021] given the hunt's card, when the list shows, then each job is a card with its picture and no radio circle, and only the chosen card is ringed", async () => {
     const view = engineView();
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     const rows = within(screen.getByRole("radiogroup", { name: jobsWords("jobs.pick") })).getAllByRole("radio");
     for (const row of rows) {
-      // No radio circle: the only drawn mark in a row is the chance gauge.
-      expect(row.querySelectorAll("span[aria-hidden]:not([data-gauge])")).toHaveLength(0);
-      expect(row.closest("li")?.className).toContain("border-sheet-line");
-      expect(row.className.includes("bg-pick")).toBe(row.getAttribute("aria-checked") === "true");
+      // No radio circle: the drawn marks in a card are the job's picture and the chance gauge (restated 13 Oct 2026:
+      // a card each, ringed when chosen, as the after set's phone-jobs draws the list).
+      expect(row.querySelector("input")).toBeNull();
+      expect(row.querySelector("[data-tile]")?.getAttribute("data-tile")).toBe(row.getAttribute("data-job"));
+      const card = row.querySelector("[data-picked], .lively-card");
+      expect(card?.className.includes("phone-picked")).toBe(row.getAttribute("aria-checked") === "true");
     }
-    expect(rows.filter((row) => row.className.includes("bg-pick"))).toHaveLength(1);
+    expect(rows.filter((row) => row.querySelector(".phone-picked") !== null)).toHaveLength(1);
   });
 
   test("[R-WORLD-006] given each job's chance, when its row shows, then a three-step gauge stands beside the word: one step for a long shot, two for a fair chance, three for likely", async () => {

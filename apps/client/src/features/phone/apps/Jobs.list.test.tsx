@@ -1,6 +1,6 @@
-// The offers in Jobs as the design's lists sit (its brief, section 1; world.md R-WORLD-018, R-WORLD-021): rows straight
-// on the sheet divided by hairlines, no card and no radio circle for a row, the offer picked filled with the pick colour,
-// and one main button at the foot that repeats the pick.
+// The offers in Jobs in the lively dress (world.md R-WORLD-018, R-WORLD-021): each offer a
+// card with its picture, no radio circle, the offer picked ringed in yellow, and one yellow button at the foot that
+// repeats the pick.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { fireEvent } from "@testing-library/react";
@@ -33,23 +33,26 @@ function twoOffers() {
 }
 
 describe("the offers in Jobs", () => {
-  test("[R-WORLD-018] [R-WORLD-021] given two offers, when Jobs opens, then they sit as rows on the sheet with no card and no radio circle, the first picked and filled with the pick colour, and one main button at the foot repeats it; picking the other moves the fill and the button's words", async () => {
+  test("[R-WORLD-018] [R-WORLD-021] given two offers, when Jobs opens, then each is a card with the job's picture and no radio circle, the first picked and ringed, its pay as a green chip, and one yellow button at the foot repeats it; picking the other moves the ring and the button's words", async () => {
     await renderWithView(<Jobs />, twoOffers());
     const rows = (): HTMLButtonElement[] => [...document.querySelectorAll<HTMLButtonElement>("[data-job-offers] [role='radio']")];
     expect(rows()).toHaveLength(2);
     expect(document.querySelector("[data-job-offers] input")).toBeNull();
     expect(rows().map((row) => row.getAttribute("aria-checked"))).toEqual(["true", "false"]);
-    expect(rows()[0]!.className).toContain("bg-pick");
-    expect(rows()[1]!.className).not.toContain("bg-pick");
-    // The rows are divided by the sheet's hairline, never boxed one by one.
-    expect(rows()[1]!.closest("li")?.className).toContain("border-sheet-line");
-    expect(rows()[1]!.className).not.toMatch(/\bborder\b/);
+    // a card each, the picked one ringed, never a hairline row filled with the pick colour.
+    const card = (row: HTMLElement): HTMLElement | null => row.querySelector("[data-lively-card]");
+    expect(rows().map((row) => card(row)?.getAttribute("data-picked") ?? null)).toEqual(["true", null]);
+    expect(card(rows()[0]!)?.className).toContain("phone-picked");
+    expect(card(rows()[1]!)?.className).not.toContain("phone-picked");
+    expect(rows().map((row) => row.querySelector("[data-tile]")?.getAttribute("data-tile"))).toEqual([SHOP, OTHER]);
+    expect(rows().every((row) => row.querySelector("[data-money-chip]") !== null)).toBe(true);
     const main = (): HTMLElement => document.querySelector<HTMLElement>("[data-take-offer]")!;
-    expect(main().className).toContain("btn-main");
-    expect(main().textContent).toBe(`${phoneWords("phone.jobs.take")}${nameOf(SHOP)}`);
+    expect(main().className).toContain("press-button");
+    expect(main().textContent).toBe(`${phoneWords("phone.jobs.take")}·${nameOf(SHOP)}`);
     fireEvent.click(rows()[1]!);
     expect(rows().map((row) => row.getAttribute("aria-checked"))).toEqual(["false", "true"]);
-    expect(main().textContent).toBe(`${phoneWords("phone.jobs.take")}${nameOf(OTHER)}`);
-    expect(document.querySelectorAll(".btn-main")).toHaveLength(1);
+    expect(rows().map((row) => card(row)?.getAttribute("data-picked") ?? null)).toEqual([null, "true"]);
+    expect(main().textContent).toBe(`${phoneWords("phone.jobs.take")}·${nameOf(OTHER)}`);
+    expect(document.querySelectorAll("[data-press-button]")).toHaveLength(1);
   });
 });

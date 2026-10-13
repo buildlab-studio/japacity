@@ -20,6 +20,7 @@ import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, needsWords, requirementSentence, saysWhyOnCard } from "../../shared/words/requirement";
 import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";
 import { studyWords } from "./study";
+import { Tile } from "../../shared/tiles/Tile";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payLine } from "../../shared/words/pay";
 import { localCurrency } from "../../shared/words/wayHome";
@@ -331,31 +332,46 @@ function ActivityCard({ option }: { option: ActivityOption }) {
 
   return (
     <li>
-      <Card tone={option.allowed ? "plain" : "muted"} className="flex h-full flex-col gap-2">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold">{name}</h3>
-          {option.cost.length === 0 ? (
-            freeShown(option.id) ? <Tag>{say("ui.activity.free")}</Tag> : null
-          ) : (
-            <Tag tone={option.affordable ? "plain" : "bad"}>
-              {say("ui.activity.cost", {
-                amount: option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + "),
-              })}
-            </Tag>
-          )}
+      {/* The act as a card in the lively dress (design page 13, section 2): the thing's picture
+          on its soft tile, the title and one line, the price, the time past a morning and what it does as chips. */}
+      <div className={`lively-card flex h-full flex-col gap-2 p-3.5 ${option.allowed ? "" : "opacity-80"}`} data-act-card={option.id}>
+        <div className="flex items-start gap-3">
+          <span className="flex size-14 shrink-0 items-center justify-center rounded-[14px] bg-tint-study" aria-hidden>
+            <span className="sticker-cut" style={{ rotate: "-5deg" }}>
+              <Tile of={option.id} size={40} />
+            </span>
+          </span>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[17px] leading-tight font-bold">{name}</h3>
+            {blurb === null ? null : <p className="mt-0.5 text-[14px] leading-snug text-text-2">{blurb}</p>}
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              {option.cost.length === 0 ? (
+                freeShown(option.id) ? (
+                  <span className="sticker-chip bg-tint-money" style={{ rotate: "-2deg", color: "var(--money-ink)" }}>
+                    {say("ui.activity.free")}
+                  </span>
+                ) : null
+              ) : (
+                <span className={`sticker-chip num ${option.affordable ? "bg-[var(--soft)]" : "bg-sheet-2"}`} style={{ rotate: "-2deg", ...(option.affordable ? {} : { color: "var(--out)" }) }}>
+                  {say("ui.activity.cost", {
+                    amount: option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + "),
+                  })}
+                </span>
+              )}
+              {/* R-ACTIVITY-018: an act done at once says the time it takes in words, never a number of days. */}
+              {time === null ? null : (
+                <span className="sticker-chip bg-tint-study" style={{ rotate: "1.5deg" }} data-time>
+                  {time}
+                </span>
+              )}
+              {does === null ? null : (
+                <span className="sticker-chip bg-tint-body whitespace-normal" style={{ rotate: "-1deg" }} data-does>
+                  {does}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-        {blurb === null ? null : <p className="text-sm text-text-2">{blurb}</p>}
-        {/* R-ACTIVITY-018: an act done at once says the time it takes in words, never a number of days. */}
-        {time === null ? null : (
-          <p className="text-sm font-medium" data-time>
-            {time}
-          </p>
-        )}
-        {does === null ? null : (
-          <p className="text-sm font-medium" data-does>
-            {does}
-          </p>
-        )}
         {counts === null ? null : (
           <p className="text-sm font-medium" data-counts>
             {counts}
@@ -459,7 +475,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
           {/* An act done at once fills no slot (R-ACTIVITY-015), so it never claims the month's free time. */}
           {content.activity[option.id]?.slot === "free" && !applying && !now ? <p className="mt-1 text-[12px] text-text-2">{say("ui.activity.uses-free")}</p> : null}
         </div>
-      </Card>
+      </div>
     </li>
   );
 }

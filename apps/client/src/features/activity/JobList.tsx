@@ -9,6 +9,7 @@ import { useState } from "react";
 import type { ActivityEntry, Id, PlayerView, Requirement } from "@japacity/sim";
 
 import { requirementSentence } from "../../shared/words/requirement";
+import { Tile } from "../../shared/tiles/Tile";
 import { nameOf } from "../../shared/words/text";
 import { type ChanceBand, chanceBand, chanceOf, huntBand, jobCardLine, jobCardWords, jobChanceBp, jobsWords, payWords } from "../../shared/words/jobs";
 
@@ -109,39 +110,47 @@ function Gauge({ chance, chosen }: { chance: ChanceBand; chosen: boolean }) {
       {([1, 2, 3] as const).map((step) => (
         <span
           key={step}
-          className={`w-[5px] rounded-[1px] ${step === 1 ? "h-2.5" : step === 2 ? "h-3.5" : "h-[18px]"} ${step <= steps ? (chosen ? "bg-pick-mark" : "bg-text") : chosen ? "bg-on-pick/25" : "bg-sheet-line"}`}
+          className={`w-[4px] rounded-[1px] ${step === 1 ? "h-1.5" : step === 2 ? "h-2.5" : "h-3.5"} ${step <= steps ? (chosen ? "bg-pick-mark" : "bg-text") : chosen ? "bg-on-pick/25" : "bg-sheet-line"}`}
         />
       ))}
     </span>
   );
 }
 
+/**
+ * A job to hunt as a card: its picture, its name, the pay as a green chip and the chance as a
+ * word in a pill with its gauge; the job picked ringed in yellow.
+ */
 function JobRow({ view, id, chance, chosen, onPick }: { view: PlayerView; id: string; chance: ChanceBand; chosen: boolean; onPick: (id: string) => void }) {
   const pay = payWords(id, view);
   const lift = liftWords(view, id);
   return (
-    <li className="border-b border-sheet-line last:border-b-0">
-      <button
-        type="button"
-        role="radio"
-        aria-checked={chosen}
-        data-job={id}
-        onClick={() => onPick(id)}
-        className={`flex min-h-12 w-full items-center gap-3 rounded-[5px] px-3 py-2.5 text-left ${chosen ? "bg-pick text-on-pick" : ""}`}
-      >
-        <span className="flex w-0 min-w-0 flex-1 flex-col">
-          <span className="font-bold">{nameOf(id)}</span>
-          {pay === null ? null : <span className={`num text-[13px] ${chosen ? "opacity-80" : "text-text-2"}`}>{pay}</span>}
-          {lift === null ? null : (
-            <span className={`num text-[12px] ${chosen ? "opacity-80" : "text-text-2"}`} data-lift>
-              {lift}
+    <li>
+      <button type="button" role="radio" aria-checked={chosen} data-job={id} onClick={onPick.bind(null, id)} className="press block w-full text-left">
+        <span className={`lively-card flex items-center gap-3 p-2.5 ${chosen ? "phone-picked" : ""}`} data-picked={chosen ? "true" : undefined}>
+          <span className="flex size-14 shrink-0 items-center justify-center rounded-[14px] bg-tint-money">
+            <span className="sticker-cut" style={{ rotate: "-5deg" }}>
+              <Tile of={id} size={40} />
             </span>
-          )}
-        </span>
-        <span className="flex shrink-0 flex-col items-end gap-1">
-          <Gauge chance={chance} chosen={chosen} />
-          <span className={`text-[11px] font-semibold ${chosen ? "opacity-80" : "text-text-2"}`} data-chance={chance}>
-            {jobsWords(`jobs.chance.${chance}`)}
+          </span>
+          <span className="flex w-0 min-w-0 flex-1 flex-col gap-1">
+            <span className="text-[16px] leading-tight font-bold">{nameOf(id)}</span>
+            {lift === null ? null : (
+              <span className="num text-[12px] text-text-2" data-lift>
+                {lift}
+              </span>
+            )}
+            <span className="flex flex-wrap items-center gap-1.5">
+              {pay === null ? null : (
+                <span className="sticker-chip num bg-tint-money whitespace-normal" style={{ rotate: "-2deg", color: "var(--money-ink)" }}>
+                  {pay}
+                </span>
+              )}
+              <span className={`sticker-chip ${chance === "long" ? "bg-tint-body" : chance === "fair" ? "bg-[var(--soft)]" : "bg-tint-study"}`} style={{ rotate: "1.5deg" }}>
+                <Gauge chance={chance} chosen={false} />
+                <span data-chance={chance}>{jobsWords(`jobs.chance.${chance}`)}</span>
+              </span>
+            </span>
           </span>
         </span>
       </button>
@@ -200,7 +209,7 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
         <span className="font-medium" id="jobs-pick">
           {jobsWords("jobs.pick")}
         </span>
-        <ul role="radiogroup" aria-labelledby="jobs-pick" className="flex flex-col" data-jobs>
+        <ul role="radiogroup" aria-labelledby="jobs-pick" className="flex flex-col gap-2" data-jobs>
           {jobs.map((id) => (
             <JobRow key={id} view={view} id={id} chance={huntBand(chanceOf(view, id))} chosen={id === chosen} onPick={onPick} />
           ))}
