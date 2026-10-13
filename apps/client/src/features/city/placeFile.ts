@@ -73,7 +73,7 @@ export interface Stage {
    * One sun and one sky light, set by the place (R-ASSET-006) and turned and tinted by the world's clock (R-CLOCK-033);
    * `lamps` are the warm points that glow as the light goes: the bulb, the lantern, the street's few lights.
    */
-  light: { sun: Vec3; sky: PaletteName; ground: PaletteName; lamps?: Lamp[] };
+  light: { sun: Vec3; sky: PaletteName; ground: PaletteName; lamps?: Lamp[]; room?: boolean };
   /** Where the player's character stands on entering, and which way it faces. */
   start: Spot;
   /** The ground people may walk on, as polygons of [x, z] in metres (assets.md R-ASSET-030); the whole ground when absent. */
@@ -134,6 +134,8 @@ export interface Lamp {
   size: number;
   /** A bulb seen hanging there; a lantern or a window shows only its glow. */
   bulb?: boolean;
+  /** A real light there as the lamps come on, its strength at full night and how far it reaches in metres: the rooms' light (the design). */
+  light?: { strength: number; reach: number };
 }
 
 /**

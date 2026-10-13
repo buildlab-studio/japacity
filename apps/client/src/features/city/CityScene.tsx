@@ -10,7 +10,7 @@ import { onWalkable } from "@japacity/assets";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import type { WorldClock } from "@japacity/sim";
-import { Box3, type Camera, Color, type DirectionalLight, Fog, type HemisphereLight, type Mesh, type Object3D, PerspectiveCamera, Vector3 } from "three";
+import { Box3, type Camera, Color, type DirectionalLight, Fog, type HemisphereLight, type Mesh, type Object3D, PerspectiveCamera, PointLight, Vector3 } from "three";
 
 import { keptStyleOf } from "../../authority/person";
 import { wear } from "../../shared/frontdoor/colours";
@@ -23,7 +23,7 @@ import { glowAt, loadGrids } from "../../shared/three/motion";
 import { poseFigure } from "../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { limitMotion } from "./limits";
-import { type Look, lookAt, mixLooks, mixSeen, ownHeightOf, skyLightOf, skyOf, sunAt, useDayClock } from "./daylight";
+import { type Look, lookAt, mixLooks, mixSeen, ownHeightOf, ROOM_LIGHT, roomLook, skyLightOf, skyOf, sunAt, useDayClock } from "./daylight";
 import { filesOf, type Room, showsFor, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { chipNode } from "./chip";
@@ -237,10 +237,17 @@ function Place(props: PlaceProps) {
   const peopleKey = people.map((shown) => `${shown.person.file}:${String(shown.tag)}`).join("|");
   // The day's look by the world's clock, and the look the lights stand at now, easing toward it (R-CLOCK-033).
   const { part, minute } = props.day;
-  const target = useMemo(() => lookAt(part, minute, stage.light.sun), [part, minute, stage.light.sun]);
+  // The rooms' light (the design): a room's look is warmed and brightened by day, its own sky pale and cool.
+  const roomLit = stage.light.room === true;
+  const target = useMemo(() => {
+    const look = lookAt(part, minute, stage.light.sun);
+    return roomLit ? roomLook(look) : look;
+  }, [part, minute, stage.light.sun, roomLit]);
   const look = useRef<Look | null>(null);
   const daylit = useRef<{ look: Look | null; sun: [number, number, number]; sky: Color; light: Color; ground: Color; background: Color; fog: Color }>({ look: null, sun: [0, 0, 0], sky: new Color(), light: new Color(), ground: new Color(), background: new Color(), fog: new Color() });
   const lamps = useRef<Object3D[]>([]);
+  /** The rooms' real lights at their lamps, each with its strength at full night (the design). */
+  const lights = useRef<{ point: PointLight; strength: number }[]>([]);
   const fx = useRef<{ objects: Object3D[]; from: number; to: number }[]>([]);
 
   /** Starts the walk to a thing; false when the character already stands at it. */
@@ -389,9 +396,23 @@ function Place(props: PlaceProps) {
       world.root.add(lamp);
     }
     lamps.current = made;
+    // A room's bulb and lantern light it at night: real lights, there by day at nothing so the room's shaders never change.
+    const lit = (stage.light.lamps ?? []).flatMap((lamp) => {
+      if (lamp.light === undefined) return [];
+      const point = new PointLight(ROOM_LIGHT.lamp, lamp.light.strength * (look.current?.lamps ?? 0), lamp.light.reach, 1.6);
+      point.position.set(...lamp.at);
+      world.root.add(point);
+      return [{ point, strength: lamp.light.strength }];
+    });
+    lights.current = lit;
     return () => {
       for (const lamp of made) disposeFx(lamp);
+      for (const { point } of lit) {
+        point.removeFromParent();
+        point.dispose();
+      }
       lamps.current = [];
+      lights.current = [];
     };
   }, [world, stage.light.lamps]);
 
@@ -599,13 +620,15 @@ function Place(props: PlaceProps) {
     if (lit.look !== day) {
       lit.look = day;
       lit.sun = sunAt(stage.light.sun, day);
-      lit.sky.copy(skyOf(colourOf(stage.light.sky), day));
-      lit.light.copy(skyLightOf(colourOf(stage.light.sky), day));
-      lit.ground.copy(colourOf(stage.light.ground)).multiplyScalar(day.groundShare);
-      // The haze leans the sky toward the ground less as the ground goes dark, so the night stays blue.
-      lit.background.copy(mixSeen(lit.sky, lit.ground, settings.haze.sky * day.groundShare));
-      lit.fog.copy(mixSeen(lit.sky, lit.ground, settings.haze.fog * day.groundShare));
+      // A room's own sky is the rooms' pale one, its sky light cool and its floor's bounce warm (the design).
+      lit.sky.copy(skyOf(roomLit ? new Color(ROOM_LIGHT.backdrop) : colourOf(stage.light.sky), day));
+      lit.light.copy(skyLightOf(roomLit ? new Color(ROOM_LIGHT.sky) : colourOf(stage.light.sky), day));
+      lit.ground.copy(roomLit ? new Color(ROOM_LIGHT.ground) : colourOf(stage.light.ground)).multiplyScalar(day.groundShare);
+      // The haze leans the sky toward the ground less as the ground goes dark, so the night stays blue; a room has no haze.
+      lit.background.copy(roomLit ? lit.sky : mixSeen(lit.sky, lit.ground, settings.haze.sky * day.groundShare));
+      lit.fog.copy(roomLit ? lit.sky : mixSeen(lit.sky, lit.ground, settings.haze.fog * day.groundShare));
       for (const lamp of lamps.current) glowAt(lamp, day.lamps);
+      for (const { point, strength } of lights.current) point.intensity = strength * day.lamps;
     }
     const light = sun.current;
     if (light !== null) {

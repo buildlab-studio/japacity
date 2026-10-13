@@ -167,9 +167,17 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     expect(Math.max(...near) - Math.min(...near)).toBeGreaterThan(1.6);
   });
 
-  test(`[R-CLOCK-033] [R-WORLD-005] given ${home.id}'s light, when it is read, then the sun and the sky light are the place's own and a bulb glows as the light goes, every lamp inside the house`, () => {
+  test(`[R-CLOCK-033] [R-WORLD-005] given ${home.id}'s light, when it is read, then it takes the rooms' light (the design), a bulb glows as the light goes with a real light at it, every lamp inside the house and every lamp's light reaching a room or two, never the whole street`, () => {
+    expect(stage.light.room).toBe(true);
     const lamps = stage.light.lamps ?? [];
-    expect(lamps.some((lamp) => lamp.bulb === true)).toBe(true);
+    expect(lamps.some((lamp) => lamp.bulb === true && lamp.light !== undefined)).toBe(true);
+    for (const lamp of lamps) {
+      expect(lamp.light?.strength ?? 0).toBeGreaterThan(0);
+      expect(lamp.light?.reach ?? 0).toBeGreaterThan(0);
+      expect(lamp.light?.reach ?? 99).toBeLessThanOrEqual(10);
+    }
+    // A handful of real lights at most, so a phone keeps its frame (assets.md R-ASSET-007's interiors).
+    expect(lamps.length).toBeLessThanOrEqual(5);
     const walls = outer(home);
     for (const lamp of lamps) {
       expect(lamp.at[0]).toBeGreaterThanOrEqual(walls.x0);
