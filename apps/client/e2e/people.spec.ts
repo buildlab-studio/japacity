@@ -8,7 +8,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { content } from "../../../packages/content/src/index";
 import type { Game } from "../../../packages/sim/src/testing/play";
 import { start } from "../../../packages/sim/src/testing/play";
-import { doAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeReady, putPhoneAway, seedSave, sleepTheMonth } from "./live";
+import { doAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeReady, putPhoneAway, seedSave, sleepTheMonth, bedThing } from "./live";
 
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -209,7 +209,7 @@ test("[R-WORLD-006] [R-INTERVIEW-004] the interview asks one question at a time 
   // The bed will not turn the month while the interview waits (R-INTERVIEW-004): Sleep is refused and nothing turns.
   await intoTheRoom(page);
   const age = (await page.locator("[data-band]").textContent())?.match(/\d+ yrs \d+ mo/)?.[0] ?? "";
-  await doAct(page, "bed", "end-month");
+  await doAct(page, await bedThing(page), "end-month");
   await page.locator("[data-night-teach-ok]").click({ timeout: 2000 }).catch(() => undefined);
   await expect(page.locator("[data-asleep]")).toHaveCount(0);
   await page.waitForTimeout(3000);

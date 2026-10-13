@@ -339,7 +339,7 @@ function PlanHead({ route }: { route: Id<"route"> }) {
   const [before = "", after = ""] = phoneWords("phone.japa.plan", { route: "\u0000" }).split("\u0000");
   return (
     <>
-      <div className="text-[20px] leading-tight font-bold" data-japa-plan={route}>
+      <div className="text-[24px] leading-tight font-bold" data-japa-plan={route}>
         {before}
         <span data-japa-route={route}>{nameOf(route)}</span>
         {after}

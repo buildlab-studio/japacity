@@ -355,7 +355,8 @@ test("a life abroad answers the December visit and changes money", async ({ page
 /** The japacity figure in the Japa app: its face and size as the browser draws it. */
 async function japaFigure(page: Page): Promise<{ family: string; size: number }> {
   const japa = await openApp(page, "japa");
-  const figure = japa.locator("[data-japa-percent]");
+  // How ready you are is a bar, never a figure (R-WORLD-019 as the phone wave amended it); the way's name is the figure said large.
+  const figure = japa.locator("[data-japa-plan]");
   await expect(figure).toBeVisible();
   return figure.evaluate((element) => {
     const style = getComputedStyle(element);
@@ -428,6 +429,7 @@ test.describe("the side job on a 390 px phone", () => {
     expect(await side.locator("p").first().evaluate((name) => name.scrollWidth <= name.clientWidth)).toBe(true);
     expect(quit.x).toBeGreaterThanOrEqual(words.x + words.width);
     expect(quit.x + quit.width).toBeLessThanOrEqual(screen.x + screen.width);
-    expect(words.width).toBeGreaterThan(row.width * 0.5);
+    // The card gives the picture tile its square and the button its width; the words take more room than the button.
+    expect(words.width).toBeGreaterThan(quit.width);
   });
 });

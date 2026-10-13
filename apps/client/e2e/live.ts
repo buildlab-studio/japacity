@@ -85,11 +85,24 @@ export async function fanAct(page: Page, thing: string, activity: string): Promi
   await button.click({ timeout: 10_000 });
 }
 
-/** Into the home's room, where the bed stands, from the yard (R-WORLD-013); nothing when already inside. */
+/** The bed's mark in whichever home the life is in: the family's mattress, the room's bed, the hostel's bunk (decision 0040). */
+const BED_MARKS = '[data-mark="mattress"], [data-mark="bed"], [data-mark="bunk"]';
+
+/** The bed's thing id in this home, read from its mark; the family's mattress when none is drawn yet. */
+export async function bedThing(page: Page): Promise<string> {
+  const mark = page.locator(BED_MARKS).first();
+  if ((await mark.count()) === 0) return "mattress";
+  return (await mark.getAttribute("data-mark")) ?? "mattress";
+}
+
+/**
+ * To the home's bed: a wide home is seen whole, so the bed stands in view (decision 0040); an older place with a yard and a
+ * house door (R-WORLD-013) is entered first. Nothing when the bed already shows.
+ */
 export async function intoTheRoom(page: Page): Promise<void> {
-  if ((await page.locator('[data-mark="bed"]').count()) > 0) return;
-  await doAct(page, "house", "enter");
-  await page.locator('[data-mark="bed"]').waitFor({ state: "attached", timeout: 60_000 });
+  if ((await page.locator(BED_MARKS).count()) > 0) return;
+  if ((await page.locator('[data-mark="house"], [data-thing-chip="house"]').count()) > 0) await doAct(page, "house", "enter");
+  await page.locator(BED_MARKS).first().waitFor({ state: "attached", timeout: 60_000 });
   await placeReady(page);
 }
 
@@ -138,7 +151,7 @@ export async function passMoments(page: Page, timeout = 30_000, seen?: () => Pro
 export async function sleepTheMonth(page: Page, seen?: () => Promise<void>) {
   await passCards(page);
   await intoTheRoom(page);
-  await doAct(page, "bed", "end-month");
+  await doAct(page, await bedThing(page), "end-month");
   const firstNight = page.locator("[data-night-teach-ok]");
   if (await firstNight.waitFor({ state: "visible", timeout: 1500 }).then(() => true, () => false)) await firstNight.click();
   await passMoments(page, 30_000, seen);
