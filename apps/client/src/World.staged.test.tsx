@@ -5,17 +5,17 @@ import type { PlayerView, ReportLine } from "@japacity/sim";
 import { act, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { engineView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
-import { words } from "../../shared/words/text";
-import { linesNow } from "../../shared/world/Lines";
-import type { Act, Thing } from "../../shared/world/contract";
-import { Results } from "../turn/Results";
-import { City, RESULTS_BEAT_MS } from "./City";
+import { engineView } from "./shared/testing/fixtures";
+import { renderWithView } from "./shared/testing/render";
+import { words } from "./shared/words/text";
+import { linesNow } from "./shared/world/Lines";
+import type { Act, Thing } from "./shared/world/contract";
+import { Results } from "./features/turn/Results";
+import { City, RESULTS_BEAT_MS } from "./features/city/City";
 
 type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act } | { kind: "own" } | { kind: "person"; slot: number } | { kind: "model"; file: string; signs: string[] };
 
-vi.mock("./CityScene", () => ({
+vi.mock("./features/city/CityScene", () => ({
   default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
     <div data-stand-in-scene>
       <button type="button" data-stand-in-own onClick={() => onPick({ kind: "own" })} />
@@ -34,11 +34,11 @@ vi.mock("./CityScene", () => ({
 }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../../shared/three/manifest")>();
+vi.mock("./shared/three/manifest", async (original) => {
+  const real = await original<typeof import("./shared/three/manifest")>();
   const fs = await import("node:fs");
   const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "..", "public", "assets");
+  const assets = path.join(import.meta.dirname, "..", "public", "assets");
   return {
     ...real,
     loadManifest: () => Promise.resolve({ files: {} }),

@@ -80,7 +80,7 @@ import { KIOSK, opensKiosk, withKiosk } from "./kiosk";
 import { namedThings } from "./mark";
 import { sameLine } from "../../shared/moment/moment";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
-import { onMap } from "../map/pins";
+import { onMap } from "../../shared/world/rentedHomes";
 import { LoadingNote } from "./LoadingNote";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
 

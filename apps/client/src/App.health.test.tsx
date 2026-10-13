@@ -3,13 +3,13 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { App } from "../../App";
-import { createGameStore } from "../../authority/store";
-import { chargedLivingGame, engineView, fakeAuthority, viewAfter } from "../../shared/testing/fixtures";
-import { found, renderWithView } from "../../shared/testing/render";
-import { nameOf, say } from "../../shared/words/text";
-import { phoneWords } from "../phone/phone.words";
-import { RunDownBanner } from "./RunDownBanner";
+import { App } from "./App";
+import { createGameStore } from "./authority/store";
+import { chargedLivingGame, engineView, fakeAuthority, viewAfter } from "./shared/testing/fixtures";
+import { found, renderWithView } from "./shared/testing/render";
+import { nameOf, say } from "./shared/words/text";
+import { phoneWords } from "./features/phone/phone.words";
+import { RunDownBanner } from "./features/health/RunDownBanner";
 
 const WELLBEING = "quality.wellbeing";
 const health = content.tuning.health;

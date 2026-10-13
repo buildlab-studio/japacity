@@ -4,7 +4,10 @@ import { content } from "@japacity/content";
 import { rideFare } from "@japacity/sim";
 
 import type { Pin, PinState, RideChoice } from "../../shared/world/contract";
+import { onMap, RENTED_HOMES } from "../../shared/world/rentedHomes";
 import { mapWords, WAYS } from "./map.words";
+
+export { onMap, RENTED_HOMES };
 import type { Position } from "./paper/fit";
 
 /** A pin as the city hands it: the contract's, with the line optional until the city gives one. */
@@ -39,14 +42,6 @@ export interface PinsInput {
  * The pins of the map: only built places (and the home), each here, home, been, can go or not yet.
  * Until the published models are known every place with a position stands, as the city's list did.
  */
-/** A rented home is on the map only while it is lived in (home.md R-HOME-010); the family house keeps its place. */
-export const RENTED_HOMES: ReadonlySet<string> = new Set(["place.compound-room", "place.hostel-room"]);
-
-/** Whether a place may stand on the map at all: a rented room or the hostel only as the home lived in (city.md's rows under R-HOME-010, R-HOME-002). */
-export function onMap(id: string, home: string | null): boolean {
-  return !RENTED_HOMES.has(id) || id === home;
-}
-
 export function mapPins({ places, here, home, homeSpot, been, built, open, name }: PinsInput): MapPin[] {
   return places
     .filter((place) => place.id === home || (onMap(place.id, home) && place.position !== null && (built === null || built.has(place.id))))

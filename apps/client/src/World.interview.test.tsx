@@ -7,20 +7,20 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { PlayerView } from "@japacity/sim";
 
-import { optionWords } from "../../shared/sim/people";
-import { engineView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
-import { interviewGame, renderWithGame } from "../../shared/testing/people";
-import { nameOf, say, words } from "../../shared/words/text";
-import type { Act, Thing } from "../../shared/world/contract";
-import { InterviewView } from "../interview/InterviewView";
-import { DECEMBER } from "../setpiece/DecemberScene";
-import { City } from "./City";
-import { SLEEP_MS } from "./sleep";
+import { optionWords } from "./shared/sim/people";
+import { engineView } from "./shared/testing/fixtures";
+import { renderWithView } from "./shared/testing/render";
+import { interviewGame, renderWithGame } from "./shared/testing/people";
+import { nameOf, say, words } from "./shared/words/text";
+import type { Act, Thing } from "./shared/world/contract";
+import { InterviewView } from "./features/interview/InterviewView";
+import { DECEMBER } from "./features/setpiece/DecemberScene";
+import { City } from "./features/city/City";
+import { SLEEP_MS } from "./features/city/sleep";
 
 type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act } | { kind: "own" } | { kind: "person"; slot: number } | { kind: "model"; file: string; signs: string[] };
 
-vi.mock("./CityScene", () => ({
+vi.mock("./features/city/CityScene", () => ({
   default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
     <div data-stand-in-scene>
       <button type="button" data-stand-in-own onClick={() => onPick({ kind: "own" })} />
@@ -39,11 +39,11 @@ vi.mock("./CityScene", () => ({
 }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../../shared/three/manifest")>();
+vi.mock("./shared/three/manifest", async (original) => {
+  const real = await original<typeof import("./shared/three/manifest")>();
   const fs = await import("node:fs");
   const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "..", "public", "assets");
+  const assets = path.join(import.meta.dirname, "..", "public", "assets");
   return {
     ...real,
     loadManifest: () => Promise.resolve({ files: {} }),
