@@ -595,7 +595,7 @@ export const uiText: Record<string, string> = {
   "ui.door.home.where.hostel-room": "Yaba",
   "ui.door.home.where.self-contain": "Yaba",
   "ui.door.home.costs.family-house": "Your share about {amount} a month, as you go · family around",
-  "ui.door.home.costs.makoko": "Then {amount} a month · rent next month",
+  "ui.door.home.costs.makoko": "{amount} now for the room · living as you go",
   // The move-in with the agent's and the agreement's fees, as Bills says it (R-HOME-010).
   "ui.door.home.costs.compound-room": "{movein} to move in, then {rent} a year · living {amount} a month",
   "ui.door.home.costs.hostel-room": "Then {rent} a month · no year's rent",
