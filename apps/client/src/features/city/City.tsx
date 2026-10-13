@@ -314,6 +314,7 @@ function device(): Device {
     finePointer: typeof window.matchMedia === "function" && window.matchMedia("(pointer: fine)").matches,
     width: window.innerWidth,
     pixelRatio: window.devicePixelRatio,
+    memory: (navigator as { deviceMemory?: number }).deviceMemory ?? null,
   };
 }
 
@@ -1850,7 +1851,7 @@ export function City({
             </CentredColumn>
           ) : null}
           <SpeechBubble hidden={!worldFree || !callouts.bubble} anchored={drawing && ready} />
-          {drawing && ready && sample !== null ? <Emotes people={sample.people} hidden={!worldFree || !settled || asleep !== null || openingUp} /> : null}
+          {drawing && ready && sample !== null ? <Emotes people={sample.people} hidden={!worldFree || !settled || asleep !== null || openingUp} onTap={(slot) => readPick({ kind: "person", slot })} /> : null}
           {fanned !== null && fanEntries !== null && picked?.kind === "thing" ? (
             <Fan key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} onPreview={setBandPreview} />
           ) : null}

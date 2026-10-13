@@ -18,12 +18,23 @@ export interface Device {
   width: number;
   /** The device's own pixel ratio. */
   pixelRatio: number;
+  /** The device's memory in gigabytes where the browser says (Chrome's `deviceMemory`, capped at 8); null where it does not (Safari). */
+  memory?: number | null;
 }
 
-/** A phone starts in low; a desktop (a fine pointer and a wide window) starts in high. */
+/** How much memory a phone needs to start in high; below it, or with a coarse screen, a phone starts in low and rises when its frames allow. */
+export const PHONE_HIGH_MEMORY_GB = 4;
+
+/**
+ * A desktop (a fine pointer and a wide window) starts in high. A phone with a sharp screen and enough memory, or a memory the
+ * browser keeps to itself, starts in high too and drops if its frames are slow (R-CITY-019 as amended 13 Oct 2026: the rise
+ * from low read as a jump in quality a moment into the first place); a coarse or small phone starts in low and rises.
+ */
 export function startingMode(device: Device, city: CityTuning, choice: ModeChoice = "auto"): Mode {
   if (choice !== "auto") return choice;
-  return device.finePointer && device.width >= city.desktopMinWidth ? "high" : "low";
+  if (device.finePointer && device.width >= city.desktopMinWidth) return "high";
+  const memory = device.memory ?? null;
+  return device.pixelRatio >= 2 && (memory === null || memory >= PHONE_HIGH_MEMORY_GB) ? "high" : "low";
 }
 
 export interface FrameWatch {
