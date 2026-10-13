@@ -68,8 +68,8 @@ export function CarFacts({ owed }: { owed: Owed }) {
   const canHandBack = paid >= half;
   return (
     <div className="flex flex-col gap-2" data-car>
-      <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={price} aria-valuenow={paid} className="relative h-3 w-full rounded-full bg-sheet-2">
-        <div className="h-full rounded-full bg-tint-money" style={{ width: at(paid, price), background: "var(--money-ink)" }} />
+      <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={price} aria-valuenow={paid} className="relative h-3 w-full rounded-[5px] bg-sheet-2">
+        <div className="h-full rounded-[5px] bg-tint-money" style={{ width: at(paid, price), background: "var(--money-ink)" }} />
         <span aria-hidden="true" className="absolute -top-1 h-5 w-0.5 bg-text" style={{ left: at(third, price) }} />
         <span aria-hidden="true" className="absolute -top-1 h-5 w-0.5 bg-text" style={{ left: at(half, price) }} />
       </div>

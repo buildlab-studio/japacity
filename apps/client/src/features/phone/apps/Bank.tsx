@@ -894,7 +894,7 @@ function CreditCard({ view, file }: { view: PlayerView; file: NonNullable<Player
       <div role="meter" aria-label={say("ui.credit.mark", { mark: file.mark })} aria-valuemin={0} aria-valuemax={MARK_MAX} aria-valuenow={file.mark} className="relative mt-2 mb-1 h-3.5 rounded-[5px] bg-sheet shadow-[inset_0_0_0_1.5px_var(--sheet-line)]">
         <div className="h-full rounded-[5px] bg-[var(--tick)]" style={{ width: `${String(Math.min(MARK_MAX, file.mark))}%` }} />
         {file.needs.map((need) => (
-          <span key={need.id} aria-hidden="true" className={`absolute -top-1 h-5.5 w-0.5 rounded-full ${need.creditMin <= file.mark ? "bg-[var(--money-ink)]" : "bg-text"}`} style={{ left: `${String(need.creditMin)}%` }} />
+          <span key={need.id} aria-hidden="true" className={`absolute -top-1 h-5.5 w-0.5 rounded-[1px] ${need.creditMin <= file.mark ? "bg-[var(--money-ink)]" : "bg-text"}`} style={{ left: `${String(need.creditMin)}%` }} />
         ))}
       </div>
       <div className="mt-2 flex flex-wrap gap-1.5">
