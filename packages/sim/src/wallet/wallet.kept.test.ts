@@ -14,7 +14,8 @@ import type { WalletEvent } from "./wallet.events";
 
 type Closed = Extract<WalletEvent, { type: "wallet/month-closed" }>;
 /** A meal bought and eaten at once (R-HOME-012, decision 0035). */
-const MEAL: Id<"activity"> = "activity.cook-at-home";
+// A meal of your own since the home's wave: the family house's pot is free.
+const MEAL: Id<"activity"> = "activity.cook-own";
 
 const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };
 

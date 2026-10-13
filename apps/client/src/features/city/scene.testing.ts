@@ -1,6 +1,6 @@
 // What the scene's tests read: every built place's file as the client sees it, and a camera drawn
 // the way the scene draws it, so a test can ask where a point of the place falls on the screen.
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { PerspectiveCamera, Vector3 } from "three";
@@ -10,10 +10,10 @@ import { SHOT_FOV, SHOT_NEAR_PLANE } from "./shot";
 
 const PLACES = join(import.meta.dirname, "..", "..", "..", "public", "assets", "places");
 
-/** Every place file shipped under public/assets/places, by its folder. */
+/** Every place file shipped under public/assets/places, by its folder; a folder of shared models only has none. */
 export function builtPlaces(): { folder: string; file: PlaceFile }[] {
   return readdirSync(PLACES, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && existsSync(join(PLACES, entry.name, "place.json")))
     .map((entry) => ({ folder: entry.name, file: JSON.parse(readFileSync(join(PLACES, entry.name, "place.json"), "utf8")) as PlaceFile }));
 }
 
@@ -21,8 +21,8 @@ export function builtPlaces(): { folder: string; file: PlaceFile }[] {
 export const SCREENS = { phone: 390 / 844, small: 360 / 640, sideways: 844 / 390, tablet: 820 / 1180, desktop: 1440 / 900 } as const;
 
 /** A camera standing and looking where the scene would put it, on a screen of that shape. */
-export function cameraAt(aim: { position: [number, number, number]; target: [number, number, number] }, aspect: number): PerspectiveCamera {
-  const camera = new PerspectiveCamera(SHOT_FOV, aspect, SHOT_NEAR_PLANE, 240);
+export function cameraAt(aim: { position: [number, number, number]; target: [number, number, number]; fov?: number }, aspect: number): PerspectiveCamera {
+  const camera = new PerspectiveCamera(aim.fov ?? SHOT_FOV, aspect, SHOT_NEAR_PLANE, 240);
   camera.position.set(...aim.position);
   camera.lookAt(...aim.target);
   camera.updateMatrixWorld(true);

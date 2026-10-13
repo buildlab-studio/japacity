@@ -14,9 +14,10 @@ describe("living by hand", () => {
     const bank = game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash;
     game.endTurn();
     expect(game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash).toBe(bank);
-    const price = content.activity["activity.cook-at-home"]!.cost[0]!.amount;
+    // A meal bought and cooked is a meal of your own; the family house's pot is the house's (pot.test.ts).
+    const price = content.activity["activity.cook-own"]!.cost[0]!.amount;
     if (typeof price !== "number") throw new Error("The meal's price is not a fixed figure.");
-    game.accept({ type: "activity/now", activity: "activity.cook-at-home", param: null });
+    game.accept({ type: "activity/now", activity: "activity.cook-own", param: null });
     expect(game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash).toBe(bank - price);
   });
 

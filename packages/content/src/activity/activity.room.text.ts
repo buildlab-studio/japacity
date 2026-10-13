@@ -1,10 +1,14 @@
 // Names and blurbs for the room's basics (obligation.md R-OBLIGATION-014), and the results line each
 // relief is told with when the upkeep's charge falls. First drafts.
 export const activityRoomText: Record<string, string> = {
-  "activity.cook-at-home.name": "Indomie and egg",
-  "activity.cook-at-home.blurb": "Two packs, one egg. A morning at the burner, and you have eaten.",
-  "activity.cook-jollof.name": "Jollof for the house",
-  "activity.cook-jollof.blurb": "A weekend at the pot. The whole house eats, and the house remembers.",
+  "activity.cook-at-home.name": "Food from the pot",
+  "activity.cook-at-home.blurb": "Mama's pot is the house's. Dish yours, eat, and wash the plate.",
+  "activity.cook-jollof.name": "A big pot for the house",
+  "activity.cook-jollof.blurb": "Mama: buy the foodstuff and I will cook it. The whole house will eat this week, and they will know who bought it.",
+  "activity.cook-own.name": "Indomie and egg",
+  "activity.cook-own.blurb": "Two packs, one egg. A morning at the burner, and you have eaten.",
+  "activity.cook-own-pot.name": "A pot of jollof",
+  "activity.cook-own-pot.blurb": "A weekend at your own pot. The neighbours smell it and find a reason to greet you.",
   "activity.nap.name": "Nap",
   "activity.nap.blurb": "Twenty minutes on the mattress. Say twenty.",
   "activity.bucket-bath.name": "Bucket bath",
@@ -18,5 +22,6 @@ export const activityRoomText: Record<string, string> = {
   "activity.fill-drum.name": "Fill the drum",
   "activity.fill-drum.blurb": "Buckets from the compound's tap in the yard to the drum. The water costs nothing here.",
   "line.obligation.relief.cook-at-home": "Food, cooked at home: {amount} less.",
+  "line.obligation.relief.cook-own": "Food, cooked at home: {amount} less.",
   "line.obligation.relief.fetch-water": "Water, fetched yourself: {amount} less.",
 };

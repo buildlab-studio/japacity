@@ -29,7 +29,8 @@ export function calendarOpening(said: string | null): CalendarOpening {
   return said === "coming" ? said : null;
 }
 
-const COOK = "activity.cook-at-home";
+/** A meal at the family house's pot or one of your own: either is the cooking the chores count. */
+const COOKS: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.cook-own"]);
 const WATER = "activity.fetch-water";
 const DRUM = "activity.fill-drum";
 
@@ -64,7 +65,7 @@ export function choresWords(view: Pick<PlayerView, "obligations" | "activities">
   const done = (id: string): boolean => view.activities.some((option) => option.id === id && option.done === true);
   const upkeep = view.obligations.find((owed) => content.obligation[owed.entry]?.type === "upkeep" && (owed.relief ?? []).length > 0) ?? null;
   const reliefs = upkeep?.relief ?? [];
-  const cooked = reliefs.some((relief) => relief.source === COOK);
+  const cooked = reliefs.some((relief) => COOKS.has(relief.source));
   const water = reliefs.some((relief) => relief.source === WATER);
   if (upkeep !== null && (cooked || water)) {
     const share = reliefs.reduce((sum, relief) => sum + relief.bp, 0);
@@ -73,7 +74,7 @@ export function choresWords(view: Pick<PlayerView, "obligations" | "activities">
     if (amount > 0) return turnWords(`turn.calendar.chores.${cooked && water ? "both" : cooked ? "cook" : "water"}`, { amount: formatMoney(amount, currency) });
   }
   if (done(DRUM)) return turnWords("turn.calendar.chores.drum");
-  if (done(COOK)) return turnWords("turn.calendar.chores.cooked");
+  if ([...COOKS].some(done)) return turnWords("turn.calendar.chores.cooked");
   return null;
 }
 

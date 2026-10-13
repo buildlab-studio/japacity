@@ -13,7 +13,7 @@ import { describe, expect, test } from "vitest";
 import budgets from "../../../../../../assets-src/budgets.json";
 import { checkWalkable, placedBoxes, standingProblem } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";
-import parlourRaw from "../../../../public/assets/places/family-house-parlour/place.json";
+import parlourRaw from "../../../../public/assets/places/home-family-house/place.json";
 import placeFile from "../../../../public/assets/places/their-room/place.json";
 import hubRaw from "../../../../public/assets/places/yaba-hub/place.json";
 import { courted, linkedFriend, peopleGame, TOBI } from "../../../shared/testing/people";

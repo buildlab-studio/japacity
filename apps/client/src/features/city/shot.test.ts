@@ -103,9 +103,12 @@ describe("a room seen down its length (R-WORLD-029)", () => {
     return roomShot(shot, stage, file.scope) !== shot;
   });
 
-  test("[R-WORLD-029] given the rooms whose long side runs up the screen, when the whole view is aimed, then it looks in from no higher than the room pitch, and the room in a compound is one of them while the offices are not", () => {
+  // The homes at home are wide floors seen straight down their length since the home's wave (places/homes.test.ts); the
+  // room abroad keeps its long side up the screen.
+  test("[R-WORLD-029] given the rooms whose long side runs up the screen, when the whole view is aimed, then it looks in from no higher than the room pitch, and the room abroad is one of them while the offices and the wide homes are not", () => {
     const names = rooms.map(({ folder }) => folder);
-    expect(names).toContain("compound-room");
+    expect(names).toContain("the-room");
+    for (const home of ["home-family-house", "home-room-house", "home-hostel-house"]) expect(names).not.toContain(home);
     expect(names).not.toContain("yaba-hub");
     for (const { file } of rooms) expect(roomShot(shotOf(stageOf(file)), stageOf(file), file.scope).farPitch).toBeLessThanOrEqual(ROOM_PITCH);
   });

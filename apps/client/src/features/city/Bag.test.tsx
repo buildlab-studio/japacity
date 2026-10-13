@@ -6,7 +6,7 @@ import { act, fireEvent, screen } from "@testing-library/react";
 import { Vector3 } from "three";
 import { afterEach, describe, expect, test } from "vitest";
 
-import parlourRaw from "../../../public/assets/places/family-house-parlour/place.json";
+import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
 import roomRaw from "../../../public/assets/places/the-room/place.json";
 import { engineView, recordedGame, recordedSave } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";

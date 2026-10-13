@@ -3,8 +3,8 @@
 import { Object3D } from "three";
 import { describe, expect, test } from "vitest";
 
-import compoundRaw from "../../../public/assets/places/compound-room/place.json";
-import parlourRaw from "../../../public/assets/places/family-house-parlour/place.json";
+import compoundRaw from "../../../public/assets/places/home-room-house/place.json";
+import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
 import makokoRaw from "../../../public/assets/places/makoko/place.json";
 import roomRaw from "../../../public/assets/places/the-room/place.json";
 import { say } from "../../shared/words/text";

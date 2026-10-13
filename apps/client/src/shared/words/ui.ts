@@ -612,15 +612,23 @@ export const uiText: Record<string, string> = {
   "ui.door.home.family-house": "The family house",
   "ui.door.home.makoko": "A room on the water",
   "ui.door.home.compound-room": "Your own room",
+  "ui.door.home.hostel-room": "A hostel room",
   "ui.door.home.self-contain": "A self-contain",
   "ui.door.home.where.family-house": "Surulere",
   "ui.door.home.where.makoko": "Makoko",
   "ui.door.home.where.compound-room": "Ojuelegba",
+  "ui.door.home.where.hostel-room": "Yaba",
   "ui.door.home.where.self-contain": "Yaba",
   "ui.door.home.costs.family-house": "Then {amount} a month · family around",
   "ui.door.home.costs.makoko": "Then {amount} a month · rent next month",
   // The move-in with the agent's and the agreement's fees, as Bills says it (R-HOME-010).
   "ui.door.home.costs.compound-room": "{movein} to move in, then {rent} a year · living {amount} a month",
+  "ui.door.home.costs.hostel-room": "Then {rent} a month · no year's rent",
+  // Each home's line on the door, in the order offered (the home's wave).
+  "ui.door.home.line.compound-room": "Rent by the year, your things, your spot by the gate",
+  "ui.door.home.line.hostel-room": "Cheap, by the month, the corridor never sleeps",
+  "ui.door.home.line.family-house": "A free roof, your share for the house, Mama's parlour; one more reason to leave",
+  "ui.door.home.line.makoko": "Cheap, on the water, and some months the settlement is cleared",
   "ui.door.home.costs.self-contain": "{amount} a year with fees",
   "ui.door.home.left": "left",
   // What the band shows at Begin: the savings less the move-in; the month's living is named apart.
@@ -719,6 +727,7 @@ export const uiText: Record<string, string> = {
   "ui.page.home.family-house": "You start in the family house, Surulere",
   "ui.page.home.makoko": "You start in a room on the water, Makoko",
   "ui.page.home.compound-room": "You start in your own room, Ojuelegba",
+  "ui.page.home.hostel-room": "You start in a hostel room, Yaba",
   // One line for every home: the family house charges living costs, the others rent (R-PROLOGUE-014).
   "ui.page.home.costs": "Next month: {amount}",
   "ui.page.home.costs.prepaid": "Rent in {count} months",

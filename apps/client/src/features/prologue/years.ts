@@ -196,14 +196,14 @@ export function yearChips(trail: Trail, life: Pick<PlayerView, "scenario" | "qua
  * The home the last card chose, by the living costs it opened (R-PROLOGUE-006), from content's own answers. `prepaid`:
  * the months until a rent paid upfront is due again, for the room in a compound (R-PROLOGUE-013, R-OBLIGATION-015).
  */
-function homeChosen(view: Pick<PlayerView, "obligations">): { answer: string; amount: number; prepaid: number | null } | null {
+function homeChosen(view: Pick<PlayerView, "obligations">): { answer: string; amount: number; prepaid: number | null; rent: boolean } | null {
   for (const answer of content.prologue["home"]?.answers ?? []) {
     for (const effect of answer.effects) {
       if (effect.type !== "obligation/open" || typeof effect.amount !== "number") continue;
       const owed = view.obligations.find((obligation) => obligation.entry === effect.obligation && obligation.amount === effect.amount);
       const entry = content.obligation[effect.obligation];
       const prepaid = entry?.prepaid === true ? (entry.everyMonths ?? null) : null;
-      if (owed !== undefined && hasWords(`ui.page.home.${answer.id}`)) return { answer: answer.id, amount: owed.amount, prepaid };
+      if (owed !== undefined && hasWords(`ui.page.home.${answer.id}`)) return { answer: answer.id, amount: owed.amount, prepaid, rent: entry?.type === "rent" };
     }
   }
   return null;
@@ -217,7 +217,7 @@ export function storyChips(view: PlayerView): YearChip[] {
   const told: YearChip[] = [];
   const home = homeChosen(view);
   if (home !== null) {
-    const note = home.prepaid === null ? nextMonthWords(home.amount) : say("ui.page.home.costs.prepaid", { count: home.prepaid });
+    const note = home.prepaid === null ? nextMonthWords(home.amount, home.rent) : say("ui.page.home.costs.prepaid", { count: home.prepaid });
     told.push({ id: "home", icon: House, label: say(`ui.page.home.${home.answer}`), note, state: null });
   }
   if (sixteenPath(view) === "capital") told.push({ id: "capital", icon: Wallet, label: say("ui.page.capital"), note: formatMoney(view.pockets.NGN.bank + view.pockets.NGN.cash, "NGN"), state: null });

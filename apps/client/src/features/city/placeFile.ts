@@ -73,7 +73,7 @@ export interface Stage {
    * One sun and one sky light, set by the place (R-ASSET-006) and turned and tinted by the world's clock (R-CLOCK-033);
    * `lamps` are the warm points that glow as the light goes: the bulb, the lantern, the street's few lights.
    */
-  light: { sun: Vec3; sky: PaletteName; ground: PaletteName; lamps?: Lamp[] };
+  light: { sun: Vec3; sky: PaletteName; ground: PaletteName; lamps?: Lamp[]; room?: boolean };
   /** Where the player's character stands on entering, and which way it faces. */
   start: Spot;
   /** The ground people may walk on, as polygons of [x, z] in metres (assets.md R-ASSET-030); the whole ground when absent. */
@@ -108,6 +108,23 @@ export interface Stage {
   things?: Thing[];
   /** The place a door here opens into, as a place id (world.md R-WORLD-013): a room is just another place. */
   inside?: string;
+  /** A home's car spot, in its yard or by its gate: the car stands there while the life has one, else it is empty. */
+  car?: Spot;
+  /** A wide home's rooms: a tap on one or a pinch eases the camera in on it from the whole house. */
+  rooms?: Room[];
+}
+
+/**
+ * One room of a wide home (world.md R-WORLD-029 as the home's wave asks it amended): the floor it covers, as the corners
+ * x0, z0, x1, z1 in metres, and the view eased in on it: where it looks, how many metres across it shows and how steeply
+ * it looks down, in degrees, at the rooms' distance.
+ */
+export interface Room {
+  id: string;
+  floor: [number, number, number, number];
+  centre: Vec3;
+  width: number;
+  pitch: number;
 }
 
 /** A warm point of light the place shows as the day goes (R-CLOCK-033): where, how wide its halo, and whether a bulb hangs there. */
@@ -117,6 +134,8 @@ export interface Lamp {
   size: number;
   /** A bulb seen hanging there; a lantern or a window shows only its glow. */
   bulb?: boolean;
+  /** A real light there as the lamps come on, its strength at full night and how far it reaches in metres: the rooms' light (the design). */
+  light?: { strength: number; reach: number };
 }
 
 /**
@@ -246,8 +265,24 @@ export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<
     ...(plain.shot === undefined ? {} : { shot: plain.shot }),
     ...(plain.things === undefined ? {} : { things: plain.things }),
     ...(plain.inside === undefined ? {} : { inside: plain.inside }),
+    ...(plain.car === undefined ? {} : { car: plain.car }),
+    ...(plain.rooms === undefined ? {} : { rooms: plain.rooms }),
   };
   return { file: { ...file, stage: dressed }, crowd: dressing.crowd };
+}
+
+/** The car a home shows at its car spot. */
+export const CAR_FILE = "shared/veh/veh_car.glb";
+
+/**
+ * A home as the life's car leaves it: while the life has a car it stands at the home's car spot, the
+ * parents' yard or your own spot by the gate; with none the spot is empty. The same file when nothing changes. Parked
+ * before the place is dressed, so a dressing that clears the yard (the send-off) takes the car out with it.
+ */
+export function parkCar(file: PlaceFile, owns: boolean): PlaceFile {
+  const stage = stageOf(file);
+  if (!owns || stage.car === undefined) return file;
+  return { ...file, stage: { ...stage, models: [...stage.models, { file: CAR_FILE, at: [stage.car] }] } };
 }
 
 /**

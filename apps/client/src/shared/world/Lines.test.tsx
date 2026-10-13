@@ -6,7 +6,7 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import parlourFile from "../../../public/assets/places/family-house-parlour/place.json";
+import parlourFile from "../../../public/assets/places/home-family-house/place.json";
 import { type PlaceFile, stageOf } from "../../features/city/placeFile";
 import { cameraAt, projected } from "../../features/city/scene.testing";
 import { aimShot, roomShot, shotOf } from "../../features/city/shot";

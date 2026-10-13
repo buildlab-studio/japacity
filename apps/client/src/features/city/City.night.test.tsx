@@ -90,8 +90,7 @@ async function inTheParlour(months = 0, before: (game: ReturnType<typeof newGame
   for (let month = 0; month < months; month += 1) game.endTurn();
   before(game);
   const rendered = await renderWithGame(<City world results={(place) => <p data-results-for={place} />} />, game);
-  fireEvent.click(await waitFor(() => found('[data-stand-in-act="house:enter"]')));
-  await waitFor(() => found('[data-stand-in-thing="bed"]'), { timeout: 3000 });
+  await waitFor(() => found('[data-stand-in-thing="mattress"]'), { timeout: 3000 });
   return { game, ...rendered };
 }
 
@@ -109,7 +108,7 @@ describe("sleep, the way the month turns", () => {
     const { store, authority, game } = await inTheParlour();
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
     expect(game.view().month).toBe(0);
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     const card = found("[data-night-teach]");
     expect(card.textContent).toContain("Each night you sleep is a month of your life.");
     expect(card.textContent).toContain(say("ui.night.first"));
@@ -130,7 +129,7 @@ describe("sleep, the way the month turns", () => {
     });
     found("[data-results-for]");
     act(() => store.getState().setReportOpen(false));
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     expect(document.querySelector("[data-night-teach]")).toBeNull();
     await sleepThrough();
     expect(turns(authority.sent)).toBe(2);
@@ -140,14 +139,14 @@ describe("sleep, the way the month turns", () => {
     const { store, authority } = await inTheParlour(1);
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
     setPart(store, "morning");
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     // The sleep runs its length before the month turns (R-WORLD-025 as amended on 12 Oct 2026).
     await sleepThrough();
     expect(turns(authority.sent)).toBe(1);
     expect(store.getState().reportOpen).toBe(true);
     act(() => store.getState().setReportOpen(false));
     setPart(store, "night");
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     await sleepThrough();
     expect(turns(authority.sent)).toBe(2);
   });
@@ -235,7 +234,7 @@ describe("a spent body", () => {
 describe("the first night's card as drawn", () => {
   test("[R-WORLD-025] given a new life's first night, when the bed's Sleep is tapped, then the card has its title, the line, Not yet and Sleep; Not yet puts it away with nothing sent and nothing kept, so the next Sleep shows it again", async () => {
     const { authority } = await inTheParlour();
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     const card = found("[data-night-teach]");
     expect(card.textContent).toContain(say("ui.night.first.title"));
     expect(card.textContent).toContain(say("ui.night.first"));
@@ -244,7 +243,7 @@ describe("the first night's card as drawn", () => {
     expect(document.querySelector("[data-asleep]")).toBeNull();
     expect(turns(authority.sent)).toBe(0);
     expect(wasTaught("night", "scenario.ada")).toBe(false);
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     expect(found("[data-night-teach]")).toBeTruthy();
   });
 });

@@ -4,7 +4,7 @@
 // first entry in a life shows every name, then they fade.
 import { describe, expect, test } from "vitest";
 
-import parlourRaw from "../../../public/assets/places/family-house-parlour/place.json";
+import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
 import { chipNode } from "./chip";
 import { withMeetings } from "./meetings";
 import { sceneWords } from "./scene.words";
@@ -22,10 +22,10 @@ function thingOf(id: string) {
 describe("a thing's mark", () => {
   test("[R-WORLD-005] [R-WORLD-021] given a thing, when its mark is built, then it is a small dot with its name for a screen reader only, and a tap on it is a tap on the thing", () => {
     let tapped = 0;
-    const node = markNode(thingOf("bed"), () => (tapped += 1));
+    const node = markNode(thingOf("mattress"), () => (tapped += 1));
     showMark(node, { named: false, teaching: false, pulse: false });
-    expect(node.dataset["thingMark"]).toBe("bed");
-    expect(node.getAttribute("aria-label")).toBe(sceneWords("city.thing.bed"));
+    expect(node.dataset["thingMark"]).toBe("mattress");
+    expect(node.getAttribute("aria-label")).toBe(sceneWords("city.thing.mattress"));
     expect(node.querySelector("[data-mark-dot]")?.className).toBe("mark-dot");
     expect(node.querySelector<HTMLElement>("[data-mark-name]")?.hidden).toBe(true);
     expect(node.hasAttribute("data-named")).toBe(false);
@@ -59,15 +59,15 @@ describe("a thing's mark", () => {
   test("[R-WORLD-005] given the parlour, when the names are read, then Mama and Papa are people and a person keeps a name only while holding an ask or as the nudge's target", () => {
     expect(isPerson(thingOf("mama"))).toBe(true);
     expect(isPerson(thingOf("papa"))).toBe(true);
-    expect(isPerson(thingOf("bed"))).toBe(false);
+    expect(isPerson(thingOf("mattress"))).toBe(false);
     // The light bill open: Mama holds an ask; Papa's roof is not open, so his acts carry no ask.
-    const now = [{ ...thingOf("mama"), acts: thingOf("mama").acts }, { ...thingOf("papa"), acts: thingOf("papa").acts.filter((act) => act.stages !== "offer.roof") }, thingOf("bed")];
+    const now = [{ ...thingOf("mama"), acts: thingOf("mama").acts }, { ...thingOf("papa"), acts: thingOf("papa").acts.filter((act) => act.stages !== "offer.roof") }, thingOf("mattress")];
     expect(namedThings(now, null)).toEqual(["mama"]);
     const quiet = now.map((thing) => ({ ...thing, acts: thing.acts.filter((act) => act.stages?.startsWith("offer.") !== true) }));
     expect(namedThings(quiet, null)).toEqual([]);
     expect(namedThings(quiet, "papa")).toEqual(["papa"]);
     // A thing the nudge points at pulses, but keeps no name: only people are named.
-    expect(namedThings(quiet, "bed")).toEqual([]);
+    expect(namedThings(quiet, "mattress")).toEqual([]);
   });
 });
 

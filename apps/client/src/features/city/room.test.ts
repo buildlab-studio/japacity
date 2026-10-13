@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import familyHouse from "../../../public/assets/places/family-house/place.json";
+import familyHouse from "../../../public/assets/places/family-house-compound/place.json";
 import { type PlaceFile, stageOf } from "./placeFile";
 import { doorThing, HOUSE, insideOf, roomOf } from "./room";
 import { thingsOf } from "./things";

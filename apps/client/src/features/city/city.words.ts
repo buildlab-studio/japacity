@@ -46,6 +46,7 @@ export const cityText: Record<string, string> = {
   "city.phone.apps": "Apps",
   // The band says what a home is, in few words (R-WORLD-002).
   "city.home.compound-room": "Your room, a compound in Ojuelegba",
+  "city.home.hostel-room": "Your hostel room, Yaba",
   "city.home.family-house": "The family house",
   "city.home.makoko": "The room on the water",
   "city.home.the-room": "The shared room, {area}",
@@ -72,6 +73,8 @@ export const cityText: Record<string, string> = {
   "city.thing.papers": "Papers box",
   "city.thing.door": "Door",
   "city.thing.veranda": "Veranda",
+  "city.thing.family": "The family",
+  "city.thing.bunk": "Bunk",
   "city.thing.gate": "Gate",
   "city.thing.hub": "Hub",
   "city.thing.stop": "Bus stop",

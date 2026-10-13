@@ -1,15 +1,16 @@
-// The room in a compound in Ojuelegba (docs/rules/home.md R-HOME-010, R-HOME-006; world.md R-WORLD-029): one
-// room seen down its length with the home's five things, the mattress, the stove, the drum, the papers box and
-// the bag by the door, each with the act the parlour's has. It stages nothing of its own (R-CITY-010): while the
-// character lives there the city opens the family house's acts on its things.
+// The room in a compound in Ojuelegba (docs/rules/home.md R-HOME-010, R-HOME-006; world.md R-WORLD-029; the plan
+// section 8): your room in a wide floor with its bathroom and nook behind it and the compound's yard through your door,
+// the home's five things, the mattress, the stove, the drum by the door, the papers box and the bag, each with the act
+// the family house's has. It stages nothing of its own (R-CITY-010): while the character lives there the city opens the
+// family house's acts on its things.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import raw from "../../../../public/assets/places/compound-room/place.json";
+import raw from "../../../../public/assets/places/home-room-house/place.json";
 import { engineView, newGame, setPockets } from "../../../shared/testing/fixtures";
 import { cameraAt, projected, SCREENS } from "../scene.testing";
-import { aimShot, shotOf, WHOLE } from "../shot";
+import { aimRoom, shotOf } from "../shot";
 import { type PlaceFile, stageOf } from "../placeFile";
 import { sceneWords } from "../scene.words";
 import { byHandAt, homeStagesAt } from "../staging";
@@ -44,11 +45,12 @@ function actsNow(view: PlayerView, home: string | null): Record<string, string[]
 }
 
 describe("the room in a compound", () => {
-  test("[R-HOME-010] [R-WORLD-029] given the room's file, when it is read, then it is the room's own interior, nobody else lives in it, and its five home things carry the parlour's acts in the room's own words", () => {
+  test("[R-HOME-010] [R-WORLD-029] given the room's file, when it is read, then it is the room's own interior, nobody else lives in it, the neighbours keep to the compound's yard, and its five home things carry the family house's acts in the room's own words", () => {
     expect(file.place).toBe(ID);
     expect(file.scope).toBe("interior");
-    expect(content.place[ID]).toMatchObject({ scope: "interior", assets: "compound-room", stages: [] });
-    expect(stage.people).toEqual([]);
+    expect(content.place[ID]).toMatchObject({ scope: "interior", assets: "home-room-house", stages: [] });
+    // Your room ends at its door's wall (x 0.475); everyone else stands in the yard beyond it.
+    expect(stage.people.filter(([x]) => x < 0.475)).toEqual([]);
     const acts = (id: string) => thingOf(id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null]);
     // the mattress naps on its sheet and sleeps; while no nap can be had its act is
     // Lie down, done at once with the lying pose, as R-TURN-006 had it; an empty slot rests.
@@ -57,8 +59,9 @@ describe("the room in a compound", () => {
       ["end", null],
     ]);
     expect(thingOf("bed").acts[0]?.otherwise).toMatchObject({ id: "lie", kind: "plain", pose: "lie" });
-    expect(acts("cooking")).toEqual([["sheet", "activity.cook-at-home"]]);
-    expect(thingOf("cooking").acts[0]?.more).toEqual(["activity.cook-jollof"]);
+    // A home of your own buys its meal and its pot: the family house's pot is the house's.
+    expect(acts("cooking")).toEqual([["sheet", "activity.cook-own"]]);
+    expect(thingOf("cooking").acts[0]?.more).toEqual(["activity.cook-own-pot"]);
     // The drum is filled free from the yard's tap: its own act, not the water seller's; the bath on its sheet.
     expect(acts("drum")).toEqual([["sheet", "activity.fill-drum"]]);
     expect(thingOf("drum").acts[0]?.more).toEqual(["activity.bucket-bath"]);
@@ -66,9 +69,9 @@ describe("the room in a compound", () => {
     expect(acts("papers-box")).toEqual([["app", null]]);
     expect(thingOf("papers-box").acts[0]?.app).toBe("papers");
     expect(acts("bag")).toEqual([["command", "route/depart"]]);
-    expect(["bed", "cooking", "drum", "papers-box", "bag", "door"].map((id) => sceneWords(thingOf(id).label))).toEqual(["Mattress", "Stove", "Water drum", "Papers box", "Bag", "Door"]);
-    // The bag and the drum stand by the door, where the water comes in from the yard's tap.
-    const door = thingSpot(stage, thingOf("door"));
+    expect(["bed", "cooking", "drum", "papers-box", "bag", "out"].map((id) => sceneWords(thingOf(id).label))).toEqual(["Mattress", "Stove", "Water drum", "Papers box", "Bag", "Door"]);
+    // The bag and the drum stand by the door, the drum just outside it, where the water comes from the yard's tap.
+    const door = thingSpot(stage, thingOf("out"));
     for (const id of ["bag", "drum"]) {
       const spot = thingSpot(stage, thingOf(id));
       if (spot === null || door === null) throw new Error(`${id} or the door stands nowhere`);
@@ -93,19 +96,23 @@ describe("the room in a compound", () => {
     expect(elsewhere["drum"]).toBeUndefined();
   });
 
-  test("[R-HOME-010] [R-WORLD-029] given the room in a compound, about 4 by 3.5 metres, when it opens whole on a phone held upright, then its five things stand within a few steps of the character at the door, and the character reads at a phone's size: over 7 in a hundred of the screen's height, where the room of 16 by 9 metres gave it 3", () => {
+  test("[R-HOME-010] [R-WORLD-029] given the room in a compound as a wide floor, about 5 by 5 metres of your own in a house of about 9 by 8, when it opens whole on a phone held upright, then its five things stand within a few steps of the character at the door, and the character reads at a phone's size: over 5 in a hundred of the screen's height in the whole view, where the room of 16 by 9 metres gave it 3, and over 7 eased in on your room", () => {
     const [x, z] = stage.start;
     for (const id of ["bed", "papers-box", "cooking", "drum", "bag"]) {
       const spot = thingSpot(stage, thingOf(id));
       if (spot === null) throw new Error(`${id} stands nowhere`);
-      expect({ id, close: Math.hypot(spot[0] - x, spot[1] - z) < 2.5 }).toEqual({ id, close: true });
+      expect({ id, close: Math.hypot(spot[0] - x, spot[1] - z) < 4.2 }).toEqual({ id, close: true });
     }
     const aspect = SCREENS.phone;
-    const camera = cameraAt(aimShot(shotOf(stage), WHOLE, { x, z }, aspect), aspect);
-    const foot = projected(camera, x, 0, z);
-    const head = projected(camera, x, 1.7, z);
-    // The screen runs -1 to 1 from foot to top.
-    expect((head.y - foot.y) / 2).toBeGreaterThan(0.07);
+    const room = (stage.rooms ?? []).find((one) => one.id === "room");
+    if (room === undefined) throw new Error("No room to ease in on");
+    const tall = (zoom: number): number => {
+      const camera = cameraAt(aimRoom(shotOf(stage), room, zoom, aspect), aspect);
+      // The screen runs -1 to 1 from foot to top.
+      return (projected(camera, x, 1.7, z).y - projected(camera, x, 0, z).y) / 2;
+    };
+    expect(tall(1)).toBeGreaterThan(0.05);
+    expect(tall(0)).toBeGreaterThan(0.07);
   });
 
   test("[R-HOME-006] given a life living in Makoko, when Makoko's room is read, then the family house's acts are staged on the water too", () => {

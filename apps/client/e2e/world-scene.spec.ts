@@ -219,10 +219,11 @@ test("[R-WORLD-005] [R-WORLD-021] given Bode Thomas, when a thing or its quiet m
   await expect(ride.locator("[data-act]")).toHaveCount(1);
 });
 
-test("[R-WORLD-013] given the family house, when the house's Go in is chosen, then the screen is dark for under half a second and the room opens as its own scene with the door to step outside", async ({ page }) => {
+// The family house opens whole since the home's wave, so the room behind a door is the hub's at Ojuelegba.
+test("[R-WORLD-013] given Ojuelegba, when the hub's Go in is chosen, then the screen is dark for under half a second and the room opens as its own scene with the door to step outside", async ({ page }) => {
   test.setTimeout(300_000);
   await startWorld(page);
-  await goTo(page, "place.family-house");
+  await goTo(page, "place.ojuelegba");
   // Watch the cut's darkness on every frame: how long it stands fully dark.
   await page.evaluate(() => {
     const record = { darkFrom: -1, darkTo: -1, began: -1, ended: -1, gap: 0, peak: 0 };
@@ -247,8 +248,8 @@ test("[R-WORLD-013] given the family house, when the house's Go in is chosen, th
     };
     requestAnimationFrame(watch);
   });
-  await page.locator('[data-mark="house"]').click();
-  await page.locator('[data-thing-chip="house"] [data-act="enter"]').click();
+  await page.locator('[data-mark="hub"]').click();
+  await page.locator('[data-thing-chip="hub"] [data-act="enter"]').click();
   await page.waitForFunction(() => (window as unknown as { __cut: { ended: number } }).__cut.ended > 0, null, { timeout: 60_000 });
   const cut = await page.evaluate(() => (window as unknown as { __cut: { darkFrom: number; darkTo: number; began: number; ended: number; gap: number; peak: number } }).__cut);
   console.log(`the cut: dark for ${String(Math.round(cut.darkTo - cut.darkFrom))} ms, ${String(Math.round(cut.ended - cut.began))} ms from first shade to lifting, longest stall ${String(Math.round(cut.gap))} ms`);
@@ -266,21 +267,20 @@ test("[R-WORLD-013] given the family house, when the house's Go in is chosen, th
     expect(cut.darkTo - cut.darkFrom - (cut.gap > 150 ? cut.gap : 0)).toBeLessThan(500);
   }
   // The room: its own scene, whole, with the door as its thing.
-  await waitPlace(page, "place.family-house");
   await expect(page.locator('[data-mark="door"]')).toBeVisible({ timeout: 30_000 });
   const room = await probe(page);
   expect(room?.zoom).toBe(1);
   expect(room?.fits).toEqual({ width: true, offScreen: [] });
   await page.locator('[data-mark="door"]').click();
   await page.locator('[data-thing-chip="door"] [data-act]').first().click();
-  await expect(page.locator('[data-mark="house"]')).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('[data-mark="hub"]')).toBeVisible({ timeout: 60_000 });
 });
 
 for (const mode of ["low", "high"] as const) {
   test(`[R-WORLD-011] given the ${mode} mode, when Bode Thomas and the family house are drawn, then each shows no more people than its scope allows and at most ${mode === "low" ? "no" : "one"} moving sheet, its shadow kept to the place`, async ({ page }) => {
     test.setTimeout(300_000);
     await startWorld(page, mode);
-    for (const [id, scope] of [["place.bode-thomas", "exterior"], ["place.family-house", "interior"]] as const) {
+    for (const [id, scope] of [["place.bode-thomas", "exterior"], ["place.family-house", "exterior"]] as const) {
       await goTo(page, id);
       const seen = await probe(page);
       // The player's own character is drawn beside the crowd.

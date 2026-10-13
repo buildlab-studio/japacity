@@ -169,6 +169,24 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onMiss: MISSED_MONTH,
     onDefault: [{ type: "obligation/close", obligationType: "rent" }],
   },
+  // A hostel room's rent: by the month, no year's lump, which is why it is the cheap way out of the
+  // family house. Its first month is paid on the move; from then each month's end pays the month to come, as the room
+  // in a compound's year is paid ahead. A missed month is asked for again; the third miss in a row closes it and the
+  // home kind sends the character back to the family house (R-HOME-011).
+  "obligation.upkeep-hostel": {
+    id: "obligation.upkeep-hostel",
+    type: "rent",
+    currency: "NGN",
+    amount: tuning.home.hostelRentKobo,
+    rateBp: 0,
+    term: null,
+    locksPrincipal: false,
+    sink: "rent",
+    interestSink: "rent",
+    grace: 2,
+    onMiss: MISSED_MONTH,
+    onDefault: [{ type: "obligation/close", obligationType: "rent" }],
+  },
   "obligation.home-support": {
     id: "obligation.home-support",
     // Support for the family follows the character abroad (R-PLACE-002, R-ABROAD-007).

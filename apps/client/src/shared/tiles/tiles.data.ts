@@ -14,8 +14,9 @@ const stand = (emoji: string): TileRow => ({ emoji, standIn: true });
 
 /** The home's place files, each with the prefix of its things that are the home's (Makoko's file holds the street's things too). */
 export const HOME_FILES: Readonly<Record<string, string>> = {
-  "family-house-parlour": "",
-  "compound-room": "",
+  "home-family-house": "",
+  "home-room-house": "",
+  "home-hostel-house": "",
   "the-room": "",
   makoko: "room",
 };
@@ -24,6 +25,8 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   // The room and the family.
   "activity.cook-at-home": "prop_cooking-corner",
   "activity.cook-jollof": "prop_cooking-corner",
+  "activity.cook-own": "prop_cooking-corner",
+  "activity.cook-own-pot": "prop_cooking-corner",
   "activity.nap": "prop_bed",
   "activity.bucket-bath": "prop_basins",
   "activity.fetch-water": "prop_water-drum",
@@ -178,6 +181,7 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "place.airport-lagos": "bld_terminal-front",
   "place.family-house": "bld_family-house",
   "place.compound-room": "prop_bed",
+  "place.hostel-room": "prop_bunk-bed",
   "place.their-room": "prop_plastic-chair",
   "place.the-room": "prop_window-frame",
   "place.peckham": "bld_rye-lane-terrace_a",
@@ -193,6 +197,10 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "place.tb-clinic": "prop_xray-stand",
   // The home's things, by their ids in the place files: the model each is built from.
   "thing.bed": "prop_bed",
+  "thing.mattress": "prop_mattress",
+  "thing.bunk": "prop_bunk-bed",
+  "thing.out": "prop_slippers",
+  "thing.family": "prop_centre-table",
   "thing.cooking": "prop_cooking-corner",
   "thing.drum": "prop_water-drum",
   "thing.papers-box": "prop_papers-box",

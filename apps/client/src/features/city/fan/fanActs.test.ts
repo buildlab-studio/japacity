@@ -26,6 +26,8 @@ function thingAt(folder: string, id: string): Thing {
 
 const COOK = "activity.cook-at-home";
 const JOLLOF = "activity.cook-jollof";
+const OWN = "activity.cook-own";
+const OWN_POT = "activity.cook-own-pot";
 
 /** The view with one act's option changed, as the engine would mark it. */
 function withOption(view: PlayerView, id: string, change: Partial<PlayerView["activities"][number]>): PlayerView {
@@ -34,10 +36,10 @@ function withOption(view: PlayerView, id: string, change: Partial<PlayerView["ac
 
 describe("the things that fan", () => {
   test("[R-WORLD-005] given the family house's parlour, when its things are read, then the cooking corner fans both meals in the sheet's order, the drum its water and bath, the TV its film; the bed, Mama, the table, the papers box and the door keep their chips", () => {
-    expect(fanEntriesOf(thingAt("family-house-parlour", "cooking"))?.map((one) => one.stages)).toEqual([COOK, JOLLOF]);
-    expect(fanEntriesOf(thingAt("family-house-parlour", "drum"))?.map((one) => one.stages)).toEqual(["activity.fetch-water", "activity.bucket-bath"]);
-    expect(fanEntriesOf(thingAt("family-house-parlour", "tv"))?.map((one) => one.stages)).toEqual(["activity.watch-tv"]);
-    for (const id of ["bed", "mama", "table", "papers-box", "door", "sofa", "bag"]) expect(fanEntriesOf(thingAt("family-house-parlour", id))).toBeNull();
+    expect(fanEntriesOf(thingAt("home-family-house", "cooking"))?.map((one) => one.stages)).toEqual([COOK, JOLLOF]);
+    expect(fanEntriesOf(thingAt("home-family-house", "drum"))?.map((one) => one.stages)).toEqual(["activity.fetch-water", "activity.bucket-bath"]);
+    expect(fanEntriesOf(thingAt("home-family-house", "tv"))?.map((one) => one.stages)).toEqual(["activity.watch-tv"]);
+    for (const id of ["mattress", "mama", "table", "papers-box", "out", "sofa", "bag"]) expect(fanEntriesOf(thingAt("home-family-house", id))).toBeNull();
   });
 
   test("[R-WORLD-005] given the street at Ojuelegba and Bode Thomas, when their things are read, then the suya grill, the mallam's bench, the barber and the joint fan; the hub's door, the motor park and the rides keep their chips", () => {
@@ -97,13 +99,14 @@ describe("tints and pictures", () => {
 
 describe("what a button says", () => {
   const view = engineView("scenario.ada");
-  const cooking = fanEntriesOf(thingAt("family-house-parlour", "cooking")) ?? [];
+  // A home of your own's corner, whose meal and pot are bought; the family house's pot is free.
+  const cooking = fanEntriesOf(thingAt("home-room-house", "cooking")) ?? [];
 
   test("[R-WORLD-006] given the cooking corner and the naira held, when its buttons are made, then each names its meal, its price and the balance before and after, as the sheet counts them", () => {
     const entries = fanModel(cooking, view, []);
-    expect(entries.map((entry) => entry.id)).toEqual([COOK, JOLLOF]);
+    expect(entries.map((entry) => entry.id)).toEqual([OWN, OWN_POT]);
     const held = view.pockets.NGN.bank + view.pockets.NGN.cash;
-    const price = view.activities.find((option) => option.id === COOK)?.cost[0]?.amount ?? 0;
+    const price = view.activities.find((option) => option.id === OWN)?.cost[0]?.amount ?? 0;
     expect(price).toBeGreaterThan(0);
     expect(entries[0]).toMatchObject({ name: "Indomie and egg", tint: "food", price: formatMoney(price, "NGN"), refusal: null });
     expect(entries[0]?.balance?.before.amount).toBe(held);
@@ -112,7 +115,7 @@ describe("what a button says", () => {
   });
 
   test("[R-WORLD-006] given a free act, when its button is made, then it carries no price and no balance", () => {
-    const drum = fanEntriesOf(thingAt("family-house-parlour", "drum")) ?? [];
+    const drum = fanEntriesOf(thingAt("home-family-house", "drum")) ?? [];
     const entries = fanModel(drum, view, []);
     expect(entries[0]?.price).toBeNull();
     expect(entries[0]?.balance).toBeNull();
@@ -121,13 +124,13 @@ describe("what a button says", () => {
   test("[R-WORLD-006] [R-ACTIVITY-020] given a meal the naira cannot pay, a body spent, and an act shut by a need, when the buttons are made, then each carries the refusal the sheet would say: how much is short, You are spent, and the need", () => {
     const broke = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, bank: 0, cash: 100_000 } } };
     const short = fanModel(cooking, broke, [])[0];
-    const price = view.activities.find((option) => option.id === COOK)?.cost[0]?.amount ?? 0;
+    const price = view.activities.find((option) => option.id === OWN)?.cost[0]?.amount ?? 0;
     expect(short?.refusal).toEqual({ kind: "short", words: say("ui.world.short", { amount: formatMoney(price - 100_000, "NGN") }) });
     expect(short?.balance).toBeNull();
-    const spent = fanModel(cooking, withOption(view, COOK, { allowed: false, spent: true }), [])[0];
+    const spent = fanModel(cooking, withOption(view, OWN, { allowed: false, spent: true }), [])[0];
     expect(spent?.refusal).toEqual({ kind: "spent", words: say("ui.act.spent") });
     const need = { type: "quality/min", quality: "quality.tech", value: 40 } as PlayerView["activities"][number]["missing"][number];
-    const locked = fanModel(cooking, withOption(view, COOK, { allowed: false, missing: [need] }), [])[0];
+    const locked = fanModel(cooking, withOption(view, OWN, { allowed: false, missing: [need] }), [])[0];
     expect(locked?.refusal?.kind).toBe("locked");
     expect(locked?.refusal?.words.length).toBeGreaterThan(0);
   });

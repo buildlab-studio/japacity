@@ -61,7 +61,7 @@ import { nudgeHere, stepOpen } from "./stepOpen";
 import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
-import { dancerShown, dressPlace, filesOf, openGround, type PlaceFile, showPlanned, stageOf } from "./placeFile";
+import { dancerShown, dressPlace, filesOf, openGround, parkCar, type PlaceFile, showPlanned, stageOf } from "./placeFile";
 import { HOUSE, insideOf, roomOf } from "./room";
 import { personOf, personOfLook } from "./roster";
 import type { Picked, ScenePick } from "./scene.types";
@@ -255,6 +255,7 @@ function keep(key: string, value: string[]): void {
 export function homeLine(shown: string, view: Pick<PlayerView, "place" | "home">): string | null {
   switch (shown) {
     case "place.compound-room":
+    case "place.hostel-room":
     case "place.family-house":
       return cityWords(`city.home.${shown.slice("place.".length)}`);
     case "place.makoko":
@@ -705,7 +706,9 @@ export function City({
   // An open offer the place stages dresses it (R-CITY-011): the party set and its guests at the family house. Their room is
   // dressed for the person whose room it is, who stands in it (R-WORLD-020); with no such bond it is the plain room.
   const roomPerson = entry?.id === THEIR_ROOM ? roomPartner(view) : null;
-  const dressed = useMemo(() => (plainFile === null ? null : dressPlace(plainFile, openKey === "" ? [] : openKey.split("|"), roomPerson)), [plainFile, openKey, roomPerson]);
+  // A home's car spot holds the life's car while it has one.
+  const ownsCar = view.obligations.some((owed) => owed.car !== null);
+  const dressed = useMemo(() => (plainFile === null ? null : dressPlace(parkCar(plainFile, ownsCar), openKey === "" ? [] : openKey.split("|"), roomPerson)), [plainFile, openKey, roomPerson, ownsCar]);
   const outsideFile = dressed?.file ?? null;
   // Inside, the scene is the room the place's door opens into: the file's `inside` names its folder under
   // places/, fetched with the place so the cut is quick (R-WORLD-013); the room's own file names the entry

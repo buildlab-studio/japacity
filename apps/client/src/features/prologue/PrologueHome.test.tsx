@@ -16,11 +16,13 @@ function upkeepOf(answer: string): number {
 }
 
 describe("the home card", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the card that asks where you sleep, when its answers show, then there are the family house, the room in a compound and Makoko, and each says what it costs, as every other card says its cost", async () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the card that asks where you sleep, when its answers show, then there are the family house, the room in a compound, the hostel room and Makoko, and each says what it costs, as every other card says its cost", async () => {
     const house = formatMoney(upkeepOf("family-house"), "NGN");
     const makoko = formatMoney(upkeepOf("makoko"), "NGN");
     // the room in a compound is a home again, its year's rent said.
-    expect(content.prologue.home?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "makoko"]);
+    // The hostel room joined as the fourth home (the home's wave): its month's rent said.
+    expect(content.prologue.home?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "hostel-room", "makoko"]);
+    expect(answerHint("home", "hostel-room")).toBe(`Rent: ${formatMoney(content.tuning.home.hostelRentKobo, "NGN")} a month. No year's rent to find.`);
     expect(answerHint("home", "compound-room")).toBe(`Rent: ${formatMoney(upkeepOf("compound-room"), "NGN")} a year, paid upfront with the fees. Living costs every month.`);
     expect(formatMoney(upkeepOf("compound-room"), "NGN")).toBe("₦350,000");
     expect(answerHint("home", "family-house")).toBe(`Living costs: ${house} a month.`);

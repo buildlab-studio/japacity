@@ -536,7 +536,7 @@ async function onTheRoad(run: Run, month: number): Promise<boolean> {
 }
 
 /** The homes' beds, by the thing's id in each room file, with the act that ends the month (R-WORLD-025). */
-const BEDS = ["bed", "room"] as const;
+const BEDS = ["bed", "mattress", "bunk", "room"] as const;
 const BED_END = '[data-thing-chip] [data-act="end-month"]';
 /** The bed's sleep on the driver's server, in seconds: the month turns once it runs out (R-WORLD-025). */
 const SLEEP_SECONDS = 3;

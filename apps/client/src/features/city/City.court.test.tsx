@@ -60,12 +60,7 @@ describe("the answer once courted", () => {
     game.grant(1);
     game.endTurn([]);
     const { authority } = await renderWithGame(<City world results={() => <p />} />, game);
-    // Into the parlour through the house's door.
-    fireEvent.click(await waitFor(() => {
-      const door = document.querySelector<HTMLElement>('[data-stand-in-act="house:enter"]');
-      if (door === null) throw new Error("No door to the house.");
-      return door;
-    }));
+    // The family house opens whole, its parlour with it.
     const talk = await waitFor(() => {
       const found = document.querySelector<HTMLElement>('[data-stand-in-act^="after-service:"]');
       if (found === null) throw new Error(`Tobi is not standing in the parlour. ${document.querySelector("[data-city]")?.getAttribute("data-city") ?? "no city"} ${[...document.querySelectorAll<HTMLElement>("[data-stand-in-act]")].map((one) => one.dataset.standInAct).join(",")}`);

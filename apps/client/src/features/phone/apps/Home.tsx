@@ -47,8 +47,12 @@ export function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
  */
 export function chargeWords(home: PlayerView["home"]): string {
   if (home.rent === null) return phoneWords("phone.home.charge.none");
-  // R-HOME-012 (decision 0035): nothing of the living is charged as the month turns, so no figure a month is said for it.
-  if (home.rent.amount === 0) return phoneWords("phone.home.charge.by-hand");
+  // R-HOME-012 (decision 0035): nothing of the living is charged as the month turns, so no figure a month is said for it;
+  // the family house says it as your share for the house.
+  if (home.rent.amount === 0) {
+    const byHand = home.place === null ? null : `phone.home.charge.by-hand.${home.place}`;
+    return phoneWords(byHand !== null && hasWords(byHand) ? byHand : "phone.home.charge.by-hand");
+  }
   const own = home.place === null ? null : `phone.home.charge.${home.place}`;
   return phoneWords(own !== null && hasWords(own) ? own : "phone.home.charge", { amount: home.rent });
 }

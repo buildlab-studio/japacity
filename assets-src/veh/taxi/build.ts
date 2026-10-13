@@ -18,10 +18,14 @@ export interface TaxiLivery {
   body: PaletteName;
   roof: PaletteName | null;
   checks: boolean;
+  /** The taxi's white roof light; a private car has none. */
+  roofLight?: boolean;
 }
 
 export const LAGOS_TAXI: TaxiLivery = { name: "veh_taxi", body: "danfoYellow", roof: null, checks: true };
 export const DUBAI_TAXI: TaxiLivery = { name: "veh_taxi-dubai", body: "wallCream", roof: "red", checks: false };
+/** The same saloon as a family's own car, parked in the yard by the gate: plain blue, no checks, no roof light. */
+export const OWN_CAR: TaxiLivery = { name: "veh_car", body: "blue", roof: null, checks: false, roofLight: false };
 
 export function buildTaxi(livery: TaxiLivery = LAGOS_TAXI): Group {
   const g = new Group();
@@ -59,7 +63,7 @@ export function buildTaxi(livery: TaxiLivery = LAGOS_TAXI): Group {
   }
   cbox(g, 0.02, 0.11, 0.4, 2.35, 0.4, 0, "white");
   cbox(g, 0.02, 0.11, 0.4, -2.35, 0.4, 0, "white");
-  cbox(g, 0.5, 0.16, 0.24, -0.2, 1.48 + roof, 0, "white");
+  if (livery.roofLight !== false) cbox(g, 0.5, 0.16, 0.24, -0.2, 1.48 + roof, 0, "white");
   // The wheels.
   const wheels = part(g, "wheels");
   wheels.userData.smooth = true;

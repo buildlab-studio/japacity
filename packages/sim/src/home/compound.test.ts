@@ -175,9 +175,11 @@ describe("moving into the room", () => {
     expect(game.view().home.moves).toEqual([
       { to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" },
       { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: "moved" },
+      // The fourth home, a hostel room by the month.
+      { to: "place.hostel-room", monthly: { currency: "NGN", amount: home.hostelRentKobo }, now: home.hostelRentKobo, shut: "moved" },
     ]);
     month(game);
-    expect(game.view().home.moves.map((move) => move.shut)).toEqual([null, null]);
+    expect(game.view().home.moves.map((move) => move.shut)).toEqual([null, null, null]);
   });
 });
 
@@ -398,7 +400,8 @@ describe("a start in the room (R-PROLOGUE-013)", () => {
 
   test("[R-PROLOGUE-013] given the home card, then it offers the family house, the room in a compound and Makoko, in that order, and the room's answer takes the year and the fees, opens the room's rent and upkeep and moves the life there", () => {
     const card = content.prologue["home"];
-    expect(card?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "makoko"]);
+    // The hostel room joined the card as the fourth home (the home's wave; hostel.test.ts).
+    expect(card?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "hostel-room", "makoko"]);
     const room = card?.answers.find((answer) => answer.id === "compound-room");
     expect(room?.requires).toEqual([{ type: "money/can-pay", currency: "NGN", amount: MOVE_IN + home.compound.upkeep }]);
     expect(room?.effects).toEqual([

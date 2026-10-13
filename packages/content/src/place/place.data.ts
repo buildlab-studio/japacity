@@ -23,6 +23,11 @@ const PACKED = { low: 8, high: 16, target: 12 };
 const BUSY = { low: 6, high: 12, target: 12 };
 const QUIET = { low: 3, high: 6, target: 8 };
 const FEW = { low: 2, high: 4, target: 8 };
+// The homes' own people: the family at home (Mama, Papa and two of the children), a neighbour or two in the compound's
+// yard, two in the hostel's corridor and nook.
+const FAMILY = { low: 4, high: 4, target: 4 };
+const NEIGHBOURS = { low: 1, high: 2, target: 2 };
+const CORRIDOR = { low: 2, high: 2, target: 2 };
 
 type Staged = PlaceEntry["stages"];
 
@@ -275,11 +280,12 @@ const entries: PlaceEntry[] = [
   // Home opens in the compound; the house door cuts to the parlour (docs/rules/world.md R-WORLD-014).
   // home.md R-HOME-006: the settlement on the lagoon the character may live in; its scene lands with the place builder.
   lagos("place.makoko", "Makoko", "makoko", 6495, 3390, { scope: "exterior", crowd: BUSY, traditionalBp: OFFICE, stages: ["activity.job-fish-racks"] }),
-  // On a made-up street in Surulere near the hub: the spot the map and the fares read (R-CITY-008 as amended).
+  // On a made-up street in Surulere near the hub: the spot the map and the fares read (R-CITY-008 as amended). The house
+  // is one wide floor seen whole, its yard and carport inside its walls, so it stays an exterior.
   unnamed("place.family-house", "stylised", "home", "lagos", null, {
     spot: [6507, 3359],
     scope: "exterior",
-    assets: "family-house-compound",
+    assets: "home-family-house",
     occasion: true,
     stages: [
       "activity.rest",
@@ -299,7 +305,7 @@ const entries: PlaceEntry[] = [
       // chapter.md R-CHAPTER-008: home's own send-off, the month of the grant.
       "offer.family-send-off",
     ],
-    crowd: FEW,
+    crowd: FAMILY,
     traditionalBp: STREET,
   }),
   // home.md R-HOME-010: one rented room in a shared compound in Ojuelegba, the character's home while they live there.
@@ -308,8 +314,19 @@ const entries: PlaceEntry[] = [
   unnamed("place.compound-room", "stylised", "home", "lagos", null, {
     spot: [6513, 3360],
     scope: "interior",
-    crowd: FEW,
+    assets: "home-room-house",
+    crowd: NEIGHBOURS,
     traditionalBp: STREET,
+  }),
+  // A hostel room of your own: one small room off a shared corridor, rented by the month, the cheap
+  // way out of the family house. Like the room in a compound it stages nothing of its own; its made-up spot is in Yaba,
+  // where the hostels by the colleges are, and the map shows it only as home.
+  unnamed("place.hostel-room", "stylised", "home", "lagos", null, {
+    spot: [6512, 3378],
+    scope: "interior",
+    assets: "home-hostel-house",
+    crowd: CORRIDOR,
+    traditionalBp: CAMPUS,
   }),
   unnamed("place.motor-park", "stylised", "home", "lagos", null, {
     scope: "exterior",
@@ -355,7 +372,7 @@ const entries: PlaceEntry[] = [
   unnamed("place.their-room", "stylised", "home", "lagos", null, { stages: ["activity.see-someone"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.the-room", "stylised", "abroad", null, null, {
     // The bed, the window and the laptop in the room abroad (R-WORLD-025; R-CITY-010 lets the country-less room stage what a country's own place also stages).
-    stages: ["activity.rest", "activity.community-uk", "activity.community-ca", "activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-at-home"],
+    stages: ["activity.rest", "activity.community-uk", "activity.community-ca", "activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own"],
     crowd: FEW,
     traditionalBp: OFFICE,
   }),

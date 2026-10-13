@@ -23,11 +23,12 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
 }
 
 describe("the month's story on the results", () => {
-  test("[R-WORLD-008] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, before what was kept, and the meal bought by hand is not listed again", async () => {
+  test("[R-WORLD-008] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, before what was kept, and the foodstuff bought by hand is not listed again", async () => {
     const game = newGame("scenario.ada");
     // Decision 0035 (R-HOME-012): no living is charged as the month turns at home, so the money of the month is what was
-    // paid at the act: a meal cooked mid-month, which the results count with the month's own lines.
-    const { lines: meal } = game.accept({ type: "activity/now", activity: "activity.cook-at-home", param: null });
+    // paid at the act: the big pot's foodstuff bought mid-month (the family house's meals from the pot are free, the plan
+    // section 2), which the results count with the month's own lines.
+    const { lines: meal } = game.accept({ type: "activity/now", activity: "activity.cook-jollof", param: null });
     expect(moneyLines(meal)).toHaveLength(1);
     const { lines } = game.endTurn([slot("activity.job-hunt", TEACHER)]);
     const hired = lines.find((each) => each.key === "line.activity.hunt-hired");

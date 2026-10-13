@@ -74,7 +74,7 @@ function found(selector: string): HTMLElement {
 
 /** Ada at home with a month behind her and something planned. */
 async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn = true) {
-  // In the yard unless the test keeps the player inside (R-WORLD-014: the game opens where the player last stopped).
+  // At the family house unless the test opens elsewhere (R-WORLD-014: the game opens where the player last stopped).
   if (goIn) window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
   const game = newGame("scenario.ada");
   game.endTurn();
@@ -82,9 +82,8 @@ async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn =
     <City world results={(place) => <p data-results-for={place} />} phone={(close) => <button type="button" data-stand-in-phone onClick={close} />} {...extra} />,
     game,
   );
-  // The compound first; the house's Go in cuts to the parlour (R-WORLD-013).
-  if (goIn) fireEvent.click(await waitFor(() => found('[data-stand-in-act="house:enter"]')));
-  await waitFor(() => found('[data-stand-in-thing="bed"]'), { timeout: 3000 });
+  // The house opens whole, the bed in your corner.
+  await waitFor(() => found('[data-stand-in-thing="mattress"]'), { timeout: 3000 });
   const pick = game.view().activities.find((option) => option.allowed && option.affordable && option.id !== "activity.job-hunt" && option.params === null && plannable(option.id));
   if (pick === undefined) throw new Error("Nothing Ada can plan.");
   act(() => {
@@ -103,7 +102,7 @@ describe("the bed's month end", () => {
   test("[R-WORLD-025] [R-WORLD-008] given something planned at home, when the bed's Sleep is tapped, then the phone stays shut and nothing is sent until the sleep runs out; then the month ends with the plan's commitments and the results sheet opens over the place", async () => {
     const bed = await adaAtHome();
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
-    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
     expect(document.querySelector("[data-stand-in-phone]")).toBeNull();
     expect(bed.authority.sent.filter((command) => command.type === "turn/end")).toHaveLength(0);
     const slots = bed.store.getState().plan.filter((one) => one !== null);
@@ -214,19 +213,30 @@ describe("a person's or a shopfront's card", () => {
 });
 
 describe("where the game opens", () => {
-  test("[R-WORLD-014] given the player last stopped inside the family house, when the world opens again, then it opens inside, in the parlour with the bed, not in the yard", async () => {
-    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house", "inside"]));
-    await adaAtHome({}, false);
-    expect(document.querySelector('[data-stand-in-thing="house"]')).toBeNull();
-    expect(JSON.parse(window.localStorage.getItem("japacity.city.last") ?? "[]")).toEqual(["place.family-house", "inside"]);
-  });
-
-  test("[R-WORLD-014] given the player last stopped in the yard, when the world opens again, then it opens in the yard", async () => {
-    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
+  // the family house has no yard and parlour apart any more, so the room
+  // behind a door is the hub's at Ojuelegba, and the family house opens whole.
+  test("[R-WORLD-014] given the player last stopped inside the hub's room at Ojuelegba, when the world opens again, then it opens inside, at the desks, not on the street", async () => {
+    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.ojuelegba", "inside"]));
     const game = newGame("scenario.ada");
     game.endTurn();
     await renderWithGame(<City world results={() => <p />} />, game);
-    await waitFor(() => found('[data-stand-in-thing="house"]'));
-    expect(document.querySelector('[data-stand-in-thing="bed"]')).toBeNull();
+    await waitFor(() => found('[data-stand-in-thing="desk"]'), { timeout: 3000 });
+    expect(document.querySelector('[data-stand-in-thing="hub"]')).toBeNull();
+    expect(JSON.parse(window.localStorage.getItem("japacity.city.last") ?? "[]")).toEqual(["place.ojuelegba", "inside"]);
+  });
+
+  test("[R-WORLD-014] given the player last stopped on Ojuelegba's street, when the world opens again, then it opens on the street", async () => {
+    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.ojuelegba"]));
+    const game = newGame("scenario.ada");
+    game.endTurn();
+    await renderWithGame(<City world results={() => <p />} />, game);
+    await waitFor(() => found('[data-stand-in-thing="hub"]'), { timeout: 3000 });
+    expect(document.querySelector('[data-stand-in-thing="desk"]')).toBeNull();
+  });
+
+  test("[R-WORLD-014] given the player last stopped at the family house, when the world opens again, then the house opens whole, its bed and Mama there at once, with no door to go in by", async () => {
+    await adaAtHome();
+    expect(document.querySelector('[data-stand-in-thing="mama"]')).not.toBeNull();
+    expect(document.querySelector('[data-stand-in-thing="house"]')).toBeNull();
   });
 });

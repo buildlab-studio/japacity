@@ -198,13 +198,17 @@ export function withAge(archetype: Archetype, years: number): Archetype {
   return { ...archetype, preset: { ...archetype.preset, ...Object.fromEntries(AGE_CARDS.map((card) => [card, order(card)])) } };
 }
 
-/** The homes the door can start a life in (R-PROLOGUE-013): the home step's answers, the three homes play backs (R-HOME-001). */
-export const HOMES = ["family-house", "compound-room", "makoko"] as const;
+/**
+ * The homes the door can start a life in (R-PROLOGUE-013): the home step's answers, the four homes of R-HOME-001, in the
+ * order the door offers them (the home's wave): your own room first, the hostel second, the family house last, as the
+ * one more reason to leave; Makoko for the child of the water alone.
+ */
+export const HOMES = ["compound-room", "hostel-room", "family-house", "makoko"] as const;
 export type Home = (typeof HOMES)[number];
 
 /**
- * The homes the door offers a tile (R-PROLOGUE-013): the family house and the room in a compound
- * to every tile, Makoko to the child of the water alone, whose own home it is.
+ * The homes the door offers a tile (R-PROLOGUE-013, amended 10 Oct 2026 and by the home's wave): the room in a compound,
+ * the hostel room and the family house to every tile, in that order, Makoko to the child of the water alone, whose own home it is.
  */
 export function homesFor(archetype: Archetype): Home[] {
   return HOMES.filter((home) => home !== "makoko" || homeOf(archetype) === "makoko");

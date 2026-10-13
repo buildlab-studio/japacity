@@ -501,6 +501,11 @@ export const placeText: Record<string, string> = {
   "place.compound-room.overheard.3": "The compound tap is running. Ten rooms, one tap: bring your buckets.",
   "place.compound-room.overheard.4": "The landlord says the gate locks at eleven. Every room.",
   "place.compound-room.overheard.5": "Light has come. The whole compound is charging phones.",
+  "place.hostel-room.name": "your hostel room in Yaba",
+  "place.hostel-room.blurb": "One small room off a long corridor. Rent by the month, a shared nook to cook in, and the corridor never sleeps.",
+  "place.hostel-room.overheard.1": "Who carry my bucket from the line? I go find am.",
+  "place.hostel-room.overheard.2": "Room four, your music don reach the gate. Reduce am small.",
+  "place.hostel-room.overheard.3": "The nook is free. Whoever has gas, the pot is waiting.",
   // The family's own talk while your send-off is on: no stranger's rumour in the compound that night.
   // Waiting for overheard.ts to read them during the send-off.
   "place.family-house.send-off.overheard.1": "Who is carrying the jollof to the back?",
@@ -690,6 +695,7 @@ export const placeText: Record<string, string> = {
   "place.olokun-office.short": "Olokun",
   "place.agent-office.short": "The office",
   "place.compound-room.short": "Your room",
+  "place.hostel-room.short": "Your hostel room",
   "place.heathrow.short": "Heathrow",
   "place.calgary-airport.short": "The airport",
   "place.dubai-airport.short": "The airport",

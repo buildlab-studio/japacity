@@ -67,7 +67,8 @@ describe("the situation in plain words", () => {
     expect(freeTimeWords(1, 3)).toBe("Free time: two left");
     expect(say("ui.month.rest")).toBe("Free time: you rest");
     expect(say("ui.job.none")).toContain("Time for three things this month");
-    expect(text["obligation.upkeep.name"]).toBe("Living costs");
+    // The family house's charge as the house tells it.
+    expect(text["obligation.upkeep.name"]).toBe("Your share for the house");
     const rested = tidyLines([{ key: "line.activity.rested", params: { slots: 2 }, tone: "plain", attention: false, counts: [] }]);
     expect(words(rested[0]?.key ?? "", rested[0]?.params)).not.toMatch(/\d/);
   });

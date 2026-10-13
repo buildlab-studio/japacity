@@ -52,6 +52,10 @@ import { buildLottoKiosk } from "@japacity/assets-src/shop/lotto-kiosk/build";
 import { buildProvisions } from "@japacity/assets-src/shop/provisions/build";
 import { buildViewingCentre } from "@japacity/assets-src/shop/viewing-centre/build";
 import { buildTaxi, DUBAI_TAXI } from "@japacity/assets-src/veh/taxi/build";
+import { buildHome } from "@japacity/assets-src/bld/home/build";
+import { HOMES3 } from "@japacity/assets-src/bld/home/homes3";
+import { buildCar } from "@japacity/assets-src/veh/car/build";
+import * as home from "@japacity/assets-src/prop/home/build";
 import { buildAbra } from "@japacity/assets-src/veh/abra/build";
 import { buildLabourBus } from "@japacity/assets-src/veh/labour-bus/build";
 import { buildDanfo, buildKeke, buildOkada } from "@japacity/assets-src/veh/vehicles";
@@ -70,8 +74,8 @@ export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "p
 
 /** The kinds of model a picture tile is cut from (design page 13, the pictures): never a person, whose tile is a name pill until the characters are redone. */
 const TILED_KINDS = /^(prop|shop|veh|lm|bld)_/;
-/** Models no player is shown as a thing: the rooms' shells and the tailor's corner, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
-const UNTILED = /^(bld_room_|bld_tailor-corner$|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
+/** Models no player is shown as a thing: the rooms' and the homes' shells and the tailor's corner, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
+const UNTILED = /^(bld_room_|bld_home-|bld_tailor-corner$|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
 
 /** Whether a model gets the tile view: a thing a player could be shown on a choice. */
 export function isTiled(name: string): boolean {
@@ -513,6 +517,44 @@ const ENTRIES: CatalogEntry[] = [
   { name: "shop_barber-kiosk", file: "places/bode-thomas/shop_barber-kiosk.glb", place: "place.bode-thomas", source: "assets-src/shop/barber-kiosk", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_barber-kiosk", buildBarberKiosk("place.bode-thomas.sign.9", { board: "white", ink: "red", painted: true }), true) },
   { name: "shop_viewing-centre", file: "places/bode-thomas/shop_viewing-centre.glb", place: "place.bode-thomas", source: "assets-src/shop/viewing-centre", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_viewing-centre", buildViewingCentre(HUB_DISH_YAW)) },
 ];
+
+/** The homes as one wide floor each, the car, and the small things the kit lacked. */
+const HOME_AGENT = "Written as code from the kit (an exploration)";
+function homePiece(name: string, folder: string, build: () => Group): CatalogEntry {
+  const [prefix = "", slug = ""] = name.split("_");
+  const shared = folder === "shared";
+  return {
+    name,
+    file: shared ? `shared/${prefix}/${name}.glb` : `places/${folder}/${name}.glb`,
+    place: shared ? "shared" : `place.${folder}`,
+    source: prefix === "prop" ? `assets-src/prop/home/${slug}` : `assets-src/${prefix}/${slug}`,
+    author: HOME_AGENT,
+    // A building's plan as every building's (R-ASSET-020).
+    views: prefix === "bld" ? [...ELEVATIONS, "plan", "phone"] : [...ELEVATIONS, "phone"],
+    build: () => staticModel(name, build()),
+  };
+}
+ENTRIES.push(
+  homePiece("veh_car", "shared", () => buildCar()),
+  homePiece("prop_bath-corner", "shared", home.buildBathCorner),
+  homePiece("bld_home-family-house", "home-family-house", () => buildHome(HOMES3.family)),
+  homePiece("bld_home-room-house", "home-room-house", () => buildHome(HOMES3.room)),
+  homePiece("bld_home-hostel-house", "home-hostel-house", () => buildHome(HOMES3.hostel)),
+  homePiece("prop_carport", "shared", home.buildCarport),
+  homePiece("prop_generator", "shared", home.buildGenerator),
+  homePiece("prop_clothes-line", "shared", home.buildClothesLine),
+  homePiece("prop_wardrobe", "shared", home.buildWardrobe),
+  homePiece("prop_rug", "shared", home.buildRug),
+  homePiece("prop_potted-plant", "shared", home.buildPottedPlant),
+  homePiece("prop_slippers", "shared", home.buildSlippers),
+  homePiece("prop_crates", "shared", home.buildCrates),
+  homePiece("prop_fan", "shared", home.buildFan),
+  homePiece("prop_kitchen-shelf", "shared", home.buildKitchenShelf),
+  homePiece("prop_bucket", "shared", home.buildBucket),
+  homePiece("prop_mattress", "shared", home.buildMattress),
+  homePiece("prop_bunk-bed", "shared", home.buildBunkBed),
+  homePiece("prop_small-shelf", "shared", home.buildSmallShelf),
+);
 
 /** Every shipped asset, each model a player could be shown as a thing with the tile view beside its fixed views. */
 export const CATALOG: CatalogEntry[] = ENTRIES.map((entry) => (isTiled(entry.name) && !entry.views.includes("tile") ? { ...entry, views: [...entry.views, "tile"] } : entry));

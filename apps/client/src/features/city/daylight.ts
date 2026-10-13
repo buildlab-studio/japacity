@@ -147,6 +147,24 @@ export function skyLightOf(own: Color, look: Pick<Look, "lightTint" | "tintShare
   return mixSeen(own, new Color(look.lightTint), look.tintShare);
 }
 
+/**
+ * The rooms' light (the design, as the home builder set it): by day a paler, cooler sky light over a warm
+ * floor, a warm sun a little stronger and a pale sky behind; by night the bulb and the lantern as real lights. A place
+ * whose light says `room` takes these for its own sky, ground and backdrop, and the clock turns and tints them as any.
+ */
+export const ROOM_LIGHT = { sky: 0xdfe8f4, ground: 0xcdb48c, backdrop: 0xeef1f8, sun: 0xffdcaa, skyStrength: 1.35, sunStrength: 2.3, lamp: 0xffb46a } as const;
+
+/** The day's look in a room: the sun warmed toward the room's own by day and both lights as strong as the room's are at noon. */
+export function roomLook(look: Look): Look {
+  const day = 1 - look.lamps;
+  return {
+    ...look,
+    sun: mixColour(look.sun, ROOM_LIGHT.sun, 0.6 * day),
+    sunStrength: look.sunStrength * (ROOM_LIGHT.sunStrength / NOON.sunStrength),
+    skyStrength: look.skyStrength * (ROOM_LIGHT.skyStrength / NOON.skyStrength),
+  };
+}
+
 /** The parts the development switch may pin, each at a minute that reads as that part. */
 const PINNED_MINUTE: Record<DayPart, number> = { morning: 8 * 60, afternoon: 14 * 60, evening: 19 * 60, night: 0 };
 

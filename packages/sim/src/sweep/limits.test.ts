@@ -28,7 +28,8 @@ function centsOf(rates: Record<ForeignCurrency, number>, naira: number): number 
  * by hand as the month's time allows (R-HOME-012), the meals spending about what the month's living charge took.
  */
 function withQuickLoan(): { game: Game; offer: PlayerView["offers"][number] } {
-  const meal = { type: "activity/now", activity: "activity.cook-at-home", param: null } as const;
+  // A meal bought: the family house's pot is free since the home's wave, so it is one of your own.
+  const meal = { type: "activity/now", activity: "activity.cook-own", param: null } as const;
   const play = (seed: string): Game => {
     const game = start({ scenario: "scenario.ada", seed, content });
     for (let month = 0; month < 8 && !game.view().offers.some((offer) => offer.entry === "offer.quick-loan"); month += 1) {

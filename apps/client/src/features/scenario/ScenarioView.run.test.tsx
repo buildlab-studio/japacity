@@ -303,18 +303,20 @@ describe("the run through the front door", () => {
     expect(document.querySelector("[data-turntable]")).toBeNull();
   });
 
-  test("[R-PROLOGUE-013] given each tile, then under the age a row says where you live: the family house in Surulere and a room of your own in Ojuelegba for every tile, a room on the water in Makoko for the child of the water alone, one line each with its cost a month, the right one chosen for the tile, and the money the life starts with after moving in, as the band will show it, \"about\" where it is drawn, or for the room the figure still needed; then the self-contain, always on the row, locked as the goal with its figure, saying \"reached\" beside the lock for a tile whose savings already reach it and never leaving; a home picked is kept through another tile while it can be paid", () => {
+  test("[R-PROLOGUE-013] given each tile, then under the age a row says where you live: a room of your own in Ojuelegba, a hostel room in Yaba and the family house in Surulere, in that order, for every tile, a room on the water in Makoko for the child of the water alone, a line each and its cost a month, the right one chosen for the tile, and the money the life starts with after moving in, as the band will show it, \"about\" where it is drawn, or for the room the figure still needed; then the self-contain, always on the row, locked as the goal with its figure, saying \"reached\" beside the lock for a tile whose savings already reach it and never leaving; a home picked is kept through another tile while it can be paid", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
-    const monthly = { "family-house": 9500000, "compound-room": 5000000, makoko: 2500000 } as const;
-    // The room takes its year and the fees at once (R-HOME-010): ₦350,000 and a fifth of it.
-    const now = { "family-house": 0, "compound-room": 42000000, makoko: 0 } as const;
+    const monthly = { "family-house": 9500000, "compound-room": 5000000, "hostel-room": 0, makoko: 2500000 } as const;
+    // The room takes its year and the fees at once (R-HOME-010): ₦350,000 and a fifth of it; the hostel nothing, as Makoko.
+    const now = { "family-house": 0, "compound-room": 42000000, "hostel-room": 0, makoko: 0 } as const;
+    const rent = { "family-house": 0, "compound-room": content.tuning.home.compound.rentYear, "hostel-room": content.tuning.home.hostelRentKobo, makoko: 0 } as const;
     for (const tile of ARCHETYPES) {
       fireEvent.click(screen.getByRole("radio", { name: say(`prologue.archetype.${tile.id}.name`) }));
       const row = document.querySelector<HTMLElement>("[data-door-home]")!;
       expect(document.querySelector("[data-door-age]")!.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       const homes = [...row.querySelectorAll<HTMLElement>("[data-home]")];
-      const offered = tile.id === "water" ? ["family-house", "compound-room", "makoko"] : ["family-house", "compound-room"];
+      // Offered in this order: your own room, the hostel room, the family house last; Makoko for the child of the water.
+      const offered = tile.id === "water" ? ["compound-room", "hostel-room", "family-house", "makoko"] : ["compound-room", "hostel-room", "family-house"];
       // The self-contain stands as the goal on every tile; one whose savings already reach its year and fees (the trader's,
       // the accountant's) says "reached" beside the lock, and the row stays.
       const reached = savingsOf(tile) >= selfContainYear();
@@ -325,7 +327,9 @@ describe("the run through the front door", () => {
         const id = home.dataset["home"] as keyof typeof monthly;
         expect(home.textContent).toContain(`${say(`ui.door.home.${id}`)} · ${say(`ui.door.home.where.${id}`)}`);
         // the room also says its move-in.
-        expect(home.querySelector("[data-home-costs]")?.textContent).toBe(say(`ui.door.home.costs.${id}`, { amount: formatMoney(monthly[id], "NGN"), rent: formatMoney(content.tuning.home.compound.rentYear, "NGN"), movein: formatMoney(now[id], "NGN") }));
+        expect(home.querySelector("[data-home-costs]")?.textContent).toBe(say(`ui.door.home.costs.${id}`, { amount: formatMoney(monthly[id], "NGN"), rent: formatMoney(rent[id], "NGN"), movein: formatMoney(now[id], "NGN") }));
+        // Each home's line in its own words (the home's wave).
+        expect(home.querySelector("[data-home-line]")?.textContent).toBe(say(`ui.door.home.line.${id}`));
         const left = savingsOf(tile) - now[id] - monthly[id];
         expect(pocketIn(tile, 0, id)).toBe(left);
         // What the band shows at Begin: the savings less the move-in, the month's living named apart.

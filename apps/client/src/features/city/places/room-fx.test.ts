@@ -5,17 +5,20 @@
 import { Group, InstancedMesh, Mesh, Sprite } from "three";
 import { describe, expect, test } from "vitest";
 
-import compoundRaw from "../../../../public/assets/places/compound-room/place.json";
+import compoundRaw from "../../../../public/assets/places/home-room-house/place.json";
+import hostelRaw from "../../../../public/assets/places/home-hostel-house/place.json";
 import makokoRaw from "../../../../public/assets/places/makoko/place.json";
-import parlourRaw from "../../../../public/assets/places/family-house-parlour/place.json";
+import parlourRaw from "../../../../public/assets/places/home-family-house/place.json";
 import roomRaw from "../../../../public/assets/places/the-room/place.json";
 import { type PlaceFile, showPlanned, showsFor, type Stage, stageOf } from "../placeFile";
 import { lampsOf, motionOf } from "../world";
 
+// The family house, whose parlour, table and lanterns are where these acts answer.
 const parlour = stageOf(parlourRaw as unknown as PlaceFile);
 const HOMES = [
   { name: "the parlour", stage: parlour, drum: "prop_water-drum.glb" },
   { name: "the room in a compound", stage: stageOf(compoundRaw as unknown as PlaceFile), drum: "prop_water-drum.glb" },
+  { name: "the hostel room", stage: stageOf(hostelRaw as unknown as PlaceFile), drum: "prop_water-drum.glb" },
   { name: "Makoko", stage: stageOf(makokoRaw as unknown as PlaceFile), drum: "prop_water-drum.glb" },
 ] as const;
 
@@ -30,15 +33,18 @@ const near = (a: readonly number[], x: number, z: number, within: number): boole
 describe("what the home's acts show", () => {
   test("[R-WORLD-005] [R-ACTIVITY-019] given jollof cooked at each home, when its answer is read, then it is steam off the same pot as the meal's, more puffs, for a while each time it lands, never standing for the month", () => {
     for (const { name, stage } of HOMES) {
-      const meal = (stage.shows ?? []).find((show) => show.activity === "activity.cook-at-home")?.motion[0];
-      const [jollof] = showsFor(stage, "activity.cook-jollof");
+      // Each home's corner names its own meal and pot: the family house's pot, or one of your own.
+      const cook = (stage.things ?? []).flatMap((thing) => thing.acts).find((act) => act.id === "cook");
+      const [mealId, potId] = [cook?.stages ?? "", cook?.more?.[0] ?? ""];
+      const meal = (stage.shows ?? []).find((show) => show.activity === mealId)?.motion[0];
+      const [jollof] = showsFor(stage, potId);
       const steam = jollof?.motion[0];
       if (meal === undefined || jollof === undefined || steam === undefined) throw new Error(`${name}: no steam`);
       expect({ name, kind: steam.kind }).toEqual({ name, kind: "smoke" });
       expect(steam.at).toEqual(meal.at);
       expect(steam.count ?? 0).toBeGreaterThan(meal.count ?? 0);
       expect(jollof.seconds ?? 0).toBeGreaterThanOrEqual(12);
-      expect(showPlanned({ place: "x", scope: "interior", hub: false, instances: [], people: { low: 0, high: 0, sample: [] }, stage }, ["activity.cook-jollof"]).stage).toBe(stage);
+      expect(showPlanned({ place: "x", scope: "interior", hub: false, instances: [], people: { low: 0, high: 0, sample: [] }, stage }, [potId]).stage).toBe(stage);
     }
   });
 
@@ -60,13 +66,14 @@ describe("what the home's acts show", () => {
   test("[R-WORLD-005] [R-ACTIVITY-019] given Nollywood with Papa, when its answer is read, then the television's screen flickers while it plays and its light spills into the room; only the parlour has a television", () => {
     const [tv] = showsFor(parlour, "activity.watch-tv");
     if (tv === undefined) throw new Error("No television's answer");
-    const [x, z] = copyOf(parlour, "prop_tv-stand.glb");
+    const [x = 0, z = 0, turn = 0] = copyOf(parlour, "prop_tv-stand.glb");
     const screen = tv.motion.find((motion) => motion.kind === "flicker");
     if (screen === undefined) throw new Error("No flicker");
-    // The stand's screen is 1.1 by 0.6 m, its bottom edge 0.71 m up, its face at the stand's front.
+    // The stand's screen is 1.1 by 0.6 m, its bottom edge 0.71 m up, its face at the stand's front, turned as the stand is.
     expect(screen.size).toEqual([1.1, 0.6]);
     expect(screen.at[1]).toBeCloseTo(0.71, 6);
-    expect(near(screen.at, x ?? 0, (z ?? 0) + 0.015, 0.01)).toBe(true);
+    expect(near(screen.at, x + Math.sin(turn) * 0.015, z + Math.cos(turn) * 0.015, 0.01)).toBe(true);
+    expect(screen.ry ?? 0).toBeCloseTo(turn, 3);
     expect(tv.motion.some((motion) => motion.kind === "glow")).toBe(true);
     expect(tv.seconds ?? 0).toBeGreaterThanOrEqual(6);
     for (const { stage } of HOMES.slice(1)) expect(showsFor(stage, "activity.watch-tv")).toEqual([]);

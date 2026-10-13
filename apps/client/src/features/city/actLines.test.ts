@@ -62,7 +62,7 @@ describe("an act's line as it lands", () => {
   });
 
   test("[R-WORLD-005] [R-WORLD-026] given the light bill paid in the parlour, when the answer lands, then Mama says the light is back over her head, the corner tells the bill paid and the next compound is heard after; elsewhere, or for the bill left, nothing", () => {
-    const parlour = builtPlaces().find(({ folder }) => folder === "family-house-parlour");
+    const parlour = builtPlaces().find(({ folder }) => folder === "home-family-house");
     if (parlour === undefined) throw new Error("No parlour.");
     const things = thingsOf(stageOf(parlour.file));
     const paid = [{ key: "line.offer.taken", params: { offer: "offer.nepa-bill", choice: "pay" } }];
@@ -79,8 +79,8 @@ describe("where an act done at once lands its line", () => {
   ];
   const now = (activity: string) => ({ key: `line.activity.${activity.replace(/^activity\./, "")}.now`, params: { activity } });
 
-  test("[R-WORLD-005] [R-ACTIVITY-019] given an act that repeats (a nap, a bath, jollof, the TV, the shop), when it is done, then its line is told in the corner, every time, in its own words", () => {
-    for (const activity of ["activity.nap", "activity.bucket-bath", "activity.cook-jollof", "activity.watch-tv", "activity.help-shop", "activity.study-english"]) {
+  test("[R-WORLD-005] [R-ACTIVITY-019] given an act that repeats (a nap, a bath, a pot of your own, the TV, the shop), when it is done, then its line is told in the corner, every time, in its own words", () => {
+    for (const activity of ["activity.nap", "activity.bucket-bath", "activity.cook-own-pot", "activity.watch-tv", "activity.help-shop", "activity.study-english"]) {
       expect(nowLands(now(activity), parlour)).toEqual({ kind: "tell", words: words(now(activity).key) });
       // A second time the same month lands it again: a repeat act is never done for the month.
       expect(nowLands(now(activity), parlour)).toEqual({ kind: "tell", words: words(now(activity).key) });
@@ -92,8 +92,14 @@ describe("where an act done at once lands its line", () => {
     expect(landed).toEqual({ kind: "say", who: "mama", name: sceneWords("scene.thing.mama"), words: "You have eaten? Sit small.", then: null });
   });
 
+  test("[R-WORLD-005] [R-HOME-012] given the big pot bought for the house with Mama in the place, when it is done, then her thanks land over her head under her name; with no Mama there, the corner tells it", () => {
+    const landed = nowLands(now("activity.cook-jollof"), parlour);
+    expect(landed).toEqual({ kind: "say", who: "mama", name: sceneWords("scene.thing.mama"), words: "God bless you. The whole house will eat well this week.", then: null });
+    expect(nowLands(now("activity.cook-jollof"), parlour.filter((thing) => thing.id !== "mama"))).toEqual({ kind: "tell", words: words(now("activity.cook-jollof").key) });
+  });
+
   test("[R-WORLD-005] given what the scene shows (the pot, the drum) or an act done once a month, when it is done, then nothing lands here: the scene shows the first, the second answers in its sheet", () => {
-    for (const activity of ["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]) expect(nowLands(now(activity), parlour)).toBeNull();
+    for (const activity of ["activity.cook-at-home", "activity.cook-own", "activity.fetch-water", "activity.fill-drum"]) expect(nowLands(now(activity), parlour)).toBeNull();
     expect(nowLands(now("activity.job-hunt"), parlour)).toBeNull();
   });
 });

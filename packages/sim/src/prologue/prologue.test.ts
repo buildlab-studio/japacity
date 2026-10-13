@@ -704,7 +704,7 @@ describe("the close", () => {
     }
     expect(problems).toEqual([]);
     // Every home the card offers is reached: the room in a compound when its year and fees and a month there are held.
-    expect([...closes].sort()).toEqual(["compound-room", "family-house", "makoko"]);
+    expect([...closes].sort()).toEqual(["compound-room", "family-house", "hostel-room", "makoko"]);
   });
 
   test("[R-PROLOGUE-006] given 200 random prologues on the quality kind as it stands, when each closes, then each is still a legal starting life", () => {

@@ -4,8 +4,8 @@ import { time, worldClockAt } from "@japacity/sim";
 import { Color } from "three";
 import { describe, expect, test } from "vitest";
 
-import parlourRaw from "../../../public/assets/places/family-house-parlour/place.json";
-import { LOOKS, lookAt, ownHeightOf, pinnedClock, pinnedPart, progressIn, skyLightOf, skyOf, sunAt, worldNow } from "./daylight";
+import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
+import { LOOKS, lookAt, ownHeightOf, pinnedClock, pinnedPart, progressIn, ROOM_LIGHT, roomLook, skyLightOf, skyOf, sunAt, worldNow } from "./daylight";
 import { type PlaceFile, stageOf } from "./placeFile";
 
 const SUN = stageOf(parlourRaw as unknown as PlaceFile).light.sun;
@@ -108,5 +108,19 @@ describe("the sky and the sun by the world's clock", () => {
       expect(clock.part).toBe(part);
       expect(worldClockAt(time.GAME_DAY_EPOCH_MS + (clock.minute * time.GAME_DAY_MS) / 1440).part).toBe(part);
     }
+  });
+});
+
+describe("the rooms' light (the design)", () => {
+  test("[R-CLOCK-033] given a room by day, when its look is read, then its sun is warmed toward the room's own and both lights stand as strong as the room's are at noon; at night the look's lamps are untouched and the sun is the night's", () => {
+    const noon = lookAt("afternoon", time.AFTERNOON_HOUR * HOUR, SUN);
+    const room = roomLook(noon);
+    expect(room.sunStrength).toBeCloseTo(ROOM_LIGHT.sunStrength, 6);
+    expect(room.skyStrength).toBeCloseTo(ROOM_LIGHT.skyStrength, 6);
+    expect(room.sun).not.toBe(noon.sun);
+    const night = lookAt("night", 0, SUN);
+    expect(roomLook(night).lamps).toBe(night.lamps);
+    expect(roomLook(night).sun).toBe(night.sun);
+    expect(roomLook(night).sunStrength).toBeLessThan(room.sunStrength);
   });
 });

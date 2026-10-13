@@ -17,7 +17,8 @@ import { nameOf, say } from "../words/text";
 import { AskSheet } from "./AskSheet";
 import type { Ask } from "./contract";
 
-const COOK = "activity.cook-at-home";
+/** A meal of your own, bought at its price (the plan section 2: the family house's pot is free). */
+const COOK = "activity.cook-own";
 /** The meal's price in kobo, ₦1,500, read against content in the first test. */
 const MEAL = 150_000;
 const money = (amount: number): string => formatMoney(amount, "NGN");
