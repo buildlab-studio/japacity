@@ -104,6 +104,8 @@ export interface Shot {
   yaw?: number;
   /** Metres across that the whole view must show, whatever the screen's shape. */
   width?: number;
+  /** The whole view's lens in degrees, when it is not the scene's own: a wide home is seen whole on a longer lens, so the people at its back stand as tall as those at its front (world.md R-WORLD-029 as the home's wave asks it amended). */
+  fov?: number;
 }
 
 /** What the scene reports to the shell after a tap (R-WORLD-005). */

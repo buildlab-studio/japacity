@@ -110,6 +110,21 @@ export interface Stage {
   inside?: string;
   /** A home's car spot, in its yard or by its gate: the car stands there while the life has one, else it is empty. */
   car?: Spot;
+  /** A wide home's rooms: a tap on one or a pinch eases the camera in on it from the whole house. */
+  rooms?: Room[];
+}
+
+/**
+ * One room of a wide home (world.md R-WORLD-029 as the home's wave asks it amended): the floor it covers, as the corners
+ * x0, z0, x1, z1 in metres, and the view eased in on it: where it looks, how many metres across it shows and how steeply
+ * it looks down, in degrees, at the rooms' distance.
+ */
+export interface Room {
+  id: string;
+  floor: [number, number, number, number];
+  centre: Vec3;
+  width: number;
+  pitch: number;
 }
 
 /** A warm point of light the place shows as the day goes (R-CLOCK-033): where, how wide its halo, and whether a bulb hangs there. */
@@ -249,6 +264,7 @@ export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<
     ...(plain.things === undefined ? {} : { things: plain.things }),
     ...(plain.inside === undefined ? {} : { inside: plain.inside }),
     ...(plain.car === undefined ? {} : { car: plain.car }),
+    ...(plain.rooms === undefined ? {} : { rooms: plain.rooms }),
   };
   return { file: { ...file, stage: dressed }, crowd: dressing.crowd };
 }

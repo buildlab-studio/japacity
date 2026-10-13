@@ -3,7 +3,7 @@
 // the scene feeds in the view and the screen's shape and reads back where to stand.
 import type { Shot } from "../../shared/world/contract";
 import type { Point } from "./camera";
-import type { Stage } from "./placeFile";
+import type { Room, Stage } from "./placeFile";
 import { thingSpot, thingsOf } from "./things";
 
 /** The lens, in degrees from the top of the screen to the bottom. */
@@ -124,6 +124,70 @@ export function clampTurn(shot: Pick<Shot, "turn">, turn: number): number {
 /** Where a released pinch comes to rest: the whole place, or close on the character, never between. */
 export function snapZoom(zoom: number): 0 | 1 {
   return zoom >= 0.5 ? 1 : 0;
+}
+
+/** How quickly the view eases to where it is going, a share a second: the scene's easing for every place. */
+export const EASE = 7;
+/** How close to its end an easing view comes before it stands there. */
+export const SETTLE = 0.002;
+/**
+ * The same easing for a wide home's rooms (world.md R-WORLD-029 as the home's wave asks it amended), quick enough that a
+ * tap or a pinch has the camera in on the room, or back on the whole house, in under 400 ms.
+ */
+export const ROOM_EASE = 12;
+export const ROOM_SETTLE = 0.01;
+
+/** One frame of the zoom's easing toward where it is going: a share of the way still to go, standing at the end once close. */
+export function easeZoom(zoom: number, to: number, delta: number, rate = EASE, settle = SETTLE): number {
+  const next = zoom + (to - zoom) * Math.min(1, delta * rate);
+  return Math.abs(to - next) < settle ? to : next;
+}
+
+/** The room of a wide home whose floor holds a point, or null outside every room. */
+export function roomAt(rooms: readonly Room[], x: number, z: number): Room | null {
+  return rooms.find(({ floor: [x0, z0, x1, z1] }) => x >= Math.min(x0, x1) && x <= Math.max(x0, x1) && z >= Math.min(z0, z1) && z <= Math.max(z0, z1)) ?? null;
+}
+
+/** What a tap on a wide home's floor or walls does to the camera: ease in on a room, ease out to the whole house, or nothing (a walk). */
+export type HomeTap = { kind: "in"; room: Room } | { kind: "out" } | { kind: "walk" };
+
+/**
+ * A tap on a wide home's floor or walls (R-WORLD-029 as the home's wave asks it amended): from the whole house (`whole`)
+ * it eases in on the room tapped; eased in on `current`, a tap outside it eases back out to the whole house, and a tap
+ * inside it walks there as anywhere.
+ */
+export function homeTap(rooms: readonly Room[], whole: boolean, current: Room | undefined, x: number, z: number): HomeTap {
+  const room = roomAt(rooms, x, z);
+  if (whole) return room === null ? { kind: "walk" } : { kind: "in", room };
+  return room === null || room.id !== current?.id ? { kind: "out" } : { kind: "walk" };
+}
+
+/**
+ * The room a thing chosen in a wide home eases the camera in on first, so its chip or its fan opens at the rooms'
+ * distance; null when the camera is already in on that room, or the thing stands in none.
+ */
+export function roomFirst(rooms: readonly Room[], whole: boolean, current: Room | undefined, spot: readonly [number, number] | null): Room | null {
+  const room = spot === null ? null : roomAt(rooms, spot[0], spot[1]);
+  if (room === null) return null;
+  return whole || room.id !== current?.id ? room : null;
+}
+
+/**
+ * Where the camera stands and looks, and its lens, for a wide home (world.md R-WORLD-029 as the home's wave asks it
+ * amended): at `zoom` 1 the whole house straight down its length on the shot's long lens, fitted to
+ * its width; at 0 eased in on `room` at the rooms' distance on the scene's own lens, the rest of the house running off the
+ * screen's edges; between, the two mixed. The view never turns.
+ */
+export function aimRoom(shot: Shot, room: Pick<Room, "centre" | "width" | "pitch">, zoom: number, aspect: number): { position: Point; target: Point; fov: number } {
+  const share = Math.min(1, Math.max(0, zoom));
+  const wide = shot.fov ?? SHOT_FOV;
+  const fov = mix(SHOT_FOV, wide, share);
+  const distance = mix(fitDistance(room.width, aspect, SHOT_FOV), wholeDistance(shot, aspect, wide), share);
+  const pitch = radians(mix(room.pitch, shot.farPitch, share));
+  const yaw = radians(shot.yaw ?? 0);
+  const target: Point = [mix(room.centre[0], shot.centre[0], share), mix(room.centre[1], shot.centre[1], share), mix(room.centre[2], shot.centre[2], share)];
+  const back = Math.cos(pitch) * distance;
+  return { position: [target[0] - Math.sin(yaw) * back, target[1] + Math.sin(pitch) * distance, target[2] - Math.cos(yaw) * back], target, fov };
 }
 
 /** Where the camera stands and looks for a view of the shot, with the character at `walker`. */

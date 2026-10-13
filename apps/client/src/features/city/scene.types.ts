@@ -101,6 +101,9 @@ export interface CityProbe {
   shot?: Shot;
   zoom?: number;
   zoomTo?: number;
+  /** A wide home: the room the view eases in on, and a way to ease in on a room or, with null, out to the whole house. */
+  room?: string | null;
+  ease?: (room: string | null) => void;
   /** The world mode: where a thing stands on screen, in CSS pixels, or null when off screen. */
   screenOfThing?: (id: string) => { x: number; y: number } | null;
   /** The sun's shadow: its bias, its normal bias and how far either side of the place's centre it reaches (R-WORLD-012). */

@@ -21,7 +21,7 @@ import { CAR_FILE, parkCar, type PlaceFile, stageOf } from "../placeFile";
 import { personOfLook } from "../roster";
 import { cameraAt, projected, SCREENS } from "../scene.testing";
 import { sceneWords } from "../scene.words";
-import { aimShot, shotOf, WHOLE } from "../shot";
+import { aimRoom, easeZoom, EASE, homeTap, ROOM_EASE, ROOM_SETTLE, roomAt, roomFirst, SETTLE, SHOT_FOV, shotOf } from "../shot";
 import { thingSpot } from "../things";
 import { groundGeometry } from "../world";
 import { allPalette, city, instancesOf, measured, rowOf, totalsOf } from "./placeTesting";
@@ -140,14 +140,17 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     }
   });
 
-  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} on a phone held upright, when it opens whole, then the camera looks straight down its length, never turned, from a raised view, and every corner of the floor and the tops of the back wall stand on screen, the house spanning most of the screen's width`, () => {
+  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} on a phone held upright, when it opens whole, then the camera looks straight down its length on a long lens, never turned, from a raised view, and every corner of the floor and the tops of the back wall stand on screen, the house spanning most of the screen's width`, () => {
     const shot = shotOf(stage);
     expect(shot.yaw).toBe(180);
     expect(shot.turn).toBe(0);
     expect(shot.farPitch).toBeGreaterThan(0);
     expect(shot.farPitch).toBeLessThan(90);
+    expect(shot.fov ?? SHOT_FOV).toBeLessThan(SHOT_FOV);
     const aspect = SCREENS.phone;
-    const camera = cameraAt(aimShot(shot, WHOLE, { x: stage.start[0], z: stage.start[1] }, aspect), aspect);
+    const room = stage.rooms?.[0];
+    if (room === undefined) throw new Error(`${home.id} has no rooms`);
+    const camera = cameraAt(aimRoom(shot, room, 1, aspect), aspect);
     const walls = outer(home);
     const corners: [number, number, number][] = [
       [walls.x0, 0, walls.z0],
@@ -185,6 +188,109 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     }
     const out = things.filter((thing) => thing.acts.some((act) => act.kind === "out"));
     expect(out.map((thing) => thing.id)).toEqual(["out"]);
+  });
+});
+
+describe.each(HOMES)("$name's camera", (home) => {
+  const stage = stageOf(fileOf(home));
+  const rooms = stage.rooms ?? [];
+  const shot = shotOf(stage);
+  const aspect = SCREENS.phone;
+
+  test(`[R-WORLD-029] given ${home.id}'s rooms, when their floors are read, then they lie inside the house without overlapping and hold every walkable point of it, and every thing and every person's spot stands in one`, () => {
+    expect(rooms.length).toBeGreaterThanOrEqual(3);
+    expect(new Set(rooms.map((room) => room.id)).size).toBe(rooms.length);
+    const walls = outer(home);
+    for (const { id, floor: [x0, z0, x1, z1] } of rooms) expect({ id, inside: x0 >= walls.x0 - 0.01 && x1 <= walls.x1 + 0.01 && z0 >= walls.z0 - 0.01 && z1 <= walls.z1 + 0.01 }).toEqual({ id, inside: true });
+    const [[a, b], [c, d]] = [stage.walkable?.[0]?.[0] ?? [0, 0], stage.walkable?.[0]?.[2] ?? [0, 0]];
+    for (let x = Math.min(a, c) + 0.05; x < Math.max(a, c); x += 0.5) {
+      for (let z = Math.min(b, d) + 0.05; z < Math.max(b, d); z += 0.5) {
+        // A point on a wall's line may fall in either room; inside a room's floor it falls in that one alone.
+        const holding = rooms.filter(({ floor: [x0, z0, x1, z1] }) => x > x0 && x < x1 && z > z0 && z < z1);
+        expect({ x, z, rooms: holding.length <= 1, found: roomAt(rooms, x, z) !== null }).toEqual({ x, z, rooms: true, found: true });
+      }
+    }
+    for (const thing of stage.things ?? []) {
+      const spot = stage.models.find((model) => model.file === thing.file)?.at[thing.copy];
+      expect({ thing: thing.id, room: spot === undefined ? null : (roomAt(rooms, spot[0], spot[1])?.id ?? null) === null }).toEqual({ thing: thing.id, room: false });
+    }
+    for (const spot of stage.people) expect(roomAt(rooms, spot[0], spot[1])).not.toBeNull();
+  });
+
+  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} eased in on each room on a phone held upright, when the camera stands there, then it looks at the room's middle straight down the house's length on the scene's own lens, the room whole across the screen and over half its width, and the character standing in it reads at a phone's size: over 7 in a hundred of the screen's height`, () => {
+    for (const room of rooms) {
+      const aim = aimRoom(shot, room, 0, aspect);
+      expect(aim.fov).toBe(SHOT_FOV);
+      expect(aim.target).toEqual(room.centre);
+      // Straight down the length: the camera stands at +z of what it looks at, never to one side.
+      expect(aim.position[0]).toBeCloseTo(aim.target[0], 6);
+      expect(aim.position[2]).toBeGreaterThan(aim.target[2]);
+      const camera = cameraAt(aim, aspect);
+      const [x0, z0, x1, z1] = room.floor;
+      const middle = (z0 + z1) / 2;
+      const across = [projected(camera, x0, 0, middle), projected(camera, x1, 0, middle)];
+      // The room stands whole across the screen, its side walls inside the edges, over half its width.
+      const [left = 0, right = 0] = across.map((at) => at?.x ?? 0);
+      expect({ room: room.id, whole: Math.abs(left) <= 1 && Math.abs(right) <= 1, wide: Math.abs(right - left) > 1 }).toEqual({ room: room.id, whole: true, wide: true });
+      const [cx, , cz] = room.centre;
+      const foot = projected(camera, cx, 0, cz);
+      const head = projected(camera, cx, 1.7, cz);
+      expect({ room: room.id, tall: (head.y - foot.y) / 2 > 0.07 }).toEqual({ room: room.id, tall: true });
+    }
+  });
+
+  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} on a phone, when the camera eases between the whole house and a room, then it moves from one state to the other, closer and lower on its way in`, () => {
+    const room = rooms[0];
+    if (room === undefined) throw new Error("No room");
+    const whole = aimRoom(shot, room, 1, aspect);
+    const half = aimRoom(shot, room, 0.5, aspect);
+    const near = aimRoom(shot, room, 0, aspect);
+    const far = (aim: typeof whole): number => Math.hypot(aim.position[0] - aim.target[0], aim.position[1] - aim.target[1], aim.position[2] - aim.target[2]);
+    expect(far(near)).toBeLessThan(far(half));
+    expect(far(half)).toBeLessThan(far(whole));
+    expect(whole.fov).toBe(shot.fov);
+    expect(half.fov).toBeGreaterThan(whole.fov);
+    expect(half.fov).toBeLessThan(near.fov);
+  });
+
+  test(`[R-WORLD-029] given ${home.id}, when it is tapped, then from the whole house a tap on a room eases in on it and a thing chosen eases in on its room first; eased in, a tap inside the room walks, and a tap outside it, in another room or past the walls, eases back out`, () => {
+    const [first, second] = rooms;
+    if (first === undefined || second === undefined) throw new Error("Two rooms wanted");
+    const inside = (room: typeof first): [number, number] => [(room.floor[0] + room.floor[2]) / 2, (room.floor[1] + room.floor[3]) / 2];
+    expect(homeTap(rooms, true, undefined, ...inside(first))).toEqual({ kind: "in", room: first });
+    expect(homeTap(rooms, false, first, ...inside(first))).toEqual({ kind: "walk" });
+    expect(homeTap(rooms, false, first, ...inside(second))).toEqual({ kind: "out" });
+    expect(homeTap(rooms, false, first, 99, 99)).toEqual({ kind: "out" });
+    expect(roomFirst(rooms, true, undefined, inside(second))).toEqual(second);
+    expect(roomFirst(rooms, false, second, inside(second))).toBeNull();
+    expect(roomFirst(rooms, false, first, inside(second))).toEqual(second);
+    expect(roomFirst(rooms, true, undefined, null)).toBeNull();
+  });
+});
+
+describe("the camera's easing", () => {
+  /** Frames at 60 a second until the zoom stands at its end. */
+  function settleTime(rate: number, settle: number): number {
+    let zoom = 1;
+    let time = 0;
+    while (zoom !== 0 && time < 5) {
+      zoom = easeZoom(zoom, 0, 1 / 60, rate, settle);
+      time += 1 / 60;
+    }
+    return time;
+  }
+
+  test("[R-WORLD-029] [R-WORLD-009] given a wide home's room tapped or pinched, when the camera eases in, then it stands there in under 400 ms with the scene's own easing, where any other place's slower close view takes longer", () => {
+    expect(settleTime(ROOM_EASE, ROOM_SETTLE)).toBeLessThan(0.4);
+    expect(settleTime(EASE, SETTLE)).toBeGreaterThan(0.4);
+    // The same easing both ways: back out to the whole house as quickly.
+    let zoom = 0;
+    let time = 0;
+    while (zoom !== 1 && time < 5) {
+      zoom = easeZoom(zoom, 1, 1 / 60, ROOM_EASE, ROOM_SETTLE);
+      time += 1 / 60;
+    }
+    expect(time).toBeLessThan(0.4);
   });
 });
 

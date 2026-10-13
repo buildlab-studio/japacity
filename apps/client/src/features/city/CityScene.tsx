@@ -24,14 +24,14 @@ import { poseFigure } from "../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { limitMotion } from "./limits";
 import { type Look, lookAt, mixLooks, mixSeen, ownHeightOf, skyLightOf, skyOf, sunAt, useDayClock } from "./daylight";
-import { filesOf, showsFor, type Spot, type Stage, stageOf } from "./placeFile";
+import { filesOf, type Room, showsFor, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { chipNode } from "./chip";
 import { anchorFan } from "./fan/anchor";
 import { markNode, showMark } from "./mark";
 import { bedLie, othersSeen, sleepMarkNode } from "./sleep";
 import { type LabelBox, spreadLabels } from "./labels";
-import { aimShot, clampTurn, roomShot, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
+import { aimRoom, aimShot, clampTurn, EASE, easeZoom, homeTap, ROOM_EASE, ROOM_SETTLE, roomAt, roomFirst, roomShot, SETTLE, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
 import { thingSpot, walkBeforeAct, walkSpot } from "./things";
 import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo } from "./walk";
 import { walkableOf } from "./walk/map";
@@ -51,8 +51,6 @@ const DRAG_PX = 8;
 const TURN_PER_PX = 0.25;
 /** Pixels the fingers of a pinch move apart for the view to go from the whole place to close. */
 const PINCH_PX = 260;
-/** How quickly the view eases to where it is going, a share a second. */
-const EASE = 7;
 /** How close to the screen's edge a label or a chip may stand. */
 const EDGE_MARGIN = 8;
 /** How high the character lies when the act names no top to lie on (`Act.top`): about a mattress's top. */
@@ -134,9 +132,16 @@ interface Rig {
   /** Degrees either side of the shot's facing. */
   turn: number;
   pinching: boolean;
+  /** A wide home's room the view eases in on (R-WORLD-029 as the home's wave asks it amended); null for the room the character stands in. */
+  room: string | null;
 }
 
-const wholeRig = (): Rig => ({ zoom: 1, zoomTo: 1, turn: 0, pinching: false });
+const wholeRig = (): Rig => ({ zoom: 1, zoomTo: 1, turn: 0, pinching: false, room: null });
+
+/** The room a wide home's view eases in on: the one asked for, else the one the character stands in, else the first. */
+export function roomInView(rooms: readonly Room[], asked: string | null, at: { x: number; z: number }): Room | undefined {
+  return rooms.find((room) => room.id === asked) ?? roomAt(rooms, at.x, at.z) ?? rooms[0];
+}
 
 /** Where a point of the place falls on the screen, in CSS pixels, or null when it is off it or behind the camera. */
 function onScreen(camera: Camera, size: { width: number; height: number }, x: number, y: number, z: number, margin = 1): { x: number; y: number } | null {
@@ -256,17 +261,39 @@ function Place(props: PlaceProps) {
     walk.current.lying = false;
     pick.current({ kind: "thing", thing });
   };
+  // A wide home's rooms (R-WORLD-029 as the home's wave asks it amended): a thing chosen from the whole house, or in
+  // another room, eases the camera in on its room first, and its chip or its fan opens once the camera is there.
+  const rooms = useMemo(() => (raised ? (stage.rooms ?? []) : []), [raised, stage.rooms]);
+  const deferred = useRef<Thing | null>(null);
+  const zoomed = props.onZoomed;
+  const easeTo = (room: Room | null): void => {
+    rig.current.room = room === null ? rig.current.room : room.id;
+    rig.current.zoomTo = room === null ? 1 : 0;
+    rig.current.pinching = false;
+    zoomed?.(room !== null);
+  };
+  const pickThing = (thing: Thing): void => {
+    const room = roomFirst(rooms, rig.current.zoomTo === 1, roomInView(rooms, rig.current.room, walk.current.walker), thingSpot(stage, thing));
+    if (room !== null) {
+      easeTo(room);
+      deferred.current = thing;
+      return;
+    }
+    choose(thing);
+  };
   const walkForRef = useRef(walkFor);
   walkForRef.current = walkFor;
   const chooseRef = useRef(choose);
   chooseRef.current = choose;
+  const pickRef = useRef(pickThing);
+  pickRef.current = pickThing;
   const stopRef = useRef(props.onStop);
   stopRef.current = props.onStop;
 
   // The marks live in the DOM box beside the canvas, one over each thing; the frame loop moves them (R-WORLD-005).
   useEffect(() => {
     if (markBox === null) return;
-    const made = things.map((thing) => ({ thing, node: markNode(thing, () => chooseRef.current(thing)) }));
+    const made = things.map((thing) => ({ thing, node: markNode(thing, () => pickRef.current(thing)) }));
     for (const { node } of made) markBox.append(node);
     labels.current = made;
     return () => {
@@ -465,6 +492,8 @@ function Place(props: PlaceProps) {
               const spot = spotOf(id);
               return spot === null ? null : onScreen(camera, size, spot[0], 1, spot[1]);
             },
+            room: rig.current.room,
+            ease: (id: string | null) => easeTo(id === null ? null : (rooms.find((one) => one.id === id) ?? null)),
             fits: () => {
               const ends = widthEnds(shot, rig.current.turn).every(([x, y, z]) => onScreen(camera, size, x, y, z) !== null);
               const offScreen = things.filter((thing) => {
@@ -480,7 +509,8 @@ function Place(props: PlaceProps) {
     return () => {
       if (window.__city === probe) delete window.__city;
     };
-  }, [world, place, camera, size, stage, things, raised, shot, rig]);
+    // The probe's ease reads the rooms of the place it was made for.
+  }, [world, place, camera, size, stage, things, raised, shot, rig, rooms]);
 
   useFrame((state, delta) => {
     const time = advanceClock(delta);
@@ -526,11 +556,21 @@ function Place(props: PlaceProps) {
     }
     const aspect = state.size.width / Math.max(1, state.size.height);
     const view = rig.current;
-    if (raised) {
-      if (!view.pinching) {
-        view.zoom += (view.zoomTo - view.zoom) * Math.min(1, delta * EASE);
-        if (Math.abs(view.zoomTo - view.zoom) < 0.002) view.zoom = view.zoomTo;
+    const room = roomInView(rooms, view.room, next);
+    if (raised && room !== undefined) {
+      if (!view.pinching) view.zoom = easeZoom(view.zoom, view.zoomTo, delta, ROOM_EASE, ROOM_SETTLE);
+      const { position, target, fov } = aimRoom(shot, room, view.zoom, aspect);
+      state.camera.position.set(...position);
+      state.camera.lookAt(...target);
+      lens(state.camera, fov, SHOT_NEAR_PLANE);
+      // Once the camera has eased in on its room, the thing chosen opens there.
+      const waiting = deferred.current;
+      if (waiting !== null && view.zoom === view.zoomTo) {
+        deferred.current = null;
+        chooseRef.current(waiting);
       }
+    } else if (raised) {
+      if (!view.pinching) view.zoom = easeZoom(view.zoom, view.zoomTo, delta, EASE, SETTLE);
       const { position, target } = aimShot(shot, view, next, aspect);
       state.camera.position.set(...position);
       state.camera.lookAt(...target);
@@ -666,9 +706,27 @@ function Place(props: PlaceProps) {
       if (raised) {
         probe.zoom = view.zoom;
         probe.zoomTo = view.zoomTo;
+        probe.room = room?.id ?? null;
       }
     }
   });
+
+  /**
+   * A tap on a wide home's floor or walls (R-WORLD-029 as the home's wave asks it amended): from the whole house it eases
+   * in on the room tapped; eased in, a tap outside the room eases back out to the whole house. True when the tap was
+   * the camera's; a tap inside the room eased in on walks as anywhere.
+   */
+  const roomTap = (x: number, z: number): boolean => {
+    const whole = rig.current.zoomTo === 1;
+    const tap = homeTap(rooms, whole, roomInView(rooms, rig.current.room, walk.current.walker), x, z);
+    if (tap.kind === "in") easeTo(tap.room);
+    if (tap.kind === "out") {
+      deferred.current = null;
+      easeTo(null);
+    }
+    // From the whole house even a tap past every room only looks: nothing walks until the camera is in.
+    return tap.kind !== "walk" || whole;
+  };
 
   const tapped = (event: ThreeEvent<MouseEvent>): void => {
     event.stopPropagation();
@@ -698,19 +756,29 @@ function Place(props: PlaceProps) {
       const thing = things.find((candidate) => candidate.file === hit.file && candidate.copy === copy);
       if (thing !== undefined) {
         if (window.__city !== undefined) window.__city.lastTap = { picked: { kind: "thing", thing }, action: thing.acts[0]?.stages ?? thing.acts[0]?.kind ?? null };
-        choose(thing);
+        pickThing(thing);
         return;
       }
-      // A shopfront with its signs opens a card; any other model is not a place to walk to.
-      picked = hit.signs.length > 0 ? hit : null;
-      if (picked === null) return;
+      // A wide home's walls: a tap on them is a tap on the room they stand in, and inside the room eased in on, a walk.
+      if (rooms.length > 0 && hit.signs.length === 0) {
+        if (roomTap(event.point.x, event.point.z)) return;
+        picked = null;
+      } else {
+        // A shopfront with its signs opens a card; any other model is not a place to walk to.
+        picked = hit.signs.length > 0 ? hit : null;
+        if (picked === null) return;
+      }
     }
     if (window.__city !== undefined) window.__city.lastTap = { picked, action: null };
     if (picked !== null) {
+      // Someone in a wide home seen whole: the camera eases in on their room as their card opens.
+      const room = rooms.length > 0 && rig.current.zoomTo === 1 ? roomAt(rooms, event.point.x, event.point.z) : null;
+      if (room !== null) easeTo(room);
       onPick(picked);
       return;
     }
     if (world === null) return;
+    if (rooms.length > 0 && roomTap(event.point.x, event.point.z)) return;
     walk.current.pending = null;
     props.onClear?.();
     const point = { x: event.point.x, z: event.point.z };
@@ -759,15 +827,18 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
   const day = useDayClock(props.worldClock ?? null);
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => roomShot(shotOf(stageOf(file)), stageOf(file), file.scope), [file]);
+  // A wide home's rooms, which the pinch and the wheel ease in on (R-WORLD-029 as the home's wave asks it amended).
+  const rooms = useMemo(() => (raised ? (stageOf(file).rooms ?? []) : []), [raised, file]);
   const rig = useRef<Rig>(wholeRig());
   const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false, lying: false, lieY: LIE_Y, speed: WALK_SPEED });
   const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);
   const holding = useRef<number | null>(null);
   const held = useRef(false);
-  // Entering a place, or a room, always shows the whole of it (R-WORLD-009).
+  // Entering a place, or a room, always shows the whole of it (R-WORLD-009); the same place shown anew, dressed or with
+  // what the month's acts show, keeps the view the player made, so a home eased in on stays on its room.
   useEffect(() => {
     rig.current = wholeRig();
-  }, [file]);
+  }, [file.place, file.scope]);
   // The shell's chip "See the whole place" sends the view back; the pinch reports where it rests.
   useEffect(() => {
     rig.current.zoomTo = zoomed ? 0 : 1;
@@ -798,6 +869,8 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
             const [a, b] = [...pointers.current.values()];
             if (a !== undefined && b !== undefined) pinch.current = { gap: Math.hypot(a.x - b.x, a.y - b.y), zoom: rig.current.zoom };
             rig.current.pinching = true;
+            // From the whole house a pinch closes in on the room the character stands in.
+            if (rooms.length > 0 && rig.current.zoomTo === 1) rig.current.room = roomInView(rooms, null, walk.current.walker)?.id ?? null;
             drag.current = null;
             held.current = true;
           }
@@ -849,6 +922,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
       onPointerLeave={release}
       onWheel={(event) => {
         if (!raised || !looking || event.deltaY === 0) return;
+        if (rooms.length > 0 && event.deltaY < 0 && rig.current.zoomTo === 1) rig.current.room = roomInView(rooms, null, walk.current.walker)?.id ?? null;
         rest(event.deltaY < 0 ? 0 : 1);
       }}
     >
@@ -860,6 +934,11 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
         frameloop={looking ? "always" : "demand"}
         camera={{ fov: FOV, near: 0.1, far: 240, position: [0, EYE, BEHIND] }}
         aria-hidden
+        // A tap on nothing at all, past a wide home's walls, eases back out to the whole house.
+        onPointerMissed={() => {
+          if (rooms.length === 0 || !looking || held.current || rig.current.zoomTo === 1) return;
+          rest(1);
+        }}
       >
         <Idle looking={looking} />
         <Place

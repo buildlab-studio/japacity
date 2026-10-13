@@ -10,7 +10,7 @@ import { describe, expect, test } from "vitest";
 import raw from "../../../../public/assets/places/home-room-house/place.json";
 import { engineView, newGame, setPockets } from "../../../shared/testing/fixtures";
 import { cameraAt, projected, SCREENS } from "../scene.testing";
-import { aimShot, shotOf, WHOLE } from "../shot";
+import { aimRoom, shotOf } from "../shot";
 import { type PlaceFile, stageOf } from "../placeFile";
 import { sceneWords } from "../scene.words";
 import { byHandAt, homeStagesAt } from "../staging";
@@ -95,7 +95,7 @@ describe("the room in a compound", () => {
     expect(elsewhere["drum"]).toBeUndefined();
   });
 
-  test("[R-HOME-010] [R-WORLD-029] given the room in a compound as a wide floor, about 5 by 5 metres of your own in a house of about 9 by 8, when it opens whole on a phone held upright, then its five things stand within a few steps of the character at the door, and the character reads at a phone's size in the whole view: over 5 in a hundred of the screen's height, where the room of 16 by 9 metres gave it 3", () => {
+  test("[R-HOME-010] [R-WORLD-029] given the room in a compound as a wide floor, about 5 by 5 metres of your own in a house of about 9 by 8, when it opens whole on a phone held upright, then its five things stand within a few steps of the character at the door, and the character reads at a phone's size: over 5 in a hundred of the screen's height in the whole view, where the room of 16 by 9 metres gave it 3, and over 7 eased in on your room", () => {
     const [x, z] = stage.start;
     for (const id of ["bed", "papers-box", "cooking", "drum", "bag"]) {
       const spot = thingSpot(stage, thingOf(id));
@@ -103,11 +103,15 @@ describe("the room in a compound", () => {
       expect({ id, close: Math.hypot(spot[0] - x, spot[1] - z) < 4.2 }).toEqual({ id, close: true });
     }
     const aspect = SCREENS.phone;
-    const camera = cameraAt(aimShot(shotOf(stage), WHOLE, { x, z }, aspect), aspect);
-    const foot = projected(camera, x, 0, z);
-    const head = projected(camera, x, 1.7, z);
-    // The screen runs -1 to 1 from foot to top.
-    expect((head.y - foot.y) / 2).toBeGreaterThan(0.05);
+    const room = (stage.rooms ?? []).find((one) => one.id === "room");
+    if (room === undefined) throw new Error("No room to ease in on");
+    const tall = (zoom: number): number => {
+      const camera = cameraAt(aimRoom(shotOf(stage), room, zoom, aspect), aspect);
+      // The screen runs -1 to 1 from foot to top.
+      return (projected(camera, x, 1.7, z).y - projected(camera, x, 0, z).y) / 2;
+    };
+    expect(tall(1)).toBeGreaterThan(0.05);
+    expect(tall(0)).toBeGreaterThan(0.07);
   });
 
   test("[R-HOME-006] given a life living in Makoko, when Makoko's room is read, then the family house's acts are staged on the water too", () => {

@@ -21,8 +21,8 @@ export function builtPlaces(): { folder: string; file: PlaceFile }[] {
 export const SCREENS = { phone: 390 / 844, small: 360 / 640, sideways: 844 / 390, tablet: 820 / 1180, desktop: 1440 / 900 } as const;
 
 /** A camera standing and looking where the scene would put it, on a screen of that shape. */
-export function cameraAt(aim: { position: [number, number, number]; target: [number, number, number] }, aspect: number): PerspectiveCamera {
-  const camera = new PerspectiveCamera(SHOT_FOV, aspect, SHOT_NEAR_PLANE, 240);
+export function cameraAt(aim: { position: [number, number, number]; target: [number, number, number]; fov?: number }, aspect: number): PerspectiveCamera {
+  const camera = new PerspectiveCamera(aim.fov ?? SHOT_FOV, aspect, SHOT_NEAR_PLANE, 240);
   camera.position.set(...aim.position);
   camera.lookAt(...aim.target);
   camera.updateMatrixWorld(true);
