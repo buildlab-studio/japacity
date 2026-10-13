@@ -32,6 +32,14 @@ export async function passHomeTeach(page: Page, timeout = 4000): Promise<void> {
  */
 async function tapThing(page: Page, thing: string): Promise<void> {
   const mark = page.locator(`[data-mark="${thing}"]`);
+  // A wide home eased in on one room hides the things of the others (decision 0040): the whole house first, then the thing.
+  if (!(await mark.isVisible().catch(() => false))) {
+    const whole = page.getByRole("button", { name: "See the whole place" });
+    if (await whole.isVisible().catch(() => false)) {
+      await whole.click();
+      await mark.waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
+    }
+  }
   if (await mark.isVisible().catch(() => false)) {
     await mark.click({ timeout: 10_000 });
     return;
