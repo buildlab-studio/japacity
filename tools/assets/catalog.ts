@@ -56,6 +56,7 @@ import { buildHome } from "@japacity/assets-src/bld/home/build";
 import { HOMES3 } from "@japacity/assets-src/bld/home/homes3";
 import { buildCar } from "@japacity/assets-src/veh/car/build";
 import * as home from "@japacity/assets-src/prop/home/build";
+import * as things from "@japacity/assets-src/prop/home/things";
 import { buildAbra } from "@japacity/assets-src/veh/abra/build";
 import { buildLabourBus } from "@japacity/assets-src/veh/labour-bus/build";
 import { buildDanfo, buildKeke, buildOkada } from "@japacity/assets-src/veh/vehicles";
@@ -554,6 +555,20 @@ ENTRIES.push(
   homePiece("prop_mattress", "shared", home.buildMattress),
   homePiece("prop_bunk-bed", "shared", home.buildBunkBed),
   homePiece("prop_small-shelf", "shared", home.buildSmallShelf),
+  homePiece("prop_radio", "shared", things.buildRadio),
+  homePiece("prop_big-pot", "shared", things.buildBigPot),
+  homePiece("prop_router", "shared", things.buildRouter),
+  homePiece("prop_decoder", "shared", things.buildDecoder),
+  homePiece("prop_gas-cooker", "shared", things.buildGasCooker),
+  homePiece("prop_fridge", "shared", things.buildFridge),
+  homePiece("prop_mirror", "shared", things.buildMirror),
+  homePiece("prop_speaker", "shared", things.buildSpeaker),
+  homePiece("prop_inverter", "shared", things.buildInverter),
+  homePiece("prop_solar", "shared", things.buildSolar),
+  homePiece("prop_ac", "shared", things.buildAc),
+  homePiece("prop_laptop-desk", "shared", things.buildLaptopDesk),
+  homePiece("prop_phone", "shared", things.buildPhone),
+  homePiece("prop_foam-mattress", "shared", things.buildFoamMattress),
 );
 
 /** Every shipped asset, each model a player could be shown as a thing with the tile view beside its fixed views. */
