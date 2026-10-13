@@ -694,3 +694,4 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 [data-paint="night"] .phone-segment-on { background: var(--on-strong); color: var(--strong); }
 /* A notice on the lock screen is white in both paints, so its words keep the day's ink at night. */
 .morning-card, .phone-notice { --text: #131a33; --text-2: #56607e; --sheet-2: #ffffff; }
+.calendar-stop { border-radius: 9999px; }
