@@ -1,7 +1,8 @@
 // The map and the ride in a real browser at phone size (docs/rules/world.md R-WORLD-015 to 017): the
-// city drawn as the map stays within its draw calls by the renderer's own count, a stop picked lights
-// the route and raises the ride sheet, and the ride plays and lands in the place. With MAP_SHOTS set
-// to a folder, the pictures of each step are saved there.
+// painted map opens folded on the card where the player stands, the strip unfolds it into the whole
+// map, a pin there folds it back on its card with the stop picked, the route runs from the player's
+// stop to the stop, the ride sheet rises, and the ride plays and lands in the place. With MAP_SHOTS
+// set to a folder, the pictures of each step are saved there.
 import { expect, type Page, test } from "@playwright/test";
 import { startReadyLife } from "./door";
 
@@ -9,16 +10,16 @@ test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile
 
 interface MapProbe {
   ready: boolean;
-  drawCalls: number;
-  triangles: number;
-  frames: number;
+  phase: string;
+  card: string;
   route: [number, number][] | null;
-  stops: { id: string; state: string; at: [number, number] }[];
+  channel: string | null;
+  stops: { id: string; state: string; card: string; at: [number, number] }[];
 }
 
 declare global {
   interface Window {
-    __map?: MapProbe & { screenOf: (id: string) => { x: number; y: number } | null };
+    __map?: MapProbe;
   }
 }
 
@@ -56,7 +57,7 @@ async function startLife(page: Page): Promise<void> {
   await page.waitForSelector("[data-band]", { timeout: 30_000 });
 }
 
-test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map opens and a stop is picked and ridden to, then the renderer counts at most 20 draw calls, the route runs between the two stops, and the ride lands there", async ({ page }, info) => {
+test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map opens, unfolds and a pin is picked and ridden to, then it opens folded on the player's card, the pin folds it back on its own card with the route from the player's stop, and the ride lands there", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The map is measured at phone size");
   test.setTimeout(180_000);
   await startLife(page);
@@ -65,36 +66,41 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
 
   await page.locator('[data-thumb="map"]').click();
   await page.waitForSelector("[data-map]");
-  await page.waitForFunction(() => (window.__map?.frames ?? 0) > 20, null, { timeout: 60_000 });
-  await page.waitForTimeout(1200);
+  await page.waitForFunction(() => window.__map?.ready === true, null, { timeout: 30_000 });
   const opened = await page.evaluate(() => window.__map);
-  console.log(`map: ${String(opened?.drawCalls)} draw calls, ${String(opened?.triangles)} triangles, ${String(opened?.stops.length)} stops`);
-  expect(opened?.drawCalls).toBeGreaterThan(0);
-  expect(opened?.drawCalls).toBeLessThanOrEqual(20);
-  expect(opened?.stops.some((stop) => stop.state === "here" && stop.id === from)).toBe(true);
-  await shot(page, "01-map-open");
+  const here = opened?.stops.find((stop) => stop.state === "here");
+  expect(here?.id).toBe(from);
+  expect(opened?.phase).toBe("folded");
+  // Opened on the card where the player stands, unless a step points elsewhere; either way the card shows its own stickers.
+  await expect(page.locator(`[data-card="${opened?.card ?? ""}"][data-current="true"]`)).toBeVisible();
+  await expect(page.locator("[data-strip]")).toBeVisible();
+  await shot(page, "01-card");
 
-  // Tap a stop's board on the screen: the route lights from the player's stop to it.
-  // A stop a little way off, so the route has roads to run along.
+  // The strip unfolds the whole map.
+  await page.locator("[data-strip]").click();
+  await page.waitForFunction(() => window.__map?.phase === "open", null, { timeout: 20_000 });
+  await expect(page.locator("[data-open-map]")).toBeVisible();
+  await shot(page, "03-map-open");
+
+  // A pin of the open map folds it back on its own card, with the stop picked and the route lit from the player's stop.
   const away = (opened?.stops ?? []).filter((stop) => stop.state !== "here" && stop.state !== "not" && stop.id !== "place.family-house");
   const target = (away.find((stop) => stop.id === "place.national-stadium") ?? away[0])?.id ?? "";
-  const board = await page.evaluate((id) => window.__map?.screenOf(id) ?? null, target);
-  expect(board).not.toBeNull();
-  await page.mouse.click(board?.x ?? 0, board?.y ?? 0);
+  await page.locator(`[data-open-map] [data-pin="${target}"]`).click();
   await expect(page.locator(`[data-ride-sheet="${target}"]`)).toBeVisible();
-  await page.waitForTimeout(1500);
+  await page.waitForFunction(() => window.__map?.phase === "folded", null, { timeout: 20_000 });
   const lit = await page.evaluate(() => window.__map);
-  const here = lit?.stops.find((stop) => stop.state === "here");
   const there = lit?.stops.find((stop) => stop.id === target);
+  expect(lit?.card).toBe(there?.card);
   expect(lit?.route?.[0]).toEqual(here?.at);
   expect(lit?.route?.[(lit.route.length || 1) - 1]).toEqual(there?.at);
-  expect(lit?.drawCalls).toBeLessThanOrEqual(20);
+  expect(lit?.channel).toBe(here?.card === there?.card ? "card" : "strip");
+  await expect(page.locator(`[data-route-line]`).first()).toBeVisible();
   // The button says the ride and its fare, the balance before struck through under it with the balance after (decision 0036; "left" is gone).
   await expect(page.locator("[data-ride-main]")).toContainText("₦");
   await expect(page.locator("[data-ride-main]")).not.toContainText("left");
   await expect(page.locator("[data-balance-before]")).toBeVisible();
   await expect(page.locator("[data-balance-after]")).toBeVisible();
-  await shot(page, "02-stop-picked-route-lit");
+  await shot(page, "05-stop-picked");
 
   // The ride: a short scene with its band and Skip, then the place opens with its name told in the corner (R-WORLD-026).
   await page.locator('[data-way="danfo"]').click();
@@ -102,11 +108,53 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   await expect(page.locator("[data-ride]")).toBeVisible();
   await expect(page.locator("[data-ride-title]")).toContainText("Danfo to");
   await page.waitForTimeout(2600);
-  await shot(page, "03-ride");
+  await shot(page, "08-ride");
   await expect(page.locator("[data-ride]")).toBeHidden({ timeout: 8000 });
   await expect(page.locator("[data-corner] [data-told]").last()).toBeVisible();
   await page.waitForFunction((id) => (window as unknown as { __city?: CityProbe }).__city?.place === id, target, { timeout: 30_000 });
-  await shot(page, "04-arrived");
+  await shot(page, "09-arrived");
+});
+
+test("[R-WORLD-015] given the map folded on a phone, when the strip is dragged down and a district of the open map is tapped, then the map opens and folds back on that district's card, and the cards swipe sideways", async ({ page }, info) => {
+  test.skip(info.project.name !== "Pixel 7", "The fold is a phone's");
+  test.setTimeout(150_000);
+  await startLife(page);
+  await page.locator('[data-thumb="map"]').click();
+  await page.waitForFunction(() => window.__map?.ready === true, null, { timeout: 30_000 });
+  const strip = await page.locator("[data-strip]").boundingBox();
+  const x = (strip?.x ?? 0) + (strip?.width ?? 0) / 2;
+  const y = (strip?.y ?? 0) + (strip?.height ?? 0) / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y + 60, { steps: 4 });
+  await shot(page, "02-strip-pulling");
+  await page.mouse.move(x, y + 260, { steps: 6 });
+  await page.mouse.up();
+  await page.waitForFunction(() => window.__map?.phase === "open", null, { timeout: 20_000 });
+  await page.waitForTimeout(400);
+  // The island's name on the open map: a tap on the paper just under it folds back on the island's card. Where it stands on
+  // the screen is read from its paper point and the open map's own move and zoom.
+  const point = await page.evaluate(() => {
+    const label = document.querySelector<SVGTextElement>('[data-open-map] [data-district="map.area.lagos-island"]');
+    const world = document.querySelector<HTMLElement>("[data-open-map] [data-world]");
+    const moved = /translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)/.exec(world?.style.transform ?? "");
+    if (label === null || moved === null) return null;
+    const [x, y, z] = [Number(moved[1]), Number(moved[2]), Number(moved[3])];
+    return { x: x + Number(label.getAttribute("x")) * z, y: y + (Number(label.getAttribute("y")) + 10) * z };
+  });
+  expect(point).not.toBeNull();
+  await page.mouse.click(point?.x ?? 0, point?.y ?? 0);
+  await page.waitForFunction(() => window.__map?.phase === "folded", null, { timeout: 20_000 });
+  expect(await page.evaluate(() => window.__map?.card)).toBe("island");
+  await expect(page.locator('[data-card="island"][data-current="true"]')).toBeVisible();
+  await shot(page, "04-folded-back-island");
+  // A swipe to the next card along, once the track stands on the island's card.
+  await page.waitForFunction(() => {
+    const track = document.querySelector<HTMLElement>("[data-track]");
+    return track !== null && Math.abs(track.scrollLeft - 7 * track.clientWidth) < 2;
+  }, null, { timeout: 20_000 });
+  await page.locator("[data-track]").evaluate((track) => track.scrollBy({ left: track.clientWidth, behavior: "auto" }));
+  await page.waitForFunction(() => window.__map?.card === "lekki", null, { timeout: 20_000 });
 });
 
 test("[R-WORLD-032] given a life at home on a phone, when a danfo ride plays, then it cuts by itself from outside at the stop to above, the window and the seat, each once and in order, with no view switch", async ({ page }, info) => {
@@ -116,7 +164,7 @@ test("[R-WORLD-032] given a life at home on a phone, when a danfo ride plays, th
   await page.waitForFunction(() => (window as unknown as { __city?: CityProbe }).__city?.ready === true, null, { timeout: 90_000 });
   await page.locator('[data-thumb="map"]').click();
   await page.waitForSelector("[data-map]");
-  await page.waitForFunction(() => (window.__map?.frames ?? 0) > 5, null, { timeout: 60_000 });
+  await page.waitForFunction(() => window.__map?.ready === true, null, { timeout: 60_000 });
   const stops = (await page.evaluate(() => window.__map?.stops)) ?? [];
   const target = stops.find((stop) => stop.state !== "here" && stop.state !== "not" && stop.id !== "place.family-house")?.id ?? "";
   await page.locator(`[data-stop="${target}"]`).dispatchEvent("click");
@@ -158,14 +206,7 @@ test("[R-WORLD-016] given the map open on a phone, when a locked country in the 
   await startLife(page);
   await page.locator('[data-thumb="map"]').click();
   await page.waitForSelector("[data-map]");
-  if (SHOTS !== null) {
-    // Zoomed out: the whole city, the lagoon and the island.
-    await page.waitForFunction(() => (window.__map?.frames ?? 0) > 10, null, { timeout: 60_000 });
-    await page.mouse.move(195, 420);
-    for (let notch = 0; notch < 6; notch += 1) await page.mouse.wheel(0, 300);
-    await page.waitForTimeout(2500);
-    await shot(page, "06-map-whole-city");
-  }
+  await page.waitForFunction(() => window.__map?.ready === true, null, { timeout: 60_000 });
   await page.locator("[data-country-menu] > button").click();
   const locked = page.locator('[data-country-option][data-locked="true"]').first();
   await locked.click({ force: true });

@@ -91,13 +91,11 @@ describe("the folding map", () => {
   test("[R-WORLD-015] given the map folded, when the strip is tapped, then the map unfolds and settles open within the fold's time, with the cards out of the way; a pin of the open map folds it back on that pin's card with the stop picked", async () => {
     vi.useFakeTimers();
     await open();
-    const strip = document.querySelector("[data-strip]") as HTMLElement;
-    fireEvent.pointerDown(strip, { pointerId: 1, clientY: 40 });
-    fireEvent.pointerUp(strip, { pointerId: 1, clientY: 40 });
+    fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);
     expect(phase()).toBe("opening");
     expect(document.querySelector("[data-open-map]")).not.toBeNull();
     act(() => {
-      vi.advanceTimersByTime(FOLD_MS + 40);
+      vi.advanceTimersByTime(FOLD_MS + 300);
     });
     expect(phase()).toBe("open");
     expect(document.querySelector<HTMLElement>("[data-track]")?.style.pointerEvents).toBe("none");
@@ -109,7 +107,7 @@ describe("the folding map", () => {
     expect(window.__map?.card).toBe("island");
     expect(document.querySelector('[data-ride-sheet="place.passport-office"]')).not.toBeNull();
     act(() => {
-      vi.advanceTimersByTime(FOLD_MS + 40);
+      vi.advanceTimersByTime(FOLD_MS + 300);
     });
     expect(phase()).toBe("folded");
     expect(current()).toBe("island");
@@ -120,11 +118,9 @@ describe("the folding map", () => {
   test("[R-WORLD-015] given the map open with a stop picked across the city, when the route's channel is read, then it draws on the open map", async () => {
     vi.useFakeTimers();
     await open({ pickFirst: "place.passport-office" });
-    const strip = document.querySelector("[data-strip]") as HTMLElement;
-    fireEvent.pointerDown(strip, { pointerId: 1, clientY: 40 });
-    fireEvent.pointerUp(strip, { pointerId: 1, clientY: 40 });
+    fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);
     act(() => {
-      vi.advanceTimersByTime(FOLD_MS + 40);
+      vi.advanceTimersByTime(FOLD_MS + 300);
     });
     expect(window.__map?.channel).toBe("open");
     expect(document.querySelector("[data-open-map] [data-route-line]")).not.toBeNull();

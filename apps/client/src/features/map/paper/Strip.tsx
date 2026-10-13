@@ -63,26 +63,31 @@ export function Strip({ width, stops, home, step, hereName, stadium, route, tile
   const homeStop = stops.find((stop) => stop.id === home) ?? null;
   const stepStop = stops.find((stop) => stop.id === step) ?? null;
   const down = useRef<{ y: number; moved: boolean } | null>(null);
+  // A drag ends in a release; the click the browser sends after it is not a tap.
+  const dragged = useRef(false);
   const at = (point: Point, z = 3): CSSProperties => {
     const [x, y] = onStrip(frame, point);
     return { left: x, top: y, zIndex: z };
   };
   const pointerDown = (event: ReactPointerEvent<HTMLButtonElement>): void => {
     down.current = { y: event.clientY, moved: false };
-    if (typeof event.currentTarget.setPointerCapture === "function") event.currentTarget.setPointerCapture(event.pointerId);
+    dragged.current = false;
   };
   const pointerMove = (event: ReactPointerEvent<HTMLButtonElement>): void => {
     if (down.current === null) return;
     const dy = event.clientY - down.current.y;
-    if (Math.abs(dy) > 6) down.current.moved = true;
+    if (!down.current.moved && Math.abs(dy) > 6) {
+      down.current.moved = true;
+      if (typeof event.currentTarget.setPointerCapture === "function") event.currentTarget.setPointerCapture(event.pointerId);
+    }
     if (down.current.moved) onDrag(Math.max(0, dy));
   };
   const pointerUp = (): void => {
     const was = down.current;
     down.current = null;
-    if (was === null) return;
-    if (was.moved) onRelease();
-    else onTap();
+    if (was?.moved !== true) return;
+    dragged.current = true;
+    onRelease();
   };
   return (
     <button
@@ -93,11 +98,9 @@ export function Strip({ width, stops, home, step, hereName, stadium, route, tile
       onPointerMove={pointerMove}
       onPointerUp={pointerUp}
       onPointerCancel={pointerUp}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onTap();
-        }
+      onClick={() => {
+        if (dragged.current) dragged.current = false;
+        else onTap();
       }}
       aria-label={mapWords("map.unfold")}
       data-strip

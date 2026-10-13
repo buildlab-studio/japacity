@@ -30,7 +30,7 @@ import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
 import { Band, bandMoney, bandMonth } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
-import type { Act, Ask, RideChoice, Thing } from "../../shared/world/contract";
+import type { Act, Ask, CountryChoice, Pin as ContractPin, PinState, RideChoice, Thing } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
@@ -49,7 +49,6 @@ import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SC
 import { NAP, SLEEP_MS, sleepMsOf, wakeCommand, wokeWords } from "./sleep";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
-import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from "./FlyOver";
 import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
@@ -365,7 +364,10 @@ function PersonCard({ picked, onClose, words: said }: { picked: Picked; onClose:
   );
 }
 
-/** What the city hands its map: the same as the fly-over took. */
+/** A stop as the city hands it to the map: the contract's pin, its line left to the map. */
+type Pin = Omit<ContractPin, "line">;
+
+/** What the city hands its map: the stops, the countries, the step's place and what to do on a ride. */
 export interface CityMapSlot {
   pins: readonly Pin[];
   country: CountryChoice;
@@ -405,7 +407,7 @@ export function City({
 }: {
   /** `adverts`: the shell's advert slots for the place on screen (R-ADVERT-001), placed beside what is said there. */
   adverts?: (place: string) => ReactNode;
-  /** The world mode: the place fills the screen under a see-through bar, with the fly-over as its map. */
+  /** The world mode: the place fills the screen under a see-through bar, with the painted map as its map. */
   world?: boolean;
   /** The world mode's sheet for the actions a tapped thing stages. */
   actions?: (ids: string[]) => ReactNode;
@@ -428,7 +430,7 @@ export function City({
   phoneWaiting?: boolean;
   /** The icon for an ask card's corner, by the ask's icon name, from the shell's icon set. */
   askIcon?: (name: string) => ReactNode;
-  /** The world mode's map (R-WORLD-015 to 017), handed in by the shell; the fly-over stands in without it. */
+  /** The world mode's map (R-WORLD-015 to 017), handed in by the shell; without it the map button opens nothing. */
   cityMap?: (props: CityMapSlot) => ReactNode;
   /** The street kiosk's sheet while the world runs the Friday draw (lottery.md R-LOTTERY-001), handed in by the shell, over the place named `label`. */
   kiosk?: (close: () => void, label: string) => ReactNode;
@@ -975,7 +977,7 @@ export function City({
     if (fanned === null || first === undefined) return;
     setPicked(rest.length === 0 ? { kind: "action", activity: first.stages, ...(first.act.param === undefined ? {} : { param: first.act.param }) } : { kind: "action", activity: first.stages, more: rest.map((one) => one.stages), label: first.act.label });
   };
-  // A ride plays as the fly-over's dive, then the place opens (rule 13).
+  // A ride plays, then the place opens (rule 13).
   const travel = (id: string): void => {
     cue("whoosh");
     setPicked(null);
@@ -1549,7 +1551,7 @@ export function City({
         ) : null}
       </div>
 
-      {world && map && cityMap !== undefined && !flyoverOn()
+      {world && map && cityMap !== undefined
         ? cityMap({
             pins,
             country: shownCountry,
@@ -1592,24 +1594,6 @@ export function City({
             },
           })
         : null}
-      {world && map && (cityMap === undefined || flyoverOn()) ? (
-        <FlyOver
-          pins={pins}
-          country={shownCountry}
-          countries={countries}
-          drawing={drawing}
-          diveTo={diveTo}
-          onGo={(id) => {
-            setPlaceId(id);
-            setMap(false);
-            setDiveTo(null);
-          }}
-          onClose={() => {
-            setMap(false);
-            setDiveTo(null);
-          }}
-        />
-      ) : null}
 
       {world && looking ? (
         <>

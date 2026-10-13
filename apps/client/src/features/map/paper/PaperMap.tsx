@@ -288,20 +288,7 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
   const top = 12 + STRIP_H + 8 + 26;
   const cardHeight = Math.max(200, height - top - 92);
   const settling = useRef(false);
-  // The card shown follows the state: a swipe sets the state, and a pick or a fold back scrolls the track.
-  useEffect(() => {
-    const element = track.current;
-    if (element === null) return;
-    const left = index * width;
-    if (Math.abs(element.scrollLeft - left) < 2) return;
-    settling.current = true;
-    if (typeof element.scrollTo === "function") element.scrollTo({ left, behavior: still || hidden ? "auto" : "smooth" });
-    else element.scrollLeft = left;
-    const done = setTimeout(() => {
-      settling.current = false;
-    }, 450);
-    return () => clearTimeout(done);
-  }, [index, width, still, hidden]);
+  const mounted = useRef(false);
   const scrolled = (): void => {
     const element = track.current;
     if (element === null || settling.current) return;
@@ -309,6 +296,42 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
     const id = CARD_IDS[next];
     if (id !== undefined && id !== current) onSwipe(id);
   };
+  const latest = useRef(scrolled);
+  latest.current = scrolled;
+  // The card shown follows the state: a swipe sets the state, and a pick or a fold back scrolls the track. A swipe made
+  // while the track was still moving there is read once it has settled.
+  useEffect(() => {
+    const element = track.current;
+    if (element === null) return;
+    const left = index * width;
+    if (Math.abs(element.scrollLeft - left) < 2) {
+      mounted.current = true;
+      return;
+    }
+    settling.current = true;
+    // The first card is there at once; later ones slide round, unless the track is out of sight or motion is reduced.
+    const smooth = mounted.current && !still && !hidden;
+    mounted.current = true;
+    if (typeof element.scrollTo === "function") element.scrollTo({ left, behavior: smooth ? "smooth" : "auto" });
+    else element.scrollLeft = left;
+    // Settled once the track stands on the card (a long slide takes longer than a short one), or after two seconds.
+    let waited = 0;
+    let done = 0;
+    const settle = (): void => {
+      waited += 1;
+      if (Math.abs(element.scrollLeft - left) >= 2 && waited < 16) {
+        done = window.setTimeout(settle, 120);
+        return;
+      }
+      settling.current = false;
+      latest.current();
+    };
+    done = window.setTimeout(settle, 120);
+    return () => {
+      clearTimeout(done);
+      settling.current = false;
+    };
+  }, [index, width, still, hidden]);
   const shown = hidden ? 0 : 1 - pull / 100;
   return (
     <>
@@ -440,10 +463,11 @@ function Unfold({ state, size, stripWidth, still, onSettled, country, close, ...
   const folded: Frame = { ...strip, x: 16 + strip.x, y: 16 + strip.y };
   const own = openFrame(layer.view, size.width, size.height);
   const [grown, setGrown] = useState(state.phase === "open");
+  // The fold settles when its motion ends (or, should the end never come, a little after the motion's time).
   useLayoutEffect(() => {
     if (state.phase === "opening") {
       const frame = requestAnimationFrame(() => requestAnimationFrame(() => setGrown(true)));
-      const done = setTimeout(onSettled, FOLD_MS + 20);
+      const done = setTimeout(onSettled, still ? FOLD_MS + 20 : FOLD_MS + 240);
       return () => {
         cancelAnimationFrame(frame);
         clearTimeout(done);
@@ -451,7 +475,7 @@ function Unfold({ state, size, stripWidth, still, onSettled, country, close, ...
     }
     if (state.phase === "closing") {
       setGrown(false);
-      const done = setTimeout(onSettled, FOLD_MS + 20);
+      const done = setTimeout(onSettled, still ? FOLD_MS + 20 : FOLD_MS + 240);
       return () => clearTimeout(done);
     }
     return undefined;
@@ -461,7 +485,14 @@ function Unfold({ state, size, stripWidth, still, onSettled, country, close, ...
   const moving = !still && !pulling && state.phase !== "open";
   const opacity = still ? (grown || state.phase === "open" ? 1 : 0) : pulling ? Math.min(1, state.pull / 40) : 1;
   return (
-    <div className={`paper-unfold ${still ? "paper-fade" : ""}`} style={{ opacity, transition: still ? `opacity ${String(FOLD_MS)}ms ease` : undefined }} data-unfold={state.phase}>
+    <div
+      className={`paper-unfold ${still ? "paper-fade" : ""}`}
+      style={{ opacity, transition: still ? `opacity ${String(FOLD_MS)}ms ease` : undefined }}
+      onTransitionEnd={(event) => {
+        if (moving && event.propertyName === "transform" && (event.target as HTMLElement).dataset.world === "open") onSettled();
+      }}
+      data-unfold={state.phase}
+    >
       <OpenLayer {...layer} size={size} frame={frame} transition={moving ? `transform ${String(FOLD_MS)}ms cubic-bezier(0.2, 0.9, 0.25, 1)` : undefined} />
       <div className="paper-open-head" style={{ opacity: state.phase === "open" ? 1 : 0 }}>
         {country}

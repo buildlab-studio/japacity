@@ -85,17 +85,17 @@ async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<vo
 async function goTo(page: Page, id: string): Promise<boolean> {
   const current = await probe(page);
   if (current?.place === id) return true;
-  // The map, a stop's board tapped on the screen, the ride sheet's first way (R-WORLD-015, R-WORLD-017).
+  // The map, a stop picked, the ride sheet's first way (R-WORLD-015, R-WORLD-017).
   await page.locator('[data-thumb="map"]').click();
   await page.waitForSelector("[data-map]");
-  await page.waitForFunction(() => ((window as unknown as { __map?: { frames?: number } }).__map?.frames ?? 0) > 5, null, { timeout: 60_000 });
+  await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
   // A stop not yet open to this life (R-WORLD-015: the story opens the map's stops) cannot be reached.
   const state = await page.evaluate((stop) => (window as unknown as { __map?: { stops: { id: string; state: string }[] } }).__map?.stops.find((candidate) => candidate.id === stop)?.state ?? null, id);
   if (state === null || state === "not") {
     await page.locator("[data-map-close]").click();
     return false;
   }
-  // The stops list stands for the screen reader while the map draws; its button picks the stop as a tap on the board does.
+  // The stops list stands for the screen reader beside the painted map; its button picks the stop as a tap on the sticker does.
   await page.evaluate((stop) => document.querySelector<HTMLButtonElement>(`[data-stop="${stop}"]`)?.click(), id);
   const sheet = page.locator(`[data-ride-sheet="${id}"]`);
   await sheet.waitFor({ state: "visible", timeout: 10_000 });
