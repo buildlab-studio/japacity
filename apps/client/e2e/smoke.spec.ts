@@ -130,7 +130,7 @@ test("[R-WORLD-034] three months of play, acts from the fan and from the things'
   // Each month, acts on the home's things: from the fan (R-WORLD-034) and from a thing's sheet (R-WORLD-005).
   const months: ((page: Page) => Promise<void>)[] = [
     async (here) => {
-      await fanActDone(here, "cooking", "activity.cook-at-home", /^Indomie and egg/);
+      await fanActDone(here, "cooking", "activity.cook-at-home", /^Food from the pot/);
       await actBySheet(here, "table", "study", /^Study for the English test/);
     },
     async (here) => {
