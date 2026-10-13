@@ -17,7 +17,7 @@ import { gateLook } from "../frontdoor/Gate";
 import { lookOf } from "../frontdoor/looks";
 import { AGE, pageAgeWords, yearsOf } from "../words/quality";
 import { typeWords } from "../words/japaType";
-import { readyPercent } from "../words/ready";
+import { readyPercent, readyWords } from "../words/ready";
 import { hasWords, hometownWords, say } from "../words/text";
 import { DataPage, type PageFields } from "./DataPage";
 import { familyCard, keptDraw } from "./family";
@@ -70,7 +70,7 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
     ...(draw === null ? {} : { family: familyCard(draw, archetype?.id === "water").means }),
     // Where the life is from, kept in the view after the prologue closes (R-PROLOGUE-009).
     ...(view.hometown === null ? {} : { from: hometownWords(view.hometown) }),
-    ready: say("prologue.page.ready.figure", { percent }),
+    ready: readyWords(percent),
     strip: { district: districtOf(view), years: yearsOf(months), percent },
     photo: lookOf(gateLook(person?.look))?.picture ?? "",
     // The player's own colours, or the look as made, and the photo drawn in them, kept with the person (R-PROLOGUE-015).

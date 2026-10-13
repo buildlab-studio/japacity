@@ -75,7 +75,7 @@ function found(selector: string): HTMLElement {
 }
 
 describe("the interview holds the month in the world", () => {
-  test("[R-INTERVIEW-004] given an interview open, then the month cannot end and the nudge marks what waits, until the last answer is in", async () => {
+  test("[R-INTERVIEW-004] given an interview open, then the month cannot end and the nudge marks what waits, until the last answer is in, when the asks leave and the officer says your answers are in", async () => {
     const game = interviewGame();
     const { authority } = await renderWithGame(
       <City world results={(place) => <p data-results-for={place} />} asks={[<InterviewView key="interview" />]} asksAt={[null]} phone={(close) => <button type="button" data-stand-in-phone onClick={close} />} />,
@@ -108,7 +108,11 @@ describe("the interview holds the month in the world", () => {
     // The last answer in, the sleep ends the month.
     fireEvent.click(within(asked).getByRole("button", { name: optionWords("times-met", "four-to-eight") }));
     fireEvent.click(await screen.findByRole("button", { name: optionWords("partner-home", "city") }));
-    await screen.findByText(say("ui.interview.waiting"));
+    // The last answer in: the asks leave and the officer's toast says so under the band, in plain English.
+    const toast = await waitFor(() => found("[data-said-toast]"));
+    expect(toast.textContent).toContain(say("ui.interview.in"));
+    expect(toast.querySelector("[data-face]")?.getAttribute("data-face")).toBe(say("ui.interview.in.who"));
+    await waitFor(() => expect(screen.queryByRole("region", { name: nameOf("interview.genuineness") })).toBeNull());
     await waitFor(() => expect(game.view().interview?.question ?? null).toBeNull());
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
     fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));

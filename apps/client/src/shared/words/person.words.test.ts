@@ -9,14 +9,14 @@ import { say } from "./text";
 import { uiText } from "./ui";
 
 /** The lines that read as the system talking, each gone from every table. */
-const GONE = ["The lift wore off.", "Every free thing is planned", "Funds covered for a month, and now", "Next page on its way"];
+const GONE = ["The lift wore off.", "Every free thing is planned", "Funds covered for a month, and now", "Next page on its way", "Next page any minute now"];
 
 describe("a person's words, never the system's", () => {
   test("[R-TEXT-005] [R-TEXT-007] given the lines that read as the system talking, when they are said, then each is a person's words, and none of the old ones is left in any table", () => {
     expect(say("line.quality.told.quality.wellbeing.drift.above")).toBe("The good mood from last month passed.");
     expect(say("ui.activity.full")).toBe("Your free time is full this month");
     expect(say("route.uk-masters.item.held")).toBe("Funds held a full month, and still there");
-    expect(say("ui.months.fact.arriving")).toBe("Next page any minute now");
+    expect(say("ui.months.fact.arriving")).toBe("Next month any minute now");
     const all = Object.values({ ...text, ...uiText });
     for (const old of GONE) expect(all.filter((line) => line.includes(old))).toEqual([]);
   });

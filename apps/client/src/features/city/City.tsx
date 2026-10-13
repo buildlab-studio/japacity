@@ -29,6 +29,7 @@ import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
 import { Band, bandMoney, bandMonth } from "../../shared/world/Band";
 import { type MoneyIn, MoneyToast } from "../../shared/world/MoneyToast";
+import { type Said, SaidToast } from "../../shared/world/SaidToast";
 import { cue } from "../../shared/sound/cues";
 import type { Act, Ask, CountryChoice, Pin as ContractPin, PinState, RideChoice, Thing } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
@@ -72,6 +73,7 @@ import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene,
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { Fan } from "./fan/Fan";
+import { GO_HOME, goHomeAsk, goHomeOffered } from "./goHome";
 import { type Brief, briefOf, DONE_TOAST_MS, doneToast, itemsDone, markerAllowed, nextBase, briefTitle } from "./brief/brief";
 import { ChapterClose, MissionCard } from "./brief/BriefCards";
 import { BriefChip, Marker } from "./brief/BriefChip";
@@ -828,6 +830,7 @@ export function City({
         return sceneWords(picked.thing.label);
       case "command":
         if (picked.command === COURT) return picked.with === undefined ? "" : nameOf(picked.with);
+        if (picked.command === GO_HOME) return say("ui.world.go-home");
         return say(picked.command === "route/depart" ? "ui.route.depart" : picked.command === "obligation/pay" ? "ui.world.pay-back" : "ui.route.pay-deposit");
       default: {
         const never: never = picked;
@@ -850,7 +853,7 @@ export function City({
   // An activity shut only by a paper not yet held (the English test before the passport) still stands in the world, shut with its reason;
   // a now-act done this month is gone from its thing until the next (R-ACTIVITY-015).
   // R-LOTTERY-001: while the world runs the Friday draw the kiosk's act stays, and opens the draw's sheet.
-  const activityKey = [...withKiosk(actsOffered(view), view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"]), ...(view.ended ? [] : [`command:${COURT}`])].join("|");
+  const activityKey = [...withKiosk(actsOffered(view), view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"]), ...(goHomeOffered(view) ? [`command:${GO_HOME}`] : []), ...(view.ended ? [] : [`command:${COURT}`])].join("|");
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
@@ -1230,6 +1233,17 @@ export function City({
         dismiss: () => setPicked(null),
       };
     }
+    // return.md: the bag in the room abroad sends the character home by choice, through a card that says what the return means.
+    if (world && picked?.kind === "command" && picked.command === GO_HOME) {
+      return goHomeAsk(view, {
+        who: hereName,
+        go: () => {
+          void send({ type: GO_HOME }).then((reply) => cue(reply?.ok === true ? "whoosh" : "no"));
+          setPicked(null);
+        },
+        dismiss: () => setPicked(null),
+      });
+    }
     // R-WORLD-020, R-PEOPLE-013: talking to a person met here opens their card; its one button courts them.
     if (world && picked?.kind === "command" && picked.command === COURT && picked.with !== undefined) {
       const person = picked.with;
@@ -1541,6 +1555,18 @@ export function City({
     const timer = window.setTimeout(() => setToast(null), DONE_TOAST_MS);
     return () => window.clearTimeout(timer);
   }, [toast]);
+  // R-INTERVIEW-004: the last answer in, the asks leave and the officer says so in a toast under the band, in plain English.
+  const [said, setSaid] = useState<Said | null>(null);
+  const interviewAsking = (view.interview?.question ?? null) !== null;
+  const wasAsking = useRef(interviewAsking);
+  useEffect(() => {
+    const before = wasAsking.current;
+    wasAsking.current = interviewAsking;
+    if (!world || !before || interviewAsking || view.interview === null) return;
+    setAsksOpen(false);
+    cue("ding");
+    setSaid({ at: Date.now(), who: say("ui.interview.in.who"), words: say("ui.interview.in"), picture: "activity.interview-prep" });
+  }, [world, interviewAsking]);
   // The chapters already closed when the world opened are never closed again on screen; one that closes while it is open is.
   const closedSeen = useRef(new Set<string>(view.chapter.done));
   const [closedNow, setClosedNow] = useState<string | null>(null);
@@ -1745,6 +1771,7 @@ export function City({
               !(phone || asksOpen || menu || credits || picked !== null || asleep !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
                   {moneyIn === null ? null : <MoneyToast key={moneyIn.at} toast={moneyIn} onGone={() => setMoneyIn(null)} />}
+                  {said === null ? null : <SaidToast key={said.at} said={said} onGone={() => setSaid(null)} />}
                   {brief !== null && chipMoment !== null ? (
                     <BriefChip brief={brief} moment={chipMoment} toast={chipMoment === "done" ? (toast?.words ?? null) : null} {...(chipMoment === "here" && nudgeGoes ? { onTap: followStep } : {})} onTucked={() => setHanded(null)} />
                   ) : shownNudge !== null && (STANDING_NUDGES.has(shownNudge.about) || toBed) ? (
@@ -1897,7 +1924,7 @@ export function City({
           {world ? null : (
             <div className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-md border border-sheet-line bg-sheet p-2">
               <div className="flex min-w-0 flex-1 flex-col px-1">
-                <h2 className="truncate font-display text-xl leading-tight">{name}</h2>
+                <h2 className="truncate text-xl leading-tight font-bold">{name}</h2>
                 {sample === null ? null : <p className="text-xs text-text-2">{cityWords(`city.band.${sample.band}`)}</p>}
               </div>
               <Button small onClick={() => setMenu(true)}>

@@ -35,6 +35,14 @@ export function payNow(owed: Owed): { amount: number; line: string; button: stri
  * one behind, or one taken every month.
  */
 export function nextTaken(owed: Owed, month: number): string | null {
+  const ahead = nextTakenAhead(owed, month);
+  if (ahead === null) return null;
+  const own = `ui.obligation.next.${owed.entry}`;
+  return say(hasWords(own) ? own : "ui.obligation.next", { when: inMonths(month + ahead, month + 1) });
+}
+
+/** How many months on from the month in hand a bill taken every few months comes next, or null as `nextTaken` says none. */
+export function nextTakenAhead(owed: Owed, month: number): number | null {
   const entry = content.obligation[owed.entry];
   const every = entry?.everyMonths;
   // A rent owes nothing between its years, so it is said whatever is outstanding.
@@ -44,10 +52,7 @@ export function nextTaken(owed: Owed, month: number): string | null {
   // The view's "this month" is the month after the one in hand, as `due` reads it.
   for (let ahead = 1; ahead <= every + 1; ahead += 1) {
     const age = month + ahead - owed.openedMonth - first;
-    if (age >= 0 && age % every === 0) {
-      const own = `ui.obligation.next.${owed.entry}`;
-      return say(hasWords(own) ? own : "ui.obligation.next", { when: inMonths(month + ahead, month + 1) });
-    }
+    if (age >= 0 && age % every === 0) return ahead;
   }
   return null;
 }

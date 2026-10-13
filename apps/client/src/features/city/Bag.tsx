@@ -90,9 +90,9 @@ export function bagPieces(view: Pick<PlayerView, "documents" | "routes">): BagPi
   return pieces;
 }
 
-/** The tag's figure, as the figure is shown; no tag with no route yet. */
+/** The tag's figure, a bare number as the rise's "+N" is, never a percentage; no tag with no route yet. */
 export function tagWords(percent: number | null): string | null {
-  return percent === null ? null : `${String(percent)}%`;
+  return percent === null ? null : String(percent);
 }
 
 /** Hands the browser test the bag as it stands this frame. */

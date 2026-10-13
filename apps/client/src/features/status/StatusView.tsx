@@ -30,7 +30,7 @@ export function ClockBanner({ className = "" }: { className?: string }) {
   return (
     <div role="alert" data-clock className={`flex items-center gap-4 rounded-md bg-bad p-4 text-on-strong ${className}`}>
       <AlarmClock size={36} className="shrink-0" />
-      <p className="font-display text-6xl leading-none tabular-nums">{clock}</p>
+      <p className="text-6xl leading-none font-bold tabular-nums" data-clock-figure>{clock}</p>
       <div className="flex flex-col">
         <p className="text-lg font-bold">{sayCount("ui.status.clock", clock, { months: clock })}</p>
         <p className="text-sm opacity-90">{say("ui.status.clock-why", { status: nameOf(view.status.entry) })}</p>

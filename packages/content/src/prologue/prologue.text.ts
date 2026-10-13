@@ -237,7 +237,12 @@ const words: Record<string, string> = {
   "prologue.page.path": "So far",
   "prologue.page.ready": "Ready",
   "prologue.page.type": "Japa type",
-  "prologue.page.ready.figure": "{percent}%",
+  // How ready, in words by the fifth part of the figure it stands in, never a percentage on the page.
+  "prologue.page.ready.band.0": "Just starting",
+  "prologue.page.ready.band.1": "On the way",
+  "prologue.page.ready.band.2": "Past halfway",
+  "prologue.page.ready.band.3": "Nearly there",
+  "prologue.page.ready.band.4": "All set",
   "prologue.page.empty": "· · ·",
   "prologue.page.photo": "Your photo",
   "prologue.page.open": "Your page",

@@ -102,7 +102,7 @@ function Scene({ onSetAside }: { onSetAside: () => void }) {
           {nameOf(DECEMBER)}
         </p>
         <p className="text-sm opacity-80">{say("ui.setpiece.question", { n: setpiece.asked + 1, total: setpiece.total })}</p>
-        <Dialog.Title className="font-display text-3xl leading-tight sm:text-4xl">{words(`${DECEMBER}.q.${question.id}`)}</Dialog.Title>
+        <Dialog.Title className="text-3xl leading-tight font-bold sm:text-4xl">{words(`${DECEMBER}.q.${question.id}`)}</Dialog.Title>
       </div>
       {currency === null || held === null ? null : (
         <p className="text-sm tabular-nums">{say("ui.december.have", { amount: formatMoney(held.bank + held.cash, currency) })}</p>

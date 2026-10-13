@@ -7,6 +7,7 @@ import { TriangleAlert, X } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 
 import { useGame, useGameStoreIfAny } from "../../authority/GameProvider";
+import { StickerChip } from "../ui/lively/StickerChip";
 import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying, type Money } from "../words/cost";
 import { say } from "../words/text";
 import { Balance, CENTRED, pricedLabel } from "./Balance";
@@ -96,7 +97,7 @@ function GameSheet(props: AskSheetProps) {
   const view = useGame((state) => state.view);
   const plan = useGame((state) => state.plan);
   const cost = props.ask?.cost ?? null;
-  const paying = cost === null || view === null ? null : afterPaying(view, plannedCosts(view, plan), [{ currency: cost.currency as Currency, amount: cost.amount }], monthDues(view));
+  const paying = cost === null || view === null ? null : afterPaying(view, plannedCosts(view, plan), [{ currency: cost.currency as Currency, amount: cost.amount }], props.ask?.dues === false ? null : monthDues(view));
   return <Sheet {...props} main={mainOf(paying, props.formatMoney, props.ask?.priced === true)} />;
 }
 
@@ -139,6 +140,16 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
       </div>
       <div className="p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
         <p className="text-[15px] leading-snug text-text-2">{ask.line}</p>
+        {/* What the act means, as sticker chips under the line (the bag's Go home: what ends, what waits). */}
+        {ask.facts === undefined || ask.facts.length === 0 ? null : (
+          <div className="mt-3 flex flex-wrap gap-2" data-ask-facts>
+            {ask.facts.map((fact, index) => (
+              <StickerChip key={fact} tilt={index % 2 === 0 ? -2 : 2}>
+                {fact}
+              </StickerChip>
+            ))}
+          </div>
+        )}
         {/* R-ACTIVITY-018: an act done at once says the time it takes in words, beside its price. */}
         {ask.time === undefined ? null : (
           <div className="mt-3 flex items-baseline justify-between border-t border-sheet-line pt-2.5" data-ask-time>

@@ -10,6 +10,7 @@ import { keepPerson } from "../../authority/person";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { lookOf } from "../frontdoor/looks";
 import { AGE, clockWords, yearsOf } from "../words/quality";
+import { readyWords } from "../words/ready";
 import { say } from "../words/text";
 import { Band } from "../world/Band";
 import { stripLines } from "./DataPage";
@@ -81,7 +82,8 @@ describe("the page from the band", () => {
     expect(page.querySelector("[data-field='age']")?.textContent).toBe(`${say("prologue.page.age")}${say("prologue.page.age.years", { years: yearsOf(ageOf(view)) })}`);
     expect(page.querySelector("[data-field='age']")?.textContent).not.toContain(clockWords(view.qualities));
     expect(page.querySelector("[data-field='path']")?.textContent).toContain(say("scenario.ada.kind"));
-    expect(page.querySelector("[data-field='ready']")?.textContent).toContain(say("prologue.page.ready.figure", { percent: view.japacity.percent ?? 0 }));
+    expect(page.querySelector("[data-field='ready']")?.textContent).toContain(readyWords(view.japacity.percent ?? 0));
+    expect(page.querySelector("[data-field='ready']")?.textContent).not.toContain("%");
     expect(page.querySelector<HTMLImageElement>("[data-photo] img")?.getAttribute("src")).toBe(lookOf("chr_kemi")!.picture);
     // No visa yet: no stamp, and the page says the visa's is the first.
     expect(page.querySelector("[data-stamp]")).toBeNull();

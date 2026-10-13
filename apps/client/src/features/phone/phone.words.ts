@@ -168,6 +168,19 @@ export const phoneText: Record<string, string> = {
   "phone.jobs.left": "You quit",
 
   "phone.lotto.next": "Next draw",
+  // The context pill beside an app's name in its head (the notes item 19): a few words of what is there now, never days.
+  "phone.context.jobs.open": "{count} open",
+  "phone.context.jobs.offer": "1 offer",
+  "phone.context.jobs.offers": "{count} offers",
+  "phone.context.lotto": "Draw on Friday",
+  "phone.context.bills.due": "{count} to pay",
+  "phone.context.bills.due.one": "1 to pay",
+  "phone.context.bills.rent": "Rent {when}",
+  "phone.context.bills.fees": "Fees {when}",
+  "phone.context.bills.next": "Next bill {when}",
+  "phone.context.bank.stamp": "Next stamp {amount}",
+  "phone.context.bank.target": "Next: {amount}, all in",
+  "phone.context.bank.ready": "All in",
   // Offline the street kiosk sells the tickets and runs the draw (R-WORLD-018): the app tells where, never a bare line.
   "phone.lotto.kiosk": "Tickets are sold at the kiosk on {street}.",
   "phone.lotto.none-month": "No ticket this month.",

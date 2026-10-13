@@ -71,7 +71,7 @@ export function Jackpot({ lottery, grows = true }: { lottery: Lottery; grows?: b
   return (
     <div className="flex flex-col gap-1" data-lottery-jackpot={lottery.jackpot} data-rolled-over={lottery.rolledOver}>
       <p className="text-xs font-semibold tracking-widest text-text-2 uppercase">{say("ui.lottery.jackpot")}</p>
-      <p className="font-display text-4xl leading-none tabular-nums">{formatMoney(lottery.jackpot, "NGN")}</p>
+      <p className="text-4xl leading-none font-bold tabular-nums">{formatMoney(lottery.jackpot, "NGN")}</p>
       {since === null ? null : <p className="text-sm font-medium">{since}</p>}
       {grows ? <Grows lottery={lottery} /> : null}
     </div>

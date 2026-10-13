@@ -177,7 +177,7 @@ export const onlineText: Record<string, string> = {
   // Keeping a guest life (R-ACCOUNT-021, R-ACCOUNT-023, R-ACCOUNT-027)
   "ui.secure.title": "Keep this life",
   "ui.secure.why": "Right now this life lives only on this phone. Add Google or your email and you can come back to it on any phone.",
-  "ui.secure.ask.first-chapter": "You finished your first chapter. Right now this life lives only on this phone. Keep it, so you can come back to it anywhere.",
+  "ui.secure.ask.first-chapter": "You finished your first brief. Right now this life lives only on this phone. Keep it, so you can come back to it anywhere.",
   "ui.secure.ask.visa": "Big decisions are coming. Keep this life first, so nothing you build is lost with this phone.",
   "ui.secure.google": "Continue with Google",
   "ui.secure.in-app": "Google sign-in does not work inside this app. Use your email, or open Japacity in your browser.",
