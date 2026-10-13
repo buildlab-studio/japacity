@@ -451,7 +451,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             disabled={!canAdd}
             aria-label={name}
             onClick={() => void actOnCard({ activity: option.id, param: needsParam ? chosenParam : null }, { send, addToPlan })}
-            className="w-full flex-wrap px-4 py-2 text-[16px] leading-tight"
+            className="w-full px-4 py-2 text-center text-[16px] leading-tight"
           >
             {applying ? (
               <ApplyFor id={chosenParam} />
