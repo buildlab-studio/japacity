@@ -8,6 +8,7 @@ import { expect, test, type Page } from "@playwright/test";
 // copies from the server.
 import { content } from "../../../packages/content/src/index";
 import { start } from "../../../packages/sim/src/testing/play";
+import { onlineText } from "../src/shared/words/online";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
@@ -129,7 +130,8 @@ test("[R-ACCOUNT-023] [R-ACCOUNT-027] a guest past its first chapter is asked on
   await pastTheCard(page);
   const ask = page.getByRole("dialog", { name: "Keep this life" });
   await expect(ask).toBeVisible({ timeout: 20_000 });
-  await expect(ask.getByText("You finished your first chapter.", { exact: false })).toBeVisible();
+  // Read through the words table, so the line the sheet says is the one the test looks for.
+  await expect(ask.getByText(onlineText["ui.secure.ask.first-chapter"] ?? "ui.secure.ask.first-chapter")).toBeVisible();
   // Google's own button, in one of Google's texts (R-ACCOUNT-023).
   await expect(ask.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await shoot(page, "first-chapter-ask", info.project.name);
