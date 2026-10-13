@@ -43,7 +43,6 @@ export const uiText: Record<string, string> = {
 
   // The month
   "ui.month.planning": "Month {month}",
-  "ui.month.banked": "{banked} of {cap} months to play",
   "ui.month.end": "Next month",
   "ui.month.clear": "Clear plan",
   "ui.month.plan": "This month",
@@ -79,10 +78,6 @@ export const uiText: Record<string, string> = {
 
   // Nothing on screen says it since the band names the month (decision 0034); kept while the voice test reads it.
   "ui.months.fact.arriving": "Next month any minute now",
-  "ui.clock.next": "Next month to play in {wait}",
-  "ui.clock.full": "Full: you hold every month you can. Live one to make room.",
-  "ui.clock.hours": "{hours}h {minutes}m",
-  "ui.clock.minutes": "{minutes}m",
   "ui.notify.ask.title": "Know when your months are full",
   "ui.notify.ask.body": "Months to play build up while you are away. We can tell you on this device when you hold all the months you can, and nothing else.",
   "ui.notify.setting": "Tell me when my months are full",

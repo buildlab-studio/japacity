@@ -1,5 +1,5 @@
-// The month's end in the world, moved from the old month page's head and bar (TurnView, TurnBar): the months held come from
-// the view and an empty month rests in words; the month ends as the bed's sleep runs out (R-WORLD-025), sending the plan's
+// The month's end in the world, moved from the old month page's head and bar (TurnView, TurnBar): an empty month rests in
+// words; the month ends as the bed's sleep runs out (R-WORLD-025), sending the plan's
 // commitments as they stand on the view's version; a refusal is said in content's words where the month is kept, the
 // Calendar; and the results tell a split payment and a doubled salary once each. The interview's hold on the month is in
 // features/city/City.interview.test.tsx; the staged wins in features/city/City.staged.test.tsx.
@@ -12,14 +12,12 @@ import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { Calendar } from "./Calendar";
 import { Results } from "./Results";
-import { MonthsHeld } from "./TurnClock";
 import { freeTimeWords } from "./turn.words";
 
 describe("the month's end in the world", () => {
-  test("given a new life, then the months held come from the view, and an empty month rests in words", async () => {
+  // The months held are no longer shown (R-CLOCK-007 retired with the months-held card, decision 0034; World.clock.test.tsx).
+  test("given a new life, then an empty month rests in words", () => {
     const view = engineView();
-    await renderWithView(<MonthsHeld />, view);
-    expect(screen.getByText(say("ui.month.banked", { banked: view.turns.banked, cap: view.turns.cap }))).toBeDefined();
     // the free time in words, never a count of slots.
     expect(freeTimeWords(0, view.freeSlots)).toBe(say("ui.month.rest"));
   });
