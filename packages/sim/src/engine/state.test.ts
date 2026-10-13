@@ -71,6 +71,19 @@ describe("upgradeState", () => {
     expect(after).toEqual(game.state);
   });
 
+  test("[R-SERVER-022] given a state of the third schema from before the market, without the things slice, when upgraded, then the slice is built empty by its kind's initial, the schema is raised to 4 and the invariants hold", () => {
+    const game = start({ scenario: "scenario.plain" });
+    game.endTurn();
+    const older = { ...game.state, schema: 3 } as Partial<State>;
+    delete older.things;
+    expect(older).not.toHaveProperty("things");
+    const after = upgradeState(older as State, miniContent, miniContent);
+    expect(after.things).toEqual({ owned: [] });
+    expect(after.schema).toBe(4);
+    expect(after).toEqual(game.state);
+    expect(checkInvariants(after, miniContent)).toEqual([]);
+  });
+
   test("[R-SERVER-022] [R-SERVER-024] given the same content version under a new overlay, when upgraded, then no id is renamed even if the content carries a table", () => {
     const game = start({ scenario: "scenario.worker" });
     game.endTurn();

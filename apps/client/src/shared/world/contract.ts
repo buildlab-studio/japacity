@@ -181,7 +181,8 @@ export interface CountryChoice {
 
 /** A way to travel (R-WORLD-017), with its fare in the wallet's smallest unit and the minutes. */
 export interface RideChoice {
-  id: "danfo" | "keke" | "okada" | "walk";
+  /** `drive`: the life's own car, offered while it stands at home. */
+  id: "danfo" | "keke" | "okada" | "walk" | "drive";
   label: string;
   fare: number;
   minutes: number;

@@ -316,7 +316,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     const loaded = models.get(model.file);
     if (loaded === undefined || model.at.length === 0) continue;
     const copies = model.signs === undefined ? instanceModel(loaded, model.at, model.file) : buildingCopies(loaded, model.at, model.signs, model.file, text);
-    if (model.signs === undefined) copies.userData = { file: model.file, signs: findSignAnchors(loaded).map((anchor) => anchor.key) };
+    if (model.signs === undefined) copies.userData = { file: model.file, signs: findSignAnchors(loaded).map((anchor) => anchor.key), ...(model.owned === undefined ? {} : { owned: model.owned }) };
     copies.traverse((object) => {
       object.castShadow = settings.shadows && castsShadow(model.file);
     });

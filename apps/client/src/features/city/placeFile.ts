@@ -84,7 +84,7 @@ export interface Stage {
    * `bob` rides the copies on the water; `glide`, in metres, also sends each along its own length and
    * back on the shared clock (a canoe paddled along the channel, R-CITY-027).
    */
-  models: { file: string; at: Spot[]; signs?: string[][]; bob?: boolean; glide?: number }[];
+  models: { file: string; at: Spot[]; signs?: string[][]; bob?: boolean; glide?: number; owned?: string }[];
   /** Where people of the crowd stand, in order of use: the low mode's sample takes the first spots. At least the high mode's crowd. */
   people: Spot[];
   /** Spots, by index into `people`, kept for someone of a role when the sample has one: a hawker among the vehicles, a trader at the stall. */
@@ -112,6 +112,21 @@ export interface Stage {
   car?: Spot;
   /** A wide home's rooms: a tap on one or a pinch eases the camera in on it from the whole house. */
   rooms?: Room[];
+  /** A home's set spots for the market's things: where each stands once owned, until the player moves it. */
+  owned?: OwnedSpot[];
+}
+
+/**
+ * A thing of the market as a home stands it once owned: the thing's id in content, its model and its
+ * set spot, a model whose copies it takes the place of (the new mattress over the old bed), and the acts it carries
+ * when tapped (the TV's evening, the laptop's portfolio, the gas cooker's pot).
+ */
+export interface OwnedSpot {
+  thing: string;
+  file: string;
+  at: Spot;
+  hides?: string;
+  acts?: Thing["acts"];
 }
 
 /**
@@ -267,6 +282,7 @@ export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<
     ...(plain.inside === undefined ? {} : { inside: plain.inside }),
     ...(plain.car === undefined ? {} : { car: plain.car }),
     ...(plain.rooms === undefined ? {} : { rooms: plain.rooms }),
+    ...(plain.owned === undefined ? {} : { owned: plain.owned }),
   };
   return { file: { ...file, stage: dressed }, crowd: dressing.crowd };
 }

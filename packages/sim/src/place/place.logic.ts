@@ -23,12 +23,14 @@ import type {
   Requirement,
   RequirementResult,
   ReturnShape,
+  RideWay,
   State,
   WayHome,
   WhereEntry,
 } from "../engine/types";
 import { countryEntry, isKept, isOverstayer, removalBanMonths, statusEntry } from "../status/status.logic";
 import { FAMILY_HOUSE, homeCharges } from "../home/home.logic";
+import { drives } from "../thing/thing.logic";
 import type { PlaceEvent } from "./place.events";
 import { feeInNaira, walletAfter } from "../wallet/wallet.logic";
 import type { Payment } from "../wallet/wallet.logic";
@@ -170,6 +172,8 @@ function arrive(ctx: Ctx, country: Id<"country">, cause: Cause): BaseEvent[] {
   const month = ctx.state.turn.month;
   // From Lagos or the road, a room's rent at home is let go too; between two countries only the home's charges close, as before.
   const left = ctx.state.place.where === "abroad" ? HOME_TYPES : LEFT_TYPES;
+  //  with R-PLACE-002: leaving Lagos, what is owned is sold as the room is let go.
+  if (ctx.state.place.where === "home") ctx.apply([{ type: "things/sell-off" }], cause);
   const events = record(ctx, [{ type: "place/moved", to: "abroad", country, month }]);
   const token = ctx.state.place.heldAbroad;
   if (token !== null && statusEntry(ctx.content, token.status).country === country) {
@@ -226,6 +230,8 @@ function move(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
       return comeHome(ctx, returnShape(ctx, false), cause);
     case "road":
       if (place.where === "road") return [];
+      // Leaving Lagos by the road, what is owned is sold as on a flight.
+      if (place.where === "home") ctx.apply([{ type: "things/sell-off" }], cause);
       return record(ctx, [{ type: "place/moved", to: "road", country: null, month: ctx.state.turn.month }]);
     default: {
       const never: never = effect.to;
@@ -327,13 +333,14 @@ export function rideFare(
   content: Pick<Content, "tuning">,
   from: { latE3: number; lonE3: number } | null,
   to: { latE3: number; lonE3: number } | null,
-  way: "danfo" | "keke" | "okada" | "walk",
+  way: RideWay,
   fareBp = BP_WHOLE,
 ): number {
-  const { fareKobo, farePerKmKobo } = content.tuning.city.ride;
-  if (fareKobo[way] === 0 && farePerKmKobo[way] === 0) return 0;
+  // The car of your own: its fuel is its fare, by distance as the rides are, and the scarcity raises it the same.
+  const { fareKobo, farePerKmKobo } = way === "drive" ? content.tuning.thing.drive : { fareKobo: content.tuning.city.ride.fareKobo[way], farePerKmKobo: content.tuning.city.ride.farePerKmKobo[way] };
+  if (fareKobo === 0 && farePerKmKobo === 0) return 0;
   const metres = from === null || to === null ? 0 : metresApart(from, to);
-  const plain = roundUpTo(fareKobo[way] + mulDiv(farePerKmKobo[way], metres, 1000), FARE_STEP_KOBO);
+  const plain = roundUpTo(fareKobo + mulDiv(farePerKmKobo, metres, 1000), FARE_STEP_KOBO);
   return bp(plain, fareBp);
 }
 
@@ -352,6 +359,8 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (end === undefined) return reject("unknown-id", `No place ${to}.`);
   if (from === to) return reject("not-legal", "A ride goes somewhere else.");
   if (start.where !== "home" || end.where !== "home") return reject("not-legal", "A ride inside the city stays in the city.");
+  // : Drive is a way only while the life's car stands at home.
+  if (way === "drive" && !drives(ctx)) return reject("not-legal", "No car stands at home to drive.");
   // On foot only within walking distance: past it a fare is the only way, so a fare is a real cost.
   // A life may always walk home, however far: the long walk is its cost.
   const home = ctx.state.home.place ?? FAMILY_HOUSE;

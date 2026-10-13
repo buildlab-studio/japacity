@@ -4,7 +4,7 @@
 // part of the paper and grow with it. One pin rule in every zoom (stops.ts): a ring only where the player stands, on the
 // stop picked and on the step's place; names on those, on home and on a place never visited.
 import type { CSSProperties } from "react";
-import { memo, useMemo } from "react";
+import { memo, use, useMemo } from "react";
 
 import { headingOf } from "../RideSheet";
 import { mapWords } from "../map.words";
@@ -13,6 +13,7 @@ import { DECOR } from "./geometry";
 import { PaperSvg, type Variant } from "./PaperSvg";
 import { PlacePicture } from "./PlacePicture";
 import { midway } from "./route";
+import { RouteVehicle } from "./routeVehicle";
 import { curve } from "./smooth";
 import { type Marks, type Name, nameOf, type NameShift, placeNames, type Placed, ringOf } from "./stops";
 import type { TileUrl } from "./useTiles";
@@ -85,6 +86,7 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
   const z = frame.sx;
   const routeD = useMemo(() => (route === null ? null : curve(route)), [route]);
   const danfo = useMemo(() => (route === null || route.length < 2 ? null : midway(route)), [route]);
+  const vehicle = use(RouteVehicle);
   const folded = variant === "folded";
   // Which names show and where: every one that matters, moved clear of another where they meet; a never-visited
   // place's only on a card, a few at a time, the nearest the card's middle first, and only where it covers none.
@@ -156,7 +158,7 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
       {folded || danfo === null ? null : (
         <span className="paper-danfo" style={{ left: danfo.at[0], top: danfo.at[1] }} data-route-danfo aria-hidden>
           <span className="paper-cut block" style={{ width: 30, height: 30, scale: Math.abs(danfo.heading) > 90 ? "-1 1" : undefined }}>
-            {tiles("veh_danfo") === null ? null : <img src={tiles("veh_danfo") ?? ""} alt="" draggable={false} className="block size-full object-contain" />}
+            {tiles(vehicle) === null ? null : <img src={tiles(vehicle) ?? ""} alt="" draggable={false} className="block size-full object-contain" data-route-vehicle={vehicle} />}
           </span>
         </span>
       )}

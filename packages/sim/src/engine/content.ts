@@ -27,6 +27,7 @@ const CONTENT_KINDS = [
   "goal",
   "era",
   "points",
+  "thing",
 ] as const satisfies readonly KindName[];
 
 type ContentKind = (typeof CONTENT_KINDS)[number];

@@ -259,6 +259,7 @@ export const miniContent: Content = {
   person: {},
   phrase: {},
   interview: {},
+  thing: {},
   people: { spots: [] },
   advert: {},
   guide: {},
@@ -439,5 +440,6 @@ export const miniContent: Content = {
     interview: { ask: 5, decoys: 3, passBp: 7000, failBp: 4000, caughtBelowBp: 2000, thinMoments: 8, thinMonths: 6, doubtBp: 3000, standInRecallBp: 8000, caughtStanding: 15 },
     undertaking: { months: 36, assistanceUnder: 100000 },
     home: { makokoUpkeep: 2500000, evictionBp: 500, evictionLossNaira: 2000000, guestMonths: 3, hostBp: 2500, returnStanding: -5, compound: { rentYear: 40000000, feesBp: 2000, upkeep: 5000000 }, selfContainRentYear: 70000000, hostelRentKobo: 1500000, livingByHandBp: 0 },
+    thing: { drive: { fareKobo: 30000, farePerKmKobo: 10000, metresPerMinute: 400 } },
   },
 };

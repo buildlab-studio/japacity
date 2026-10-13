@@ -176,6 +176,12 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
       { type: "home/move", to: "place.makoko" },
       { type: "home/move", to: "place.family-house" },
     ],
+    // : a thing bought, one the family house has no place for, and a thing sold that is not owned.
+    "thing/buy": [
+      { type: "thing/buy", thing: "thing.fan" },
+      { type: "thing/buy", thing: "thing.tv" },
+    ],
+    "thing/sell": [{ type: "thing/sell", thing: "thing.fan" }],
     // docs/rules/chapter.md R-CHAPTER-009: the plan chosen, never money.
     "chapter/lean": [
       { type: "chapter/lean", route: "route.uk-care" },

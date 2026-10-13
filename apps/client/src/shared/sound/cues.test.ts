@@ -56,8 +56,8 @@ describe("the interface's cues", () => {
     expect(fake.started).toHaveLength(ALL.reduce((sum, name) => sum + CUES[name].length, 0));
   });
 
-  test("[R-WORLD-022] given the cues the design names, then tap, open, close, done, coin, whoosh, month, ding, thud and no exist and each ends inside half a second", () => {
-    expect(ALL.sort()).toEqual(["close", "coin", "ding", "done", "month", "no", "open", "tap", "thud", "whoosh"]);
+  test("[R-WORLD-022] given the cues the design names, then tap, open, close, done, coin, whoosh, month, ding, thud, no and buy mode's pop exist and each ends inside half a second", () => {
+    expect(ALL.sort()).toEqual(["close", "coin", "ding", "done", "month", "no", "open", "pop", "tap", "thud", "whoosh"]);
     for (const name of ALL) {
       const end = Math.max(...CUES[name].map((tone) => tone.at + tone.long));
       expect({ name, end: end < 0.5 }).toEqual({ name, end: true });
@@ -66,7 +66,7 @@ describe("the interface's cues", () => {
 
   test("[R-WORLD-022] given the lively layer's cues (design page 13, section 7), then a thing done dings bright, a stamp thuds low, and a refusal is a low double note, each over inside 300 ms", () => {
     const end = (name: Cue) => Math.max(...CUES[name].map((tone) => tone.at + tone.long));
-    for (const name of ["ding", "thud", "no"] as const) expect({ name, short: end(name) < 0.3 }).toEqual({ name, short: true });
+    for (const name of ["ding", "thud", "no", "pop"] as const) expect({ name, short: end(name) < 0.3 }).toEqual({ name, short: true });
     expect(Math.min(...CUES.ding.map((tone) => tone.from))).toBeGreaterThanOrEqual(1000);
     expect(Math.max(...CUES.thud.map((tone) => tone.from))).toBeLessThan(400);
     const no = CUES.no;

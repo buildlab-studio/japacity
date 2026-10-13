@@ -27,6 +27,10 @@ export const mapText: Record<string, string> = {
   "map.way.walk": "Walk",
   "map.way.walk-far": "Too far to walk",
   "map.walk": "Walk there",
+  // The car of your own: Drive, its fuel the fare.
+  "map.way.drive": "Drive",
+  "map.drive": "Drive there",
+  "map.drive-home": "Drive home",
   "map.walk-home": "Walk home",
   "map.way.minutes": "{minutes} min",
   "map.way.abroad.country.uk": "Bus",
@@ -54,6 +58,7 @@ export const mapText: Record<string, string> = {
   "map.ride.along.road.3.keke": "The driver cuts through a side street.",
   "map.ride.along.road.3.danfo": "The driver cuts through a side street.",
   "map.ride.along.road.3.walk": "You cut through a side street.",
+  "map.ride.along.road.3.drive": "You cut through a side street.",
   "map.ride.along.near": "Your stop: {to}",
   "map.ride.arrived": "{place}",
 
@@ -77,6 +82,13 @@ export const mapText: Record<string, string> = {
   "map.ride.line.danfo.4": "Who never pay? Hand am come.",
   "map.ride.line.danfo.5": "Driver, carry go. Everybody don settle.",
   "map.ride.line.danfo.6": "No pay me with that torn note o.",
+  // The boy who parks you out, as you drive off.
+  "map.ride.line.drive.1": "Oga, I watch your motor. Remember me.",
+  "map.ride.line.drive.2": "Reverse, reverse. Small again. You don free.",
+  "map.ride.line.drive.3": "Fuel don cost again o. Drive gently.",
+  "map.ride.line.drive.4": "Mind that gutter as you dey comot.",
+  "map.ride.line.drive.5": "The road don clear. Go now now.",
+  "map.ride.line.drive.6": "Wind up your glass for that junction.",
 
   // District names painted on the ground, by the area slug content gives each place.
   "map.area.surulere": "Surulere",
@@ -127,4 +139,4 @@ export function mapWords(key: string, params: Record<string, string | number> = 
 }
 
 /** The ways in the order the sheet lists them: cheapest first. */
-export const WAYS: readonly RideChoice["id"][] = ["danfo", "keke", "okada", "walk"];
+export const WAYS: readonly Exclude<RideChoice["id"], "drive">[] = ["danfo", "keke", "okada", "walk"];

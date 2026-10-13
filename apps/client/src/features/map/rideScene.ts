@@ -100,6 +100,12 @@ export function anglesOf(way: Way): readonly { angle: Angle; from: number }[] {
       ];
     case "walk":
       return [{ angle: "above", from: 0 }];
+    // The car of your own: at the kerb as you pull off, then from above; it has no inside drawn.
+    case "drive":
+      return [
+        { angle: "outside", from: 0 },
+        { angle: "above", from: PRE_MS },
+      ];
     default: {
       const never: never = way;
       throw new Error(`Unknown way: ${String(never)}`);
@@ -176,6 +182,9 @@ function seatsOf(way: Way): SeatSpec[] {
       ];
     case "walk":
       return [{ role: "own", at: [0, 0, 0], pose: "walk" }];
+    // At the wheel of your own car, on the road side (a car drives on the right in Lagos, its wheel on the left).
+    case "drive":
+      return [{ role: "own", at: [0.36, 0.12, 0.15], pose: "ride" }];
     default: {
       const never: never = way;
       throw new Error(`Unknown way: ${String(never)}`);
@@ -197,6 +206,7 @@ export function peopleOf(way: Way, own: string): Partial<Record<Role, string>> {
       return { own, driver: own === first ? second : first };
     }
     case "walk":
+    case "drive":
       return { own };
     default: {
       const never: never = way;
@@ -240,8 +250,8 @@ export function figuresOn(ride: RideScene): Role[] {
 
 /** A plain box in the way's colour until the real model arrives (or where it cannot); on foot, a body-sized one until the character's figure arrives. */
 function standIn(way: Way): Mesh {
-  const size = way === "danfo" ? [2.1, 2.2, 5.2] : way === "keke" ? [1.4, 1.7, 2.6] : way === "walk" ? [0.5, 1.7, 0.4] : [0.7, 1.3, 1.9];
-  const mesh = new Mesh(new BoxGeometry(size[0], size[1], size[2]), new MeshLambertMaterial({ color: way === "okada" ? palette.red : way === "walk" ? palette.charcoal : palette.danfoYellow }));
+  const size = way === "danfo" ? [2.1, 2.2, 5.2] : way === "keke" ? [1.4, 1.7, 2.6] : way === "walk" ? [0.5, 1.7, 0.4] : way === "drive" ? [1.8, 1.4, 4.2] : [0.7, 1.3, 1.9];
+  const mesh = new Mesh(new BoxGeometry(size[0], size[1], size[2]), new MeshLambertMaterial({ color: way === "okada" ? palette.red : way === "walk" ? palette.charcoal : way === "drive" ? palette.blue : palette.danfoYellow }));
   mesh.position.y = (size[1] ?? 1) / 2;
   return mesh;
 }
@@ -419,6 +429,8 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
     const group = new Group();
     group.userData = { figure: spec.role };
     group.position.set(spec.at[0], spec.at[1], spec.at[2]);
+    // In your own car the glass is dark and the roof closed: you are in it, unseen.
+    if (way === "drive") group.visible = false;
     body.add(group);
     return { role: spec.role, group, pose: spec.pose, figure: null };
   });
@@ -509,6 +521,7 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
         // At the stop: the danfo from the road's side, clear of the trees along the kerb; the keke and the okada close beside them at the kerb.
         if (way === "danfo") aimFrom([5.0 - push * 2, 2.2, 5.2], [0.2, 1.1, 0.4]);
         else if (way === "keke") aimFrom([-3.6 + push * 2, 1.35, 1.6], [-0.1, 1.0, -0.2]);
+        else if (way === "drive") aimFrom([6.0 - push * 2, 2.3, 6.2], [0.0, 0.75, 0.3]);
         else aimFrom([-3.6 + push * 2, 1.45, 1.5 - push], [-0.25, 0.9, -0.3]);
         return;
       case "above":

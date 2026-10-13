@@ -19,6 +19,7 @@ import { Bills } from "./apps/Bills";
 import { Chats, PhonePeople, PhoneTalk, type PairTalk, type PhonePeopleScreens } from "./apps/Chats";
 import { Japa } from "./apps/Japa";
 import { Jobs } from "./apps/Jobs";
+import { Market } from "./apps/Market";
 import { Lotto } from "./apps/Lotto";
 import { News } from "./apps/News";
 import { type PaperCards, Papers } from "./apps/Papers";
@@ -35,6 +36,7 @@ const ICON: Record<AppId, string> = {
   japa: "plane",
   papers: "folder-open",
   jobs: "briefcase",
+  market: "shopping-bag",
   lotto: "ticket",
   bills: "receipt",
   news: "newspaper",
@@ -53,6 +55,8 @@ export const APP_SCREEN: Record<AppId, string> = {
   bills: "obligation",
   news: "news",
   settings: "settings",
+  // The market spends the wallet: its openings count under the wallet's screen until content names a screen of its own.
+  market: "wallet",
 };
 
 /**
@@ -70,6 +74,8 @@ interface Handed {
   cards: PaperCards | null;
   /** The road's log for Japa (the plan 16): the briefs handed so far, from the shell. */
   briefs: ReactNode;
+  /** The place the world shows, for the Market: it sells only at home. */
+  here: string | null;
 }
 
 function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Opening, handed: Handed): ReactNode {
@@ -86,6 +92,8 @@ function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Open
       return <Papers opening={opening} cards={handed.cards} />;
     case "jobs":
       return <Jobs />;
+    case "market":
+      return <Market here={handed.here} />;
     case "lotto":
       return <Lotto />;
     case "bills":
@@ -102,7 +110,7 @@ function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Open
 }
 
 /** The apps, each with its dot from what the player has not seen. */
-export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null, briefs = null, warnings = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null; briefs?: ReactNode; warnings?: ReactNode } = {}): PhoneApp[] {
+export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null, briefs = null, warnings = null, here = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null; briefs?: ReactNode; warnings?: ReactNode; here?: string | null } = {}): PhoneApp[] {
   const view = useView();
   // A brief handed changes no view, so its mark is read as it is kept.
   useJapaMark(view.scenario);
@@ -116,7 +124,7 @@ export function usePhoneApps({ account = null, about = null, opening = null, cal
       <>
         {warnings}
         <Refused />
-        {screenOf(id, account, about, opening?.app === id ? opening.act : null, { calendar, cards, briefs })}
+        {screenOf(id, account, about, opening?.app === id ? opening.act : null, { calendar, cards, briefs, here })}
       </>
     ),
     waiting: waiting[id],
@@ -163,6 +171,8 @@ export interface PhoneAppsProps {
    * (health.md R-HEALTH-007), above every app whichever is open and on the phone's home above its notices.
    */
   warnings?: ReactNode;
+  /** The place the world shows, by id, for the Market. */
+  here?: string | null;
 }
 
 /** The place's picture for the wallpaper's pill: the place whose name the shell hands in, where the tiles have one. */
@@ -172,10 +182,10 @@ function areaPicture(area: string): ReactNode {
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null, warnings = null }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null, warnings = null, here = null }: PhoneAppsProps) {
   const view = useView();
   const [app, act] = start === null ? [null, null] : start.split(":");
-  const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards, briefs, warnings });
+  const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards, briefs, warnings, here });
   const marks = marksOf(view);
   return (
     <PhoneTalk value={talk}>

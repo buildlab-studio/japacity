@@ -301,7 +301,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const blurb = blurbOf(option.id);
   const counts = countsWords(option.id);
   // Chips earn their place (design page 13 section 2): the time only past a morning, at most two effects, Free only on a meal.
-  const time = chipTimeOf(option.id);
+  const time = chipTimeOf(option.id, option.halfDays);
   const does = chipEffectsLine(option.id);
   // R-TURN-006: an activity that fills no slot can be planned however full the month is.
   // R-ACTIVITY-015: an act done at once fills no slot either, so a full month never shuts it.

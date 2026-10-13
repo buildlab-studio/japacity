@@ -42,6 +42,8 @@ import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { PressButton } from "../../shared/ui/lively/PressButton";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
+import { type Arranged, arrangedIn, keepArranged } from "../../shared/world/arranged";
+import { buyModeAt, showOwned } from "./owned";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
 import { bodyWords, tired } from "../../shared/words/body";
@@ -439,7 +441,7 @@ export function City({
    * The world mode's phone (R-WORLD-018), handed in by the shell: the handset over the place named `area`. `toMap` puts
    * it away onto the map with a stop picked: a paper's visit in Papers (R-WORLD-019).
    */
-  phone?: (close: () => void, area: string, app?: string | null, toMap?: (stop: string) => void) => ReactNode;
+  phone?: (close: () => void, area: string, app?: string | null, toMap?: (stop: string) => void, here?: string) => ReactNode;
   /** A dot on the Phone button: an app has something new (R-WORLD-004). */
   phoneWaiting?: boolean;
   /** The icon for an ask card's corner, by the ask's icon name, from the shell's icon set. */
@@ -706,9 +708,20 @@ export function City({
   // An open offer the place stages dresses it (R-CITY-011): the party set and its guests at the family house. Their room is
   // dressed for the person whose room it is, who stands in it (R-WORLD-020); with no such bond it is the plain room.
   const roomPerson = entry?.id === THEIR_ROOM ? roomPartner(view) : null;
-  // A home's car spot holds the life's car while it has one.
-  const ownsCar = view.obligations.some((owed) => owed.car !== null);
-  const dressed = useMemo(() => (plainFile === null ? null : dressPlace(parkCar(plainFile, ownsCar), openKey === "" ? [] : openKey.split("|"), roomPerson)), [plainFile, openKey, roomPerson, ownsCar]);
+  // A home's car spot holds the life's car while it has one: the market's used car standing at the
+  // home lived in, or a car on finance abroad.
+  const livedIn = home !== null && placeId === home;
+  const ownsCar = view.obligations.some((owed) => owed.car !== null) || (livedIn && view.things.drive);
+  // : what is owned stands in the home lived in, at its set spot or where the player set it down.
+  const standingKey = livedIn ? view.things.owned.flatMap((one) => (one.stored ? [] : [one.thing])).join("|") : "";
+  const [arranged, setArranged] = useState<Arranged>(() => arrangedIn(placeId, view.scenario));
+  useEffect(() => setArranged(arrangedIn(placeId, view.scenario)), [placeId, view.scenario]);
+  const dressed = useMemo(
+    () => (plainFile === null ? null : dressPlace(parkCar(showOwned(plainFile, standingKey === "" ? [] : standingKey.split("|"), arranged), ownsCar), openKey === "" ? [] : openKey.split("|"), roomPerson)),
+    [plainFile, openKey, roomPerson, ownsCar, standingKey, arranged],
+  );
+  // Buy mode: in a home of your own a hold on a thing you own lifts it; never at the family house.
+  const arranging = world && buyModeAt(placeId, home, standingKey === "" ? [] : standingKey.split("|"));
   const outsideFile = dressed?.file ?? null;
   // Inside, the scene is the room the place's door opens into: the file's `inside` names its folder under
   // places/, fetched with the place so the cut is quick (R-WORLD-013); the room's own file names the entry
@@ -1315,7 +1328,7 @@ export function City({
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
     // Chips earn their place (design page 13 section 2): the time only past a morning, at most two effects.
-    const time = chipTimeOf(activity);
+    const time = chipTimeOf(activity, option.halfDays);
     const does = chipEffectsLine(activity);
     return {
       form: paper ? "slip" : "card",
@@ -1634,6 +1647,15 @@ export function City({
                     acted,
                     worldClock,
                     asleep: asleep?.bed ?? null,
+                    ...(arranging && !inside
+                      ? {
+                          arrange: {
+                            onSet: (thing: string, spot: [number, number, number]) => setArranged(keepArranged(placeId, thing, spot, view.scenario)),
+                            onLift: () => cue("pop"),
+                            onMisfit: () => cue("no"),
+                          },
+                        }
+                      : {}),
                   }
                 : {})}
               onFrame={(frameMs) => {
@@ -2092,6 +2114,8 @@ export function City({
               setMapPick(stop);
               setMap(true);
             },
+            // The Market sells only at home: the place the world shows, the room within it when inside.
+            inside && insideEntry !== null ? insideEntry.id : placeId,
           )
         : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>

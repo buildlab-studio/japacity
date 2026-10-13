@@ -15,7 +15,8 @@ import { Countries } from "./Countries";
 import { mapWords } from "./map.words";
 import { type MapPin, rideChoices } from "./pins";
 import { ownLook, preloadRide, Ride } from "./Ride";
-import { headingOf, RideSheet } from "./RideSheet";
+import { headingOf, RideSheet, WAY_MODEL } from "./RideSheet";
+import { RouteVehicle } from "./paper/routeVehicle";
 
 /** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
 const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
@@ -63,19 +64,24 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const homeId = home ?? stable.find((pin) => pin.state === "home")?.id ?? null;
   const [picked, setPicked] = useState<string | null>(pickFirst);
   const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean } | null>(null);
+  // The way picked on the ride sheet: its vehicle rides the route on the map, the danfo when none or on foot.
+  const [wayShown, setWayShown] = useState<RideChoice["id"]>("danfo");
+  const routeVehicle = WAY_MODEL[wayShown] ?? "veh_danfo";
 
   const here = stable.find((pin) => pin.state === "here") ?? null;
   const pin = stable.find((candidate) => candidate.id === picked) ?? null;
   const abroad = country.id === "lagos" ? null : country.id;
   // Home stays walkable however far (R-WORLD-017).
-  const ways = useMemo(() => (pin === null || here === null ? [] : rideChoices(here.position, pin.position, abroad, view.place.fareBp, pin.id === homeId, { from: here.id, to: pin.id })), [pin, here, abroad, view.place.fareBp, homeId]);
+  // : while the life's car stands at home the sheet offers Drive.
+  const drive = view.things.drive;
+  const ways = useMemo(() => (pin === null || here === null ? [] : rideChoices(here.position, pin.position, abroad, view.place.fareBp, pin.id === homeId, { from: here.id, to: pin.id }, drive)), [pin, here, abroad, view.place.fareBp, homeId, drive]);
 
   // A ride chosen in the place plays at once, the same ride as from the map.
   useEffect(() => {
     if (diveTo === null) return;
     const to = stable.find((candidate) => candidate.id === diveTo);
     if (to === undefined) return;
-    const choice = here === null ? undefined : rideChoices(here.position, to.position, abroad, view.place.fareBp, to.id === homeId, { from: here.id, to: to.id }).find((way) => way.id === diveBy);
+    const choice = here === null ? undefined : rideChoices(here.position, to.position, abroad, view.place.fareBp, to.id === homeId, { from: here.id, to: to.id }, drive).find((way) => way.id === diveBy);
     setPicked(null);
     start(choice, to.id, diveBy);
     // The ride starts once for the place chosen.
@@ -136,7 +142,9 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       {/* While a ride plays the painted map is put away: the ride fills the screen, and nothing under it keeps drawing. */}
       {lagos && riding === null ? (
         <Suspense fallback={<div className="absolute top-3 right-3">{closeButton}</div>}>
-          <PaperMap pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} />
+          <RouteVehicle value={routeVehicle}>
+            <PaperMap pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} />
+          </RouteVehicle>
         </Suspense>
       ) : lagos ? null : (
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3 pt-[max(10px,env(safe-area-inset-top))]">
@@ -152,7 +160,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
           </p>
         )
       ) : (
-        <RideSheet key={pin.id} pin={pin} home={pin.id === homeId} ways={ways} have={have} formatMoney={(amount) => formatMoney(amount, "NGN")} onChoose={go} onClose={() => setPicked(null)} onStay={onClose} {...(by === undefined ? {} : { by })} />
+        <RideSheet key={pin.id} pin={pin} home={pin.id === homeId} ways={ways} have={have} formatMoney={(amount) => formatMoney(amount, "NGN")} onChoose={go} onClose={() => setPicked(null)} onStay={onClose} onWay={setWayShown} {...(by === undefined ? {} : { by })} />
       )}
 
       {riding === null ? null : (

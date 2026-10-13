@@ -45,7 +45,10 @@ export type KindName =
   | "country"
   | "points"
   // Added for living at home: docs/rules/home.md.
-  | "home";
+  | "home"
+  // Added for the market: the things a life owns at home: `thing` names an entry, `things` the slice.
+  | "thing"
+  | "things";
 
 /** An entry id: the kind, a dot, then a lower-case slug with hyphens. */
 export type Id<K extends KindName> = `${K}.${string}`;
@@ -112,6 +115,10 @@ export type Reason =
   | "pot-top-up"
   /** A lottery ticket bought (docs/rules/lottery.md), a sink. */
   | "ticket"
+  /** A thing bought from the market for the home, a sink; selling it back comes in under `sale`. */
+  | "goods"
+  /** What a thing owned costs to run a month: the generator's fuel, the data plan, the decoder's bouquet, the AC's light, a sink. */
+  | "running"
   /** A wedding's share paid (docs/rules/people.md), a sink. */
   | "wedding"
   /** An undertaking charge paid by a sponsor (docs/rules/undertaking.md), a sink. */
@@ -397,7 +404,10 @@ export type Effect =
   /** The move an answer makes, as `home/move` does (R-HOME-002, R-HOME-004). */
   | { type: "home/move"; place: HomePlace }
   /** The character is taken in by a host of this kind for `tuning.home.guestMonths` (R-HOME-004). */
-  | { type: "home/guest"; host: HomeHost };
+  | { type: "home/guest"; host: HomeHost }
+  // things
+  /** Leaving Lagos, what is owned is sold at its resale figure, as the room is let go (R-PLACE-002). */
+  | { type: "things/sell-off" };
 
 export type EffectType = Effect["type"];
 
@@ -1366,6 +1376,53 @@ export interface Tuning {
     /** R-HOME-012 (decision 0035): the share of a naira upkeep that is lived by hand (meals, water, fares, data) and never charged as the month turns. */
     livingByHandBp: number;
   };
+  /** The market's things: the car's own way on the map, priced by distance as the rides are (R-PLACE-010). */
+  thing: { drive: { fareKobo: number; farePerKmKobo: number; metresPerMinute: number } };
+}
+
+/** The ways of a ride in the city: the three vehicles, on foot, and the car of your own while the life has one. */
+export type RideWay = "danfo" | "keke" | "okada" | "walk" | "drive";
+
+/** A quality a thing adds to: once when it lands, each month it is lived with, or each time an act is done. */
+export interface ThingAdd {
+  quality: Id<"quality">;
+  amount: number;
+}
+
+/**
+ * What a thing does to an act the simulation already has: `adds` given each time the act is done, `halfDays` the act's
+ * time with the thing (never more than without it), `costBp` its naira price with the thing, in basis points.
+ */
+export interface ThingMod {
+  activity: Id<"activity">;
+  adds?: ThingAdd[];
+  halfDays?: number;
+  costBp?: number;
+}
+
+/** One thing of the market. Money in kobo. */
+export interface ThingEntry {
+  id: Id<"thing">;
+  price: number;
+  /** What it sells for when sold back or when the life leaves Lagos, in basis points of the price. */
+  resaleBp: number;
+  /** What it costs to run a month, taken at the month's close while lived with; 0 for nothing. */
+  running: number;
+  /** The homes it may stand in: the family house only for the small things (your corner) and the car (the carport). */
+  homes: HomePlace[];
+  /** Things it needs owned first: the decoder needs the TV. */
+  needs: Id<"thing">[];
+  /** Things of one group do not add up: only the dearest owned of the group counts (the light, the cool air). */
+  group: string | null;
+  /** Once, when it lands: a standing lift. */
+  bought: ThingAdd[];
+  /** Each month it is lived with, at the close: the evening, the cooler nights, the light when NEPA takes it. */
+  monthly: ThingAdd[];
+  acts: ThingMod[];
+  /** Another thing whose running cost it cuts, in basis points of that cost: the phone that makes the data go further. */
+  eases?: { thing: Id<"thing">; bp: number };
+  /** The car: a way of its own on the map (R-WORLD-017). */
+  drive?: true;
 }
 
 export interface Content {
@@ -1395,6 +1452,8 @@ export interface Content {
   person: Record<Id<"person">, PersonEntry>;
   phrase: Record<Id<"phrase">, PhraseEntry>;
   interview: Record<Id<"interview">, InterviewEntry>;
+  /** The market's things for the home: price, resale, running cost, where each may stand and what it does in life. */
+  thing: Record<Id<"thing">, ThingEntry>;
   /** The spots people meet at, named by key (docs/rules/people.md R-PEOPLE-014). */
   people: { spots: string[] };
   /** The advert slots, the guides and the counters (the pages). The simulation never reads them; the content checks and the client and server do. */
@@ -1845,8 +1904,8 @@ export interface PrologueSlice {
 export interface State {
   /**
    * The shape of the save. Raised when the shape changes. 2 adds the whole-life slices; 3 the people and interview slices;
-   * 4 the month's spent half-days (`turn.spent`), the offers rolled this month (`offer.rolled`, `offer.rolledMonth`) and
-   * the body's qualities (decisions 0034, 0035).
+   * 4 the month's spent half-days (`turn.spent`), the offers rolled this month (`offer.rolled`, `offer.rolledMonth`), the
+   * body's qualities (decisions 0034, 0035) and the things slice.
    */
   schema: 1 | 2 | 3 | 4;
   content: string;
@@ -1881,6 +1940,12 @@ export interface State {
   people: PeopleSlice;
   interview: InterviewSlice;
   home: HomeSlice;
+  things: ThingsSlice;
+}
+
+/** What the life owns at home: each thing once, with the month it came and what was paid. */
+export interface ThingsSlice {
+  owned: { thing: Id<"thing">; month: number; paid: number }[];
 }
 
 /** Where the character lives at home (docs/rules/home.md R-HOME-001, 002, 003, 005). */
@@ -1933,7 +1998,7 @@ export type Command = { basedOn: number } & (
   | { type: "status/renew" }
   | { type: "return/home" }
   /** A ride between two places of the city (docs/rules/place.md R-PLACE-010, world.md R-WORLD-017, decision 0011). */
-  | { type: "place/ride"; from: Id<"place">; to: Id<"place">; way: "danfo" | "keke" | "okada" | "walk" }
+  | { type: "place/ride"; from: Id<"place">; to: Id<"place">; way: RideWay }
   // online (docs/rules/lottery.md)
   | { type: "lottery/buy"; tickets: number }
   /** Sent by the authority alone, after the draw. */
@@ -1973,6 +2038,11 @@ export type Command = { basedOn: number } & (
   | { type: "home/move"; to: HomePlace }
   /** From the authority alone: a joined player's character stays with this one until `until`, or no longer with null (R-HOME-005). */
   | { type: "home/host"; pair: string; until: number | null }
+  // things
+  /** Buy a thing from the market: at home in Lagos, the price held, delivered at once. */
+  | { type: "thing/buy"; thing: Id<"thing"> }
+  /** Sell a thing owned back at its resale figure. */
+  | { type: "thing/sell"; thing: Id<"thing"> }
   // chapter (docs/rules/chapter.md R-CHAPTER-009)
   /** Make a way out heard of or looked into the plan the chapters follow. */
   | { type: "chapter/lean"; route: Id<"route"> }
@@ -2192,6 +2262,8 @@ export interface ActivityOption {
   sure?: true;
   /** R-ACTIVITY-020: the act takes effort and the body is spent, so it waits for sleep. Missing otherwise. */
   spent?: true;
+  /** The act's time in half-days when a thing owned changes it. Missing otherwise: the entry's own. */
+  halfDays?: number;
 }
 
 export interface OfferView {
@@ -2350,6 +2422,22 @@ export interface PlayerView {
   report: TurnReport | null;
   /** The passbook (the Bank's first page): the money held for the road against the plan's target, the stamps, the pace and the roads. Null away from home or once the life has ended. */
   passbook: PassbookView | null;
+  /** The things owned and the market. */
+  things: ThingsView;
+}
+
+/** Why the market would refuse a thing now: owned already, not a thing for this home, its need not owned, the price not held, or not at home in Lagos. */
+export type ThingShut = "owned" | "home" | "needs" | "short" | "away";
+
+export interface ThingsView {
+  /** Each thing owned: `stored` while the home lived in is not one it may stand in (a TV at the family house), so it does nothing until a home of your own. */
+  owned: { thing: Id<"thing">; month: number; stored: boolean; resale: number }[];
+  /** Every thing of the market with its price now, its resale, its running cost a month as it would be taken, and why buying it is shut, null when it may be bought. */
+  market: { thing: Id<"thing">; price: number; resale: number; running: number; shut: ThingShut | null }[];
+  /** The car stands at home: the ride sheet offers Drive. */
+  drive: boolean;
+  /** What running what is owned takes a month, as the close will take it. */
+  running: number;
 }
 
 /** A road to the target (the passbook): a job a rung up, a side job, the street's circle, a family loan, a scholarship. */

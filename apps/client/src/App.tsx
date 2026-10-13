@@ -141,7 +141,7 @@ function WorldPlaying() {
           ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => (OFFER_PLACES[offer.entry] ?? null)),
         ]}
         asksHold={closing}
-        phone={(close, area, app, toMap) => <PhoneApps onClose={close} area={area} account={
+        phone={(close, area, app, toMap, here) => <PhoneApps onClose={close} area={area} here={here ?? null} account={
           <>
             <AccountButton more={<NotifySetting />} />
             <ReadyEntry />

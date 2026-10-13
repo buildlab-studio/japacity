@@ -23,6 +23,8 @@ export const walletText: Record<string, string> = {
   "line.wallet.fee-advice": "Paid to the adviser: {amount}.",
   "line.wallet.food": "Food: {amount}.",
   "line.wallet.foodstuff": "Foodstuff for the house: {amount}.",
+  "line.wallet.goods": "Bought for the home: {amount}.",
+  "line.wallet.running": "To run your things: {amount}.",
   "line.wallet.enjoyment": "Enjoyment: {amount}.",
   "line.wallet.bank-charge": "The bank's charge: {amount}.",
   "line.wallet.loan-repay": "Loan repayment: {amount}.",

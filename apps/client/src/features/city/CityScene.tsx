@@ -6,7 +6,7 @@
 // to it and floats its name and acts over it (R-WORLD-005, 010). The street camera at a person's eyes, the plan
 // view while the screen is held and the routed walks stay for the city behind the panels and for
 // `tuning.city.roam`. Nothing here sends a command (city.md R-CITY-001).
-import { onWalkable } from "@japacity/assets";
+import { type Footprint, footprintOf, onWalkable } from "@japacity/assets";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import type { WorldClock } from "@japacity/sim";
@@ -25,6 +25,9 @@ import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { limitMotion } from "./limits";
 import { lightKindOf, type Look, lookAt, mixLooks, ownHeightOf, PLACE_LIGHT, placeLook, ROOM_LIGHT, skyLightOf, skyOf, sunAt, useDayClock } from "./daylight";
 import { filesOf, type Room, showsFor, type Spot, type Stage, stageOf } from "./placeFile";
+import { misfit, turned } from "./arrange";
+import { dropLifted, floorAt, LIFT_DRAG_PX, LIFT_HOLD_MS, LIFT_Y, liftHintNode, liftNode, liftShadow, SHAKE_MS } from "./lift";
+import { liftable, ownedThingId } from "./owned";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { chipNode } from "./chip";
 import { anchorFan } from "./fan/anchor";
@@ -134,6 +137,21 @@ interface Rig {
   pinching: boolean;
   /** A wide home's room the view eases in on (R-WORLD-029 as the home's wave asks it amended); null for the room the character stands in. */
   room: string | null;
+}
+
+/** Buy mode's lifted thing: `good` is the last spot it fitted, where a shake sends it back and where it is set down. */
+interface Lifted {
+  thing: string;
+  file: string;
+  from: Spot;
+  at: Spot;
+  good: Spot;
+  copy: Object3D;
+  shadow: Mesh;
+  y: number;
+  turn: number;
+  shake: number | null;
+  down: boolean;
 }
 
 const wholeRig = (): Rig => ({ zoom: 1, zoomTo: 1, turn: 0, pinching: false, room: null });
@@ -266,6 +284,14 @@ function Place(props: PlaceProps) {
   /** The rooms' real lights at their lamps, each with its strength at full night (the design). */
   const lights = useRef<{ point: PointLight; strength: number }[]>([]);
   const fx = useRef<{ objects: Object3D[]; from: number; to: number }[]>([]);
+  /** The models the place was last built from, for buy mode's copy of a lifted thing and its footprint. */
+  const modelsRef = useRef<ReadonlyMap<string, Object3D>>(new Map());
+  /** Buy mode's lifted thing: which, its model, where it was lifted from and where it is now, its copy and shadow, and a shake back running. */
+  const lifted = useRef<Lifted | null>(null);
+  const handles = useRef<{ thing: string; at: Spot; node: HTMLDivElement }[]>([]);
+  const hint = useRef<HTMLDivElement | null>(null);
+  /** A thing set down while the room is rebuilt around it: its copy stays until the new room stands, so nothing blinks. */
+  const settling = useRef<{ lifted: Lifted; world: World } | null>(null);
 
   /** Starts the walk to a thing; false when the character already stands at it. */
   const walkFor = (thing: Thing): boolean => {
@@ -391,6 +417,7 @@ function Place(props: PlaceProps) {
         walk.current.standing = stage.start;
       }
       const built = buildWorld(stage, models, people, own, settings, text, place, roam);
+      modelsRef.current = models;
       // The character wears the player's own colours (R-PROLOGUE-015): painted once, as the place is built.
       wear(built.own.root, keptStyleOf(own));
       setWorld(built);
@@ -403,6 +430,167 @@ function Place(props: PlaceProps) {
     };
     // The world is rebuilt for a new place, a new crowd or a new mode; the callbacks are the screen's and may change freely.
   }, [place, file, peopleKey, own, settings.mesh, settings.shadows, roam]);
+
+  // Buy mode: a hold area over each thing you own; a hold lifts it (a lift, a shadow, the
+  // pop), a drag moves it on the floor and sets it down where it fits, a tap while it is lifted turns it a quarter, a tap
+  // anywhere else sets it down. A spot that does not fit shakes it back to where it last stood. The room is rebuilt once,
+  // as the thing is set down, from the arrangement the city keeps.
+  const arrange = props.arrange ?? null;
+  const arrangeRef = useRef(arrange);
+  arrangeRef.current = arrange;
+  const arranging = arrange !== null;
+  useEffect(() => {
+    const waiting = settling.current;
+    if (waiting !== null && waiting.world !== world) {
+      dropLifted(waiting.lifted.copy, waiting.lifted.shadow);
+      settling.current = null;
+    }
+    if (markBox === null || world === null || !arranging) return;
+    const items = liftable(file);
+    const canvas = gl.domElement;
+    const footprint = (path: string): Footprint | null => {
+      const model = modelsRef.current.get(path);
+      return model === undefined ? null : footprintOf(model);
+    };
+    const groupOf = (thing: string): Object3D | undefined => world.root.children.find((child) => (child.userData as { owned?: string }).owned === thing);
+    const fits = (thing: string, path: string, spot: Spot): boolean => misfit(stage, thing, path, spot, footprint) === null;
+    const lift = (item: (typeof items)[number]): void => {
+      const loaded = modelsRef.current.get(item.file);
+      const group = groupOf(item.thing);
+      if (loaded === undefined || group === undefined) return;
+      const copy = loaded.clone(true);
+      copy.position.set(item.at[0], 0, item.at[1]);
+      copy.rotation.y = item.at[2];
+      const box = new Box3().setFromObject(loaded);
+      const shadow = liftShadow(Math.max(box.max.x - box.min.x, box.max.z - box.min.z) / 2);
+      shadow.position.set(item.at[0], 0.025, item.at[1]);
+      world.root.add(copy, shadow);
+      group.visible = false;
+      lifted.current = { thing: item.thing, file: item.file, from: item.at, at: item.at, good: item.at, copy, shadow, y: 0, turn: item.at[2], shake: null, down: false };
+      arrangeRef.current?.onLift?.();
+    };
+    const setDown = (): void => {
+      const held = lifted.current;
+      if (held === null || held.down) return;
+      held.down = true;
+      if (held.good[0] === held.from[0] && held.good[1] === held.from[1] && held.good[2] === held.from[2]) {
+        // Nothing moved: the copy goes and the thing stands where it stood.
+        dropLifted(held.copy, held.shadow);
+        const group = groupOf(held.thing);
+        if (group !== undefined) group.visible = true;
+        lifted.current = null;
+        return;
+      }
+      // The room is rebuilt with the thing where it was set down; the copy stays, on the floor, until the new room stands.
+      held.copy.position.set(held.good[0], 0, held.good[1]);
+      held.copy.rotation.y = held.good[2];
+      held.shadow.visible = false;
+      arrangeRef.current?.onSet(held.thing, held.good);
+    };
+    const shakeBack = (held: Lifted): void => {
+      held.shake = performance.now();
+      held.at = held.good;
+      arrangeRef.current?.onMisfit?.();
+    };
+    const made = items.map((item) => {
+      const node = liftNode(item.thing);
+      let press: { x: number; y: number; timer: number; lifting: boolean; dragged: boolean; wasLifted: boolean } | null = null;
+      node.onpointerdown = (event) => {
+        if (!looking) return;
+        event.stopPropagation();
+        node.setPointerCapture(event.pointerId);
+        const wasLifted = lifted.current?.thing === item.thing && !lifted.current.down;
+        // Another thing lifted is set down first.
+        if (lifted.current !== null && !wasLifted) setDown();
+        press = {
+          x: event.clientX,
+          y: event.clientY,
+          wasLifted,
+          lifting: false,
+          dragged: false,
+          timer: wasLifted
+            ? 0
+            : window.setTimeout(() => {
+                if (press === null) return;
+                press.lifting = true;
+                lift(item);
+              }, LIFT_HOLD_MS),
+        };
+      };
+      node.onpointermove = (event) => {
+        if (press === null) return;
+        const far = Math.hypot(event.clientX - press.x, event.clientY - press.y) > LIFT_DRAG_PX;
+        const held = lifted.current;
+        if (held === null || held.thing !== item.thing || held.down) {
+          // A press that wanders before it lifts is not a hold.
+          if (far) window.clearTimeout(press.timer);
+          return;
+        }
+        if (!far && !press.dragged) return;
+        event.stopPropagation();
+        press.dragged = true;
+        const point = floorAt(camera, canvas, event.clientX, event.clientY);
+        if (point !== null) held.at = [point[0], point[1], held.at[2]];
+      };
+      const release = (event: PointerEvent): void => {
+        if (press === null) return;
+        window.clearTimeout(press.timer);
+        const was = press;
+        press = null;
+        const held = lifted.current;
+        event.stopPropagation();
+        if (held === null || held.thing !== item.thing || held.down) {
+          // A quick tap on a thing with acts of its own (the TV) chooses it as any thing.
+          const thing = things.find((candidate) => candidate.id === ownedThingId(item.thing));
+          if (thing !== undefined && !was.lifting) pickRef.current(thing);
+          return;
+        }
+        if (was.dragged) {
+          // A drag sets the thing down where it fits, or shakes it back to where it last stood.
+          if (fits(held.thing, held.file, held.at)) {
+            held.good = held.at;
+            setDown();
+          } else shakeBack(held);
+          return;
+        }
+        if (was.wasLifted) {
+          // A tap while lifted turns it a quarter, if it fits turned.
+          const next = turned(held.at);
+          if (fits(held.thing, held.file, next)) {
+            held.at = next;
+            held.good = next;
+          } else shakeBack(held);
+        }
+      };
+      node.onpointerup = release;
+      node.onpointercancel = release;
+      markBox.append(node);
+      return { thing: item.thing, at: item.at, node };
+    });
+    handles.current = made;
+    const note = liftHintNode();
+    markBox.append(note);
+    hint.current = note;
+    // A tap anywhere else sets a lifted thing down.
+    const elsewhere = (event: PointerEvent): void => {
+      if (lifted.current === null || lifted.current.down) return;
+      if (event.target instanceof HTMLElement && event.target.dataset.lift !== undefined) return;
+      setDown();
+    };
+    window.addEventListener("pointerdown", elsewhere, true);
+    return () => {
+      window.removeEventListener("pointerdown", elsewhere, true);
+      for (const { node } of made) node.remove();
+      note.remove();
+      handles.current = [];
+      hint.current = null;
+      const held = lifted.current;
+      if (held?.down === true) settling.current = { lifted: held, world };
+      else if (held !== null) dropLifted(held.copy, held.shadow);
+      lifted.current = null;
+    };
+    // Rebuilt with each new room; the things, the camera and the canvas are read as they stand then.
+  }, [markBox, world, arranging, file]);
 
   // The place's lamps glow as the light goes: the bulb, the lantern, the street's few lights (R-CLOCK-033).
   useEffect(() => {
@@ -757,6 +945,44 @@ function Place(props: PlaceProps) {
         // The chip stands above its thing, and never under the band: a thing near the top of the screen gets its chip just under the band instead.
         const bandBottom = document.querySelector("[data-band]")?.getBoundingClientRect().bottom ?? 0;
         shown.node.style.top = `${String(Math.max(at.y, bandBottom + shown.node.offsetHeight + EDGE_MARGIN))}px`;
+      }
+    }
+    // Buy mode: the lifted thing rides up off the floor and follows the finger, turns and shakes back with short eases,
+    // and the hold areas and the hint follow the things as the camera moves.
+    const held = lifted.current;
+    if (held !== null) {
+      const easing = 1 - Math.exp(-delta * 18);
+      held.y += ((held.down ? 0 : LIFT_Y) - held.y) * easing;
+      let turnBy = held.at[2] - held.turn;
+      while (turnBy > Math.PI) turnBy -= Math.PI * 2;
+      while (turnBy < -Math.PI) turnBy += Math.PI * 2;
+      held.turn += turnBy * easing;
+      const shaking = held.shake === null ? 0 : (performance.now() - held.shake) / SHAKE_MS;
+      if (shaking >= 1) held.shake = null;
+      const wobble = held.shake === null ? 0 : Math.sin(shaking * Math.PI * 6) * 0.12 * (1 - shaking);
+      const x = held.copy.position.x + (held.at[0] - held.copy.position.x) * (held.shake === null ? 1 : easing) + wobble;
+      const z = held.copy.position.z + (held.at[1] - held.copy.position.z) * (held.shake === null ? 1 : easing);
+      held.copy.position.set(x, held.y, z);
+      held.copy.rotation.y = held.turn;
+      held.shadow.position.set(x, 0.025, z);
+    }
+    for (const handle of handles.current) {
+      const spot = held !== null && held.thing === handle.thing ? [held.copy.position.x, held.copy.position.z] : [handle.at[0], handle.at[1]];
+      const at = onScreen(state.camera, state.size, spot[0] ?? 0, 0.5, spot[1] ?? 0, 1.05);
+      handle.node.style.display = at === null || labelsHidden ? "none" : "";
+      handle.node.dataset.lifted = held !== null && held.thing === handle.thing && !held.down ? "true" : "false";
+      if (at !== null) {
+        handle.node.style.left = `${String(at.x)}px`;
+        handle.node.style.top = `${String(at.y)}px`;
+      }
+    }
+    const note = hint.current;
+    if (note !== null) {
+      const at = held === null || held.down ? null : onScreen(state.camera, state.size, held.copy.position.x, 0, held.copy.position.z, 1.05);
+      note.style.display = at === null ? "none" : "";
+      if (at !== null) {
+        note.style.left = `${String(within(at.x, note))}px`;
+        note.style.top = `${String(at.y + 30)}px`;
       }
     }
     const sleeping = sleepMark.current;

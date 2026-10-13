@@ -131,6 +131,8 @@ export const cityText: Record<string, string> = {
   "city.act.papers": "Look in the box",
   "city.act.go-in": "Go in",
   "city.act.go-out": "Go out",
+  // Buy mode: the hint under a thing you own while it is lifted.
+  "city.lift.hint": "Drag to move · tap to turn",
   "city.act.ride": "Ride",
   "city.act.bills": "The bills",
   // Mama's sheet: gist with her, and a few days in her shop.

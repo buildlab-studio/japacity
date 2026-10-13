@@ -79,6 +79,7 @@
   --app-japa: #d4602e;
   --app-papers: #8a5a2b;
   --app-jobs: #b8862b;
+  --app-market: #c2406e;
   --app-lotto: #c23a2a;
   --app-bills: #7a3b69;
   --app-news: #4a5068;
@@ -414,6 +415,17 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 .flip-page { transform-origin: 50% 0; transform-style: preserve-3d; animation: flip-page 0.6s cubic-bezier(0.45, 0, 0.25, 1) both; }
 .flip-page > * { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 2px; background: var(--on-strong); }
 .flip-page > :last-child { transform: rotateX(180deg); filter: brightness(0.72); }
+
+/* Buy mode's hold area over a thing you own: nothing to see until the thing is lifted, then a soft
+   yellow ring under the finger, faded in on opacity alone. */
+.lift-handle {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--action) 80%, transparent);
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+.lift-handle[data-lifted="true"] {
+  opacity: 1;
+}
 
 /* A thing's quiet mark (R-WORLD-005, R-WORLD-021): a small still dot, the signal colour at about 60%, with a hairline so it
    reads on light ground; the nudge's thing pulses gently, and a place's first entry shows the names, then they fade. */

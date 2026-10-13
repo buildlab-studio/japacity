@@ -25,6 +25,7 @@ import { InterviewEntrySchema } from "./interview/interview.schema";
 import { PhraseEntrySchema } from "./pair/phrase.schema";
 import { PersonEntrySchema } from "./people/person.schema";
 import { PlaceEntrySchema } from "./place/place.schema";
+import { ThingEntrySchema } from "./thing/thing.schema";
 import { AdvertSlotEntrySchema, CounterDefSchema, GuideEntrySchema } from "./engine/m5.schema";
 
 export * from "./activity/activity.schema";
@@ -45,6 +46,7 @@ export * from "./school/school.schema";
 export * from "./setpiece/setpiece.schema";
 export * from "./status/status.schema";
 export * from "./var/var.schema";
+export * from "./thing/thing.schema";
 
 export const ContentSchema = z.strictObject({
   version: z.string().min(1),
@@ -70,6 +72,7 @@ export const ContentSchema = z.strictObject({
   person: z.record(idOf("person"), PersonEntrySchema),
   phrase: z.record(idOf("phrase"), PhraseEntrySchema),
   interview: z.record(idOf("interview"), InterviewEntrySchema),
+  thing: z.record(idOf("thing"), ThingEntrySchema),
   people: z.strictObject({ spots: z.array(z.string().min(1)) }),
   advert: z.record(idOf("advert"), AdvertSlotEntrySchema),
   guide: z.record(idOf("guide"), GuideEntrySchema),

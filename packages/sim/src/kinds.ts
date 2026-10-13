@@ -14,6 +14,7 @@ import { prologueKind } from "./prologue/prologue.logic";
 import { statusKind } from "./status/status.logic";
 import { documentKind } from "./document/document.logic";
 import { homeKind } from "./home/home.logic";
+import { thingsKind } from "./thing/thing.logic";
 import type { AnyKind, Registry, SliceKey } from "./engine/kind";
 import { SLICE_KEYS } from "./engine/kind";
 import { newsKind } from "./news/news.logic";
@@ -49,6 +50,7 @@ function build(): Registry {
     peopleKind,
     interviewKind,
     homeKind,
+    thingsKind,
   ];
   kinds.forEach((kind, index) => {
     if (kind.kind !== SLICE_KEYS[index]) {

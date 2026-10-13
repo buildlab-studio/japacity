@@ -110,7 +110,7 @@ function bareCurrency(name: string, params: Params, key: string): Currency {
 // Names that read as common nouns mid-sentence: "You look for work as a private
 // school teacher", "Your passport is ready". Schools, people, news and places keep
 // their capitals.
-export const LOWER_KINDS: ReadonlySet<string> = new Set(["activity", "document", "route", "quality", "obligation", "status"]);
+export const LOWER_KINDS: ReadonlySet<string> = new Set(["activity", "document", "route", "quality", "obligation", "status", "thing"]);
 /** First words that keep their capital mid-sentence. words.test.ts holds this against every name and country in content. */
 export const PROPER_WORDS: ReadonlySet<string> = new Set([
   "English",

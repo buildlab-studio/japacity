@@ -68,7 +68,7 @@ export function metresBetween(from: Position, to: Position): number {
  * places when their ids are given, so what the sheet says is what the ride takes to the kobo; the minutes are the wait
  * plus the straight-line distance at the way's pace.
  */
-export function rideChoices(from: Position, to: Position, country: string | null = null, fareBp = 10000, home = false, ids: { from: string; to: string } | null = null): RideChoice[] {
+export function rideChoices(from: Position, to: Position, country: string | null = null, fareBp = 10000, home = false, ids: { from: string; to: string } | null = null, drive = false): RideChoice[] {
   const { metresPerMinute, waitMinutes, walkMetres } = content.tuning.city.ride;
   // Abroad there is one way, named for the country, at no fare until the tuning carries fares in that country's money (decision 0011).
   if (country !== null) return [{ id: "danfo", label: mapWords(`map.way.abroad.${country}`), fare: 0, minutes: waitMinutes + ABROAD_MINUTES }];
@@ -77,11 +77,21 @@ export function rideChoices(from: Position, to: Position, country: string | null
   // Home is the exception: a life may always walk home, however far, and the long walk is the cost.
   const far = metres > walkMetres;
   const priced = (where: "from" | "to"): Position | null => (ids === null ? (where === "from" ? from : to) : (content.place[ids[where] as keyof typeof content.place]?.position ?? null));
-  return WAYS.map((id) => ({
+  const ways: RideChoice[] = WAYS.map((id) => ({
     id,
     label: mapWords(`map.way.${id}`),
     fare: rideFare(content, priced("from"), priced("to"), id, fareBp),
     minutes: waitMinutes + Math.max(1, Math.round(metres / metresPerMinute[id])),
     ...(id === "walk" && far ? (home ? { long: true as const } : { shut: "far" as const }) : {}),
   }));
+  // : while the life's car stands at home, Drive is a way of its own, its fuel the fare by distance as
+  // the simulation takes it (`place/ride` with `drive`), no wait at a stop, at the pace of the city's traffic.
+  if (!drive) return ways;
+  const drove: RideChoice = {
+    id: "drive",
+    label: mapWords("map.way.drive"),
+    fare: rideFare(content, priced("from"), priced("to"), "drive", fareBp),
+    minutes: Math.max(1, Math.round(metres / content.tuning.thing.drive.metresPerMinute)),
+  };
+  return [drove, ...ways];
 }
