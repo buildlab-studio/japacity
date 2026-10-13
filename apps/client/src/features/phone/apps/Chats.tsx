@@ -13,6 +13,8 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import type { ConversationReply, PairReply, SayReply } from "../../../shared/net/contract";
 import { bondName, conversationPhrases, endStillTold, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/sim/people";
 import { hasWords, monthsAgo, say, words } from "../../../shared/words/text";
+import { faceMark } from "../../../shared/ui/lively/Face";
+import { PressButton } from "../../../shared/ui/lively/PressButton";
 import { Head } from "../act";
 import { familyFeedLines } from "../feed";
 import { phoneWords } from "../phone.words";
@@ -55,11 +57,23 @@ export function courtedLine(person: string | null): string | null {
   return person !== null && hasWords(key) ? say(key) : null;
 }
 
+/** Who said it, as a pill with their flat mark; the mark's letter is drawn, so it never joins the words of the message. */
+function NamePill({ name }: { name: string }) {
+  const mark = faceMark(name);
+  return (
+    <span className="pill py-1 pr-3 pl-1 text-[13px]" data-face={name}>
+      <span className="face-mark drawn-pic flex size-6 shrink-0 items-center justify-center text-[13px] font-bold text-white" style={{ background: mark.colour }} data-pic={mark.initial} aria-hidden />
+      {name}
+    </span>
+  );
+}
+
+/** A message as the after set's phone-chats draws it: who said it as a name pill with their mark, the words in a white bubble; yours in navy. */
 function Bubble({ from, mine = false, courted = false, children }: { from: string | null; mine?: boolean; courted?: boolean; children: string }) {
   return (
-    <li className={`flex flex-col gap-0.5 ${mine ? "items-end" : "items-start"}`} data-courted={courted ? "" : undefined}>
-      {from === null ? null : <span className="px-1 text-[11px] font-bold text-text-2">{from}</span>}
-      <span className={`max-w-[85%] rounded-[14px] px-3 py-2 text-[14px] leading-snug ${mine ? "band rounded-br-[4px]" : "rounded-bl-[4px] border border-sheet-line bg-sheet-2"}`}>{children}</span>
+    <li className={`flex flex-col gap-1 ${mine ? "items-end" : "items-start"}`} data-courted={courted ? "" : undefined}>
+      {from === null ? null : <NamePill name={from} />}
+      <span className={`max-w-[88%] px-3.5 py-2.5 text-[15px] leading-snug ${mine ? "phone-bubble-mine" : "phone-bubble"}`}>{children}</span>
     </li>
   );
 }
@@ -73,11 +87,11 @@ function Family() {
       {feed.length === 0 ? (
         <p className="text-[14px] text-text-2">{phoneWords("phone.chats.family.none")}</p>
       ) : (
-        <ul className="flex flex-col gap-2" data-feed>
+        <ul className="flex flex-col gap-2.5" data-feed>
           {feed.map((line, index) => (
             <Fragment key={`${line.id}-${String(line.month)}`}>
               {index === 0 || feed[index - 1]?.month !== line.month ? (
-                <li className="label self-center py-1 text-[10px] text-text-2">{monthsAgo(line.month, view.month)}</li>
+                <li className="self-center py-1 text-[13px] font-semibold text-text-2">{monthsAgo(line.month, view.month)}</li>
               ) : null}
               <Bubble from={line.from}>{line.words}</Bubble>
             </Fragment>
@@ -89,7 +103,7 @@ function Family() {
           <Head>{phoneWords("phone.chats.people")}</Head>
           <ul className="flex flex-col gap-1.5" data-people-lines>
             {people.map((line, index) => (
-              <li key={`${line.key}-${String(index)}`} className="rounded-[6px] bg-sheet-muted px-3 py-2 text-center text-[13px] text-text-2">
+              <li key={`${line.key}-${String(index)}`} className="phone-bubble px-3 py-2 text-center text-[14px] text-text-2">
                 {words(line.key, line.params)}
               </li>
             ))}
@@ -210,7 +224,7 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
         </ul>
       )}
       <Head>{phoneWords("phone.chats.pick")}</Head>
-      <div className="-mx-3 flex gap-1.5 overflow-x-auto px-3 pb-1" role="radiogroup" aria-label={phoneWords("phone.chats.pick")}>
+      <div className="-mx-3 flex flex-wrap gap-2 px-3 pt-1 pb-2" role="radiogroup" aria-label={phoneWords("phone.chats.pick")}>
         {PHRASES.map((entry) => (
           <button
             key={entry.id}
@@ -221,7 +235,7 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
               setPhraseId(entry.id);
               setFill(null);
             }}
-            className={`press shrink-0 rounded-[14px] px-3 py-2 text-[13px] font-bold whitespace-nowrap ${entry.id === phraseId ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`}
+            className={`press phone-ghost min-h-10 w-auto shrink-0 px-3.5 text-[14px] whitespace-nowrap ${entry.id === phraseId ? "bg-[var(--soft)]" : ""}`}
           >
             {phraseWords(entry.id, null)}
           </button>
@@ -230,17 +244,18 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
       {phrase === undefined || phrase.fill === null ? null : (
         <div className="mt-2 flex flex-wrap gap-1.5" role="radiogroup" aria-label={say("ui.talk.fill")}>
           {fills.map((value) => (
-            <button key={value} type="button" role="radio" aria-checked={value === chosenFill} onClick={() => setFill(value)} className={`press rounded-[14px] px-3 py-1.5 text-[13px] font-bold ${value === chosenFill ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`}>
+            <button key={value} type="button" role="radio" aria-checked={value === chosenFill} onClick={() => setFill(value)} className={`press phone-ghost min-h-9 w-auto px-3 text-[14px] ${value === chosenFill ? "bg-[var(--soft)]" : ""}`}>
               {fillWords(phrase.id, phrase.fill ?? "", value)}
             </button>
           ))}
         </div>
       )}
       {phraseId === null ? null : (
-        <button type="button" className="btn-main mt-3" disabled={busy || (phrase?.fill !== null && chosenFill === null)} onClick={() => void send()} data-say>
-          <span className="truncate">{phraseWords(phraseId, chosenFill)}</span>
-          <span className="text-[13px] opacity-80">{phoneWords("phone.chats.say")}</span>
-        </button>
+        <PressButton className="mt-3 w-full" disabled={busy || (phrase?.fill !== null && chosenFill === null)} onClick={() => void send()} data-say>
+          <span className="shrink-0">{phoneWords("phone.chats.say")}</span>
+          <span aria-hidden>·</span>
+          <span className="min-w-0 truncate">{phraseWords(phraseId, chosenFill)}</span>
+        </PressButton>
       )}
       {refusal === null ? null : (
         <p role="alert" className="mt-2 text-[14px] text-out">
@@ -267,7 +282,7 @@ export function Chats() {
           <ChevronLeft size={16} aria-hidden />
           {phoneWords("phone.app.chats")}
         </button>
-        <h3 className="title mb-3 text-[18px]">{phoneWords("phone.chats.slots")}</h3>
+        <h3 className="mb-3 text-[20px] font-bold">{phoneWords("phone.chats.slots")}</h3>
         <div data-chat={SLOTS}>{screens.slots}</div>
       </div>
     );
@@ -281,11 +296,11 @@ export function Chats() {
           <ChevronLeft size={16} aria-hidden />
           {phoneWords("phone.app.chats")}
         </button>
-        <h3 className="title mb-3 flex items-center gap-2 text-[18px]">
+        <h3 className="mb-3 flex items-center gap-2 text-[20px] font-bold">
           {name}
           {/* The quiet mark a person the game plays carries on every screen (people.md R-PEOPLE-009, R-PEOPLE-054). */}
           {bond?.label === "computer" ? (
-            <span className="rounded-[3px] border border-sheet-line px-1.5 py-px text-[12px] font-semibold text-text-2" data-person-mark="computer">
+            <span className="sticker-chip bg-sheet-2 text-text-2" style={{ rotate: "-2deg" }} data-person-mark="computer">
               {say("ui.people.mark.computer")}
             </span>
           ) : null}
@@ -310,44 +325,47 @@ export function Chats() {
   const latest = feed.at(-1);
   return (
     <div data-phone-app="chats">
-      <ul className="flex flex-col divide-y divide-sheet-line">
+      <ul className="flex flex-col gap-2.5">
         {screens === null ? null : (
           <li>
-            <button type="button" onClick={() => setOpen(SLOTS)} className="press flex w-full items-center gap-3 py-2.5 text-left" data-chat-row={SLOTS}>
-              <span className="band-2 flex size-10 shrink-0 items-center justify-center rounded-[10px]">
-                <UserRound size={18} aria-hidden />
+            <button type="button" onClick={() => setOpen(SLOTS)} className="lively-card press flex w-full items-center gap-3 p-3 text-left" data-chat-row={SLOTS}>
+              <span className="phone-pic flex size-12 shrink-0 items-center justify-center bg-tint-people" aria-hidden>
+                <UserRound size={22} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[15px] font-bold">{phoneWords("phone.chats.slots")}</span>
-                <span className="block truncate text-[13px] text-text-2">{phoneWords("phone.chats.slots.line")}</span>
+                <span className="block truncate text-[17px] font-bold">{phoneWords("phone.chats.slots")}</span>
+                <span className="block truncate text-[14px] text-text-2">{phoneWords("phone.chats.slots.line")}</span>
               </span>
-              <ChevronRight size={16} className="shrink-0 text-text-2" aria-hidden />
+              <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
             </button>
           </li>
         )}
         <li>
-          <button type="button" onClick={() => setOpen("family")} className="press flex w-full items-center gap-3 py-2.5 text-left" data-chat-row="family">
-            <span className="band flex size-10 shrink-0 items-center justify-center rounded-full">
-              <Users size={18} aria-hidden />
+          <button type="button" onClick={() => setOpen("family")} className="lively-card press flex w-full items-center gap-3 p-3 text-left" data-chat-row="family">
+            <span className="phone-pic flex size-12 shrink-0 items-center justify-center bg-tint-people" aria-hidden>
+              <Users size={22} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-bold">{groupName}</span>
-              <span className="block truncate text-[13px] text-text-2">{latest === undefined ? phoneWords("phone.chats.family.none") : phoneWords("phone.chats.family.line", { from: latest.from, words: latest.words })}</span>
+              <span className="block truncate text-[17px] font-bold">{groupName}</span>
+              <span className="block truncate text-[14px] text-text-2">{latest === undefined ? phoneWords("phone.chats.family.none") : phoneWords("phone.chats.family.line", { from: latest.from, words: latest.words })}</span>
             </span>
-            <ChevronRight size={16} className="shrink-0 text-text-2" aria-hidden />
+            <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
           </button>
         </li>
         {people.map((person) => {
           const name = bondName(person, view.people.bonds);
+          const mark = faceMark(name);
           return (
             <li key={person.id}>
-              <button type="button" onClick={() => setOpen(person.id)} className="press flex w-full items-center gap-3 py-2.5 text-left" data-chat-row={person.id}>
-                <span className="band-2 title flex size-10 shrink-0 items-center justify-center rounded-full text-[16px]">{name.slice(0, 1)}</span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[15px] font-bold">{phoneWords("phone.chats.with", { name })}</span>
-                  <span className="block truncate text-[13px] text-text-2">{say(`ui.people.stage.${person.stage}`)}</span>
+              <button type="button" onClick={() => setOpen(person.id)} className="lively-card press flex w-full items-center gap-3 p-3 text-left" data-chat-row={person.id}>
+                <span className="face-mark flex size-12 shrink-0 items-center justify-center text-[20px] font-bold text-white" style={{ background: mark.colour }} aria-hidden>
+                  {mark.initial}
                 </span>
-                <ChevronRight size={16} className="shrink-0 text-text-2" aria-hidden />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[17px] font-bold">{phoneWords("phone.chats.with", { name })}</span>
+                  <span className="block truncate text-[14px] text-text-2">{say(`ui.people.stage.${person.stage}`)}</span>
+                </span>
+                <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
               </button>
             </li>
           );

@@ -127,6 +127,7 @@ export const phoneText: Record<string, string> = {
   "phone.papers.notice.expired": "Your {paper} has run out.",
   "phone.papers.notice.voided": "Your {paper} is no longer valid.",
 
+  "phone.bills.title": "What you owe",
   "phone.jobs.held": "Your job",
   // The raise from being noticed, and when it landed: "Raised last month" (R-ACTIVITY-013).
   "phone.jobs.raised": "Raised {when}",
