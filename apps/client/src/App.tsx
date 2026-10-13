@@ -24,6 +24,7 @@ import { ParcelWaybill } from "./shared/world/Waybill";
 import { AccountButton } from "./features/account/Settings";
 import { ActivityPicker } from "./features/activity/ActivityView";
 import { PlaceAdverts } from "./features/adverts/placed";
+import { BoardsView } from "./features/boards/BoardsView";
 import { EndingView } from "./features/card/EndingView";
 import { CardView } from "./features/card/ShareCard";
 import { ChapterView } from "./features/chapter/ChapterView";
@@ -146,7 +147,7 @@ function WorldPlaying() {
             <AccountButton more={<NotifySetting />} />
             <ReadyEntry />
           </>
-        } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <PeopleSlots api={talk} /> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
+        } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <><PeopleSlots api={talk} /><BoardsView /></> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}
