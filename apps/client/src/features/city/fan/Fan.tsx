@@ -1,24 +1,28 @@
-// The fan (docs/design/13-the-lively-layer.md section 3): a thing's acts fanned out of the thing itself, round sticker
-// buttons on a curve into the larger free side, a name pill outside the curve, the price pill in yellow with the balance
-// before struck and after beside it, or what stands in the way. The scene's frame loop moves the fan with its thing every
-// frame (CityScene, `[data-fan]`, as the marks and the speech bubble); the layout is read once from where the thing first
-// stood, and when the free side cannot hold it the caller opens the sheet of the same acts.
+// The fan (docs/design/13-the-lively-layer.md section 3; world.md R-WORLD-034): every thing's acts fanned out of the thing
+// itself, the thing's name in a pill over it, round sticker buttons on a curve into the larger free side, a name pill
+// outside the curve, the yellow price pill where a price stands, or what stands in the way. The scene's frame loop moves
+// the fan with its thing every frame (CityScene, `[data-fan]`, as the marks and the speech bubble); the layout is read once
+// from where the thing first stood, and when the free side cannot hold it the caller opens the sheet of the same acts.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent } from "react";
 
 import { cue } from "../../../shared/sound/cues";
 import { Tile } from "../../../shared/tiles/Tile";
 import { Sticker } from "../../../shared/ui/lively/Sticker";
 import { say } from "../../../shared/words/text";
+import type { Thing } from "../../../shared/world/contract";
+import { sceneWords } from "../scene.words";
 import { clearFanAnchor, fanAnchor, subscribeFanAnchor } from "./anchor";
-import type { FanEntry } from "./fanActs";
+import { type FanEntry, MOST_FANNED } from "./fanActs";
 import { curvePath, type FanLayout, fanLayout, fanSizes, placesAt, shiftRange } from "./fanLayout";
 import "./fan.css";
 
 export interface FanProps {
   /** The fanned thing's id: the scene finds the fan by it and moves it with the thing. */
   thing: string;
-  /** The thing's name, for the group's label. */
+  /** The thing's name: the pill over it and the group's label. */
   title: string;
+  /** The quiet mark of a person the game plays, beside the name as on every screen (people.md R-PEOPLE-009, R-PEOPLE-054). */
+  mark?: Thing["mark"];
   entries: readonly FanEntry[];
   /** A button tapped that can be had: the caller walks to the thing and sends its act. */
   onAct: (entry: FanEntry) => void;
@@ -55,37 +59,59 @@ function layoutAt(point: NonNullable<ReturnType<typeof fanAnchor>>, count: numbe
   return fanLayout({ at, screen, count, inset: insetsNow(), ...sizes, label: label ?? sizes.label });
 }
 
-export function Fan({ thing, title, entries, onAct, onFallback, going = null, onPreview }: FanProps) {
+export function Fan({ thing, title, mark, entries, onAct, onFallback, going = null, onPreview }: FanProps) {
   const point = useSyncExternalStore(subscribeFanAnchor, () => fanAnchor(thing));
   const count = entries.length;
+  // A thing with no act (someone standing as themselves) shows its name alone; a long list is a list, so the sheet opens.
+  const bare = count === 0;
+  const long = count > MOST_FANNED;
   // The labels' width as drawn, read once after the first layout: a long name or a large balance may need more room than the
   // measure the layout starts from, and the fan lays out again with it, or hands over to the sheet (before the first paint).
   const [label, setLabel] = useState<number | null>(null);
   const root = useRef<HTMLDivElement>(null);
   const layout = useMemo(() => (point === null ? null : layoutAt(point, count, label)), [point, count, label]);
+  const fits = layout !== null && layout.fits && !long;
   useLayoutEffect(() => {
-    if (label !== null || layout === null || !layout.fits || root.current === null) return;
+    if (label !== null || layout === null || !fits || root.current === null) return;
     const widest = Math.max(0, ...[...root.current.querySelectorAll<HTMLElement>(".fan-labels")].map((node) => node.scrollWidth));
     if (widest > layout.sizes.label) setLabel(Math.ceil(widest));
-  }, [layout, label]);
+  }, [layout, label, fits]);
   const [shift, setShift] = useState(0);
   const [shaking, setShaking] = useState<{ id: string; n: number } | null>(null);
   const drag = useRef<{ y: number; from: number; moved: boolean } | null>(null);
   const fallback = useRef(onFallback);
   fallback.current = onFallback;
 
-  // The fan opens with a whoosh, or hands over to the sheet when it cannot stand here.
+  // The fan opens with a whoosh, or hands over to the sheet when it cannot stand here; a name alone opens quietly.
   useEffect(() => {
-    if (layout === null) return;
-    if (!layout.fits) fallback.current();
+    if (layout === null || bare) return;
+    if (!fits) fallback.current();
     else cue("whoosh");
-  }, [layout]);
+  }, [layout, bare, fits]);
   // The next opening reads the thing where it stands then.
   useEffect(() => () => clearFanAnchor(thing), [thing]);
 
   // Until the scene says where the thing stands, the fan is an empty anchor it can find; with no room beside the thing, nothing.
   if (layout === null) return <div aria-hidden className="fan pointer-events-none fixed top-0 left-0 z-[37]" data-fan={thing} />;
-  if (!layout.fits) return null;
+  // The thing's name over it, with a person's quiet mark beside it (R-WORLD-005: a tap shows the thing's name and its acts).
+  const name = (
+    <span className="fan-title" data-fan-title>
+      {title}
+      {mark === undefined ? null : (
+        <span className="fan-mark" data-person-mark={mark}>
+          {sceneWords(`ui.people.mark.${mark}`)}
+        </span>
+      )}
+    </span>
+  );
+  if (bare) {
+    return point === "off" ? null : (
+      <div role="group" aria-label={title} className="fan pointer-events-none fixed top-0 left-0 z-[37]" data-fan={thing} data-fan-shown={0}>
+        {name}
+      </div>
+    );
+  }
+  if (!fits) return null;
   const places = placesAt(layout, shift);
   const range = shiftRange(layout);
   const draggable = range.min < 0;
@@ -142,6 +168,7 @@ export function Fan({ thing, title, entries, onAct, onFallback, going = null, on
       onPointerUp={up}
       onPointerCancel={up}
     >
+      {name}
       <svg className="fan-curve" width="1" height="1" aria-hidden>
         <path d={curvePath(layout, shift)} />
       </svg>
@@ -155,6 +182,8 @@ export function Fan({ thing, title, entries, onAct, onFallback, going = null, on
             className="fan-item"
             style={{ transform: `translate(${place.dx.toFixed(1)}px, ${place.dy.toFixed(1)}px)` }}
             data-fan-act={entry.id}
+            data-fan-from={entry.from}
+            data-fan-kind={entry.kind}
             data-tint={entry.tint}
             {...(place.folded ? { "data-fan-folded": "" } : {})}
             {...(refused ? { "data-fan-refused": entry.refusal?.kind } : {})}
@@ -167,7 +196,7 @@ export function Fan({ thing, title, entries, onAct, onFallback, going = null, on
                 type="button"
                 className={`fan-button pointer-events-auto${shaking?.id === entry.id ? " fan-shake" : ""}`}
                 onClick={() => tap(entry, place.folded)}
-                aria-label={entry.refusal !== null || entry.price !== null || entry.free === true ? `${entry.name}: ${entry.refusal?.words ?? entry.price ?? say("ui.world.free")}` : entry.name}
+                aria-label={entry.refusal !== null || entry.price !== null || entry.free === true ? `${entry.name}: ${entry.refusal?.words ?? entry.price ?? say("ui.world.free")}` : (entry.label ?? entry.name)}
                 onPointerDown={() => {
                   if (entry.refusal === null && entry.balance !== null && !place.folded) onPreview?.(entry.balance.after.amount);
                 }}

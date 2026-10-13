@@ -9,19 +9,11 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { peopleGame, renderWithGame, TOBI } from "../../shared/testing/people";
 import { nameOf, say } from "../../shared/words/text";
-import type { Act, Thing } from "../../shared/world/contract";
 import { TOLD_MS } from "../../shared/world/Lines";
 import { City } from "./City";
 
-vi.mock("./CityScene", () => ({
-  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: { kind: "act"; thing: Thing; act: Act }) => void }) => (
-    <div data-stand-in-scene>
-      {(things ?? []).flatMap((thing) =>
-        thing.acts.map((one) => <button key={`${thing.id}:${one.id}`} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />),
-      )}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("../../shared/three/manifest", async (original) => {
@@ -61,14 +53,20 @@ describe("the answer once courted", () => {
     game.endTurn([]);
     const { authority } = await renderWithGame(<City world results={() => <p />} />, game);
     // The family house opens whole, its parlour with it.
-    const talk = await waitFor(() => {
-      const found = document.querySelector<HTMLElement>('[data-stand-in-act^="after-service:"]');
-      if (found === null) throw new Error(`Tobi is not standing in the parlour. ${document.querySelector("[data-city]")?.getAttribute("data-city") ?? "no city"} ${[...document.querySelectorAll<HTMLElement>("[data-stand-in-act]")].map((one) => one.dataset.standInAct).join(",")}`);
+    const tobi = await waitFor(() => {
+      const found = document.querySelector<HTMLElement>('[data-stand-in-thing="after-service"]');
+      if (found === null) throw new Error(`Tobi is not standing in the parlour. ${document.querySelector("[data-city]")?.getAttribute("data-city") ?? "no city"} ${[...document.querySelectorAll<HTMLElement>("[data-stand-in-thing]")].map((one) => one.dataset.standInThing).join(",")}`);
       return found;
     });
     // The home's card, once in a life (R-HOME-008), is still up: the player went straight to Tobi, as in the review.
     expect(document.querySelector("[data-home-teach-ok]")).not.toBeNull();
-    fireEvent.click(talk);
+    // His fan's Talk (R-WORLD-034).
+    fireEvent.click(tobi);
+    fireEvent.click(await waitFor(() => {
+      const found = document.querySelector<HTMLElement>('[data-fan="after-service"] [data-fan-act="talk"] button');
+      if (found === null) throw new Error("Tobi's fan has no Talk.");
+      return found;
+    }));
     fireEvent.click(await screen.findByRole("button", { name: new RegExp(say("ui.people.court", { name: nameOf(TOBI) })) }));
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "people/court", with: TOBI }));
     const answer = say("ui.people.courted.said", { name: nameOf(TOBI), line: text[`${TOBI}.courted`]! });

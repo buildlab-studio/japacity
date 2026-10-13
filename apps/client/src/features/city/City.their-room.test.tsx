@@ -2,15 +2,17 @@
 // R-CITY-001; people.md R-PEOPLE-014, R-PEOPLE-054): with Tobi's bond courting, the city draws his room
 // with his props and him standing in it, a thing with his name and the computer mark and no act, and the visit stays on
 // the chair. The place file is the one the game ships; the scene is a stand-in that shows what the city hands it.
-import { fireEvent, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import theirRoom from "../../../public/assets/places/their-room/place.json";
 import { courted, peopleGame, renderWithGame, TOBI } from "../../shared/testing/people";
 import { nameOf, say } from "../../shared/words/text";
 import type { Thing } from "../../shared/world/contract";
-import { chipNode } from "./chip";
 import { City } from "./City";
+import { anchorFan } from "./fan/anchor";
+import { Fan } from "./fan/Fan";
+import { fanEntriesOf } from "./fan/fanActs";
 import { standingAsThemselves, THEIR_ROOM } from "./meetings";
 import { dressPlace, type PlaceFile, stageOf } from "./placeFile";
 
@@ -102,12 +104,17 @@ describe("their room in the world", () => {
     expect([...document.querySelectorAll<HTMLElement>("[data-stand-in-model]")].map((one) => one.dataset.standInModel)).toEqual(ROOM.stage?.models.map((model) => model.file));
   });
 
-  test("[R-PEOPLE-054] [R-WORLD-020] given Tobi standing in his room, when he is tapped, then his chip shows his name with the computer tag and no act, since the bond's choices live in Chats and the visit on the chair", () => {
+  test("[R-PEOPLE-054] [R-WORLD-020] given Tobi standing in his room, when he is tapped, then his fan shows his name with the computer tag and no act, since the bond's choices live in Chats and the visit on the chair", () => {
     const [tobi] = standingAsThemselves(stageOf(dressPlace(ROOM, [], TOBI).file));
     expect(tobi).toBeDefined();
-    const chip = chipNode(tobi!, () => undefined);
-    expect(chip.querySelector("p")?.textContent).toBe(`${nameOf(TOBI)}${say("ui.people.mark.computer")}`);
-    expect(chip.querySelector('[data-person-mark="computer"]')).not.toBeNull();
-    expect(chip.querySelectorAll("button")).toHaveLength(0);
+    expect(fanEntriesOf(tobi!)).toEqual([]);
+    const onFallback = vi.fn();
+    render(<Fan thing={tobi!.id} title={nameOf(TOBI)} mark={tobi!.mark} entries={[]} onAct={vi.fn()} onFallback={onFallback} />);
+    act(() => anchorFan(tobi!.id, { x: 195, y: 420 }));
+    const fan = found(`[data-fan="${tobi!.id}"]`);
+    expect(fan.querySelector("[data-fan-title]")?.textContent).toBe(`${nameOf(TOBI)}${say("ui.people.mark.computer")}`);
+    expect(fan.querySelector('[data-person-mark="computer"]')).not.toBeNull();
+    expect(fan.querySelectorAll("button")).toHaveLength(0);
+    expect(onFallback).not.toHaveBeenCalled();
   });
 });

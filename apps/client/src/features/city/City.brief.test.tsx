@@ -3,46 +3,17 @@
 // on the thing to do; a thing done ticks its dot and the giver says so under the chip for three seconds; walking out takes
 // the chip away; a chapter closed brings the brief back with its stamp and the next brief as a picture card.
 import { act, fireEvent, waitFor } from "@testing-library/react";
-import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import type { Act, Thing } from "../../shared/world/contract";
 import { markTaught } from "../../shared/world/taught";
 import { DONE_TOAST_MS, doneToast } from "./brief/brief";
 import { City } from "./City";
 
-type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act };
-
-interface StandInProps {
-  things?: Thing[];
-  chosen?: Thing | null;
-  actOn?: { thing: Thing; act: Act; at: number } | null;
-  onPick: (pick: Pick) => void;
-}
-
-function StandInScene({ things, chosen = null, actOn = null, onPick }: StandInProps) {
-  // The walk is instant here: the act follows the fan's tap at once, as it would on arrival (R-WORLD-010).
-  useEffect(() => {
-    if (actOn !== null) onPick({ kind: "act", thing: actOn.thing, act: actOn.act });
-  }, [actOn]);
-  return (
-    <div data-stand-in-scene data-stand-in-chosen={chosen?.id ?? ""}>
-      {(things ?? []).map((thing) => (
-        <span key={thing.id}>
-          <button type="button" data-stand-in-thing={thing.id} onClick={() => onPick({ kind: "thing", thing })} />
-          {thing.acts.map((one) => (
-            <button key={one.id} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />
-          ))}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-vi.mock("./CityScene", () => ({ default: StandInScene }));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("../../shared/three/manifest", async (original) => {
@@ -105,7 +76,7 @@ describe("the road in the world, only in the moment", () => {
     expect(document.querySelector("[data-marker]")).toBeNull();
   });
 
-  test("[R-WORLD-003] [R-WORLD-005] given the player at the hub where the brief's first thing is done, when the world shows, then the chip names the brief with a dot for each thing, the marker stands on the board with the thing to do, and the chip's tap opens the board's acts", async () => {
+  test("[R-WORLD-003] [R-WORLD-005] given the player at the hub where the brief's first thing is done, when the world shows, then the chip names the brief with a dot for each thing, the marker stands on the board with the thing to do, and the chip's tap opens the board's fan", async () => {
     const view = engineView();
     await standing("place.yaba", view);
     const chip = await waitFor(() => found("[data-brief-chip='here']"));
@@ -118,14 +89,15 @@ describe("the road in the world, only in the moment", () => {
     expect(chip.textContent).not.toContain(say("chapter.find-your-feet.item.job"));
     expect(found("[data-marker-ring]").dataset.markerRing).toBe("jobs");
     fireEvent.click(found("[data-brief-chip] [data-nudge-open]"));
-    expect(found("[data-stand-in-scene]").dataset.standInChosen).toBe("jobs");
+    // The board's fan opens over it (R-WORLD-034).
+    expect(document.querySelector('[data-fan="jobs"]')).not.toBeNull();
   });
 
   test("[R-WORLD-003] [R-WORLD-005] given the marker on the step's thing, when its pill is tapped, then the thing is picked as the chip's tap picks it, whoever stands in front of the thing", async () => {
     await standing("place.yaba", engineView());
     await waitFor(() => found("[data-marker-tap]"));
     fireEvent.click(found("[data-marker-tap='jobs']"));
-    expect(found("[data-stand-in-scene]").dataset.standInChosen).toBe("jobs");
+    expect(document.querySelector('[data-fan="jobs"]')).not.toBeNull();
   });
 
   test("[R-WORLD-003] given the chip at the step's place, when a thing comes in, then its dot ticks, the giver's toast rides under the chip in their words for three seconds, then goes", async () => {

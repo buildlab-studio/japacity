@@ -12,25 +12,13 @@ import { renderWithGame } from "./shared/testing/people";
 import { hush, linesNow, resetLines } from "./shared/world/Lines";
 import { nameOf, say } from "./shared/words/text";
 import { ActivityPicker } from "./features/activity/ActivityView";
-import type { Act, Thing } from "./shared/world/contract";
 import { City } from "./features/city/City";
+import { anchorFan } from "./features/city/fan/anchor";
+import { pressFanAct } from "./features/city/fan/fan.testing";
 
-type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act };
 
-vi.mock("./features/city/CityScene", () => ({
-  default: ({ things, onPick, acted }: { things?: Thing[]; onPick: (pick: Pick) => void; acted?: { activity: string; at: number } | null }) => (
-    <div data-stand-in-scene data-stand-in-acted={acted?.activity ?? ""}>
-      {(things ?? []).map((thing) => (
-        <span key={thing.id}>
-          <button type="button" data-stand-in-thing={thing.id} onClick={() => onPick({ kind: "thing", thing })} />
-          {thing.acts.map((one) => (
-            <button key={one.id} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />
-          ))}
-        </span>
-      ))}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("./shared/three/manifest", async (original) => {
@@ -75,9 +63,10 @@ describe("an act that repeats, at its thing", () => {
     resetLines();
     const game = newGame("scenario.ada");
     const { authority, store } = await renderWithGame(<City world results={() => <p />} actions={(ids) => <ActivityPicker only={ids} />} />, game);
-    await waitFor(() => found('[data-stand-in-act="mama:family-time"]'), { timeout: 3000 });
+    await waitFor(() => found('[data-stand-in-thing="mama"]'), { timeout: 3000 });
     for (let time = 1; time <= 2; time += 1) {
-      fireEvent.click(found('[data-stand-in-act="mama:family-time"]'));
+      // Her fan's button for her time opens her sheet once the walk has reached her (R-WORLD-034).
+      await pressFanAct("mama", FAMILY);
       const picker = await waitFor(() => found("[data-activity-picker]"));
       // Her sheet holds her shop beside the gist.
       expect(picker.querySelector(`button[aria-label="${nameOf("activity.help-shop")}"]`)).not.toBeNull();
@@ -105,7 +94,10 @@ describe("an act the scene shows, from its sheet", () => {
   test("[R-WORLD-005] [R-ACTIVITY-019] given the family house's cooking corner's sheet with the pot and the big pot, when food from the pot is had from its card, then it is sent at once, no card answers it, the sheet closes so the pot is seen, and the scene is handed the act to show where it was done", async () => {
     const game = newGame("scenario.ada");
     const { authority } = await renderWithGame(<City world results={() => <p />} actions={(ids) => <ActivityPicker only={ids} />} />, game);
-    fireEvent.click(await waitFor(() => found('[data-stand-in-act="cooking:cook"]'), { timeout: 3000 }));
+    // The corner's meals are the simulation's own fan buttons; with no room beside the corner they open as their sheet
+    // (R-WORLD-034), which is the sheet this test reads.
+    act(() => anchorFan("cooking", null));
+    fireEvent.click(await waitFor(() => found('[data-stand-in-thing="cooking"]'), { timeout: 3000 }));
     const picker = await waitFor(() => found("[data-activity-picker]"));
     const cook = picker.querySelector<HTMLButtonElement>(`button[aria-label="${nameOf(COOK)}"]`);
     if (cook === null) throw new Error("No card for the pot.");

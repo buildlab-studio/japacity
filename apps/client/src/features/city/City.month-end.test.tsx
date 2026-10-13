@@ -1,7 +1,7 @@
-// The bed's month end, the player's own figure and a thing's chip over the world (docs/rules/world.md R-WORLD-025,
+// The bed's month end, the player's own figure and a thing's fan over the world (docs/rules/world.md R-WORLD-025,
 // R-WORLD-008, R-WORLD-005, R-WORLD-003, R-WORLD-014). The bed's Sleep
 // ends the month once its timed sleep runs out, and the results open in the room; the phone's lock screen no longer comes
-// first (R-WORLD-025 as amended on 12 Oct 2026). A tap on your own figure opens nothing. A chip hides the nudge only while it is open: a tap anywhere
+// first (R-WORLD-025 as amended on 12 Oct 2026). A tap on your own figure opens nothing. A fan hides the nudge only while it is open: a tap anywhere
 // outside it, Escape or its sheet's close puts it away and the nudge comes back by itself; a person's or a shopfront's
 // card does the same and sits at the foot of the screen. A reload opens inside the house when the player last stopped
 // there. The place file is the one
@@ -12,29 +12,13 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/people";
 import { plannable } from "../../shared/words/acts";
-import type { Act, Thing } from "../../shared/world/contract";
 import { City, RESULTS_BEAT_MS } from "./City";
 import { SLEEP_MS } from "./sleep";
+import { pressFanActNow } from "./fan/fan.testing";
 
-type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act } | { kind: "own" } | { kind: "person"; slot: number } | { kind: "model"; file: string; signs: string[] };
 
-vi.mock("./CityScene", () => ({
-  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
-    <div data-stand-in-scene>
-      <button type="button" data-stand-in-own onClick={() => onPick({ kind: "own" })} />
-      <button type="button" data-stand-in-person onClick={() => onPick({ kind: "person", slot: 0 })} />
-      <button type="button" data-stand-in-shopfront onClick={() => onPick({ kind: "model", file: "shopfront.glb", signs: ["place.bode-thomas.sign.1"] })} />
-      {(things ?? []).map((thing) => (
-        <span key={thing.id}>
-          <button type="button" data-stand-in-thing={thing.id} onClick={() => onPick({ kind: "thing", thing })} />
-          {thing.acts.map((one) => (
-            <button key={one.id} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />
-          ))}
-        </span>
-      ))}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("../../shared/three/manifest", async (original) => {
@@ -102,7 +86,7 @@ describe("the bed's month end", () => {
   test("[R-WORLD-025] [R-WORLD-008] given something planned at home, when the bed's Sleep is tapped, then the phone stays shut and nothing is sent until the sleep runs out; then the month ends with the plan's commitments and the results sheet opens over the place", async () => {
     const bed = await adaAtHome();
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
-    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
+    pressFanActNow("mattress", "end-month");
     expect(document.querySelector("[data-stand-in-phone]")).toBeNull();
     expect(bed.authority.sent.filter((command) => command.type === "turn/end")).toHaveLength(0);
     const slots = bed.store.getState().plan.filter((one) => one !== null);
@@ -132,7 +116,7 @@ describe("the player's own figure", () => {
     expect(nudge()).not.toBeNull();
   });
 
-  test("[R-WORLD-005] [R-WORLD-003] given a thing's chip open, when the player's own figure is tapped, then the chip goes and the nudge comes back", async () => {
+  test("[R-WORLD-005] [R-WORLD-003] given a thing's fan open, when the player's own figure is tapped, then the fan goes and the nudge comes back", async () => {
     await adaAtHome();
     fireEvent.click(found('[data-stand-in-thing="mama"]'));
     expect(nudge()).toBeNull();
@@ -141,40 +125,35 @@ describe("the player's own figure", () => {
   });
 });
 
-describe("a thing's chip and the nudge", () => {
-  test("[R-WORLD-003] given a thing's chip open, when a tap lands anywhere outside it, then the chip goes and the nudge comes back by itself, with no tap on the floor", async () => {
+describe("a thing's fan and the nudge", () => {
+  test("[R-WORLD-003] given a thing's fan open, when a tap lands anywhere outside it, then the fan goes and the nudge comes back by itself, with no tap on the floor", async () => {
     await adaAtHome();
     expect(nudge()).not.toBeNull();
     fireEvent.click(found('[data-stand-in-thing="mama"]'));
-    // The nudge hides while the chip is open.
+    // The nudge hides while the fan is open.
     expect(nudge()).toBeNull();
-    // A tap on the band, outside the chip.
+    // A tap on the band, outside the fan.
     fireEvent.pointerDown(found("[data-band]"));
     expect(nudge()).not.toBeNull();
   });
 
-  test("[R-WORLD-003] given a thing's chip open, when Escape (Back) is pressed, then the chip goes and the nudge comes back; a tap inside the chip keeps it", async () => {
+  test("[R-WORLD-003] [R-WORLD-034] given a thing's fan open, when Escape (Back) is pressed, then the fan goes and the nudge comes back; a tap inside the fan keeps it", async () => {
     await adaAtHome();
     fireEvent.click(found('[data-stand-in-thing="mama"]'));
     expect(nudge()).toBeNull();
-    // A tap on the chip itself keeps it open.
-    const chip = document.createElement("div");
-    chip.dataset.thingChip = "mama";
-    const inside = document.createElement("button");
-    chip.append(inside);
-    document.body.append(chip);
-    fireEvent.pointerDown(inside);
+    // A tap on the fan itself keeps it open.
+    fireEvent.pointerDown(found('[data-fan="mama"] [data-fan-act] button'));
     expect(nudge()).toBeNull();
-    chip.remove();
+    expect(document.querySelector('[data-fan="mama"]')).not.toBeNull();
     fireEvent.keyDown(document, { key: "Escape" });
     expect(nudge()).not.toBeNull();
   });
 
-  test("[R-WORLD-003] given a thing's act that opens its sheet, when the sheet is closed, then the nudge comes back by itself", async () => {
+  test("[R-WORLD-003] [R-WORLD-034] given a thing's act that opens its sheet, when the sheet is closed, then the nudge comes back by itself", async () => {
     await adaAtHome();
-    const mama = document.querySelector<HTMLElement>('[data-stand-in-act^="mama:"]');
-    if (mama === null) throw new Error("Mama has no act.");
     fireEvent.click(found('[data-stand-in-thing="mama"]'));
+    const mama = document.querySelector<HTMLElement>('[data-fan="mama"] [data-fan-act] button');
+    if (mama === null) throw new Error("Mama has no act.");
     fireEvent.click(mama);
     expect(nudge()).toBeNull();
     const sheet = await waitFor(() => found("[role=dialog]"));

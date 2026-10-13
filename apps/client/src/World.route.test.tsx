@@ -10,24 +10,12 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { richView } from "./shared/testing/fixtures";
 import { renderWithView } from "./shared/testing/render";
 import { say } from "./shared/words/text";
-import type { Act, Thing } from "./shared/world/contract";
 import { City } from "./features/city/City";
+import { pressFanAct } from "./features/city/fan/fan.testing";
 
-type Pick = { kind: "act"; thing: Thing; act: Act };
 
-vi.mock("./features/city/CityScene", () => ({
-  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
-    <div data-stand-in-scene>
-      {(things ?? []).map((thing) => (
-        <span key={thing.id}>
-          {thing.acts.map((one) => (
-            <button key={one.id} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />
-          ))}
-        </span>
-      ))}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("./shared/three/manifest", async (original) => {
@@ -69,7 +57,7 @@ describe("the deposit and the plane in the world", () => {
     const rich = richView();
     const view: PlayerView = { ...rich, pockets: { ...rich.pockets, NGN: { ...rich.pockets.NGN, bank: 9_000_000_000 } } };
     const { authority } = await renderWithView(<City world />, view);
-    fireEvent.click(await waitFor(() => found('[data-stand-in-act="counter:deposit"]'), { timeout: 3000 }));
+    await pressFanAct("counter", "deposit");
     const card = await screen.findByRole("dialog");
     expect(within(card).getByRole("heading").textContent).toBe(say("ui.route.pay-deposit"));
     expect(found("[data-ask-main]").getAttribute("data-short")).toBeNull();
@@ -82,7 +70,7 @@ describe("the deposit and the plane in the world", () => {
     const rich = richView();
     const view: PlayerView = { ...rich, routes: rich.routes.map((route) => ({ ...route, state: "granted" })) };
     const { authority } = await renderWithView(<City world />, view);
-    fireEvent.click(await waitFor(() => found('[data-stand-in-act="gate:depart"]'), { timeout: 3000 }));
+    await pressFanAct("gate", "depart");
     const card = await screen.findByRole("dialog");
     expect(within(card).getByRole("heading").textContent).toBe(say("ui.route.depart"));
     fireEvent.click(found("[data-ask-main]"));

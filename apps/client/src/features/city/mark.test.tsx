@@ -2,10 +2,14 @@
 // the maintainer): each thing shows a small still dot and no name; a tap on the dot is a tap on the thing;
 // the nudge's thing pulses; a person shows their name only while they hold an ask or are the nudge's target; a place's
 // first entry in a life shows every name, then they fade.
-import { describe, expect, test } from "vitest";
+import { act, cleanup, render } from "@testing-library/react";
+import { describe, expect, test, vi } from "vitest";
 
 import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
-import { chipNode } from "./chip";
+import { engineView } from "../../shared/testing/fixtures";
+import { anchorFan } from "./fan/anchor";
+import { Fan } from "./fan/Fan";
+import { fanEntriesOf, fanModel } from "./fan/fanActs";
 import { withMeetings } from "./meetings";
 import { sceneWords } from "./scene.words";
 import { isPerson, markNode, namedThings, showMark } from "./mark";
@@ -72,7 +76,7 @@ describe("a thing's mark", () => {
 });
 
 describe("a person met in a place", () => {
-  test("[R-PEOPLE-054] [R-WORLD-005] given Tobi standing in the parlour, when his mark is built, then no name floats over him until a tap or a place's first entry, and then his name carries the computer tag, on his chip as on his mark", () => {
+  test("[R-PEOPLE-054] [R-WORLD-005] given Tobi standing in the parlour, when his mark is built, then no name floats over him until a tap or a place's first entry, and then his name carries the computer tag, on his fan as on his mark", () => {
     const [tobi] = withMeetings(things, "place.family-house", [{ thing: "after-service", person: "person.tobi-bank" }]).filter((thing) => thing.id === "after-service");
     expect(tobi?.mark).toBe("computer");
     const node = markNode(tobi!, () => undefined);
@@ -83,7 +87,12 @@ describe("a person met in a place", () => {
     expect(name?.hidden).toBe(false);
     expect(name?.textContent).toContain("Tobi");
     expect(name?.querySelector("[data-person-mark]")?.textContent).toBe(sceneWords("ui.people.mark.computer"));
-    const chip = chipNode(tobi!, () => undefined);
-    expect(chip.querySelector("[data-person-mark]")?.textContent).toBe(sceneWords("ui.people.mark.computer"));
+    // His fan, which a tap opens since the chip went (R-WORLD-034), carries the same tag beside his name.
+    render(<Fan thing={tobi!.id} title={sceneWords(tobi!.label)} mark={tobi!.mark} entries={fanModel(fanEntriesOf(tobi!), engineView("scenario.ada"), [])} onAct={vi.fn()} onFallback={vi.fn()} />);
+    act(() => anchorFan(tobi!.id, { x: 90, y: 420 }));
+    const title = document.querySelector(`[data-fan="${tobi!.id}"] [data-fan-title]`);
+    expect(title?.textContent).toContain("Tobi");
+    expect(title?.querySelector("[data-person-mark]")?.textContent).toBe(sceneWords("ui.people.mark.computer"));
+    cleanup();
   });
 });
