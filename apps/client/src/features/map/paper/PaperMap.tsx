@@ -41,6 +41,7 @@ declare global {
 const GRAPH = buildGraph();
 /** The open map's zoom on a phone, and how far a pinch may take it. */
 const OPEN_ZOOM = 0.92;
+const WIDE_ZOOM = 1.3;
 const ZOOM_MIN = 0.55;
 const ZOOM_MAX = 2.6;
 const WIDE = "(min-width: 64rem)";
@@ -90,9 +91,10 @@ interface OpenView {
  * The open map's first look from a card: the district a little up and to the left of the middle, so the lagoon, its
  * bridge and the island come into the same look as where the player was.
  */
-function openingView(card: CardId): OpenView {
+function openingView(card: CardId, wide = false): OpenView {
   const framed = cardById(card);
-  return clampView({ cx: framed.centre[0] + 70, cy: framed.centre[1] + 150, z: OPEN_ZOOM });
+  // A laptop's screen is wide: it takes the district closer, the lagoon and the island beside it.
+  return wide ? clampView({ cx: framed.centre[0] + 90, cy: framed.centre[1] + 110, z: WIDE_ZOOM }) : clampView({ cx: framed.centre[0] + 70, cy: framed.centre[1] + 150, z: OPEN_ZOOM });
 }
 
 function clampView(view: OpenView): OpenView {
@@ -159,7 +161,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
   );
 
   // The open map's view: framed on the card's district when it opens.
-  const [view, setView] = useState<OpenView>(() => openingView(state.card));
+  const [view, setView] = useState<OpenView>(() => openingView(state.card, wide));
 
   const pick = useCallback(
     (id: string) => {

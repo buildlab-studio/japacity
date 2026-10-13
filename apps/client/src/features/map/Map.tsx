@@ -4,7 +4,9 @@
 // chosen. Lagos is the painted map, folding between the strip and the cards (paper/PaperMap.tsx), the same
 // on every device; abroad, until a city there is drawn, the stops are a list.
 import { X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import "./map.css";
+
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
 import { formatMoney } from "../../shared/words/format";
@@ -12,9 +14,11 @@ import type { CountryChoice, RideChoice } from "../../shared/world/contract";
 import { Countries } from "./Countries";
 import { mapWords } from "./map.words";
 import { type MapPin, rideChoices } from "./pins";
-import { PaperMap } from "./paper/PaperMap";
 import { ownLook, preloadRide, Ride } from "./Ride";
 import { headingOf, RideSheet } from "./RideSheet";
+
+/** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
+const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
 
 export interface MapProps {
   pins: readonly MapPin[];
@@ -130,7 +134,9 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       </ul>
 
       {lagos ? (
-        <PaperMap pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} />
+        <Suspense fallback={<div className="absolute top-3 right-3">{closeButton}</div>}>
+          <PaperMap pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} />
+        </Suspense>
       ) : (
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3 pt-[max(10px,env(safe-area-inset-top))]">
           {countryMenu}

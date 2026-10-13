@@ -11,7 +11,7 @@ import { Balance, pricedLabel } from "../../shared/world/Balance";
 import type { RideChoice } from "../../shared/world/contract";
 import { mapWords } from "./map.words";
 import { useTiles } from "./paper/useTiles";
-import { PlacePicture } from "./paper/World";
+import { PlacePicture } from "./paper/PlacePicture";
 import type { MapPin } from "./pins";
 
 export interface RideSheetProps {

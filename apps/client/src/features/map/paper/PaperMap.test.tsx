@@ -16,6 +16,8 @@ import { Map } from "../Map";
 import { tileOf } from "../../../shared/tiles/tiles.data";
 import { mapPins, type MapPin } from "../pins";
 import { FOLD_MS } from "./fold";
+// Loaded here, so the map screen's own lazy load of it settles at once.
+import "./PaperMap";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -37,6 +39,12 @@ function pinsAt(here: string): MapPin[] {
 
 async function open(props: { here?: string; step?: string | null; pickFirst?: string | null } = {}): Promise<void> {
   await renderWithView(<Map pins={pinsAt(props.here ?? "place.ojuelegba")} country={LAGOS} countries={[LAGOS]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={HOME} step={props.step ?? null} pickFirst={props.pickFirst ?? null} />, engineView());
+  // The painted map is its own chunk: wait for it to come in.
+  for (let tries = 0; tries < 200 && document.querySelector("[data-paper-map]") === null; tries += 1) {
+    await act(async () => {
+      await Promise.resolve();
+    });
+  }
 }
 
 const current = (): string | undefined => document.querySelector<HTMLElement>('[data-card][data-current="true"]')?.dataset.card;

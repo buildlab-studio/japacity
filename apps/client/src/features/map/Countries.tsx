@@ -46,7 +46,7 @@ export function Countries({ country, countries, onCountry, up = false }: Countri
   return (
     <div className="pointer-events-auto relative" data-country-menu>
       <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((was) => !was)} className="map-pill press inline-flex h-11 items-center gap-1.5 py-1.5 pr-3 pl-1.5 text-[15px] font-semibold" data-country={country.id}>
-        <span className="flex size-7 items-center justify-center rounded-full bg-sheet-muted" aria-hidden>
+        <span className="map-pill-mark flex size-7 items-center justify-center bg-sheet-muted" aria-hidden>
           <MapPin size={15} />
         </span>
         {country.name}

@@ -246,7 +246,7 @@ describe("the night paint", () => {
   test("[R-WORLD-015] given the night paint, when the map's colours are read, then the paper darkens, the windows light and the stickers glow", () => {
     const css = readFileSync(join(import.meta.dirname, "paper.css"), "utf8");
     const night = css.slice(css.indexOf('[data-paint="night"] .paper,'), css.indexOf("}", css.indexOf('[data-paint="night"] .paper,')));
-    expect(night).toContain("--paper: #223056");
+    expect(night).toContain("--map-paper: #223056");
     expect(night).toContain("--win: #ffd66b");
     expect(night).toContain("--glow-sticker: rgba(255, 205, 110, 0.6)");
     expect(night).toContain("--lamps: #ffd66b");

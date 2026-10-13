@@ -2,7 +2,7 @@
    and soft lagoon, the night's navy paper with lit windows and glowing stickers. Lines and names keep their size on the
    screen whatever the zoom: each view sets --z, how many screen pixels a paper unit takes, and every width divides by it. */
 .paper {
-  --paper: #f8f1df;
+  --map-paper: #f8f1df;
   --water: #bee2f4;
   --sea: #a6d3ee;
   --glowc: #e2f4fc;
@@ -10,7 +10,7 @@
   --beach: #fbefcf;
   --park: #d3eac2;
   --road: #fffcf2;
-  --line: #1b2a4a;
+  --map-line: #1b2a4a;
   --pier: #7fa9c2;
   --bshadow: rgba(27, 42, 74, 0.16);
   --wall: #ffffff;
@@ -35,7 +35,7 @@
 }
 [data-paint="night"] .paper,
 .paper[data-paint="night"] {
-  --paper: #223056;
+  --map-paper: #223056;
   --water: #121d3b;
   --sea: #0d1731;
   --glowc: #1a2a50;
@@ -43,7 +43,7 @@
   --beach: #2b3a62;
   --park: #263e5a;
   --road: #9c957f;
-  --line: #0e1630;
+  --map-line: #0e1630;
   --pier: #3a4c78;
   --bshadow: rgba(0, 0, 0, 0.35);
   --wall: #3a4b76;
@@ -73,12 +73,12 @@
 .paper-svg .wave { fill: none; stroke: var(--wave); stroke-width: calc(1.5px / var(--z, 1)); stroke-linecap: round; }
 .paper-svg .beach { fill: none; stroke: var(--beach); stroke-width: 7; stroke-linecap: round; }
 .paper-svg .glow { fill: none; stroke: var(--glowc); stroke-width: calc(14px / var(--z, 1)); stroke-linejoin: round; }
-.paper-svg .land { fill: var(--paper); stroke: var(--coastc); stroke-width: calc(1.4px / var(--z, 1)); }
+.paper-svg .land { fill: var(--map-paper); stroke: var(--coastc); stroke-width: calc(1.4px / var(--z, 1)); }
 .paper-svg .park { fill: var(--park); }
-.paper-svg .tree { fill: var(--tree); stroke: var(--line); stroke-width: 0.6; }
+.paper-svg .tree { fill: var(--tree); stroke: var(--map-line); stroke-width: 0.6; }
 .paper-svg .tree-light { fill: var(--tree-hi); }
-.paper-svg .wall { fill: var(--wall); stroke: var(--line); stroke-width: 0.6; }
-.paper-svg .roof { stroke: var(--line); stroke-width: 0.6; stroke-linejoin: round; }
+.paper-svg .wall { fill: var(--wall); stroke: var(--map-line); stroke-width: 0.6; }
+.paper-svg .roof { stroke: var(--map-line); stroke-width: 0.6; stroke-linejoin: round; }
 .paper-svg .roof-0 { fill: var(--roof-0); }
 .paper-svg .roof-1 { fill: var(--roof-1); }
 .paper-svg .roof-2 { fill: var(--roof-2); }
@@ -86,7 +86,7 @@
 .paper-svg .roof-4 { fill: var(--roof-4); }
 .paper-svg .window { fill: var(--win); }
 .paper-svg .road-edge, .paper-svg .road { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.paper-svg .road-edge { stroke: var(--line); }
+.paper-svg .road-edge { stroke: var(--map-line); }
 .paper-svg .road { stroke: var(--road); }
 .paper-svg .road-edge.main { stroke-width: calc(9px / var(--z, 1)); }
 .paper-svg .road.main { stroke-width: calc(6.6px / var(--z, 1)); }
@@ -95,14 +95,14 @@
 .paper-svg .bridge path { fill: none; stroke-linecap: round; }
 .paper-svg .bridge-shadow { stroke: var(--bshadow); stroke-width: calc(16px / var(--z, 1)); transform: translate(calc(2px / var(--z, 1)), calc(4px / var(--z, 1))); }
 .paper-svg .bridge-piers { stroke: var(--pier); stroke-width: calc(13px / var(--z, 1)); stroke-dasharray: calc(1.5px / var(--z, 1)) calc(9px / var(--z, 1)); stroke-linecap: butt !important; }
-.paper-svg .bridge-edge { stroke: var(--line); stroke-width: calc(10.5px / var(--z, 1)); }
+.paper-svg .bridge-edge { stroke: var(--map-line); stroke-width: calc(10.5px / var(--z, 1)); }
 .paper-svg .bridge-deck { stroke: var(--road); stroke-width: calc(8px / var(--z, 1)); }
 .paper-svg .bridge-lamps { stroke: var(--lamps); stroke-width: calc(2.6px / var(--z, 1)); stroke-dasharray: 0 calc(11px / var(--z, 1)); }
 .paper-svg .ferry-line { fill: none; stroke: var(--ferry); stroke-width: calc(1.6px / var(--z, 1)); stroke-dasharray: calc(5px / var(--z, 1)) calc(6px / var(--z, 1)); stroke-linecap: round; }
 .paper-svg .palm-trunk { fill: none; stroke: #9b6b43; stroke-width: 2.2; stroke-linecap: round; }
-.paper-svg .palm { fill: var(--palm); stroke: var(--line); stroke-width: 0.7; }
+.paper-svg .palm { fill: var(--palm); stroke: var(--map-line); stroke-width: 0.7; }
 .paper-svg .lm-edge { stroke: #1b2a4a; stroke-width: 1.3; }
-.paper-svg .lm-park { fill: var(--park); stroke: var(--line); stroke-width: 1; }
+.paper-svg .lm-park { fill: var(--park); stroke: var(--map-line); stroke-width: 1; }
 .paper-svg .lm-win { stroke: var(--win); stroke-width: 1.3; }
 .paper-svg .lm { filter: drop-shadow(0 0 0.8px #fff) drop-shadow(0 1.2px 1px rgba(20, 40, 50, 0.3)); }
 .paper-svg text { font-family: Rubik, system-ui, sans-serif; text-anchor: middle; paint-order: stroke; stroke-linejoin: round; }
@@ -168,9 +168,6 @@
 }
 
 /* The screen around the paper: the round white buttons, the strip, the cards and their pager, the open map. */
-.map-pill { background: #fff; color: #1b2a4a; border-radius: 999px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }
-.map-round { background: #fff; color: #1b2a4a; border-radius: 50%; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }
-[data-paint="night"] .map-pill, [data-paint="night"] .map-round { background: #1f2c4d; color: #f6edd8; box-shadow: 0 0 0 1.5px #f6edd8, 0 3px 0 #f6edd8; }
 .paper { background: var(--sheet); }
 .paper-strip { position: absolute; left: 12px; right: 12px; top: max(12px, env(safe-area-inset-top)); height: 92px; z-index: 6; padding: 0; border: 0; background: var(--frame); border-radius: 20px; box-shadow: 0 0 0 1.5px var(--frame-edge), 0 4px 0 var(--frame-edge), 0 10px 20px rgba(20, 40, 50, 0.15); cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
 .paper-strip-in { position: absolute; inset: 4px; border-radius: 16px; overflow: hidden; background: var(--water); }
@@ -187,7 +184,7 @@
 .paper-track::-webkit-scrollbar { display: none; }
 .paper-slot { flex: none; display: flex; justify-content: center; padding-top: 14px; scroll-snap-align: center; scroll-snap-stop: always; }
 .paper-card { position: relative; flex: none; border-radius: 24px; background: var(--frame); box-shadow: 0 0 0 1.5px var(--frame-edge), 0 5px 0 var(--frame-edge), 0 14px 24px rgba(20, 40, 50, 0.18); }
-.paper-card-in { position: absolute; inset: 4px; border-radius: 20px; overflow: hidden; background: var(--paper); }
+.paper-card-in { position: absolute; inset: 4px; border-radius: 20px; overflow: hidden; background: var(--map-paper); }
 .paper-card-title { position: absolute; left: 14px; top: -14px; z-index: 5; display: inline-flex; align-items: center; gap: 6px; background: #fff; color: #1b2a4a; border-radius: 999px; padding: 3px 11px 3px 3px; font-weight: 600; font-size: 14px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; pointer-events: none; }
 .paper-card-tile { display: flex; width: 24px; height: 24px; border-radius: 50%; background: #dae9f6; align-items: center; justify-content: center; }
 [data-paint="night"] .paper-card-title { background: #1f2c4d; color: #f6edd8; box-shadow: 0 0 0 1.5px #f6edd8, 0 3px 0 #f6edd8; }
@@ -214,13 +211,4 @@
   .paper-fade { transition: opacity 200ms ease !important; }
 }
 
-/* The ride sheet's picture tiles and state chip. */
-.ride-way { background: var(--sheet-2); box-shadow: inset 0 0 0 1.5px var(--sheet-line); color: var(--text); }
-.ride-way-on { background: var(--paper-ticket); color: #1b2a4a; box-shadow: 0 0 0 2.5px var(--edge), 0 3px 0 2.5px var(--edge); }
-.ride-way-on .text-text-2 { color: #5e6b80; }
-.ride-state { display: inline-flex; align-items: center; border-radius: 8px; padding: 3px 8px; font-size: 12px; font-weight: 600; line-height: 1.35; white-space: nowrap; rotate: 3deg; box-shadow: 0 0 0 2px var(--cut), 0 3px 5px rgba(20, 40, 50, 0.18); }
-.ride-state-good { background: var(--tint-money); color: var(--in); }
-.ride-state-plain { background: var(--sheet-muted); color: var(--text); }
-.ride-state-soft { background: var(--paper-ticket); color: #8a6400; }
-[data-paint="night"] .ride-state-good { color: #9be3b9; }
 .paper-name[data-name="new"] { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
