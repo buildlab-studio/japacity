@@ -776,7 +776,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   color: var(--action-text);
 }
 .door-dots { display: inline-flex; align-items: center; gap: 6px; }
-.door-dots > i { display: block; width: 9px; height: 9px; border-radius: 9999px; background: var(--sheet-muted); transition-property: width, background-color; transition-duration: 180ms; }
+.door-dots > i { display: block; width: 9px; height: 9px; border-radius: 9999px; background: color-mix(in srgb, var(--text-2) 32%, transparent); transition-property: width, background-color; transition-duration: 180ms; }
 .door-dots > i[data-done] { background: var(--edge); }
 .door-dots > i[data-now] { width: 26px; border-radius: 5px; background: var(--action); box-shadow: 0 0 0 1.5px var(--action-under); }
 /* The lives swiped sideways (A's sticker board): a strip that snaps a card to the middle, no scrollbar. */
