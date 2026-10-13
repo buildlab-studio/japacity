@@ -120,9 +120,9 @@ describe("the terms of play", () => {
     expect(words(terms().querySelector("[data-names]"))).toContain(text["guide.page.about.names"]);
   });
 
-  test("[R-GUIDE-010] given the terms, when their licences are read, then they point to the repository's full list and the game's Credits, and keep the name and logo out of every licence", () => {
+  test("[R-GUIDE-010] given the terms, when their licences are read, then they point to the game's Credits and the full list it links, and keep the name and logo out of every licence", () => {
     expect(words(terms().querySelector("[data-licences]"))).toBe(
-      "The game's code, writing and art are shared under open licences: the full list is in the game's repository, and the game's Credits (in Settings) say them in short. The name Japacity and its logo are not licensed.",
+      "The game's code, writing and art are shared under open licences: the game's Credits (in Settings) say them in short and link the full list of every package the game ships, with its licence. The name Japacity and its logo are not licensed.",
     );
     expect(terms().querySelector('a[href^="/guides/credits"]')).toBeNull();
   });

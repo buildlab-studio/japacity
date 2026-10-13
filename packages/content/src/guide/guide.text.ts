@@ -82,13 +82,12 @@ export const guideText: Record<string, string> = {
   // How this game was made (R-GUIDE-011).
   "guide.page.made.title": "How this game was made",
   "guide.page.made.intro": "This page says plainly where generated media is used in the game, kind by kind.",
-  "guide.page.made.statement": "What the assets register says",
-  "guide.page.made.images": "Images and models: the city's buildings, streets and people are written as code by an AI agent working for the studio. Every one is reviewed against the style rules by a reviewer that did not build it, and the maintainer judges them before launch.",
+  "guide.page.made.statement": "What is generated",
+  "guide.page.made.images": "Images and models: the city's buildings, streets and people, their faces, the painted map and the picture tiles are drawn as code by the game's makers, each checked against the style rules before it ships.",
   "guide.page.made.clips": "Clips: any clip made with a generation tool says \"Made with AI tools\" in its corner while it plays.",
   "guide.page.made.voices": "Voices: the visa officer's voice is generated with Kokoro-82M, and every line is also shown as text. No other voice in the game is generated.",
   "guide.page.made.music": "Music: no music in the game is generated.",
   "guide.page.made.approved": "A person approves every image, model and clip before it ships.",
-  "guide.page.made.register": "The assets register lists every asset, whether it was generated, with which tool, and who approved it.",
 
   // guide.uk-masters
   "guide.uk-masters.title": "What a UK student visa really needs: funds, the 28 days and the interview",

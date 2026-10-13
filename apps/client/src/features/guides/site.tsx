@@ -1,7 +1,7 @@
 // The guide pages (docs/rules/guides.md): plain pages built at build time that load without the
 // game, need no sign-in and link into it (R-GUIDE-005). Every word comes from the content's text
 // table passed in, so a page is the content's words, never a copy of them.
-import { inline, readRulePage, REGISTER_URL, type RulePage } from "@japacity/content";
+import { inline, readRulePage, type RulePage } from "@japacity/content";
 import type { Content, Id } from "@japacity/sim";
 import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -308,11 +308,6 @@ function MadePage({ input }: { input: SiteInput }) {
       <section className="flex flex-col gap-2">
         <h2 className="text-xl font-semibold">{say("guide.page.made.statement")}</h2>
         <p>{input.credits.generated}</p>
-        <p>
-          <a href={REGISTER_URL} className={LINK} rel="noreferrer">
-            {say("guide.page.made.register")}
-          </a>
-        </p>
       </section>
     </Page>
   );

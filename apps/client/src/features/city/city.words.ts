@@ -339,7 +339,7 @@ export const cityText: Record<string, string> = {
   // The game's own licences (guides.md R-GUIDE-010); the full list is the repository's LICENSES.md.
   "city.credits.licences": "Licences",
   "city.credits.licences.line": "Code: MIT. Docs: CC BY 4.0. Game content and art: CC BY-SA 4.0. The name Japacity and its logo are reserved.",
-  "city.credits.licences.full": "The full list, with every package the game ships, is in the repository.",
+  "city.credits.licences.full": "The full list: every package the game ships, with its licence.",
 };
 
 /** First names for the people who live in the city. Common names, no one in particular. */

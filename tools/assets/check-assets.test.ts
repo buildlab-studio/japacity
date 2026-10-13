@@ -43,7 +43,7 @@ const config = { outlineMin: 85, dimTolerancePct: 5, minEach: 3, minPhone: 4, mi
 
 const measured = (file: string, over: Partial<Measured> = {}): Measured => ({ file, triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, minY: 0, maxY: 6, palette: [], signs: 0, size: [1, 6, 1], extras: {}, ...over });
 const row = (file: string, over: Partial<RegisterRow> = {}): RegisterRow => ({
-  file, place: "shared", source: "code", author: "the pipeline work", licence: "CC BY-SA 4.0", attribution: null, generated: true, tool: "an agent", approvedBy: null, date: "2026-10-08", modified: false,
+  file, place: "shared", source: "code", author: "the makers", licence: "CC BY-SA 4.0", attribution: null, generated: true, tool: "an agent", approvedBy: null, date: "2026-10-08", modified: false,
   triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, paletteCheck: { passed: true, date: "2026-10-08" }, reference: [], outline: null, review: null, nameCheck: null, status: "draft", ...over,
 });
 const review = (scores: Partial<Review["scores"]>): Review => ({

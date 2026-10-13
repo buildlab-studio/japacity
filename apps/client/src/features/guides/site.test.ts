@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { content, isoDay, readRulePage, REGISTER_URL, staleGuides, text } from "@japacity/content";
+import { content, isoDay, readRulePage, staleGuides, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { guidePath, MADE_PATH, NUMBERS_PATH, numbersPath } from "./paths";
@@ -194,8 +194,8 @@ describe("how this game was made", () => {
     expect(voices).toContain("Kokoro-82M");
     expect(voices).toContain("every line is also shown as text");
     expect(voices).not.toMatch(/no voice in the game is generated/i);
-    expect(made.querySelector('a[href$="assets-src/register.json"]')).not.toBeNull();
-    expect(made.querySelector(`a[href="${REGISTER_URL}"]`)).not.toBeNull();
+    // The repository is private at launch, so the page links no register (R-GUIDE-011).
+    expect(made.querySelector('a[href*="github.com"]')).toBeNull();
     // The credits are a screen of the game and the sources a page of the documentation site (R-GUIDE-007, R-GUIDE-008).
     const paths = pages.map((page) => page.path);
     expect(paths.filter((path) => path.startsWith("/guides/credits") || path.startsWith("/guides/sources"))).toEqual([]);

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { content, LICENCES_URL, text } from "@japacity/content";
+import { content, text } from "@japacity/content";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -120,12 +120,12 @@ describe("credits", () => {
     expect(document.querySelector('[data-credits="map"]')).toBeNull();
   });
 
-  test("[R-GUIDE-010] given the credits screen, when its licences are read, then code, docs, content and art, and the reserved name are stated, with the repository's full list linked", () => {
+  test("[R-GUIDE-010] given the credits screen, when its licences are read, then code, docs, content and art, and the reserved name are stated, with the full list the build ships beside the page linked", () => {
     render(<CreditsList credits={credits} />);
     const licences = document.querySelector('[data-credits="licences"]');
     for (const words of ["Code: MIT.", "Docs: CC BY 4.0.", "Game content and art: CC BY-SA 4.0.", "The name Japacity and its logo are reserved."]) expect(licences?.textContent).toContain(words);
-    const full = within(licences as HTMLElement).getByRole("link", { name: "The full list, with every package the game ships, is in the repository." });
-    expect(full.getAttribute("href")).toBe(LICENCES_URL);
-    expect(LICENCES_URL).toBe("https://github.com/buildlab-studio/japacity/blob/main/LICENSES.md");
+    const full = within(licences as HTMLElement).getByRole("link", { name: "The full list: every package the game ships, with its licence." });
+    // The repository is private at launch, so the link is the licence file the build for players writes beside the page (tools/shipped-build.test.ts).
+    expect(full.getAttribute("href")).toBe("/licenses.txt");
   });
 });

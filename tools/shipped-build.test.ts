@@ -143,6 +143,7 @@ describe("the build for players", () => {
     const credits = JSON.parse(read(shipped, "assets/credits.json")) as { mapData: { text: string; link: string }[]; fonts: unknown[] };
     expect(credits.mapData.some((line) => line.text.includes("OpenStreetMap") && line.link.includes("openstreetmap.org/copyright"))).toBe(true);
     expect(credits.fonts.length).toBeGreaterThan(0);
-    expect(code(shipped)).toContain("/blob/main/LICENSES.md");
+    // The way to the full list is the licence file the build writes beside the page (R-GUIDE-010), not the private repository.
+    expect(code(shipped)).toContain("licenses.txt");
   });
 });

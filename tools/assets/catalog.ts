@@ -118,11 +118,11 @@ export interface CatalogEntry {
   farView?: { position: [number, number, number]; target: [number, number, number] };
 }
 
-const LEAD = "The lead, written as code in the design; ported to the pipeline by the pipeline work";
-const LAB = "Written as code; ported to the pipeline by the pipeline work";
-const STREET_AGENT = "Written as code from the kit (the lively layer, the streets' and offices' dressing)";
+const LEAD = "Written as code; ported to the pipeline";
+const LAB = "Written as code; ported to the pipeline";
+const STREET_AGENT = "The makers, written as code from the kit (the lively layer, the streets' and offices' dressing)";
 const ELEVATIONS: ViewName[] = ["front", "back", "left", "right", "threeQuarter"];
-const PLACES_A = "Written as code from the kit";
+const PLACES_A = "The makers, written as code from the kit";
 /** Every dish in Peckham faces one way (R-ASSET-019); the terraces stand turned a quarter either way, so the yaw is given per side. */
 const PECKHAM_DISH_YAW = 2.4;
 /** Deira's blocks also stand turned a quarter either way; one yaw for the place's dishes. */
@@ -166,10 +166,10 @@ function buildingEntry(slug: string, place: string, author = LEAD): CatalogEntry
   };
 }
 
-const PLACES_B = "Written as code from the kit";
-const MAKOKO = "The Makoko place agent, written as code from the kit";
+const PLACES_B = "The makers, written as code from the kit";
+const MAKOKO = "The makers, written as code from the kit";
 
-/** A piece one of the staged places needed, built from the kit by the agent that staged it. */
+/** A piece one of the staged places needed, built from the kit by the makers. */
 function placePiece(name: string, place: string, build: () => Group, views: ViewName[] = [...ELEVATIONS, "phone"]): CatalogEntry {
   const [prefix = "", slug = ""] = name.split("_");
   return { name, file: `places/${place}/${name}.glb`, place: `place.${place}`, source: `assets-src/${prefix}/${slug}`, author: PLACES_B, views, build: () => staticModel(name, build()) };
@@ -198,7 +198,7 @@ const SIGN = {
   hanging: { board: "black", ink: "danfoYellow" } satisfies SignStyle,
 };
 
-const TOOLS = "Written as code";
+const TOOLS = "The makers, written as code";
 
 /** A moving sheet or the water tile at one mesh level, its motion, pinned edge and level in its extras (R-ASSET-028, R-ASSET-029). */
 function gridEntry(piece: GridPiece, level: MeshLevel): CatalogEntry {
@@ -219,9 +219,9 @@ function gridEntry(piece: GridPiece, level: MeshLevel): CatalogEntry {
   };
 }
 
-const PLACES_M6 = "Written as code from the kit for the world-first places";
-/** The agent that built the street's things of decision 0037. */
-const STREET = "Written as code from the kit";
+const PLACES_M6 = "The makers, written as code from the kit for the world-first places";
+/** The street's things of decision 0037. */
+const STREET = "The makers, written as code from the kit";
 
 /** Each interior's room, its folder under places/ by the room's name (R-WORLD-011). */
 const ROOM_FOLDERS: Record<RoomName, string> = {
@@ -268,7 +268,7 @@ function roomEntry(room: RoomName): CatalogEntry {
 /** The room's basics (world.md R-WORLD-029), written as code from the kit beside the rooms they furnish. */
 function basicsPiece(name: string, folder: string, place: string, build: () => Group): CatalogEntry {
   // Each piece its own folder under the basics' builder, so each has renders of its own.
-  return { ...furniturePiece(name, folder, place, build), source: `assets-src/places/room-basics/${name.slice("prop_".length)}`, author: "Written as code from the kit" };
+  return { ...furniturePiece(name, folder, place, build), source: `assets-src/places/room-basics/${name.slice("prop_".length)}`, author: "The makers, written as code from the kit" };
 }
 
 function furniturePiece(name: string, folder: string, place: string, build: () => Group): CatalogEntry {
@@ -383,7 +383,7 @@ const ENTRIES: CatalogEntry[] = [
     file: "shared/prop/prop_pole.glb",
     place: "shared",
     source: "assets-src/prop/pole",
-    author: "The pipeline work, from the kit's pole part",
+    author: "The makers, from the kit's pole part",
     views: [...ELEVATIONS, "phone"],
     build: () => {
       const g = new Group();
@@ -539,7 +539,7 @@ const ENTRIES: CatalogEntry[] = [
 ];
 
 /** The homes as one wide floor each, the car, and the small things the kit lacked. */
-const HOME_AGENT = "Written as code from the kit (an exploration)";
+const HOME_AGENT = "The makers, written as code from the kit (an exploration)";
 function homePiece(name: string, folder: string, build: () => Group): CatalogEntry {
   const [prefix = "", slug = ""] = name.split("_");
   const shared = folder === "shared";

@@ -1,12 +1,12 @@
 // The credits screen (city.md R-CITY-021, guides.md R-GUIDE-008 to R-GUIDE-010): the map data
 // credit with its link, each register row's attribution, the fonts, where generated media is used,
-// all from credits.json, and the game's own licences with the way to the repository's full list.
+// all from credits.json, and the game's own licences with the way to the full list the build ships beside the page (licenses.txt, R-GUIDE-010).
 // Reached from the city's menu and, through the shell, from the phone's Settings (CreditsRow), online or not.
-import { LICENCES_URL } from "@japacity/content";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { loadJson, loadManifest } from "../../shared/three/manifest";
+import { LICENCES_FILE } from "../../shared/shipping/shipping";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cityWords } from "./city.words";
 
@@ -76,7 +76,7 @@ export function CreditsList({ credits }: { credits: CreditsFile }) {
         <h3 className="font-semibold">{cityWords("city.credits.licences")}</h3>
         <p>{cityWords("city.credits.licences.line")}</p>
         <p>
-          <a href={LICENCES_URL} className="underline underline-offset-4" target="_blank" rel="noreferrer">
+          <a href={`/${LICENCES_FILE}`} className="underline underline-offset-4" target="_blank" rel="noreferrer" data-licences-file>
             {cityWords("city.credits.licences.full")}
           </a>
         </p>

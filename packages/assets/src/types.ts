@@ -46,7 +46,7 @@ export interface RegisterRow {
   author: string;
   licence: string;
   attribution: string | null;
-  /** Made with an AI tool, a model written as code by an agent included (R-ASSET-015, guides.md R-GUIDE-013). */
+  /** Made with a generation tool (R-ASSET-015, guides.md R-GUIDE-013); a model or picture written as code is the makers' own work and is not. */
   generated: boolean;
   /** The tool and plan it was made with, or null for work made by hand. */
   tool: string | null;
