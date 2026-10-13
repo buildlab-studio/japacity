@@ -343,15 +343,7 @@ export const uiText: Record<string, string> = {
 
   // Money
   "ui.wallet.title": "Money",
-  "ui.wallet.bank": "Bank",
-  "ui.wallet.cash": "Cash",
-  "ui.wallet.locked": "Locked",
-  "ui.wallet.rates": "Rates",
-  "ui.wallet.rate.official": "Bank rate",
-  "ui.wallet.rate.street": "FX man rate",
-  "ui.wallet.allowance": "Bank allowance left this month: {amount}",
   "ui.wallet.queued": "On the way",
-  "ui.wallet.queued.item": "{paid} into {to}, ready in month {month}",
   "ui.wallet.convert": "Change money",
   // What a change says before it is confirmed (features/phone/apps/Bank.tsx, changeLine).
   "ui.wallet.change.line": "{amount} into {currency}, at today's rate.",
@@ -362,17 +354,11 @@ export const uiText: Record<string, string> = {
   "ui.wallet.change.after.bank": "After, you hold {to} in the bank.",
   "ui.wallet.change.after.aboki": "After, you hold {to} in cash.",
   "ui.wallet.move": "Move money",
-  "ui.wallet.from": "From",
   "ui.wallet.to": "To",
   "ui.wallet.amount": "Amount",
-  "ui.wallet.via": "Where",
   "ui.wallet.via.bank": "At the bank",
   "ui.wallet.via.aboki": "With the FX man",
   "ui.wallet.currency": "Currency",
-  "ui.wallet.to-bank": "Into the bank",
-  "ui.wallet.to-cash": "Out as cash",
-  "ui.wallet.send": "Do it",
-  "ui.wallet.cancel": "Leave it",
   "ui.currency.NGN": "Naira",
   "ui.currency.GBP": "Pounds",
   "ui.currency.USD": "Dollars",
@@ -396,7 +382,6 @@ export const uiText: Record<string, string> = {
   "ui.obligation.state.active": "Paying",
   "ui.obligation.state.grace": "Behind",
   "ui.obligation.state.defaulted": "In default",
-  "ui.obligation.pay": "Pay",
   "ui.obligation.return": "Give the funds back",
 
   // Papers
@@ -984,19 +969,12 @@ export const uiText: Record<string, string> = {
 
   // Sending money home (R-ABROAD-006, 008)
   "ui.remit.title": "Send money home",
-  "ui.remit.intro": "What arrives in naira depends on how you send it.",
   "ui.remit.nothing": "Nothing in a bank abroad to send.",
-  "ui.remit.amount": "How much, in {currency}",
-  "ui.remit.in-bank": "In the bank here: {amount}",
   "ui.remit.channel": "How to send it",
   "ui.remit.channel.app": "By app",
   "ui.remit.channel.bank": "By bank transfer",
   "ui.remit.channel.informal": "Through someone",
-  "ui.remit.how.app": "Arrives today in the bank at home, at the bank rate less the app's margin.",
-  "ui.remit.how.bank": "Arrives next month in the bank at home, at the bank rate, after the bank's fee.",
-  "ui.remit.how.informal": "Arrives today as cash at the street rate. A {loss} chance it never arrives.",
   "ui.remit.arrives": "Arrives: {naira}. Fee: {fee}",
-  "ui.remit.send": "Send it",
   // The Bank's send money home abroad (features/phone/apps/Bank.tsx, SendChooser).
   "ui.remit.who": "To your naira account at home. What the family asks for is paid from it.",
   "ui.remit.terms.app": "The app's rate, a little under the bank's, and a fee of {fee}. Lands today in the bank at home.",
@@ -1052,7 +1030,6 @@ export const uiText: Record<string, string> = {
   "ui.credit.missed": "{count} missed.",
   "ui.credit.missed.one": "1 missed.",
   "ui.credit.missed.zero": "None missed.",
-  "ui.credit.judgment": "A court judgment is on the file until month {month}. Nothing that needs more than {cap} can be had until then.",
   "ui.credit.next-ten": "What the next ten points buy, up to {mark}",
   "ui.credit.next-none": "Nothing new in the next ten points.",
   "ui.credit.need": "{name} at {min}",
@@ -1112,7 +1089,6 @@ export const uiText: Record<string, string> = {
   "ui.car.past-third": "Past a third. {half} more and you can hand it back owing nothing.",
   "ui.car.past-half": "Past half. You can hand it back owing nothing.",
   "ui.car.final": "Final payment at the end: {amount}",
-  "ui.car.rate": "About {rate} a year",
   "ui.car.notice": "Two payments missed: the lender has sent a notice. One more and the car is at risk.",
   "ui.car.court": "The lender has gone to court. The car is taken in {months} months unless the arrears are cleared.",
   "ui.car.court.one": "The lender has gone to court. The car is taken next month unless the arrears are cleared.",
@@ -1154,11 +1130,7 @@ export const uiText: Record<string, string> = {
 
   // The news front page (R-DIRECTOR-002)
   "ui.news.era": "The times",
-  "ui.news.era-since": "Since month {month}.",
   "ui.news.era-before": "Since before your story began.",
-  "ui.news.era-until": "Due to end after month {month}, {months} months from now.",
-  "ui.news.era-until.one": "Due to end after this month.",
-  "ui.news.era-until.zero": "Ending now.",
 
   // Being run down (R-HEALTH-001, R-HEALTH-007)
   "ui.health.run-down": "You are run down",

@@ -83,6 +83,13 @@ export const phoneText: Record<string, string> = {
   "phone.bank.move.button": "Move it",
   "phone.bank.changed": "Money changed",
   "phone.bank.moved": "Money moved",
+  // The two rates, said where a change between naira and a foreign money is chosen: the bank's in whole naira, the FX man's to the kobo.
+  "phone.bank.rate.bank": "At the bank, {one} is {rate}.",
+  "phone.bank.rate.aboki": "With the FX man, {one} is {rate}.",
+  // A change the bank makes later, while it is on its way (months away, never a month number: R-WORLD-002).
+  "phone.bank.queued.item": "{paid} into {to}, ready {when}",
+  // The credit file abroad (credit.md R-CREDIT-006, R-CREDIT-007), the month it clears said as months away.
+  "phone.bank.credit.judgment": "A court judgment is on the file. It clears {when}; until then nothing that needs more than {cap} can be had.",
   // The morning (the after set): the first result leads; any others stand under this.
   "phone.morning.also": "Also this morning",
 
@@ -99,6 +106,16 @@ export const phoneText: Record<string, string> = {
   "phone.chats.computer": "Your talk with {name} happens when you meet. Their news reaches you here.",
   "phone.chats.moment": "{words}",
 
+  // The way files' dates, as months ago or away, never a month's number (R-WORLD-002).
+  "phone.japa.invited": "Invited to apply {when}.",
+  "phone.japa.pool": "In the pool since {since}. The profile ends {ends}.",
+  "phone.japa.endorsement.refused": "Endorsement refused {when}.",
+  "phone.japa.endorsement.again": "You can ask again {when}.",
+  "phone.japa.school.pending": "Applied, the answer comes {when}",
+  "phone.japa.visa": "Visa sent {sent}. The decision comes {decision}.",
+  "phone.japa.last-refusal": "Last refusal, {when}:",
+  "phone.japa.refund": "A deposit refund of {amount} comes {when}",
+  "phone.japa.goal.done": "{goal}, {when}",
   "phone.japa.label": "Japacity",
   "phone.japa.gloss": "How ready you are to go",
   "phone.japa.none": "No plan yet",
@@ -130,6 +147,7 @@ export const phoneText: Record<string, string> = {
   "phone.papers.for.and": "{first} and {last}",
   "phone.papers.at": "At {place}",
   "phone.papers.back": "Papers",
+  "phone.papers.return": "{when}, home from {country}, {shape}",
   // A paper landing or moving, as the phone tells it (R-WORLD-030), with a paper's own words where it has them.
   "phone.papers.notices": "Papers",
   "phone.papers.notice.issued": "Your {paper} is ready.",
@@ -206,8 +224,13 @@ export const phoneText: Record<string, string> = {
   "phone.bills.undertaking.line": "Pay off what is owed, all of it.",
   "phone.bills.undertaking.button": "Pay it off",
   "phone.bills.paid": "Paid",
+  // The car on finance (R-CAR-007): the rate as the money it costs a month, never a percentage.
+  "phone.bills.car.interest": "Interest: {amount} a month",
 
   "phone.news.month": "{when}",
+  // The era on News (R-DIRECTOR-002): when it began and when it is due to end, as months ago and from now.
+  "phone.news.era.since": "Begun {when}.",
+  "phone.news.era.until": "Due to end {when}.",
 
   "phone.settings.sound": "Sound",
   "phone.settings.sound.on": "On",
