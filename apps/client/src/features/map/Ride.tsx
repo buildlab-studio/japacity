@@ -107,6 +107,11 @@ export function lineOf(way: Way, seed: number): string | null {
   return `map.ride.line.${way}.${String((Math.abs(Math.trunc(seed)) % LINES) + 1)}`;
 }
 
+/** The vehicle a way rides in: the danfo, keke or okada of the street, or the life's own car. */
+export function vehicleFile(way: Exclude<Way, "walk">): string {
+  return `shared/veh/veh_${way === "drive" ? "car" : way}.glb`;
+}
+
 /** The ways whose shaders the ride's renderer has compiled this session, by the character shown. */
 const warmed = new Set<string>();
 
@@ -255,7 +260,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
     void loadManifest()
       .then((manifest) => {
         if (way !== "walk") {
-          void loadModel(manifest, `shared/veh/veh_${way}.glb`, () => undefined)
+          void loadModel(manifest, vehicleFile(way), () => undefined)
             .then((model) => {
               if (!alive) return;
               ride.setVehicle(model.clone());

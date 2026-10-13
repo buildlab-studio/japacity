@@ -261,7 +261,33 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "thing.room": "bld_makoko-house_a",
   "thing.room-chores": "prop_cooking-corner",
   "thing.room-papers": "prop_papers-box",
+  // The market's things, keyed `market.<slug>` for the thing `thing.<slug>` of content so they never
+  // meet the home's place things above: each the very model that lands in the room.
+  "market.fan": "prop_fan",
+  "market.radio": "prop_radio",
+  "market.big-pot": "prop_big-pot",
+  "market.data": "prop_router",
+  "market.tv": "prop_tv",
+  "market.decoder": "prop_decoder",
+  "market.gas-cooker": "prop_gas-cooker",
+  "market.fridge": "prop_fridge",
+  "market.mattress": "prop_foam-mattress",
+  "market.wardrobe": "prop_wardrobe",
+  "market.mirror": "prop_mirror",
+  "market.speaker": "prop_speaker",
+  "market.generator": "prop_generator",
+  "market.inverter": "prop_inverter",
+  "market.solar": "prop_solar",
+  "market.ac": "prop_ac",
+  "market.laptop": "prop_laptop-desk",
+  "market.phone": "prop_phone",
+  "market.car": "veh_car",
 };
+
+/** The picture key of a thing of the market: `thing.fan` shows `market.fan`. */
+export function marketTile(thing: string): string {
+  return `market.${thing.slice(thing.indexOf(".") + 1)}`;
+}
 
 /** The phone's own pictures, which name no entry of content: the news, a bill, a birthday, the account. */
 export const PHONE_PICTURES: readonly string[] = ["phone.news", "phone.bill", "phone.birthday", "phone.account"];

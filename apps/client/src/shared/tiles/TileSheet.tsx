@@ -9,6 +9,7 @@ const KINDS: readonly { title: string; has: (id: string) => boolean }[] = [
   { title: "Offers", has: (id) => id.startsWith("offer.") },
   { title: "Places", has: (id) => id.startsWith("place.") },
   { title: "The home's things", has: (id) => id.startsWith("thing.") },
+  { title: "The market", has: (id) => id.startsWith("market.") },
   { title: "Papers", has: (id) => id.startsWith("document.") },
   { title: "Ways out", has: (id) => id.startsWith("route.") },
   { title: "The phone's own", has: (id) => id.startsWith("phone.") },
@@ -28,7 +29,7 @@ export function TileSheet() {
             {ids.filter(kind.has).map((id) => (
               <li key={id} className="flex flex-col items-center rounded-lg bg-white p-1 text-center" style={{ border: typeof TILE_TABLE[id] === "string" ? "1px solid #1c2a5e" : "1px dashed #8a93b8" }}>
                 <Tile of={id} size={56} />
-                <span className="mt-0.5 break-all text-[9px] leading-tight">{id.replace(/^(activity|offer|place|thing)\./, "")}</span>
+                <span className="mt-0.5 break-all text-[9px] leading-tight">{id.replace(/^(activity|offer|place|thing|market)\./, "")}</span>
               </li>
             ))}
           </ul>

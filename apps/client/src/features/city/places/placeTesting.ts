@@ -57,7 +57,9 @@ export function instancesOf(stage: Stage): { file: string; count: number }[] {
   const counts = new Map<string, number>();
   // A home's car at its spot is counted too, so the most in view holds once the life has a car.
   const car = stage.car === undefined ? [] : [{ file: CAR_FILE, at: [stage.car] }];
-  const extra = [...(stage.dressings ?? []).flatMap((dressing) => dressing.models), ...(stage.shows ?? []).flatMap((show) => show.models), ...car];
+  // The market's things a home may hold are counted at their set spots, so the most in view holds with all of them owned.
+  const owned = (stage.owned ?? []).map((spot) => ({ file: spot.file, at: [spot.at] }));
+  const extra = [...(stage.dressings ?? []).flatMap((dressing) => dressing.models), ...(stage.shows ?? []).flatMap((show) => show.models), ...car, ...owned];
   for (const model of [...stage.models, ...extra]) counts.set(model.file, Math.max(counts.get(model.file) ?? 0, model.at.length));
   return [...counts].map(([file, count]) => ({ file, count }));
 }

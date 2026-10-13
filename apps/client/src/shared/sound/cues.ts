@@ -3,7 +3,7 @@
 // made inside the first tap that plays one.
 import { soundStore } from "./sound";
 
-export type Cue = "tap" | "open" | "close" | "done" | "coin" | "whoosh" | "month" | "ding" | "thud" | "no";
+export type Cue = "tap" | "open" | "close" | "done" | "coin" | "whoosh" | "month" | "ding" | "thud" | "no" | "pop";
 
 /** One tone: a wave from `from` hertz gliding to `to`, starting `at` seconds in, lasting `long` seconds, at `gain`. */
 interface Tone {
@@ -48,6 +48,8 @@ export const CUES: Record<Cue, readonly Tone[]> = {
     { wave: "triangle", from: 247, to: 247, at: 0, long: 0.1, gain: 0.08 },
     { wave: "triangle", from: 196, to: 196, at: 0.13, long: 0.14, gain: 0.08 },
   ],
+  // Buy mode's lift: a short bright pop as a thing you own comes up off the floor.
+  pop: [{ wave: "sine", from: 520, to: 1040, at: 0, long: 0.08, gain: 0.08 }],
 };
 
 interface WebkitWindow {

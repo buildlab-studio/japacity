@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { HOME_FILES, PHONE_PICTURES, standIns, TILE_TABLE, tileOf } from "./tiles.data";
+import { HOME_FILES, marketTile, PHONE_PICTURES, standIns, TILE_TABLE, tileOf } from "./tiles.data";
 
 const ASSETS = join(import.meta.dirname, "..", "..", "..", "public", "assets");
 
@@ -82,6 +82,8 @@ describe("the table of pictures", () => {
     const unknown = Object.keys(TILE_TABLE).filter((id) => {
       if (id.startsWith("thing.")) return !things.has(id);
       if (id.startsWith("phone.")) return !PHONE_PICTURES.includes(id);
+      // The market's things: `market.<slug>` for the thing `thing.<slug>` of content.
+      if (id.startsWith("market.")) return !(`thing.${id.slice("market.".length)}` in content.thing);
       const [kind] = id.split(".");
       const table = kind === "activity" ? content.activity : kind === "offer" ? content.offer : kind === "place" ? content.place : kind === "document" ? content.document : kind === "route" ? content.route : null;
       return table === null || !(id in table);
@@ -94,6 +96,11 @@ describe("the table of pictures", () => {
     const standing = rows.flatMap(([id, row]) => (typeof row === "string" ? [] : [{ id, standIn: row.standIn, emoji: row.emoji.length > 0 && row.emoji.length <= 8 }]));
     expect(standing.filter((row) => !row.standIn || !row.emoji)).toEqual([]);
     expect(standIns().map((row) => row.id)).toEqual(rows.filter(([, row]) => typeof row !== "string").map(([id]) => id).sort());
+  });
+
+  test("[R-HOME-001] given every thing of the market, when the phone's Market asks for its picture, then the table has a row for it naming a model, never a stand-in", () => {
+    const rows = Object.keys(content.thing).map((id) => ({ id, row: TILE_TABLE[marketTile(id)] }));
+    expect(rows.filter(({ row }) => typeof row !== "string").map(({ id }) => id)).toEqual([]);
   });
 
   test("given an id the table does not know, when its picture is asked for, then it is a stand-in rather than nothing", () => {

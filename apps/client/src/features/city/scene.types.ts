@@ -78,6 +78,13 @@ export interface SceneProps {
    * lies on it as the nap does, a small sleep mark floats over it, and when it goes back to null the figure gets up.
    */
   asleep?: string | null;
+  /**
+   * The world mode, in a home of your own with things owned standing in it: buy mode. A
+   * hold on a thing you own lifts it, a drag sets it down where it fits, a tap while it is lifted turns it a quarter, a
+   * tap anywhere else sets it down. `onSet` keeps where it was set down; `onLift` and `onMisfit` sound the lift and the
+   * shake back.
+   */
+  arrange?: { onSet: (thing: string, spot: [number, number, number]) => void; onLift?: () => void; onMisfit?: () => void } | null;
 }
 
 /** Read by the browser test: what the last frame drew and where the character is. */

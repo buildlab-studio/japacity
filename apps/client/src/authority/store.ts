@@ -17,6 +17,7 @@ import { cardKey } from "../shared/ui/cardKey";
 import { setNow } from "../shared/words/now";
 import { say, sayCount } from "../shared/words/text";
 import { uiText } from "../shared/words/ui";
+import { forgetArranged } from "../shared/world/arranged";
 import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";
 import { swapsFor } from "./others";
@@ -640,6 +641,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         forgetMonth();
         // A new life is taught afresh: its first chapter's title, its places' labels, its home (R-CHAPTER-011).
         forgetTaught();
+        // A new life's rooms stand as their files set them.
+        forgetArranged();
         set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], momentCards: [], rejection: null, monthLines: [], lastMonthLines: [], opened: [], cardClosed: null, cardTold: null, ...began() });
       },
       openLifeChooser: options.life === undefined || options.lifeAgain === false ? null : () => set({ choosingLife: true }),

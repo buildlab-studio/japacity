@@ -3,7 +3,7 @@
 // ways to go as picture tiles with the fare and minutes under each, the balance before struck through and after, and
 // one yellow Go that says the ride and its fare. The map stays in view above it.
 import { Footprints } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { PressButton } from "../../shared/ui/lively/PressButton";
 import { blurbOf, say, words } from "../../shared/words/text";
@@ -28,10 +28,12 @@ export interface RideSheetProps {
   onStay?: () => void;
   /** The way chosen first, when a vehicle in the place was tapped (R-WORLD-017). */
   by?: RideChoice["id"];
+  /** Hears the way picked, from the first, so the route on the map carries its sticker. */
+  onWay?: (way: RideChoice["id"]) => void;
 }
 
 /** Each way's picture: the vehicle's own tile; on foot, the footprints. */
-const WAY_MODEL: Readonly<Record<RideChoice["id"], string | null>> = { danfo: "veh_danfo", keke: "veh_keke", okada: "veh_okada", walk: null };
+export const WAY_MODEL: Readonly<Record<RideChoice["id"], string | null>> = { danfo: "veh_danfo", keke: "veh_keke", okada: "veh_okada", walk: null, drive: "veh_car" };
 
 /** The first sentence of a place's blurb: a line about it. */
 function firstSentence(blurb: string): string {
@@ -75,8 +77,9 @@ export function firstWay(ways: readonly RideChoice[], have: number, by?: RideCho
   return ways.find((way) => way.shut === undefined && way.fare <= have)?.id ?? ways[0]?.id ?? "danfo";
 }
 
-export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClose, onStay, by }: RideSheetProps) {
+export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClose, onStay, by, onWay }: RideSheetProps) {
   const [chosen, setChosen] = useState<RideChoice["id"]>(() => firstWay(ways, have, by));
+  useEffect(() => onWay?.(chosen), [chosen, onWay]);
   const way = ways.find((candidate) => candidate.id === chosen && candidate.shut === undefined) ?? ways.find((candidate) => candidate.shut === undefined);
   const here = pin.state === "here";
   const locked = pin.state === "not";
@@ -86,7 +89,8 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
   const main = (() => {
     if (here) return { label: mapWords("map.stay"), after: null, disabled: false };
     if (locked || way === undefined) return { label: mapWords("map.not-yet"), after: null, disabled: true };
-    const label = way.id === "walk" ? mapWords(home ? "map.walk-home" : "map.walk") : mapWords(home ? "map.go-home" : "map.go", { way: way.label.toLowerCase() });
+    const label =
+      way.id === "walk" ? mapWords(home ? "map.walk-home" : "map.walk") : way.id === "drive" ? mapWords(home ? "map.drive-home" : "map.drive") : mapWords(home ? "map.go-home" : "map.go", { way: way.label.toLowerCase() });
     if (way.fare === 0) return { label, after: null, disabled: false };
     // R-WORLD-006: the button says the ride and its fare; short, it says how much instead, the one exception.
     const priced = pricedLabel(label, formatMoney(way.fare));
@@ -121,7 +125,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
           </div>
         </div>
         {here || locked ? null : (
-          <div role="radiogroup" aria-label={mapWords("map.ways")} className="mb-3.5 grid grid-cols-4 gap-2">
+          <div role="radiogroup" aria-label={mapWords("map.ways")} className={`mb-3.5 grid gap-2 ${ways.length > 4 ? "grid-cols-5" : "grid-cols-4"}`}>
             {ways.map((choice) => {
               const on = choice.id === chosen;
               const shut = choice.shut !== undefined;
