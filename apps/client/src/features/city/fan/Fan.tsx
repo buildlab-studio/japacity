@@ -50,6 +50,15 @@ function insetsNow(): { top: number; bottom: number } {
   return { top: band + BAND_GAP, bottom: window.innerHeight - foot + BAND_GAP };
 }
 
+/** How far the name's pill moves from over the thing so it stays inside the screen and under the band (its CSS sets it 22 px over the hinge). */
+function titleHeld(point: { x: number; y: number }, width: number, height: number): { x: number; y: number } {
+  const half = width / 2 + BAND_GAP;
+  const x = Math.min(Math.max(point.x, half), Math.max(half, window.innerWidth - half)) - point.x;
+  const top = insetsNow().top;
+  const y = Math.max(0, top - (point.y - 22 - height));
+  return { x: Math.round(x), y: Math.round(y) };
+}
+
 /** The layout for a thing first seen at `point`, on the screen as it is now. */
 function layoutAt(point: NonNullable<ReturnType<typeof fanAnchor>>, count: number, label: number | null): FanLayout {
   const screen = { width: window.innerWidth, height: window.innerHeight };
@@ -76,6 +85,13 @@ export function Fan({ thing, title, mark, entries, onAct, onFallback, going = nu
     const widest = Math.max(0, ...[...root.current.querySelectorAll<HTMLElement>(".fan-labels")].map((node) => node.scrollWidth));
     if (widest > layout.sizes.label) setLabel(Math.ceil(widest));
   }, [layout, label, fits]);
+  // The name's pill is held inside the screen and under the band, as the marks are: read once from where it first stood.
+  const titleRef = useRef<HTMLSpanElement>(null);
+  const [titleShift, setTitleShift] = useState<{ x: number; y: number } | null>(null);
+  useLayoutEffect(() => {
+    if (titleShift !== null || point === null || point === "off" || titleRef.current === null) return;
+    setTitleShift(titleHeld(point, titleRef.current.offsetWidth, titleRef.current.offsetHeight));
+  }, [point, titleShift]);
   const [shift, setShift] = useState(0);
   const [shaking, setShaking] = useState<{ id: string; n: number } | null>(null);
   const drag = useRef<{ y: number; from: number; moved: boolean } | null>(null);
@@ -95,7 +111,7 @@ export function Fan({ thing, title, mark, entries, onAct, onFallback, going = nu
   if (layout === null) return <div aria-hidden className="fan pointer-events-none fixed top-0 left-0 z-[37]" data-fan={thing} />;
   // The thing's name over it, with a person's quiet mark beside it (R-WORLD-005: a tap shows the thing's name and its acts).
   const name = (
-    <span className="fan-title" data-fan-title>
+    <span ref={titleRef} className="fan-title" data-fan-title style={titleShift === null ? undefined : { left: `${String(titleShift.x)}px`, top: `${String(titleShift.y)}px` }}>
       {title}
       {mark === undefined ? null : (
         <span className="fan-mark" data-person-mark={mark}>

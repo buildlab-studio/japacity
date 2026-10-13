@@ -307,10 +307,11 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
     if (await teach.isVisible().catch(() => false)) await teach.click();
 
     // The kiosk keeps its name and its act; the tap opens the draw's sheet, never the offline slip.
+    // The kiosk's fan (R-WORLD-034), its button or the small sheet's where the fan has no room.
     await page.locator('[data-mark="kiosk"]').click();
-    const chip = page.locator('[data-thing-chip="kiosk"]');
-    await expect(chip).toBeVisible();
-    await chip.locator("[data-act]").first().click();
+    const act = page.locator('[data-fan="kiosk"] [data-fan-act] button, [data-fan-sheet="kiosk"] [data-fan-act] button').first();
+    await expect(act).toBeVisible();
+    await act.click();
     const sheet = page.locator('[data-world-sheet="kiosk"]');
     await expect(sheet).toBeVisible({ timeout: 30_000 });
     await expect(page.locator("[data-ask-form]")).toHaveCount(0);
@@ -391,14 +392,15 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   // A friend of the family visiting stands there too.
   await expect(page.locator('[data-mark="friend-guest"]')).toHaveCount(1);
   await mark.click();
-  const chip = page.locator('[data-thing-chip="after-service"]');
-  await expect(chip).toContainText("Tobi");
+  // His fan (R-WORLD-034): his name in the pill over him, with the mark's word beside it.
+  const chip = page.locator('[data-fan="after-service"]');
+  await expect(chip.locator("[data-fan-title]")).toContainText("Tobi");
   // The mark's word (R-PEOPLE-009).
-  await expect(chip.locator("[data-person-mark]")).toHaveText("Not a player");
+  await expect(chip.locator("[data-fan-title] [data-person-mark]")).toHaveText("Not a player");
   await page.waitForTimeout(400);
   await shoot(page, "m68-1-parlour-tobi", info.project.name);
 
-  await chip.locator('[data-act="talk"]').click();
+  await chip.locator('[data-fan-act="talk"] button').click();
   const card = page.getByRole("dialog");
   await expect(card.getByRole("button", { name: /Start seeing Tobi/ })).toBeVisible({ timeout: 20_000 });
   await expect(card).toContainText("After service, your mother brings him home for lunch.");

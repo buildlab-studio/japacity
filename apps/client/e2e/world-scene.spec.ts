@@ -191,19 +191,21 @@ test("[R-WORLD-005] [R-WORLD-021] given Bode Thomas, when a thing or its quiet m
   await expect(mark.locator("[data-mark-dot]")).toBeVisible();
   await expect(mark.locator("[data-mark-name]")).toBeHidden({ timeout: 6000 });
   await mark.click();
-  const chip = page.locator('[data-thing-chip="kiosk"]');
-  await expect(chip).toBeVisible();
-  await expect(chip).toContainText(text["city.thing.lotto"] ?? "Lotto");
-  const acts = chip.locator("[data-act]");
+  // Its fan (R-WORLD-034): the name in a pill over the kiosk, and its act beside it.
+  const fan = page.locator('[data-fan="kiosk"]');
+  const name = fan.locator("[data-fan-title]");
+  await expect(name).toBeVisible();
+  await expect(name).toContainText(text["city.thing.lotto"] ?? "Lotto");
+  const acts = fan.locator("[data-fan-act]");
   expect(await acts.count()).toBeGreaterThanOrEqual(1);
   expect(await acts.count()).toBeLessThanOrEqual(2);
-  // Over the thing: centred on it across, and standing above it.
-  const box = await chip.boundingBox();
-  if (box === null || kiosk === null) throw new Error("The chip or the kiosk is not on screen");
+  // The name over the thing: centred on it across, and standing above it.
+  const box = await name.boundingBox();
+  if (box === null || kiosk === null) throw new Error("The fan's name or the kiosk is not on screen");
   expect(Math.abs(box.x + box.width / 2 - kiosk.x)).toBeLessThan(60);
   expect(box.y + box.height).toBeLessThan(kiosk.y);
   // The character walks to the kiosk, then the act's slip opens.
-  await acts.first().click();
+  await acts.first().locator("button").click();
   await expect(page.locator("[data-ask-form=slip]")).toBeVisible({ timeout: 30_000 });
   expect((await probe(page))?.walking).toBe(false);
   await page.keyboard.press("Escape");
@@ -212,13 +214,14 @@ test("[R-WORLD-005] [R-WORLD-021] given Bode Thomas, when a thing or its quiet m
   // A tap on the danfo itself, not its label, floats its ride.
   const danfo = await page.evaluate(() => (window as unknown as { __city?: Probe }).__city?.screenOfThing?.("danfo") ?? null);
   if (danfo === null) throw new Error("The danfo is not on screen");
-  const ride = page.locator('[data-thing-chip="danfo"]');
+  // Its fan's buttons are what show (the fan's own box is the point it opens from), or the small sheet's where there is no room.
+  const ride = page.locator('[data-fan="danfo"] [data-fan-act] button, [data-fan-sheet="danfo"] [data-fan-act] button');
   for (const [dx, dy] of [[0, 0], [12, -6], [-12, -6], [0, -14], [20, 0], [-20, 0]] as const) {
     await page.mouse.click(danfo.x + dx, danfo.y + dy);
-    if (await ride.waitFor({ state: "visible", timeout: 2000 }).then(() => true, () => false)) break;
+    if (await ride.first().waitFor({ state: "visible", timeout: 2000 }).then(() => true, () => false)) break;
   }
-  await expect(ride).toBeVisible();
-  await expect(ride.locator("[data-act]")).toHaveCount(1);
+  await expect(ride.first()).toBeVisible();
+  await expect(ride).toHaveCount(1);
 });
 
 // The family house opens whole since the home's wave, so the room behind a door is the hub's at Ojuelegba.
@@ -274,8 +277,7 @@ test("[R-WORLD-013] given Ojuelegba, when the hub's Go in is chosen, then the sc
   const room = await probe(page);
   expect(room?.zoom).toBe(1);
   expect(room?.fits).toEqual({ width: true, offScreen: [] });
-  await page.locator('[data-mark="door"]').click();
-  await page.locator('[data-thing-chip="door"] [data-act]').first().click();
+  await doAct(page, "door", "out");
   // Back outside: the hub stands again, its mark drawn (hidden under the step's marker when the step points at it,
   // R-WORLD-003 as amended 13 Oct 2026), and the room's door is gone.
   await expect(page.locator('[data-mark="hub"]')).toBeAttached({ timeout: 60_000 });
