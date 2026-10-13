@@ -50,13 +50,27 @@ function insetsNow(): { top: number; bottom: number } {
   return { top: band + BAND_GAP, bottom: window.innerHeight - foot + BAND_GAP };
 }
 
-/** How far the name's pill moves from over the thing so it stays inside the screen and under the band (its CSS sets it 22 px over the hinge). */
-function titleHeld(point: { x: number; y: number }, width: number, height: number): { x: number; y: number } {
-  const half = width / 2 + BAND_GAP;
-  const x = Math.min(Math.max(point.x, half), Math.max(half, window.innerWidth - half)) - point.x;
-  const top = insetsNow().top;
-  const y = Math.max(0, top - (point.y - 22 - height));
-  return { x: Math.round(x), y: Math.round(y) };
+/** How far over the hinge the name's pill stands, and the space kept between it and a button or the screen's edge. */
+const TITLE_RISE = 22;
+const TITLE_GAP = 8;
+
+/**
+ * Where the name's pill stands, from the hinge: over the thing, its inner edge at the thing's column so it never meets the
+ * curve, which bows out the other way; with no room there it stands over the fan's first button; always inside the screen
+ * and under the band, as the marks are.
+ */
+function titleAt(point: { x: number; y: number }, size: { width: number; height: number }, layout: FanLayout | null): { x: number; y: number } {
+  const right = window.innerWidth - TITLE_GAP - size.width;
+  const hold = (x: number): number => Math.min(Math.max(x, TITLE_GAP), Math.max(TITLE_GAP, right));
+  let y = point.y - TITLE_RISE - size.height;
+  let x = point.x - size.width / 2;
+  if (layout !== null && layout.fits && layout.count > 0) {
+    const beside = layout.side === "right" ? point.x - 2 - size.width : point.x + 2;
+    if (hold(beside) === beside) x = beside;
+    else y = Math.min(y, point.y + layout.first - layout.sizes.button / 2 - TITLE_GAP - size.height);
+  }
+  y = Math.max(y, insetsNow().top);
+  return { x: Math.round(hold(x) - point.x), y: Math.round(y - point.y) };
 }
 
 /** The layout for a thing first seen at `point`, on the screen as it is now. */
@@ -85,13 +99,13 @@ export function Fan({ thing, title, mark, entries, onAct, onFallback, going = nu
     const widest = Math.max(0, ...[...root.current.querySelectorAll<HTMLElement>(".fan-labels")].map((node) => node.scrollWidth));
     if (widest > layout.sizes.label) setLabel(Math.ceil(widest));
   }, [layout, label, fits]);
-  // The name's pill is held inside the screen and under the band, as the marks are: read once from where it first stood.
+  // The name's pill, placed once from where the thing first stood (titleAt).
   const titleRef = useRef<HTMLSpanElement>(null);
   const [titleShift, setTitleShift] = useState<{ x: number; y: number } | null>(null);
   useLayoutEffect(() => {
     if (titleShift !== null || point === null || point === "off" || titleRef.current === null) return;
-    setTitleShift(titleHeld(point, titleRef.current.offsetWidth, titleRef.current.offsetHeight));
-  }, [point, titleShift]);
+    setTitleShift(titleAt(point, { width: titleRef.current.offsetWidth, height: titleRef.current.offsetHeight }, layout));
+  }, [point, titleShift, layout]);
   const [shift, setShift] = useState(0);
   const [shaking, setShaking] = useState<{ id: string; n: number } | null>(null);
   const drag = useRef<{ y: number; from: number; moved: boolean } | null>(null);

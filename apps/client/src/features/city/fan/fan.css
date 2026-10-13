@@ -51,7 +51,8 @@
 .fan-item[data-fan-refused="spent"],
 .fan-item[data-fan-refused="planned"] { --fan-tint: #e3e8ec; }
 
-/* The thing's name over its hinge, a white pill as the marker's (R-WORLD-005): navy by day, the night's pill at night. */
+/* The thing's name over its hinge, a white pill as the marker's (R-WORLD-005): navy by day, the night's pill at night.
+   Fan.tsx places it from the hinge once it is measured (titleAt). */
 .fan-title {
   position: absolute;
   left: 0;
@@ -67,7 +68,6 @@
   font-weight: 700;
   line-height: 1.2;
   white-space: nowrap;
-  transform: translate(-50%, calc(-100% - 22px));
   box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--fan-edge), 0 4px 8px rgba(0, 0, 0, 0.2);
   animation: fan-fade 160ms ease-out both;
 }
