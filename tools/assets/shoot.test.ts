@@ -73,7 +73,7 @@ describe("the tile view", () => {
   const untiled = CATALOG.filter((entry) => !isTiled(entry.name));
 
   test("[R-ASSET-020] given the shells, sheets and grids no player is shown as a thing, when their views are listed, then none gets the tile, none is shot and none keeps a tile render", () => {
-    const shown = ["bld_room_parlour", "bld_room_compound", "bld_tailor-corner", "prop_sheet-flag_coarse", "prop_sheet-pennant_fine", "prop_water_coarse", "prop_water_fine", "prop_pole", "prop_drum-water", "prop_plank-walkway", "chr_tunde"];
+    const shown = ["bld_room_parlour", "bld_room_compound", "prop_sheet-flag_coarse", "prop_sheet-pennant_fine", "prop_water_coarse", "prop_water_fine", "prop_pole", "prop_drum-water", "prop_plank-walkway", "chr_tunde"];
     for (const name of shown) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: false });
     expect(CATALOG.filter((entry) => entry.name.startsWith("bld_room_") || entry.name.startsWith("prop_sheet-") || entry.name.startsWith("prop_water_")).filter((entry) => entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
     expect(untiled.filter((entry) => entry.views.includes("tile") || existsSync(join(ROOT, entry.source, "renders", "tile.png"))).map((entry) => entry.name)).toEqual([]);

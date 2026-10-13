@@ -38,7 +38,6 @@ import { GRID_PIECES, gridFile, GRIDS, type GridPiece, MESH_LEVELS, type MeshLev
 import { buildPlasticChair } from "@japacity/assets-src/prop/plastic-chair/build";
 import { buildRoom } from "@japacity/assets-src/bld/room/build";
 import { ROOMS, type RoomName } from "@japacity/assets-src/bld/room/rooms";
-import { buildTailorCorner } from "@japacity/assets-src/bld/tailor/build";
 import * as furniture from "@japacity/assets-src/prop/furniture";
 import * as basics from "@japacity/assets-src/places/room-basics/build";
 import * as street from "@japacity/assets-src/prop/street/build";
@@ -89,8 +88,8 @@ export function isPortrayed(name: string): boolean {
 
 /** The kinds of model a picture tile is cut from (design page 13, the pictures): never a person, whose tile is a name pill until the characters are redone. */
 const TILED_KINDS = /^(prop|shop|veh|lm|bld)_/;
-/** Models no player is shown as a thing: the rooms' and the homes' shells and the tailor's corner, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
-const UNTILED = /^(bld_room_|bld_home-|bld_tailor-corner$|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
+/** Models no player is shown as a thing: the rooms' and the homes' shells, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
+const UNTILED = /^(bld_room_|bld_home-|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
 
 /** Whether a model gets the tile view: a thing a player could be shown on a choice. */
 export function isTiled(name: string): boolean {
@@ -506,16 +505,6 @@ const ENTRIES: CatalogEntry[] = [
   ),
   ...GRID_PIECES.flatMap((piece) => MESH_LEVELS.map((level) => gridEntry(piece, level))),
   ...(Object.keys(ROOMS) as RoomName[]).map(roomEntry),
-  // The tailor's corner behind the front door's first screen (prologue.md R-PROLOGUE-016), from the room's builder.
-  {
-    name: "bld_tailor-corner",
-    file: "places/tailor-corner/bld_tailor-corner.glb",
-    place: "place.family-house",
-    source: "assets-src/bld/tailor",
-    author: "Written as code from the kit",
-    views: [...ELEVATIONS, "plan", "phone"],
-    build: () => staticModel("bld_tailor-corner", buildTailorCorner()),
-  },
   furniturePiece("prop_room-door", "shared", "shared", furniture.buildRoomDoor),
   furniturePiece("prop_waiting-chairs", "shared", "shared", furniture.buildWaitingChairs),
   furniturePiece("prop_office-desk", "shared", "shared", furniture.buildOfficeDesk),
