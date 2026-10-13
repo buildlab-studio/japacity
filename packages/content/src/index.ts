@@ -106,8 +106,15 @@ export { badNews, reportPlain } from "./comedy/comedy.check";
 export type { PlainOnly } from "./comedy/comedy";
 export type { JapaType, OfficialAccount, OfficialPlatform, ShareKind } from "./share/share.data";
 
+/**
+ * The content version before this one (docs/rules/server.md R-SERVER-023): the server bundles it beside the current,
+ * so a life saved under it replays and is upgraded on its first load. m0.2 follows m0.1 when the lived
+ * month, the arrivals, the body and the street's money landed.
+ */
+export const PREVIOUS_CONTENT_VERSION = "m0.1";
+
 export const content: Content = {
-  version: "m0.1",
+  version: "m0.2",
   quality: qualityTable,
   // advice.md: the friend, the adviser and the agents.
   activity: withWhen({ ...activityTable, ...adviceActivityTable }),

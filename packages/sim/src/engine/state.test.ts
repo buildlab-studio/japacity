@@ -1,5 +1,5 @@
 // Carrying a state to newer content: docs/rules/server.md R-SERVER-021 and 022, decision 0006.
-import { content as realContent } from "@japacity/content";
+import { content as realContent, PREVIOUS_CONTENT_VERSION } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { lifeSaves } from "../goldens/lives.data";
@@ -9,7 +9,7 @@ import { standInWorld } from "../world/standIn";
 import { checkContent } from "./content";
 import { checkInvariants } from "./invariants";
 import { replay } from "./replay";
-import { newState, upgradeState } from "./state";
+import { newState, STATE_SCHEMA, upgradeState } from "./state";
 import type { Content, State } from "./types";
 
 /** Every string and key equal to an id in the table renamed. */
@@ -32,6 +32,11 @@ function olderState(state: State, renames: Record<string, string>, version: stri
   const older = { ...(renamedDeep(rest, reversed(renames)) as Omit<State, "seed">), seed, schema: 1, content: version } as Partial<State>;
   delete older.lottery;
   return older as State;
+}
+
+/** A copy of `value` without the named keys. */
+function without(value: object, keys: readonly string[]): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(value).filter(([key]) => !keys.includes(key)));
 }
 
 const MINI_RENAMES = { "scenario.worker": "scenario.labourer", "route.mini": "route.small" };
@@ -62,7 +67,7 @@ describe("upgradeState", () => {
     expect(older).not.toHaveProperty("lottery");
     const after = upgradeState(older, miniContent, miniContent);
     expect(after.lottery).toEqual(newState("scenario.plain", "any", miniContent).lottery);
-    expect(after.schema).toBe(3);
+    expect(after.schema).toBe(STATE_SCHEMA);
     expect(after).toEqual(game.state);
   });
 
@@ -94,4 +99,49 @@ describe("upgradeState", () => {
       expect(checkInvariants(after, current)).toEqual([]);
     },
   );
+
+  /**
+   * A state as the server stored it before schema 4: no `turn.spent`, no
+   * `offer.rolled` or `offer.rolledMonth`, no body qualities, schema 3.
+   */
+  function schemaThree(state: State, version: string): State {
+    const turn = without(state.turn, ["spent"]);
+    const offer = without(state.offer, ["rolled", "rolledMonth"]);
+    const quality = without(state.quality, ["quality.belly", "quality.energy"]);
+    return { ...state, schema: 3, content: version, turn, offer, quality } as unknown as State;
+  }
+
+  const before: Content = { ...realContent, version: PREVIOUS_CONTENT_VERSION };
+
+  test.each(Object.entries(lifeSaves))(
+    "[R-SERVER-021] [R-SERVER-022] given the end state of the golden life %s in the schema 3 shape under the previous content, when upgraded to the current content, then the month's spent half-days, the offers rolled and the body's qualities are filled as a new life starts them, everything else is kept, the schema is raised and the invariants hold",
+    (_name, save) => {
+      const { state } = replay(save, realContent, (tick) => standInWorld(save.worldSeed, tick, realContent));
+      const older = schemaThree(state, before.version);
+      expect(older.turn).not.toHaveProperty("spent");
+      expect(older.offer).not.toHaveProperty("rolled");
+      expect(checkInvariants({ ...older, schema: STATE_SCHEMA, content: realContent.version }, realContent)).toContain("The state holds no value for quality.belly.");
+      const after = upgradeState(older, before, realContent);
+      const fresh = newState(state.scenario, state.seed, realContent);
+      expect(after.schema).toBe(4);
+      expect(after.content).toBe(realContent.version);
+      expect(after.turn.spent).toBe(0);
+      expect([after.offer.rolled, after.offer.rolledMonth]).toEqual([0, 0]);
+      expect(after.quality["quality.belly"]).toBe(fresh.quality["quality.belly"]);
+      expect(after.quality["quality.energy"]).toBe(fresh.quality["quality.energy"]);
+      const kept = (one: State) => ({ ...one, turn: { ...one.turn, spent: 0 }, offer: { ...one.offer, rolled: 0, rolledMonth: 0 }, quality: { ...one.quality, "quality.belly": 0, "quality.energy": 0 } });
+      expect(kept(after)).toEqual(kept({ ...state, content: realContent.version }));
+      expect(after.nextInstance).toBe(state.nextInstance);
+      expect(checkInvariants(after, realContent)).toEqual([]);
+    },
+  );
+
+  test("[R-SERVER-022] given a state already of the current schema whose turn has spent half-days, when upgraded to a newer version, then nothing inside its slices is refilled", () => {
+    const game = start({ scenario: "scenario.plain" });
+    game.endTurn();
+    const spent: State = { ...game.state, turn: { ...game.state.turn, spent: 3 }, offer: { ...game.state.offer, rolled: 2, rolledMonth: 1 } };
+    const after = upgradeState(spent, miniContent, { ...miniContent, version: "mini.2" });
+    expect(after.turn.spent).toBe(3);
+    expect([after.offer.rolled, after.offer.rolledMonth]).toEqual([2, 1]);
+  });
 });

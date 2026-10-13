@@ -1843,8 +1843,12 @@ export interface PrologueSlice {
 }
 
 export interface State {
-  /** The shape of the save. Raised when the shape changes. 2 adds the whole-life slices; 3 the people and interview slices. */
-  schema: 1 | 2 | 3;
+  /**
+   * The shape of the save. Raised when the shape changes. 2 adds the whole-life slices; 3 the people and interview slices;
+   * 4 the month's spent half-days (`turn.spent`), the offers rolled this month (`offer.rolled`, `offer.rolledMonth`) and
+   * the body's qualities (decisions 0034, 0035).
+   */
+  schema: 1 | 2 | 3 | 4;
   content: string;
   /** The state version: one more for each accepted command. */
   v: number;
