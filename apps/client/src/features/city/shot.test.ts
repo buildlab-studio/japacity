@@ -4,7 +4,7 @@ import type { Shot } from "../../shared/world/contract";
 import { stageOf } from "./placeFile";
 import { roomOf, HOUSE } from "./room";
 import { builtPlaces, cameraAt, onScreen, projected, SCREENS } from "./scene.testing";
-import { aimShot, CLOSE_AHEAD, clampTurn, defaultShot, FIT_MARGIN, fitDistance, ROOM_PITCH, roomShot, shotOf, snapZoom, WHOLE, wholeDistance, widthEnds } from "./shot";
+import { aimShot, clampTurn, CLOSE_AHEAD, defaultShot, depthDistance, FIT_MARGIN, fitDistance, ROOM_PITCH, roomDistance, roomShot, shotOf, snapZoom, WHOLE, wholeDistance, widthEnds } from "./shot";
 import { thingSpot, thingsOf } from "./things";
 
 /** The pitch of a view above the ground, in degrees. */
@@ -139,3 +139,16 @@ describe("a room seen down its length (R-WORLD-029)", () => {
   });
 });
 
+describe("the eased-in room's distance", () => {
+  const corner = { width: 4.4, pitch: 42, floor: [-6.475, 1.6, -3.2, 6.475] as [number, number, number, number] };
+
+  test("[R-WORLD-029] [R-WORLD-009] given the family house's corner eased in on a phone held upright, when the camera's distance is set, then it is the width's fit alone, the room's length running off the screen by design", () => {
+    expect(roomDistance(corner, 390 / 844)).toBe(fitDistance(4.4, 390 / 844));
+  });
+
+  test("[R-WORLD-029] [R-WORLD-009] given the same corner on a laptop's wide screen, when the camera's distance is set, then it stands back far enough for the floor along the view to stand inside the lens's height, so the bed at the room's edge stays on screen", () => {
+    const wide = roomDistance(corner, 1280 / 800);
+    expect(wide).toBeGreaterThan(fitDistance(4.4, 1280 / 800));
+    expect(wide).toBe(depthDistance(6.475 - 1.6, 42));
+  });
+});

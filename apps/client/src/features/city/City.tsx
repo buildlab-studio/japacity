@@ -623,6 +623,8 @@ export function City({
   // While a fan's button is pressed the band's counter shows what would be left (design page 13 section 2).
   const [bandPreview, setBandPreview] = useState<number | null>(null);
   const [fanGoingId, setFanGoingId] = useState<string | null>(null);
+  // The fan's act last sent and when: the scene may report the walk's arrival twice under load, and the second must not open the act's card over an act already done.
+  const fanSent = useRef<{ thing: string; activity: string; at: number } | null>(null);
   // Lines the corner tells once it shows again: a courted partner's answer waits for the home's card to be put away (R-PEOPLE-013).
   const [toTell, setToTell] = useState<string[]>([]);
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
@@ -877,9 +879,15 @@ export function City({
       return;
     }
     const { thing, act } = scenePick;
+    const sent = fanSent.current;
+    if (going === null && sent !== null && sent.thing === thing.id && sent.activity === act.stages && Date.now() - sent.at < 1500) {
+      setPicked(null);
+      return;
+    }
     // A fan's button, once the walk has reached its thing: the act is sent as its sheet's button sends it (docs/design/13-the-lively-layer.md section 3).
     if (going !== null && going.thing === thing.id && going.activity === act.stages) {
       setPicked(null);
+      fanSent.current = { thing: thing.id, activity: going.activity, at: Date.now() };
       const costs = (view.activities.find((option) => option.id === going.activity)?.cost.length ?? 0) > 0;
       void actOnCard({ activity: going.activity as Id<"activity">, param: going.param }, { send, addToPlan }).then((acted) => {
         cue(acted === "answered" || acted === "planned" ? (costs ? "coin" : "done") : acted === "refused" ? "no" : "tap");

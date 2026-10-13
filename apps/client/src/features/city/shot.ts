@@ -178,16 +178,29 @@ export function roomFirst(rooms: readonly Room[], whole: boolean, current: Room 
  * its width; at 0 eased in on `room` at the rooms' distance on the scene's own lens, the rest of the house running off the
  * screen's edges; between, the two mixed. The view never turns.
  */
-export function aimRoom(shot: Shot, room: Pick<Room, "centre" | "width" | "pitch">, zoom: number, aspect: number): { position: Point; target: Point; fov: number } {
+export function aimRoom(shot: Shot, room: Pick<Room, "centre" | "width" | "pitch" | "floor">, zoom: number, aspect: number): { position: Point; target: Point; fov: number } {
   const share = Math.min(1, Math.max(0, zoom));
   const wide = shot.fov ?? SHOT_FOV;
   const fov = mix(SHOT_FOV, wide, share);
-  const distance = mix(fitDistance(room.width, aspect, SHOT_FOV), wholeDistance(shot, aspect, wide), share);
+  const distance = mix(roomDistance(room, aspect), wholeDistance(shot, aspect, wide), share);
   const pitch = radians(mix(room.pitch, shot.farPitch, share));
   const yaw = radians(shot.yaw ?? 0);
   const target: Point = [mix(room.centre[0], shot.centre[0], share), mix(room.centre[1], shot.centre[1], share), mix(room.centre[2], shot.centre[2], share)];
   const back = Math.cos(pitch) * distance;
   return { position: [target[0] - Math.sin(yaw) * back, target[1] + Math.sin(pitch) * distance, target[2] - Math.cos(yaw) * back], target, fov };
+}
+
+/**
+ * How far back the eased-in view of a room stands. A phone held upright fits the room's width across the screen, its
+ * length running off the top and bottom by design (R-WORLD-029 as amended). A screen wider than tall would come far too
+ * close on the width alone, so there the room's floor along the view must stand inside the lens's height too, and a
+ * thing at the room's near edge (the bed in the corner) stays on screen on a laptop as it does on a phone.
+ */
+export function roomDistance(room: Pick<Room, "width" | "pitch" | "floor">, aspect: number): number {
+  const across = fitDistance(room.width, aspect, SHOT_FOV);
+  if (aspect < 1) return across;
+  const depth = Math.abs(room.floor[3] - room.floor[1]);
+  return Math.max(across, depthDistance(depth, room.pitch, SHOT_FOV));
 }
 
 /** Where the camera stands and looks for a view of the shot, with the character at `walker`. */
