@@ -79,8 +79,8 @@ export function Facts({ bond }: { bond: BondView }) {
       </div>
       <ul className="flex flex-wrap gap-1.5 text-[13px]">
         {items.map((item, index) => (
-          <li key={item} className="sticker-chip bg-sheet-2" style={{ rotate: `${String(index % 2 === 0 ? -1.5 : 1.5)}deg` }} data-sticker-chip>
-            {item}
+          <li key={item} className="sticker-chip max-w-full bg-sheet-2 whitespace-normal" style={{ rotate: `${String(index % 2 === 0 ? -1.5 : 1.5)}deg` }} data-sticker-chip>
+            <span className="whitespace-normal">{item}</span>
           </li>
         ))}
       </ul>

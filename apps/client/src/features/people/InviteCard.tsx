@@ -55,8 +55,8 @@ function CardFace({ looking, fill }: { looking: Looking; fill: string | null }) 
           {route === null ? null : <span className="text-text-2">, {runningName(route)}</span>}
         </p>
         <div>
-          <StickerChip tint="people" tilt={-2} className="text-[14px] font-bold">
-            <span data-invite-looking>{lookingWords(looking, fill)}</span>
+          <StickerChip tint="people" tilt={-2} className="max-w-full text-[14px] font-bold whitespace-normal">
+            <span className="whitespace-normal" data-invite-looking>{lookingWords(looking, fill)}</span>
           </StickerChip>
         </div>
         <p className="text-[12px] text-text-2">{text["card.invite.game"] ?? ""}</p>
