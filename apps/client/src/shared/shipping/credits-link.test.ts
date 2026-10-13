@@ -1,13 +1,13 @@
-// The credits link the licences file the build writes beside the page (guides.md R-GUIDE-010). The file's name lives in a
-// module of its own because the build's own code reads the disk through Node: a page that imported that code would fail
-// to open in development, where Vite refuses Node's modules in the browser (13 Oct 2026: the front door never opened).
+// The credits link the licences file the build writes beside the page (guides.md R-GUIDE-010). The link takes its path
+// from content, never from the build's own code, which reads the disk through Node: a page that imported that code would
+// fail to open in development, where Vite refuses Node's modules in the browser (13 Oct 2026: the front door never opened).
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
+import { LICENCES_PATH } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { LICENCES_FILE } from "./licences";
-import { LICENCES_FILE as BUILT } from "./shipping";
+import { LICENCES_FILE } from "./shipping";
 
 const SRC = join(import.meta.dirname, "..", "..");
 const SPECIFIER = /(?:^|[\s;])(?:import|export)\s[^'"]*?from\s+["']([^"']+)["']|import\(\s*["']([^"']+)["']\s*\)/g;
@@ -39,9 +39,9 @@ function pageModules(entry: string): Set<string> {
 }
 
 describe("the licences file's name", () => {
-  test("[R-GUIDE-010] given the credits' link and the build that writes the file, when both name it, then it is the one name", () => {
+  test("[R-GUIDE-010] given the credits' link and the build that writes the file, when both name it, then it is the one file beside the page", () => {
     expect(LICENCES_FILE).toBe("licenses.txt");
-    expect(BUILT).toBe(LICENCES_FILE);
+    expect(LICENCES_PATH).toBe(`/${LICENCES_FILE}`);
   });
 
   test("[R-GUIDE-010] given the page from its entry, when every module it can load is read, then none imports Node's own modules, so the credits and the rest open in development", () => {
