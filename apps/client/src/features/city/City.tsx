@@ -1888,7 +1888,7 @@ export function City({
               }}
             />
           ) : null}
-          {markerShown && stepThing !== null && nowItem !== null ? <Marker thing={stepThing} words={nowItem.words} picture={nowItem.picture} /> : null}
+          {markerShown && stepThing !== null && nowItem !== null ? <Marker thing={stepThing} words={nowItem.words} picture={nowItem.picture} onTap={followStep} /> : null}
         </>
       ) : null}
       {looking ? (
