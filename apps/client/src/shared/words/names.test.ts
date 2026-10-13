@@ -35,7 +35,7 @@ describe("one name for one thing", () => {
     expect(sceneWords("city.act.mum-shop")).toBe("Help Mama");
     // Her ask is in her own voice now: the title is hers, and the pill names her Mama.
     expect(words("offer.mum-shop.title")).toBe("Help my shop");
-    expect(say("ui.ask.offer.family-send-off.who")).toBe("Mama");
+    expect(say("offer.family-send-off.who")).toBe("Mama");
     expect(words("offer.mum-shop.name")).toBe("Mama's shop");
     expect(say("ui.line.family-paid.offer.mum-shop", { amount: "₦1" })).toBe("For Mama's shop: ₦1.");
     expect(sceneWords("city.act.greet-mum.done")).not.toMatch(/Mummy/);

@@ -24,7 +24,8 @@ export const boardsWords: Record<string, string> = {
   "ui.boards.someone": "A player",
   "ui.boards.your-place": "Your place",
   "ui.boards.no-route": "You are not on this board yet: you have no route yet.",
-  "ui.boards.figure.all-time": "{figure}%",
+  // The figure alone, as the week's "+N" says it, never a percentage.
+  "ui.boards.figure.all-time": "{figure}",
   "ui.boards.figure.this-week.up": "+{figure}",
   "ui.boards.figure.this-week.down": "{figure}",
   "ui.boards.rank": "Number {rank}",

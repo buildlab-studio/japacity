@@ -32,7 +32,10 @@ describe("the status abroad", () => {
     await renderWithView(<ClockBanner />, richAbroadView());
     const banner = screen.getByRole("alert");
     expect(banner.textContent).toContain(sayCount("ui.status.clock", 2, { months: 2 }));
-    expect(banner.querySelector(".font-display")?.textContent).toBe("2");
+    // The big type is Rubik's bold now: the Danfo face keeps to the seal and the share cards.
+    expect(banner.querySelector("[data-clock-figure]")?.textContent).toBe("2");
+    expect(banner.querySelector("[data-clock-figure]")?.className).toContain("text-6xl");
+    expect(banner.querySelector(".font-display")).toBeNull();
   });
 
   test("[R-STATUS-003] given no clock running, then there is no banner", async () => {

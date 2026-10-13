@@ -78,7 +78,7 @@ export const uiText: Record<string, string> = {
   "ui.month.quiet.passed": "Passed by: {offer}.",
 
   // Nothing on screen says it since the band names the month (decision 0034); kept while the voice test reads it.
-  "ui.months.fact.arriving": "Next page any minute now",
+  "ui.months.fact.arriving": "Next month any minute now",
   "ui.clock.next": "Next month to play in {wait}",
   "ui.clock.full": "Full: you hold every month you can. Live one to make room.",
   "ui.clock.hours": "{hours}h {minutes}m",
@@ -525,7 +525,7 @@ export const uiText: Record<string, string> = {
 
   // Chapters
   "ui.chapter.done": "Done",
-  "ui.chapter.all-done": "Every chapter is done.",
+  "ui.chapter.all-done": "Every brief is done.",
   "ui.chapter.one-of": "Any one of these:",
   "ui.chapter.long-game": "The long game",
   "ui.chapter.long-game-intro": "What comes next is up to you. Your open goals:",

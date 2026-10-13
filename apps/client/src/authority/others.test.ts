@@ -41,7 +41,9 @@ describe("a computer person never carries the player's name", () => {
     const terna = namedPeople.find((person) => person.name === "Terna")!;
     setNow(4, null, swapsFor("Terna"));
     for (const key of terna.keys) expect(say(key)).not.toMatch(/\bTerna\b/);
-    expect(say("offer.send-off-party.title")).toContain(otherName("Terna", "Terna"));
+    // The send-off's ask is in his voice now: its name and the ask's name pill carry him.
+    expect(say("offer.send-off-party.name")).toContain(otherName("Terna", "Terna"));
+    expect(say("offer.send-off-party.who")).toBe(otherName("Terna", "Terna"));
     // The fixed lives' own names are the player's own words, never swapped.
     setNow(4, null, swapsFor("Ada"));
     expect(say("share.first-name.scenario.ada")).toBe(text["share.first-name.scenario.ada"]);

@@ -1923,7 +1923,7 @@ export function City({
           {world ? null : (
             <div className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-md border border-sheet-line bg-sheet p-2">
               <div className="flex min-w-0 flex-1 flex-col px-1">
-                <h2 className="truncate font-display text-xl leading-tight">{name}</h2>
+                <h2 className="truncate text-xl leading-tight font-bold">{name}</h2>
                 {sample === null ? null : <p className="text-xs text-text-2">{cityWords(`city.band.${sample.band}`)}</p>}
               </div>
               <Button small onClick={() => setMenu(true)}>

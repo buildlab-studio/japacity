@@ -50,9 +50,9 @@ describe("the share cards' words", () => {
     for (const platform of platforms) expect(text[`share.official.platform.${platform}`]?.trim()).toBeTruthy();
   });
 
-  test("[R-SHARE-013] given the official page's words, when they are read, then they say the game never asks for money, never sells turns, never messages first about a prize, never sells an advert by direct message, has no agents, and where to report", () => {
+  test("[R-SHARE-013] given the official page's words, when they are read, then they say the game never asks for money, never sells months to play, never messages first about a prize, never sells an advert by direct message, has no agents, and where to report", () => {
     expect(text["share.official.never.money"]).toMatch(/never ask you for money/);
-    expect(text["share.official.never.turns"]).toMatch(/never sell turns/);
+    expect(text["share.official.never.turns"]).toMatch(/never sell months to play/);
     expect(text["share.official.never.prize"]).toMatch(/never message you first about a prize/);
     expect(text["share.official.never.advert"]).toMatch(/never sell an advert by direct message/);
     expect(text["share.official.never.agents"]).toMatch(/no agents/);

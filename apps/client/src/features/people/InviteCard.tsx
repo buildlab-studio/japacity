@@ -34,7 +34,7 @@ function CardFace({ looking, fill }: { looking: Looking; fill: string | null }) 
   const { percent, route } = view.japacity;
   return (
     <figure className="flex flex-col gap-1 rounded-md border-2 border-ink bg-sheet p-4" data-invite-card>
-      <p className="font-display text-xl">{nameOf(view.scenario)}</p>
+      <p className="text-xl font-bold">{nameOf(view.scenario)}</p>
       <p className="text-sm">
         {percent === null ? say("ui.people.invite.japacity-none") : say("ui.people.invite.japacity", { percent: `${String(percent)}%` })}
         {route === null ? null : <span className="text-text-2">, {runningName(route)}</span>}

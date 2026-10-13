@@ -28,10 +28,10 @@ describe("lines from home", () => {
     setNow(4, "hometown.enugu");
     expect(hometownWords()).toBe("Enugu");
     // Who asks stands in the ask's name pill now, and the line is theirs alone.
-    expect([say("ui.ask.offer.roof.who"), words("offer.roof.body", { cost: 4500000 })]).toEqual(["Papa", "'Rain entered the roof of the house in Enugu, and the carpenter wants ₦45,000 for zinc and labour.'"]);
-    expect(say("ui.ask.offer.harvest.who")).toBe("Your uncle");
+    expect([say("offer.roof.who"), words("offer.roof.body", { cost: 4500000 })]).toEqual(["Papa", "'Rain entered the roof of the house in Enugu, and the carpenter wants ₦45,000 for zinc and labour.'"]);
+    expect(say("offer.harvest.who")).toBe("Your uncle");
     expect(words("offer.harvest.body", { cost: 1500000 })).toMatch(/^'They are calling families by name at the harvest in Enugu,/);
-    expect(say("ui.ask.offer.uncle-burial.who")).toBe("Papa");
+    expect(say("offer.uncle-burial.who")).toBe("Papa");
     expect(words("offer.uncle-burial.body", { cost: 5000000 })).toMatch(/^'The family in Enugu is contributing for the burial,/);
     expect(say("ui.prologue.town.city")).toBe("Your family is from Enugu, a city.");
     expect(nameOf("person.sib-home")).toBe("Your sibling in Enugu");

@@ -51,7 +51,7 @@ function LongGame() {
   const { goals } = useView();
   return (
     <div className="flex flex-col gap-2" data-long-game>
-      <h2 className="font-display text-3xl leading-tight">{say("ui.chapter.long-game")}</h2>
+      <h2 className="text-3xl leading-tight font-bold">{say("ui.chapter.long-game")}</h2>
       <p className="text-text-2">{say(goals.open.length === 0 ? "ui.chapter.long-game-none" : "ui.chapter.long-game-intro")}</p>
       {goals.open.length === 0 ? null : (
         <ul className="flex flex-col gap-1">
@@ -79,7 +79,7 @@ export function ChapterView() {
       <Card className="flex flex-col gap-3">
         {current === null ? (
           <>
-            <p className="font-display text-2xl">{say("ui.chapter.all-done")}</p>
+            <p className="text-2xl font-bold">{say("ui.chapter.all-done")}</p>
             {allDone ? <LongGame /> : null}
           </>
         ) : (

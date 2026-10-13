@@ -63,7 +63,7 @@ export const personText: Record<string, string> = {
   // Report lines. {who} is a person's id, or `player` for a friend; {slot}, {step}, {route} and {offer} are ids or words the screen names.
   "line.people.invited": "Your card is out. Looking for: {slot}.",
   "line.people.invite-withdrawn": "You took back the card for {slot}.",
-  "line.people.linked": "A friend took your card. The {slot} slot is theirs now.",
+  "line.people.linked": "A friend took your card, and they are your {slot} now.",
   "line.people.courted": "You started seeing {who}.",
   "line.people.met": "Time with {who} at {spot}. You {what}.",
   "line.people.called": "{who} on the phone: {what}.",

@@ -63,7 +63,7 @@ describe("the boards screen", () => {
     await waitFor(() => expect(document.querySelector("[data-board]")?.getAttribute("data-board")).toBe("all-time.everyone"));
     pick("ui.boards.who", "ui.boards.who.friends");
     // friends see the username as everyone does, and nothing under it.
-    await waitFor(() => expect(lines()).toEqual(["1tunde.k40%", "2ada_lagosYou30%"]));
+    await waitFor(() => expect(lines()).toEqual(["1tunde.k40", "2ada_lagosYou30"]));
     expect(Array.from(document.querySelectorAll("[data-board-lines] [data-board-name]")).map((name) => name.textContent)).toEqual(["tunde.k", "ada_lagos"]);
     pick("ui.boards.when", "ui.boards.when.this-week");
     await waitFor(() => expect(document.querySelector("[data-board]")?.getAttribute("data-board")).toBe("this-week.friends"));
@@ -80,7 +80,7 @@ describe("the boards screen", () => {
       return found;
     });
     expect(own.textContent).toContain(say("ui.boards.your-place"));
-    expect(own.querySelector("[data-me]")?.textContent).toBe("51ada_lagosYou10%");
+    expect(own.querySelector("[data-me]")?.textContent).toBe("51ada_lagosYou10");
   });
 
   test("[R-CITY-040] given the everyone board, when it shows, then each line and the player's own name the account's username alone; a line whose account is gone says so quietly, never a raw key", async () => {

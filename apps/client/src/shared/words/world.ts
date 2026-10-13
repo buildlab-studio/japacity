@@ -114,7 +114,7 @@ export const worldText: Record<string, string> = {
   "ui.nudge.done-now": "Done. The answer is due this month.",
   "ui.nudge.hunt-planned": "Applied for better pay. Live the month.",
   // A chapter with every item met closes when the page turns.
-  "ui.nudge.chapter-done": "The chapter is done. Live the month.",
+  "ui.nudge.chapter-done": "That brief is done. Live the month.",
   // A set piece staged elsewhere waits there; the player goes to it.
   "ui.nudge.setpiece-away": "{what} is at {place}.",
   "ui.nudge.end": "Live the month, or sleep",
