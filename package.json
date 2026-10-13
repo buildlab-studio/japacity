@@ -47,7 +47,7 @@
     "@eslint/js": "^10.0.1",
     "@neon/config": "^1.8.6",
     "@neon/env": "^1.5.3",
-    "@playwright/test": "^1.63.0",
+    "@playwright/test": "^1.64.0",
     "@types/node": "^24.19.1",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/eslint-plugin": "^1.6.27",
