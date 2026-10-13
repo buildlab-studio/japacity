@@ -106,6 +106,8 @@ describe("the folding map", () => {
       vi.advanceTimersByTime(FOLD_MS + 300);
     });
     expect(phase()).toBe("open");
+    // Settled open, the frame is the whole screen, even if no frame came to run the motion.
+    expect(document.querySelector<HTMLElement>("[data-frame]")?.style.transform).toBe("translate(0px, 0px) scale(1, 1)");
     expect(document.querySelector<HTMLElement>("[data-track]")?.style.pointerEvents).toBe("none");
     // The open map takes the card's rule: each place once, its sticker the pin.
     expect(document.querySelectorAll('[data-open-map] [data-pin="place.ojuelegba"]')).toHaveLength(1);

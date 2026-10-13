@@ -488,6 +488,8 @@ function Unfold({ state, size, stripWidth, still, onSettled, country, close, ...
       const done = setTimeout(onSettled, still ? FOLD_MS + 20 : FOLD_MS + 240);
       return () => clearTimeout(done);
     }
+    // Open is open, whether or not a slow frame let the motion run.
+    if (state.phase === "open") setGrown(true);
     return undefined;
   }, [state.phase]);
   const pulling = state.phase === "folded";
