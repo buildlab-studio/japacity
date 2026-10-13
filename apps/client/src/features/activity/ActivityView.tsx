@@ -20,6 +20,7 @@ import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, needsWords, requirementSentence, saysWhyOnCard } from "../../shared/words/requirement";
 import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";
 import { studyWords } from "./study";
+import { PressButton } from "../../shared/ui/lively/PressButton";
 import { Tile } from "../../shared/tiles/Tile";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payLine } from "../../shared/words/pay";
@@ -445,13 +446,12 @@ function ActivityCard({ option }: { option: ActivityOption }) {
               {say("ui.act.spent")}
             </p>
           ) : (
-          <Button
-            small={!applying}
-            variant={applying ? "primary" : "secondary"}
+          // The card's one yellow action (design page 13, section 2), the verb and the thing, the price on it.
+          <PressButton
             disabled={!canAdd}
             aria-label={name}
             onClick={() => void actOnCard({ activity: option.id, param: needsParam ? chosenParam : null }, { send, addToPlan })}
-            className={applying ? "w-full justify-between" : ""}
+            className="w-full flex-wrap px-4 py-2 text-[16px] leading-tight"
           >
             {applying ? (
               <ApplyFor id={chosenParam} />
@@ -466,7 +466,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
                 {line.words}
               </span>
             )}
-          </Button>
+          </PressButton>
           )}
           {/* R-WORLD-006: under a priced act's button, the balance before struck and the balance after; nothing moves until the tap. */}
           {option.spent === true || paying === null || paying.short !== null || !canAdd ? null : (
