@@ -61,7 +61,7 @@ function LifeCard({ tile, look, on, onPick }: { tile: Archetype; look: string; o
       className="door-life door-card w-[282px] p-2.5 text-left"
       style={{ rotate: on ? "-1.5deg" : "1.5deg" }}
     >
-      <span className={`relative block h-[200px] rounded-[14px] ${TINTS[thing.tint]}`}>
+      <span className={`relative block h-[clamp(160px,calc(100dvh-620px),200px)] rounded-[14px] ${TINTS[thing.tint]}`}>
         <span className="sticker-chip absolute top-3 left-3 z-[3] bg-[var(--soft)]! px-3! py-1! text-[14px]! text-[var(--soft-ink)]!" style={{ rotate: "-4deg" }} data-tile-tag>
           {say(`ui.door.tag.${tile.id}`)}
         </span>

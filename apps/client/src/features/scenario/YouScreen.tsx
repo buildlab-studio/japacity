@@ -34,11 +34,12 @@ export interface YouProps {
 /** You, on a photo card: the figure on a warm sky with a sun, your name stuck on its corner. */
 function PhotoCard({ look, style, name }: { look: string; style: LookStyle | undefined; name: string }) {
   return (
-    <div className="relative mx-auto mt-4 h-[318px] w-[302px] max-w-[calc(100%-56px)]" data-door-photo>
+    // The card gives way on a short screen (a laptop's), so the look strip stays in view over Next.
+    <div className="relative mx-auto mt-4 h-[clamp(240px,calc(100dvh-540px),318px)] w-[302px] max-w-[calc(100%-56px)]" data-door-photo>
       <div className="door-card absolute inset-0 rotate-[-2.5deg] p-2.5">
         <div className="door-photo relative h-full overflow-hidden rounded-[14px]">
           <span className="door-sun absolute top-[22px] right-[26px] size-[58px] rounded-full" aria-hidden />
-          <FigurePicture look={look} style={style} className="absolute bottom-[-6px] left-1/2 h-[300px] max-w-none -translate-x-1/2 transition-opacity duration-200" />
+          <FigurePicture look={look} style={style} className="absolute bottom-[-6px] left-1/2 h-[calc(100%+6px)] max-w-none -translate-x-1/2 transition-opacity duration-200" />
         </div>
       </div>
       <span className="sticker-chip absolute bottom-[-14px] left-[14px] z-[2] rounded-[14px]! px-4! py-2! text-[22px]!" style={{ rotate: "3deg" }} data-door-name-chip>
