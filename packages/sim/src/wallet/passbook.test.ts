@@ -89,9 +89,10 @@ describe("R-WALLET-021 (asked for) the money held for the road and the plan's wh
     expect(passbook(game).held).toBe(NGN.bank + NGN.cash);
     applyEffects(game, [
       { type: "money/add", currency: "USD", pocket: "bank", amount: 50000, reason: "gift" },
-      { type: "money/add", currency: "NGN", pocket: "locked", amount: 300000000, reason: "held-funds" },
+      { type: "money/add", currency: "NGN", pocket: "bank", amount: 300000000, reason: "held-funds", locked: true },
     ]);
     const view = game.view();
+    expect(view.pockets.NGN.locked).toBe(before.pockets.NGN.locked + 300000000);
     expect(passbook(game).held).toBe(NGN.bank + NGN.cash + kobo(view, 50000, "USD"));
   });
 
@@ -343,10 +344,8 @@ describe("the passbook on the recorded lives", () => {
         const before = game.state.place.where === "home" && !game.state.prologue.open ? game.view().passbook : null;
         const result = game.accept(command, sender);
         const at = `${name} month ${String(game.state.turn.month)}`;
-        for (const event of result.events as readonly WalletEvent[]) {
-          // Reached at a month's close, at home, with the passbook open.
-          if (event.type === "wallet/stamped") say(command.type === "turn/end" && before !== null, `${at}: a stamp outside a close at home`);
-        }
+        // Reached at a month's close, at home, with the passbook open.
+        if (result.events.some((event) => event.type === "wallet/stamped")) say(command.type === "turn/end" && before !== null, `${at}: a stamp outside a close at home`);
         if (command.type !== "turn/end") continue;
         const view = game.view();
         const book = view.passbook;
