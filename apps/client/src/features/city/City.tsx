@@ -1607,7 +1607,7 @@ export function City({
     const heardNow = overheard(view, entry.id, date, heardNth.current);
     heardNth.current += 1;
     return heardNow === null ? null : heardWords(heardNow.key, heardNow.params);
-  }, worldFree && settled && callouts.bubble && !homeTeachShown);
+  }, worldFree && settled && callouts.bubble && !homeTeachShown, home !== null && placeId === home ? say("ui.talk.home") : undefined);
   // A person speaks only in the place they stand in: going elsewhere takes their words down.
   useEffect(() => hush(), [placeId, inside]);
   // R-WORLD-005: the light bill paid at home, Mama says so over her head, the corner tells the bill paid, and a moment later the next compound is heard.

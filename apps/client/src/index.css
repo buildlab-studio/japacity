@@ -605,6 +605,8 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   box-shadow: 0 0 0 1.5px var(--edge), 0 4px 0 var(--edge);
 }
 .talk-tail { border-top-color: var(--edge); }
+/* A long line in the bubble: two lines at most, the rest behind the tap. */
+.talk-clip { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .talk-corner {
   border-radius: 9999px;
   background: var(--sheet-2);

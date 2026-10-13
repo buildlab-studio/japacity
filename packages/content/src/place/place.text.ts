@@ -490,9 +490,9 @@ export const placeText: Record<string, string> = {
   // The family house's boards: the send-off banner on the party set, and the notice painted on the gate. Neither is a business name.
   "place.family-house.sign.1": "SAFE JOURNEY",
   "place.family-house.sign.2": "THIS HOUSE IS\nNOT FOR SALE",
-  "place.family-house.overheard.1": "Your father is asking who left the gate open.",
-  "place.family-house.overheard.2": "Your uncle called again. He wants to know when you are going.",
-  "place.family-house.overheard.3": "Mama kept food in the pot for you. Warm it.",
+  "place.family-house.overheard.1": "Papa is asking who left the gate open.",
+  "place.family-house.overheard.2": "Your uncle called. When are you going?",
+  "place.family-house.overheard.3": "Mama kept food in the pot. Warm it.",
   // home.md R-HOME-010: the room in a compound in Ojuelegba. The neighbours' talk through the wall.
   "place.compound-room.name": "your room in Ojuelegba",
   "place.compound-room.blurb": "One room in a compound of ten. One tap in the yard for everybody, and the buses all night.",

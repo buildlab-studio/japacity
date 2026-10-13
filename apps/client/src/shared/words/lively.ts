@@ -31,6 +31,7 @@ export const livelyText: Record<string, string> = {
   "ui.toast.money-in": "Money in",
   // The talk budget: someone near the player, and a longer line opened in its sheet.
   "ui.talk.someone": "Someone nearby",
+  "ui.talk.home": "Someone in the house",
   "ui.talk.open": "{name} has more to say",
   "ui.talk.open.someone": "What is on their mind",
 };

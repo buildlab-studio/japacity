@@ -16,7 +16,7 @@ export const TOLD_MS = 7000;
 /** A person's words stay over their head this long, unless tapped away (the talk budget: about four seconds). */
 export const SPEECH_MS = 4000;
 /** After an ambient line, at least this long before the next one floats (the talk budget). */
-export const QUIET_MS = 20000;
+export const QUIET_MS = 30000;
 /** The street's turn comes this often while nothing covers the world; the quiet still holds it back. */
 export const TALK_EVERY_MS = 9000;
 /** The most words a bubble holds; a longer line shows "…" and opens in a sheet. */
@@ -132,10 +132,10 @@ export function speak(who: string, name: string, text: string, ms = SPEECH_MS): 
  * The street's talk, tied to nobody, given to the resident nearest the player (the talk budget): it floats only while no
  * one speaks and the quiet after the last ambient line has passed. True when it floated.
  */
-export function murmur(text: string, now: number = Date.now()): boolean {
+export function murmur(text: string, now: number = Date.now(), name: string = say("ui.talk.someone")): boolean {
   if (said.speech !== null || now - quietSince < QUIET_MS) return false;
   quietSince = now + SPEECH_MS;
-  put(NEAR_SPEAKER, say("ui.talk.someone"), text, true, SPEECH_MS);
+  put(NEAR_SPEAKER, name, text, true, SPEECH_MS);
   return true;
 }
 
@@ -188,15 +188,18 @@ export function linesNow(): Said {
  * stays free; each turn offers an ambient line, which floats only when no one speaks and the quiet has passed. `next`
  * gives the line.
  */
-export function useStreetTalk(next: () => string | null, free: boolean): void {
+export function useStreetTalk(next: () => string | null, free: boolean, name?: string): void {
   const nextRef = useRef(next);
   nextRef.current = next;
+  const nameRef = useRef(name);
+  nameRef.current = name;
   useEffect(() => {
     if (!free) return;
     const talk = (): void => {
       if (said.speech !== null || Date.now() - quietSince < QUIET_MS) return;
       const line = nextRef.current();
-      if (line !== null) murmur(line);
+      // At home the voice is the house's, not a stranger's.
+      if (line !== null) murmur(line, Date.now(), nameRef.current);
     };
     talk();
     const timer = window.setInterval(talk, TALK_EVERY_MS);
@@ -274,8 +277,9 @@ export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; a
                 </span>
                 <span data-speech-name>{speech.name}</span>
               </span>
-              <span className="block text-[15px] leading-snug" data-speech-words>
-                {speech.long ? "…" : speech.text}
+              {/* A long line shows its words too, clipped to two lines; the tap opens it whole. */}
+              <span className={`block text-[15px] leading-snug ${speech.long ? "talk-clip" : ""}`} data-speech-words>
+                {speech.text}
               </span>
             </span>
             <span className="talk-tail mx-auto block h-0 w-0 border-x-[8px] border-t-[9px] border-x-transparent" aria-hidden />

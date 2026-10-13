@@ -1,6 +1,6 @@
 // How the world talks (docs/rules/world.md R-WORLD-005, R-WORLD-026; the talk budget, docs/design/13-the-lively-layer.md
 // section 5): a person's words in a bubble over their head that follows them and goes on a tap, at most eight words for
-// about four seconds, a longer line as "…" that opens in a sheet with their name; the street's talk as an ambient bubble
+// about four seconds, a longer line clipped to two lines that opens whole in a sheet with their name; the street's talk as an ambient bubble
 // over the resident nearest, with twenty seconds of quiet after; the bottom corner for the player's own act's answer alone,
 // one line at a time; nothing in a card across the middle of the world.
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
@@ -117,7 +117,9 @@ describe("the talk budget's words", () => {
     expect(isLong(MAMA)).toBe(false);
     expect(isLong(long)).toBe(true);
     act(() => speak("mummy", "Mama", long));
-    expect(bubble()?.querySelector("[data-speech-words]")?.textContent).toBe("…");
+    // The words show, clipped to two lines by the bubble's class; the whole line opens on the tap.
+    expect(bubble()?.querySelector("[data-speech-words]")?.textContent).toBe(long);
+    expect(bubble()?.querySelector("[data-speech-words]")?.className).toContain("talk-clip");
     expect(bubble()?.hasAttribute("data-speech-long")).toBe(true);
     fireEvent.click(bubble()!);
     expect(bubble()).toBeNull();
