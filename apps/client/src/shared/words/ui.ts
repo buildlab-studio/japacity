@@ -355,7 +355,6 @@ export const uiText: Record<string, string> = {
   "ui.wallet.change.after.aboki": "After, you hold {to} in cash.",
   "ui.wallet.move": "Move money",
   "ui.wallet.to": "To",
-  "ui.wallet.amount": "Amount",
   "ui.wallet.via.bank": "At the bank",
   "ui.wallet.via.aboki": "With the FX man",
   "ui.wallet.currency": "Currency",
@@ -367,9 +366,7 @@ export const uiText: Record<string, string> = {
   "ui.currency.EUR": "Euros",
 
   // What is owed
-  "ui.obligation.title": "What you owe",
   "ui.obligation.none": "Nothing owed.",
-  "ui.obligation.due": "Due this month: {amount}",
   "ui.obligation.outstanding": "Still owed: {amount}",
   // A bill taken every few months, in a month none is taken.
   "ui.obligation.next": "Next payment {when}.",
@@ -385,19 +382,14 @@ export const uiText: Record<string, string> = {
   "ui.obligation.return": "Give the funds back",
 
   // Papers
-  "ui.document.title": "Papers",
-  "ui.document.none": "No papers yet.",
   "ui.document.held": "Held",
-  "ui.document.pending": "Ready in month {month}",
   "ui.document.expired": "Expired",
-  "ui.document.expires": "Valid until month {month}",
   "ui.document.expires-soon": "Runs out in {months} months",
   "ui.document.expires-soon.one": "Runs out at the end of this month",
   "ui.document.band": "Band {band}",
 
   // Routes
   "ui.route.title": "Ways out",
-  "ui.route.none": "You have not heard of a way out yet.",
   "ui.route.state.unknown": "Not heard of",
   "ui.route.state.heard": "Heard of",
   "ui.route.state.known": "Looked into",
@@ -409,7 +401,6 @@ export const uiText: Record<string, string> = {
   "ui.route.window.narrowing": "Window narrowing",
   "ui.route.window.closed": "Window closed",
   "ui.route.heard-only": "Look into it to see what it needs.",
-  "ui.route.checklist": "What it needs",
   "ui.route.schools": "Universities",
   "ui.route.school.pending": "Applied, answer by month {month}",
   "ui.route.school.offer": "Offer",
@@ -435,13 +426,9 @@ export const uiText: Record<string, string> = {
   "ui.route.funds.held.one": "Covered for 1 month",
   "ui.route.funds.held.zero": "Not covered yet",
   "ui.route.support": "Family support: {amount}",
-  "ui.route.unexplained": "Unexplained money: {percent} of what is needed",
   "ui.route.deposit-paid": "Deposit paid: {amount}",
-  "ui.route.visa": "Visa sent in month {submitted}. Decision in month {decision}.",
   "ui.route.refusals": "Refused {count} times",
   "ui.route.refusals.one": "Refused once",
-  "ui.route.last-refusal": "Last refusal in month {month}:",
-  "ui.route.refund": "Deposit refund of {amount} due in month {month}",
   "ui.route.depart": "Board the plane",
   "ui.refusal.funds": "Where the money came from",
   "ui.refusal.interview": "The interview",
@@ -453,7 +440,6 @@ export const uiText: Record<string, string> = {
 
   // Japacity
   "ui.japacity.title": "Japacity",
-  "ui.japacity.none": "No route yet",
   "ui.japacity.of": "on {route}",
 
   // Offers
@@ -1018,7 +1004,6 @@ export const uiText: Record<string, string> = {
   "ui.status.renew-needs-job": "This status renews only while you hold the sponsor's job.",
   "ui.status.renew": "Renew",
   "ui.status.renew-yes": "Pay {total} and renew",
-  "ui.status.fee-note": "Fees are the published ones. A change in the rules can move them.",
 
   // The credit file (R-CREDIT-007)
   "ui.credit.title": "Credit file",
@@ -1041,7 +1026,6 @@ export const uiText: Record<string, string> = {
   "ui.goal.none": "No goals open yet. They open as life here settles.",
   "ui.goal.item": "Step {n}",
   "ui.goal.done": "Done",
-  "ui.goal.done-item": "{goal}, month {month}",
 
   // The gates on a route (route-gates.md)
   "ui.gate.sponsor.title": "Sponsor",
@@ -1093,7 +1077,6 @@ export const uiText: Record<string, string> = {
   "ui.car.court": "The lender has gone to court. The car is taken in {months} months unless the arrears are cleared.",
   "ui.car.court.one": "The lender has gone to court. The car is taken next month unless the arrears are cleared.",
   "ui.car.court.zero": "The lender has gone to court. The car is taken this month unless the arrears are cleared.",
-  "ui.car.clear": "Clear the arrears: {amount}",
   "ui.car.hand-back": "Hand the car back",
   "ui.car.hand-back-yes": "Yes, hand it back",
   "ui.car.keep": "Keep it",
