@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img"><title>Japacity</title>
+<circle cx="256" cy="256" r="256" fill="#1c2a5e"/>
+<circle cx="256" cy="256" r="238" fill="none" stroke="#eaf3fb" stroke-width="24"/>
+<path d="M95.3 170.6A182 182 0 0 1 416.7 170.6" fill="none" stroke="#eaf3fb" stroke-width="22" stroke-linecap="round"/><circle cx="182.0" cy="127.8" r="35" fill="#f2b705"/><circle cx="330.0" cy="127.8" r="35" fill="#cfe9ff"/>
+<path d="M-40 -78H34V22A52 52 0 0 1 -70 22" fill="none" stroke="#eaf3fb" stroke-width="42.1" transform="translate(256 256) scale(0.78) translate(18 2)"/>
+</svg>
