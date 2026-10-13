@@ -109,7 +109,7 @@ describe("the road in the world, only in the moment", () => {
     const view = engineView();
     await standing("place.yaba", view);
     const chip = await waitFor(() => found("[data-brief-chip='here']"));
-    expect(chip.textContent).toContain(say("ui.brief.find-your-feet.title"));
+    expect(chip.textContent).toContain(say("chapter.find-your-feet.brief.title"));
     expect([...chip.querySelectorAll<HTMLElement>("[data-dot]")].map((dot) => dot.dataset.dot)).toEqual(view.chapter.items.map((item, index) => (item.met ? "done" : index === view.chapter.items.findIndex((one) => !one.met) ? "now" : "later")));
     const marker = found("[data-marker]");
     expect(marker.dataset.marker).toBe("jobs");
@@ -132,7 +132,7 @@ describe("the road in the world, only in the moment", () => {
       });
       const left = done.chapter.items.filter((item) => !item.met).length;
       expect(found("[data-brief-toast]").textContent).toContain(doneToast(left));
-      expect(found("[data-brief-toast]").textContent).toContain(say("ui.brief.find-your-feet.giver"));
+      expect(found("[data-brief-toast]").textContent).toContain(say("chapter.find-your-feet.brief.giver"));
       expect(found("[data-brief-chip] [data-dot='done']")).toBeTruthy();
       act(() => {
         vi.advanceTimersByTime(DONE_TOAST_MS + 50);

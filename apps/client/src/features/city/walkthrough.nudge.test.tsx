@@ -24,8 +24,8 @@ describe("the first brief", () => {
       const card = document.querySelector<HTMLElement>("[data-brief]");
       expect(card?.dataset["opening"]).toBe(view.chapter.current);
       // The person handing it, in their voice, and never the chapter's name as a heading (the plan 13.3).
-      expect(card?.querySelector("[data-pill], [data-face]")?.textContent).toContain(say("ui.brief.find-your-feet.giver"));
-      expect(card?.querySelector("[data-brief-title]")?.textContent).toBe(say("ui.brief.find-your-feet.title"));
+      expect(card?.querySelector("[data-pill], [data-face]")?.textContent).toContain(say("chapter.find-your-feet.brief.giver"));
+      expect(card?.querySelector("[data-brief-title]")?.textContent).toBe(say("chapter.find-your-feet.brief.title"));
       expect(card?.querySelector("[data-brief-title]")?.textContent).not.toBe("Find your feet");
       expect(card?.querySelectorAll("[data-brief-item]").length).toBe(view.chapter.items.length);
       expect(card?.querySelector("[data-brief-item][data-now='true']")?.getAttribute("data-brief-item")).toBe(view.chapter.items.find((item) => !item.met)?.id);
@@ -35,7 +35,7 @@ describe("the first brief", () => {
       fireEvent.click(screen.getByRole("button", { name: say("ui.brief.go") }));
       expect(document.querySelector("[data-brief]")).toBeNull();
       expect(document.querySelector("[data-brief-chip]")?.getAttribute("data-brief-chip")).toBe("handed");
-      expect(document.querySelector("[data-brief-chip]")?.textContent).toContain(say("ui.brief.find-your-feet.title"));
+      expect(document.querySelector("[data-brief-chip]")?.textContent).toContain(say("chapter.find-your-feet.brief.title"));
       expect(japaMark(view.scenario)).toBe(view.chapter.current);
       act(() => {
         vi.advanceTimersByTime(TUCK_MS + TUCK_SLIDE_MS + 50);
@@ -55,7 +55,7 @@ describe("the first brief", () => {
     const card = document.querySelector<HTMLElement>("[data-opening]");
     expect(card?.dataset["opening"]).toBe("chapter.build-the-file");
     expect(card?.textContent).toContain(words("chapter.build-the-file.open"));
-    expect(card?.querySelector("[data-brief-title]")?.textContent).toBe(say("ui.brief.build-the-file.title"));
+    expect(card?.querySelector("[data-brief-title]")?.textContent).toBe(say("chapter.build-the-file.brief.title"));
     fireEvent.click(screen.getByRole("button", { name: say("ui.brief.go") }));
     expect(document.querySelector("[data-opening]")).toBeNull();
   });

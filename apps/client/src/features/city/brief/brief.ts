@@ -63,7 +63,7 @@ function slug(chapter: string): string {
 
 /** A chapter's title with a wink, from the interface's words, else its name. */
 export function briefTitle(chapter: string): string {
-  const key = `ui.brief.${slug(baseOf(chapter))}.title`;
+  const key = `${baseOf(chapter)}.brief.title`;
   return hasWords(key) ? say(key) : nameOf(chapter);
 }
 
@@ -80,20 +80,20 @@ const REWARD_PICTURES: Readonly<Record<string, readonly string[]>> = {
 function rewardsOf(base: string): BriefReward[] {
   const pictures = REWARD_PICTURES[slug(base)] ?? [];
   return pictures.flatMap((emoji, index) => {
-    const key = `ui.brief.${slug(base)}.reward.${String(index + 1)}`;
+    const key = `${base}.brief.reward.${String(index + 1)}`;
     return hasWords(key) ? [{ emoji, words: say(key) }] : [];
   });
 }
 
 /** The two-word place under a thing (the plan 7.3): the stop it is done at, the phone, or the month itself. */
 export function itemPlace(chapter: string, item: string): string {
-  const own = `ui.brief.${slug(baseOf(chapter))}.at.${item}`;
+  const own = `${baseOf(chapter)}.brief.at.${item}`;
   if (hasWords(own)) return say(own);
   const way = itemWayOf(chapter, item);
-  if (way === null) return say("ui.brief.at.month");
-  if (way.app !== undefined) return say("ui.brief.at.phone");
-  if (way.go === null) return say("ui.brief.at.month");
-  const at = `ui.brief.at.${way.go.replace(/^place\./, "")}`;
+  if (way === null) return say("chapter.brief.at.month");
+  if (way.app !== undefined) return say("chapter.brief.at.phone");
+  if (way.go === null) return say("chapter.brief.at.month");
+  const at = `chapter.brief.at.${way.go.replace(/^place\./, "")}`;
   if (hasWords(at)) return say(at);
   const name = placeName(way.go);
   return name.charAt(0).toUpperCase() + name.slice(1);
@@ -131,12 +131,12 @@ export function briefOf(view: Pick<PlayerView, "chapter">, line: string): Brief 
     picture: itemPicture(chapter, item.id),
   }));
   const next = view.chapter.next ?? nextBase(chapter);
-  const giverKey = `ui.brief.${slug(base)}.giver`;
+  const giverKey = `${base}.brief.giver`;
   return {
     chapter,
     base,
     title: briefTitle(chapter),
-    giver: { name: say(hasWords(giverKey) ? giverKey : "ui.brief.giver"), where: say(hasWords(`${giverKey}.where`) ? `${giverKey}.where` : "ui.brief.giver.where") },
+    giver: { name: say(hasWords(giverKey) ? giverKey : "chapter.brief.giver"), where: say(hasWords(`${giverKey}.where`) ? `${giverKey}.where` : "chapter.brief.giver.where") },
     line,
     items,
     rewards: rewardsOf(base),
@@ -153,14 +153,14 @@ export function briefDots(items: readonly Pick<BriefItem, "met" | "now">[]): ("d
 
 /** Count words up to ten for the giver's toast; past ten, the figure. */
 function countWords(count: number): string {
-  return hasWords(`ui.brief.count.${String(count)}`) ? say(`ui.brief.count.${String(count)}`) : String(count);
+  return hasWords(`chapter.brief.count.${String(count)}`) ? say(`chapter.brief.count.${String(count)}`) : String(count);
 }
 
 /** The giver's toast when a thing comes in (the plan 7.6): how many are left, in their voice; the last says so. */
 export function doneToast(left: number): string {
-  if (left <= 0) return say("ui.brief.toast.all");
-  if (left === 1) return say("ui.brief.toast.last");
-  return say("ui.brief.toast.more", { left: countWords(left) });
+  if (left <= 0) return say("chapter.brief.toast.all");
+  if (left === 1) return say("chapter.brief.toast.last");
+  return say("chapter.brief.toast.more", { left: countWords(left) });
 }
 
 /**

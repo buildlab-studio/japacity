@@ -57,7 +57,7 @@ describe("the world fills the screen", () => {
     const opening = document.querySelector<HTMLElement>("[data-opening]");
     if (opening === null || view.chapter.current === null) throw new Error("No opening");
     expect(opening.dataset.opening).toBe(view.chapter.current);
-    expect(opening.querySelector("[data-brief-title]")?.textContent).toBe(say("ui.brief.find-your-feet.title"));
+    expect(opening.querySelector("[data-brief-title]")?.textContent).toBe(say("chapter.find-your-feet.brief.title"));
     expect(screen.getByRole("button", { name: say("ui.brief.go") })).toBeTruthy();
     expect(document.querySelector("[data-nudge]")).toBeNull();
     // A life with a month behind it opens straight on the world.
@@ -77,7 +77,7 @@ describe("the world fills the screen", () => {
     // The month's name and phase are part of the band, a chip that opens the Calendar (R-WORLD-002, decision 0034).
     // The name over the age opens the data page (R-PROLOGUE-009). With the brief carried, the home's
     // small card says what the home is, once (R-HOME-008).
-    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt, worldClockAt(Date.now())) }), say("ui.brief.find-your-feet.title"), say("ui.world.map"), say("ui.world.phone"), cityWords("city.home.teach.close")]);
+    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt, worldClockAt(Date.now())) }), say("chapter.find-your-feet.brief.title"), say("ui.world.map"), say("ui.world.phone"), cityWords("city.home.teach.close")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
     // The road shows in the world only in the moment (the plan 16): away from the step's place nothing stays.
