@@ -24,7 +24,7 @@ import { uiText } from "./ui";
 import "../../features/map/paper/PaperMap";
 
 /** What a player must never read: the engine's counting, never the life's. Braces are a line's params, never read. */
-const NEVER = /\b(slots?|banked|days left|chapters?|next turn|end (the )?turn|turns? left|next page|pages? left)\b|\b\d+ days? (left|to go)\b|%|[–—]/i;
+const NEVER = /\b(slots?|banked|days left|chapters?|next turn|end (the )?turn|turns? left|next page|pages? left)\b|\b\d+ days? (left|to go)\b|%|[\u2013\u2014]/i;
 
 /** Every table of words a player can read, by name. */
 const TABLES: Record<string, Record<string, string>> = { content: text, ui: uiText, city: cityText, scene: sceneText, map: mapText, turn: turnText, phone: phoneText, passbook: passbookText, room: roomText };
