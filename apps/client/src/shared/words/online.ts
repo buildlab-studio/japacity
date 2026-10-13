@@ -44,14 +44,6 @@ export const onlineText: Record<string, string> = {
   "ui.failed.why.wall": "your session ended",
   "ui.failed.why.server": "something broke on our side",
 
-  // The clock (R-CLOCK-007)
-  "ui.clock.next": "Next month to play in {wait}",
-  "ui.clock.arriving": "A month is on its way.",
-  "ui.clock.full": "Full: you hold every month you can. Live one to make room.",
-  "ui.clock.hours": "{hours} h {minutes} min",
-  "ui.clock.minutes": "{minutes} min",
-  "ui.clock.under-minute": "under a minute",
-
   // The start screen online (R-ACCOUNT-029): a hook, the whole game in three steps, then Play
   "ui.account.start.play": "Play",
   "ui.account.start.play.then": "Free · no sign-up",

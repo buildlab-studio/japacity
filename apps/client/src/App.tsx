@@ -44,7 +44,7 @@ import { PhoneApps, usePhoneWaiting } from "./features/phone/PhoneApps";
 import { InterviewView } from "./features/interview/InterviewView";
 import { KioskSheet } from "./features/lottery/KioskSheet";
 import { RunDownBanner } from "./features/health/RunDownBanner";
-import { ClockBanner } from "./features/status/StatusView";
+import { ClockBanner } from "./features/status/ClockBanner";
 import { PageHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
 import { RoadView } from "./features/road/RoadView";
 import { ScenarioView } from "./features/scenario/ScenarioView";

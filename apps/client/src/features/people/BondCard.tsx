@@ -1,5 +1,5 @@
 // One bond: its stage, who it is with and how they are marked, what is known
-// of them, the time together so far, the proposals both ways, the joint and
+// of them, the proposals both ways, the joint and
 // its consents, the stand-in, and ending it with its cost said first
 // (docs/rules/people.md R-PEOPLE-013 to 018, 021, 035 to 045, 051).
 import { content } from "@japacity/content";
@@ -8,18 +8,14 @@ import { Heart, TriangleAlert } from "lucide-react";
 import { useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { bondName, endCost, interviewName, jointRoutes, momentWords, monthsWithout, personOf, stepsFor, TOGETHER, type BondView } from "../../shared/sim/people";
+import { bondName, endCost, interviewName, jointRoutes, monthsWithout, personOf, stepsFor, TOGETHER, type BondView } from "../../shared/sim/people";
 import { Button } from "../../shared/ui/Button";
-import { Card, Tag } from "../../shared/ui/Panel";
+import { Tag } from "../../shared/ui/Panel";
 import { ReportLines } from "../../shared/ui/ReportLines";
-import { formatBand, formatBp, formatMoney, formatNumber, playerMonth } from "../../shared/words/format";
+import { formatBand, formatBp, formatMoney, formatNumber } from "../../shared/words/format";
 import { countryWords, jobWords } from "../../shared/words/people";
-import { nameOf, runningName, say, sayCount } from "../../shared/words/text";
-import { BlockReport } from "../../shared/moderation/BlockReport";
-import { Conversation } from "./Conversation";
-import type { PairApi } from "./pairApi";
+import { inMonths, nameOf, runningName, say, sayCount } from "../../shared/words/text";
 
-const MOMENTS_SHOWN = 5;
 const MONTHS_PER_YEAR = 12;
 
 /** The quiet mark beside a name: who the other side is (R-PEOPLE-051, R-PEOPLE-054). */
@@ -67,30 +63,6 @@ export function Facts({ bond }: { bond: BondView }) {
           <li key={item}>{item}</li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-/** The time together, newest first, hidden while an interview is open (R-INTERVIEW-005). */
-export function Moments({ bond }: { bond: BondView }) {
-  if (bond.moments === null) return <p className="text-sm text-text-2">{say("ui.people.moments.hidden", { piece: interviewName() })}</p>;
-  const newest = [...bond.moments].reverse();
-  const shown = newest.slice(0, MOMENTS_SHOWN);
-  return (
-    <div className="flex flex-col gap-1">
-      <h4 className="text-sm font-semibold">
-        {say("ui.people.moments")} <span className="font-normal text-text-2">({sayCount("ui.people.moments.count", bond.moments.length, { count: bond.moments.length })})</span>
-      </h4>
-      {shown.length === 0 ? (
-        <p className="text-sm text-text-2">{say("ui.people.moments.none")}</p>
-      ) : (
-        <ol className="flex flex-col gap-0.5 text-sm">
-          {shown.map((moment) => (
-            <li key={moment.n}>{momentWords(moment)}</li>
-          ))}
-          {newest.length > shown.length ? <li className="text-text-2">{say("ui.people.moments.more", { count: newest.length - shown.length })}</li> : null}
-        </ol>
-      )}
     </div>
   );
 }
@@ -204,7 +176,7 @@ export function Held({ bond }: { bond: BondView }) {
   const left = momentsLeft(bond);
   const until = coolingUntil(view, bond);
   if (bond.stage === "courting" && left > 0) return <p className="text-sm text-text-2">{sayCount("ui.people.courting.next", left, { count: left })}</p>;
-  if (until !== null && stepsFor(view, bond).length > 0) return <p className="text-sm text-text-2">{say("ui.people.cooldown", { month: playerMonth(until) })}</p>;
+  if (until !== null && stepsFor(view, bond).length > 0) return <p className="text-sm text-text-2">{say("ui.people.cooldown", { when: inMonths(until, view.month) })}</p>;
   return null;
 }
 
@@ -378,54 +350,5 @@ export function Answered({ lines }: { lines: ReportLine[] }) {
       <ReportLines lines={lines} />
       {declined ? <p className="text-text-2">{sayCount("ui.people.declined.cooldown", months, { months })}</p> : null}
     </div>
-  );
-}
-
-export function BondCard({ bond, api }: { bond: BondView; api: PairApi | null }) {
-  const view = useView();
-  const [answered, setAnswered] = useState<ReportLine[]>([]);
-  const pair = bond.label === "computer" ? null : bond.pair;
-  return (
-    <li>
-      <Card tone={bond.pending.theirs !== null ? "attention" : "plain"} className="flex flex-col gap-3" data-bond={bond.id}>
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <h3 className="flex items-center gap-2 text-lg font-semibold">
-            {bondName(bond)}
-            <Mark label={bond.label} />
-          </h3>
-          <Tag tone={TOGETHER.includes(bond.stage) ? "good" : "plain"}>{say(`ui.people.stage.${bond.stage}`)}</Tag>
-        </div>
-        {pair === null || api === null ? null : <BlockReport who={{ pair, name: bondName(bond) }} cites={{ pair }} surface="pair" />}
-        <Warnings bond={bond} view={view} />
-        <Facts bond={bond} />
-        <Moments bond={bond} />
-        <Held bond={bond} />
-        <Pending bond={bond} />
-        <Proposals bond={bond} onSent={setAnswered} />
-        <Answered lines={answered} />
-        <Joint bond={bond} />
-        {pair === null || api === null ? null : <Conversation api={api} pair={pair} name={bondName(bond)} />}
-        <End bond={bond} />
-      </Card>
-    </li>
-  );
-}
-
-/** An ended bond, read-only (R-PEOPLE-039). */
-export function EndedBond({ bond }: { bond: BondView }) {
-  return (
-    <li>
-      <Card tone="muted" className="flex flex-col gap-2" data-bond={bond.id}>
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <h3 className="flex items-center gap-2 font-semibold">
-            {bondName(bond)}
-            <Mark label={bond.label} />
-          </h3>
-          <Tag>{say("ui.people.stage.ended")}</Tag>
-        </div>
-        <Moments bond={bond} />
-        <p className="text-sm text-text-2">{say("ui.people.ended.recourt", { months: content.tuning.people.recourtMonths })}</p>
-      </Card>
-    </li>
   );
 }

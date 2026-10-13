@@ -5,7 +5,7 @@
 // error's name and the build written in, never the message or the stack, and the player sends it or not.
 import { Component, useState, type ErrorInfo, type ReactNode } from "react";
 
-import { FEEDBACK_MAX_CHARS, FeedbackForm } from "../../features/moderation/ModerationMenu";
+import { FEEDBACK_MAX_CHARS, FeedbackForm } from "../moderation/Feedback";
 import { useModeration } from "../moderation/ModerationProvider";
 import { words } from "../moderation/moderation.words";
 import { buildOf } from "../stamp/stamp";

@@ -3,19 +3,32 @@
 // month the thing really happens in, not against the raw number.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { DocumentView } from "../../features/document/DocumentView";
-import { GoalView } from "../../features/goal/GoalView";
 import { OfferView } from "../../features/offer/OfferView";
+import { Japa } from "../../features/phone/apps/Japa";
+import { agoWords } from "../../features/phone/apps/JapaWays";
+import { PhoneApps } from "../../features/phone/PhoneApps";
+import { phoneWords } from "../../features/phone/phone.words";
 import { newGame, openOffer, richAbroadView, richView } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { monthEnding, playerMonth } from "./format";
 import { requirementSentence } from "./requirement";
-import { byMonths, nameOf, say, words } from "./text";
+import { byMonths, forMonths, inMonths, nameOf, say, words } from "./text";
 
 const PASSPORT = "document.passport";
+
+/** The papers as the phone shows them (moved from the old papers panel): the Papers app opened on the view. */
+async function openPapers(view: PlayerView) {
+  await renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" now={() => new Date(2026, 9, 11, 12, 0)} talk={null} />, view);
+  fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
+}
+
+/** A paper's state line in Papers. */
+function paperState(id: string): string | null | undefined {
+  return document.querySelector(`[data-paper="${id}"] [data-paper-state]`)?.textContent;
+}
 
 /** The month the header shows for a view. */
 function header(view: PlayerView): number {
@@ -45,9 +58,13 @@ describe("one count for months", () => {
     game.endTurn([{ activity: "activity.get-passport", param: null }]);
     const pending = game.view().documents.find((paper) => paper.id === PASSPORT && paper.state === "pending");
     if (pending?.readyMonth === null || pending === undefined) throw new Error("The passport is not on its way.");
-    await renderWithView(<DocumentView />, game.view());
+    const view = game.view();
+    await openPapers(view);
     const promised = monthEnding(pending.readyMonth);
-    expect(screen.getByText(say("ui.document.pending", { month: promised }))).toBeDefined();
+    // The phone says it as months away from now (R-WORLD-002): one for each month's end from the header's month to the
+    // promised one, so a paper the end of this month brings is ready "next month".
+    expect(paperState(PASSPORT)).toBe(phoneWords("phone.papers.pending", { when: inMonths(pending.readyMonth, view.month) }));
+    expect(promised - header(view) + 1).toBe(pending.readyMonth - view.month);
 
     let issuedIn: number | null = null;
     for (let guard = 0; guard < 24 && issuedIn === null; guard += 1) {
@@ -64,11 +81,13 @@ describe("one count for months", () => {
     const view = richView();
     const held = view.documents.find((paper) => paper.state === "held" && paper.expiresMonth !== null);
     if (held === undefined || held.expiresMonth === null) throw new Error("No held paper that runs out.");
-    await renderWithView(<DocumentView />, view);
+    await openPapers(view);
     // It stops counting from the start of the month after `expiresMonth` months played: the header's next number.
     const last = monthEnding(held.expiresMonth);
     expect(playerMonth(held.expiresMonth)).toBe(last + 1);
-    expect(screen.getByText(say("ui.document.expires", { month: last }))).toBeDefined();
+    // The phone says it as how long it holds (R-WORLD-002): one for each month's end from the header's month to `last`.
+    expect(paperState(held.id)).toBe(phoneWords("phone.papers.valid", { when: forMonths(held.expiresMonth, view.month) }));
+    expect(last - header(view) + 1).toBe(held.expiresMonth - view.month);
   });
 
   test("[R-TURN-008] [R-GOAL-001] given a goal done as a month ended, then it is dated with the month of the report it was done in", async () => {
@@ -76,10 +95,13 @@ describe("one count for months", () => {
     const done = view.goals.done[0];
     if (done === undefined) throw new Error("No goal done in the view.");
     const report = { month: done.month, lines: [], japacityBefore: null, japacityAfter: null, attention: false };
-    await renderWithView(<GoalView />, { ...view, report });
-    expect(screen.getByText(say("ui.goal.done-item", { goal: nameOf(done.id), month: monthEnding(done.month) }))).toBeDefined();
-    // The old page also titled the report "Month N"; the world shows no month number (R-WORLD-002), so the goal's date
-    // is the one month count left on screen.
+    // Moved from the old goals panel to Japa's goals. The world shows no month number (R-WORLD-002), so the date
+    // is said as months ago, counted from the report's own month: a goal done as the report's month ended reads as its
+    // report does, "this month" when the report is this month's, and so on back.
+    await renderWithView(<Japa />, { ...view, report });
+    expect(document.querySelector(`[data-goal-done="${done.id}"]`)?.textContent).toBe(phoneWords("phone.japa.goal.done", { goal: nameOf(done.id), when: agoWords(done.month, view.month) }));
+    expect(agoWords(done.month, view.month)).toBe(agoWords(report.month, view.month));
+    expect(document.querySelector("[data-goals]")?.textContent).not.toMatch(/month \d+/i);
   });
 
   test("given a requirement on the months played, then it names the first month the header shows it met", () => {

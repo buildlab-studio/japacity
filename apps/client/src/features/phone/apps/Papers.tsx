@@ -2,8 +2,9 @@
 // box under the bed on the phone. Every paper the life has or is waiting on, with its state in words, what it counts
 // toward, and the act that moves it: a call or a message (the transcript, the council, the assessment) opens its card
 // here, the card the box's sheet showed; a visit (the passport office, the test centre) says where and opens the map
-// on it. The papers box in the room opens this app. The card is handed in by the shell, so the phone imports no other
-// feature.
+// on it. Under the papers, abroad, the status held and the renewal; where the life is, the fare home and the times it
+// came home; and the person as content names them (PapersMore.tsx). The papers box in the room opens this app. The card
+// is handed in by the shell, so the phone imports no other feature.
 import type { PlayerView } from "@japacity/sim";
 import { ChevronLeft, ChevronRight, MapPin, Send } from "lucide-react";
 import { type ReactNode, use, useEffect, useRef, useState } from "react";
@@ -19,6 +20,7 @@ import { PhoneSaid } from "../act";
 import { type PaperRow, papersOf } from "../papers";
 import { phoneWords } from "../phone.words";
 import { GhostButton, PicCard, PicTile, WordChip } from "../ui";
+import { PapersPlace, PapersStatus, PapersYou } from "./PapersMore";
 
 const ENGLISH_RESULT = "document.english-test";
 
@@ -169,6 +171,10 @@ export function Papers({ opening = null, cards = null }: { opening?: string | nu
           ))}
         </ul>
       )}
+      {/* The status held abroad, where the life is and the times it came home, and the person as content names them. */}
+      <PapersStatus />
+      <PapersPlace />
+      <PapersYou />
     </div>
   );
 }

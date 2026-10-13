@@ -9,7 +9,6 @@ import { swapped } from "./now";
 
 export const peopleText: Record<string, string> = {
   "ui.tab.people": "People",
-  "ui.people.title": "Your people",
   "ui.people.intro": "Partner, siblings, parents. A friend who plays can take a place. The game plays anyone a friend has not taken.",
 
   // The slots (R-PEOPLE-007)
@@ -46,8 +45,6 @@ export const peopleText: Record<string, string> = {
   "ui.people.partner.invite": "Ask a friend to be your partner",
 
   // Candidates (R-PEOPLE-009, R-PEOPLE-054)
-  "ui.people.candidates": "Someone to see",
-  "ui.people.candidates.none": "Nobody new for now. People come into your life as it moves.",
   "ui.people.court": "Start seeing {name}",
   "ui.people.chosen": "{name} is a computer character. They live in the game.",
   // Met in a place (R-WORLD-020, R-PEOPLE-013): the talk sheet shut while the most bonds a life may court already court.
@@ -56,8 +53,6 @@ export const peopleText: Record<string, string> = {
   "ui.people.court.partnered": "You are with {partner}. Seeing {name} too costs standing if it comes out, and {partner} may leave.",
   // R-PEOPLE-013: their answer once courted, told in the corner in their own words.
   "ui.people.courted.said": "{name}: {line}",
-  "ui.people.lives.home": "Lives at home",
-  "ui.people.lives.abroad": "Lives in {country}",
 
   // The invite card (R-PAIR-007, R-PAIR-008)
   "ui.people.invite.title": "Ask a friend",
@@ -76,31 +71,22 @@ export const peopleText: Record<string, string> = {
   "ui.people.invite.japacity-none": "Japacity not counted yet",
 
   // Bonds (R-PEOPLE-013 to 018, R-PEOPLE-051)
-  "ui.people.bonds": "Who you are seeing",
   "ui.people.stage.connected": "Connected",
   "ui.people.stage.courting": "Seeing each other",
   "ui.people.stage.partner": "Together",
   "ui.people.stage.married": "Married",
   "ui.people.stage.ended": "Over",
-  "ui.people.ended.title": "Before",
   "ui.people.ended.recourt": "You may start again after {months} months.",
-  "ui.people.moments": "Your time together",
-  "ui.people.moments.none": "Nothing yet. Plan time together in the month plan.",
   "ui.people.moments.hidden": "Hidden while {piece} is open. You answer from memory.",
-  "ui.people.moments.more": "and {count} more before that",
   "ui.people.moment.met": "{what} at {spot}",
   "ui.people.moment.call": "Kept in touch: {what}",
   "ui.people.moment.said": "Said: {what}",
   "ui.people.moment.wedding": "The wedding, at {spot}",
   "ui.people.moment.by-them": "{moment} (their side)",
-  "ui.people.moments.count": "{count} moments so far",
-  "ui.people.moments.count.one": "1 moment so far",
-  "ui.people.moments.count.zero": "No moments yet",
   "ui.people.courting.next": "{count} more moments before you can ask to be together.",
   "ui.people.courting.next.one": "1 more moment before you can ask to be together.",
-  "ui.people.cooldown": "You can ask again in month {month}.",
+  "ui.people.cooldown": "You can ask again {when}.",
   "ui.people.time-with": "with {name}",
-  "ui.people.see.how": "To spend time together, plan \"{see}\" when you are in the same place, or \"{call}\" when you are not.",
 
   // What is known of the other side (R-PEOPLE-051): no funds unless consent, pay only as the floor met
   "ui.people.facts": "What you know",
@@ -160,11 +146,10 @@ export const peopleText: Record<string, string> = {
   "ui.people.consent.stand-in.yes": "Let a stand-in say yes for me",
   "ui.people.consent.stand-in.no": "No stand-in for me",
   "ui.people.consent.stand-in.help": "If you go quiet for two weeks, a stand-in may say yes to a step of this application for you. It never spends, sponsors or ends anything.",
-  "ui.people.consent.said": "Last set here: {choice}.",
 
   // The sponsor's side (R-UNDERTAKING-001 to 004, R-UNDERTAKING-012)
-  "ui.people.sponsoring": "You agreed to sponsor them in month {month}. Their route: {route}.",
-  "ui.people.bar": "You cannot sponsor a new partner before month {month}.",
+  "ui.people.sponsoring": "You agreed to sponsor them {when}. Their route: {route}.",
+  "ui.people.bar": "You cannot sponsor a new partner {when}.",
 
   // Ending it (R-PEOPLE-035 to 039)
   "ui.people.end": "End it",
@@ -233,15 +218,10 @@ export const peopleText: Record<string, string> = {
 
   // The conversation (R-PAIR-010, R-PAIR-011, R-PAIR-013)
   "ui.talk.title": "Talk",
-  "ui.talk.help": "Say it with the phrases. Nobody types here.",
   "ui.talk.empty": "Nothing said yet.",
-  "ui.talk.phrase": "Phrase",
   "ui.talk.fill": "Fill in",
-  "ui.talk.send": "Say it",
-  "ui.talk.you": "You",
   "ui.talk.read": "Read",
   "ui.talk.unread": "New",
-  "ui.talk.more": "Show newer",
   "ui.talk.offline": "Talk opens when you both play online.",
   "ui.talk.failed.not-possible": "That is not possible right now.",
   "ui.talk.failed.blocked": "You blocked them. Lift the block to talk again.",
@@ -251,7 +231,6 @@ export const peopleText: Record<string, string> = {
   "ui.talk.failed.wrong-place": "That one is for saying in a place.",
   "ui.talk.failed.bad-fill": "Pick something to fill it in.",
   "ui.talk.failed.other": "That did not go through: {why}",
-  "ui.talk.fill.news": "the news about {name}",
 
   // The interview (R-INTERVIEW-004, 005, 011)
   "ui.interview.for": "For {route}",
@@ -280,7 +259,6 @@ export const peopleText: Record<string, string> = {
   "ui.undertaking.owed": "Owed now: {amount}",
   "ui.undertaking.nothing-owed": "Nothing owed now.",
   "ui.undertaking.assistance": "Any month your partner takes social assistance, {amount} is charged to you here. Ending the relationship does not end it.",
-  "ui.undertaking.pay": "Pay what is owed",
 
   // The partner and dependant gates (route-gates.md, R-PEOPLE-022, R-PEOPLE-026)
   "ui.gate.partner.title": "Your sponsor",

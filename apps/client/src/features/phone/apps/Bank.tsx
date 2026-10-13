@@ -24,9 +24,9 @@ import { requirementSentence } from "../../../shared/words/requirement";
 import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { REMIT_CHANNELS, remitQuote, type RemitChannel } from "../../../shared/sim/remit";
-import { CURRENCIES, formatBp, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
+import { CURRENCIES, formatBp, formatMoney, formatOne, formatRate, HOME_CURRENCIES } from "../../../shared/words/format";
 import { chargeShown, type MoneyLine, moneyLines } from "../../../shared/words/money";
-import { hasWords, lowerFirst, nameOf, runningName, say, words } from "../../../shared/words/text";
+import { hasWords, inMonths, lowerFirst, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { savedFor, savingsOf, savingsRoute } from "../../../shared/words/savings";
 import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
@@ -211,6 +211,7 @@ function ChangeChooser({ onAsk, start }: { onAsk: ReturnType<typeof useAsk>["ope
       <Chips shown label={phoneWords("phone.bank.from")} value={from} onChange={pick(setFrom)} options={currencies.map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
       <Chips shown label={phoneWords("phone.bank.into")} value={to} onChange={pick(setTo)} options={currencies.filter((currency) => currency !== from).map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
       {offered.length === 0 ? null : <Chips shown label={phoneWords("phone.bank.how-much")} value={share?.share ?? "quarter"} onChange={pick(setShare)} options={offered.map((option) => ({ value: option.share, label: phoneWords(`phone.bank.${option.share}`) }))} />}
+      <RateLine from={from} to={to} via={via} />
       {limit === null ? null : (
         <p className="text-[14px] leading-snug" data-bank-limit={limit}>
           {limit === 0 ? phoneWords("phone.bank.limit.none") : phoneWords("phone.bank.limit.line", { amount: formatMoney(limit, from) })}
@@ -251,6 +252,19 @@ function ChangeChooser({ onAsk, start }: { onAsk: ReturnType<typeof useAsk>["ope
         </p>
       )}
     </div>
+  );
+}
+
+/** The rate a change between naira and a foreign money goes at: the bank's in whole naira, the FX man's to the kobo. */
+function RateLine({ from, to, via }: { from: Currency; to: Currency; via: "bank" | "aboki" }) {
+  const view = useView();
+  const foreign = from === "NGN" ? to : to === "NGN" ? from : null;
+  if (foreign === null || foreign === "NGN") return null;
+  const rate = via === "bank" ? formatMoney(view.rates[foreign].official, "NGN") : formatRate(view.rates[foreign].street, "NGN");
+  return (
+    <p className="text-[14px] leading-snug" data-rate={via}>
+      {phoneWords(`phone.bank.rate.${via}`, { one: formatOne(foreign), rate })}
+    </p>
   );
 }
 
@@ -350,6 +364,12 @@ function SendChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
           >
             <span className="text-[14px] font-bold">{say(`ui.remit.channel.${option}`)}</span>
             <span className="text-[13px] leading-snug opacity-85">{say(`ui.remit.terms.${option}${option !== "informal" && feeBp(option) === 0 ? ".free" : ""}`, { fee: formatBp(feeBp(option)), loss: formatBp(content.tuning.remit.informalLossBp) })}</span>
+            {/* R-ABROAD-008: what each channel lands in naira for the amount, by the wallet's own quote, so the choice means something. */}
+            {quote === null ? null : (
+              <span className="text-[13px] leading-snug font-bold" data-arrives>
+                {say("ui.remit.arrives", { naira: formatMoney(quote[option].naira, "NGN"), fee: formatMoney(quote[option].fee, currency) })}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -804,6 +824,118 @@ function BalanceCard({ view, shown, others }: { view: PlayerView; shown: Currenc
   );
 }
 
+/** Changes the bank makes later, while they are on their way: what was paid, into what, and when it is ready, as months away. */
+function OnTheWay({ view }: { view: PlayerView }) {
+  if (view.queued.length === 0) return null;
+  return (
+    <LivelyCard className="p-3" data-bank-queued>
+      <Part>{say("ui.wallet.queued")}</Part>
+      <div className="flex flex-wrap gap-1.5">
+        {view.queued.map((item, index) => (
+          <StickerChip key={item.id} tint="study" tilt={index % 2 === 0 ? -1.5 : 1.5}>
+            {phoneWords("phone.bank.queued.item", { paid: formatMoney(item.paid, item.from), to: say(`ui.currency.${item.to}`), when: inMonths(item.readyMonth, view.month) })}
+          </StickerChip>
+        ))}
+      </div>
+    </LivelyCard>
+  );
+}
+
+/** Abroad, the family at home (R-ABROAD-006, 007): the naira at home that their requests are paid from, and what goes home each month. */
+function FamilyCard({ view }: { view: PlayerView }) {
+  const naira = view.pockets.NGN;
+  const support = view.obligations.filter((owed) => content.obligation[owed.entry]?.type === "support");
+  return (
+    <LivelyCard className="flex items-start gap-3 p-3" data-family>
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-people">
+        <Sticker emoji="🏠" alt="" size={30} tilt={-5} />
+      </span>
+      <div className="min-w-0">
+        <Part>{say("ui.family.title")}</Part>
+        <p className="num text-[15px] font-bold">{say("ui.family.naira", { bank: formatMoney(naira.bank, "NGN"), cash: formatMoney(naira.cash, "NGN") })}</p>
+        <p className="mt-0.5 text-[14px] leading-snug text-text-2">{say("ui.family.why")}</p>
+        {support.length === 0 ? null : (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {support.map((owed) => (
+              <StickerChip key={owed.id} tint="people" tilt={-1.5}>
+                {say("ui.family.support", { name: nameOf(owed.entry), amount: formatMoney(owed.due, content.obligation[owed.entry]?.currency ?? "NGN") })}
+              </StickerChip>
+            ))}
+          </div>
+        )}
+      </div>
+    </LivelyCard>
+  );
+}
+
+/** The highest credit mark and the step the file is read in (R-CREDIT-007: what the next ten points buy). */
+const MARK_MAX = 100;
+const MARK_STEP = 10;
+
+/**
+ * The credit file abroad (credit.md R-CREDIT-007): the mark as a bar with every entry that needs credit marked on it, the
+ * counts, a judgment and when it clears (R-CREDIT-006), what is open now, what the next ten points buy and what is further off.
+ */
+function CreditCard({ view, file }: { view: PlayerView; file: NonNullable<PlayerView["credit"]> }) {
+  const capped = file.judgmentUntil !== null;
+  const cap = content.tuning.credit.judgmentCap;
+  // A judgment keeps every need above the cap out of reach (R-CREDIT-006).
+  const reachable = (min: number) => !capped || min <= cap;
+  const open = file.needs.filter((need) => need.creditMin <= file.mark && reachable(need.creditMin));
+  const next = file.needs.filter((need) => need.creditMin > file.mark && need.creditMin <= file.mark + MARK_STEP && reachable(need.creditMin));
+  const later = file.needs.filter((need) => need.creditMin > file.mark + MARK_STEP || !reachable(need.creditMin));
+  return (
+    <LivelyCard className="p-3" data-credit>
+      <Part>{say("ui.credit.title")}</Part>
+      <p className="flex items-baseline gap-1.5">
+        <span className="num text-[26px] leading-tight font-bold">{file.mark}</span>
+        <span className="text-[14px] text-text-2">{say("ui.credit.of", { max: MARK_MAX })}</span>
+      </p>
+      <div role="meter" aria-label={say("ui.credit.mark", { mark: file.mark })} aria-valuemin={0} aria-valuemax={MARK_MAX} aria-valuenow={file.mark} className="relative mt-2 mb-1 h-3.5 rounded-[5px] bg-sheet shadow-[inset_0_0_0_1.5px_var(--sheet-line)]">
+        <div className="h-full rounded-[5px] bg-[var(--tick)]" style={{ width: `${String(Math.min(MARK_MAX, file.mark))}%` }} />
+        {file.needs.map((need) => (
+          <span key={need.id} aria-hidden="true" className={`absolute -top-1 h-5.5 w-0.5 rounded-[1px] ${need.creditMin <= file.mark ? "bg-[var(--money-ink)]" : "bg-text"}`} style={{ left: `${String(need.creditMin)}%` }} />
+        ))}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        <StickerChip tint="money" tilt={-1.5}>{sayCount("ui.credit.on-time", file.onTime, { count: file.onTime })}</StickerChip>
+        <StickerChip tilt={1.5}>{sayCount("ui.credit.missed", file.missed, { count: file.missed })}</StickerChip>
+      </div>
+      {capped ? (
+        <p className="mt-2 text-[14px] leading-snug font-bold text-out" data-credit-judgment>
+          {phoneWords("phone.bank.credit.judgment", { when: inMonths(file.judgmentUntil ?? 0, view.month), cap: String(cap) })}
+        </p>
+      ) : null}
+      <div className="mt-2.5" data-next-ten>
+        <p className="text-[14px] font-bold">{say("ui.credit.next-ten", { mark: Math.min(MARK_MAX, file.mark + MARK_STEP) })}</p>
+        {next.length === 0 ? (
+          <p className="text-[14px] text-text-2">{say("ui.credit.next-none")}</p>
+        ) : (
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {next.map((need, index) => (
+              <StickerChip key={need.id} tint="study" tilt={index % 2 === 0 ? -1.5 : 1.5}>
+                {say("ui.credit.need", { name: nameOf(need.id), min: need.creditMin })}
+              </StickerChip>
+            ))}
+          </div>
+        )}
+      </div>
+      {open.length === 0 ? null : (
+        <p className="mt-2 text-[14px]">
+          <span className="font-bold">{say("ui.credit.open")} </span>
+          {open.map((need) => nameOf(need.id)).join(", ")}
+        </p>
+      )}
+      {later.length === 0 ? null : (
+        <p className="mt-1 text-[14px] text-text-2">
+          <span className="font-bold">{say("ui.credit.later")} </span>
+          {later.map((need) => say("ui.credit.need", { name: nameOf(need.id), min: need.creditMin })).join(", ")}
+        </p>
+      )}
+    </LivelyCard>
+  );
+}
+
 /** A foot act: white with the navy edge and its underside, navy when its chooser is open. */
 function footButton(open: boolean): string {
   return `press flex min-h-[46px] flex-1 items-center justify-center gap-1.5 rounded-[14px] border-2 border-edge px-3 text-[15px] font-bold whitespace-nowrap shadow-[0_3px_0_var(--edge)] ${open ? "bg-[var(--strong)] text-on-strong" : "bg-sheet-2 text-text"}`;
@@ -849,6 +981,8 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
       {abroad && !view.ended ? <DuesGapCard onChange={changeFrom} /> : null}
       {book === null ? <BalanceCard view={view} shown={shown} others={abroad ? [] : others} /> : <PassbookCard view={view} book={book} shown={shown} others={others} />}
       {abroad && !view.ended ? <HeldElsewhere local={local} onChange={changeFrom} /> : null}
+      {abroad ? <FamilyCard view={view} /> : null}
+      {view.credit === null ? null : <CreditCard view={view} file={view.credit} />}
       {book === null ? null : (
         <>
           <Stamps book={book} />
@@ -876,6 +1010,8 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
           )}
         </LivelyCard>
       )}
+
+      <OnTheWay view={view} />
 
       <LivelyCard className="p-3" data-bank-lately>
         <Part>{phoneWords("phone.bank.lines")}</Part>

@@ -36,7 +36,7 @@ import { Board, HomeRow, ReadyHome, thingOf } from "./HomeScreen";
 import { LifeScreen } from "./LifeScreen";
 import { YouScreen } from "./YouScreen";
 
-export { fitHome, homeDue, homeFigures, pocketIn, selfContainReached, selfContainYear, startIn } from "../../shared/frontdoor/homes";
+export { fitHome, homeFigures, pocketIn, selfContainReached, selfContainYear, startIn } from "../../shared/frontdoor/homes";
 export { plannedYears } from "../../shared/frontdoor/planned";
 
 /** The ready lives: every scenario but the life from sixteen, each named by its kind, never its person. */

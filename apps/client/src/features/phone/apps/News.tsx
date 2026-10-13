@@ -1,17 +1,17 @@
 // News (docs/rules/world.md R-WORLD-008, R-WORLD-018): the era line, the last month's report lines
 // (they stay here after the results sheet), and the stories that have reached the character.
 import { content } from "@japacity/content";
-import type { NewsStage, RouteStateName } from "@japacity/sim";
+import type { NewsStage, PlayerView, RouteStateName } from "@japacity/sim";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { nowLineWords } from "../../../shared/words/acts";
 import { newsLines } from "../../../shared/words/told";
-import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
+import { blurbOf, inMonths, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
 import { SourceMark } from "../../../shared/ui/NewsSource";
 import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
-import { PicCard } from "../ui";
+import { PicCard, WordChip } from "../ui";
 
 /** What is happening now first, talk next, the past last. */
 const STAGE_ORDER: readonly NewsStage[] = ["in-force", "announced", "rumour", "ended"];
@@ -43,9 +43,32 @@ function storyPicture(id: string): string {
   return touches.find((route) => TILE_TABLE[route] !== undefined) ?? "phone.news";
 }
 
+/**
+ * When the era began and when it is due to end (director.md R-DIRECTOR-002), as months ago and months from now, never a
+ * month's number (world.md R-WORLD-002): the view's `sinceMonth` and `untilMonth` are the months the simulation stamps.
+ */
+export function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): string {
+  const began = era.sinceMonth < 0 ? say("ui.news.era-before") : phoneWords("phone.news.era.since", { when: monthsAgo(era.sinceMonth, month).toLowerCase() });
+  return `${began} ${phoneWords("phone.news.era.until", { when: inMonths(era.untilMonth, month) })}`;
+}
+
+/**
+ * The last Friday draw on the front page (lottery.md R-LOTTERY-016): the jackpot it stood at, whether it was hit or
+ * rolls over, and how many tickets won, never who.
+ */
+export function drawnWords(last: NonNullable<NonNullable<PlayerView["lottery"]>["last"]>): string {
+  if (last.count === 0) return say("ui.news.drawn-none", { draw: last.draw });
+  const winners = last.winners.reduce((sum, tier) => sum + tier.tickets.length, 0);
+  const hit = last.winners.some((tier) => tier.tier === "jackpot" && tier.tickets.length > 0);
+  return say(hit ? "ui.news.drawn" : "ui.news.drawn-rolled", { draw: last.draw, jackpot: { currency: "NGN", amount: last.jackpot }, winners });
+}
+
 export function News() {
   const view = useView();
-  const { news, era, report, month, routes } = view;
+  const { news, era, report, month, routes, lottery } = view;
+  const drawn = lottery?.last ?? null;
+  // The empty line never sits under a story the front page already shows.
+  const frontPage = era !== null || drawn !== null;
   // R-WORLD-008: the month's lines stay here, those of what was done mid-month (an agent paid, an ask answered) first.
   const midMonth = useGame((state) => state.lastMonthLines);
   const world = [...news].sort((a, b) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || b.since - a.since);
@@ -54,7 +77,23 @@ export function News() {
   return (
     <div data-phone-app="news">
       {era === null ? null : (
-        <PicCard pic="phone.news" tint="plain" over={say("ui.news.era")} title={nameOf(era.id)} line={blurbOf(era.id)} data-era={era.id} />
+        <PicCard
+          pic="phone.news"
+          tint="plain"
+          over={say("ui.news.era")}
+          title={nameOf(era.id)}
+          line={blurbOf(era.id)}
+          chips={
+            <WordChip tone="plain" data-era-months>
+              {eraMonths(era, month)}
+            </WordChip>
+          }
+          data-era={era.id}
+        />
+      )}
+
+      {drawn === null ? null : (
+        <PicCard className="mt-2.5" pic="phone.lotto" tint="money" over={say("ui.news.draw-kicker")} title={drawnWords(drawn)} data-news-drawn={drawn.draw} />
       )}
 
       {report === null ? null : (
@@ -79,7 +118,7 @@ export function News() {
 
       <Head>{say("ui.news.title")}</Head>
       {stories.length === 0 ? (
-        <p className="px-0.5 text-[15px] text-text-2">{say("ui.news.none")}</p>
+        <p className="px-0.5 text-[15px] text-text-2">{say(frontPage ? "ui.news.none-else" : "ui.news.none")}</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {stories.map((story) => {

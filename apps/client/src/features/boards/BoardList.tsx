@@ -2,7 +2,13 @@
 // the top lines, then the player's own line wherever it ranks. The name is the
 // account's username on every board, friends too. Loaded
 // only after the server has answered with a board, so a switched-off board's
-// screen is never fetched.
+// screen is never fetched. Each line is a card with a face sticker, the name,
+// and the figure as a chip: this week's rise in green; the player's own line
+// ringed (docs/design/13-the-lively-layer.md section 2).
+import { useEffect, useState } from "react";
+
+import { assetUrl, loadManifest } from "../../shared/three/manifest";
+import { TINTS } from "../../shared/ui/lively/tint";
 import { formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import type { BoardReply, BoardRow, When } from "./boards";
@@ -18,21 +24,88 @@ function nameOf(row: BoardRow): string {
   return row.username ?? say("ui.boards.someone");
 }
 
-function Line({ row, when }: { row: BoardRow; when: When }) {
+/**
+ * The looks the door offers, each with its face tile published: named here so the boards' chunk carries none of the
+ * city's roster (BoardsView.dress.test proves the list is the door's `LOOKS`).
+ */
+export const BOARD_FACES: readonly string[] = ["chr_ada", "chr_tunde", "chr_zainab", "chr_tobi", "chr_ngozi", "chr_femi", "chr_kemi", "chr_bisi", "chr_amaka", "chr_bayo", "chr_dayo", "chr_emeka", "chr_kunle", "chr_sade", "chr_segun", "chr_tolani"];
+
+/** Where the door keeps the person built there (authority/person.ts PERSON_KEY), read here alone for its look. */
+export const KEPT_PERSON = "japacity.person";
+
+/**
+ * The look kept from the door, or null. Read straight from the device so the boards' chunk shares no module with the
+ * city's loader (a shared module there regroups the first visit's chunks).
+ */
+export function keptLook(): string | null {
+  try {
+    const kept: unknown = JSON.parse(window.localStorage.getItem(KEPT_PERSON) ?? "null");
+    const look = typeof kept === "object" && kept !== null ? (kept as { look?: unknown }).look : null;
+    return typeof look === "string" ? look : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The face on a line. No look travels on a board (R-CITY-040), so another player's face is one of the door's looks
+ * picked from the name the line shows, the same name always the same face; the player's own line wears the look they
+ * built at the door, kept on this device, where there is one.
+ */
+export function boardFace(name: string, me: boolean, own: string | null = keptLook()): string {
+  if (me && own !== null && BOARD_FACES.includes(own)) return own;
+  const sum = [...name].reduce((total, letter) => total + (letter.codePointAt(0) ?? 0), 0);
+  return BOARD_FACES[sum % BOARD_FACES.length] ?? "chr_ada";
+}
+
+/**
+ * A look's face as a round sticker, the door's published face tile (`tiles/<look>-face.png`). Drawn here, not with the
+ * door's own sticker, so the boards' chunk stays clear of the door's colours and the city's models.
+ */
+function Face({ look, me, tilt }: { look: string; me: boolean; tilt: number }) {
+  const [src, setSrc] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void loadManifest()
+      .then((manifest) => {
+        if (alive) setSrc(assetUrl(manifest, `tiles/${look}-face.png`));
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [look]);
   return (
-    <li
-      data-board-line={row.rank}
-      data-me={row.me ? "true" : undefined}
-      className={`flex min-h-11 items-center gap-3 rounded-md px-3 py-2 ${row.me ? "bg-accent/15 font-semibold ring-1 ring-accent" : "odd:bg-sheet-muted/60"}`}
-    >
-      <span className="w-10 shrink-0 text-right font-semibold tabular-nums" aria-label={say("ui.boards.rank", { rank: row.rank })}>
+    <span className={`face-sticker ${TINTS[me ? "money" : "plain"]}`} style={{ width: 36, height: 36, rotate: `${String(tilt)}deg` }} data-face-sticker={look} aria-hidden>
+      {src === null ? null : <img src={src} alt="" draggable={false} />}
+    </span>
+  );
+}
+
+function Line({ row, when }: { row: BoardRow; when: When }) {
+  const name = nameOf(row);
+  const rise = when === "this-week" && row.figure > 0;
+  return (
+    <li data-board-line={row.rank} data-me={row.me ? "true" : undefined} className={`lively-card flex min-h-14 items-center gap-3 px-3 py-2 ${row.me ? "phone-picked" : ""}`}>
+      <span className="w-7 shrink-0 text-right text-[16px] font-bold tabular-nums" aria-label={say("ui.boards.rank", { rank: row.rank })}>
         {row.rank}
       </span>
-      <span className="min-w-0 flex-1 truncate" data-board-name>
-        {nameOf(row)}
+      <Face look={boardFace(name, row.me)} me={row.me} tilt={row.rank % 2 === 0 ? 4 : -4} />
+      <span className="min-w-0 flex-1 truncate text-[16px] font-bold" data-board-name>
+        {name}
       </span>
-      {row.me ? <span className="text-xs font-medium text-text-2 uppercase">{say("ui.boards.you")}</span> : null}
-      <span className="shrink-0 tabular-nums">{figureWords(row, when)}</span>
+      {row.me ? (
+        <span className="pill shrink-0 px-2 py-0.5 text-[12px] font-bold" data-board-you>
+          {say("ui.boards.you")}
+        </span>
+      ) : null}
+      <span
+        className={`sticker-chip shrink-0 text-[14px] tabular-nums ${rise ? "bg-tint-money" : "bg-sheet-2"}`}
+        style={{ rotate: "-2deg", ...(rise ? { color: "var(--money-ink)" } : {}) }}
+        data-board-figure={rise ? "rise" : "figure"}
+      >
+        {figureWords(row, when)}
+      </span>
     </li>
   );
 }
@@ -42,10 +115,10 @@ export default function BoardList({ reply, when, friends }: { reply: BoardReply;
   const ownShown = own !== null && reply.rows.some((row) => row.me);
   // Above the list, so a player far down a long board sees their place without scrolling.
   const ownLine = ownShown ? null : (
-    <div className="flex flex-col gap-1" data-board-own>
-      <p className="text-xs font-semibold tracking-wide text-text-2 uppercase">{say("ui.boards.your-place")}</p>
+    <div className="flex flex-col gap-1.5" data-board-own>
+      <p className="px-0.5 text-[15px] font-semibold text-text-2">{say("ui.boards.your-place")}</p>
       {own === null ? (
-        <p className="text-sm">{say("ui.boards.no-route")}</p>
+        <p className="lively-card p-3 text-[15px]">{say("ui.boards.no-route")}</p>
       ) : (
         <ol>
           <Line row={own} when={when} />
@@ -54,12 +127,12 @@ export default function BoardList({ reply, when, friends }: { reply: BoardReply;
     </div>
   );
   return (
-    <div className="flex flex-col gap-3" data-board={reply.board}>
+    <div className="flex flex-col gap-2.5" data-board={reply.board}>
       {ownLine}
       {reply.rows.length === 0 ? (
-        <p className="text-text-2">{say(friends ? "ui.boards.empty.friends" : "ui.boards.empty")}</p>
+        <p className="lively-card p-3 text-[15px] text-text-2">{say(friends ? "ui.boards.empty.friends" : "ui.boards.empty")}</p>
       ) : (
-        <ol className="flex flex-col gap-1" data-board-lines>
+        <ol className="flex flex-col gap-2" data-board-lines>
           {reply.rows.map((row) => (
             <Line key={row.rank} row={row} when={when} />
           ))}

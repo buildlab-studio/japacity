@@ -67,9 +67,6 @@ const THROUGH: Readonly<Record<string, readonly string[]>> = {
   home: ["family-house"],
 };
 
-/** The steps every life passes the same way, which are no archetype's own choice. */
-export const THROUGH_STEPS: ReadonlySet<string> = new Set(Object.keys(THROUGH));
-
 /**
  * The steps an archetype chooses for itself: its preset without the steps every life passes the same way, unless it
  * answers one its own way. The age cards are the door's, never the tile's: a year set there names every path's card.

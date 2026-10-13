@@ -11,6 +11,7 @@ import { hasWords, inMonths, nameOf, say, sayCount } from "../../../shared/words
 import { Head, useAsk, type AskSpec } from "../act";
 import { phoneWords } from "../phone.words";
 import { GhostButton, MoneyChip, PicCard, WordChip } from "../ui";
+import { CarFacts, UndertakingFacts } from "./BillFacts";
 import { HomeCard } from "./Home";
 
 type Owed = PlayerView["obligations"][number];
@@ -118,6 +119,7 @@ export function Bills() {
             {owed.map((bill) => {
               const currency: Currency = content.obligation[bill.entry]?.currency ?? "NGN";
               const pay = view.ended ? null : payNow(bill);
+              const kind = content.obligation[bill.entry]?.type;
               return (
                 <li key={bill.id} data-bill={bill.id} data-due={bill.due > 0 ? "true" : "false"}>
                   <PicCard
@@ -129,16 +131,24 @@ export function Bills() {
                       bill.outstanding <= 0 && bill.missed <= 0 && bill.state === "active" ? null : (
                         <>
                           {bill.outstanding > 0 ? <MoneyChip out className="num">{say("ui.obligation.outstanding", { amount: formatMoney(bill.outstanding, currency) })}</MoneyChip> : null}
+                          {/* A loan's months left (R-OBLIGATION-003's counts); a car and a promise say theirs below. */}
+                          {bill.monthsLeft === null || bill.outstanding <= 0 || kind === "car" || kind === "undertaking" ? null : <WordChip tone="plain">{sayCount("ui.obligation.months-left", bill.monthsLeft, { months: bill.monthsLeft })}</WordChip>}
                           {bill.missed > 0 ? <WordChip tone="bad">{sayCount("ui.obligation.missed", bill.missed, { count: bill.missed })}</WordChip> : null}
                           {bill.state === "active" ? null : <WordChip tone="bad">{say(`ui.obligation.state.${bill.state}`)}</WordChip>}
                         </>
                       )
                     }
                     foot={
-                      pay === null ? null : (
-                        <GhostButton onClick={() => open(slip(bill, currency, pay))} className="justify-center" data-pay={bill.id}>
-                          {phoneWords("phone.bills.pay")}: {formatMoney(pay.amount, currency)}
-                        </GhostButton>
+                      pay === null && kind !== "car" && kind !== "undertaking" ? null : (
+                        <div className="flex flex-col gap-2.5">
+                          {/* R-CAR-007, R-UNDERTAKING-012: a car and a sponsor's promise carry their own figures. */}
+                          {kind === "car" ? <CarFacts owed={bill} /> : kind === "undertaking" ? <UndertakingFacts owed={bill} /> : null}
+                          {pay === null ? null : (
+                            <GhostButton onClick={() => open(slip(bill, currency, pay))} className="justify-center" data-pay={bill.id}>
+                              {phoneWords("phone.bills.pay")}: {formatMoney(pay.amount, currency)}
+                            </GhostButton>
+                          )}
+                        </div>
                       )
                     }
                   />

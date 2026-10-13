@@ -10,6 +10,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame } from "../../../authority/GameProvider";
 import { pageOf } from "../../../shared/datapage/PageSheet";
+import { ModerationRows } from "../../../shared/moderation/Feedback";
 import { chooseGraphics, type GraphicsChoice } from "../../../shared/graphics/mode";
 import { setMuted } from "../../../shared/sound/sound";
 import { buildOf } from "../../../shared/stamp/stamp";
@@ -87,6 +88,8 @@ export function Settings({ account = null, about = null }: { account?: ReactNode
       </div>
 
       {account === null ? null : <div data-account>{account}</div>}
+      {/* R-MODERATION-020, R-MODERATION-016: the feedback box and the team's notice, in the game's menu. */}
+      <ModerationRows />
       {about === null ? null : (
         <>
           <Head>{phoneWords("phone.settings.about")}</Head>

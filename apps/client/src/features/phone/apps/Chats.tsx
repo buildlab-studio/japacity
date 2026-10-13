@@ -5,14 +5,14 @@
 // the slots of this life with the invite card (R-WORLD-020, people.md R-PEOPLE-010). Both are the people
 // feature's own screens, handed in by the shell.
 import { content } from "@japacity/content";
-import { fillOptions, type ConversationRow, type Id } from "@japacity/sim";
+import { fillOptions, type ConversationRow, type Id, type SayRefusal } from "@japacity/sim";
 import { ChevronLeft, ChevronRight, UserRound, Users } from "lucide-react";
 import { createContext, Fragment, use, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
-import type { ConversationReply, PairReply, SayReply } from "../../../shared/net/contract";
+import type { ConversationReply, PairReply, SayReply, ServerRejection } from "../../../shared/net/contract";
 import { bondName, conversationPhrases, endStillTold, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/sim/people";
-import { hasWords, monthsAgo, say, words } from "../../../shared/words/text";
+import { hasWords, monthsAgo, say, sayCount, words } from "../../../shared/words/text";
 import { faceMark } from "../../../shared/ui/lively/Face";
 import { PressButton } from "../../../shared/ui/lively/PressButton";
 import { Head } from "../act";
@@ -69,14 +69,38 @@ function NamePill({ name }: { name: string }) {
   );
 }
 
-/** A message as the after set's phone-chats draws it: who said it as a name pill with their mark, the words in a white bubble; yours in navy. */
-function Bubble({ from, mine = false, courted = false, children }: { from: string | null; mine?: boolean; courted?: boolean; children: string }) {
+/**
+ * A message as the after set's phone-chats draws it: who said it as a name pill with their mark, the words in a white
+ * bubble; yours in navy. A pair's row carries its read state (pair.md R-PAIR-011): yours says read once read, theirs
+ * is marked new while unread.
+ */
+function Bubble({ from, mine = false, courted = false, row, read, children }: { from: string | null; mine?: boolean; courted?: boolean; row?: string; read?: boolean; children: string }) {
   return (
-    <li className={`flex flex-col gap-1 ${mine ? "items-end" : "items-start"}`} data-courted={courted ? "" : undefined}>
+    <li className={`flex flex-col gap-1 ${mine ? "items-end" : "items-start"}`} data-courted={courted ? "" : undefined} data-row={row}>
       {from === null ? null : <NamePill name={from} />}
       <span className={`max-w-[88%] px-3.5 py-2.5 text-[15px] leading-snug ${mine ? "phone-bubble-mine" : "phone-bubble"}`}>{children}</span>
+      {read === undefined ? null : mine ? (
+        read ? (
+          <span className="px-1 text-[12px] font-semibold text-text-2" data-read>
+            {say("ui.talk.read")}
+          </span>
+        ) : null
+      ) : read ? null : (
+        <span className="sticker-chip bg-[var(--soft)] text-[12px]" style={{ rotate: "-2deg", color: "var(--soft-ink)" }} data-unread>
+          {say("ui.talk.unread")}
+        </span>
+      )}
     </li>
   );
+}
+
+const SAY_REFUSALS: readonly string[] = ["not-possible", "blocked", "too-many", "region", "not-here", "wrong-place", "bad-fill"] satisfies readonly SayRefusal[];
+
+/** Why a phrase did not go, from the check the code names, and never about the other side's settings (pair.md R-PAIR-013). */
+function refusalWords(reply: ServerRejection): string {
+  if (reply.code === "rate-limited") return reply.retryAfter === undefined ? say("ui.talk.failed.too-many") : sayCount("ui.online.wait", reply.retryAfter, { seconds: reply.retryAfter });
+  if (SAY_REFUSALS.includes(reply.code) && hasWords(`ui.talk.failed.${reply.code}`)) return say(`ui.talk.failed.${reply.code}`);
+  return say("ui.talk.failed.other", { why: reply.detail });
 }
 
 function Family() {
@@ -205,21 +229,23 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
         setRows((held) => [...held, reply.message]);
         setPhraseId(null);
       } else {
-        setRefusal(say("ui.talk.failed.other", { why: reply.detail }));
+        setRefusal(refusalWords(reply));
       }
+    } catch (error) {
+      setRefusal(troubleWords(error));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div data-chat={pair}>
+    <section aria-label={say("ui.talk.title")} data-chat={pair}>
       {rows.length === 0 ? (
         <p className="text-[14px] text-text-2">{say("ui.talk.empty")}</p>
       ) : (
         <ul className="flex flex-col gap-2" data-thread>
           {rows.map((row) => (
-            <Bubble key={row.id} from={them !== null && row.sender === them ? name : null} mine={them !== null && row.sender !== them}>
+            <Bubble key={row.id} from={them !== null && row.sender === them ? name : null} mine={them !== null && row.sender !== them} row={row.id} read={row.readAt !== null}>
               {phraseWords(row.phrase, row.fill)}
             </Bubble>
           ))}
@@ -233,6 +259,7 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
             type="button"
             role="radio"
             aria-checked={entry.id === phraseId}
+            data-phrase={entry.id}
             onClick={() => {
               setPhraseId(entry.id);
               setFill(null);
@@ -246,7 +273,7 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
       {phrase === undefined || phrase.fill === null ? null : (
         <div className="mt-2 flex flex-wrap gap-1.5" role="radiogroup" aria-label={say("ui.talk.fill")}>
           {fills.map((value) => (
-            <button key={value} type="button" role="radio" aria-checked={value === chosenFill} onClick={() => setFill(value)} className={`press phone-ghost min-h-9 w-auto px-3 text-[14px] ${value === chosenFill ? "bg-[var(--soft)]" : ""}`}>
+            <button key={value} type="button" role="radio" aria-checked={value === chosenFill} data-fill={value} onClick={() => setFill(value)} className={`press phone-ghost min-h-9 w-auto px-3 text-[14px] ${value === chosenFill ? "bg-[var(--soft)]" : ""}`}>
               {fillWords(phrase.id, phrase.fill ?? "", value)}
             </button>
           ))}
@@ -268,7 +295,7 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
       <div className="mt-3">
         <BlockReport who={{ pair, name }} cites={theirs.length > 0 ? { messages: theirs } : { pair }} surface="conversation" />
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -304,10 +331,10 @@ export function Chats() {
         </button>
         <h3 className="mb-3 flex items-center gap-2 text-[20px] font-bold">
           {name}
-          {/* The quiet mark a person the game plays carries on every screen (people.md R-PEOPLE-009, R-PEOPLE-054). */}
-          {bond?.label === "computer" ? (
-            <span className="sticker-chip bg-sheet-2 text-text-2" style={{ rotate: "-2deg" }} data-person-mark="computer">
-              {say("ui.people.mark.computer")}
+          {/* The quiet mark a person the game plays carries on every screen (people.md R-PEOPLE-009, R-PEOPLE-054), and a stand-in's (R-PEOPLE-044). */}
+          {bond !== null && bond.label !== "player" ? (
+            <span className="sticker-chip bg-sheet-2 text-text-2" style={{ rotate: "-2deg" }} data-person-mark={bond.label}>
+              {say(`ui.people.mark.${bond.label}`)}
             </span>
           ) : null}
         </h3>

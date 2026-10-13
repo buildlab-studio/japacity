@@ -16,8 +16,9 @@ import { InvitePage, InviteServerProvider } from "./features/account/InvitePage"
 import type { ServedAdvert } from "./features/adverts/adverts";
 import { AdvertsProvider, PhoneTile } from "./features/adverts/placed";
 import { GuidesMenu } from "./features/guides/GuidesMenu";
-import { pairApiFor, PairApiProvider } from "./features/people/pairApi";
-import { PeopleView } from "./features/people/PeopleView";
+import { pairApiFor, PairApiProvider, usePairApi } from "./features/people/pairApi";
+import { BondHead, PeopleSlots } from "./features/people/PeopleOnPhone";
+import { Chats, PhonePeople, PhoneTalk } from "./features/phone/apps/Chats";
 import { MODERATION_SURFACES } from "./shared/moderation/BlockReport";
 import { ModerationProvider } from "./shared/moderation/ModerationProvider";
 import { words } from "./shared/moderation/moderation.words";
@@ -71,6 +72,27 @@ function providers(server: FakeServer, children: ReactNode) {
   );
 }
 
+/** Chats with the people feature's screens as App hands them to the phone, on the pair routes the shell gives it (moved from the old people tab). */
+function PeopleChats() {
+  const pairs = usePairApi();
+  return (
+    <PhoneTalk value={pairs}>
+      <PhonePeople value={{ head: (bond) => <BondHead bond={bond} api={pairs} />, slots: <PeopleSlots api={pairs} /> }}>
+        <Chats />
+      </PhonePeople>
+    </PhoneTalk>
+  );
+}
+
+/** A friend's bond online, its Chats thread opened as a player opens it: the pair record on its head, the conversation under it. */
+async function friendThread(server: FakeServer): Promise<void> {
+  const game = peopleGame();
+  const bond = linkedFriend(game);
+  await renderWithGame(providers(server, <PeopleChats />), game);
+  fireEvent.click(document.querySelector<HTMLElement>(`[data-chat-row="${bond}"]`)!);
+  await screen.findByRole("region", { name: say("ui.talk.title") });
+}
+
 async function storeOf(view: PlayerView): Promise<GameStore> {
   const store = createGameStore(fakeAuthority(view));
   await store.getState().refresh();
@@ -81,12 +103,7 @@ const advertsOn = (): PlayerView => ({ ...engineView("scenario.tunde"), adverts:
 
 /** Each surface of R-MODERATION-003, opened the way a player reaches it. */
 const OPEN: Record<(typeof MODERATION_SURFACES)[number], (server: FakeServer) => Promise<void>> = {
-  pair: async (server) => {
-    const game = peopleGame();
-    linkedFriend(game);
-    await renderWithGame(providers(server, <PeopleView />), game);
-    await screen.findByRole("region", { name: say("ui.talk.title") });
-  },
+  pair: friendThread,
   conversation: async (server) => OPEN.pair(server),
   "invite-card": async (server) => {
     render(<GameProvider store={await storeOf(engineView())}>{providers(server, <InvitePage code={CODE} />)}</GameProvider>);
@@ -147,9 +164,7 @@ describe("where no advert shows", () => {
   });
 
   test("[R-ADVERT-003] given every slot filled and a friend's bond, when block and report are reached, then neither holds an advert", async () => {
-    const game = peopleGame();
-    linkedFriend(game);
-    await renderWithGame(providers(everything(), <PeopleView />), game);
+    await friendThread(everything());
     const control = await waitFor(() => document.querySelector<HTMLElement>('[data-moderation="pair"]')!);
     fireEvent.click(within(control).getByRole("button", { name: words("ui.block") }));
     await within(control).findByText(words("ui.block.done"));
