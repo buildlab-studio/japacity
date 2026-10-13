@@ -80,13 +80,13 @@ test("[R-WORLD-001] [R-WORLD-024] [R-WORLD-003] the default address opens the wo
   await shoot(page, "open");
 });
 
-test("[R-WORLD-024] ?classic opens the old month page with its header and tabs", async ({ page }, info) => {
+test("[R-WORLD-024] ?classic opens the world as any address does: the old month page is gone", async ({ page }, info) => {
   phoneOnly(info.project.name);
   await page.goto("/?classic");
   await startReadyLife(page);
-  await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
-  await expect(page.locator("header")).toBeVisible();
-  await expect(page.locator("[data-band]")).toHaveCount(0);
+  await expect(page.locator("[data-band]")).toBeVisible();
+  await expect(page.locator("header h1")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toHaveCount(0);
 });
 
 test("[R-WORLD-002] [R-WORLD-007] [R-WORLD-008] [R-WORLD-025] [R-WORLD-030] the band's month opens the Calendar with nothing to end; the bed's Sleep turns the month, the results show over the scene, and the button goes back to the place a month older", async ({ page }, info) => {
