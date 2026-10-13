@@ -23,7 +23,7 @@ describe("the homes on the door", () => {
   test("[R-PROLOGUE-013] [R-PROLOGUE-010] given a tile with no home picked, when its home is read, then its own preset picks it, else the family house; a home picked on the door becomes the preset", () => {
     for (const tile of ARCHETYPES) expect(homeOf(tile)).toBe(tile.id === "water" ? "makoko" : "family-house");
     const developer = archetypeOf("developer");
-    if (developer === undefined) throw new Error("No developer tile");
+    if (developer === null) throw new Error("No developer tile");
     expect(homeOf(withHome(developer, "hostel-room"))).toBe("hostel-room");
     expect(homeOf(withHome(developer, "nowhere"))).toBe("family-house");
   });
