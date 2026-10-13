@@ -31,3 +31,11 @@ export function Wordmark({ ground, align = "center", compact = false, className 
 export function Mark({ ground, px = 32, className = "" }: { ground: Ground; px?: number; className?: string }) {
   return <img src={markFile(ground, px)} alt={say("ui.game")} width={px} height={px} draggable={false} className={`block shrink-0 ${className}`} data-mark={ground} />;
 }
+
+/**
+ * The seal as a picture behind an empty box, for a place where the game's name stands beside it in words and the card
+ * is type alone, with no image element (the share card's footer).
+ */
+export function Seal({ ground, px = 32, className = "" }: { ground: Ground; px?: number; className?: string }) {
+  return <span aria-hidden className={`block shrink-0 bg-contain bg-no-repeat ${className}`} style={{ width: px, height: px, backgroundImage: `url(${markFile(ground, px)})` }} data-seal={ground} />;
+}

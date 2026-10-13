@@ -1,7 +1,7 @@
 // Draws a card's steps on a canvas. Nothing here decides what goes where: the
 // layout did that, and its tests cover it.
 import { paletteCss } from "../../../../../packages/assets/src/palette";
-import type { Family, Measure, Step } from "./layout";
+import type { Family, Measure, SealStep, Step } from "./layout";
 
 const FAMILIES: Record<Family, string> = {
   display: '"Danfo", system-ui, sans-serif',
@@ -28,6 +28,60 @@ export async function fontsReady(sizes: readonly number[]): Promise<void> {
   } catch {
     // A face that will not load leaves the fallback, which still reads.
   }
+}
+
+/** The seal's colours, from public/brand's small drawing: light is the navy disc, dark the yellow one. */
+const SEAL = {
+  light: { disc: "#1c2a5e", line: "#eaf3fb", warm: "#f2b705", cool: "#cfe9ff", coolEdge: null },
+  dark: { disc: "#f2b705", line: "#1c2a5e", warm: "#1c2a5e", cool: "#ffffff", coolEdge: "#1c2a5e" },
+} as const;
+
+/** The seal in the small drawing's plain shapes, on its 512 grid: the disc, one ring, the wire, the two bulbs, the J. */
+function seal(context: CanvasRenderingContext2D, step: SealStep): void {
+  const colour = SEAL[step.ground];
+  context.save();
+  context.translate(step.x, step.y);
+  context.scale(step.size / 512, step.size / 512);
+  context.fillStyle = colour.disc;
+  context.beginPath();
+  context.arc(256, 256, 256, 0, Math.PI * 2);
+  context.fill();
+  context.strokeStyle = colour.line;
+  context.lineWidth = 24;
+  context.beginPath();
+  context.arc(256, 256, 238, 0, Math.PI * 2);
+  context.stroke();
+  context.lineWidth = 22;
+  context.lineCap = "round";
+  context.beginPath();
+  context.arc(256, 256, 182, Math.atan2(170.6 - 256, 95.3 - 256), Math.atan2(170.6 - 256, 416.7 - 256), false);
+  context.stroke();
+  for (const [x, fill] of [[182, colour.warm], [330, colour.cool]] as const) {
+    context.fillStyle = fill;
+    context.beginPath();
+    context.arc(x, 127.8, 35, 0, Math.PI * 2);
+    context.fill();
+    if (colour.coolEdge !== null && x === 330) {
+      context.strokeStyle = colour.coolEdge;
+      context.lineWidth = 10;
+      context.stroke();
+    }
+  }
+  // The J: the stem and the hook, a stroke 42 wide, set as the file sets it.
+  context.translate(256, 256);
+  context.scale(0.78, 0.78);
+  context.translate(18, 2);
+  context.strokeStyle = colour.line;
+  context.lineWidth = 42.1;
+  context.lineCap = "butt";
+  context.lineJoin = "miter";
+  context.beginPath();
+  context.moveTo(-40, -78);
+  context.lineTo(34, -78);
+  context.lineTo(34, 22);
+  context.arc(-18, 22, 52, 0, Math.PI, false);
+  context.stroke();
+  context.restore();
 }
 
 export function paint(context: CanvasRenderingContext2D, steps: readonly Step[]): void {
@@ -91,6 +145,9 @@ export function paint(context: CanvasRenderingContext2D, steps: readonly Step[])
         context.textBaseline = "middle";
         context.fillText(step.text, 0, 0);
         context.restore();
+        break;
+      case "seal":
+        seal(context, step);
         break;
       case "clip":
         context.save();

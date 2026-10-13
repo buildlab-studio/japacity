@@ -65,7 +65,25 @@ export interface MarkStep {
   band: { points: [number, number][]; color: PaletteName } | null;
 }
 
-export type Step = Shape | TextStep | MarkStep | { op: "clip"; box: Box; radius: number } | { op: "unclip" };
+/**
+ * The game's seal (public/brand) drawn small in a corner of the footer: the J in its rings with the two
+ * bulbs on the wire, in the small drawing's plain shapes. `x` and `y` are its top left, `size` its width; the `ground`
+ * is the file's own: light is the navy disc for a light card, dark the yellow disc for a black one.
+ */
+export interface SealStep {
+  op: "seal";
+  x: number;
+  y: number;
+  size: number;
+  ground: "light" | "dark";
+}
+
+/** The seal's ground for a card of this tone: the yellow disc on black, the navy one on white and on the send-off's yellow. */
+export function sealGround(tone: Tone): SealStep["ground"] {
+  return tone.background === "black" ? "dark" : "light";
+}
+
+export type Step = Shape | TextStep | MarkStep | SealStep | { op: "clip"; box: Box; radius: number } | { op: "unclip" };
 
 /** The width of `text` drawn at `size` in `family` and `weight`. */
 export type Measure = (text: string, size: number, family: Family, weight: number) => number;
@@ -230,7 +248,12 @@ export function cardSteps(face: CardFace, size: Size, measure: Measure): Step[] 
   const foot = (role: TextRole, words: string, at: number, sizePx: number, weight: TextStep["weight"], family: Family, align: TextStep["align"] = "left") =>
     footText.push({ op: "text", role, text: words, x: align === "left" ? pad : size.width - pad, y: at, size: sizePx, weight, family, color: tone.ink, align });
   // The word mark in the plain face: in the display caps its Y reads as a 3.
+  // The seal stands before it, centred on the word's height.
+  const seal = unit(104);
+  footer.push({ op: "seal", x: pad, y: rule + unit(96) - Math.round(unit(64) * 0.36) - Math.round(seal / 2), size: seal, ground: sealGround(tone) });
   foot("sender", face.sender, rule + unit(96), unit(64), 700, "sans");
+  const sender = footText[footText.length - 1];
+  if (sender !== undefined) sender.x = pad + seal + unit(24);
   foot("disclaimer", face.disclaimer, rule + unit(88), unit(44), 700, "sans", "right");
   foot("address", face.address, rule + unit(168), unit(38), 600, "sans");
   foot("official", face.officialLine, rule + unit(226), unit(32), 400, "sans");
@@ -281,7 +304,11 @@ export function previewSteps(face: Pick<CardFace, "kind" | "kicker" | "title" | 
   put("kicker", face.kicker.toUpperCase(), y, unit(26), 700, "sans");
   const title = unit(66);
   for (const line of wrap(face.title, width, (part) => measure(part, title, "sans", 700))) put("title", line, (y += unit(76)), title, 700, "sans");
+  const seal = unit(72);
+  steps.push({ op: "seal", x: left, y: size.height - unit(150) - Math.round(unit(48) * 0.36) - Math.round(seal / 2), size: seal, ground: sealGround(tone) });
   put("sender", face.sender, size.height - unit(150), unit(48), 700, "sans");
+  const sender = steps[steps.length - 1];
+  if (sender?.op === "text") sender.x = left + seal + unit(18);
   put("disclaimer", face.disclaimer, size.height - unit(96), unit(34), 700, "sans");
   put("address", face.address, size.height - unit(52), unit(28), 600, "sans");
   return steps;

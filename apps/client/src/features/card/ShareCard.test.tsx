@@ -68,3 +68,18 @@ describe("the share cards", () => {
     expect(screen.queryByRole("button")).toBeNull();
   });
 });
+
+describe("the seal on a card", () => {
+  test("[R-SHARE-006] given any card on screen, then the seal stands in its footer before the game's name as a picture behind an empty box, with no image element", () => {
+    for (const kind of ["send-off", "real-story", "lost"] as const) {
+      const { container, unmount } = render(<ShareCardFace card={{ ...SEND_OFF, kind }} />);
+      const seal = container.querySelector("[data-seal]") as HTMLElement;
+      expect(seal.style.backgroundImage).toMatch(/brand\/japacity-mark-small-light\.svg/);
+      expect(seal.getAttribute("aria-hidden")).toBe("true");
+      const name = container.querySelector("[data-word-mark]") as HTMLElement;
+      expect(seal.compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(container.querySelector("img")).toBeNull();
+      unmount();
+    }
+  });
+});

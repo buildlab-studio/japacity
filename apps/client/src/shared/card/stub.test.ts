@@ -105,7 +105,7 @@ describe("the ticket stub's face", () => {
         expect([label, words, TICKET.test(words)]).toEqual([label, words, false]);
         expect([label, words, CODE.test(words)]).toEqual([label, words, false]);
       }
-      expect(steps.every((step) => ["rect", "poly", "circle", "line", "text", "mark", "clip", "unclip"].includes(step.op))).toBe(true);
+      expect(steps.every((step) => ["rect", "poly", "circle", "line", "text", "mark", "seal", "clip", "unclip"].includes(step.op))).toBe(true);
     }
     expect(ART_IDS).toContain(text["share.send-off.art"]);
     expect(artShapes(text["share.send-off.art"]!, { x: 0, y: 0, w: SIZE.width, h: SIZE.height })?.length).toBeGreaterThan(4);

@@ -10,7 +10,7 @@ import { typeWords } from "../words/japaType";
 import { nameOf, say } from "../words/text";
 import { artShapes, type Box, type Shape } from "./art";
 import { cardFace, playedWords, type ShareCard } from "./face";
-import { cornerBadge, scaler, stripes, TONES, watermark, wrap, type Family, type Measure, type Size, type Step, type TextRole, type TextStep } from "./layout";
+import { cornerBadge, scaler, sealGround, stripes, TONES, watermark, wrap, type Family, type Measure, type Size, type Step, type TextRole, type TextStep } from "./layout";
 
 export interface StubFace {
   kicker: string;
@@ -149,7 +149,9 @@ export function stubSteps(face: StubFace, size: Size, measure: Measure): Step[] 
   const footTop = unit(870);
   const foot: Step[] = [{ op: "rect", x: 0, y: footTop, w: size.width, h: size.height - footTop, color: tone.background }, ...stripes(0, footTop, size.width, unit(22), unit(36), tone)];
   const right = size.width - unit(110);
-  put("sender", face.sender, unit(110), unit(965), unit(60), 700, "sans");
+  const seal = unit(96);
+  foot.push({ op: "seal", x: unit(110), y: unit(965) - Math.round(unit(60) * 0.36) - Math.round(seal / 2), size: seal, ground: sealGround(tone) });
+  put("sender", face.sender, unit(110) + seal + unit(22), unit(965), unit(60), 700, "sans");
   put("address", face.address, unit(110), unit(1035), unit(36), 600, "sans");
   put("disclaimer", face.disclaimer, right, unit(960), unit(44), 700, "sans", "right");
   put("official", face.officialLine, right, unit(1030), unit(30), 400, "sans", "right");

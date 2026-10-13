@@ -17,6 +17,7 @@ import { stubFace, type StubFace } from "../../shared/card/stub";
 import { browserDevice, canShareFiles, sendCard, type Device } from "../../shared/card/travel";
 import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
+import { Seal } from "../../shared/ui/Wordmark";
 import { Card } from "../../shared/ui/Panel";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
 import { japaTypeOf } from "../../shared/words/japaType";
@@ -41,8 +42,11 @@ function Footer({ face }: { face: Pick<CardFace, "sender" | "disclaimer" | "addr
   return (
     <div className="flex flex-col gap-0.5 border-t border-current/30 pt-2 text-sm">
       <div className="flex items-end justify-between gap-2">
-        <span className="font-sans text-xl leading-none font-black" data-word-mark>
-          {face.sender}
+        <span className="flex items-center gap-2">
+          <Seal ground="light" px={32} />
+          <span className="font-sans text-xl leading-none font-black" data-word-mark>
+            {face.sender}
+          </span>
         </span>
         <span className="font-semibold" data-game-line>
           {face.disclaimer}
