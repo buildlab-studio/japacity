@@ -4,9 +4,9 @@
 // and the door reads what a look is made of here, for "Make it yours", now that no turntable stands on the door.
 import { text } from "@japacity/content";
 import type { PoseName } from "@japacity/assets-src/people/poses";
-import { Box3, DirectionalLight, HemisphereLight, type Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
+import { Box3, Color, DirectionalLight, HemisphereLight, type Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
 
-import { colourOf } from "../../features/city/world";
+import { paletteCss } from "@japacity/assets";
 import { loadModel } from "../three/load";
 import { loadManifest } from "../three/manifest";
 import { figureOf, poseFigure } from "../three/people";
@@ -32,7 +32,7 @@ export async function renderPhoto(file: string, style: LookStyle | undefined, wi
   poseFigure(figure, 0, "stand");
   wear(figure.root, style);
   const scene = new Scene();
-  scene.add(new HemisphereLight(colourOf("sky"), colourOf("concrete"), 1.3));
+  scene.add(new HemisphereLight(new Color(paletteCss("sky")), new Color(paletteCss("concrete")), 1.3));
   const sun = new DirectionalLight(0xfff0d0, 2);
   sun.position.set(1.5, 3, 4);
   scene.add(sun, figure.root);
@@ -70,7 +70,7 @@ const FIGURE_YAW = (25 * Math.PI) / 180;
 /** Renders a figure once on a renderer of its own, as an image's data address, or null when it cannot. */
 function still(root: Object3D, camera: PerspectiveCamera, width: number, height: number): string | null {
   const scene = new Scene();
-  scene.add(new HemisphereLight(colourOf("sky"), colourOf("concrete"), 1.3));
+  scene.add(new HemisphereLight(new Color(paletteCss("sky")), new Color(paletteCss("concrete")), 1.3));
   const sun = new DirectionalLight(0xfff0d0, 2);
   sun.position.set(1.5, 3, 4);
   scene.add(sun, root);
