@@ -12,7 +12,7 @@
 // filled in from the name and changed there, and the guest line; Begin makes the guest life before the character.
 import { content } from "@japacity/content";
 import { type Id, int } from "@japacity/sim";
-import { Award, BedSingle, BookOpen, ChevronLeft, ChevronRight, Dices, Flag, GraduationCap, Hammer, House, Lock, Send, Store, Waves } from "lucide-react";
+import { Award, BedSingle, BookOpen, ChevronLeft, ChevronRight, Dices, DoorOpen, Flag, GraduationCap, Hammer, House, Lock, Send, Store, Waves } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
@@ -125,7 +125,7 @@ export function selfContainYear(): number {
   return selfContainRentYear + int.bp(selfContainRentYear, compound.feesBp);
 }
 
-const HOME_ICONS = { "family-house": House, "compound-room": BedSingle, makoko: Waves } as const;
+const HOME_ICONS = { "compound-room": BedSingle, "hostel-room": DoorOpen, "family-house": House, makoko: Waves } as const;
 
 /** The run as kept, or a new one with the kept look; a run already begun starts again. Settings' ask starts a run for the ready lives. */
 function startDraft(): DoorDraft {
@@ -231,6 +231,8 @@ function homeDue(home: Home): string {
     if (effect.type !== "obligation/open") continue;
     const entry = content.obligation[effect.obligation];
     if (entry?.prepaid === true) return say("ui.page.home.costs.prepaid", { count: entry.everyMonths ?? 12 });
+    // A rent by the month falls due at the next month's end, whole.
+    if (entry?.type === "rent" && typeof effect.amount === "number") return nextMonthWords(effect.amount, true);
   }
   return nextMonthWords(homeFigures(home).monthly);
 }
@@ -683,6 +685,9 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
                       <span className="min-w-0 flex-1 leading-tight">
                         <span className="block truncate text-[13.5px] font-extrabold">
                           {say(`ui.door.home.${one}`)} <span className={`font-semibold ${on ? "opacity-80" : "text-text-2"}`}>· {say(`ui.door.home.where.${one}`)}</span>
+                        </span>
+                        <span className={`block text-[12px] leading-snug ${on ? "opacity-85" : "text-text-2"}`} data-home-line>
+                          {say(`ui.door.home.line.${one}`)}
                         </span>
                         <span className={`block text-[12px] leading-snug ${on ? "opacity-85" : "text-text-2"}`} data-home-costs>
                           {say(`ui.door.home.costs.${one}`, { amount: formatMoney(monthly, "NGN"), rent: formatMoney(rentYear ?? 0, "NGN"), movein: formatMoney(now, "NGN") })}

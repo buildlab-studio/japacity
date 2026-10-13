@@ -146,3 +146,22 @@ describe("the hostel as a home", () => {
     expect([allowed("activity.fill-drum"), allowed("activity.fetch-water"), allowed("activity.cook-own")]).toEqual([true, false, true]);
   });
 });
+
+describe("the hostel on the door", () => {
+  test("[R-PROLOGUE-013] [R-HOME-002] given a life from sixteen whose last card picks the hostel room, when the prologue closes, then its first month is taken, the rent by the month is open and the life starts in the hostel; short of a month's rent the answer is shut", () => {
+    const answer = content.prologue["home"]?.answers.find((one) => one.id === "hostel-room");
+    expect(answer?.requires).toEqual([{ type: "money/can-pay", currency: "NGN", amount: MONTH }]);
+    const game = start({ content, scenario: "scenario.prologue", seed: "seed-1" });
+    for (const id of ["begin", "commercial", "work", "start-21", "save", "nowhere"]) {
+      const step = game.state.prologue.step;
+      if (step === null) throw new Error(`The prologue closed before ${id}.`);
+      game.accept({ type: "prologue/choose", step, answer: id });
+    }
+    expect(game.state.prologue.step).toBe("home");
+    const before = naira(game);
+    game.accept({ type: "prologue/choose", step: "home", answer: "hostel-room" });
+    expect(game.state.home.place).toBe(HOSTEL);
+    expect(naira(game)).toBe(before - MONTH);
+    expect(openEntries(game)).toEqual([RENT]);
+  });
+});

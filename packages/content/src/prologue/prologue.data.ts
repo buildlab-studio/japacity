@@ -339,6 +339,17 @@ const steps: Record<string, PrologueStep> = {
         ],
         { requires: [{ type: "money/can-pay", currency: "NGN", amount: COMPOUND_MOVE_IN + tuning.home.compound.upkeep }] },
       ),
+      // A hostel room of your own: the first month's rent taken, the rent by the month opened, and
+      // the move. Held first: one month's rent, no year's lump.
+      answer(
+        "hostel-room",
+        [
+          { type: "money/take", currency: "NGN", pocket: "any", amount: tuning.home.hostelRentKobo, reason: "rent" },
+          { type: "obligation/open", obligation: "obligation.upkeep-hostel", amount: tuning.home.hostelRentKobo },
+          { type: "home/move", place: "place.hostel-room" },
+        ],
+        { requires: [{ type: "money/can-pay", currency: "NGN", amount: tuning.home.hostelRentKobo }] },
+      ),
       // A room on the water (R-PROLOGUE-012, home.md): the rent opens first so the card says it as the other homes
       // do, and the move takes the room at that charge. The family house stays there to go back to.
       answer("makoko", [
