@@ -3,7 +3,7 @@
 // tag as a tilted chip, the name, the life in a few words, what it was and its savings; the ways it opens as picture
 // chips under the deck; and the age as a stepper card. A card swiped to the middle is the life picked, as a tap on it is.
 import { Minus, Plus } from "lucide-react";
-import { type UIEvent, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { agePointsCount, type Archetype, ARCHETYPES, opensChips, savingsOf } from "../../shared/frontdoor/archetypes";
 import { LIFE_THINGS, wayPicture } from "../../shared/frontdoor/lives";
@@ -125,7 +125,7 @@ export function LifeScreen({ look, picked, once, onPick, lowest, older, open, on
     const tile = ARCHETYPES[nearest];
     if (tile !== undefined && nearest !== at) onPick(tile);
   };
-  const scrolled = (_: UIEvent<HTMLDivElement>): void => {
+  const scrolled = (): void => {
     if (settle.current !== null) window.clearTimeout(settle.current);
     settle.current = window.setTimeout(rest, SETTLE_MS);
   };

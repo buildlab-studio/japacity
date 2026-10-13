@@ -364,11 +364,10 @@ describe("the run through the front door", () => {
         const figure = moneyDrawn(tile) ? say("ui.door.home.about", { amount: formatMoney(start, "NGN") }) : formatMoney(start, "NGN");
         const shown = open ? `${figure}${say("ui.door.home.start")}` : `${formatMoney(-left, "NGN")}${say("ui.door.home.needed")}`;
         expect({ id, shown: home.querySelector("[data-home-left]")?.textContent, shut: home.hasAttribute("disabled") }).toEqual({ id, shown, shut: !open });
-        if (!open) {
-          // A shut home reads out what is still needed and its month's living; its line and costs show once it can be picked.
-          expect(home.getAttribute("aria-description")).toBe(say("ui.door.home.said.needed", { amount: formatMoney(-left, "NGN"), monthly: formatMoney(monthly[id], "NGN") }));
-          continue;
-        }
+        // A home reads out what the life starts with there, or for a shut one what is still needed, and its month's living;
+        // a shut home's line and costs show once it can be picked.
+        expect(home.getAttribute("aria-description")).toBe(say(open ? "ui.door.home.said.start" : "ui.door.home.said.needed", { amount: open ? figure : formatMoney(-left, "NGN"), monthly: formatMoney(monthly[id], "NGN") }));
+        if (!open) continue;
         // Picked, it stands in front: its name and place on the postcard, its line in its own words (the home's wave) and its
         // costs, restated 11 Oct 2026 (R-PROLOGUE-013 as amended) with the room's move-in, as chips.
         fireEvent.click(home);
