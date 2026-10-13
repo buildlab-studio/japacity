@@ -26,3 +26,10 @@ export async function renderWithView(ui: ReactElement, view: PlayerView): Promis
   render(<GameProvider store={store}>{ui}</GameProvider>);
   return { authority, store };
 }
+
+/** The element at `selector`, or a throw, so `waitFor(() => found(...))` waits until it is there. */
+export function found(selector: string): HTMLElement {
+  const one = document.querySelector<HTMLElement>(selector);
+  if (one === null) throw new Error(`Nothing at ${selector}.`);
+  return one;
+}

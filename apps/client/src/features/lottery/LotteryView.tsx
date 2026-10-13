@@ -5,8 +5,8 @@
 // draw with a way to check it.
 // Offline `World.lottery` is null, the view's `lottery` with it, and the
 // luck kiosk among the month's activities plays instead (R-LOTTERY-001).
-// This is the classic page's kiosk; in the world the street kiosk's sheet
-// (KioskSheet.tsx) is built from the same pieces, exported here.
+// The world's street kiosk's sheet (KioskSheet.tsx) is built from the pieces
+// exported here.
 import { Minus, Plus, ShieldCheck, Ticket } from "lucide-react";
 import { useEffect, useState } from "react";
 

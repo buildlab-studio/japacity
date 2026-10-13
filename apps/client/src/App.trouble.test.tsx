@@ -19,10 +19,6 @@ import { engineView } from "./shared/testing/fixtures";
 import { say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
-import { onTheClassicPage } from "./shared/testing/classic";
-
-// The world's scene needs WebGL; the life once open is checked on the old month page (R-WORLD-024).
-onTheClassicPage();
 
 afterEach(() => {
   vi.useRealTimers();

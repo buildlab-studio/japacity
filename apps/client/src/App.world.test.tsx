@@ -1,11 +1,11 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { App, classicAsked } from "./App";
+import { App } from "./App";
 import { bootGame } from "./authority/boot";
 import { askReadyLives, startReadyLife } from "./shared/frontdoor/frontDoor.testing";
 import { say } from "./shared/words/text";
@@ -57,23 +57,20 @@ describe("the world is the game", () => {
     expect(await screen.findByRole("dialog", { name: "Credits" })).toBeTruthy();
   });
 
-  test("[R-WORLD-024] given ?classic, when a life starts, then the old month page opens with its header and tabs", async () => {
+  test("[R-WORLD-024] given ?classic, when a life starts, then the world opens as at any address: the old month page is gone", async () => {
     history.replaceState(null, "", "/?classic");
     await startLife();
-    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) }, { timeout: 10_000 })).toBeTruthy();
-    expect(document.querySelector("header")).not.toBeNull();
-    expect(document.querySelector("[data-tab='month']")).not.toBeNull();
-    expect(document.querySelector("[data-band]")).toBeNull();
+    await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull(), { timeout: 10_000 });
+    expect(document.querySelector("header, [data-tab], [data-where]")).toBeNull();
+    expect(screen.queryByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeNull();
   });
 
-  test("[R-WORLD-024] given the address, then only ?classic asks for the old page, and the old page is loaded only when asked for", () => {
-    expect(classicAsked("?classic")).toBe(true);
-    expect(classicAsked("?classic=1&x=2")).toBe(true);
-    expect(classicAsked("")).toBe(false);
-    expect(classicAsked("?world")).toBe(false);
+  test("[R-WORLD-024] given the shell's code, then nothing asks for the old month page, its module and its bar and head are gone", () => {
     const app = readFileSync(join(import.meta.dirname, "App.tsx"), "utf8");
-    expect(app).toContain('lazy(() => import("./Classic"))');
-    expect(app).not.toMatch(/^import [^;]* from "\.\/Classic";/m);
-    expect(app).not.toContain('from "./features/turn/TurnView"');
+    expect(app).not.toMatch(/classic/i);
+    expect(app).not.toContain("./Classic");
+    for (const gone of ["Classic.tsx", "features/turn/TurnBar.tsx", "features/turn/TurnView.tsx", "features/turn/Moment.tsx", "features/city/Phone.tsx"]) {
+      expect(existsSync(join(import.meta.dirname, gone))).toBe(false);
+    }
   });
 });

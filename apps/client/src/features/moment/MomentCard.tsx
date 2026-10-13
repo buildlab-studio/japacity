@@ -108,7 +108,7 @@ export function MomentFaceView({ face }: { face: MomentFace }) {
  */
 export function MomentCard({ over }: { over: "results" | "world" }) {
   const screens = useGame((state) => state.momentScreen);
-  // The store keeps the moments only while a screen stands to show them: the old month page has none (R-MOMENT-006).
+  // The store keeps the moments only while a screen stands to show them (R-MOMENT-006).
   useEffect(() => screens(), [screens]);
   const head = useGame((state) => state.momentCards[0] ?? null);
   const next = useGame((state) => state.nextMomentCard);

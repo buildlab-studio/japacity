@@ -41,7 +41,7 @@ export async function begin(): Promise<void> {
     () => {
       // The page after Begin wears the door's header too, so the door's own page is the mark.
       if (document.querySelector("[data-gate='page'], [data-gate='begun']") !== null) throw new Error("The door's page is still up.");
-      // A screen loaded on first use (the old month page) says it is loading until it is there.
+      // A screen loaded on first use says it is loading until it is there.
       if (screen.queryByText(say("ui.loading")) !== null) throw new Error("The life is still opening.");
     },
     { timeout: 5000 },

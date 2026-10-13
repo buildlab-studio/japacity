@@ -1,17 +1,18 @@
 // Words that misled players in the whole-life review, each held to what it should say.
 import { content, text } from "@japacity/content";
 import type { ActivityOption, PlayerView, ReportLine } from "@japacity/sim";
-import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { ActivityView } from "../../features/activity/ActivityView";
 import { ObligationView } from "../../features/obligation/ObligationView";
 import { RouteView } from "../../features/route/RouteView";
 import { DECEMBER } from "../../features/setpiece/DecemberScene";
-import { TurnBar } from "../../features/turn/TurnBar";
-import { TurnView } from "../../features/turn/TurnView";
+import { nudgeOf } from "../../features/city/nudge";
 import { engineView, richView } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
+import { ReportLines } from "../ui/ReportLines";
+import { asksAttention, tidyLines } from "./lines";
 import { paramWords, say, sayCount, words } from "./text";
 import { uiText } from "./ui";
 
@@ -73,43 +74,38 @@ describe("words that mislead", () => {
     expect(document.body.textContent).not.toMatch(/\b1 (months|questions|payments)\b/);
   });
 
-  test("[R-NEWS-005] [R-TURN-008] given a month whose only marked line is a story for you, then the report tags it for you and nothing says it needs an answer", async () => {
+  // The month's report shows in the world's results and its lines in the road's, the offers' and the prologue's lists
+  // (ReportLines); whether a month needs an answer is the one test the world's nudge reads (nudge.ts, asksAttention).
+  test("[R-NEWS-005] [R-TURN-008] given a month whose only marked line is a story for you, then its line is tagged for you and nothing says it needs an answer", async () => {
     const base = engineView();
     const story = line("line.news.delivered", { story: "news.era-calm", stage: "announced", forYou: 1 }, true);
     const report = { month: 1, lines: [story], japacityBefore: null, japacityAfter: null, attention: true };
-    await renderWithView(<TurnView />, { ...base, report });
-    expect(screen.queryByText(say("ui.report.needs-you"))).toBeNull();
-    expect(screen.queryByText(say("ui.report.attention"))).toBeNull();
+    await renderWithView(<ReportLines lines={report.lines} />, { ...base, report });
+    expect(tidyLines(report.lines).some(asksAttention)).toBe(false);
+    expect(nudgeOf({ ...base, report, chapter: { ...base.chapter, current: null }, offers: [], setpiece: null }).key).not.toBe("ui.nudge.report");
     expect(screen.getByText(say("ui.news.for-you"))).toBeDefined();
   });
 
-  test("[R-TURN-008] given a set piece open and last month's lines asking nothing, then the report does not say something needs an answer", async () => {
+  test("[R-TURN-008] given a set piece open and last month's lines asking nothing, then nothing says something needs an answer", () => {
     const base = engineView();
     const played = line("line.activity.played", { activity: "activity.rest" }, false);
     const report = { month: 1, lines: [played], japacityBefore: null, japacityAfter: null, attention: false };
     const setpiece = { entry: DECEMBER, asked: 0, total: 1, question: null };
-    await renderWithView(<TurnView />, { ...base, report, setpiece } satisfies PlayerView);
-    expect(screen.queryByText(say("ui.report.attention"))).toBeNull();
+    expect(tidyLines(report.lines).some(asksAttention)).toBe(false);
+    expect(nudgeOf({ ...base, report, setpiece, chapter: { ...base.chapter, current: null }, offers: [] } satisfies PlayerView).key).not.toBe("ui.nudge.report");
   });
 
-  test("[R-TURN-008] given a month where an offer opened, then the report still says something needs an answer", async () => {
+  test("[R-TURN-008] given a month where an offer opened, then the report still says something needs an answer", () => {
     const base = engineView();
     const opened = line("line.offer.opened", { offer: "offer.roof" }, true);
     const report = { month: 1, lines: [opened], japacityBefore: null, japacityAfter: null, attention: true };
-    await renderWithView(<TurnView />, { ...base, report });
-    expect(screen.getByText(say("ui.report.needs-you"))).toBeDefined();
-    expect(screen.getByText(say("ui.report.attention"))).toBeDefined();
+    expect(tidyLines(report.lines).some(asksAttention)).toBe(true);
+    expect(nudgeOf({ ...base, report, chapter: { ...base.chapter, current: null }, offers: [], setpiece: null }).key).toBe("ui.nudge.report");
   });
 
-  test("[R-SETPIECE-002] given the December visit or the road's night open, then the month bar shows the engine's words, and the interface says interview only of a refusal", async () => {
-    const base = engineView();
-    for (const entry of [DECEMBER, "setpiece.road-night"] as const) {
-      const setpiece = { entry, asked: 0, total: 1, question: null };
-      const view: PlayerView = { ...base, setpiece };
-      await renderWithView(<TurnBar />, view);
-      expect(screen.getByText(words("reject.setpiece-open"))).toBeDefined();
-      cleanup();
-    }
+  // The month bar went with the old page; the world says the engine's words where the month would turn, at the bed
+  // (features/city/City.interview.test.tsx holds the December visit and the road's night there).
+  test("[R-SETPIECE-002] given the interface's own words, then it says interview only of a refusal", () => {
     const own = Object.entries(uiText).filter(([key, value]) => /interview/i.test(value) && !key.startsWith("ui.refusal."));
     expect(own).toEqual([]);
   });

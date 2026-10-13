@@ -90,7 +90,7 @@ describe("the moment card over the results", () => {
     expect(gallery.getState().kept.some((kept) => kept.key === key)).toBe(true);
   });
 
-  test("[R-MOMENT-006] given the same close where no moment card stands (the old month page keeps none), then the chapter's share card opens as before", async () => {
+  test("[R-MOMENT-006] given the same close where no moment card stands, then the chapter's share card opens as before", async () => {
     const save = recordedSave("ada-careful");
     const game = recordedGame("ada-careful", save.commands.length - CLOSE);
     const store = createGameStore(gameAuthority(game));

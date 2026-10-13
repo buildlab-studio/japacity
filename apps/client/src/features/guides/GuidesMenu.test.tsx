@@ -1,22 +1,18 @@
 import { content } from "@japacity/content";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { createGameStore } from "../../authority/store";
 import { engineView, fakeAuthority, richView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
+import { found, renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { App } from "../../App";
 import { GuidesMenu } from "./GuidesMenu";
 import { guidePath, MADE_PATH } from "./paths";
-import { onTheClassicPage } from "../../shared/testing/classic";
 
 function openMenu() {
   fireEvent.click(screen.getByRole("button", { name: say("guide.page.menu") }));
 }
-
-// The old month page these tests drive opens only with ?classic (R-WORLD-024).
-onTheClassicPage();
 
 describe("the guides from the game", () => {
   test("[R-GUIDE-005] given a life in play, when the menu is opened, then every guide links to its page, opened beside the game", async () => {
@@ -45,9 +41,16 @@ describe("the guides from the game", () => {
     expect(hrefs.filter((href) => href.startsWith("/guides/credits") || href.startsWith("/guides/sources"))).toEqual([]);
   });
 
-  test("[R-GUIDE-005] given the game's header, when a life is in play, then the guides menu is in it", async () => {
+  test("[R-GUIDE-005] given a life in play in the world, when the phone's Settings opens, then the guides menu is under About the game, beside the credits, and opens every guide", async () => {
     const store = createGameStore(fakeAuthority(engineView("scenario.ada")));
+    await store.getState().refresh();
     render(<App store={store} />);
-    expect(await screen.findByRole("button", { name: say("guide.page.menu") })).toBeDefined();
+    // The world is the game (R-WORLD-001): the old page's header is gone, and the guides sit in the phone's Settings.
+    fireEvent.click(await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 }));
+    fireEvent.click(await waitFor(() => found('[data-app="settings"]')));
+    const menu = await screen.findByRole("button", { name: say("guide.page.menu") });
+    expect(menu.closest("[data-about]")).not.toBeNull();
+    openMenu();
+    for (const id of Object.keys(content.guide)) expect(screen.getByRole("link", { name: say(`${id}.title`) }).getAttribute("href")).toBe(guidePath(id));
   });
 });

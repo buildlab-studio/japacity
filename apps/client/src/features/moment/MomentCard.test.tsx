@@ -73,6 +73,17 @@ describe("the moment card on screen", () => {
     expect(face.querySelector("[data-moment-mark]")?.getAttribute("src")).toBe(markFile("light"));
   });
 
+  // Moved from the old month page's full-screen moment: the display face has no naira sign, so it never holds the letter.
+  test("[R-LOTTERY-013] given the win letter staged, then the card tells the prize with its naira sign, and nothing on it is set in the display face", async () => {
+    const { store, authority } = await renderWithView(<MomentCard over="world" />, engineView());
+    await arrive(store, authority, [WON]);
+    const card = await screen.findByRole("dialog", { name: say("moment.won.kicker") });
+    const face = card.querySelector<HTMLElement>("[data-moment-card='won']")!;
+    expect(face.textContent).toContain("₦");
+    expect(face.querySelectorAll(".font-display")).toHaveLength(0);
+    expect(face.className).not.toContain("font-display");
+  });
+
   test("[R-MOMENT-003] given the card, then it stands centred no wider than 380 px, 16 px in from the sides, with the line, the figure, the kicker and the address at their sizes", async () => {
     const { store, authority } = await renderWithView(<MomentCard over="world" />, engineView());
     await arrive(store, authority, [ROBBED]);
@@ -154,7 +165,7 @@ describe("the moment card on screen", () => {
     expect(await screen.findByRole("dialog", { name: say("moment.won.kicker") })).toBeDefined();
   });
 
-  test("[R-MOMENT-006] given no screen for moment cards (the old month page), when a moment's line comes, then none is kept, so the share card's turn is never held", async () => {
+  test("[R-MOMENT-006] given no screen for moment cards, when a moment's line comes, then none is kept, so the share card's turn is never held", async () => {
     const view = engineView();
     const authority = fakeAuthority(view);
     const store = createGameStore(authority);

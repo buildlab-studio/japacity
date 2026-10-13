@@ -79,8 +79,8 @@ export const uiText: Record<string, string> = {
 
   // Nothing on screen says it since the band names the month (decision 0034); kept while the voice test reads it.
   "ui.months.fact.arriving": "Next page any minute now",
-  "ui.clock.next": "Next page in {wait}",
-  "ui.clock.full": "Full: you hold every page you can. Play a month to make room.",
+  "ui.clock.next": "Next month to play in {wait}",
+  "ui.clock.full": "Full: you hold every month you can. Live one to make room.",
   "ui.clock.hours": "{hours}h {minutes}m",
   "ui.clock.minutes": "{minutes}m",
   "ui.notify.ask.title": "Know when your months are full",

@@ -25,7 +25,7 @@ describe("the contact sheet", () => {
   test("given the address, then only ?tiles asks for the sheet", () => {
     expect(tilesAsked("?tiles")).toBe(true);
     expect(tilesAsked("?tiles=1&x=2")).toBe(true);
-    expect(tilesAsked("?classic")).toBe(false);
+    expect(tilesAsked("?world")).toBe(false);
     expect(tilesAsked("")).toBe(false);
   });
 });

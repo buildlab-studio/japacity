@@ -1,9 +1,10 @@
-// The guides from inside the game (R-GUIDE-005, R-GUIDE-011): the header's way to the guide
+// The guides from inside the game (R-GUIDE-005, R-GUIDE-011): a row in the phone's Settings, under About the game,
+// beside the credits (`row`), or a small book button; either way the guide
 // for the route in view, every guide, the numbers and how the game was made. The credits are a
 // screen of the game itself (R-GUIDE-008), not a page here.
 // The pages are the prerendered ones, opened beside the game so the life stays where it is.
 import { content, guideForRoute } from "@japacity/content";
-import { BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen } from "lucide-react";
 import { useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
@@ -24,24 +25,31 @@ function PageLink({ href, children }: { href: string; children: string }) {
   );
 }
 
-export function GuidesMenu() {
+/** `row`: drawn as a row of the phone's Settings, as the credits' row is (city.md R-CITY-021); else a small book button. */
+export function GuidesMenu({ row = false }: { row?: boolean } = {}) {
   const view = useView();
   const [open, setOpen] = useState(false);
   const route = view.japacity.route;
   const routeGuide = route === null ? null : guideForRoute(content, route);
+  const show = () => {
+    counting().count("screen/opened", "guide");
+    setOpen(true);
+  };
   return (
     <>
-      <Button
-        small
-        variant="quiet"
-        aria-label={say("guide.page.menu")}
-        onClick={() => {
-          counting().count("screen/opened", "guide");
-          setOpen(true);
-        }}
-      >
-        <BookOpen size={18} />
-      </Button>
+      {row ? (
+        <button type="button" aria-label={say("guide.page.menu")} className="lively-card press mt-1 flex w-full items-center justify-between gap-2 p-3 text-left" onClick={show} data-guides-row>
+          <span className="min-w-0">
+            <span className="block text-[17px] font-bold">{say("guide.page.menu")}</span>
+            <span className="block text-[14px] text-text-2">{say("guide.page.game-note")}</span>
+          </span>
+          <ArrowRight size={20} className="shrink-0" aria-hidden />
+        </button>
+      ) : (
+        <Button small variant="quiet" aria-label={say("guide.page.menu")} onClick={show}>
+          <BookOpen size={18} />
+        </Button>
+      )}
       <Sheet open={open} onOpenChange={setOpen} title={say("guide.page.menu")} description={say("guide.page.game-note")}>
         <nav aria-label={say("guide.page.menu")} className="flex flex-col gap-4">
           {routeGuide === null || route === null ? null : (

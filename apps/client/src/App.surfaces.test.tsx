@@ -15,6 +15,7 @@ import { pickBirth } from "./features/account/age.testing";
 import { InvitePage, InviteServerProvider } from "./features/account/InvitePage";
 import type { ServedAdvert } from "./features/adverts/adverts";
 import { AdvertsProvider, PhoneTile } from "./features/adverts/placed";
+import { GuidesMenu } from "./features/guides/GuidesMenu";
 import { pairApiFor, PairApiProvider } from "./features/people/pairApi";
 import { PeopleView } from "./features/people/PeopleView";
 import { MODERATION_SURFACES } from "./shared/moderation/BlockReport";
@@ -28,7 +29,6 @@ import { linkedFriend, PAIR, peopleGame, renderWithGame } from "./shared/testing
 import "./shared/testing/render";
 import { BASE, fakeServer, type FakeServer } from "./shared/testing/server";
 import { say } from "./shared/words/text";
-import { onTheClassicPage } from "./shared/testing/classic";
 
 const CODE = "c0ffeec0ffeec0ffeec0ffee";
 const THEM = "character-them";
@@ -99,9 +99,6 @@ const OPEN: Record<(typeof MODERATION_SURFACES)[number], (server: FakeServer) =>
   },
 };
 
-// The old month page these tests drive opens only with ?classic (R-WORLD-024).
-onTheClassicPage();
-
 describe("the block and report control on every surface", () => {
   test.each(MODERATION_SURFACES.map((surface) => [surface]))("[R-MODERATION-003] given the %s surface online, when a player reaches it, then the report control is there", async (surface) => {
     await OPEN[surface](everything());
@@ -117,14 +114,25 @@ describe("the block and report control on every surface", () => {
 const slots = (within: ParentNode = document) => within.querySelectorAll("[data-advert-slot]");
 
 describe("where no advert shows", () => {
-  test("[R-ADVERT-003] given every slot filled, when the shell shows, then the phone tile is there to be found, so the walks below are not empty", async () => {
-    render(providers(everything(), <App store={await storeOf(advertsOn())} />));
-    fireEvent.click(within(await screen.findByRole("navigation", { name: say("ui.tabs") }, { timeout: 10_000 })).getByRole("button", { name: say("ui.tab.news") }));
+  // The world draws no advert slot of its own (City.tsx shows the place's adverts only off the world), so the phone tile and
+  // the guides are walked as the components they are, under the same providers.
+  test("[R-ADVERT-003] given every slot filled, when the phone tile shows, then it is there to be found, so the walks below are not empty", async () => {
+    render(<GameProvider store={await storeOf(advertsOn())}>{providers(everything(), <PhoneTile />)}</GameProvider>);
     await waitFor(() => expect(slots()).toHaveLength(1));
   });
 
   test("[R-ADVERT-003] given every slot filled, when the guides open, then the guide holds no advert", async () => {
-    render(providers(everything(), <App store={await storeOf(advertsOn())} />));
+    render(
+      <GameProvider store={await storeOf(advertsOn())}>
+        {providers(
+          everything(),
+          <>
+            <PhoneTile />
+            <GuidesMenu row />
+          </>,
+        )}
+      </GameProvider>,
+    );
     await waitFor(() => expect(slots()).toHaveLength(1));
     fireEvent.click(screen.getByRole("button", { name: say("guide.page.menu") }));
     expect(slots(await screen.findByRole("dialog"))).toHaveLength(0);

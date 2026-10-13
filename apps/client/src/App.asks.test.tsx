@@ -1,6 +1,8 @@
 // Nothing is asked of the player before the early win (docs/rules/guides.md
-// R-GUIDE-015): the share card and its button wait in the shell until the
-// store's flag is up, and then show as they always did.
+// R-GUIDE-015): the share card and its button wait in the world's shell until
+// the store's flag is up, and then show as they always did. The card's tile
+// has no place in the world (App.tsx keeps it hidden), so the tile's own test
+// renders the held card as the shell mounts it.
 import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -9,11 +11,12 @@ import { App } from "./App";
 import { createGameStore, type GameStore } from "./authority/store";
 import { makeCounters, type CounterRow } from "./shared/analytics/counters";
 import { countInto } from "./shared/analytics/start";
+import { CardView } from "./features/card/ShareCard";
+import { HeldShareCard } from "./features/notify/held";
 import { engineView, fakeAuthority } from "./shared/testing/fixtures";
-import "./shared/testing/render";
+import { renderWithView } from "./shared/testing/render";
 import { cardKey } from "./shared/ui/stage";
 import { say } from "./shared/words/text";
-import { onTheClassicPage } from "./shared/testing/classic";
 
 vi.mock("./shared/card/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
 
@@ -47,15 +50,13 @@ async function playing(view: PlayerView, earlyWin: boolean): Promise<GameStore> 
   await store.getState().refresh();
   store.setState({ earlyWin });
   render(<App store={store} />);
-  await waitFor(() => expect(document.querySelector("main[data-where]")).not.toBeNull());
+  // The world is the game (R-WORLD-001): the shell is in once its band is.
+  await waitFor(() => expect(document.querySelector("[data-band]")).not.toBeNull());
   return store;
 }
 
 const shareButtons = () => document.querySelectorAll("[data-share-button]");
 const cardTiles = () => document.querySelectorAll("[data-card-tile]");
-
-// The old month page these tests drive opens only with ?classic (R-WORLD-024).
-onTheClassicPage();
 
 describe("the share card waits for the early win", () => {
   test("[R-GUIDE-015] given a card due before the early win, when the shell shows, then neither the card, its tile nor its share button is on screen, and no ask is counted", async () => {
@@ -73,7 +74,15 @@ describe("the share card waits for the early win", () => {
   });
 
   test("[R-GUIDE-015] given a card held back, when the early win is shown, then its tile shows and opens the card with its share button", async () => {
-    const store = await playing(withCard(), false);
+    const { store } = await renderWithView(
+      <HeldShareCard>
+        <CardView />
+      </HeldShareCard>,
+      withCard(),
+    );
+    act(() => store.setState({ earlyWin: false }));
+    await waitFor(() => expect(store.getState().cardClosed).toBe(cardKey(DRAW_WIN)));
+    expect(cardTiles()).toHaveLength(0);
     act(() => store.setState({ earlyWin: true }));
     expect(await screen.findByText(say("share.draw-win.ready"))).toBeDefined();
     expect(cardTiles()).toHaveLength(1);
