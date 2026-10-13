@@ -34,8 +34,8 @@ async function openMarket(game: Game, here: string | null): Promise<{ unmount: (
 
 const card = (thing: string): HTMLButtonElement | null => document.querySelector<HTMLButtonElement>(`[data-market-thing="${thing}"]`);
 
-describe("the Market (R-HOME-013 to come)", () => {
-  test("[R-HOME-006] [R-WORLD-019] given Ada at the family house, when the Market opens, then every thing stands as a sticker of its model, its price on the yellow pill, and what has no place at Mama's says so after the rest", async () => {
+describe("the Market", () => {
+  test("[R-HOME-013] [R-HOME-006] [R-WORLD-019] given Ada at the family house, when the Market opens, then every thing stands as a sticker of its model, its price on the yellow pill, and what has no place at Mama's says so after the rest", async () => {
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     const { unmount } = await openMarket(game, FAMILY);
@@ -50,7 +50,7 @@ describe("the Market (R-HOME-013 to come)", () => {
     unmount();
   });
 
-  test("[R-HOME-006] [R-WORLD-006] given a fan picked at home, when Buy is pressed, then the balance before and after shows, the fan is bought at its price, the delivery's toast stands and the card says it is yours", async () => {
+  test("[R-HOME-013] [R-HOME-006] [R-WORLD-006] given a fan picked at home, when Buy is pressed, then the balance before and after shows, the fan is bought at its price, the delivery's toast stands and the card says it is yours", async () => {
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     const { unmount } = await openMarket(game, FAMILY);
@@ -69,7 +69,7 @@ describe("the Market (R-HOME-013 to come)", () => {
     unmount();
   });
 
-  test("[R-HOME-006] given a thing owned, when it is picked, then the foot offers to sell it for its resale figure and the sale brings it in", async () => {
+  test("[R-HOME-013] [R-HOME-006] given a thing owned, when it is picked, then the foot offers to sell it for its resale figure and the sale brings it in", async () => {
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     game.accept({ type: "thing/buy", thing: "thing.radio" });
@@ -85,7 +85,7 @@ describe("the Market (R-HOME-013 to come)", () => {
     unmount();
   });
 
-  test("[R-HOME-006] given a price not held, when the card is picked, then Buy is shut and says how much short, with no balance after", async () => {
+  test("[R-HOME-013] [R-HOME-006] given a price not held, when the card is picked, then Buy is shut and says how much short, with no balance after", async () => {
     const game = newGame();
     setPockets(game, { NGN: 10_000_00 });
     const { unmount } = await openMarket(game, FAMILY);
@@ -97,7 +97,7 @@ describe("the Market (R-HOME-013 to come)", () => {
     unmount();
   });
 
-  test("[R-HOME-006] given Ada away from home in Lagos, when the Market opens, then it says the rider brings it to the gate, a pick shakes and nothing is offered to buy", async () => {
+  test("[R-HOME-013] [R-HOME-006] given Ada away from home in Lagos, when the Market opens, then it says the rider brings it to the gate, a pick shakes and nothing is offered to buy", async () => {
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     const { unmount } = await openMarket(game, "place.yaba");
@@ -108,7 +108,7 @@ describe("the Market (R-HOME-013 to come)", () => {
     unmount();
   });
 
-  test("[R-PLACE-002] given a life abroad, when the Market opens, then it says the market is a Lagos thing and shows no grid", async () => {
+  test("[R-HOME-013] [R-PLACE-002] given a life abroad, when the Market opens, then it says the market is a Lagos thing and shows no grid", async () => {
     const game = newGame();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     const { unmount } = await openMarket(game, null);
