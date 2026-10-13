@@ -94,7 +94,7 @@ test("a new player picks a life, lives a month and reads its results", async ({ 
   await expect(page.locator("[data-band]")).toContainText(aMonthOn(age));
 });
 
-test("three months of play show no kobo, raw object, missing value or bare key", async ({ page }, info) => {
+test("[R-WORLD-034] three months of play, acts from the fan and from the things' sheets, show no kobo, raw object, missing value or bare key", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The month's acts are tapped at phone size");
   test.setTimeout(300_000);
   await page.goto(`/${LIVED}`);
