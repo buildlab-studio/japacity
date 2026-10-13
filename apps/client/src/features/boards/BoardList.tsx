@@ -7,7 +7,6 @@
 // ringed (docs/design/13-the-lively-layer.md section 2).
 import { useEffect, useState } from "react";
 
-import { readPerson } from "../../authority/person";
 import { assetUrl, loadManifest } from "../../shared/three/manifest";
 import { TINTS } from "../../shared/ui/lively/tint";
 import { formatNumber } from "../../shared/words/format";
@@ -31,12 +30,29 @@ function nameOf(row: BoardRow): string {
  */
 export const BOARD_FACES: readonly string[] = ["chr_ada", "chr_tunde", "chr_zainab", "chr_tobi", "chr_ngozi", "chr_femi", "chr_kemi", "chr_bisi", "chr_amaka", "chr_bayo", "chr_dayo", "chr_emeka", "chr_kunle", "chr_sade", "chr_segun", "chr_tolani"];
 
+/** Where the door keeps the person built there (authority/person.ts PERSON_KEY), read here alone for its look. */
+export const KEPT_PERSON = "japacity.person";
+
+/**
+ * The look kept from the door, or null. Read straight from the device so the boards' chunk shares no module with the
+ * city's loader (a shared module there regroups the first visit's chunks).
+ */
+export function keptLook(): string | null {
+  try {
+    const kept: unknown = JSON.parse(window.localStorage.getItem(KEPT_PERSON) ?? "null");
+    const look = typeof kept === "object" && kept !== null ? (kept as { look?: unknown }).look : null;
+    return typeof look === "string" ? look : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * The face on a line. No look travels on a board (R-CITY-040), so another player's face is one of the door's looks
  * picked from the name the line shows, the same name always the same face; the player's own line wears the look they
  * built at the door, kept on this device, where there is one.
  */
-export function boardFace(name: string, me: boolean, own: string | null = readPerson()?.look ?? null): string {
+export function boardFace(name: string, me: boolean, own: string | null = keptLook()): string {
   if (me && own !== null && BOARD_FACES.includes(own)) return own;
   const sum = [...name].reduce((total, letter) => total + (letter.codePointAt(0) ?? 0), 0);
   return BOARD_FACES[sum % BOARD_FACES.length] ?? "chr_ada";

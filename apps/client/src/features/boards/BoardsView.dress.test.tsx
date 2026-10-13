@@ -10,7 +10,7 @@ import "../../shared/testing/render";
 import { LOOKS } from "../../shared/frontdoor/looks";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
-import { BOARD_FACES, boardFace } from "./BoardList";
+import { BOARD_FACES, boardFace, KEPT_PERSON, keptLook } from "./BoardList";
 import { boardsApiFor, BoardsApiProvider, type BoardRow } from "./boards";
 import { BoardsView } from "./BoardsView";
 
@@ -75,6 +75,8 @@ describe("the boards in the lively dress", () => {
     // A kept look the door no longer offers falls back to the name's face.
     expect(boardFace("ada_lagos", true, "chr_nobody")).toBe(boardFace("ada_lagos", false));
 
+    expect(KEPT_PERSON).toBe(PERSON_KEY);
+    expect(keptLook()).toBeNull();
     window.localStorage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_kemi", name: "Kemi", archetype: "developer" }));
     show([row(1, "zainab_b", 12), row(2, "ada_lagos", 5, true)]);
     await waitFor(() => expect(lineCards()).toHaveLength(2));
