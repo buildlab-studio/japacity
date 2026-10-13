@@ -1,9 +1,11 @@
 // The ride sheet (docs/rules/world.md R-WORLD-017): picking a stop raises a card at the foot of the
 // map with the place's name and a line about it, the ways to go with a fare and minutes each, and one
 // main button that says what is left after. The map stays in view above it.
-import { Bike, Bus, CarTaxiFront, Footprints, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useState } from "react";
 
+import { Tile } from "../../shared/tiles/Tile";
+import { PressButton } from "../../shared/ui/lively/PressButton";
 import { blurbOf, say, words } from "../../shared/words/text";
 import { Balance, CENTRED, pricedLabel } from "../../shared/world/Balance";
 import type { RideChoice } from "../../shared/world/contract";
@@ -26,7 +28,8 @@ export interface RideSheetProps {
   by?: RideChoice["id"];
 }
 
-const WAY_ICON = { danfo: Bus, keke: CarTaxiFront, okada: Bike, walk: Footprints } as const;
+/** The ways' pictures, stand-ins until the danfo, the keke, the okada and a walker have tiles of their own. */
+const WAY_PICTURE = { danfo: "🚐", keke: "🛺", okada: "🏍️", walk: "🚶" } as const;
 
 /** The first sentence of a place's blurb: a line about it. */
 function firstSentence(blurb: string): string {
@@ -85,58 +88,68 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
   const balance = here || locked || way === undefined || way.fare === 0 || short ? null : { before: have, after: left };
 
   return (
+    // The lively ride sheet: the place's picture and name with its state as a
+    // chip and a line, the four ways as picture tiles with the fare under each, the balance before struck and after, and
+    // one Go. A component of its own, so the map that holds it can be any map (folding map mounts it).
     <div role="dialog" aria-label={headingOf(pin.name)} className="pointer-events-auto absolute inset-x-0 bottom-0 z-[3]" data-ride-sheet={pin.id}>
-      <div className="panel rise mx-2 mb-2 overflow-hidden">
-        <div className="band relative flex items-end gap-3 px-4 pt-3.5 pb-3">
-          <div className="min-w-0 flex-1">
-            <div className="label label-strong truncate" data-ride-tag>
-              {tagOf(pin, home)}
-            </div>
-            <h2 className="title text-[23px] leading-tight">{headingOf(pin.name)}</h2>
-          </div>
-          <button type="button" onClick={onClose} aria-label={mapWords("map.not-now")} className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-[5px] text-on-strong/80">
+      <div className="rise mx-auto w-full max-w-[430px] overflow-hidden rounded-t-[26px] bg-sheet px-4 pt-2 pb-[max(16px,env(safe-area-inset-bottom))] text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]">
+        <div className="relative">
+          <span aria-hidden className="mx-auto mb-2 block h-[5px] w-10 rounded-[3px] bg-text/25" />
+          <button type="button" onClick={onClose} aria-label={mapWords("map.not-now")} className="press absolute top-0 right-0 flex size-9 items-center justify-center rounded-full text-text-2">
             <X size={18} />
           </button>
         </div>
-        <div className="p-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))]">
-          <p className="text-[14px] leading-snug text-text-2" data-ride-line>
-            {lineOf(pin)}
-          </p>
-          {here || locked ? null : (
-            <div role="radiogroup" aria-label={mapWords("map.ways")} className="mt-3 grid grid-cols-4 gap-1.5">
-              {ways.map((choice) => {
-                const Icon = WAY_ICON[choice.id];
-                const on = choice.id === chosen;
-                const shut = choice.shut !== undefined;
-                return (
-                  <button
-                    key={choice.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={on}
-                    disabled={shut}
-                    onClick={() => setChosen(choice.id)}
-                    data-way={choice.id}
-                    data-shut={choice.shut}
-                    className={`press flex flex-col items-start gap-0.5 rounded-[6px] border-2 px-2.5 py-2 text-left ${on ? "border-signal bg-sheet-2" : "border-sheet-line bg-sheet"} ${shut ? "opacity-50" : ""}`}
-                  >
-                    <span className="flex items-center gap-1.5 text-[13px] font-bold">
-                      <Icon size={15} aria-hidden />
-                      {choice.label}
-                    </span>
-                    <span className="num text-[17px]">{choice.fare === 0 ? say(choice.id === "walk" ? "ui.world.free" : "ui.world.pass") : formatMoney(choice.fare)}</span>
-                    <span className="text-[12px] text-text-2">{shut ? mapWords("map.way.walk-far") : mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
-                  </button>
-                );
-              })}
+        <div className="flex items-center gap-3 pr-8">
+          <span className="flex size-16 shrink-0 items-center justify-center rounded-[16px] bg-tint-plain">
+            <span className="sticker-cut wobble-in" style={{ rotate: "-6deg" }}>
+              <Tile of={pin.id} size={46} />
+            </span>
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-title leading-tight font-bold">{headingOf(pin.name)}</h2>
+              <span className={`sticker-chip ${pin.state === "not" ? "bg-sheet-2" : "bg-tint-money"}`} style={{ rotate: "-2deg", ...(pin.state === "not" ? {} : { color: "var(--money-ink)" }) }} data-ride-tag>
+                {tagOf(pin, home)}
+              </span>
             </div>
-          )}
-          <button type="button" className="btn-main mt-3" style={main.after === null ? CENTRED : undefined} disabled={main.disabled} onClick={() => (here ? (onStay ?? onClose)() : way === undefined ? undefined : onChoose(way))} data-ride-main>
-            <span>{main.label}</span>
-            {main.after === null ? null : <span className="text-[13px] font-semibold opacity-80">{main.after}</span>}
-          </button>
-          {balance === null ? null : <Balance className="mt-2.5 justify-center" before={{ amount: balance.before, words: formatMoney(balance.before) }} after={{ amount: balance.after, words: formatMoney(balance.after) }} />}
+            <p className="mt-0.5 text-[15px] leading-snug text-text-2" data-ride-line>
+              {lineOf(pin)}
+            </p>
+          </div>
         </div>
+        {here || locked ? null : (
+          <div role="radiogroup" aria-label={mapWords("map.ways")} className="mt-3 grid grid-cols-4 gap-2">
+            {ways.map((choice, index) => {
+              const on = choice.id === chosen;
+              const shut = choice.shut !== undefined;
+              return (
+                <button
+                  key={choice.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  disabled={shut}
+                  onClick={() => setChosen(choice.id)}
+                  data-way={choice.id}
+                  data-shut={choice.shut}
+                  className={`ride-way press flex flex-col items-center gap-0.5 rounded-[18px] px-1 pt-2 pb-2 text-center ${on ? "ride-way-on" : ""} ${shut ? "opacity-50" : ""}`}
+                >
+                  <span className="sticker-cut text-[30px] leading-none" style={{ rotate: `${String(index % 2 === 0 ? -5 : 4)}deg` }} aria-hidden>
+                    {WAY_PICTURE[choice.id]}
+                  </span>
+                  <span className="mt-1 text-[15px] leading-tight font-bold">{choice.label}</span>
+                  <span className="num text-[17px] leading-tight">{choice.fare === 0 ? say(choice.id === "walk" ? "ui.world.free" : "ui.world.pass") : formatMoney(choice.fare)}</span>
+                  <span className="text-[12px] leading-tight text-text-2">{shut ? mapWords("map.way.walk-far") : mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {balance === null ? null : <Balance className="mt-3 justify-center" before={{ amount: balance.before, words: formatMoney(balance.before) }} after={{ amount: balance.after, words: formatMoney(balance.after) }} />}
+        <PressButton className="mt-3 w-full" style={main.after === null ? CENTRED : undefined} disabled={main.disabled} onClick={() => (here ? (onStay ?? onClose)() : way === undefined ? undefined : onChoose(way))} data-ride-main>
+          <span>{main.label}</span>
+          {main.after === null ? null : <span className="text-[13px] font-semibold opacity-80">{main.after}</span>}
+        </PressButton>
       </div>
     </div>
   );

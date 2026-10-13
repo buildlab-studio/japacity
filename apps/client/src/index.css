@@ -631,3 +631,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 .ask-mark { box-shadow: 0 0 0 4px var(--sheet-2), 0 0 0 5.5px var(--edge), 0 5px 0 5.5px var(--edge); }
 /* An honest ask's main answer: the same white row with the navy underside, the press it invites (R-ADVICE-006). */
 .ask-reply-main { box-shadow: 0 0 0 2px var(--edge), 0 4px 0 2px var(--edge); }
+/* The ride sheet's ways: white tiles with the edge; the way chosen on the soft
+   yellow with the navy underside. */
+.ride-way { background: var(--sheet-2); box-shadow: 0 0 0 1.5px var(--sheet-line); }
+.ride-way-on { background: var(--soft); box-shadow: 0 0 0 2px var(--edge), 0 4px 0 2px var(--edge); }
