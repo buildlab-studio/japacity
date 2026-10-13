@@ -143,7 +143,7 @@ export function murmur(text: string, now: number = Date.now(), name: string = sa
  * A line the street's talk offers: its words, and, where one person plainly says it, their name (world.md R-WORLD-026,
  * `<line>.by`) and the thing they stand at when they stand in the place, so the bubble goes over them.
  */
-export interface Heard {
+export interface TalkLine {
   text: string;
   name?: string;
   who?: string;
@@ -198,7 +198,7 @@ export function linesNow(): Said {
  * stays free; each turn offers an ambient line, which floats only when no one speaks and the quiet has passed. `next`
  * gives the line.
  */
-export function useStreetTalk(next: () => string | Heard | null, free: boolean, name?: string): void {
+export function useStreetTalk(next: () => string | TalkLine | null, free: boolean, name?: string): void {
   const nextRef = useRef(next);
   nextRef.current = next;
   const nameRef = useRef(name);
@@ -280,6 +280,7 @@ export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; a
           aria-label={speech.long ? say("ui.talk.open", { name: speech.name }) : undefined}
           data-speech={speech.who}
           {...(speech.long ? { "data-speech-long": "" } : {})}
+          {...(speech.ambient ? { "data-speech-ambient": "" } : {})}
         >
           <span key={speech.id} className={`pop block ${anchored ? "-translate-x-1/2 -translate-y-full" : ""}`}>
             <span className="talk-bubble block px-3 py-2">

@@ -175,7 +175,17 @@ export function roomInView(rooms: readonly Room[], asked: string | null, at: { x
 
 /** Where a point of the place falls on the screen, in CSS pixels, or null when it is off it or behind the camera. */
 /** How far a resident may stand from the player's figure and still be heard (the talk budget), in metres. */
-const NEAR_M = 7;
+export const NEAR_M = 7;
+
+/**
+ * Where a thing that speaks has its words: over it; but a line overheard (`ambient`, R-WORLD-026) floats over a named
+ * speaker who stands as a thing (Mama, the grocer) only while that thing is within NEAR_M of the player's figure, as the
+ * talk budget holds every voice; null holds the words back until the player comes near.
+ */
+export function thingVoice(spot: readonly [number, number] | null, ambient: boolean, at: { x: number; z: number }): readonly [number, number] | null {
+  if (spot === null || !ambient) return spot;
+  return Math.hypot(spot[0] - at.x, spot[1] - at.z) <= NEAR_M ? spot : null;
+}
 /** How far over a resident's feet their emote stands. */
 const EMOTE_Y = 2.2;
 const emoteAt = new Vector3();
@@ -879,7 +889,7 @@ function Place(props: PlaceProps) {
     const speaker = bubble === null ? undefined : things.find((thing) => thing.id === bubble.dataset.speech);
     // The street's line is given to the resident nearest the player's figure, and only while one stands near (the talk budget).
     const nearest = bubble?.dataset.speech === NEAR_SPEAKER ? nearestResident(world, next.x, next.z) : null;
-    const voice = nearest ?? (speaker === undefined ? null : thingSpot(stage, speaker));
+    const voice = nearest ?? (speaker === undefined ? null : thingVoice(thingSpot(stage, speaker), bubble?.dataset.speechAmbient !== undefined, next));
     if (bubble !== null) {
       if (voice === null) bubble.style.visibility = "hidden";
       else {

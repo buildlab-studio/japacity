@@ -4,10 +4,9 @@
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { abroadView } from "../../shared/testing/fixtures";
+import { abroadView, newGame } from "../../shared/testing/fixtures";
 import { cityText, heardWords } from "./city.words";
 import { heardHere, overheard, placeLines, speakerOf } from "./overheard";
-import { newGame } from "../../shared/testing/fixtures";
 
 const ROOM = "place.the-room";
 const DASHES = /[‐‒–—―−]/;
@@ -99,7 +98,7 @@ describe("who says a line overheard", () => {
     expect(family.map((line) => [line.key, line.by === undefined ? null : said(line.by)])).toEqual([
       ["place.family-house.overheard.1", "Your brother"],
       ["place.family-house.overheard.2", "Mama"],
-      ["place.family-house.overheard.3", "Mama"],
+      ["place.family-house.overheard.3", "Your sister"],
     ]);
     const rota = heardHere(view, "place.compound-room").find((line) => line.key === "place.compound-room.overheard.1");
     expect(rota).toEqual({ key: "place.compound-room.overheard.1", params: {} });
@@ -110,8 +109,9 @@ describe("who says a line overheard", () => {
 
   test("[R-WORLD-026] given a line's speaker, when the bubble is given its name, then Mama's words float over Mama where she stands in the house, a brother no thing stands for is named over the resident nearest, and a line no one is named for keeps the house's voice", () => {
     const things = [{ id: "sofa", label: "city.thing.sofa" }, { id: "mama", label: "city.thing.mama" }];
-    expect(speakerOf({ by: "place.family-house.overheard.3.by" }, things, said)).toEqual({ name: "Mama", who: "mama" });
+    expect(speakerOf({ by: "place.family-house.overheard.2.by" }, things, said)).toEqual({ name: "Mama", who: "mama" });
     expect(speakerOf({ by: "place.family-house.overheard.1.by" }, things, said)).toEqual({ name: "Your brother" });
+    expect(speakerOf({ by: "place.family-house.overheard.3.by" }, things, said)).toEqual({ name: "Your sister" });
     expect(speakerOf({}, things, said)).toEqual({});
     // No Mama in the place: named, over the resident nearest.
     expect(speakerOf({ by: "place.family-house.overheard.2.by" }, [], said)).toEqual({ name: "Mama" });

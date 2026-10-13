@@ -24,10 +24,10 @@ describe("who says a line overheard", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-WORLD-026] given the family house's three lines, when their speakers are read, then a sibling says Papa is asking about the gate, and Mama says the uncle called and that food is in the pot", () => {
+  test("[R-WORLD-026] given the family house's three lines, when their speakers are read, then a brother says Papa is asking about the gate, Mama says the uncle called, and a sister says Mama kept food in the pot", () => {
     expect(text["place.family-house.overheard.1.by"]).toBe("Your brother");
     expect(text["place.family-house.overheard.2.by"]).toBe("Mama");
-    expect(text["place.family-house.overheard.3.by"]).toBe("Mama");
+    expect(text["place.family-house.overheard.3.by"]).toBe("Your sister");
   });
 
   test("[R-WORLD-026] given a conductor calling the next stop, when the line is read, then the conductor says it; and a line with a stop called twice is always a conductor's", () => {
@@ -40,9 +40,10 @@ describe("who says a line overheard", () => {
   });
 
   test("[R-WORLD-026] given the homes' lines, when their speakers are read, then a speaker is named only where one person plainly speaks, and a line with no .by keeps the house's or the street's own voice", () => {
+    // "Next door: " already says who speaks, so no name stands over it twice.
     expect(text["place.compound-room.overheard.2"]).toMatch(/^Next door: /);
-    expect(text["place.compound-room.overheard.2.by"]).toBe("Your neighbour");
-    expect(text["place.hostel-room.overheard.1.by"]).toBe("Hostel mate");
+    expect(text["place.compound-room.overheard.2.by"]).toBeUndefined();
+    for (const n of [1, 2, 3]) expect(text[`place.hostel-room.overheard.${String(n)}.by`]).toBe("Hostel mate");
     // The rota and the landlord's rule are the compound's talk, said by nobody in particular.
     expect(text["place.compound-room.overheard.1.by"]).toBeUndefined();
     expect(text["place.compound-room.overheard.4.by"]).toBeUndefined();

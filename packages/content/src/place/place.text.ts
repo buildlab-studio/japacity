@@ -523,13 +523,12 @@ export const placeText: Record<string, string> = {
   "place.family-house.overheard.2": "Your uncle called. When are you going?",
   "place.family-house.overheard.2.by": "Mama",
   "place.family-house.overheard.3": "Mama kept food in the pot. Warm it.",
-  "place.family-house.overheard.3.by": "Mama",
+  "place.family-house.overheard.3.by": "Your sister",
   // home.md R-HOME-010: the room in a compound in Ojuelegba. The neighbours' talk through the wall.
   "place.compound-room.name": "your room in Ojuelegba",
   "place.compound-room.blurb": "One room in a compound of ten. One tap in the yard for everybody, and the buses all night.",
   "place.compound-room.overheard.1": "Whose turn to sweep the compound this week?",
   "place.compound-room.overheard.2": "Next door: who used my water?",
-  "place.compound-room.overheard.2.by": "Your neighbour",
   "place.compound-room.overheard.3": "The compound tap is running. Ten rooms, one tap: bring your buckets.",
   "place.compound-room.overheard.4": "The landlord says the gate locks at eleven. Every room.",
   "place.compound-room.overheard.5": "Light has come. The whole compound is charging phones.",
@@ -538,6 +537,7 @@ export const placeText: Record<string, string> = {
   "place.hostel-room.overheard.1": "Who carry my bucket from the line? I go find am.",
   "place.hostel-room.overheard.1.by": "Hostel mate",
   "place.hostel-room.overheard.2": "Room four, your music don reach the gate. Reduce am small.",
+  "place.hostel-room.overheard.2.by": "Hostel mate",
   "place.hostel-room.overheard.3": "The nook is free. Whoever has gas, the pot is waiting.",
   "place.hostel-room.overheard.3.by": "Hostel mate",
   // The family's own talk while your send-off is on: no stranger's rumour in the compound that night.

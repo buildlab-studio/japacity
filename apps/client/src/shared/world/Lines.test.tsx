@@ -263,8 +263,8 @@ function Named({ heard }: { heard: { text: string; name?: string; who?: string }
 
 describe("a line overheard with its speaker", () => {
   test("[R-WORLD-026] given a line content names a speaker for, when it floats, then the bubble says their name, over them where they stand; a line with no speaker keeps the house's voice over the resident nearest", () => {
-    const { unmount } = render(<Named heard={{ text: "Mama kept food in the pot. Warm it.", name: "Mama", who: "mama" }} />);
-    expect(linesNow().speech).toMatchObject({ who: "mama", name: "Mama", text: "Mama kept food in the pot. Warm it." });
+    const { unmount } = render(<Named heard={{ text: "Your uncle called. When are you going?", name: "Mama", who: "mama" }} />);
+    expect(linesNow().speech).toMatchObject({ who: "mama", name: "Mama", text: "Your uncle called. When are you going?" });
     expect(document.querySelector("[data-speech='mama']")?.textContent).toContain("Mama");
     unmount();
     resetLines();
