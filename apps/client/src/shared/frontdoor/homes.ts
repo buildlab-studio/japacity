@@ -6,8 +6,6 @@ import { int } from "@japacity/sim";
 
 import { yearsWorked } from "../datapage/age";
 import type { DoorDraft } from "../datapage/door";
-import { nextMonthWords } from "../words/living";
-import { say } from "../words/text";
 import { type Archetype, type Home, homeOf, homesFor, savingsOf } from "./archetypes";
 
 /**
@@ -70,15 +68,3 @@ export function selfContainReached(archetype: Archetype, years: number): boolean
   return savingsOf(archetype) + yearsWorked(years).saved >= selfContainYear();
 }
 
-/** When a home's rent or living costs fall next, as the page after Begin says it (R-PROLOGUE-013, 014). */
-export function homeDue(home: Home): string {
-  const effects = content.prologue["home"]?.answers.find((answer) => answer.id === home)?.effects ?? [];
-  for (const effect of effects) {
-    if (effect.type !== "obligation/open") continue;
-    const entry = content.obligation[effect.obligation];
-    if (entry?.prepaid === true) return say("ui.page.home.costs.prepaid", { count: entry.everyMonths ?? 12 });
-    // A rent by the month falls due at the next month's end, whole.
-    if (entry?.type === "rent" && typeof effect.amount === "number") return nextMonthWords(effect.amount, true);
-  }
-  return nextMonthWords(homeFigures(home).monthly);
-}
