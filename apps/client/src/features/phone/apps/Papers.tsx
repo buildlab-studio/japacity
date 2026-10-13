@@ -94,13 +94,13 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
         }
         foot={
           act === null ? null : act.how === "phone" ? (
-            <GhostButton onClick={() => onCard(act.activity)} className="text-left" data-paper-act={act.activity} data-act-how="phone">
+            <GhostButton wide onClick={() => onCard(act.activity)} className="text-left" data-paper-act={act.activity} data-act-how="phone">
               <Send size={18} className="shrink-0" aria-hidden />
               <span className="min-w-0 flex-1 truncate">{nameOf(act.activity)}</span>
               <ChevronRight size={18} className="shrink-0" aria-hidden />
             </GhostButton>
           ) : (
-            <GhostButton
+            <GhostButton wide
               onClick={() => {
                 if (act.place !== null) nav.openMap?.(act.place);
               }}

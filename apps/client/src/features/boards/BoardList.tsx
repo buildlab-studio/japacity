@@ -7,6 +7,7 @@
 // ringed (docs/design/13-the-lively-layer.md section 2).
 import { useEffect, useState } from "react";
 
+import { lookForName } from "../../shared/frontdoor/looks";
 import { assetUrl, loadManifest } from "../../shared/three/manifest";
 import { TINTS } from "../../shared/ui/lively/tint";
 import { formatNumber } from "../../shared/words/format";
@@ -49,13 +50,13 @@ export function keptLook(): string | null {
 
 /**
  * The face on a line. No look travels on a board (R-CITY-040), so another player's face is one of the door's looks
- * picked from the name the line shows, the same name always the same face; the player's own line wears the look they
+ * picked from the name the line shows (`lookForName`), the same name always the same face; the player's own line wears the look they
  * built at the door, kept on this device, where there is one.
  */
 export function boardFace(name: string, me: boolean, own: string | null = keptLook()): string {
   if (me && own !== null && BOARD_FACES.includes(own)) return own;
-  const sum = [...name].reduce((total, letter) => total + (letter.codePointAt(0) ?? 0), 0);
-  return BOARD_FACES[sum % BOARD_FACES.length] ?? "chr_ada";
+  // The one face picker the game has, so a name wears the same face on a board, a bond and a card.
+  return lookForName(name);
 }
 
 /**

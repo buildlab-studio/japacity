@@ -144,7 +144,7 @@ export function Bills() {
                           {/* R-CAR-007, R-UNDERTAKING-012: a car and a sponsor's promise carry their own figures. */}
                           {kind === "car" ? <CarFacts owed={bill} /> : kind === "undertaking" ? <UndertakingFacts owed={bill} /> : null}
                           {pay === null ? null : (
-                            <GhostButton onClick={() => open(slip(bill, currency, pay))} className="justify-center" data-pay={bill.id}>
+                            <GhostButton wide onClick={() => open(slip(bill, currency, pay))} className="justify-center" data-pay={bill.id}>
                               {phoneWords("phone.bills.pay")}: {formatMoney(pay.amount, currency)}
                             </GhostButton>
                           )}

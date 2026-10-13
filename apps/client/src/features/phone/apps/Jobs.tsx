@@ -102,7 +102,7 @@ function Board() {
       title={phoneWords("phone.jobs.board", { place: name })}
       line={phoneWords("phone.jobs.board.line")}
       foot={
-        <GhostButton onClick={() => nav.openMap?.(place)} data-jobs-board={place}>
+        <GhostButton wide onClick={() => nav.openMap?.(place)} data-jobs-board={place}>
           <MapPin size={18} aria-hidden />
           {phoneWords("phone.jobs.board.go", { place: name })}
         </GhostButton>

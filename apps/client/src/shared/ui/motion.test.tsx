@@ -4,12 +4,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { WorldSheet } from "../world/WorldSheet";
 import { FullScreen } from "./FullScreen";
-import { invertedTransform, motionOn } from "./motion";
+import { invertedTransform, motionOn, motionReduced, useMotionReduced } from "./motion";
+import { stubReducedMotion } from "../testing/motion";
 import { Sheet } from "./Sheet";
 
 afterEach(() => {
@@ -119,6 +120,36 @@ describe("state changes move on the compositor (R-WORLD-023)", () => {
     vi.stubGlobal("matchMedia", (query: string) => ({ matches: false, media: query, addEventListener: () => undefined, removeEventListener: () => undefined }));
     expect(motionOn()).toBe(true);
     expect(CSS).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\*,\s*\*::before,\s*\*::after \{\s*transition: none !important;/);
+  });
+
+  test("[R-WORLD-023] given the phone's reduced-motion setting, when the helper reads it, then it says so; where the page cannot answer it says no, so the camera's own ease goes on as before", () => {
+    stubReducedMotion(true);
+    expect(motionReduced()).toBe(true);
+    expect(motionOn()).toBe(false);
+    stubReducedMotion(false);
+    expect(motionReduced()).toBe(false);
+    expect(motionOn()).toBe(true);
+    vi.stubGlobal("matchMedia", undefined);
+    expect(motionReduced()).toBe(false);
+    expect(motionOn()).toBe(false);
+  });
+
+  test("[R-WORLD-023] given the game open, when the player turns reduced motion on and off in their phone's settings, then the frame loop's reading follows at once", () => {
+    const setting = stubReducedMotion(false);
+    const seen: { current: boolean | null } = { current: null };
+    function Reader() {
+      const reduced = useMotionReduced();
+      seen.current = reduced.current;
+      return <p data-reduced={String(reduced.current)}>{String(reduced.current)}</p>;
+    }
+    const { rerender } = render(<Reader />);
+    expect(seen.current).toBe(false);
+    act(() => setting.set(true));
+    rerender(<Reader />);
+    expect(seen.current).toBe(true);
+    act(() => setting.set(false));
+    rerender(<Reader />);
+    expect(seen.current).toBe(false);
   });
 
   test("[R-WORLD-018] [R-WORLD-023] given a box laid out where another stood, when it is inverted, then the transform draws it back over the first box, turned as it stood, in the functions the resting transforms use", () => {

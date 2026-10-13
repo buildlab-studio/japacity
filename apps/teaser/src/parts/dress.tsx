@@ -143,10 +143,11 @@ export function Plane({ size, color = NAVY }: { size: number; color?: string }) 
   return (
     <svg width={size} height={size * 0.6} viewBox="0 0 100 60" style={{ display: "block", overflow: "visible" }}>
       <path d="M4 30 Q4 26 10 26 L86 26 Q98 27 98 30 Q98 33 86 34 L10 34 Q4 34 4 30 Z" fill={color} />
-      <path d="M44 27 L62 2 L70 2 L58 27 Z" fill={color} />
-      <path d="M44 33 L62 58 L70 58 L58 33 Z" fill={color} />
-      <path d="M8 27 L14 12 L20 12 L18 27 Z" fill={color} />
-      <path d="M8 33 L14 46 L20 46 L18 33 Z" fill={color} />
+      {/* The wings and the tailplane sweep back, their tips behind their roots, as an airliner's do. */}
+      <path d="M50 27 L30 2 L40 2 L64 27 Z" fill={color} />
+      <path d="M50 33 L30 58 L40 58 L64 33 Z" fill={color} />
+      <path d="M12 27 L2 14 L9 14 L22 27 Z" fill={color} />
+      <path d="M12 33 L2 46 L9 46 L22 33 Z" fill={color} />
     </svg>
   );
 }
