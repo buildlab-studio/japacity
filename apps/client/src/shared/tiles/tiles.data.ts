@@ -34,6 +34,7 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.watch-tv": "prop_tv-stand",
   "activity.family-time": "prop_sofa",
   "activity.family-meeting": "prop_parlour-set",
+  "activity.ask-family-loan": "prop_sofa",
   "activity.help-shop": "prop_market-stall",
   "activity.night-support": stand("🎧"),
   // Study and work at a desk.
