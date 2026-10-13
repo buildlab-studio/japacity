@@ -161,32 +161,6 @@
   box-shadow: 0 3px 0 var(--fan-edge);
 }
 
-/* The balance from shared/world/Balance.tsx, small on a pale pill: stacked on a phone, one line on a laptop. */
-.fan-balance {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1px;
-  border-radius: 8px;
-  padding: 2px 5px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #1c2a5e;
-  font-size: 10px;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
-[data-fan-side="left"] .fan-balance { align-items: flex-end; }
-[data-fan-size="laptop"] .fan-balance { flex-direction: row; align-items: baseline; gap: 6px; font-size: 12px; }
-
-.fan-nocost {
-  border-radius: 8px;
-  padding: 2px 7px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #5e6b80;
-  font-size: 11px;
-  white-space: nowrap;
-}
-
 .fan-lock {
   display: inline-block;
   border-radius: 8px;

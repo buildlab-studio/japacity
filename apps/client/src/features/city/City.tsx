@@ -43,7 +43,8 @@ import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
 import { bodyWords, tired } from "../../shared/words/body";
-import { actOnCard, answersNow, effectWordsOf, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
+import { actOnCard, answersNow, nowActOf, nowActsIn, nowLineIn } from "../../shared/words/acts";
+import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./actLines";
@@ -612,6 +613,8 @@ export function City({
   // The act a fan's button chose, handed to the scene to walk for, and the entry walked to until its act lands (R-WORLD-010).
   const [fanAct, setFanAct] = useState<{ thing: Thing; act: Act; at: number } | null>(null);
   const fanGoing = useRef<{ thing: string; activity: string; param: string | null } | null>(null);
+  // While a fan's button is pressed the band's counter shows what would be left (design page 13 section 2).
+  const [bandPreview, setBandPreview] = useState<number | null>(null);
   const [fanGoingId, setFanGoingId] = useState<string | null>(null);
   // Lines the corner tells once it shows again: a courted partner's answer waits for the home's card to be put away (R-PEOPLE-013).
   const [toTell, setToTell] = useState<string[]>([]);
@@ -1292,8 +1295,9 @@ export function City({
     const paper = isPaper(activity);
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
-    const time = timeWordsOf(activity);
-    const does = effectWordsOf(activity);
+    // Chips earn their place (design page 13 section 2): the time only past a morning, at most two effects.
+    const time = chipTimeOf(activity);
+    const does = chipEffectsLine(activity);
     return {
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : school !== null ? SCHOOL_ICON : "hand",
@@ -1687,6 +1691,7 @@ export function City({
             {...bandMoney(view)}
             month={bandMonth(view, beganAt, dayClock)}
             sky={dayClock.served ? dayClock.part : "afternoon"}
+            preview={fanned === null ? null : bandPreview}
             // R-QUALITY-007: the body's word beside the age, only when it complains.
             body={bodyWords(view)}
             onMonth={() => {
@@ -1790,7 +1795,7 @@ export function City({
           <SpeechBubble hidden={!worldFree || !callouts.bubble} anchored={drawing && ready} />
           {drawing && ready && sample !== null ? <Emotes people={sample.people} hidden={!worldFree || !settled || asleep !== null || openingUp} /> : null}
           {fanned !== null && fanEntries !== null && picked?.kind === "thing" ? (
-            <Fan key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} />
+            <Fan key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} onPreview={setBandPreview} />
           ) : null}
           <Rise rise={japa.rise} />
           {beatShown ? (

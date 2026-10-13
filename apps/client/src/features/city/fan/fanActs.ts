@@ -5,6 +5,7 @@
 import { content } from "@japacity/content";
 import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 
+import { freeShown } from "../../../shared/words/chips";
 import { afterPaying, monthDues, plannedCosts } from "../../../shared/words/cost";
 import { formatMoney } from "../../../shared/words/format";
 import { needsWords } from "../../../shared/words/requirement";
@@ -134,6 +135,8 @@ export interface FanEntry {
   refusal: FanRefusal | null;
   /** The choice the act sends with it: the thing's own, else the entry's one. */
   param: string | null;
+  /** True when a free act is one a player would expect to pay for, a meal, so its pill says Free (chips earn their place). */
+  free?: boolean;
 }
 
 /**
@@ -175,6 +178,7 @@ export function fanModel(entries: readonly FanEntryOf[], view: PlayerView, plan:
         balance,
         refusal,
         param: (act.stages === stages ? act.param : undefined) ?? option.params?.[0] ?? null,
+        free: freeShown(stages),
       },
     ];
   });

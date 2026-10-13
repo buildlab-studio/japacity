@@ -116,7 +116,7 @@ function fanTheCookingCorner(at: { x: number; y: number } | null = { x: 90, y: 5
 }
 
 describe("the cooking corner's fan", () => {
-  test("[R-WORLD-005] [R-WORLD-006] given Ada in the parlour, when the cooking corner is tapped, then its two meals fan out of it with their prices and the balance before and after, no chip is asked of the scene, and the nudge steps back", async () => {
+  test("[R-WORLD-005] [R-WORLD-006] given Ada in the parlour, when the cooking corner is tapped, then its two meals fan out of it with their prices alone, no chip is asked of the scene, the nudge steps back, and while a meal is pressed the band's counter shows what would be left", async () => {
     const { game } = await inTheParlour();
     fanTheCookingCorner();
     const fan = found('[data-fan="cooking"]');
@@ -128,7 +128,13 @@ describe("the cooking corner's fan", () => {
     expect(cook.textContent).toContain("Indomie and egg");
     expect(found(`[data-fan-act="${JOLLOF}"]`).textContent).toContain("Jollof for the house");
     const held = game.view().pockets.NGN.bank + game.view().pockets.NGN.cash;
-    expect(cook.querySelector("[data-balance-before]")?.textContent).toBe(formatMoney(held, "NGN"));
+    // Chips earn their place (design page 13 section 2): the fan carries the price pill alone, the band's counter is the balance.
+    expect(cook.querySelector("[data-balance-before], [data-balance]")).toBeNull();
+    const price = game.view().activities.find((option) => option.id === COOK)?.cost[0]?.amount ?? 0;
+    fireEvent.pointerDown(found(`[data-fan-act="${COOK}"] button`));
+    expect(found("[data-band-money]").dataset.bandPreview).toBe(String(held - price));
+    fireEvent.pointerUp(found(`[data-fan-act="${COOK}"] button`));
+    expect(found("[data-band-money]").dataset.bandPreview).toBeUndefined();
     expect(found("[data-stand-in-scene]").dataset.standInChosen).toBe("");
     expect(document.querySelector("[data-nudge]")).toBeNull();
     expect(document.querySelector("[role=dialog]")).toBeNull();

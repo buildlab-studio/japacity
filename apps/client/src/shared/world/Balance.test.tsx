@@ -84,7 +84,8 @@ describe("the price and the balance", () => {
     expect(card.querySelector("[data-balance-before]")?.textContent).toBe("₦48,500");
     expect(card.querySelector("[data-balance-after]")?.textContent).toBe("₦47,000");
     expect(card.querySelector("[data-does]")?.textContent).toBe("Fills you, lifts you");
-    expect(card.querySelector("[data-time]")?.textContent).toBe("A morning");
+    // Chips earn their place (design page 13 section 2): a morning is no chip; past a morning the time shows.
+    expect(card.querySelector("[data-time]")).toBeNull();
   });
 
   test("[R-WORLD-006] given a stop picked on the map, when the ride sheet shows, then the button says the ride and its fare, and the balance before is struck beside the balance after; short, it says how much", () => {

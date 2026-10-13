@@ -7,8 +7,6 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalS
 
 import { cue } from "../../../shared/sound/cues";
 import { say } from "../../../shared/words/text";
-import { Balance } from "../../../shared/world/Balance";
-import { cityWords } from "../city.words";
 import { clearFanAnchor, fanAnchor, subscribeFanAnchor } from "./anchor";
 import type { FanEntry } from "./fanActs";
 import { curvePath, type FanLayout, fanLayout, fanSizes, placesAt, shiftRange } from "./fanLayout";
@@ -26,6 +24,11 @@ export interface FanProps {
   onFallback: () => void;
   /** The entry walked to now, pressed until its act lands. */
   going?: string | null;
+  /**
+   * While a priced button is pressed, what the band's counter should show is left after it; null when it is let go
+   * (chips earn their place: the band's money counter is the balance, design page 13 section 2).
+   */
+  onPreview?: (after: number | null) => void;
 }
 
 /** A finger moved this far is a drag along the curve, not a tap. */
@@ -50,7 +53,7 @@ function layoutAt(point: NonNullable<ReturnType<typeof fanAnchor>>, count: numbe
   return fanLayout({ at, screen, count, inset: insetsNow(), ...sizes, label: label ?? sizes.label });
 }
 
-export function Fan({ thing, title, entries, onAct, onFallback, going = null }: FanProps) {
+export function Fan({ thing, title, entries, onAct, onFallback, going = null, onPreview }: FanProps) {
   const point = useSyncExternalStore(subscribeFanAnchor, () => fanAnchor(thing));
   const count = entries.length;
   // The labels' width as drawn, read once after the first layout: a long name or a large balance may need more room than the
@@ -161,7 +164,13 @@ export function Fan({ thing, title, entries, onAct, onFallback, going = null }: 
                 type="button"
                 className={`fan-button pointer-events-auto${shaking?.id === entry.id ? " fan-shake" : ""}`}
                 onClick={() => tap(entry, place.folded)}
-                aria-label={`${entry.name}: ${entry.refusal?.words ?? entry.price ?? say("ui.world.free")}`}
+                aria-label={entry.refusal !== null || entry.price !== null || entry.free === true ? `${entry.name}: ${entry.refusal?.words ?? entry.price ?? say("ui.world.free")}` : entry.name}
+                onPointerDown={() => {
+                  if (entry.refusal === null && entry.balance !== null && !place.folded) onPreview?.(entry.balance.after.amount);
+                }}
+                onPointerUp={() => onPreview?.(null)}
+                onPointerLeave={() => onPreview?.(null)}
+                onPointerCancel={() => onPreview?.(null)}
                 {...(refused ? { "aria-disabled": true } : {})}
                 tabIndex={place.folded ? -1 : 0}
               >
@@ -172,27 +181,17 @@ export function Fan({ thing, title, entries, onAct, onFallback, going = null }: 
                 </span>
                 <span className="fan-labels" aria-hidden>
                   <span className={`fan-name${index % 2 === 0 ? " fan-tilt-left" : " fan-tilt-right"}`}>{entry.name}</span>
-                  {entry.refusal !== null && entry.refusal.kind !== "short" ? (
-                    <span className="fan-lock" data-fan-refusal={entry.refusal.kind}>
+                  {entry.refusal !== null ? (
+                    <span className={`fan-lock${entry.refusal.kind === "short" ? " fan-short num" : ""}`} data-fan-refusal={entry.refusal.kind}>
                       {entry.refusal.kind === "locked" ? <span aria-hidden>🔒 </span> : null}
                       {entry.refusal.words}
                     </span>
-                  ) : (
-                    <span className="fan-row">
-                      <span className="fan-price num" data-fan-price>
-                        {entry.price ?? say("ui.world.free")}
-                      </span>
-                      {entry.refusal?.kind === "short" ? (
-                        <span className="fan-lock fan-short num" data-fan-refusal="short">
-                          {entry.refusal.words}
-                        </span>
-                      ) : entry.balance !== null ? (
-                        <Balance before={entry.balance.before} after={entry.balance.after} className="fan-balance" />
-                      ) : (
-                        <span className="fan-nocost">{cityWords("city.fan.no-cost")}</span>
-                      )}
+                  ) : entry.price !== null || entry.free === true ? (
+                    // The price pill alone (chips earn their place): the balance is the band's counter, previewed while pressed.
+                    <span className="fan-price num" data-fan-price>
+                      {entry.price ?? say("ui.world.free")}
                     </span>
-                  )}
+                  ) : null}
                 </span>
               </button>
             </div>

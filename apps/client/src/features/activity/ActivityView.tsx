@@ -9,7 +9,8 @@ import { useState } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { plannedShut } from "../../authority/store";
 import { bondName, timeWith } from "../../shared/sim/people";
-import { actOnCard, answersNow, effectWordsOf, pickable, timeWordsOf } from "../../shared/words/acts";
+import { actOnCard, answersNow, pickable } from "../../shared/words/acts";
+import { chipEffectsLine, chipTimeOf, freeShown } from "../../shared/words/chips";
 import { Balance, pricedLabel } from "../../shared/world/Balance";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
@@ -297,8 +298,9 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const costWords = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
   const blurb = blurbOf(option.id);
   const counts = countsWords(option.id);
-  const time = timeWordsOf(option.id);
-  const does = effectWordsOf(option.id);
+  // Chips earn their place (design page 13 section 2): the time only past a morning, at most two effects, Free only on a meal.
+  const time = chipTimeOf(option.id);
+  const does = chipEffectsLine(option.id);
   // R-TURN-006: an activity that fills no slot can be planned however full the month is.
   // R-ACTIVITY-015: an act done at once fills no slot either, so a full month never shuts it.
   const now = answersNow(option.id);
@@ -333,7 +335,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold">{name}</h3>
           {option.cost.length === 0 ? (
-            <Tag>{say("ui.activity.free")}</Tag>
+            freeShown(option.id) ? <Tag>{say("ui.activity.free")}</Tag> : null
           ) : (
             <Tag tone={option.affordable ? "plain" : "bad"}>
               {say("ui.activity.cost", {
