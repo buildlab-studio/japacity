@@ -20,7 +20,7 @@ export function paintOf(part: DayPart): Paint {
  * hour; null otherwise, and always null in a build for players.
  */
 export function devPaint(search: string, dev: boolean = import.meta.env.DEV): Paint | null {
-  if (!dev) return null;
+  if (!import.meta.env.DEV || !dev) return null;
   const asked = new URLSearchParams(search).get("paint");
   return PAINTS.find((paint) => paint === asked) ?? null;
 }

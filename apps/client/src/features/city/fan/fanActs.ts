@@ -157,5 +157,5 @@ export function fanModel(entries: readonly FanEntryOf[], view: PlayerView, plan:
 
 /** The fan stands in for the chip unless a development build is asked for the chip with `?fan=off`, to compare the two. */
 export function fanAsked(search: string, development: boolean): boolean {
-  return !(development && new URLSearchParams(search).get("fan") === "off");
+  return !(import.meta.env.DEV && development && new URLSearchParams(search).get("fan") === "off");
 }

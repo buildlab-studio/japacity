@@ -17,7 +17,7 @@ export const NAP = "activity.nap" as Id<"activity">;
  * and play; a build for players never reads the switch.
  */
 export function sleepMsOf(search: string, dev: boolean = import.meta.env.DEV): number {
-  if (!dev) return SLEEP_MS;
+  if (!import.meta.env.DEV || !dev) return SLEEP_MS;
   const asked = new URLSearchParams(search).get("sleep");
   const seconds = asked === null || asked.trim() === "" ? Number.NaN : Number(asked);
   return Number.isFinite(seconds) && seconds > 0 ? Math.round(seconds * 1000) : SLEEP_MS;

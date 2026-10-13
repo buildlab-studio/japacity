@@ -197,7 +197,7 @@ const PINNED_MINUTE: Record<DayPart, number> = { morning: 8 * 60, afternoon: 14 
 
 /** The part a page's `?clock=` pins, in development only, for pictures and tests; null otherwise. */
 export function pinnedPart(search: string, development: boolean): DayPart | null {
-  if (!development) return null;
+  if (!import.meta.env.DEV || !development) return null;
   const asked = new URLSearchParams(search).get("clock");
   return asked === "morning" || asked === "afternoon" || asked === "evening" || asked === "night" ? asked : null;
 }

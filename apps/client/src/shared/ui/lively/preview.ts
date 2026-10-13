@@ -2,5 +2,5 @@
 // game; a build for players never does.
 
 export function livelyAsked(search: string, dev: boolean = import.meta.env.DEV): boolean {
-  return dev && new URLSearchParams(search).has("lively");
+  return import.meta.env.DEV && dev && new URLSearchParams(search).has("lively");
 }
