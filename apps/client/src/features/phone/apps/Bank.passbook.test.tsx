@@ -58,9 +58,7 @@ describe("the Bank's first page, the passbook", () => {
     expect(pace).toContain(`${String(best.months)}.`);
     // The first page comes before the rest of the bank.
     const order = ["[data-passbook]", "[data-stamps]", "[data-roads]", "[data-bank-saved]", "[data-bank-lately]"].map((selector) => document.querySelector(selector));
-    order.forEach((element, index) => {
-      if (index > 0) expect(order[index - 1]!.compareDocumentPosition(element!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    });
+    expect(order.slice(1).every((element, index) => (order[index]!.compareDocumentPosition(element!) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0)).toBe(true);
   });
 
   test("[R-WORLD-019] given no plan, or a plan only heard of, when the Bank opens, then the pace line says what sets the road's cost and no target is drawn", async () => {
@@ -94,8 +92,11 @@ describe("the Bank's first page, the passbook", () => {
     const money = moneyLines(view.report!.lines);
     const sum = (sign: 1 | -1) => money.filter((each) => each.sign === sign && each.currency === "NGN").reduce((total, each) => total + each.amount, 0);
     const chips = [...document.querySelectorAll<HTMLElement>("[data-last-month-chip]")];
-    expect(chips.map((chip) => chip.dataset.lastMonthChip)).toEqual(["in", "out"].filter((side) => sum(side === "in" ? 1 : -1) > 0));
-    if (sum(1) > 0) expect(chips[0]?.textContent).toBe(passbookWords("passbook.in", { amount: formatMoney(sum(1), "NGN") }));
+    // The nurse's month paid her salary in and her share for home out.
+    expect(sum(1)).toBeGreaterThan(0);
+    expect(sum(-1)).toBeGreaterThan(0);
+    expect(chips.map((chip) => chip.dataset.lastMonthChip)).toEqual(["in", "out"]);
+    expect(chips.map((chip) => chip.textContent)).toEqual([passbookWords("passbook.in", { amount: formatMoney(sum(1), "NGN") }), passbookWords("passbook.out", { amount: formatMoney(sum(-1), "NGN") })]);
   });
 
   test("[R-WORLD-019] given the nurse's roads, when the Bank opens, then each is a card with its state and the view's months, and a job's road opens the Jobs app", async () => {
@@ -115,10 +116,9 @@ describe("the Bank's first page, the passbook", () => {
     const cards = [...document.querySelectorAll<HTMLElement>("[data-road]")];
     expect(cards.map((card) => card.dataset.road)).toEqual(book.roads.map((road) => road.road));
     expect(cards.map((card) => card.dataset.roadState)).toEqual(book.roads.map((road) => road.state));
-    for (const road of book.roads) {
-      const chip = document.querySelector<HTMLElement>(`[data-road="${road.road}"] [data-road-months]`);
-      if (road.state !== "taken" && road.months !== null) expect(chip?.textContent).toBe(passbookCount("passbook.road.months", road.months));
-    }
+    const counted = book.roads.filter((road) => road.state !== "taken" && road.months !== null);
+    expect(counted.length).toBeGreaterThan(0);
+    expect(counted.map((road) => document.querySelector<HTMLElement>(`[data-road="${road.road}"] [data-road-months]`)?.textContent)).toEqual(counted.map((road) => passbookCount("passbook.road.months", road.months!)));
     const side = book.roads.find((road) => road.road === "side")!;
     expect(document.querySelector('[data-road="side"]')?.textContent).toContain(nameOf(side.via));
     fireEvent.click(document.querySelector<HTMLElement>('[data-road="side"]')!);
@@ -135,7 +135,7 @@ describe("the Bank's first page, the passbook", () => {
       </GameProvider>,
     );
     fireEvent.click(document.querySelector<HTMLElement>('[data-road="family"]')!);
-    await act(async () => {
+    act(() => {
       fireEvent.click(document.querySelector<HTMLElement>("[data-ask-main]")!);
     });
     await waitFor(() => expect(store.getState().view?.offers.some((offer) => offer.entry === "offer.family-loan")).toBe(true));
@@ -143,7 +143,7 @@ describe("the Bank's first page, the passbook", () => {
     const held = passbookOf(store.getState().view!).held;
     await waitFor(() => expect(document.querySelector('[data-road="family"]')?.getAttribute("data-road-state")).toBe("open"));
     fireEvent.click(document.querySelector<HTMLElement>('[data-road="family"]')!);
-    await act(async () => {
+    act(() => {
       fireEvent.click(document.querySelector<HTMLElement>("[data-ask-main]")!);
     });
     await waitFor(() => expect(passbookOf(store.getState().view!).held).toBe(held + lend));

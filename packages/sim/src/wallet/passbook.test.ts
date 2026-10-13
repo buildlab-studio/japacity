@@ -330,40 +330,47 @@ describe("R-WALLET-024 (asked for) the roads to it", () => {
 
 describe("the passbook on the recorded lives", () => {
   test("[R-ENGINE-001] [R-ENGINE-009] [R-ENGINE-010] given every recorded life, month by month, when its passbook is read, then it is the same on every read, its sums add up in whole kobo, and every stamp was reached at a close with the money held", () => {
+    // Every slip is named with its life and month, so one list says them all.
+    const problems: string[] = [];
+    const say = (ok: boolean, what: string) => {
+      if (!ok) problems.push(what);
+    };
+    let read = 0;
     for (const [name, save] of Object.entries(SAVES)) {
       const game = start({ content, scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed });
       for (const { command, tick, sender } of save.commands) {
         game.tick = tick;
         const before = game.state.place.where === "home" && !game.state.prologue.open ? game.view().passbook : null;
         const result = game.accept(command, sender);
+        const at = `${name} month ${String(game.state.turn.month)}`;
         for (const event of result.events as readonly WalletEvent[]) {
-          if (event.type !== "wallet/stamped") continue;
-          // Reached at a month's close, at home, with the money there.
-          expect(command.type, name).toBe("turn/end");
-          expect(before, name).not.toBeNull();
+          // Reached at a month's close, at home, with the passbook open.
+          if (event.type === "wallet/stamped") say(command.type === "turn/end" && before !== null, `${at}: a stamp outside a close at home`);
         }
         if (command.type !== "turn/end") continue;
         const view = game.view();
         const book = view.passbook;
-        expect(viewFor({ state: game.state, world: game.world(), content }).passbook, name).toEqual(book);
+        say(JSON.stringify(viewFor({ state: game.state, world: game.world(), content }).passbook) === JSON.stringify(book), `${at}: two reads differ`);
         if (book === null) {
-          expect(game.state.place.where !== "home" || game.state.turn.ended, name).toBe(true);
+          say(game.state.place.where !== "home" || game.state.turn.ended, `${at}: no passbook at home`);
           continue;
         }
+        read += 1;
         const held = (Object.keys(view.pockets) as Currency[]).reduce((sum, currency) => sum + kobo(view, view.pockets[currency].bank + view.pockets[currency].cash, currency), 0);
-        expect(book.held, name).toBe(held);
-        if (book.target !== null) expect(book.target.total, name).toBe(book.target.funds + book.target.fees + book.target.flight);
-        for (const figure of [book.held, book.pace ?? 0, book.months ?? 0, ...book.roads.flatMap((each) => [each.monthly, each.lump, each.months ?? 0])]) expect(Number.isSafeInteger(figure), name).toBe(true);
-        expect((game.state.wallet.nets ?? []).length, name).toBeLessThanOrEqual(3);
-        const reached = book.stamps.filter((stamp) => stamp.month !== null);
-        for (const stamp of reached) expect(stamp.month!, name).toBeLessThanOrEqual(view.month);
-        expect(book.stamps.map((stamp) => stamp.at), name).toEqual([...book.stamps.map((stamp) => stamp.at)].sort((a, b) => a - b));
-        if (book.target !== null && book.pace !== null) {
-          const gap = book.target.total - book.held;
-          expect(book.months, name).toBe(gap <= 0 ? 0 : book.pace <= 0 ? null : divCeil(gap, book.pace));
-        }
+        say(book.held === held, `${at}: held ${String(book.held)} is not the pockets' ${String(held)}`);
+        say(book.target === null || book.target.total === book.target.funds + book.target.fees + book.target.flight, `${at}: the target's parts do not add up`);
+        const figures = [book.held, book.pace ?? 0, book.months ?? 0, ...book.roads.flatMap((each) => [each.monthly, each.lump, each.months ?? 0])];
+        say(figures.every((figure) => Number.isSafeInteger(figure)), `${at}: a figure is not a whole number`);
+        say((game.state.wallet.nets ?? []).length <= 3, `${at}: more than three months kept for the pace`);
+        say(book.stamps.every((stamp) => stamp.month === null || stamp.month <= view.month), `${at}: a stamp from a month to come`);
+        say(book.stamps.every((stamp, index) => index === 0 || book.stamps[index - 1]!.at <= stamp.at), `${at}: the stamps out of order`);
+        const gap = book.target === null ? null : book.target.total - book.held;
+        const expected = gap === null ? null : gap <= 0 ? 0 : book.pace === null || book.pace <= 0 ? null : divCeil(gap, book.pace);
+        say(book.months === expected, `${at}: months ${String(book.months)}, expected ${String(expected)}`);
       }
     }
+    expect(read).toBeGreaterThan(100);
+    expect(problems).toEqual([]);
   });
 
   test("[R-SERVER-022] given a saved state from before the passbook, when it is carried to the content and read, then it loads, its pace is not yet known and nothing is stamped, and the next close starts both", () => {
