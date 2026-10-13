@@ -112,7 +112,7 @@ export const phoneText: Record<string, string> = {
   "phone.japa.endorsement.refused": "Endorsement refused {when}.",
   "phone.japa.endorsement.again": "You can ask again {when}.",
   "phone.japa.school.pending": "Applied, the answer comes {when}",
-  "phone.japa.visa": "Visa sent {sent}. The decision comes {decision}.",
+  "phone.japa.visa.sent": "Visa sent {sent}. The decision comes {decision}.",
   "phone.japa.last-refusal": "Last refusal, {when}:",
   "phone.japa.refund": "A deposit refund of {amount} comes {when}",
   "phone.japa.goal.done": "{goal}, {when}",

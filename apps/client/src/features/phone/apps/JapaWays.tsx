@@ -256,7 +256,7 @@ function Record({ route, month }: { route: RouteView; month: number }) {
   return (
     <div className="mt-3 flex flex-col gap-1" data-way-record>
       {route.depositPaid > 0 ? <Line>{say("ui.route.deposit-paid", { amount: formatMoney(route.depositPaid, "GBP") })}</Line> : null}
-      {route.visa === null ? null : <Line>{phoneWords("phone.japa.visa", { sent: agoWords(route.visa.submittedMonth, month), decision: inMonths(route.visa.decisionMonth, month) })}</Line>}
+      {route.visa === null ? null : <Line>{phoneWords("phone.japa.visa.sent", { sent: agoWords(route.visa.submittedMonth, month), decision: inMonths(route.visa.decisionMonth, month) })}</Line>}
       {route.refusals > 0 ? (
         <div>
           <WordChip tone="bad">{sayCount("ui.route.refusals", route.refusals, { count: route.refusals })}</WordChip>
