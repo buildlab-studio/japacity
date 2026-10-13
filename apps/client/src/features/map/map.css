@@ -1,0 +1,16 @@
+/* The map screen's round white buttons and the ride sheet's picture tiles (the after set), loaded with the map screen
+   itself; the painted map's own paint is paper/paper.css, loaded with the painted map. */
+.map-pill { background: #fff; color: #1b2a4a; border-radius: 999px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }
+.map-round { background: #fff; color: #1b2a4a; border-radius: 50%; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }
+.map-pill-mark { border-radius: 50%; }
+[data-paint="night"] .map-pill, [data-paint="night"] .map-round { background: #1f2c4d; color: #f6edd8; box-shadow: 0 0 0 1.5px #f6edd8, 0 3px 0 #f6edd8; }
+
+/* The ride sheet's picture tiles and state chip. */
+.ride-way { background: var(--sheet-2); box-shadow: inset 0 0 0 1.5px var(--sheet-line); color: var(--text); }
+.ride-way-on { background: var(--paper-ticket); color: #1b2a4a; box-shadow: 0 0 0 2.5px var(--edge), 0 3px 0 2.5px var(--edge); }
+.ride-way-on .text-text-2 { color: #5e6b80; }
+.ride-state { display: inline-flex; align-items: center; border-radius: 8px; padding: 3px 8px; font-size: 12px; font-weight: 600; line-height: 1.35; white-space: nowrap; rotate: 3deg; box-shadow: 0 0 0 2px var(--cut), 0 3px 5px rgba(20, 40, 50, 0.18); }
+.ride-state-good { background: var(--tint-money); color: var(--in); }
+.ride-state-plain { background: var(--sheet-muted); color: var(--text); }
+.ride-state-soft { background: var(--paper-ticket); color: #8a6400; }
+[data-paint="night"] .ride-state-good { color: #9be3b9; }

@@ -1,18 +1,24 @@
 // The map and the ride (docs/rules/world.md R-WORLD-015 to 017), composed. The city hands the pins,
-// the country and its neighbours, whether WebGL draws, a ride already chosen in a place, and what to
-// do on arriving and on closing; `onRide` carries the fare of the way chosen.
+// the country and its neighbours, whether WebGL draws (for the ride's scene), a ride already chosen in a
+// place, the step's place, and what to do on arriving and on closing; `onRide` carries the fare of the way
+// chosen. Lagos is the painted map, folding between the strip and the cards (paper/PaperMap.tsx), the same
+// on every device; abroad, until a city there is drawn, the stops are a list.
 import { X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import "./map.css";
+
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
 import { formatMoney } from "../../shared/words/format";
 import type { CountryChoice, RideChoice } from "../../shared/world/contract";
-import { CityMap } from "./CityMap";
 import { Countries } from "./Countries";
 import { mapWords } from "./map.words";
 import { type MapPin, rideChoices } from "./pins";
 import { ownLook, preloadRide, Ride } from "./Ride";
 import { headingOf, RideSheet } from "./RideSheet";
+
+/** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
+const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
 
 export interface MapProps {
   pins: readonly MapPin[];
@@ -38,6 +44,8 @@ export interface MapProps {
   by?: RideChoice["id"];
   /** A stop to open picked, with its ride sheet up: the nudge's step elsewhere (R-WORLD-003). */
   pickFirst?: string | null;
+  /** The place the live step points to: the map opens on its neighbourhood, its sticker ringed and named (the plan 16). */
+  step?: string | null;
 }
 
 /** The pins as a key, so a new array with the same pins does not rebuild the city. */
@@ -45,7 +53,7 @@ function keyOf(pins: readonly MapPin[]): string {
   return pins.map((pin) => `${pin.id}:${pin.state}:${String(pin.position.latE3)}:${String(pin.position.lonE3)}:${pin.name}`).join("|");
 }
 
-export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onTurnBack, onCountry, home = null, by, pickFirst = null }: MapProps) {
+export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onTurnBack, onCountry, home = null, by, pickFirst = null, step = null }: MapProps) {
   const view = useView();
   // All the naira: the fare leaves cash first and the bank for the rest (R-PLACE-010).
   const have = view.pockets.NGN.cash + view.pockets.NGN.bank;
@@ -101,12 +109,19 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
 
   const ridingTo = riding === null ? null : (stable.find((candidate) => candidate.id === riding.id) ?? null);
 
-  return (
-    <div className="fixed inset-0 z-[40] bg-[var(--land)] text-text" data-map data-picked={picked ?? ""}>
-      {drawing ? <CityMap pins={stable} home={homeId} picked={picked} onPick={setPicked} /> : null}
+  const lagos = country.id === "lagos";
+  const closeButton = (
+    <button type="button" onClick={onClose} aria-label={mapWords("map.close")} className="map-round press pointer-events-auto inline-flex size-[42px] items-center justify-center" data-map-close>
+      <X size={20} strokeWidth={2.5} />
+    </button>
+  );
+  const countryMenu = <Countries country={country} countries={countries} up={lagos} {...(onCountry === undefined ? {} : { onCountry })} />;
+  const named = useCallback((id: string): string => stable.find((candidate) => candidate.id === id)?.name ?? id, [stable]);
 
-      {/* The stops as a list: the whole map where nothing draws, and for a screen reader where it does. */}
-      <ul aria-label={mapWords("map.stops")} className={drawing ? "sr-only" : "absolute inset-x-3 top-20 flex flex-col gap-1.5"}>
+  return (
+    <div className="fixed inset-0 z-[40] bg-sheet text-text" data-map data-picked={picked ?? ""}>
+      {/* The stops as a list: the whole map abroad, where no city is drawn yet, and for a screen reader in Lagos. */}
+      <ul aria-label={mapWords("map.stops")} className={lagos ? "sr-only" : "absolute inset-x-3 top-20 flex flex-col gap-1.5"}>
         {stable.map((stop) => (
           <li key={stop.id}>
             <button type="button" onClick={() => setPicked(stop.id)} data-stop={stop.id} data-state={stop.state} data-home={stop.id === homeId} className="chip press flex w-full items-center gap-2 px-3 py-2.5 text-left text-[14px] font-semibold">
@@ -118,17 +133,24 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
         ))}
       </ul>
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3 pt-[max(10px,env(safe-area-inset-top))]">
-        <Countries country={country} countries={countries} {...(onCountry === undefined ? {} : { onCountry })} />
-        <button type="button" onClick={onClose} aria-label={mapWords("map.close")} className="chip press pointer-events-auto inline-flex size-10 items-center justify-center shadow-lg" data-map-close>
-          <X size={18} />
-        </button>
-      </div>
+      {/* While a ride plays the painted map is put away: the ride fills the screen, and nothing under it keeps drawing. */}
+      {lagos && riding === null ? (
+        <Suspense fallback={<div className="absolute top-3 right-3">{closeButton}</div>}>
+          <PaperMap pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} />
+        </Suspense>
+      ) : lagos ? null : (
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3 pt-[max(10px,env(safe-area-inset-top))]">
+          {countryMenu}
+          {closeButton}
+        </div>
+      )}
 
       {pin === null ? (
-        <p className="chip pointer-events-none absolute bottom-[max(16px,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 px-3 py-2 text-[13px] font-bold whitespace-nowrap" data-map-hint>
-          {mapWords("map.hint")}
-        </p>
+        lagos ? null : (
+          <p className="chip pointer-events-none absolute bottom-[max(16px,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 px-3 py-2 text-[13px] font-bold whitespace-nowrap" data-map-hint>
+            {mapWords("map.hint")}
+          </p>
+        )
       ) : (
         <RideSheet key={pin.id} pin={pin} home={pin.id === homeId} ways={ways} have={have} formatMoney={(amount) => formatMoney(amount, "NGN")} onChoose={go} onClose={() => setPicked(null)} onStay={onClose} {...(by === undefined ? {} : { by })} />
       )}

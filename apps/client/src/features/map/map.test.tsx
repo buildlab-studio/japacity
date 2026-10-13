@@ -12,14 +12,12 @@ import { formatMoney } from "../../shared/words/format";
 import { nameOf, say } from "../../shared/words/text";
 import type { CountryChoice, RideChoice } from "../../shared/world/contract";
 import { Countries } from "./Countries";
-import { buildGrid, isWater, nearestNode, nodePoint, routeBetween, toXZ, type XZ } from "./layout";
 import { Map } from "./Map";
 import { mapWords } from "./map.words";
 import { mapPins, type MapPin, rideChoices } from "./pins";
 import { alongOf, LINES, lineOf, LONG_WALK_MS, PRE_MS, Ride, RIDE_MS } from "./Ride";
 import { firstWay, headingOf } from "./RideSheet";
-import { type Angle, angleAt, anglesOf, buildRide, CUT_DARK_MS, darkAt, figuresOn, STEP_MS, stepClock } from "./rideScene";
-import { buildCityMap, drawCallsOf, readColours } from "./scene";
+import { type Angle, angleAt, anglesOf, buildRide, CUT_DARK_MS, darkAt, drawCallsOf, figuresOn, STEP_MS, stepClock } from "./rideScene";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -45,30 +43,7 @@ function lagosPins(been: readonly string[] = [], open?: ReadonlySet<string>): Ma
 const LAGOS: CountryChoice = { id: "lagos", name: "Lagos", locked: null };
 const COUNTRIES: CountryChoice[] = [LAGOS, { id: "country.uk", name: "United Kingdom", locked: "No visa yet" }];
 
-function drawn(pins: readonly MapPin[]) {
-  return buildCityMap(pins, { colours: readColours(null), home: HOME, districts: [], boardText: (pin) => pin.name, districtText: (area) => area, canvas: null });
-}
-
 describe("the city as the map", () => {
-  test("[R-WORLD-015] given every built place of Lagos, when the city is drawn, then it costs at most 20 draw calls, lit route and all, with the buildings instanced", () => {
-    const pins = lagosPins();
-    const map = drawn(pins);
-    expect(drawCallsOf(map.scene)).toBeLessThanOrEqual(20);
-    const here = map.stops.find((stop) => stop.pin.state === "here");
-    const there = map.stops.find((stop) => stop.pin.id === "place.computer-village");
-    if (here === undefined || there === undefined) throw new Error("No stops to route between");
-    map.setRoute(routeBetween(map.grid, here.at, there.at));
-    map.tick(1);
-    expect(drawCallsOf(map.scene)).toBeLessThanOrEqual(20);
-    // Hundreds of buildings, a handful of meshes.
-    let copies = 0;
-    map.scene.traverse((object) => {
-      if (object.name.startsWith("buildings-")) copies += (object as unknown as { count: number }).count;
-    });
-    expect(copies).toBeGreaterThan(500);
-    map.dispose();
-  });
-
   test("[R-WORLD-015] given the view at home, the kept list and the built places, when the pins are read, then only built places stand, each here, home, been, can go or not yet", () => {
     const pins = lagosPins(["place.bode-thomas"], new Set([...BUILT].filter((id) => id !== "place.airport-lagos")));
     const state = (id: string): string | undefined => pins.find((pin) => pin.id === id)?.state;
@@ -85,7 +60,7 @@ describe("the city as the map", () => {
     expect(pins.find((pin) => pin.id === HOME)?.position).toEqual(HOME_SPOT);
   });
 
-  test("[R-WORLD-015] given the pins, when the map opens where nothing draws, then each stop shows its state and the home shows as home", async () => {
+  test("[R-WORLD-015] given the pins, when the map opens, then the stops stand in a list for a screen reader, each with its state, and the home shows as home", async () => {
     await renderWithView(<Map pins={lagosPins(["place.bode-thomas"])} country={LAGOS} countries={COUNTRIES} drawing={false} onGo={() => undefined} onClose={() => undefined} />, engineView());
     const stops = within(screen.getByRole("list", { name: mapWords("map.stops") }));
     const stop = (id: string): HTMLElement => {
@@ -100,66 +75,6 @@ describe("the city as the map", () => {
     expect(stop(HOME).textContent).toContain(mapWords("map.state.home"));
   });
 
-  test("[R-WORLD-015] given the city drawn, when the home is drawn, then it is a small house, and the player's place carries the ring", () => {
-    const map = drawn(lagosPins());
-    const house = map.scene.getObjectByName("home");
-    const ring = map.scene.getObjectByName("here");
-    const home = map.stops.find((stop) => stop.pin.id === HOME);
-    const here = map.stops.find((stop) => stop.pin.state === "here");
-    expect(house?.visible).toBe(true);
-    expect(Math.hypot((house?.position.x ?? 0) - (home?.at[0] ?? 99), (house?.position.z ?? 0) - (home?.at[1] ?? 99))).toBeLessThan(4);
-    expect(ring?.visible).toBe(true);
-    expect([ring?.position.x, ring?.position.z]).toEqual([here?.at[0], here?.at[1]]);
-    // The ring breathes.
-    map.tick(0);
-    const small = ring?.scale.x ?? 0;
-    map.tick(0.6);
-    expect(ring?.scale.x).not.toBe(small);
-    map.dispose();
-  });
-
-  test("[R-WORLD-015] given a stop picked, when the route is found, then it runs along the roads from the player's stop to the stop picked", () => {
-    const grid = buildGrid();
-    const pins = lagosPins();
-    const at = (id: string): XZ => toXZ(pins.find((pin) => pin.id === id)?.position ?? { latE3: 0, lonE3: 0 });
-    for (const target of ["place.computer-village", "place.third-mainland-bridge", "place.bode-thomas"]) {
-      const route = routeBetween(grid, at("place.ojuelegba"), at(target));
-      expect(route[0]).toEqual(at("place.ojuelegba"));
-      expect(route[route.length - 1]).toEqual(at(target));
-      // Between the two stubs every leg runs along one road of the grid, joined node to node.
-      const legs = route.slice(1, -1);
-      expect(legs[0]).toEqual(nodePoint(nearestNode(grid, at("place.ojuelegba"))));
-      expect(legs[legs.length - 1]).toEqual(nodePoint(nearestNode(grid, at(target))));
-      for (let index = 1; index < legs.length; index += 1) {
-        const [ax, az] = legs[index - 1] ?? [0, 0];
-        const [bx, bz] = legs[index] ?? [0, 0];
-        expect(ax === bx || az === bz).toBe(true);
-      }
-    }
-    // The route to Computer Village never crosses open water.
-    const north = routeBetween(grid, at("place.ojuelegba"), at("place.computer-village")).slice(1, -1);
-    for (let index = 1; index < north.length; index += 1) {
-      const [ax, az] = north[index - 1] ?? [0, 0];
-      const [bx, bz] = north[index] ?? [0, 0];
-      expect(isWater((ax + bx) / 2, (az + bz) / 2)).toBe(false);
-    }
-  });
-
-  test("[R-WORLD-015] given a route lit, when the map moves on, then its dots run along it from the player's stop, and putting it out hides them", () => {
-    const map = drawn(lagosPins());
-    const here = map.stops.find((stop) => stop.pin.state === "here");
-    const there = map.stops.find((stop) => stop.pin.id === "place.national-stadium");
-    if (here === undefined || there === undefined) throw new Error("No stops to route between");
-    const dots = map.scene.getObjectByName("route") as unknown as { visible: boolean; count: number; getMatrixAt: (index: number, matrix: import("three").Matrix4) => void };
-    expect(dots.visible).toBe(false);
-    map.setRoute(routeBetween(map.grid, here.at, there.at));
-    map.tick(0);
-    expect(dots.visible).toBe(true);
-    expect(dots.count).toBeGreaterThan(2);
-    map.setRoute(null);
-    expect(dots.visible).toBe(false);
-    map.dispose();
-  });
 });
 
 describe("one country at a time", () => {

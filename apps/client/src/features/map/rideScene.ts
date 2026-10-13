@@ -29,7 +29,15 @@ import { wear } from "../../shared/frontdoor/colours";
 import type { LookStyle } from "../../shared/frontdoor/style";
 import { blendFigure, type Figure, figureOf, poseFigure } from "../../shared/three/people";
 import type { RideChoice } from "../../shared/world/contract";
-import { sequence } from "./layout";
+
+/** A plain deterministic sequence, so the ride's street is the same every time it plays. */
+function sequence(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
 
 export type Way = RideChoice["id"];
 
@@ -601,4 +609,17 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
       // The renderer, the vehicles and the people are shared and kept loaded (load.ts, sharedRenderer.ts).
     },
   };
+}
+
+/** The draw calls a scene costs, as the renderer counts them: one a visible mesh, one a material group, none an empty instanced mesh. */
+export function drawCallsOf(root: Object3D): number {
+  let calls = 0;
+  root.traverseVisible((object) => {
+    const mesh = object as Mesh;
+    if (!mesh.isMesh) return;
+    if (object instanceof InstancedMesh && object.count === 0) return;
+    const groups = mesh.geometry.groups.length;
+    calls += Array.isArray(mesh.material) ? Math.max(1, groups) : 1;
+  });
+  return calls;
 }

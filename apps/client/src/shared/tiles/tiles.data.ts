@@ -186,6 +186,8 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "place.yaba-hub": "prop_papers-box",
   "place.agent-office": "prop_office-desk",
   "place.olokun-office": "prop_bank-counter",
+  // The passport office's counter; the painted map and the ride sheet stand the flag mast beside it (features/map/paper).
+  "place.passport-office": "prop_bank-counter",
   "place.visa-centre": "prop_waiting-chairs",
   "place.english-test-centre": "prop_test-desk",
   "place.tb-clinic": "prop_xray-stand",
