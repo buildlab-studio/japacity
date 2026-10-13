@@ -888,6 +888,8 @@ export function City({
     if (going !== null && going.thing === thing.id && going.activity === act.stages) {
       setPicked(null);
       fanSent.current = { thing: thing.id, activity: going.activity, at: Date.now() };
+      // The act walked for is spent: a scene built anew (the crowd or the mode changed) must not walk for it again and open its card.
+      setFanAct(null);
       const costs = (view.activities.find((option) => option.id === going.activity)?.cost.length ?? 0) > 0;
       void actOnCard({ activity: going.activity as Id<"activity">, param: going.param }, { send, addToPlan }).then((acted) => {
         cue(acted === "answered" || acted === "planned" ? (costs ? "coin" : "done") : acted === "refused" ? "no" : "tap");
