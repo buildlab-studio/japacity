@@ -4,7 +4,8 @@
 import { content, HOMETOWN_FILL, text } from "@japacity/content";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { PeopleView } from "../../features/people/PeopleView";
+import { PairApiProvider } from "../../features/people/pairApi";
+import { PeopleSlots } from "../../features/people/PeopleOnPhone";
 import { engineView } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { setNow } from "./now";
@@ -82,7 +83,14 @@ describe("lines from home", () => {
   test("[R-PROLOGUE-002] given Ada's life, from Enugu, on the People screen, then her mother and father are at home in Lagos, as P19 has it, and no brace shows", async () => {
     const view = engineView("scenario.ada");
     expect(view.hometown).toBe("hometown.enugu");
-    await renderWithView(<PeopleView />, view);
+    // Moved from the old people tab to Chats' People row, the slots.
+    await renderWithView(
+      <PairApiProvider value={null}>
+        <PeopleSlots api={null} />
+      </PairApiProvider>,
+      view,
+    );
+    expect(document.querySelector('[data-slot="mother"]')?.textContent).toContain("At home, as she has always been.");
     expect(document.body.textContent).toContain("At home, as she has always been.");
     expect(document.body.textContent).not.toContain("{hometown}");
   });

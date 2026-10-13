@@ -98,7 +98,7 @@ export const peopleText: Record<string, string> = {
   "ui.people.moments.count.zero": "No moments yet",
   "ui.people.courting.next": "{count} more moments before you can ask to be together.",
   "ui.people.courting.next.one": "1 more moment before you can ask to be together.",
-  "ui.people.cooldown": "You can ask again in month {month}.",
+  "ui.people.cooldown": "You can ask again {when}.",
   "ui.people.time-with": "with {name}",
   "ui.people.see.how": "To spend time together, plan \"{see}\" when you are in the same place, or \"{call}\" when you are not.",
 
@@ -163,8 +163,8 @@ export const peopleText: Record<string, string> = {
   "ui.people.consent.said": "Last set here: {choice}.",
 
   // The sponsor's side (R-UNDERTAKING-001 to 004, R-UNDERTAKING-012)
-  "ui.people.sponsoring": "You agreed to sponsor them in month {month}. Their route: {route}.",
-  "ui.people.bar": "You cannot sponsor a new partner before month {month}.",
+  "ui.people.sponsoring": "You agreed to sponsor them {when}. Their route: {route}.",
+  "ui.people.bar": "You cannot sponsor a new partner {when}.",
 
   // Ending it (R-PEOPLE-035 to 039)
   "ui.people.end": "End it",

@@ -2,18 +2,101 @@
 // bond lives in its Chats thread, whose head carries the bond's stage and its choices, one row each, the details folded
 // behind the row; and Chats' People row opens the slots, the one place they are seen in the world, with the invite card
 // on an empty partner slot or a computer sibling (people.md R-PEOPLE-010). These are the people tab's own pieces
-// (BondCard, SlotCard, InviteCard), handed to the phone by the shell, so the phone never imports this feature.
+// (BondCard's parts, the slot card, InviteCard), handed to the phone by the shell, so the phone never imports this
+// feature. A pair's conversation is Chats' own thread.
+import { content } from "@japacity/content";
 import { ChevronDown } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { BlockReport } from "../../shared/moderation/BlockReport";
-import { bondName, endCost, endedHow, slotOrder, stepsFor, TOGETHER, type BondView } from "../../shared/sim/people";
+import { bondName, endCost, endedHow, interviewName, personOf, slotKind, slotOrder, stepsFor, TOGETHER, type BondView, type SlotView } from "../../shared/sim/people";
+import { Button } from "../../shared/ui/Button";
+import { Card, Tag } from "../../shared/ui/Panel";
 import { countWords } from "../../shared/words/count";
-import { hasWords, nameOf, runningName, say, sayCount } from "../../shared/words/text";
-import { Answered, End, Facts, Held, Joint, momentsLeft, Pending, Proposals, Warnings } from "./BondCard";
+import { countryWords } from "../../shared/words/people";
+import { blurbOf, forMonths, hasWords, lowerFirst, monthsAgo, nameOf, runningName, say, sayCount } from "../../shared/words/text";
+import { Answered, End, Facts, Held, Joint, Mark, momentsLeft, Pending, Proposals, Warnings } from "./BondCard";
+import { AfterEarlyWin, InviteMaker, InviteOut } from "./InviteCard";
 import type { PairApi } from "./pairApi";
-import { SlotCard, Sponsoring } from "./PeopleView";
+
+function slotTitle(key: string): string {
+  const kind = slotKind(key);
+  if (kind !== "sibling") return say(`ui.people.slot.${kind}`);
+  const number = key.slice("sibling-".length);
+  return `${say("ui.people.slot.sibling")} ${number}`;
+}
+
+function siblingWhere(bond: BondView): string | null {
+  const facts = bond.facts;
+  if (facts === null) return null;
+  if (facts.where !== "abroad" || facts.country === null) return say("ui.people.sibling.facts.home");
+  if (facts.status === null) return say("ui.people.sibling.facts.abroad-plain", { country: countryWords(facts.country) });
+  return say("ui.people.sibling.facts.abroad", { country: countryWords(facts.country), status: runningName(facts.status) });
+}
+
+/**
+ * One slot as the family is told, on the People row's screen. An empty partner slot offers the invite card behind a tap,
+ * as a computer sibling's does (R-PEOPLE-010); a sibling who plays keeps block and report on their record, and their
+ * conversation is their Chats thread.
+ */
+export function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotView; bond: BondView | null; api: PairApi | null }) {
+  const view = useView();
+  const [inviting, setInviting] = useState(false);
+  const kind = slotKind(slotKey);
+  const person = bond === null ? null : personOf(bond);
+  const blurb = person === null ? null : blurbOf(person);
+  const parent = kind === "mother" || kind === "father" ? kind : null;
+  const name = bond !== null ? bondName(bond, view.people.bonds) : slot.state !== "computer" ? null : parent !== null ? say(`ui.people.parent.name.${parent}`) : kind === "sibling" ? bondName({ id: slotKey, role: "sibling", label: "computer", person: null, facts: null }) : null;
+  const pair = kind === "sibling" && slot.state === "player" && bond !== null ? bond.pair : null;
+  const invite = (label: string, open?: string) =>
+    inviting ? (
+      <InviteMaker slot={slotKey} />
+    ) : (
+      <div>
+        <Button small variant="quiet" onClick={() => setInviting(true)} {...(open === undefined ? {} : { "data-invite-open": open })}>
+          {label}
+        </Button>
+      </div>
+    );
+  return (
+    <li>
+      <Card className="flex flex-col gap-2" data-slot={slotKey} data-state={slot.state}>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold tracking-wide text-text-2 uppercase">{slotTitle(slotKey)}</span>
+            <span className="flex items-center gap-2 font-semibold">
+              {name ?? say(`ui.people.slot.state.${slot.state}`)}
+              {slot.label === null ? null : <Mark label={slot.label} />}
+            </span>
+          </div>
+          {bond === null || kind === "sibling" ? null : <Tag>{say(`ui.people.stage.${bond.stage}`)}</Tag>}
+        </div>
+        {parent !== null && slot.state === "computer" ? <p className="text-sm text-text-2">{say(`ui.people.parent.blurb.${parent}`)}</p> : null}
+        {blurb === null ? null : <p className="text-sm text-text-2">{blurb}</p>}
+        {kind === "sibling" && bond !== null && slot.state === "computer" ? <p className="text-sm">{siblingWhere(bond)}</p> : null}
+        {kind === "sibling" && slot.state === "player" ? <p className="text-sm">{say("ui.people.sibling.friend")}</p> : null}
+        {kind === "sibling" && slot.state === "player" && bond !== null ? <Facts bond={bond} /> : null}
+        {pair === null || api === null || bond === null ? null : <BlockReport who={{ pair, name: bondName(bond, view.people.bonds) }} cites={{ pair }} surface="pair" />}
+        {slot.state === "invited" && slot.invite !== null ? <InviteOut slot={slotKey} invite={slot.invite} api={api} /> : null}
+        {kind === "partner" && slot.state === "empty" && !view.ended ? <AfterEarlyWin>{invite(say("ui.people.partner.invite"), slotKey)}</AfterEarlyWin> : null}
+        {kind === "sibling" && slot.state === "computer" && !view.ended ? <AfterEarlyWin>{invite(say("ui.people.sibling.invite"))}</AfterEarlyWin> : null}
+      </Card>
+    </li>
+  );
+}
+
+/** Who the player sponsors, and a bar on sponsoring with how long it holds, never a month number (undertaking.md R-UNDERTAKING-004; world.md R-WORLD-002). */
+export function Sponsoring() {
+  const { people, month } = useView();
+  if (people.sponsoring === null && people.barUntilMonth === null) return null;
+  return (
+    <Card className="flex flex-col gap-1 text-sm" data-sponsoring>
+      {people.sponsoring === null ? null : <p>{say("ui.people.sponsoring", { route: nameOf(people.sponsoring.route), when: lowerFirst(monthsAgo(people.sponsoring.month, month)) })}</p>}
+      {people.barUntilMonth === null ? null : <p className="text-bad">{say("ui.people.bar", { when: forMonths(people.barUntilMonth, month) })}</p>}
+    </Card>
+  );
+}
 
 /**
  * One row of the head: its name and one figure; what else there is folds behind a tap (R-WORLD-006). The figure is a
@@ -100,6 +183,10 @@ function EndedHead({ bond }: { bond: BondView }) {
           {say(reason)}
         </p>
       )}
+      {/* The record stays read only; the two may court again after a while (R-PEOPLE-039). */}
+      <p className="text-[13px] text-text-2" data-recourt>
+        {say("ui.people.ended.recourt", { months: content.tuning.people.recourtMonths })}
+      </p>
     </section>
   );
 }
@@ -118,7 +205,8 @@ function LiveHead({ bond, api }: { bond: BondView; api: PairApi | null }) {
       <Row
         id="stage"
         name={say(`ui.people.stage.${bond.stage}`)}
-        figure={togetherWords(moments)}
+        // While an interview is open the times together are hidden, so each answers from memory (R-INTERVIEW-005).
+        figure={bond.moments === null ? say("ui.people.moments.hidden", { piece: interviewName() }) : togetherWords(moments)}
       >
         <Warnings bond={bond} view={view} />
         <Facts bond={bond} />
@@ -175,9 +263,10 @@ export function PeopleSlots({ api }: { api: PairApi | null }) {
           const slot = slots[key];
           if (slot === undefined) return null;
           const bond = slot.bond === null ? null : (byId.get(slot.bond) ?? null);
-          return <SlotCard key={key} slotKey={key} slot={slot} bond={bond} api={api} partnerInvite />;
+          return <SlotCard key={key} slotKey={key} slot={slot} bond={bond} api={api} />;
         })}
       </ul>
+      <Sponsoring />
     </div>
   );
 }
