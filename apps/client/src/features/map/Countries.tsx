@@ -1,6 +1,6 @@
 // One country at a time (docs/rules/world.md R-WORLD-016): the country shown is the button; the
 // others are listed locked with the reason. A locked one shakes and stays shut.
-import { Check, ChevronDown, Lock } from "lucide-react";
+import { Check, ChevronDown, Lock, MapPin } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { words } from "../../shared/words/text";
@@ -12,6 +12,8 @@ export interface CountriesProps {
   countries: readonly CountryChoice[];
   /** Opens another country the player may switch to. Never called for a locked one. */
   onCountry?: (id: string) => void;
+  /** The list opens upward, for the menu at the foot of the painted map. */
+  up?: boolean;
 }
 
 /** A reason is a words key in the contract; the city may hand words already, which show as they are. */
@@ -26,7 +28,7 @@ function shake(element: HTMLElement | null): void {
   element.animate([{ transform: "translateX(0)" }, { transform: "translateX(-6px)" }, { transform: "translateX(6px)" }, { transform: "translateX(-4px)" }, { transform: "translateX(0)" }], { duration: 320, easing: "ease-out" });
 }
 
-export function Countries({ country, countries, onCountry }: CountriesProps) {
+export function Countries({ country, countries, onCountry, up = false }: CountriesProps) {
   const [open, setOpen] = useState(false);
   const [shaken, setShaken] = useState<string | null>(null);
   const rows = useRef(new Map<string, HTMLButtonElement>());
@@ -43,12 +45,15 @@ export function Countries({ country, countries, onCountry }: CountriesProps) {
 
   return (
     <div className="pointer-events-auto relative" data-country-menu>
-      <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((was) => !was)} className="btn-dark press inline-flex h-10 items-center gap-1.5 px-3 text-[14px] shadow-lg" data-country={country.id}>
+      <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((was) => !was)} className="map-pill press inline-flex h-11 items-center gap-1.5 py-1.5 pr-3 pl-1.5 text-[15px] font-semibold" data-country={country.id}>
+        <span className="flex size-7 items-center justify-center rounded-full bg-sheet-muted" aria-hidden>
+          <MapPin size={15} />
+        </span>
         {country.name}
         <ChevronDown size={15} />
       </button>
       {open ? (
-        <ul role="listbox" aria-label={mapWords("map.country")} className="panel drop absolute top-full left-0 mt-1.5 flex min-w-64 flex-col gap-0.5 p-1.5">
+        <ul role="listbox" aria-label={mapWords("map.country")} className={`panel drop absolute flex min-w-64 flex-col gap-0.5 p-1.5 ${up ? "bottom-full left-1/2 mb-1.5 -translate-x-1/2" : "top-full left-0 mt-1.5"}`}>
           {countries.map((choice) => {
             const shown = choice.id === country.id;
             const locked = choice.locked !== null;

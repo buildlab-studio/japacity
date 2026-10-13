@@ -5,7 +5,7 @@ import { rideFare } from "@japacity/sim";
 
 import type { Pin, PinState, RideChoice } from "../../shared/world/contract";
 import { mapWords, WAYS } from "./map.words";
-import type { Position } from "./layout";
+import type { Position } from "./paper/fit";
 
 /** A pin as the city hands it: the contract's, with the line optional until the city gives one. */
 export type MapPin = Omit<Pin, "line"> & { line?: string };

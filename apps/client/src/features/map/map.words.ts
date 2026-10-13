@@ -93,6 +93,28 @@ export const mapText: Record<string, string> = {
   "map.area.iganmu": "Iganmu",
   "map.area.akoka": "Akoka",
   "map.area.lagos-lagoon": "Lagos Lagoon",
+  "map.area.ojuelegba": "Ojuelegba",
+  "map.area.bode-thomas": "Bode Thomas",
+  "map.area.makoko": "Makoko",
+  "map.area.lekki": "Lekki",
+  "map.area.apapa": "Apapa",
+  "map.area.gbagada": "Gbagada",
+  "map.water.lagoon": "Lagos Lagoon",
+  "map.water.atlantic": "The Atlantic",
+  "map.bridge.third-mainland": "Third Mainland Bridge",
+
+  // The neighbourhoods' cards, each name folded into its card's top edge (R-WORLD-015, the folding map).
+  "map.card.ikeja": "Ikeja",
+  "map.card.yaba": "Yaba",
+  "map.card.ojuelegba": "Ojuelegba",
+  "map.card.surulere": "Surulere",
+  "map.card.bode": "Bode Thomas",
+  "map.card.ebute": "Ebute Metta",
+  "map.card.makoko": "Makoko",
+  "map.card.island": "The island",
+  "map.card.lekki": "Lekki",
+  // The strip's name for a screen reader: a tap on it opens the whole map.
+  "map.unfold": "Open the whole map",
 };
 
 /** Words for a map key: content's first, then the interface's, then the map's own drafts. */

@@ -384,6 +384,8 @@ export interface CityMapSlot {
   by?: RideChoice["id"];
   /** A stop to open picked: the nudge's step elsewhere (R-WORLD-003). */
   pickFirst?: string | null;
+  /** The place the live step points to: the map opens on its neighbourhood with its sticker ringed and named (the plan 16). */
+  step?: string | null;
 }
 
 export function City({
@@ -1556,6 +1558,7 @@ export function City({
             drawing: drawing && where === "home",
             diveTo,
             pickFirst: mapPick,
+            step: stepWay?.go ?? null,
             ...(rideBy === null ? {} : { by: rideBy }),
             home,
             onGo: (id) => {
