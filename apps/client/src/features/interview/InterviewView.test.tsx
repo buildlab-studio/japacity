@@ -7,7 +7,7 @@ import { optionWords } from "../../shared/sim/people";
 import { renderWithView } from "../../shared/testing/render";
 import { interviewGame, QUESTIONS, renderWithGame } from "../../shared/testing/people";
 import { nameOf, say } from "../../shared/words/text";
-import { InterviewView } from "./InterviewView";
+import { INTERVIEW_DESK, InterviewView } from "./InterviewView";
 
 const ENTRY = "interview.genuineness";
 
@@ -25,6 +25,23 @@ describe("the interview", () => {
     expect(authority.sent.at(-1)).toMatchObject({ type: "interview/answer", question: "times-met", option: "one-to-three" });
     fireEvent.click(screen.getByRole("button", { name: optionWords("partner-home", "town") }));
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "interview/answer", question: "partner-home", option: "town" }));
+  });
+
+  test("[R-INTERVIEW-004] given an interview open, then it wears the ask's dress: the officer's pill and the desk's tile at the head, the question as the title, content's own line under it, the options as the ask's replies, and no rule name on screen", async () => {
+    const game = interviewGame();
+    await renderWithGame(<InterviewView />, game);
+    const section = screen.getByRole("region", { name: nameOf(ENTRY) });
+    expect(section.querySelector("[data-interview-head] [data-face]")?.getAttribute("data-face")).toBe(say("ui.interview.in.who"));
+    expect(section.querySelector(`[data-interview-head] [data-tile="${INTERVIEW_DESK}"]`)).not.toBeNull();
+    expect(section.querySelector("[data-interview-title]")?.textContent).toBe(text[`${ENTRY}.q.times-met`]);
+    expect(section.querySelector("[data-interview-line]")?.textContent).toBe(text[`${ENTRY}.blurb`]);
+    const replies = Array.from(section.querySelectorAll<HTMLElement>("[data-interview-option]"));
+    expect(replies.map((reply) => reply.getAttribute("data-interview-option"))).toEqual([...QUESTIONS[0]!.options]);
+    for (const reply of replies) expect(reply.className).toContain("ask-reply");
+    // One question at a time: the next question's words are not on screen yet.
+    expect(section.textContent).not.toContain(text[`${ENTRY}.q.partner-home`]!);
+    // The interview's name is the region's, for a screen reader; nothing on screen reads as the rule's name.
+    expect(section.textContent).not.toContain(nameOf(ENTRY));
   });
 
   test("[R-INTERVIEW-011] given every answer in and the partner not yet done, then the interview says it waits for them and asks nothing more", async () => {
