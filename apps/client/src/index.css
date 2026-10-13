@@ -643,3 +643,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 /* The morning's result on the lock screen: a white card, its picture on the
    soft yellow, the thin edge and a soft shadow. */
 .morning-card { border-radius: 22px; background: #ffffff; color: #131a33; box-shadow: 0 0 0 1.5px #1c2a5e, 0 10px 24px rgba(10, 14, 30, 0.3); }
+/* A coin flying from a money toast to the band's counter (section 7, "Answer"), transform and opacity only. */
+@keyframes coin-fly { 0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); } 20% { opacity: 1; } 100% { opacity: 0.2; transform: translate(calc(-50% + var(--tx, 0px)), var(--ty, 0px)) scale(1); } }
+.coin-fly { animation: coin-fly 0.42s cubic-bezier(0.4, 0, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) { .coin-fly { animation: fade 0.2s ease both !important; } }

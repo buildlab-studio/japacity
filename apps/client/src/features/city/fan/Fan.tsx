@@ -96,7 +96,8 @@ export function Fan({ thing, title, entries, onAct, onFallback, going = null, on
       setShift(Math.max(range.min, Math.min(range.max, -(index - layout.shown + 1) * layout.sizes.pitch)));
       return;
     }
-    cue("tap");
+    // A refusal answers with its own low double note and a shake, and nothing else happens (section 7, "Refuse").
+    cue(entry.refusal !== null ? "no" : "tap");
     if (entry.refusal !== null) {
       setShaking((was) => ({ id: entry.id, n: (was?.n ?? 0) + 1 }));
       return;

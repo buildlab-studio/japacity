@@ -28,6 +28,7 @@ import { ENGLISH_TEST, testChance } from "../../shared/words/test";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
 import { Band, bandMoney, bandMonth } from "../../shared/world/Band";
+import { type MoneyIn, MoneyToast } from "../../shared/world/MoneyToast";
 import { cue } from "../../shared/sound/cues";
 import type { Act, Ask, RideChoice, Thing } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
@@ -873,7 +874,7 @@ export function City({
       setPicked(null);
       const costs = (view.activities.find((option) => option.id === going.activity)?.cost.length ?? 0) > 0;
       void actOnCard({ activity: going.activity as Id<"activity">, param: going.param }, { send, addToPlan }).then((acted) => {
-        cue(acted === "answered" || acted === "planned" ? (costs ? "coin" : "done") : "tap");
+        cue(acted === "answered" || acted === "planned" ? (costs ? "coin" : "done") : acted === "refused" ? "no" : "tap");
         if (acted === "full") tell(say("ui.world.full"));
       });
       return;
@@ -1348,7 +1349,7 @@ export function City({
       act: () => {
         const pick = { activity: option.id, param: chosen ?? option.params?.[0] ?? null };
         void actOnCard(pick, { send, addToPlan }).then((acted) => {
-          cue(acted === "answered" || acted === "planned" ? (cost === null ? "done" : "coin") : "tap");
+          cue(acted === "answered" || acted === "planned" ? (cost === null ? "done" : "coin") : acted === "refused" ? "no" : "tap");
           // The place answers an act done at once in the same sheet; a refusal is said by the store. A planned act is its thing's label's state, never a line.
           if (acted === "answered") return;
           setPicked(null);
@@ -1472,6 +1473,20 @@ export function City({
     for (const line of toTell) tell(line);
     setToTell([]);
   }, [toTell, worldFree, homeTeachShown]);
+  // Toasts that answer every tap (design page 13 sections 2 and 7): money in from something done in the world slides in
+  // under the band with a picture and the figure, and a coin flies to the counter. Never at the month's turn, which the
+  // results tell, and never from the phone, which tells its own.
+  const money = bandMoney(view).money;
+  const moneyBefore = useRef(money);
+  const [moneyIn, setMoneyIn] = useState<MoneyIn | null>(null);
+  useEffect(() => {
+    const before = moneyBefore.current;
+    moneyBefore.current = money;
+    if (!world || reportOpen || phone || money <= before) return;
+    const said = nowLineIn(lastLines);
+    const act = said === null ? "" : nowActOf(said);
+    setMoneyIn({ at: Date.now(), title: act === "" ? say("ui.toast.money-in") : nameOf(act), amount: `+${bandMoney(view).formatMoney(money - before)}`, picture: act === "" ? "activity.side-gig" : act });
+  }, [money]);
   // The road in the world, only in the moment (the plan 16; design page 13 section 4). The brief of the chapter the life
   // is in; the chip for a moment after its card is handed; a done thing's toast; the close's card once a chapter closes.
   const brief = useMemo(() => (world ? briefOf(view, briefLine(view)) : null), [world, view]);
@@ -1705,6 +1720,7 @@ export function City({
             more={
               !(phone || asksOpen || menu || credits || picked !== null || asleep !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
+                  {moneyIn === null ? null : <MoneyToast key={moneyIn.at} toast={moneyIn} onGone={() => setMoneyIn(null)} />}
                   {brief !== null && chipMoment !== null ? (
                     <BriefChip brief={brief} moment={chipMoment} toast={chipMoment === "done" ? (toast?.words ?? null) : null} {...(chipMoment === "here" && nudgeGoes ? { onTap: followStep } : {})} onTucked={() => setHanded(null)} />
                   ) : shownNudge !== null && (STANDING_NUDGES.has(shownNudge.about) || toBed) ? (

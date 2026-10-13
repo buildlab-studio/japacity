@@ -79,6 +79,8 @@ export const livelyText: Record<string, string> = {
   "ui.ask.group.return": "Home",
   // The month's close: the rest behind one fold.
   "ui.results.whole-month": "See the whole month",
+  // Toasts that answer every tap: money in with no act to name.
+  "ui.toast.money-in": "Money in",
   // The talk budget: someone near the player, and a longer line opened in its sheet.
   "ui.talk.someone": "Someone nearby",
   "ui.talk.open": "{name} has more to say",
