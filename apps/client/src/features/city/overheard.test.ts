@@ -81,10 +81,10 @@ describe("talk overheard abroad", () => {
     for (const words of said) expect({ words, corridor: /bucket|room four|nook|gate/i.test(words), elsewhere: /compound|mama|landlord/i.test(words) }).toEqual({ words, corridor: true, elsewhere: false });
   });
 
-  test("[R-WORLD-026] given the family house, when its own lines are read, then each is the family's: a father, Mama or an uncle, never a line any home could hear", () => {
+  test("[R-WORLD-026] given the family house, when its own lines are read, then each is the family's: Papa, Mama or an uncle, never a line any home could hear", () => {
     const said = placeLines("place.family-house").map((key) => heardWords(key, {}));
     expect(said.length).toBeGreaterThanOrEqual(3);
-    for (const words of said) expect({ words, family: /father|mama|uncle|aunty/i.test(words) }).toEqual({ words, family: true });
+    for (const words of said) expect({ words, family: /father|papa|mama|uncle|aunty/i.test(words) }).toEqual({ words, family: true });
   });
 });
 
