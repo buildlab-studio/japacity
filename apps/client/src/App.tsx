@@ -33,6 +33,7 @@ import { CreditsRow } from "./features/city/Credits";
 import { Map } from "./features/map/Map";
 import { MomentCard } from "./features/moment/MomentCard";
 import { HeldShareCard } from "./features/notify/held";
+import { NotifyAsk } from "./features/notify/NotifyAsk";
 import { NotifySetting } from "./features/notify/NotifySetting";
 import { OfferView } from "./features/offer/OfferView";
 import { usePairApi } from "./features/people/pairApi";
@@ -159,6 +160,8 @@ function WorldPlaying() {
       {/* R-MOMENT-006: a moment an act or the draw's letter brings stands over the world. */}
       <MomentCard over="world" />
       <SecureAsk />
+      {/* R-GUIDE-015: the notice is asked once, after the early win's good moment, as the old page asked it. */}
+      <NotifyAsk />
     </div>
   );
 }
