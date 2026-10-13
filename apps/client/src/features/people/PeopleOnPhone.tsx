@@ -11,6 +11,7 @@ import { useState, type ReactNode } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { BlockReport } from "../../shared/moderation/BlockReport";
 import { bondName, endCost, endedHow, interviewName, personOf, slotKind, slotOrder, stepsFor, TOGETHER, type BondView, type SlotView } from "../../shared/sim/people";
+import { GhostButton } from "../../shared/ui/lively/GhostButton";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
 import { countWords } from "../../shared/words/count";
 import { countryWords } from "../../shared/words/people";
@@ -53,9 +54,9 @@ export function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: 
       <InviteMaker slot={slotKey} />
     ) : (
       <div>
-        <button type="button" className="phone-ghost press" onClick={() => setInviting(true)} {...(open === undefined ? {} : { "data-invite-open": open })}>
+        <GhostButton onClick={() => setInviting(true)} {...(open === undefined ? {} : { "data-invite-open": open })}>
           {label}
-        </button>
+        </GhostButton>
       </div>
     );
   return (
@@ -76,10 +77,10 @@ export function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: 
             </StickerChip>
           )}
         </div>
-        {parent !== null && slot.state === "computer" ? <p className="text-sm text-text-2">{say(`ui.people.parent.blurb.${parent}`)}</p> : null}
-        {blurb === null ? null : <p className="text-sm text-text-2">{blurb}</p>}
-        {kind === "sibling" && bond !== null && slot.state === "computer" ? <p className="text-sm">{siblingWhere(bond)}</p> : null}
-        {kind === "sibling" && slot.state === "player" ? <p className="text-sm">{say("ui.people.sibling.friend")}</p> : null}
+        {parent !== null && slot.state === "computer" ? <p className="text-[14px] leading-snug text-text-2">{say(`ui.people.parent.blurb.${parent}`)}</p> : null}
+        {blurb === null ? null : <p className="text-[14px] leading-snug text-text-2">{blurb}</p>}
+        {kind === "sibling" && bond !== null && slot.state === "computer" ? <p className="text-[14px] leading-snug">{siblingWhere(bond)}</p> : null}
+        {kind === "sibling" && slot.state === "player" ? <p className="text-[14px] leading-snug">{say("ui.people.sibling.friend")}</p> : null}
         {kind === "sibling" && slot.state === "player" && bond !== null ? <Facts bond={bond} /> : null}
         {pair === null || api === null || bond === null ? null : <BlockReport who={{ pair, name: bondName(bond, view.people.bonds) }} cites={{ pair }} surface="pair" />}
         {slot.state === "invited" && slot.invite !== null ? <InviteOut slot={slotKey} invite={slot.invite} api={api} /> : null}

@@ -7,12 +7,13 @@
 import { content } from "@japacity/content";
 import type { Id, PlayerView, ReportLine } from "@japacity/sim";
 import { Heart, TriangleAlert } from "lucide-react";
-import { type ComponentProps, type ReactNode, useId, useState } from "react";
+import { type ReactNode, useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { FaceSticker } from "../../shared/frontdoor/LookPicture";
 import { lookForName } from "../../shared/frontdoor/looks";
 import { bondName, endCost, interviewName, jointRoutes, monthsWithout, personOf, stepsFor, TOGETHER, type BondView } from "../../shared/sim/people";
+import { GhostButton } from "../../shared/ui/lively/GhostButton";
 import { PressButton } from "../../shared/ui/lively/PressButton";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
 import { ReportLines } from "../../shared/ui/ReportLines";
@@ -21,11 +22,6 @@ import { countryWords, jobWords } from "../../shared/words/people";
 import { inMonths, nameOf, runningName, say, sayCount } from "../../shared/words/text";
 
 const MONTHS_PER_YEAR = 12;
-
-/** A ghost button: the layer's white button with the navy edge, for every choice that is not the surface's one action. */
-function Ghost({ className = "", ...rest }: ComponentProps<"button">) {
-  return <button type="button" className={`phone-ghost press ${className}`} {...rest} />;
-}
 
 /** The quiet mark beside a name: who the other side is (R-PEOPLE-051, R-PEOPLE-054), as a small sticker chip. */
 export function Mark({ label }: { label: BondView["label"] }) {
@@ -79,8 +75,8 @@ export function Facts({ bond }: { bond: BondView }) {
       </div>
       <ul className="flex flex-wrap gap-1.5 text-[13px]">
         {items.map((item, index) => (
-          <li key={item} className="sticker-chip max-w-full bg-sheet-2 whitespace-normal" style={{ rotate: `${String(index % 2 === 0 ? -1.5 : 1.5)}deg` }} data-sticker-chip>
-            <span className="whitespace-normal">{item}</span>
+          <li key={item} className="sticker-chip chip-wrap bg-sheet-2" style={{ rotate: `${String(index % 2 === 0 ? -1.5 : 1.5)}deg` }} data-sticker-chip>
+            {item}
           </li>
         ))}
       </ul>
@@ -104,9 +100,9 @@ export function Pending({ bond }: { bond: BondView }) {
           <p className="flex-1 leading-snug">
             {mine.step === "joint" && mine.route !== null ? say("ui.people.pending.mine.joint", { route: runningName(mine.route) }) : say("ui.people.pending.mine", { step: stepWords(mine) })}
           </p>
-          <Ghost disabled={busy} onClick={() => void send({ type: "people/withdraw", bond: bond.id })}>
+          <GhostButton disabled={busy} onClick={() => void send({ type: "people/withdraw", bond: bond.id })}>
             {say("ui.people.withdraw")}
-          </Ghost>
+          </GhostButton>
         </div>
       )}
       {theirs === null ? null : (
@@ -120,9 +116,9 @@ export function Pending({ bond }: { bond: BondView }) {
             <PressButton className="flex-1" disabled={busy} onClick={() => void send({ type: "people/answer", bond: bond.id, step: theirs.step, yes: true })}>
               {say("ui.people.answer.yes")}
             </PressButton>
-            <Ghost disabled={busy} onClick={() => void send({ type: "people/answer", bond: bond.id, step: theirs.step, yes: false })}>
+            <GhostButton disabled={busy} onClick={() => void send({ type: "people/answer", bond: bond.id, step: theirs.step, yes: false })}>
               {say("ui.people.answer.no")}
-            </Ghost>
+            </GhostButton>
           </div>
         </div>
       )}
@@ -218,9 +214,9 @@ export function Proposals({ bond, onSent }: { bond: BondView; onSent: (lines: Re
         {children}
       </PressButton>
     ) : (
-      <Ghost disabled={busy} onClick={() => propose(step)}>
+      <GhostButton disabled={busy} onClick={() => propose(step)}>
         {children}
-      </Ghost>
+      </GhostButton>
     );
   return (
     <div className="flex flex-col gap-2" data-bond-proposals>
@@ -236,9 +232,9 @@ export function Proposals({ bond, onSent }: { bond: BondView; onSent: (lines: Re
           : null}
         {steps.includes("marry") ? asked("marry", say("ui.people.propose.marry")) : null}
         {steps.includes("joint") ? (
-          <Ghost aria-expanded={joint} onClick={() => setJoint(!joint)}>
+          <GhostButton aria-expanded={joint} onClick={() => setJoint(!joint)}>
             {say("ui.people.propose.joint")}
-          </Ghost>
+          </GhostButton>
         ) : null}
       </div>
       {steps.includes("marry") ? <p className="text-[12px] text-text-2">{say("ui.people.propose.marry-share", { amount: formatMoney(content.tuning.people.weddingShare, "NGN") })}</p> : null}
@@ -322,7 +318,7 @@ export function End({ bond, asked = false, onKeep }: { bond: BondView; asked?: b
   if (!asking) {
     return (
       <div>
-        <Ghost onClick={() => setAsking(true)}>{say("ui.people.end")}</Ghost>
+        <GhostButton onClick={() => setAsking(true)}>{say("ui.people.end")}</GhostButton>
       </div>
     );
   }
@@ -331,17 +327,17 @@ export function End({ bond, asked = false, onKeep }: { bond: BondView; asked?: b
       <p className="text-[16px] leading-snug font-bold">{costWords}</p>
       {cost.joint ? <p>{say("ui.people.end.joint")}</p> : null}
       <div className="flex flex-wrap gap-2">
-        <Ghost className="text-bad" disabled={busy} onClick={() => void send({ type: "people/end", bond: bond.id }).then(() => setAsking(false))}>
+        <GhostButton className="text-bad" disabled={busy} onClick={() => void send({ type: "people/end", bond: bond.id }).then(() => setAsking(false))}>
           {say("ui.people.end.confirm")}
-        </Ghost>
-        <Ghost
+        </GhostButton>
+        <GhostButton
           onClick={() => {
             setAsking(asked);
             onKeep?.();
           }}
         >
           {say("ui.people.end.keep")}
-        </Ghost>
+        </GhostButton>
       </div>
     </div>
   );

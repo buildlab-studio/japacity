@@ -168,7 +168,7 @@ export function Market({ here = null }: { here?: string | null }) {
           {mine !== undefined ? (
             <>
               <Balance className="justify-center text-[13px]" before={{ amount: held, words: naira(held) }} after={{ amount: held + mine.resale, words: naira(held + mine.resale) }} />
-              <GhostButton onClick={() => sell(chosen, mine)} data-market-sell={chosen.thing}>
+              <GhostButton wide onClick={() => sell(chosen, mine)} data-market-sell={chosen.thing}>
                 {phoneWords("phone.market.sell", { amount: naira(mine.resale) })}
               </GhostButton>
             </>

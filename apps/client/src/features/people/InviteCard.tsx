@@ -2,8 +2,9 @@
 // fills, shown as a friend will see it, and taken back with the same command.
 // The card carries the character's name and japacity, never the account's,
 // never a photo, a sum or a contact. Online it gets its single-use link. Dressed as the lively layer's cards
-// (docs/design/13-the-lively-layer.md section 2): a white card with the character's face sticker, the looking line as a
-// sticker chip, the pressed yellow button for the one action and a ghost button for taking the card back.
+// (docs/design/13-the-lively-layer.md section 2): a white card with the looking line as a sticker chip, the character's
+// face sticker beside the maker's heading (never on the card, which carries no look to the friend), the pressed yellow
+// button for the one action and a ghost button for taking the card back.
 import { content, text } from "@japacity/content";
 import { INVITE_FILLS } from "@japacity/sim";
 import { Link2, Send } from "lucide-react";
@@ -15,6 +16,7 @@ import { rejectionWords } from "../../authority/store";
 import { FaceSticker } from "../../shared/frontdoor/LookPicture";
 import { lookForName, lookOf } from "../../shared/frontdoor/looks";
 import { slotKind } from "../../shared/sim/people";
+import { GhostButton } from "../../shared/ui/lively/GhostButton";
 import { PressButton } from "../../shared/ui/lively/PressButton";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
 import { nameOf, runningName, say, words } from "../../shared/words/text";
@@ -46,21 +48,18 @@ function CardFace({ looking, fill }: { looking: Looking; fill: string | null }) 
   const { percent, route } = view.japacity;
   const name = nameOf(view.scenario);
   return (
-    <figure className="lively-card flex items-start gap-3 p-4" data-invite-card>
-      <FaceSticker look={cardLook(name)} size={56} tilt={-4} tint="people" />
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <p className="text-[22px] leading-tight font-bold">{name}</p>
-        <p className="text-[14px] leading-snug">
-          {percent === null ? say("ui.people.invite.japacity-none") : say("ui.people.invite.japacity", { percent: `${String(percent)}%` })}
-          {route === null ? null : <span className="text-text-2">, {runningName(route)}</span>}
-        </p>
-        <div>
-          <StickerChip tint="people" tilt={-2} className="max-w-full text-[14px] font-bold whitespace-normal">
-            <span className="whitespace-normal" data-invite-looking>{lookingWords(looking, fill)}</span>
-          </StickerChip>
-        </div>
-        <p className="text-[12px] text-text-2">{text["card.invite.game"] ?? ""}</p>
+    <figure className="lively-card flex flex-col gap-1.5 p-4" data-invite-card>
+      <p className="text-[22px] leading-tight font-bold">{name}</p>
+      <p className="text-[14px] leading-snug">
+        {percent === null ? say("ui.people.invite.japacity-none") : say("ui.people.invite.japacity", { percent: `${String(percent)}%` })}
+        {route === null ? null : <span className="text-text-2">, {runningName(route)}</span>}
+      </p>
+      <div>
+        <StickerChip tint="people" tilt={-2} className="chip-wrap text-[14px] font-bold">
+          <span data-invite-looking>{lookingWords(looking, fill)}</span>
+        </StickerChip>
       </div>
+      <p className="text-[12px] text-text-2">{text["card.invite.game"] ?? ""}</p>
     </figure>
   );
 }
@@ -121,11 +120,6 @@ export function InviteOut({ slot, invite, api }: { slot: string; invite: { looki
   const looking = invite.looking === "sibling" ? "sibling" : "partner";
   return (
     <div className="flex flex-col gap-2.5" data-invite-out={slot}>
-      <div>
-        <StickerChip tint="people" tilt={2} className="text-[12px] font-bold">
-          <span data-invite-state="out">{say("ui.people.invite.out")}</span>
-        </StickerChip>
-      </div>
       <CardFace looking={looking} fill={invite.fill} />
       {api === null ? <p className="text-[14px] text-text-2">{say("ui.people.invite.offline")}</p> : (
         <AfterEarlyWin>
@@ -133,9 +127,9 @@ export function InviteOut({ slot, invite, api }: { slot: string; invite: { looki
         </AfterEarlyWin>
       )}
       <div>
-        <button type="button" className="phone-ghost press" disabled={busy} onClick={() => void send({ type: "people/invite", slot })} data-invite-withdraw>
+        <GhostButton disabled={busy} onClick={() => void send({ type: "people/invite", slot })} data-invite-withdraw>
           {say("ui.people.invite.withdraw")}
-        </button>
+        </GhostButton>
       </div>
     </div>
   );
@@ -146,7 +140,8 @@ export function InviteMaker({ slot }: { slot: string }) {
   const id = useId();
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
-  const ended = useView().ended;
+  const view = useView();
+  const ended = view.ended;
   const looking = lookingFor(slot);
   const fills: readonly string[] = INVITE_FILLS[looking];
   const [fill, setFill] = useState<string>("");
@@ -159,7 +154,10 @@ export function InviteMaker({ slot }: { slot: string }) {
         void send(fill === "" ? { type: "people/invite", slot, looking } : { type: "people/invite", slot, looking, fill });
       }}
     >
-      <h4 className="text-[22px] leading-tight font-bold">{say("ui.people.invite.title")}</h4>
+      <div className="flex items-center gap-3">
+        <FaceSticker look={cardLook(nameOf(view.scenario))} size={48} tilt={-4} tint="people" />
+        <h4 className="text-[22px] leading-tight font-bold">{say("ui.people.invite.title")}</h4>
+      </div>
       <p className="text-[16px] leading-snug text-text-2">{say("ui.people.invite.intro")}</p>
       <label htmlFor={`${id}-fill`} className="text-[14px] font-bold">
         {say("ui.people.invite.fill")}

@@ -94,7 +94,7 @@ export function CarFacts({ owed }: { owed: Owed }) {
       {court ? <p className="text-[14px] font-bold text-out">{sayCount("ui.car.court", courtMonthsLeft, { months: courtMonthsLeft })}</p> : null}
       {view.ended ? null : sure ? (
         <div className="flex gap-2">
-          <GhostButton
+          <GhostButton wide
             className="justify-center"
             disabled={busy}
             onClick={() => {
@@ -104,12 +104,12 @@ export function CarFacts({ owed }: { owed: Owed }) {
           >
             {say("ui.car.hand-back-yes")}
           </GhostButton>
-          <GhostButton className="justify-center" onClick={() => setSure(false)}>
+          <GhostButton wide className="justify-center" onClick={() => setSure(false)}>
             {say("ui.car.keep")}
           </GhostButton>
         </div>
       ) : (
-        <GhostButton className="justify-center" disabled={busy || !canHandBack} onClick={() => setSure(true)}>
+        <GhostButton wide className="justify-center" disabled={busy || !canHandBack} onClick={() => setSure(true)}>
           {say("ui.car.hand-back")}
         </GhostButton>
       )}
