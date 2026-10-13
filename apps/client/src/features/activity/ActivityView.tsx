@@ -13,7 +13,7 @@ import { actOnCard, answersNow, pickable } from "../../shared/words/acts";
 import { chipEffectsLine, chipTimeOf, freeShown } from "../../shared/words/chips";
 import { Balance, pricedLabel } from "../../shared/world/Balance";
 import { Button } from "../../shared/ui/Button";
-import { Card, Panel, Tag } from "../../shared/ui/Panel";
+import { Card, Panel } from "../../shared/ui/Panel";
 import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } from "../../shared/words/cost";
 import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
