@@ -79,6 +79,11 @@ export interface Stores {
 export interface Contents {
   current: Content;
   previous: Content | null;
+  /**
+   * R-SERVER-023: the content version before the current one, still bundled so a life saved under it replays and is
+   * upgraded on its first load (`withContentBefore`). Missing: none.
+   */
+  older?: readonly Content[];
 }
 
 /** R-SERVER-015, R-SERVER-016: the secrets of the deployment. Never in a reply. */
