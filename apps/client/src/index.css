@@ -1,6 +1,6 @@
 @import "tailwindcss";
 /* The full index, never latin.css alone: the naira sign and Yoruba and Igbo
-   letters sit in the latin-ext and vietnamese subsets. Danfo is the wordmark's face alone. */
+   letters sit in the latin-ext and vietnamese subsets. Danfo is the display face for titles and figures; the wordmark is drawn to paths. */
 @import "@fontsource/danfo/index.css";
 /* Rubik, the interface's one face (docs/design/13-the-lively-layer.md, section 2), at the two weights the layer uses and
    latin only: Rubik draws neither the naira sign nor the Yoruba letters with a dot below in any subset, so the larger
@@ -167,7 +167,7 @@
   --color-tint-plain: var(--tint-plain);
 
   --font-sans: "Rubik", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Ubuntu, sans-serif;
-  /* Danfo is for the wordmark only. */
+  /* Danfo is the display face (titles and figures); the wordmark does not use it, it is drawn to paths. */
   --font-display: "Danfo", system-ui, sans-serif;
 }
 

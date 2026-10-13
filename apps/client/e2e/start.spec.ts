@@ -122,8 +122,8 @@ test("[R-ACCOUNT-029] [R-ACCOUNT-021] Play leads to the age screen, the three-sc
   await page.locator("[data-front-scene] canvas").waitFor({ timeout: 15_000 }).catch(() => undefined);
   await page.waitForTimeout(800);
   await expect(page.getByRole("button", { name: "I already have a life here" })).toBeVisible();
-  // No title over the figure on the door's first screen: neither the name nor the wordmark.
-  await expect(page.getByRole("img", { name: "Japacity" })).toHaveCount(0);
+  // The lockup heads the start sheet, once; there is no title in words over the figure.
+  await expect(page.getByRole("img", { name: "Japacity" })).toHaveCount(1);
   await expect(page.getByText("Japacity", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("combobox", { name: "Day" })).toHaveCount(0);
   await shoot(page, "screen", info.project.name);
