@@ -78,6 +78,8 @@ export type Reason =
   | "fee-advice"
   /** A meal or the water bought and eaten today (R-HOME-012, decision 0035), a sink. */
   | "food"
+  /** Foodstuff bought for the family house's pot, the share a child at home gives, a sink. */
+  | "foodstuff"
   /** Enjoyment and spending on the street, paid as it is had (R-STREET-011, decision 0037), a sink. */
   | "enjoyment"
   | "bank-charge"

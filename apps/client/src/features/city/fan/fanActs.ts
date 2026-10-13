@@ -91,6 +91,8 @@ export function tintOf(activity: string): FanTint {
 const STAND_IN: Readonly<Record<string, string>> = {
   "activity.cook-at-home": "🍜",
   "activity.cook-jollof": "🥘",
+  "activity.cook-own": "🍜",
+  "activity.cook-own-pot": "🥘",
   "activity.nap": "🛏️",
   "activity.bucket-bath": "🧽",
   "activity.watch-tv": "📺",

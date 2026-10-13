@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { newGame, setPockets } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/people";
 import { formatMoney } from "../../shared/words/format";
+import { say } from "../../shared/words/text";
 import type { Act, Thing } from "../../shared/world/contract";
 import { City } from "./City";
 import { anchorFan } from "./fan/anchor";
@@ -112,25 +113,28 @@ function fanTheCookingCorner(at: { x: number; y: number } | null = { x: 90, y: 5
 }
 
 describe("the cooking corner's fan", () => {
-  test("[R-WORLD-005] [R-WORLD-006] given Ada in the parlour, when the cooking corner is tapped, then its two meals fan out of it with their prices and the balance before and after, no chip is asked of the scene, and the nudge steps back", async () => {
+  test("[R-WORLD-005] [R-WORLD-006] [R-HOME-012] given Ada at the family house, when the cooking corner is tapped, then its two acts fan out of it, the pot free and the big pot with its price and the balance before and after, no chip is asked of the scene, and the nudge steps back", async () => {
     const { game } = await inTheParlour();
     fanTheCookingCorner();
     const fan = found('[data-fan="cooking"]');
     expect(fan.dataset.fanSide).toBe("right");
     expect([...fan.querySelectorAll<HTMLElement>("[data-fan-act]")].map((node) => node.dataset.fanAct)).toEqual([COOK, JOLLOF]);
     const cook = found(`[data-fan-act="${COOK}"]`);
-    expect(cook.querySelector("[data-fan-price]")?.textContent).toBe(priceOf(game, COOK));
-    expect(found(`[data-fan-act="${JOLLOF}"] [data-fan-price]`).textContent).toBe(priceOf(game, JOLLOF));
-    expect(cook.textContent).toContain("Indomie and egg");
-    expect(found(`[data-fan-act="${JOLLOF}"]`).textContent).toContain("Jollof for the house");
+    // The family house's pot is the house's: free, no balance to strike.
+    expect(cook.querySelector("[data-fan-price]")?.textContent).toBe(say("ui.world.free"));
+    expect(cook.querySelector("[data-balance-before]")).toBeNull();
+    const pot = found(`[data-fan-act="${JOLLOF}"]`);
+    expect(pot.querySelector("[data-fan-price]")?.textContent).toBe(priceOf(game, JOLLOF));
+    expect(cook.textContent).toContain("Food from the pot");
+    expect(pot.textContent).toContain("A big pot for the house");
     const held = game.view().pockets.NGN.bank + game.view().pockets.NGN.cash;
-    expect(cook.querySelector("[data-balance-before]")?.textContent).toBe(formatMoney(held, "NGN"));
+    expect(pot.querySelector("[data-balance-before]")?.textContent).toBe(formatMoney(held, "NGN"));
     expect(found("[data-stand-in-scene]").dataset.standInChosen).toBe("");
     expect(document.querySelector("[data-nudge]")).toBeNull();
     expect(document.querySelector("[role=dialog]")).toBeNull();
   });
 
-  test("[R-WORLD-005] [R-WORLD-010] given the cooking corner's fan, when Indomie and egg is tapped, then once the walk reaches the corner the act is sent at once as its sheet would send it, and the fan closes", async () => {
+  test("[R-WORLD-005] [R-WORLD-010] given the cooking corner's fan, when food from the pot is tapped, then once the walk reaches the corner the act is sent at once as its sheet would send it, and the fan closes", async () => {
     const { authority } = await inTheParlour();
     fanTheCookingCorner();
     const before = authority.sent.length;
@@ -139,14 +143,14 @@ describe("the cooking corner's fan", () => {
     await waitFor(() => expect(document.querySelector("[data-fan]")).toBeNull());
   });
 
-  test("[R-WORLD-006] given too little naira for a meal, when its button is tapped, then it says how much is short, shakes, and sends nothing", async () => {
+  test("[R-WORLD-006] given too little naira for the big pot, when its button is tapped, then it says how much is short, shakes, and sends nothing", async () => {
     const { authority } = await inTheParlour((game) => setPockets(game, { NGN: 50_000 }));
     fanTheCookingCorner();
     const before = authority.sent.length;
-    const cook = found(`[data-fan-act="${COOK}"]`);
-    expect(cook.dataset.fanRefused).toBe("short");
-    fireEvent.click(found(`[data-fan-act="${COOK}"] button`));
-    expect(found(`[data-fan-act="${COOK}"] button`).className).toContain("fan-shake");
+    const pot = found(`[data-fan-act="${JOLLOF}"]`);
+    expect(pot.dataset.fanRefused).toBe("short");
+    fireEvent.click(found(`[data-fan-act="${JOLLOF}"] button`));
+    expect(found(`[data-fan-act="${JOLLOF}"] button`).className).toContain("fan-shake");
     expect(authority.sent.slice(before)).toEqual([]);
   });
 

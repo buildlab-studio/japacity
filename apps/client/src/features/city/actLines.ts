@@ -68,10 +68,10 @@ export function lightBack(lines: readonly { key: string; params: Record<string, 
 }
 
 /** The acts the scene shows (the pot steams, the drum fills): the place says no line for them (R-WORLD-005). */
-export const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]);
+export const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.cook-own", "activity.fetch-water", "activity.fill-drum"]);
 
-/** Gist with Mama: her own words over her head. */
-const GIST = "activity.family-time";
+/** Gist with Mama, and the big pot bought for the house: her own words over her head. */
+const MAMA_SAYS: ReadonlySet<string> = new Set(["activity.family-time", "activity.cook-jollof"]);
 
 /** A line written as someone's words, "Mama: you have eaten? Sit small.", as the bubble says it under her name. */
 function spoken(words: string): string {
@@ -88,7 +88,7 @@ export function nowLands(line: Pick<ReportLine, "key" | "params">, things: reado
   const activity = nowActOf(line);
   if (SHOWN_BY_SCENE.has(activity)) return null;
   const mama = things.find((thing) => thing.id === MAMA);
-  if (activity === GIST && mama !== undefined) return { kind: "say", who: mama.id, name: sceneWords(mama.label), words: spoken(nowLineWords(line)), then: null };
+  if (MAMA_SAYS.has(activity) && mama !== undefined) return { kind: "say", who: mama.id, name: sceneWords(mama.label), words: spoken(nowLineWords(line)), then: null };
   if (content.activity[activity as Id<"activity">]?.repeat !== true) return null;
   return { kind: "tell", words: nowLineWords(line) };
 }

@@ -59,8 +59,9 @@ describe("the room in a compound", () => {
       ["end", null],
     ]);
     expect(thingOf("bed").acts[0]?.otherwise).toMatchObject({ id: "lie", kind: "plain", pose: "lie" });
-    expect(acts("cooking")).toEqual([["sheet", "activity.cook-at-home"]]);
-    expect(thingOf("cooking").acts[0]?.more).toEqual(["activity.cook-jollof"]);
+    // A home of your own buys its meal and its pot: the family house's pot is the house's.
+    expect(acts("cooking")).toEqual([["sheet", "activity.cook-own"]]);
+    expect(thingOf("cooking").acts[0]?.more).toEqual(["activity.cook-own-pot"]);
     // The drum is filled free from the yard's tap: its own act, not the water seller's; the bath on its sheet.
     expect(acts("drum")).toEqual([["sheet", "activity.fill-drum"]]);
     expect(thingOf("drum").acts[0]?.more).toEqual(["activity.bucket-bath"]);

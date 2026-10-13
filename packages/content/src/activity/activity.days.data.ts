@@ -4,6 +4,8 @@
 export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.cook-at-home": 1,
   "activity.cook-jollof": 4,
+  "activity.cook-own": 1,
+  "activity.cook-own-pot": 4,
   "activity.nap": 1,
   "activity.bucket-bath": 1,
   "activity.watch-tv": 1,

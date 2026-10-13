@@ -62,8 +62,10 @@ export const activityNowText: Record<string, string> = {
   "line.activity.job-hunt.now.job-nurse": "The matron takes your papers. She will say by the end of the month.",
   // Cooking and the water answer now (obligation.md R-OBLIGATION-014). The scene shows them, so the place
   // never says these; they stand among the month's lines.
-  "line.activity.cook-at-home.now": "Indomie and egg. The national dish of month end.",
-  "line.activity.cook-jollof.now": "Jollof for the house. Mama tasted it and said nothing. That means it is good.",
+  "line.activity.cook-at-home.now": "Rice and stew from the pot. Mama says eat well, there is more.",
+  "line.activity.cook-jollof.now": "Mama: God bless you. The whole house will eat well this week.",
+  "line.activity.cook-own.now": "Indomie and egg. The national dish of month end.",
+  "line.activity.cook-own-pot.now": "A pot of jollof. Next door says the smell reached the gate.",
   "line.activity.nap.now": "Twenty minutes, you said. The neighbour's generator said otherwise.",
   "line.activity.bucket-bath.now": "Cold water at six. You are awake now. Very awake.",
   "line.activity.watch-tv.now": "Nollywood with Papa. He knows how it ends. He watches anyway.",

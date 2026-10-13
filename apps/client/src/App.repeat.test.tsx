@@ -102,14 +102,14 @@ describe("an act that repeats, at its thing", () => {
 });
 
 describe("an act the scene shows, from its sheet", () => {
-  test("[R-WORLD-005] [R-ACTIVITY-019] given the cooking corner's sheet with both meals, when Indomie and egg is cooked from its card, then it is sent at once, no card answers it, the sheet closes so the pot is seen, and the scene is handed the act to show where it was done", async () => {
+  test("[R-WORLD-005] [R-ACTIVITY-019] given the family house's cooking corner's sheet with the pot and the big pot, when food from the pot is had from its card, then it is sent at once, no card answers it, the sheet closes so the pot is seen, and the scene is handed the act to show where it was done", async () => {
     const game = newGame("scenario.ada");
     const { authority } = await renderWithGame(<City world results={() => <p />} actions={(ids) => <ActivityPicker only={ids} />} />, game);
     fireEvent.click(await waitFor(() => found('[data-stand-in-act="cooking:cook"]'), { timeout: 3000 }));
     const picker = await waitFor(() => found("[data-activity-picker]"));
     const cook = picker.querySelector<HTMLButtonElement>(`button[aria-label="${nameOf(COOK)}"]`);
-    if (cook === null) throw new Error("No card for Indomie and egg.");
-    expect(nameOf(COOK)).toBe("Indomie and egg");
+    if (cook === null) throw new Error("No card for the pot.");
+    expect(nameOf(COOK)).toBe("Food from the pot");
     fireEvent.click(cook);
     await waitFor(() => expect(authority.sent.filter((command) => command.type === "activity/now" && command.activity === COOK)).toHaveLength(1));
     await waitFor(() => expect(document.querySelector("[data-activity-picker]")).toBeNull());

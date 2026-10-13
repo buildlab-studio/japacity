@@ -34,6 +34,8 @@ const ROOMS = [
  */
 const DOWN_ITS_LENGTH = ROOMS.filter((one) => one.place === "place.the-room");
 const COOK = "activity.cook-at-home";
+/** A meal of your own, at the room abroad and in a room you rent. */
+const OWN = "activity.cook-own";
 const HOME = { where: "home", country: null } as const;
 const WATER = "activity.fetch-water";
 
@@ -162,7 +164,7 @@ describe("the acts lived by hand at home", () => {
 
 describe("the basics abroad", () => {
   test("[R-WORLD-029] [R-OBLIGATION-014] given the room abroad, when its things are read and its acts for a life just landed, then the cooking corner cooks and there is no drum: the room has a tap", () => {
-    expect(thingOf(room, "cooking").acts.map((act) => [act.kind, act.stages])).toEqual([["sheet", COOK]]);
+    expect(thingOf(room, "cooking").acts.map((act) => [act.kind, act.stages])).toEqual([["sheet", OWN]]);
     expect((stageOf(room).things ?? []).some((thing) => thing.id === "drum")).toBe(false);
     expect(stageOf(room).models.some((model) => model.file.endsWith("prop_water-drum.glb"))).toBe(false);
     expect(thingOf(room, "bag").acts.map((act) => act.command)).toEqual(["route/depart"]);
@@ -180,7 +182,7 @@ describe("the state on the thing", () => {
 
   test("[R-WORLD-029] [R-OBLIGATION-014] given cooking planned for the month, when each room is shown, at home, abroad and in a compound, then steam rises over the pot of the cooking corner", () => {
     for (const { name, file } of ROOMS) {
-      const shown = stageOf(showPlanned(file, [COOK]));
+      const shown = stageOf(showPlanned(file, [COOK, OWN]));
       const steam = shown.motion.filter((motion) => motion.kind === "smoke");
       expect(steam).toHaveLength(1);
       const corner = thingSpot(stageOf(file), thingOf(file, "cooking"));

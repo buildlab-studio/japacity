@@ -76,6 +76,8 @@ const NOW_ACTS: Record<string, Now> = {
   // gist with Mama and her shop, and the study that answers at once.
   "activity.cook-at-home": "repeat",
   "activity.cook-jollof": "repeat",
+  "activity.cook-own": "repeat",
+  "activity.cook-own-pot": "repeat",
   "activity.fetch-water": "repeat",
   "activity.fill-drum": "repeat",
   "activity.nap": "repeat",

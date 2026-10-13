@@ -25,6 +25,8 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   // The room and the family.
   "activity.cook-at-home": "prop_cooking-corner",
   "activity.cook-jollof": "prop_cooking-corner",
+  "activity.cook-own": "prop_cooking-corner",
+  "activity.cook-own-pot": "prop_cooking-corner",
   "activity.nap": "prop_bed",
   "activity.bucket-bath": "prop_basins",
   "activity.fetch-water": "prop_water-drum",

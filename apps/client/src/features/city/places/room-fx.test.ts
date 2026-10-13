@@ -33,15 +33,18 @@ const near = (a: readonly number[], x: number, z: number, within: number): boole
 describe("what the home's acts show", () => {
   test("[R-WORLD-005] [R-ACTIVITY-019] given jollof cooked at each home, when its answer is read, then it is steam off the same pot as the meal's, more puffs, for a while each time it lands, never standing for the month", () => {
     for (const { name, stage } of HOMES) {
-      const meal = (stage.shows ?? []).find((show) => show.activity === "activity.cook-at-home")?.motion[0];
-      const [jollof] = showsFor(stage, "activity.cook-jollof");
+      // Each home's corner names its own meal and pot: the family house's pot, or one of your own.
+      const cook = (stage.things ?? []).flatMap((thing) => thing.acts).find((act) => act.id === "cook");
+      const [mealId, potId] = [cook?.stages ?? "", cook?.more?.[0] ?? ""];
+      const meal = (stage.shows ?? []).find((show) => show.activity === mealId)?.motion[0];
+      const [jollof] = showsFor(stage, potId);
       const steam = jollof?.motion[0];
       if (meal === undefined || jollof === undefined || steam === undefined) throw new Error(`${name}: no steam`);
       expect({ name, kind: steam.kind }).toEqual({ name, kind: "smoke" });
       expect(steam.at).toEqual(meal.at);
       expect(steam.count ?? 0).toBeGreaterThan(meal.count ?? 0);
       expect(jollof.seconds ?? 0).toBeGreaterThanOrEqual(12);
-      expect(showPlanned({ place: "x", scope: "interior", hub: false, instances: [], people: { low: 0, high: 0, sample: [] }, stage }, ["activity.cook-jollof"]).stage).toBe(stage);
+      expect(showPlanned({ place: "x", scope: "interior", hub: false, instances: [], people: { low: 0, high: 0, sample: [] }, stage }, [potId]).stage).toBe(stage);
     }
   });
 

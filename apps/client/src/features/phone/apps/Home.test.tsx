@@ -51,8 +51,9 @@ describe("the home card", () => {
     const { card, unmount } = await openBills(game);
     const said = card()?.textContent ?? "";
     expect(said).toContain(phoneWords("phone.home.place.place.family-house"));
-    // Decision 0035: the family's living is bought as you go, so its scenario figure is no charge on the card.
-    expect(said).toContain(BY_HAND);
+    // Decision 0035: the family's living is bought as you go, so its scenario figure is no charge on the card; the family
+    // house says it as your share for the house, with Papa paying the rest.
+    expect(said).toContain(phoneWords("phone.home.charge.by-hand.place.family-house"));
     expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
     expect(moveButton("place.makoko")?.disabled).toBe(false);
     expect(moveButton("place.makoko")?.textContent).toContain(formatMoney(RENT, "NGN"));
@@ -158,12 +159,12 @@ describe("the home card", () => {
     now.unmount();
   });
 
-  test("[R-HOME-010] given Ada at the family house, when Bills opens, then no yearly rent shows and her charge reads as living costs", async () => {
+  test("[R-HOME-010] [R-HOME-007] given Ada at the family house, when Bills opens, then no yearly rent shows and her charge reads as her share for the house, Papa paying the rest", async () => {
     const game = newGame();
     const { unmount } = await openBills(game);
     expect(document.querySelector("[data-home-rent-year]")).toBeNull();
     // Decision 0035: the family house's living is bought as you go (food, water, fares), with no figure a month.
-    expect(document.querySelector("[data-home-charge]")?.textContent).toBe("Living is bought as you go: food, water, fares.");
+    expect(document.querySelector("[data-home-charge]")?.textContent).toBe("Your share for the house is what you buy as you go: foodstuff for the pot, water, fares. Papa pays the rest.");
     unmount();
   });
 
@@ -176,8 +177,9 @@ describe("the home card", () => {
     fireEvent.click(moveButton("place.family-house")!);
     const said = document.body.textContent ?? "";
     expect(said).toContain("The year's rent stays with the landlord.");
-    // Decision 0035: back home the living is bought as you go, so the move names no figure a month for it.
-    expect(said).toContain("Back home. Living is bought as you go: food, water, fares.");
+    // Decision 0035: back home the living is bought as you go, so the move names no figure a month for it; the house says
+    // it as your share, with Papa paying the rest.
+    expect(said).toContain("Back home: a free roof and Mama's pot. Your share for the house is what you buy as you go, and Papa pays the rest.");
     expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
     unmount();
   });

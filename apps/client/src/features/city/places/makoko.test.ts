@@ -60,7 +60,8 @@ describe("Makoko", () => {
     expect(top).toBeGreaterThan(0.35);
     expect(top).toBeLessThan(0.5);
     expect(thing("room-chores").acts.map((act) => [act.kind, act.stages, act.more])).toEqual([
-      ["sheet", "activity.cook-at-home", ["activity.cook-jollof"]],
+      // A home of your own buys its meals and its pot.
+      ["sheet", "activity.cook-own", ["activity.cook-own-pot"]],
       ["sheet", "activity.fetch-water", ["activity.bucket-bath"]],
     ]);
     const papers = thing("room-papers").acts;

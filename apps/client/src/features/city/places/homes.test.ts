@@ -16,6 +16,7 @@ import { checkLimits, checkThings, type LimitedFile } from "../../../../../../to
 import familyRaw from "../../../../public/assets/places/home-family-house/place.json";
 import hostelRaw from "../../../../public/assets/places/home-hostel-house/place.json";
 import roomRaw from "../../../../public/assets/places/home-room-house/place.json";
+import abroadRaw from "../../../../public/assets/places/the-room/place.json";
 import { crowdSize } from "../crowd";
 import { CAR_FILE, parkCar, type PlaceFile, stageOf } from "../placeFile";
 import { personOfLook } from "../roster";
@@ -291,6 +292,22 @@ describe("the camera's easing", () => {
       time += 1 / 60;
     }
     expect(time).toBeLessThan(0.4);
+  });
+});
+
+describe("each home's cooking corner", () => {
+  test("[R-HOME-012] [R-HOME-006] given the homes, when their cooking corners are read, then the family house's offers the pot that is the house's and the big pot for the house, and a home of your own, the room in a compound, the hostel and the room abroad, a meal and a pot of your own at their prices", () => {
+    const corner = (raw: unknown): [string | undefined, readonly string[] | undefined] => {
+      const act = (stageOf(raw as PlaceFile).things ?? []).find((thing) => thing.id === "cooking")?.acts[0];
+      return [act?.stages, act?.more];
+    };
+    expect(corner(familyRaw)).toEqual(["activity.cook-at-home", ["activity.cook-jollof"]]);
+    for (const raw of [roomRaw, hostelRaw, abroadRaw]) expect(corner(raw)).toEqual(["activity.cook-own", ["activity.cook-own-pot"]]);
+    expect(content.activity["activity.cook-at-home"]?.cost).toEqual([]);
+    expect(content.activity["activity.cook-jollof"]?.cost).toEqual([{ currency: "NGN", amount: 7_500_00, reason: "foodstuff" }]);
+    expect(content.activity["activity.cook-own"]?.cost).toEqual([{ currency: "NGN", amount: 1_500_00, reason: "food" }]);
+    expect(content.activity["activity.cook-own-pot"]?.cost).toEqual([{ currency: "NGN", amount: 7_500_00, reason: "food" }]);
+    expect(content.place["place.the-room"]?.stages).toContain("activity.cook-own");
   });
 });
 

@@ -16,12 +16,14 @@ const content: Content = { ...realContent, tuning: { ...realContent.tuning, home
 import { start } from "../testing/play";
 import { abroad, eventsOf, owedOf, setPounds, UPKEEP } from "./obligation.journey";
 
-const COOK: Id<"activity"> = "activity.cook-at-home";
+// The meal bought and cooked, at home or abroad: a meal of your own since the home's wave, the old
+// cooking act's entry as it was; the family house's pot is free and tested in home/pot.test.ts.
+const COOK: Id<"activity"> = "activity.cook-own";
 const WATER: Id<"activity"> = "activity.fetch-water";
 const DRUM: Id<"activity"> = "activity.fill-drum";
 const HOME_UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const COOKED_LINE = "line.obligation.relief.cook-at-home";
+const COOKED_LINE = "line.obligation.relief.cook-own";
 const WATER_LINE = "line.obligation.relief.fetch-water";
 const { room } = content.tuning;
 

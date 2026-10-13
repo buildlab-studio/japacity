@@ -249,7 +249,7 @@ describe("the things of the built places", () => {
     expect(tv.acts[0]?.pose).toBe("sit");
     expect(tv.acts[0]?.seat).toEqual(sit?.seat);
     // Each act's sheet lists only what can open now, and the names come from content.
-    expect(sceneWords("activity.cook-jollof.name")).toBe("Jollof for the house");
+    expect(sceneWords("activity.cook-jollof.name")).toBe("A big pot for the house");
     const cooking = (stage.things ?? []).find((thing) => thing.id === "cooking");
     expect(thingsNow(cooking === undefined ? [] : [cooking], (stages) => stages === "activity.cook-at-home")[0]?.acts[0]).toEqual({ id: "cook", label: "city.act.cook", kind: "sheet", stages: "activity.cook-at-home" });
   });

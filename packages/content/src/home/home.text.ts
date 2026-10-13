@@ -22,7 +22,7 @@ export const homeText: Record<string, string> = {
   "phone.home.charge": "{amount} a month",
   // The month's charge said as what it is: living costs at the family house and in the
   // room, the rent itself on the water.
-  "phone.home.charge.place.family-house": "Living costs {amount} a month",
+  "phone.home.charge.place.family-house": "Your share for the house: {amount} a month. Papa pays the rest.",
   "phone.home.charge.place.compound-room": "Living costs {amount} a month",
   "phone.home.charge.place.makoko": "Rent {amount} a month",
   // R-HOME-010: the room's year and when it is next taken.
@@ -32,19 +32,20 @@ export const homeText: Record<string, string> = {
   "phone.home.charge.none": "No rent while you stay.",
   // R-HOME-012 (decision 0035): where nothing of the living is charged as the month turns, the card says it is bought as you go.
   "phone.home.charge.by-hand": "Living is bought as you go: food, water, fares.",
+  "phone.home.charge.by-hand.place.family-house": "Your share for the house is what you buy as you go: foodstuff for the pot, water, fares. Papa pays the rest.",
   "phone.home.risk": "Some months the settlement is cleared.",
   "phone.home.move.place.makoko": "Move to Makoko",
   "phone.home.move.place.family-house": "Move back to the family house",
   "phone.home.move.place.compound-room": "Rent a room in Ojuelegba",
   "phone.home.move.line.place.makoko": "A room on the water for {amount} a month. The first month is paid now.",
-  "phone.home.move.line.place.family-house": "Back home: living costs {amount} a month, food and light included. Your people will talk.",
+  "phone.home.move.line.place.family-house": "Back home: your share for the house {amount} a month, food and light included, and Papa pays the rest. Your people will talk.",
   // R-HOME-010: from the room, the year paid is gone.
-  "phone.home.move.line.from.place.compound-room.place.family-house": "Back home: living costs {amount} a month, food and light included. The year's rent stays with the landlord. Your people will talk.",
+  "phone.home.move.line.from.place.compound-room.place.family-house": "Back home: your share for the house {amount} a month, food and light included, and Papa pays the rest. The year's rent stays with the landlord. Your people will talk.",
   "phone.home.move.line.place.compound-room": "A room of your own. {now} now for the year's rent and fees, then {amount} a month to live.",
   // R-HOME-012 (decision 0035): the same moves where the living is bought as you go, with no figure a month for it.
   "phone.home.move.line.place.makoko.by-hand": "A room on the water. {now} now for the room. Living is bought as you go.",
-  "phone.home.move.line.place.family-house.by-hand": "Back home. Living is bought as you go: food, water, fares. Your people will talk.",
-  "phone.home.move.line.from.place.compound-room.place.family-house.by-hand": "Back home. Living is bought as you go: food, water, fares. The year's rent stays with the landlord. Your people will talk.",
+  "phone.home.move.line.place.family-house.by-hand": "Back home: a free roof and Mama's pot. Your share for the house is what you buy as you go, and Papa pays the rest. Your people will talk.",
+  "phone.home.move.line.from.place.compound-room.place.family-house.by-hand": "Back home: a free roof and Mama's pot. Your share for the house is what you buy as you go, and Papa pays the rest. The year's rent stays with the landlord. Your people will talk.",
   "phone.home.move.line.place.compound-room.by-hand": "A room of your own. {now} now for the year's rent and fees. Living is bought as you go.",
   "phone.home.move.button": "Move",
   "phone.home.moved": "Moved.",
