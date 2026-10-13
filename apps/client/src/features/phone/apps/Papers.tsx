@@ -5,7 +5,7 @@
 // on it. The papers box in the room opens this app. The card is handed in by the shell, so the phone imports no other
 // feature.
 import type { PlayerView } from "@japacity/sim";
-import { ChevronLeft, ChevronRight, FileCheck, FileClock, FilePlus, FileX, MapPin, Stamp, type LucideIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Send } from "lucide-react";
 import { type ReactNode, use, useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
@@ -16,16 +16,15 @@ import { formatBand } from "../../../shared/words/format";
 import { sealedTillMorning } from "../../../shared/words/morning";
 import { forMonths, inMonths, nameOf, runningName, say, sayCount } from "../../../shared/words/text";
 import { PhoneSaid } from "../act";
-import { type PaperRow, type PaperState, papersOf } from "../papers";
+import { type PaperRow, papersOf } from "../papers";
 import { phoneWords } from "../phone.words";
+import { GhostButton, PicCard, PicTile, WordChip } from "../ui";
 
 const ENGLISH_RESULT = "document.english-test";
 
 /** The cards of the acts given, from the shell: the same card a thing's sheet shows (R-WORLD-005). */
 export type PaperCards = (ids: string[]) => ReactNode;
 
-const ICONS: Readonly<Record<PaperState, LucideIcon>> = { held: FileCheck, coming: FileClock, expired: FileX, "not-yet": FilePlus };
-const TONES: Readonly<Record<PaperState, string>> = { held: "text-in", coming: "text-text-2", expired: "text-out", "not-yet": "text-text-2" };
 
 /** The paper's state in words: held and how long, on its way and when, run out, or not yet. */
 function stateWords(row: PaperRow, view: PlayerView): string {
@@ -63,48 +62,58 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
   const nav = use(PhoneNav);
   const paper = view.documents.find((held) => held.id === row.id);
   const left = paper === undefined ? null : monthsLeft(paper, view.month);
-  const Icon = row.kind === "visa" ? Stamp : ICONS[row.state];
   const counts = countsWords(row.counts);
   const act = row.act;
+  const tone = row.kind === "visa" || row.state === "held" ? "held" : row.state;
   return (
-    <li data-paper={row.id} data-state={row.state} data-kind={row.kind} className="flex flex-col gap-2 rounded-[6px] p-3" style={{ background: "var(--paper-bill)" }}>
-      <div className="flex items-start gap-3">
-        <Icon size={20} aria-hidden className={`mt-0.5 shrink-0 ${row.kind === "visa" ? "text-in" : TONES[row.state]}`} />
-        <div className="min-w-0 flex-1">
-          <p className={`text-[15px] font-bold ${row.state === "expired" ? "line-through" : ""}`}>{nameOf(row.id)}</p>
-          <p className="text-[13px] text-text-2" data-paper-state>
-            {stateWords(row, view)}
-          </p>
-          {left !== null && left <= SOON ? <p className="text-[13px] font-bold text-out">{sayCount("ui.document.expires-soon", left, { months: left })}</p> : null}
-          {row.id === ENGLISH_RESULT && row.value !== null ? <p className="text-[13px] font-bold">{say("ui.document.band", { band: formatBand(row.value) })}</p> : null}
-          {counts === null ? null : (
-            <p className="text-[12px] text-text-2" data-paper-counts>
-              {counts}
-            </p>
-          )}
-        </div>
-      </div>
-      {act === null ? null : act.how === "phone" ? (
-        <button type="button" onClick={() => onCard(act.activity)} className="press flex min-h-11 w-full items-center gap-2 rounded-[5px] border border-sheet-line bg-sheet-2 px-3 text-left text-[14px] font-bold" data-paper-act={act.activity} data-act-how="phone">
-          <span className="min-w-0 flex-1 truncate">{nameOf(act.activity)}</span>
-          <ChevronRight size={16} className="shrink-0 text-text-2" aria-hidden />
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={() => {
-            if (act.place !== null) nav.openMap?.(act.place);
-          }}
-          className="press flex min-h-11 w-full items-center gap-2 rounded-[5px] border border-sheet-line bg-sheet-2 px-3 text-left text-[14px] font-bold"
-          data-paper-act={act.activity}
-          data-act-how="visit"
-          data-act-place={act.place ?? ""}
-        >
-          <MapPin size={16} className="shrink-0 text-text-2" aria-hidden />
-          <span className="min-w-0 flex-1 truncate">{phoneWords("phone.papers.at", { place: act.place === null ? "" : say(`${act.place}.name`) })}</span>
-          <ChevronRight size={16} className="shrink-0 text-text-2" aria-hidden />
-        </button>
-      )}
+    <li data-paper={row.id} data-state={row.state} data-kind={row.kind}>
+      <PicCard
+        pic={row.kind === "visa" ? "place.visa-centre" : row.id}
+        tint={tone === "held" ? "money" : tone === "expired" ? "food" : "study"}
+        muted={row.state === "expired"}
+        title={<span className={row.state === "expired" ? "line-through" : ""}>{nameOf(row.id)}</span>}
+        chips={
+          <>
+            <span
+              className={`sticker-chip text-[13px] whitespace-normal ${tone === "held" ? "bg-tint-money" : tone === "coming" ? "bg-[var(--soft)]" : tone === "expired" ? "bg-sheet-2" : "bg-tint-study"}`}
+              style={{ rotate: "-1.5deg", color: tone === "held" ? "var(--money-ink)" : tone === "coming" ? "var(--soft-ink)" : tone === "expired" ? "var(--out)" : undefined }}
+              data-paper-state
+            >
+              {stateWords(row, view)}
+            </span>
+            {left !== null && left <= SOON ? <WordChip tone="bad">{sayCount("ui.document.expires-soon", left, { months: left })}</WordChip> : null}
+            {row.id === ENGLISH_RESULT && row.value !== null ? <WordChip tone="study">{say("ui.document.band", { band: formatBand(row.value) })}</WordChip> : null}
+            {counts === null ? null : (
+              <span className="text-[13px] text-text-2" data-paper-counts>
+                {counts}
+              </span>
+            )}
+          </>
+        }
+        foot={
+          act === null ? null : act.how === "phone" ? (
+            <GhostButton onClick={() => onCard(act.activity)} className="text-left" data-paper-act={act.activity} data-act-how="phone">
+              <Send size={18} className="shrink-0" aria-hidden />
+              <span className="min-w-0 flex-1 truncate">{nameOf(act.activity)}</span>
+              <ChevronRight size={18} className="shrink-0" aria-hidden />
+            </GhostButton>
+          ) : (
+            <GhostButton
+              onClick={() => {
+                if (act.place !== null) nav.openMap?.(act.place);
+              }}
+              className="text-left"
+              data-paper-act={act.activity}
+              data-act-how="visit"
+              data-act-place={act.place ?? ""}
+            >
+              <MapPin size={18} className="shrink-0" aria-hidden />
+              <span className="min-w-0 flex-1 truncate">{phoneWords("phone.papers.at", { place: act.place === null ? "" : say(`${act.place}.name`) })}</span>
+              <ChevronRight size={18} className="shrink-0" aria-hidden />
+            </GhostButton>
+          )
+        }
+      />
     </li>
   );
 }
@@ -140,14 +149,21 @@ export function Papers({ opening = null, cards = null }: { opening?: string | nu
   }
   return (
     <div data-phone-app="papers" data-papers>
-      <h3 className="title text-[18px]">{phoneWords("phone.papers.title")}</h3>
-      <p className="mt-1 mb-3 text-[13px] text-text-2">{phoneWords("phone.papers.hint")}</p>
+      {/* The box under the bed as the after set's phone-papers draws it: the box, its title and the line under it; then
+          each paper a card with its picture, its state as a chip, what it counts toward, and its act beneath. */}
+      <div className="mb-3 flex items-center gap-3 px-0.5">
+        <PicTile of="thing.papers-box" size={56} tint="plain" tilt={-8} />
+        <div className="min-w-0 flex-1">
+          <h3 className="text-[19px] leading-tight font-bold">{phoneWords("phone.papers.title")}</h3>
+          <p className="mt-0.5 text-[14px] leading-snug text-text-2">{phoneWords("phone.papers.hint")}</p>
+        </div>
+      </div>
       {rows.length === 0 ? (
-        <p className="text-[14px] text-text-2" data-papers-none>
+        <p className="px-0.5 text-[15px] text-text-2" data-papers-none>
           {phoneWords("phone.papers.none")}
         </p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-2.5">
           {rows.map((row) => (
             <Paper key={row.id} row={row} view={view} onCard={cards === null ? () => undefined : setCard} />
           ))}
