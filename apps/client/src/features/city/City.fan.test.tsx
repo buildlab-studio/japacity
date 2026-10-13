@@ -116,7 +116,7 @@ function fanTheCookingCorner(at: { x: number; y: number } | null = { x: 90, y: 5
 }
 
 describe("the cooking corner's fan", () => {
-  test("[R-WORLD-005] [R-WORLD-006] given Ada in the parlour, when the cooking corner is tapped, then its two meals fan out of it with their prices alone, no chip is asked of the scene, the nudge steps back, and while a meal is pressed the band's counter shows what would be left", async () => {
+  test("[R-WORLD-034] [R-WORLD-005] [R-WORLD-006] given Ada in the parlour, when the cooking corner is tapped, then its two meals fan out of it with their prices alone, no chip is asked of the scene, the nudge steps back, and while a meal is pressed the band's counter shows what would be left", async () => {
     const { game } = await inTheParlour();
     fanTheCookingCorner();
     const fan = found('[data-fan="cooking"]');
@@ -140,7 +140,7 @@ describe("the cooking corner's fan", () => {
     expect(document.querySelector("[role=dialog]")).toBeNull();
   });
 
-  test("[R-WORLD-005] [R-WORLD-010] given the cooking corner's fan, when Indomie and egg is tapped, then once the walk reaches the corner the act is sent at once as its sheet would send it, and the fan closes", async () => {
+  test("[R-WORLD-034] [R-WORLD-005] [R-WORLD-010] given the cooking corner's fan, when Indomie and egg is tapped, then once the walk reaches the corner the act is sent at once as its sheet would send it, and the fan closes", async () => {
     const { authority } = await inTheParlour();
     fanTheCookingCorner();
     const before = authority.sent.length;
@@ -160,21 +160,21 @@ describe("the cooking corner's fan", () => {
     expect(authority.sent.slice(before)).toEqual([]);
   });
 
-  test("[R-WORLD-005] given the cooking corner off the screen as it is tapped, when its acts would fan, then the existing sheet of its two meals opens instead", async () => {
+  test("[R-WORLD-034] [R-WORLD-005] given the cooking corner off the screen as it is tapped, when its acts would fan, then the existing sheet of its two meals opens instead", async () => {
     await inTheParlour();
     fanTheCookingCorner(null);
     await waitFor(() => expect(document.querySelector("[role=dialog]")).not.toBeNull());
     expect(document.querySelector("[data-fan]")).toBeNull();
   });
 
-  test("[R-WORLD-005] given a thing in the middle of the phone with no room either side, when its acts would fan, then the sheet opens instead", async () => {
+  test("[R-WORLD-034] [R-WORLD-005] given a thing in the middle of the phone with no room either side, when its acts would fan, then the sheet opens instead", async () => {
     await inTheParlour();
     fanTheCookingCorner({ x: 195, y: 420 });
     await waitFor(() => expect(document.querySelector("[role=dialog]")).not.toBeNull());
     expect(document.querySelector("[data-fan]")).toBeNull();
   });
 
-  test("[R-WORLD-005] given a development build asked for ?fan=off, when the cooking corner is tapped, then its chip is asked of the scene as before and no fan opens", async () => {
+  test("[R-WORLD-034] [R-WORLD-005] given a development build asked for ?fan=off, when the cooking corner is tapped, then its chip is asked of the scene as before and no fan opens", async () => {
     window.history.replaceState(null, "", "/?fan=off");
     await inTheParlour();
     fireEvent.click(found('[data-stand-in-thing="cooking"]'));
@@ -182,14 +182,14 @@ describe("the cooking corner's fan", () => {
     expect(document.querySelector("[data-fan]")).toBeNull();
   });
 
-  test("[R-WORLD-005] given a thing whose acts are not done at once (the bed's sleep, Mama's bill), when it is tapped, then its chip is asked of the scene and no fan opens", async () => {
+  test("[R-WORLD-034] [R-WORLD-005] given a thing whose acts are not done at once (the bed's sleep, Mama's bill), when it is tapped, then its chip is asked of the scene and no fan opens", async () => {
     await inTheParlour();
     fireEvent.click(found('[data-stand-in-thing="bed"]'));
     expect(found("[data-stand-in-scene]").dataset.standInChosen).toBe("bed");
     expect(document.querySelector("[data-fan]")).toBeNull();
   });
 
-  test("[R-WORLD-003] [R-WORLD-005] given the fan open, when a tap lands outside it or Escape is pressed, then the fan goes and the band's row comes back as it stood; a tap on the fan keeps it", async () => {
+  test("[R-WORLD-034] [R-WORLD-003] [R-WORLD-005] given the fan open, when a tap lands outside it or Escape is pressed, then the fan goes and the band's row comes back as it stood; a tap on the fan keeps it", async () => {
     await inTheParlour();
     const row = (): string | null => document.querySelector("[data-band] [data-nudge]")?.textContent ?? null;
     const before = row();
