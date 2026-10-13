@@ -14,7 +14,7 @@ import type { CountryChoice, RideChoice } from "../../shared/world/contract";
 import { Countries } from "./Countries";
 import { Map } from "./Map";
 import { mapWords } from "./map.words";
-import { mapPins, type MapPin, rideChoices } from "./pins";
+import { mapPins, type MapPin, onMap, rideChoices } from "./pins";
 import { alongOf, LINES, lineOf, LONG_WALK_MS, PRE_MS, Ride, RIDE_MS } from "./Ride";
 import { firstWay, headingOf } from "./RideSheet";
 import { type Angle, angleAt, anglesOf, buildRide, CUT_DARK_MS, darkAt, drawCallsOf, figuresOn, STEP_MS, stepClock } from "./rideScene";
@@ -75,6 +75,23 @@ describe("the city as the map", () => {
     expect(stop(HOME).textContent).toContain(mapWords("map.state.home"));
   });
 
+});
+
+describe("the rented homes on the map", () => {
+  test("[R-HOME-010] [R-HOME-002] given the rented room and the hostel, when the map reads them, then each stands only as the home lived in and never as a stop to visit, while the family house keeps its place", () => {
+    for (const id of ["place.compound-room", "place.hostel-room"]) {
+      expect(onMap(id, "place.family-house")).toBe(false);
+      expect(onMap(id, null)).toBe(false);
+      expect(onMap(id, id)).toBe(true);
+    }
+    expect(onMap("place.family-house", "place.compound-room")).toBe(true);
+    expect(onMap("place.ojuelegba", "place.hostel-room")).toBe(true);
+    const places = Object.values(content.place).filter((place) => place.where === "home");
+    const at = (home: string) => mapPins({ places, here: "place.ojuelegba", home, homeSpot: HOME_SPOT, been: [], built: null, name: nameOf });
+    expect(at(HOME).some((pin) => pin.id === "place.compound-room" || pin.id === "place.hostel-room")).toBe(false);
+    expect(at("place.hostel-room").find((pin) => pin.id === "place.hostel-room")?.state).toBe("home");
+    expect(at("place.hostel-room").some((pin) => pin.id === "place.compound-room")).toBe(false);
+  });
 });
 
 describe("one country at a time", () => {

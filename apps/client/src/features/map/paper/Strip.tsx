@@ -1,13 +1,15 @@
 // The strip (docs/rules/world.md R-WORLD-015; the second design): the whole painted map folded flat into a white card
 // with a navy edge and a pull handle, under the band's place at the top. A filled dot where the player stands with the
 // neighbourhood's name, a tiny house for home, a yellow dot for the step's place; the route across the city when the
-// stop picked is in another neighbourhood. A tap anywhere on it, or a drag down, unfolds the map.
-import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
+// stop picked is in another neighbourhood. The city's landmarks stand upright on it and its folds show, so it reads as
+// the whole city folded, not a crop of the mainland. A tap anywhere on it, or a drag down, unfolds the map.
+import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { useRef } from "react";
 
 import { mapWords } from "../map.words";
 import { at, type Point, PAPER } from "./fit";
-import { DECOR } from "./geometry";
+import { DECOR, LANDMARKS } from "./geometry";
+import { Theatre, Tower, Towers } from "./PaperSvg";
 import type { Placed } from "./stops";
 import type { TileUrl } from "./useTiles";
 import { type Frame, World } from "./World";
@@ -38,6 +40,18 @@ const MINIS: readonly { model: string; at: Point; size: number }[] = [
   ...DECOR.filter((item) => item.kind === "boat")
     .slice(1, 3)
     .map((item) => ({ model: item.model, at: item.at, size: 16 })),
+];
+
+/**
+ * The landmarks that say the folded paper is the whole city, standing upright on it as the round's strip drew them:
+ * the theatre's hat on the mainland's shore, the island's towers, Victoria Island's and the one by the toll gate.
+ * Each is the open map's own drawing at its own shape, not squeezed with the paper.
+ */
+const STRIP_LANDMARKS: readonly { id: string; at: Point; draw: () => ReactNode }[] = [
+  { id: "theatre", at: LANDMARKS.theatre, draw: () => <Theatre at={[0, 0]} /> },
+  { id: "towers", at: LANDMARKS.towers, draw: () => <Towers at={[0, 0]} /> },
+  { id: "towers-vi", at: LANDMARKS.towersVi, draw: () => <Towers at={[0, 0]} size={50} /> },
+  { id: "tower", at: LANDMARKS.tower, draw: () => <Tower at={[0, 0]} /> },
 ];
 
 export interface StripProps {
@@ -112,6 +126,13 @@ export function Strip({ width, stops, home, step, hereName, stadium, route, tile
             {tiles("lm_national-stadium") === null ? null : <img src={tiles("lm_national-stadium") ?? ""} alt="" width={26} height={26} className="paper-cut" draggable={false} />}
           </span>
         )}
+        {STRIP_LANDMARKS.map((mark) => (
+          <span key={mark.id} className="paper-mk paper-strip-lm" style={{ ...at(mark.at, 1), marginTop: -8 }} data-strip-landmark={mark.id}>
+            <svg width="22" height="24" viewBox="-20 -36 40 44" aria-hidden>
+              {mark.draw()}
+            </svg>
+          </span>
+        ))}
         {MINIS.map((mini, index) => (
           <span key={index} className="paper-mk" style={at(mini.at, 1)}>
             {tiles(mini.model) === null ? null : <img src={tiles(mini.model) ?? ""} alt="" width={mini.size} height={mini.size} className="paper-cut" draggable={false} />}
@@ -138,6 +159,8 @@ export function Strip({ width, stops, home, step, hereName, stadium, route, tile
             )}
           </>
         )}
+        {/* The folds: the paper's panels pressed flat, a crease between each, so the strip reads as the whole map folded. */}
+        <span className="paper-folds" aria-hidden />
       </span>
       <span className="paper-pull" aria-hidden />
     </button>

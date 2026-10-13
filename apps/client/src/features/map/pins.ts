@@ -42,9 +42,14 @@ export interface PinsInput {
 /** A rented home is on the map only while it is lived in (home.md R-HOME-010); the family house keeps its place. */
 export const RENTED_HOMES: ReadonlySet<string> = new Set(["place.compound-room", "place.hostel-room"]);
 
+/** Whether a place may stand on the map at all: a rented room or the hostel only as the home lived in (city.md's rows under R-HOME-010, R-HOME-002). */
+export function onMap(id: string, home: string | null): boolean {
+  return !RENTED_HOMES.has(id) || id === home;
+}
+
 export function mapPins({ places, here, home, homeSpot, been, built, open, name }: PinsInput): MapPin[] {
   return places
-    .filter((place) => place.id === home || (!RENTED_HOMES.has(place.id) && place.position !== null && (built === null || built.has(place.id))))
+    .filter((place) => place.id === home || (onMap(place.id, home) && place.position !== null && (built === null || built.has(place.id))))
     .map((place) => {
       const state: PinState =
         place.id === here ? "here" : place.id === home ? "home" : open !== undefined && !open.has(place.id) ? "not" : been.includes(place.id) ? "been" : "can";

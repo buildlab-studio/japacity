@@ -154,7 +154,7 @@
 .paper-pin[data-state="not"] .paper-cut { opacity: 0.55; filter: grayscale(0.7); }
 .paper-pin .paper-ring { position: absolute; left: 50%; top: 72%; width: calc(100% + 22px); aspect-ratio: 1.8; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #f6b800; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7); pointer-events: none; z-index: -1; }
 .paper-pin .paper-ring[data-ring="picked"], .paper-pin .paper-ring[data-ring="step"] { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7), 0 0 18px rgba(246, 184, 0, 0.55); }
-.paper-name { position: absolute; left: 50%; white-space: nowrap; font-weight: 600; border-radius: 999px; transform: translateX(-50%); pointer-events: none; line-height: 1.2; }
+.paper-name { position: absolute; left: 50%; white-space: nowrap; font-weight: 600; border-radius: 999px; transform: translate(calc(-50% + var(--nx, 0px)), var(--ny, 0px)); pointer-events: none; line-height: 1.2; }
 .paper-name[data-name="here"] { top: calc(100% - 4px); background: #fff; color: #1b2a4a; font-size: 13px; padding: 4px 11px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }
 .paper-name[data-name="home"] { top: calc(100% - 4px); background: #1b2a4a; color: #fff; font-size: 13px; padding: 4px 11px; box-shadow: 0 0 0 2px #fff, 0 3px 6px rgba(0, 0, 0, 0.25); }
 .paper-name[data-name="picked"], .paper-name[data-name="step"] { bottom: calc(100% + 4px); background: #fff; color: #1b2a4a; font-size: 15px; padding: 6px 13px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 4px 0 #1b2a4a; }
@@ -171,6 +171,10 @@
 .paper { background: var(--sheet); }
 .paper-strip { position: absolute; left: 12px; right: 12px; top: max(12px, env(safe-area-inset-top)); height: 92px; z-index: 6; padding: 0; border: 0; background: var(--frame); border-radius: 20px; box-shadow: 0 0 0 1.5px var(--frame-edge), 0 4px 0 var(--frame-edge), 0 10px 20px rgba(20, 40, 50, 0.15); cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
 .paper-strip-in { position: absolute; inset: 4px; border-radius: 16px; overflow: hidden; background: var(--water); }
+/* The strip's folds: panels alternately lit and shaded with a crease between each, the paper pressed flat. */
+.paper-folds { position: absolute; inset: 0; pointer-events: none; z-index: 4; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0 calc(12.5% - 1px), rgba(27, 42, 74, 0.05) calc(12.5% - 1px) calc(25% - 1px), rgba(27, 42, 74, 0.16) calc(25% - 1px) 25%); }
+[data-paint="night"] .paper-folds { background: repeating-linear-gradient(90deg, rgba(246, 237, 216, 0.06) 0 calc(12.5% - 1px), rgba(0, 0, 0, 0.12) calc(12.5% - 1px) calc(25% - 1px), rgba(0, 0, 0, 0.3) calc(25% - 1px) 25%); }
+.paper-strip-lm { opacity: 0.95; }
 .paper-pull { position: absolute; left: 50%; bottom: -12px; width: 36px; height: 5px; margin-left: -18px; border-radius: 9px; background: rgba(27, 42, 74, 0.28); }
 [data-paint="night"] .paper-pull { background: rgba(246, 237, 216, 0.35); }
 .paper-mk { position: absolute; transform: translate(-50%, -50%); line-height: 0; pointer-events: none; }
