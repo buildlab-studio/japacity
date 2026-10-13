@@ -160,6 +160,9 @@ export function ChapterClose({ brief, line, next, after, onGo }: { brief: Brief;
     return () => window.clearTimeout(timer);
   }, []);
   return (
+    <>
+    {/* The world dims behind the close, as behind any moment (R-WORLD-001), and the thumbs wait under it. */}
+    <div aria-hidden className="motion-scrim fixed inset-0 z-[45] bg-scrim" data-brief-close-scrim />
     <CentredColumn className="pointer-events-none fixed inset-0 z-[46] flex flex-col justify-end px-3 pt-[max(76px,calc(env(safe-area-inset-top)+76px))] pb-[max(12px,env(safe-area-inset-bottom))]">
       <div className="pointer-events-auto relative flex max-h-full flex-col gap-3 overflow-y-auto" role="dialog" aria-label={brief.title} data-brief-close={brief.chapter}>
         <section className="brief-card pop relative flex flex-col gap-3 p-3.5">
@@ -211,5 +214,6 @@ export function ChapterClose({ brief, line, next, after, onGo }: { brief: Brief;
         </PressButton>
       </div>
     </CentredColumn>
+    </>
   );
 }

@@ -6,6 +6,7 @@
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
+import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
 import { hasWords, nameOf, say } from "../../../shared/words/text";
 import { placeName } from "../city.words";
 import { itemWayOf, STEP_ACTIVITY } from "../nudge";
@@ -140,7 +141,8 @@ export function briefOf(view: Pick<PlayerView, "chapter">, line: string): Brief 
     items,
     rewards: rewardsOf(base),
     next: next === null ? null : { chapter: next, title: briefTitle(next) },
-    picture: itemWayOf(chapter, firstOpen ?? "")?.go ?? items[0]?.picture ?? "place.ojuelegba",
+    // The place of the thing to do now where it has a picture of its own, else that thing's act.
+    picture: [itemWayOf(chapter, firstOpen ?? "")?.go, items.find((item) => item.now)?.picture, items[0]?.picture].find((id): id is string => id !== undefined && id !== null && TILE_TABLE[id] !== undefined) ?? "place.ojuelegba",
   };
 }
 

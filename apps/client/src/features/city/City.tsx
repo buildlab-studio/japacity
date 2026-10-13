@@ -1737,8 +1737,8 @@ export function City({
               ) : null
             }
           />
-          <ThumbBar onMap={() => { firstUse.tap("map"); setMap(true); }} onPhone={() => { firstUse.tap("phone"); setPhoneApp(null); setPhone(true); }} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen} />
-          <FirstUseLabels tapped={firstUse.tapped} hidden={map || resultsOpen || covered || openingUp} />
+          <ThumbBar onMap={() => { firstUse.tap("map"); setMap(true); }} onPhone={() => { firstUse.tap("phone"); setPhoneApp(null); setPhone(true); }} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen || closeShown} />
+          <FirstUseLabels tapped={firstUse.tapped} hidden={map || resultsOpen || covered || openingUp || closeShown} />
           {zoomed && !map ? (
             <button type="button" onClick={() => setZoomed(false)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
               {say("ui.world.whole")}
