@@ -48,14 +48,15 @@ function Row({ part, own, style, onStyle }: { part: Part; own: OwnColours; style
   );
 }
 
-export function OwnColoursRows({ look, style, onStyle }: { look: string; style: LookStyle | undefined; onStyle: (style: LookStyle) => void }) {
+/** `heading`: the rows' own heading; the door's first screen heads them with its own disclosure button instead. */
+export function OwnColoursRows({ look, style, onStyle, heading = true }: { look: string; style: LookStyle | undefined; onStyle: (style: LookStyle) => void; heading?: boolean }) {
   const own = useOwnColours(look);
   if (own === null) return null;
   const fabric = style?.fabric ?? own.fabric;
   return (
-    <section className="mt-3.5" aria-label={say("ui.door.yours")} data-yours>
+    <section className={heading ? "mt-3.5" : ""} aria-label={say("ui.door.yours")} data-yours>
       <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-[15px] font-extrabold">{say("ui.door.yours")}</h2>
+        {heading ? <h2 className="text-[15px] font-extrabold">{say("ui.door.yours")}</h2> : <span />}
         {isMade(style) ? null : (
           <button type="button" className="press text-[12px] font-bold text-text-2 underline" onClick={() => onStyle({})} data-yours-made>
             {say("ui.door.yours.made")}

@@ -7,6 +7,9 @@
 // ink of its own: like the danfo yellow on things in the world, these colours belong to the page and never change with
 // the theme. Never a real number, a coat of arms or an issuing authority, and the country code is the game's own
 // made-up "JPC", never a real one. A faint JAPACITY mark runs across the paper, so a picture of it reads as the game's.
+// Dressed as the door's second design draws it: a card with the navy edge and its underside, the green band over the
+// paper, the photo as a white-rimmed sticker set a little crooked, the labels in small spaced capitals of the
+// interface's face and the values larger; the same fields in the same order.
 import type { CSSProperties } from "react";
 
 import type { LookStyle } from "../frontdoor/style";
@@ -85,13 +88,15 @@ export function stripLines(name: string, strip: Strip): [string, string] {
   return [`P<${PAGE_CODE}${mrz(name, 25)}`, mrz(`${strip.district}<<${age}<<${strip.percent === null ? "" : String(strip.percent)}`, 30)];
 }
 
+const LABEL = "text-[9.5px] font-bold tracking-[0.14em] uppercase";
+
 function Field({ id, label, value, delay }: { id: string; label: string; value: string; delay: number | null }) {
   return (
     <div className="min-w-0" data-field={id}>
-      <div className="font-mono text-[9px] font-bold tracking-[0.2em] uppercase" style={{ opacity: 0.62 }}>
+      <div className={LABEL} style={{ opacity: 0.72 }}>
         {label}
       </div>
-      <div key={value} className={`truncate text-[13px] leading-tight font-bold ${delay === null ? "" : "drop"}`} style={delay === null ? undefined : { animationDelay: `${String(delay)}ms` }}>
+      <div key={value} className={`truncate text-[15px] leading-tight font-bold ${delay === null ? "" : "drop"}`} style={delay === null ? undefined : { animationDelay: `${String(delay)}ms` }}>
         {value === "" ? say("prologue.page.empty") : value}
       </div>
     </div>
@@ -123,7 +128,6 @@ export function Stamp({ words, turn, big = false, under }: { words: string; turn
   );
 }
 
-const LABEL = "font-mono text-[9px] font-bold tracking-[0.2em] uppercase";
 
 /** The page. `print` drops the fields in one after another. */
 export function DataPage({ page, print = false }: { page: PageFields; print?: boolean }) {
@@ -132,15 +136,15 @@ export function DataPage({ page, print = false }: { page: PageFields; print?: bo
   const [visa, ...after] = page.stamps ?? [];
   const lines = page.strip === undefined ? null : stripLines(page.name, page.strip);
   return (
-    <div className="relative overflow-hidden rounded-[10px] shadow-[0_18px_40px_rgba(10,14,30,0.35)]" style={{ backgroundColor: PAGE_COLOURS.paper, backgroundImage: SECURITY, color: PAGE_COLOURS.ink }} data-page>
-      <div className="flex items-center justify-between px-3 py-1.5 font-mono text-[10px] uppercase" style={{ background: PAGE_COLOURS.band, color: PAGE_COLOURS.paper }}>
-        <span className="font-bold tracking-[0.25em]">{say("prologue.page.head")}</span>
-        <span className="tracking-[0.2em]" style={{ opacity: 0.8 }} data-page-type>
+    <div className="relative overflow-hidden rounded-[18px] border-[1.5px] border-[var(--edge)] shadow-[0_6px_0_rgba(27,42,74,0.14),0_14px_26px_rgba(20,40,50,0.18)]" style={{ backgroundColor: PAGE_COLOURS.paper, backgroundImage: SECURITY, color: PAGE_COLOURS.ink }} data-page>
+      <div className="flex h-[34px] items-center justify-between px-3.5 text-[11px] font-bold uppercase" style={{ background: PAGE_COLOURS.band, color: PAGE_COLOURS.paper }}>
+        <span className="tracking-[0.16em]">{say("prologue.page.head")}</span>
+        <span className="tracking-[0.14em]" style={{ opacity: 0.8 }} data-page-type>
           {say("ui.page.type-line")}
         </span>
       </div>
-      <div className="flex gap-3 p-3">
-        <div className="relative h-[128px] w-[98px] shrink-0 overflow-hidden rounded-[4px] border" style={{ background: PAGE_COLOURS.shade, borderColor: "rgba(12, 58, 36, 0.25)" }} data-photo aria-label={say("prologue.page.photo")} role="img">
+      <div className="flex gap-3.5 p-3.5">
+        <div className="relative h-[128px] w-[98px] shrink-0 -rotate-3 overflow-hidden rounded-[10px] shadow-[0_0_0_3px_#fff,0_4px_8px_rgba(20,40,50,0.25)]" style={{ background: PAGE_COLOURS.shade }} data-photo aria-label={say("prologue.page.photo")} role="img">
           <Photo page={page} />
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -155,7 +159,7 @@ export function DataPage({ page, print = false }: { page: PageFields; print?: bo
         </div>
       </div>
       {/* Where the life is from, the family the game drew and how ready beside them, in a row under the photo; ready as the big figure. */}
-      <div className="flex gap-3 px-3 pb-2">
+      <div className="flex gap-3 px-3.5 pb-2.5">
         {page.from === undefined ? null : (
           <div className="max-w-[40%] shrink-0">
             <Field id="from" label={say("ui.page.field.from")} value={page.from} delay={delay()} />

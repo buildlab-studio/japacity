@@ -287,9 +287,6 @@ const prints = new Map<string, DataTexture>();
 const PRINTS_KEPT = 12;
 
 /** A print drawn from the pattern code, its ground swapped for `ground`, sampled as the made print is. */
-/** The prints the corner's bolts show, kept while the door is open. */
-const pinned = new Set<string>();
-
 const printKey = (spec: PatternSpec, ground: PaletteName): string => `${spec.kind}.${String(spec.seed)}.${(spec.cols ?? []).join(",")}.${ground}`;
 
 function printOf(spec: PatternSpec, ground: PaletteName, like: Texture | null): DataTexture {
@@ -319,30 +316,13 @@ function printOf(spec: PatternSpec, ground: PaletteName, like: Texture | null): 
   prints.set(key, texture);
   if (prints.size > PRINTS_KEPT) {
     // The bolts' prints stand in the corner for as long as the door is open, so they are never let go.
-    const oldest = [...prints.keys()].find((held) => held !== key && !pinned.has(held));
+    const oldest = [...prints.keys()].find((held) => held !== key);
     if (oldest !== undefined) {
       prints.get(oldest)?.dispose();
       prints.delete(oldest);
     }
   }
   return texture;
-}
-
-/** The print a fabric picked on the sheet draws on a look not made in it, and the bolt of that fabric shows (R-PROLOGUE-016). */
-export function fabricPrint(fabric: Exclude<Fabric, "plain">): PatternSpec {
-  return OTHER_PRINTS[fabric];
-}
-
-/** The fabric's print as a texture, on its own ground, drawn once by the pattern code the figure wears (R-PROLOGUE-016). */
-export function boltTexture(fabric: Exclude<Fabric, "plain">): DataTexture {
-  const spec = OTHER_PRINTS[fabric];
-  pinned.add(printKey(spec, groundOf(spec)));
-  return printOf(spec, groundOf(spec), null);
-}
-
-/** A print's ground, as the bolt of that fabric is painted. */
-export function fabricGround(fabric: Exclude<Fabric, "plain">): PaletteName {
-  return groundOf(OTHER_PRINTS[fabric]);
 }
 
 /** The print material's map as the style has it: the made print, a print drawn again, or none for plain cloth. */
