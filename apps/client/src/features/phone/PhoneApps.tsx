@@ -6,6 +6,7 @@ import { content } from "@japacity/content";
 import type { ReactNode } from "react";
 
 import { counting } from "../../shared/analytics/start";
+import { PhoneTile } from "../adverts/placed";
 import { useJapaMark } from "../../shared/world/briefHanded";
 import { Tile } from "../../shared/tiles/Tile";
 import { TILE_TABLE } from "../../shared/tiles/tiles.data";
@@ -205,6 +206,10 @@ export function PhoneApps({ onClose, area, account = null, about = null, talk = 
                 </div>
               )}
               <Notices />
+              {/* The phone's one sponsored tile among its tiles, when the hour fills it online (adverts.md R-ADVERT-002). */}
+              <div className="mt-4 flex justify-center px-4 empty:hidden" data-phone-advert>
+                <PhoneTile />
+              </div>
             </>
           }
           onOpen={(id) => {
