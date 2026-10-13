@@ -62,7 +62,7 @@ import { atNight, BETTER_JOB, BOARD_WAY, MEANWHILE_WAYS, MORNING, NIGHT, nudgeOf
 import { nudgeHere, stepOpen } from "./stepOpen";
 import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
-import { overheard } from "./overheard";
+import { overheard, speakerOf } from "./overheard";
 import { dancerShown, dressPlace, filesOf, openGround, parkCar, type PlaceFile, showPlanned, stageOf } from "./placeFile";
 import { shotOf, turnsRound } from "./shot";
 import { HOUSE, insideOf, roomOf } from "./room";
@@ -1630,17 +1630,18 @@ export function City({
   const markerShown = atStep && stepThing !== null && markable && nowItem !== null && worldFree && fanned === null && picked === null;
   const callouts = calloutsShown({ fan: fanned !== null, chip: rowShown && chipMoment !== null, marker: markerShown, bubble: true });
   const heardNth = useRef(0);
+  const thingsHere = useRef(things);
+  thingsHere.current = things;
   useStreetTalk(() => {
     if (entry === null) return null;
     const heardNow = overheard(view, entry.id, date, heardNth.current);
     heardNth.current += 1;
-    return heardNow === null ? null : heardWords(heardNow.key, heardNow.params);
+    // A line one person plainly says names them, over their own figure where they stand in the place (R-WORLD-026).
+    return heardNow === null ? null : { text: heardWords(heardNow.key, heardNow.params), ...speakerOf(heardNow, thingsHere.current ?? [], (key) => cityWords(key)) };
   }, worldFree && settled && callouts.bubble && !homeTeachShown, home !== null && placeId === home ? say("ui.talk.home") : undefined);
   // A person speaks only in the place they stand in: going elsewhere takes their words down.
   useEffect(() => hush(), [placeId, inside]);
   // R-WORLD-005: the light bill paid at home, Mama says so over her head, the corner tells the bill paid, and a moment later the next compound is heard.
-  const thingsHere = useRef(things);
-  thingsHere.current = things;
   const lightSeen = useRef(lastLines);
   useEffect(() => {
     if (lightSeen.current === lastLines) return;

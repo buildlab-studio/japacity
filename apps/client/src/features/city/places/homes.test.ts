@@ -7,7 +7,7 @@
 import { type Footprint, fullSides, isFootprint, placeFootprint, WALL_SIDES } from "@japacity/assets";
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { KNEE, kneeHigh, type WallSpec } from "../../../../../../assets-src/bld/home/build";
 import { HOMES3 } from "../../../../../../assets-src/bld/home/homes3";
@@ -24,10 +24,14 @@ import { CAR_FILE, parkCar, type PlaceFile, stageOf } from "../placeFile";
 import { personOfLook } from "../roster";
 import { cameraAt, projected, SCREENS } from "../scene.testing";
 import { sceneWords } from "../scene.words";
-import { aimRoom, easeZoom, EASE, FULL_TURN, homeTap, ROOM_ACROSS, ROOM_EASE, ROOM_SETTLE, roomAcross, roomAt, roomFirst, roomTarget, SETTLE, SHOT_FOV, shotOf, TOP_PITCH } from "../shot";
+import { aimRoom, easeRoomView, easeZoom, EASE, FULL_TURN, homeTap, ROOM_ACROSS, ROOM_EASE, ROOM_SETTLE, roomAcross, roomAt, roomFirst, roomTarget, SETTLE, SHOT_FOV, shotOf, TOP_PITCH, type ViewEase } from "../shot";
 import { thingSpot } from "../things";
 import { groundGeometry } from "../world";
 import { allPalette, city, instancesOf, measured, rowOf, totalsOf } from "./placeTesting";
+import { stubReducedMotion } from "../../../shared/testing/motion";
+import { motionReduced } from "../../../shared/ui/motion";
+
+afterEach(() => vi.unstubAllGlobals());
 
 interface Home {
   name: string;
@@ -417,6 +421,54 @@ describe("the camera's easing", () => {
       time += 1 / 60;
     }
     expect(time).toBeLessThan(0.4);
+  });
+
+  /** A wide home's view at rest on the whole house, unturned and level, with where it is asked to go. */
+  const resting = (to: Partial<ViewEase> = {}): ViewEase => ({ zoom: 1, zoomTo: 1, turn: 0, turnTo: 0, tilt: 0, tiltTo: 0, pinching: false, turning: false, ...to });
+
+  /** Frames at 60 a second, with the setting as the scene reads it, until the view stands where it was asked to go. */
+  function framesToRest(view: ViewEase, still: boolean): { frames: number; view: ViewEase } {
+    let now = view;
+    let frames = 0;
+    while ((now.zoom !== now.zoomTo || now.turn !== now.turnTo || now.tilt !== now.tiltTo) && frames < 300) {
+      now = { ...now, ...easeRoomView(now, 1 / 60, still) };
+      frames += 1;
+    }
+    return { frames, view: now };
+  }
+
+  test("[R-WORLD-023] [R-WORLD-029] given the phone asks for no reduced motion, when a room is tapped, the round button turns a quarter or the view tilts from above, then the camera eases there over several frames, in under 400 ms, its first frame part of the way", () => {
+    stubReducedMotion(false);
+    expect(motionReduced()).toBe(false);
+    const asked = resting({ zoomTo: 0, turnTo: 90, tiltTo: 1 });
+    const first = easeRoomView(asked, 1 / 60, motionReduced());
+    for (const [value, end] of [[first.zoom, 0], [first.turn, 90], [first.tilt, 1]] as const) {
+      expect(value).not.toBe(end);
+      expect(Math.abs(value - end)).toBeLessThan(Math.abs(end === 0 ? 1 : end));
+    }
+    const { frames, view } = framesToRest(asked, motionReduced());
+    expect(frames).toBeGreaterThan(5);
+    expect(frames / 60).toBeLessThan(0.4);
+    expect([view.zoom, view.turn, view.tilt]).toEqual([0, 90, 1]);
+  });
+
+  test("[R-WORLD-023] [R-WORLD-029] given the phone asks for reduced motion, when a room is tapped, the round button turns a quarter, the view tilts or eases back out, then the camera stands there on the first frame, with no ease", () => {
+    stubReducedMotion(true);
+    expect(motionReduced()).toBe(true);
+    const asked = resting({ zoomTo: 0, turnTo: 90, tiltTo: 1 });
+    expect(easeRoomView(asked, 1 / 60, motionReduced())).toEqual({ zoom: 0, turn: 90, tilt: 1 });
+    expect(framesToRest(asked, motionReduced()).frames).toBe(1);
+    // Back out to the whole house, the other way round and level again, as at once.
+    expect(easeRoomView(resting({ zoom: 0, turn: 90, tilt: 1, turnTo: 0 }), 1 / 60, motionReduced())).toEqual({ zoom: 1, turn: 0, tilt: 0 });
+    // Every place's own close view is cut the same way.
+    expect(easeZoom(1, 0, 1 / 60, EASE, SETTLE, motionReduced())).toBe(0);
+  });
+
+  test("[R-WORLD-023] [R-WORLD-009] given reduced motion, when a finger turns or tilts the view or a pinch holds it, then the view stays under the finger, eased nowhere until it lifts, and the snap on release lands at once", () => {
+    stubReducedMotion(true);
+    const held = resting({ zoom: 0.4, zoomTo: 0, turn: 37, turnTo: 90, tilt: 0.3, tiltTo: 1, pinching: true, turning: true });
+    expect(easeRoomView(held, 1 / 60, motionReduced())).toEqual({ zoom: 0.4, turn: 37, tilt: 0.3 });
+    expect(easeRoomView({ ...held, pinching: false, turning: false, turnTo: 0 }, 1 / 60, motionReduced())).toEqual({ zoom: 0, turn: 0, tilt: 1 });
   });
 });
 

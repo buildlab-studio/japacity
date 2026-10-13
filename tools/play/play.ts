@@ -167,7 +167,8 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   log(run, `picked ${button}`);
   if (!options.ready) {
     log(run, `age: ${await words(page.locator("[data-door-age]"))}`);
-    if (!(await tap(run, page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }), "Next"))) return false;
+    // The life's Next goes on to Where you live, where Begin stands (R-PROLOGUE-013 as the door's second design built it).
+    if (!(await tap(run, page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }), "Next to Where you live"))) return false;
   }
   if (!(await appear(page.getByRole("button", { name: /^Begin/ }), LONG))) {
     problem(run, "where you live never came");
@@ -296,6 +297,13 @@ async function settle(run: Run, when: string): Promise<void> {
       await page.waitForTimeout(400);
       continue;
     }
+    // A home's teach card, once a life (R-HOME-008), is read and put away by its own cross.
+    const teach = page.locator("[data-home-teach-ok]");
+    if (await shown(teach)) {
+      log(run, `home's card ${when}: ${await words(page.locator("[data-home-teach]"))}`);
+      await tap(run, teach, "the home's card");
+      continue;
+    }
     const labels = page.locator("[data-first-labels]");
     if (step === 0 && (await shown(labels))) log(run, `first-use labels: ${await words(labels)}`);
     return;
@@ -363,23 +371,63 @@ async function closeSheets(run: Run): Promise<void> {
   }
 }
 
+/**
+ * The step's place from the map (decision 0039): the Map thumb opens on the step's neighbourhood with its pin ringed; the
+ * pin is picked (by the stop's own button, as the browser tests do) and its ride taken. True once the ride is done.
+ */
+async function stepByMap(run: Run, month: number): Promise<boolean> {
+  const { page } = run;
+  const thumb = page.locator('[data-thumb="map"]');
+  if (!(await shown(thumb))) return false;
+  await tap(run, thumb, "the Map thumb");
+  await page.waitForFunction("(() => window.__map?.ready === true)()", null, { timeout: LONG }).catch(() => undefined);
+  const pin = page.locator('[data-pin][data-ring="step"]');
+  await appear(pin, SHORT);
+  const stop = (await shown(pin)) ? await pin.first().getAttribute("data-pin") : null;
+  if (stop === null) {
+    log(run, `month ${String(month)}: the map rings no step`);
+    if (await shown(page.locator("[data-map-close]"))) await tap(run, page.locator("[data-map-close]"), "Close the map");
+    return false;
+  }
+  log(run, `month ${String(month)}: the map rings the step at ${stop}`);
+  await page.evaluate(`document.querySelector('[data-stop="${stop}"]')?.click()`);
+  if (!(await appear(page.locator("[data-ride-sheet]"), SHORT))) {
+    problem(run, `month ${String(month)}: no ride sheet for ${stop}`);
+    return false;
+  }
+  await ride(run);
+  await settle(run, `at the step in month ${String(month)}`);
+  return true;
+}
+
 /** The nudge says the next thing to do; a tap on it opens what it names, and its main act is taken. */
 async function followNudge(run: Run, month: number): Promise<void> {
   const { page } = run;
   const nudge = page.locator("[data-nudge]");
+  // The step's thing or person carries the marker, a pill with two words and an arrow (design page 13 section 4); its tap
+  // takes the step's act in one go. The nudge's chip shows only in the moment.
+  const marker = page.locator("[data-marker-tap]");
   if (!(await shown(nudge))) {
-    log(run, `month ${String(month)}: no nudge showing`);
-    return;
+    // Away from the step's place, the map carries it (decision 0039): the step's pin is ringed, and its ride is taken.
+    if (!(await shown(marker)) && (await stepByMap(run, month))) await page.waitForTimeout(800);
+    if (!(await shown(marker))) {
+      log(run, `month ${String(month)}: no nudge and no marker showing`);
+      return;
+    }
+    log(run, `month ${String(month)}: the marker says "${await words(page.locator("[data-marker]"))}" over ${(await marker.first().getAttribute("data-marker-tap")) ?? ""}`);
+    if (await shown(page.getByRole("dialog"))) await settle(run, `before the marker in month ${String(month)}`);
+    await marker.first().click({ timeout: SHORT, force: true }).catch(() => problem(run, "could not tap the marker"));
+  } else {
+    log(run, `month ${String(month)}: nudge says "${await words(nudge)}"`);
+    // A card over the world (the month's results on a return, the real-story card) covers the nudge: it is read and passed first.
+    if (await shown(page.getByRole("dialog"))) await settle(run, `before the nudge in month ${String(month)}`);
+    const open = page.locator("[data-nudge-open]");
+    if (!(await shown(open))) {
+      log(run, "the nudge is not a button; nothing to open");
+      return;
+    }
+    await tap(run, open, "the nudge");
   }
-  log(run, `month ${String(month)}: nudge says "${await words(nudge)}"`);
-  // A card over the world (the month's results on a return, the real-story card) covers the nudge: it is read and passed first.
-  if (await shown(page.getByRole("dialog"))) await settle(run, `before the nudge in month ${String(month)}`);
-  const open = page.locator("[data-nudge-open]");
-  if (!(await shown(open))) {
-    log(run, "the nudge is not a button; nothing to open");
-    return;
-  }
-  await tap(run, open, "the nudge");
   await page.waitForTimeout(800);
   for (let step = 0; step < 5; step += 1) {
     if (await shown(page.locator("[data-ride-sheet]"))) {
@@ -462,29 +510,28 @@ async function followNudge(run: Run, month: number): Promise<void> {
       if ((await shown(page.locator(OPEN_SHEET))) && (await words(page.locator(OPEN_SHEET), 400)) === before) break;
       continue;
     }
-    // A thing shows a quiet mark and no chip until it is tapped (R-WORLD-005): the mark the nudge points at is tapped first.
-    const nudged = page.locator("[data-thing-mark][data-nudged]");
-    if (!(await shown(page.locator("[data-thing-chip]"))) && (await shown(nudged))) {
-      log(run, `tapping the mark the nudge points at: ${(await nudged.first().getAttribute("data-thing-mark")) ?? ""}`);
-      await tap(run, nudged, "the nudged thing's mark");
+    // A thing shows a quiet mark and no fan until it is tapped (R-WORLD-034): the marker the step stands on is tapped first.
+    const fan = "[data-fan] [data-fan-act] button, [data-fan-sheet] [data-fan-act] button";
+    if (!(await shown(page.locator(fan))) && (await shown(marker))) {
+      log(run, `tapping the marker: ${(await marker.first().getAttribute("data-marker-tap")) ?? ""}`);
+      await marker.first().click({ timeout: SHORT, force: true }).catch(() => undefined);
       await page.waitForTimeout(600);
     }
-    // The act chips stay over the thing while its sheet is open, so they come after the sheet.
-    const act = page.locator("[data-thing-chip] [data-act]");
-    // An act that carries on in the plan says "Ongoing" and is shut (R-WORLD-007): only an open act can be tapped.
-    const open = page.locator("[data-thing-chip] [data-act]:not([data-planned]):not([disabled])");
+    // The fan's buttons stay round the thing while its sheet is open, so they come after the sheet.
+    const act = page.locator(fan);
+    // An act that carries on in the plan is a shut Ongoing button (R-WORLD-007): only an open act can be tapped.
+    const open = page.locator(`${fan.replaceAll(" button", " button:enabled")}`);
     if ((await shown(act)) && !(await shown(open))) {
-      log(run, `acts over the thing: ${(await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ")}; all ongoing, nothing to tap`);
+      log(run, `the fan's acts: ${(await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ")}; all shut, nothing to tap`);
       break;
     }
     if (await shown(act)) {
       const names = (await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ");
-      // The act the nudge's step opens, when the chips carry it and it is open; else the first open chip.
+      // The act the nudge's step opens, when the fan carries it and it is open; else the fan's first open button.
       const opens = await page.locator("[data-nudge]").first().getAttribute("data-nudge-opens", { timeout: 1_000 }).catch(() => null);
-      const named = opens === null ? null : page.locator(`[data-act][data-activity="${opens}"]:not([data-planned]):not([disabled])`);
+      const named = opens === null ? null : page.locator(`[data-fan-act="${opens}"] button:enabled`);
       const chosen = named !== null && (await shown(named)) ? named : open;
-      const activities = (await act.evaluateAll((nodes) => nodes.map((node) => (node as { dataset: Record<string, string | undefined> }).dataset["activity"] ?? "-"))).join(", ");
-      log(run, `acts over the thing: ${names} (${activities}); the nudge opens ${opens ?? "nothing named"}; tapping ${chosen === act ? "the first" : "the step's own"}`);
+      log(run, `the fan's acts: ${names}; the nudge opens ${opens ?? "nothing named"}; tapping ${chosen === open ? "the first" : "the step's own"}`);
       await tap(run, chosen, "the act");
       // The character walks to the thing before its sheet opens (R-WORLD-005).
       await appear(page.locator(OPEN_SHEET), SHORT);
@@ -536,8 +583,9 @@ async function onTheRoad(run: Run, month: number): Promise<boolean> {
 }
 
 /** The homes' beds, by the thing's id in each room file, with the act that ends the month (R-WORLD-025). */
-const BEDS = ["bed", "mattress", "bunk", "room"] as const;
-const BED_END = '[data-thing-chip] [data-act="end-month"]';
+const BEDS = ["mattress", "bed", "bunk", "room"] as const;
+/** The bed's Sleep on the fan that opens out of it, or on the small sheet of the same buttons (R-WORLD-034). */
+const BED_END = '[data-fan] [data-fan-act="end-month"] button, [data-fan-sheet] [data-fan-act="end-month"] button';
 /** The bed's sleep on the driver's server, in seconds: the month turns once it runs out (R-WORLD-025). */
 const SLEEP_SECONDS = 3;
 
@@ -549,28 +597,62 @@ const SLEEP_SECONDS = 3;
 async function bedEnd(run: Run, month: number): Promise<boolean> {
   const { page } = run;
   const ended = async (): Promise<boolean> => (await shown(page.locator("[data-world-sheet='results'], [data-moment]"))) || (await page.locator("[data-band]").first().getAttribute("aria-hidden").catch(() => null)) === "true";
-  const house = page.locator('[data-thing-mark="house"]');
+  // Away from home, the map's home stop takes the ride back first (decision 0039): the month ends in a bed.
+  const beds = page.locator(BEDS.map((bed) => `[data-mark="${bed}"]`).join(", "));
+  if ((await beds.count()) === 0 && !(await shown(page.locator(BED_END)))) await rideHome(run, month);
+  const house = page.locator('[data-mark="house"]');
   if (!(await shown(page.locator(BED_END))) && (await shown(house))) {
-    await tap(run, house, "the house");
+    await house.first().click({ timeout: SHORT, force: true }).catch(() => undefined);
     await page.waitForTimeout(600);
-    if (await tap(run, page.locator('[data-thing-chip] [data-act="enter"]'), "Go in")) await page.waitForTimeout(1_500);
+    if (await tap(run, page.locator('[data-fan-act="enter"] button'), "Go in")) await page.waitForTimeout(1_500);
+  }
+  // A wide home eased in on one room hides the other rooms' marks (decision 0040): the whole house first, as a player would.
+  const whole = page.getByRole("button", { name: "See the whole place" });
+  if (!(await shown(page.locator(BED_END))) && (await shown(whole))) {
+    await tap(run, whole, "See the whole place");
+    await page.waitForTimeout(800);
   }
   if (!(await shown(page.locator(BED_END)))) {
     for (const bed of BEDS) {
-      const mark = page.locator(`[data-thing-mark="${bed}"]`);
+      const mark = page.locator(`[data-mark="${bed}"]`);
       if (!(await shown(mark))) continue;
-      await tap(run, mark, `the ${bed}`);
-      await page.waitForTimeout(600);
+      // A mark the nudge pulses never holds still for the stability check; the tap lands all the same.
+      await mark.first().click({ timeout: SHORT, force: true }).catch(() => undefined);
+      log(run, `tapped the ${bed}`);
+      await appear(page.locator(BED_END), 4_000);
       break;
     }
   }
   if (!(await tap(run, page.locator(BED_END), "the bed's month end"))) return false;
   // A life's first night is told once on a small card; its Sleep starts the sleep, which turns the month as it runs out.
-  if (await appear(page.locator("[data-night-teach-ok]"), 1_500)) await tap(run, page.locator("[data-night-teach-ok]"), "the first night's Sleep");
+  if (await appear(page.locator("[data-night-teach-ok]"), 1_500)) {
+    await shot(run, `month ${String(month)} first night`);
+    await page.locator("[data-night-teach-ok]").first().click({ timeout: SHORT, force: true }).catch(() => problem(run, "could not tap the first night's Sleep"));
+    log(run, "tapped the first night's Sleep");
+  }
   for (let wait = 0; wait < 10 + SLEEP_SECONDS * 4 && !(await ended()); wait += 1) await page.waitForTimeout(300);
   log(run, `month ${String(month)}: the bed's month end tapped`);
   // Tapped once only: a month end on its way that the band has not shown yet is still an end, never a second tap.
   return true;
+}
+
+/** Home by the map: the Map thumb, the home stop's own button (as the browser tests pick a stop), the ride. */
+async function rideHome(run: Run, month: number): Promise<void> {
+  const { page } = run;
+  const thumb = page.locator('[data-thumb="map"]');
+  if (!(await shown(thumb))) return;
+  await tap(run, thumb, "the Map thumb");
+  await page.waitForFunction("(() => window.__map?.ready === true)()", null, { timeout: LONG }).catch(() => undefined);
+  const home = await page.locator('[data-stop][data-home="true"]').first().getAttribute("data-stop", { timeout: SHORT }).catch(() => null);
+  if (home === null) {
+    problem(run, `month ${String(month)}: the map shows no home stop`);
+    if (await shown(page.locator("[data-map-close]"))) await tap(run, page.locator("[data-map-close]"), "Close the map");
+    return;
+  }
+  log(run, `month ${String(month)}: home by the map, to ${home}`);
+  await page.evaluate(`document.querySelector('[data-stop="${home}"]')?.click()`);
+  if (await appear(page.locator("[data-ride-sheet]"), SHORT)) await ride(run);
+  await settle(run, `home in month ${String(month)}`);
 }
 
 async function endMonth(run: Run, month: number): Promise<boolean> {

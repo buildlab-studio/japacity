@@ -197,10 +197,41 @@ export const SETTLE = 0.002;
 export const ROOM_EASE = 12;
 export const ROOM_SETTLE = 0.01;
 
-/** One frame of the zoom's easing toward where it is going: a share of the way still to go, standing at the end once close. */
-export function easeZoom(zoom: number, to: number, delta: number, rate = EASE, settle = SETTLE): number {
+/**
+ * One frame of the zoom's easing toward where it is going: a share of the way still to go, standing at the end once close.
+ * Under reduced motion (`still`, world.md R-WORLD-023) it stands at the end at once, with no ease.
+ */
+export function easeZoom(zoom: number, to: number, delta: number, rate = EASE, settle = SETTLE, still = false): number {
+  if (still) return to;
   const next = zoom + (to - zoom) * Math.min(1, delta * rate);
   return Math.abs(to - next) < settle ? to : next;
+}
+
+/** What a wide home's view eases each frame, and what holds it: a pinch holds the zoom, a finger the turn and the tilt. */
+export interface ViewEase {
+  zoom: number;
+  zoomTo: number;
+  turn: number;
+  turnTo: number;
+  tilt: number;
+  tiltTo: number;
+  pinching: boolean;
+  turning: boolean;
+}
+
+/**
+ * One frame of a wide home's view (R-WORLD-029): the ease in on a room or back out to the whole
+ * house, a quarter turn and the tilt, each at the rooms' rate, in under 400 ms, once no finger holds it. Under reduced
+ * motion (`still`, R-WORLD-023) each changes at once instead; a finger still moves the view live while it drags.
+ */
+export function easeRoomView(view: ViewEase, delta: number, still = false): Pick<ViewEase, "zoom" | "turn" | "tilt"> {
+  const zoom = view.pinching ? view.zoom : easeZoom(view.zoom, view.zoomTo, delta, ROOM_EASE, ROOM_SETTLE, still);
+  if (view.turning) return { zoom, turn: view.turn, tilt: view.tilt };
+  return {
+    zoom,
+    turn: easeZoom(view.turn / 90, view.turnTo / 90, delta, ROOM_EASE, ROOM_SETTLE, still) * 90,
+    tilt: easeZoom(view.tilt, view.tiltTo, delta, ROOM_EASE, ROOM_SETTLE, still),
+  };
 }
 
 /** The room of a wide home whose floor holds a point, or null outside every room. */

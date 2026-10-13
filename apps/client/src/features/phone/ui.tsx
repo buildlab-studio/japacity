@@ -78,7 +78,5 @@ export function WordChip({ children, tone = "study", ...rest }: { children: Reac
   );
 }
 
-/** A way out of the app (to the map, to another app): white with the navy edge and underside. */
-export function GhostButton({ className = "", type = "button", ...rest }: ComponentProps<"button">) {
-  return <button type={type} className={`phone-ghost w-full ${className}`} {...rest} />;
-}
+/** A way out of the app (to the map, to another app): the layer's ghost button, filling the row (`wide`). */
+export { GhostButton } from "../../shared/ui/lively/GhostButton";

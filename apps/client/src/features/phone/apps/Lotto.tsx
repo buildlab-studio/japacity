@@ -38,7 +38,7 @@ function ToKiosk() {
   const place = kioskPlace();
   if (place === null || nav.openMap === undefined) return null;
   return (
-    <GhostButton className="mt-4 justify-center" onClick={() => nav.openMap?.(place)} data-lotto-go={place}>
+    <GhostButton wide className="mt-4 justify-center" onClick={() => nav.openMap?.(place)} data-lotto-go={place}>
       <MapPin size={18} aria-hidden />
       {phoneWords("phone.lotto.go")}
     </GhostButton>
