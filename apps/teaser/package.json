@@ -7,6 +7,7 @@
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "record": "tsx record/record.ts",
+    "render": "tsx render/render.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "remotion": "4.0.531"
   },
   "devDependencies": {
+    "@remotion/player": "4.0.531",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0"
   }

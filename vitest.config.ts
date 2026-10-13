@@ -207,6 +207,15 @@ export default defineConfig({
           include: ["apps/client/src/**/*.test.{ts,tsx}"],
         },
       },
+      {
+        // The teaser's composition, mounted frame by frame in a page as Remotion's player draws it.
+        plugins: [react()],
+        test: {
+          name: "teaser",
+          environment: "jsdom",
+          include: ["apps/teaser/src/**/*.test.{ts,tsx}"],
+        },
+      },
     ],
   },
 });

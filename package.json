@@ -29,6 +29,7 @@
     "record:lives": "tsx tools/record-lives.ts",
     "play": "tsx tools/play/play.ts",
     "teaser:record": "pnpm --filter @japacity/teaser record",
+    "teaser:render": "pnpm --filter @japacity/teaser render",
     "rollback": "tsx apps/server/src/admin/rollback.main.ts",
     "check": "tsx tools/check.ts",
     "dev": "pnpm --filter @japacity/client dev",
