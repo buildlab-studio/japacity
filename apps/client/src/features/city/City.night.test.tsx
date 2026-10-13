@@ -231,3 +231,20 @@ describe("a spent body", () => {
   });
 
 });
+
+describe("the first night's card as drawn", () => {
+  test("[R-WORLD-025] given a new life's first night, when the bed's Sleep is tapped, then the card has its title, the line, Not yet and Sleep; Not yet puts it away with nothing sent and nothing kept, so the next Sleep shows it again", async () => {
+    const { authority } = await inTheParlour();
+    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    const card = found("[data-night-teach]");
+    expect(card.textContent).toContain(say("ui.night.first.title"));
+    expect(card.textContent).toContain(say("ui.night.first"));
+    fireEvent.click(found("[data-night-teach-later]"));
+    expect(document.querySelector("[data-night-teach]")).toBeNull();
+    expect(document.querySelector("[data-asleep]")).toBeNull();
+    expect(turns(authority.sent)).toBe(0);
+    expect(wasTaught("night", "scenario.ada")).toBe(false);
+    fireEvent.click(found('[data-stand-in-act="bed:end-month"]'));
+    expect(found("[data-night-teach]")).toBeTruthy();
+  });
+});

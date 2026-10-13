@@ -4,7 +4,7 @@
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
 import type { Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
-import { Clock, Map as MapIcon, Moon, Settings2, X } from "lucide-react";
+import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -39,6 +39,7 @@ import { calloutsShown } from "../../shared/world/callouts";
 import { Emotes } from "./emotes";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
+import { PressButton } from "../../shared/ui/lively/PressButton";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
@@ -1756,42 +1757,60 @@ export function City({
             <>
               {/* The sleep's chip under the band, with a thin bar running down over the sleep's length; a tap on it wakes (R-WORLD-025). */}
               <div className="pointer-events-none fixed inset-x-0 top-[calc(max(10px,env(safe-area-inset-top))+80px)] z-[38] flex justify-center px-3">
-                <button type="button" onClick={wake} className="chip drop press pointer-events-auto relative inline-flex items-center gap-1.5 overflow-hidden px-3.5 pt-2 pb-2.5 text-[13px] font-bold" data-asleep>
-                  <Moon size={14} aria-hidden />
+                <button type="button" onClick={wake} className="brief-chip drop press pointer-events-auto relative inline-flex items-center gap-2 overflow-hidden py-1.5 pr-4 pl-1.5 text-[15px] font-bold" data-asleep>
+                  <span className="flex size-8 items-center justify-center rounded-full bg-tint-body text-[17px]" aria-hidden>
+                    🌙
+                  </span>
                   <span>{say("ui.sleep.chip")}</span>
                   <span aria-hidden className="sleep-bar absolute inset-x-0 bottom-0 h-[3px] bg-signal" style={{ animationDuration: `${String(asleep.ms)}ms` }} data-asleep-bar />
                 </button>
               </div>
               {/* Wake up, low on the right above the Phone button (in the centred column on a laptop), does as the chip does. */}
               <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] flex justify-end px-3">
-                <button type="button" onClick={wake} className="pop press pointer-events-auto rounded-[5px] bg-action px-4 py-2.5 text-[14px] font-extrabold text-action-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" data-wake>
+                <PressButton onClick={wake} className="pop pointer-events-auto min-w-[150px]" data-wake>
                   {say("ui.sleep.wake")}
-                </button>
+                </PressButton>
               </CentredColumn>
             </>
           ) : null}
           {nightTeach !== null ? (
-            <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] px-3">
-            <div className="pop pointer-events-auto mx-auto flex max-w-sm items-center gap-3 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-night-teach>
-              <p className="min-w-0 flex-1 text-[14px] leading-snug font-semibold">{say("ui.night.first")}</p>
-              <button
-                type="button"
-                className="press shrink-0 rounded-[5px] bg-action px-4 py-2.5 text-[14px] font-extrabold text-action-text"
-                onClick={() => {
-                  markTaught("night", view.scenario);
-                  setNightTeach(null);
-                  sleepOn(nightTeach);
-                }}
-                data-night-teach-ok
-              >
-                {say("ui.night.first.ok")}
-              </button>
+            <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+84px)] z-[38] px-3">
+            {/* The first night's card as the after set draws it (world-first-night-card): the moon on a soft tile, a title of a
+                few words, the line, Not yet and the yellow Sleep. */}
+            <div className="lively-card pop pointer-events-auto mx-auto flex flex-col gap-3 p-3.5" role="note" data-night-teach>
+              <div className="flex items-center gap-3">
+                <span className="flex size-16 shrink-0 items-center justify-center rounded-[16px] bg-tint-body">
+                  <span className="sticker-cut text-[36px] leading-none" style={{ rotate: "-8deg" }} aria-hidden>
+                    🌙
+                  </span>
+                </span>
+                <div className="min-w-0">
+                  <p className="text-title leading-tight font-bold">{say("ui.night.first.title")}</p>
+                  <p className="text-[16px] leading-snug text-text-2">{say("ui.night.first")}</p>
+                </div>
+              </div>
+              <div className="flex gap-2.5">
+                <button type="button" className="press flex-1 rounded-[16px] border-2 border-edge bg-sheet-2 px-4 text-[16px] font-bold shadow-[0_3px_0_var(--edge)]" onClick={() => setNightTeach(null)} data-night-teach-later>
+                  {say("ui.night.first.later")}
+                </button>
+                <PressButton
+                  className="flex-[1.4]"
+                  onClick={() => {
+                    markTaught("night", view.scenario);
+                    setNightTeach(null);
+                    sleepOn(nightTeach);
+                  }}
+                  data-night-teach-ok
+                >
+                  {say("ui.night.first.ok")}
+                </PressButton>
+              </div>
             </div>
             </CentredColumn>
           ) : null}
           {homeTeachShown && homeTeach !== null ? (
             <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] px-3">
-            <div className="pop pointer-events-auto mx-auto flex max-w-sm items-start gap-2 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-home-teach={homeTeach}>
+            <div className="lively-card pop pointer-events-auto mx-auto flex items-start gap-2 p-3" role="note" data-home-teach={homeTeach}>
               <p className="min-w-0 flex-1 text-[14px] leading-snug">{blurbOf(homeTeach)}</p>
               <button
                 type="button"
