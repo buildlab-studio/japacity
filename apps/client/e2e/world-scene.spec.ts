@@ -1,7 +1,8 @@
 // The place in the world on a phone (docs/rules/world.md R-WORLD-005, 009 to 013): every built place
 // opens whole, the pinch rests whole or close and nowhere between, a tap on a thing floats its acts
 // over it and the act follows the walk, the crowd and the moving sheets stay inside the limits in
-// both modes, and the cut into the house is dark for under half a second. WebGL runs on the software
+// both modes, the cut into the house is dark for under half a second, and a wide home turns a quarter at a time with
+// its walls following the view. WebGL runs on the software
 // renderer, so times here are the page's own, not a phone's.
 import { expect, type Page, test } from "@playwright/test";
 
@@ -30,12 +31,14 @@ interface Probe {
   shadow?: { bias: number; normalBias: number; reach: number };
   screenOfThing?: (id: string) => { x: number; y: number } | null;
   fits?: () => { width: boolean; offScreen: string[] };
+  turn?: number;
+  walls?: number | null;
 }
 
 /** The probe the scene sets on the window (scene.types.ts CityProbe). */
 const probe = (page: Page) => page.evaluate(() => {
   const city = (window as unknown as { __city?: Probe }).__city;
-  return city === undefined ? null : { place: city.place, ready: city.ready, frames: city.frames.length, people: city.people, sheets: city.sheets, drawCalls: city.drawCalls, zoom: city.zoom, zoomTo: city.zoomTo, shadow: city.shadow, shot: city.shot, walking: city.walker.target !== null, fits: city.fits?.() };
+  return city === undefined ? null : { place: city.place, ready: city.ready, frames: city.frames.length, people: city.people, sheets: city.sheets, drawCalls: city.drawCalls, zoom: city.zoom, zoomTo: city.zoomTo, shadow: city.shadow, shot: city.shot, walking: city.walker.target !== null, fits: city.fits?.(), turn: city.turn, walls: city.walls };
 });
 
 /** The places built with models that a new life at home can reach, by id. */
@@ -177,6 +180,45 @@ test("[R-WORLD-009] given Bode Thomas whole, when a pinch is released at any gap
   await page.locator("[data-zoom-preset]").click();
   expect(await restingZoom(page)).toBe(1);
   await expect(page.locator("[data-zoom-preset]")).toHaveCount(0);
+});
+
+/** Waits until a wide home's view has come to rest turned `turn` degrees from its file's facing, its walls following. */
+async function restingTurn(page: Page, turn: number): Promise<void> {
+  await page.waitForFunction((wanted) => (window as unknown as { __city?: Probe }).__city?.turn === wanted, turn, { timeout: 20_000 });
+  await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+}
+
+test("[R-WORLD-009] [R-WORLD-029] given the family house whole, when the round button is tapped and a finger turns the house sideways, then the view eases round a quarter at a time with the far pair of walls full, a released turn rests on the nearest quarter, the house and its things stay on screen, and a reload opens the house as it was left", async ({ page }) => {
+  test.setTimeout(300_000);
+  await startWorld(page);
+  await goTo(page, "place.family-house");
+  const before = await probe(page);
+  expect(before?.turn).toBe(0);
+  // At rest down the house's length, the back and the left stand full: the quarter of a view looking along 180 degrees.
+  expect(before?.walls).toBe(2);
+  await page.locator("[data-turn-house]").click();
+  await restingTurn(page, 90);
+  const turned = await probe(page);
+  expect(turned?.walls).toBe(3);
+  expect(turned?.zoom).toBe(1);
+  expect(turned?.fits).toEqual({ width: true, offScreen: [] });
+  // A finger drawn across the open ground above the house, past half a quarter, and lifted: on round to the next quarter.
+  await page.evaluate(() => {
+    const scene = document.querySelector("[data-shot]");
+    if (scene === null) throw new Error("No scene");
+    const send = (type: string, x: number) => scene.dispatchEvent(new PointerEvent(type, { pointerId: 1, clientX: x, clientY: 300, bubbles: true, isPrimary: true, pointerType: "touch" }));
+    send("pointerdown", 320);
+    for (let step = 1; step <= 8; step += 1) send("pointermove", 320 - step * 20);
+    send("pointerup", 160);
+  });
+  await restingTurn(page, 180);
+  const round = await probe(page);
+  expect(round?.walls).toBe(0);
+  expect(round?.fits).toEqual({ width: true, offScreen: [] });
+  await page.reload();
+  await waitPlace(page, "place.family-house");
+  await restingTurn(page, 180);
+  expect((await probe(page))?.walls).toBe(0);
 });
 
 test("[R-WORLD-005] [R-WORLD-021] given Bode Thomas, when a thing or its quiet mark is tapped, then its name and its acts float over it, and the act's sheet follows once the character has walked to it", async ({ page }) => {
