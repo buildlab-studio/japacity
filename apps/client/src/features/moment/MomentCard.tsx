@@ -10,6 +10,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import type { MomentShot } from "../../authority/store";
+import { markFile } from "../../shared/ui/Wordmark";
 import { Counter } from "../../shared/world/Band";
 import { say } from "../../shared/words/text";
 import { figureWords, momentFace, type MomentFace, type MomentIcon } from "../../shared/moment/moment";
@@ -25,10 +26,7 @@ const ICONS: Record<MomentIcon, LucideIcon> = {
   book: BookMarked,
 };
 
-/** The game's small mark for the ground it stands on (public/brand, README), in the game's one look (decision 0038). */
-export function markFile(ground: "light" | "dark"): string {
-  return `${import.meta.env.BASE_URL}brand/japacity-mark-adire-${ground}.svg`;
-}
+export { markFile };
 
 /**
  * R-MOMENT-003: the figure's size by its length, so the longest sum still sits on one line inside the card at a

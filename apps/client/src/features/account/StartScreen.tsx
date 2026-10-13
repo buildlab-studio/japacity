@@ -1,11 +1,12 @@
 // The start screen online (R-ACCOUNT-029), as designed:
-// over the scene with no title over the figure, a hook in two rows instead of a sentence (R-TEXT-006; one of three
+// over the scene with the lockup at the head of the sheet, no title over the figure, a hook in two rows instead of a sentence (R-TEXT-006; one of three
 // lines, picked once per visit, R-ACCOUNT-031), the whole game in three steps as an icon and a word each, then Play
 // with its small second line, and "I already have a life here" for an account kept before. The two lights hang over the
 // top of the scene (TwoLights.tsx), so a line about the light is a caption. Nothing says Lagos: the scene behind does.
 import { useId } from "react";
 
 import { StartHook } from "../../shared/frontdoor/Hook";
+import { Wordmark } from "../../shared/ui/Wordmark";
 import { say } from "../../shared/words/text";
 
 export interface StartScreenProps {
@@ -17,6 +18,7 @@ export function StartScreen({ onPlay, onReturning }: StartScreenProps) {
   const then = useId();
   return (
     <div className="flex flex-col" data-start-screen>
+      <Wordmark ground="light" align="start" className="mb-3" />
       <StartHook />
       {/* The button is named Play; its second line is said as its description. */}
       <button type="button" className="btn-main mt-4" onClick={onPlay} aria-label={say("ui.account.start.play")} aria-describedby={then}>

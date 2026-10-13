@@ -128,7 +128,7 @@ function oneWordmark(ground: "light" | "dark"): void {
   expect(shown).toHaveLength(1);
   expect(say("ui.game")).toBe("Japacity");
   expect(shown[0]?.getAttribute("alt")).toBe("Japacity");
-  expect(shown[0]?.getAttribute("src")).toMatch(new RegExp(`brand/japacity-wordmark-adire-${ground}\\.svg$`));
+  expect(shown[0]?.getAttribute("src")).toMatch(new RegExp(`brand/japacity-lockup-${ground}\\.svg$`));
 }
 
 /** The start screen's three hooks as a player reads them, row by row (R-TEXT-006, R-ACCOUNT-031). */
@@ -143,7 +143,7 @@ const ageFields = () => [say("ui.account.age.day"), say("ui.account.age.month"),
 describe("the start screen online", () => {
   // the hook in two rows, the three steps, Play with
   // its second line, and the two lights over the scene, where the sentence was.
-  test("[R-ACCOUNT-029] [R-TEXT-006] given a new browser, then the first screen is the start screen over the compound: no title over the figure, the hook in two rows and the three steps where the sentence was, Play with its second line and I already have a life here, the two lights over the top, and nothing else asked", async () => {
+  test("[R-ACCOUNT-029] [R-TEXT-006] given a new browser, then the first screen is the start screen over the compound: no title over the figure and the lockup at the head of the sheet, the hook in two rows and the three steps where the sentence was, Play with its second line and I already have a life here, the two lights over the top, and nothing else asked", async () => {
     const account = fakeAccount();
     gate(account);
     const playButton = await screen.findByRole("button", { name: say("ui.account.start.play") });
@@ -160,7 +160,8 @@ describe("the start screen online", () => {
     expect(steps.every((step) => step.querySelector("svg") !== null)).toBe(true);
     expect(document.querySelector('[data-gate="start"] [data-gate-over] [data-two-lights]')).not.toBeNull();
     expect(screen.queryByText(say("ui.game"))).toBeNull();
-    expect(wordmarks()).toEqual([]);
+    oneWordmark("light");
+    expect(document.querySelector('[data-gate-sheet="start"] [data-wordmark="light"]')).not.toBeNull();
     // The compound behind, as the door draws it, with the sheet over the bottom of it.
     expect(document.querySelector('[data-gate="start"] [data-front-scene]')).not.toBeNull();
     expect(document.querySelector('[data-gate="start"] [data-gate-sheet="start"]')).not.toBeNull();
@@ -278,10 +279,10 @@ describe("the start screen online", () => {
 });
 
 describe("the wordmark on the account screens", () => {
-  test("[R-ACCOUNT-029] given the start screen, and then the age screen, then neither carries a title over the figure: no game's name and no wordmark", async () => {
+  test("[R-ACCOUNT-029] given the start screen, and then the age screen, then neither carries a title over the figure, the start screen holds the lockup at the head of its sheet and the age screen none", async () => {
     gate(fakeAccount());
     await screen.findByRole("button", { name: say("ui.account.start.play") });
-    expect(wordmarks()).toEqual([]);
+    oneWordmark("light");
     expect(document.querySelector("[data-start-name]")).toBeNull();
     await play();
     await screen.findByRole("combobox", { name: say("ui.account.age.day") });
@@ -297,7 +298,7 @@ describe("the wordmark on the account screens", () => {
     expect(document.querySelector('[data-gate="start"] [data-wordmark="dark"]')).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.back") }));
     await screen.findByRole("button", { name: say("ui.account.start.play") });
-    expect(wordmarks()).toEqual([]);
+    oneWordmark("light");
   });
 
   test("[R-ACCOUNT-029] [R-SERVER-032] given sign-ups switched off, then the full screen carries the wordmark once", async () => {

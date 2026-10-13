@@ -144,7 +144,7 @@ describe("the invite link's page", () => {
       const marks = screen.getAllByRole("img", { name: say("ui.game") });
       expect(marks).toHaveLength(1);
       expect(marks[0]?.getAttribute("alt")).toBe("Japacity");
-      expect(marks[0]?.getAttribute("src")).toMatch(/brand\/japacity-wordmark-adire-light\.svg$/);
+      expect(marks[0]?.getAttribute("src")).toMatch(/brand\/japacity-lockup-light\.svg$/);
     };
     once();
     await answerAge("1990-05-01");
