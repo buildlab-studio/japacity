@@ -4,6 +4,8 @@
 // stop to the stop, the ride sheet rises, and the ride plays and lands in the place. With MAP_SHOTS
 // set to a folder, the pictures of each step are saved there.
 import { expect, type Page, test } from "@playwright/test";
+
+import { text } from "../../../packages/content/src/index";
 import { startReadyLife } from "./door";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
@@ -102,7 +104,8 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   await expect(page.locator("[data-balance-after]")).toBeVisible();
   await shot(page, "05-stop-picked");
 
-  // The ride: a short scene with its band and Skip, then the place opens with its name told in the corner (R-WORLD-026).
+  // The ride: a short scene with its band and Skip, then the place opens with its name on the band. The corner no longer
+  // tells it: since the talk budget the corner holds only the player's own act's answer (R-WORLD-026).
   await page.locator('[data-way="danfo"]').click();
   await page.locator("[data-ride-main]").click();
   await expect(page.locator("[data-ride]")).toBeVisible();
@@ -110,8 +113,9 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   await page.waitForTimeout(2600);
   await shot(page, "08-ride");
   await expect(page.locator("[data-ride]")).toBeHidden({ timeout: 8000 });
-  await expect(page.locator("[data-corner] [data-told]").last()).toBeVisible();
   await page.waitForFunction((id) => (window as unknown as { __city?: CityProbe }).__city?.place === id, target, { timeout: 30_000 });
+  // The band names the place small (R-WORLD-002), by its short name where content gives one.
+  await expect(page.locator("[data-band] h2")).toHaveText(text[`${target}.short`] ?? text[`${target}.name`] ?? target);
   await shot(page, "09-arrived");
 });
 

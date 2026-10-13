@@ -7,9 +7,12 @@ import { expect, test, type Page } from "@playwright/test";
 // apps/client/src/features/boards/boards.ts copies from the server.
 import { content } from "../../../packages/content/src/index";
 import { start } from "../../../packages/sim/src/testing/play";
+import { passOpeningWords } from "./door";
+import { openApp, passHomeTeach, placeReady } from "./live";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
-test.use({ baseURL: ONLINE, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+// The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
+test.use({ baseURL: ONLINE, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
 const PREVIEW = process.env.PREVIEW_DIR;
 const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
@@ -64,10 +67,16 @@ test("[R-CITY-039] the four boards behind the two pickers, each with the player'
   const game = start({ scenario: "scenario.ada", content });
   game.grant(1);
   await fakeServer(page, { "GET /api/view": { body: { ok: true, view: game.view(), lines: [], clock: CLOCK } }, ...BOARDS });
-  await page.goto("/?classic");
-  await expect(page.getByRole("heading", { name: /^Month \d+$/ }).first()).toBeVisible({ timeout: 20_000 });
-  const tabs = page.getByRole("navigation", { name: "Sections" });
-  if (await tabs.isVisible()) await tabs.getByRole("button", { name: "People" }).click();
+  test.setTimeout(150_000);
+  await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
+  await page.goto("/");
+  await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
+  await passOpeningWords(page);
+  await placeReady(page);
+  await passHomeTeach(page);
+  // The boards stand with the people in the phone's Chats, where the old month page's People tab held them.
+  const chats = await openApp(page, "chats");
+  await chats.locator('[data-chat-row="people"]').click();
   const boards = page.locator("[data-boards]");
   await expect(boards).toBeVisible();
   await expect(page.locator("[data-joined-week]")).toHaveCount(0);
@@ -82,8 +91,7 @@ test("[R-CITY-039] the four boards behind the two pickers, each with the player'
       // R-CITY-040: the player's own line names the username on every board, and nothing else names it.
       await expect(list.locator("[data-me] [data-board-name]")).toHaveText("ada_from_yaba");
       await expect(list.locator("[data-me]")).not.toContainText("Ada");
-      // The header is fixed over the top of a phone's screen, so the pickers are brought just under it.
-      await boards.evaluate((element) => window.scrollBy(0, element.getBoundingClientRect().top - 72));
+      await boards.scrollIntoViewIfNeeded();
       if (PREVIEW !== undefined && PREVIEW !== "") await page.screenshot({ path: join(PREVIEW, `board-${when}-${who}-phone.png`) });
     }
   }

@@ -8,6 +8,8 @@ import { expect, type Page, test } from "@playwright/test";
 import { text } from "../../../packages/content/src/index";
 import budgets from "../../../assets-src/budgets.json" with { type: "json" };
 import { startReadyLife } from "./door";
+import { doAct } from "./live";
+
 /** The cut's hold, Cut.tsx's CUT_MS, and its fade, its `duration-300` (the e2e tsconfig takes no .tsx import). */
 const CUT_MS = 260;
 const FADE_MS = 300;
@@ -248,8 +250,9 @@ test("[R-WORLD-013] given Ojuelegba, when the hub's Go in is chosen, then the sc
     };
     requestAnimationFrame(watch);
   });
-  await page.locator('[data-mark="hub"]').click();
-  await page.locator('[data-thing-chip="hub"] [data-act="enter"]').click();
+  // The hub may carry the step's marker in its mark's place (R-WORLD-003): the thing is tapped as
+  // live.ts taps any thing, and its chip's Go in chosen.
+  await doAct(page, "hub", "enter");
   await page.waitForFunction(() => (window as unknown as { __cut: { ended: number } }).__cut.ended > 0, null, { timeout: 60_000 });
   const cut = await page.evaluate(() => (window as unknown as { __cut: { darkFrom: number; darkTo: number; began: number; ended: number; gap: number; peak: number } }).__cut);
   console.log(`the cut: dark for ${String(Math.round(cut.darkTo - cut.darkFrom))} ms, ${String(Math.round(cut.ended - cut.began))} ms from first shade to lifting, longest stall ${String(Math.round(cut.gap))} ms`);
@@ -273,7 +276,10 @@ test("[R-WORLD-013] given Ojuelegba, when the hub's Go in is chosen, then the sc
   expect(room?.fits).toEqual({ width: true, offScreen: [] });
   await page.locator('[data-mark="door"]').click();
   await page.locator('[data-thing-chip="door"] [data-act]').first().click();
-  await expect(page.locator('[data-mark="hub"]')).toBeVisible({ timeout: 60_000 });
+  // Back outside: the hub stands again, its mark drawn (hidden under the step's marker when the step points at it,
+  // R-WORLD-003 as amended 13 Oct 2026), and the room's door is gone.
+  await expect(page.locator('[data-mark="hub"]')).toBeAttached({ timeout: 60_000 });
+  await expect(page.locator('[data-mark="door"]')).toHaveCount(0);
 });
 
 for (const mode of ["low", "high"] as const) {
@@ -290,7 +296,10 @@ for (const mode of ["low", "high"] as const) {
       // R-WORLD-012: the shadow carries a bias and a normal bias and reaches over the place's width, not the city's.
       expect(seen?.shadow?.bias ?? 0, id).toBeLessThan(0);
       expect(seen?.shadow?.normalBias ?? 0, id).toBeGreaterThan(0);
-      expect(seen?.shadow?.reach ?? Infinity, id).toBeLessThanOrEqual((seen?.shot?.width ?? 0) / 2 + 4 + 1e-6);
+      // A place narrower than 16 m keeps the scene's least reach of 8 m either side (CityScene.tsx, since the raised shot),
+      // which a wide home seen whole straight down its length is (decision 0040); the city's reach is 24.
+      expect(seen?.shadow?.reach ?? Infinity, id).toBeLessThanOrEqual(Math.max(seen?.shot?.width ?? 0, 16) / 2 + 4 + 1e-6);
+      expect(seen?.shadow?.reach ?? Infinity, id).toBeLessThan(24);
     }
   });
 }

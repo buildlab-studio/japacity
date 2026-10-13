@@ -79,6 +79,8 @@ async function fakeServer(page: Page): Promise<{ sent: string[]; scenarios: Id<"
 }
 
 test("[R-ACCOUNT-030] a guest ends the life from Settings by a hold, the door opens filled in, and Begin starts the new life under the same guest", async ({ page }, info) => {
+  // The hold, the door and the years of the new page as the faked server plays them, which a loaded machine stretches.
+  test.setTimeout(120_000);
   if (info.project.name.startsWith("Pixel")) await page.setViewportSize({ width: 390, height: 844 });
   const faked = await fakeServer(page);
   await page.goto("/");

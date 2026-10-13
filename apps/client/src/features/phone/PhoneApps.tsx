@@ -174,6 +174,8 @@ export interface PhoneAppsProps {
    * (health.md R-HEALTH-007), above every app whichever is open and on the phone's home above its notices.
    */
   warnings?: ReactNode;
+  /** The phone's one sponsored tile, from the shell, standing among the tiles when the hour fills it (adverts.md R-ADVERT-002). */
+  advert?: ReactNode;
   /** The place the world shows, by id, for the Market. */
   here?: string | null;
 }
@@ -185,7 +187,7 @@ function areaPicture(area: string): ReactNode {
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null, warnings = null, here = null }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null, warnings = null, here = null, advert = null }: PhoneAppsProps) {
   const view = useView();
   const [app, act] = start === null ? [null, null] : start.split(":");
   const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards, briefs, warnings, here });
@@ -208,6 +210,12 @@ export function PhoneApps({ onClose, area, account = null, about = null, talk = 
                 </div>
               )}
               <Notices />
+              {/* The phone's one sponsored tile among its tiles, when the hour fills it online (adverts.md R-ADVERT-002). */}
+              {advert === null ? null : (
+                <div className="mt-4 flex justify-center px-4 empty:hidden" data-phone-advert>
+                  {advert}
+                </div>
+              )}
             </>
           }
           onOpen={(id) => {

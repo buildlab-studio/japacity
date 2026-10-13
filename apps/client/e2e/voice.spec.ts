@@ -3,9 +3,15 @@ import { join } from "node:path";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 // The visa interview, spoken (docs/design/06-audio.md, section 7), inside a faked in-app browser:
-// most players arrive through one. Ada's recorded life is loaded just as her application went in.
+// most players arrive through one. Ada's recorded life is loaded just as her application went in; the interview waits in
+// the world as an ask, opened from the line under the band.
 import { setpieceVoice, text } from "../../../packages/content/src/index";
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
+import { passOpeningWords } from "./door";
+import { LIVED, passCards, passHomeTeach, placeReady } from "./live";
+
+// The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
+test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
 const VOICED = "setpiece.credibility-interview";
 const PREVIEW = process.env.PREVIEW_DIR;
@@ -42,8 +48,26 @@ async function seed(page: Page, options: { saveData?: boolean } = {}): Promise<s
     },
     { stored: adaAtInterview(), saveData: options.saveData === true },
   );
-  await page.goto("/?classic");
+  await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
+  await page.goto(`/${LIVED}`);
+  await openTheAsk(page);
   return voice;
+}
+
+/**
+ * The interview waits in the world as an ask (R-WORLD-006): the line under the band opens the asks sheet, where the
+ * interview's lobby stands. Any card over the world is passed first.
+ */
+async function openTheAsk(page: Page): Promise<void> {
+  await passOpeningWords(page);
+  await placeReady(page);
+  await passHomeTeach(page);
+  await passCards(page);
+  const nudge = page.locator("[data-nudge-open]");
+  await expect(nudge).toBeVisible({ timeout: 30_000 });
+  await nudge.click();
+  await expect(page.locator("[data-world-sheet='asks']")).toBeVisible();
+  await expect(room(page)).toBeVisible();
 }
 
 async function shoot(page: Page, name: string, project: string): Promise<void> {
@@ -89,6 +113,7 @@ for (const [app, userAgent] of Object.entries(IN_APP)) {
     test.use({ userAgent });
 
     test("the interview is entered with a tap, spoken and shown, never waits on sound, and ends on the flat closing line", async ({ page }, info) => {
+      test.setTimeout(150_000);
       const voice = await seed(page);
       const lobby = room(page);
       await expect(lobby.getByRole("button", { name: "Enter the interview room" })).toBeVisible();
@@ -118,6 +143,7 @@ test.describe("saving data", () => {
   test.use({ userAgent: IN_APP.instagram });
 
   test("with data-saver on, nothing is fetched, the notice says why, and the interview plays in text", async ({ page }, info) => {
+    test.setTimeout(150_000);
     const voice = await seed(page, { saveData: true });
     await room(page).getByRole("button", { name: "Enter the interview room" }).click();
     await expect(page.locator("[data-sound-notice][data-notice-here]")).toHaveAttribute("data-sound-notice", "saver");
@@ -132,12 +158,14 @@ test.describe("saving data", () => {
 
 test.describe("muted", () => {
   test("muted from the room's switch, nothing is fetched from then on, and the switch is remembered after a reload", async ({ page }) => {
+    test.setTimeout(150_000);
     const voice = await seed(page);
     await room(page).getByRole("button", { name: "Mute the sound" }).click();
     const before = voice.length;
     await room(page).getByRole("button", { name: "Enter the interview room" }).click();
     await expect(room(page).locator("[data-answers='open']")).toBeVisible();
     await page.reload();
+    await openTheAsk(page);
     await expect(room(page).getByRole("button", { name: "Turn the sound on" })).toHaveAttribute("aria-pressed", "true");
     expect(voice.length).toBe(before);
   });

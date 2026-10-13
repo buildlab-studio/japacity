@@ -79,14 +79,15 @@ function Head({ brief, line }: { brief: Brief; line: string }) {
 
 /**
  * The mission card (R-WORLD-001 as the hand redraws it): handed by its person, their words first, one button. The card's
- * Let's go carries the opening's mark (`data-opening-go`), so whatever passed the opening card passes this one.
+ * Let's go carries the opening's mark (`data-opening-go`), so whatever passed the opening card passes this one; the card
+ * is marked open as a sheet is, so a staged ask waits for it to close (account.md R-ACCOUNT-023).
  */
 export function MissionCard({ brief, onGo }: { brief: Brief; onGo: () => void }) {
   useEffect(() => cue("open"), []);
   const now = brief.items.find((item) => item.now);
   return (
     <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-0 z-[46] px-3 pb-[max(12px,env(safe-area-inset-bottom))]">
-      <section className="brief-card pop pointer-events-auto flex max-h-[78dvh] flex-col gap-3 overflow-y-auto p-3.5" role="dialog" aria-label={say("ui.brief.label", { title: brief.title, name: brief.giver.name })} data-brief={brief.chapter} data-opening={brief.chapter}>
+      <section className="brief-card pop pointer-events-auto flex max-h-[78dvh] flex-col gap-3 overflow-y-auto p-3.5" role="dialog" aria-label={say("ui.brief.label", { title: brief.title, name: brief.giver.name })} data-brief={brief.chapter} data-opening={brief.chapter} data-open>
         <Giver brief={brief} />
         <p className="text-[15px] leading-snug" data-brief-line>
           “{brief.line}”
@@ -164,7 +165,7 @@ export function ChapterClose({ brief, line, next, after, onGo }: { brief: Brief;
     {/* The world dims behind the close, as behind any moment (R-WORLD-001), and the thumbs wait under it. */}
     <div aria-hidden className="motion-scrim fixed inset-0 z-[45] bg-scrim" data-brief-close-scrim />
     <CentredColumn className="pointer-events-none fixed inset-0 z-[46] flex flex-col justify-end px-3 pt-[max(76px,calc(env(safe-area-inset-top)+76px))] pb-[max(12px,env(safe-area-inset-bottom))]">
-      <div className="pointer-events-auto relative flex max-h-full flex-col gap-3 overflow-y-auto" role="dialog" aria-label={brief.title} data-brief-close={brief.chapter}>
+      <div className="pointer-events-auto relative flex max-h-full flex-col gap-3 overflow-y-auto" role="dialog" aria-label={brief.title} data-brief-close={brief.chapter} data-open>
         <section className="brief-card pop relative flex flex-col gap-3 p-3.5">
           <Giver brief={brief} />
           <Head brief={brief} line={line} />
