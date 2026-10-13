@@ -10,7 +10,7 @@ import type { BaseEvent, Content, Id, Save, State } from "./types";
 export const FIRST_INSTANCE = 1;
 
 /** The shape of the state this code builds. */
-export const STATE_SCHEMA = 3;
+export const STATE_SCHEMA = 4;
 
 /** A counter-backed IdSource, and a way to read where it got to. */
 export function idSource(start: number): IdSource & { peek(): number } {
@@ -107,10 +107,31 @@ function renamed(value: unknown, renames: Readonly<Record<string, string>>): unk
 }
 
 /**
+ * The slices whose shape grew inside them at schema 4 (decisions 0034, 0035): `turn.spent`, `offer.rolled` and
+ * `offer.rolledMonth`, and the body's qualities (`quality.belly`, `quality.energy`). A state of an older shape takes each
+ * missing field from its kind's `initial` (nothing spent this month, nothing rolled, the body where a new life starts);
+ * a field it holds is kept. None of these kinds hands out an instance id in `initial`, so a scratch source is used and
+ * the state's own count is left alone.
+ */
+const GREW_AT_4: readonly SliceKey[] = ["turn", "offer", "quality"];
+
+function grownTo4(kinds: Registry, state: State, scenario: Content["scenario"][Id<"scenario">], to: Content): Partial<Record<SliceKey, unknown>> {
+  if (state.schema >= 4) return {};
+  const grown: Partial<Record<SliceKey, unknown>> = {};
+  for (const kind of kinds) {
+    if (!GREW_AT_4.includes(kind.kind) || !(kind.kind in state)) continue;
+    const fresh = kind.initial(scenario, to, idSource(FIRST_INSTANCE)) as Record<string, unknown>;
+    grown[kind.kind] = { ...fresh, ...(state[kind.kind] as unknown as Record<string, unknown>) };
+  }
+  return grown;
+}
+
+/**
  * A state carried from one content to the next (R-SERVER-022, decision 0006):
  * ids renamed through the newer content's table, any slice the state lacks
- * built by its kind's `initial` (decision 0003), the schema raised to the
- * current shape and the newer content's version recorded. Pure. Between two
+ * built by its kind's `initial` (decision 0003), a slice that grew inside
+ * filled where the state's schema is older (`grownTo4`), the schema raised to
+ * the current shape and the newer content's version recorded. Pure. Between two
  * loads of the same version (a new overlay, R-SERVER-024) nothing is renamed.
  */
 export function upgradeStateWith(kinds: Registry, state: State, from: Content, to: Content): State {
@@ -121,7 +142,7 @@ export function upgradeStateWith(kinds: Registry, state: State, from: Content, t
   const scenario = to.scenario[moved.scenario];
   if (scenario === undefined) throw new Error(`The content ${to.version} has no scenario ${moved.scenario}.`);
   const ids = idSource(moved.nextInstance);
-  const slices: Partial<Record<SliceKey, unknown>> = {};
+  const slices: Partial<Record<SliceKey, unknown>> = grownTo4(kinds, moved, scenario, to);
   for (const kind of kinds) {
     if (!(kind.kind in moved)) slices[kind.kind] = kind.initial(scenario, to, ids);
   }
