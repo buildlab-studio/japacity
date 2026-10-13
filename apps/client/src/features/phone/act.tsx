@@ -74,7 +74,7 @@ export function Refused() {
   const dismiss = useGame((state) => state.dismissRejection);
   if (rejection === null) return null;
   return (
-    <div role="alert" className="mb-3 flex items-start gap-2 rounded-[6px] border border-out/40 bg-sheet-2 p-2.5 text-[14px] text-out">
+    <div role="alert" className="shake lively-card mb-3 flex items-start gap-2 p-3 text-[15px] text-out">
       <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden />
       <p className="flex-1">{rejection.words}</p>
       <button type="button" onClick={dismiss} aria-label={phoneWords("ui.dismiss")} className="flex size-7 items-center justify-center">
@@ -84,17 +84,17 @@ export function Refused() {
   );
 }
 
-/** A small heading inside an app. */
+/** A small heading inside an app, in sentence case as the after set's phone pages head their lists ("Your briefs"). */
 export function Head({ children }: { children: ReactNode }) {
-  return <h3 className="label mt-4 mb-1.5 text-text-2 first:mt-0">{children}</h3>;
+  return <h3 className="mt-5 mb-2 px-0.5 text-[15px] font-semibold text-text-2 first:mt-1">{children}</h3>;
 }
 
-/** A choice among a few, as chips: the phone never shows a form. */
+/** A choice among a few, as one segmented pill: the phone never shows a form. */
 export function Chips<T extends string>({ label, value, options, onChange, shown = false }: { label: string; value: T; options: readonly { value: T; label: string }[]; onChange: (value: T) => void; shown?: boolean }) {
   return (
-    <div role="radiogroup" aria-label={label} className="flex flex-wrap items-center gap-1.5">
+    <div role="radiogroup" aria-label={label} className={`flex flex-wrap items-center gap-1 ${shown ? "" : "phone-segment p-1"}`}>
       {shown ? (
-        <span className="label w-full text-[10px] text-text-2" aria-hidden>
+        <span className="w-full px-0.5 text-[13px] font-semibold text-text-2" aria-hidden>
           {label}
         </span>
       ) : null}
@@ -105,7 +105,7 @@ export function Chips<T extends string>({ label, value, options, onChange, shown
           role="radio"
           aria-checked={option.value === value}
           onClick={() => onChange(option.value)}
-          className={`press min-h-10 rounded-[5px] px-3 text-[14px] font-bold ${option.value === value ? "btn-dark" : "border border-sheet-line bg-sheet-2 text-text"}`}
+          className={`press min-h-10 flex-1 px-4 text-[15px] font-bold whitespace-nowrap ${option.value === value ? "phone-segment-on" : "text-text-2"}`}
         >
           {option.label}
         </button>

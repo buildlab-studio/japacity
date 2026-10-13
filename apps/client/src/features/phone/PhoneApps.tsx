@@ -2,9 +2,13 @@
 // shell: `usePhoneApps` gives the contract's `PhoneApp` list, `usePhoneWaiting` the dot for the
 // Phone button (R-WORLD-004), and `PhoneApps` the whole handset with its apps. What the phone needs
 // from other features (the account's settings, the pair routes) the shell hands in.
+import { content } from "@japacity/content";
 import type { ReactNode } from "react";
 
 import { useJapaMark } from "../../shared/world/briefHanded";
+import { Tile } from "../../shared/tiles/Tile";
+import { TILE_TABLE } from "../../shared/tiles/tiles.data";
+import { nameOf } from "../../shared/words/text";
 import { useGame, useView } from "../../authority/GameProvider";
 import { todayWords } from "../../shared/words/format";
 import type { PhoneApp } from "../../shared/world/contract";
@@ -136,6 +140,12 @@ export interface PhoneAppsProps {
   onMap?: (stop: string) => void;
 }
 
+/** The place's picture for the wallpaper's pill: the place whose name the shell hands in, where the tiles have one. */
+function areaPicture(area: string): ReactNode {
+  const place = Object.values(content.place).find((entry) => nameOf(entry.id) === area && TILE_TABLE[entry.id] !== undefined);
+  return place === undefined ? null : <Tile of={place.id} size={26} />;
+}
+
 /** The handset with its apps, ready for the shell to show over the world. */
 export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap }: PhoneAppsProps) {
   const view = useView();
@@ -150,6 +160,7 @@ export function PhoneApps({ onClose, area, account = null, about = null, talk = 
           onClose={onClose}
           area={area}
           when={todayWords(now?.())}
+          areaPicture={areaPicture(area)}
           start={app ?? null}
           notices={<Notices />}
           onOpen={(id) => {

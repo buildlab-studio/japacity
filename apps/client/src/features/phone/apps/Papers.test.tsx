@@ -181,7 +181,9 @@ describe("a paper that lands or moves", () => {
     // Never an interruption: the phone opens on its home screen.
     expect(document.querySelector("[data-app-screen]")).toBeNull();
     const notice = document.querySelector<HTMLElement>(`[data-paper-notice="issued.${TRANSCRIPT}"]`);
-    expect(notice?.textContent).toBe("Your transcript is ready to collect.");
+    // A notice names its app over its words, as the after set's lock screen does.
+    expect(notice?.querySelector("[data-notice-words]")?.textContent).toBe("Your transcript is ready to collect.");
+    expect(notice?.textContent).toBe(`${phoneWords("phone.app.papers")}Your transcript is ready to collect.`);
     expect(document.querySelector('[data-app="papers"] [data-dot]')).not.toBeNull();
     fireEvent.click(notice!);
     expect(document.querySelector("[data-app-screen]")?.getAttribute("data-app-screen")).toBe("papers");
@@ -215,7 +217,7 @@ describe("a paper that lands or moves", () => {
   test("[R-WORLD-030] given a paper notice and the character on the street, when the phone opens, then the paper is told all the same, as a message from the office, while the month's own lines wait for home", async () => {
     localStorage.setItem(CITY_LAST_KEY, JSON.stringify(["place.yaba"]));
     await openPhone(withReport(adaPlanned(), [verified]));
-    expect(document.querySelector('[data-paper-notice="issued.document.nmcn-verification"]')?.textContent).toBe("The council has verified your licence.");
+    expect(document.querySelector('[data-paper-notice="issued.document.nmcn-verification"] [data-notice-words]')?.textContent).toBe("The council has verified your licence.");
   });
 });
 

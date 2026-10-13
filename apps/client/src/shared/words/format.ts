@@ -83,7 +83,8 @@ export function monthEnding(raw: number): number {
 
 /** The real date for the phone's wallpaper and a slip's reference, since the world runs on the real calendar (R-WORLD-002). */
 export function todayWords(now: Date = new Date()): string {
-  return new Intl.DateTimeFormat("en-NG", { weekday: "short", day: "numeric", month: "short" }).format(now);
+  // The day in words as the lock screen says it ("Tuesday 13 October"), the British order Nigeria writes dates in.
+  return new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }).format(now);
 }
 
 const plain = new Intl.NumberFormat("en-NG", { maximumFractionDigits: 0 });

@@ -121,11 +121,16 @@ function PaperNotices({ skip }: { skip: ReadonlySet<string> }) {
           <button
             type="button"
             onClick={() => nav.openApp("papers")}
-            className="press pop flex w-full items-start gap-2 rounded-[12px] bg-sheet/90 px-3 py-2 text-left text-[14px] leading-snug text-text shadow-[0_4px_10px_rgba(10,14,30,0.25)]"
+            className="phone-notice press pop flex w-full items-center gap-3 px-3 py-2.5 text-left"
             data-paper-notice={`${notice.kind}.${notice.document}`}
           >
-            <FolderOpen size={16} aria-hidden className="mt-0.5 shrink-0 text-text-2" />
-            <span className="min-w-0 flex-1">{paperNoticeWords(notice, view.month)}</span>
+            <span className="phone-app-tile flex size-10 shrink-0 items-center justify-center rounded-[12px] text-white" style={{ background: "var(--app-papers)" }} aria-hidden>
+              <FolderOpen size={20} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[13px] font-semibold text-text-2">{phoneWords("phone.app.papers")}</span>
+              <span className="block text-[15px] leading-snug font-bold" data-notice-words>{paperNoticeWords(notice, view.month)}</span>
+            </span>
           </button>
         </li>
       ))}
@@ -170,7 +175,7 @@ function MonthNotices() {
   if (!home) {
     if (waiting.length === 0) return null;
     return (
-      <p className="mx-4 mt-4 self-start rounded-[12px] bg-sheet/85 px-3 py-2 text-[13px] font-semibold text-text-2" data-phone-away>
+      <p className="phone-notice mx-4 mt-4 self-start px-3 py-2 text-[14px] font-semibold" data-phone-away>
         {waiting.length === 1 ? say("ui.days.away.one") : say("ui.days.away.many", { count: waiting.length })}
       </p>
     );
@@ -179,7 +184,7 @@ function MonthNotices() {
   return (
     <ul className="mt-4 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-4" aria-label={say("ui.days.notices")} data-phone-notices>
       {[...due].reverse().map((signal) => (
-        <li key={signal.key} className="pop rounded-[12px] bg-sheet/90 px-3 py-2 text-[14px] leading-snug text-text shadow-[0_4px_10px_rgba(10,14,30,0.25)]" data-notice={signal.key}>
+        <li key={signal.key} className="phone-notice pop px-3.5 py-2.5 text-[15px] leading-snug font-semibold" data-notice={signal.key}>
           {say(signal.key)}
         </li>
       ))}
