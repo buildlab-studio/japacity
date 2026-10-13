@@ -63,7 +63,7 @@ export function withComputerAfterMonths(base: Content, months: number): Content 
 /** The contents a transaction runs under: the current one with the partner dial applied. */
 export async function dialedContents(deps: Reads): Promise<Contents> {
   const current = withComputerAfterMonths(deps.contents.current, await computerAfterMonths(deps));
-  return current === deps.contents.current ? deps.contents : { current, previous: deps.contents.previous };
+  return current === deps.contents.current ? deps.contents : { ...deps.contents, current };
 }
 
 /**
@@ -72,7 +72,7 @@ export async function dialedContents(deps: Reads): Promise<Contents> {
  * the name. Null when the server bundles none of them.
  */
 export function namedContent(contents: Contents, version: string, overlay: string | undefined): Content | null {
-  const bundled = [contents.current, contents.previous].flatMap((content) => (content === null ? [] : [content, baseOf.get(content) ?? content]));
+  const bundled = [contents.current, contents.previous, ...(contents.older ?? [])].flatMap((content) => (content === null ? [] : [content, baseOf.get(content) ?? content]));
   const exact = bundled.find((content) => content.version === version && content.overlay === overlay);
   if (exact !== undefined) return exact;
   const at = overlay?.lastIndexOf(COMPUTER_DIAL) ?? -1;

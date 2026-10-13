@@ -21,8 +21,9 @@ type Totals = WalletSlice["totals"];
 export const TICKS_PER_DRAW = 14;
 
 function contentOf(deps: Pick<ServerDeps, "contents">, state: State): Content {
-  const { current, previous } = deps.contents;
-  return previous !== null && previous.version === state.content && current.version !== state.content ? previous : current;
+  const { current, previous, older = [] } = deps.contents;
+  if (current.version === state.content) return current;
+  return [previous, ...older].find((content) => content !== null && content.version === state.content) ?? current;
 }
 
 /** The totals a mark holds: the transfers `convert`, `move` and `remit` left out, as `ledgerReport` does. */

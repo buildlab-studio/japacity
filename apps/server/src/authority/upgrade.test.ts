@@ -1,18 +1,21 @@
-import { content } from "@japacity/content";
-import type { Content, FlatSave, Overlay, World } from "@japacity/sim";
+import { content, PREVIOUS_CONTENT_VERSION } from "@japacity/content";
+import type { Content, FlatSave, Overlay, State, World } from "@japacity/sim";
 import { applyOverlay, checkInvariants, hashState, newState, offlineCalendar, replay, stepWorld, upgradeState, viewFor } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { lifeSaves } from "../../../../packages/sim/src/goldens/lives.data";
 import { productionConfig } from "../config";
 import { upgradeCharacter } from "./command";
-import { apply } from "./load";
+import { apply, contentNamed } from "./load";
+import { contentsFor, withContentBefore } from "./overlay";
 import type { TestServer } from "./testing";
 import { held, newLife, restMonth, send, signUp, testServer, view } from "./testing";
 import { transact } from "./transaction";
 
 const { epoch, worldTickMs } = productionConfig.clock;
-const previous: Content = { ...content, version: "m0.0" };
+/** The contents the worker bundles (R-SERVER-023): the current content and the version before it. */
+const bundled = withContentBefore(contentsFor(content, undefined), content);
+const previous: Content = contentNamed(bundled, PREVIOUS_CONTENT_VERSION, undefined);
 const dials: Overlay = { version: "dials-1", tuning: { director: { surgePerTick: 4 } } };
 
 /** The stand-in worlds a recorded life was played on, stored as the server's ticks under the previous content. */
@@ -60,6 +63,11 @@ async function storeLife(server: TestServer, save: FlatSave): Promise<{ id: stri
   return { id, worlds };
 }
 
+/** A copy of `value` without the named keys. */
+function without(value: object, keys: readonly string[]): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(value).filter(([key]) => !keys.includes(key)));
+}
+
 describe("old saves", () => {
   test.each(Object.entries(lifeSaves))(
     "[R-SERVER-020] [R-SERVER-021] [R-SERVER-023] given the golden life %s stored under the previous content, when its view is fetched under the current one, then its end state is upgraded, checked and made the base of a new segment in that one transaction",
@@ -70,10 +78,11 @@ describe("old saves", () => {
       const upgraded = upgradeState(ended, previous, content);
       expect(checkInvariants(upgraded, content)).toEqual([]);
 
-      server.deps.contents = { current: content, previous };
+      server.deps.contents = bundled;
       const reply = await view(server, "acc-1");
       if (!reply.body.ok) throw new Error(reply.body.detail);
       const stored = await held(server, id);
+      expect([previous.version, content.version]).toEqual(["m0.1", "m0.2"]);
       expect(stored.segments.map((segment) => [segment.segment, segment.content, segment.fromV])).toEqual([
         [0, previous.version, 0],
         [1, content.version, ended.v],
@@ -132,5 +141,47 @@ describe("old saves", () => {
     expect(stored.segments.map((segment) => segment.content)).toEqual([previous.version, content.version]);
     expect(stored.tail).toEqual([]);
     expect(stored.snapshot.state.turn.banked).toBe(content.tuning.turn.cap - 1);
+  });
+
+  test("[R-SERVER-021] [R-SERVER-022] [R-SERVER-023] given a character stored under m0.1 by the code before schema 4 (no spent half-days, no offers rolled, no body), when its view is fetched under m0.2, then the new segment's base has them filled as a new life starts them, at schema 4, and the invariants hold", async () => {
+    const server = testServer();
+    await storeWorlds(server, "golden-world", 0);
+    server.setNow(epoch);
+    await signUp(server, "acc-1");
+    const id = "character-schema-3";
+    const fresh = newState("scenario.tunde", "seed-3", previous);
+    const turn = without(fresh.turn, ["spent"]);
+    const offer = without(fresh.offer, ["rolled", "rolledMonth"]);
+    const quality = without(fresh.quality, ["quality.belly", "quality.energy"]);
+    const older = { ...fresh, schema: 3, turn, offer, quality } as unknown as State;
+    const start = { scenario: fresh.scenario, seed: fresh.seed, worldSeed: "golden-world" };
+    await server.deps.stores.player.create({ id, account: "acc-1", refilledAt: server.deps.now(), content: previous.version, start, state: older });
+    await server.deps.stores.account.setCharacter("acc-1", id);
+    server.deps.contents = bundled;
+    const reply = await view(server, "acc-1");
+    if (!reply.body.ok) throw new Error(reply.body.detail);
+    const stored = await held(server, id);
+    expect(stored.segments.map((segment) => segment.content)).toEqual(["m0.1", "m0.2"]);
+    const base = stored.snapshot.state;
+    expect(base.schema).toBe(4);
+    expect(base.turn.spent).toBe(0);
+    expect([base.offer.rolled, base.offer.rolledMonth]).toEqual([0, 0]);
+    const now = newState("scenario.tunde", "seed-3", content);
+    expect([base.quality["quality.belly"], base.quality["quality.energy"]]).toEqual([now.quality["quality.belly"], now.quality["quality.energy"]]);
+    expect(base).toEqual(now);
+    expect(checkInvariants(base, content)).toEqual([]);
+  });
+
+  test("[R-SERVER-023] [R-SERVER-024] given the worker's contents with and without an overlay, when a segment names m0.1 or m0.2, then each is bundled under its own overlay", () => {
+    const plain = withContentBefore(contentsFor(content, undefined), content);
+    expect(contentNamed(plain, "m0.2", undefined)).toBe(content);
+    expect(contentNamed(plain, "m0.1", undefined)).toEqual({ ...content, version: "m0.1" });
+    const overlaid = withContentBefore(contentsFor(content, JSON.stringify(dials)), content);
+    expect(contentNamed(overlaid, "m0.2", "dials-1")).toBe(overlaid.current);
+    expect(contentNamed(overlaid, "m0.2", undefined)).toBe(content);
+    expect(contentNamed(overlaid, "m0.1", undefined)).toEqual({ ...content, version: "m0.1" });
+    expect(contentNamed(overlaid, "m0.1", "dials-1")).toEqual({ ...overlaid.current, version: "m0.1" });
+    expect(() => contentNamed(plain, "m0.0", undefined)).toThrow(/bundles no content m0.0/);
+    expect(withContentBefore(contentsFor(content, undefined), content, content.version)).toEqual({ current: content, previous: null });
   });
 });

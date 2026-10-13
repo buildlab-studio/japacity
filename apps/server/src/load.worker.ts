@@ -6,7 +6,7 @@
 import { content } from "@japacity/content";
 
 import { makeApp } from "./app";
-import { contentsFor } from "./authority/overlay";
+import { contentsFor, withContentBefore } from "./authority/overlay";
 import { testConfig } from "./config";
 import { memoryStores, testSession, webRandomBytes } from "./deps";
 import type { ServerDeps } from "./deps";
@@ -31,7 +31,7 @@ function appFor(env: LoadEnv): ReturnType<typeof makeApp> {
   const deps: ServerDeps = {
     config,
     stores: { ...stores, player: countingPlayerStore(stores.player, counts) },
-    contents: contentsFor(content, undefined),
+    contents: withContentBefore(contentsFor(content, undefined), content),
     secrets: { worldSeed: env.WORLD_SEED ?? "load-world-seed", banSalt: "load-ban-salt", drawTokenKey: "load-draw-token-key" },
     limits: { commands10s: env.COMMANDS_10S, commands60s: env.COMMANDS_60S, reads60s: env.READS_60S, anon60s: env.ANON_60S, socket10s: env.SOCKET_10S },
     session: testSession(config),
