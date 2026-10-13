@@ -157,7 +157,7 @@ export const routeText: Record<string, string> = {
   "route.plan.back": "Back",
   "route.plan.make": "Make this the plan",
   "route.plan.mine": "This is your plan.",
-  "route.plan.next": "Your file follows this way from the next chapter.",
+  "route.plan.next": "Your file follows this way once this part of the road is done.",
   // The plan's marks in Coming up: what waits on a date for the plan's way.
   "route.plan.mark.school": "{school}'s answer",
   "route.plan.mark.pool": "Your profile in the pool runs out",
