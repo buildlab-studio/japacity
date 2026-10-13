@@ -1,0 +1,211 @@
+/* The painted map (docs/rules/world.md R-WORLD-015; the second design). One paper in two paints: the day's pale paper
+   and soft lagoon, the night's navy paper with lit windows and glowing stickers. Lines and names keep their size on the
+   screen whatever the zoom: each view sets --z, how many screen pixels a paper unit takes, and every width divides by it. */
+.paper {
+  --paper: #f8f1df;
+  --water: #bee2f4;
+  --sea: #a6d3ee;
+  --glowc: #e2f4fc;
+  --coastc: #6fa8c9;
+  --beach: #fbefcf;
+  --park: #d3eac2;
+  --road: #fffcf2;
+  --line: #1b2a4a;
+  --pier: #7fa9c2;
+  --bshadow: rgba(27, 42, 74, 0.16);
+  --wall: #ffffff;
+  --win: #a9c8dd;
+  --tree: #8ccb7a;
+  --tree-hi: #b7e3a6;
+  --wave: #ffffff;
+  --palm: #4faf6e;
+  --label: #1b2a4a;
+  --halo: rgba(255, 255, 255, 0.92);
+  --waterl: #3f7fa6;
+  --ferry: #5e8fb0;
+  --frame: #ffffff;
+  --frame-edge: #1b2a4a;
+  --roof-0: #ee8e73;
+  --roof-1: #6bb5ac;
+  --roof-2: #f4c25a;
+  --roof-3: #93b8e8;
+  --roof-4: #e9a3ba;
+  --lamps: none;
+  --glow-sticker: rgba(20, 40, 50, 0.3);
+}
+[data-paint="night"] .paper,
+.paper[data-paint="night"] {
+  --paper: #223056;
+  --water: #121d3b;
+  --sea: #0d1731;
+  --glowc: #1a2a50;
+  --coastc: #3e5788;
+  --beach: #2b3a62;
+  --park: #263e5a;
+  --road: #9c957f;
+  --line: #0e1630;
+  --pier: #3a4c78;
+  --bshadow: rgba(0, 0, 0, 0.35);
+  --wall: #3a4b76;
+  --win: #ffd66b;
+  --tree: #2f5a55;
+  --tree-hi: #3d6e66;
+  --wave: #3b5288;
+  --palm: #2f6b57;
+  --label: #f6edd8;
+  --halo: rgba(14, 22, 48, 0.9);
+  --waterl: #7e9ccb;
+  --ferry: #4a6496;
+  --frame: #1f2c4d;
+  --frame-edge: #f6edd8;
+  --roof-0: #6b5a7a;
+  --roof-1: #4c6e78;
+  --roof-2: #7c6a48;
+  --roof-3: #4f6390;
+  --roof-4: #7a5568;
+  --lamps: #ffd66b;
+  --glow-sticker: rgba(255, 205, 110, 0.6);
+}
+
+.paper-svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.paper-svg .water { fill: var(--water); }
+.paper-svg .sea { fill: var(--sea); }
+.paper-svg .wave { fill: none; stroke: var(--wave); stroke-width: calc(1.5px / var(--z, 1)); stroke-linecap: round; }
+.paper-svg .beach { fill: none; stroke: var(--beach); stroke-width: 7; stroke-linecap: round; }
+.paper-svg .glow { fill: none; stroke: var(--glowc); stroke-width: calc(14px / var(--z, 1)); stroke-linejoin: round; }
+.paper-svg .land { fill: var(--paper); stroke: var(--coastc); stroke-width: calc(1.4px / var(--z, 1)); }
+.paper-svg .park { fill: var(--park); }
+.paper-svg .tree { fill: var(--tree); stroke: var(--line); stroke-width: 0.6; }
+.paper-svg .tree-light { fill: var(--tree-hi); }
+.paper-svg .wall { fill: var(--wall); stroke: var(--line); stroke-width: 0.6; }
+.paper-svg .roof { stroke: var(--line); stroke-width: 0.6; stroke-linejoin: round; }
+.paper-svg .roof-0 { fill: var(--roof-0); }
+.paper-svg .roof-1 { fill: var(--roof-1); }
+.paper-svg .roof-2 { fill: var(--roof-2); }
+.paper-svg .roof-3 { fill: var(--roof-3); }
+.paper-svg .roof-4 { fill: var(--roof-4); }
+.paper-svg .window { fill: var(--win); }
+.paper-svg .road-edge, .paper-svg .road { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.paper-svg .road-edge { stroke: var(--line); }
+.paper-svg .road { stroke: var(--road); }
+.paper-svg .road-edge.main { stroke-width: calc(9px / var(--z, 1)); }
+.paper-svg .road.main { stroke-width: calc(6.6px / var(--z, 1)); }
+.paper-svg .road-edge.minor { stroke-width: calc(6.5px / var(--z, 1)); }
+.paper-svg .road.minor { stroke-width: calc(4.4px / var(--z, 1)); }
+.paper-svg .bridge path { fill: none; stroke-linecap: round; }
+.paper-svg .bridge-shadow { stroke: var(--bshadow); stroke-width: calc(16px / var(--z, 1)); transform: translate(calc(2px / var(--z, 1)), calc(4px / var(--z, 1))); }
+.paper-svg .bridge-piers { stroke: var(--pier); stroke-width: calc(13px / var(--z, 1)); stroke-dasharray: calc(1.5px / var(--z, 1)) calc(9px / var(--z, 1)); stroke-linecap: butt !important; }
+.paper-svg .bridge-edge { stroke: var(--line); stroke-width: calc(10.5px / var(--z, 1)); }
+.paper-svg .bridge-deck { stroke: var(--road); stroke-width: calc(8px / var(--z, 1)); }
+.paper-svg .bridge-lamps { stroke: var(--lamps); stroke-width: calc(2.6px / var(--z, 1)); stroke-dasharray: 0 calc(11px / var(--z, 1)); }
+.paper-svg .ferry-line { fill: none; stroke: var(--ferry); stroke-width: calc(1.6px / var(--z, 1)); stroke-dasharray: calc(5px / var(--z, 1)) calc(6px / var(--z, 1)); stroke-linecap: round; }
+.paper-svg .palm-trunk { fill: none; stroke: #9b6b43; stroke-width: 2.2; stroke-linecap: round; }
+.paper-svg .palm { fill: var(--palm); stroke: var(--line); stroke-width: 0.7; }
+.paper-svg .lm-edge { stroke: #1b2a4a; stroke-width: 1.3; }
+.paper-svg .lm-park { fill: var(--park); stroke: var(--line); stroke-width: 1; }
+.paper-svg .lm-win { stroke: var(--win); stroke-width: 1.3; }
+.paper-svg .lm { filter: drop-shadow(0 0 0.8px #fff) drop-shadow(0 1.2px 1px rgba(20, 40, 50, 0.3)); }
+.paper-svg text { font-family: Rubik, system-ui, sans-serif; text-anchor: middle; paint-order: stroke; stroke-linejoin: round; }
+.paper-svg .district { font-weight: 700; fill: var(--label); stroke: var(--halo); font-size: calc(var(--s) * 1px / var(--z, 1)); stroke-width: calc(3.2px / var(--z, 1)); }
+.paper-svg .water-name { font-weight: 500; fill: var(--waterl); opacity: 0.85; letter-spacing: 0.5px; font-size: calc(var(--s) * 1px / var(--z, 1)); stroke: none; }
+.paper-svg .bridge-name { font-weight: 500; fill: var(--waterl); font-size: calc(8.5px / var(--z, 1)); stroke: none; }
+.paper-svg .route-edge, .paper-svg .route { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.paper-svg .route-edge { stroke: #1b2a4a; stroke-width: calc(9px / var(--z, 1)); stroke-dasharray: 0 calc(12px / var(--z, 1)); }
+.paper-svg .route { stroke: #f6b800; stroke-width: calc(6px / var(--z, 1)); stroke-dasharray: 0 calc(12px / var(--z, 1)); animation: paper-ants 1.2s linear infinite; }
+@keyframes paper-ants { to { stroke-dashoffset: calc(-24px / var(--z, 1)); } }
+
+/* Folded into the strip: the land, the water, the main roads and the bridges only, each line its own width however
+   flat the fold. */
+.paper-folded path, .paper-folded ellipse { vector-effect: non-scaling-stroke; }
+.paper-folded .glow { stroke-width: 3px; }
+.paper-folded .land { stroke-width: 1px; }
+.paper-folded .road-edge.main { stroke-width: 2.6px; }
+.paper-folded .road.main { stroke-width: 1.3px; }
+.paper-folded .bridge-edge { stroke-width: 4px; }
+.paper-folded .bridge-deck { stroke-width: 2.4px; }
+.paper-folded .bridge-lamps { stroke-width: 3px; stroke-dasharray: 0 6px; }
+.paper-folded .route-edge { stroke-width: 5px; stroke-dasharray: none; }
+.paper-folded .route { stroke-width: 3px; stroke-dasharray: none; animation: none; }
+[data-paint="night"] .paper-folded .bridge-deck { stroke: #c9c0a4; }
+
+/* The cards draw the roads a little wider, as a zoomed-in map does. */
+.paper-card .road-edge.main { stroke-width: calc(14px / var(--z, 1)); }
+.paper-card .road.main { stroke-width: calc(10.5px / var(--z, 1)); }
+.paper-card .road-edge.minor { stroke-width: calc(9px / var(--z, 1)); }
+.paper-card .road.minor { stroke-width: calc(6.5px / var(--z, 1)); }
+.paper-card .bridge-edge { stroke-width: calc(15px / var(--z, 1)); }
+.paper-card .bridge-deck { stroke-width: calc(12px / var(--z, 1)); }
+.paper-card .bridge-shadow { stroke-width: calc(22px / var(--z, 1)); }
+.paper-card .bridge-piers { stroke-width: calc(19px / var(--z, 1)); }
+
+/* The world: the paper and what stands on it, moved and zoomed as one. */
+.paper-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.paper-world .stk { position: absolute; left: 0; top: 0; line-height: 0; pointer-events: none; }
+.paper-world .stk img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.paper-cut { filter: drop-shadow(var(--e, 1.5px) 0 0 var(--cut)) drop-shadow(calc(var(--e, 1.5px) * -1) 0 0 var(--cut)) drop-shadow(0 var(--e, 1.5px) 0 var(--cut)) drop-shadow(0 calc(var(--e, 1.5px) * -1) 0 var(--cut)) drop-shadow(0 3px 3px var(--glow-sticker)); }
+[data-paint="night"] .paper-cut { filter: drop-shadow(var(--e, 1.5px) 0 0 #fff) drop-shadow(calc(var(--e, 1.5px) * -1) 0 0 #fff) drop-shadow(0 var(--e, 1.5px) 0 #fff) drop-shadow(0 calc(var(--e, 1.5px) * -1) 0 #fff) drop-shadow(0 0 7px var(--glow-sticker)); }
+.paper-world .boat { animation: paper-drift 7s ease-in-out infinite; }
+.paper-world .boat:nth-child(2n) { animation-duration: 9s; animation-delay: -3s; }
+@keyframes paper-drift { 0%, 100% { translate: 0 0; } 50% { translate: 2px -1px; } }
+
+/* A place's sticker: the pin itself, the same size on the screen whatever the zoom (--inv undoes the world's zoom). */
+.paper-pin { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: scale(var(--inv, 1)) translate(-50%, -72%); display: flex; flex-direction: column; align-items: center; background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.paper-pin[data-state="not"] .paper-cut { opacity: 0.55; filter: grayscale(0.7); }
+.paper-pin .paper-ring { position: absolute; left: 50%; top: 72%; width: calc(100% + 22px); aspect-ratio: 1.8; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #f6b800; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7); pointer-events: none; z-index: -1; }
+.paper-pin .paper-ring[data-ring="picked"], .paper-pin .paper-ring[data-ring="step"] { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7), 0 0 18px rgba(246, 184, 0, 0.55); }
+.paper-name { position: absolute; left: 50%; white-space: nowrap; font-weight: 600; border-radius: 999px; transform: translateX(-50%); pointer-events: none; line-height: 1.2; }
+.paper-name[data-name="here"] { top: calc(100% - 4px); background: #fff; color: #1b2a4a; font-size: 13px; padding: 4px 11px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }
+.paper-name[data-name="home"] { top: calc(100% - 4px); background: #1b2a4a; color: #fff; font-size: 13px; padding: 4px 11px; box-shadow: 0 0 0 2px #fff, 0 3px 6px rgba(0, 0, 0, 0.25); }
+.paper-name[data-name="picked"], .paper-name[data-name="step"] { bottom: calc(100% + 4px); background: #fff; color: #1b2a4a; font-size: 15px; padding: 6px 13px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 4px 0 #1b2a4a; }
+.paper-name[data-name="new"] { top: calc(100% - 2px); background: rgba(255, 255, 255, 0.92); color: #1b2a4a; font-size: 11px; padding: 2px 7px; box-shadow: 0 0 0 1px rgba(27, 42, 74, 0.35); }
+[data-paint="night"] .paper-name[data-name="here"] { box-shadow: 0 0 0 1.5px #f6edd8, 0 3px 0 #f6edd8; }
+[data-paint="night"] .paper-name[data-name="home"] { background: #f6edd8; color: #1b2a4a; box-shadow: 0 0 0 2px #1b2a4a; }
+.paper-danfo { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: scale(var(--inv, 1)) translate(-50%, -60%); pointer-events: none; animation: paper-bob 1.6s ease-in-out infinite; }
+@keyframes paper-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-svg .route, .paper-world .boat, .paper-danfo { animation: none !important; }
+}
+
+/* The screen around the paper: the round white buttons, the strip, the cards and their pager, the open map. */
+.map-pill { background: #fff; color: #1b2a4a; border-radius: 999px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }
+.map-round { background: #fff; color: #1b2a4a; border-radius: 50%; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }
+[data-paint="night"] .map-pill, [data-paint="night"] .map-round { background: #1f2c4d; color: #f6edd8; box-shadow: 0 0 0 1.5px #f6edd8, 0 3px 0 #f6edd8; }
+.paper { background: var(--sheet); }
+.paper-strip { position: absolute; left: 12px; right: 12px; top: max(12px, env(safe-area-inset-top)); height: 92px; z-index: 6; padding: 0; border: 0; background: var(--frame); border-radius: 20px; box-shadow: 0 0 0 1.5px var(--frame-edge), 0 4px 0 var(--frame-edge), 0 10px 20px rgba(20, 40, 50, 0.15); cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.paper-strip-in { position: absolute; inset: 4px; border-radius: 16px; overflow: hidden; background: var(--water); }
+.paper-pull { position: absolute; left: 50%; bottom: -12px; width: 36px; height: 5px; margin-left: -18px; border-radius: 9px; background: rgba(27, 42, 74, 0.28); }
+[data-paint="night"] .paper-pull { background: rgba(246, 237, 216, 0.35); }
+.paper-mk { position: absolute; transform: translate(-50%, -50%); line-height: 0; pointer-events: none; }
+.paper-youdot { display: block; width: 11px; height: 11px; border-radius: 50%; background: #1b2a4a; box-shadow: 0 0 0 2.5px #fff, 0 2px 3px rgba(0, 0, 0, 0.3); }
+[data-paint="night"] .paper-youdot { background: #f6edd8; box-shadow: 0 0 0 2.5px #1b2a4a; }
+.paper-stepdot { display: block; width: 12px; height: 12px; border-radius: 50%; background: #f6b800; box-shadow: 0 0 0 2px #1b2a4a, 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 10px rgba(246, 184, 0, 0.8); }
+.paper-stripname { display: inline-block; line-height: 1.2; background: #1b2a4a; color: #fff; font-weight: 600; font-size: 10.5px; border-radius: 999px; padding: 2px 7px; box-shadow: 0 0 0 1.5px #fff; white-space: nowrap; }
+[data-paint="night"] .paper-stripname { background: #f6edd8; color: #1b2a4a; }
+.paper-close { position: absolute; right: 2px; top: calc(max(12px, env(safe-area-inset-top)) - 10px); z-index: 7; }
+.paper-track { position: absolute; left: 0; right: 0; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; transition: transform 280ms cubic-bezier(0.2, 0.9, 0.25, 1), opacity 280ms ease; z-index: 2; }
+.paper-track::-webkit-scrollbar { display: none; }
+.paper-slot { flex: none; display: flex; justify-content: center; padding-top: 14px; scroll-snap-align: center; scroll-snap-stop: always; }
+.paper-card { position: relative; flex: none; border-radius: 24px; background: var(--frame); box-shadow: 0 0 0 1.5px var(--frame-edge), 0 5px 0 var(--frame-edge), 0 14px 24px rgba(20, 40, 50, 0.18); }
+.paper-card-in { position: absolute; inset: 4px; border-radius: 20px; overflow: hidden; background: var(--paper); }
+.paper-card-title { position: absolute; left: 14px; top: -14px; z-index: 5; display: inline-flex; align-items: center; gap: 6px; background: #fff; color: #1b2a4a; border-radius: 999px; padding: 3px 11px 3px 3px; font-weight: 600; font-size: 14px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; pointer-events: none; }
+.paper-card-tile { display: flex; width: 24px; height: 24px; border-radius: 50%; background: #dae9f6; align-items: center; justify-content: center; }
+[data-paint="night"] .paper-card-title { background: #1f2c4d; color: #f6edd8; box-shadow: 0 0 0 1.5px #f6edd8, 0 3px 0 #f6edd8; }
+[data-paint="night"] .paper-card-tile { background: #2e3f68; }
+.paper-pager { position: absolute; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; transition: opacity 280ms ease; z-index: 2; pointer-events: none; }
+.paper-pager i { width: 7px; height: 7px; border-radius: 50%; background: rgba(27, 42, 74, 0.22); transition: width 200ms ease; }
+.paper-pager i.on { width: 20px; border-radius: 9px; background: #1b2a4a; }
+[data-paint="night"] .paper-pager i { background: rgba(246, 237, 216, 0.3); }
+[data-paint="night"] .paper-pager i.on { background: #f6edd8; }
+.paper-country { position: absolute; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 3; }
+.paper-open { position: absolute; inset: 0; overflow: hidden; background: var(--sea); touch-action: none; }
+.paper-unfold { position: absolute; inset: 0; z-index: 8; }
+.paper-open-head { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: flex-start; padding: max(12px, env(safe-area-inset-top)) 12px 0; pointer-events: none; transition: opacity 160ms ease; }
+.paper-open-head > * { pointer-events: auto; }
+.paper-row { position: absolute; left: 0; right: 0; bottom: 24px; display: flex; justify-content: center; align-items: flex-end; gap: 18px; z-index: 3; pointer-events: none; }
+.paper-row > .paper-card { pointer-events: auto; cursor: pointer; transition: transform 200ms ease; }
+.paper-row > .paper-card.raised { transform: translateY(-10px); box-shadow: 0 0 0 3px #f6b800, 0 0 0 4.5px #1b2a4a, 0 6px 0 4.5px #1b2a4a, 0 14px 24px rgba(20, 40, 50, 0.25); }
+@media (prefers-reduced-motion: reduce) {
+  .paper-track, .paper-pager { transition: opacity 200ms ease !important; }
+  .paper-fade { transition: opacity 200ms ease !important; }
+}
