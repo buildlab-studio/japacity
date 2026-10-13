@@ -7,7 +7,7 @@
 // whose dues pass the country's money held leads with the gap and the way. Once flown, the
 // move's target is gone.
 import { content } from "@japacity/content";
-import { int, type Currency, type ForeignCurrency, type Id, type OfferView, type PassbookRoad, type PassbookView, type PlayerView, type Pocket, type ReportLine } from "@japacity/sim";
+import { int, type Currency, type ForeignCurrency, type Id, type OfferView, type ReportParam, type PassbookRoad, type PassbookView, type PlayerView, type Pocket, type ReportLine } from "@japacity/sim";
 import { ArrowLeftRight, CircleAlert, MoveVertical, Send } from "lucide-react";
 import { use, useEffect, useRef, useState } from "react";
 
@@ -21,7 +21,6 @@ import { StickerChip } from "../../../shared/ui/lively/StickerChip";
 import type { Tint } from "../../../shared/ui/lively/tint";
 import { TINTS } from "../../../shared/ui/lively/tint";
 import { requirementSentence } from "../../../shared/words/requirement";
-import { offerParams } from "../../offer/terms";
 import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { REMIT_CHANNELS, remitQuote, type RemitChannel } from "../../../shared/sim/remit";
@@ -502,8 +501,8 @@ function HeldBar({ book }: { book: PassbookView }) {
   if (book.target === null) return null;
   const share = Math.min(100, Math.floor((book.held * 100) / Math.max(1, book.target.total)));
   return (
-    <div className="relative mt-2.5 mb-1 h-3.5 rounded-full bg-sheet shadow-[inset_0_0_0_1.5px_var(--sheet-line)]" role="progressbar" aria-valuemin={0} aria-valuemax={book.target.total} aria-valuenow={Math.min(book.held, book.target.total)} aria-label={passbookWords("passbook.held")}>
-      <div className="h-full rounded-full bg-[var(--tick)] transition-[width] duration-300" style={{ width: `${String(share)}%` }} />
+    <div className="relative mt-2.5 mb-1 h-3.5 rounded-[5px] bg-sheet shadow-[inset_0_0_0_1.5px_var(--sheet-line)]" role="progressbar" aria-valuemin={0} aria-valuemax={book.target.total} aria-valuenow={Math.min(book.held, book.target.total)} aria-label={passbookWords("passbook.held")}>
+      <div className="h-full rounded-[5px] bg-[var(--tick)] transition-[width] duration-300" style={{ width: `${String(share)}%` }} />
       <span className="absolute -top-3 wobble-in" style={{ left: `calc(${String(share)}% - 14px)` }}>
         <Sticker emoji="✈️" alt="" size={22} tilt={-8} />
       </span>
@@ -561,7 +560,7 @@ function Stamps({ book }: { book: PassbookView }) {
           return (
             <li
               key={`${String(stamp.at)}-${String(stamp.target)}`}
-              className={`flex size-[62px] shrink-0 flex-col items-center justify-center rounded-full text-center leading-tight ${reached ? "pop bg-tint-money text-[var(--money-ink)] shadow-[0_0_0_3px_var(--cut),0_0_0_4.5px_var(--money-ink),0_5px_8px_rgba(0,0,0,0.18)]" : "border-2 border-dashed border-text-2/50 text-text-2"}`}
+              className={`flex size-[62px] shrink-0 flex-col items-center justify-center rounded-[50%] text-center leading-tight ${reached ? "pop bg-tint-money text-[var(--money-ink)] shadow-[0_0_0_3px_var(--cut),0_0_0_4.5px_var(--money-ink),0_5px_8px_rgba(0,0,0,0.18)]" : "border-2 border-dashed border-text-2/50 text-text-2"}`}
               style={reached ? { rotate: `${String(index % 2 === 0 ? -8 : 6)}deg`, animationDelay: `${String(index * 60)}ms` } : undefined}
               data-stamp={stamp.at}
               data-stamp-reached={reached ? stamp.month : undefined}
@@ -608,6 +607,25 @@ const ROAD_TINT: Record<PassbookRoad["road"], Tint> = { ladder: "money", side: "
 /** The offer standing open for a road, from the view. */
 function offerOf(view: PlayerView, road: PassbookRoad): OfferView | null {
   return road.offer === null ? null : (view.offers.find((offer) => offer.id === road.offer) ?? null);
+}
+
+/**
+ * An offer's terms as params for its words: a term an effect moves money by reads as money in that effect's currency,
+ * the rest as it came. The road's cards read only the family's and the circle's offers, whose money terms are plain.
+ */
+function termParams(offer: OfferView): Record<string, ReportParam> {
+  const currencies = new Map<string, Currency>();
+  for (const choice of content.offer[offer.entry]?.choices ?? []) {
+    for (const effect of choice.effects) {
+      if ((effect.type === "money/add" || effect.type === "money/take" || effect.type === "route/support") && typeof effect.amount === "object" && "term" in effect.amount) currencies.set(effect.amount.term, effect.currency);
+    }
+  }
+  return Object.fromEntries(
+    Object.entries(offer.terms).map(([name, value]): [string, ReportParam] => {
+      const currency = currencies.get(name);
+      return [name, typeof value === "number" && currency !== undefined ? { currency, amount: value } : value];
+    }),
+  );
 }
 
 /** The choice that takes an offer: the first that does something. */
@@ -719,7 +737,7 @@ function Roads({ view, book, onAsk }: { view: PlayerView; book: PassbookView; on
     if (offer !== null) {
       const choice = takeChoice(offer);
       if (choice === null) return false;
-      const params = offerParams(offer);
+      const params = termParams(offer);
       onAsk({
         form: "card",
         icon: road.road === "family" ? "house" : "landmark",
@@ -848,8 +866,8 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
             </p>
           ) : (
             <div data-savings>
-              <div className="h-2.5 overflow-hidden rounded-full bg-sheet shadow-[inset_0_0_0_1.5px_var(--sheet-line)]" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>
-                <div className="h-full rounded-full bg-[var(--tick)]" style={{ width: `${String(Math.min(100, Math.floor((savings.shown * 100) / savings.required)))}%` }} />
+              <div className="h-2.5 overflow-hidden rounded-[4px] bg-sheet shadow-[inset_0_0_0_1.5px_var(--sheet-line)]" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>
+                <div className="h-full rounded-[4px] bg-[var(--tick)]" style={{ width: `${String(Math.min(100, Math.floor((savings.shown * 100) / savings.required)))}%` }} />
               </div>
               <p className="num mt-1.5 text-[15px]" data-savings-met={savings.shown >= savings.required ? "true" : undefined}>
                 {phoneWords(savingsKey(view, savings), { shown: formatMoney(savings.shown, savings.currency), required: formatMoney(savings.required, savings.currency) })}
@@ -882,7 +900,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
 
       {view.ended ? null : (
         // The acts stand at the foot of the screen, over the page as it scrolls, as the after set draws them.
-        <div className="sticky -bottom-3 -mx-3 -mb-3 bg-[linear-gradient(transparent,var(--sheet)_22px)] px-3 pt-6 pb-3" data-bank-foot>
+        <div className="sticky -bottom-3 -mx-3 -mb-3 border-t border-sheet-line bg-sheet px-3 pt-3 pb-3" data-bank-foot>
           <div className="flex gap-2">
             {/* Abroad with other monies held, Change money heads their pairs above; it is not said again here. */}
             {pairsShown ? null : (
