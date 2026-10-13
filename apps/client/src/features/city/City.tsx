@@ -1618,6 +1618,7 @@ export function City({
             name={homeLine(hereId, view) ?? bandName(hereName)}
             {...bandMoney(view)}
             month={bandMonth(view, beganAt, dayClock)}
+            sky={dayClock.served ? dayClock.part : "afternoon"}
             // R-QUALITY-007: the body's word beside the age, only when it complains.
             body={bodyWords(view)}
             onMonth={() => {

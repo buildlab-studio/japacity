@@ -496,3 +496,34 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
     opacity: 0;
   }
 }
+
+/* The lively band (docs/design/13-the-lively-layer.md, section 2): a white pill by day and navy at
+   night, a thin edge with its underside, the money in green, the part of the day after a dot. No pattern (decision 0038). */
+:root { --money-ink: #13804b; }
+:root[data-paint="night"], [data-paint="night"] { --money-ink: #9be3b9; }
+.band-pill {
+  border-radius: 9999px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 0 0 1.5px var(--edge), 0 4px 0 var(--edge);
+}
+.band-sky { background: var(--tint-plain); }
+.band-part::before { content: "· "; }
+.band-money {
+  border-radius: 9999px;
+  background: var(--tint-money);
+  color: var(--money-ink);
+  font-weight: 700;
+  white-space: nowrap;
+  transition-property: scale;
+  transition-duration: 120ms;
+}
+/* While a fan's button is pressed the counter shows what would be left: a little larger, with a soft yellow ring. */
+.band-money-preview { scale: 1.06; box-shadow: 0 0 0 2px var(--signal); }
+/* The thumbs: round white buttons with a picture each, the thin edge and its underside. */
+.thumb-round {
+  border-radius: 9999px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 0 0 1.5px var(--edge), 0 4px 0 var(--edge);
+}

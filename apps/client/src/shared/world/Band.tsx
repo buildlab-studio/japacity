@@ -92,6 +92,10 @@ export interface BandProps {
   body?: string | null;
   /** A tap on the month opens the phone's Calendar. */
   onMonth?: () => void;
+  /** The world's part of the day, for the sky's picture at the band's start. */
+  sky?: DayPart;
+  /** While a fan's button is pressed, what the money would be after it (docs/design/13-the-lively-layer.md section 2). */
+  preview?: number | null;
   hidden?: boolean;
   /** The second row (the nudge, what is coming), shown while the band is open or peeking; the handle under the band opens it (R-WORLD-002). */
   more?: ReactNode;
@@ -119,45 +123,49 @@ export function bandPlace(name: string): string {
 }
 
 /**
- * The month on the band (R-WORLD-002, R-CLOCK-033): its name over the world's part of the day, where the pages were. A
- * new part of the day fades in, short and on opacity alone, so the day moving on is seen without a jolt.
+ * The month on the band (R-WORLD-002, R-CLOCK-033): the world's part of the day beside the name, "· Morning", as the
+ * lively band draws it (docs/design/13-the-lively-layer.md); the month's name rides in it for a
+ * screen reader and the Calendar it opens shows it whole. A new part of the day fades in, short and on opacity alone.
  */
 function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void) | undefined }) {
   return (
-    <button
-      type="button"
-      className="press flex h-[42px] min-w-[58px] shrink-0 flex-col items-center justify-center rounded-[5px] bg-white/12 px-2 leading-tight"
-      onClick={onMonth}
-      aria-label={say("ui.month.chip", { name: month.name, part: month.part })}
-      data-band-month={month.part}
-    >
-      <span className="text-[11px] font-extrabold tracking-[0.08em] uppercase">{month.name}</span>
-      <span key={month.part} className="fade text-[11px] font-bold opacity-80" data-band-part>
+    <button type="button" className="band-part press shrink-0 text-[14px] leading-none text-text-2" onClick={onMonth} aria-label={say("ui.month.chip", { name: month.name, part: month.part })} data-band-month={month.part}>
+      <span className="sr-only">{month.name}</span>
+      <span key={month.part} className="fade" data-band-part>
         {month.part}
       </span>
     </button>
   );
 }
 
+/** The picture for each part of the world's day, a stand-in until the sky has a tile of its own. */
+export const SKY_PICTURES: Readonly<Record<DayPart, string>> = { morning: "🌤️", afternoon: "☀️", evening: "🌇", night: "🌙" };
+
 /**
- * The band is one slim row (R-WORLD-002): the place and the clock, the month's name and the part of the day, the money. A handle
- * under it opens the second row; closed, that row peeks for a few seconds whenever its words change, then gets out of
- * the way. On a laptop it stands in the centred column with the world around it
- * (decision 0038).
+ * The band (R-WORLD-002) as the lively layer draws it: a white pill by day and a navy one at night, the sky's picture,
+ * the name with the part of the day beside it and the age and the place small under it, the body's word as a chip when
+ * it complains, and the money in green. No pattern on it (decision 0038). A handle under it opens the second row;
+ * closed, that row peeks for a few seconds whenever its words change. On a laptop it stands in the centred column.
+ * While a fan's button is pressed the counter shows what would be left, and settles back when it is let go.
  */
-export function Band({ when, name, money, formatMoney, month, body = null, onMonth, hidden = false, more, open = false, onToggle }: BandProps) {
+export function Band({ when, name, money, formatMoney, month, body = null, onMonth, sky, preview = null, hidden = false, more, open = false, onToggle }: BandProps) {
+  const previewing = preview !== null && preview !== money;
   return (
-    <CentredColumn className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(10px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>
-      <div className="band pointer-events-auto flex h-[54px] items-center gap-1.5 rounded-[6px] pl-3 pr-1.5 shadow-[0_8px_20px_rgba(10,14,30,0.3)]">
-        <BandPerson when={when} place={bandPlace(name)} body={body} />
-        {month === undefined ? null : <MonthChip month={month} onMonth={onMonth} />}
-        <div className="chip px-2 py-1">
-          <Counter value={money} format={formatMoney} className="text-[14px]" />
+    <CentredColumn className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(12px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>
+      <div className="band-pill pointer-events-auto flex min-h-[52px] items-center gap-2 py-1.5 pr-1.5 pl-2" data-band-pill>
+        {sky === undefined ? null : (
+          <span className="band-sky flex size-8 shrink-0 items-center justify-center rounded-full text-[18px] leading-none" aria-hidden data-band-sky={sky}>
+            {SKY_PICTURES[sky]}
+          </span>
+        )}
+        <BandPerson when={when} place={bandPlace(name)} body={body} part={month === undefined ? null : <MonthChip month={month} onMonth={onMonth} />} />
+        <div className={`band-money shrink-0 px-3 py-1.5 ${previewing ? "band-money-preview" : ""}`} data-band-money data-band-preview={previewing ? preview : undefined}>
+          <Counter value={previewing ? preview : money} format={formatMoney} className="text-[16px]" />
         </div>
       </div>
       {onToggle === undefined ? null : (
         <div className="flex justify-center">
-          <button type="button" className="band pointer-events-auto -mt-px flex h-5 w-12 items-center justify-center rounded-b-[6px]" onClick={onToggle} aria-label={say(open ? "ui.world.show-less" : "ui.world.show-more")} aria-expanded={open} data-band-handle>
+          <button type="button" className="band-pill pointer-events-auto -mt-1 flex h-5 w-12 items-center justify-center rounded-b-[10px] rounded-t-none" onClick={onToggle} aria-label={say(open ? "ui.world.show-less" : "ui.world.show-more")} aria-expanded={open} data-band-handle>
             <ChevronDown size={14} strokeWidth={2.6} className={open ? "rotate-180" : ""} aria-hidden />
           </button>
         </div>
