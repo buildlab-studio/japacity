@@ -94,11 +94,10 @@
   box-shadow: 0 0 0 3px #ffffff, 0 0 0 4.5px var(--fan-edge), 0 1px 0 4.5px var(--fan-edge), 0 6px 12px rgba(0, 0, 0, 0.25);
 }
 
+/* The act's tile, cut by the lively Sticker; this box only tilts it. */
 .fan-sticker {
   display: inline-flex;
-  font-size: calc(var(--fan-button) * 0.47);
   line-height: 1;
-  filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 6px 5px rgba(20, 40, 50, 0.3));
 }
 
 .fan-item[data-fan-refused="locked"] .fan-sticker,
@@ -159,32 +158,6 @@
   line-height: 1.25;
   white-space: nowrap;
   box-shadow: 0 3px 0 var(--fan-edge);
-}
-
-/* The balance from shared/world/Balance.tsx, small on a pale pill: stacked on a phone, one line on a laptop. */
-.fan-balance {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1px;
-  border-radius: 8px;
-  padding: 2px 5px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #1c2a5e;
-  font-size: 10px;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
-[data-fan-side="left"] .fan-balance { align-items: flex-end; }
-[data-fan-size="laptop"] .fan-balance { flex-direction: row; align-items: baseline; gap: 6px; font-size: 12px; }
-
-.fan-nocost {
-  border-radius: 8px;
-  padding: 2px 7px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #5e6b80;
-  font-size: 11px;
-  white-space: nowrap;
 }
 
 .fan-lock {

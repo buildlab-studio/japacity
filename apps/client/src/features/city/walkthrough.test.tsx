@@ -25,10 +25,15 @@ function tapThumb(id: "map" | "phone"): void {
 }
 
 describe("the first-use labels", () => {
-  test("[R-WORLD-033] given the first play on a new device, when the world opens, then no pointer or card lectures, the Map and Phone thumbs each carry their word, and each word goes once its thumb is tapped", async () => {
+  test("[R-WORLD-033] given the first play on a new device, when the world opens, then no pointer or card lectures, the first brief is handed by its person, and once it is carried the Map and Phone thumbs each carry their word, and each word goes once its thumb is tapped", async () => {
     localStorage.removeItem(WALK_KEY);
     await renderWithView(world(), engineView());
-    expect(document.querySelector("[data-walkthrough], [data-walk-card], [data-opening-go]")).toBeNull();
+    expect(document.querySelector("[data-walkthrough], [data-walk-card]")).toBeNull();
+    // The first chapter's brief is a person handing a mission over (design page 13 section 4), not a lecture: its card
+    // stands over the foot, and the thumbs' words wait for it to be carried.
+    expect(document.querySelector("[data-brief]")).not.toBeNull();
+    expect(labels()).toEqual([]);
+    fireEvent.click(document.querySelector<HTMLElement>("[data-brief-go]")!);
     expect(labels()).toEqual(["map", "phone"]);
     for (const thumb of FIRST_THUMBS) expect(document.querySelector(`[data-first-label='${thumb.id}']`)?.textContent).toBe(say(thumb.words));
     expect(say("ui.first.phone")).toBe("Chats, bank, news");
@@ -50,6 +55,8 @@ describe("the first-use labels", () => {
     tapThumb("phone");
     document.body.innerHTML = "";
     await renderWithView(world(), engineView("scenario.tunde"));
+    // The new life's first brief is carried first; its card stands over the thumbs until then.
+    fireEvent.click(document.querySelector<HTMLElement>("[data-brief-go]")!);
     expect(labels()).toEqual(["map"]);
     tapThumb("map");
     document.body.innerHTML = "";

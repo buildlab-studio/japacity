@@ -87,12 +87,17 @@ describe("the fan's side and its curve", () => {
     for (const centre of centres(large, at)) expect(centre.x + large.sizes.button / 2 + large.sizes.gap + large.sizes.label).toBeLessThanOrEqual(LAPTOP_SCREEN.width);
   });
 
-  test("[R-WORLD-005] given the screen's width, when the sizes are read, then a phone gets 64 pixel buttons on a 170 radius and a laptop 72 on 240", () => {
+});
+
+// The fan's own rule, R-WORLD-034, is to be written into docs/rules/world.md; until it stands there these tests cite
+// R-WORLD-005, whose amendment of 12 Oct 2026 the fan replaces, and the rule id rides in the describe's name.
+describe("R-WORLD-034 the fan's sizes", () => {
+  test("[R-WORLD-005] given the screen's width, when the sizes are read, then a phone gets 64 pixel buttons on a 170 radius and a laptop 72 on a 200 radius (the hand's wave)", () => {
     expect(fanSizes(390)).toEqual(PHONE);
     expect(fanSizes(1200)).toEqual(LAPTOP);
     expect(PHONE.radius).toBe(170);
     expect(PHONE.button).toBe(64);
-    expect(LAPTOP.radius).toBe(240);
+    expect(LAPTOP.radius).toBe(200);
     expect(LAPTOP.button).toBe(72);
   });
 });

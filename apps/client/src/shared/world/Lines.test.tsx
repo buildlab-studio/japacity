@@ -1,7 +1,8 @@
-// How the world talks (docs/rules/world.md R-WORLD-005, R-WORLD-026; the design): a person's
-// words in a bubble over their head that follows them and goes on a tap; what happens and the street's talk in the
-// bottom corner, three lines at most, the older fading, each gone after a few seconds; the street waits while someone
-// speaks or the corner is busy; nothing in a card across the middle of the world.
+// How the world talks (docs/rules/world.md R-WORLD-005, R-WORLD-026; the talk budget, docs/design/13-the-lively-layer.md
+// section 5): a person's words in a bubble over their head that follows them and goes on a tap, at most eight words for
+// about four seconds, a longer line as "…" that opens in a sheet with their name; the street's talk as an ambient bubble
+// over the resident nearest, with twenty seconds of quiet after; the bottom corner for the player's own act's answer alone,
+// one line at a time; nothing in a card across the middle of the world.
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -11,13 +12,13 @@ import { cameraAt, projected } from "../../features/city/scene.testing";
 import { aimShot, roomShot, shotOf } from "../../features/city/shot";
 import { thingSpot, thingsOf } from "../../features/city/things";
 import { standAt } from "../../features/city/walk";
-import { bubbleSpot, Corner, CORNER_MAX, hear, HEARD_MS, linesNow, resetLines, speak, SPEECH_MS, SpeechBubble, TALK_EVERY_MS, tell, TOLD_MS, useStreetTalk } from "./Lines";
+import { bubbleSpot, Corner, CORNER_MAX, isLong, linesNow, murmur, NEAR_SPEAKER, QUIET_MS, resetLines, speak, SPEECH_MS, SpeechBubble, TALK_EVERY_MS, JOIN_MS, tell, TOLD_MS, useStreetTalk, WORDS_MAX } from "./Lines";
 
 const MAMA = "You have eaten? Sit small.";
 const ORANGES = "Mama presses a bag of oranges on you.";
 
 function told(): string[] {
-  return [...document.querySelectorAll("[data-corner] p")].map((line) => line.textContent ?? "");
+  return [...document.querySelectorAll("[data-corner]")].map((line) => line.textContent ?? "");
 }
 
 function bubble(): HTMLElement | null {
@@ -44,7 +45,7 @@ describe("the bubble over a person", () => {
     expect(document.querySelector("[data-toast]")).toBeNull();
   });
 
-  test("[R-WORLD-005] given Mama's words up, when they are tapped, then they go at once; left alone, they go after about five seconds", () => {
+  test("[R-WORLD-005] [R-WORLD-026] given Mama's words up, when they are tapped, then they go at once; left alone, they go after about four seconds", () => {
     render(<SpeechBubble anchored={false} />);
     act(() => speak("mummy", "Mama", MAMA));
     fireEvent.click(bubble()!);
@@ -58,8 +59,9 @@ describe("the bubble over a person", () => {
       vi.advanceTimersByTime(1);
     });
     expect(bubble()).toBeNull();
-    expect(SPEECH_MS).toBeGreaterThanOrEqual(4000);
-    expect(SPEECH_MS).toBeLessThanOrEqual(6000);
+    // The talk budget: about four seconds a bubble.
+    expect(SPEECH_MS).toBeGreaterThanOrEqual(3500);
+    expect(SPEECH_MS).toBeLessThanOrEqual(4500);
   });
 
   test("[R-WORLD-005] given someone speaking, when another speaks, then one bubble shows, the new speaker's, and the first one's timer never takes it down", () => {
@@ -107,45 +109,91 @@ describe("the bubble over a person", () => {
   });
 });
 
-describe("the bottom corner", () => {
-  test("[R-WORLD-026] given four lines told and heard, when the corner shows, then it holds the newest three, the newest at the bottom, the older fading", () => {
-    render(<Corner />);
-    act(() => {
-      hear("A hawker: Pure water!");
-      tell(ORANGES);
-      tell("In the box: the passport.");
-      tell("Turned back at the next stop");
-    });
-    expect(told()).toEqual([ORANGES, "In the box: the passport.", "Turned back at the next stop"]);
-    expect(CORNER_MAX).toBe(3);
-    const shades = [...document.querySelectorAll<HTMLElement>("[data-corner] p")].map((line) => Number(line.style.opacity));
-    expect(shades[0]).toBeLessThan(shades[1] ?? 0);
-    expect(shades[1]).toBeLessThan(shades[2] ?? 0);
-    expect(shades[2]).toBe(1);
-    expect(document.querySelectorAll("[data-told]")).toHaveLength(3);
+describe("the talk budget's words", () => {
+  test("[R-WORLD-026] given a line of at most eight words, when a person says it, then it floats whole; a longer line shows … and a tap opens it in a sheet with their name", () => {
+    render(<SpeechBubble anchored={false} />);
+    expect(WORDS_MAX).toBe(8);
+    const long = "The universities are coming to the hub this week, they say.";
+    expect(isLong(MAMA)).toBe(false);
+    expect(isLong(long)).toBe(true);
+    act(() => speak("mummy", "Mama", long));
+    expect(bubble()?.querySelector("[data-speech-words]")?.textContent).toBe("…");
+    expect(bubble()?.hasAttribute("data-speech-long")).toBe(true);
+    fireEvent.click(bubble()!);
+    expect(bubble()).toBeNull();
+    const sheet = document.querySelector("[data-talk-open]");
+    expect(sheet?.textContent).toContain(long);
+    expect(document.querySelector("[data-lively-sheet]")?.textContent).toContain("Mama");
   });
 
-  test("[R-WORLD-026] given a told line and a heard line, when time passes, then the told one goes after about seven seconds and the heard one after about eight", () => {
+  test("[R-WORLD-026] given the street's talk, when a line comes, then it floats over the resident nearest the player, and the next waits at least twenty seconds of quiet; never over someone speaking", () => {
+    render(<SpeechBubble anchored={false} />);
+    const start = Date.now();
+    act(() => {
+      expect(murmur("Pure water! Pure water!", start)).toBe(true);
+    });
+    expect(bubble()?.dataset.speech).toBe(NEAR_SPEAKER);
+    act(() => {
+      vi.advanceTimersByTime(SPEECH_MS);
+    });
+    expect(bubble()).toBeNull();
+    expect(QUIET_MS).toBeGreaterThanOrEqual(20000);
+    expect(murmur("Ojuelegba! Enter with your change!", start + SPEECH_MS + QUIET_MS - 1)).toBe(false);
+    expect(murmur("Ojuelegba! Enter with your change!", start + SPEECH_MS + QUIET_MS)).toBe(true);
+    act(() => resetLines());
+    act(() => speak("mummy", "Mama", MAMA));
+    expect(murmur("Pure water!")).toBe(false);
+    expect(bubble()?.dataset.speech).toBe("mummy");
+  });
+});
+
+describe("the bottom corner", () => {
+  test("[R-WORLD-026] given lines told, when the corner shows, then it holds one at a time, the first told first, the player's own act's answer, and never the street's talk", () => {
+    render(<Corner />);
+    act(() => {
+      murmur("A hawker: Pure water!");
+      tell(ORANGES);
+      tell("In the box: the passport.");
+    });
+    expect(CORNER_MAX).toBe(1);
+    expect(told()).toEqual([ORANGES]);
+    expect(document.querySelector("[data-heard], [data-chatter]")).toBeNull();
+  });
+
+  test("[R-WORLD-026] given two lines told together, when time passes, then the first stands about seven seconds, then the second takes its turn for its own time, then the corner is empty", () => {
     render(<Corner />);
     act(() => {
       tell(ORANGES);
-      hear("Next door: Who took my bucket?");
+      tell("Turned back at the next stop");
     });
-    expect(document.querySelector("[data-heard]")?.hasAttribute("data-chatter")).toBe(true);
+    expect(told()).toEqual([ORANGES]);
     act(() => {
       vi.advanceTimersByTime(TOLD_MS);
     });
-    expect(told()).toEqual(["Next door: Who took my bucket?"]);
+    expect(told()).toEqual(["Turned back at the next stop"]);
     act(() => {
-      vi.advanceTimersByTime(HEARD_MS - TOLD_MS);
+      vi.advanceTimersByTime(TOLD_MS);
     });
     expect(document.querySelector("[data-corner]")).toBeNull();
   });
 
-  test("[R-WORLD-026] given the phone over the world, when the corner shows over it, then it holds only what was told, so an app's line is read and the street's talk waits", () => {
+  test("[R-WORLD-026] given a line showing, when a new tap is answered a while later, then its line takes the corner at once and the old one is gone", () => {
+    render(<Corner />);
+    act(() => tell(ORANGES));
+    act(() => {
+      vi.advanceTimersByTime(JOIN_MS + 1);
+    });
+    act(() => tell("Money moved"));
+    expect(told()).toEqual(["Money moved"]);
+    act(() => {
+      vi.advanceTimersByTime(TOLD_MS);
+    });
+    expect(document.querySelector("[data-corner]")).toBeNull();
+  });
+
+  test("[R-WORLD-026] given the phone over the world, when the corner shows over it, then it holds what was told, so an app's line is read", () => {
     render(<Corner told />);
     act(() => {
-      hear("A conductor: Ojuelegba!");
       tell("Money changed");
     });
     expect(told()).toEqual(["Money changed"]);
@@ -166,47 +214,42 @@ function Street({ free }: { free: boolean }) {
     n += 1;
     return `Talk ${String(n)}`;
   }, free);
-  return <Corner hidden={!free} />;
+  return <SpeechBubble anchored={false} hidden={!free} />;
 }
 
 describe("the street's talk", () => {
-  test("[R-WORLD-026] given the world free, when it opens and nine seconds pass, then a line is heard at once and another after, and none while the world is covered", () => {
+  test("[R-WORLD-026] given the world free, when it opens, then a line floats at once over the resident nearest, the next only after the quiet, and none while the world is covered", () => {
     const { rerender } = render(<Street free />);
-    expect(linesNow().lines.filter((line) => line.kind === "heard")).toHaveLength(1);
+    expect(linesNow().speech?.text).toBe("Talk 1");
+    expect(linesNow().lines).toHaveLength(0);
     act(() => {
       vi.advanceTimersByTime(TALK_EVERY_MS);
     });
-    expect(linesNow().lines.filter((line) => line.kind === "heard").length).toBeGreaterThanOrEqual(1);
+    expect(linesNow().speech).toBeNull();
+    // The first turn after the bubble and its quiet have passed.
+    const nextTurn = Math.ceil((SPEECH_MS + QUIET_MS) / TALK_EVERY_MS) * TALK_EVERY_MS;
+    act(() => {
+      vi.advanceTimersByTime(nextTurn - TALK_EVERY_MS - 1);
+    });
+    expect(linesNow().speech).toBeNull();
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(linesNow().speech?.text).toBe("Talk 2");
     rerender(<Street free={false} />);
     act(() => {
-      vi.advanceTimersByTime(HEARD_MS);
+      vi.advanceTimersByTime((SPEECH_MS + QUIET_MS) * 2);
     });
-    act(() => {
-      vi.advanceTimersByTime(TALK_EVERY_MS * 2);
-    });
-    expect(linesNow().lines).toHaveLength(0);
+    expect(linesNow().speech).toBeNull();
   });
 
-  test("[R-WORLD-026] given someone speaking, when the street's turn comes, then it waits; and it waits while the corner holds two lines", () => {
-    act(() => speak("mama", "Mama", MAMA));
+  test("[R-WORLD-026] given someone speaking, when the street's turn comes, then it waits", () => {
+    act(() => speak("mama", "Mama", MAMA, TALK_EVERY_MS * 2));
     render(<Street free />);
-    expect(linesNow().lines).toHaveLength(0);
-    act(() => {
-      vi.advanceTimersByTime(SPEECH_MS);
-    });
-    act(() => {
-      vi.advanceTimersByTime(TALK_EVERY_MS - SPEECH_MS);
-    });
-    expect(linesNow().lines.filter((line) => line.kind === "heard")).toHaveLength(1);
-    resetLines();
-    // Two lines that stay past the street's next turn.
-    act(() => {
-      tell(ORANGES, TALK_EVERY_MS * 2);
-      tell("In the box: the passport.", TALK_EVERY_MS * 2);
-    });
+    expect(linesNow().speech?.who).toBe("mama");
     act(() => {
       vi.advanceTimersByTime(TALK_EVERY_MS);
     });
-    expect(linesNow().lines.filter((line) => line.kind === "heard")).toHaveLength(0);
+    expect(linesNow().speech?.who).toBe("mama");
   });
 });

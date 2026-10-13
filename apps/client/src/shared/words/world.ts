@@ -106,6 +106,8 @@ export const worldText: Record<string, string> = {
   // The first night of a life, told once on a small card before the first sleep (R-WORLD-025).
   "ui.night.first": "Each night you sleep is a month of your life.",
   "ui.night.first.ok": "Sleep",
+  "ui.night.first.title": "A night, a month",
+  "ui.night.first.later": "Not yet",
   // The bed's timed sleep (R-WORLD-025): the chip under the band, the button that wakes, and the corner's
   // words when a sleep is cut short (the night still to be had after dark; by day, only that you are up).
   "ui.sleep.chip": "Asleep · tap to wake",

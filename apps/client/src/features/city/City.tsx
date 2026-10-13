@@ -4,7 +4,7 @@
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
 import type { Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
-import { Clock, Map as MapIcon, Moon, Settings2, X } from "lucide-react";
+import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -15,7 +15,6 @@ import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
-import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
 import { formatMoney } from "../../shared/words/format";
@@ -29,20 +28,25 @@ import { ENGLISH_TEST, testChance } from "../../shared/words/test";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
 import { Band, bandMoney, bandMonth } from "../../shared/world/Band";
+import { type MoneyIn, MoneyToast } from "../../shared/world/MoneyToast";
 import { cue } from "../../shared/sound/cues";
 import type { Act, Ask, RideChoice, Thing } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
-import { Corner, hear, hush, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
+import { Corner, hush, murmur, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
+import { calloutsShown } from "../../shared/world/callouts";
+import { Emotes } from "./emotes";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
+import { PressButton } from "../../shared/ui/lively/PressButton";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
 import { bodyWords, tired } from "../../shared/words/body";
-import { actOnCard, answersNow, effectWordsOf, nowActOf, nowActsIn, nowLineIn, timeWordsOf } from "../../shared/words/acts";
+import { actOnCard, answersNow, nowActOf, nowActsIn, nowLineIn } from "../../shared/words/acts";
+import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./actLines";
@@ -68,6 +72,10 @@ import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene,
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { Fan } from "./fan/Fan";
+import { type Brief, briefOf, DONE_TOAST_MS, doneToast, itemsDone, markerAllowed, nextBase, briefTitle } from "./brief/brief";
+import { ChapterClose, MissionCard } from "./brief/BriefCards";
+import { BriefChip, Marker } from "./brief/BriefChip";
+import { briefHanded, handBrief } from "../../shared/world/briefHanded";
 import { fanActOf, fanAsked, fanEntriesOf, type FanEntry, fanModel } from "./fan/fanActs";
 import { stopReached } from "./stops";
 import { KIOSK, opensKiosk, withKiosk } from "./kiosk";
@@ -78,6 +86,12 @@ import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, ro
 
 /** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (R-CLOCK-032). */
 const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started", MORNING]);
+/**
+ * The nudges that stand under the band whatever the place (the plan 16): someone waiting on the player (a question, an
+ * offer) and the dues abroad; the night's bed comes as its own moment. The road's step shows only in the moment, as the
+ * brief's chip; the news and the month's end wait on the phone.
+ */
+const STANDING_NUDGES: ReadonlySet<string> = new Set(["setpiece", "offer", "dues"]);
 
 const CityScene = lazy(() => import("./CityScene"));
 const Bag = lazy(() => import("./Bag"));
@@ -135,25 +149,24 @@ function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" 
 }
 /** The first chapter by order (R-CHAPTER-001): its opening is a title over the world, never a card (R-CHAPTER-011). */
 const FIRST_CHAPTER = Object.values(content.chapter).reduce<{ id: string; order: number } | null>((first, entry) => (first === null || entry.order < first.order ? { id: entry.id, order: entry.order } : first), null)?.id ?? null;
-/** How long the first chapter's title stands over the world (R-CHAPTER-011). */
-export const TITLE_MS = 2000;
 /** How long every name shows over its mark on a place's first entry in a life, before the names fade (R-WORLD-005). */
 export const TEACH_MS = 2000;
 /** The beat in the room after the month ends, before the scene goes dark for the results (R-WORLD-025): short, never a wait. */
 export const RESULTS_BEAT_MS = 300;
 
-/** The first chapter's title over the world for a moment, with nothing to press: the nudge under the band gives the first step. */
-function ChapterTitle({ chapter, onGone }: { chapter: string; onGone: () => void }) {
-  useEffect(() => {
-    const timer = window.setTimeout(onGone, TITLE_MS);
-    return () => window.clearTimeout(timer);
-    // The title's moment runs once, as the world opens.
-  }, []);
-  return (
-    <div className="pointer-events-none fixed inset-x-0 top-[34%] z-[40] flex justify-center px-6" role="status" data-opening={chapter} data-opening-title>
-      <p className="band title pop rounded-[6px] px-5 py-3 text-center text-[28px] leading-tight shadow-[0_12px_30px_rgba(10,14,30,0.35)]">{nameOf(chapter)}</p>
-    </div>
-  );
+/**
+ * The giver's words on a chapter's mission card (the brief, design page 13 section 4): the first chapter's opening for this
+ * life's path, a later chapter's own opening.
+ */
+function briefLine(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets">): string {
+  return words(openingKey(view));
+}
+
+/** A closed chapter as its brief, every thing in, for the close's card (section 4). */
+function closedBrief(chapter: string, view: Pick<PlayerView, "chapter">): Brief | null {
+  const entry = content.chapter[chapter as Id<"chapter">];
+  if (entry === undefined) return null;
+  return briefOf({ chapter: { current: chapter as Id<"chapter">, items: entry.items.map((item) => ({ id: item.id, met: true })), done: view.chapter.done, closes: true, next: view.chapter.current } }, hasWords(`${chapter}.close`) ? words(`${chapter}.close`) : "");
 }
 
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
@@ -171,6 +184,8 @@ export const PARTY_BEAT_MS = 6000;
 
 /** How long after a person's words what follows is told in the corner, as designed. */
 const THEN_MS = 1400;
+/** The quiet on arriving in a place before anyone in it speaks (the talk budget). */
+export const ARRIVE_QUIET_MS = 3000;
 /** How long after Mama's words the next compound is heard. */
 const UP_NEPA_MS = 2200;
 
@@ -600,6 +615,8 @@ export function City({
   // The act a fan's button chose, handed to the scene to walk for, and the entry walked to until its act lands (R-WORLD-010).
   const [fanAct, setFanAct] = useState<{ thing: Thing; act: Act; at: number } | null>(null);
   const fanGoing = useRef<{ thing: string; activity: string; param: string | null } | null>(null);
+  // While a fan's button is pressed the band's counter shows what would be left (design page 13 section 2).
+  const [bandPreview, setBandPreview] = useState<number | null>(null);
   const [fanGoingId, setFanGoingId] = useState<string | null>(null);
   // Lines the corner tells once it shows again: a courted partner's answer waits for the home's card to be put away (R-PEOPLE-013).
   const [toTell, setToTell] = useState<string[]>([]);
@@ -858,7 +875,7 @@ export function City({
       setPicked(null);
       const costs = (view.activities.find((option) => option.id === going.activity)?.cost.length ?? 0) > 0;
       void actOnCard({ activity: going.activity as Id<"activity">, param: going.param }, { send, addToPlan }).then((acted) => {
-        cue(acted === "answered" || acted === "planned" ? (costs ? "coin" : "done") : "tap");
+        cue(acted === "answered" || acted === "planned" ? (costs ? "coin" : "done") : acted === "refused" ? "no" : "tap");
         if (acted === "full") tell(say("ui.world.full"));
       });
       return;
@@ -1280,8 +1297,9 @@ export function City({
     const paper = isPaper(activity);
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
-    const time = timeWordsOf(activity);
-    const does = effectWordsOf(activity);
+    // Chips earn their place (design page 13 section 2): the time only past a morning, at most two effects.
+    const time = chipTimeOf(activity);
+    const does = chipEffectsLine(activity);
     return {
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : school !== null ? SCHOOL_ICON : "hand",
@@ -1332,7 +1350,7 @@ export function City({
       act: () => {
         const pick = { activity: option.id, param: chosen ?? option.params?.[0] ?? null };
         void actOnCard(pick, { send, addToPlan }).then((acted) => {
-          cue(acted === "answered" || acted === "planned" ? (cost === null ? "done" : "coin") : "tap");
+          cue(acted === "answered" || acted === "planned" ? (cost === null ? "done" : "coin") : acted === "refused" ? "no" : "tap");
           // The place answers an act done at once in the same sheet; a refusal is said by the store. A planned act is its thing's label's state, never a line.
           if (acted === "answered") return;
           setPicked(null);
@@ -1456,13 +1474,83 @@ export function City({
     for (const line of toTell) tell(line);
     setToTell([]);
   }, [toTell, worldFree, homeTeachShown]);
+  // Toasts that answer every tap (design page 13 sections 2 and 7): money in from something done in the world slides in
+  // under the band with a picture and the figure, and a coin flies to the counter. Never at the month's turn, which the
+  // results tell, and never from the phone, which tells its own.
+  const money = bandMoney(view).money;
+  const moneyBefore = useRef(money);
+  const [moneyIn, setMoneyIn] = useState<MoneyIn | null>(null);
+  useEffect(() => {
+    const before = moneyBefore.current;
+    moneyBefore.current = money;
+    if (!world || reportOpen || phone || money <= before) return;
+    const said = nowLineIn(lastLines);
+    const act = said === null ? "" : nowActOf(said);
+    setMoneyIn({ at: Date.now(), title: act === "" ? say("ui.toast.money-in") : nameOf(act), amount: `+${bandMoney(view).formatMoney(money - before)}`, picture: act === "" ? "activity.side-gig" : act });
+  }, [money]);
+  // The road in the world, only in the moment (the plan 16; design page 13 section 4). The brief of the chapter the life
+  // is in; the chip for a moment after its card is handed; a done thing's toast; the close's card once a chapter closes.
+  const brief = useMemo(() => (world ? briefOf(view, briefLine(view)) : null), [world, view]);
+  const [handed, setHanded] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ words: string; at: number } | null>(null);
+  const chapterBefore = useRef<PlayerView["chapter"] | null>(world ? view.chapter : null);
+  useEffect(() => {
+    const before = chapterBefore.current;
+    chapterBefore.current = view.chapter;
+    if (!world) return;
+    const done = itemsDone(before, view.chapter);
+    if (done.length === 0) return;
+    const left = view.chapter.items.filter((item) => !item.met).length;
+    if (left === 0) return;
+    cue("ding");
+    setToast({ words: doneToast(left), at: Date.now() });
+  }, [world, view.chapter]);
+  useEffect(() => {
+    if (toast === null) return;
+    const timer = window.setTimeout(() => setToast(null), DONE_TOAST_MS);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+  // The chapters already closed when the world opened are never closed again on screen; one that closes while it is open is.
+  const closedSeen = useRef(new Set<string>(view.chapter.done));
+  const [closedNow, setClosedNow] = useState<string | null>(null);
+  useEffect(() => {
+    if (!world || closedNow !== null) return;
+    const fresh = view.chapter.done.find((chapter) => !closedSeen.current.has(chapter));
+    if (fresh !== undefined) setClosedNow(fresh);
+  }, [world, view.chapter.done, closedNow]);
+  const closeBrief = useMemo(() => (closedNow === null ? null : closedBrief(closedNow, view)), [closedNow, view]);
+  const closeShown = closeBrief !== null && worldFree && !resultsShown && asleep === null;
+  /** Hands the brief of the chapter the life is in: the Japa app takes a dot and the chip stands, then tucks into the phone. */
+  const handOver = (chapter: string | null): void => {
+    if (chapter === null || briefHanded(view.scenario, chapter)) return;
+    handBrief(view.scenario, chapter);
+    setHanded(chapter);
+  };
+  // At the step's place, or beside its person, the chip comes back with its dots and the marker stands on the thing to do;
+  // never on the joint, the barber, the suya man or the club (section 4).
+  const stepThingEntry = stepThing === null ? undefined : things?.find((thing) => thing.id === stepThing);
+  const markable = stepThingEntry !== undefined && markerAllowed(stepThingEntry);
+  const atStep = brief !== null && stepWay !== null && nudge?.about === "step" && !onlyWait && ((stepThing !== null && markable) || (stepThing === null && stepWay.go !== null && stepWay.go === hereId));
+  const chipMoment = brief === null ? null : handed === brief.chapter ? ("handed" as const) : toast !== null ? ("done" as const) : atStep ? ("here" as const) : null;
+  const nowItem = brief?.items.find((item) => item.now) ?? null;
+  // Nothing speaks in the first seconds in a new place, so the place is seen before it is heard (the talk budget).
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    setSettled(false);
+    const timer = window.setTimeout(() => setSettled(true), ARRIVE_QUIET_MS);
+    return () => window.clearTimeout(timer);
+  }, [placeId, inside]);
+  // At most three callouts over the scene (the talk budget): the fan, the road's chip and the marker come first, the bubble waits.
+  const rowShown = !(phone || asksOpen || menu || credits || picked !== null || asleep !== null);
+  const markerShown = atStep && stepThing !== null && markable && nowItem !== null && worldFree && fanned === null && picked === null;
+  const callouts = calloutsShown({ fan: fanned !== null, chip: rowShown && chipMoment !== null, marker: markerShown, bubble: true });
   const heardNth = useRef(0);
   useStreetTalk(() => {
     if (entry === null) return null;
     const heardNow = overheard(view, entry.id, date, heardNth.current);
     heardNth.current += 1;
     return heardNow === null ? null : heardWords(heardNow.key, heardNow.params);
-  }, worldFree);
+  }, worldFree && settled && callouts.bubble && !homeTeachShown);
   // A person speaks only in the place they stand in: going elsewhere takes their words down.
   useEffect(() => hush(), [placeId, inside]);
   // R-WORLD-005: the light bill paid at home, Mama says so over her head, the corner tells the bill paid, and a moment later the next compound is heard.
@@ -1477,7 +1565,7 @@ export function City({
     speak(light.who, light.name, light.words);
     tell(light.told);
     const heard = light.heard;
-    const timer = window.setTimeout(() => hear(heard), UP_NEPA_MS);
+    const timer = window.setTimeout(() => murmur(heard), UP_NEPA_MS);
     return () => window.clearTimeout(timer);
   }, [lastLines, world]);
   // The thing's label says what of it is planned this month (R-WORLD-005).
@@ -1618,6 +1706,8 @@ export function City({
             name={homeLine(hereId, view) ?? bandName(hereName)}
             {...bandMoney(view)}
             month={bandMonth(view, beganAt, dayClock)}
+            sky={dayClock.served ? dayClock.part : "afternoon"}
+            preview={fanned === null ? null : bandPreview}
             // R-QUALITY-007: the body's word beside the age, only when it complains.
             body={bodyWords(view)}
             onMonth={() => {
@@ -1631,7 +1721,12 @@ export function City({
             more={
               !(phone || asksOpen || menu || credits || picked !== null || asleep !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
+                  {moneyIn === null ? null : <MoneyToast key={moneyIn.at} toast={moneyIn} onGone={() => setMoneyIn(null)} />}
+                  {brief !== null && chipMoment !== null ? (
+                    <BriefChip brief={brief} moment={chipMoment} toast={chipMoment === "done" ? (toast?.words ?? null) : null} {...(chipMoment === "here" && nudgeGoes ? { onTap: followStep } : {})} onTucked={() => setHanded(null)} />
+                  ) : shownNudge !== null && (STANDING_NUDGES.has(shownNudge.about) || toBed) ? (
                   <Nudge nudge={shownNudge} {...(stepWay?.opens === undefined || toBed ? {} : { opens: stepWay.opens })} {...(toBed ? (bed === null ? {} : { onTap: () => setPicked({ kind: "thing", thing: bed }) }) : nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeNeeds ? { onTap: () => { setPhoneApp("japa"); setPhone(true); } } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
+                  ) : null}
                   {coming === null || !(bandOpen || (peek && !chipFolds(nudge, coming, view.month))) ? null : (
                     <button type="button" className="chip press pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming onClick={() => openCalendar("coming")} aria-label={say("ui.world.coming-up")}>
                       <Clock size={14} aria-hidden />
@@ -1642,8 +1737,8 @@ export function City({
               ) : null
             }
           />
-          <ThumbBar onMap={() => { firstUse.tap("map"); setMap(true); }} onPhone={() => { firstUse.tap("phone"); setPhoneApp(null); setPhone(true); }} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen} />
-          <FirstUseLabels tapped={firstUse.tapped} hidden={map || resultsOpen || covered} />
+          <ThumbBar onMap={() => { firstUse.tap("map"); setMap(true); }} onPhone={() => { firstUse.tap("phone"); setPhoneApp(null); setPhone(true); }} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen || closeShown} />
+          <FirstUseLabels tapped={firstUse.tapped} hidden={map || resultsOpen || covered || openingUp || closeShown} />
           {zoomed && !map ? (
             <button type="button" onClick={() => setZoomed(false)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
               {say("ui.world.whole")}
@@ -1662,42 +1757,60 @@ export function City({
             <>
               {/* The sleep's chip under the band, with a thin bar running down over the sleep's length; a tap on it wakes (R-WORLD-025). */}
               <div className="pointer-events-none fixed inset-x-0 top-[calc(max(10px,env(safe-area-inset-top))+80px)] z-[38] flex justify-center px-3">
-                <button type="button" onClick={wake} className="chip drop press pointer-events-auto relative inline-flex items-center gap-1.5 overflow-hidden px-3.5 pt-2 pb-2.5 text-[13px] font-bold" data-asleep>
-                  <Moon size={14} aria-hidden />
+                <button type="button" onClick={wake} className="brief-chip drop press pointer-events-auto relative inline-flex items-center gap-2 overflow-hidden py-1.5 pr-4 pl-1.5 text-[15px] font-bold" data-asleep>
+                  <span className="chip-pic flex size-8 items-center justify-center bg-tint-body text-[17px]" aria-hidden>
+                    🌙
+                  </span>
                   <span>{say("ui.sleep.chip")}</span>
                   <span aria-hidden className="sleep-bar absolute inset-x-0 bottom-0 h-[3px] bg-signal" style={{ animationDuration: `${String(asleep.ms)}ms` }} data-asleep-bar />
                 </button>
               </div>
               {/* Wake up, low on the right above the Phone button (in the centred column on a laptop), does as the chip does. */}
               <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] flex justify-end px-3">
-                <button type="button" onClick={wake} className="pop press pointer-events-auto rounded-[5px] bg-action px-4 py-2.5 text-[14px] font-extrabold text-action-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" data-wake>
+                <PressButton onClick={wake} className="pop pointer-events-auto min-w-[150px]" data-wake>
                   {say("ui.sleep.wake")}
-                </button>
+                </PressButton>
               </CentredColumn>
             </>
           ) : null}
           {nightTeach !== null ? (
-            <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] px-3">
-            <div className="pop pointer-events-auto mx-auto flex max-w-sm items-center gap-3 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-night-teach>
-              <p className="min-w-0 flex-1 text-[14px] leading-snug font-semibold">{say("ui.night.first")}</p>
-              <button
-                type="button"
-                className="press shrink-0 rounded-[5px] bg-action px-4 py-2.5 text-[14px] font-extrabold text-action-text"
-                onClick={() => {
-                  markTaught("night", view.scenario);
-                  setNightTeach(null);
-                  sleepOn(nightTeach);
-                }}
-                data-night-teach-ok
-              >
-                {say("ui.night.first.ok")}
-              </button>
+            <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+84px)] z-[38] px-3">
+            {/* The first night's card as the after set draws it (world-first-night-card): the moon on a soft tile, a title of a
+                few words, the line, Not yet and the yellow Sleep. */}
+            <div className="lively-card pop pointer-events-auto mx-auto flex flex-col gap-3 p-3.5" role="note" data-night-teach>
+              <div className="flex items-center gap-3">
+                <span className="flex size-16 shrink-0 items-center justify-center rounded-[16px] bg-tint-body">
+                  <span className="sticker-cut text-[36px] leading-none" style={{ rotate: "-8deg" }} aria-hidden>
+                    🌙
+                  </span>
+                </span>
+                <div className="min-w-0">
+                  <p className="text-title leading-tight font-bold">{say("ui.night.first.title")}</p>
+                  <p className="text-[16px] leading-snug text-text-2">{say("ui.night.first")}</p>
+                </div>
+              </div>
+              <div className="flex gap-2.5">
+                <button type="button" className="press flex-1 rounded-[16px] border-2 border-edge bg-sheet-2 px-4 text-[16px] font-bold shadow-[0_3px_0_var(--edge)]" onClick={() => setNightTeach(null)} data-night-teach-later>
+                  {say("ui.night.first.later")}
+                </button>
+                <PressButton
+                  className="flex-[1.4]"
+                  onClick={() => {
+                    markTaught("night", view.scenario);
+                    setNightTeach(null);
+                    sleepOn(nightTeach);
+                  }}
+                  data-night-teach-ok
+                >
+                  {say("ui.night.first.ok")}
+                </PressButton>
+              </div>
             </div>
             </CentredColumn>
           ) : null}
           {homeTeachShown && homeTeach !== null ? (
             <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] px-3">
-            <div className="pop pointer-events-auto mx-auto flex max-w-sm items-start gap-2 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-home-teach={homeTeach}>
+            <div className="lively-card pop pointer-events-auto mx-auto flex items-start gap-2 p-3" role="note" data-home-teach={homeTeach}>
               <p className="min-w-0 flex-1 text-[14px] leading-snug">{blurbOf(homeTeach)}</p>
               <button
                 type="button"
@@ -1714,9 +1827,10 @@ export function City({
             </div>
             </CentredColumn>
           ) : null}
-          <SpeechBubble hidden={!worldFree} anchored={drawing && ready} />
+          <SpeechBubble hidden={!worldFree || !callouts.bubble} anchored={drawing && ready} />
+          {drawing && ready && sample !== null ? <Emotes people={sample.people} hidden={!worldFree || !settled || asleep !== null || openingUp} /> : null}
           {fanned !== null && fanEntries !== null && picked?.kind === "thing" ? (
-            <Fan key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} />
+            <Fan key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} onPreview={setBandPreview} />
           ) : null}
           <Rise rise={japa.rise} />
           {beatShown ? (
@@ -1727,38 +1841,32 @@ export function City({
             </button>
           ) : null}
           <Cut cutting={cutting} />
-          {openingUp && FIRST_CHAPTER !== null && view.chapter.current === FIRST_CHAPTER ? (
-            <ChapterTitle
-              chapter={FIRST_CHAPTER}
-              onGone={() => {
-                // R-CHAPTER-011: once per life; the mark is kept beside the save, so a reload never shows the title again.
-                markTaught("title", view.scenario);
+          {/* The chapter's brief is handed as a mission card by its person (design page 13 section 4; R-CHAPTER-011 as the hand
+              redraws it): the first chapter's once in a life, a later chapter's until a month is played. Let's go carries it. */}
+          {openingUp && brief !== null ? (
+            <MissionCard
+              brief={brief}
+              onGo={() => {
+                if (view.chapter.current === FIRST_CHAPTER) markTaught("title", view.scenario);
                 setOpeningSeen(true);
+                handOver(view.chapter.current);
               }}
             />
-          ) : openingUp && view.chapter.current !== null ? (
-            <FullScreen
-              open
-              onClose={() => setOpeningSeen(true)}
-              title={nameOf(view.chapter.current)}
-              tone="over"
-            >
-              <div className="flex max-w-sm flex-col items-center gap-5 text-center" data-opening={view.chapter.current}>
-                <p className="label label-strong text-[11px] tracking-[0.3em] uppercase opacity-80">{nameOf(view.chapter.current)}</p>
-                <p className="text-[24px] leading-snug font-bold">{words(openingKey(view))}</p>
-                <p className="text-[15px] opacity-90">{say(shownNudge?.key ?? "ui.nudge.end", shownNudge?.params ?? {})}</p>
-                <Button
-                  onClick={() => {
-                    setOpeningSeen(true);
-                    if (nudgeGoes) followStep();
-                  }}
-                  data-opening-go
-                >
-                  {say("ui.opening.go")}
-                </Button>
-              </div>
-            </FullScreen>
           ) : null}
+          {closeShown && closeBrief !== null && closedNow !== null ? (
+            <ChapterClose
+              brief={closeBrief}
+              line={hasWords(`${closedNow}.close`) ? words(`${closedNow}.close`) : ""}
+              next={brief}
+              after={brief === null ? null : ((next) => (next === null ? null : { chapter: next, title: briefTitle(next) }))(brief.next?.chapter ?? nextBase(brief.chapter))}
+              onGo={() => {
+                closedSeen.current.add(closedNow);
+                setClosedNow(null);
+                handOver(view.chapter.current);
+              }}
+            />
+          ) : null}
+          {markerShown && stepThing !== null && nowItem !== null ? <Marker thing={stepThing} words={nowItem.words} picture={nowItem.picture} /> : null}
         </>
       ) : null}
       {looking ? (

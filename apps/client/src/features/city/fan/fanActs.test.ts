@@ -13,7 +13,8 @@ import type { Thing } from "../../../shared/world/contract";
 import { stageOf } from "../placeFile";
 import { builtPlaces } from "../scene.testing";
 import { thingsOf } from "../things";
-import { fanActOf, fanAsked, fanEntriesOf, fanEntry, fanModel, pictureOf, tintOf } from "./fanActs";
+import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
+import { fanActOf, fanAsked, fanEntriesOf, fanEntry, fanModel, tintOf } from "./fanActs";
 
 function thingAt(folder: string, id: string): Thing {
   const file = builtPlaces().find((place) => place.folder === folder)?.file;
@@ -87,10 +88,10 @@ describe("tints and pictures", () => {
     expect(tintOf("activity.fill-drum")).toBe("plain");
   });
 
-  test("[R-WORLD-005] given every act a thing of the world fans, when its picture is asked for, then it has a stand-in of its own", () => {
+  test("[R-WORLD-005] given every act a thing of the world fans, when its picture is asked for, then it is the act's own tile in the table, a model's render or a stand-in of its own", () => {
     const fanned = Object.keys(content.activity).filter(fanEntry);
     expect(fanned.length).toBeGreaterThan(10);
-    for (const id of fanned) expect(pictureOf(id)).not.toBe(pictureOf("activity.nothing-at-all"));
+    expect(fanned.filter((id) => TILE_TABLE[id] === undefined)).toEqual([]);
   });
 });
 

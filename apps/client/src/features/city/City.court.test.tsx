@@ -85,8 +85,11 @@ describe("the answer once courted", () => {
       vi.advanceTimersByTime(TOLD_MS * 2);
     });
     act(() => document.querySelector<HTMLElement>("[data-home-teach-ok]")?.click());
+    // One line at a time in the corner (the talk budget): his answer first, then that he lives in the game.
     await waitFor(() => expect(document.querySelector("[data-corner]")?.textContent).toContain(answer));
-    const told = document.querySelector("[data-corner]")?.textContent ?? "";
-    expect(told.indexOf(answer)).toBeLessThan(told.indexOf(say("ui.people.chosen", { name: nameOf(TOBI) })));
+    act(() => {
+      vi.advanceTimersByTime(TOLD_MS);
+    });
+    expect(document.querySelector("[data-corner]")?.textContent).toContain(say("ui.people.chosen", { name: nameOf(TOBI) }));
   });
 });

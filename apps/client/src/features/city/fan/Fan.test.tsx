@@ -30,8 +30,9 @@ function entry(id: string, change: Partial<FanEntry> = {}): FanEntry {
 function fanOf(entries: FanEntry[], thing = "cooking") {
   const onAct = vi.fn();
   const onFallback = vi.fn();
-  render(<Fan thing={thing} title="The cooking corner" entries={entries} onAct={onAct} onFallback={onFallback} />);
-  return { onAct, onFallback };
+  const onPreview = vi.fn();
+  render(<Fan thing={thing} title="The cooking corner" entries={entries} onAct={onAct} onFallback={onFallback} onPreview={onPreview} />);
+  return { onAct, onFallback, onPreview };
 }
 
 function buttons(): HTMLElement[] {
@@ -39,20 +40,24 @@ function buttons(): HTMLElement[] {
 }
 
 describe("the fan", () => {
-  test("[R-WORLD-005] [R-WORLD-006] given a thing fanned, when the scene first says where it stands, then its buttons show with each name, its price in the yellow pill and the balance before struck and after", () => {
-    fanOf([entry("a"), entry("b", { price: null, balance: null })], "cooking-1");
+  test("[R-WORLD-005] [R-WORLD-006] given a thing fanned, when the scene first says where it stands, then its buttons show with each name and its price in the yellow pill alone; a free meal says Free, a free rest says nothing, and a press previews what would be left", () => {
+    const { onPreview } = fanOf([entry("a"), entry("b", { price: null, balance: null, free: true }), entry("c", { price: null, balance: null })], "cooking-1");
     expect(buttons()).toHaveLength(0);
     act(() => anchorFan("cooking-1", { x: 100, y: 380 }));
-    expect(buttons()).toHaveLength(2);
+    expect(buttons()).toHaveLength(3);
     expect(screen.getByRole("group", { name: "The cooking corner" }).dataset.fanSide).toBe("right");
     const first = document.querySelector<HTMLElement>('[data-fan-act="a"]');
     expect(first?.querySelector("[data-fan-price]")?.textContent).toBe("₦1,500");
-    expect(first?.querySelector("[data-balance-before]")?.textContent).toBe("₦48,500");
-    expect(first?.querySelector("[data-balance-before]")?.tagName).toBe("S");
-    expect(first?.querySelector("[data-balance-after]")?.textContent).toBe("₦47,000");
+    // Chips earn their place (design page 13 section 2): no balance pair, no "No cost" beside a button in the scene.
+    expect(first?.querySelector("[data-balance-before], [data-balance]")).toBeNull();
+    expect(document.querySelector("[data-fan]")?.textContent).not.toContain("No cost");
     const free = document.querySelector<HTMLElement>('[data-fan-act="b"]');
     expect(free?.querySelector("[data-fan-price]")?.textContent).toBe(say("ui.world.free"));
-    expect(free?.querySelector("[data-balance-before]")).toBeNull();
+    expect(document.querySelector('[data-fan-act="c"] [data-fan-price]')).toBeNull();
+    fireEvent.pointerDown(document.querySelector<HTMLElement>('[data-fan-act="a"] button')!);
+    expect(onPreview).toHaveBeenLastCalledWith(4_700_000);
+    fireEvent.pointerUp(document.querySelector<HTMLElement>('[data-fan-act="a"] button')!);
+    expect(onPreview).toHaveBeenLastCalledWith(null);
   });
 
   test("[R-WORLD-005] given a button that can be had, when it is tapped, then the fan acts with its entry; a refused one shakes and acts not", () => {
@@ -98,5 +103,15 @@ describe("the fan", () => {
     fireEvent.click(screen.getByRole("button", { name: "Act g: ₦1,500", hidden: true }));
     expect(onAct).not.toHaveBeenCalled();
     expect(folded()).toEqual(["a"]);
+  });
+});
+
+// The fan's own rule, R-WORLD-034, is to be written into docs/rules/world.md; until then these cite R-WORLD-005.
+describe("R-WORLD-034 the fan's pictures", () => {
+  test("[R-WORLD-005] given a thing fanned, when its buttons show, then each picture is the act's tile cut as the lively sticker", () => {
+    fanOf([entry("activity.cook-at-home", { picture: "activity.cook-at-home" })], "cooking-tile");
+    act(() => anchorFan("cooking-tile", { x: 100, y: 380 }));
+    const picture = document.querySelector<HTMLElement>('[data-fan-act="activity.cook-at-home"] [data-fan-picture]');
+    expect(picture?.querySelector("[data-sticker] [data-sticker-cut] [data-tile]")?.getAttribute("data-tile")).toBe("activity.cook-at-home");
   });
 });

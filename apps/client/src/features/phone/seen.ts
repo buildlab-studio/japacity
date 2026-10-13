@@ -6,6 +6,7 @@ import type { PlayerView } from "@japacity/sim";
 import { useSyncExternalStore } from "react";
 
 import { newsMarkOf, SEEN_KEY } from "../../shared/phone/newsSeen";
+import { japaMark } from "../../shared/world/briefHanded";
 import { familyFeedLines } from "./feed";
 import { papersMarkOf } from "./papers";
 
@@ -39,7 +40,8 @@ export function marksOf(view: PlayerView): Record<AppId, string> {
     calendar: "",
     bank: "",
     chats,
-    japa: "",
+    // The brief last handed (design page 13 section 4): the dot until Japa is opened.
+    japa: japaMark(view.scenario),
     // A paper that landed or moved this month (R-WORLD-030): the dot until Papers is opened.
     papers: papersMarkOf(view),
     jobs: jobOffers(view).map((offer) => offer.id).join(","),

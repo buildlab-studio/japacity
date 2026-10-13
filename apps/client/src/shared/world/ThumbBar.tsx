@@ -1,6 +1,6 @@
 // The two thumb buttons (docs/rules/world.md R-WORLD-004): Map at the left, Phone at the right,
-// a dot on Phone when an app has something new. Both hide while riding and while the results show.
-import { Map as MapIcon, Smartphone } from "lucide-react";
+// a dot on Phone when an app has something new. Both hide while riding and while the results show. As the lively layer
+// draws them (docs/design/13-the-lively-layer.md): round white buttons with a picture each, navy at night, no pattern.
 import type { ReactNode } from "react";
 
 import { CentredColumn } from "../ui/lively/CentredColumn";
@@ -24,22 +24,31 @@ export function ThumbBar({ onMap, onPhone, phoneWaiting, hidden = false }: Thumb
       {/* On a laptop the thumbs stand at the column's two sides, not the screen's (decision 0038). */}
       <CentredColumn className="flex items-end justify-between">
         <ThumbButton label={say("ui.world.map")} onClick={onMap} id="map">
-          <MapIcon size={24} />
+          <ThumbPicture emoji="🗺️" />
         </ThumbButton>
         <ThumbButton label={say("ui.world.phone")} onClick={onPhone} id="phone" dot={phoneWaiting}>
-          <Smartphone size={24} />
+          <ThumbPicture emoji="📱" />
         </ThumbButton>
       </CentredColumn>
     </nav>
   );
 }
 
+/** A thumb's picture: a stand-in until the map and the phone have tiles of their own. */
+function ThumbPicture({ emoji }: { emoji: string }) {
+  return (
+    <span className="text-[22px] leading-none" aria-hidden data-thumb-picture>
+      {emoji}
+    </span>
+  );
+}
+
 function ThumbButton({ label, onClick, id, dot = false, children }: { label: string; onClick: () => void; id: string; dot?: boolean; children: ReactNode }) {
   return (
-    <button type="button" onClick={onClick} data-thumb={id} className="band-2 press pointer-events-auto relative flex size-16 flex-col items-center justify-center gap-0.5 rounded-[6px] shadow-[0_10px_24px_rgba(10,14,30,0.4)]">
+    <button type="button" onClick={onClick} aria-label={label} data-thumb={id} className="thumb-round press pointer-events-auto relative flex size-[62px] flex-col items-center justify-center gap-px">
       {children}
-      <span className="label text-[10px]">{label}</span>
-      {dot ? <span className="absolute -top-1.5 -right-1.5 size-4 rounded-full border-2 border-sheet bg-signal" aria-hidden data-dot /> : null}
+      <span className="text-[12px] leading-none font-bold">{label}</span>
+      {dot ? <span className="pop absolute -top-0.5 -right-0.5 size-3.5 rounded-full bg-signal shadow-[0_0_0_2.5px_var(--sheet-2)]" aria-hidden data-dot /> : null}
     </button>
   );
 }

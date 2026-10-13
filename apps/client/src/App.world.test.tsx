@@ -32,9 +32,9 @@ describe("the world is the game", () => {
   test("[R-WORLD-001] given a life picked at the default address, when it starts, then the world opens with the band and the two thumb buttons, and no header, tabs or month page", async () => {
     history.replaceState(null, "", "/");
     await startLife();
-    // The first chapter opens on its title over the world, never a card to pass (R-CHAPTER-011).
-    await waitFor(() => expect(document.querySelector("[data-opening-title]")).not.toBeNull());
-    expect(screen.queryByRole("button", { name: say("ui.opening.go") })).toBeNull();
+    // The first chapter's brief is handed as a mission card by a person at the hub (R-CHAPTER-011 as the hand redraws it).
+    await waitFor(() => expect(document.querySelector("[data-brief]")).not.toBeNull());
+    expect(screen.getByRole("button", { name: say("ui.brief.go") })).toBeTruthy();
     await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull());
     expect(screen.queryByRole("button", { name: say("ui.world.end-month") })).toBeNull();
     expect(document.querySelector("[data-band]")).not.toBeNull();

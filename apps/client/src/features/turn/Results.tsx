@@ -11,6 +11,8 @@ import { cue } from "../../shared/sound/cues";
 import { StateTag } from "../../shared/ui/StateTag";
 import { Counter } from "../../shared/world/Band";
 import { WorldSheet } from "../../shared/world/WorldSheet";
+import { Tile } from "../../shared/tiles/Tile";
+import { PressButton } from "../../shared/ui/lively/PressButton";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
 import { inMonths, runningName, say, sayCount, words } from "../../shared/words/text";
@@ -112,9 +114,9 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
       title={turnWords("turn.results.title")}
       mark="results"
       foot={
-        <button type="button" className="btn-main" onClick={back} data-results-back>
+        <PressButton className="w-full" onClick={back} data-results-back>
           <span className="truncate">{turnWords("turn.results.back", { place })}</span>
-        </button>
+        </PressButton>
       }
     >
       <div className="flex flex-col gap-4">
@@ -128,22 +130,24 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
         ))}
         {story.length === 0 ? null : (
           <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
-            <h3 className="label text-text-2">{turnWords("turn.results.story")}</h3>
-            <ul className="flex flex-col">
-              {story.map((line, index) => {
-                const told = toldOnResults(line, view);
-                // R-HOME-003: the room cleared away is told in the same red as a bill unpaid.
-                const unpaid = isUnpaid(line) || isEvicted(line);
-                const lead = leadsAlone(line);
-                // The grant leads alone, larger; a bill not paid is in red though no money moved.
-                const tone = lead ? "pb-3 text-[18px] leading-tight font-bold" : unpaid ? "text-[14px] leading-snug font-semibold text-out" : "text-[14px] leading-snug font-semibold";
-                return (
-                  <li key={`${line.key}-${String(index)}`} className={`border-b border-sheet-line py-2 last:border-b-0 ${tone}`} data-story-line={line.key} data-tone={line.tone} data-unpaid={unpaid ? "true" : undefined} data-story-lead={lead ? "true" : undefined}>
-                    {line.key === READING_MISSING || line.key === READING_FITS ? <Reading line={line} /> : words(told.key, told.params)}
-                  </li>
-                );
-              })}
+            {/* The best thing first with its picture, when payday has not led: a good
+                moment or the grant; then two more as rows with a picture each, the rest behind "See the whole month". */}
+            <h3 className="text-[14px] font-bold text-text-2">{turnWords("turn.results.story")}</h3>
+            <ul className="flex flex-col gap-1.5">
+              {story.slice(0, SHOWN_MOMENTS).map((line, index) => (
+                <StoryRow key={`${line.key}-${String(index)}`} line={line} hero={index === 0 && close.payday.length === 0 && (line.tone === "good" || leadsAlone(line))} />
+              ))}
             </ul>
+            {story.length <= SHOWN_MOMENTS ? null : (
+              <details className="results-more" data-results-more>
+                <summary className="press mx-auto mt-1 w-max cursor-pointer list-none text-[16px] font-bold underline decoration-2 underline-offset-4">{say("ui.results.whole-month")}</summary>
+                <ul className="mt-2 flex flex-col gap-1.5">
+                  {story.slice(SHOWN_MOMENTS).map((line, index) => (
+                    <StoryRow key={`${line.key}-more-${String(index)}`} line={line} hero={false} />
+                  ))}
+                </ul>
+              </details>
+            )}
           </section>
         )}
 
@@ -157,12 +161,13 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
         {lines.length === 0 ? (
           // No money moved: said plainly, never "+₦0" (R-WORLD-008).
           <div className="flex items-baseline justify-between gap-3" data-results-kept={0}>
-            <span className="text-[22px] leading-none font-bold">{turnWords("turn.results.nothing-moved")}</span>
+            <span className="text-[16px] leading-none font-semibold text-text-2">{turnWords("turn.results.nothing-moved")}</span>
           </div>
         ) : (
+          // Losses are never the loudest (the after set): a month down is said quietly, a month up in green.
           <div className="flex items-baseline justify-between gap-3" data-results-kept={main.amount}>
-            <span className="text-[14px] font-semibold">{turnWords(main.amount < 0 ? "turn.results.lost" : "turn.results.kept")}</span>
-            <Counter value={counted} format={(value) => signed(value, value, main.currency)} className={`text-[32px] leading-none ${main.amount < 0 ? "text-out" : "text-in"}`} />
+            <span className="text-[14px] font-semibold text-text-2">{turnWords(main.amount < 0 ? "turn.results.lost" : "turn.results.kept")}</span>
+            <Counter value={counted} format={(value) => signed(value, value, main.currency)} className={main.amount < 0 ? "text-[16px] leading-none text-text-2" : "text-[24px] leading-none text-in"} />
           </div>
         )}
         {rest.map((net) => (
@@ -231,13 +236,70 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   );
 }
 
-/** A line of the month's turn in money, as the close leads with it: its words, and the figure in or out in its colour. */
+/** How many of the month's moments stand before "See the whole month" (the after set). */
+const SHOWN_MOMENTS = 3;
+
+/** A moment's picture by what it is: a stand-in until each kind of line has a tile. */
+function momentPicture(key: string): string {
+  if (key.startsWith("line.route.granted") || key.includes("granted")) return "🛂";
+  if (key.startsWith("line.offer")) return "📨";
+  if (key.startsWith("line.news")) return "📻";
+  if (key.startsWith("line.job") || key.startsWith("line.activity.job")) return "💼";
+  if (key.startsWith("line.document")) return "📄";
+  if (key.startsWith("line.people")) return "💬";
+  if (key.startsWith("line.obligation")) return "🧾";
+  if (key.startsWith("line.lottery") || key.startsWith("line.luck")) return "🎟️";
+  return "✨";
+}
+
+/** One moment of the month: a picture and its words; the best one leads as a card with a larger picture. */
+function StoryRow({ line, hero }: { line: ReportLine; hero: boolean }) {
+  const view = useView();
+  const told = toldOnResults(line, view);
+  // R-HOME-003: the room cleared away is told in the same red as a bill unpaid.
+  const unpaid = isUnpaid(line) || isEvicted(line);
+  const lead = leadsAlone(line);
+  const tone = lead ? "text-[18px] leading-tight font-bold" : unpaid ? "text-[15px] leading-snug font-semibold text-out" : "text-[15px] leading-snug";
+  return (
+    <li className={`flex items-center gap-3 ${hero ? "lively-card p-3" : "py-1"} ${tone}`} data-story-line={line.key} data-tone={line.tone} data-unpaid={unpaid ? "true" : undefined} data-story-lead={lead ? "true" : undefined} {...(hero ? { "data-results-best": "" } : {})}>
+      <span className={`flex shrink-0 items-center justify-center rounded-[14px] bg-tint-plain ${hero ? "size-16 text-[34px]" : "size-10 text-[22px]"}`} aria-hidden>
+        {/* The picture is drawn from its attribute, so the line's words stay the row's only text. */}
+        <span className="sticker-cut drawn-pic" style={{ rotate: "-5deg" }} data-pic={momentPicture(line.key)} />
+      </span>
+      <span className="min-w-0 flex-1">{line.key === READING_MISSING || line.key === READING_FITS ? <Reading line={line} /> : words(told.key, told.params)}</span>
+    </li>
+  );
+}
+
+/**
+ * A line of the month's turn in money, as the close leads with it: payday as the best thing first, a card with the job's
+ * picture and the figure in green; the rent as a sticker chip, out, never louder than what came in.
+ */
 function MoneyRow({ entry, mark }: { entry: MoneyLine; mark: "payday" | "rent" }) {
   const { line, sign, amount, currency } = entry;
+  const view = useView();
+  if (mark === "payday") {
+    return (
+      <div className="lively-card flex items-center gap-3 p-3" data-results-payday={amount} data-results-best data-sign={sign}>
+        <span className="flex size-16 shrink-0 items-center justify-center rounded-[14px] bg-tint-money">
+          <span className="sticker-cut" style={{ rotate: "-5deg" }}>
+            {view.job.id === null ? <span className="drawn-pic text-[34px]" data-pic="💰" /> : <Tile of={view.job.id} size={46} />}
+          </span>
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[15px] leading-snug font-semibold">{nowLineWords(line)}</span>
+          <span className={`num block text-[22px] ${sign < 0 ? "text-out" : "text-in"}`}>{signed(sign, amount, currency)}</span>
+        </span>
+      </div>
+    );
+  }
   return (
-    <div className="flex items-baseline justify-between gap-3 border-b border-sheet-line pb-2" data-results-payday={mark === "payday" ? amount : undefined} data-results-rent={mark === "rent" ? amount : undefined} data-sign={sign}>
-      <span className="min-w-0 flex-1 text-[15px] leading-snug font-semibold">{nowLineWords(line)}</span>
-      <span className={`num shrink-0 text-[17px] ${sign < 0 ? "text-out" : "text-in"}`}>{signed(sign, amount, currency)}</span>
+    <div className="flex flex-wrap items-center gap-2" data-results-rent={amount} data-sign={sign}>
+      <span className="sticker-chip bg-sheet-2 text-[14px]" style={{ rotate: "-1deg" }}>
+        <span className="drawn-pic" data-pic="🏠" aria-hidden />
+        {nowLineWords(line)}
+        <span className={`num ${sign < 0 ? "text-text-2" : "text-in"}`}>{signed(sign, amount, currency)}</span>
+      </span>
     </div>
   );
 }

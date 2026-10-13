@@ -22,7 +22,7 @@ export interface FanSizes {
 }
 
 export const PHONE: FanSizes = { radius: 170, button: 64, pitch: 88, label: 132, gap: 8 };
-export const LAPTOP: FanSizes = { radius: 240, button: 72, pitch: 100, label: 200, gap: 10 };
+export const LAPTOP: FanSizes = { radius: 200, button: 72, pitch: 100, label: 200, gap: 10 };
 
 /** From this width up the screen is a laptop's: larger buttons on a wider curve (section 2, "The laptop"). */
 export const LAPTOP_WIDTH = 768;

@@ -3,12 +3,14 @@
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { int, type Amount, type Currency, type Effect, type OfferView as Offer, type ReportLine, type Terms } from "@japacity/sim";
-import { Eye, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { Button } from "../../shared/ui/Button";
-import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
+import { Empty } from "../../shared/ui/Panel";
+import { Face, faceMark } from "../../shared/ui/lively/Face";
+import { StickerChip } from "../../shared/ui/lively/StickerChip";
+import { afterPaying, monthDues, plannedCosts } from "../../shared/words/cost";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { isSaid, tidyLines } from "../../shared/words/lines";
 import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
@@ -136,6 +138,90 @@ export function shownChoices(offer: Offer): Offer["choices"] {
   return [...offer.choices].sort((a, b) => pays(a) - pays(b));
 }
 
+/** Who asks, by the offer's group, until content names each ask's speaker (the ask). */
+const ASKER_BY_GROUP: Readonly<Record<string, string>> = { family: "Mama", job: "The board", money: "A friend", life: "Someone you know", road: "The agent", abroad: "A friend", return: "Mama" };
+/** The picture in the corner of the asker's mark, by the offer's group: a stand-in until the asks have tiles. */
+const ASK_PICTURE: Readonly<Record<string, string>> = { family: "💡", job: "💼", money: "💸", life: "📱", road: "🧳", abroad: "✈️", return: "🏠" };
+
+/** The asker's name: the ask's own where the interface names one, an unknown number for a scam, else by the group. */
+export function askerOf(offer: Pick<Offer, "entry">): string {
+  if (hasWords(`ui.ask.${offer.entry}.who`)) return say(`ui.ask.${offer.entry}.who`);
+  if (mayBeScam(offer)) return say("ui.ask.unknown");
+  return ASKER_BY_GROUP[content.offer[offer.entry]?.group ?? ""] ?? say("ui.ask.someone");
+}
+
+/** The ask's title: content's, in the asker's voice; content shortens each to a few words (to be rewritten). */
+export function askTitle(offer: Offer): string {
+  return words(`${offer.entry}.title`, offerParams(offer));
+}
+
+/** A choice's price, summed, when it is one money: for the price pill and the balance under it. */
+function choiceMoney(offer: Offer, choice: string): { currency: Currency; amount: number } | null {
+  const effects: Effect[] = content.offer[offer.entry]?.choices.find((entry) => entry.id === choice)?.effects ?? [];
+  let currency: Currency | null = null;
+  let amount = 0;
+  for (const effect of effects) {
+    if (effect.type !== "money/take" && effect.type !== "money/pay-fee") continue;
+    const figure_ = figure(effect.amount, offer.terms);
+    if (figure_ === null) continue;
+    if (currency !== null && currency !== effect.currency) return null;
+    currency = effect.currency;
+    amount += figure_;
+  }
+  return currency === null ? null : { currency, amount };
+}
+
+/**
+ * One reply as a row (the ask): its words, then the balance before struck and after and
+ * the price as a yellow pill, or "Free" alone when it costs nothing, never beside a "No cost" that says the same
+ * (design page 13 section 2). Its name is the reply with its cost, so it never hides its price.
+ */
+function ReplyRow({ offer, choice, disabled, main, freeShown, onPick }: { offer: Offer; choice: Offer["choices"][number]; disabled: boolean; main: boolean; freeShown: boolean; onPick: () => void }) {
+  const view = useView();
+  const plan = useGame((state) => state.plan);
+  const money = choice.pick === null ? choiceMoney(offer, choice.id) : null;
+  const paying = money === null || money.amount === 0 ? null : afterPaying(view, plannedCosts(view, plan), [money], monthDues(view));
+  const label = words(`${offer.entry}.choice.${choice.id}`, offerParams(offer));
+  return (
+    <button
+      type="button"
+      className={`ask-reply press flex min-h-[64px] w-full items-center gap-3 px-4 py-2.5 text-left disabled:opacity-50 ${main ? "ask-reply-main" : ""}`}
+      disabled={disabled}
+      onClick={onPick}
+      aria-label={choiceLabel(offer, choice)}
+      data-reply={choice.id}
+      {...(main ? { "data-reply-main": "" } : {})}
+    >
+      <span className="min-w-0 flex-1 text-[17px] leading-tight font-bold" data-reply-label>
+        {label}
+      </span>
+      {money === null || money.amount === 0 ? (
+        freeShown && choice.pick === null && choiceLock(offer, choice.id) === null ? (
+          <span className="ask-price shrink-0" data-reply-free>
+            {say("ui.world.free")}
+          </span>
+        ) : null
+      ) : (
+        <>
+          {paying === null || paying.short !== null ? (
+            paying?.short === null || paying === null ? null : (
+              <span className="shrink-0 text-[13px] font-bold text-out">{say("ui.world.short", { amount: formatMoney(paying.short.amount, paying.short.currency) })}</span>
+            )
+          ) : (
+            <span className="num flex shrink-0 flex-col items-end text-[13px] leading-tight" data-reply-balance>
+              <s className="text-text-2">{formatMoney(paying.before.amount, paying.before.currency)}</s>
+              <b>{formatMoney(paying.left.amount, paying.left.currency)}</b>
+            </span>
+          )}
+          <span className="ask-price num shrink-0" data-reply-price>
+            {formatMoney(money.amount, money.currency)}
+          </span>
+        </>
+      )}
+    </button>
+  );
+}
+
 function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: ReportLine[]) => void }) {
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
@@ -143,61 +229,81 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
   const picking = offer.choices.find((choice) => choice.pick !== null);
   const [amount, setAmount] = useState<number>(picking?.pick?.min ?? 0);
   const params = offerParams(offer);
+  const asker = askerOf(offer);
+  const mark = faceMark(asker);
+  const group = content.offer[offer.entry]?.group ?? "life";
+  const scam = mayBeScam(offer);
 
   return (
-    <li>
-      <Card tone="attention" className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <h3 className="text-lg font-semibold">{words(`${offer.entry}.title`, params)}</h3>
-          <Tag>{say("ui.offer.expires", { when: byMonths(offer.expiresMonth, month) })}</Tag>
+    <li className="flex flex-col gap-3" data-ask={offer.entry}>
+      {/* The asker: a large flat mark with a picture of what it is about, their name pill, the title in their voice. */}
+      <div className="flex items-center gap-3">
+        <span className="ask-mark relative flex size-[76px] shrink-0 items-center justify-center text-[34px] font-bold text-white" style={{ background: scam ? "#6b7a90" : mark.colour }} aria-hidden>
+          {scam ? "?" : mark.initial}
+          <span className="sticker-cut absolute -right-2 -bottom-1 text-[24px]" style={{ rotate: "8deg" }}>
+            {ASK_PICTURE[group] ?? "📱"}
+          </span>
+        </span>
+        <div className="min-w-0">
+          <Face name={asker} />
+          <h3 className="mt-1 text-[22px] leading-tight font-bold" data-ask-title>
+            {askTitle(offer)}
+          </h3>
         </div>
-        <JobFigures terms={offer.terms} />
-        <p>{words(`${offer.entry}.body`, params)}</p>
-        {offer.signs.length === 0 ? null : (
-          <div className="flex flex-col gap-1 rounded-md bg-sheet-muted p-3 text-sm">
-            <p className="flex items-center gap-2 font-medium">
-              <Eye size={16} />
-              {say("ui.offer.signs")}
-            </p>
-            <ul className="list-disc pl-5">
-              {offer.signs.map((sign) => (
-                <li key={sign}>{words(`${offer.entry}.sign.${sign}`, params)}</li>
-              ))}
-            </ul>
-          </div>
+      </div>
+      <JobFigures terms={offer.terms} />
+      <p className="text-[16px] leading-snug">{words(`${offer.entry}.body`, params)}</p>
+      <div className="flex flex-wrap gap-2">
+        <StickerChip tilt={-2} className="bg-sheet-2">
+          {say("ui.offer.expires", { when: byMonths(offer.expiresMonth, month) })}
+        </StickerChip>
+        {offer.signs.length === 0 ? (
+          <StickerChip tilt={2} tint={group === "family" || group === "return" ? "people" : group === "money" || group === "job" ? "money" : "plain"}>
+            {say(`ui.ask.group.${group}`)}
+          </StickerChip>
+        ) : (
+          offer.signs.map((sign, index) => (
+            <span key={sign} className="sticker-chip bg-[var(--soft)]" style={{ rotate: `${String(index % 2 === 0 ? 2 : -1)}deg`, color: "var(--soft-ink)" }} data-ask-sign={sign}>
+              <span aria-hidden>👀</span>
+              {words(`${offer.entry}.sign.${sign}`, params)}
+            </span>
+          ))
         )}
-        {picking === undefined || picking.pick === null ? null : (
-          <AmountPicker min={picking.pick.min} max={picking.pick.max} value={amount} onChange={setAmount} />
-        )}
-        <div className="flex flex-wrap gap-2">
-          {shownChoices(offer).map((choice, index) => (
-            <Button
-                key={choice.id}
-                variant={index === 0 && !mayBeScam(offer) ? "primary" : "secondary"}
-                disabled={!choice.allowed || busy || ended}
-                onClick={() =>
-                  void send(
-                    choice.pick === null
-                      ? { type: "offer/choose", offer: offer.id, choice: choice.id }
-                      : { type: "offer/choose", offer: offer.id, choice: choice.id, amount },
-                  ).then((reply) => {
-                    if (reply?.ok === true) onChosen(reply.lines);
-                  })
-                }
-              >
-                {choiceLabel(offer, choice)}
-              </Button>
-          ))}
-        </div>
-        {/* A shut answer says why, where content gives the reason (the taken-in friend, home.md R-HOME-004). */}
-        {offer.choices
-          .filter((choice) => !choice.allowed && hasWords(`${offer.entry}.choice.${choice.id}.shut`))
-          .map((choice) => (
-            <p key={choice.id} className="text-sm text-text-2" data-choice-shut={choice.id}>
-              {words(`${offer.entry}.choice.${choice.id}.shut`, params)}
-            </p>
-          ))}
-      </Card>
+      </div>
+      {picking === undefined || picking.pick === null ? null : (
+        <AmountPicker min={picking.pick.min} max={picking.pick.max} value={amount} onChange={setAmount} />
+      )}
+      <div className="flex flex-col gap-2.5">
+        {shownChoices(offer).map((choice, index) => (
+          <ReplyRow
+            key={choice.id}
+            offer={offer}
+            choice={choice}
+            // An honest ask keeps its main answer, the first; an ask that may be a scam has none (R-ADVICE-006).
+            main={index === 0 && !scam}
+            // "Free" only where another answer has a price, so it says something (design page 13 section 2).
+            freeShown={offer.choices.some((other) => other.pick !== null || (choiceMoney(offer, other.id)?.amount ?? 0) > 0)}
+            disabled={!choice.allowed || busy || ended}
+            onPick={() =>
+              void send(
+                choice.pick === null
+                  ? { type: "offer/choose", offer: offer.id, choice: choice.id }
+                  : { type: "offer/choose", offer: offer.id, choice: choice.id, amount },
+              ).then((reply) => {
+                if (reply?.ok === true) onChosen(reply.lines);
+              })
+            }
+          />
+        ))}
+      </div>
+      {/* A shut answer says why, where content gives the reason (the taken-in friend, home.md R-HOME-004). */}
+      {offer.choices
+        .filter((choice) => !choice.allowed && hasWords(`${offer.entry}.choice.${choice.id}.shut`))
+        .map((choice) => (
+          <p key={choice.id} className="text-sm text-text-2" data-choice-shut={choice.id}>
+            {words(`${offer.entry}.choice.${choice.id}.shut`, params)}
+          </p>
+        ))}
     </li>
   );
 }
@@ -223,7 +329,8 @@ export function OfferView({ only }: { only?: (offer: Offer) => boolean } = {}) {
   const offers = only === undefined ? view.offers : view.offers.filter(only);
   const [outcome, setOutcome] = useState<ReportLine[] | null>(null);
   return (
-    <Panel title={say("ui.offer.title")}>
+    // The asks as the lively layer draws them: no tracked heading over the card, the sheet names what it holds.
+    <section aria-label={say("ui.offer.title")} className="flex flex-col gap-3">
       {outcome === null ? null : <Outcome lines={outcome} onClose={() => setOutcome(null)} />}
       {offers.length === 0 ? (
         <Empty>{say("ui.offer.none")}</Empty>
@@ -234,6 +341,6 @@ export function OfferView({ only }: { only?: (offer: Offer) => boolean } = {}) {
           ))}
         </ul>
       )}
-    </Panel>
+    </section>
   );
 }

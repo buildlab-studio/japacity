@@ -6,7 +6,7 @@
 // there until Papers is opened, and nothing opens by itself. A result whose morning has come (clock.md R-CLOCK-032)
 // is told first of all, a notice from its office, once. Nothing here sends a command.
 import type { Envelope, PlayerView } from "@japacity/sim";
-import { FolderOpen, Mail } from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import { use, useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -14,6 +14,7 @@ import { dueSignals, waitingSignals } from "../../shared/days/days";
 import { tellSignals, useMonthDays } from "../../shared/days/days.store";
 import { atHome } from "../../shared/days/standing";
 import { PhoneNav } from "../../shared/phone/nav";
+import { Tile } from "../../shared/tiles/Tile";
 import { formatBand } from "../../shared/words/format";
 import { runningName, say } from "../../shared/words/text";
 import { paperNotices, paperNoticeWords, papersMarkOf } from "./papers";
@@ -46,25 +47,59 @@ export function envelopeWords(envelope: Envelope, view: Pick<PlayerView, "routes
   return { from: phoneWords(`phone.morning.from.${envelope.id}`), words: phoneWords(own, { band: band === undefined ? "" : formatBand(band) }) };
 }
 
-/** The results whose morning has come, first on the wallpaper, each a notice from its office (R-CLOCK-032). */
+/** The picture of a result by what it is: the test desk for a band, the desk for the endorsement, the visa centre for a decision. */
+const ENVELOPE_PICTURE: Readonly<Record<string, string>> = {
+  "document.english-test": "activity.sit-english-test",
+  "document.endorsement": "activity.apply-endorsement",
+  "document.tb-certificate": "activity.tb-test",
+  "document.police-certificate": "activity.get-police-certificate",
+};
+
+/** The id whose tile is an envelope's picture. */
+export function envelopePicture(envelope: Envelope): string {
+  return envelope.kind === "route" ? "place.visa-centre" : (ENVELOPE_PICTURE[envelope.id] ?? "place.passport-office");
+}
+
+/**
+ * The results whose morning has come, first on the wallpaper, each a notice from its office (R-CLOCK-032), as the after
+ * set's morning draws it: the first a white card with its picture, its office and what it says, large; any others under
+ * "Also this morning", smaller. The best thing leads; nothing is louder than it.
+ */
 function MorningNotices({ told }: { told: readonly Envelope[] }) {
   const view = useView();
   if (told.length === 0) return null;
+  const [first, ...rest] = told;
   return (
-    <ul className="mt-4 flex flex-col gap-2 px-4" aria-label={phoneWords("phone.morning.notices")} data-morning>
-      {told.map((envelope) => {
+    <div className="mt-4 flex flex-col gap-2 px-4" aria-label={phoneWords("phone.morning.notices")} role="list" data-morning>
+      {first === undefined ? null : (
+        <div role="listitem" className="morning-card pop flex items-center gap-3 p-3 text-left text-text" data-envelope={first.id} data-envelope-first>
+          <span className="flex size-[72px] shrink-0 items-center justify-center rounded-[16px] bg-[var(--soft)]">
+            <span className="sticker-cut" style={{ rotate: "-6deg" }}>
+              <Tile of={envelopePicture(first)} size={52} />
+            </span>
+          </span>
+          <span className="min-w-0 flex-1">
+            {envelopeWords(first, view).from === null ? null : <span className="block text-[13px] font-bold text-text-2">{envelopeWords(first, view).from}</span>}
+            <span className="block text-[19px] leading-snug font-bold">{envelopeWords(first, view).words}</span>
+          </span>
+        </div>
+      )}
+      {rest.length === 0 ? null : <p className="mt-1 text-[14px] font-bold text-white/85">{phoneWords("phone.morning.also")}</p>}
+      {rest.map((envelope) => {
         const { from, words } = envelopeWords(envelope, view);
         return (
-          <li key={`${envelope.kind}.${envelope.id}`} className="pop flex items-start gap-2 rounded-[12px] bg-sheet/95 px-3 py-2 text-left text-[14px] leading-snug text-text shadow-[0_4px_10px_rgba(10,14,30,0.25)]" data-envelope={envelope.id}>
-            <Mail size={16} aria-hidden className="mt-0.5 shrink-0 text-text-2" />
+          <div role="listitem" key={`${envelope.kind}.${envelope.id}`} className="pop flex items-center gap-2.5 rounded-[16px] bg-sheet/95 px-3 py-2 text-left text-[14px] leading-snug text-text shadow-[0_4px_10px_rgba(10,14,30,0.25)]" data-envelope={envelope.id}>
+            <span className="sticker-cut shrink-0" style={{ rotate: "4deg" }}>
+              <Tile of={envelopePicture(envelope)} size={28} />
+            </span>
             <span className="min-w-0 flex-1">
               {from === null ? null : <span className="block text-[12px] font-bold text-text-2">{from}</span>}
               <span className="block font-semibold">{words}</span>
             </span>
-          </li>
+          </div>
         );
       })}
-    </ul>
+    </div>
   );
 }
 

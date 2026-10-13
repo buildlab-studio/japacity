@@ -123,14 +123,17 @@ function Sheet({ ask, formatMoney, icon, main: counted }: AskSheetProps & { main
 
 function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMoney: AskSheetProps["formatMoney"]; icon: AskSheetProps["icon"] }) {
   return (
-    <div className="panel rise mx-2 mb-2 overflow-hidden">
-      <div className="band relative flex items-end gap-3 px-4 pt-4 pb-3">
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-[5px] bg-sheet text-strong">{icon?.(ask.icon)}</div>
+    // The lively card (docs/design/13-the-lively-layer.md section 2): the sheet's pale sky with its handle, the picture on a
+    // soft tile, a small line for who and where, the title of a few words; navy at night.
+    <div className="rise mx-auto w-full max-w-[430px] overflow-hidden rounded-t-[26px] bg-sheet text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]" data-lively-frame>
+      <span aria-hidden className="mx-auto mt-2 block h-[5px] w-10 rounded-[3px] bg-text/25" />
+      <div className="relative flex items-center gap-3 px-4 pt-2 pr-12 pb-1">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-plain text-text">{icon?.(ask.icon)}</div>
         <div className="min-w-0 flex-1">
-          <Dialog.Description className="label label-strong truncate">{ask.who}</Dialog.Description>
-          <Dialog.Title className="title text-[24px] leading-none">{ask.title}</Dialog.Title>
+          <Dialog.Description className="truncate text-[13px] font-medium text-text-2">{ask.who}</Dialog.Description>
+          <Dialog.Title className="text-title leading-tight font-bold">{ask.title}</Dialog.Title>
         </div>
-        <Dialog.Close aria-label={say("ui.world.close")} className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-[5px] text-on-strong/80">
+        <Dialog.Close aria-label={say("ui.world.close")} className="press absolute top-1 right-3 flex size-9 items-center justify-center rounded-[12px] text-text-2">
           <X size={18} />
         </Dialog.Close>
       </div>
@@ -171,6 +174,9 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
   );
 }
 
+/** The label and its second line side by side, apart. */
+const SPREAD: CSSProperties = { justifyContent: "space-between" };
+
 /** Label and second line together longer than this stack, so neither wraps out of the button at 390 px. */
 const SIDE_BY_SIDE = 34;
 
@@ -188,7 +194,7 @@ function MainButton({ ask, main, label }: { ask: Ask; main: Main; label: string 
   const second = main.after ?? (main.balance !== undefined && ask.when === "now" ? null : say(ask.when === "now" ? "ui.world.now" : "ui.world.counts-at-end"));
   const stacked = second !== null && label.length + second.length > SIDE_BY_SIDE;
   return (
-    <button type="button" className="btn-main mt-4" style={stacked ? STACKED : second === null ? CENTRED : undefined} onClick={ask.act} disabled={main.shut} data-ask-main data-short={main.shut ? "true" : undefined} data-ask-stacked={stacked ? "true" : undefined}>
+    <button type="button" className="press-button mt-4 w-full" style={stacked ? STACKED : second === null ? CENTRED : SPREAD} onClick={ask.act} disabled={main.shut} data-ask-main data-short={main.shut ? "true" : undefined} data-ask-stacked={stacked ? "true" : undefined}>
       <span className="leading-tight">{label}</span>
       {second === null ? null : main.warn === true ? (
         <span className="flex items-center gap-1 text-[13px] leading-snug font-bold" data-ask-warn>

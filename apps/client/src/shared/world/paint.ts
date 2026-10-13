@@ -35,11 +35,10 @@ function search(): string {
 }
 
 /**
- * Whether the night paint follows the clock for players yet. It waits for the hand's wave (design page 13, section 8),
- * since the screens not yet redone keep navy words that would vanish on a navy sheet; until then only `?paint=night`
- * shows it, in development.
+ * Whether the night paint follows the clock for players: live since the hand's wave (design page 13, section 8), which
+ * dressed the surfaces over the world to read in both paints. `?paint=` still stands either paint in, in development.
  */
-export const NIGHT_PAINT_LIVE = false;
+export const NIGHT_PAINT_LIVE = true;
 
 /** Keeps the root's paint with the world's clock while it is mounted; gone, the root goes back to the day's. */
 export function usePaint(live: boolean = NIGHT_PAINT_LIVE): Paint {

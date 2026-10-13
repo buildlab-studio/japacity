@@ -7,10 +7,12 @@ import { describe, expect, test, vi } from "vitest";
 import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { inMonths, nameOf, say, words } from "../../shared/words/text";
+import { inMonths, say, words } from "../../shared/words/text";
 import { bandMonth } from "../../shared/world/Band";
 import { forgetTaught, wasTaught } from "../../shared/world/taught";
-import { City, type CityMapSlot, homeLine, RESULTS_BEAT_MS, TITLE_MS } from "./City";
+import { TUCK_MS, TUCK_SLIDE_MS } from "./brief/brief";
+import { NEAR_SPEAKER } from "../../shared/world/Lines";
+import { ARRIVE_QUIET_MS, City, type CityMapSlot, homeLine, RESULTS_BEAT_MS } from "./City";
 import { cityWords } from "./city.words";
 import { nudgeOf, stepWayOf } from "./nudge";
 
@@ -49,33 +51,43 @@ function thumbs(): HTMLElement {
 }
 
 describe("the world fills the screen", () => {
-  test("[R-WORLD-001] [R-CHAPTER-011] given a life that has not played a month, when the world opens, then the first chapter's title stands over the world with no card, no dimming and no button, the nudge under the band gives the first step, and a life with a month behind it opens straight on the world", async () => {
+  test("[R-WORLD-001] [R-CHAPTER-011] given a life that has not played a month, when the world opens, then the first brief stands over the world as a mission card handed by a person, with Let's go and nothing under the band, and a life with a month behind it opens straight on the world", async () => {
     const view = engineView();
     await renderWithView(world(), view);
     const opening = document.querySelector<HTMLElement>("[data-opening]");
     if (opening === null || view.chapter.current === null) throw new Error("No opening");
     expect(opening.dataset.opening).toBe(view.chapter.current);
-    expect(opening.textContent).toBe(nameOf(view.chapter.current));
-    expect(screen.queryByRole("dialog")).toBeNull();
-    expect(screen.queryByRole("button", { name: say("ui.opening.go") })).toBeNull();
-    expect(document.querySelector("[data-nudge]")?.textContent).toContain(say(nudgeOf(view).key));
+    expect(opening.querySelector("[data-brief-title]")?.textContent).toBe(say("ui.brief.find-your-feet.title"));
+    expect(screen.getByRole("button", { name: say("ui.brief.go") })).toBeTruthy();
+    expect(document.querySelector("[data-nudge]")).toBeNull();
     // A life with a month behind it opens straight on the world.
     document.body.innerHTML = "";
     await renderWithView(world(), richView());
     expect(document.querySelector("[data-opening]")).toBeNull();
   });
 
-  test("[R-WORLD-001] given a life in the world, when it opens, then only the band, the nudge and the Map and Phone buttons stand over the place", async () => {
+  test("[R-WORLD-001] given a life in the world, when it opens, then only the band, the brief's chip for its moment and the Map and Phone buttons stand over the place, and once the chip has tucked into the phone nothing stands under the band", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
     const view = engineView();
     const { store } = await opened(world(), view);
     expect(band()).toBeTruthy();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
     // The nudge is a button when it opens the way to what it names (R-WORLD-003); the band's handle shows only while something is coming (R-WORLD-002).
     // The month's name and phase are part of the band, a chip that opens the Calendar (R-WORLD-002, decision 0034).
-    // The name over the age opens the data page (R-PROLOGUE-009).
-    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt, worldClockAt(Date.now())) }), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
+    // The name over the age opens the data page (R-PROLOGUE-009). With the brief carried, the home's
+    // small card says what the home is, once (R-HOME-008).
+    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt, worldClockAt(Date.now())) }), say("ui.brief.find-your-feet.title"), say("ui.world.map"), say("ui.world.phone"), cityWords("city.home.teach.close")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
+    // The road shows in the world only in the moment (the plan 16): away from the step's place nothing stays.
+    act(() => {
+      vi.advanceTimersByTime(TUCK_MS + TUCK_SLIDE_MS + 50);
+    });
+    expect(document.querySelector("[data-nudge]")).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("[R-WORLD-001] given a set piece and offers waiting, when the world opens, then nothing of them stands over the place until the nudge is tapped, and the sheet opens over it", async () => {
@@ -178,23 +190,25 @@ describe("the band and the thumb buttons", () => {
 });
 
 describe("street talk", () => {
-  test("[R-WORLD-026] given a place with overheard lines, when the world shows, then one line of chatter stands in the bottom corner, changes with time, and hides while a sheet is open", async () => {
+  test("[R-WORLD-026] given a place with overheard lines, when the world shows, then nothing is said in the first seconds, then a line floats over the resident nearest, never in the corner, and it hides while a sheet is open", async () => {
     vi.useFakeTimers();
     try {
       await opened(world(), engineView());
-      const chatter = (): HTMLElement | null => document.querySelector<HTMLElement>("[data-chatter]");
-      expect(chatter()).not.toBeNull();
-      const first = chatter()?.textContent ?? "";
+      // The home's small card is put away, so the world is free.
+      const teach = document.querySelector<HTMLElement>("[data-home-teach-ok]");
+      if (teach !== null) fireEvent.click(teach);
+      const talk = (): HTMLElement | null => document.querySelector<HTMLElement>(`[data-speech='${NEAR_SPEAKER}']`);
+      expect(talk()).toBeNull();
+      act(() => {
+        vi.advanceTimersByTime(ARRIVE_QUIET_MS);
+      });
+      expect(talk()).not.toBeNull();
+      const first = talk()?.querySelector("[data-speech-words]")?.textContent ?? "";
       expect(first.length).toBeGreaterThan(0);
       expect(first).not.toMatch(/[\u2013\u2014]/);
-      const seen = new Set([first]);
-      for (let turn = 0; turn < 6; turn += 1) {
-        void act(() => vi.advanceTimersByTime(9000));
-        seen.add(chatter()?.textContent ?? "");
-      }
-      expect(seen.size).toBeGreaterThan(1);
+      expect(document.querySelector("[data-corner] [data-chatter], [data-heard]")).toBeNull();
       fireEvent.click(monthChip());
-      expect(chatter()).toBeNull();
+      expect(talk()).toBeNull();
     } finally {
       vi.useRealTimers();
     }
@@ -575,22 +589,22 @@ describe("the home the game opens in", () => {
 });
 
 describe("once per life", () => {
-  test("[R-CHAPTER-011] given the first chapter's title shown once, when the page reloads, then it never shows again in this life, and a new life shows it again", async () => {
+  test("[R-CHAPTER-011] given the first brief handed once, when the page reloads, then its card never shows again in this life, and a new life is handed it again", async () => {
     localStorage.clear();
     const view = engineView();
     await renderWithView(world(), view);
-    expect(document.querySelector("[data-opening-title]")).not.toBeNull();
-    await waitFor(() => expect(document.querySelector("[data-opening-title]")).toBeNull(), { timeout: TITLE_MS + 2000 });
+    expect(document.querySelector("[data-brief]")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.brief.go") }));
     expect(wasTaught("title", view.scenario)).toBe(true);
     // A reload: a new store and a new screen over the same life.
     document.body.innerHTML = "";
     await renderWithView(world(), view);
-    expect(document.querySelector("[data-opening-title]")).toBeNull();
+    expect(document.querySelector("[data-brief]")).toBeNull();
     // A new life is taught afresh.
     document.body.innerHTML = "";
     forgetTaught();
     await renderWithView(world(), view);
-    expect(document.querySelector("[data-opening-title]")).not.toBeNull();
+    expect(document.querySelector("[data-brief]")).not.toBeNull();
     localStorage.clear();
   });
 
