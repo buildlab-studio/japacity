@@ -108,7 +108,7 @@ export function Title({ words, size = 168, color = DAY.ink, delay = 0, align = "
   return (
     <div style={{ display: "flex", flexWrap: "wrap", justifyContent: align === "center" ? "center" : "flex-start", columnGap: size * 0.26, fontFamily: FONT, fontWeight: 700, fontSize: size, lineHeight: 1.05, letterSpacing: -size * 0.02, color }}>
       {words.split(" ").map((word, index) => {
-        const p = land(frame, fps, delay + index * gap, 10);
+        const p = land(frame, fps, delay + index * gap, 9);
         return (
           <span key={`${word}-${String(index)}`} style={{ display: "inline-block", overflow: "hidden", paddingBottom: size * 0.08 }}>
             <span style={{ display: "inline-block", transform: `translateY(${String((1 - p) * 110)}%)` }}>{word}</span>

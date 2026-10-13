@@ -7,7 +7,8 @@ import rubik700 from "@fontsource/rubik/files/rubik-latin-700-normal.woff2";
 let asked = false;
 
 export function loadRubik(): void {
-  if (asked || typeof document === "undefined") return;
+  // Outside a browser (a test in jsdom) there is no FontFace to load; the fallback face stands in.
+  if (asked || typeof document === "undefined" || typeof FontFace === "undefined") return;
   asked = true;
   const handle = delayRender("Rubik");
   const faces = [new FontFace("Rubik", `url(${rubik500})`, { weight: "500" }), new FontFace("Rubik", `url(${rubik700})`, { weight: "700" })];
