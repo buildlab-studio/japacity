@@ -15,6 +15,7 @@ import { Box3, type Camera, Color, type DirectionalLight, Fog, type HemisphereLi
 import { keptStyleOf } from "../../authority/person";
 import { wear } from "../../shared/frontdoor/colours";
 import type { Act, Shot, Thing } from "../../shared/world/contract";
+import { useMotionReduced } from "../../shared/ui/motion";
 import { bubbleSpot, NEAR_SPEAKER } from "../../shared/world/Lines";
 import { advanceClock } from "../../shared/three/clock";
 import { loadModel } from "../../shared/three/load";
@@ -33,7 +34,7 @@ import { anchorFan } from "./fan/anchor";
 import { markNode, showMark } from "./mark";
 import { bedLie, othersSeen, sleepMarkNode } from "./sleep";
 import { type LabelBox, spreadLabels } from "./labels";
-import { aimRoom, aimShot, clampTurn, EASE, easeZoom, homeTap, quarterTurns, ROOM_EASE, ROOM_SETTLE, roomAt, roomFirst, roomShot, SETTLE, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapTilt, snapTurn, snapZoom, turnedShot, turnsRound, turnToward, widthEnds } from "./shot";
+import { aimRoom, aimShot, clampTurn, EASE, easeRoomView, easeZoom, homeTap, quarterTurns, roomAt, roomFirst, roomShot, SETTLE, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapTilt, snapTurn, snapZoom, turnedShot, turnsRound, turnToward, widthEnds } from "./shot";
 import { showWalls, wallsQuarter } from "./walls";
 import { thingSpot, walkBeforeAct, walkSpot } from "./things";
 import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo } from "./walk";
@@ -266,6 +267,8 @@ function Place(props: PlaceProps) {
   const [world, setWorld] = useState<World | null>(null);
   const { walk } = props;
   const planShare = useRef(0);
+  // The camera's own moves change at once when the phone asks for reduced motion (R-WORLD-023).
+  const still = useMotionReduced();
   const sun = useRef<DirectionalLight>(null);
   const skyLight = useRef<HemisphereLight>(null);
   const frames = useRef<number[]>([]);
@@ -778,12 +781,9 @@ function Place(props: PlaceProps) {
     const view = rig.current;
     const room = roomInView(rooms, view.room, next);
     if (raised && room !== undefined) {
-      if (!view.pinching) view.zoom = easeZoom(view.zoom, view.zoomTo, delta, ROOM_EASE, ROOM_SETTLE);
-      // A quarter turn and the tilt ease as the zoom does, in under 400 ms, once no finger holds them.
-      if (!view.turning) {
-        view.turn = easeZoom(view.turn / 90, view.turnTo / 90, delta, ROOM_EASE, ROOM_SETTLE) * 90;
-        view.tilt = easeZoom(view.tilt, view.tiltTo, delta, ROOM_EASE, ROOM_SETTLE);
-      }
+      // A quarter turn and the tilt ease as the zoom does, in under 400 ms, once no finger holds them;
+      // under reduced motion each changes at once (R-WORLD-023).
+      Object.assign(view, easeRoomView(view, delta, still.current));
       const { position, target, fov } = aimRoom(shot, room, view.zoom, aspect, { turn: view.turn, tilt: view.tilt, ground: stage.ground.size });
       // The walls follow the view: the far pair full, the near pair knee-high, a rising wall always behind the rooms.
       if (world.walls.size > 0) {
@@ -804,13 +804,13 @@ function Place(props: PlaceProps) {
         chooseRef.current(waiting);
       }
     } else if (raised) {
-      if (!view.pinching) view.zoom = easeZoom(view.zoom, view.zoomTo, delta, EASE, SETTLE);
+      if (!view.pinching) view.zoom = easeZoom(view.zoom, view.zoomTo, delta, EASE, SETTLE, still.current);
       const { position, target } = aimShot(shot, view, next, aspect);
       state.camera.position.set(...position);
       state.camera.lookAt(...target);
       lens(state.camera, SHOT_FOV, SHOT_NEAR_PLANE);
     } else {
-      planShare.current += (plan - planShare.current) * Math.min(1, delta * 4);
+      planShare.current = still.current ? plan : planShare.current + (plan - planShare.current) * Math.min(1, delta * 4);
       aimStreet(state.camera, next, stage.start[2], planShare.current, aspect);
       lens(state.camera, FOV, 0.1);
     }
