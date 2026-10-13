@@ -57,7 +57,7 @@ function adaOneMonthIn(): string {
   return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, firstEnd) }, clock: { anchor: 0 } });
 }
 
-test("[R-WORLD-001] [R-WORLD-024] [R-WORLD-003] the default address opens the world with the band and the two buttons and nothing else, and nothing under the band", async ({ page }, info) => {
+test("[R-WORLD-001] [R-WORLD-024] [R-WORLD-003] the default address opens the world with the band, the two buttons and the wide home's round turn button and nothing else, and nothing under the band", async ({ page }, info) => {
   phoneOnly(info.project.name);
   test.setTimeout(120_000);
   await startLife(page);
@@ -68,12 +68,14 @@ test("[R-WORLD-001] [R-WORLD-024] [R-WORLD-003] the default address opens the wo
   // The journey's step shows only in the moment (R-WORLD-003): nothing under the band by default.
   await expect(page.locator("[data-nudge]")).toHaveCount(0);
   // The band: the name over the age opens the data page (R-PROLOGUE-009; the name itself is that same button for a screen
-  // reader), and the month's part of the day opens the Calendar (R-WORLD-002); then the two thumbs. No Next month: the
-  // bed turns the month (R-WORLD-030).
+  // reader), and the month's part of the day opens the Calendar (R-WORLD-002); then the two thumbs, and over Phone the
+  // round button that turns the wide home a quarter round. No Next month: the bed turns the month
+  // (R-WORLD-030).
   const buttons = await visibleButtons(page);
   const month = buttons.find((name) => /^[A-Z][a-z]+, (Morning|Afternoon|Evening|Night)\. Open the calendar$/.test(name));
   expect(month).toBeDefined();
-  expect(buttons.sort()).toEqual(["Map", "Phone", "Your page", month ?? ""].sort());
+  expect(["place.family-house", "place.compound-room", "place.hostel-room"]).toContain(await placeNow(page));
+  expect(buttons.sort()).toEqual(["Map", "Phone", "See another side", "Your page", month ?? ""].sort());
   await expect(page.locator("[data-end-month]")).toHaveCount(0);
   await expect(page.locator("header")).toHaveCount(0);
   await expect(page.locator("[data-tab]")).toHaveCount(0);
