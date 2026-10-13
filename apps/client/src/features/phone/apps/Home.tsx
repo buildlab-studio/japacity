@@ -1,13 +1,13 @@
 // The phone's home card (docs/rules/home.md R-HOME-007), at the top of Bills. The engine decides (R-HOME-002) and
 // the view carries each move with its charge a month and why it is shut (R-HOME-008); the card only says them.
 import type { HomeMoveShut, HomePlace, PlayerView } from "@japacity/sim";
-import { House } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
 import { blurbOf, forMonths, hasWords, nameOf, sayCount } from "../../../shared/words/text";
 import { useAsk } from "../act";
 import { phoneWords } from "../phone.words";
+import { PicTile } from "../ui";
 
 const MAKOKO: HomePlace = "place.makoko";
 const COMPOUND: HomePlace = "place.compound-room";
@@ -102,57 +102,71 @@ export function HomeCard() {
     });
 
   return (
-    <section className="mb-3 rounded-[6px] bg-sheet-2 p-3 shadow-[0_2px_0_var(--sheet-line)]" data-home-card data-home-place={home.place ?? "none"} aria-label={phoneWords("phone.home.title")}>
-      <div className="flex items-start gap-2.5">
-        <House size={18} className="mt-0.5 shrink-0 text-text-2" aria-hidden />
+    <section className="lively-card mb-3 p-3.5" data-home-card data-home-place={home.place ?? "none"} aria-label={phoneWords("phone.home.title")}>
+      {/* Where you live as the after set's phone-bills draws it: the home's picture, its name, what it costs as a chip, its
+          line; then the other homes as picture tiles, each with its move and what is paid on it. */}
+      <div className="flex items-start gap-3">
+        {home.place === null ? null : <PicTile of={home.place} size={60} tint="plain" />}
         <div className="min-w-0 flex-1">
-          <h3 className="label text-text-2">{phoneWords("phone.home.title")}</h3>
-          <p className="text-[15px] font-bold">{home.place === null ? phoneWords("phone.home.none") : phoneWords(`phone.home.place.${home.place}`)}</p>
+          <h3 className="text-[13px] font-semibold text-text-2">{phoneWords("phone.home.title")}</h3>
+          <p className="text-[19px] leading-tight font-bold">{home.place === null ? phoneWords("phone.home.none") : phoneWords(`phone.home.place.${home.place}`)}</p>
           {/* R-HOME-008: the card opens with what the home is, the place's own blurb. */}
           {home.place === null || blurbOf(home.place) === null ? null : (
-            <p className="text-[14px] leading-snug text-text-2" data-home-blurb>
+            <p className="mt-0.5 text-[14px] leading-snug text-text-2" data-home-blurb>
               {blurbOf(home.place)}
             </p>
           )}
-          {home.guest === null ? null : (
-            <p className="text-[14px]" data-home-guest>
-              {phoneWords("phone.home.guest", { who: hostWords(home.guest), until: forMonths(home.guest.until, view.month) })}
-            </p>
-          )}
-          {home.roomRent === null ? null : (
-            <p className="num text-[14px] font-bold" data-home-rent-year={home.roomRent.dueIn}>
-              {roomRentWords(home)}
-            </p>
-          )}
-          <p className="num text-[14px] text-text-2" data-home-charge>
-            {chargeWords(home)}
-          </p>
-          {home.place === MAKOKO ? (
-            <p className="mt-1 text-[13px] text-text-2" data-home-risk>
-              {phoneWords("phone.home.risk")}
-            </p>
-          ) : null}
         </div>
       </div>
-      {moves.map((move) => (
-        <div key={move.to} className="mt-2">
-          <button type="button" onClick={() => ask(move)} disabled={move.shut !== null} className="btn-dark press w-full py-2.5 text-[14px] disabled:opacity-50" data-home-move={move.to}>
-            {phoneWords(`phone.home.move.${move.to}`)}
-            {move.now > 0 ? `: ${formatMoney(move.now, "NGN")}` : ""}
-          </button>
-          {/* The risk is said once, plainly, beside the move it belongs to (R-HOME-007), not under the family house. */}
-          {move.to === MAKOKO ? (
-            <p className="mt-1 text-[13px] text-text-2" data-home-risk>
-              {phoneWords("phone.home.risk")}
-            </p>
-          ) : null}
-          {move.shut === null ? null : (
-            <p className="mt-1 text-[13px] text-text-2" data-home-shut={move.to}>
-              {move.shut}
-            </p>
-          )}
-        </div>
-      ))}
+      <div className="mt-2 flex flex-col items-start gap-1.5">
+        {home.guest === null ? null : (
+          <p className="text-[14px]" data-home-guest>
+            {phoneWords("phone.home.guest", { who: hostWords(home.guest), until: forMonths(home.guest.until, view.month) })}
+          </p>
+        )}
+        {home.roomRent === null ? null : (
+          <span className="sticker-chip num bg-[var(--soft)] chip-wrap" style={{ rotate: "-1.5deg", color: "var(--soft-ink)" }} data-home-rent-year={home.roomRent.dueIn}>
+            {roomRentWords(home)}
+          </span>
+        )}
+        <span className="sticker-chip num bg-sheet-muted chip-wrap" style={{ rotate: "1deg" }} data-home-charge>
+          {chargeWords(home)}
+        </span>
+        {home.place === MAKOKO ? (
+          <p className="text-[13px] text-text-2" data-home-risk>
+            {phoneWords("phone.home.risk")}
+          </p>
+        ) : null}
+      </div>
+      {moves.length === 0 ? null : (
+        <ul className="mt-3 grid grid-cols-2 gap-2">
+          {moves.map((move) => (
+            <li key={move.to} className="flex flex-col items-center gap-1.5 rounded-[16px] bg-tint-plain p-2 text-center">
+              <PicTile of={move.to} size={52} tint="plain" />
+              <button type="button" onClick={() => ask(move)} disabled={move.shut !== null} className="phone-ghost press min-h-11 w-full flex-col justify-center gap-0.5 px-2 py-1.5 text-[14px] leading-tight" data-home-move={move.to}>
+                <span>{phoneWords(`phone.home.move.${move.to}`)}</span>
+                {move.now > 0 ? (
+                  <>
+                    <span className="sr-only">: </span>
+                    <span className="num text-[13px] text-text-2">{formatMoney(move.now, "NGN")}</span>
+                  </>
+                ) : null}
+              </button>
+              {/* The risk is said once, plainly, beside the move it belongs to (R-HOME-007), not under the family house. */}
+              {move.to === MAKOKO ? (
+                <p className="text-[12px] text-text-2" data-home-risk>
+                  {phoneWords("phone.home.risk")}
+                </p>
+              ) : null}
+              {move.shut === null ? null : (
+                <p className="text-[12px] text-text-2" data-home-shut={move.to}>
+                  {move.shut}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
       {sheet}
     </section>
   );

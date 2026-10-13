@@ -1,18 +1,22 @@
 // Jobs (docs/rules/world.md R-WORLD-018): the job held and the job offers the view lists. Quitting
-// and taking each open their own card; the commands are the ones the month page sent. The list sits as the design's
-// lists do (its brief, section 1): rows straight on the sheet divided by hairlines, no card for a row, the offer picked
-// filled with the pick colour (R-WORLD-021), and one main button at the foot that repeats the pick.
+// and taking each open their own card; the commands are the ones the month page sent. In the lively dress (the after
+// set's phone-jobs; design page 13, section 2): each job a card with its picture, the pay as a green chip and the time to
+// answer as a word in a pill, the offer picked ringed in yellow, and one yellow button at the foot that repeats the pick.
 import { content } from "@japacity/content";
 import type { Id, OfferView, PlayerView } from "@japacity/sim";
-import { useState } from "react";
+import { MapPin } from "lucide-react";
+import { use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { payLine } from "../../../shared/words/pay";
 import { withNextTier } from "../../../shared/words/profile";
-import { byMonths, lowerFirst, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
+import { byMonths, hasWords, lowerFirst, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
+import { PhoneNav } from "../../../shared/phone/nav";
+import { PressButton } from "../../../shared/ui/lively/PressButton";
 import { Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 import { jobOffers } from "../seen";
+import { GhostButton, MoneyChip, PicCard, PicTile, WordChip } from "../ui";
 
 /**
  * A job's pay a month as words: the view's figure as the wallet will book it (R-WALLET-016), or null when the view
@@ -78,38 +82,73 @@ function takeChoice(offer: OfferView): string | null {
   return (accept ?? offer.choices.find((choice) => choice.allowed && choice.pick === null))?.id ?? null;
 }
 
-/** A job as a row on the sheet: its name, its lines, and a small act on the right where it has one. */
-function JobRow({ name, lines, act, actLabel }: { name: string; lines: (string | null)[]; act: (() => void) | null; actLabel: string }) {
+/** The place in the city whose board the hunt is done at, or null where none stands. */
+export function boardPlace(): Id<"place"> | null {
+  return Object.values(content.place).find((entry) => entry.where === "home" && entry.stages.includes(HUNT))?.id ?? null;
+}
+
+/** While no offer waits: the board where jobs go up, and the way to it on the map (R-WORLD-019: a visit opens the map). */
+function Board() {
+  const nav = use(PhoneNav);
+  const place = boardPlace();
+  if (place === null || nav.openMap === undefined) return null;
+  // The hub as the briefs name it ("the hub"), else the place's own name.
+  const brief = `chapter.brief.at.${place.replace(/^place\./, "")}`;
+  const name = hasWords(brief) ? lowerFirst(say(brief)) : nameOf(place);
   return (
-    <div className="flex items-center gap-3 border-b border-sheet-line px-3 py-2.5 last:border-b-0" data-job-row>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[15px] font-bold">{name}</p>
-        {lines.map((line) => (line === null ? null : <p key={line} className="text-[13px] text-text-2">{line}</p>))}
-      </div>
-      {act === null ? null : (
-        <button type="button" onClick={act} className="press shrink-0 rounded-[5px] bg-sheet-muted px-3 py-2 text-[13px] font-bold">
-          {actLabel}
-        </button>
-      )}
-    </div>
+    <PicCard
+      pic={HUNT}
+      tint="study"
+      title={phoneWords("phone.jobs.board", { place: name })}
+      line={phoneWords("phone.jobs.board.line")}
+      foot={
+        <GhostButton onClick={() => nav.openMap?.(place)} data-jobs-board={place}>
+          <MapPin size={18} aria-hidden />
+          {phoneWords("phone.jobs.board.go", { place: name })}
+        </GhostButton>
+      }
+    />
   );
 }
 
-/** An offer as a row to pick: the picked one filled with the pick colour, its pay and when to answer under its name. */
-function OfferRow({ name, lines, on, onPick, id }: { name: string; lines: (string | null)[]; on: boolean; onPick: () => void; id: string }) {
+/** The job held as a card: its picture, its name, the pay as a green chip, its lines, and the small act at its side. */
+function JobRow({ id, name, pay, lines, act, actLabel }: { id: Id<"activity">; name: string; pay: string | null; lines: (string | null)[]; act: (() => void) | null; actLabel: string }) {
   return (
-    <li className={on ? "" : "border-b border-sheet-line last:border-b-0"} data-offer={id}>
-      <button type="button" role="radio" aria-checked={on} onClick={onPick} className={`press flex w-full items-center gap-3 rounded-[5px] px-3 py-2.5 text-left ${on ? "bg-pick text-on-pick" : ""}`}>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-[15px] font-bold">{name}</span>
-          {lines.map((line) =>
-            line === null ? null : (
-              <span key={line} className={`block text-[13px] ${on ? "opacity-80" : "text-text-2"}`}>
-                {line}
-              </span>
-            ),
-          )}
-        </span>
+    <PicCard
+      pic={id}
+      tint="money"
+      title={name}
+      line={lines.filter((line): line is string => line !== null).map((line) => <p key={line}>{line}</p>)}
+      chips={pay === null ? null : <MoneyChip className="whitespace-normal">{pay}</MoneyChip>}
+      side={
+        act === null ? null : (
+          <button type="button" onClick={act} className="phone-ghost press min-h-10 px-3 text-[14px]">
+            {actLabel}
+          </button>
+        )
+      }
+      data-job-row
+    />
+  );
+}
+
+/** An offer as a card to pick: the picked one ringed in yellow, its pay as a green chip and when to answer in a pill. */
+function OfferRow({ job, name, pay, answer, on, onPick, id }: { job: Id<"activity"> | null; name: string; pay: string | null; answer: string; on: boolean; onPick: () => void; id: string }) {
+  return (
+    <li data-offer={id}>
+      <button type="button" role="radio" aria-checked={on} onClick={onPick} className="press block w-full text-left">
+        <PicCard
+          {...(job === null ? {} : { pic: job })}
+          tint="money"
+          title={name}
+          chips={
+            <>
+              {pay === null ? null : <MoneyChip className="whitespace-normal">{pay}</MoneyChip>}
+              <WordChip tone={on ? "soft" : "study"}>{answer}</WordChip>
+            </>
+          }
+          picked={on}
+        />
       </button>
     </li>
   );
@@ -168,58 +207,62 @@ export function Jobs() {
   };
 
   return (
-    <div data-phone-app="jobs">
+    <div data-phone-app="jobs" className="flex flex-col gap-2">
       <Head>{phoneWords("phone.jobs.held")}</Head>
       {job === null ? (
-        <p className="text-[14px] text-text-2">{say("ui.job.none")}</p>
+        <div className="lively-card flex items-center gap-3 p-3" data-job-none>
+          <PicTile of={HUNT} size={48} tint="study" />
+          <p className="min-w-0 flex-1 text-[15px] leading-snug">{say("ui.job.none")}</p>
+        </div>
       ) : (
-        <JobRow
-          name={nameOf(job)}
-          lines={[payWords(job, view.job.pay, view), raised, months]}
-          act={view.ended ? null : () => quit(false)}
-          actLabel={phoneWords("phone.jobs.quit")}
-        />
+        <JobRow id={job} name={nameOf(job)} pay={payWords(job, view.job.pay, view)} lines={[raised, months]} act={view.ended ? null : () => quit(false)} actLabel={phoneWords("phone.jobs.quit")} />
       )}
       {side === null ? null : (
         <>
           <Head>{phoneWords("phone.jobs.side")}</Head>
-          <JobRow name={nameOf(side)} lines={[payWords(side, view.job.sidePay, view)]} act={view.ended ? null : () => quit(true)} actLabel={phoneWords("phone.jobs.quit")} />
+          <JobRow id={side} name={nameOf(side)} pay={payWords(side, view.job.sidePay, view)} lines={[]} act={view.ended ? null : () => quit(true)} actLabel={phoneWords("phone.jobs.quit")} />
         </>
       )}
 
       <Head>{phoneWords("phone.jobs.offers")}</Head>
       {/* An application out is said while it waits, never "no job offers" over it. */}
       {applied.map((asked) => (
-        <p key={asked} className="mb-2 rounded-[6px] border-l-4 border-signal bg-sheet-2 px-3 py-2 text-[14px]" data-job-applied={asked}>
-          {appliedLine(asked)}
-        </p>
+        <PicCard key={asked} pic={asked} tint="money" title={nameOf(asked)} line={<span data-job-applied={asked}>{appliedLine(asked)}</span>} />
       ))}
       {offers.length === 0 ? (
-        applied.length > 0 ? null : <p className="text-[14px] text-text-2">{phoneWords("phone.jobs.offers.none")}</p>
+        applied.length > 0 ? null : (
+          <>
+            <p className="px-0.5 text-[15px] text-text-2">{phoneWords("phone.jobs.offers.none")}</p>
+            {view.ended ? null : <Board />}
+          </>
+        )
       ) : (
         <>
-          <ul className="flex flex-col" role="radiogroup" aria-label={phoneWords("phone.jobs.offers")} data-job-offers>
+          <ul className="flex flex-col gap-2.5" role="radiogroup" aria-label={phoneWords("phone.jobs.offers")} data-job-offers>
             {offers.map((offer) => {
               const offered = offeredJob(offer);
               return (
                 <OfferRow
                   key={offer.id}
                   id={offer.id}
+                  job={offered}
                   name={offerName(offer)}
-                  lines={[offered === null ? null : payWords(offered, offer.pay, view), phoneWords("phone.jobs.answer-by", { when: byMonths(offer.expiresMonth, view.month) })]}
+                  pay={offered === null ? null : payWords(offered, offer.pay, view)}
+                  answer={phoneWords("phone.jobs.answer-by", { when: byMonths(offer.expiresMonth, view.month) })}
                   on={offer.id === chosen?.id}
                   onPick={() => setPicked(offer.id)}
                 />
               );
             })}
           </ul>
-          {/* One main button at the foot, repeating the pick. */}
+          {/* One main button at the foot, repeating the pick: "Take · Junior developer". */}
           {chosen === undefined || view.ended || takeChoice(chosen) === null ? null : (
-            <div className="sticky bottom-0 bg-sheet pt-3 pb-1">
-              <button type="button" className="btn-main" onClick={() => take(chosen)} data-take-offer={chosen.id}>
+            <div className="sticky bottom-0 bg-sheet pt-2 pb-1">
+              <PressButton className="w-full" onClick={() => take(chosen)} data-take-offer={chosen.id}>
                 <span>{phoneWords("phone.jobs.take")}</span>
-                <span className="min-w-0 truncate pl-3 text-[13px] font-semibold opacity-80">{offerName(chosen)}</span>
-              </button>
+                <span aria-hidden>·</span>
+                <span className="min-w-0 truncate">{offerName(chosen)}</span>
+              </PressButton>
             </div>
           )}
         </>

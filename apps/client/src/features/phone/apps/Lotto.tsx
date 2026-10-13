@@ -4,24 +4,45 @@
 // from the results' lines.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
-import { Ticket } from "lucide-react";
+import { MapPin, Ticket } from "lucide-react";
+import { use } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { FactChip } from "../../../shared/ui/FactChip";
 import { formatMoney, formatNumber } from "../../../shared/words/format";
 import { lottoMonth } from "../../../shared/words/lotto";
 import { nameOf, say, sayCount, words } from "../../../shared/words/text";
+import { PhoneNav } from "../../../shared/phone/nav";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
+import { GhostButton, MoneyChip, PicCard, PicTile } from "../ui";
 
 /** The street kiosk's draw told in the month's results: one ticket or more, and whether one came in (R-LUCK-005). */
 const KIOSK_DRAW: ReadonlySet<string> = new Set(["line.activity.lotto-won", "line.activity.lotto-lost"]);
 const KIOSK_ACT = "activity.play-lotto";
 
+/** The place in the city that stages the kiosk's act, or null where none does. */
+function kioskPlace(): string | null {
+  return Object.values(content.place).find((entry) => entry.where === "home" && entry.stages.includes(KIOSK_ACT))?.id ?? null;
+}
+
 /** The street the kiosk stands on: the place in the city that stages its act. */
 export function kioskStreet(): string | null {
-  const place = Object.values(content.place).find((entry) => entry.where === "home" && entry.stages.includes(KIOSK_ACT));
-  return place === undefined ? null : nameOf(place.id);
+  const place = kioskPlace();
+  return place === null ? null : nameOf(place);
+}
+
+/** The way to the kiosk on the map, where the phone can open it (R-WORLD-019: a visit opens the map). */
+function ToKiosk() {
+  const nav = use(PhoneNav);
+  const place = kioskPlace();
+  if (place === null || nav.openMap === undefined) return null;
+  return (
+    <GhostButton className="mt-4 justify-center" onClick={() => nav.openMap?.(place)} data-lotto-go={place}>
+      <MapPin size={18} aria-hidden />
+      {phoneWords("phone.lotto.go")}
+    </GhostButton>
+  );
 }
 
 /** The last draw's line in the last month's results, or null when that month held no ticket. */
@@ -49,20 +70,23 @@ function KioskLotto() {
   const last = kioskDrawLine(report?.lines ?? []);
   return (
     <div data-phone-app="lotto" data-lotto-kiosk>
-      <div className="flex items-start gap-2.5">
-        <Ticket size={18} className="mt-0.5 shrink-0 text-text-2" aria-hidden />
-        <div>
-          {street === null ? null : <p className="text-[14px] font-bold" data-lotto-street>{phoneWords("phone.lotto.kiosk", { street })}</p>}
-          {bought ? null : <p className="text-[13px] text-text-2" data-lotto-none>{phoneWords("phone.lotto.none-month")}</p>}
+      {/* The kiosk as the after set's phone-lotto draws it: its picture, where it stands, this month's tickets; the last
+          draw's result; and the way to the kiosk, since tickets are bought there and never on the phone. */}
+      <div className="flex items-center gap-3 px-0.5">
+        <PicTile of={KIOSK_ACT} size={64} tint="money" />
+        <div className="min-w-0 flex-1">
+          {street === null ? null : <p className="text-[17px] leading-snug font-bold" data-lotto-street>{phoneWords("phone.lotto.kiosk", { street })}</p>}
+          {bought ? null : <p className="mt-0.5 text-[14px] text-text-2" data-lotto-none>{phoneWords("phone.lotto.none-month")}</p>}
         </div>
       </div>
       <ThisMonth />
       {last === null ? null : (
         <div data-last-draw-line={last.key}>
           <Head>{say("ui.lottery.last")}</Head>
-          <p className="text-[14px]">{words(last.key, last.params)}</p>
+          <p className="lively-card px-3.5 py-3 text-[15px]">{words(last.key, last.params)}</p>
         </div>
       )}
+      <ToKiosk />
     </div>
   );
 }
@@ -77,41 +101,50 @@ export function Lotto() {
   const won = last === null ? [] : last.winners.flatMap((tier) => tier.tickets).filter((ticket) => heldInLast && mine.has(ticket));
   return (
     <div data-phone-app="lotto">
-      <div className="band rounded-[6px] px-4 py-3" data-next-draw={lottery.draw}>
-        <div className="label label-strong">{phoneWords("phone.lotto.next")}</div>
-        <div className="title text-[15px]">{say("ui.lottery.draw", { draw: lottery.draw })}</div>
-        <div className="label label-strong mt-2">{say("ui.lottery.jackpot")}</div>
-        <div className="num text-[30px] leading-tight">{formatMoney(lottery.jackpot, "NGN")}</div>
-      </div>
+      <PicCard
+        pic={KIOSK_ACT}
+        tint="money"
+        over={phoneWords("phone.lotto.next")}
+        title={say("ui.lottery.draw", { draw: lottery.draw })}
+        chips={
+          <MoneyChip className="num text-[16px]">
+            {say("ui.lottery.jackpot")}: {formatMoney(lottery.jackpot, "NGN")}
+          </MoneyChip>
+        }
+        data-next-draw={lottery.draw}
+      />
 
-      <div className="mt-3 flex items-start gap-2.5" data-held={lottery.tickets}>
-        <Ticket size={18} className="mt-0.5 shrink-0 text-text-2" aria-hidden />
-        <div>
-          <p className="text-[14px] font-bold">{sayCount("ui.lottery.held", lottery.tickets, { count: lottery.tickets })}</p>
-          {lottery.numbers === null || lottery.numbers.length === 0 ? null : (
-            <p className="num text-[14px]">{say("ui.lottery.numbers", { numbers: lottery.numbers.map((number) => formatNumber(number)).join(", ") })}</p>
-          )}
-          <p className="text-[13px] text-text-2">{phoneWords("phone.lotto.buy-where")}</p>
-        </div>
+      <div className="lively-card mt-3 flex flex-col gap-2 p-3.5" data-held={lottery.tickets}>
+        <p className="text-[16px] font-bold">{sayCount("ui.lottery.held", lottery.tickets, { count: lottery.tickets })}</p>
+        {lottery.numbers === null || lottery.numbers.length === 0 ? null : (
+          <div className="flex flex-wrap gap-2" aria-label={say("ui.lottery.numbers", { numbers: lottery.numbers.map((number) => formatNumber(number)).join(", ") })}>
+            {lottery.numbers.map((number) => (
+              <span key={number} className="phone-ball num flex size-11 items-center justify-center text-[16px] font-bold" aria-hidden>
+                {formatNumber(number)}
+              </span>
+            ))}
+          </div>
+        )}
+        <p className="text-[14px] text-text-2">{phoneWords("phone.lotto.buy-where")}</p>
       </div>
       <ThisMonth />
 
       {last === null ? null : (
         <div data-last-draw={last.draw}>
           <Head>{say("ui.lottery.last")}</Head>
-          <p className="text-[14px]">{say("ui.lottery.last-line", { draw: last.draw, count: formatNumber(last.count) })}</p>
-          <p className="mt-1 text-[14px] font-bold">{heldInLast ? (won.length > 0 ? phoneWords("phone.lotto.won", { number: won.map((ticket) => formatNumber(ticket)).join(", ") }) : phoneWords("phone.lotto.lost")) : phoneWords("phone.lotto.none-held")}</p>
-          <ul className="mt-2 flex flex-col gap-1.5">
+          <p className="px-0.5 text-[15px]">{say("ui.lottery.last-line", { draw: last.draw, count: formatNumber(last.count) })}</p>
+          <p className="mt-1 px-0.5 text-[15px] font-bold">{heldInLast ? (won.length > 0 ? phoneWords("phone.lotto.won", { number: won.map((ticket) => formatNumber(ticket)).join(", ") }) : phoneWords("phone.lotto.lost")) : phoneWords("phone.lotto.none-held")}</p>
+          <ul className="mt-2 flex flex-col gap-2">
             {last.winners.map((tier) => (
-              <li key={tier.tier} data-tier={tier.tier} className="rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2">
+              <li key={tier.tier} data-tier={tier.tier} className="lively-card px-3.5 py-2.5">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-[14px] font-bold">{say(`ui.lottery.tier.${tier.tier}`)}</span>
-                  {tier.tickets.length === 0 ? null : <span className="num text-[14px]">{formatMoney(tier.amount, "NGN")}</span>}
+                  <span className="text-[15px] font-bold">{say(`ui.lottery.tier.${tier.tier}`)}</span>
+                  {tier.tickets.length === 0 ? null : <MoneyChip className="num">{formatMoney(tier.amount, "NGN")}</MoneyChip>}
                 </div>
                 {tier.tickets.length === 0 ? null : (
-                  <div className="mt-1 flex flex-wrap gap-1" aria-label={phoneWords("phone.lotto.winners")}>
+                  <div className="mt-2 flex flex-wrap gap-1.5" aria-label={phoneWords("phone.lotto.winners")}>
                     {tier.tickets.map((ticket) => (
-                      <span key={ticket} className={`num rounded-[4px] px-1.5 py-0.5 text-[12px] ${heldInLast && mine.has(ticket) ? "bg-signal text-action-text" : "bg-sheet-muted"}`} data-matched={heldInLast && mine.has(ticket) ? "true" : undefined}>
+                      <span key={ticket} className={`phone-ball num flex size-10 items-center justify-center text-[14px] font-bold ${heldInLast && mine.has(ticket) ? "phone-ball-on" : ""}`} data-matched={heldInLast && mine.has(ticket) ? "true" : undefined}>
                         {formatNumber(ticket)}
                       </span>
                     ))}
@@ -122,6 +155,7 @@ export function Lotto() {
           </ul>
         </div>
       )}
+      <ToKiosk />
     </div>
   );
 }

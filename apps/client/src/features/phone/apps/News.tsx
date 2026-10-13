@@ -8,8 +8,10 @@ import { nowLineWords } from "../../../shared/words/acts";
 import { newsLines } from "../../../shared/words/told";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
 import { SourceMark } from "../../../shared/ui/NewsSource";
+import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
+import { PicCard } from "../ui";
 
 /** What is happening now first, talk next, the past last. */
 const STAGE_ORDER: readonly NewsStage[] = ["in-force", "announced", "rumour", "ended"];
@@ -35,6 +37,12 @@ const EVICTED: ReadonlySet<string> = new Set(["line.home.evicted", "line.home.ev
 /** The story of the clearing, carried the month it happens: the character's own news, so the world's schedule never holds it. */
 const CLEARED = "news.makoko-cleared";
 
+/** A story's picture: the way out it touches, where the tiles have one, else the paper. */
+function storyPicture(id: string): string {
+  const touches = content.news[id as keyof typeof content.news]?.touches ?? [];
+  return touches.find((route) => TILE_TABLE[route] !== undefined) ?? "phone.news";
+}
+
 export function News() {
   const view = useView();
   const { news, era, report, month, routes } = view;
@@ -46,20 +54,22 @@ export function News() {
   return (
     <div data-phone-app="news">
       {era === null ? null : (
-        <div className="band rounded-[6px] px-4 py-3" data-era={era.id}>
-          <div className="label label-strong">{say("ui.news.era")}</div>
-          <div className="title text-[20px] leading-tight">{nameOf(era.id)}</div>
-          {blurbOf(era.id) === null ? null : <p className="mt-1 text-[13px] opacity-85">{blurbOf(era.id)}</p>}
-        </div>
+        <PicCard pic="phone.news" tint="plain" over={say("ui.news.era")} title={nameOf(era.id)} line={blurbOf(era.id)} data-era={era.id} />
       )}
 
       {report === null ? null : (
         <div data-report={report.month}>
           <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
-          {/* The month's lines are told as the results tell them, money too (shared/words/told.ts, R-WORLD-008). */}
-          <ul className="flex flex-col divide-y divide-sheet-line">
+          {/* The month's lines are told as the results tell them, money too (shared/words/told.ts, R-WORLD-008; the eleventh
+              review), each as a chip: good news in green, a loss plain, never louder than the good. */}
+          <ul className="flex flex-wrap gap-2">
             {newsLines(midMonth, report.lines, view).map((line, index) => (
-              <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>
+              <li
+                key={`${line.key}-${String(index)}`}
+                className={`sticker-chip text-[14px] chip-wrap ${line.tone === "good" ? "bg-tint-money" : line.tone === "bad" ? "bg-sheet-2" : "bg-tint-study"}`}
+                style={{ rotate: `${String(index % 2 === 0 ? -1.5 : 1.5)}deg`, ...(line.tone === "good" ? { color: "var(--money-ink)" } : {}) }}
+                data-tone={line.tone}
+              >
                 {nowLineWords(line)}
               </li>
             ))}
@@ -69,19 +79,29 @@ export function News() {
 
       <Head>{say("ui.news.title")}</Head>
       {stories.length === 0 ? (
-        <p className="text-[14px] text-text-2">{say("ui.news.none")}</p>
+        <p className="px-0.5 text-[15px] text-text-2">{say("ui.news.none")}</p>
       ) : (
-        <ul className="flex flex-col gap-2">
-          {stories.map((story) => (
-            <li key={story.id} data-story={story.id} className={`rounded-[6px] border bg-sheet-2 p-3 ${storyForYou(story, routes) ? "border-signal" : "border-sheet-line"}`}>
-              <p className="label text-text-2">
-                <SourceMark id={story.id} stage={story.stage} />
-                {storyForYou(story, routes) ? ` · ${say("ui.news.for-you")}` : ""}
-              </p>
-              <p className="mt-0.5 text-[15px] font-bold">{words(`${story.id}.${story.stage}.head`)}</p>
-              <p className="mt-0.5 text-[13px] text-text-2">{words(`${story.id}.${story.stage}.body`)}</p>
-            </li>
-          ))}
+        <ul className="flex flex-col gap-2.5">
+          {stories.map((story) => {
+            const forYou = storyForYou(story, routes);
+            return (
+              <li key={story.id} data-story={story.id}>
+                <PicCard
+                  pic={storyPicture(story.id)}
+                  tint={forYou ? "money" : "study"}
+                  picked={forYou}
+                  over={
+                    <>
+                      <SourceMark id={story.id} stage={story.stage} />
+                      {forYou ? ` · ${say("ui.news.for-you")}` : ""}
+                    </>
+                  }
+                  title={words(`${story.id}.${story.stage}.head`)}
+                  line={words(`${story.id}.${story.stage}.body`)}
+                />
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

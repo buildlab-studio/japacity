@@ -195,6 +195,40 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "place.visa-centre": "prop_waiting-chairs",
   "place.english-test-centre": "prop_test-desk",
   "place.tb-clinic": "prop_xray-stand",
+  // The papers in the phone's Papers app: the counter or clinic that issues one where the
+  // world has it, else a paper standing in.
+  "document.passport": stand("📘"),
+  "document.transcript": stand("📄"),
+  "document.english-test": "prop_test-desk",
+  "document.tb-certificate": "prop_xray-stand",
+  "document.police-certificate": stand("🪪"),
+  "document.cas": stand("🎓"),
+  "document.home-licence": stand("🪪"),
+  "document.uk-licence": stand("🪪"),
+  "document.nmc-pin": stand("📌"),
+  "document.nursing-licence": stand("🩺"),
+  "document.nmcn-verification": stand("📑"),
+  "document.eca": stand("📑"),
+  "document.endorsement": stand("📨"),
+  "document.medical": "prop_xray-stand",
+  "document.nurse-certificate": stand("📜"),
+  // The ways out in Japa: the street the way leads to where the world has one built.
+  "route.uk-masters": "bld_rye-lane-terrace_a",
+  "route.uk-care": "bld_rye-lane-terrace_a",
+  "route.uk-skilled": "bld_rye-lane-terrace_a",
+  "route.uk-talent": "bld_rye-lane-terrace_a",
+  "route.uk-partner": "bld_rye-lane-terrace_a",
+  "route.uk-dependant": "bld_rye-lane-terrace_a",
+  "route.canada-points": stand("🍁"),
+  "route.ca-spouse": stand("🍁"),
+  "route.ca-accompany": stand("🍁"),
+  "route.gulf-contract": "bld_deira-arcade_a",
+  "route.road": stand("🧭"),
+  // The phone's own pictures: the paper for the news, the box under the bed for Papers, the receipt for a bill.
+  "phone.news": stand("🗞️"),
+  "phone.bill": stand("🧾"),
+  "phone.birthday": stand("🎂"),
+  "phone.account": stand("👤"),
   // The home's things, by their ids in the place files: the model each is built from.
   "thing.bed": "prop_bed",
   "thing.mattress": "prop_mattress",
@@ -221,6 +255,9 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "thing.room-chores": "prop_cooking-corner",
   "thing.room-papers": "prop_papers-box",
 };
+
+/** The phone's own pictures, which name no entry of content: the news, a bill, a birthday, the account. */
+export const PHONE_PICTURES: readonly string[] = ["phone.news", "phone.bill", "phone.birthday", "phone.account"];
 
 /** What a stray id shows: a stand-in, never an empty space. */
 const UNKNOWN: TilePicture = { emoji: "✨", standIn: true };

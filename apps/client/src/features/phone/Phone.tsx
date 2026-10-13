@@ -29,6 +29,8 @@ export interface PhoneProps {
   notices?: ReactNode;
   /** Puts the phone away onto the map at a stop (R-WORLD-019): a paper's visit in Papers. */
   onMap?: (stop: string) => void;
+  /** The place's picture beside its name on the wallpaper, where it has one. */
+  areaPicture?: ReactNode;
 }
 
 const CLOCK = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -101,7 +103,7 @@ function useGrow(): { grown: boolean; toggle: () => void; handset: RefObject<HTM
   return { grown, toggle, handset, screen };
 }
 
-export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start = null, notices = null, onMap }: PhoneProps) {
+export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start = null, notices = null, onMap, areaPicture = null }: PhoneProps) {
   const [open, setOpen] = useState<string | null>(start);
   const started = useRef(false);
   useEffect(() => {
@@ -147,7 +149,14 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
     onOpen?.(id);
   };
   const grow = (
-    <button type="button" onClick={toggle} aria-label={phoneWords(grown ? "phone.shrink" : "phone.grow")} aria-pressed={grown} data-grow className="press flex size-9 items-center justify-center rounded-[5px]">
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={phoneWords(grown ? "phone.shrink" : "phone.grow")}
+      aria-pressed={grown}
+      data-grow
+      className={`press phone-round flex size-10 shrink-0 items-center justify-center ${app === null ? "bg-white/15 text-wall-text" : "border border-sheet-line bg-sheet-2 text-text shadow-[0_2px_6px_rgba(19,26,51,0.08)]"}`}
+    >
       {grown ? <Minimize2 size={17} aria-hidden /> : <Maximize2 size={17} aria-hidden />}
     </button>
   );
@@ -172,18 +181,27 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
           data-handset
         >
           <div className="phone-up flex h-full flex-col rounded-[34px] bg-device p-[7px] shadow-[0_24px_60px_rgba(10,14,30,0.55)]">
-            <div className={`relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] ${app === null ? "wall" : "bg-sheet text-text"}`} data-phone-glass>
+            <div className={`relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] ${app === null ? "phone-wall" : "bg-sheet text-text"}`} data-phone-glass>
               <div ref={screen} className="motion-screen flex min-h-0 flex-1 flex-col" data-phone-screen>
               {app === null ? (
                 <div className="motion-in-fade flex min-h-0 flex-1 flex-col" data-phone-home>
+                  {/* The lock screen as the after set draws it (phone-home): the big clock, the day in words, the place as a pill
+                      with its picture; no pattern on the wallpaper, which keeps to the data page (design page 13, section 2). */}
                   <div className="flex items-start justify-between px-5 pt-5">
                     <div className="min-w-0">
-                      <div className="num text-[44px] leading-none" data-phone-time>
+                      <div className="text-[56px] leading-none font-bold tracking-[-0.03em] tabular-nums" data-phone-time>
                         {time}
                       </div>
-                      <div className="label mt-2 opacity-80">{when}</div>
-                      <div className="title truncate text-[17px]" data-phone-area>
-                        {area}
+                      <div className="mt-2 text-[16px] font-medium opacity-85">{when}</div>
+                      <div className="phone-wall-pill mt-2 inline-flex max-w-full items-center gap-1.5 py-1 pr-3 pl-1.5">
+                        {areaPicture === null ? null : (
+                          <span className="sticker-cut shrink-0" style={{ rotate: "-6deg" }}>
+                            {areaPicture}
+                          </span>
+                        )}
+                        <span className="truncate text-[16px] font-bold" data-phone-area>
+                          {area}
+                        </span>
                       </div>
                     </div>
                     {grow}
@@ -197,13 +215,13 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                           onClick={() => openApp(candidate.id)}
                           data-app={candidate.id}
                           aria-label={candidate.waiting ? `${candidate.name}, ${phoneWords("phone.new")}` : candidate.name}
-                          className="press pop relative flex size-[56px] items-center justify-center rounded-[14px] text-on-strong shadow-[0_6px_14px_rgba(10,14,30,0.35)]"
+                          className="phone-app-icon press pop relative flex size-[56px] items-center justify-center rounded-[16px] text-white"
                           style={{ background: `var(${candidate.tint})` }}
                         >
                           <PhoneIcon name={candidate.icon} size={26} />
-                          {candidate.waiting ? <span className="absolute -top-1 -right-1 size-3.5 rounded-full border-2 border-sheet bg-signal" aria-hidden data-dot /> : null}
+                          {candidate.waiting ? <span className="absolute -top-1.5 -right-1.5 size-4 rounded-full border-2 border-white bg-signal" aria-hidden data-dot /> : null}
                         </button>
-                        <span className="max-w-full truncate text-[12px] font-bold" aria-hidden>
+                        <span className="max-w-full truncate text-[13px] font-bold" aria-hidden>
                           {candidate.name}
                         </span>
                       </li>
@@ -212,21 +230,26 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                 </div>
               ) : (
                 <div key={app.id} className="motion-in-right flex min-h-0 flex-1 flex-col bg-sheet text-text">
-                  <div className="band flex items-center gap-1 px-2 pt-3 pb-2">
-                    <button type="button" onClick={() => setOpen(null)} aria-label={phoneWords("phone.back")} data-phone-back className="press flex size-9 items-center justify-center rounded-[5px]">
-                      <ChevronLeft size={22} aria-hidden />
+                  {/* The app's head: back, the app's own icon as a small tile, its name in
+                      Rubik, and the grow as a round white button; plain on the sheet, no band. */}
+                  <div className="flex items-center gap-2 px-2.5 pt-3 pb-2" data-app-head>
+                    <button type="button" onClick={() => setOpen(null)} aria-label={phoneWords("phone.back")} data-phone-back className="press phone-round flex size-9 shrink-0 items-center justify-center">
+                      <ChevronLeft size={24} aria-hidden />
                     </button>
-                    <h2 className="title min-w-0 flex-1 truncate text-[20px]">{app.name}</h2>
+                    <span className="phone-app-tile flex size-10 shrink-0 items-center justify-center rounded-[12px] text-white" style={{ background: `var(${app.tint})` }} aria-hidden data-app-tile>
+                      <PhoneIcon name={app.icon} size={20} />
+                    </span>
+                    <h2 className="min-w-0 flex-1 truncate text-[24px] leading-tight font-bold">{app.name}</h2>
                     {grow}
                   </div>
-                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3" data-app-screen={app.id}>
+                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pt-1 pb-3" data-app-screen={app.id}>
                     {app.screen}
                   </div>
                 </div>
               )}
               <div className="flex justify-center pt-1 pb-2">
                 <button type="button" onClick={putAway} aria-label={phoneWords("phone.close")} data-home-bar className="flex h-6 w-40 items-center justify-center">
-                  <span className={`h-[5px] w-28 rounded-[2px] ${app === null ? "bg-wall-text/70" : "bg-text/40"}`} />
+                  <span className={`h-[5px] w-28 rounded-[3px] ${app === null ? "bg-wall-text/70" : "bg-text/30"}`} />
                 </button>
               </div>
               </div>

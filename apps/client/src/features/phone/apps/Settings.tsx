@@ -5,7 +5,7 @@
 // Cancel first, and the end held to confirm, with nothing to type. At the foot, the version line (city.md
 // R-CITY-021): five taps on it show the dedication, and nothing else happens.
 import { DEDICATION } from "@japacity/content";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Sparkles, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame } from "../../../authority/GameProvider";
@@ -20,6 +20,7 @@ import { clockWords } from "../../../shared/words/quality";
 import { say } from "../../../shared/words/text";
 import { Chips, Head } from "../act";
 import { phoneWords } from "../phone.words";
+import { PicTile } from "../ui";
 
 // the city keeps its graphics choice under this key (features/city/mode.ts) and reads it
 // when it opens; a shared home for the key, and a way for the city to hear a change, would let the
@@ -49,7 +50,14 @@ export function Settings({ account = null, about = null }: { account?: ReactNode
   const muted = useSound((state) => state.muted);
   return (
     <div data-phone-app="settings">
-      <Head>{phoneWords("phone.settings.sound")}</Head>
+      {/* The sound and the city's graphics in one card: each a name with its icon and one
+          segmented pill. */}
+      <div className="lively-card flex flex-col gap-3 p-3.5" data-settings-card>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="flex items-center gap-2 text-[17px] font-bold">
+          <Volume2 size={20} aria-hidden />
+          {phoneWords("phone.settings.sound")}
+        </h3>
       <Chips
         label={phoneWords("phone.settings.sound")}
         value={muted ? "off" : "on"}
@@ -59,8 +67,12 @@ export function Settings({ account = null, about = null }: { account?: ReactNode
           { value: "off", label: phoneWords("phone.settings.sound.off") },
         ]}
       />
-
-      <Head>{phoneWords("phone.settings.graphics")}</Head>
+      </div>
+      <div className="h-px bg-sheet-line" aria-hidden />
+      <h3 className="flex items-center gap-2 text-[17px] font-bold">
+        <Sparkles size={20} aria-hidden />
+        {phoneWords("phone.settings.graphics")}
+      </h3>
       <Chips
         label={phoneWords("phone.settings.graphics")}
         value={graphics}
@@ -71,7 +83,8 @@ export function Settings({ account = null, about = null }: { account?: ReactNode
         }}
         options={GRAPHICS.map((value) => ({ value, label: phoneWords(`phone.settings.graphics.${value}`) }))}
       />
-      <p className="mt-1 text-[12px] text-text-2">{phoneWords("phone.settings.graphics.when")}</p>
+      <p className="text-[13px] text-text-2">{phoneWords("phone.settings.graphics.when")}</p>
+      </div>
 
       {account === null ? null : <div data-account>{account}</div>}
       {about === null ? null : (
@@ -131,7 +144,7 @@ function VersionLine() {
     if (taps.current.length >= DEDICATION_TAPS) setShown(true);
   };
   return (
-    <div ref={line} className="mt-4 border-t border-sheet-line" data-version>
+    <div ref={line} className="mt-5 border-t border-sheet-line" data-version>
       <button
         type="button"
         onClick={tap}
@@ -232,18 +245,19 @@ function NewLife() {
       <Head>{say("ui.life.end.heading")}</Head>
       <button
         type="button"
-        className="press flex w-full items-center justify-between gap-2 rounded-[5px] border border-sheet-line px-3 py-2 text-left"
+        className="lively-card press flex w-full items-center gap-3 p-3 text-left"
         onClick={() => {
           setFailed(false);
           setOpen(true);
         }}
         data-life-end
       >
-        <span className="min-w-0">
-          <span className="block text-[14px] font-extrabold">{say("ui.life.end")}</span>
-          <span className="block text-[12px] text-text-2">{say("ui.life.end.hint")}</span>
+        <PicTile of="place.family-house" size={52} tint="plain" />
+        <span className="min-w-0 flex-1">
+          <span className="block text-[17px] font-bold">{say("ui.life.end")}</span>
+          <span className="block text-[14px] text-text-2">{say("ui.life.end.hint")}</span>
         </span>
-        <RotateCcw size={16} className="shrink-0" aria-hidden />
+        <RotateCcw size={20} className="shrink-0" aria-hidden />
       </button>
       <Sheet open={open} onOpenChange={(next) => (ending ? undefined : setOpen(next))} title={say("ui.life.end")}>
         <div className="flex flex-col gap-3" data-life-end-sheet>

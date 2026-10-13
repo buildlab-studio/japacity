@@ -3,14 +3,14 @@
 // own paper slip; the rest are taken at the month's end. The engine still decides (R-OBLIGATION-008).
 import { content } from "@japacity/content";
 import type { Currency, PlayerView } from "@japacity/sim";
-import { Receipt } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
 import { clockWords } from "../../../shared/words/quality";
 import { hasWords, inMonths, nameOf, say, sayCount } from "../../../shared/words/text";
-import { useAsk, type AskSpec } from "../act";
+import { Head, useAsk, type AskSpec } from "../act";
 import { phoneWords } from "../phone.words";
+import { GhostButton, MoneyChip, PicCard, WordChip } from "../ui";
 import { HomeCard } from "./Home";
 
 type Owed = PlayerView["obligations"][number];
@@ -105,33 +105,43 @@ export function Bills() {
       {/* R-HOME-007: where the character lives and what it costs, above the bills it brings. */}
       <HomeCard />
       {owed.length === 0 ? (
-        <p className="text-[14px] text-text-2">{say("ui.obligation.none")}</p>
+        <p className="px-0.5 text-[15px] text-text-2">{say("ui.obligation.none")}</p>
       ) : (
-        <ul className="flex flex-col gap-2">
-          {owed.map((bill) => {
-            const currency: Currency = content.obligation[bill.entry]?.currency ?? "NGN";
-            const pay = view.ended ? null : payNow(bill);
-            return (
-              <li key={bill.id} data-bill={bill.id} data-due={bill.due > 0 ? "true" : "false"} className="rounded-[6px] p-3 shadow-[0_2px_0_var(--sheet-line)]" style={{ background: "var(--paper-bill)" }}>
-                <div className="flex items-start gap-2.5">
-                  <Receipt size={18} className="mt-0.5 shrink-0 text-text-2" aria-hidden />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-bold">{bill.due > 0 ? noticeWords(bill, currency) : nameOf(bill.entry)}</p>
-                    {bill.outstanding > 0 ? <p className="num text-[13px] text-text-2">{say("ui.obligation.outstanding", { amount: formatMoney(bill.outstanding, currency) })}</p> : null}
-                    {bill.missed > 0 ? <p className="text-[13px] font-bold text-out">{sayCount("ui.obligation.missed", bill.missed, { count: bill.missed })}</p> : null}
-                    {pay === null ? <p className="text-[13px] text-text-2">{nextTaken(bill, view.month) ?? phoneWords("phone.bills.auto")}</p> : null}
-                  </div>
-                  {bill.state === "active" ? null : <span className="label shrink-0 text-out">{say(`ui.obligation.state.${bill.state}`)}</span>}
-                </div>
-                {pay === null ? null : (
-                  <button type="button" onClick={() => open(slip(bill, currency, pay))} className="btn-dark press mt-2 w-full py-2.5 text-[14px]" data-pay={bill.id}>
-                    {phoneWords("phone.bills.pay")}: {formatMoney(pay.amount, currency)}
-                  </button>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+        <>
+          <Head>{phoneWords("phone.bills.title")}</Head>
+          <ul className="flex flex-col gap-2.5">
+            {owed.map((bill) => {
+              const currency: Currency = content.obligation[bill.entry]?.currency ?? "NGN";
+              const pay = view.ended ? null : payNow(bill);
+              return (
+                <li key={bill.id} data-bill={bill.id} data-due={bill.due > 0 ? "true" : "false"}>
+                  <PicCard
+                    pic="phone.bill"
+                    tint={bill.missed > 0 ? "food" : "plain"}
+                    title={bill.due > 0 ? noticeWords(bill, currency) : nameOf(bill.entry)}
+                    line={pay === null ? (nextTaken(bill, view.month) ?? phoneWords("phone.bills.auto")) : null}
+                    chips={
+                      bill.outstanding <= 0 && bill.missed <= 0 && bill.state === "active" ? null : (
+                        <>
+                          {bill.outstanding > 0 ? <MoneyChip out className="num">{say("ui.obligation.outstanding", { amount: formatMoney(bill.outstanding, currency) })}</MoneyChip> : null}
+                          {bill.missed > 0 ? <WordChip tone="bad">{sayCount("ui.obligation.missed", bill.missed, { count: bill.missed })}</WordChip> : null}
+                          {bill.state === "active" ? null : <WordChip tone="bad">{say(`ui.obligation.state.${bill.state}`)}</WordChip>}
+                        </>
+                      )
+                    }
+                    foot={
+                      pay === null ? null : (
+                        <GhostButton onClick={() => open(slip(bill, currency, pay))} className="justify-center" data-pay={bill.id}>
+                          {phoneWords("phone.bills.pay")}: {formatMoney(pay.amount, currency)}
+                        </GhostButton>
+                      )
+                    }
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
       {sheet}
     </div>

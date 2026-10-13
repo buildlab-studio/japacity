@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { HOME_FILES, standIns, TILE_TABLE, tileOf } from "./tiles.data";
+import { HOME_FILES, PHONE_PICTURES, standIns, TILE_TABLE, tileOf } from "./tiles.data";
 
 const ASSETS = join(import.meta.dirname, "..", "..", "..", "public", "assets");
 
@@ -52,6 +52,11 @@ describe("the table of pictures", () => {
     expect(named.filter((id) => !(id in TILE_TABLE))).toEqual([]);
   });
 
+  test("[R-WORLD-019] given every paper and every way out in content, when the phone's Papers and Japa ask for its picture, then the table has a row for it", () => {
+    expect(Object.keys(content.document).filter((id) => !(id in TILE_TABLE))).toEqual([]);
+    expect(Object.keys(content.route).filter((id) => !(id in TILE_TABLE))).toEqual([]);
+  });
+
   test("given every place with a place file, when its picture is asked for, then the table has a row for it, a model the place stands", () => {
     const places = [...new Set(placeFiles.map(({ file }) => file.place))];
     expect(places.filter((id) => !(id in TILE_TABLE))).toEqual([]);
@@ -72,12 +77,13 @@ describe("the table of pictures", () => {
     expect([...new Set(models)].filter((model) => published[`tiles/${model}.png`] === undefined)).toEqual([]);
   });
 
-  test("given every row, when it is read, then it names something there is: an act, an offer or a place in content, or a home's thing", () => {
+  test("given every row, when it is read, then it names something there is: an act, an offer, a place, a paper or a way out in content, a home's thing, or one of the phone's own pictures", () => {
     const things = new Set(homeThings.map((thing) => `thing.${thing.id}`));
     const unknown = Object.keys(TILE_TABLE).filter((id) => {
       if (id.startsWith("thing.")) return !things.has(id);
+      if (id.startsWith("phone.")) return !PHONE_PICTURES.includes(id);
       const [kind] = id.split(".");
-      const table = kind === "activity" ? content.activity : kind === "offer" ? content.offer : kind === "place" ? content.place : null;
+      const table = kind === "activity" ? content.activity : kind === "offer" ? content.offer : kind === "place" ? content.place : kind === "document" ? content.document : kind === "route" ? content.route : null;
       return table === null || !(id in table);
     });
     expect(unknown).toEqual([]);

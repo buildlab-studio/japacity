@@ -13,6 +13,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { stretchedWords } from "../../shared/days/stretch";
 import { PhoneNav } from "../../shared/phone/nav";
 import { cue } from "../../shared/sound/cues";
+import { Tile } from "../../shared/tiles/Tile";
 import { Rejection } from "../../shared/ui/Rejection";
 import type { Coming } from "../../shared/words/coming";
 import { formatMoney } from "../../shared/words/format";
@@ -99,8 +100,8 @@ function attendedAt(entry: string): string | null {
 
 function Section({ title, children, mark }: { title: string; children: ReactNode; mark: string }) {
   return (
-    <section className="flex flex-col gap-1.5" data-calendar={mark}>
-      <h3 className="label text-text-2">{title}</h3>
+    <section className="flex flex-col gap-2" data-calendar={mark}>
+      <h3 className="px-0.5 text-[15px] font-semibold text-text-2">{title}</h3>
       {children}
     </section>
   );
@@ -147,33 +148,55 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
     <div className="flex flex-col gap-4" data-calendar-app data-phone-app="calendar">
       {jobs.length === 0 ? null : (
         <Section title={turnWords("turn.calendar.work")} mark="work">
-          <ul className="flex flex-col gap-1.5" data-month-jobs>
-            {jobs.map((row) => (
-              <li key={row} className="flex min-h-11 items-center gap-2 rounded-[5px] bg-sheet-muted px-3 text-[15px] font-bold" data-slot="job">
-                <Briefcase size={16} aria-hidden className="shrink-0 text-text-2" />
-                <span className="min-w-0 flex-1 truncate">{row}</span>
-              </li>
-            ))}
+          <ul className="flex flex-col gap-2" data-month-jobs>
+            {jobs.map((row, index) => {
+              const held = index === 0 ? view.job.id ?? view.job.side : view.job.side;
+              return (
+                <li key={row} className="lively-card flex min-h-14 items-center gap-3 p-2.5 text-[16px] font-bold" data-slot="job">
+                  {held === null ? (
+                    <Briefcase size={18} aria-hidden className="shrink-0 text-text-2" />
+                  ) : (
+                    <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-money" aria-hidden>
+                      <span className="sticker-cut" style={{ rotate: "-5deg" }}>
+                        <Tile of={held} size={34} />
+                      </span>
+                    </span>
+                  )}
+                  <span className="min-w-0 flex-1">{row}</span>
+                </li>
+              );
+            })}
           </ul>
         </Section>
       )}
       <Section title={turnWords("turn.calendar.carrying")} mark="carrying">
         {view.locks.length === 0 ? null : (
-          <ul className="flex flex-col gap-1.5" aria-label={say("ui.locks.title")} data-month-locks>
+          <ul className="flex flex-col gap-2" aria-label={say("ui.locks.title")} data-month-locks>
             {view.locks.map((lock, index) => (
-              <li key={`${lock.why}-${String(index)}`} className="flex min-h-11 items-center gap-2 rounded-[5px] bg-sheet-muted px-3 text-[15px] font-bold" data-slot="lock" data-lock={lock.why}>
-                <Lock size={16} aria-hidden className="shrink-0 text-text-2" />
+              <li key={`${lock.why}-${String(index)}`} className="lively-card flex min-h-14 items-center gap-3 p-2.5 text-[16px] font-bold" data-slot="lock" data-lock={lock.why}>
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-body" aria-hidden>
+                  <Lock size={20} className="text-text" />
+                </span>
                 <span className="min-w-0 flex-1 truncate">{lockRow(lock, view.month)}</span>
               </li>
             ))}
           </ul>
         )}
         {carrying.length === 0 ? null : (
-          <ol className="flex flex-col gap-1.5" aria-label={turnWords("turn.calendar.carrying")} data-month-plan>
+          <ol className="flex flex-col gap-2" aria-label={turnWords("turn.calendar.carrying")} data-month-plan>
             {carrying.map((pick, index) => (
-              <li key={`${pick.activity}-${String(index)}`} className="chip-in flex min-h-11 items-center gap-2 rounded-[5px] bg-sheet-muted py-1 pr-1 pl-3 text-[15px] font-bold" data-slot="planned">
-                <span className="min-w-0 flex-1 truncate">{pickWords(pick)}</span>
-                <span className="shrink-0 text-[12px] font-semibold text-text-2">{say("ui.world.thing.planned")}</span>
+              <li key={`${pick.activity}-${String(index)}`} className="lively-card chip-in flex min-h-14 items-center gap-3 p-2.5 text-[16px] font-bold" data-slot="planned">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-study" aria-hidden>
+                  <span className="sticker-cut" style={{ rotate: "-5deg" }}>
+                    <Tile of={pick.activity} size={34} />
+                  </span>
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block leading-tight">{pickWords(pick)}</span>
+                  <span className="sticker-chip mt-1 bg-tint-study" style={{ rotate: "-1.5deg" }}>
+                    {say("ui.world.thing.planned")}
+                  </span>
+                </span>
                 <button
                   type="button"
                   aria-label={say("ui.world.stop-act", { what: pickWords(pick) })}
@@ -181,7 +204,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
                     cue("close");
                     stopPick(pick);
                   }}
-                  className="press flex size-9 shrink-0 items-center justify-center rounded-[4px] text-text-2"
+                  className="press calendar-stop flex size-10 shrink-0 items-center justify-center bg-tint-plain text-text-2"
                   data-stop
                 >
                   <X size={18} aria-hidden />
@@ -194,7 +217,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
       </Section>
       {chores === null ? null : (
         <Section title={turnWords("turn.calendar.done")} mark="chores">
-          <p className="text-[14px] font-semibold" data-month-chores>
+          <p className="lively-card px-3.5 py-3 text-[15px] font-semibold" data-month-chores>
             {chores}
           </p>
         </Section>

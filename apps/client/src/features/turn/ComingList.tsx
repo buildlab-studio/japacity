@@ -1,4 +1,4 @@
-// The Coming up list, in the Calendar app (docs/rules/world.md R-WORLD-002, text.md R-TEXT-008): each row a box with
+// The Coming up list, in the Calendar app (docs/rules/world.md R-WORLD-002, text.md R-TEXT-008): each row a card with a box of
 // how many months away and the months label once, the thing, and a note of two or three words where it adds one.
 // The box says the months, so the line beside it never says them again.
 import type { PlayerView } from "@japacity/sim";
@@ -28,7 +28,7 @@ export interface ComingListProps {
 
 export function ComingList({ view, onPick, noteOf }: ComingListProps) {
   return (
-    <ul className="flex flex-col" data-coming-list>
+    <ul className="flex flex-col gap-2" data-coming-list>
       {comingOf(view).map((item, index) => {
         const away = Math.max(0, item.month - view.month);
         const kindNote = NOTES[item.kind];
@@ -36,7 +36,7 @@ export function ComingList({ view, onPick, noteOf }: ComingListProps) {
         const tap = onPick?.(item) ?? null;
         const body = (
           <>
-            <span className="flex w-[56px] shrink-0 flex-col items-center rounded-[5px] bg-sheet-muted py-1.5 leading-none" aria-hidden data-coming-box={away}>
+            <span className="flex w-[58px] shrink-0 flex-col items-center rounded-[14px] bg-tint-plain py-2 leading-none" aria-hidden data-coming-box={away}>
               {away === 0 ? (
                 <span className="py-1 text-[15px] font-extrabold">{say("ui.world.coming.now")}</span>
               ) : (
@@ -47,9 +47,9 @@ export function ComingList({ view, onPick, noteOf }: ComingListProps) {
               )}
             </span>
             <span className="min-w-0 flex-1 leading-tight">
-              <span className="block text-[15px] font-bold">{item.what}</span>
+              <span className="block text-[16px] font-bold">{item.what}</span>
               {note === null ? null : (
-                <span className="block text-[12px] text-text-2" data-coming-note>
+                <span className="block text-[13px] text-text-2" data-coming-note>
                   {note}
                 </span>
               )}
@@ -58,11 +58,11 @@ export function ComingList({ view, onPick, noteOf }: ComingListProps) {
           </>
         );
         return (
-          <li key={`${item.kind}-${String(index)}`} className="border-b border-sheet-line last:border-b-0" data-coming-row={item.kind}>
+          <li key={`${item.kind}-${String(index)}`} className="lively-card" data-coming-row={item.kind}>
             {tap === null ? (
-              <div className="flex items-center gap-3 py-2.5">{body}</div>
+              <div className="flex items-center gap-3 p-2.5">{body}</div>
             ) : (
-              <button type="button" className="press flex w-full items-center gap-3 py-2.5 text-left" onClick={tap} data-coming-open={item.kind}>
+              <button type="button" className="press flex w-full items-center gap-3 p-2.5 pr-3 text-left" onClick={tap} data-coming-open={item.kind}>
                 {body}
                 <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
               </button>

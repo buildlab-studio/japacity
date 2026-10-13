@@ -7,6 +7,8 @@ import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
+import { Tile } from "../../../shared/tiles/Tile";
+import { PressButton } from "../../../shared/ui/lively/PressButton";
 import { actOnCard, nowSaid } from "../../../shared/words/acts";
 import { blurbOf, nameOf, say } from "../../../shared/words/text";
 
@@ -76,18 +78,18 @@ export function PlanSwitch({ route, onKeep, onSaid }: { route: Id<"route">; onKe
   }
 
   return (
-    <div className="mt-3 rounded-[6px] bg-sheet-2 p-3" data-plan-switch={route}>
-      <p className="num text-[14px] font-bold" data-plan-change={choice.change}>
+    <div className="lively-card mt-3 p-3.5" data-plan-switch={route}>
+      <p className="num text-[15px] font-bold" data-plan-change={choice.change}>
         {switchWords(choice)}
       </p>
       <div className="mt-3 flex items-center gap-2">
-        <button type="button" onClick={onKeep} className="press h-12 shrink-0 whitespace-nowrap rounded-[6px] border-2 border-sheet-line px-3 text-[15px] font-bold" data-plan-keep>
+        <button type="button" onClick={onKeep} className="phone-ghost press w-auto shrink-0 justify-center px-3 text-[15px] whitespace-nowrap" data-plan-keep>
           {say("route.plan.keep")}
         </button>
-        {/* The main button's own size, made to fit beside Keep mine on one line at a phone's width. */}
-        <button type="button" disabled={busy} onClick={() => void make()} className="btn-main press min-w-0 flex-1 justify-center whitespace-nowrap" style={{ height: 48, padding: "0 12px", fontSize: 15 }} data-plan-make>
+        {/* The one yellow action, made to fit beside Keep mine on one line at a phone's width. */}
+        <PressButton disabled={busy} onClick={() => void make()} className="min-h-12 min-w-0 flex-1 px-3 text-[15px] whitespace-nowrap" data-plan-make>
           {say("route.plan.make")}
-        </button>
+        </PressButton>
       </div>
     </div>
   );
@@ -100,22 +102,36 @@ export function RoutePage({ route, onClose, back, onSaid }: { route: Id<"route">
   const blurb = blurbOf(route);
   return (
     <div data-route-page={route}>
-      <button type="button" onClick={onClose} className="press mb-2 flex items-center gap-1 text-[14px] font-bold text-text-2" data-route-back>
+      <button type="button" onClick={onClose} className="press mb-2 flex items-center gap-1 text-[15px] font-bold text-text-2" data-route-back>
         <ChevronLeft size={16} aria-hidden />
         {back ?? say("route.plan.back")}
       </button>
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="title text-[18px]">{nameOf(route)}</h3>
-        {held?.percent === null || held?.percent === undefined ? null : (
-          <span className="num shrink-0 text-[24px] leading-none">
-            {held.percent}
-            <span className="text-[15px]">%</span>
+      {/* A way as a card: its picture, its name, what it is, how far the life has gone with it
+          as a chip, and how ready it would make you as a bar that fills, never a percentage on screen. */}
+      <div className="lively-card p-3.5" data-route-head>
+        <div className="flex items-start gap-3">
+          <span className="flex size-[60px] shrink-0 items-center justify-center rounded-[16px] bg-tint-study" aria-hidden>
+            <span className="sticker-cut" style={{ rotate: "-5deg" }}>
+              <Tile of={route} size={42} />
+            </span>
           </span>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[20px] leading-tight font-bold">{nameOf(route)}</h3>
+            {held === undefined ? null : (
+              <span className="sticker-chip mt-1 bg-tint-study" style={{ rotate: "-1.5deg" }}>
+                {say(`ui.route.state.${held.state}`)}
+              </span>
+            )}
+          </div>
+        </div>
+        {blurb === null ? null : <p className="mt-2 text-[14px] leading-snug text-text-2">{blurb}</p>}
+        {held?.state === "heard" ? <p className="mt-1 text-[14px] text-text-2">{say("ui.route.heard-only")}</p> : null}
+        {held?.percent === null || held?.percent === undefined ? null : (
+          <div className="phone-meter mt-2.5 h-3 w-full overflow-hidden" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={held.percent} aria-label={nameOf(route)} data-route-percent={held.percent}>
+            <span style={{ width: `${String(Math.max(4, Math.min(100, held.percent)))}%` }} />
+          </div>
         )}
       </div>
-      {blurb === null ? null : <p className="mt-1 text-[13px] text-text-2">{blurb}</p>}
-      {held === undefined ? null : <p className="mt-1 text-[13px] font-bold">{say(`ui.route.state.${held.state}`)}</p>}
-      {held?.state === "heard" ? <p className="mt-1 text-[13px] text-text-2">{say("ui.route.heard-only")}</p> : null}
       <PlanSwitch route={route} onKeep={onClose} {...(onSaid === undefined ? {} : { onSaid })} />
     </div>
   );

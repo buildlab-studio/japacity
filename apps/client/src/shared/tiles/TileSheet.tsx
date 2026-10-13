@@ -9,6 +9,9 @@ const KINDS: readonly { title: string; has: (id: string) => boolean }[] = [
   { title: "Offers", has: (id) => id.startsWith("offer.") },
   { title: "Places", has: (id) => id.startsWith("place.") },
   { title: "The home's things", has: (id) => id.startsWith("thing.") },
+  { title: "Papers", has: (id) => id.startsWith("document.") },
+  { title: "Ways out", has: (id) => id.startsWith("route.") },
+  { title: "The phone's own", has: (id) => id.startsWith("phone.") },
 ];
 
 export function TileSheet() {

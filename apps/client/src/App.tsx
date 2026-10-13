@@ -47,6 +47,7 @@ import { ScenarioView } from "./features/scenario/ScenarioView";
 import { ReadyEntry } from "./shared/frontdoor/ReadyEntry";
 import { SetpieceView, useClosingOpen } from "./features/setpiece/SetpieceView";
 import { Calendar, calendarOpening } from "./features/turn/Calendar";
+import { BriefLog } from "./features/city/brief/BriefLog";
 import { Results } from "./features/turn/Results";
 import { say } from "./shared/words/text";
 import { usePaint } from "./shared/world/paint";
@@ -143,7 +144,7 @@ function WorldPlaying() {
             <AccountButton more={<NotifySetting />} />
             <ReadyEntry />
           </>
-        } about={<CreditsRow />} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <PeopleSlots api={talk} /> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
+        } about={<CreditsRow />} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <PeopleSlots api={talk} /> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}
