@@ -10,7 +10,7 @@ import "../../shared/testing/render";
 import { LOOKS } from "../../shared/frontdoor/looks";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
-import { boardFace } from "./BoardList";
+import { BOARD_FACES, boardFace } from "./BoardList";
 import { boardsApiFor, BoardsApiProvider, type BoardRow } from "./boards";
 import { BoardsView } from "./BoardsView";
 
@@ -68,6 +68,7 @@ describe("the boards in the lively dress", () => {
   });
 
   test("[R-CITY-040] given no look on a board line, when faces are shown, then another player's face follows the name shown, the same name the same face, and the player's own line wears the look kept from the door", async () => {
+    expect([...BOARD_FACES].sort()).toEqual(LOOKS.map((look) => look.id).sort());
     expect(boardFace("zainab_b", false)).toBe(boardFace("zainab_b", false));
     expect(LOOKS.map((look) => look.id)).toContain(boardFace("zainab_b", false));
     expect(boardFace("ada_lagos", true, "chr_kemi")).toBe("chr_kemi");

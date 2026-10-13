@@ -8,7 +8,6 @@
 import { useEffect, useState } from "react";
 
 import { readPerson } from "../../authority/person";
-import { LOOKS, lookOf } from "../../shared/frontdoor/looks";
 import { assetUrl, loadManifest } from "../../shared/three/manifest";
 import { TINTS } from "../../shared/ui/lively/tint";
 import { formatNumber } from "../../shared/words/format";
@@ -27,14 +26,20 @@ function nameOf(row: BoardRow): string {
 }
 
 /**
+ * The looks the door offers, each with its face tile published: named here so the boards' chunk carries none of the
+ * city's roster (BoardsView.dress.test proves the list is the door's `LOOKS`).
+ */
+export const BOARD_FACES: readonly string[] = ["chr_ada", "chr_tunde", "chr_zainab", "chr_tobi", "chr_ngozi", "chr_femi", "chr_kemi", "chr_bisi", "chr_amaka", "chr_bayo", "chr_dayo", "chr_emeka", "chr_kunle", "chr_sade", "chr_segun", "chr_tolani"];
+
+/**
  * The face on a line. No look travels on a board (R-CITY-040), so another player's face is one of the door's looks
  * picked from the name the line shows, the same name always the same face; the player's own line wears the look they
  * built at the door, kept on this device, where there is one.
  */
 export function boardFace(name: string, me: boolean, own: string | null = readPerson()?.look ?? null): string {
-  if (me && own !== null && lookOf(own) !== null) return own;
+  if (me && own !== null && BOARD_FACES.includes(own)) return own;
   const sum = [...name].reduce((total, letter) => total + (letter.codePointAt(0) ?? 0), 0);
-  return LOOKS[sum % LOOKS.length]?.id ?? "chr_ada";
+  return BOARD_FACES[sum % BOARD_FACES.length] ?? "chr_ada";
 }
 
 /**
