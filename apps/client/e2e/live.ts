@@ -47,10 +47,10 @@ async function tapThing(page: Page, thing: string): Promise<void> {
     await mark.click({ timeout: 10_000, force: true });
     return;
   }
-  // The step's marker over a thing takes the tap for it: its pill is a button of its own.
-  const marker = page.locator(`[data-marker-tap="${thing}"]`);
-  if (await marker.isVisible().catch(() => false)) {
-    await marker.click({ timeout: 10_000, force: true });
+  // The step's marker over the thing takes the tap (R-WORLD-003 as amended 13 Oct 2026), so nobody standing in front of it does.
+  const markerTap = page.locator(`[data-marker-tap="${thing}"]`);
+  if (await markerTap.isVisible().catch(() => false)) {
+    await markerTap.click({ force: true });
     return;
   }
   const at = await page.evaluate((id) => (window as unknown as { __city?: { screenOfThing?: (one: string) => { x: number; y: number } | null } }).__city?.screenOfThing?.(id) ?? null, thing);
