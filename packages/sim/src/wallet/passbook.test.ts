@@ -165,14 +165,14 @@ describe("R-WALLET-022 (asked for) the stamps", () => {
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 50000000, reason: "gift" }]);
     expect(passbook(game).held).toBeGreaterThanOrEqual(content.tuning.wallet.stamps[0]!);
     const first = game.endTurn();
-    const told = linesOf(first.lines, "line.wallet.stamped");
+    const told = linesOf(first.lines, "line.passbook.stamped");
     expect(told).toHaveLength(1);
     expect(told[0]).toMatchObject({ params: { amount: { currency: "NGN", amount: content.tuning.wallet.stamps[0] } }, tone: "good", attention: true });
     const month = game.state.turn.month;
     expect(game.state.wallet.stamps).toEqual([{ at: content.tuning.wallet.stamps[0], month }]);
     expect(passbook(game).stamps[0]).toEqual({ at: content.tuning.wallet.stamps[0], month, target: false });
     const second = game.endTurn();
-    expect(linesOf(second.lines, "line.wallet.stamped")).toEqual([]);
+    expect(linesOf(second.lines, "line.passbook.stamped")).toEqual([]);
     expect(game.state.wallet.stamps).toHaveLength(1);
   });
 
@@ -186,7 +186,7 @@ describe("R-WALLET-022 (asked for) the stamps", () => {
     expect(passbook(game).held).toBeLessThan(five!);
     expect(stamped.filter((event) => !event.target).map((event) => event.at)).toEqual([million, twoAndHalf]);
     expect(stamped.at(-1)).toMatchObject({ target: true, route: CARE });
-    const ready = linesOf(result.lines, "line.wallet.ready");
+    const ready = linesOf(result.lines, "line.passbook.ready");
     expect(ready).toHaveLength(1);
     expect(ready[0]!.params["route"]).toBe(CARE);
     const book = passbook(game);
@@ -195,7 +195,7 @@ describe("R-WALLET-022 (asked for) the stamps", () => {
     expect(ready[0]!.params["amount"]).toEqual({ currency: "NGN", amount: last.at });
     // A fixed figure past the road's own and never reached is no milestone on the way.
     expect(book.stamps.filter((stamp) => !stamp.target && stamp.month === null && stamp.at >= last.at)).toEqual([]);
-    expect(linesOf(game.endTurn().lines, "line.wallet.ready")).toEqual([]);
+    expect(linesOf(game.endTurn().lines, "line.passbook.ready")).toEqual([]);
   });
 
   test("[R-MOMENT-008] given a life in its prologue with money, when the prologue's steps pass, then nothing is stamped", () => {

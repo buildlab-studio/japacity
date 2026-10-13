@@ -789,8 +789,8 @@ function lines(event: WalletEvent): ReportLine[] {
     case "wallet/stamped": {
       // The passbook: a stamp is told as people tell it, its figure in naira; the road's own figure names the way.
       const amount: MoneyParam = { currency: "NGN", amount: event.at };
-      if (event.target) return [{ ...line("line.wallet.ready", { amount, route: event.route ?? "" }, "good"), attention: true }];
-      return [{ ...line("line.wallet.stamped", { amount }, "good"), attention: true }];
+      if (event.target) return [{ ...line("line.passbook.ready", { amount, route: event.route ?? "" }, "good"), attention: true }];
+      return [{ ...line("line.passbook.stamped", { amount }, "good"), attention: true }];
     }
     case "wallet/paced":
       return [];

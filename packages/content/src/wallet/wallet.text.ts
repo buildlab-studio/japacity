@@ -42,8 +42,8 @@ export const walletText: Record<string, string> = {
   "line.wallet.queued": "The bank has your {paid}. Your foreign currency is due {readyMonth}.",
   // R-WALLET-019: someone who cares, in their own words, with no figure.
   // The passbook's stamps, told as people tell them (the design).
-  "line.wallet.stamped": "{amount} held for the road. Mama heard, and so did the whole street.",
-  "line.wallet.ready": "{amount} held: everything {route} costs, flight and all. The money is ready.",
+  "line.passbook.stamped": "{amount} held for the road. Mama heard, and so did the whole street.",
+  "line.passbook.ready": "{amount} held: everything {route} costs, flight and all. The money is ready.",
   "line.wallet.cash-warning": "Mama called. 'This cash you are carrying about, it is not safe. They are robbing people inside danfo these days. Keep small for transport and put the rest in the bank, you hear?'",
   "line.wallet.flagged": "A deposit of {amount} came from somewhere a visa officer will ask about. It will show for three months.",
   "line.wallet.rent": "Rent paid: {amount}.",
