@@ -1,0 +1,28 @@
+{
+  "name": "@japacity/teaser",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "record": "tsx record/record.ts",
+    "render": "tsx render/render.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fontsource/rubik": "5.3.0",
+    "@remotion/bundler": "4.0.531",
+    "@remotion/cli": "4.0.531",
+    "@remotion/renderer": "4.0.531",
+    "@remotion/transitions": "4.0.531",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.531"
+  },
+  "devDependencies": {
+    "@remotion/player": "4.0.531",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0"
+  }
+}

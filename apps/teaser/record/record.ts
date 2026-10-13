@@ -1,0 +1,353 @@
+// pnpm teaser:record [--port 5183] [--only door,wide-day]
+// Plays the game on a development server and records the moments the teaser shows, each as a short WebM under
+// apps/teaser/clips/ (the list is src/clips.ts). The front door is played on the phone profile (390 by 844 at scale 2,
+// touch) and makes a life named Ada; every other session starts from that life. The world's shots are taken on a wide
+// screen (1280 by 720 at scale 1.5, so 1920 by 1080) with every surface over the scene hidden, the world alone; the
+// results morning is taken on the phone. The painted map is taken as two stills, by day and at night. A development
+// server already answering on the port is used; otherwise one is started and stopped after.
+import { type ChildProcess, spawn } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { type Browser, type BrowserContext, chromium, type Page } from "@playwright/test";
+
+import { CLIPS, type ClipName, type Session as SessionName } from "../src/clips";
+import { cutClip, type Frame, startScreencast } from "./screencast";
+
+const ROOT = fileURLToPath(new URL("../../..", import.meta.url));
+const OUT = fileURLToPath(new URL("../clips", import.meta.url));
+const WORK = join(OUT, ".frames");
+const PHONE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } as const;
+/** A laptop's screen at the teaser's own 1920 by 1080: the world fills it round the centred column (design page 13). */
+const WIDE = { viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1.5 } as const;
+const PIXELS = { phone: { width: 780, height: 1688 }, wide: { width: 1920, height: 1080 } } as const;
+/**
+ * The world alone: every surface over the scene hidden while a wide shot rolls, so the shot is the city and its people.
+ * The fan's mode keeps a thing's fan of acts (R-WORLD-034) over the scene, and nothing else.
+ */
+const CLEAN = [
+  "html[data-teaser-clean] body * { visibility: hidden !important; }",
+  "html[data-teaser-clean] canvas { visibility: visible !important; }",
+  "html[data-teaser-clean='fan'] [data-fan], html[data-teaser-clean='fan'] [data-fan] * { visibility: visible !important; }",
+].join("\n");
+const FFMPEG = process.env.FFMPEG ?? "ffmpeg";
+/** The life's name, typed on the front door, so every shot that shows it says a name. */
+const NAME = "Ada";
+
+interface Options {
+  readonly port: number;
+  readonly only: readonly string[];
+}
+
+function parse(argv: readonly string[]): Options {
+  const value = (flag: string) => {
+    const at = argv.indexOf(flag);
+    return at === -1 ? undefined : argv[at + 1];
+  };
+  const only = value("--only");
+  return { port: Number(value("--port") ?? "5183"), only: only === undefined ? [] : only.split(",") };
+}
+
+async function answers(url: string): Promise<boolean> {
+  return fetch(url).then((response) => response.ok, () => false);
+}
+
+async function devServer(port: number): Promise<ChildProcess | null> {
+  const url = `http://localhost:${String(port)}/`;
+  if (await answers(url)) return null;
+  const server = spawn("pnpm", ["--filter", "@japacity/client", "dev", "--port", String(port), "--strictPort"], { cwd: ROOT, stdio: "ignore" });
+  for (let wait = 0; wait < 120; wait += 1) {
+    if (await answers(url)) return server;
+    await new Promise((done) => setTimeout(done, 500));
+  }
+  server.kill();
+  throw new Error(`The development server did not answer on ${url}`);
+}
+
+type Probe = { ready?: boolean; place?: string; frames?: unknown[] } | undefined;
+
+async function placeReady(page: Page, place?: string): Promise<void> {
+  await page.waitForFunction(
+    (id) => {
+      const city = (window as unknown as { __city?: Probe }).__city;
+      return city?.ready === true && (id === null || city.place === id) && (city.frames?.length ?? 0) > 3;
+    },
+    place ?? null,
+    { timeout: 90_000 },
+  );
+}
+
+async function visible(page: Page, selector: string, timeout = 0): Promise<boolean> {
+  const found = page.locator(selector).first();
+  if (timeout === 0) return found.isVisible().catch(() => false);
+  return found.waitFor({ state: "visible", timeout }).then(() => true, () => false);
+}
+
+/** The cards that stand over the world (a moment's Close, a brief's Let's go, the home's teaching card), passed. */
+async function passCards(page: Page): Promise<void> {
+  for (let step = 0; step < 8; step += 1) {
+    if (await visible(page, "[data-home-teach-ok]")) await page.locator("[data-home-teach-ok]").click();
+    else if (await visible(page, "[data-moment-screen]")) await page.locator("[data-moment-screen]").getByRole("button", { name: "Close" }).first().click();
+    else if (await visible(page, "[data-brief-close-go], [data-brief-go]")) await page.locator("[data-brief-close-go], [data-brief-go]").first().click();
+    else if (await visible(page, "[data-map-close]")) await page.locator("[data-map-close]").click();
+    else return;
+    await page.waitForTimeout(500);
+  }
+}
+
+/** Waits until no line floats over anybody (R-WORLD-026), so the shot starts on a quiet house. */
+async function quiet(page: Page): Promise<void> {
+  await page.locator("[data-speech]").first().waitFor({ state: "detached", timeout: 20_000 }).catch(() => undefined);
+  await page.waitForTimeout(500);
+}
+
+/** Shows the world alone (or with a thing's fan), or the surfaces over it again. */
+async function clean(page: Page, mode: "on" | "fan" | "off"): Promise<void> {
+  await page.evaluate((value) => {
+    if (value === "off") delete document.documentElement.dataset.teaserClean;
+    else document.documentElement.dataset.teaserClean = value === "fan" ? "fan" : "";
+  }, mode);
+}
+
+/** A button pressed through the page itself, so it answers while the surfaces over the scene are hidden. */
+async function press(page: Page, selector: string): Promise<void> {
+  await page.evaluate((query) => document.querySelector<HTMLButtonElement>(query)?.click(), selector);
+}
+
+interface Session {
+  readonly context: BrowserContext;
+  readonly page: Page;
+  readonly now: () => number;
+  readonly stop: () => Promise<readonly Frame[]>;
+}
+
+/** Everything the device keeps of a life, as the front door left it: the save, the person, the door's years. */
+type Kept = Record<string, string>;
+
+async function session(browser: Browser, base: string, name: string, kept: Kept | null, wide: boolean): Promise<Session> {
+  const context = await browser.newContext({ ...(wide ? WIDE : PHONE), baseURL: base });
+  await context.addInitScript((css) => {
+    document.addEventListener("DOMContentLoaded", () => {
+      const style = document.createElement("style");
+      style.textContent = css;
+      document.head.append(style);
+    });
+  }, CLEAN);
+  // The device marked as played, so the first-use labels at the thumbs stay out of the picture (R-WORLD-033).
+  await context.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
+  if (kept !== null) {
+    await context.addInitScript((stored) => {
+      if (sessionStorage.getItem("seeded") !== null) return;
+      for (const [key, value] of Object.entries(stored)) localStorage.setItem(key, value);
+      sessionStorage.setItem("seeded", "1");
+    }, kept);
+  }
+  const page = await context.newPage();
+  const recording = await startScreencast(page, join(WORK, name), wide ? PIXELS.wide : PIXELS.phone);
+  return { context, page, now: recording.now, stop: recording.stop };
+}
+
+type Marks = Partial<Record<ClipName, readonly [number, number]>>;
+
+/** The front door's three sticker screens with the name typed, the page and the world opening. Returns what the device kept. */
+async function door(s: Session): Promise<Kept> {
+  const { page } = s;
+  await page.goto("/?sleep=2");
+  const next = page.getByRole("button", { name: /^Next/ }).first();
+  await next.waitFor({ timeout: 60_000 });
+  await page.getByRole("textbox", { name: "Your name" }).fill(NAME);
+  await next.click();
+  const tile = page.locator("[data-gate='life'] [role='radio']");
+  await tile.first().waitFor({ timeout: 20_000 });
+  // The nurse, whose way out is care work in the UK: the plane's flight in the teaser goes to London.
+  await page.getByRole("radio", { name: "The nurse", exact: true }).click().catch(() => tile.nth(1).click());
+  await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
+  await page.getByRole("button", { name: /^Begin/ }).click();
+  const go = page.locator("[data-page-handover]").getByRole("button", { name: "Go", exact: true });
+  await go.waitFor({ timeout: 60_000 });
+  await go.click();
+  await page.locator("[data-band]").waitFor({ timeout: 60_000 });
+  await placeReady(page);
+  await page.waitForTimeout(2500);
+  return page.evaluate(() => Object.fromEntries(Object.keys(localStorage).map((key) => [key, localStorage.getItem(key) ?? ""])));
+}
+
+/** The family house, wide and alone: by day it turns a quarter twice, at night its lamps are lit as it turns once. */
+async function wideHouse(s: Session, marks: Marks, part: "day" | "night"): Promise<void> {
+  const { page } = s;
+  await page.goto(part === "day" ? "/?clock=afternoon" : "/?clock=night&paint=night");
+  await placeReady(page, "place.family-house");
+  await passCards(page);
+  await quiet(page);
+  await clean(page, "on");
+  await page.waitForTimeout(800);
+  const from = s.now();
+  await page.waitForTimeout(1800);
+  await press(page, "[data-turn-house]");
+  await page.waitForTimeout(2400);
+  if (part === "day") {
+    await press(page, "[data-turn-house]");
+    await page.waitForTimeout(2400);
+  }
+  marks[part === "day" ? "wide-day" : "wide-night"] = [from, s.now()];
+}
+
+/** The sofa tapped: the view eases into its room, the fan of acts opens out of it, Sit is taken and the character sits. */
+async function wideSofa(s: Session, marks: Marks): Promise<void> {
+  const { page } = s;
+  await page.goto("/?clock=afternoon");
+  await placeReady(page, "place.family-house");
+  await passCards(page);
+  await quiet(page);
+  await clean(page, "fan");
+  await page.waitForTimeout(800);
+  const from = s.now();
+  await page.waitForTimeout(700);
+  const sit = '[data-fan="sofa"] [data-fan-act="sit"] button';
+  for (let tries = 0; tries < 4 && !(await page.locator(sit).count()); tries += 1) {
+    await press(page, '[data-mark="sofa"]');
+    await page.locator(sit).waitFor({ state: "attached", timeout: 3000 }).catch(() => undefined);
+  }
+  await page.waitForTimeout(1300);
+  await press(page, sit);
+  await page.waitForTimeout(3600);
+  marks["wide-sofa"] = [from, s.now()];
+}
+
+/** The ride from the map, wide and alone: the danfo from above, then from inside; then the street it stops at. */
+async function wideRide(s: Session, marks: Marks): Promise<void> {
+  const { page } = s;
+  await page.goto("/?clock=morning&paint=day");
+  await placeReady(page, "place.family-house");
+  await passCards(page);
+  await page.locator('[data-thumb="map"]').click();
+  await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
+  const stop = "place.ojuelegba";
+  await press(page, `[data-stop="${stop}"]`);
+  await page.locator(`[data-ride-sheet="${stop}"]`).waitFor({ timeout: 10_000 });
+  await page.waitForTimeout(800);
+  await page.locator(`[data-ride-sheet="${stop}"] [data-ride-main]`).click();
+  await page.locator("[data-ride]").waitFor({ timeout: 10_000 });
+  await clean(page, "on");
+  const rideFrom = s.now();
+  await page.waitForTimeout(6000);
+  marks["wide-ride"] = [rideFrom, s.now()];
+  await placeReady(page, stop);
+  await passCards(page);
+  await clean(page, "on");
+  await page.waitForTimeout(1500);
+  const streetFrom = s.now();
+  await page.waitForTimeout(5000);
+  marks["wide-street"] = [streetFrom, s.now()];
+}
+
+/** The bed's Sleep on the phone, the night going by and the results morning over the scene. */
+async function morning(s: Session, marks: Marks): Promise<void> {
+  const { page } = s;
+  await page.goto("/?clock=evening&sleep=2&morning=now");
+  await placeReady(page, "place.family-house");
+  await passCards(page);
+  await quiet(page);
+  const bed = (await page.locator('[data-mark="mattress"], [data-mark="bed"], [data-mark="bunk"]').first().getAttribute("data-mark").catch(() => null)) ?? "mattress";
+  const sleep = `[data-fan="${bed}"] [data-fan-act="end-month"] button`;
+  for (let tries = 0; tries < 4 && !(await visible(page, sleep)); tries += 1) {
+    await press(page, `[data-mark="${bed}"]`);
+    await page.locator(sleep).waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
+  }
+  await page.waitForTimeout(600);
+  const from = s.now();
+  await page.waitForTimeout(500);
+  await page.locator(sleep).click({ timeout: 10_000 });
+  if (await visible(page, "[data-night-teach-ok]", 1500)) await page.locator("[data-night-teach-ok]").click();
+  const results = page.locator("[data-world-sheet='results']");
+  for (let wait = 0; wait < 60 && !(await results.isVisible().catch(() => false)); wait += 1) {
+    if (await visible(page, "[data-moment-screen]")) await page.locator("[data-moment-screen]").getByRole("button", { name: "Close" }).first().click();
+    else if (await visible(page, "[data-brief-close-go], [data-brief-go]")) await page.locator("[data-brief-close-go], [data-brief-go]").first().click();
+    await page.waitForTimeout(500);
+  }
+  await page.waitForTimeout(3000);
+  marks.morning = [from, s.now()];
+}
+
+/** The painted map as two stills, by day and at night, at twice the teaser's pixels so a slow push stays sharp. */
+async function stills(browser: Browser, base: string, kept: Kept): Promise<void> {
+  const context = await browser.newContext({ viewport: WIDE.viewport, deviceScaleFactor: 3, baseURL: base });
+  await context.addInitScript((stored) => {
+    for (const [key, value] of Object.entries(stored)) localStorage.setItem(key, value);
+    localStorage.setItem("japacity.walkthrough", "1");
+  }, kept);
+  const page = await context.newPage();
+  for (const paint of ["day", "night"] as const) {
+    await page.goto(`/?clock=${paint === "day" ? "morning" : "night"}&paint=${paint}`);
+    await placeReady(page);
+    await passCards(page);
+    await page.locator('[data-thumb="map"]').click();
+    await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
+    await page.addStyleTag({ content: "[data-map-close], [data-country-menu] { visibility: hidden !important; }" });
+    await page.waitForTimeout(2500);
+    await page.screenshot({ path: join(OUT, `map-${paint}.png`) });
+    console.log(`teaser:record: map-${paint}.png`);
+  }
+  await context.close();
+}
+
+const SESSIONS: Record<Exclude<SessionName, "door">, { wide: boolean; play: (s: Session, marks: Marks) => Promise<void> }> = {
+  "wide-day": { wide: true, play: (s, marks) => wideHouse(s, marks, "day") },
+  "wide-night": { wide: true, play: (s, marks) => wideHouse(s, marks, "night") },
+  "wide-sofa": { wide: true, play: wideSofa },
+  "wide-ride": { wide: true, play: wideRide },
+  morning: { wide: false, play: morning },
+};
+
+async function main(): Promise<void> {
+  const options = parse(process.argv.slice(2));
+  const wanted = (name: string) => options.only.length === 0 || options.only.includes(name);
+  const server = await devServer(options.port);
+  const base = `http://localhost:${String(options.port)}`;
+  // The GPU through Metal where there is one; the scene is drawn at a phone's pace, not the software renderer's.
+  const browser = await chromium.launch({ args: ["--use-angle=metal", "--ignore-gpu-blocklist", "--enable-gpu"] });
+  mkdirSync(WORK, { recursive: true });
+  const keptPath = join(WORK, "kept.json");
+  const marks: Marks = {};
+  const cut = async (name: SessionName, s: Session) => {
+    const frames = await s.stop();
+    await s.context.close();
+    for (const clip of CLIPS.filter((one) => one.session === name)) {
+      const mark = marks[clip.name];
+      if (mark === undefined) {
+        console.log(`teaser:record: no marks for ${clip.name}`);
+        continue;
+      }
+      const seconds = cutClip(frames, mark[0], mark[1], join(OUT, clip.file), FFMPEG);
+      console.log(`teaser:record: ${clip.file} ${seconds.toFixed(1)} s`);
+    }
+  };
+  try {
+    let kept = existsSync(keptPath) ? (JSON.parse(readFileSync(keptPath, "utf8")) as Kept) : null;
+    if (wanted("door") || kept === null) {
+      const s = await session(browser, base, "door", null, false);
+      kept = await door(s);
+      writeFileSync(keptPath, JSON.stringify(kept));
+      await cut("door", s);
+    }
+    if (wanted("stills")) await stills(browser, base, kept);
+    for (const [name, { wide, play }] of Object.entries(SESSIONS) as [Exclude<SessionName, "door">, (typeof SESSIONS)[keyof typeof SESSIONS]][]) {
+      if (!wanted(name)) continue;
+      const s = await session(browser, base, name, kept, wide);
+      try {
+        await play(s, marks);
+      } catch (error) {
+        console.log(`teaser:record: ${name} stopped: ${String(error).split("\n")[0] ?? ""}`);
+        await s.page.screenshot({ path: join(WORK, `${name}-stopped.png`) }).catch(() => undefined);
+      }
+      await cut(name, s);
+    }
+  } finally {
+    await browser.close();
+    server?.kill();
+    if (options.only.length === 0) rmSync(WORK, { recursive: true, force: true });
+  }
+}
+
+await main();
