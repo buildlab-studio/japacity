@@ -32,13 +32,13 @@ export async function passHomeTeach(page: Page, timeout = 4000): Promise<void> {
  */
 async function tapThing(page: Page, thing: string): Promise<void> {
   const mark = page.locator(`[data-mark="${thing}"]`);
-  // A wide home eased in on one room hides the things of the others (decision 0040): the whole house first, then the thing.
-  if (!(await mark.isVisible().catch(() => false))) {
-    const whole = page.getByRole("button", { name: "See the whole place" });
-    if (await whole.isVisible().catch(() => false)) {
-      await whole.click();
-      await mark.waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
-    }
+  // A wide home eased in on one room hides the things of the others, or leaves their marks under the band (decision 0040):
+  // the whole house first, as a player would, then the thing, which eases in on its own room.
+  const whole = page.getByRole("button", { name: "See the whole place" });
+  if (await whole.isVisible().catch(() => false)) {
+    await whole.click();
+    await page.waitForTimeout(600);
+    await mark.waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
   }
   if (await mark.isVisible().catch(() => false)) {
     // A mark the nudge pulses never holds still for the stability check; the tap lands on the button all the same.
