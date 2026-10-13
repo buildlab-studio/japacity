@@ -8,5 +8,8 @@ export const REPOSITORY_URL = "https://github.com/buildlab-studio/japacity";
 /** The licences of each part of the game, with the makers and the shipped packages' notices beside it. The repository is private at launch, so the game itself links the licence file the build writes beside the page (licenses.txt, R-GUIDE-010), not this address. */
 export const LICENCES_URL = `${REPOSITORY_URL}/blob/main/LICENSES.md`;
 
+/** The licence file the build for players writes beside the page, every shipped package with its licence (R-GUIDE-010): what the Credits link. */
+export const LICENCES_PATH = "/licenses.txt";
+
 /** The assets register: every asset, whether it was generated, with which tool, and who approved it (R-GUIDE-011). */
 export const REGISTER_URL = `${REPOSITORY_URL}/blob/main/assets-src/register.json`;
