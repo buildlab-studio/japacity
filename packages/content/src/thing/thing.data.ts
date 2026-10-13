@@ -6,8 +6,8 @@
 // play. What each does is a lift on acts the simulation has (the nap, the meals, the TV, the study), a lift each month
 // it is lived with, or a lift once when it lands; the light and the cool air do not add up (one generator, inverter or
 // solar set lights the room; the AC or the fan cools it). Where each may stand: the family house holds only the small
-// things, in your corner, and the car in the carport; a home of your own holds what fits it (the yard's solar and car
-// only in the compound, no generator in a hostel room, little on Makoko's deck).
+// things, in your corner, and the car in the carport; a home of your own holds what fits it (the compound's room and yard
+// hold everything; a hostel room no dish, gas cylinder, wardrobe, generator, inverter, solar, AC or car; Makoko's deck only a fan, a radio, the router and the phone).
 import type { HomePlace, Id, ThingEntry, ThingMod } from "@japacity/sim";
 
 import { naira, pct } from "../units";
@@ -18,10 +18,12 @@ const COMPOUND: HomePlace = "place.compound-room";
 const HOSTEL: HomePlace = "place.hostel-room";
 /** A small thing: in your corner at the family house, on Makoko's deck, in any room of your own. */
 const SMALL: HomePlace[] = [FAMILY, MAKOKO, COMPOUND, HOSTEL];
-/** A small thing too big for Makoko's deck. */
+/** A small thing with no room on Makoko's deck, which holds only the smallest: a fan, a radio, the router and the phone. */
 const SMALL_INDOOR: HomePlace[] = [FAMILY, COMPOUND, HOSTEL];
-/** A thing of a room of your own. */
+/** A thing of a room of your own: the room in a compound and the hostel room. */
 const OWN: HomePlace[] = [COMPOUND, HOSTEL];
+/** A thing only the compound's room and yard hold: a hostel room bans the gas cylinder and has no wiring for an AC or an inverter. */
+const ROOM: HomePlace[] = [COMPOUND];
 
 const WELLBEING = "quality.wellbeing";
 const ENERGY = "quality.energy";
@@ -55,7 +57,7 @@ export const thingTable: Record<Id<"thing">, ThingEntry> = {
     price: naira(18000),
     resaleBp: pct(50),
     running: 0,
-    homes: SMALL,
+    homes: SMALL_INDOOR,
     acts: [
       { activity: "activity.cook-own-pot", adds: [{ quality: WELLBEING, amount: 2 }, { quality: STANDING, amount: 1 }] },
       { activity: "activity.cook-jollof", adds: [{ quality: WELLBEING, amount: 2 }, { quality: STANDING, amount: 1 }] },
@@ -79,7 +81,7 @@ export const thingTable: Record<Id<"thing">, ThingEntry> = {
     price: naira(30000),
     resaleBp: pct(30),
     running: naira(9000),
-    homes: OWN,
+    homes: ROOM,
     needs: ["thing.tv"],
     monthly: [{ quality: WELLBEING, amount: 1 }],
     acts: [{ activity: "activity.watch-tv", adds: [{ quality: WELLBEING, amount: 3 }] }],
@@ -90,7 +92,7 @@ export const thingTable: Record<Id<"thing">, ThingEntry> = {
     price: naira(95000),
     resaleBp: pct(45),
     running: naira(12000),
-    homes: OWN,
+    homes: ROOM,
     acts: [
       { activity: "activity.cook-own-pot", halfDays: 2 },
       { activity: "activity.cook-own", costBp: pct(80) },
@@ -119,33 +121,33 @@ export const thingTable: Record<Id<"thing">, ThingEntry> = {
     acts: [{ activity: "activity.nap", adds: [{ quality: ENERGY, amount: 5 }] }],
   }),
   // A wardrobe: your clothes kept well, and you dress like it.
-  "thing.wardrobe": thing({ id: "thing.wardrobe", price: naira(120000), resaleBp: pct(40), running: 0, homes: OWN, bought: [{ quality: STANDING, amount: 2 }] }),
+  "thing.wardrobe": thing({ id: "thing.wardrobe", price: naira(120000), resaleBp: pct(40), running: 0, homes: ROOM, bought: [{ quality: STANDING, amount: 2 }] }),
   // A standing mirror: you go out looking right.
-  "thing.mirror": thing({ id: "thing.mirror", price: naira(15000), resaleBp: pct(40), running: 0, homes: SMALL, bought: [{ quality: STANDING, amount: 1 }] }),
+  "thing.mirror": thing({ id: "thing.mirror", price: naira(15000), resaleBp: pct(40), running: 0, homes: SMALL_INDOOR, bought: [{ quality: STANDING, amount: 1 }] }),
   // A party speaker: the evening loud, and the street knows whose music it is.
-  "thing.speaker": thing({ id: "thing.speaker", price: naira(45000), resaleBp: pct(40), running: 0, homes: SMALL, bought: [{ quality: STANDING, amount: 1 }], monthly: [{ quality: WELLBEING, amount: 1 }] }),
+  "thing.speaker": thing({ id: "thing.speaker", price: naira(45000), resaleBp: pct(40), running: 0, homes: SMALL_INDOOR, bought: [{ quality: STANDING, amount: 1 }], monthly: [{ quality: WELLBEING, amount: 1 }] }),
   // A small petrol generator: light when NEPA takes it, fuel a month.
   "thing.generator": thing({
     id: "thing.generator",
     price: naira(230000),
     resaleBp: pct(45),
     running: naira(30000),
-    homes: [COMPOUND],
+    homes: ROOM,
     group: "light",
     monthly: [{ quality: WELLBEING, amount: 2 }],
     acts: LIGHT_ACTS,
   }),
   // An inverter and its batteries: quiet light when NEPA takes it, nothing to buy a month.
-  "thing.inverter": thing({ id: "thing.inverter", price: naira(850000), resaleBp: pct(45), running: 0, homes: OWN, group: "light", monthly: [{ quality: WELLBEING, amount: 2 }], acts: LIGHT_ACTS }),
+  "thing.inverter": thing({ id: "thing.inverter", price: naira(850000), resaleBp: pct(45), running: 0, homes: ROOM, group: "light", monthly: [{ quality: WELLBEING, amount: 2 }], acts: LIGHT_ACTS }),
   // A solar set in the yard: light with no fuel and no noise.
-  "thing.solar": thing({ id: "thing.solar", price: naira(2400000), resaleBp: pct(50), running: 0, homes: [COMPOUND], group: "light", monthly: [{ quality: WELLBEING, amount: 2 }], acts: LIGHT_ACTS }),
+  "thing.solar": thing({ id: "thing.solar", price: naira(2400000), resaleBp: pct(50), running: 0, homes: ROOM, group: "light", monthly: [{ quality: WELLBEING, amount: 2 }], acts: LIGHT_ACTS }),
   // A standing AC: cool nights and naps that give the most; it pulls light a month.
   "thing.ac": thing({
     id: "thing.ac",
     price: naira(600000),
     resaleBp: pct(40),
     running: naira(18000),
-    homes: OWN,
+    homes: ROOM,
     group: "cool",
     monthly: [{ quality: WELLBEING, amount: 3 }],
     acts: [{ activity: "activity.nap", adds: [{ quality: ENERGY, amount: 20 }] }],

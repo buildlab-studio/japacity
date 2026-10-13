@@ -479,3 +479,34 @@ export function buildFoamMattress(): Group {
   box(g, 0.62, 0.1, 0.34, 0, base + mh, -ml / 2 + 0.24, "white");
   return setFootprint(g, [{ x: 0, z: -0.02, width: w + 0.12, depth: l + 0.1 }]);
 }
+
+/**
+ * A small TV of your own on a low stand: a dark wooden stand with an open shelf, a 32-inch flat screen on its foot, the
+ * screen dark with a sheen, a remote on the stand and the lead down the back.
+ */
+export function buildTv(): Group {
+  const g = new Group();
+  g.name = "prop_tv";
+  const w = 1.0;
+  const d = 0.38;
+  const h = 0.46;
+  box(g, w, 0.04, d, 0, h - 0.04, 0, "darkWood");
+  box(g, w, 0.04, d, 0, 0.06, 0, "darkWood");
+  for (const sx of [-1, 1]) box(g, 0.04, h - 0.04, d, sx * (w / 2 - 0.02), 0, 0, "darkWood");
+  box(g, w - 0.08, h - 0.1, 0.02, 0, 0.06, -d / 2 + 0.01, "wood");
+  // Things kept on the shelf: a box of tapes and a folded cloth.
+  box(g, 0.22, 0.1, 0.2, -0.24, 0.1, 0.02, "tan");
+  box(g, 0.2, 0.05, 0.16, 0.22, 0.1, 0.03, "wine");
+  // The screen on its foot.
+  box(g, 0.3, 0.02, 0.16, 0, h, -0.04, "black");
+  box(g, 0.05, 0.08, 0.04, 0, h + 0.02, -0.06, "black");
+  const sw = 0.76;
+  const sh = 0.46;
+  box(g, sw, sh, 0.045, 0, h + 0.09, -0.06, "black");
+  quad(g, sw - 0.04, sh - 0.04, 0, h + 0.11, -0.06 + 0.024, "charcoal");
+  quad(g, 0.2, 0.3, -0.18, h + 0.16, -0.06 + 0.026, "denim");
+  // The remote and the lead.
+  box(g, 0.05, 0.02, 0.15, 0.36, h, 0.08, "black", 0.3);
+  beam(g, [0.3, h + 0.12, -0.09], [0.36, 0.06, -0.2], 0.014, "black");
+  return setFootprint(g, [{ x: 0, z: 0, width: w, depth: d }]);
+}

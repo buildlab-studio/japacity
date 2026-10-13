@@ -569,6 +569,7 @@ ENTRIES.push(
   homePiece("prop_laptop-desk", "shared", things.buildLaptopDesk),
   homePiece("prop_phone", "shared", things.buildPhone),
   homePiece("prop_foam-mattress", "shared", things.buildFoamMattress),
+  homePiece("prop_tv", "shared", things.buildTv),
 );
 
 /** Every shipped asset, each model a player could be shown as a thing with the tile view beside its fixed views. */
