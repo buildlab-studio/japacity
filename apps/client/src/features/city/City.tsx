@@ -29,6 +29,7 @@ import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
 import { Band, bandMoney, bandMonth } from "../../shared/world/Band";
 import { type MoneyIn, MoneyToast } from "../../shared/world/MoneyToast";
+import { type Said, SaidToast } from "../../shared/world/SaidToast";
 import { cue } from "../../shared/sound/cues";
 import type { Act, Ask, CountryChoice, Pin as ContractPin, PinState, RideChoice, Thing } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
@@ -1553,6 +1554,18 @@ export function City({
     const timer = window.setTimeout(() => setToast(null), DONE_TOAST_MS);
     return () => window.clearTimeout(timer);
   }, [toast]);
+  // R-INTERVIEW-004: the last answer in, the asks leave and the officer says so in a toast under the band, in plain English.
+  const [said, setSaid] = useState<Said | null>(null);
+  const interviewAsking = (view.interview?.question ?? null) !== null;
+  const wasAsking = useRef(interviewAsking);
+  useEffect(() => {
+    const before = wasAsking.current;
+    wasAsking.current = interviewAsking;
+    if (!world || !before || interviewAsking || view.interview === null) return;
+    setAsksOpen(false);
+    cue("ding");
+    setSaid({ at: Date.now(), who: say("ui.interview.in.who"), words: say("ui.interview.in"), picture: "activity.interview-prep" });
+  }, [world, interviewAsking]);
   // The chapters already closed when the world opened are never closed again on screen; one that closes while it is open is.
   const closedSeen = useRef(new Set<string>(view.chapter.done));
   const [closedNow, setClosedNow] = useState<string | null>(null);
@@ -1757,6 +1770,7 @@ export function City({
               !(phone || asksOpen || menu || credits || picked !== null || asleep !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
                   {moneyIn === null ? null : <MoneyToast key={moneyIn.at} toast={moneyIn} onGone={() => setMoneyIn(null)} />}
+                  {said === null ? null : <SaidToast key={said.at} said={said} onGone={() => setSaid(null)} />}
                   {brief !== null && chipMoment !== null ? (
                     <BriefChip brief={brief} moment={chipMoment} toast={chipMoment === "done" ? (toast?.words ?? null) : null} {...(chipMoment === "here" && nudgeGoes ? { onTap: followStep } : {})} onTucked={() => setHanded(null)} />
                   ) : shownNudge !== null && (STANDING_NUDGES.has(shownNudge.about) || toBed) ? (

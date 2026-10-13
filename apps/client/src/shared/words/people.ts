@@ -257,6 +257,9 @@ export const peopleText: Record<string, string> = {
   "ui.interview.for": "For {route}",
   "ui.interview.blocks": "Answer before the month can end. Your partner answers in another room.",
   "ui.interview.question": "Question {n} of {total}",
+  // R-INTERVIEW-004: in the world the last answer brings the officer's toast, plain English as a visa officer speaks.
+  "ui.interview.in.who": "The officer",
+  "ui.interview.in": "Your answers are in.",
   "ui.interview.waiting": "Your answers are in. Now the officer hears your partner. Back to your life.",
   "ui.interview.stand-in": "A stand-in answered for your partner.",
   "ui.interview.result": "{piece} for {route}",
