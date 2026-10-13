@@ -18,10 +18,11 @@ export function answersNow(activity: string): boolean {
  * a weekend for 4, a week for 10, and between them the nearer below. Null for a purchase or an act that takes the month,
  * which spend none of it.
  */
-export function timeWordsOf(activity: string): string | null {
+export function timeWordsOf(activity: string, halfDays?: number): string | null {
   const entry = content.activity[activity as keyof typeof content.activity];
   if (entry === undefined || entry.when !== "now" || entry.purchase === true) return null;
-  const half = entry.halfDays ?? 1;
+  // The view's own time when a thing owned changes it, else the entry's.
+  const half = halfDays ?? entry.halfDays ?? 1;
   // An act that takes no time (gist, a look) says none (R-ACTIVITY-020).
   if (half <= 0) return null;
   const span = half <= 1 ? "morning" : half < 4 ? "day" : half < 6 ? "weekend" : half < 10 ? "half-week" : "week";

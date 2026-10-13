@@ -429,6 +429,8 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
     const group = new Group();
     group.userData = { figure: spec.role };
     group.position.set(spec.at[0], spec.at[1], spec.at[2]);
+    // In your own car the glass is dark and the roof closed: you are in it, unseen.
+    if (way === "drive") group.visible = false;
     body.add(group);
     return { role: spec.role, group, pose: spec.pose, figure: null };
   });
@@ -519,7 +521,7 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
         // At the stop: the danfo from the road's side, clear of the trees along the kerb; the keke and the okada close beside them at the kerb.
         if (way === "danfo") aimFrom([5.0 - push * 2, 2.2, 5.2], [0.2, 1.1, 0.4]);
         else if (way === "keke") aimFrom([-3.6 + push * 2, 1.35, 1.6], [-0.1, 1.0, -0.2]);
-        else if (way === "drive") aimFrom([-4.6 + push * 2, 1.7, 3.2], [0.1, 0.7, 0.2]);
+        else if (way === "drive") aimFrom([6.0 - push * 2, 2.3, 6.2], [0.0, 0.75, 0.3]);
         else aimFrom([-3.6 + push * 2, 1.45, 1.5 - push], [-0.25, 0.9, -0.3]);
         return;
       case "above":

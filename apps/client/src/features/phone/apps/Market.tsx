@@ -72,8 +72,10 @@ export function Market({ here = null }: { here?: string | null }) {
   const atHome = view.home.place !== null && here === view.home.place;
   const held = view.pockets.NGN.cash + view.pockets.NGN.bank;
   const owned = new Map<string, Owned>(view.things.owned.map((one) => [one.thing, one]));
-  // The things this home may hold first, then the rest, each in the catalogue's order.
-  const offers = [...view.things.market.filter((offer) => offer.shut !== "home"), ...view.things.market.filter((offer) => offer.shut === "home")];
+  // What may be bought here first, then what is owned, then what waits on a need or has no place here, each in the
+  // catalogue's order.
+  const rank = (offer: Offer): number => (offer.shut === null || offer.shut === "short" || offer.shut === "away" ? 0 : offer.shut === "owned" ? 1 : offer.shut === "needs" ? 2 : 3);
+  const offers = [...view.things.market].sort((a, b) => rank(a) - rank(b));
   const chosen = offers.find((offer) => offer.thing === picked) ?? null;
   const mine = chosen === null ? undefined : owned.get(chosen.thing);
 

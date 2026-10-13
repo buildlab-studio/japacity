@@ -43,7 +43,7 @@ import { PressButton } from "../../shared/ui/lively/PressButton";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { type Arranged, arrangedIn, keepArranged } from "../../shared/world/arranged";
-import { ARRANGED_HOMES, showOwned } from "./owned";
+import { buyModeAt, showOwned } from "./owned";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
 import { bodyWords, tired } from "../../shared/words/body";
@@ -721,7 +721,7 @@ export function City({
     [plainFile, openKey, roomPerson, ownsCar, standingKey, arranged],
   );
   // Buy mode: in a home of your own a hold on a thing you own lifts it; never at the family house.
-  const arranging = world && livedIn && ARRANGED_HOMES.has(placeId) && standingKey !== "";
+  const arranging = world && buyModeAt(placeId, home, standingKey === "" ? [] : standingKey.split("|"));
   const outsideFile = dressed?.file ?? null;
   // Inside, the scene is the room the place's door opens into: the file's `inside` names its folder under
   // places/, fetched with the place so the cut is quick (R-WORLD-013); the room's own file names the entry
@@ -1318,7 +1318,7 @@ export function City({
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
     // Chips earn their place (design page 13 section 2): the time only past a morning, at most two effects.
-    const time = chipTimeOf(activity);
+    const time = chipTimeOf(activity, option.halfDays);
     const does = chipEffectsLine(activity);
     return {
       form: paper ? "slip" : "card",

@@ -79,7 +79,9 @@ export function firstWay(ways: readonly RideChoice[], have: number, by?: RideCho
 
 export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClose, onStay, by, onWay }: RideSheetProps) {
   const [chosen, setChosen] = useState<RideChoice["id"]>(() => firstWay(ways, have, by));
-  useEffect(() => onWay?.(chosen), [chosen, onWay]);
+  useEffect(() => {
+    onWay?.(chosen);
+  }, [chosen, onWay]);
   const way = ways.find((candidate) => candidate.id === chosen && candidate.shut === undefined) ?? ways.find((candidate) => candidate.shut === undefined);
   const here = pin.state === "here";
   const locked = pin.state === "not";

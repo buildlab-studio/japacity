@@ -8,6 +8,11 @@ import { type OwnedSpot, type PlaceFile, type Spot, stageOf } from "./placeFile"
 /** The homes where the player arranges what is theirs: a home of their own, never the family house, a street or an office. */
 export const ARRANGED_HOMES: ReadonlySet<string> = new Set(["place.compound-room", "place.hostel-room", "place.makoko", "place.the-room"]);
 
+/** Buy mode stands in the home lived in when it is a home of the player's own, with something owned standing in it. */
+export function buyModeAt(place: string, home: string | null, standing: readonly string[]): boolean {
+  return home !== null && place === home && ARRANGED_HOMES.has(place) && standing.length > 0;
+}
+
 /** A thing of the market's id as a thing of the place: `thing.tv` is the place thing `owned-tv`. */
 export function ownedThingId(thing: string): string {
   return `owned-${thing.slice(thing.indexOf(".") + 1)}`;

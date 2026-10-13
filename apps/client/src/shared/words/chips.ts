@@ -18,9 +18,9 @@ export function freeShown(activity: string): boolean {
   return fills || entry.cost.some((part) => part.reason === "food");
 }
 
-/** The time an act takes as a chip, only when it is more than a morning; null otherwise. */
-export function chipTimeOf(activity: string): string | null {
-  const time = timeWordsOf(activity);
+/** The time an act takes as a chip, only when it is more than a morning; null otherwise. `halfDays`: the view's own, when a thing owned changes it. */
+export function chipTimeOf(activity: string, halfDays?: number): string | null {
+  const time = timeWordsOf(activity, halfDays);
   return time === null || time === say("ui.world.time.morning") ? null : time;
 }
 
