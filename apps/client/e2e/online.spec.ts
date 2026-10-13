@@ -366,9 +366,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   const teach = page.locator("[data-home-teach-ok]");
   if (await teach.waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await teach.click();
   await page.waitForFunction(() => (window as unknown as { __city?: { ready?: boolean } }).__city?.ready === true, null, { timeout: 90_000 });
-  // Into the parlour through the house's door.
-  await page.locator('[data-mark="house"]').click({ timeout: 30_000 });
-  await page.locator('[data-thing-chip="house"] [data-act="enter"]').click();
+  // The family house opens whole, its parlour with it.
   await page.waitForFunction(() => (window as unknown as { __city?: { ready?: boolean; place?: string } }).__city?.ready === true, null, { timeout: 90_000 });
   const mark = page.locator('[data-mark="after-service"]');
   await expect(mark).toBeVisible({ timeout: 30_000 });

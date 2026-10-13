@@ -307,8 +307,8 @@ describe("the run through the front door", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     const monthly = { "family-house": 9500000, "compound-room": 5000000, "hostel-room": 0, makoko: 2500000 } as const;
-    // The room takes its year and the fees at once (R-HOME-010): ₦350,000 and a fifth of it; the hostel its first month.
-    const now = { "family-house": 0, "compound-room": 42000000, "hostel-room": content.tuning.home.hostelRentKobo, makoko: 0 } as const;
+    // The room takes its year and the fees at once (R-HOME-010): ₦350,000 and a fifth of it; the hostel nothing, as Makoko.
+    const now = { "family-house": 0, "compound-room": 42000000, "hostel-room": 0, makoko: 0 } as const;
     const rent = { "family-house": 0, "compound-room": content.tuning.home.compound.rentYear, "hostel-room": content.tuning.home.hostelRentKobo, makoko: 0 } as const;
     for (const tile of ARCHETYPES) {
       fireEvent.click(screen.getByRole("radio", { name: say(`prologue.archetype.${tile.id}.name`) }));

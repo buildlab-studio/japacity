@@ -26,7 +26,7 @@ export const homeText: Record<string, string> = {
   "phone.home.charge.place.family-house": "Your share for the house: {amount} a month. Papa pays the rest.",
   "phone.home.charge.place.compound-room": "Living costs {amount} a month",
   "phone.home.charge.place.makoko": "Rent {amount} a month",
-  "phone.home.charge.place.hostel-room": "Rent {amount} a month, paid ahead at each month's end",
+  "phone.home.charge.place.hostel-room": "Rent {amount} a month, at each month's end",
   // R-HOME-010: the room's year and when it is next taken.
   "phone.home.rent-year": "Rent {amount} a year, next in {count} months",
   "phone.home.rent-year.one": "Rent {amount} a year, next due next month",

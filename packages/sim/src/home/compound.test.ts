@@ -400,7 +400,8 @@ describe("a start in the room (R-PROLOGUE-013)", () => {
 
   test("[R-PROLOGUE-013] given the home card, then it offers the family house, the room in a compound and Makoko, in that order, and the room's answer takes the year and the fees, opens the room's rent and upkeep and moves the life there", () => {
     const card = content.prologue["home"];
-    expect(card?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "makoko"]);
+    // The hostel room joined the card as the fourth home (the home's wave; hostel.test.ts).
+    expect(card?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "hostel-room", "makoko"]);
     const room = card?.answers.find((answer) => answer.id === "compound-room");
     expect(room?.requires).toEqual([{ type: "money/can-pay", currency: "NGN", amount: MOVE_IN + home.compound.upkeep }]);
     expect(room?.effects).toEqual([

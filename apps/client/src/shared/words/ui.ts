@@ -621,7 +621,7 @@ export const uiText: Record<string, string> = {
   "ui.door.home.costs.makoko": "Then {amount} a month · rent next month",
   // The move-in with the agent's and the agreement's fees, as Bills says it (R-HOME-010).
   "ui.door.home.costs.compound-room": "{movein} to move in, then {rent} a year · living {amount} a month",
-  "ui.door.home.costs.hostel-room": "{movein} to move in, then {rent} a month",
+  "ui.door.home.costs.hostel-room": "Then {rent} a month · no year's rent",
   // Each home's line on the door, in the order offered (the home's wave).
   "ui.door.home.line.compound-room": "Rent by the year, your things, your spot by the gate",
   "ui.door.home.line.hostel-room": "Cheap, by the month, the corridor never sleeps",

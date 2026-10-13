@@ -148,9 +148,9 @@ describe("the hostel as a home", () => {
 });
 
 describe("the hostel on the door", () => {
-  test("[R-PROLOGUE-013] [R-HOME-002] given a life from sixteen whose last card picks the hostel room, when the prologue closes, then its first month is taken, the rent by the month is open and the life starts in the hostel; short of a month's rent the answer is shut", () => {
+  test("[R-PROLOGUE-013] [R-HOME-002] given a life from sixteen whose last card picks the hostel room, when the prologue closes, then the rent by the month is open and the life starts in the hostel, nothing taken on the move as the room on the water's, the first month charged at the month's end", () => {
     const answer = content.prologue["home"]?.answers.find((one) => one.id === "hostel-room");
-    expect(answer?.requires).toEqual([{ type: "money/can-pay", currency: "NGN", amount: MONTH }]);
+    expect(answer?.requires ?? []).toEqual([]);
     const game = start({ content, scenario: "scenario.prologue", seed: "seed-1" });
     for (const id of ["begin", "commercial", "work", "start-21", "save", "nowhere"]) {
       const step = game.state.prologue.step;
@@ -161,7 +161,10 @@ describe("the hostel on the door", () => {
     const before = naira(game);
     game.accept({ type: "prologue/choose", step: "home", answer: "hostel-room" });
     expect(game.state.home.place).toBe(HOSTEL);
-    expect(naira(game)).toBe(before - MONTH);
+    expect(naira(game)).toBe(before);
     expect(openEntries(game)).toEqual([RENT]);
+    setNaira(game, 5_000_000_00);
+    const result = month(game);
+    expect(eventsOf(result, "obligation/charged").filter((event) => event["entry"] === RENT).map((event) => event["total"])).toEqual([MONTH]);
   });
 });
