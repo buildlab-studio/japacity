@@ -95,6 +95,8 @@ const EXAMS: ReadonlySet<string> = new Set(Object.values(content.activity).flatM
 const STORY: readonly ((line: ReportLine) => boolean)[] = [
   isEvicted,
   (line) => line.key === GRANTED,
+  // The passbook's stamps: money held for the road is told beside the visa, before the month's troubles.
+  (line) => line.key.startsWith("line.passbook."),
   isUnpaid,
   // R-PEOPLE-042: a bond that ended this month, before the month's errands.
   (line) => BOND_ENDED.has(line.key),
