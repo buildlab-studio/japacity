@@ -250,9 +250,17 @@ export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; a
       {speech === null || hidden ? null : (
         <button
           type="button"
-          onClick={() => (speech.long ? listen(speech) : hush(speech.id))}
-          // A short line takes no tap, so the bubble over the player's figure never steals the tap meant for a thing's mark beside it (R-WORLD-005); a long line's bubble opens its sheet.
-          className={`${speech.long ? "pointer-events-auto" : "pointer-events-none"} fixed z-[37] w-max max-w-[280px] text-left ${anchored ? "top-0 left-0" : "bottom-[calc(max(14px,env(safe-area-inset-bottom))+150px)] left-1/2 -translate-x-1/2"}`}
+          onClick={(event) => {
+            // A thing's mark, its chip or a fan button under the bubble keeps its tap (R-WORLD-005): the bubble hands it on.
+            const under = (typeof document.elementsFromPoint === "function" ? document.elementsFromPoint(event.clientX, event.clientY) : []).find((node) => node !== event.currentTarget && !event.currentTarget.contains(node) && node.closest("[data-mark], [data-thing-chip] button, [data-fan] button") !== null);
+            if (under instanceof HTMLElement) {
+              under.click();
+              return;
+            }
+            if (speech.long) listen(speech);
+            else hush(speech.id);
+          }}
+          className={`pointer-events-auto fixed z-[37] w-max max-w-[280px] text-left ${anchored ? "top-0 left-0" : "bottom-[calc(max(14px,env(safe-area-inset-bottom))+150px)] left-1/2 -translate-x-1/2"}`}
           style={anchored ? { visibility: "hidden" } : undefined}
           aria-label={speech.long ? say("ui.talk.open", { name: speech.name }) : undefined}
           data-speech={speech.who}
