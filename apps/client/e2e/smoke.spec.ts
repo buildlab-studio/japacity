@@ -3,13 +3,13 @@ import { expect, test, type Page } from "@playwright/test";
 // The recorded lives are the simulation's own data, replayed here through the client's save. The month is lived in the
 // world (docs/rules/world.md R-WORLD-025, R-WORLD-030): acts on the home's things, the bed's Sleep turning it, the results
 // over the scene.
-import { content, text } from "../../../packages/content/src/index";
+import { content } from "../../../packages/content/src/index";
 import type { Id } from "../../../packages/sim/src/engine/types";
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 import { start } from "../../../packages/sim/src/testing/play";
 import { standInWorld } from "../../../packages/sim/src/world/standIn";
 import { startArchetype, startReadyLife } from "./door";
-import { backFromResults, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, seedSave, sleepTheMonth } from "./live";
+import { backFromResults, closeGranted, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, rideTo, seedSave, sleepTheMonth } from "./live";
 
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -189,30 +189,6 @@ function adaBeforeFlight(): string {
   const save = lifeSaves["ada-careful"];
   if (save === undefined) throw new Error("No recorded life ada-careful.");
   return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, -1) }, clock: { anchor: 0 } });
-}
-
-/**
- * R-SHARE-001: the recorded life loads in the month after its decision day, so the granted card is still due and opens
- * over the world first; it is closed.
- */
-async function closeGranted(page: Page): Promise<void> {
-  const granted = page.getByRole("dialog", { name: text["share.granted.title"] ?? "share.granted.title" });
-  await expect(granted).toBeVisible({ timeout: 30_000 });
-  await expect(granted.locator("[data-share-card='granted']")).toBeVisible();
-  await granted.getByRole("button", { name: "Close" }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-}
-
-/** The ride to a stop the map holds open (R-WORLD-015, R-WORLD-017), by the stop's button beside the painted map. */
-async function rideTo(page: Page, id: string): Promise<void> {
-  await page.locator('[data-thumb="map"]').click();
-  await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
-  await page.evaluate((stop) => document.querySelector<HTMLButtonElement>(`[data-stop="${stop}"]`)?.click(), id);
-  await page.locator(`[data-ride-sheet="${id}"] [data-ride-main]`).click();
-  await page.waitForFunction((stop) => {
-    const city = (window as unknown as { __city?: { ready?: boolean; place?: string } }).__city;
-    return city?.place === stop && city.ready === true;
-  }, id, { timeout: 90_000 });
 }
 
 /** The send-off card opens once the flight's moment is closed; it is closed in turn (R-CHAPTER-006). */

@@ -6,12 +6,14 @@ import { readFileSync } from "node:fs";
 import { devices, expect, test, type Page } from "@playwright/test";
 
 // The recorded lives and the tuning are the simulation's and the content's own data.
-import { content, text } from "../../../packages/content/src/index";
+import { content } from "../../../packages/content/src/index";
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
+import { closeGranted, doAct, LIVED, placeReady, rideTo } from "./live";
 
 // A device's browser type can be chosen only by the project; the rest of the profile applies here.
+// The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 const { viewport, userAgent, deviceScaleFactor, isMobile, hasTouch } = devices["Pixel 7"];
-test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch });
+test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
 /** Ada's recorded life up to the month before she flies. */
 function adaBeforeFlight(): string {
@@ -34,17 +36,10 @@ function jpegSize(bytes: Buffer): { width: number; height: number } | null {
 }
 
 /**
- * R-SHARE-001: the recorded life loads in the month after its decision day, so
- * the granted card is still due and opens over the page first; it is closed.
+ * Ada boards the plane in the world (R-CHAPTER-006, route/depart): the granted card owed on load is closed, the map rides
+ * her to the airport, the gate's Board the plane takes the flight, and the landing's moment card is closed; the send-off
+ * card then opens over the world.
  */
-async function closeGranted(page: Page): Promise<void> {
-  const granted = page.getByRole("dialog", { name: text["share.granted.title"] ?? "share.granted.title" });
-  await expect(granted).toBeVisible();
-  await expect(granted.locator("[data-share-card='granted']")).toBeVisible();
-  await granted.getByRole("button", { name: "Close" }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-}
-
 async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
   await page.addInitScript(
     ({ stored, sheet }) => {
@@ -52,6 +47,7 @@ async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
         localStorage.setItem("japacity.save", stored);
         sessionStorage.setItem("seeded", "1");
       }
+      localStorage.setItem("japacity.walkthrough", "1");
       if (!sheet) {
         Reflect.deleteProperty(Navigator.prototype, "canShare");
         Reflect.deleteProperty(Navigator.prototype, "share");
@@ -59,17 +55,21 @@ async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
     },
     { stored: adaBeforeFlight(), sheet: withShareSheet },
   );
-  await page.goto("/?classic");
+  await page.goto(`/${LIVED}`);
   await closeGranted(page);
-  const tabs = page.getByRole("navigation", { name: "Sections" });
-  // The bar is there once the shell has drawn; right after a reload it is not yet, and its absence would read as a desktop.
-  await page.getByRole("banner").waitFor();
-  if (await tabs.isVisible()) await tabs.getByRole("button", { name: "Japa" }).click();
-  await page.getByRole("button", { name: "Board the plane" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Carry on" }).click();
+  await placeReady(page);
+  await rideTo(page, "place.airport-lagos");
+  await doAct(page, "gate", "depart");
+  const board = page.locator("[data-ask-main]");
+  await expect(board).toContainText("Board the plane");
+  await board.click();
+  const landing = page.locator("[data-moment-screen]");
+  await expect(landing).toBeVisible({ timeout: 30_000 });
+  await landing.getByRole("button", { name: "Close" }).click();
 }
 
 test("[R-SHARE-009] [R-CHAPTER-006] a recorded life's send-off card is saved on a phone as a JPEG at the card's size and under its limit", async ({ page }) => {
+  test.setTimeout(180_000);
   await flyAda(page, false);
   const sheet = page.getByRole("dialog");
   const card = sheet.locator("[data-share-card='send-off']");
@@ -94,6 +94,7 @@ test("[R-SHARE-009] [R-CHAPTER-006] a recorded life's send-off card is saved on 
 });
 
 test("[R-SHARE-003] a phone with a share sheet gets the card only when the player taps", async ({ page }) => {
+  test.setTimeout(180_000);
   await page.addInitScript(() => {
     const shared: unknown[] = [];
     Object.assign(window, { shared });

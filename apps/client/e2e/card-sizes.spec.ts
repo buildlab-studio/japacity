@@ -25,7 +25,8 @@ interface Drawn {
 
 test("[R-SHARE-009] [R-SHARE-006] every card kind, every chapter's art and every ticket stub is encoded with the marks at the first quality, well under the card limit", async ({ page }) => {
   test.setTimeout(120_000);
-  await page.goto("/?classic");
+  // Any address serves the game's modules; the cards are drawn by them, not by a page (the old month page is gone).
+  await page.goto("/");
   const cards = [...shareKinds.map((kind) => ({ kind, chapter: null })), ...shareChapters.map((chapter) => ({ kind: "chapter" as const, chapter }))];
   // The longest place names and both ends of the time played, each with every type in turn.
   const ways = Object.values(content.route).filter((route) => route.country !== null).map((route) => route.id);

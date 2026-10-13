@@ -4,6 +4,8 @@
 // only, which the suite's server is. The phone's apps are opened from the Phone thumb.
 import { expect, type Page } from "@playwright/test";
 
+import { text } from "../../../packages/content/src/index";
+
 /** The address a test opens: the sleep cut to two seconds and the morning's results opened at once. */
 export const LIVED = "?sleep=2&morning=now";
 
@@ -43,6 +45,12 @@ async function tapThing(page: Page, thing: string): Promise<void> {
   if (await mark.isVisible().catch(() => false)) {
     // A mark the nudge pulses never holds still for the stability check; the tap lands on the button all the same.
     await mark.click({ timeout: 10_000, force: true });
+    return;
+  }
+  // The step's marker over a thing takes the tap for it: its pill is a button of its own.
+  const marker = page.locator(`[data-marker-tap="${thing}"]`);
+  if (await marker.isVisible().catch(() => false)) {
+    await marker.click({ timeout: 10_000, force: true });
     return;
   }
   const at = await page.evaluate((id) => (window as unknown as { __city?: { screenOfThing?: (one: string) => { x: number; y: number } | null } }).__city?.screenOfThing?.(id) ?? null, thing);
@@ -211,4 +219,28 @@ export async function seedSave(page: Page, stored: string): Promise<void> {
   }, stored);
   // The device marked as played (R-WORLD-033), so no first-use label stands at the thumbs.
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
+}
+
+/**
+ * R-SHARE-001: a recorded life loaded in the month after its decision day still owes the granted card, which opens over
+ * the world first; it is closed.
+ */
+export async function closeGranted(page: Page): Promise<void> {
+  const granted = page.getByRole("dialog", { name: text["share.granted.title"] ?? "share.granted.title" });
+  await expect(granted).toBeVisible({ timeout: 30_000 });
+  await expect(granted.locator("[data-share-card='granted']")).toBeVisible();
+  await granted.getByRole("button", { name: "Close" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+
+/** The ride to a stop the map holds open (R-WORLD-015, R-WORLD-017), by the stop's button beside the painted map. */
+export async function rideTo(page: Page, id: string): Promise<void> {
+  await page.locator('[data-thumb="map"]').click();
+  await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
+  await page.evaluate((stop) => document.querySelector<HTMLButtonElement>(`[data-stop="${stop}"]`)?.click(), id);
+  await page.locator(`[data-ride-sheet="${id}"] [data-ride-main]`).click();
+  await page.waitForFunction((stop) => {
+    const city = (window as unknown as { __city?: { ready?: boolean; place?: string } }).__city;
+    return city?.place === stop && city.ready === true;
+  }, id, { timeout: 90_000 });
 }
