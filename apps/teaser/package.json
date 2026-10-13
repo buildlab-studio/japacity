@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "studio": "remotion studio src/index.ts",
+    "record": "tsx record/record.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
