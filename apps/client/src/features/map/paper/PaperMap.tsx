@@ -41,7 +41,7 @@ declare global {
 const GRAPH = buildGraph();
 /** The open map's zoom on a phone, and how far a pinch may take it. */
 const OPEN_ZOOM = 0.92;
-const ZOOM_MIN = 0.4;
+const ZOOM_MIN = 0.55;
 const ZOOM_MAX = 2.6;
 const WIDE = "(min-width: 64rem)";
 const STILL = "(prefers-reduced-motion: reduce)";
@@ -231,7 +231,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
         lift={sheetUp && pickedStop !== null ? pickedStop : null}
         onPick={pick}
         onSwipe={(card) => dispatch({ type: "swipe", card })}
-        hidden={open}
+        hidden={state.phase !== "folded"}
         pull={state.pull}
         still={still}
         sheetUp={sheetUp}
@@ -458,10 +458,18 @@ interface UnfoldProps extends Omit<LayerProps, "frame" | "transition" | "opacity
  * motion); folding back it shrinks into the strip again. A drag on the strip holds it part way.
  */
 function Unfold({ state, size, stripWidth, still, onSettled, country, close, ...layer }: UnfoldProps) {
-  const strip = stripFrame(stripWidth - 8);
-  // The strip's paper in screen pixels: inside its white card, at the top of the screen.
-  const folded: Frame = { ...strip, x: 16 + strip.x, y: 16 + strip.y };
-  const own = openFrame(layer.view, size.width, size.height);
+  const { width, height } = size;
+  // The strip's paper box on the screen: inside its white card, at the top of the screen.
+  const box = { x: 16, y: 16, width: Math.max(1, stripWidth - 8), height: STRIP_H };
+  const strip = stripFrame(box.width);
+  // The frame starts as the strip's box and grows to the screen; inside it, the paper starts folded as the strip shows it
+  // (the strip's frame undone by the box's own squeeze) and opens to the open map's view. Both move on transform alone.
+  const across = box.width / Math.max(1, width);
+  const down = box.height / Math.max(1, height);
+  const shut: Frame = { x: box.x, y: box.y, sx: across, sy: down };
+  const whole: Frame = { x: 0, y: 0, sx: 1, sy: 1 };
+  const inner: Frame = { x: strip.x / across, y: strip.y / down, sx: strip.sx / across, sy: strip.sy / down };
+  const own = openFrame(layer.view, width, height);
   const [grown, setGrown] = useState(state.phase === "open");
   // The fold settles when its motion ends (or, should the end never come, a little after the motion's time).
   useLayoutEffect(() => {
@@ -481,19 +489,24 @@ function Unfold({ state, size, stripWidth, still, onSettled, country, close, ...
     return undefined;
   }, [state.phase]);
   const pulling = state.phase === "folded";
-  const frame = still ? own : pulling ? mix(folded, own, state.pull / 100) : grown ? own : folded;
+  const share = still ? 1 : pulling ? state.pull / 100 : grown ? 1 : 0;
+  const outer = mix(shut, whole, share);
+  const paper = mix(inner, own, share);
   const moving = !still && !pulling && state.phase !== "open";
-  const opacity = still ? (grown || state.phase === "open" ? 1 : 0) : pulling ? Math.min(1, state.pull / 40) : 1;
+  const motion = moving ? `transform ${String(FOLD_MS)}ms cubic-bezier(0.2, 0.9, 0.25, 1)` : undefined;
+  const opacity = still ? (grown || state.phase === "open" ? 1 : 0) : 1;
   return (
     <div
-      className={`paper-unfold ${still ? "paper-fade" : ""}`}
+      className={`paper-unfold ${still ? "paper-fade" : ""} ${state.phase === "open" ? "" : "paper-moving"}`}
       style={{ opacity, transition: still ? `opacity ${String(FOLD_MS)}ms ease` : undefined }}
       onTransitionEnd={(event) => {
-        if (moving && event.propertyName === "transform" && (event.target as HTMLElement).dataset.world === "open") onSettled();
+        if (moving && event.propertyName === "transform" && (event.target as HTMLElement).dataset.frame !== undefined) onSettled();
       }}
       data-unfold={state.phase}
     >
-      <OpenLayer {...layer} size={size} frame={frame} transition={moving ? `transform ${String(FOLD_MS)}ms cubic-bezier(0.2, 0.9, 0.25, 1)` : undefined} />
+      <div className="paper-frame" style={{ transform: `translate(${String(outer.x)}px, ${String(outer.y)}px) scale(${String(outer.sx)}, ${String(outer.sy)})`, transition: motion }} data-frame>
+        <OpenLayer {...layer} size={size} frame={paper} transition={motion} />
+      </div>
       <div className="paper-open-head" style={{ opacity: state.phase === "open" ? 1 : 0 }}>
         {country}
         {close}

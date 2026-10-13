@@ -198,8 +198,12 @@
 [data-paint="night"] .paper-pager i { background: rgba(246, 237, 216, 0.3); }
 [data-paint="night"] .paper-pager i.on { background: #f6edd8; }
 .paper-country { position: absolute; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 3; }
-.paper-open { position: absolute; inset: 0; overflow: hidden; background: var(--sea); touch-action: none; }
-.paper-unfold { position: absolute; inset: 0; z-index: 8; }
+.paper-open { position: absolute; inset: 0; overflow: hidden; background: var(--water); touch-action: none; }
+.paper-unfold { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+.paper-frame { position: absolute; inset: 0; transform-origin: 0 0; overflow: hidden; pointer-events: auto; }
+.paper-moving .paper-frame { border-radius: 18px; box-shadow: 0 0 0 1.5px var(--frame-edge), 0 14px 30px rgba(20, 40, 50, 0.25); }
+.paper-moving .paper-pin, .paper-moving .paper-danfo, .paper-moving .paper-world .stk { opacity: 0; }
+.paper-world .paper-pin, .paper-danfo, .paper-world .stk { transition: opacity 160ms ease; }
 .paper-open-head { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: flex-start; padding: max(12px, env(safe-area-inset-top)) 12px 0; pointer-events: none; transition: opacity 160ms ease; }
 .paper-open-head > * { pointer-events: auto; }
 .paper-row { position: absolute; left: 0; right: 0; bottom: 24px; display: flex; justify-content: center; align-items: flex-end; gap: 18px; z-index: 3; pointer-events: none; }
@@ -219,3 +223,4 @@
 .ride-state-plain { background: var(--sheet-muted); color: var(--text); }
 .ride-state-soft { background: var(--paper-ticket); color: #8a6400; }
 [data-paint="night"] .ride-state-good { color: #9be3b9; }
+.paper-name[data-name="new"] { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }

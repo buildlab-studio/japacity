@@ -12,6 +12,9 @@ import { LABELS, LANDMARKS, PARKS, SEA_FROM, WATER_LABELS } from "./geometry";
 
 export type Variant = "folded" | "open" | "card";
 
+/** The paper runs on past its own edges by this much, so a view panned or zoomed out never sees where it stops. */
+export const BLEED = 500;
+
 const n = String;
 
 /** The landmarks, each a small drawing at three fifths of the round's size: the theatre's hat, the towers, the toll gate. */
@@ -130,7 +133,15 @@ export const PaperSvg = memo(function PaperSvg({ variant, route = null, uid }: P
     </g>
   );
   return (
-    <svg className={`paper-svg paper-${variant}`} width={PAPER.width} height={PAPER.height} viewBox={`0 0 ${n(PAPER.width)} ${n(PAPER.height)}`} aria-hidden data-paper-svg={variant}>
+    <svg
+      className={`paper-svg paper-${variant}`}
+      style={{ left: -BLEED, top: -BLEED }}
+      width={PAPER.width + BLEED * 2}
+      height={PAPER.height + BLEED * 2}
+      viewBox={`${n(-BLEED)} ${n(-BLEED)} ${n(PAPER.width + BLEED * 2)} ${n(PAPER.height + BLEED * 2)}`}
+      aria-hidden
+      data-paper-svg={variant}
+    >
       <rect x={-2000} y={-2000} width={PAPER.width + 4000} height={PAPER.height + 4000} className="water" />
       <rect x={-2000} y={SEA_FROM} width={PAPER.width + 4000} height={2000} className="sea" />
       {whole ? <path d={d.waves} className="wave" /> : null}

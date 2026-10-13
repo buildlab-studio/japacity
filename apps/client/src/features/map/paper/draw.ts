@@ -23,7 +23,7 @@ export function groundOf(): Ground {
     land: Object.values(LAND),
     roads: ROADS.map((road) => ({ points: road.points, reach: road.bridge === undefined ? (road.main ? 8 : 6) : 9 })),
     clear: [...places, ...names, ...landmarks, ...decor],
-    box: [0, 0, PAPER.width, PAPER.height],
+    box: [-140, 0, PAPER.width + 140, PAPER.height],
   };
 }
 

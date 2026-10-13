@@ -13,8 +13,8 @@ const ring = (points: readonly LatLon[]): Point[] => points.map(at);
 /** The pieces of land, each a closed ring; everything else on the paper is water. */
 export const LAND: Readonly<Record<string, readonly Point[]>> = {
   mainland: ring([
-    [6680, 3240],
-    [6680, 3440],
+    [6760, 3150],
+    [6760, 3440],
     [6625, 3442],
     [6606, 3430],
     [6586, 3419],
@@ -39,16 +39,16 @@ export const LAND: Readonly<Record<string, readonly Point[]>> = {
     [6452, 3336],
     [6455, 3320],
     [6452, 3300],
-    [6450, 3240],
+    [6450, 3150],
   ]),
   // The far shore of the lagoon, up past Ikorodu.
   farShore: ring([
-    [6680, 3462],
+    [6760, 3462],
     [6625, 3464],
     [6611, 3474],
     [6602, 3492],
-    [6600, 3520],
-    [6680, 3520],
+    [6600, 3620],
+    [6760, 3620],
   ]),
   // Lagos Island and Ikoyi, one piece as the eye reads it.
   island: ring([
@@ -79,8 +79,8 @@ export const LAND: Readonly<Record<string, readonly Point[]>> = {
     [6446, 3455],
     [6451, 3463],
     [6454, 3480],
-    [6456, 3520],
-    [6418, 3520],
+    [6456, 3620],
+    [6418, 3620],
     [6419, 3480],
     [6416, 3460],
     [6413, 3440],
