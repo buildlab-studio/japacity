@@ -61,11 +61,33 @@ async function actBySheet(page: Page, thing: string, act: string, button: RegExp
  * has walked to the thing and its own button (the act's name) does it. Either way the fan closes and no sheet is left.
  */
 async function fanActDone(page: Page, thing: string, activity: string, button: RegExp): Promise<void> {
+  const counter = page.locator("[data-band] [data-counter]");
+  const before = await counter.getAttribute("data-counter");
   await fanAct(page, thing, activity);
-  const asked = page.getByRole("dialog").getByRole("button", { name: button });
-  if (await asked.last().waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await asked.last().click();
-  await expect(page.getByRole("dialog")).toHaveCount(0, { timeout: 15_000 });
-  await expect(page.locator(`[data-fan="${thing}"]`)).toHaveCount(0, { timeout: 10_000 });
+  // The card, when the act asks first, comes once the character has walked over, which a loaded machine stretches. An act
+  // already done at once (its price off the band's counter) is not bought again from a card that follows it.
+  const card = page.getByRole("dialog");
+  const asked = card.getByRole("button", { name: button });
+  const fan = page.locator(`[data-fan="${thing}"]`);
+  const ends = Date.now() + 20_000;
+  let settled = false;
+  while (Date.now() < ends) {
+    if (await asked.last().isVisible().catch(() => false)) {
+      if ((await counter.getAttribute("data-counter")) === before) await asked.last().click();
+      else await card.getByRole("button", { name: "Close" }).first().click();
+      if (settled) break;
+      settled = true;
+    } else if ((await fan.count()) === 0 && (await card.count()) === 0) {
+      if (settled) break;
+      // A short beat more, in case a card is still on its way.
+      settled = true;
+      await page.waitForTimeout(1500);
+      continue;
+    }
+    await page.waitForTimeout(250);
+  }
+  await expect(card).toHaveCount(0, { timeout: 15_000 });
+  await expect(fan).toHaveCount(0, { timeout: 10_000 });
 }
 
 test("a new player picks a life, lives a month and reads its results", async ({ page }) => {
