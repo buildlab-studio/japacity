@@ -116,9 +116,69 @@ export function wholeDistance(shot: Shot, aspect: number, fov = SHOT_FOV): numbe
   return Math.max(shot.far, shot.width === undefined ? 0 : fitDistance(shot.width, aspect, fov));
 }
 
-/** A turn kept within the place's limit either side of straight. */
+/**
+ * A shot that turns the full circle (turning the house): a wide home's file sets its turn limit to
+ * 360, and its view turns any way round, coming to rest on a quarter.
+ */
+export const FULL_TURN = 360;
+
+/** Whether a shot turns the full circle in quarters, as a wide home's does, rather than within a limit either side. */
+export function turnsRound(shot: Pick<Shot, "turn">): boolean {
+  return shot.turn >= FULL_TURN;
+}
+
+/** A turn kept within the place's limit either side of straight; a shot that turns the full circle keeps any turn. */
 export function clampTurn(shot: Pick<Shot, "turn">, turn: number): number {
+  if (turnsRound(shot)) return turn;
   return Math.min(shot.turn, Math.max(-shot.turn, turn));
+}
+
+/** Where a turn released between quarters comes to rest: the nearest quarter. */
+export function snapTurn(turn: number): number {
+  return Math.round(turn / 90) * 90;
+}
+
+/** The quarter the turn button eases to from a view at `turn`: the next one round, a quarter on from where it rests. */
+export function nextQuarter(turn: number): number {
+  return snapTurn(turn) + 90;
+}
+
+/** The turn for `quarter` (0 to 3) nearest a view at `turn`, so the view eases the short way round to it. */
+export function turnToward(turn: number, quarter: number): number {
+  const base = quarter * 90;
+  return base + Math.round((turn - base) / 360) * 360;
+}
+
+/** The whole quarters, 0 to 3, of a turn. */
+export function quarterTurns(turn: number): 0 | 1 | 2 | 3 {
+  return ((((Math.round(turn / 90) % 4) + 4) % 4) as 0 | 1 | 2 | 3);
+}
+
+/**
+ * The view from above (the tilt): a vertical drag lifts a wide home's view from its own pitch to
+ * this one, about 65 degrees, raised and never straight down (R-WORLD-009), and it comes to rest on one of the two.
+ */
+export const TOP_PITCH = 65;
+
+/** Where a released tilt comes to rest: the normal view (0) or the view from above (1), never between. */
+export function snapTilt(tilt: number): 0 | 1 {
+  return tilt >= 0.5 ? 1 : 0;
+}
+
+/**
+ * A wide home's whole view turned `turn` degrees from its file's facing: the width it must show across and the distance it
+ * stands back for its depth, taken from the house's floor (`ground`, across and deep as the file faces it) as it lies
+ * turned. A quarter turn swaps the floor's two sides; between quarters the floor is a diamond and the view stands back
+ * far enough for its corners, so nothing is cut off on the way round.
+ */
+export function turnedShot(shot: Shot, ground: readonly [number, number], turn: number): Shot {
+  if (turn % 360 === 0 || ground[0] <= 0 || ground[1] <= 0) return shot;
+  const [across, deep] = ground;
+  const t = radians(turn);
+  const [c, s] = [Math.abs(Math.cos(t)), Math.abs(Math.sin(t))];
+  const wide = c + (deep / across) * s;
+  const far = c + (across / deep) * s;
+  return { ...shot, far: shot.far * far, ...(shot.width === undefined ? {} : { width: shot.width * wide }) };
 }
 
 /** Where a released pinch comes to rest: the whole place, or close on the character, never between. */
@@ -172,35 +232,118 @@ export function roomFirst(rooms: readonly Room[], whole: boolean, current: Room 
   return whole || room.id !== current?.id ? room : null;
 }
 
+/** How a wide home's view is turned and tilted, and the floor it turns. */
+export interface HomeView {
+  /** Degrees turned from the file's facing; a whole number of quarters at rest. */
+  turn?: number;
+  /** 0 the normal view, 1 the view from above; between while a vertical drag is held or the tilt eases. */
+  tilt?: number;
+  /** The house's floor as the file faces it, across and deep (`stage.ground.size`), for the turned whole view's fit. */
+  ground?: readonly [number, number];
+}
+
 /**
  * Where the camera stands and looks, and its lens, for a wide home (world.md R-WORLD-029 as the home's wave asks it
- * amended): at `zoom` 1 the whole house straight down its length on the shot's long lens, fitted to
- * its width; at 0 eased in on `room` at the rooms' distance on the scene's own lens, the rest of the house running off the
- * screen's edges; between, the two mixed. The view never turns.
+ * amended): at `zoom` 1 the whole house seen down its length on the shot's long lens, fitted
+ * to its width; at 0 eased in on `room` at the rooms' distance on the scene's own lens, the rest of the house running off
+ * the screen's edges; between, the two mixed. The view looks from the file's facing turned by `view.turn`, the house
+ * fitted as it lies turned, and from its own pitch lifted toward the view from above by `view.tilt`.
  */
-export function aimRoom(shot: Shot, room: Pick<Room, "centre" | "width" | "pitch" | "floor">, zoom: number, aspect: number): { position: Point; target: Point; fov: number } {
+export function aimRoom(shot: Shot, room: Pick<Room, "centre" | "width" | "pitch" | "floor">, zoom: number, aspect: number, view: HomeView = {}): { position: Point; target: Point; fov: number } {
   const share = Math.min(1, Math.max(0, zoom));
+  const turn = view.turn ?? 0;
+  const tilt = Math.min(1, Math.max(0, view.tilt ?? 0));
+  const turned = view.ground === undefined ? shot : turnedShot(shot, view.ground, turn);
+  // From above the floor's depth stands taller on the screen, so the whole view stands back as far again as it rises.
+  const whole = tilt === 0 ? turned : { ...turned, far: turned.far * mix(1, Math.sin(radians(TOP_PITCH)) / Math.sin(radians(shot.farPitch)), tilt) };
   const wide = shot.fov ?? SHOT_FOV;
   const fov = mix(SHOT_FOV, wide, share);
-  const distance = mix(roomDistance(room, aspect), wholeDistance(shot, aspect, wide), share);
-  const pitch = radians(mix(room.pitch, shot.farPitch, share));
-  const yaw = radians(shot.yaw ?? 0);
-  const target: Point = [mix(room.centre[0], shot.centre[0], share), mix(room.centre[1], shot.centre[1], share), mix(room.centre[2], shot.centre[2], share)];
+  const yawDegrees = (shot.yaw ?? 0) + turn;
+  const wholePitch = mix(shot.farPitch, TOP_PITCH, tilt);
+  const standBack = view.ground === undefined ? wholeDistance(whole, aspect, wide) : Math.max(wholeDistance(whole, aspect, wide), cornersDistance(shot, view.ground, yawDegrees, wholePitch, wide, aspect));
+  const distance = mix(roomDistance(room, aspect, turn), standBack, share);
+  const pitch = radians(mix(mix(room.pitch, shot.farPitch, share), TOP_PITCH, tilt));
+  const yaw = radians(yawDegrees);
+  const centre = roomTarget(room, turn);
+  const target: Point = [mix(centre[0], shot.centre[0], share), mix(centre[1], shot.centre[1], share), mix(centre[2], shot.centre[2], share)];
   const back = Math.cos(pitch) * distance;
   return { position: [target[0] - Math.sin(yaw) * back, target[1] + Math.sin(pitch) * distance, target[2] - Math.cos(yaw) * back], target, fov };
+}
+
+/**
+ * The width a room eased in on fits across the screen turned: unturned, the file's own width; turned,
+ * the room's floor as it lies across the view from the point the camera looks at, with the margin the file gives round
+ * its width, never under `least` metres, so a small nook is not seen nose to the wall, nor over `most`, so a long room seen
+ * across its length (the yard down the family house's side, a quarter round) is eased in on its middle with people that
+ * read, the rest of it running off the screen's sides as an unturned room's length runs off its top and bottom.
+ */
+export const ROOM_ACROSS = { least: 2.4, most: 7, margin: 0.6 } as const;
+
+/**
+ * Where the eased-in view of a room looks, turned: the file's `centre` is set for the view down the
+ * house's length, a little ahead of or behind the floor's middle; turned, the same offset is taken along and across the
+ * turned view from the floor's middle, so the room stands in the middle of the screen whichever way it is seen.
+ */
+export function roomTarget(room: Pick<Room, "centre" | "floor">, turn = 0): Point {
+  if (turn % 360 === 0) return room.centre;
+  const [x0, z0, x1, z1] = room.floor;
+  const [mx, mz] = [(x0 + x1) / 2, (z0 + z1) / 2];
+  const [along, across] = [-(room.centre[2] - mz), room.centre[0] - mx];
+  const t = radians(turn);
+  return [mx + along * -Math.sin(t) + across * Math.cos(t), room.centre[1], mz + along * -Math.cos(t) + across * -Math.sin(t)];
+}
+
+export function roomAcross(room: Pick<Room, "width" | "floor"> & { centre?: Room["centre"] }, turn = 0): number {
+  if (turn % 360 === 0) return room.width;
+  const [x0, z0, x1, z1] = room.floor;
+  const [cx, , cz] = roomTarget({ floor: room.floor, centre: room.centre ?? [(x0 + x1) / 2, 0, (z0 + z1) / 2] }, turn);
+  const t = radians(turn);
+  // Across the turned view, measured from the point it looks at: the floor's farthest corner either side.
+  const half = Math.max(...[x0, x1].flatMap((x) => [z0, z1].map((z) => Math.abs((x - cx) * Math.cos(t) - (z - cz) * Math.sin(t)))));
+  // The file's margin round the width, as much as a turned room needs: a few files frame a neighbour too (the bathroom).
+  const margin = Math.min(ROOM_ACROSS.margin, Math.max(0, room.width - Math.abs(x1 - x0)));
+  return Math.min(ROOM_ACROSS.most, Math.max(ROOM_ACROSS.least, half * 2 + margin));
 }
 
 /**
  * How far back the eased-in view of a room stands. A phone held upright fits the room's width across the screen, its
  * length running off the top and bottom by design (R-WORLD-029 as amended). A screen wider than tall would come far too
  * close on the width alone, so there the room's floor along the view must stand inside the lens's height too, and a
- * thing at the room's near edge (the bed in the corner) stays on screen on a laptop as it does on a phone.
+ * thing at the room's near edge (the bed in the corner) stays on screen on a laptop as it does on a phone. Turned
+ *, the width is the room's floor as it lies across the turned view (`roomAcross`) and the depth as
+ * it lies along it.
  */
-export function roomDistance(room: Pick<Room, "width" | "pitch" | "floor">, aspect: number): number {
-  const across = fitDistance(room.width, aspect, SHOT_FOV);
-  if (aspect < 1) return across;
-  const depth = Math.abs(room.floor[3] - room.floor[1]);
-  return Math.max(across, depthDistance(depth, room.pitch, SHOT_FOV));
+export function roomDistance(room: Pick<Room, "width" | "pitch" | "floor"> & { centre?: Room["centre"] }, aspect: number, turn = 0): number {
+  const fit = fitDistance(roomAcross(room, turn), aspect, SHOT_FOV);
+  if (aspect < 1) return fit;
+  const t = radians(turn);
+  const depth = Math.abs(room.floor[3] - room.floor[1]) * Math.abs(Math.cos(t)) + Math.abs(room.floor[2] - room.floor[0]) * Math.abs(Math.sin(t));
+  return Math.max(fit, depthDistance(depth, room.pitch, SHOT_FOV));
+}
+
+/**
+ * How far back a wide home's whole view must stand, looking along `yaw` from `pitch` degrees on a lens of `fov`, for every
+ * corner of its floor (`ground` round the shot's centre) to stand inside the screen's width with the fit's margin. The
+ * width's fit holds at the point the view looks at; turned, the floor's near corners stand closer than that point and
+ * spread wider, and this keeps them on screen too.
+ */
+export function cornersDistance(shot: Pick<Shot, "centre">, ground: readonly [number, number], yaw: number, pitch: number, fov: number, aspect: number): number {
+  const half = (Math.tan(radians(fov / 2)) * Math.max(aspect, 0.01)) / FIT_MARGIN;
+  const [y, p] = [radians(yaw), radians(pitch)];
+  const right: [number, number] = [-Math.cos(y), Math.sin(y)];
+  const forward: [number, number, number] = [Math.sin(y) * Math.cos(p), -Math.sin(p), Math.cos(y) * Math.cos(p)];
+  const [cx, cy, cz] = shot.centre;
+  let distance = 0;
+  for (const sx of [-1, 1]) {
+    for (const sz of [-1, 1]) {
+      // The floor lies centred on the place's origin, as its ground does; each corner from the point the view looks at.
+      const [px, py, pz] = [(sx * ground[0]) / 2 - cx, -cy, (sz * ground[1]) / 2 - cz];
+      const across = Math.abs(px * right[0] + pz * right[1]);
+      const ahead = px * forward[0] + py * forward[1] + pz * forward[2];
+      distance = Math.max(distance, across / half - ahead);
+    }
+  }
+  return distance;
 }
 
 /** Where the camera stands and looks for a view of the shot, with the character at `walker`. */

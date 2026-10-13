@@ -6,6 +6,7 @@
 import { type Document as GltfDocument, Document, type Node as GltfNode, NodeIO, type Primitive } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { getBounds, meshopt } from "@gltf-transform/functions";
+import { wallPairs } from "@japacity/assets";
 import { MeshoptDecoder, MeshoptEncoder } from "meshoptimizer";
 
 import type { BakedModel, MaterialRole } from "./bake";
@@ -108,7 +109,10 @@ export async function readGlb(bytes: Uint8Array): Promise<GltfDocument> {
 
 export interface Measured {
   triangles: number;
+  /** Draw calls with the model shown: a wall pair's two parts show one at a time, so the pair costs one (assets.md R-ASSET-007). */
   drawCalls: number;
+  /** The sides a home's shell builds twice, full and knee-high; 0 for any other model. */
+  pairs: number;
   materials: number;
   bytes: number;
   /** Lowest and highest y over the default scene, in metres. */
@@ -168,11 +172,13 @@ export function measure(doc: GltfDocument, bytes: number): Measured {
   const scene = doc.getRoot().getDefaultScene() ?? doc.getRoot().listScenes()[0];
   if (scene === undefined) throw new Error("measure: no scene");
   let skinned = false;
+  const names: string[] = [];
   const min = [Infinity, Infinity, Infinity];
   const max = [-Infinity, -Infinity, -Infinity];
   scene.traverse((node) => {
     const mesh = node.getMesh();
     if (mesh === null) return;
+    names.push(node.getName());
     for (const prim of mesh.listPrimitives()) {
       triangles += primitiveTriangles(prim);
       drawCalls += 1;
@@ -191,5 +197,7 @@ export function measure(doc: GltfDocument, bytes: number): Measured {
   }
   const [x0 = 0, y0 = 0, z0 = 0] = min;
   const [x1 = 0, y1 = 0, z1 = 0] = max;
-  return { triangles, drawCalls, materials: doc.getRoot().listMaterials().length, bytes, minY: y0, maxY: y1, size: [x1 - x0, y1 - y0, z1 - z0] };
+  // Both parts of a pair count their triangles and bytes; the one hidden costs no draw call.
+  const pairs = wallPairs(names);
+  return { triangles, drawCalls: drawCalls - pairs, pairs, materials: doc.getRoot().listMaterials().length, bytes, minY: y0, maxY: y1, size: [x1 - x0, y1 - y0, z1 - z0] };
 }

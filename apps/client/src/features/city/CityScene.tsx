@@ -33,7 +33,8 @@ import { anchorFan } from "./fan/anchor";
 import { markNode, showMark } from "./mark";
 import { bedLie, othersSeen, sleepMarkNode } from "./sleep";
 import { type LabelBox, spreadLabels } from "./labels";
-import { aimRoom, aimShot, clampTurn, EASE, easeZoom, homeTap, ROOM_EASE, ROOM_SETTLE, roomAt, roomFirst, roomShot, SETTLE, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
+import { aimRoom, aimShot, clampTurn, EASE, easeZoom, homeTap, quarterTurns, ROOM_EASE, ROOM_SETTLE, roomAt, roomFirst, roomShot, SETTLE, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapTilt, snapTurn, snapZoom, turnedShot, turnsRound, turnToward, widthEnds } from "./shot";
+import { showWalls, wallsQuarter } from "./walls";
 import { thingSpot, walkBeforeAct, walkSpot } from "./things";
 import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo } from "./walk";
 import { walkableOf } from "./walk/map";
@@ -51,6 +52,10 @@ const IDLE_MS = 1000;
 const DRAG_PX = 8;
 /** Degrees the view turns for each pixel a finger moves across the screen. */
 const TURN_PER_PX = 0.25;
+/** A wide home turns quicker under the finger: half a quarter, where a release snaps on round, in about a third of a phone's width. */
+const HOME_TURN_PER_PX = 0.4;
+/** Pixels a finger moves up a wide home's view for it to rise from the normal view to the view from above. */
+const TILT_PX = 220;
 /** Pixels the fingers of a pinch move apart for the view to go from the whole place to close. */
 const PINCH_PX = 260;
 /** How close to the screen's edge a label or the marker may stand. */
@@ -131,8 +136,15 @@ interface Rig {
   zoom: number;
   /** Where the zoom is easing to: always 0 or 1. */
   zoomTo: 0 | 1;
-  /** Degrees either side of the shot's facing. */
+  /** Degrees either side of the shot's facing; a wide home's, any number of degrees round, at rest on a quarter. */
   turn: number;
+  /** Where a wide home's turn is easing to: always a whole number of quarters. */
+  turnTo: number;
+  /** A wide home: 0 the normal view, 1 the view from above; between while a finger lifts it, and where it eases to. */
+  tilt: number;
+  tiltTo: 0 | 1;
+  /** A finger is turning or tilting a wide home's view live: it follows the finger and eases nowhere until it lifts. */
+  turning: boolean;
   pinching: boolean;
   /** A wide home's room the view eases in on (R-WORLD-029 as the home's wave asks it amended); null for the room the character stands in. */
   room: string | null;
@@ -153,7 +165,7 @@ interface Lifted {
   down: boolean;
 }
 
-const wholeRig = (): Rig => ({ zoom: 1, zoomTo: 1, turn: 0, pinching: false, room: null });
+const wholeRig = (turn = 0): Rig => ({ zoom: 1, zoomTo: 1, turn, turnTo: turn, tilt: 0, tiltTo: 0, turning: false, pinching: false, room: null });
 
 /** The room a wide home's view eases in on: the one asked for, else the one the character stands in, else the first. */
 export function roomInView(rooms: readonly Room[], asked: string | null, at: { x: number; z: number }): Room | undefined {
@@ -257,6 +269,8 @@ function Place(props: PlaceProps) {
   const sun = useRef<DirectionalLight>(null);
   const skyLight = useRef<HemisphereLight>(null);
   const frames = useRef<number[]>([]);
+  /** The quarter whose wall pair a wide home's shell shows now, for the world it was shown in. */
+  const wallsShown = useRef<{ world: World | null; quarter: number }>({ world: null, quarter: 0 });
   /** An act chosen while the character still walks to its thing: it follows on arrival (R-WORLD-010). */
   const labels = useRef<{ thing: Thing; node: HTMLButtonElement }[]>([]);
   const pick = useRef(onPick);
@@ -700,7 +714,8 @@ function Place(props: PlaceProps) {
             room: rig.current.room,
             ease: (id: string | null) => easeTo(id === null ? null : (rooms.find((one) => one.id === id) ?? null)),
             fits: () => {
-              const ends = widthEnds(shot, rig.current.turn).every(([x, y, z]) => onScreen(camera, size, x, y, z) !== null);
+              const turn = rig.current.turn;
+              const ends = widthEnds(turnsRound(shot) ? turnedShot(shot, stage.ground.size, turn) : shot, turn).every(([x, y, z]) => onScreen(camera, size, x, y, z) !== null);
               const offScreen = things.filter((thing) => {
                 const spot = thingSpot(stage, thing);
                 return spot === null || onScreen(camera, size, spot[0], 0, spot[1]) === null;
@@ -764,7 +779,21 @@ function Place(props: PlaceProps) {
     const room = roomInView(rooms, view.room, next);
     if (raised && room !== undefined) {
       if (!view.pinching) view.zoom = easeZoom(view.zoom, view.zoomTo, delta, ROOM_EASE, ROOM_SETTLE);
-      const { position, target, fov } = aimRoom(shot, room, view.zoom, aspect);
+      // A quarter turn and the tilt ease as the zoom does, in under 400 ms, once no finger holds them.
+      if (!view.turning) {
+        view.turn = easeZoom(view.turn / 90, view.turnTo / 90, delta, ROOM_EASE, ROOM_SETTLE) * 90;
+        view.tilt = easeZoom(view.tilt, view.tiltTo, delta, ROOM_EASE, ROOM_SETTLE);
+      }
+      const { position, target, fov } = aimRoom(shot, room, view.zoom, aspect, { turn: view.turn, tilt: view.tilt, ground: stage.ground.size });
+      // The walls follow the view: the far pair full, the near pair knee-high, a rising wall always behind the rooms.
+      if (world.walls.size > 0) {
+        const shown = wallsShown.current;
+        const quarter = wallsQuarter((shot.yaw ?? 0) + view.turn, shown.world === world ? shown.quarter : quarterTurns(shot.yaw ?? 0), !view.turning && view.turn === view.turnTo);
+        if (shown.world !== world || shown.quarter !== quarter) {
+          showWalls(world.walls, quarter);
+          wallsShown.current = { world, quarter };
+        }
+      }
       state.camera.position.set(...position);
       state.camera.lookAt(...target);
       lens(state.camera, fov, SHOT_NEAR_PLANE);
@@ -971,6 +1000,9 @@ function Place(props: PlaceProps) {
         probe.zoom = view.zoom;
         probe.zoomTo = view.zoomTo;
         probe.room = room?.id ?? null;
+        probe.turn = view.turn;
+        probe.tilt = view.tilt;
+        probe.walls = wallsShown.current.world === world ? wallsShown.current.quarter : null;
       }
     }
   });
@@ -1086,15 +1118,23 @@ function Place(props: PlaceProps) {
 export default function CityScene(props: SceneProps & { children?: ReactNode }) {
   const [plan, setPlan] = useState(false);
   const pinch = useRef<{ gap: number; zoom: number } | null>(null);
-  const drag = useRef<{ x: number; turn: number } | null>(null);
+  /** One finger on the view: where it went down, the turn and the tilt then, and which way it moves once it has moved. */
+  const drag = useRef<{ x: number; y: number; turn: number; tilt: number; axis: "turn" | "tilt" | null } | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
-  const { settings, looking, file, zoomed = false, onZoomed } = props;
+  const { settings, looking, file, zoomed = false, onZoomed, onTurned } = props;
   const day = useDayClock(props.worldClock ?? null);
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => roomShot(shotOf(stageOf(file)), stageOf(file), file.scope), [file]);
   // A wide home's rooms, which the pinch and the wheel ease in on (R-WORLD-029 as the home's wave asks it amended).
   const rooms = useMemo(() => (raised ? (stageOf(file).rooms ?? []) : []), [raised, file]);
-  const rig = useRef<Rig>(wholeRig());
+  // A wide home turns the full circle and opens on the quarter it was left on.
+  const round = raised && turnsRound(shot);
+  const keptTurn = (props.turn ?? 0) * 90;
+  const rig = useRef<Rig>(wholeRig(round ? keptTurn : 0));
+  const keptTurnRef = useRef(keptTurn);
+  keptTurnRef.current = keptTurn;
+  const roundRef = useRef(round);
+  roundRef.current = round;
   const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false, lying: false, lieY: LIE_Y, speed: WALK_SPEED });
   const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);
   const holding = useRef<number | null>(null);
@@ -1102,8 +1142,14 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
   // Entering a place, or a room, always shows the whole of it (R-WORLD-009); the same place shown anew, dressed or with
   // what the month's acts show, keeps the view the player made, so a home eased in on stays on its room.
   useEffect(() => {
-    rig.current = wholeRig();
+    rig.current = wholeRig(roundRef.current ? keptTurnRef.current : 0);
   }, [file.place, file.scope]);
+  // The turn button's quarter: the view eases round to it the short way.
+  const quarter = props.turn;
+  useEffect(() => {
+    if (!round || quarter === undefined || quarterTurns(rig.current.turnTo) === quarter) return;
+    rig.current.turnTo = turnToward(rig.current.turn, quarter);
+  }, [round, quarter]);
   // The shell's chip "See the whole place" sends the view back; the pinch reports where it rests.
   useEffect(() => {
     rig.current.zoomTo = zoomed ? 0 : 1;
@@ -1118,6 +1164,20 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
     holding.current = null;
     setPlan(false);
   };
+  // A wide home's finger lifts: a turn comes to rest on the nearest quarter and the tilt on the normal view or the view
+  // from above, each easing there.
+  const settleDrag = (): void => {
+    const was = drag.current;
+    drag.current = null;
+    if (!roundRef.current || was === null || was.axis === null) return;
+    rig.current.turning = false;
+    if (was.axis === "tilt") {
+      rig.current.tiltTo = snapTilt(rig.current.tilt);
+      return;
+    }
+    rig.current.turnTo = snapTurn(rig.current.turn);
+    onTurned?.(quarterTurns(rig.current.turnTo));
+  };
   return (
     <div
       className="relative size-full touch-none"
@@ -1128,7 +1188,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
         if (raised) {
           if (pointers.current.size === 1) {
             held.current = false;
-            drag.current = { x: event.clientX, turn: rig.current.turn };
+            drag.current = { x: event.clientX, y: event.clientY, turn: rig.current.turn, tilt: rig.current.tilt, axis: null };
           }
           if (pointers.current.size === 2) {
             const [a, b] = [...pointers.current.values()];
@@ -1136,7 +1196,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
             rig.current.pinching = true;
             // From the whole house a pinch closes in on the room the character stands in.
             if (rooms.length > 0 && rig.current.zoomTo === 1) rig.current.room = roomInView(rooms, null, walk.current.walker)?.id ?? null;
-            drag.current = null;
+            settleDrag();
             held.current = true;
           }
           return;
@@ -1162,9 +1222,20 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
         const turning = drag.current;
         if (turning === null) return;
         const moved = event.clientX - turning.x;
-        if (Math.abs(moved) < DRAG_PX && !held.current) return;
+        const lifted = event.clientY - turning.y;
+        if (turning.axis === null) {
+          if (Math.max(Math.abs(moved), Math.abs(lifted)) < DRAG_PX && !held.current) return;
+          // A wide home's finger turns the view sideways and tilts it up or down, whichever way it first moved.
+          turning.axis = round && Math.abs(lifted) > Math.abs(moved) ? "tilt" : "turn";
+        }
         held.current = true;
-        rig.current.turn = clampTurn(shot, turning.turn - moved * TURN_PER_PX);
+        if (!round) {
+          rig.current.turn = clampTurn(shot, turning.turn - moved * TURN_PER_PX);
+          return;
+        }
+        rig.current.turning = true;
+        if (turning.axis === "tilt") rig.current.tilt = Math.min(1, Math.max(0, turning.tilt - lifted / TILT_PX));
+        else rig.current.turn = turning.turn - moved * HOME_TURN_PER_PX;
       }}
       onPointerUp={(event) => {
         pointers.current.delete(event.pointerId);
@@ -1172,7 +1243,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
           pinch.current = null;
           rest(snapZoom(rig.current.zoom));
         }
-        if (pointers.current.size === 0) drag.current = null;
+        if (pointers.current.size === 0) settleDrag();
         release();
       }}
       onPointerCancel={(event) => {
@@ -1181,7 +1252,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
           pinch.current = null;
           rest(snapZoom(rig.current.zoom));
         }
-        drag.current = null;
+        settleDrag();
         release();
       }}
       onPointerLeave={release}

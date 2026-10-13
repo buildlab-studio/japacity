@@ -3,9 +3,10 @@
 // past are cut low, so the yard and its life show over them; the far side walls stand full height and carry the
 // home's wall things: the calendar, the family photo, the clock, the switch and its wire run on the surface, posters, a
 // shelf. Openings are real: a door frame with its leaf swung open, an arch, a window with louvres, a gateway with its
-// gate. Every home is a set of numbers in HOMES given to this one builder (R-ASSET-014). One material, one draw call.
-import { type FootprintBox, type PaletteName, setFootprint } from "@japacity/assets";
-import { beam, box, cylinder, extrude, quad } from "@japacity/assets/kit";
+// gate. Every home is a set of numbers in HOMES given to this one builder (R-ASSET-014). One material; the body is one
+// draw call, and each outer side's pair (full and knee-high) one more, as one of the two shows.
+import { type FootprintBox, type PaletteName, setFootprint, WALL_SIDES, wallNode, type WallSide } from "@japacity/assets";
+import { beam, box, cylinder, extrude, part, quad } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
 /** A hole in a wall, `at` metres along it from its middle. */
@@ -52,7 +53,14 @@ export type Post = readonly [number, number, number, number, number, PaletteName
 
 export interface HomeSpec {
   name: string;
+  /** The partitions and the walls between the house and its yard: always at the knee, whichever way the view looks. */
   walls: readonly WallSpec[];
+  /**
+   * The house's and the yard's outer walls by side, each as it stands full with its wall things:
+   * the builder makes every side twice, full and knee-high, as the parts `wall_<side>_full` and `wall_<side>_low`, so the
+   * view shows the far pair full and the near pair low whichever quarter it looks from.
+   */
+  sides: Readonly<Record<WallSide, readonly WallSpec[]>>;
   posts?: readonly Post[];
   /** Wires on the surface and across the yard: from, to and sag. */
   wires?: readonly (readonly [readonly [number, number, number], readonly [number, number, number], number])[];
@@ -63,6 +71,22 @@ export interface HomeSpec {
 }
 
 const T = 0.15;
+
+/** The knee-high wall's top: low enough that the room behind it reads whole from the raised view. */
+export const KNEE = 0.6;
+
+/**
+ * A side's wall as it stands when the view looks over it: knee-high, its lower colour all the way up, no wall things, a
+ * window filled in, a door kept as its frame without the leaf, a gate as its two posts.
+ */
+export function kneeHigh(spec: WallSpec): WallSpec {
+  const openings = (spec.openings ?? []).flatMap((hole): Opening[] => {
+    if (hole.kind === "window") return [];
+    if (hole.kind === "door") return [{ kind: "door", at: hole.at, width: hole.width, height: hole.height }];
+    return [hole];
+  });
+  return { from: spec.from, to: spec.to, height: KNEE, upper: spec.upper, lower: spec.lower, dado: 1.2, openings, ...(spec.outer === undefined ? {} : { outer: spec.outer }) };
+}
 
 /** A wall's own frame: along x from its middle, the inner face toward +z. */
 function wallFrame(g: Object3D, spec: WallSpec): { frame: Group; length: number } {
@@ -153,6 +177,11 @@ function opening(w: Object3D, spec: WallSpec, hole: Opening): void {
       if (lintel > 0.02) box(w, width, lintel, T, x, height, 0, spec.upper);
       return;
     case "gate": {
+      // In a wall cut to the knee the gate is its two posts alone, a little proud of the wall, the gateway open.
+      if (spec.height < height) {
+        for (const s of [-1, 1]) box(w, 0.32, spec.height + 0.25, 0.32, x + s * (width / 2 + 0.16), 0, 0, "concrete");
+        return;
+      }
       for (const s of [-1, 1]) box(w, 0.32, height + 0.25, 0.32, x + s * (width / 2 + 0.16), 0, 0, "concrete");
       // Two sheet-steel leaves, the left shut, the right swung half open into the yard, a black band across each.
       const leaf = width / 2;
@@ -308,6 +337,15 @@ export function buildHome(spec: HomeSpec): Group {
   g.name = spec.name;
   const footprint: FootprintBox[] = [];
   for (const w of spec.walls) footprint.push(...wall(g, w, spec.cap));
+  // Each side twice: full, which blocks the ground, and knee-high on the same line, which the view shows in its place.
+  for (const side of WALL_SIDES) {
+    const full = part(g, wallNode(side, "full"));
+    const low = part(g, wallNode(side, "low"));
+    for (const w of spec.sides[side]) {
+      footprint.push(...wall(full, w, spec.cap));
+      wall(low, kneeHigh(w), spec.cap);
+    }
+  }
   for (const [x, z, width, depth, height, colour] of spec.posts ?? []) {
     box(g, width, height, depth, x, 0, z, colour);
     box(g, width + 0.06, 0.06, depth + 0.06, x, height, z, spec.cap);

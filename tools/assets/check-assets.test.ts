@@ -31,7 +31,7 @@ import {
   isTile,
   sourceFiles,
 } from "./check-assets";
-import { readGlb, toDocument, writeGlb } from "./glb";
+import { measure, readGlb, toDocument, writeGlb } from "./glb";
 import { placeMapData } from "./map-data";
 import { sha256 } from "./manifest";
 import { checkPalette } from "./palette-check";
@@ -122,6 +122,30 @@ describe("budgets for one asset", () => {
     expect(checkBudgets([at], budgets)).toEqual([]);
     const over = measured("p/bld_a.glb", { triangles: 1501, drawCalls: 2, materials: 2, bytes: 40001, maxY: 13.01 });
     expect(checkBudgets([over], budgets)).toHaveLength(5);
+  });
+
+  test("[R-ASSET-007] given a home's shell with its four wall pairs, when its draw calls are checked, then the body and one wall of each pair fit, a draw call more fails, and a building with no pairs is held to its one", () => {
+    const shell = measured("p/bld_home-a.glb", { triangles: 1500, drawCalls: 5, pairs: 4, materials: 1, bytes: 40000, maxY: 3 });
+    expect(checkBudgets([shell], budgets)).toEqual([]);
+    expect(checkBudgets([{ ...shell, drawCalls: 6 }], budgets)).toEqual(["R-ASSET-007: p/bld_home-a.glb has 6 drawCalls, over its budget of 5"]);
+    expect(checkBudgets([{ ...shell, triangles: 1501 }], budgets)).toHaveLength(1);
+    expect(checkBudgets([measured("p/bld_b.glb", { drawCalls: 2, maxY: 3 })], budgets)).toEqual(["R-ASSET-007: p/bld_b.glb has 2 drawCalls, over its budget of 1"]);
+  });
+
+  test("[R-ASSET-007] [R-ASSET-009] given a shell written with its pairs as named parts, when it is read back and measured, then both walls of each pair count their triangles and the pair one draw call", async () => {
+    const tri = (x: number) => [{ material: "body" as const, positions: [x, 0, 0, x + 1, 0, 0, x, 1, 0], colours: [1, 1, 1, 1, 1, 1, 1, 1, 1], indices: [0, 1, 2] }];
+    const model: BakedModel = {
+      name: "bld_home-a",
+      parts: [
+        { node: "body", primitives: tri(0) },
+        { node: "wall_back_full", primitives: tri(1) },
+        { node: "wall_back_low", primitives: tri(2) },
+        { node: "wall_left_full", primitives: tri(3) },
+      ],
+      extras: {},
+    };
+    const figures = measure(await readGlb(await writeGlb(toDocument(model))), 0);
+    expect({ triangles: figures.triangles, drawCalls: figures.drawCalls, pairs: figures.pairs }).toEqual({ triangles: 4, drawCalls: 3, pairs: 1 });
   });
 
   test("[R-ASSET-007] given a shopfront 3 to 4 m high and one 2.9 m, when heights are checked, then the range holds at its edges", () => {

@@ -27,7 +27,8 @@ const PARTY = "offer.send-off-party";
 const party = stage.dressings?.find((dressing) => dressing.offer === PARTY);
 if (party === undefined) throw new Error("The family house has no party dressing");
 const places = Object.values(content.place);
-const walls: readonly WallSpec[] = HOMES3.family.walls;
+// The yard's gate stands in the back side's fence, built full and knee-high; the full one is read.
+const walls: readonly WallSpec[] = [...HOMES3.family.walls, ...Object.values(HOMES3.family.sides).flat()];
 const yard = walls.find((wall) => wall.openings?.some((opening) => opening.kind === "gate"));
 if (yard === undefined) throw new Error("The family house has no yard gate");
 /** The yard's floor: between the house's right wall and the yard's side fence. */

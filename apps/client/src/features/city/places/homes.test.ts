@@ -1,13 +1,15 @@
 // The homes as wide floors: the family house, the room in a
 // compound and the hostel room, each one house of walled rooms seen whole straight down its length, the near walls cut
-// low (world.md R-WORLD-029 as the home's wave asks it amended). Each is passed through the checks every staged place
+// low (world.md R-WORLD-029 as the home's wave asks it amended), and turned a quarter at a time with its walls following
+// the view. Each is passed through the checks every staged place
 // owes: its file measured as the build check measures it, its limits, its floors, its walkable ground with every spot,
 // the start and each dressing's spots clear of the footprints, its things and their words, its light by the clock.
-import { type Footprint, isFootprint, placeFootprint } from "@japacity/assets";
+import { type Footprint, fullSides, isFootprint, placeFootprint, WALL_SIDES } from "@japacity/assets";
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
+import { KNEE, kneeHigh, type WallSpec } from "../../../../../../assets-src/bld/home/build";
 import { HOMES3 } from "../../../../../../assets-src/bld/home/homes3";
 import budgets from "../../../../../../assets-src/budgets.json";
 import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";
@@ -22,7 +24,7 @@ import { CAR_FILE, parkCar, type PlaceFile, stageOf } from "../placeFile";
 import { personOfLook } from "../roster";
 import { cameraAt, projected, SCREENS } from "../scene.testing";
 import { sceneWords } from "../scene.words";
-import { aimRoom, easeZoom, EASE, homeTap, ROOM_EASE, ROOM_SETTLE, roomAt, roomFirst, SETTLE, SHOT_FOV, shotOf } from "../shot";
+import { aimRoom, easeZoom, EASE, FULL_TURN, homeTap, ROOM_ACROSS, ROOM_EASE, ROOM_SETTLE, roomAcross, roomAt, roomFirst, roomTarget, SETTLE, SHOT_FOV, shotOf, TOP_PITCH } from "../shot";
 import { thingSpot } from "../things";
 import { groundGeometry } from "../world";
 import { allPalette, city, instancesOf, measured, rowOf, totalsOf } from "./placeTesting";
@@ -43,9 +45,14 @@ const HOMES: readonly Home[] = [
 
 const fileOf = (home: Home): PlaceFile => home.raw as PlaceFile;
 
+/** Every wall of a shell: the partitions and the wall to the yard, and every outer side as it stands full. */
+function wallsOf(home: Home): { from: readonly [number, number]; to: readonly [number, number] }[] {
+  return [...home.shell.walls, ...WALL_SIDES.flatMap((side) => home.shell.sides[side])];
+}
+
 /** The house's outer walls: the floor the shell stands round, from its walls' ends. */
 function outer(home: Home): { x0: number; x1: number; z0: number; z1: number } {
-  const ends = home.shell.walls.flatMap((wall) => [wall.from, wall.to]);
+  const ends = wallsOf(home).flatMap((wall) => [wall.from, wall.to]);
   const xs = ends.map(([x]) => x);
   const zs = ends.map(([, z]) => z);
   return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) };
@@ -129,22 +136,41 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     }
   });
 
-  test(`[R-WORLD-029] given ${home.id}'s shell, when its walls are read, then only the back wall and the left wall stand full height, carrying the home's wall things, and every wall the camera looks over is cut low`, () => {
+  test(`[R-WORLD-029] [R-ASSET-007] given ${home.id}'s shell, when its walls are read, then each outer side lies on its own edge of the house and stands twice, full height carrying the home's wall things and knee-high on the same line with none, the pair seen at rest the back and the left as the home wave built it, and every partition and the wall to the yard cut low with nothing hung on it`, () => {
     const walls = outer(home);
-    for (const wall of home.shell.walls) {
-      const [[x0, z0], [x1, z1]] = [wall.from, wall.to];
-      const back = Math.abs(z0 - walls.z0) < 0.01 && Math.abs(z1 - walls.z0) < 0.01;
-      const left = Math.abs(x0 - walls.x0) < 0.01 && Math.abs(x1 - walls.x0) < 0.01;
-      // The back includes the yard's fence with its gate and the neighbour's wing across the compound.
-      if (back || left) continue;
-      expect({ from: wall.from, to: wall.to, low: wall.height <= 1.2 }).toEqual({ from: wall.from, to: wall.to, low: true });
+    const edge = { back: (x: number, z: number) => Math.abs(z - walls.z0) < 0.01, left: (x: number) => Math.abs(x - walls.x0) < 0.01, front: (x: number, z: number) => Math.abs(z - walls.z1) < 0.01, right: (x: number) => Math.abs(x - walls.x1) < 0.01 } as const;
+    let hung = 0;
+    for (const side of WALL_SIDES) {
+      const sideWalls: readonly WallSpec[] = home.shell.sides[side];
+      expect({ side, walls: sideWalls.length > 0 }).toEqual({ side, walls: true });
+      for (const wall of sideWalls) {
+        const onEdge = edge[side](wall.from[0], wall.from[1]) && edge[side](wall.to[0], wall.to[1]);
+        expect({ side, from: wall.from, to: wall.to, onEdge, full: wall.height >= 2.1 }).toEqual({ side, from: wall.from, to: wall.to, onEdge: true, full: true });
+        const knee = kneeHigh(wall);
+        expect({ side, height: knee.height, fittings: knee.fittings ?? [], windows: (knee.openings ?? []).filter((opening) => opening.kind === "window").length, leaves: (knee.openings ?? []).filter((opening) => opening.swing !== undefined).length }).toEqual({ side, height: KNEE, fittings: [], windows: 0, leaves: 0 });
+        expect(knee.from).toEqual(wall.from);
+        expect(knee.to).toEqual(wall.to);
+        hung += (wall.fittings ?? []).length;
+      }
     }
+    expect(hung).toBeGreaterThan(0);
+    // At rest the view looks down the length from +z, as the home wave built it: the back and the left full.
+    expect(fullSides(2)).toEqual(["back", "left"]);
+    for (const wall of home.shell.walls) expect({ from: wall.from, to: wall.to, low: wall.height <= 1.2, hung: (wall.fittings ?? []).length }).toEqual({ from: wall.from, to: wall.to, low: true, hung: 0 });
   });
 
-  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} on a phone held upright, when it opens whole, then the camera looks straight down its length on a long lens, never turned, from a raised view, and every corner of the floor and the tops of the back wall stand on screen, the house spanning most of the screen's width`, () => {
+  test(`[R-ASSET-007] [R-ASSET-009] given ${home.id}'s shell as shipped, when it is measured as the build check measures it, then it carries the four pairs, its draw calls the body and one wall of each pair, inside a building's budget with one draw call more a pair, and its triangles, both walls of every pair counted, inside a building's`, async () => {
+    const shell = await measured(`places/${home.folder}/bld_${home.folder}.glb`);
+    expect(shell.pairs).toBe(4);
+    expect(shell.drawCalls).toBe(1 + 4);
+    expect(shell.drawCalls).toBeLessThanOrEqual(budgets.asset.bld.drawCalls + (shell.pairs ?? 0));
+    expect(shell.triangles).toBeLessThanOrEqual(budgets.asset.bld.triangles);
+  });
+
+  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} on a phone held upright, when it opens whole and unturned, then the camera looks straight down its length on a long lens from a raised view, the view free to turn the full circle in quarters, and every corner of the floor and the tops of the back wall stand on screen, the house spanning most of the screen's width`, () => {
     const shot = shotOf(stage);
     expect(shot.yaw).toBe(180);
-    expect(shot.turn).toBe(0);
+    expect(shot.turn).toBe(FULL_TURN);
     expect(shot.farPitch).toBeGreaterThan(0);
     expect(shot.farPitch).toBeLessThan(90);
     expect(shot.fov ?? SHOT_FOV).toBeLessThan(SHOT_FOV);
@@ -245,6 +271,97 @@ describe.each(HOMES)("$name's camera", (home) => {
       const foot = projected(camera, cx, 0, cz);
       const head = projected(camera, cx, 1.7, cz);
       expect({ room: room.id, tall: (head.y - foot.y) / 2 > 0.07 }).toEqual({ room: room.id, tall: true });
+    }
+  });
+
+  const QUARTERS = [0, 90, 180, 270] as const;
+  const ground = stage.ground.size;
+  const pitchOf = (aim: { position: [number, number, number]; target: [number, number, number] }): number => {
+    const [dx, dy, dz] = [aim.position[0] - aim.target[0], aim.position[1] - aim.target[1], aim.position[2] - aim.target[2]];
+    return (Math.atan2(dy, Math.hypot(dx, dz)) * 180) / Math.PI;
+  };
+  /** The camera stands on the side the turned view looks from: back along the view's facing from what it looks at. */
+  const standsBehind = (aim: { position: [number, number, number]; target: [number, number, number] }, turn: number): boolean => {
+    const yaw = (((shot.yaw ?? 0) + turn) * Math.PI) / 180;
+    const [dx, dz] = [aim.target[0] - aim.position[0], aim.target[2] - aim.position[2]];
+    const length = Math.hypot(dx, dz);
+    return Math.abs(dx / length - Math.sin(yaw)) < 1e-6 && Math.abs(dz / length - Math.cos(yaw)) < 1e-6;
+  };
+
+  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} seen whole at each quarter turn and on the way between, on a phone held upright and a small phone, when the camera stands there, then it looks from the turned side and every corner of the floor stands on screen, and at rest the top of the far wall it faces too; on a laptop every corner stands inside the screen's width`, () => {
+    const room = rooms[0];
+    if (room === undefined) throw new Error("No room");
+    const walls = outer(home);
+    const corners: [number, number, number][] = [
+      [walls.x0, 0, walls.z0],
+      [walls.x1, 0, walls.z0],
+      [walls.x1, 0, walls.z1],
+      [walls.x0, 0, walls.z1],
+    ];
+    for (const screen of [SCREENS.phone, SCREENS.small, SCREENS.desktop]) {
+      for (const turn of [0, 45, 90, 135, 180, 225, 270, 315, -90]) {
+        const aim = aimRoom(shot, room, 1, screen, { turn, ground });
+        expect({ turn, behind: standsBehind(aim, turn) }).toEqual({ turn, behind: true });
+        const camera = cameraAt(aim, screen);
+        const tops: [number, number, number][] = [];
+        if (turn % 90 === 0) {
+          const quarter = (((((shot.yaw ?? 0) + turn) / 90) % 4) + 4) % 4;
+          const [facing] = fullSides(quarter);
+          for (const wall of home.shell.sides[facing]) tops.push([wall.from[0], wall.height, wall.from[1]], [wall.to[0], wall.height, wall.to[1]]);
+        }
+        const laptop = screen === SCREENS.desktop;
+        for (const point of laptop ? corners : [...corners, ...tops]) {
+          const at = projected(camera, ...point);
+          expect({ screen, turn, point, shown: at.inFront && Math.abs(at.x) <= 1 && (laptop || Math.abs(at.y) <= 1) }).toEqual({ screen, turn, point, shown: true });
+        }
+      }
+    }
+  });
+
+  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} eased in on each room at each quarter turn on a phone held upright, when the camera stands there, then it looks at the room's middle from the turned side on the scene's own lens, the room whole across the screen and over half its width, or, a room longer across than the most a turned view fits, its middle with the rest running off the sides, and the character standing in it reads at a phone's size: over 7 in a hundred of the screen's height`, () => {
+    for (const turn of QUARTERS) {
+      for (const room of rooms) {
+        const aim = aimRoom(shot, room, 0, aspect, { turn, ground });
+        expect(aim.fov).toBe(SHOT_FOV);
+        expect(aim.target).toEqual(roomTarget(room, turn));
+        expect({ turn, target: turn === 0 ? aim.target : room.centre }).toEqual({ turn, target: room.centre });
+        // The point looked at stands on the room's own floor, whichever way it is turned.
+        expect({ room: room.id, turn, inside: roomAt([room], aim.target[0], aim.target[2]) !== null || room.id === "bathroom" }).toEqual({ room: room.id, turn, inside: true });
+        expect({ room: room.id, turn, behind: standsBehind(aim, turn) }).toEqual({ room: room.id, turn, behind: true });
+        const camera = cameraAt(aim, aspect);
+        const [x0, z0, x1, z1] = room.floor;
+        const [mx, mz] = [(x0 + x1) / 2, (z0 + z1) / 2];
+        // Across the turned view: the floor's sides along x seen straight on, or along z a quarter round.
+        const across = turn % 180 === 0 ? [projected(camera, x0, 0, mz), projected(camera, x1, 0, mz)] : [projected(camera, mx, 0, z0), projected(camera, mx, 0, z1)];
+        const [left = 0, right = 0] = across.map((at) => at.x);
+        const long = roomAcross(room, turn) >= ROOM_ACROSS.most;
+        expect({ room: room.id, turn, whole: long ? Math.abs(right - left) > 2 : Math.abs(left) <= 1 && Math.abs(right) <= 1, wide: Math.abs(right - left) > 1 }).toEqual({ room: room.id, turn, whole: true, wide: true });
+        const [cx, , cz] = aim.target;
+        const foot = projected(camera, cx, 0, cz);
+        const head = projected(camera, cx, 1.7, cz);
+        expect({ room: room.id, turn, tall: (head.y - foot.y) / 2 > 0.07 }).toEqual({ room: room.id, turn, tall: true });
+      }
+    }
+  });
+
+  test(`[R-WORLD-009] [R-WORLD-029] given ${home.id} tilted to the view from above, whole and eased in, at each quarter turn, when the camera stands there, then it looks down from the top view's pitch, raised and never straight down, the whole house's floor still on screen on a phone held upright`, () => {
+    const room = rooms[0];
+    if (room === undefined) throw new Error("No room");
+    const walls = outer(home);
+    for (const turn of QUARTERS) {
+      const whole = aimRoom(shot, room, 1, aspect, { turn, ground, tilt: 1 });
+      const near = aimRoom(shot, room, 0, aspect, { turn, ground, tilt: 1 });
+      for (const aim of [whole, near]) {
+        expect(pitchOf(aim)).toBeCloseTo(TOP_PITCH, 6);
+        expect(pitchOf(aim)).toBeLessThan(90);
+        expect(standsBehind(aim, turn)).toBe(true);
+      }
+      expect(pitchOf(aimRoom(shot, room, 1, aspect, { turn, ground }))).toBeCloseTo(shot.farPitch, 6);
+      const camera = cameraAt(whole, aspect);
+      for (const point of [[walls.x0, 0, walls.z0], [walls.x1, 0, walls.z0], [walls.x1, 0, walls.z1], [walls.x0, 0, walls.z1]] as const) {
+        const at = projected(camera, ...point);
+        expect({ turn, point, shown: at.inFront && Math.abs(at.x) <= 1 && Math.abs(at.y) <= 1 }).toEqual({ turn, point, shown: true });
+      }
     }
   });
 

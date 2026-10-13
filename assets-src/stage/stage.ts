@@ -4,7 +4,7 @@
 // the front door cuts the same way. The shooter drives it
 // through `window.stage`; it renders on the software renderer, so a model gives the same
 // pixels every time. It loads the shipped file, as the client will, not the builder.
-import { palette, type PaletteName } from "@japacity/assets";
+import { fullSides, palette, type PaletteName, wallOf } from "@japacity/assets";
 import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/assets/load";
 import {
   Box3,
@@ -106,6 +106,13 @@ async function loadModel(url: string, pose: LoadOptions["pose"], text: Record<st
   root.traverse((object) => {
     const skinned = object as SkinnedMesh;
     if (skinned.isSkinnedMesh) skinned.frustumCulled = false;
+  });
+  // A wide home's shell carries each outer side full and knee-high: the views show it as the game
+  // does at rest, looking down its length from +z, the back and the left full and the front and the right low.
+  const full = new Set<string>(fullSides(2));
+  root.traverse((object) => {
+    const wall = wallOf(object.name);
+    if (wall !== null) object.visible = full.has(wall.side) === (wall.state === "full");
   });
   return root;
 }

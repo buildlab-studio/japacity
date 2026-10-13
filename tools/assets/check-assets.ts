@@ -62,7 +62,10 @@ export interface ReviewConfig {
 export interface Measured {
   file: string;
   triangles: number;
+  /** Draw calls with the model shown, a wall pair counted once (glb.ts `measure`). */
   drawCalls: number;
+  /** The sides a home's shell builds twice, full and knee-high, one of each showing. */
+  pairs?: number;
   materials: number;
   bytes: number;
   minY: number;
@@ -216,7 +219,9 @@ export function checkBudgets(shipped: readonly Measured[], budgets: Budgets): st
       continue;
     }
     for (const key of ["triangles", "drawCalls", "materials", "bytes"] as const) {
-      const limit = budget[key];
+      // A home's shell shows one wall of each outer side's pair at a time: each pair is one draw call more than the body's
+      //; its triangles and bytes count both walls of every pair.
+      const limit = key === "drawCalls" && budget[key] !== undefined ? budget[key] + (file.pairs ?? 0) : budget[key];
       if (limit !== undefined && file[key] > limit) problems.push(`R-ASSET-007: ${file.file} has ${String(file[key])} ${key}, over its budget of ${String(limit)}`);
     }
     if (!file.file.endsWith(".glb")) continue;

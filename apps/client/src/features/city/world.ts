@@ -1,7 +1,7 @@
 // Builds a place from its stage and its loaded models: ground and roads, the models instanced at
 // their spots, the crowd posed at theirs, the player's own character, what moves, and the route map
 // the walks run on; and moves the crowd once a frame on the place's one clock.
-import { footprintOf, isPaletteName, type PaletteName, paletteCss } from "@japacity/assets";
+import { footprintOf, isPaletteName, type PaletteName, paletteCss, quarterOf } from "@japacity/assets";
 import { attachSigns, findSignAnchors, type SignText } from "@japacity/assets/load";
 import type { SignAnchor } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
@@ -19,6 +19,7 @@ import { actPose, placeCrowd, type Shown, walkPose } from "./crowd";
 import type { ModeSettings } from "./mode";
 import { DANCER_SLOT, type DanceName, type Lamp, type Motion, type Stage, type Strip } from "./placeFile";
 import { strideOf, WALK_SPEED } from "./walk";
+import { showWalls, type WallParts, wallsOf } from "./walls";
 import { routeMap, type RouteMap } from "./walk/map";
 import { advanceStrolls, type Strolls, strollsOf } from "./walk/stroll";
 
@@ -52,6 +53,8 @@ export interface World {
    */
   routes: RouteMap | null;
   strolls: Strolls;
+  /** A wide home's outer walls in pairs, full and knee-high, the pair for the view's quarter shown; empty elsewhere. */
+  walls: WallParts;
 }
 
 /** Which prefixes cast a shadow in the high mode: characters and vehicles only (R-ASSET-006). */
@@ -323,6 +326,9 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     if (model.bob === true || model.glide !== undefined) rideWater(copies, model.glide);
     root.add(copies);
   }
+  // A wide home stands with the pair its whole view looks over at rest; the scene turns it after.
+  const walls = wallsOf(root);
+  showWalls(walls, quarterOf(stage.shot?.yaw ?? 0));
   const crowd: Placed[] = [];
   const acts = stage.acts ?? [];
   const standing: { slot: number; index: number; placed: Placed }[] = [];
@@ -409,7 +415,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
   own.root.add(indicator);
   root.add(own.root);
   for (const motion of stage.motion) root.add(motionOf(motion, settings.mesh));
-  return { root, crowd, dancers, standers, own, indicator, routes, strolls };
+  return { root, crowd, dancers, standers, own, indicator, routes, strolls, walls };
 }
 
 /**

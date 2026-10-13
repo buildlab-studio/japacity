@@ -65,6 +65,14 @@ export interface SceneProps {
   zoomed?: boolean;
   /** The world mode: the pinch came to rest close (true) or on the whole place (false). */
   onZoomed?: (zoomed: boolean) => void;
+  /**
+   * The world mode, a wide home: the quarter, 0 to 3, the view looks from, turned from the file's
+   * facing; a new quarter eases the view round to it the short way. The home opens on it, so a reload shows the house as
+   * it was left.
+   */
+  turn?: number;
+  /** The world mode, a wide home: a finger's turn came to rest on this quarter, 0 to 3. */
+  onTurned?: (quarter: number) => void;
   /** The world mode: the act done at once that landed last and when, so its answer plays where it was done (R-WORLD-005). */
   acted?: { activity: string; at: number } | null;
   /** The world's clock the last reply carried, or null before one (R-CLOCK-033); the scene carries it on by the device's clock. */
@@ -107,6 +115,10 @@ export interface CityProbe {
   /** A wide home: the room the view eases in on, and a way to ease in on a room or, with null, out to the whole house. */
   room?: string | null;
   ease?: (room: string | null) => void;
+  /** A wide home: degrees the view is turned from the file's facing, the tilt toward the view from above, and the quarter whose wall pair stands full. */
+  turn?: number;
+  tilt?: number;
+  walls?: number | null;
   /** The world mode: where a thing stands on screen, in CSS pixels, or null when off screen. */
   screenOfThing?: (id: string) => { x: number; y: number } | null;
   /** The sun's shadow: its bias, its normal bias and how far either side of the place's centre it reaches (R-WORLD-012). */
