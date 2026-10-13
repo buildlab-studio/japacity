@@ -49,8 +49,8 @@ export interface Act {
   otherwise?: Act;
   /** For `app`: the phone app it opens, by its id on the phone (`papers`). */
   app?: string;
-  /** For `command`: which command the card sends. */
-  command?: "route/pay-deposit" | "route/depart" | "obligation/pay" | "people/court";
+  /** For `command`: which command the card sends; `return/home` is the bag's Go home in the room abroad (return.md). */
+  command?: "route/pay-deposit" | "route/depart" | "obligation/pay" | "people/court" | "return/home";
   /** For `command` `people/court`: the computer partner the card courts, set by the city from who stands at the thing (R-WORLD-020). */
   with?: string;
   /** The pose the character takes on the thing once the act lands: sitting on it, lying on it (R-WORLD-005). */
@@ -156,6 +156,8 @@ export interface Ask {
   note?: string;
   /** R-ACTIVITY-020: the body is spent; these words stand where the main button was, and there is no button. */
   spent?: string;
+  /** What the act means, a few words each, as chips under the line: the bag's Go home says what ends and what waits (return.md). */
+  facts?: string[];
 }
 
 /** A pin on the map (R-WORLD-015). */

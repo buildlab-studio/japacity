@@ -167,7 +167,7 @@ describe("the basics abroad", () => {
     expect(thingOf(room, "cooking").acts.map((act) => [act.kind, act.stages])).toEqual([["sheet", OWN]]);
     expect((stageOf(room).things ?? []).some((thing) => thing.id === "drum")).toBe(false);
     expect(stageOf(room).models.some((model) => model.file.endsWith("prop_water-drum.glb"))).toBe(false);
-    expect(thingOf(room, "bag").acts.map((act) => act.command)).toEqual(["route/depart"]);
+    expect(thingOf(room, "bag").acts.map((act) => act.command)).toEqual(["route/depart", "return/home"]);
     const now = actsNow(room, "place.the-room", abroadView());
     expect(now["cooking"]).toEqual(["cook"]);
     expect(content.place["place.the-room"]?.stages).not.toContain(WATER);

@@ -126,6 +126,8 @@ export const cityText: Record<string, string> = {
   // The drum's one sheet: the water and the bucket bath (R-WORLD-005, a third act goes on a sheet).
   "city.act.drum": "Water and a bath",
   "city.act.pack": "Pack and go",
+  // The bag in the room abroad: the way home by choice, with its card (return.md).
+  "city.act.go-home": "Go home",
   "city.act.turn-on": "Turn on",
   // R-WORLD-019: the box opens the phone's Papers app, where every paper is told.
   "city.act.papers": "Look in the box",

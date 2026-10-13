@@ -72,6 +72,7 @@ import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene,
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { Fan } from "./fan/Fan";
+import { GO_HOME, goHomeAsk, goHomeOffered } from "./goHome";
 import { type Brief, briefOf, DONE_TOAST_MS, doneToast, itemsDone, markerAllowed, nextBase, briefTitle } from "./brief/brief";
 import { ChapterClose, MissionCard } from "./brief/BriefCards";
 import { BriefChip, Marker } from "./brief/BriefChip";
@@ -827,6 +828,7 @@ export function City({
         return sceneWords(picked.thing.label);
       case "command":
         if (picked.command === COURT) return picked.with === undefined ? "" : nameOf(picked.with);
+        if (picked.command === GO_HOME) return say("ui.world.go-home");
         return say(picked.command === "route/depart" ? "ui.route.depart" : picked.command === "obligation/pay" ? "ui.world.pay-back" : "ui.route.pay-deposit");
       default: {
         const never: never = picked;
@@ -849,7 +851,7 @@ export function City({
   // An activity shut only by a paper not yet held (the English test before the passport) still stands in the world, shut with its reason;
   // a now-act done this month is gone from its thing until the next (R-ACTIVITY-015).
   // R-LOTTERY-001: while the world runs the Friday draw the kiosk's act stays, and opens the draw's sheet.
-  const activityKey = [...withKiosk(actsOffered(view), view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"]), ...(view.ended ? [] : [`command:${COURT}`])].join("|");
+  const activityKey = [...withKiosk(actsOffered(view), view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"]), ...(goHomeOffered(view) ? [`command:${GO_HOME}`] : []), ...(view.ended ? [] : [`command:${COURT}`])].join("|");
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
@@ -1228,6 +1230,17 @@ export function City({
         },
         dismiss: () => setPicked(null),
       };
+    }
+    // return.md: the bag in the room abroad sends the character home by choice, through a card that says what the return means.
+    if (world && picked?.kind === "command" && picked.command === GO_HOME) {
+      return goHomeAsk(view, {
+        who: hereName,
+        go: () => {
+          void send({ type: GO_HOME }).then((reply) => cue(reply?.ok === true ? "whoosh" : "no"));
+          setPicked(null);
+        },
+        dismiss: () => setPicked(null),
+      });
     }
     // R-WORLD-020, R-PEOPLE-013: talking to a person met here opens their card; its one button courts them.
     if (world && picked?.kind === "command" && picked.command === COURT && picked.with !== undefined) {
