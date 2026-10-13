@@ -41,7 +41,8 @@ async function tapThing(page: Page, thing: string): Promise<void> {
     }
   }
   if (await mark.isVisible().catch(() => false)) {
-    await mark.click({ timeout: 10_000 });
+    // A mark the nudge pulses never holds still for the stability check; the tap lands on the button all the same.
+    await mark.click({ timeout: 10_000, force: true });
     return;
   }
   const at = await page.evaluate((id) => (window as unknown as { __city?: { screenOfThing?: (one: string) => { x: number; y: number } | null } }).__city?.screenOfThing?.(id) ?? null, thing);
