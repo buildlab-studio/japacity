@@ -639,7 +639,7 @@ describe("the band says what the home is", () => {
     const base = engineView();
     expect(homeLine("place.compound-room", base)).toBe("Your room, a compound in Ojuelegba");
     expect(homeLine("place.family-house", base)).toBe("The family house");
-    expect(homeLine("place.hostel-room", base)).toBe("Your room, a hostel in Yaba");
+    expect(homeLine("place.hostel-room", base)).toBe("Your hostel room, Yaba");
     expect(homeLine("place.makoko", { ...base, home: { ...base.home, place: "place.makoko" } })).toBe("The room on the water");
     // Makoko is a place like any other for a life that lives elsewhere.
     expect(homeLine("place.makoko", base)).toBeNull();

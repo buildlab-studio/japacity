@@ -126,7 +126,7 @@ const words: Record<string, string> = {
   "prologue.home.answer.compound-room": "A room in Ojuelegba",
   "prologue.home.answer.compound-room.why": "you do not have the year's rent, the fees and a month to live on.",
   "prologue.home.answer.compound-room.hint": "Rent: {amount} a year, paid upfront with the fees. Living costs every month.",
-  "prologue.home.answer.hostel-room": "A hostel room in Yaba",
+  "prologue.home.answer.hostel-room": "A hostel room",
   "prologue.home.answer.hostel-room.why": "you do not have a month's rent.",
   "prologue.home.answer.hostel-room.hint": "Rent: {amount} a month, paid ahead. No year's rent to find.",
   "prologue.home.answer.makoko": "A room in Makoko",
