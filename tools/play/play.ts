@@ -1,6 +1,6 @@
 // pnpm play --out <folder> [--life developer] [--months 3]
 // Plays the game on a phone-sized browser from the front door: the name it fills, an archetype's tile (or a
-// ready life), the page and Begin, the page filling as the years go by and Go opening the world, the
+// ready life), Next to Where you live and Begin, the page filling as the years go by and Go opening the world, the
 // first chapter's title, then each month: the nudge followed, the month ended, the results read. Last it opens every app on the phone. It takes a
 // picture at each step into the folder given and prints a plain log, also saved there as play.log.
 // It changes nothing in the repository. See tools/play/README.md.
@@ -167,13 +167,13 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   log(run, `picked ${button}`);
   if (!options.ready) {
     log(run, `age: ${await words(page.locator("[data-door-age]"))}`);
-    if (!(await tap(run, page.getByRole("button", { name: /^Print my page/ }), "Print my page"))) return false;
+    if (!(await tap(run, page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }), "Next"))) return false;
   }
   if (!(await appear(page.getByRole("button", { name: /^Begin/ }), LONG))) {
-    problem(run, "the page never came");
+    problem(run, "where you live never came");
     return false;
   }
-  await shot(run, "your page");
+  await shot(run, options.ready ? "your page" : "where you live");
   if (!(await tap(run, page.getByRole("button", { name: /^Begin/ }), "Begin"))) return false;
   const gate = page.locator("[data-gate='page'], [data-gate='begun']").first();
   // Staging's managed bot check refuses an automated browser (R-SERVER-038, R-ACCOUNT-013): the game says so on the
