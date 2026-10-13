@@ -882,7 +882,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
 
       {view.ended ? null : (
         // The acts stand at the foot of the screen, over the page as it scrolls, as the after set draws them.
-        <div className="sticky bottom-0 -mx-3 -mb-3 bg-[linear-gradient(transparent,var(--sheet)_22px)] px-3 pt-6 pb-3" data-bank-foot>
+        <div className="sticky -bottom-3 -mx-3 -mb-3 bg-[linear-gradient(transparent,var(--sheet)_22px)] px-3 pt-6 pb-3" data-bank-foot>
           <div className="flex gap-2">
             {/* Abroad with other monies held, Change money heads their pairs above; it is not said again here. */}
             {pairsShown ? null : (

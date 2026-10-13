@@ -40,7 +40,7 @@ export const passbookText: Record<string, string> = {
   "passbook.road.pay": "{amount} a month",
   "passbook.road.side": "{amount} a month, beside the day",
   "passbook.road.ajo": "The street's circle",
-  "passbook.road.ajo.line": "{share} a month for {count} months, {pot} the month the pot is yours",
+  "passbook.road.ajo.line": "{share} a month, a {pot} pot once",
   "passbook.road.ajo.taken": "You are in. The pot comes to you by the draw.",
   "passbook.road.ajo.wait": "Waits for the street to ask",
   "passbook.road.ajo.open": "The street is asking",
