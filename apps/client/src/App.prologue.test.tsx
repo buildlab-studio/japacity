@@ -9,9 +9,9 @@ import { startArchetype } from "./shared/frontdoor/frontDoor.testing";
 import type { GameStore } from "./authority/store";
 import { playerMonth } from "./shared/words/format";
 import { nameOf, say, words } from "./shared/words/text";
-import type { Act, Thing } from "./shared/world/contract";
 // Registers Testing Library's cleanup for this file.
 import { found } from "./shared/testing/render";
+import { pressFanAct } from "./features/city/fan/fan.testing";
 
 const PROLOGUE = "scenario.prologue";
 const HUNT = "activity.job-hunt";
@@ -38,18 +38,10 @@ async function moved(store: GameStore, v: number): Promise<void> {
   });
 }
 
-type Pick = { kind: "act"; thing: Thing; act: Act };
 
 // The world's scene is a stand-in that hands the city the taps a player makes on the things of the place file the game ships.
-vi.mock("./features/city/CityScene", () => ({
-  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
-    <div data-stand-in-scene>
-      {(things ?? []).flatMap((thing) =>
-        thing.acts.map((one) => <button key={`${thing.id}:${one.id}`} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />),
-      )}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("./shared/three/manifest", async (original) => {
@@ -120,7 +112,7 @@ describe("a life from sixteen in the app", () => {
         break;
       }
       const v = store.getState().view?.v ?? 0;
-      fireEvent.click(await waitFor(() => found('[data-stand-in-act="jobs:jobs"]'), { timeout: 5000 }));
+      await pressFanAct("jobs", "activity.job-hunt", 5000);
       fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${nameOf(HUNT)}`) }));
       // The hunt is done at once (R-ACTIVITY-015); its answer in, the month ends.
       await moved(store, v);

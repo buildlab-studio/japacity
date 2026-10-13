@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { assetUrl, loadManifest } from "../three/manifest";
+import { Glyph } from "./glyphs";
 import { tileOf } from "./tiles.data";
 
 /** The published URL of a model's tile, null until the manifest is read or when it is not published. */
@@ -29,6 +30,14 @@ export function Tile({ of, size = 64, className }: { of: string; size?: number; 
   const model = "model" in picture ? picture.model : null;
   const url = useTileUrl(model);
   const box = { width: `${String(size)}px`, height: `${String(size)}px` };
+  // An act's glyph is drawn here, so it fetches nothing and stands in for nothing (R-WORLD-034).
+  if ("glyph" in picture) {
+    return (
+      <span data-tile={of} data-glyph={picture.glyph} aria-hidden="true" className={`inline-block shrink-0 ${className ?? ""}`} style={box}>
+        <Glyph glyph={picture.glyph} size={size} />
+      </span>
+    );
+  }
   if (!("model" in picture)) {
     return (
       <span data-tile={of} data-stand-in="true" aria-hidden="true" className={`inline-flex shrink-0 items-center justify-center leading-none select-none ${className ?? ""}`} style={{ ...box, fontSize: `${String(Math.round(size * 0.62))}px` }}>

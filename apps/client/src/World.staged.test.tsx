@@ -9,29 +9,12 @@ import { engineView } from "./shared/testing/fixtures";
 import { renderWithView } from "./shared/testing/render";
 import { words } from "./shared/words/text";
 import { linesNow } from "./shared/world/Lines";
-import type { Act, Thing } from "./shared/world/contract";
 import { Results } from "./features/turn/Results";
 import { City, RESULTS_BEAT_MS } from "./features/city/City";
 
-type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act } | { kind: "own" } | { kind: "person"; slot: number } | { kind: "model"; file: string; signs: string[] };
 
-vi.mock("./features/city/CityScene", () => ({
-  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
-    <div data-stand-in-scene>
-      <button type="button" data-stand-in-own onClick={() => onPick({ kind: "own" })} />
-      <button type="button" data-stand-in-person onClick={() => onPick({ kind: "person", slot: 0 })} />
-      <button type="button" data-stand-in-shopfront onClick={() => onPick({ kind: "model", file: "shopfront.glb", signs: ["place.bode-thomas.sign.1"] })} />
-      {(things ?? []).map((thing) => (
-        <span key={thing.id}>
-          <button type="button" data-stand-in-thing={thing.id} onClick={() => onPick({ kind: "thing", thing })} />
-          {thing.acts.map((one) => (
-            <button key={one.id} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />
-          ))}
-        </span>
-      ))}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("./shared/three/manifest", async (original) => {

@@ -13,7 +13,14 @@ const KINDS: readonly { title: string; has: (id: string) => boolean }[] = [
   { title: "Papers", has: (id) => id.startsWith("document.") },
   { title: "Ways out", has: (id) => id.startsWith("route.") },
   { title: "The phone's own", has: (id) => id.startsWith("phone.") },
+  { title: "The acts' glyphs", has: (id) => id.startsWith("act.") },
 ];
+
+/** True when the id's picture is an emoji standing in for a model; a model's tile and an act's glyph are drawn. */
+function standingIn(id: string): boolean {
+  const row = TILE_TABLE[id];
+  return row !== undefined && typeof row !== "string" && "standIn" in row;
+}
 
 export function TileSheet() {
   const ids = Object.keys(TILE_TABLE).sort();
@@ -27,9 +34,9 @@ export function TileSheet() {
           <h2 className="text-sm font-bold">{kind.title}</h2>
           <ul className="mt-1 grid gap-1" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(92px, 1fr))" }}>
             {ids.filter(kind.has).map((id) => (
-              <li key={id} className="flex flex-col items-center rounded-lg bg-white p-1 text-center" style={{ border: typeof TILE_TABLE[id] === "string" ? "1px solid #1c2a5e" : "1px dashed #8a93b8" }}>
+              <li key={id} className="flex flex-col items-center rounded-lg bg-white p-1 text-center" style={{ border: standingIn(id) ? "1px dashed #8a93b8" : "1px solid #1c2a5e" }}>
                 <Tile of={id} size={56} />
-                <span className="mt-0.5 break-all text-[9px] leading-tight">{id.replace(/^(activity|offer|place|thing|market)\./, "")}</span>
+                <span className="mt-0.5 break-all text-[9px] leading-tight">{id.replace(/^(activity|offer|place|thing|market|act)\./, "")}</span>
               </li>
             ))}
           </ul>

@@ -11,26 +11,14 @@ import { abroadGame, setPockets } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/people";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
-import type { Act, Thing } from "../../shared/world/contract";
 import { City } from "./City";
 import { goHomeAsk, goHomeOffered } from "./goHome";
 import { type PlaceFile, stageOf } from "./placeFile";
+import { pressFanAct } from "./fan/fan.testing";
 
-type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act };
 
-vi.mock("./CityScene", () => ({
-  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
-    <div data-stand-in-scene>
-      {(things ?? []).map((thing) => (
-        <span key={thing.id}>
-          {thing.acts.map((one) => (
-            <button key={one.id} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />
-          ))}
-        </span>
-      ))}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("../../shared/three/manifest", async (original) => {
@@ -94,7 +82,7 @@ describe("the bag's Go home", () => {
     const way = game.view().place.wayHome;
     if (way === null || way.shape === null) throw new Error("Ada abroad has no way home today");
     const { authority } = await renderWithGame(<City world />, game);
-    fireEvent.click(await waitFor(() => found('[data-stand-in-act="bag:go-home"]'), { timeout: 3000 }));
+    await pressFanAct("bag", "go-home");
     const card = await screen.findByRole("dialog");
     expect(within(card).getByRole("heading").textContent).toBe(say("ui.world.go-home"));
     expect(card.textContent).toContain(say(`ui.world.go-home.line.${way.shape}`));

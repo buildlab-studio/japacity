@@ -29,7 +29,6 @@ import { misfit, turned } from "./arrange";
 import { dropLifted, floorAt, LIFT_DRAG_PX, LIFT_HOLD_MS, LIFT_Y, liftHintNode, liftNode, liftShadow, SHAKE_MS } from "./lift";
 import { liftable, ownedThingId } from "./owned";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
-import { chipNode } from "./chip";
 import { anchorFan } from "./fan/anchor";
 import { markNode, showMark } from "./mark";
 import { bedLie, othersSeen, sleepMarkNode } from "./sleep";
@@ -54,7 +53,7 @@ const DRAG_PX = 8;
 const TURN_PER_PX = 0.25;
 /** Pixels the fingers of a pinch move apart for the view to go from the whole place to close. */
 const PINCH_PX = 260;
-/** How close to the screen's edge a label or a chip may stand. */
+/** How close to the screen's edge a label or the marker may stand. */
 const EDGE_MARGIN = 8;
 /** How high the character lies when the act names no top to lie on (`Act.top`): about a mattress's top. */
 const LIE_Y = 0.5;
@@ -252,7 +251,6 @@ function Place(props: PlaceProps) {
   const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, labelsHidden = false, plan, takeTap, markBox, rig, shot, raised, marks, named, nudged = null, teaching = false } = props;
   const roam = props.overview !== true || props.roam === true;
   const things = useMemo(() => props.things ?? [], [props.things]);
-  const chosen = props.chosen ?? null;
   const [world, setWorld] = useState<World | null>(null);
   const { walk } = props;
   const planShare = useRef(0);
@@ -261,7 +259,6 @@ function Place(props: PlaceProps) {
   const frames = useRef<number[]>([]);
   /** An act chosen while the character still walks to its thing: it follows on arrival (R-WORLD-010). */
   const labels = useRef<{ thing: Thing; node: HTMLButtonElement }[]>([]);
-  const chip = useRef<{ thing: Thing; node: HTMLDivElement } | null>(null);
   const pick = useRef(onPick);
   pick.current = onPick;
   const gl = useThree((state) => state.gl);
@@ -312,7 +309,7 @@ function Place(props: PlaceProps) {
     pick.current({ kind: "thing", thing });
   };
   // A wide home's rooms (R-WORLD-029 as the home's wave asks it amended): a thing chosen from the whole house, or in
-  // another room, eases the camera in on its room first, and its chip or its fan opens once the camera is there.
+  // another room, eases the camera in on its room first, and its fan opens once the camera is there.
   const rooms = useMemo(() => (raised ? (stage.rooms ?? []) : []), [raised, stage.rooms]);
   const deferred = useRef<Thing | null>(null);
   const zoomed = props.onZoomed;
@@ -337,8 +334,6 @@ function Place(props: PlaceProps) {
   chooseRef.current = choose;
   const pickRef = useRef(pickThing);
   pickRef.current = pickThing;
-  const stopRef = useRef(props.onStop);
-  stopRef.current = props.onStop;
 
   // The marks live in the DOM box beside the canvas, one over each thing; the frame loop moves them (R-WORLD-005).
   useEffect(() => {
@@ -358,7 +353,7 @@ function Place(props: PlaceProps) {
     for (const { thing, node } of labels.current) showMark(node, { named: names.has(thing.id), teaching, pulse: nudged === thing.id, state: marks?.[thing.id] });
   }, [things, markBox, namedKey, nudged, teaching, marks]);
 
-  /** An act chosen on a thing, from its chip or its fan: it follows once the character has walked to the thing (R-WORLD-010). */
+  /** An act chosen on a thing's fan: it follows once the character has walked to the thing (R-WORLD-010). */
   const actFor = (thing: Thing, act: Act): void => {
     const pending = walk.current.pending;
     // Tapping an act again ends the walk at once (R-WORLD-010).
@@ -374,22 +369,6 @@ function Place(props: PlaceProps) {
   useEffect(() => {
     if (actOn !== null) actForRef.current(actOn.thing, actOn.act);
   }, [actOn]);
-
-  // The chosen thing's acts float over it until another tap puts them away.
-  useEffect(() => {
-    if (markBox === null || chosen === null) return;
-    const node = chipNode(
-      chosen,
-      (act) => actForRef.current(chosen, act),
-      (act) => stopRef.current?.(chosen, act),
-    );
-    markBox.append(node);
-    chip.current = { thing: chosen, node };
-    return () => {
-      node.remove();
-      chip.current = null;
-    };
-  }, [chosen, markBox]);
 
   useEffect(() => {
     let alive = true;
@@ -861,7 +840,7 @@ function Place(props: PlaceProps) {
       const grown = Math.max(0.001, Math.min(1, (clock - from) / FX_MS, (to - clock) / FX_MS));
       for (const object of objects) object.scale.setScalar(grown);
     }
-    // A label or a chip near the screen's edge is held inside it, since it is centred on its thing.
+    // A label or the marker near the screen's edge is held inside it, since it is centred on its thing.
     const within = (x: number, node: HTMLElement): number => {
       const half = node.offsetWidth / 2 + EDGE_MARGIN;
       return Math.min(Math.max(x, half), Math.max(half, state.size.width - half));
@@ -924,7 +903,7 @@ function Place(props: PlaceProps) {
     const laid: { node: HTMLElement; box: LabelBox }[] = [];
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
-      const at = spot === null || chip.current?.thing.id === thing.id || fanned?.id === thing.id || marked?.id === thing.id || (voice !== null && speaker?.id === thing.id) ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
+      const at = spot === null || fanned?.id === thing.id || marked?.id === thing.id || (voice !== null && speaker?.id === thing.id) ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
       // No mark while the opening words stand over the world (R-WORLD-001).
       node.style.display = at === null || labelsHidden ? "none" : "";
       if (at !== null && !labelsHidden) laid.push({ node, box: { x: within(at.x, node), y: at.y, width: node.offsetWidth, height: node.offsetHeight } });
@@ -935,18 +914,6 @@ function Place(props: PlaceProps) {
       node.style.left = `${String(box.x)}px`;
       node.style.top = `${String(feet[index] ?? box.y)}px`;
     });
-    const shown = chip.current;
-    if (shown !== null) {
-      const spot = thingSpot(stage, shown.thing);
-      const at = spot === null ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.2);
-      shown.node.style.display = at === null ? "none" : "";
-      if (at !== null) {
-        shown.node.style.left = `${String(within(at.x, shown.node))}px`;
-        // The chip stands above its thing, and never under the band: a thing near the top of the screen gets its chip just under the band instead.
-        const bandBottom = document.querySelector("[data-band]")?.getBoundingClientRect().bottom ?? 0;
-        shown.node.style.top = `${String(Math.max(at.y, bandBottom + shown.node.offsetHeight + EDGE_MARGIN))}px`;
-      }
-    }
     // Buy mode: the lifted thing rides up off the floor and follows the finger, turns and shakes back with short eases,
     // and the hold areas and the hint follow the things as the camera moves.
     const held = lifted.current;

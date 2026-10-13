@@ -8,27 +8,19 @@ import { SAVE_KEY } from "./authority/local";
 import { createGameStore } from "./authority/store";
 import { abroadView, fakeAuthority, recordedSave, richAbroadView } from "./shared/testing/fixtures";
 import { say, words } from "./shared/words/text";
-import type { Act, Thing } from "./shared/world/contract";
 // Registers Testing Library's cleanup for this file.
 import { found } from "./shared/testing/render";
+import { pressFanAct } from "./features/city/fan/fan.testing";
 
 function memoryStorage() {
   const items = new Map<string, string>();
   return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
 }
 
-type Pick = { kind: "act"; thing: Thing; act: Act };
 
 // The world's scene is a stand-in that hands the city the taps a player makes on the things of the place file the game ships.
-vi.mock("./features/city/CityScene", () => ({
-  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
-    <div data-stand-in-scene>
-      {(things ?? []).flatMap((thing) =>
-        thing.acts.map((one) => <button key={`${thing.id}:${one.id}`} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />),
-      )}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("./shared/three/manifest", async (original) => {
@@ -76,7 +68,7 @@ describe("the shell by where the character is", () => {
       // The world is the game (R-WORLD-001): the band, the two thumbs, no tabs; she boards from her packed bag.
       await waitFor(() => expect(document.querySelector("[data-band]")).not.toBeNull());
       expect(document.querySelector("[data-tab]")).toBeNull();
-      fireEvent.click(await waitFor(() => found('[data-stand-in-act="bag:pack"]'), { timeout: 5000 }));
+      await pressFanAct("bag", "pack", 5000);
       fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${say("ui.route.depart")}`) }));
 
       // The flight is a moment of its own (R-MOMENT-001: landing abroad), with no share card in it.

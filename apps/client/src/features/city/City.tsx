@@ -78,7 +78,8 @@ import { type Brief, briefOf, DONE_TOAST_MS, doneToast, itemsDone, markerAllowed
 import { ChapterClose, MissionCard } from "./brief/BriefCards";
 import { BriefChip, Marker } from "./brief/BriefChip";
 import { briefHanded, handBrief } from "../../shared/world/briefHanded";
-import { fanActOf, fanAsked, fanEntriesOf, type FanEntry, fanModel } from "./fan/fanActs";
+import { allNow, fanEntriesOf, type FanEntry, fanModel } from "./fan/fanActs";
+import { FanSheet } from "./fan/FanSheet";
 import { stopReached } from "./stops";
 import { KIOSK, opensKiosk, withKiosk } from "./kiosk";
 import { namedThings } from "./mark";
@@ -618,8 +619,6 @@ export function City({
   const [menu, setMenu] = useState(false);
   const [credits, setCredits] = useState(false);
   const [picked, setPicked] = useState<Picked | null>(null);
-  // The fan (docs/design/13-the-lively-layer.md section 3): `?fan=off` brings back the chip in a development build, to compare.
-  const fanOn = useMemo(() => fanAsked(typeof location === "undefined" ? "" : location.search, import.meta.env.DEV), []);
   // The act a fan's button chose, handed to the scene to walk for, and the entry walked to until its act lands (R-WORLD-010).
   const [fanAct, setFanAct] = useState<{ thing: Thing; act: Act; at: number } | null>(null);
   const fanGoing = useRef<{ thing: string; activity: string; param: string | null } | null>(null);
@@ -628,6 +627,8 @@ export function City({
   const [fanGoingId, setFanGoingId] = useState<string | null>(null);
   // The fan's act last sent and when: the scene may report the walk's arrival twice under load, and the second must not open the act's card over an act already done.
   const fanSent = useRef<{ thing: string; activity: string; at: number } | null>(null);
+  // The thing whose fan found no room beside it: its acts stand as a small sheet instead (R-WORLD-034).
+  const [fanSheet, setFanSheet] = useState<string | null>(null);
   // Lines the corner tells once it shows again: a courted partner's answer waits for the home's card to be put away (R-PEOPLE-013).
   const [toTell, setToTell] = useState<string[]>([]);
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
@@ -868,15 +869,15 @@ export function City({
   }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing, dayPart]);
   // The chosen thing's acts already in this month's plan say Planned and are shut.
   const pickedThing = picked?.kind === "thing" ? picked.thing : null;
-  // R-ACTIVITY-020: an act done at once that waits for sleep says so on the chip where its button was.
+  // R-ACTIVITY-020: an act done at once that waits for sleep says so on its fan button.
   const chosenThing = useMemo(() => (pickedThing === null ? null : withSpent(withPlanned(pickedThing, plan, view), view)), [pickedThing, plan, view]);
-  // A thing whose acts are the room's or the street's acts done at once fans them out of itself in place of its chip and its sheet.
-  const fanEntries = useMemo(() => (!world || !fanOn || chosenThing === null ? null : fanEntriesOf(chosenThing)), [world, fanOn, chosenThing]);
+  // Every thing fans its acts out of itself (R-WORLD-034): the simulation's acts done at once and every other act alike.
+  const fanEntries = useMemo(() => (!world || chosenThing === null ? null : fanEntriesOf(chosenThing)), [world, chosenThing]);
   const fanned = fanEntries === null ? null : chosenThing;
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
   // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
-    // A tap on the player's own figure opens nothing: it only puts away a chip,
+    // A tap on the player's own figure opens nothing: it only puts away a fan,
     // as any tap outside one does, so the nudge stays (R-WORLD-003).
     if (scenePick.kind === "own") {
       setPicked(null);
@@ -889,6 +890,8 @@ export function City({
     const going = fanGoing.current;
     fanGoing.current = null;
     setFanGoingId(null);
+    // The act walked for has landed: a scene built anew (the crowd or the mode changed) must not walk for it again.
+    setFanAct(null);
     if (asksOpen || phone || map || resultsOpen) {
       setPicked(null);
       return;
@@ -903,8 +906,6 @@ export function City({
     if (going !== null && going.thing === thing.id && going.activity === act.stages) {
       setPicked(null);
       fanSent.current = { thing: thing.id, activity: going.activity, at: Date.now() };
-      // The act walked for is spent: a scene built anew (the crowd or the mode changed) must not walk for it again and open its card.
-      setFanAct(null);
       const costs = (view.activities.find((option) => option.id === going.activity)?.cost.length ?? 0) > 0;
       void actOnCard({ activity: going.activity as Id<"activity">, param: going.param }, { send, addToPlan }).then((acted) => {
         cue(acted === "answered" || acted === "planned" ? (costs ? "coin" : "done") : acted === "refused" ? "no" : "tap");
@@ -1008,20 +1009,36 @@ export function City({
     }
   };
   // A fan's button that can be had: the scene walks to the thing, and the act lands in readPick once it is there (R-WORLD-010).
+  // Only the simulation's acts done at once are matched on arrival and sent as their sheet's button sends them; every other
+  // act lands as the thing's act it is and takes readPick's way for its kind (a pose, Sleep, a card, a command, the map).
   const fanTap = (entry: FanEntry): void => {
     if (fanned === null) return;
-    const act = fanActOf(fanned, entry.id);
-    if (act === null) return;
-    fanGoing.current = { thing: fanned.id, activity: entry.id, param: entry.param };
+    // A stop takes an act carrying on out of the plan, where the thing stands; its button opens again (R-WORLD-007).
+    if (entry.kind === "stop") {
+      if (entry.act.stages === undefined) return;
+      cue("close");
+      stopPick({ activity: entry.act.stages as Id<"activity">, param: entry.act.param ?? null });
+      return;
+    }
+    fanGoing.current = entry.kind === "now" ? { thing: fanned.id, activity: entry.id, param: entry.param } : null;
     setFanGoingId(entry.id);
-    setFanAct({ thing: fanned, act, at: Date.now() });
+    setFanAct({ thing: fanned, act: entry.act, at: Date.now() });
   };
-  // No room beside the thing for its fan: the same acts open as the sheet its chip would open (section 3).
+  // No room beside the thing for its fan (section 3): the simulation's acts open as their own sheet, as before; a thing with
+  // any other act opens the same buttons as a small sheet.
   const fanFallback = (): void => {
-    const [first, ...rest] = fanEntries ?? [];
-    if (fanned === null || first === undefined) return;
+    const entries = fanEntries ?? [];
+    if (fanned === null || entries.length === 0) return;
+    if (!allNow(entries)) {
+      setFanSheet(fanned.id);
+      return;
+    }
+    const [first, ...rest] = entries.flatMap((one) => (one.stages === null ? [] : [{ stages: one.stages, act: one.act }]));
+    if (first === undefined) return;
     setPicked(rest.length === 0 ? { kind: "action", activity: first.stages, ...(first.act.param === undefined ? {} : { param: first.act.param }) } : { kind: "action", activity: first.stages, more: rest.map((one) => one.stages), label: first.act.label });
   };
+  // A new pick, or none, forgets the small sheet: the next thing tapped tries its fan first.
+  useEffect(() => setFanSheet(null), [picked]);
   // A ride plays, then the place opens (rule 13).
   const travel = (id: string): void => {
     cue("whoosh");
@@ -1117,7 +1134,7 @@ export function City({
     tired(view),
   );
   const toBed = shownNudge?.key === NIGHT;
-  // The night's nudge opens the bed's chip where the bed stands; elsewhere it only says so.
+  // The night's nudge opens the bed's fan where the bed stands; elsewhere it only says so.
   const bed = things?.find((thing) => thing.acts.some((one) => one.kind === "end")) ?? null;
   const onlyWait = nudge !== null && WAIT_ONLY.has(nudge.key);
   // A step shut by its needs says "See Japa": its tap opens the Japa app, where the needs are listed.
@@ -1429,11 +1446,11 @@ export function City({
   useEffect(() => {
     if (resultsOpen) setPartyBeat(false);
   }, [resultsOpen]);
-  // The results take the place of a thing's chip when the month ends; the asks sheet closes once nothing waits.
+  // The results take the place of a thing's fan when the month ends; the asks sheet closes once nothing waits.
   useEffect(() => {
     if (reportOpen) setPicked(null);
   }, [reportOpen]);
-  // A thing's chip, and a person's or a shopfront's card, close on a tap anywhere outside them, or on Escape (Back), so
+  // A thing's fan, and a person's or a shopfront's card, close on a tap anywhere outside them, or on Escape (Back), so
   // the nudge they hide comes back by itself, never waiting on a tap on the floor (R-WORLD-003, R-WORLD-005; the
   // The scene reads taps on itself: another thing chooses that thing, open ground puts it away.
   const personCard = world && (picked?.kind === "person" || picked?.kind === "model");
@@ -1443,7 +1460,7 @@ export function City({
     const outside = (event: PointerEvent): void => {
       const target = event.target;
       if (!(target instanceof Element)) return;
-      if (target.closest("[data-thing-chip], [data-card], [data-fan]") !== null || target.tagName === "CANVAS") return;
+      if (target.closest("[data-card], [data-fan], [data-fan-sheet]") !== null || target.tagName === "CANVAS") return;
       setPicked(null);
     };
     const back = (event: KeyboardEvent): void => {
@@ -1660,15 +1677,9 @@ export function City({
                     overview: true,
                     roam: ROAM,
                     ...(things === undefined ? {} : { things, marks, named: namedThings(things, stepThing), nudged: stepThing, teaching }),
-                    // A fanned thing asks no chip of the scene; its fan's buttons hand their acts to walk for.
-                    chosen: fanned === null ? chosenThing : null,
+                    // The fan's buttons hand their acts to walk for (R-WORLD-034).
                     actOn: fanAct,
                     onClear: () => setPicked(null),
-                    onStop: (_thing: Thing, act: Act) => {
-                      if (act.stages === undefined) return;
-                      cue("close");
-                      stopPick({ activity: act.stages as Id<"activity">, param: act.param ?? null });
-                    },
                     zoomed,
                     onZoomed: setZoomed,
                     acted,
@@ -1880,7 +1891,11 @@ export function City({
           <SpeechBubble hidden={!worldFree || !callouts.bubble} anchored={drawing && ready} />
           {drawing && ready && sample !== null ? <Emotes people={sample.people} hidden={!worldFree || !settled || asleep !== null || openingUp} onTap={(slot) => readPick({ kind: "person", slot })} /> : null}
           {fanned !== null && fanEntries !== null && picked?.kind === "thing" ? (
-            <Fan key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} onPreview={setBandPreview} />
+            fanSheet === fanned.id ? (
+              <FanSheet key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onClose={() => setPicked(null)} going={fanGoingId} />
+            ) : (
+              <Fan key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} {...(fanned.mark === undefined ? {} : { mark: fanned.mark })} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} onPreview={setBandPreview} />
+            )
           ) : null}
           <Rise rise={japa.rise} />
           {beatShown ? (

@@ -242,8 +242,9 @@ test.describe("one new player, played in order on one phone", () => {
     await passOpeningWords(page);
     const teach = page.locator("[data-home-teach-ok]");
     if (await teach.isVisible().catch(() => false)) await teach.click();
+    // The kiosk's fan, and its act (R-WORLD-034).
     await page.locator('[data-mark="kiosk"]').click();
-    await page.locator('[data-thing-chip="kiosk"] [data-act]').first().click();
+    await page.locator('[data-fan="kiosk"] [data-fan-act] button, [data-fan-sheet="kiosk"] [data-fan-act] button').first().click();
     const sheet = page.locator('[data-world-sheet="kiosk"]');
     await expect(sheet).toContainText("The Friday draw", { timeout: 30_000 });
     const bought = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/command" && (response.request().postData() ?? "").includes('"lottery/buy"'));

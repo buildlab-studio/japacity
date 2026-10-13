@@ -39,7 +39,8 @@ export function PlacePicture({ id, size, tiles }: { id: string; size: number; ti
   if (!("model" in picture)) {
     return (
       <span className="paper-cut flex items-center justify-center" style={{ width: size, height: size, fontSize: Math.round(size * 0.7) }} aria-hidden>
-        {picture.emoji}
+        {/* A place is a model or a stand-in, never an act's glyph (shared/tiles). */}
+        {"emoji" in picture ? picture.emoji : null}
       </span>
     );
   }

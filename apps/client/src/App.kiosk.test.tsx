@@ -15,7 +15,6 @@ import { createGameStore, type GameStore } from "./authority/store";
 import "./shared/testing/render";
 import { formatMoney } from "./shared/words/format";
 import { say } from "./shared/words/text";
-import type { Act, Thing } from "./shared/world/contract";
 import { City } from "./features/city/City";
 import { KIOSK, kioskOnline, opensKiosk, withKiosk } from "./features/city/kiosk";
 import { stageOf, type PlaceFile } from "./features/city/placeFile";
@@ -23,19 +22,8 @@ import { stagedNow, thingsNow, thingsOf } from "./features/city/things";
 import { KioskSheet } from "./features/lottery/KioskSheet";
 import { drawOf, onlineLife, tuning } from "./features/lottery/testing";
 
-vi.mock("./features/city/CityScene", () => ({
-  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: { kind: "act"; thing: Thing; act: Act }) => void }) => (
-    <div data-stand-in-scene>
-      {(things ?? []).flatMap((thing) =>
-        thing.acts.map((act) => (
-          <button key={`${thing.id}:${act.id}`} type="button" data-stand-in-act={`${thing.id}:${act.id}`} onClick={() => onPick({ kind: "act", thing, act })}>
-            {act.label}
-          </button>
-        )),
-      )}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("./shared/three/manifest", async (original) => {
@@ -83,14 +71,19 @@ async function onTheStreet(lottery: World["lottery"]): Promise<{ store: GameStor
   return { store, life };
 }
 
-/** The kiosk's act, tapped on the street once the place is drawn. */
+/** The kiosk tapped on the street once the place is drawn, and its act on its fan (R-WORLD-034). */
 async function tapKiosk(): Promise<void> {
-  const kiosk = await waitFor(() => {
-    const found = document.querySelector<HTMLElement>('[data-stand-in-act^="kiosk:"]');
+  fireEvent.click(await waitFor(() => {
+    const found = document.querySelector<HTMLElement>('[data-stand-in-thing="kiosk"]');
+    if (found === null) throw new Error("The kiosk is not on the street.");
+    return found;
+  }));
+  const act = await waitFor(() => {
+    const found = document.querySelector<HTMLElement>('[data-fan="kiosk"] [data-fan-act] button');
     if (found === null) throw new Error("The kiosk offers no act.");
     return found;
   });
-  fireEvent.click(kiosk);
+  fireEvent.click(act);
 }
 
 describe("the street kiosk while the world runs the Friday draw", () => {

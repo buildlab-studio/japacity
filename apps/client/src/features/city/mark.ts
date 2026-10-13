@@ -1,11 +1,10 @@
 // A thing's quiet mark (docs/rules/world.md R-WORLD-005, R-WORLD-021): things show no
 // label by default. Each interactive thing carries a small still dot at its anchor, the theme's signal colour at about
-// 60%; the thing the nudge points at pulses gently (R-WORLD-003). A tap on the mark, as on the thing, shows its chip.
+// 60%; the thing the nudge points at pulses gently (R-WORLD-003). A tap on the mark, as on the thing, opens its fan.
 // The name shows over the dot only while it is named: a person who holds an ask or is the nudge's target, or every
 // thing for two seconds the first time a place is entered in a life. Built in the DOM box beside the canvas, which the
 // frame loop moves over the thing.
 import type { Thing } from "../../shared/world/contract";
-import { markTag } from "./chip";
 import { sceneWords } from "./scene.words";
 
 /** How a mark shows now: its name over the dot, the name taught then fading, the dot pulsing for the nudge. */
@@ -87,4 +86,16 @@ export function namedThings(things: readonly Pick<Thing, "id" | "label" | "acts"
   return things
     .filter((thing) => isPerson(thing) && (thing.id === nudged || thing.acts.some((act) => act.kind === "sheet" && act.stages !== undefined && (act.stages.startsWith("offer.") || act.stages.startsWith("setpiece.")))))
     .map((thing) => thing.id);
+}
+
+/**
+ * The small `computer` tag beside a person's name, in the words the people's cards use: quiet, in the case a person
+ * writes it, never shouted in capitals (text.md R-TEXT-005, people.md R-PEOPLE-009).
+ */
+export function markTag(mark: NonNullable<Thing["mark"]>): HTMLSpanElement {
+  const tag = document.createElement("span");
+  tag.dataset.personMark = mark;
+  tag.className = "ml-1.5 rounded-[3px] border border-sheet-line px-1.5 py-px align-[2px] text-[12px] font-semibold text-text-2";
+  tag.textContent = sceneWords(`ui.people.mark.${mark}`);
+  return tag;
 }

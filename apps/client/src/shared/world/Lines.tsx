@@ -254,8 +254,8 @@ export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; a
         <button
           type="button"
           onClick={(event) => {
-            // A thing's mark, its chip or a fan button under the bubble keeps its tap (R-WORLD-005): the bubble hands it on.
-            const under = (typeof document.elementsFromPoint === "function" ? document.elementsFromPoint(event.clientX, event.clientY) : []).find((node) => node !== event.currentTarget && !event.currentTarget.contains(node) && node.closest("[data-mark], [data-thing-chip] button, [data-fan] button") !== null);
+            // A thing's mark or a fan button under the bubble keeps its tap (R-WORLD-005): the bubble hands it on.
+            const under = (typeof document.elementsFromPoint === "function" ? document.elementsFromPoint(event.clientX, event.clientY) : []).find((node) => node !== event.currentTarget && !event.currentTarget.contains(node) && node.closest("[data-mark], [data-fan] button") !== null);
             if (under instanceof HTMLElement) {
               under.click();
               return;

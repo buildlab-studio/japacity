@@ -12,31 +12,15 @@ import { engineView } from "./shared/testing/fixtures";
 import { renderWithView } from "./shared/testing/render";
 import { interviewGame, renderWithGame } from "./shared/testing/people";
 import { nameOf, say, words } from "./shared/words/text";
-import type { Act, Thing } from "./shared/world/contract";
 import { InterviewView } from "./features/interview/InterviewView";
 import { DECEMBER } from "./features/setpiece/DecemberScene";
 import { City } from "./features/city/City";
 import { SLEEP_MS } from "./features/city/sleep";
+import { pressFanAct, pressFanActNow } from "./features/city/fan/fan.testing";
 
-type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act } | { kind: "own" } | { kind: "person"; slot: number } | { kind: "model"; file: string; signs: string[] };
 
-vi.mock("./features/city/CityScene", () => ({
-  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
-    <div data-stand-in-scene>
-      <button type="button" data-stand-in-own onClick={() => onPick({ kind: "own" })} />
-      <button type="button" data-stand-in-person onClick={() => onPick({ kind: "person", slot: 0 })} />
-      <button type="button" data-stand-in-shopfront onClick={() => onPick({ kind: "model", file: "shopfront.glb", signs: ["place.bode-thomas.sign.1"] })} />
-      {(things ?? []).map((thing) => (
-        <span key={thing.id}>
-          <button type="button" data-stand-in-thing={thing.id} onClick={() => onPick({ kind: "thing", thing })} />
-          {thing.acts.map((one) => (
-            <button key={one.id} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />
-          ))}
-        </span>
-      ))}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("./shared/three/manifest", async (original) => {
@@ -81,7 +65,7 @@ describe("the interview holds the month in the world", () => {
       <City world results={(place) => <p data-results-for={place} />} asks={[<InterviewView key="interview" />]} asksAt={[null]} phone={(close) => <button type="button" data-stand-in-phone onClick={close} />} />,
       game,
     );
-    await waitFor(() => found('[data-stand-in-act="mattress:end-month"]'), { timeout: 3000 });
+    await waitFor(() => found('[data-stand-in-thing="mattress"]'), { timeout: 3000 });
     // The mark: the nudge says something waits and opens the asks with the interview's question.
     const mark = await waitFor(() => found("[data-nudge] [data-nudge-open]"));
     expect(mark.querySelector(".bg-signal")).not.toBeNull();
@@ -93,7 +77,7 @@ describe("the interview holds the month in the world", () => {
     fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
     await waitFor(() => expect(screen.queryByRole("region", { name: nameOf("interview.genuineness") })).toBeNull());
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
-    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
+    pressFanActNow("mattress", "end-month");
     // A life's first night is told once first (R-WORLD-025); its Sleep is the bed's.
     fireEvent.click(found("[data-night-teach-ok]"));
     expect([...document.querySelectorAll("[data-corner]")].map((line) => line.textContent)).toContain(words("reject.setpiece-open"));
@@ -115,7 +99,7 @@ describe("the interview holds the month in the world", () => {
     await waitFor(() => expect(screen.queryByRole("region", { name: nameOf("interview.genuineness") })).toBeNull());
     await waitFor(() => expect(game.view().interview?.question ?? null).toBeNull());
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
-    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
+    pressFanActNow("mattress", "end-month");
     await act(async () => {
       await vi.advanceTimersByTimeAsync(SLEEP_MS + 100);
     });
@@ -129,7 +113,7 @@ describe("the interview holds the month in the world", () => {
       const base = engineView();
       const view: PlayerView = { ...base, month: Math.max(1, base.month), setpiece: { entry, asked: 0, total: 1, question: null } };
       const { authority } = await renderWithView(<City world results={(place) => <p data-results-for={place} />} />, view);
-      fireEvent.click(await waitFor(() => found('[data-stand-in-act="mattress:end-month"]'), { timeout: 3000 }));
+      await pressFanAct("mattress", "end-month");
       expect([...document.querySelectorAll("[data-corner]")].map((line) => line.textContent)).toContain(words("reject.setpiece-open"));
       expect(authority.sent.filter((command) => command.type === "turn/end")).toHaveLength(0);
       cleanup();

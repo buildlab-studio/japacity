@@ -59,7 +59,7 @@ async function tapThing(page: Page, thing: string): Promise<void> {
   // until one sets the character walking or opens something.
   const answered = () => page.evaluate(() => {
     const walker = (window as unknown as { __city?: { walker?: { target: unknown } } }).__city?.walker;
-    return (walker?.target ?? null) !== null || document.querySelector("[role='dialog'], [data-thing-chip], [data-fan]") !== null;
+    return (walker?.target ?? null) !== null || document.querySelector("[role='dialog'], [data-fan], [data-fan-sheet]") !== null;
   });
   for (const [dx, dy] of [[0, 0], [0, -14], [12, -6], [-12, -6], [0, 10], [20, 0], [-20, 0], [0, -28]] as const) {
     await page.mouse.click(at.x + dx, at.y + dy);
@@ -69,28 +69,31 @@ async function tapThing(page: Page, thing: string): Promise<void> {
 }
 
 /**
- * A thing's act from the chip that floats over it once it is tapped (R-WORLD-005). The step's own thing under its marker
- * takes the step's act in one tap: the character walks there and the act's card opens, with
- * no chip; that card is then the act's.
+ * A thing's act from the fan that opens out of it once it is tapped (R-WORLD-034), by the act's id or the entry its button
+ * stages; where the free side of the screen cannot hold the fan, from the small sheet of the same buttons. The step's own
+ * thing under its marker takes the step's act in one tap: the character walks there and the
+ * act's card opens, with no fan; that card is then the act's.
  */
 export async function doAct(page: Page, thing: string, act: string): Promise<void> {
-  const chip = page.locator(`[data-thing-chip="${thing}"]`);
+  const fan = page.locator(`[data-fan="${thing}"], [data-fan-sheet="${thing}"]`);
+  const button = fan.locator(`[data-fan-act="${act}"] button, [data-fan-from="${act}"] button`).first();
   // A place's things stand once the view says what is open here, a moment after the place is drawn.
-  await page.locator(`[data-mark="${thing}"], [data-thing-chip="${thing}"]`).first().waitFor({ state: "attached", timeout: 20_000 });
+  await page.locator(`[data-mark="${thing}"], [data-fan="${thing}"]`).first().waitFor({ state: "attached", timeout: 20_000 });
   const marked = !(await page.locator(`[data-mark="${thing}"]`).isVisible().catch(() => false)) && (await page.locator(`[data-marker="${thing}"]`).count()) > 0;
-  for (let tries = 0; tries < 4 && !(await chip.isVisible()); tries += 1) {
+  for (let tries = 0; tries < 4 && !(await button.isVisible()); tries += 1) {
     await tapThing(page, thing);
     if (marked) {
       const card = page.getByRole("dialog");
-      if (await card.or(chip).first().waitFor({ state: "visible", timeout: 30_000 }).then(() => true, () => false)) {
-        if (await card.first().isVisible()) return;
+      if (await card.or(button).first().waitFor({ state: "visible", timeout: 30_000 }).then(() => true, () => false)) {
+        // The fan's own small sheet is a dialog too: only another card is the act's.
+        if (!(await button.isVisible()) && (await card.first().isVisible())) return;
       }
-    } else await chip.waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
+    } else await button.waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
   }
-  await chip.locator(`[data-act="${act}"]`).click({ timeout: 10_000 });
+  await button.click({ timeout: 10_000 });
 }
 
-/** An act from the fan that opens out of a thing whose acts are all now-acts (R-WORLD-034). */
+/** One of the simulation's acts done at once, from the fan that opens out of its thing (R-WORLD-034), by the activity it sends. */
 export async function fanAct(page: Page, thing: string, activity: string): Promise<void> {
   const fan = page.locator(`[data-fan="${thing}"]`);
   // The fan's box is the point it opens from, with no size of its own: its buttons are what show.
@@ -118,7 +121,7 @@ export async function bedThing(page: Page): Promise<string> {
  */
 export async function intoTheRoom(page: Page): Promise<void> {
   if ((await page.locator(BED_MARKS).count()) > 0) return;
-  if ((await page.locator('[data-mark="house"], [data-thing-chip="house"]').count()) > 0) await doAct(page, "house", "enter");
+  if ((await page.locator('[data-mark="house"], [data-fan="house"]').count()) > 0) await doAct(page, "house", "enter");
   await page.locator(BED_MARKS).first().waitFor({ state: "attached", timeout: 60_000 });
   await placeReady(page);
 }

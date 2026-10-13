@@ -48,7 +48,39 @@
 .fan-item[data-tint="people"] { --fan-tint: var(--tint-people, #fde0e8); }
 .fan-item[data-tint="plain"] { --fan-tint: var(--tint-plain, var(--sheet, #eaf3fb)); }
 .fan-item[data-fan-refused="locked"],
-.fan-item[data-fan-refused="spent"] { --fan-tint: #e3e8ec; }
+.fan-item[data-fan-refused="spent"],
+.fan-item[data-fan-refused="planned"] { --fan-tint: #e3e8ec; }
+
+/* The thing's name over its hinge, a white pill as the marker's (R-WORLD-005): navy by day, the night's pill at night.
+   Fan.tsx places it from the hinge once it is measured (titleAt). */
+.fan-title {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 12px;
+  padding: 5px 10px;
+  background: var(--fan-pill);
+  color: var(--fan-ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--fan-edge), 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: fan-fade 160ms ease-out both;
+}
+
+/* A person the game plays: the quiet mark beside the name, in the case a person writes it (R-PEOPLE-009). */
+.fan-mark {
+  border: 1px solid var(--sheet-line, rgba(28, 42, 94, 0.12));
+  border-radius: 6px;
+  padding: 1px 6px;
+  color: var(--text-2, #56607e);
+  font-size: 12px;
+  font-weight: 600;
+}
 
 .fan-spring {
   position: absolute;
@@ -102,7 +134,8 @@
 }
 
 .fan-item[data-fan-refused="locked"] .fan-sticker,
-.fan-item[data-fan-refused="spent"] .fan-sticker {
+.fan-item[data-fan-refused="spent"] .fan-sticker,
+.fan-item[data-fan-refused="planned"] .fan-sticker {
   opacity: 0.6;
 }
 
@@ -179,6 +212,22 @@
 .fan-shake .fan-disc,
 .fan-shake .fan-labels { animation: fan-shake 240ms ease-in-out; }
 
+/* The small sheet's price pill (FanSheet), the fan's own outside the fan's box. */
+.fan-sheet-price {
+  border: 2px solid var(--edge, #1c2a5e);
+  border-radius: 10px;
+  padding: 2px 8px;
+  background: var(--action, #f2b705);
+  color: var(--action-text, #131a33);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 var(--edge, #1c2a5e);
+}
+
+.lively-card.fan-shake { animation: fan-shake 240ms ease-in-out; }
+
 @keyframes fan-spring {
   0% { transform: scale(0.2); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
@@ -200,8 +249,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .fan-spring { animation: fan-fade 150ms ease-out both; }
+  .fan-title { animation: none; }
   .fan-shake .fan-disc,
-  .fan-shake .fan-labels { animation: none; }
+  .fan-shake .fan-labels,
+  .lively-card.fan-shake { animation: none; }
   .fan-item,
   .fan-disc { transition: none; }
 }

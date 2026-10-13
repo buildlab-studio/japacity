@@ -1,9 +1,10 @@
 // The night and sleep (docs/rules/world.md R-WORLD-025; activity.md R-ACTIVITY-020; clock.md R-CLOCK-033; decision
 // 0036): the month turns only from the bed, at any hour of the world's day, once the bed's timed sleep runs out
-// (City.sleep.test.tsx tells the sleep itself); a life's first night is told once on a small card before it; at night the nudge sends the player to bed unless someone waits; and a spent body says so where
-// an act's button was. The place file is the one the game ships; the scene is a stand-in that hands the city the taps.
+// (City.sleep.test.tsx tells the sleep itself); a life's first night is told once on a small card before it; at night the nudge sends the player to bed unless someone waits; and a spent body says so on
+// the act's fan button. The place file is the one the game ships; the scene is a stand-in that hands the city the taps,
+// says where a tapped thing stands so its fan opens, and walks at once (R-WORLD-034).
 import { type DayPart, type WorldClock, worldClockAt } from "@japacity/sim";
-import { act, fireEvent, render, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
@@ -12,30 +13,20 @@ import { newGame } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/people";
 import { say } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
-import type { Act, Ask, Thing } from "../../shared/world/contract";
+import type { Ask, Thing } from "../../shared/world/contract";
 import { wasTaught } from "../../shared/world/taught";
 import { actsOffered, withSpent } from "./acts";
-import { chipNode } from "./chip";
 import { City, RESULTS_BEAT_MS } from "./City";
+import { anchorFan } from "./fan/anchor";
+import { Fan } from "./fan/Fan";
+import { fanEntriesOf, fanModel } from "./fan/fanActs";
+import { pressFanActNow } from "./fan/fan.testing";
 import { atNight, NIGHT } from "./nudge";
 import { SLEEP_MS } from "./sleep";
 
-type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act };
 
-vi.mock("./CityScene", () => ({
-  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
-    <div data-stand-in-scene>
-      {(things ?? []).map((thing) => (
-        <span key={thing.id}>
-          <button type="button" data-stand-in-thing={thing.id} onClick={() => onPick({ kind: "thing", thing })} />
-          {thing.acts.map((one) => (
-            <button key={one.id} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />
-          ))}
-        </span>
-      ))}
-    </div>
-  ),
-}));
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+vi.mock("./CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("../../shared/three/manifest", async (original) => {
@@ -108,7 +99,7 @@ describe("sleep, the way the month turns", () => {
     const { store, authority, game } = await inTheParlour();
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
     expect(game.view().month).toBe(0);
-    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
+    pressFanActNow("mattress", "end-month");
     const card = found("[data-night-teach]");
     expect(card.textContent).toContain("Each night you sleep is a month of your life.");
     expect(card.textContent).toContain(say("ui.night.first"));
@@ -129,7 +120,7 @@ describe("sleep, the way the month turns", () => {
     });
     found("[data-results-for]");
     act(() => store.getState().setReportOpen(false));
-    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
+    pressFanActNow("mattress", "end-month");
     expect(document.querySelector("[data-night-teach]")).toBeNull();
     await sleepThrough();
     expect(turns(authority.sent)).toBe(2);
@@ -139,14 +130,14 @@ describe("sleep, the way the month turns", () => {
     const { store, authority } = await inTheParlour(1);
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
     setPart(store, "morning");
-    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
+    pressFanActNow("mattress", "end-month");
     // The sleep runs its length before the month turns (R-WORLD-025 as amended on 12 Oct 2026).
     await sleepThrough();
     expect(turns(authority.sent)).toBe(1);
     expect(store.getState().reportOpen).toBe(true);
     act(() => store.getState().setReportOpen(false));
     setPart(store, "night");
-    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
+    pressFanActNow("mattress", "end-month");
     await sleepThrough();
     expect(turns(authority.sent)).toBe(2);
   });
@@ -156,7 +147,7 @@ describe("sleep, the way the month turns", () => {
 const worn = (game: ReturnType<typeof newGame>): void => applyEffects(game, [{ type: "quality/add", quality: "quality.energy", amount: -50 }]);
 
 describe("the night's nudge", () => {
-  test("[R-CLOCK-033] [R-WORLD-025] given the world's night, a tired body and nothing waiting on the player, when the band's second row shows, then the nudge reads Night. Go to bed, and its tap opens the bed's chip", async () => {
+  test("[R-CLOCK-033] [R-WORLD-025] given the world's night, a tired body and nothing waiting on the player, when the band's second row shows, then the nudge reads Night. Go to bed, and its tap opens the bed's fan", async () => {
     const { store, game } = await inTheParlour(0, worn);
     expect(game.view().offers).toEqual([]);
     expect(game.view().qualities.find((quality) => quality.id === "quality.energy")?.value).toBeLessThan(30);
@@ -166,7 +157,7 @@ describe("the night's nudge", () => {
     const nudge = await waitFor(() => found("[data-nudge]"));
     expect(nudge.textContent).toContain("Night. Go to bed");
     fireEvent.click(found("[data-nudge-open]"));
-    // A thing's chip is open, so the band's second row steps back (R-WORLD-003).
+    // A thing's fan is open, so the band's second row steps back (R-WORLD-003).
     await waitFor(() => expect(document.querySelector("[data-nudge]")).toBeNull());
   });
 
@@ -198,28 +189,36 @@ describe("the night's nudge", () => {
 });
 
 describe("a spent body", () => {
-  test("[R-ACTIVITY-020] given the body spent by fetching water, when the drum's act is read, then it stays on the drum marked spent, and a tap on it sends nothing", async () => {
+  test("[R-ACTIVITY-020] given the body spent by fetching water, when the drum's act is read, then it stays on the drum's fan marked spent, and a tap on it sends nothing", async () => {
     const { authority, game } = await inTheParlour(0, (life) => {
       while (life.view().activities.find((option) => option.id === WATER)?.spent !== true) life.accept({ type: "activity/now", activity: WATER, param: null });
     });
     const view = game.view();
     expect(view.activities.find((option) => option.id === WATER)).toMatchObject({ allowed: false, spent: true });
     expect(actsOffered(view)).toContain(WATER);
-    const drum = await waitFor(() => found('[data-stand-in-act="drum:fetch-water"]'));
-    fireEvent.click(drum);
+    fireEvent.click(await waitFor(() => found('[data-stand-in-thing="drum"]')));
+    const drum = await waitFor(() => found(`[data-fan="drum"] [data-fan-act="${WATER}"]`));
+    expect(drum.dataset.fanRefused).toBe("spent");
+    fireEvent.click(found(`[data-fan="drum"] [data-fan-act="${WATER}"] button`));
     await new Promise((resolve) => setTimeout(resolve, 20));
     expect(authority.sent.filter((command) => command.type === "activity/now")).toHaveLength(0);
   });
 
-  test("[R-ACTIVITY-020] given a spent act done at once, when its thing's chip is built, then it says You are spent. Sleep. where the act's button was, and has no button for it", () => {
+  test("[R-ACTIVITY-020] given a spent act done at once, when its thing's fan is built, then it says You are spent. Sleep. on the act's button, which is shut and does nothing", () => {
     const thing: Thing = { id: "drum", label: "scene.thing.drum", at: [0, 0], acts: [{ id: "fetch-water", label: "city.act.fetch-water", kind: "do", stages: WATER }] } as unknown as Thing;
     const spentView = { activities: [{ id: WATER, allowed: false, missing: [], params: null, cost: [], affordable: true, when: "now", done: false, spent: true }] } as never;
     const marked = withSpent(thing, spentView);
     expect(marked.acts[0]?.spent).toBe(true);
     expect(withSpent(thing, { activities: [] })).toBe(thing);
-    const chip = chipNode(marked, () => undefined);
-    expect(chip.querySelector("[data-act-spent]")?.textContent).toBe("You are spent. Sleep.");
-    expect(chip.querySelector("button[data-act]")).toBeNull();
+    const onAct = vi.fn();
+    render(<Fan thing="drum" title="The drum" entries={fanModel(fanEntriesOf(marked), spentView, [])} onAct={onAct} onFallback={vi.fn()} />);
+    act(() => anchorFan("drum", { x: 90, y: 420 }));
+    const button = found('[data-fan="drum"] [data-fan-act] button');
+    expect(found('[data-fan="drum"] [data-fan-refusal="spent"]').textContent).toBe("You are spent. Sleep.");
+    expect(button.getAttribute("aria-disabled")).toBe("true");
+    fireEvent.click(button);
+    expect(onAct).not.toHaveBeenCalled();
+    cleanup();
   });
 
   test("[R-ACTIVITY-020] given an act's card whose body is spent, when it opens, then You are spent. Sleep. stands where its button was and there is no main button", () => {
@@ -234,7 +233,7 @@ describe("a spent body", () => {
 describe("the first night's card as drawn", () => {
   test("[R-WORLD-025] given a new life's first night, when the bed's Sleep is tapped, then the card has its title, the line, Not yet and Sleep; Not yet puts it away with nothing sent and nothing kept, so the next Sleep shows it again", async () => {
     const { authority } = await inTheParlour();
-    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
+    pressFanActNow("mattress", "end-month");
     const card = found("[data-night-teach]");
     expect(card.textContent).toContain(say("ui.night.first.title"));
     expect(card.textContent).toContain(say("ui.night.first"));
@@ -243,7 +242,7 @@ describe("the first night's card as drawn", () => {
     expect(document.querySelector("[data-asleep]")).toBeNull();
     expect(turns(authority.sent)).toBe(0);
     expect(wasTaught("night", "scenario.ada")).toBe(false);
-    fireEvent.click(found('[data-stand-in-act="mattress:end-month"]'));
+    pressFanActNow("mattress", "end-month");
     expect(found("[data-night-teach]")).toBeTruthy();
   });
 });

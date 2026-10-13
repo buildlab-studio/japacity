@@ -25,9 +25,9 @@ const KEPT_CONSOLE = new Set(["error", "info"]);
  * a promise's result (`.catch(e=>console.warn(...))`), so the call is not a statement the bundler may remove.
  */
 const UNDROPPABLE_CONSOLE = /\.catch\(\w+=>console\.warn\(`\[R3F\] Error disposing renderer`/g;
-/** What the development switches leave in code that reads them: `?fan=off`, `?paint=`, `?clock=`, `?sleep=`, `?morning=`, `?tiles`, `?lively`, and the lines' hook. */
-const DEV_SWITCH = /\.(?:get|has)\([`"'](fan|paint|clock|sleep|morning|tiles|lively)[`"']\)/g;
-const DEV_SWITCHES = ["fan", "paint", "clock", "sleep", "morning", "tiles", "lively"];
+/** What the development switches leave in code that reads them: `?paint=`, `?clock=`, `?sleep=`, `?morning=`, `?tiles`, `?lively`, and the lines' hook (`?fan=off` went with the chip, R-WORLD-034). */
+const DEV_SWITCH = /\.(?:get|has)\([`"'](paint|clock|sleep|morning|tiles|lively)[`"']\)/g;
+const DEV_SWITCHES = ["paint", "clock", "sleep", "morning", "tiles", "lively"];
 const DEV_HOOK = "__wink";
 /** The development pages' own chunks. */
 const DEV_PAGES = /^assets\/(?:TileSheet|LivelyPreview)-[\w-]+\.js$/;

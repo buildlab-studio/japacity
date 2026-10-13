@@ -24,7 +24,7 @@ afterEach(() => {
 });
 
 function entry(id: string, change: Partial<FanEntry> = {}): FanEntry {
-  return { id, name: `Act ${id}`, picture: "🍜", tint: "food", price: "₦1,500", balance: { before: { amount: 4_850_000, words: "₦48,500" }, after: { amount: 4_700_000, words: "₦47,000" } }, refusal: null, param: null, ...change };
+  return { id, from: "cook", kind: "now", act: { id: "cook", label: "city.act.cook", kind: "sheet", stages: id }, name: `Act ${id}`, picture: "🍜", tint: "food", price: "₦1,500", balance: { before: { amount: 4_850_000, words: "₦48,500" }, after: { amount: 4_700_000, words: "₦47,000" } }, refusal: null, param: null, ...change };
 }
 
 function fanOf(entries: FanEntry[], thing = "cooking") {
@@ -113,5 +113,53 @@ describe("R-WORLD-034 the fan's pictures", () => {
     act(() => anchorFan("cooking-tile", { x: 100, y: 380 }));
     const picture = document.querySelector<HTMLElement>('[data-fan-act="activity.cook-at-home"] [data-fan-picture]');
     expect(picture?.querySelector("[data-sticker] [data-sticker-cut] [data-tile]")?.getAttribute("data-tile")).toBe("activity.cook-at-home");
+  });
+});
+
+describe("R-WORLD-034 every thing fans", () => {
+  test("[R-WORLD-034] [R-WORLD-005] given a thing fanned, when its buttons show, then the thing's name stands in a pill over it, and a person the game plays carries the quiet mark beside it", () => {
+    render(<Fan thing="tobi" title="Tobi" mark="computer" entries={[entry("talk", { kind: "act", picture: "act.talk", price: null, balance: null })]} onAct={vi.fn()} onFallback={vi.fn()} />);
+    act(() => anchorFan("tobi", { x: 100, y: 380 }));
+    const title = document.querySelector<HTMLElement>('[data-fan="tobi"] [data-fan-title]');
+    expect(title?.textContent).toContain("Tobi");
+    expect(title?.querySelector('[data-person-mark="computer"]')?.textContent).toBe("Not a player");
+  });
+
+  test("[R-WORLD-034] [R-WORLD-005] given someone standing as themselves with no act, when they are tapped, then their name shows alone and nothing hands over to a sheet", () => {
+    const onFallback = vi.fn();
+    render(<Fan thing="ada-partner" title="Bola" mark="computer" entries={[]} onAct={vi.fn()} onFallback={onFallback} />);
+    act(() => anchorFan("ada-partner", { x: 195, y: 380 }));
+    expect(document.querySelector('[data-fan="ada-partner"] [data-fan-title]')?.textContent).toContain("Bola");
+    expect(buttons()).toHaveLength(0);
+    expect(onFallback).not.toHaveBeenCalled();
+  });
+
+  test("[R-WORLD-034] [R-WORLD-005] given a pose, Sleep and a word with someone, when they fan, then each is a button with its own name and glyph, no price pill and no Free, and a tap acts with it", () => {
+    const glyphs = [entry("sit", { kind: "act", picture: "act.sit", price: null, balance: null }), entry("end-month", { kind: "act", picture: "act.sleep", price: null, balance: null }), entry("talk", { kind: "act", picture: "act.talk", price: null, balance: null })];
+    const { onAct } = fanOf(glyphs, "sofa-glyphs");
+    act(() => anchorFan("sofa-glyphs", { x: 100, y: 380 }));
+    expect([...document.querySelectorAll<HTMLElement>("[data-fan-act] [data-tile]")].map((tile) => tile.dataset.glyph)).toEqual(["sit", "sleep", "talk"]);
+    expect(document.querySelector("[data-fan-price]")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Act end-month" }));
+    expect(onAct).toHaveBeenCalledWith(expect.objectContaining({ id: "end-month", kind: "act" }));
+  });
+
+  test("[R-WORLD-034] [R-WORLD-007] given an act carrying on in the plan, when it fans, then its button says Ongoing and is shut, and the stop beside it can be had", () => {
+    const { onAct } = fanOf([entry("activity.apprentice-repair", { kind: "act", price: null, balance: null, refusal: { kind: "planned", words: "Ongoing" } }), entry("apprentice:stop", { kind: "stop", name: "Stop", label: "Stop Learn repairs", picture: "act.stop", price: null, balance: null })], "stall-planned");
+    act(() => anchorFan("stall-planned", { x: 100, y: 380 }));
+    const shut = screen.getByRole("button", { name: "Act activity.apprentice-repair: Ongoing" });
+    expect(shut.getAttribute("aria-disabled")).toBe("true");
+    fireEvent.click(shut);
+    expect(onAct).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Stop Learn repairs" }));
+    expect(onAct).toHaveBeenCalledWith(expect.objectContaining({ kind: "stop" }));
+  });
+
+  test("[R-WORLD-034] [R-WORLD-005] given more acts than a fan holds, when it would open, then the list hands over to the sheet", () => {
+    const many = ["a", "b", "c", "d", "e", "f", "g", "h", "i"].map((id) => entry(id));
+    const { onFallback } = fanOf(many, "cooking-long");
+    act(() => anchorFan("cooking-long", { x: 60, y: 360 }));
+    expect(onFallback).toHaveBeenCalledTimes(1);
+    expect(buttons()).toHaveLength(0);
   });
 });
