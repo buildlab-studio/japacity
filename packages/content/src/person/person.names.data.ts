@@ -233,5 +233,7 @@ export const namedPeople: NamedPerson[] = [
   // advice.md R-ADVICE-013: the chaser a friend puts the player onto.
   { name: "Hadiza", people: "hausa-fulani", role: "chaser", keys: ["offer.agent-chaser.who.1.name"] },
   // The person News names as the source of a story she tells.
-  { name: "Tolu", people: "yoruba", role: "friend", keys: ["news.uk-unis-recruit.in-force.source"] },
+  { name: "Tolu", people: "yoruba", role: "friend", keys: ["news.uk-unis-recruit.in-force.source", "chapter.landing.brief.giver", "chapter.secure.brief.giver"] },
+  // The friend at the hub who hands the first briefs (the briefs' words, chapter.text.ts; the plan 7).
+  { name: "Femi", people: "yoruba", role: "friend", keys: ["chapter.brief.giver", "chapter.find-your-feet.brief.giver", "chapter.build-the-file.brief.giver"] },
 ];
