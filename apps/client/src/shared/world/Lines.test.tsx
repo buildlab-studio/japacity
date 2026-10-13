@@ -255,3 +255,21 @@ describe("the street's talk", () => {
     expect(linesNow().speech?.who).toBe("mama");
   });
 });
+
+function Named({ heard }: { heard: { text: string; name?: string; who?: string } }) {
+  useStreetTalk(() => heard, true, "Someone in the house");
+  return <SpeechBubble anchored={false} />;
+}
+
+describe("a line overheard with its speaker", () => {
+  test("[R-WORLD-026] given a line content names a speaker for, when it floats, then the bubble says their name, over them where they stand; a line with no speaker keeps the house's voice over the resident nearest", () => {
+    const { unmount } = render(<Named heard={{ text: "Mama kept food in the pot. Warm it.", name: "Mama", who: "mama" }} />);
+    expect(linesNow().speech).toMatchObject({ who: "mama", name: "Mama", text: "Mama kept food in the pot. Warm it." });
+    expect(document.querySelector("[data-speech='mama']")?.textContent).toContain("Mama");
+    unmount();
+    resetLines();
+    render(<Named heard={{ text: "Whose turn to sweep the compound this week?" }} />);
+    expect(linesNow().speech).toMatchObject({ who: NEAR_SPEAKER, name: "Someone in the house" });
+  });
+});
+

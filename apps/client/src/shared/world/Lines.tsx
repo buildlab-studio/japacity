@@ -132,11 +132,21 @@ export function speak(who: string, name: string, text: string, ms = SPEECH_MS): 
  * The street's talk, tied to nobody, given to the resident nearest the player (the talk budget): it floats only while no
  * one speaks and the quiet after the last ambient line has passed. True when it floated.
  */
-export function murmur(text: string, now: number = Date.now(), name: string = say("ui.talk.someone")): boolean {
+export function murmur(text: string, now: number = Date.now(), name: string = say("ui.talk.someone"), who: string = NEAR_SPEAKER): boolean {
   if (said.speech !== null || now - quietSince < QUIET_MS) return false;
   quietSince = now + SPEECH_MS;
-  put(NEAR_SPEAKER, name, text, true, SPEECH_MS);
+  put(who, name, text, true, SPEECH_MS);
   return true;
+}
+
+/**
+ * A line the street's talk offers: its words, and, where one person plainly says it, their name (world.md R-WORLD-026,
+ * `<line>.by`) and the thing they stand at when they stand in the place, so the bubble goes over them.
+ */
+export interface Heard {
+  text: string;
+  name?: string;
+  who?: string;
 }
 
 /** The street's talk heard: an ambient line, as `murmur`. */
@@ -188,7 +198,7 @@ export function linesNow(): Said {
  * stays free; each turn offers an ambient line, which floats only when no one speaks and the quiet has passed. `next`
  * gives the line.
  */
-export function useStreetTalk(next: () => string | null, free: boolean, name?: string): void {
+export function useStreetTalk(next: () => string | Heard | null, free: boolean, name?: string): void {
   const nextRef = useRef(next);
   nextRef.current = next;
   const nameRef = useRef(name);
@@ -198,8 +208,10 @@ export function useStreetTalk(next: () => string | null, free: boolean, name?: s
     const talk = (): void => {
       if (said.speech !== null || Date.now() - quietSince < QUIET_MS) return;
       const line = nextRef.current();
-      // At home the voice is the house's, not a stranger's.
-      if (line !== null) murmur(line, Date.now(), nameRef.current);
+      if (line === null) return;
+      const heard = typeof line === "string" ? { text: line } : line;
+      // A line's own speaker is named over it; else at home the voice is the house's, not a stranger's, and in the street someone nearby.
+      murmur(heard.text, Date.now(), heard.name ?? nameRef.current, heard.who);
     };
     talk();
     const timer = window.setInterval(talk, TALK_EVERY_MS);

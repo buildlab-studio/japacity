@@ -12,6 +12,14 @@ export interface Heard {
   /** A words key: the place's own line, or the city's line about a story or a route. */
   key: string;
   params: Record<string, string>;
+  /** The words key naming who says it, where one person plainly does (`<line>.by`, world.md R-WORLD-026); else nobody named. */
+  by?: string;
+}
+
+/** A place's own line, with who says it where content names them beside it. */
+function ownLine(key: string): Heard {
+  const by = `${key}.by`;
+  return text[by] === undefined ? { key, params: {} } : { key, params: {}, by };
 }
 
 /** `<place>.overheard.1`, `.2` and on, while content has words for them. */
@@ -44,13 +52,25 @@ function sendOffLines(view: Pick<PlayerView, "offers">, place: string): string[]
 export function heardHere(view: Pick<PlayerView, "news" | "routes"> & Partial<Pick<PlayerView, "offers">>, place: string): Heard[] {
   const sendOff = sendOffLines({ offers: view.offers ?? [] }, place);
   if (sendOff.length > 0) return sendOff.map((key) => ({ key, params: {} }));
-  const own = [...placeLines(place), ...(OWN_SET[place] ?? [])].map((key) => ({ key, params: {} }));
+  const own = [...placeLines(place), ...(OWN_SET[place] ?? [])].map(ownLine);
   if (!hearsLagos(place)) return own;
   return [
     ...own,
     ...view.news.map((story) => ({ key: "city.overheard.news", params: { head: `${story.id}.${story.stage}.head` } })),
     ...view.routes.filter((route) => route.state !== "unknown").map((route) => ({ key: "city.overheard.route", params: { route: route.id } })),
   ];
+}
+
+/**
+ * Who says a line, as the bubble names them (R-WORLD-026): the name content gives beside the line, and the thing of the
+ * place that is that person (Mama at the family house) so the words float over them; a line no one is named for has
+ * neither, and floats over the resident nearest in the house's or the street's own voice.
+ */
+export function speakerOf(heard: Pick<Heard, "by">, things: readonly { id: string; label: string }[], said: (key: string) => string): { name?: string; who?: string } {
+  if (heard.by === undefined) return {};
+  const name = said(heard.by);
+  const who = things.find((thing) => said(thing.label) === name)?.id;
+  return who === undefined ? { name } : { name, who };
 }
 
 /** The `nth` line heard in a place on a day, or null when there is nothing to hear. */

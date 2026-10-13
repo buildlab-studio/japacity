@@ -6,7 +6,8 @@ import { describe, expect, test } from "vitest";
 
 import { abroadView } from "../../shared/testing/fixtures";
 import { cityText, heardWords } from "./city.words";
-import { heardHere, overheard, placeLines } from "./overheard";
+import { heardHere, overheard, placeLines, speakerOf } from "./overheard";
+import { newGame } from "../../shared/testing/fixtures";
 
 const ROOM = "place.the-room";
 const DASHES = /[‐‒–—―−]/;
@@ -88,3 +89,31 @@ describe("talk overheard abroad", () => {
   });
 });
 
+
+describe("who says a line overheard", () => {
+  const said = (key: string): string => text[key] ?? cityText[key] ?? key;
+
+  test("[R-WORLD-026] given the family house, when its own lines are heard, then each carries who says it, read from content beside the line, and a compound's rota, said by nobody in particular, carries no one", () => {
+    const view = newGame("scenario.ada").view();
+    const family = heardHere(view, "place.family-house").filter((line) => line.key.startsWith("place.family-house.overheard."));
+    expect(family.map((line) => [line.key, line.by === undefined ? null : said(line.by)])).toEqual([
+      ["place.family-house.overheard.1", "Your brother"],
+      ["place.family-house.overheard.2", "Mama"],
+      ["place.family-house.overheard.3", "Mama"],
+    ]);
+    const rota = heardHere(view, "place.compound-room").find((line) => line.key === "place.compound-room.overheard.1");
+    expect(rota).toEqual({ key: "place.compound-room.overheard.1", params: {} });
+    // The talk of the news and the routes is nobody's in particular.
+    expect(heardHere(view, "place.ojuelegba").filter((line) => !line.key.startsWith("place.")).every((line) => line.by === undefined)).toBe(true);
+    expect(heardHere(view, "place.ojuelegba").find((line) => line.key === "place.ojuelegba.overheard.1")?.by).toBe("place.ojuelegba.overheard.1.by");
+  });
+
+  test("[R-WORLD-026] given a line's speaker, when the bubble is given its name, then Mama's words float over Mama where she stands in the house, a brother no thing stands for is named over the resident nearest, and a line no one is named for keeps the house's voice", () => {
+    const things = [{ id: "sofa", label: "city.thing.sofa" }, { id: "mama", label: "city.thing.mama" }];
+    expect(speakerOf({ by: "place.family-house.overheard.3.by" }, things, said)).toEqual({ name: "Mama", who: "mama" });
+    expect(speakerOf({ by: "place.family-house.overheard.1.by" }, things, said)).toEqual({ name: "Your brother" });
+    expect(speakerOf({}, things, said)).toEqual({});
+    // No Mama in the place: named, over the resident nearest.
+    expect(speakerOf({ by: "place.family-house.overheard.2.by" }, [], said)).toEqual({ name: "Mama" });
+  });
+});
