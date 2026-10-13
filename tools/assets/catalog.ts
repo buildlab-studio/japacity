@@ -72,7 +72,20 @@ export const PUBLIC = join(ROOT, "apps", "client", "public", "assets");
 /** The way every dish in the hub faces, in the frame of its unturned buildings (R-ASSET-019). */
 export const HUB_DISH_YAW = DEFAULT_DISH_YAW;
 
-export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile";
+export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile" | "face" | "figure" | "cheer";
+
+/** A look's portraits for the front door (prologue.md R-PROLOGUE-009, 013): the face for the look strip and the life cards, the whole figure with a hand on the hip, and the figure cheering on the page after Begin. */
+export const PORTRAITS: readonly ViewName[] = ["face", "figure", "cheer"];
+/**
+ * The people the front door offers as a look: the city's passers-by, the client's `LOOKS` from its roster. Named here,
+ * since the tools never import the client; the client's test of the door's pictures proves each look has its portraits.
+ */
+const DOOR_LOOKS: ReadonlySet<string> = new Set(["chr_ada", "chr_amaka", "chr_bayo", "chr_bisi", "chr_dayo", "chr_emeka", "chr_femi", "chr_kemi", "chr_kunle", "chr_ngozi", "chr_sade", "chr_segun", "chr_tobi", "chr_tolani", "chr_tunde", "chr_zainab"]);
+
+/** Whether a model gets the portraits: a person the door offers as a look. */
+export function isPortrayed(name: string): boolean {
+  return DOOR_LOOKS.has(name);
+}
 
 /** The kinds of model a picture tile is cut from (design page 13, the pictures): never a person, whose tile is a name pill until the characters are redone. */
 const TILED_KINDS = /^(prop|shop|veh|lm|bld)_/;
@@ -485,7 +498,7 @@ const ENTRIES: CatalogEntry[] = [
       place: "shared",
       source: `assets-src/people/${spec.name.slice(4)}`,
       author: LAB,
-      views: [...ELEVATIONS, "phone"],
+      views: isPortrayed(spec.name) ? [...ELEVATIONS, "phone", ...PORTRAITS] : [...ELEVATIONS, "phone"],
       pose: spec.carry === undefined ? "stand" : "tray",
       // JAPACITY_FACE names a face style for an exploration's export; unset, the shipped style.
       build: () => personModel(buildPerson(spec, faceStyleFrom(process.env.JAPACITY_FACE))),

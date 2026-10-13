@@ -711,3 +711,97 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 .calendar-stop { border-radius: 9999px; }
 /* A chip whose words run long (a pay with its next step, a home's month) wraps rather than run past its card. */
 .sticker-chip.chip-wrap { white-space: normal; }
+
+/* The front door (prologue.md R-PROLOGUE-013; the door's second design, A as drawn with B's stacked homes): the pale sky from
+   edge to edge by day and the navy by night, round white buttons with the edge's underside, round face stickers with
+   the cut's white rim and a yellow ring on the one picked, cards with a firmer edge than the world's, and the stacked
+   postcards of the homes. Transitions are short and on transform and opacity only. */
+:root { --door-sky-1: #bfe0fa; --door-sky-2: #d6ecfc; --door-photo-1: #fff3c4; --door-photo-2: #ffe6d5; --door-sun: #ffd54a; }
+:root[data-paint="night"], [data-paint="night"] { --door-sky-1: #0e1636; --door-sky-2: #1c2a5e; --door-photo-1: #2c3f87; --door-photo-2: #1c2a5e; --door-sun: #f6edd8; }
+/* One flat sky (R-WORLD-021: nothing drawn with a gradient), the lighter of the drawing's two by day. */
+.door-sky { background: var(--door-sky-2); color: var(--text); }
+.round-button,
+.pill-button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 2px solid var(--edge);
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 3px 0 var(--edge);
+  font-weight: 700;
+  transition-property: translate;
+  transition-duration: 90ms;
+  transition-timing-function: ease-out;
+}
+.round-button { width: 44px; height: 44px; border-radius: 9999px; }
+.pill-button { height: 42px; border-radius: 9999px; padding: 0 16px; font-size: 15px; }
+.round-button:active:not(:disabled),
+.pill-button:active:not(:disabled) { translate: 0 2px; box-shadow: 0 1px 0 var(--edge); }
+.round-button:disabled { opacity: 0.4; }
+.round-button:focus-visible,
+.pill-button:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.door-card {
+  border: 1.5px solid var(--edge);
+  border-radius: 20px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 4px 0 rgba(27, 42, 74, 0.12);
+}
+.door-photo { background: var(--door-photo-1); }
+/* The light behind the figure on its photo: an arch of the study tint, and the sun (the moon by night) with a flat ring. */
+.door-arch { border-radius: 9999px 9999px 0 0; background: var(--tint-study); }
+.door-sun { border-radius: 9999px; background: var(--door-sun); box-shadow: 0 0 0 10px color-mix(in srgb, var(--door-sun) 25%, transparent); }
+.face-sticker {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 3px var(--cut), 0 4px 8px rgba(20, 40, 50, 0.25);
+}
+.face-sticker > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.face-sticker[data-on] { box-shadow: 0 0 0 3px var(--cut), 0 0 0 6px var(--action), 0 0 0 7.5px var(--edge), 0 6px 10px rgba(20, 40, 50, 0.25); }
+.door-tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--action-under);
+  border-radius: 9999px;
+  background: var(--action);
+  color: var(--action-text);
+}
+.door-dots { display: inline-flex; align-items: center; gap: 6px; }
+.door-dots > i { display: block; width: 9px; height: 9px; border-radius: 9999px; background: color-mix(in srgb, var(--text-2) 32%, transparent); transition-property: width, background-color; transition-duration: 180ms; }
+.door-dots > i[data-done] { background: var(--edge); }
+.door-dots > i[data-now] { width: 26px; border-radius: 5px; background: var(--action); box-shadow: 0 0 0 1.5px var(--action-under); }
+/* The lives swiped sideways (A's sticker board): a strip that snaps a card to the middle, no scrollbar. */
+.door-deck { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.door-deck::-webkit-scrollbar { display: none; }
+.door-deck > * { scroll-snap-align: center; flex-shrink: 0; }
+.door-life { transition-property: transform, opacity; transition-duration: 220ms; transition-timing-function: ease-out; }
+.door-life[aria-checked="false"] { opacity: 0.86; transform: scale(0.95); }
+/* The homes as postcards (B's stack): the one picked in front with the J's postage stamp, the others fanned behind it. */
+.door-postcard { border-radius: 10px; background: var(--cut); padding: 9px; box-shadow: 0 0 0 1.5px var(--sheet-line), 0 8px 16px rgba(20, 40, 50, 0.18); transition-property: transform, opacity; transition-duration: 240ms; transition-timing-function: ease-out; }
+/* The postage stamp's perforated white rim: a dotted edge in the sky's colour round the white. */
+.door-stamp {
+  padding: 5px;
+  background: var(--cut);
+  outline: 4px dotted var(--door-sky-2);
+  outline-offset: -2px;
+  filter: drop-shadow(0 4px 5px rgba(20, 40, 50, 0.25));
+}
+.door-stamp > span { display: flex; height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 2px solid var(--action-under); background: var(--action); color: var(--action-text); }
+.door-home { transition-property: transform; transition-duration: 160ms; }
+.door-home[aria-checked="true"] { box-shadow: 0 0 0 3px var(--action), 0 0 0 4.5px var(--edge), 0 5px 0 4.5px var(--edge); }
+.door-goal { border-style: dashed; background: var(--tint-plain); }
+@media (prefers-reduced-motion: reduce) {
+  .door-life, .door-postcard, .door-home, .door-dots > i { transition-duration: 0ms; }
+}
+@keyframes door-deal { from { opacity: 0; transform: translate(-18px, 10px) rotate(-6deg); } to { opacity: 1; transform: none; } }
+.door-deal { animation: door-deal 240ms ease-out both; }
+@media (prefers-reduced-motion: reduce) { .door-deal { animation: none; } }

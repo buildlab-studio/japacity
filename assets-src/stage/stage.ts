@@ -1,6 +1,7 @@
 // The stage every asset is shot on (R-ASSET-020): one sun and one sky (R-ASSET-006), the
 // palette's sand ground, a standard street for the phone shot, and a clear ground for the tile
-// the interface cuts as a sticker (design page 13). The shooter drives it
+// the interface cuts as a sticker (design page 13) and for a look's face and whole figure, which
+// the front door cuts the same way. The shooter drives it
 // through `window.stage`; it renders on the software renderer, so a model gives the same
 // pixels every time. It loads the shipped file, as the client will, not the builder.
 import { palette, type PaletteName } from "@japacity/assets";
@@ -29,7 +30,9 @@ import {
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 
-export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile";
+export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile" | "face" | "figure" | "cheer";
+/** The views shot on a clear ground, cut as stickers by the interface: a thing's tile, and a look's face and whole figure. */
+const CLEAR_VIEWS: readonly ViewName[] = ["tile", "face", "figure", "cheer"];
 export type MaskView = "front" | "side" | "plan";
 
 export interface LoadOptions {
@@ -246,6 +249,30 @@ function setTile(box: Box3, root: Object3D): ViewInfo {
 }
 
 /**
+ * A look's portrait for the front door: the face, head and shoulders, or the whole figure, standing with a hand on the
+ * hip or both arms up in a cheer, each seen from 25 degrees to the figure's left, a little above, with a long lens so
+ * the face is not stretched. The box is the posed figure's, so raised arms stay inside the frame.
+ */
+function setPortrait(box: Box3, view: "face" | "figure" | "cheer"): ViewInfo {
+  const size = box.getSize(new Vector3());
+  const centre = box.getCenter(new Vector3());
+  const aspect = window.innerWidth / window.innerHeight;
+  const fov = view === "face" ? 22 : 24;
+  const yaw = 25 * DEG;
+  const face = view === "face";
+  const target = face ? new Vector3(centre.x, box.max.y - size.y * 0.14, centre.z) : centre.clone();
+  // The whole figure fits its height with a margin for the sticker's edge; the face fills the square from the hair to the collar.
+  const span = face ? size.y * 0.4 : size.y * 1.1;
+  const distance = span / 2 / Math.tan((fov / 2) * DEG);
+  const lift = face ? size.y * 0.04 : size.y * 0.12;
+  const camera = new PerspectiveCamera(fov, aspect, Math.max(0.05, distance / 50), distance * 4);
+  camera.position.set(target.x + Math.sin(yaw) * distance, target.y + lift, target.z + Math.cos(yaw) * distance);
+  camera.lookAt(target);
+  current = camera;
+  return { view, camera: { kind: "perspective", position: camera.position.toArray(), target: target.toArray(), fov } };
+}
+
+/**
  * The phone shot: eye height on the far pavement, 12 m from the asset's front, a 32 degree lens.
  * For a landmark too big to read from 12 m, `phoneFar` is the same lens from where a player
  * would first see it whole: from the front-right, 20 degrees up, far enough to fit its width.
@@ -317,8 +344,8 @@ const stage = {
       figure.position.set((box.min.x + box.max.x) / 2 + 1.2, 0, box.max.z + 0.4);
     }
     scene.fog = null;
-    // The tile is cut as a sticker: no sky and no ground, on a page as clear as the canvas.
-    const tile = view === "tile";
+    // The tile, the face and the figure are cut as stickers: no sky and no ground, on a page as clear as the canvas.
+    const tile = CLEAR_VIEWS.includes(view);
     scene.background = tile ? null : colour("sky");
     ground.visible = !tile;
     document.documentElement.style.background = tile ? "transparent" : "";
@@ -341,6 +368,11 @@ const stage = {
         break;
       case "tile":
         info = setTile(box, model);
+        break;
+      case "face":
+      case "figure":
+      case "cheer":
+        info = setPortrait(box, view);
         break;
       default: {
         const never: never = view;

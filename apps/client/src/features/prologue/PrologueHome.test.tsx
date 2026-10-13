@@ -52,7 +52,9 @@ describe("the page's home", () => {
       ],
     };
     await renderWithView(<PageHandover onDone={() => undefined} />, view);
-    const home = document.querySelector("[data-handover-story] [data-fact='home']");
+    // Where the life starts stands beside the cheering figure with the home's picture (the door's second design), the story's own chip.
+    const home = document.querySelector("[data-starts-in] [data-fact='home']");
+    expect(document.querySelector("[data-starts-in]")?.getAttribute("data-starts-in")).toBe("compound-room");
     expect(home?.textContent).toBe("You start in your own room, OjuelegbaRent in 12 months");
   });
 
@@ -67,7 +69,8 @@ describe("the page's home", () => {
       obligations: [{ ...family, entry: "obligation.upkeep-makoko" as const, amount: rent }],
     };
     await renderWithView(<PageHandover onDone={() => undefined} />, view);
-    const home = document.querySelector("[data-handover-story] [data-fact='home']");
+    const home = document.querySelector("[data-starts-in] [data-fact='home']");
+    expect(document.querySelector("[data-starts-in]")?.getAttribute("data-starts-in")).toBe("makoko");
     // Decision 0035 (R-HOME-012): nothing of the room's upkeep is taken as the month turns, so the page names no figure
     // for next month and says the living is bought as you go.
     expect(home?.textContent).toBe(`${say("ui.page.home.makoko")}${say("ui.page.home.by-hand")}`);

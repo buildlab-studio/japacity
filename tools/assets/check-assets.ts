@@ -106,6 +106,8 @@ export function listFiles(dir: string): string[] {
 
 /** Where the publish step puts each model's tile render, by the model's name (design page 13, the pictures). */
 export const TILES = "tiles";
+/** A look's portraits, published under tiles as `<asset>-<view>` beside the tiles (the front door's faces and figures; catalog.ts PORTRAITS). */
+export const PORTRAIT_VIEWS: readonly string[] = ["face", "figure", "cheer"];
 
 /** A tile is a picture of a model, not a model: it needs no register row or budget of its own, only to be its model's render. */
 export function isTile(file: string): boolean {
@@ -539,6 +541,8 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
     folders.set(shipped, join(paths.source, file.replace(/\/renders\/manifest\.json$/, "")));
     const tile = renders.renders.find((record) => record.view === "tile");
     if (tile !== undefined) tileRenders.set(renders.asset, readFileSync(join(paths.root, tile.file)));
+    // A look's portraits are published as its tiles are, under `<asset>-<view>` (the front door's faces and figures).
+    for (const portrait of renders.renders.filter((record) => PORTRAIT_VIEWS.includes(record.view))) tileRenders.set(`${renders.asset}-${portrait.view}`, readFileSync(join(paths.root, portrait.file)));
   }
   const tiles = files.filter(isTile);
   problems.push(...checkTiles(tiles.map((file) => ({ path: file, bytes: readFileSync(join(paths.public, file)) })), tileRenders));

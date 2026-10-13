@@ -18,8 +18,16 @@ import "../../shared/testing/render";
 const PROLOGUE = "scenario.prologue";
 
 /** The text of a story chip on the page, or "" when the page has none of that kind. */
+/** The story's own chips on the page: the grid's, and where the life starts beside the cheering figure (the door's second design). */
+const STORY = ["[data-handover-story]", "[data-starts-in]"];
+
 function storyChip(id: string): string {
-  return document.querySelector(`[data-handover-story] [data-fact='${id}']`)?.textContent ?? "";
+  return document.querySelector(STORY.map((place) => `${place} [data-fact='${id}']`).join(", "))?.textContent ?? "";
+}
+
+/** Everything the story's chips say. */
+function storyText(): string {
+  return [...document.querySelectorAll(STORY.join(", "))].map((place) => place.textContent).join(" ");
 }
 
 function card(): HTMLElement {
@@ -152,7 +160,8 @@ describe("the life from sixteen keeps the story its prologue built", () => {
     // Decision 0035 (R-HOME-012): what the house costs is the living bought as you go, with no figure taken next month.
     expect(storyChip("home")).toBe("You start in the family house, SurulereFood, water and fares as you go");
     expect(storyChip("capital")).toBe("");
-    expect(document.querySelector("[data-handover-story]")?.textContent).not.toMatch(/capital/);
+    expect(storyText()).toContain(say("ui.page.home.family-house"));
+    expect(storyText()).not.toMatch(/capital/);
   });
 });
 
@@ -205,6 +214,7 @@ describe("the handover says the archetype's own first step", () => {
     await walk(seedWhose(false), loose);
     await screen.findByRole("heading", { name: words("line.prologue.closed") });
     expect(storyChip("grade")).toBe("");
-    expect(document.querySelector("[data-handover-story]")?.textContent).not.toMatch(/grade/i);
+    expect(storyText()).toContain(say("ui.page.home.family-house"));
+    expect(storyText()).not.toMatch(/grade/i);
   });
 });

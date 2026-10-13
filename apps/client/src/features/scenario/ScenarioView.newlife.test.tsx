@@ -23,8 +23,9 @@ describe("the door after a life ends", () => {
     render(<App store={store} />);
     const box = await screen.findByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") }, { timeout: 10_000 });
     const other = LOOKS.find((one) => one.sex === "m" && one.id !== LOOKS[0]?.id)!;
-    fireEvent.click(document.querySelector(`[data-body="m"]`)!);
+    // no body row; the look of the other body is tapped in the one strip.
     fireEvent.click(document.querySelector(`[role="radio"][data-look="${other.id}"]`)!);
+    expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(other.id);
     fireEvent.change(box, { target: { value: "Obinna" } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.skip") }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));

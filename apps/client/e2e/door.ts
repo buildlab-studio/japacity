@@ -1,5 +1,5 @@
 // The way through the front door for a browser test (prologue.md R-PROLOGUE-013, 014): three screens with everything
-// chosen. A tile: Next, the tile, Print my page, Begin; its page fills and waits for Go (R-PROLOGUE-014). A ready life: the
+// chosen. A tile: Next, the tile, Next to Where you live, Begin; its page fills and waits for Go (R-PROLOGUE-014). A ready life: the
 // test asks for the ready lives as Settings does and opens the door again, on them, then Pick on its kind, Begin.
 import type { Page } from "@playwright/test";
 
@@ -19,7 +19,7 @@ export async function passOpeningWords(page: Page, timeout = 4_000): Promise<voi
   if (await close.isVisible()) await close.click();
 }
 
-/** Begin on the page, until the door has gone. */
+/** Begin on Where you live (still marked as the page it stood in for), until the door has gone. */
 async function begin(page: Page, timeout: number): Promise<void> {
   await page.getByRole("button", { name: /^Begin/ }).click({ timeout });
   // The door's own page goes once Begin is pressed; the page after Begin wears the same header, so the gate is the mark.
@@ -46,13 +46,13 @@ export async function passThePage(page: Page, timeout = 30_000): Promise<void> {
 }
 
 /**
- * Next, the archetype's tile, Print my page, Begin: the life from sixteen on that preset. Its page fills and is passed
- * with Go, unless `stay` leaves it on screen.
+ * Next, the archetype's tile, Next to Where you live, Begin: the life from sixteen on that preset. Its page fills and is
+ * passed with Go, unless `stay` leaves it on screen.
  */
 export async function startArchetype(page: Page, archetype: string, timeout = 30_000, stay = false): Promise<void> {
   await page.getByRole("button", { name: /^Next/ }).first().click({ timeout });
   await page.getByRole("radio", { name: archetype, exact: true }).click({ timeout });
-  await page.getByRole("button", { name: /^Print my page/ }).first().click({ timeout });
+  await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click({ timeout });
   await begin(page, timeout);
   if (!stay) await passThePage(page, timeout);
 }

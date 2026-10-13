@@ -1,5 +1,5 @@
-// The prologue: sixteen to the end of the service year (prologue.md R-PROLOGUE-008), over the family compound with
-// the character at the gate (R-PROLOGUE-009). A new life never shows a card: its archetype answers every step
+// The prologue: sixteen to the end of the service year (prologue.md R-PROLOGUE-008), on the door's sky (the door's
+// the compound and the figure on its plinth are gone). A new life never shows a card: its archetype answers every step
 // (R-PROLOGUE-010) while the page over the compound fills as the years go by, and when the last answer is in, the
 // page is the handover (R-PROLOGUE-014): the family the game drew turned over, the years before as fact chips, the
 // money as it stands, and the world opens when Go is tapped. A life with no archetype (the setting
@@ -7,7 +7,7 @@
 import { content } from "@japacity/content";
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { ArrowRight, Dices } from "lucide-react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
@@ -20,13 +20,17 @@ import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nextStepOf, ownWayOf, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
 import { bandWords, hasWords, hometownWords, nameOf, say, sayCount, words } from "../../shared/words/text";
-import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
+import { gateLook } from "../../shared/frontdoor/Gate";
 import { lookOf } from "../../shared/frontdoor/looks";
-import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, withAge, withHome } from "../../shared/frontdoor/archetypes";
+import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, type Home, HOMES, withAge, withHome } from "../../shared/frontdoor/archetypes";
 import { DataPage, type PageFields } from "../../shared/datapage/DataPage";
 import { JapacityLine, StatBox } from "../../shared/datapage/PageParts";
-import { DoorHead } from "../../shared/frontdoor/DoorHead";
+import { DoorAction, DoorFrame } from "../../shared/frontdoor/DoorFrame";
+import { homePicture, LIFE_THINGS } from "../../shared/frontdoor/lives";
+import { plannedYears } from "../../shared/frontdoor/planned";
+import { FigurePicture, ModelPicture } from "../../shared/frontdoor/LookPicture";
 import { readDoor } from "../../shared/datapage/door";
+import { WayChips } from "../../shared/frontdoor/WayChips";
 import { pageOf } from "../../shared/datapage/PageSheet";
 import { presetWait } from "../../shared/net/pace";
 import { readyPercent, readyWords } from "../../shared/words/ready";
@@ -291,8 +295,8 @@ function PrologueCard({ view, prologue }: { view: PlayerView; prologue: Prologue
   // A new life never shows a card: the page fills as its years go by (R-PROLOGUE-014).
   if (answer !== null) return <PageScreen view={view} archetype={archetype} draw={prologue.draw} />;
   return (
-    <Gate mark="prologue">
-      <GateSheet key={view.v} mark="card" label={say("ui.prologue.title")}>
+    <DoorFrame mark="prologue" title={null}>
+      <section key={view.v} aria-label={say("ui.prologue.title")} className="door-card mx-4 mt-4 mb-4 px-4 pt-4 pb-3" data-gate-sheet="card">
         <div data-prologue={prologue.step} data-v={view.v}>
           <div className="mb-2 flex items-baseline justify-between gap-3">
             <p className="label text-text-2">{say("ui.prologue.title")}</p>
@@ -306,8 +310,8 @@ function PrologueCard({ view, prologue }: { view: PlayerView; prologue: Prologue
           </div>
           <LifeSoFar view={view} draw={prologue.draw} open={archetype === null} archetype={archetype} />
         </div>
-      </GateSheet>
-    </Gate>
+      </section>
+    </DoorFrame>
   );
 }
 
@@ -346,13 +350,13 @@ function Family({ draw, water, turned, hometown }: { draw: Draw | null; water: b
   return (
     <div className="min-h-[64px] [perspective:600px]" data-family={card === null ? "drawing" : "turned"}>
       <div
-        className={`flex min-h-[64px] items-center gap-2.5 rounded-[6px] px-3 py-2 transition-transform duration-300 ${card === null ? "band adire" : "border-2 border-strong bg-sheet"}`}
+        className={`door-card flex min-h-[64px] items-center gap-2.5 px-3.5 py-2 transition-transform duration-300 ${card === null ? "bg-tint-plain!" : ""}`}
         style={{ transform: card === null ? "rotateX(0deg)" : "rotateX(360deg)" }}
       >
         {card === null ? (
           <>
             <Dices size={22} className="shrink-0 animate-pulse" aria-hidden />
-            <span className="label label-strong">{say("ui.page.family.drawing")}</span>
+            <span className="text-[14px] font-bold">{say("ui.page.family.drawing")}</span>
           </>
         ) : (
           <div className="min-w-0 flex-1 leading-tight">
@@ -391,11 +395,39 @@ function Chips({ chips, mark }: { chips: readonly YearChip[]; mark?: string }) {
 }
 
 
+/** The home a life starts in, from where it lives in the view: one of the door's homes, or none for a place that is not one. */
+function homeIn(view: PlayerView): Home | null {
+  const id = view.home.place?.slice("place.".length) ?? null;
+  return HOMES.find((home) => home === id) ?? null;
+}
+
 /**
- * The page over the compound after Begin (R-PROLOGUE-014). While the years go by (`onDone` absent) the page shows the
- * person and the age growing, the family still face down and the chips as the trail has them. As the handover, the
- * family turns over once, the years before stand as chips with the story's own, the money and japacity as they
- * stand, and the world opens when Go is tapped, or the page. No stamp lands: the page takes none before a visa.
+ * Where the life starts (R-PROLOGUE-013, 014): the home's picture over the story's own chip of where the character
+ * sleeps and when its rent or living costs fall next, read from the life (the obligations it opened), never the door.
+ */
+function StartsIn({ home, chip }: { home: Home | null; chip: YearChip }) {
+  const picture = home === null ? null : homePicture(home);
+  return (
+    <div className="door-card min-w-0 flex-1 p-2.5" data-starts-in={home ?? ""}>
+      {picture === null ? null : "src" in picture ? (
+        <span className="mb-2 block h-[70px] rounded-[12px] bg-cover" style={{ backgroundImage: `url(${picture.src})`, backgroundPosition: "center 50%" }} aria-hidden />
+      ) : (
+        <span className="mb-2 flex h-[70px] items-center justify-center rounded-[12px] bg-tint-study" aria-hidden>
+          <ModelPicture model={picture.model} size={64} />
+        </span>
+      )}
+      <FactChip id={chip.id} icon={chip.icon} label={chip.label} note={chip.note} state={chip.state} />
+    </div>
+  );
+}
+
+/**
+ * The page after Begin (R-PROLOGUE-014), in the door's dress (the door's second design): "Your page, printed" over the
+ * travel data page with the life's thing slapped on it; you cheering on a sticker beside where you start and when rent
+ * is next due; the family the game drew; the years before as chips with the story's own; the money and japacity as they
+ * stand; and where this life can lead. While the years go by (`onDone` absent) the family is still face down and the
+ * chips fill as the trail has them; as the handover the family turns over once and the world opens when Go is tapped,
+ * or the page. No stamp lands: the page takes none before a visa.
  */
 function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; archetype: Archetype | null; draw: Draw | null; onDone?: () => void }) {
   const person = readPerson();
@@ -421,76 +453,80 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   const base = pageOf(view, person);
   // The family and where it is from print on the page as its card turns over; until then their lines wait (R-PROLOGUE-009, 014).
   const shown = handover && turned && kept !== null;
+  const look = gateLook(person?.look);
   const page: PageFields = {
     ...base,
-    photo: lookOf(gateLook(person?.look))?.picture ?? "",
+    photo: lookOf(look)?.picture ?? "",
     family: shown ? familyCard(kept, water, view.hometown).means : "",
     from: shown && view.hometown !== null ? hometownWords(view.hometown) : "",
   };
-  const years = yearChips(trail, view, water);
-  const story = handover ? storyChips(view) : [];
+  const lived = yearChips(trail, view, water);
+  // While the years go by, the years the tile will pass and has not yet are listed as not yet, and fill as they are lived.
+  const years = handover || archetype === null ? lived : [...lived, ...plannedYears(archetype).flatMap((planned): YearChip[] => (lived.some((chip) => chip.id === planned.id) ? [] : [{ id: planned.id, icon: planned.icon, label: planned.label, note: planned.note ?? null, state: planned.state ?? null }]))];
+  // Where the life starts stands beside the cheering figure with the home's picture; the story's other chips stay in the grid.
+  const told = handover ? storyChips(view) : [];
+  const starts = told.find((chip) => chip.id === "home") ?? null;
+  const story = told.filter((chip) => chip !== starts);
   const step = handover ? firstStep(view) : null;
   const naira = view.pockets.NGN.bank + view.pockets.NGN.cash;
-  // The page after Begin reads as the door's page screen (the design's layout): the header on the band, the data page under it.
-  // While the years go by the page keeps its size and docks just above the sheet instead, so the face and the yard stay in
-  // view and only the legs are covered; the handover keeps the page at the top.
-  const over: ReactNode = handover ? (
-    <>
-      <div className="band-2 adire pointer-events-auto -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(12px,env(safe-area-inset-top))] pb-2">
-        <DoorHead title={say("prologue.door.page.title")} at={2} count={3} onBack={null} onShuffle={null} onSkip={null} />
-      </div>
-      <div className="pointer-events-auto mx-auto mt-2 w-full max-w-[420px]">
-        <DataPage page={page} print />
-      </div>
-    </>
-  ) : undefined;
-  const docked: ReactNode = handover ? null : (
-    <div className="pointer-events-auto mx-auto mb-2 w-full max-w-[420px] shrink-0 px-3" data-page-docked>
-      <DataPage page={page} print />
-    </div>
-  );
+  const home = homeIn(view);
+  const named = person !== null && person.name !== "";
   const foot = handover ? (
     <>
       {step === null ? null : (
-        <p className="mb-2 text-[15px] font-bold" data-first-step>
+        <p className="mb-2.5 text-center text-[15px] font-bold" data-first-step>
           {say("prologue.handover.first", { step })}
         </p>
       )}
-      <button type="button" className="btn-main" onClick={finish} autoFocus>
-        <span>{say("ui.prologue.start")}</span>
-        <ArrowRight size={18} />
-      </button>
+      <DoorAction word={say("ui.prologue.start")} then={say("ui.door.begin.then")} onClick={finish} />
     </>
   ) : undefined;
   return (
     <div onClick={handover ? finish : undefined} data-page-handover={handover ? "" : undefined} data-page-running={handover ? undefined : ""} data-v={view.v}>
-      <Gate mark={handover ? "handover" : "years"} {...(over === undefined ? {} : { over })}>
-        {docked}
-        <GateSheet mark={handover ? "handover" : "years"} label={say("prologue.door.page.title")} low={!handover} {...(foot === undefined ? {} : { foot })}>
-          <div className="flex flex-col" data-prologue-handover={handover ? "" : undefined}>
-            {/* The page over the sheet already prints the name, the age and the path (the design's page screen); the sheet carries the rest. */}
-            {handover && person !== null && person.name !== "" ? null : (
-              <div className="mb-2 flex items-baseline justify-between gap-3">
-                {person === null || person.name === "" ? <h1 className="title text-[20px] leading-tight">{words(PROLOGUE_CLOSED)}</h1> : <h1 className="title text-[22px] leading-none">{person.name}</h1>}
-                <p className="num shrink-0 text-[13px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
+      <DoorFrame mark={handover ? "handover" : "years"} look={look} title={null} {...(foot === undefined ? {} : { foot })}>
+        <div className="px-5 pt-4 text-center">
+          {/* A life with no name of its own (a fixed life a test starts) is told by the prologue's closing line instead. */}
+          <h1 className="text-[24px] leading-tight font-bold">{named ? say(handover ? "ui.door.page.printed" : "prologue.door.page.title") : words(PROLOGUE_CLOSED)}</h1>
+          <p className="mt-0.5 text-[14px] text-text-2">{named && handover ? say("ui.door.page.over", { name: person.name }) : say("ui.profile.age", { years: ageYears(view) })}</p>
+        </div>
+        <div className="relative mx-5 mt-4 -rotate-2" data-gate-sheet={handover ? "handover" : "years"}>
+          <DataPage page={page} print />
+          {archetype === null ? null : (
+            <span className="sticker-cut absolute top-[46px] right-[-14px] z-[2]" style={{ rotate: "10deg" }} aria-hidden>
+              <ModelPicture model={LIFE_THINGS[archetype.id].tile} size={64} />
+            </span>
+          )}
+        </div>
+        <div className="mx-4 mt-5 flex items-start gap-3">
+          <span className="sticker-cut shrink-0" style={{ rotate: "-5deg" }} aria-hidden>
+            <span className="door-photo relative block h-[150px] w-[112px] overflow-hidden rounded-[18px]">
+              <FigurePicture look={look} style={person?.style} view="cheer" className="absolute bottom-[-6px] left-1/2 h-[160px] max-w-none -translate-x-1/2" />
+            </span>
+          </span>
+          {starts === null ? null : <StartsIn home={home} chip={starts} />}
+        </div>
+        <div className="mx-4 mt-4 flex flex-col" data-prologue-handover={handover ? "" : undefined}>
+          {kept === null && !handover ? null : <Family draw={kept} water={water} turned={handover && turned} hometown={view.hometown} />}
+          <h2 className="mt-4 text-[14px] font-bold text-text-2">{say(handover ? "ui.page.years" : "ui.page.years.running")}</h2>
+          <Chips chips={years} mark="data-years" />
+          {story.length === 0 ? null : <Chips chips={story} mark="data-handover-story" />}
+          {handover ? (
+            <>
+              <div className="mt-3 grid grid-cols-2 gap-1.5">
+                <StatBox label={say("ui.page.money")} value={formatMoney(naira, "NGN")} mark="money" />
+                <StatBox label={say("ui.page.ready")} value={readyWords(readyPercent(view) ?? 0)} mark="ready" />
               </div>
-            )}
-            {kept === null && !handover ? null : <Family draw={kept} water={water} turned={handover && turned} hometown={view.hometown} />}
-            <h2 className="label mt-3 text-text-2">{say(handover ? "ui.page.years" : "ui.page.years.running")}</h2>
-            <Chips chips={years} mark="data-years" />
-            {story.length === 0 ? null : <Chips chips={story} mark="data-handover-story" />}
-            {handover ? (
-              <>
-                <div className="mt-3 grid grid-cols-2 gap-1.5">
-                  <StatBox label={say("ui.page.money")} value={formatMoney(naira, "NGN")} mark="money" />
-                  <StatBox label={say("ui.page.ready")} value={readyWords(readyPercent(view) ?? 0)} mark="ready" />
-                </div>
-                <JapacityLine />
-              </>
-            ) : null}
+              <JapacityLine />
+            </>
+          ) : null}
+        </div>
+        {archetype === null ? null : (
+          <div className="mt-4 mb-4 px-4">
+            <p className="mb-2.5 text-center text-[13px] text-text-2">{say("ui.door.page.lead")}</p>
+            <WayChips id={archetype.id} mark="data-page-ways" />
           </div>
-        </GateSheet>
-      </Gate>
+        )}
+      </DoorFrame>
     </div>
   );
 }

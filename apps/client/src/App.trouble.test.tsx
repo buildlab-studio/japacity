@@ -160,7 +160,7 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     render(<App store={store} />);
     await toTheArchetypes();
     fireEvent.click(await screen.findByRole("radio", { name: say("prologue.archetype.developer.name") }));
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("prologue.door.print")}`) }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
     fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
     const card = await screen.findByRole("alertdialog", { name: "The server did not answer." });
     expect(card.getAttribute("data-trouble-during")).toBe("life");

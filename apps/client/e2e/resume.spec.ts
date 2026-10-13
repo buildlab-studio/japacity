@@ -111,7 +111,7 @@ test("[R-ENGINE-015] a reload at each step of the door comes back to that step f
   await expect(page.getByRole("radio", { name: "The developer", exact: true })).toBeChecked({ timeout: 30_000 });
   await shoot(page, "resume-02-life-after-reload", info.project.name);
 
-  await page.getByRole("button", { name: /^Print my page/ }).first().click();
+  await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
   await expect(page.locator("[data-gate='page']")).toBeVisible();
   await page.reload();
   await expect(page.locator("[data-gate='page']")).toBeVisible({ timeout: 30_000 });
@@ -152,7 +152,7 @@ test("[R-ENGINE-015] Begin with no answer shows the card over the door, a reload
   await page.locator("#door-name").fill("Tobi", { timeout: 30_000 });
   await page.getByRole("button", { name: /^Next/ }).first().click();
   await page.getByRole("radio", { name: "The developer", exact: true }).click();
-  await page.getByRole("button", { name: /^Print my page/ }).first().click();
+  await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
   await page.getByRole("button", { name: /^Begin/ }).click();
 
   const card = page.getByRole("alertdialog", { name: "The server did not answer." });

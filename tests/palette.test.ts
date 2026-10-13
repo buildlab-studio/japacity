@@ -79,10 +79,12 @@ const PILL = /(?<![\w-])rounded-full(?![\w-])/;
 const PILLS_ALLOWED = 8;
 /**
  * The front door drawn as designed (R-WORLD-021's exception): its header's round
- * buttons, its colour swatches and the page's round stamp, one round each, apart from the budget.
+ * buttons, its colour swatches and the page's round stamp, one round each, apart from the budget. Moved 13 Oct 2026
+ * (the door's second design): the header is DoorFrame, whose round buttons are the lively layer's own class
+ * (`.round-button`, as the band's thumbs are `.thumb-round`), so it draws no round of its own here.
  */
 const DOOR_ROUNDS: Readonly<Record<string, number>> = {
-  [`${CLIENT}/shared/frontdoor/DoorHead.tsx`]: 1,
+  [`${CLIENT}/shared/frontdoor/DoorFrame.tsx`]: 0,
   [`${CLIENT}/shared/frontdoor/OwnColours.tsx`]: 1,
   [`${CLIENT}/shared/datapage/DataPage.tsx`]: 1,
 };

@@ -1,12 +1,12 @@
-// The scene under the front door, the prologue and the handover (prologue.md R-PROLOGUE-009): the
-// family compound with the character on a plinth at the gate, never a bare page. The figure turns slowly and a
+// The scene under the account's screens (account.md R-ACCOUNT-029): the live city behind the start screen, or the
+// family compound with the character on a plinth at the gate, never a bare page. The front door, the prologue and the
+// handover no longer stand on it (the door's second design: they stand on the door's sky, prologue.md R-PROLOGUE-013). The figure turns slowly and a
 // finger drags it round (the design's onboarding). The sheet rises over the bottom of the screen and the top
 // keeps the character in view, in the player's own colours (R-PROLOGUE-015). Where WebGL is missing the compound's
 // colours and the look's own picture stand in.
 import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef, useState } from "react";
 
 import { readPerson } from "../../authority/person";
-import { backdropOf, SCRIM } from "./backdrop";
 import { LOOKS, lookOf } from "./looks";
 import { DRAG_TURN, type Spin } from "./spin";
 import type { LookStyle } from "./style";
@@ -102,8 +102,6 @@ export function Gate({ look, children, mark, over, style, scene }: GateProps) {
           standIn
         )}
       </div>
-      {/* "Your page" keeps the compound dimmed under the same scrim as the screens before it (R-PROLOGUE-016). */}
-      {backdropOf(mark) === "compound" ? <div className="band-2 adire pointer-events-none absolute inset-0" style={{ opacity: SCRIM, outline: "none" }} data-scrim aria-hidden /> : null}
       {over === undefined ? null : <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col px-3 pt-[max(10px,env(safe-area-inset-top))]" data-gate-over>{over}</div>}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex max-h-full flex-col justify-end" data-gate-foot>{children}</div>
     </div>

@@ -4,13 +4,15 @@
 // plan for buildings and landmarks, and the phone shot at 360 by 640 CSS pixels, device scale 2,
 // 12 m from the asset in the standard street. Every model but a person also gets the tile: the
 // three-quarter view framed tight in a 256 pixel square at device scale 2 on a clear ground, which
-// the interface cuts as a sticker (design page 13). Writes the pictures and a render manifest
+// the interface cuts as a sticker (design page 13). A look the front door offers also gets its
+// portraits on the same clear ground: the face (128 square at scale 2), and the whole figure with
+// a hand on the hip and cheering (200 by 400 at scale 2), each from the game's own poses. Writes the pictures and a render manifest
 // beside them in the asset's renders folder, and their hashes into assets-src/manifest.json.
 // `--view` shoots only the views named, keeping the others' records.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
-import { poseRotations } from "@japacity/assets-src/people/poses";
+import { type PoseName, poseRotations } from "@japacity/assets-src/people/poses";
 import type { Page } from "@playwright/test";
 
 import { type CatalogEntry, findEntries, PUBLIC, ROOT, type ViewName } from "./catalog";
@@ -22,7 +24,15 @@ export const PHONE_SHOT = { width: 360, height: 640, deviceScaleFactor: 2, dista
 export const SHEET_VIEWPORT = { width: 1024, height: 768, deviceScaleFactor: 1 } as const;
 /** The tile's square: 256 CSS pixels at device scale 2, a 512 pixel picture. */
 export const TILE_SHOT = { width: 256, height: 256, deviceScaleFactor: 2 } as const;
-const VIEWS: readonly ViewName[] = ["front", "back", "left", "right", "threeQuarter", "plan", "phone", "phoneFar", "tile"];
+/** A look's face: 128 CSS pixels square at device scale 2, a 256 pixel picture, sharp at the strip's and the life card's sizes. */
+export const FACE_SHOT = { width: 128, height: 128, deviceScaleFactor: 2 } as const;
+/** A look's whole figure: 200 by 400 CSS pixels at device scale 2, a 400 by 800 picture. */
+export const FIGURE_SHOT = { width: 200, height: 400, deviceScaleFactor: 2 } as const;
+const VIEWS: readonly ViewName[] = ["front", "back", "left", "right", "threeQuarter", "plan", "phone", "phoneFar", "tile", "face", "figure", "cheer"];
+/** The pose each portrait is shot in, from the game's own poses. */
+export const PORTRAIT_POSES = { face: "stand", figure: "hip", cheer: "cheer" } as const;
+type Portrait = keyof typeof PORTRAIT_POSES;
+const isPortrait = (view: ViewName): view is Portrait => view in PORTRAIT_POSES;
 const SCALE_FIGURE = "shared/chr/chr_tunde.glb";
 
 interface StagePose {
@@ -30,19 +40,19 @@ interface StagePose {
   hipsY?: number;
 }
 
-function poseFor(entry: CatalogEntry): StagePose | undefined {
-  if (entry.pose === undefined) return undefined;
-  const pose = poseRotations(entry.pose);
+function poseFor(entry: Pick<CatalogEntry, "pose">, name: PoseName | undefined = entry.pose): StagePose | undefined {
+  if (name === undefined) return undefined;
+  const pose = poseRotations(name);
   const rotations: Record<string, [number, number, number]> = {};
   for (const [bone, rotation] of Object.entries(pose.rotations)) if (rotation !== undefined) rotations[bone] = rotation;
   return pose.hipsY === undefined ? { rotations } : { rotations, hipsY: pose.hipsY };
 }
 
-async function load(page: Page, entry: CatalogEntry, withFigure: boolean): Promise<void> {
+async function load(page: Page, entry: CatalogEntry, withFigure: boolean, pose?: PoseName): Promise<void> {
   const options = {
     url: `/apps/client/public/assets/${entry.file}`,
     text: signText(),
-    pose: poseFor(entry),
+    pose: poseFor(entry, pose ?? entry.pose),
     scaleFigure: withFigure && !entry.name.startsWith("chr_") ? { url: `/apps/client/public/assets/${SCALE_FIGURE}`, pose: poseFor({ ...entry, pose: "stand" }) } : undefined,
     ground: entry.ground,
     farView: entry.farView,
@@ -95,19 +105,22 @@ export async function shootEntry(stage: Stage, entry: CatalogEntry, only: readon
   const records: RenderRecord[] = [];
   const asked = entry.views.filter((view) => only === null || only.includes(view));
   const phone = (view: ViewName): boolean => view === "phone" || view === "phoneFar";
-  for (const [viewport, views] of [
-    [SHEET_VIEWPORT, asked.filter((view) => !phone(view) && view !== "tile")],
-    [PHONE_SHOT, asked.filter(phone)],
-    [TILE_SHOT, asked.filter((view) => view === "tile")],
-  ] as const) {
+  const groups: [{ width: number; height: number; deviceScaleFactor: number }, readonly ViewName[], PoseName | undefined][] = [
+    [SHEET_VIEWPORT, asked.filter((view) => !phone(view) && view !== "tile" && !isPortrait(view)), undefined],
+    [PHONE_SHOT, asked.filter(phone), undefined],
+    [TILE_SHOT, asked.filter((view) => view === "tile"), undefined],
+    // Each portrait is a load of its own, in its own pose.
+    ...asked.filter(isPortrait).map((view): [{ width: number; height: number; deviceScaleFactor: number }, readonly ViewName[], PoseName] => [view === "face" ? FACE_SHOT : FIGURE_SHOT, [view], PORTRAIT_POSES[view]]),
+  ];
+  for (const [viewport, views, pose] of groups) {
     if (views.length === 0) continue;
     const { context, page } = await stage.open(viewport);
-    await load(page, entry, viewport === PHONE_SHOT);
+    await load(page, entry, viewport === PHONE_SHOT, pose);
     for (const view of views) {
       const info = (await show(page, view)) as { camera: unknown };
       const file = join(dir, `${view}.png`);
-      // The tile keeps the page's clear background as its alpha.
-      const bytes = await page.screenshot({ path: file, omitBackground: view === "tile" });
+      // The tile and the portraits keep the page's clear background as their alpha.
+      const bytes = await page.screenshot({ path: file, omitBackground: view === "tile" || isPortrait(view) });
       records.push({ view, file: relative(ROOT, file), sha256: sha256(bytes), viewport: { width: viewport.width, height: viewport.height, deviceScaleFactor: viewport.deviceScaleFactor }, camera: info.camera });
     }
     await context.close();
@@ -120,7 +133,7 @@ export async function shootEntry(stage: Stage, entry: CatalogEntry, only: readon
     file: `public/assets/${entry.file}`,
     fileSha256: sha256(glb),
     renderer: "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
-    stage: "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+    stage: "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
     renders: mergeRecords(entry.views, kept, records),
   };
   writeFileSync(manifestPath, `${JSON.stringify(renderManifest, null, 2)}\n`);

@@ -167,7 +167,7 @@ test.describe("one new player, played in order on one phone", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByRole("button", { name: /^Next/ }).first().click({ timeout: 30_000 });
     await page.getByRole("radio", { name: "The nurse", exact: true }).click({ timeout: 30_000 });
-    await page.getByRole("button", { name: /^Print my page/ }).first().click();
+    await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
     await page.getByLabel("Username").fill(USERNAME);
     const guest = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/guest");
     // Staging's bot check may refuse this browser (below); locally the status is still checked.

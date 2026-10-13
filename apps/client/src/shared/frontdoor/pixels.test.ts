@@ -13,9 +13,13 @@ describe("the door's pixels", () => {
     expect(doorPixels(1)).toBe(1);
     expect(doorPixels(undefined)).toBe(1);
     expect(doorPixels(Number.NaN)).toBe(1);
-    for (const file of ["FrontScene.tsx", "Turntable.tsx"]) {
+    // The account's scene keeps its canvas; the door's turntable is gone (the door's second design): its figure in
+    // the player's colours is a still drawn once, antialiased, at the published figure's own pixels.
+    for (const file of ["FrontScene.tsx"]) {
       const source = readFileSync(join(import.meta.dirname, file), "utf8");
       expect({ file, pixels: source.includes("dpr={doorPixels()}"), smooth: /antialias: true/.test(source), rough: /antialias: false/.test(source) }).toEqual({ file, pixels: true, smooth: true, rough: false });
     }
+    const still = readFileSync(join(import.meta.dirname, "..", "datapage", "photoRender.ts"), "utf8");
+    expect({ smooth: /antialias: true/.test(still), rough: /antialias: false/.test(still), figure: /FIGURE_PX = \{ width: 400, height: 800 \}/.test(still) }).toEqual({ smooth: true, rough: false, figure: true });
   });
 });
