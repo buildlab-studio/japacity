@@ -115,13 +115,16 @@ export interface PaperSvgProps {
   route?: string | null;
   /** A unique prefix for this view's ids (the bridge's name runs along a path of its own). */
   uid: string;
+  /** The part of the paper this view shows, [x0, y0, x1, y1]: the grain outside it is not drawn. All of it when absent. */
+  within?: readonly [number, number, number, number] | null;
 }
 
 /** The paper, one SVG. Memoised: a view's drawing changes only with its variant and its route. */
-export const PaperSvg = memo(function PaperSvg({ variant, route = null, uid }: PaperSvgProps) {
+export const PaperSvg = memo(function PaperSvg({ variant, route = null, uid, within = null }: PaperSvgProps) {
   const d = drawing();
   const whole = variant !== "folded";
-  const grain = (which: typeof d.wide, key: string) => (
+  const cells = within === null ? d.cells : d.cells.filter(({ box }) => box[0] < within[2] && box[2] > within[0] && box[1] < within[3] && box[3] > within[1]);
+  const grain = (which: (typeof d.cells)[number]["wide"], key: string) => (
     <g key={key} className="grain">
       <path d={which.trees} className="tree" />
       <path d={which.treeLights} className="tree-light" />
@@ -144,13 +147,13 @@ export const PaperSvg = memo(function PaperSvg({ variant, route = null, uid }: P
     >
       <rect x={-2000} y={-2000} width={PAPER.width + 4000} height={PAPER.height + 4000} className="water" />
       <rect x={-2000} y={SEA_FROM} width={PAPER.width + 4000} height={2000} className="sea" />
-      {whole ? <path d={d.waves} className="wave" /> : null}
+      {whole ? cells.map((cell) => (cell.waves === "" ? null : <path key={cell.box.join()} d={cell.waves} className="wave" />)) : null}
       {whole ? <path d={d.beach} className="beach" /> : null}
       <path d={d.coast} className="glow" />
       <path d={d.land} className="land" />
       {whole ? PARKS.map(([x, y, rx, ry], index) => <ellipse key={index} cx={x} cy={y} rx={rx} ry={ry} className="park" />) : null}
-      {whole ? grain(d.wide, "wide") : null}
-      {variant === "card" ? grain(d.close, "close") : null}
+      {whole ? cells.map((cell) => grain(cell.wide, `wide-${cell.box.join()}`)) : null}
+      {variant === "card" ? cells.map((cell) => grain(cell.close, `close-${cell.box.join()}`)) : null}
       {whole ? <path d={d.roadsMinor} className="road-edge minor" /> : null}
       <path d={d.roadsMain} className="road-edge main" />
       {whole ? <path d={d.roadsMinor} className="road minor" /> : null}

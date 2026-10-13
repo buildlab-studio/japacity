@@ -133,11 +133,12 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
         ))}
       </ul>
 
-      {lagos ? (
+      {/* While a ride plays the painted map is put away: the ride fills the screen, and nothing under it keeps drawing. */}
+      {lagos && riding === null ? (
         <Suspense fallback={<div className="absolute top-3 right-3">{closeButton}</div>}>
           <PaperMap pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} />
         </Suspense>
-      ) : (
+      ) : lagos ? null : (
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3 pt-[max(10px,env(safe-area-inset-top))]">
           {countryMenu}
           {closeButton}

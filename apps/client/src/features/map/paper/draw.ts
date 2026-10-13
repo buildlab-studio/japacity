@@ -82,6 +82,17 @@ function palm(x: number, y: number, size: number, facing: 1 | -1): [string, stri
   return [trunk, fronds];
 }
 
+/** The grain of one square of the paper: drawn as paths of their own, so a view draws only the squares it shows. */
+export interface Cell {
+  box: readonly [number, number, number, number];
+  wide: Grain;
+  close: Grain;
+  waves: string;
+}
+
+/** The squares the grain is cut into, in paper units. */
+export const CELL = 120;
+
 export interface Drawing {
   land: string;
   coast: string;
@@ -91,12 +102,37 @@ export interface Drawing {
   bridges: { id: string; d: string }[];
   ferry: string;
   bridgeName: string;
-  waves: string;
-  wide: Grain;
-  close: Grain;
+  cells: Cell[];
   palmTrunks: string;
   palmFronds: string;
   scattered: Scattered;
+}
+
+/** The grain cut into squares, each with its own paths. */
+function cellsOf(scattered: Scattered): Cell[] {
+  const keyOf = (x: number, y: number): string => `${String(Math.floor(x / CELL))},${String(Math.floor(y / CELL))}`;
+  const keys = new Set<string>();
+  const add = (x: number, y: number): string => {
+    const key = keyOf(x, y);
+    keys.add(key);
+    return key;
+  };
+  const houses = scattered.houses.map((house) => ({ house, key: add(house.x, house.y) }));
+  const trees = scattered.trees.map((tree) => ({ tree, key: add(tree[0], tree[1]) }));
+  const closeHouses = scattered.closeHouses.map((house) => ({ house, key: add(house.x, house.y) }));
+  const closeTrees = scattered.closeTrees.map((tree) => ({ tree, key: add(tree[0], tree[1]) }));
+  const waves = scattered.waves.map((point) => ({ point, key: add(point[0], point[1]) }));
+  return [...keys].sort().map((key) => {
+    const [cx, cy] = key.split(",").map(Number) as [number, number];
+    // A house or a tree reaches a few units past its own point, so the box takes a margin.
+    const box = [cx * CELL - 10, cy * CELL - 10, (cx + 1) * CELL + 10, (cy + 1) * CELL + 10] as const;
+    return {
+      box,
+      wide: grainOf(houses.filter((item) => item.key === key).map((item) => item.house), trees.filter((item) => item.key === key).map((item) => item.tree)),
+      close: grainOf(closeHouses.filter((item) => item.key === key).map((item) => item.house), closeTrees.filter((item) => item.key === key).map((item) => item.tree)),
+      waves: waves.filter((item) => item.key === key).map((item) => wave(item.point)).join(""),
+    };
+  });
 }
 
 let drawn: Drawing | null = null;
@@ -119,9 +155,7 @@ export function drawing(): Drawing {
     bridges: ROADS.filter((road) => road.bridge !== undefined).map((road) => ({ id: road.bridge ?? "", d: curve(road.points) })),
     ferry: curve(FERRY_LINE),
     bridgeName: curve(BRIDGE_NAME_PATH),
-    waves: scattered.waves.map(wave).join(""),
-    wide: grainOf(scattered.houses, scattered.trees),
-    close: grainOf(scattered.closeHouses, scattered.closeTrees),
+    cells: cellsOf(scattered),
     palmTrunks: palms.map(([trunk]) => trunk).join(""),
     palmFronds: palms.map(([, fronds]) => fronds).join(""),
     scattered,

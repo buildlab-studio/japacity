@@ -55,6 +55,8 @@ export interface WorldProps {
   /** A place's sticker's size on the screen, in pixels, before its own share. */
   pinPx?: number;
   route?: readonly Point[] | null;
+  /** The part of the paper this view shows, when it never moves: the grain outside it is left undrawn. */
+  within?: readonly [number, number, number, number] | null;
   onPick?: (id: string) => void;
   className?: string;
   style?: CSSProperties | undefined;
@@ -68,7 +70,7 @@ function nameWords(kind: Name, name: string): string {
   return headingOf(name);
 }
 
-export const World = memo(function World({ variant, frame, uid, stops = [], names = (id) => id, marks = { home: null, picked: null, step: null }, tiles, pinPx = 50, route = null, onPick, className = "", style }: WorldProps) {
+export const World = memo(function World({ variant, frame, uid, stops = [], names = (id) => id, marks = { home: null, picked: null, step: null }, tiles, pinPx = 50, route = null, within = null, onPick, className = "", style }: WorldProps) {
   const z = frame.sx;
   const routeD = useMemo(() => (route === null ? null : curve(route)), [route]);
   const danfo = useMemo(() => (route === null || route.length < 2 ? null : midway(route)), [route]);
@@ -92,13 +94,13 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
       style={{ transform: `translate(${String(frame.x)}px, ${String(frame.y)}px) scale(${String(frame.sx)}, ${String(frame.sy)})`, ...({ "--z": z, "--inv": 1 / z } as CSSProperties), ...style }}
       data-world={variant}
     >
-      <PaperSvg variant={variant} route={routeD} uid={uid} />
+      <PaperSvg variant={variant} route={routeD} uid={uid} within={within} />
       {folded
         ? null
         : DECOR.map((item, index) => {
             const url = tiles(item.model);
             return url === null ? null : (
-              <span key={index} className={`stk paper-cut ${item.kind === "boat" ? "boat" : ""}`} style={{ left: item.at[0], top: item.at[1], width: item.size, height: item.size, transform: `translate(-50%, -62%) rotate(${String(item.tilt)}deg)`, ...({ "--e": "0.6px" } as CSSProperties) }} data-decor={item.model}>
+              <span key={index} className={`stk paper-chip ${item.kind === "boat" ? "boat" : ""}`} style={{ left: item.at[0], top: item.at[1], width: item.size, height: item.size, transform: `translate(-50%, -62%) rotate(${String(item.tilt)}deg)`, ...({ "--e": "0.6px" } as CSSProperties) }} data-decor={item.model}>
                 <img src={url} alt="" draggable={false} />
               </span>
             );

@@ -15,6 +15,7 @@ import { mapWords } from "../map.words";
 import { CardView } from "./CardView";
 import { CARD_IDS, CARDS, type CardId, cardById, cardIndex, cardOf } from "./districts";
 import { fold, FOLD_MS, folded, openingCard, unfolded } from "./fold";
+import { CELL } from "./draw";
 import { fromPaper, PAPER, type Point } from "./fit";
 import { buildGraph, type Channel, routeBetween, routeChannel } from "./route";
 import { type Marks, type Placed, placeStops } from "./stops";
@@ -45,6 +46,8 @@ const WIDE_ZOOM = 1.3;
 const ZOOM_MIN = 0.55;
 const ZOOM_MAX = 2.6;
 const WIDE = "(min-width: 64rem)";
+/** How long after a card shows its neighbours draw. */
+const NEIGHBOURS_MS = 450;
 const STILL = "(prefers-reduced-motion: reduce)";
 
 function useMedia(query: string): boolean {
@@ -106,6 +109,16 @@ function openFrame(view: OpenView, width: number, height: number): Frame {
   return { x: width / 2 - view.z * view.cx, y: height / 2 - view.z * view.cy, sx: view.z, sy: view.z };
 }
 
+/**
+ * The part of the paper an open view shows, with a margin, in whole squares of the grain, so it changes only as a pan
+ * crosses a square and the grain far off the screen is never drawn.
+ */
+function seen(frame: Frame, size: { width: number; height: number }): readonly [number, number, number, number] {
+  const margin = 160;
+  const snap = (value: number, up: boolean): number => (up ? Math.ceil(value / CELL) : Math.floor(value / CELL)) * CELL;
+  return [snap(-frame.x / frame.sx - margin, false), snap(-frame.y / frame.sy - margin, false), snap((size.width - frame.x) / frame.sx + margin, true), snap((size.height - frame.y) / frame.sy + margin, true)];
+}
+
 function mix(a: Frame, b: Frame, share: number): Frame {
   return { x: a.x + (b.x - a.x) * share, y: a.y + (b.y - a.y) * share, sx: a.sx + (b.sx - a.sx) * share, sy: a.sy + (b.sy - a.sy) * share };
 }
@@ -149,10 +162,22 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
   const route = useMemo(() => (here === null || pickedStop === null || pickedStop.id === here.id ? null : routeBetween(GRAPH, here.at, pickedStop.at)), [here, pickedStop]);
   const channel = route === null || here === null || pickedStop === null ? null : routeChannel({ open: state.phase === "open" || state.phase === "opening", wide, sameCard: here.card === pickedStop.card });
 
+  // Ready once the cards have drawn and a frame has shown them, so a test (or a slow phone) never acts on a map still drawing.
+  const [painted, setPainted] = useState(false);
+  const drew = useCallback(() => {
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setPainted(true));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, []);
   // The probe a browser test reads.
   useEffect(() => {
-    window.__map = { ready: true, phase: state.phase, card: state.card, stops: placed.map((stop) => ({ id: stop.id, state: stop.state, card: stop.card, at: stop.at })), route, channel };
-  }, [state.phase, state.card, placed, route, channel]);
+    window.__map = { ready: painted || wide, phase: state.phase, card: state.card, stops: placed.map((stop) => ({ id: stop.id, state: stop.state, card: stop.card, at: stop.at })), route, channel };
+  }, [painted, wide, state.phase, state.card, placed, route, channel]);
   useEffect(
     () => () => {
       delete window.__map;
@@ -233,6 +258,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
         lift={sheetUp && pickedStop !== null ? pickedStop : null}
         onPick={pick}
         onSwipe={(card) => dispatch({ type: "swipe", card })}
+        onDrawn={drew}
         hidden={state.phase !== "folded"}
         pull={state.pull}
         still={still}
@@ -276,6 +302,8 @@ interface TrackProps {
   lift: Placed | null;
   onPick: (id: string) => void;
   onSwipe: (card: CardId) => void;
+  /** Called once the card shown and its neighbours are drawn; returns its own clean-up. */
+  onDrawn: () => () => void;
   hidden: boolean;
   pull: number;
   still: boolean;
@@ -283,7 +311,7 @@ interface TrackProps {
 }
 
 /** The cards, one to the screen, swiped sideways with the browser's own scroll and its snap; pager dots under them. */
-function CardTrack({ current, width, height, stops, names, marks, tiles, route, routeCard, lift, onPick, onSwipe, hidden, pull, still, sheetUp }: TrackProps) {
+function CardTrack({ current, width, height, stops, names, marks, tiles, route, routeCard, lift, onPick, onSwipe, onDrawn, hidden, pull, still, sheetUp }: TrackProps) {
   const track = useRef<HTMLDivElement>(null);
   const index = cardIndex(current);
   const cardWidth = width - 32;
@@ -335,6 +363,14 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
     };
   }, [index, width, still, hidden]);
   const shown = hidden ? 0 : 1 - pull / 100;
+  // The card shown draws at once; its neighbours a moment later, so opening the map costs one card's drawing.
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    setNear(false);
+    const later = window.setTimeout(() => setNear(true), NEIGHBOURS_MS);
+    return () => window.clearTimeout(later);
+  }, [index]);
+  useEffect(() => (near ? onDrawn() : undefined), [near, onDrawn]);
   return (
     <>
       <div
@@ -350,7 +386,7 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
               card={card}
               width={cardWidth}
               height={cardHeight}
-              drawn={Math.abs(at - index) <= 1}
+              drawn={at === index || (near && Math.abs(at - index) <= 1)}
               stops={stops}
               names={names}
               marks={marks}
@@ -441,7 +477,7 @@ function OpenLayer({ size, view, setView, stops, names, marks, tiles, route, onP
   };
   return (
     <div className="paper-open" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} style={{ opacity }} data-open-map>
-      <World variant="open" uid="open" frame={shown} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={36} route={route} onPick={onPick} style={transition === undefined ? undefined : { transition }} />
+      <World variant="open" uid="open" frame={shown} within={seen(own, size)} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={36} route={route} onPick={onPick} style={transition === undefined ? undefined : { transition }} />
     </div>
   );
 }

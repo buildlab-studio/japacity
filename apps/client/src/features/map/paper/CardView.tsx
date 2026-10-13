@@ -58,10 +58,13 @@ export interface CardViewProps {
 export const CardView = memo(function CardView({ card, width, height, drawn, stops, names, marks, tiles, route, lift, onPick, current, onCard, style, className = "" }: CardViewProps) {
   const inner = { width: Math.max(1, width - 8), height: Math.max(1, height - 8) };
   const url = tiles(card.model);
+  const frame = cardFrame(card, inner.width, inner.height, lift);
+  // The card never pans, so only the paper inside it (and a little round it) is drawn.
+  const within = [Math.floor(-frame.x / frame.sx) - 20, Math.floor(-frame.y / frame.sy) - 20, Math.ceil((inner.width - frame.x) / frame.sx) + 20, Math.ceil((inner.height - frame.y) / frame.sy) + 20] as const;
   return (
     <section className={`paper-card ${className}`} style={{ width, height, ...style }} aria-label={mapWords(card.key)} data-card={card.id} data-current={current} onClick={onCard}>
       <div className="paper-card-in">
-        {drawn ? <World variant="card" uid={`card-${card.id}`} frame={cardFrame(card, inner.width, inner.height, lift)} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={50} route={route} onPick={onPick} /> : null}
+        {drawn ? <World variant="card" uid={`card-${card.id}`} frame={frame} within={within} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={50} route={route} onPick={onPick} /> : null}
       </div>
       <span className="paper-card-title" data-card-title>
         <span className="paper-card-tile">{url === null ? null : <img src={url} alt="" width={22} height={22} draggable={false} />}</span>
