@@ -27,7 +27,7 @@ async function main(): Promise<void> {
   const serveUrl = await bundle({ entryPoint: join(PACKAGE, "src", "index.ts"), publicDir: join(PACKAGE, "public") });
   const composition = await selectComposition({ serveUrl, id: "Lead" });
   mkdirSync(dirname(out), { recursive: true });
-  await renderMedia({ serveUrl, composition, codec: "h264", crf: CRF, imageFormat: "jpeg", jpegQuality: 92, muted: true, pixelFormat: "yuv420p", colorSpace: "bt709", outputLocation: out });
+  await renderMedia({ serveUrl, composition, codec: "h264", crf: CRF, imageFormat: "jpeg", jpegQuality: 92, muted: false, pixelFormat: "yuv420p", colorSpace: "bt709", outputLocation: out });
   const seconds = Math.round((Date.now() - started) / 1000);
   const bytes = statSync(out).size;
   console.log(`teaser:render: ${out} ${(bytes / 1024 / 1024).toFixed(1)} MB, ${String(composition.durationInFrames / composition.fps)} s of video in ${String(seconds)} s`);

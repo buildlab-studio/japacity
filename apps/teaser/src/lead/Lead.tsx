@@ -3,7 +3,7 @@
 // passbook sliding up over the house, the ways out stacking over the parlour, the night falling, the plane leaving, and
 // the seal's two bulbs for the oldest Nigerian joke about leaving. Twenty two seconds, silent.
 import type { CSSProperties, ReactNode } from "react";
-import { AbsoluteFill, Sequence, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 import { Seal, Wordmark } from "../parts/brand";
 import { Card, Chip, Clip, PressButton, Sticker, Title } from "../parts/dress";
@@ -257,14 +257,49 @@ function MeetAda() {
   );
 }
 
+
+/** A sound at a frame of the shot, from public/sound (made by pnpm --filter @japacity/teaser sound). */
+function Sfx({ name, at = 0, volume = 1, from = 0 }: { name: string; at?: number; volume?: number; from?: number }) {
+  return (
+    <Sequence from={at}>
+      <Audio src={staticFile(`sound/${name}`)} volume={volume} trimBefore={from} />
+    </Sequence>
+  );
+}
+
+/** The passbook's coins: one tick every few frames while it counts. */
+function Coins({ from, to, every = 3 }: { from: number; to: number; every?: number }) {
+  const ticks: number[] = [];
+  for (let f = from; f <= to; f += every) ticks.push(f);
+  return (
+    <>
+      {ticks.map((f, i) => (
+        <Sfx key={String(f)} name="coin.wav" at={f} volume={0.35 + (i / ticks.length) * 0.3} />
+      ))}
+    </>
+  );
+}
+
 /** The cut, as frames at 30 a second. */
 const SHOTS = [
-  { frames: 100, node: <MeetAda /> },
+  { frames: 100, node: (
+    <>
+      <MeetAda />
+      <Sfx name="pop.wav" at={6} volume={0.7} />
+      <Sfx name="swish.wav" at={14} volume={0.6} />
+      <Sfx name="pop.wav" at={20} volume={0.5} />
+      <Sfx name="swish.wav" at={28} volume={0.7} />
+      <Sfx name="swish.wav" at={52} volume={0.7} />
+    </>
+  ) },
   { frames: 56, node: (
     <World clip="wide-ride" from={30} push={0.08}>
       <Bubble name="Conductor" x={900} y={720} delay={6} size={44}>
         Oshodi, Oshodi. Enter with your change o.
       </Bubble>
+      <Sfx name="engine.m4a" volume={0.38} />
+      <Sfx name="horn.wav" at={3} volume={0.8} />
+      <Sfx name="pop.wav" at={7} volume={0.8} />
     </World>
   ) },
   { frames: 46, node: (
@@ -275,6 +310,9 @@ const SHOTS = [
       <BigChip tint={TINT.food} delay={14} tilt={-5}>
         Danfo ₦300
       </BigChip>
+      <Sfx name="engine.m4a" volume={0.34} from={56} />
+      <Sfx name="pop.wav" at={5} volume={0.8} />
+      <Sfx name="pop.wav" at={15} volume={0.6} />
     </World>
   ) },
   { frames: 84, node: (
@@ -285,6 +323,9 @@ const SHOTS = [
       <BriefChip tile="prop_travel-bag" delay={40}>
         Papers, abeg
       </BriefChip>
+      <Sfx name="pop.wav" at={11} volume={0.8} />
+      <Sfx name="swish.wav" at={40} volume={0.7} />
+      <Sfx name="pop.wav" at={45} volume={0.5} />
     </World>
   ) },
   { frames: 66, node: (
@@ -296,6 +337,8 @@ const SHOTS = [
       <BigChip tint={TINT.body} delay={8}>
         One month at a time.
       </BigChip>
+      <Sfx name="pop.wav" at={9} volume={0.7} />
+      <Sfx name="pop.wav" at={31} volume={0.8} />
     </World>
   ) },
   { frames: 72, node: (
@@ -310,6 +353,11 @@ const SHOTS = [
       <BigChip tint={TINT.people} delay={44}>
         Your people.
       </BigChip>
+      <Sfx name="crowd.m4a" volume={0.5} />
+      <Sfx name="horn.wav" at={18} volume={0.45} />
+      <Sfx name="pop.wav" at={7} volume={0.8} />
+      <Sfx name="pop.wav" at={27} volume={0.8} />
+      <Sfx name="pop.wav" at={45} volume={0.6} />
     </World>
   ) },
   { frames: 80, node: (
@@ -322,6 +370,12 @@ const SHOTS = [
       <BigChip tint={TINT.money} delay={54} style={{ left: "auto", right: 60 }}>
         Save up.
       </BigChip>
+      <Sfx name="swish.wav" at={4} volume={0.7} />
+      <Coins from={12} to={46} />
+      <Sfx name="stamp.wav" at={28} volume={0.9} />
+      <Sfx name="stamp.wav" at={48} volume={0.9} />
+      <Sfx name="pop.wav" at={35} volume={0.8} />
+      <Sfx name="pop.wav" at={55} volume={0.6} />
     </World>
   ) },
   { frames: 76, node: (
@@ -345,6 +399,12 @@ const SHOTS = [
       <BigChip tint={TINT.study} delay={20} style={{ left: 640, bottom: 80 }}>
         Find your way out.
       </BigChip>
+      <Sfx name="swish.wav" at={2} volume={0.7} />
+      <Sfx name="swish.wav" at={8} volume={0.7} />
+      <Sfx name="swish.wav" at={14} volume={0.7} />
+      <Sfx name="pop.wav" at={21} volume={0.6} />
+      <Sfx name="chime.wav" at={28} volume={0.9} />
+      <Sfx name="pop.wav" at={31} volume={0.5} />
     </World>
   ) },
   { frames: 78, node: (
@@ -354,18 +414,48 @@ const SHOTS = [
       <Bubble name="Ada" x={760} y={700} delay={44} size={42} paint={NIGHT} width={560}>
         Sleep. The month is done.
       </Bubble>
+      <Sfx name="night.m4a" volume={0.5} />
+      <Sfx name="swish.wav" at={30} volume={0.5} />
+      <Sfx name="pop.wav" at={45} volume={0.7} />
     </AbsoluteFill>
   ) },
-  { frames: 86, node: <Leaving /> },
-  { frames: 96, node: <LightsOut /> },
+  { frames: 86, node: (
+    <>
+      <Leaving />
+      <Sfx name="jet.m4a" at={4} volume={0.6} />
+      <Sfx name="swish.wav" at={10} volume={0.6} />
+      <Sfx name="pop.wav" at={57} volume={0.7} />
+    </>
+  ) },
+  { frames: 96, node: (
+    <>
+      <LightsOut />
+      <Sfx name="pop.wav" at={1} volume={0.6} />
+      <Sfx name="click.wav" at={22} volume={1} />
+      <Sfx name="click.wav" at={46} volume={1} />
+      <Sfx name="swell.wav" at={46} volume={0.9} />
+      <Sfx name="pop.wav" at={67} volume={0.6} />
+    </>
+  ) },
 ] as const;
 
 export const LEAD_FRAMES = SHOTS.reduce((sum, shot) => sum + shot.frames, 0);
+/** The frame the last shot starts on, for the bed to go quiet while the bulbs are off. */
+const LIGHTS_AT = LEAD_FRAMES - (SHOTS[SHOTS.length - 1]?.frames ?? 0);
 
 export function Lead() {
   let at = 0;
   return (
     <AbsoluteFill style={{ background: NAVY }}>
+      <Audio
+        src={staticFile("sound/bed.m4a")}
+        volume={(f) => {
+          const dark = f >= LIGHTS_AT + 22 && f < LIGHTS_AT + 46 ? 0.12 : 1;
+          const tail = interpolate(f, [LEAD_FRAMES - 36, LEAD_FRAMES], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          const head = interpolate(f, [0, 20], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          return 0.68 * dark * tail * head;
+        }}
+      />
       {SHOTS.map((shot, index) => {
         const from = at;
         at += shot.frames;

@@ -8,6 +8,7 @@
     "studio": "remotion studio src/index.ts",
     "record": "tsx record/record.ts",
     "render": "tsx render/render.ts",
+    "sound": "tsx sound/make.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

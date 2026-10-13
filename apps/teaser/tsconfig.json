@@ -5,5 +5,5 @@
     "jsx": "react-jsx",
     "types": ["node"]
   },
-  "include": ["src", "record", "render", "remotion.config.ts"]
+  "include": ["src", "record", "render", "sound", "remotion.config.ts"]
 }
