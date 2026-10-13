@@ -77,6 +77,8 @@ export const livelyText: Record<string, string> = {
   "ui.ask.group.road": "The road",
   "ui.ask.group.abroad": "Abroad",
   "ui.ask.group.return": "Home",
+  // The month's close: the rest behind one fold.
+  "ui.results.whole-month": "See the whole month",
   // The talk budget: someone near the player, and a longer line opened in its sheet.
   "ui.talk.someone": "Someone nearby",
   "ui.talk.open": "{name} has more to say",

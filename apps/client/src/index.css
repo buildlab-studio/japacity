@@ -635,3 +635,11 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
    yellow with the navy underside. */
 .ride-way { background: var(--sheet-2); box-shadow: 0 0 0 1.5px var(--sheet-line); }
 .ride-way-on { background: var(--soft); box-shadow: 0 0 0 2px var(--edge), 0 4px 0 2px var(--edge); }
+/* A stand-in picture drawn from its attribute, so it never joins the words of the row it sits in. */
+.drawn-pic::before { content: attr(data-pic); }
+/* The morning's result on the lock screen: a white card, its picture on the
+   soft yellow, the thin edge and a soft shadow. */
+.morning-card { border-radius: 22px; background: #ffffff; color: #131a33; box-shadow: 0 0 0 1.5px #1c2a5e, 0 10px 24px rgba(10, 14, 30, 0.3); }
+/* The morning's result on the lock screen: a white card, its picture on the
+   soft yellow, the thin edge and a soft shadow. */
+.morning-card { border-radius: 22px; background: #ffffff; color: #131a33; box-shadow: 0 0 0 1.5px #1c2a5e, 0 10px 24px rgba(10, 14, 30, 0.3); }
