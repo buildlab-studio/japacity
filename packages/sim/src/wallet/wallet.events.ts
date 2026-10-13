@@ -1,4 +1,4 @@
-import type { Currency, Lot, MoneyParam, Pocket, QueuedConversion, Reason } from "../engine/types";
+import type { Currency, Id, Lot, MoneyParam, Pocket, QueuedConversion, Reason } from "../engine/types";
 
 /** Where money sits: the two spendable pockets, and the locked one (R-WALLET-010). */
 export type AnyPocket = Pocket | "locked";
@@ -30,7 +30,11 @@ export type WalletEvent =
   /** The month closed with this net in the money of the place where it ended; above zero is a month kept (decision 0021). */
   | { type: "wallet/month-closed"; currency: Currency; net: number }
   /** A month closed with more naira cash on the character than the warning line, the first time in the life (R-WALLET-019). */
-  | { type: "wallet/cash-warned" };
+  | { type: "wallet/cash-warned" }
+  /** The passbook: a month closed at home keeping this much for the road, in kobo at the official rate, the road's own fees aside. */
+  | { type: "wallet/paced"; kept: number }
+  /** The passbook: a stamp reached, once, at a month's close; `target` is the road's own figure, on the plan's `route`. */
+  | { type: "wallet/stamped"; at: number; month: number; target: boolean; route: Id<"route"> | null };
 
 /** The ways money goes home (R-ABROAD-006). */
 export type RemitChannel = "app" | "bank" | "informal";

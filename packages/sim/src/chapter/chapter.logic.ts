@@ -91,7 +91,7 @@ function live(routes: RouteSlice, id: Id<"route">): boolean {
  * R-CHAPTER-009: the lean as the view names it: the route granted or flown, else the chosen way,
  * else the order in time, else none heard of.
  */
-function planOf(routes: RouteSlice, content: Content, chosen: Id<"route"> | null): Id<"route"> | null {
+export function planOf(routes: RouteSlice, content: Content, chosen: Id<"route"> | null): Id<"route"> | null {
   const granted = grantedRoute(routes, content);
   if (granted !== null) return granted;
   const candidates = leanCandidates(content);

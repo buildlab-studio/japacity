@@ -58,6 +58,8 @@ export const tuning: Tuning = {
     cashUpTo: naira(10000),
     // R-WALLET-019: cash on you past this is cash a one-chance bus can take.
     cashWarnAt: naira(100000),
+    // The passbook's stamps (the design): a million, two and a half, five, then the road's own figure.
+    stamps: [naira(1000000), naira(2500000), naira(5000000)],
   },
 
   // rate.md

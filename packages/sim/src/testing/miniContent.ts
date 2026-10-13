@@ -321,6 +321,7 @@ export const miniContent: Content = {
       flagDepositAbove: 50000000,
       cashUpTo: 1000000,
       cashWarnAt: 10000000,
+      stamps: [100000000, 250000000, 500000000],
     },
     rate: {
       start: { GBP: 175800, USD: 133150, CAD: 97000, AED: 36255, EUR: 155800 },
