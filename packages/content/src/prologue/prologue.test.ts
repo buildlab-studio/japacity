@@ -291,7 +291,9 @@ describe("lines that fit the life from sixteen", () => {
     const card = text["prologue.friend.card"] ?? "";
     expect(card).toMatch(/Terna, your friend from school,/);
     expect(card).not.toMatch(/Terna's send-off/);
-    expect(text["offer.send-off-party.title"]).toBe("Terna's send-off");
+    // The ask's title is his own words now; the results still name it Terna's send-off.
+    expect(text["offer.send-off-party.title"]).toBe("My send-off party");
+    expect(text["offer.send-off-party.name"]).toBe("Terna's send-off");
   });
 });
 

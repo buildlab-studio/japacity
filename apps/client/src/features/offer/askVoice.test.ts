@@ -1,0 +1,48 @@
+// Ask titles in the person's voice (docs/design/13-the-lively-layer.md section 4; the words pass of 13 Oct
+// 2026): every ask names who asks, its title is at most three words in their voice and never a rule's label, its line is
+// one sentence, and the registers hold (the plan 8): an office abroad, a bank, a school or a court speaks plain English,
+// never Pidgin. The scam text's shout is the one exception R-TEXT-007 allows, and it stays an unknown number.
+import { content, text } from "@japacity/content";
+import { describe, expect, test } from "vitest";
+
+import { say } from "../../shared/words/text";
+import { askerOf } from "./OfferView";
+
+const offers = Object.keys(content.offer);
+/** The lines a scam shouts, one of R-TEXT-007's exceptions. */
+const SHOUTS = new Set(["offer.telco-promo"]);
+/** The askers who speak plain English: offices, firms, the school, the court and the bank (the plan 8). */
+const PLAIN = new Set(["Your bank", "The school", "A hospital trust", "A care home", "A tech firm", "An agency", "Your manager", "The assistance office", "The court", "The migration agency", "The employer", "Your employer", "A recruiter"]);
+/** Pidgin's tells: none in a plain speaker's words. */
+const PIDGIN = /\b(o|abeg|wahala|don|dey|na|fit|sef|oga|abi)\b/i;
+
+describe("the ask in the person's voice", () => {
+  test("[R-TEXT-007] given every ask in content, when its title is read, then it is at most three words and never a label the old titles were", () => {
+    const long = offers.filter((id) => (text[`${id}.title`] ?? "").split(/\s+/).length > 3);
+    expect(long).toEqual([]);
+    // The labels and rule words the pass replaced must not come back.
+    const labels = ["Salary loan", "Fuel scarcity", "Social assistance", "A job offer", "Harvest pledge", "Join the savings circle (ajo)", "Olokun Microfinance: proof of funds", "The family meeting"];
+    expect(offers.map((id) => text[`${id}.title`]).filter((title) => labels.includes(title ?? ""))).toEqual([]);
+  });
+
+  test("[R-TEXT-007] given every ask in content, when who asks is read, then each names its person, and only the scam text is an unknown number", () => {
+    const unnamed = offers.filter((id) => askerOf({ entry: id as never }) === say("ui.ask.someone"));
+    expect(unnamed).toEqual([]);
+    expect(askerOf({ entry: "offer.telco-promo" as never })).toBe(say("ui.ask.unknown"));
+    expect([askerOf({ entry: "offer.salary-loan" as never }), askerOf({ entry: "offer.brother-fees" as never }), askerOf({ entry: "offer.fuel-scarcity" as never })]).toEqual(["Your bank", "Your brother", "The conductor"]);
+  });
+
+  test("[R-TEXT-007] [R-TEXT-005] given every ask's line, when it is read, then it is one sentence and says no percentage", () => {
+    const sentences = (line: string): number => line.split(/(?<=[.?!])['"]?\s+(?=['"]?[A-Z])/).length;
+    const long = offers.filter((id) => !SHOUTS.has(id) && sentences(text[`${id}.body`] ?? "") > 1);
+    expect(long).toEqual([]);
+    expect(offers.filter((id) => (text[`${id}.body`] ?? "").includes("%"))).toEqual([]);
+  });
+
+  test("[R-TEXT-007] given an ask from an office, a firm, the school, the court or the bank, when its title and line are read, then they are plain English with no Pidgin (the plan 8)", () => {
+    const plain = offers.filter((id) => PLAIN.has(askerOf({ entry: id as never })));
+    expect(plain.length).toBeGreaterThan(8);
+    const broken = plain.filter((id) => PIDGIN.test(`${text[`${id}.title`] ?? ""} ${text[`${id}.body`] ?? ""}`));
+    expect(broken).toEqual([]);
+  });
+});

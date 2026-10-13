@@ -27,15 +27,19 @@ describe("lines from home", () => {
   test("[R-PROLOGUE-002] given a life from Enugu on screen, when the wider family's asks, the sibling who stayed and the opening card are said, then each names Enugu, while Mama's own asks and the parents stay at home in Lagos; an explicit town wins; with no life on screen they say your hometown", () => {
     setNow(4, "hometown.enugu");
     expect(hometownWords()).toBe("Enugu");
-    expect(words("offer.roof.body", { cost: 4500000 })).toMatch(/^Your father: 'Rain entered the roof of the house in Enugu\. The carpenter wants ₦45,000 for zinc and labour\.'$/);
-    expect(words("offer.harvest.body", { cost: 1500000 })).toMatch(/^Your uncle, from Enugu: 'They are calling families/);
-    expect(words("offer.uncle-burial.body", { cost: 5000000 })).toMatch(/^Your father: 'The family in Enugu is contributing for the burial\./);
+    // Who asks stands in the ask's name pill now, and the line is theirs alone.
+    expect([say("ui.ask.offer.roof.who"), words("offer.roof.body", { cost: 4500000 })]).toEqual(["Papa", "'Rain entered the roof of the house in Enugu, and the carpenter wants ₦45,000 for zinc and labour.'"]);
+    expect(say("ui.ask.offer.harvest.who")).toBe("Your uncle");
+    expect(words("offer.harvest.body", { cost: 1500000 })).toMatch(/^'They are calling families by name at the harvest in Enugu,/);
+    expect(say("ui.ask.offer.uncle-burial.who")).toBe("Papa");
+    expect(words("offer.uncle-burial.body", { cost: 5000000 })).toMatch(/^'The family in Enugu is contributing for the burial,/);
     expect(say("ui.prologue.town.city")).toBe("Your family is from Enugu, a city.");
     expect(nameOf("person.sib-home")).toBe("Your sibling in Enugu");
     expect(blurbOf("person.sib-home")).toBe("Still in Enugu, still in the family's business, still asking how far.");
     // Mama and Papa live in the family's Lagos house: their own asks and the People screen say home, never the town.
-    expect(words("offer.nepa-bill.body", { cost: 1800000 })).toMatch(/^Mama: 'They are threatening/);
-    expect(words("offer.mum-shop.body", { cost: 1800000 })).toMatch(/^Mama: 'The supplier/);
+    expect(words("offer.nepa-bill.body", { cost: 1800000 })).toMatch(/^'They want ₦18,000 or they cut the light, and your father says he will handle it o\.'$/);
+    expect(words("offer.mum-shop.body", { cost: 1800000 })).toMatch(/^'The supplier has stopped my credit/);
+    for (const key of ["offer.nepa-bill.body", "offer.mum-shop.body"]) expect(words(key, { cost: 1800000 })).not.toContain("Enugu");
     expect(say("ui.people.parent.blurb.mother")).toBe("At home, as she has always been. She calls when there is news.");
     expect(blurbOf("activity.call-home")).toBe("You call your mother and listen to all of it.");
     // The card's title is where the family is from, its place of origin: "Family in" is superseded.

@@ -3,8 +3,8 @@
 // The offer kind names who sent it by a words key in the term `from`; the words read that key's `.name`.
 export const offerParcelText: Record<string, string> = {
   "offer.parcel-shipped.name": "A parcel for you",
-  "offer.parcel-shipped.title": "A parcel for you",
-  "offer.parcel-shipped.body": "{from} shipped you something for your birthday. Collect it at the cargo office on Bode Thomas Street.",
+  "offer.parcel-shipped.title": "Parcel for you",
+  "offer.parcel-shipped.body": "'{from} shipped you something for your birthday: collect it here at the cargo office on Bode Thomas Street.'",
   "offer.parcel-shipped.from.aunty.name": "Your aunty in Houston",
 
   "offer.parcel-shipped.choice.aunty-phone": "Collect it",
