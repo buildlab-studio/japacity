@@ -142,7 +142,7 @@ function JobRow({ view, id, chance, chosen, onPick }: { view: PlayerView; id: st
             )}
             <span className="flex flex-wrap items-center gap-1.5">
               {pay === null ? null : (
-                <span className="sticker-chip num bg-tint-money whitespace-normal" style={{ rotate: "-2deg", color: "var(--money-ink)" }}>
+                <span className="sticker-chip num bg-tint-money chip-wrap" style={{ rotate: "-2deg", color: "var(--money-ink)" }}>
                   {pay}
                 </span>
               )}

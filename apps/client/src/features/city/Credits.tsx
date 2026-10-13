@@ -108,15 +108,15 @@ export function CreditsRow() {
     <>
       <button
         type="button"
-        className="press mt-3 flex w-full items-center justify-between gap-2 rounded-[5px] border border-sheet-line px-3 py-2 text-left"
+        className="lively-card press mt-1 flex w-full items-center justify-between gap-2 p-3 text-left"
         onClick={() => setOpen(true)}
         data-credits-row
       >
         <span className="min-w-0">
-          <span className="block text-[14px] font-extrabold">{cityWords("city.credits")}</span>
-          <span className="block text-[12px] text-text-2">{cityWords("city.credits.hint")}</span>
+          <span className="block text-[17px] font-bold">{cityWords("city.credits")}</span>
+          <span className="block text-[14px] text-text-2">{cityWords("city.credits.hint")}</span>
         </span>
-        <ArrowRight size={16} className="shrink-0" aria-hidden />
+        <ArrowRight size={20} className="shrink-0" aria-hidden />
       </button>
       <CreditsSheet open={open} onOpenChange={setOpen} />
     </>

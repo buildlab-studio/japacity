@@ -365,7 +365,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
                 </span>
               )}
               {does === null ? null : (
-                <span className="sticker-chip bg-tint-body whitespace-normal" style={{ rotate: "-1deg" }} data-does>
+                <span className="sticker-chip bg-tint-body chip-wrap" style={{ rotate: "-1deg" }} data-does>
                   {does}
                 </span>
               )}

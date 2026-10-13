@@ -695,3 +695,5 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 /* A notice on the lock screen is white in both paints, so its words keep the day's ink at night. */
 .morning-card, .phone-notice { --text: #131a33; --text-2: #56607e; --sheet-2: #ffffff; }
 .calendar-stop { border-radius: 9999px; }
+/* A chip whose words run long (a pay with its next step, a home's month) wraps rather than run past its card. */
+.sticker-chip.chip-wrap { white-space: normal; }

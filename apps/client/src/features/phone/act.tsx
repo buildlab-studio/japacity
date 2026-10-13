@@ -92,7 +92,7 @@ export function Head({ children }: { children: ReactNode }) {
 /** A choice among a few, as one segmented pill: the phone never shows a form. */
 export function Chips<T extends string>({ label, value, options, onChange, shown = false }: { label: string; value: T; options: readonly { value: T; label: string }[]; onChange: (value: T) => void; shown?: boolean }) {
   return (
-    <div role="radiogroup" aria-label={label} className={`flex flex-wrap items-center gap-1 ${shown ? "" : "phone-segment p-1"}`}>
+    <div role="radiogroup" aria-label={label} className={`flex items-center gap-1 ${shown ? "flex-wrap" : "phone-segment p-1"}`}>
       {shown ? (
         <span className="w-full px-0.5 text-[13px] font-semibold text-text-2" aria-hidden>
           {label}
@@ -105,7 +105,7 @@ export function Chips<T extends string>({ label, value, options, onChange, shown
           role="radio"
           aria-checked={option.value === value}
           onClick={() => onChange(option.value)}
-          className={`press min-h-10 flex-1 px-4 text-[15px] font-bold whitespace-nowrap ${option.value === value ? "phone-segment-on" : "text-text-2"}`}
+          className={`press min-h-10 px-3 text-[14px] font-bold whitespace-nowrap ${shown ? "" : "flex-auto"} ${option.value === value ? "phone-segment-on" : "text-text-2"}`}
         >
           {option.label}
         </button>

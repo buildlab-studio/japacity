@@ -4,6 +4,7 @@
 import { ArrowRight } from "lucide-react";
 
 import { useGame } from "../../authority/GameProvider";
+import { Tile } from "../tiles/Tile";
 import { say } from "../words/text";
 import { askReadyLives } from "./ready";
 
@@ -13,18 +14,24 @@ export function ReadyEntry() {
   return (
     <button
       type="button"
-      className="press mt-3 flex w-full items-center justify-between gap-2 rounded-[5px] border border-sheet-line px-3 py-2 text-left"
+      className="lively-card press mt-3 flex w-full items-center gap-3 p-3 text-left"
       onClick={() => {
         askReadyLives();
         open();
       }}
       data-ready-entry
     >
-      <span className="min-w-0">
-        <span className="block text-[14px] font-extrabold">{say("ui.door.ready")}</span>
-        <span className="block text-[12px] text-text-2">{say("ui.door.ready.hint")}</span>
+      {/* A card in Settings' lively dress: the hub where a ready life starts, at work. */}
+      <span className="flex size-[52px] shrink-0 items-center justify-center rounded-[16px] bg-tint-plain" aria-hidden>
+        <span className="sticker-cut" style={{ rotate: "-5deg" }}>
+          <Tile of="place.yaba" size={36} />
+        </span>
       </span>
-      <ArrowRight size={16} className="shrink-0" />
+      <span className="min-w-0 flex-1">
+        <span className="block text-[17px] font-bold">{say("ui.door.ready")}</span>
+        <span className="block text-[14px] text-text-2">{say("ui.door.ready.hint")}</span>
+      </span>
+      <ArrowRight size={20} className="shrink-0" />
     </button>
   );
 }

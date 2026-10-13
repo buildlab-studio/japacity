@@ -66,7 +66,7 @@ export function News() {
             {newsLines(midMonth, report.lines, view).map((line, index) => (
               <li
                 key={`${line.key}-${String(index)}`}
-                className={`sticker-chip text-[14px] whitespace-normal ${line.tone === "good" ? "bg-tint-money" : line.tone === "bad" ? "bg-sheet-2" : "bg-tint-study"}`}
+                className={`sticker-chip text-[14px] chip-wrap ${line.tone === "good" ? "bg-tint-money" : line.tone === "bad" ? "bg-sheet-2" : "bg-tint-study"}`}
                 style={{ rotate: `${String(index % 2 === 0 ? -1.5 : 1.5)}deg`, ...(line.tone === "good" ? { color: "var(--money-ink)" } : {}) }}
                 data-tone={line.tone}
               >

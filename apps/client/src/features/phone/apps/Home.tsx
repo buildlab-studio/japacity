@@ -125,11 +125,11 @@ export function HomeCard() {
           </p>
         )}
         {home.roomRent === null ? null : (
-          <span className="sticker-chip num bg-[var(--soft)] whitespace-normal" style={{ rotate: "-1.5deg", color: "var(--soft-ink)" }} data-home-rent-year={home.roomRent.dueIn}>
+          <span className="sticker-chip num bg-[var(--soft)] chip-wrap" style={{ rotate: "-1.5deg", color: "var(--soft-ink)" }} data-home-rent-year={home.roomRent.dueIn}>
             {roomRentWords(home)}
           </span>
         )}
-        <span className="sticker-chip num bg-sheet-muted whitespace-normal" style={{ rotate: "1deg" }} data-home-charge>
+        <span className="sticker-chip num bg-sheet-muted chip-wrap" style={{ rotate: "1deg" }} data-home-charge>
           {chargeWords(home)}
         </span>
         {home.place === MAKOKO ? (

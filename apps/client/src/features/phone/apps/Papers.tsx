@@ -75,7 +75,7 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
         chips={
           <>
             <span
-              className={`sticker-chip text-[13px] whitespace-normal ${tone === "held" ? "bg-tint-money" : tone === "coming" ? "bg-[var(--soft)]" : tone === "expired" ? "bg-sheet-2" : "bg-tint-study"}`}
+              className={`sticker-chip text-[13px] chip-wrap ${tone === "held" ? "bg-tint-money" : tone === "coming" ? "bg-[var(--soft)]" : tone === "expired" ? "bg-sheet-2" : "bg-tint-study"}`}
               style={{ rotate: "-1.5deg", color: tone === "held" ? "var(--money-ink)" : tone === "coming" ? "var(--soft-ink)" : tone === "expired" ? "var(--out)" : undefined }}
               data-paper-state
             >
