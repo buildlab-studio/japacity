@@ -422,7 +422,7 @@ const SHOTS = [
   { frames: 86, node: (
     <>
       <Leaving />
-      <Sfx name="jet.m4a" at={4} volume={0.6} />
+      <Sfx name="jet.m4a" at={4} volume={0.5} />
       <Sfx name="swish.wav" at={10} volume={0.6} />
       <Sfx name="pop.wav" at={57} volume={0.7} />
     </>
@@ -453,7 +453,7 @@ export function Lead() {
           const dark = f >= LIGHTS_AT + 22 && f < LIGHTS_AT + 46 ? 0.12 : 1;
           const tail = interpolate(f, [LEAD_FRAMES - 36, LEAD_FRAMES], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
           const head = interpolate(f, [0, 20], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-          return 0.68 * dark * tail * head;
+          return 0.46 * dark * tail * head;
         }}
       />
       {SHOTS.map((shot, index) => {
