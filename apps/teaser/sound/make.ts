@@ -1,5 +1,5 @@
 // pnpm --filter @japacity/teaser sound
-// Makes the teaser's sounds from code, so they are the makers' own: a rhythm bed, the danfo's horn and engine, a crowd,
+// Makes the teaser's sounds from code, so they are the makers' own: a chilled bed of pad and thumb piano, the danfo's horn and engine, a crowd,
 // the pops of a bubble and a sticker, the swish of a card, the coins of the passbook, a stamp, a chime, the night's
 // crickets and generator, the jet, the light switch and the swell. Each is written as a 16 bit WAV under public/sound
 // at 44100 Hz, mono; ffmpeg then packs the long ones as AAC so the repository stays small.
@@ -238,18 +238,28 @@ function night(): Wave {
 }
 
 function jet(): Wave {
-  const n = seconds(3.2);
+  // A plane passing overhead, heard from the ground: a low rumble that comes and goes, its pitch falling as it passes
+  // (the Doppler shift), the noise kept below 400 Hz so nothing in it hisses.
+  const n = seconds(3.6);
   const raw = noise(n.length, 41);
   const out = new Float32Array(n.length);
   let y = 0;
   for (let i = 0; i < n.length; i += 1) {
     const t = i / n.length;
-    const cut = 200 + 2400 * t;
+    const pass = Math.sin(Math.PI * t) ** 1.6;
+    const cut = 110 + 280 * pass;
     const a = 1 - Math.exp((-2 * Math.PI * cut) / RATE);
     y += a * ((raw[i] ?? 0) - y);
-    out[i] = y * (0.2 + 0.8 * t);
+    out[i] = y * (0.25 + 0.75 * pass);
   }
-  return fade(out, 0.6, 0.6);
+  const sub = tone(n.length, (t) => 96 - 34 * (t / 3.6));
+  const shape = new Float32Array(n.length);
+  for (let i = 0; i < n.length; i += 1) shape[i] = Math.sin((Math.PI * i) / n.length) ** 1.6;
+  const mixed = seconds(3.6);
+  add(mixed, out, 0, 1.4);
+  add(mixed, mul(sub, shape), 0, 0.5);
+  add(mixed, mul(lowpass(highpass(noise(n.length, 47), 350), 700), shape), 0, 0.12);
+  return fade(mixed, 0.5, 0.7);
 }
 
 function click(): Wave {
@@ -269,42 +279,98 @@ function swell(): Wave {
   return lowpass(out, 2200);
 }
 
-/** The bed: a shaker on the sixteenths, a kick on one and the and of two, a low drum that answers every other bar. */
+/** A note of the scale by its number from middle C (0), in Hz. */
+function hz(semitones: number): number {
+  return 261.63 * 2 ** (semitones / 12);
+}
+
+/** A gain shape that rises over `attack`, holds, and falls over `release` at the end. */
+function hold(length: number, attack: number, release: number): Wave {
+  const out = new Float32Array(length);
+  const a = Math.max(1, Math.round(attack * RATE));
+  const r = Math.max(1, Math.round(release * RATE));
+  for (let i = 0; i < length; i += 1) out[i] = Math.min(1, i / a, (length - i) / r);
+  return out;
+}
+
+/** A plucked note like a thumb piano's tine: a sine with a little of its octave, quick to speak, ringing out. */
+function pluck(freq: number, len = 1.1): Wave {
+  const n = seconds(len);
+  const out = seconds(len);
+  add(out, mul(tone(n.length, () => freq), env(n.length, 0.004, 0.3)), 0, 0.7);
+  add(out, mul(tone(n.length, () => freq * 2), env(n.length, 0.004, 0.1)), 0, 0.22);
+  add(out, mul(tone(n.length, () => freq * 3.01), env(n.length, 0.004, 0.04)), 0, 0.07);
+  return out;
+}
+
+/**
+ * The bed, made to sit under the other sounds rather than drive them: a warm pad moving through four chords, a thumb
+ * piano picking a pentatonic line over it with the eighths swung, a soft shaker, a wood tick on two and four, and a
+ * bass note with a slow attack on the one. No kick, nothing that bangs; the pad and the bass are low passed so the
+ * horns, pops and words sit above them.
+ */
 function bed(lengthS: number, bpm: number): Wave {
   const out = seconds(lengthS);
   const beat = 60 / bpm;
-  const shakerLen = seconds(0.07);
-  const shaker = mul(highpass(noise(shakerLen.length, 53), 5000), env(shakerLen.length, 0.004, 0.02));
-  const kickLen = seconds(0.28);
-  const kick = mul(tone(kickLen.length, (t) => 48 + 90 * Math.exp(-t * 28)), env(kickLen.length, 0.002, 0.11));
-  const drumLen = seconds(0.4);
-  const drum = mul(tone(drumLen.length, (t) => 170 - 60 * Math.min(1, t * 3)), env(drumLen.length, 0.004, 0.14));
-  const claveLen = seconds(0.05);
-  const clave = mul(tone(claveLen.length, () => 1800), env(claveLen.length, 0.001, 0.012));
-  const bars = Math.ceil(lengthS / (beat * 4));
-  for (let bar = 0; bar < bars; bar += 1) {
-    const t0 = bar * beat * 4;
-    for (let s = 0; s < 16; s += 1) {
-      const accent = s % 4 === 0 ? 0.5 : s % 2 === 0 ? 0.3 : 0.18;
-      add(out, shaker, t0 + s * (beat / 4), accent);
+  const bar = beat * 4;
+  const swing = beat * 0.09;
+  // Cmaj7, Am7, Fmaj7, G6: two bars each, round and round.
+  const chords: readonly { root: number; notes: readonly number[] }[] = [
+    { root: -24, notes: [0, 4, 7, 11] },
+    { root: -27, notes: [-3, 0, 4, 7] },
+    { root: -31, notes: [-7, -3, 0, 4] },
+    { root: -29, notes: [-5, -1, 2, 4] },
+  ];
+  const pentatonic = [0, 2, 4, 7, 9, 12, 14, 16];
+  // The line: which step of the bar speaks (sixteenths) and which note of the scale, a phrase of two bars that answers itself.
+  const phrase: readonly (readonly [number, number])[][] = [
+    [[0, 5], [3, 4], [6, 3], [10, 4], [12, 2]],
+    [[2, 3], [6, 5], [8, 6], [11, 4], [14, 2]],
+    [[0, 4], [4, 3], [7, 2], [10, 1], [13, 3]],
+    [[1, 2], [6, 3], [8, 5], [12, 4]],
+  ];
+  const shakerLen = seconds(0.06);
+  const shaker = mul(lowpass(highpass(noise(shakerLen.length, 53), 2600), 6500), env(shakerLen.length, 0.006, 0.018));
+  const tickLen = seconds(0.08);
+  const tick = mul(lowpass(tone(tickLen.length, (t) => 820 - t * 600), 2400), env(tickLen.length, 0.001, 0.02));
+  const bars = Math.ceil(lengthS / bar);
+  for (let b = 0; b < bars; b += 1) {
+    const t0 = b * bar;
+    const chord = chords[Math.floor(b / 2) % chords.length] ?? { root: -24, notes: [0, 4, 7, 11] };
+    if (b % 2 === 0) {
+      // The pad: each note a detuned pair of triangles, low passed, rising in over half a beat and leaving as the next comes.
+      const padLen = seconds(bar * 2 + beat);
+      const pad = new Float32Array(padLen.length);
+      for (const note of chord.notes) {
+        const f = hz(note);
+        add(pad, tone(padLen.length, () => f * 0.9975, "tri"), 0, 0.5);
+        add(pad, tone(padLen.length, () => f * 1.0025, "tri"), 0, 0.5);
+      }
+      add(out, mul(lowpass(pad, 1100), hold(padLen.length, beat * 0.6, beat * 1.2)), t0, 0.16);
     }
-    add(out, kick, t0, 0.9);
-    add(out, kick, t0 + beat * 1.5, 0.7);
-    add(out, kick, t0 + beat * 2.5, 0.5);
-    add(out, clave, t0 + beat * 0.5, 0.4);
-    add(out, clave, t0 + beat * 1.75, 0.4);
-    add(out, clave, t0 + beat * 2.5, 0.4);
-    add(out, clave, t0 + beat * 3.25, 0.4);
-    if (bar % 2 === 1) {
-      add(out, drum, t0 + beat * 3, 0.7);
-      add(out, drum, t0 + beat * 3.5, 0.5);
+    // The bass: the root, low, speaking slowly on the one and again lightly on the and of two.
+    const bassLen = seconds(beat * 1.6);
+    const bass = mul(lowpass(tone(bassLen.length, () => hz(chord.root), "tri"), 260), env(bassLen.length, 0.07, 0.6));
+    add(out, bass, t0, 0.42);
+    add(out, bass, t0 + beat * 2.5, 0.26);
+    // The line.
+    for (const [step, degree] of phrase[b % phrase.length] ?? []) {
+      const late = step % 2 === 1 ? swing : 0;
+      add(out, pluck(hz(pentatonic[degree] ?? 0)), t0 + step * (beat / 4) + late, 0.3);
     }
+    // The shaker on the eighths, the off ones swung and softer; the tick on two and four.
+    for (let s = 0; s < 8; s += 1) {
+      const late = s % 2 === 1 ? swing : 0;
+      add(out, shaker, t0 + s * (beat / 2) + late, s % 2 === 0 ? 0.16 : 0.1);
+    }
+    add(out, tick, t0 + beat, 0.22);
+    add(out, tick, t0 + beat * 3, 0.22);
   }
-  return fade(out, 0.4, 1.2);
+  return fade(out, 0.6, 1.4);
 }
 
 mkdirSync(OUT, { recursive: true });
-pack("bed", bed(30, 104), true);
+pack("bed", bed(30, 92), true);
 pack("engine", engine(), true);
 pack("crowd", crowd(), true);
 pack("night", night(), true);
