@@ -139,18 +139,27 @@ function pop(): Wave {
 }
 
 function swish(): Wave {
-  const n = seconds(0.32);
-  const sweep = new Float32Array(n.length);
+  // A card sliding in: a short, low whoosh (the noise kept between about 200 and 900 Hz, so it is air moving, not a
+  // hiss) that swells and goes, and a soft thump as the card lands.
+  const n = seconds(0.26);
   const raw = noise(n.length, 11);
-  let y = 0;
+  const whoosh = new Float32Array(n.length);
+  let low = 0;
+  let band = 0;
   for (let i = 0; i < n.length; i += 1) {
     const t = i / n.length;
-    const cut = 600 + 5000 * t * t;
+    const cut = 500 + 400 * Math.sin(Math.PI * t);
     const a = 1 - Math.exp((-2 * Math.PI * cut) / RATE);
-    y += a * ((raw[i] ?? 0) - y);
-    sweep[i] = (raw[i] ?? 0) - y;
+    const b = 1 - Math.exp((-2 * Math.PI * 200) / RATE);
+    band += a * ((raw[i] ?? 0) - band);
+    low += b * (band - low);
+    whoosh[i] = (band - low) * Math.sin(Math.PI * t) ** 2;
   }
-  return mul(sweep, env(n.length, 0.08, 0.09));
+  const out = seconds(0.26);
+  add(out, lowpass(lowpass(whoosh, 1000), 1000), 0, 1.6);
+  const thumpLen = seconds(0.12);
+  add(out, mul(tone(thumpLen.length, (t) => 150 - t * 300), env(thumpLen.length, 0.003, 0.035)), 0.17, 0.35);
+  return out;
 }
 
 function horn(): Wave {
@@ -330,7 +339,7 @@ function bed(lengthS: number, bpm: number): Wave {
     [[1, 2], [6, 3], [8, 5], [12, 4]],
   ];
   const shakerLen = seconds(0.06);
-  const shaker = mul(lowpass(highpass(noise(shakerLen.length, 53), 2600), 6500), env(shakerLen.length, 0.006, 0.018));
+  const shaker = mul(lowpass(highpass(noise(shakerLen.length, 53), 2200), 4800), env(shakerLen.length, 0.008, 0.016));
   const tickLen = seconds(0.08);
   const tick = mul(lowpass(tone(tickLen.length, (t) => 820 - t * 600), 2400), env(tickLen.length, 0.001, 0.02));
   const bars = Math.ceil(lengthS / bar);
@@ -361,7 +370,7 @@ function bed(lengthS: number, bpm: number): Wave {
     // The shaker on the eighths, the off ones swung and softer; the tick on two and four.
     for (let s = 0; s < 8; s += 1) {
       const late = s % 2 === 1 ? swing : 0;
-      add(out, shaker, t0 + s * (beat / 2) + late, s % 2 === 0 ? 0.16 : 0.1);
+      add(out, shaker, t0 + s * (beat / 2) + late, s % 2 === 0 ? 0.09 : 0.05);
     }
     add(out, tick, t0 + beat, 0.22);
     add(out, tick, t0 + beat * 3, 0.22);

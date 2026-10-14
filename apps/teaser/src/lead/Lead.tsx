@@ -286,10 +286,10 @@ const SHOTS = [
     <>
       <MeetAda />
       <Sfx name="pop.wav" at={6} volume={0.7} />
-      <Sfx name="swish.wav" at={14} volume={0.6} />
+      <Sfx name="swish.wav" at={14} volume={0.4} />
       <Sfx name="pop.wav" at={20} volume={0.5} />
-      <Sfx name="swish.wav" at={28} volume={0.7} />
-      <Sfx name="swish.wav" at={52} volume={0.7} />
+      <Sfx name="swish.wav" at={28} volume={0.4} />
+      <Sfx name="swish.wav" at={52} volume={0.4} />
     </>
   ) },
   { frames: 56, node: (
@@ -324,7 +324,7 @@ const SHOTS = [
         Papers, abeg
       </BriefChip>
       <Sfx name="pop.wav" at={11} volume={0.8} />
-      <Sfx name="swish.wav" at={40} volume={0.7} />
+      <Sfx name="swish.wav" at={40} volume={0.4} />
       <Sfx name="pop.wav" at={45} volume={0.5} />
     </World>
   ) },
@@ -370,7 +370,7 @@ const SHOTS = [
       <BigChip tint={TINT.money} delay={54} style={{ left: "auto", right: 60 }}>
         Save up.
       </BigChip>
-      <Sfx name="swish.wav" at={4} volume={0.7} />
+      <Sfx name="swish.wav" at={4} volume={0.4} />
       <Coins from={12} to={46} />
       <Sfx name="stamp.wav" at={28} volume={0.9} />
       <Sfx name="stamp.wav" at={48} volume={0.9} />
@@ -399,9 +399,9 @@ const SHOTS = [
       <BigChip tint={TINT.study} delay={20} style={{ left: 640, bottom: 80 }}>
         Find your way out.
       </BigChip>
-      <Sfx name="swish.wav" at={2} volume={0.7} />
-      <Sfx name="swish.wav" at={8} volume={0.7} />
-      <Sfx name="swish.wav" at={14} volume={0.7} />
+      <Sfx name="swish.wav" at={2} volume={0.4} />
+      <Sfx name="swish.wav" at={8} volume={0.4} />
+      <Sfx name="swish.wav" at={14} volume={0.4} />
       <Sfx name="pop.wav" at={21} volume={0.6} />
       <Sfx name="chime.wav" at={28} volume={0.9} />
       <Sfx name="pop.wav" at={31} volume={0.5} />
@@ -415,7 +415,7 @@ const SHOTS = [
         Sleep. The month is done.
       </Bubble>
       <Sfx name="night.m4a" volume={0.5} />
-      <Sfx name="swish.wav" at={30} volume={0.5} />
+      <Sfx name="swish.wav" at={30} volume={0.4} />
       <Sfx name="pop.wav" at={45} volume={0.7} />
     </AbsoluteFill>
   ) },
@@ -423,7 +423,7 @@ const SHOTS = [
     <>
       <Leaving />
       <Sfx name="jet.m4a" at={4} volume={0.5} />
-      <Sfx name="swish.wav" at={10} volume={0.6} />
+      <Sfx name="swish.wav" at={10} volume={0.4} />
       <Sfx name="pop.wav" at={57} volume={0.7} />
     </>
   ) },
