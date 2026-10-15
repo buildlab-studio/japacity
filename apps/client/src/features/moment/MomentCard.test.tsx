@@ -9,6 +9,7 @@ import { createGameStore } from "../../authority/store";
 import { engineView, fakeAuthority } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { useCardsTurn } from "../../shared/ui/stage";
+import { sendOff } from "../../shared/world/sendOff";
 import { say } from "../../shared/words/text";
 import { MOMENTS } from "../../shared/moment/moment";
 import { figureSize, markFile, MomentCard } from "./MomentCard";
@@ -242,5 +243,23 @@ describe("the moment card on screen", () => {
       act(() => store.setState({ momentCards: [] }));
       await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     }
+  });
+});
+
+describe("the moment card and the send-off scene", () => {
+  test("[R-CHAPTER-012] [R-MOMENT-006] given the send-off scene covering the world, then the landing's card waits, and stands once the bell is rung", async () => {
+    const view = engineView();
+    const store = createGameStore(fakeAuthority(view));
+    await store.getState().refresh();
+    render(
+      <GameProvider store={store}>
+        <MomentCard over="world" />
+      </GameProvider>,
+    );
+    act(() => sendOff.getState().open({ route: "route.uk-masters", country: "country.uk" }));
+    act(() => store.setState({ momentCards: [{ line: WON, view, before: null }] }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    act(() => sendOff.getState().close());
+    expect(await screen.findByRole("dialog", { name: say("moment.won.kicker") })).toBeDefined();
   });
 });

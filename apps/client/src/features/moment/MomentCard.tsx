@@ -12,6 +12,7 @@ import { useGame } from "../../authority/GameProvider";
 import type { MomentShot } from "../../authority/store";
 import { markFile } from "../../shared/ui/Wordmark";
 import { Counter } from "../../shared/world/Band";
+import { useSendOffShowing } from "../../shared/world/sendOff";
 import { say } from "../../shared/words/text";
 import { figureWords, momentFace, type MomentFace, type MomentIcon } from "../../shared/moment/moment";
 
@@ -114,8 +115,10 @@ export function MomentCard({ over }: { over: "results" | "world" }) {
   const next = useGame((state) => state.nextMomentCard);
   const reportOpen = useGame((state) => state.reportOpen);
   const staged = useGame((state) => state.moments.length);
+  // The send-off scene covers the world from the gate to the first ride (chapter.md R-CHAPTER-012): the landing's card waits for it.
+  const scene = useSendOffShowing();
   // Over the world the staged wins told in the corner pass first; over the results the sheet is already up.
-  const turn = over === "results" ? reportOpen : !reportOpen && staged === 0;
+  const turn = scene ? false : over === "results" ? reportOpen : !reportOpen && staged === 0;
   // Each card mounts afresh, so its figure counts up from nothing and never from the card before.
   return head === null ? null : <MomentDialog key={`${head.line.key}:${JSON.stringify(head.line.params)}:${String(head.view.v)}`} shot={head} open={turn} onClose={next} />;
 }
