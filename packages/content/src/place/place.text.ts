@@ -406,6 +406,9 @@ export const placeText: Record<string, string> = {
   "place.airport-lagos.overheard.3": "Is that the whole family? They all came to see you off.",
   "place.airport-lagos.overheard.4": "Hold the passport in your hand, not in the bag.",
   "place.airport-lagos.overheard.5": "Mummy, stop crying. I will call you as I land.",
+  // Papa's at the gate of the send-off scene (chapter.md R-CHAPTER-012 beat 3), in his voice: few words, plain English.
+  "place.airport-lagos.overheard.6": "Greet them for us. Go well.",
+  "place.airport-lagos.overheard.6.by": "Papa",
   // The departures front's boards, four a copy (R-CITY-024): the airport's public name as on its sign (R-CITY-005, 006), and notices, so no name check is owed (R-CITY-007).
   "place.airport-lagos.sign.1": "MURTALA MUHAMMED\nINTL AIRPORT",
   "place.airport-lagos.sign.2": "DEPARTURES\nDROP OFF ONLY",

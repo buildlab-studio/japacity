@@ -8,7 +8,9 @@ import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { readPerson } from "../../authority/person";
+import { playerName, readPerson } from "../../authority/person";
+import { FigurePicture } from "../../shared/frontdoor/LookPicture";
+import { lookOf } from "../../shared/frontdoor/looks";
 import { plannedShut, worldVar } from "../../authority/store";
 import { keptLookFile } from "../../authority/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
@@ -31,8 +33,10 @@ import { Band, bandMoney, bandMonth } from "../../shared/world/Band";
 import { type MoneyIn, MoneyToast } from "../../shared/world/MoneyToast";
 import { type Said, SaidToast } from "../../shared/world/SaidToast";
 import { cue } from "../../shared/sound/cues";
+import { Rejection } from "../../shared/ui/Rejection";
 import type { Act, Ask, CountryChoice, Pin as ContractPin, PinState, RideChoice, Thing } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
+import { type PlaneCutSlot, sendOff, useSendOffShowing } from "../../shared/world/sendOff";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
 import { Corner, hush, murmur, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
@@ -101,6 +105,23 @@ const STANDING_NUDGES: ReadonlySet<string> = new Set(["setpiece", "offer", "dues
 
 const CityScene = lazy(() => import("./CityScene"));
 const Bag = lazy(() => import("./Bag"));
+// The send-off as a scene (chapter.md R-CHAPTER-012): its own chunk, fetched only when the gate's act is picked (R-ENGINE-020).
+const SendOffScene = lazy(() => import("./sendoff/SendOffScene"));
+/**
+ * Who the character is in the send-off scene (R-CHAPTER-012): the band's name (the one given at the door, else the life's
+ * own), the first name the stub carries, the look and the figure in their own colours (R-PROLOGUE-015). Read here, where
+ * the person kept beside the save is read already, so the scene's own chunk stays apart from the first visit's.
+ */
+function sendOffYou(view: { scenario: string }) {
+  const kept = readPerson();
+  const look = lookOf(kept?.look)?.id ?? lookOf(`chr_${view.scenario.slice("scenario.".length)}`)?.id ?? "chr_ada";
+  const first = playerName(view as Parameters<typeof playerName>[0]) ?? "";
+  const name = kept !== null && kept.name !== "" ? kept.name : (text[`${view.scenario}.name`] ?? first);
+  return { name, first: first === "" ? name : first, look, figure: <FigurePicture look={look} style={kept?.look === look ? kept.style : undefined} view="figure" className="so-fig" /> };
+}
+
+// Development only: the picture runs open a beat of the send-off straight from the page (a player's build drops it).
+if (import.meta.env.DEV && typeof window !== "undefined") Object.assign(window, { __sendOff: sendOff });
 
 const city = content.tuning.city;
 const PLACES = Object.values(content.place);
@@ -427,6 +448,7 @@ export function City({
   askIcon,
   cityMap,
   kiosk,
+  planeCut,
 }: {
   /** `adverts`: the shell's advert slots for the place on screen (R-ADVERT-001), placed beside what is said there. */
   adverts?: (place: string) => ReactNode;
@@ -455,6 +477,8 @@ export function City({
   cityMap?: (props: CityMapSlot) => ReactNode;
   /** The street kiosk's sheet while the world runs the Friday draw (lottery.md R-LOTTERY-001), handed in by the shell, over the place named `label`. */
   kiosk?: (close: () => void, label: string) => ReactNode;
+  /** The send-off's plane cut over the painted map at night (world.md R-WORLD-037), handed in by the shell. */
+  planeCut?: (slot: PlaneCutSlot) => ReactNode;
 } = {}) {
   const view = useView();
   const send = useGame((state) => state.send);
@@ -856,6 +880,18 @@ export function City({
   const depositDue = view.routes.filter((route) => route.school === null && route.depositPaid === 0).flatMap((route) => route.schools.filter((school) => school.state === "offer").map((school) => ({ route: route.id, school: school.id })))[0] ?? null;
   // A visa granted makes the flight boardable at the airport's gate (R-CHAPTER-006, route/depart).
   const departDue = view.routes.find((route) => route.state === "granted")?.id ?? null;
+  // R-CHAPTER-012: the gate's act opens the send-off scene in place of the card the flight was; the scene's third beat sends
+  // `route/depart`, so picking the act changes nothing in the life.
+  useEffect(() => {
+    if (!world || picked?.kind !== "command" || picked.command !== "route/depart") return;
+    setPicked(null);
+    const country = departDue === null ? null : (content.route[departDue]?.country ?? null);
+    if (departDue === null || country === null) return;
+    cue("open");
+    sendOff.getState().open({ route: departDue, country });
+  }, [world, picked, departDue]);
+  const sendOffShowing = useSendOffShowing();
+  const busy = useGame((state) => state.busy);
   // R-WORLD-005: a job on a place's board or stall is an act whenever the hunt can ask for it.
   const hunt = view.activities.find((option) => option.id === "activity.job-hunt");
   // The board stays while a job is held: the hunt's jobs show, and the card says why it is shut.
@@ -1236,30 +1272,6 @@ export function City({
         setAnswer(null);
         setPicked(null);
       });
-    }
-    if (world && picked?.kind === "command" && picked.command === "route/depart" && departDue !== null) {
-      const route = departDue;
-      // The flight's cost from tuning unless the employer pays; held funds still open stop the flight (route/depart).
-      const flight = content.tuning.route.flight;
-      const employerPays = content.route[route]?.flightPaidByEmployer === true;
-      const heldOpen = view.obligations.some((owed) => content.obligation[owed.entry]?.type === "held-funds");
-      return {
-        form: "card",
-        icon: "plane",
-        who: hereName,
-        title: say("ui.route.depart"),
-        line: say("ui.world.depart-line", { country: say(`ui.country.place.${content.route[route]?.country ?? ""}`) }),
-        // The flight's amount is a plain figure in tuning; a world variable would need the simulation's reading.
-        cost: employerPays || typeof flight.amount !== "number" ? null : { amount: flight.amount, currency: flight.currency },
-        when: "now",
-        ...(heldOpen ? { blocked: say("ui.world.depart-held") } : {}),
-        button: say("ui.route.depart"),
-        act: () => {
-          void send({ type: "route/depart", route }).then((reply) => cue(reply?.ok === true ? "whoosh" : "tap"));
-          setPicked(null);
-        },
-        dismiss: () => setPicked(null),
-      };
     }
     // return.md: the bag in the room abroad sends the character home by choice, through a card that says what the return means.
     if (world && picked?.kind === "command" && picked.command === GO_HOME) {
@@ -1724,6 +1736,12 @@ export function City({
           </Suspense>
         ) : null}
       </div>
+
+      {world && sendOffShowing ? (
+        <Suspense fallback={null}>
+          <SendOffScene you={sendOffYou(view)} game={{ view, busy, send: (command) => send(command).then((reply) => reply?.ok === true), rejection: <Rejection /> }} {...(planeCut === undefined ? {} : { planeCut })} />
+        </Suspense>
+      ) : null}
 
       {world && map && cityMap !== undefined
         ? cityMap({
