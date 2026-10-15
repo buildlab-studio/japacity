@@ -1,13 +1,17 @@
-// R-SERVER-044: the fifteen migrations of 8 to 11 Oct 2026 became one clean set on 11 Oct 2026 (the decision of
-// 15:07), before the first production deploy. This proves the clean set builds the very structure the fifteen built:
-// one fresh PGlite migrated with the old files, another with the clean set, and a walk of each catalog compared.
+// R-SERVER-044: the migrations have been squashed twice, each time before launch with no real player on either
+// database. On 11 Oct 2026 the fifteen of 8 to 11 Oct became a clean set of two, and the
+// test of that day proved the two built the very structure the fifteen had (kept in git up to 6560ceca). On 15 Oct 2026
+// ("one migration script, clean sheet") the three files as they then stood (the clean set's
+// two and 0002_dedication-lights) became this one file, 0000_japacity, the hand-written function and trigger carried in
+// at its end. This proves the one file builds the very structure the three built: one fresh PGlite migrated with the
+// three, another with the one, and a walk of each catalog compared.
 //
-// The old files are kept for this test in __fixtures__/migrations-before-squash (their SQL and journal exactly as at
-// e39f911b; the snapshots are not needed to migrate). They are read from the tree and not from git because the check
+// The three are kept for this test in __fixtures__/migrations-before-squash-2 (their SQL and journal exactly as at
+// 6560ceca; the snapshots are not needed to migrate). They are read from the tree and not from git because the check
 // in CI checks out one commit with no history, and a test that needs history would fail or skip there.
 //
-// Only the clean set's own two files are compared, never a migration added after them, so the test keeps proving the
-// squash after the set grows again.
+// Only the clean file itself is compared, never a migration added after it, so the test keeps proving the squash after
+// the set grows again.
 import { createHash } from "node:crypto";
 import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -19,33 +23,17 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { afterAll, describe, expect, test } from "vitest";
 
-const BEFORE = fileURLToPath(new URL("./__fixtures__/migrations-before-squash", import.meta.url));
+const BEFORE = fileURLToPath(new URL("./__fixtures__/migrations-before-squash-2", import.meta.url));
 const CLEAN = fileURLToPath(new URL("../migrations", import.meta.url));
 
-/** The fifteen, in the order they ran on both Neon branches before the squash. */
-const OLD_TAGS = [
-  "0000_stores",
-  "0001_switches",
-  "0002_analytics",
-  "0003_moderation",
-  "0004_draw-list-top-up",
-  "0005_people",
-  "0006_notify",
-  "0007_adverts",
-  "0008_account-usage-counts",
-  "0009_session-signed-in-with",
-  "0010_boards",
-  "0011_draw-odds-jackpot",
-  "0012_guest-accounts",
-  "0013_retire-top-up",
-  "0014_command-log-at",
-];
+/** The three, in the order they ran on both Neon branches before the squash. */
+const OLD_TAGS = ["0000_japacity", "0001_functions-and-triggers", "0002_dedication-lights"];
 
-/** The SHA-256 of the fifteen SQL files in order, as at e39f911b, so the fixture cannot be edited to match. */
-const OLD_SQL_SHA256 = "254de46c5021e19bc5f1ec97dade933d40bb1eeb288a632fccf63e6f2397b7c5";
+/** The SHA-256 of the three SQL files in order, as at 6560ceca, so the fixture cannot be edited to match. */
+const OLD_SQL_SHA256 = "86e1258543b51ff830e539f6f04cd860ba10f3c45258595c367af19511eedaa2";
 
-/** The clean set: the generator's file and the hand-written one. */
-const CLEAN_TAGS = ["0000_japacity", "0001_functions-and-triggers"];
+/** The clean set: one file, the generator's with the hand-written function and trigger at its end. */
+const CLEAN_TAGS = ["0000_japacity"];
 
 interface Journal {
   entries: { idx: number; tag: string; when: number }[];
@@ -58,7 +46,7 @@ afterAll(() => {
   for (const folder of scratch) rmSync(folder, { recursive: true, force: true });
 });
 
-/** A folder holding only the first entries of the clean set, with a journal cut to them. */
+/** A folder holding only the clean set's own entries, with a journal cut to them. */
 function cleanSetOnly(): string {
   const folder = mkdtempSync(join(tmpdir(), "japacity-squash-"));
   scratch.push(folder);
@@ -91,7 +79,7 @@ type Catalog = Record<"schemas" | "extensions" | "relations" | "columns" | "cons
 
 /**
  * The structure of one database, each part a sorted list of lines. Normalised in two ways only:
- * - Column positions are not compared. A column the fifteen added later with ALTER TABLE stands last in its table,
+ * - Column positions are not compared. A column an earlier set added later with ALTER TABLE stands last in its table,
  *   while the clean set puts it where the schema declares it; nothing in the game reads a column by its position.
  * - The NOT NULL constraints Postgres 18 lists in pg_constraint are named by Postgres itself, not by a migration, so
  *   their names are left out (their column and their place in the walk stay). Every other constraint, index and
@@ -143,8 +131,8 @@ async function walk(client: PGlite): Promise<Catalog> {
   };
 }
 
-describe("the clean set of 11 Oct 2026", () => {
-  test("[R-SERVER-044] given the fifteen migrations kept as a fixture, when they are read, then they are the fifteen as they stood before the squash, unedited", () => {
+describe("the clean set of 15 Oct 2026", () => {
+  test("[R-SERVER-044] given the three migrations kept as a fixture, when they are read, then they are the three as they stood before the squash, unedited", () => {
     expect(journalOf(BEFORE).entries.map((entry) => entry.tag)).toEqual(OLD_TAGS);
     expect(readdirSync(BEFORE).filter((name) => name.endsWith(".sql")).sort()).toEqual(OLD_TAGS.map((tag) => `${tag}.sql`));
     const hash = createHash("sha256");
@@ -152,7 +140,7 @@ describe("the clean set of 11 Oct 2026", () => {
     expect(hash.digest("hex")).toBe(OLD_SQL_SHA256);
   });
 
-  test("[R-SERVER-044] given the committed migrations, when their journal is read, then they start again at 0000 with the clean set's two files", () => {
+  test("[R-SERVER-044] given the committed migrations, when their journal is read, then they start again at 0000 with the clean set's one file", () => {
     const entries = journalOf(CLEAN).entries;
     expect(entries.slice(0, CLEAN_TAGS.length).map((entry) => [entry.idx, entry.tag])).toEqual(CLEAN_TAGS.map((tag, idx) => [idx, tag]));
     // Drizzle's migrator applies an entry only when it is newer than the last one a database holds, so every later
@@ -161,7 +149,7 @@ describe("the clean set of 11 Oct 2026", () => {
     expect(whens).toEqual([...new Set(whens)].sort((a, b) => a - b));
   });
 
-  test("[R-SERVER-044] given one database migrated with the fifteen and one with the clean set, when both catalogs are walked, then every schema, table, column, constraint, index, sequence, function and trigger is the same", { timeout: 60000 }, async () => {
+  test("[R-SERVER-044] given one database migrated with the three and one with the clean set, when both catalogs are walked, then every schema, table, column, constraint, index, sequence, function and trigger is the same", { timeout: 60000 }, async () => {
     const before = await migrated(BEFORE);
     const after = await migrated(cleanSetOnly());
     try {

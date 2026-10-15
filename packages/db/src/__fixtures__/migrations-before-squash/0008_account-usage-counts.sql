@@ -1,1 +1,0 @@
-ALTER TABLE "accounts" ADD COLUMN "send_usage_counts" boolean DEFAULT true NOT NULL;

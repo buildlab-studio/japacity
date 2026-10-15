@@ -1,1 +1,0 @@
-ALTER TABLE "session" ADD COLUMN "signed_in_with" text;
