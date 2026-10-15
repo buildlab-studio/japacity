@@ -147,9 +147,10 @@ export function ShareCardFace({ card, scenario = null }: { card: ShareCard; scen
 /** One field of the stub: its name small, its value large. */
 function StubField({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex min-w-0 flex-col">
+    // Grown to its longest word and never below it, so a place name ("United Kingdom") wraps between words, not inside one.
+    <div className="flex flex-1 basis-[40%] flex-col">
       <span className="text-[0.6875rem] font-bold tracking-widest opacity-75">{label.toUpperCase()}</span>
-      <span className="text-lg leading-tight font-black break-words">{children}</span>
+      <span className="text-lg leading-tight font-black">{children}</span>
     </div>
   );
 }
@@ -166,7 +167,7 @@ export function StubCardFace({ face }: { face: StubFace }) {
               {face.name}
             </p>
           )}
-          <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+          <div className="flex flex-wrap gap-x-3 gap-y-2">
             <StubField label={face.labels.from}>{face.fields.from}</StubField>
             <StubField label={face.labels.to}>
               {face.fields.to}
