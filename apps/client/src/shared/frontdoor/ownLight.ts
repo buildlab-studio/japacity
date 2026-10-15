@@ -133,9 +133,14 @@ export function putOutOwnLight(storage: Pick<Store, "removeItem"> | null = brows
   changed();
 }
 
-/** The light's words on tap and on the page: the name, then the years as "1951 to 2024", or the one year given. */
+/** The light's years as a person says them: "1951 to 2024", or the one year given, or null with none. */
+export function lightYears(light: OwnLight, between: string): string | null {
+  return light.from !== null && light.to !== null ? `${String(light.from)} ${between} ${String(light.to)}` : light.from !== null ? String(light.from) : light.to !== null ? String(light.to) : null;
+}
+
+/** The light's words on tap and on the page: the name, then its years. */
 export function lightWords(light: OwnLight, between: string): string {
-  const years = light.from !== null && light.to !== null ? `${String(light.from)} ${between} ${String(light.to)}` : light.from !== null ? String(light.from) : light.to !== null ? String(light.to) : null;
+  const years = lightYears(light, between);
   return years === null ? light.name : `${light.name}, ${years}`;
 }
 

@@ -12,7 +12,7 @@ import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { type FormEvent, useState } from "react";
 
-import { checkLight, keepOwnLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, type LightAsked, lightWords, type OwnLight, putOutOwnLight, useOwnLight } from "../../shared/frontdoor/ownLight";
+import { checkLight, keepOwnLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, type LightAsked, lightWords, lightYears, type OwnLight, putOutOwnLight, useOwnLight } from "../../shared/frontdoor/ownLight";
 import { say } from "../../shared/words/text";
 import { Bulb, capTop, Glow } from "./bulb";
 
@@ -48,6 +48,17 @@ function BulbMark() {
   );
 }
 
+/**
+ * the owner's line in rows, as the design sets it: after its first comma, before a bracket, and after a closing bracket's
+ * full stop. Cut from content's own words, never retyped: the rows joined are the line, and a line with none of those
+ * marks stands as one row.
+ */
+export function lineRows(line: string): string[] {
+  return line
+    .split(/(?<=^[^,]*, )|(?= \()|(?<=\)\. )/u)
+    .filter((row) => row !== "");
+}
+
 const EMPTY: LightAsked = { name: "", from: "", to: "" };
 
 /** The device's year: a light's years run up to it. */
@@ -68,7 +79,7 @@ function LightSheet({ open, onClose, year }: { open: boolean; onClose: () => voi
     setAsked(EMPTY);
     onClose();
   };
-  const field = "w-full bg-transparent text-[18px] font-semibold text-text outline-hidden placeholder:text-text-2";
+  const field = "bg-transparent text-[18px] font-semibold text-text outline-hidden placeholder:text-text-2";
   return (
     <Dialog.Root open={open} onOpenChange={(next) => (next ? undefined : onClose())}>
       <Dialog.Portal>
@@ -88,7 +99,7 @@ function LightSheet({ open, onClose, year }: { open: boolean; onClose: () => voi
             <label className="flex flex-col gap-1 rounded-[12px] border border-sheet-line bg-sheet-2 px-4 py-2.5">
               <span className="text-[13px] text-text-2">{say("ui.dedication.name")}</span>
               <input
-                className={field}
+                className={`${field} w-full`}
                 type="text"
                 value={asked.name}
                 maxLength={LIGHT_NAME_CHARACTERS}
@@ -131,6 +142,7 @@ function LightSheet({ open, onClose, year }: { open: boolean; onClose: () => voi
 function OwnOnPage({ light }: { light: OwnLight }) {
   const [offered, setOffered] = useState(false);
   const words = lightWords(light, say("ui.dedication.between"));
+  const years = lightYears(light, say("ui.dedication.between"));
   return (
     <>
       <button
@@ -142,9 +154,16 @@ function OwnOnPage({ light }: { light: OwnLight }) {
         onClick={() => setOffered((was) => !was)}
         data-own-light="page"
       />
-      <div className="absolute right-[15px] flex max-w-[210px] flex-col items-end gap-2 text-right" style={{ top: OWN.y + OWN.r + 14 }}>
-        <p className="text-[14px] leading-snug text-text" data-own-light-words>
-          {words}
+      {/* Under its own light, as a light in the field carries its name: the name, and the years on a row of their own. */}
+      <div className="absolute flex w-[170px] -translate-x-1/2 flex-col items-center gap-1 text-center" style={{ left: OWN.x, top: OWN.y + OWN.r + 12 }}>
+        <p className="text-[14px] leading-snug text-balance text-text" data-own-light-words>
+          <span className="block font-medium">{light.name}</span>
+          {years === null ? null : (
+            <>
+              <span className="sr-only">, </span>
+              <span className="block text-text-2 tabular-nums">{years}</span>
+            </>
+          )}
         </p>
         {offered ? (
           <button
@@ -201,7 +220,11 @@ export function Dedication({ open, onClose, year }: DedicationProps) {
           </div>
           <div className="mx-auto flex max-w-[330px] flex-col items-center px-2 text-center">
             <p className="text-[18px] leading-[1.55] font-medium text-balance" data-dedication-line>
-              {DEDICATION}
+              {lineRows(DEDICATION).map((row, at) => (
+                <span key={at} className="block">
+                  {row}
+                </span>
+              ))}
             </p>
             <p className="mt-7 text-[16px] font-bold" data-dedication-rest>
               {say("ui.dedication.rest")}

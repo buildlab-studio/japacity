@@ -9,7 +9,7 @@ import { forgetOwnLightRead, OWN_LIGHT_KEY, readOwnLight } from "../../shared/fr
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { BREATH_MS } from "./bulb";
-import { Dedication } from "./Dedication";
+import { Dedication, lineRows } from "./Dedication";
 import { OWN_ON_WIRE, THIRD, ThirdLight } from "./ThirdLight";
 import { ABROAD, TwoLights } from "./TwoLights";
 
@@ -125,6 +125,10 @@ describe("the dedication page", () => {
     expect(DEDICATION_NICKNAME).toBe("soksonjr");
     expect(shown.querySelector("[data-dedication-name]")?.textContent).toBe("soksonjr");
     expect(shown.querySelector("[data-dedication-line]")?.textContent).toBe(OWNERS_LINE);
+    // Set in the design's four rows, cut from content's own line, never retyped.
+    expect(lineRows(DEDICATION)).toHaveLength(4);
+    expect(lineRows(DEDICATION).join("")).toBe(DEDICATION);
+    expect(lineRows("A line with none of the marks")).toEqual(["A line with none of the marks"]);
     const rest = shown.querySelector("[data-dedication-rest]")!;
     expect(rest.textContent).toBe("Sun re o.");
     expect(shown.querySelector("[data-dedication-line]")?.compareDocumentPosition(rest)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
