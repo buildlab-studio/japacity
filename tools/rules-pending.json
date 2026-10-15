@@ -9,6 +9,7 @@
   "R-GUIDE-012",
   "R-LOAD-012",
   "R-LOTTERY-020",
+  "R-MODERATION-021",
   "R-PEOPLE-006",
   "R-PEOPLE-055",
   "R-PEOPLE-057",
@@ -22,8 +23,10 @@
   "R-REGION-008",
   "R-REGION-009",
   "R-SERVER-033",
+  "R-SERVER-045",
   "R-TEXT-001",
   "R-TEXT-003",
   "R-TEXT-004",
-  "R-WORLD-027"
+  "R-WORLD-027",
+  "R-WORLD-036"
 ]
