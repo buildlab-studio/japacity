@@ -1,22 +1,14 @@
-// The player's own light (docs/rules/account.md R-ACCOUNT-033): the sheet's limits at each edge, and the light kept on
-// this device only, beside the front door's other memories, one per device, and removed by "Put it out".
-import { afterEach, describe, expect, test, vi } from "vitest";
+// A dedication light's limits (docs/rules/account.md R-ACCOUNT-033), each at its edge, as the client and the server
+// both check them (server.md R-SERVER-045).
+import { describe, expect, test } from "vitest";
 
-import { DOOR_KEY } from "../datapage/door";
-import { TRAIL_KEY } from "../datapage/family";
-import { checkLight, keepOwnLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, lightWords, OWN_LIGHT_KEY, putOutOwnLight, readOwnLight } from "./ownLight";
-import { READY_ASK_KEY } from "./ready";
+import { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, lightWords, lightYears } from "./light";
 
 const YEAR = 2026;
 const named = (name: string) => checkLight({ name, from: "", to: "" }, YEAR);
 const years = (from: string, to: string) => checkLight({ name: "Mama Nkechi", from, to }, YEAR);
 
-afterEach(() => {
-  localStorage.clear();
-  vi.restoreAllMocks();
-});
-
-describe("the sheet's limits", () => {
+describe("the limits", () => {
   test("[R-ACCOUNT-033] given the limits, then a name is at most four words and forty characters, and a year runs from 1900 to the current year", () => {
     expect(LIGHT_NAME_WORDS).toBe(4);
     expect(LIGHT_NAME_CHARACTERS).toBe(40);
@@ -59,47 +51,27 @@ describe("the sheet's limits", () => {
   test("[R-ACCOUNT-033] given a light, then its words are the name and its years as a person says them", () => {
     expect(lightWords({ name: "Mama Nkechi", from: 1951, to: 2024 }, "to")).toBe("Mama Nkechi, 1951 to 2024");
     expect(lightWords({ name: "Mama Nkechi", from: 1951, to: null }, "to")).toBe("Mama Nkechi, 1951");
+    expect(lightWords({ name: "Mama Nkechi", from: null, to: 2024 }, "to")).toBe("Mama Nkechi, 2024");
     expect(lightWords({ name: "Mama Nkechi", from: null, to: null }, "to")).toBe("Mama Nkechi");
+    expect(lightYears({ from: null, to: null }, "to")).toBeNull();
   });
 });
 
-describe("the light kept on the device", () => {
-  test("[R-ACCOUNT-033] given a light lit, then it is kept on this device under its own key beside the front door's memories, and nothing is sent", () => {
-    const fetching = vi.spyOn(globalThis, "fetch");
-    expect(readOwnLight()).toBeNull();
-    keepOwnLight({ name: "Mama Nkechi", from: 1951, to: 2024 });
-    expect(OWN_LIGHT_KEY.startsWith("japacity.door.")).toBe(true);
-    expect([DOOR_KEY, TRAIL_KEY, READY_ASK_KEY].every((key) => key.startsWith("japacity.door"))).toBe(true);
-    expect(JSON.parse(localStorage.getItem(OWN_LIGHT_KEY) ?? "null")).toEqual({ name: "Mama Nkechi", from: 1951, to: 2024 });
-    expect(readOwnLight()).toEqual({ name: "Mama Nkechi", from: 1951, to: 2024 });
-    expect(fetching).not.toHaveBeenCalled();
+describe("a light as a request sends it", () => {
+  test("[R-ACCOUNT-033] [R-SERVER-045] given a body with whole years, then it is checked as typed: the same light, the same problems at the same edges", () => {
+    expect(checkSentLight({ name: "Mama Nkechi", from: 1951, to: 2024 }, YEAR)).toEqual({ ok: true, light: { name: "Mama Nkechi", from: 1951, to: 2024 } });
+    expect(checkSentLight({ name: "Mama Nkechi" }, YEAR)).toEqual({ ok: true, light: { name: "Mama Nkechi", from: null, to: null } });
+    expect(checkSentLight({ name: "Mama Nkechi", from: null, to: 2024 }, YEAR)).toEqual({ ok: true, light: { name: "Mama Nkechi", from: null, to: 2024 } });
+    expect(checkSentLight({ name: "One two three four five" }, YEAR)).toEqual({ ok: false, problems: ["name-words"] });
+    expect(checkSentLight({ name: "Mama", from: 1899 }, YEAR)).toEqual({ ok: false, problems: ["first-year"] });
+    expect(checkSentLight({ name: "Mama", to: YEAR + 1 }, YEAR)).toEqual({ ok: false, problems: ["last-year"] });
+    expect(checkSentLight({ name: "Mama", from: 2000, to: 1999 }, YEAR)).toEqual({ ok: false, problems: ["last-before"] });
   });
 
-  test("[R-ACCOUNT-033] given a second light lit, then it stands in the first one's place: one light per device", () => {
-    keepOwnLight({ name: "Mama Nkechi", from: null, to: null });
-    keepOwnLight({ name: "Uncle Tunde", from: 1960, to: null });
-    expect(readOwnLight()).toEqual({ name: "Uncle Tunde", from: 1960, to: null });
-    expect(Object.keys(localStorage).filter((key) => key === OWN_LIGHT_KEY)).toHaveLength(1);
-  });
-
-  test("[R-ACCOUNT-033] given a light kept, when it is put out, then it is gone from the device", () => {
-    keepOwnLight({ name: "Mama Nkechi", from: 1951, to: 2024 });
-    putOutOwnLight();
-    expect(localStorage.getItem(OWN_LIGHT_KEY)).toBeNull();
-    expect(readOwnLight()).toBeNull();
-  });
-
-  test("[R-ACCOUNT-033] given what is kept cannot be read or breaks a limit, then no light shows", () => {
-    for (const kept of ["not json", "null", JSON.stringify({ name: 7 }), JSON.stringify({ name: "One two three four five", from: null, to: null }), JSON.stringify({ name: "Mama", from: 1800, to: null }), JSON.stringify({ name: "Mama", from: 2000, to: 1990 })]) {
-      localStorage.setItem(OWN_LIGHT_KEY, kept);
-      expect(readOwnLight()).toBeNull();
-    }
-  });
-
-  test("[R-ACCOUNT-033] given storage the browser refuses, then reading finds no light and keeping throws nothing", () => {
-    const refusing = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); }, removeItem: () => { throw new Error("blocked"); } };
-    expect(readOwnLight(refusing)).toBeNull();
-    expect(() => keepOwnLight({ name: "Mama", from: null, to: null }, refusing)).not.toThrow();
-    expect(() => putOutOwnLight(refusing)).not.toThrow();
+  test("[R-ACCOUNT-033] [R-SERVER-045] given a body that is not a light, then a name that is not text is empty and a year that is not a whole number is a bad year", () => {
+    expect(checkSentLight(null, YEAR)).toEqual({ ok: false, problems: ["name-empty"] });
+    expect(checkSentLight({ name: 7 }, YEAR)).toEqual({ ok: false, problems: ["name-empty"] });
+    expect(checkSentLight({ name: "Mama", from: "1951" }, YEAR)).toEqual({ ok: false, problems: ["first-year"] });
+    expect(checkSentLight({ name: "Mama", from: 1951 / 2, to: true }, YEAR)).toEqual({ ok: false, problems: ["first-year", "last-year"] });
   });
 });

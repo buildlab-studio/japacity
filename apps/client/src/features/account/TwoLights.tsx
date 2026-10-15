@@ -16,8 +16,8 @@ import { say } from "../../shared/words/text";
 import { type LightsShown, sharesOf } from "./lights";
 
 /** The stage, in the design's own units: one pixel each, never scaled; a phone narrower than it trims the empty sides. */
-export const W = 380;
-export const H = 230;
+const W = 380;
+const H = 230;
 
 /** The wire between the two bulbs, a quadratic curve as designed. */
 const FROM = { x: 118, y: 108 };
@@ -28,7 +28,7 @@ const WIRE = `M${String(FROM.x)} ${String(FROM.y)} Q${String(BEND.x)} ${String(B
 const HOME = { x: 110, y: 112 };
 /** The caption under the counts, where the design has it. */
 const CAPTION_Y = 214;
-export const ABROAD = { x: 270, y: 132 };
+const ABROAD = { x: 270, y: 132 };
 
 /** The design's timing: three sparks out, 3.6 s each, 1.2 s apart; one back, 7 s, from 0.6 s. */
 const OUT_MS = 3_600;
@@ -100,8 +100,8 @@ function glowOf(shareBp: number): { alpha: number; radius: number; glass: number
 
 /**
  * The glow's light, as designed: a warm radial fall-off from the bulb, `alpha` at its heart. The one fill every
- * light on the wire glows with (the two lights here, the third light and a player's own beside it, R-ACCOUNT-032 and
- * R-ACCOUNT-033), and the dedication page's light, so the picture keeps its one glow.
+ * light glows with: the two lights here and the dedication's lights (R-ACCOUNT-032, R-ACCOUNT-033), so the game keeps
+ * its one glow.
  */
 export function glowFill(alpha: number): string {
   return `radial-gradient(circle closest-side, rgba(255, 246, 214, ${alpha.toFixed(3)}) 0%, rgba(255, 211, 110, ${(alpha * 0.55).toFixed(3)}) 35%, rgba(255, 179, 71, 0) 100%)`;

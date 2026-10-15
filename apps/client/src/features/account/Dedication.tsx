@@ -5,14 +5,13 @@
 // or sent.
 //
 // "Light one for yours" (R-ACCOUNT-033, picture `03-your-light`) opens a small sheet: a name and, if wanted, the years.
-// The light then hangs beside the big one with its name under it, kept on this device only (shared/frontdoor/ownLight.ts),
+// The light then hangs beside the big one with its name under it, for this visit (the server keeps it in round 2),
 // one per device; a tap on it offers "Put it out". The page is always the night's navy, whatever the hour.
-import { DEDICATION, DEDICATION_NICKNAME } from "@japacity/content";
+import { checkLight, DEDICATION, DEDICATION_NICKNAME, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, type Light, type LightAsked, lightWords, lightYears } from "@japacity/content";
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { type FormEvent, useState } from "react";
 
-import { checkLight, keepOwnLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, type LightAsked, lightWords, lightYears, type OwnLight, putOutOwnLight, useOwnLight } from "../../shared/frontdoor/ownLight";
 import { say } from "../../shared/words/text";
 import { Bulb, capTop, Glow } from "./bulb";
 
@@ -67,7 +66,7 @@ function thisYear(): number {
 }
 
 /** R-ACCOUNT-033: the sheet. A name of at most four words and forty characters, the years if wanted, and Light it. */
-function LightSheet({ open, onClose, year }: { open: boolean; onClose: () => void; year: number }) {
+function LightSheet({ open, onClose, year, onLit }: { open: boolean; onClose: () => void; year: number; onLit: (light: Light) => void }) {
   const [asked, setAsked] = useState<LightAsked>(EMPTY);
   const checked = checkLight(asked, year);
   // A field says what is wrong only once something is in it; an empty name simply keeps Light it from working.
@@ -75,7 +74,7 @@ function LightSheet({ open, onClose, year }: { open: boolean; onClose: () => voi
   const light = (event: FormEvent): void => {
     event.preventDefault();
     if (!checked.ok) return;
-    keepOwnLight(checked.light);
+    onLit(checked.light);
     setAsked(EMPTY);
     onClose();
   };
@@ -139,7 +138,7 @@ function LightSheet({ open, onClose, year }: { open: boolean; onClose: () => voi
 }
 
 /** The player's own light on the page: beside the big one, its name under it; a tap on it offers "Put it out". */
-function OwnOnPage({ light }: { light: OwnLight }) {
+function OwnOnPage({ light, onPutOut }: { light: Light; onPutOut: () => void }) {
   const [offered, setOffered] = useState(false);
   const words = lightWords(light, say("ui.dedication.between"));
   const years = lightYears(light, say("ui.dedication.between"));
@@ -171,7 +170,7 @@ function OwnOnPage({ light }: { light: OwnLight }) {
             className="motion-in-fade min-h-11 px-1 text-[14px] font-semibold text-text-2 underline underline-offset-4"
             onClick={() => {
               setOffered(false);
-              putOutOwnLight();
+              onPutOut();
             }}
             data-put-out
           >
@@ -192,7 +191,7 @@ export interface DedicationProps {
 
 /** R-ACCOUNT-032: the page, over everything, the night's navy at any hour. */
 export function Dedication({ open, onClose, year }: DedicationProps) {
-  const own = useOwnLight();
+  const [own, setOwn] = useState<Light | null>(null);
   const [sheet, setSheet] = useState(false);
   const big = own === null ? ALONE : BESIDE;
   return (
@@ -216,7 +215,7 @@ export function Dedication({ open, onClose, year }: DedicationProps) {
             <p className="absolute -translate-x-1/2 text-[15px] font-medium tracking-wide text-text" style={{ left: big.x, top: big.y + big.r + 14 }} data-dedication-name>
               {DEDICATION_NICKNAME}
             </p>
-            {own === null ? null : <OwnOnPage light={own} />}
+            {own === null ? null : <OwnOnPage light={own} onPutOut={() => setOwn(null)} />}
           </div>
           <div className="mx-auto flex max-w-[330px] flex-col items-center px-2 text-center">
             <p className="text-[18px] leading-[1.55] font-medium text-balance" data-dedication-line>
@@ -253,7 +252,7 @@ export function Dedication({ open, onClose, year }: DedicationProps) {
           >
             <X size={22} aria-hidden />
           </Dialog.Close>
-          <LightSheet open={sheet} onClose={() => setSheet(false)} year={year ?? thisYear()} />
+          <LightSheet open={sheet} onClose={() => setSheet(false)} year={year ?? thisYear()} onLit={setOwn} />
         </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
