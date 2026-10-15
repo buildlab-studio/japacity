@@ -3,8 +3,8 @@
 // the account, which the shell hands in so this folder never imports the account feature. Last,
 // "Start a new life" (account.md R-ACCOUNT-030): one sheet that names the character and their age,
 // Cancel first, and the end held to confirm, with nothing to type. At the foot, the version line (city.md
-// R-CITY-021): five taps on it show the dedication, and nothing else happens.
-import { DEDICATION } from "@japacity/content";
+// R-CITY-021): five taps on it open the dedication page (account.md R-ACCOUNT-032), which the
+// shell hands in, and nothing else happens.
 import { RotateCcw, Sparkles, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -46,7 +46,10 @@ function keepGraphics(choice: GraphicsChoice): void {
   }
 }
 
-export function Settings({ account = null, about = null }: { account?: ReactNode; about?: ReactNode }) {
+/** The dedication page as the shell hands it in: drawn open or closed, with the way to close it (account.md R-ACCOUNT-032). */
+export type DedicationScreen = (open: boolean, onClose: () => void) => ReactNode;
+
+export function Settings({ account = null, about = null, dedication = null }: { account?: ReactNode; about?: ReactNode; dedication?: DedicationScreen | null }) {
   const [graphics, setGraphics] = useState<GraphicsChoice>(readGraphics);
   const muted = useSound((state) => state.muted);
   return (
@@ -98,12 +101,12 @@ export function Settings({ account = null, about = null }: { account?: ReactNode
       )}
 
       <NewLife />
-      <VersionLine />
+      <VersionLine dedication={dedication} />
     </div>
   );
 }
 
-/** R-CITY-021: the taps on the version line that show the dedication, and the time they fall within. */
+/** R-CITY-021: the taps on the version line that open the dedication, and the time they fall within. */
 export const DEDICATION_TAPS = 5;
 export const DEDICATION_WINDOW_MS = 5000;
 
@@ -116,35 +119,31 @@ export function versionOf(stamp: string | null): string | null {
 
 /**
  * The version line, last in Settings, in the design's form: "Version" and the build, quiet. Five taps within about five
- * seconds show the dedication just under it, simply: no sound, no sheet, no animation, no link, and a sixth tap
- * changes nothing. A tap anywhere else, or leaving Settings, hides it and starts the count again. Nothing of it is
- * counted or sent.
+ * seconds open the dedication page (R-CITY-021 as amended 15 Oct 2026, account.md R-ACCOUNT-032); nothing else happens:
+ * no sound, no line, no link, and a sixth tap changes nothing. A tap anywhere else starts the count again, and so does
+ * closing the page. Nothing of it is counted or sent.
  */
-function VersionLine() {
+function VersionLine({ dedication }: { dedication: DedicationScreen | null }) {
   const version = typeof document === "undefined" ? null : versionOf(buildOf(document));
-  const [shown, setShown] = useState(false);
+  const [open, setOpen] = useState(false);
   const taps = useRef<number[]>([]);
   const line = useRef<HTMLDivElement>(null);
-  const dedication = useRef<HTMLParagraphElement>(null);
-  // The line shows under the version, at the foot of a screen that scrolls: it is brought into view as it appears, at once
-  // and with no motion of its own, so the home bar never cuts it.
-  useEffect(() => {
-    if (shown) dedication.current?.scrollIntoView?.({ block: "nearest" });
-  }, [shown]);
   useEffect(() => {
     const away = (event: PointerEvent): void => {
       if (event.target instanceof Node && line.current?.contains(event.target) === true) return;
       taps.current = [];
-      setShown(false);
     };
     document.addEventListener("pointerdown", away, true);
     return () => document.removeEventListener("pointerdown", away, true);
   }, []);
   const tap = (): void => {
-    if (shown) return;
+    if (open) return;
     const now = Date.now();
     taps.current = [...taps.current.filter((at) => now - at < DEDICATION_WINDOW_MS), now];
-    if (taps.current.length >= DEDICATION_TAPS) setShown(true);
+    if (taps.current.length >= DEDICATION_TAPS) {
+      taps.current = [];
+      setOpen(true);
+    }
   };
   return (
     <div ref={line} className="mt-5 border-t border-sheet-line" data-version>
@@ -158,11 +157,7 @@ function VersionLine() {
           {version ?? phoneWords("phone.settings.version.local")}
         </span>
       </button>
-      {shown ? (
-        <p ref={dedication} className="scroll-mb-3 pt-1 pb-2.5 text-[13px] leading-relaxed text-text-2" data-dedication>
-          {DEDICATION}
-        </p>
-      ) : null}
+      {dedication?.(open, () => setOpen(false)) ?? null}
     </div>
   );
 }
