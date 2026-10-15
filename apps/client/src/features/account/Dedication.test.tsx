@@ -101,15 +101,17 @@ describe("the third light", () => {
     expect(glow.hasAttribute("data-still")).toBe(true);
   });
 
-  test("[R-ACCOUNT-032] given the third light, when it is tapped, then the dedication page opens; nothing is counted and nothing is sent", () => {
+  test("[R-ACCOUNT-032] given the third light, when it is tapped, then the dedication page opens; nothing is counted and nothing is sent", async () => {
     const counted: string[] = [];
     const quiet = countInto({ count: (event: string, key?: string) => void counted.push(`${event} ${key ?? ""}`) } as unknown as Parameters<typeof countInto>[0]);
     const fetching = vi.spyOn(globalThis, "fetch");
     const beacon = vi.fn();
     vi.stubGlobal("navigator", { ...navigator, sendBeacon: beacon });
     render(<ThirdLight />);
+    expect(page()).toBeNull();
     fireEvent.click(thirdTap());
-    expect(page()).not.toBeNull();
+    // The page comes in its own chunk on the first tap.
+    expect(await screen.findByRole("dialog", { name: say("ui.dedication.page") })).not.toBeNull();
     expect(counted).toEqual([]);
     expect(fetching).not.toHaveBeenCalled();
     expect(beacon).not.toHaveBeenCalled();
@@ -252,6 +254,7 @@ describe("light one for yours", () => {
     render(<ThirdLight />);
     expect(document.querySelector("[data-own-light='wire']")).toBeNull();
     fireEvent.click(thirdTap());
+    await screen.findByRole("dialog", { name: say("ui.dedication.page") });
     const sheet = fill("Mama Nkechi");
     await act(async () => {
       fireEvent.click(lightIt(sheet));

@@ -11,7 +11,7 @@ import { useState } from "react";
 import { lightWords, useOwnLight } from "../../shared/frontdoor/ownLight";
 import { say } from "../../shared/words/text";
 import { Bulb, capTop, Glow } from "./bulb";
-import { Dedication } from "./Dedication";
+import { DedicationLater } from "./DedicationLater";
 import { ABROAD, H, W } from "./TwoLights";
 
 /** The third light, past abroad on the wire, and its size: small. */
@@ -72,7 +72,7 @@ export function ThirdLight() {
           </p>
         ) : null}
       </div>
-      <Dedication open={open} onClose={() => setOpen(false)} />
+      <DedicationLater open={open} onClose={() => setOpen(false)} />
     </>
   );
 }
