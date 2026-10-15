@@ -116,7 +116,8 @@ function sendOffYou(view: { scenario: string }) {
   const kept = readPerson();
   const look = lookOf(kept?.look)?.id ?? lookOf(`chr_${view.scenario.slice("scenario.".length)}`)?.id ?? "chr_ada";
   const first = playerName(view as Parameters<typeof playerName>[0]) ?? "";
-  const name = kept !== null && kept.name !== "" ? kept.name : (text[`${view.scenario}.name`] ?? first);
+  // The band's first word of the life's name, as the data page's band says it.
+  const name = kept !== null && kept.name !== "" ? kept.name : ((text[`${view.scenario}.name`] ?? "").split(/\s+/)[0] || first);
   return { name, first: first === "" ? name : first, look, figure: <FigurePicture look={look} style={kept?.look === look ? kept.style : undefined} view="figure" className="so-fig" /> };
 }
 
