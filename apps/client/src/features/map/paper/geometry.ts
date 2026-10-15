@@ -335,7 +335,7 @@ export const DECOR: readonly Decor[] = [
  * Mainland Bridge, where nothing is staged and no ride goes, water on every side at the open zoom, well clear of the
  * ferry's line, the bridges and every stop. Not a stop and not decor: drawn by the open map alone, with its lantern.
  */
-export const LANTERN_CANOE = { at: at([6536, 3430]) } as const;
+export const LANTERN_CANOE = { at: at([6515, 3425]) } as const;
 
 /** How far the scatter's waves keep from the lantern canoe, in paper units. */
 export const LANTERN_CANOE_CLEAR = 22;
