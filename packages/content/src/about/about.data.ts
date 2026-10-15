@@ -7,3 +7,7 @@ export const DEDICATION = "Dedicated to my best friend, Osoko Emmanuel (July 199
 // The nickname the dedication page's light carries under it (docs/rules/account.md R-ACCOUNT-032, added 15 Oct 2026),
 // exactly as the owner wrote it, lower case. It names the same person, so it stands here beside the line.
 export const DEDICATION_NICKNAME = "soksonjr";
+
+// The short form of the line, at the foot of the dedication page (docs/rules/account.md R-ACCOUNT-032 and city.md
+// R-CITY-021, both as rewritten 15 Oct 2026), exactly as the owner wrote it. It names the same person, so it stands here.
+export const DEDICATION_SHORT = "For Osoko Emmanuel, 1998 to 2026. From Al-Ameen.";

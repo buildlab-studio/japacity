@@ -1,153 +1,310 @@
-// The third light on the start screen's wire, the dedication page it opens, and a light of the player's own
-// (docs/rules/account.md R-ACCOUNT-032 and R-ACCOUNT-033; world.md R-WORLD-023 for the stillness).
-import { DEDICATION, DEDICATION_NICKNAME } from "@japacity/content";
+// The dedication page (docs/rules/account.md R-ACCOUNT-032, rewritten 15 Oct 2026) and naming a light of the player's
+// own in place (R-ACCOUNT-033); world.md R-WORLD-023 for the stillness. The server is a stand-in handed to the shared
+// lights module, as the shell's would be.
+import { DEDICATION_NICKNAME, DEDICATION_SHORT } from "@japacity/content";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { forgetDedication, setDedicationServer, type SharedLight } from "../../shared/dedication/lights";
+import type { Api } from "../../shared/net/http";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { Dedication, lineRows } from "./Dedication";
+import { Dedication, MOST_DRAWN, placeLights, placesForLights } from "./Dedication";
 
-const OWNERS_LINE = "Dedicated to my best friend, Osoko Emmanuel (July 1998 to June 2026). From Al-Ameen.";
-
-type Animated = { frames: Keyframe[]; options: KeyframeAnimationOptions; on: Element };
+type Animated = { frames: Keyframe[]; on: Element };
 
 let animated: Animated[] = [];
 
 function moving(reduced: boolean): void {
   animated = [];
-  Element.prototype.animate = function (this: Element, frames: Keyframe[] | PropertyIndexedKeyframes | null, options?: number | KeyframeAnimationOptions) {
-    animated.push({ frames: frames as Keyframe[], options: options as KeyframeAnimationOptions, on: this });
+  Element.prototype.animate = function (this: Element, frames: Keyframe[] | PropertyIndexedKeyframes | null) {
+    animated.push({ frames: frames as Keyframe[], on: this });
     return { cancel: () => undefined, startTime: null } as unknown as Animation;
   };
   vi.stubGlobal("matchMedia", (query: string) => ({ matches: reduced && query.includes("reduce"), addEventListener: () => undefined, removeEventListener: () => undefined }));
 }
 
 afterEach(() => {
-  localStorage.clear();
+  forgetDedication();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
   Reflect.deleteProperty(Element.prototype, "animate");
-  delete document.documentElement.dataset.paint;
 });
 
-const page = () => screen.queryByRole("dialog", { name: say("ui.dedication.page") });
-describe("the dedication page", () => {
-  test("[R-ACCOUNT-032] [R-CITY-021] given the page, then it holds the light with soksonjr under it, the owner's line verbatim from content, Sun re o. under the line, one button and a close", () => {
-    render(<Dedication open onClose={() => undefined} />);
-    const shown = page()!;
-    expect(DEDICATION).toBe(OWNERS_LINE);
+interface Sent {
+  method: string;
+  path: string;
+  body?: unknown;
+}
+
+const MINE = { id: "light.mine", name: "Mama Nkechi", years: { from: 1951, to: 2024 }, approved: false };
+
+/** A stand-in for the server: the read answers `lights`, a light lit answers the account's own, Put it out answers ok. */
+function server(reply: { count: number; lights: SharedLight[]; mine?: typeof MINE }, over: Partial<Record<"get" | "put" | "delete", () => Promise<unknown>>> = {}): Sent[] {
+  const sent: Sent[] = [];
+  const api = {
+    get: (path: string) => {
+      sent.push({ method: "GET", path });
+      return over.get?.() ?? Promise.resolve({ ok: true, ...reply });
+    },
+    put: (path: string, body: unknown) => {
+      sent.push({ method: "PUT", path, body });
+      return over.put?.() ?? Promise.resolve({ ok: true, mine: MINE });
+    },
+    delete: (path: string, body: unknown) => {
+      sent.push({ method: "DELETE", path, body });
+      return over.delete?.() ?? Promise.resolve({ ok: true });
+    },
+  };
+  setDedicationServer(api as unknown as Api);
+  return sent;
+}
+
+/** Lights as the read lists them: the named first, then the bare. */
+function lights(named: string[], bare: number): SharedLight[] {
+  return [...named.map((name, at) => ({ id: `light.n${String(at)}`, name })), ...Array.from({ length: bare }, (_, at) => ({ id: `light.b${String(at)}` }))];
+}
+
+async function opened(year = 2026): Promise<HTMLElement> {
+  render(<Dedication open onClose={() => undefined} year={year} />);
+  await act(async () => {
+    await Promise.resolve();
+  });
+  return screen.getByRole("dialog", { name: say("ui.dedication.page") });
+}
+
+describe("the page", () => {
+  test("[R-ACCOUNT-032] [R-CITY-021] given the water read, then the page holds the count and on the water tonight, the owner's light with soksonjr under it, content's short line, Sun re o., the one button and a close", async () => {
+    const sent = server({ count: 312, lights: lights(["Grandma", "Chidi"], 20) });
+    const page = await opened();
+    expect(sent).toEqual([{ method: "GET", path: "/api/dedication/lights" }]);
+    expect(page.querySelector("[data-dedication-count]")?.textContent).toBe("312 lightson the water tonight");
     expect(DEDICATION_NICKNAME).toBe("soksonjr");
-    expect(shown.querySelector("[data-dedication-name]")?.textContent).toBe("soksonjr");
-    expect(shown.querySelector("[data-dedication-line]")?.textContent).toBe(OWNERS_LINE);
-    // Set in the design's four rows, cut from content's own line, never retyped.
-    expect(lineRows(DEDICATION)).toHaveLength(4);
-    expect(lineRows(DEDICATION).join("")).toBe(DEDICATION);
-    expect(lineRows("A line with none of the marks")).toEqual(["A line with none of the marks"]);
-    const rest = shown.querySelector("[data-dedication-rest]")!;
-    expect(rest.textContent).toBe("Sun re o.");
-    expect(shown.querySelector("[data-dedication-line]")?.compareDocumentPosition(rest)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(shown.querySelector("[data-dedication-glow='big']")).not.toBeNull();
-    const buttons = within(shown).getAllByRole("button");
+    expect(page.querySelector("[data-dedication-name]")?.textContent).toBe("soksonjr");
+    expect(DEDICATION_SHORT).toBe("For Osoko Emmanuel, 1998 to 2026. From Al-Ameen.");
+    expect(page.querySelector("[data-dedication-short]")?.textContent).toBe(DEDICATION_SHORT);
+    expect(page.querySelector("[data-dedication-rest]")?.textContent).toBe("Sun re o.");
+    const buttons = within(page).getAllByRole("button");
     expect(buttons.map((button) => button.textContent || button.getAttribute("aria-label"))).toEqual(["Light one for yours", "Close"]);
-    // The page is the night's navy at any hour.
-    expect(shown.dataset.paint).toBe("night");
+    expect(page.dataset.paint).toBe("night");
+  });
+
+  test("[R-ACCOUNT-032] given the count, then it is the true number, never rounded, one light said as one", async () => {
+    server({ count: 4_812, lights: lights([], 3) });
+    const many = render(<Dedication open onClose={() => undefined} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(document.querySelector("[data-dedication-count] p")?.textContent).toBe("4,812 lights");
+    many.unmount();
+    server({ count: 1, lights: lights([], 1) });
+    expect((await opened()).querySelector("[data-dedication-count] p")?.textContent).toBe("1 light");
+  });
+
+  test("[R-ACCOUNT-032] given approved and bare lights, then each approved light carries its name under its bulb and the rest are bare; the top strings are bulbs and the rest plain dots with no glow and no filter", async () => {
+    server({ count: 60, lights: lights(["Grandma", "Aunty Ronke", "Chidi"], 57) });
+    const page = await opened();
+    expect([...page.querySelectorAll("[data-light-name]")].map((name) => name.textContent)).toEqual(["Grandma", "Aunty Ronke", "Chidi"]);
+    expect(page.querySelectorAll("[data-bulb='named']")).toHaveLength(3);
+    expect(page.querySelectorAll("[data-bulb='bare']").length + 3).toBe(36);
+    const dots = [...page.querySelectorAll("[data-dot]")];
+    expect(dots).toHaveLength(60 - 36);
+    for (const dot of dots) {
+      expect(dot.tagName.toLowerCase()).toBe("circle");
+      expect(dot.getAttribute("filter")).toBeNull();
+    }
+    expect(page.querySelector("filter, [filter]")).toBeNull();
+    // A handful of glow layers: the owner's and the named ones.
+    expect([...page.querySelectorAll<HTMLElement>("[data-dedication-glow]")].map((glow) => glow.dataset.dedicationGlow)).toEqual(["his", "named", "named", "named"]);
+    // One picture for the strings, the bulbs and the dots.
+    expect(page.querySelectorAll("svg[data-dedication-strings]")).toHaveLength(1);
+  });
+
+  test("[R-ACCOUNT-032] given more lights than a phone draws, then at most 240 are drawn while the count says the true number", async () => {
+    server({ count: 5_000, lights: lights([], 240) });
+    const page = await opened();
+    expect(MOST_DRAWN).toBe(240);
+    expect(placesForLights(false)).toBeGreaterThanOrEqual(MOST_DRAWN);
+    expect(page.querySelectorAll("[data-dot], [data-bulb]")).toHaveLength(240);
+    expect(page.querySelector("[data-dedication-count] p")?.textContent).toBe("5,000 lights");
+  });
+
+  test("[R-ACCOUNT-032] given the account's own light among the lights, then it is never drawn on the strings: it hangs beside the owner's, and with it at most 240 are drawn", () => {
+    const listed = [{ id: "light.mine" }, ...lights([], 300)];
+    const placed = placeLights(listed, "light.mine", true);
+    expect(placed.some((one) => one.light.id === "light.mine")).toBe(false);
+    expect(placed).toHaveLength(MOST_DRAWN - 1);
+    expect(placeLights(lights([], 300), null, false)).toHaveLength(MOST_DRAWN);
+    // The first lights listed (the approved, then the newest) are the bulbs.
+    expect(placed.slice(0, 35).every((one) => one.kind === "bulb")).toBe(true);
+    expect(placed.slice(35).every((one) => one.kind === "dot")).toBe(true);
+  });
+
+  test("[R-ACCOUNT-032] given no server, then the page shows the owner's light, the strings bare, no count, and the button closed with its line", async () => {
+    setDedicationServer(null);
+    const page = await opened();
+    expect(page.dataset.water).toBe("out");
+    expect(page.querySelector("[data-dedication-name]")?.textContent).toBe("soksonjr");
+    expect(page.querySelector("[data-dedication-strings] path")).not.toBeNull();
+    expect(page.querySelectorAll("[data-bulb], [data-dot]")).toHaveLength(0);
+    expect(page.querySelector("[data-dedication-count]")).toBeNull();
+    expect(within(page).getByRole("button", { name: "Light one for yours" })).toHaveProperty("disabled", true);
+    expect(page.querySelector("[data-dedication-out]")?.textContent).toBe("The water is out of reach right now.");
+  });
+
+  test("[R-ACCOUNT-032] given a read that fails, then the page is the same as offline", async () => {
+    server({ count: 0, lights: [] }, { get: () => Promise.reject(new Error("network")) });
+    const page = await opened();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(page.dataset.water).toBe("out");
+    expect(page.querySelector("[data-dedication-count]")).toBeNull();
+    expect(page.querySelector("[data-dedication-out]")?.textContent).toBe("The water is out of reach right now.");
   });
 
   test("[R-ACCOUNT-032] given the page open, when close is tapped, then it closes", () => {
+    server({ count: 0, lights: [] });
     const closed = vi.fn();
     render(<Dedication open onClose={closed} />);
-    fireEvent.click(within(page()!).getByRole("button", { name: "Close" }));
+    fireEvent.click(within(screen.getByRole("dialog", { name: say("ui.dedication.page") })).getByRole("button", { name: "Close" }));
     expect(closed).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-ACCOUNT-032] [R-WORLD-023] given reduced motion, then the page's light holds still; otherwise it breathes by opacity alone", () => {
+  test("[R-ACCOUNT-032] [R-WORLD-023] given reduced motion, then the page's lights hold still; otherwise they breathe by opacity alone", async () => {
+    server({ count: 3, lights: lights(["Grandma"], 2) });
     moving(true);
     const still = render(<Dedication open onClose={() => undefined} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(animated).toHaveLength(0);
+    expect(document.querySelectorAll("[data-dedication-glow][data-still]").length).toBeGreaterThan(0);
     still.unmount();
     moving(false);
     render(<Dedication open onClose={() => undefined} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(animated.length).toBeGreaterThan(0);
     for (const { frames } of animated) for (const frame of frames) expect(Object.keys(frame).filter((key) => key !== "offset")).toEqual(["opacity"]);
   });
 });
 
-/** Opens the sheet from the page and fills it in. */
-function fill(name: string, from = "", to = ""): HTMLElement {
-  fireEvent.click(within(page()!).getByRole("button", { name: "Light one for yours" }));
-  const sheet = screen.getByRole("dialog", { name: "Light one for yours" });
-  fireEvent.change(within(sheet).getByRole("textbox", { name: "Their name" }), { target: { value: name } });
-  fireEvent.change(within(sheet).getByRole("textbox", { name: "First year" }), { target: { value: from } });
-  fireEvent.change(within(sheet).getByRole("textbox", { name: "Last year" }), { target: { value: to } });
-  return sheet;
+const lightIt = (page: HTMLElement) => within(page).getByRole("button", { name: "Light it" });
+const problems = (page: HTMLElement) => [...page.querySelectorAll("[data-light-problem]")].map((line) => line.textContent);
+
+function type(page: HTMLElement, name: string, from = "", to = ""): void {
+  fireEvent.change(within(page).getByRole("textbox", { name: "Who is it for?" }), { target: { value: name } });
+  fireEvent.change(within(page).getByRole("textbox", { name: "First year" }), { target: { value: from } });
+  fireEvent.change(within(page).getByRole("textbox", { name: "Last year" }), { target: { value: to } });
 }
 
-const lightIt = (sheet: HTMLElement) => within(sheet).getByRole("button", { name: "Light it" });
-const problems = (sheet: HTMLElement) => [...sheet.querySelectorAll("[data-light-problem]")].map((line) => line.textContent);
-
 describe("light one for yours", () => {
-  test("[R-ACCOUNT-033] given the sheet, then it asks a name and the years if wanted, says the light stays on this phone, and Light it waits for a name", () => {
-    render(<Dedication open onClose={() => undefined} year={2026} />);
-    const sheet = fill("");
-    expect(within(sheet).getByRole("textbox", { name: "Their name" }).getAttribute("maxlength")).toBe("40");
-    expect(within(sheet).getByRole("group", { name: "Years, if you want" })).not.toBeNull();
-    expect(sheet.textContent).toContain("Kept on this phone only. Nobody else sees it.");
-    expect(lightIt(sheet)).toHaveProperty("disabled", true);
-    expect(problems(sheet)).toEqual([]);
+  test("[R-ACCOUNT-033] given the button, when it is tapped, then the unlit light beside the owner's is named in place: two boxes drawn alike with the label inside, no sheet, no fieldset or legend, and Light it waits for a name", async () => {
+    server({ count: 2, lights: lights([], 2) });
+    const page = await opened();
+    fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
+    expect(screen.getAllByRole("dialog")).toHaveLength(1);
+    expect(page.querySelector("[data-unlit]")).not.toBeNull();
+    expect(page.querySelector("[data-unlit-name]")?.textContent).toBe("yours");
+    const form = page.querySelector<HTMLElement>("[data-name-it]")!;
+    expect(form.querySelector("fieldset, legend")).toBeNull();
+    const boxes = [form.querySelector("label"), within(form).getByRole("group", { name: "Years, if you want" })];
+    expect(boxes[0]?.className).toBe(boxes[1]?.className);
+    expect(boxes[0]?.textContent).toContain("Who is it for?");
+    expect(within(form).getByRole("textbox", { name: "Who is it for?" }).getAttribute("maxlength")).toBe("40");
+    expect(lightIt(page)).toHaveProperty("disabled", true);
+    expect(problems(page)).toEqual([]);
   });
 
-  test("[R-ACCOUNT-033] given the sheet's limits at each edge, then four words light and five say so; 1900 and this year light, 1899 and next year say so; an end before the start says so", () => {
-    render(<Dedication open onClose={() => undefined} year={2026} />);
-    const sheet = fill("Mama Nkechi Grace Obi", "1900", "2026");
-    expect(lightIt(sheet)).toHaveProperty("disabled", false);
-    expect(problems(sheet)).toEqual([]);
-    fireEvent.change(within(sheet).getByRole("textbox", { name: "Their name" }), { target: { value: "Mama Nkechi Grace Obi Ade" } });
-    expect(problems(sheet)).toEqual(["Four words at most."]);
-    expect(lightIt(sheet)).toHaveProperty("disabled", true);
-    fireEvent.change(within(sheet).getByRole("textbox", { name: "Their name" }), { target: { value: "Mama Nkechi" } });
-    fireEvent.change(within(sheet).getByRole("textbox", { name: "First year" }), { target: { value: "1899" } });
-    expect(problems(sheet)).toEqual(["A year from 1900 to 2026."]);
-    fireEvent.change(within(sheet).getByRole("textbox", { name: "First year" }), { target: { value: "1951" } });
-    fireEvent.change(within(sheet).getByRole("textbox", { name: "Last year" }), { target: { value: "2027" } });
-    expect(problems(sheet)).toEqual(["A year from 1900 to 2026."]);
-    fireEvent.change(within(sheet).getByRole("textbox", { name: "Last year" }), { target: { value: "1950" } });
-    expect(problems(sheet)).toEqual(["The last year cannot come before the first."]);
-    fireEvent.change(within(sheet).getByRole("textbox", { name: "Last year" }), { target: { value: "1951" } });
-    expect(problems(sheet)).toEqual([]);
+  test("[R-ACCOUNT-033] given the limits at each edge, then four words light and five say so; 1900 and this year light, 1899 and next year say so; an end before the start says so", async () => {
+    server({ count: 0, lights: [] });
+    const page = await opened(2026);
+    fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
+    type(page, "Mama Nkechi Grace Obi", "1900", "2026");
+    expect(lightIt(page)).toHaveProperty("disabled", false);
+    expect(problems(page)).toEqual([]);
+    type(page, "Mama Nkechi Grace Obi Ade", "1900", "2026");
+    expect(problems(page)).toEqual(["Four words at most."]);
+    expect(lightIt(page)).toHaveProperty("disabled", true);
+    type(page, "Mama Nkechi", "1899", "");
+    expect(problems(page)).toEqual(["A year from 1900 to 2026."]);
+    type(page, "Mama Nkechi", "1951", "2027");
+    expect(problems(page)).toEqual(["A year from 1900 to 2026."]);
+    type(page, "Mama Nkechi", "1951", "1950");
+    expect(problems(page)).toEqual(["The last year cannot come before the first."]);
+    type(page, "Mama Nkechi", "1951", "1951");
+    expect(problems(page)).toEqual([]);
   });
 
-  test("[R-ACCOUNT-033] given a name and years, when Light it is pressed, then the light hangs beside the big one with its words under it, and no button offers a second", async () => {
-    const fetching = vi.spyOn(globalThis, "fetch");
-    render(<Dedication open onClose={() => undefined} year={2026} />);
-    const sheet = fill("Mama Nkechi", "1951", "2024");
+  test("[R-ACCOUNT-033] given a name and years, when Light it is pressed, then the light is sent, shows at once from the reply beside the maintainer's with its name and years, the count takes it in, and the line says its name shows once looked over", async () => {
+    const sent = server({ count: 2, lights: lights([], 2) });
+    const page = await opened();
+    fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
+    type(page, "  Mama Nkechi ", "1951", "2024");
     await act(async () => {
-      fireEvent.click(lightIt(sheet));
+      fireEvent.click(lightIt(page));
       await Promise.resolve();
     });
-    const shown = page()!;
-    expect(shown.querySelector("[data-own-light-words]")?.textContent).toBe("Mama Nkechi, 1951 to 2024");
-    expect(shown.querySelector("[data-dedication-glow='own']")).not.toBeNull();
-    // Under the owner's: the big light keeps its name and line, and the player's light follows it.
-    expect(shown.querySelector("[data-dedication-name]")?.textContent).toBe("soksonjr");
-    expect(shown.querySelector("[data-dedication-name]")?.compareDocumentPosition(shown.querySelector("[data-own-light-words]")!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(within(shown).queryByRole("button", { name: "Light one for yours" })).toBeNull();
-    expect(shown.querySelector("[data-dedication-kept]")?.textContent).toBe("Kept on this phone only. Nobody else sees it.");
-    expect(fetching).not.toHaveBeenCalled();
+    expect(sent.at(-1)).toEqual({ method: "PUT", path: "/api/dedication/light", body: { name: "Mama Nkechi", from: 1951, to: 2024 } });
+    const own = page.querySelector<HTMLElement>("[data-own-light]")!;
+    expect(own.textContent).toBe("Mama Nkechi1951 to 2024");
+    expect(own.getAttribute("aria-label")).toBe("Mama Nkechi, 1951 to 2024");
+    expect(page.querySelector("[data-dedication-glow='own']")).not.toBeNull();
+    expect(page.querySelector("[data-dedication-count] p")?.textContent).toBe("3 lights");
+    expect(page.querySelector("[data-dedication-mine]")?.textContent).toBe("Yours is on the water. Its name shows to everyone once it has been looked over.");
+    expect(within(page).queryByRole("button", { name: "Light one for yours" })).toBeNull();
+    // Under the owner's: the big light keeps its name, and the account's own follows it.
+    expect(page.querySelector("[data-dedication-name]")?.compareDocumentPosition(own)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
-  test("[R-ACCOUNT-033] given a light lit, when it is tapped on the page, then Put it out shows, and pressing it removes the light and the page offers to light one again", async () => {
-    render(<Dedication open onClose={() => undefined} year={2026} />);
-    const sheet = fill("Mama Nkechi", "1951", "2024");
+  test("[R-ACCOUNT-033] given the account's own light, when Put it out is pressed, then it is sent, the light goes, the count lets it go and the button returns", async () => {
+    const sent = server({ count: 3, lights: [{ id: "light.mine" }, ...lights([], 2)], mine: MINE });
+    const page = await opened();
+    expect(page.querySelector("[data-own-light]")).not.toBeNull();
+    // Its own light is never also on the strings.
+    expect(page.querySelectorAll("[data-bulb]")).toHaveLength(2);
     await act(async () => {
-      fireEvent.click(lightIt(sheet));
+      fireEvent.click(within(page).getByRole("button", { name: "Put it out" }));
       await Promise.resolve();
     });
-    const shown = page()!;
-    expect(within(shown).queryByRole("button", { name: "Put it out" })).toBeNull();
-    fireEvent.click(within(shown).getByRole("button", { name: "Mama Nkechi, 1951 to 2024" }));
-    fireEvent.click(within(shown).getByRole("button", { name: "Put it out" }));
-    expect(shown.querySelector("[data-own-light-words]")).toBeNull();
-    expect(within(shown).getByRole("button", { name: "Light one for yours" })).not.toBeNull();
+    expect(sent.at(-1)).toEqual({ method: "DELETE", path: "/api/dedication/light", body: {} });
+    expect(page.querySelector("[data-own-light]")).toBeNull();
+    expect(page.querySelector("[data-dedication-count] p")?.textContent).toBe("2 lights");
+    expect(within(page).getByRole("button", { name: "Light one for yours" })).not.toBeNull();
+  });
+
+  test("[R-ACCOUNT-033] given the server refuses the light with the shared check's problem, then the problem shows and nothing is lit", async () => {
+    server({ count: 0, lights: [] }, { put: () => Promise.resolve({ ok: false, code: "bad-light", detail: "x", problems: ["name-words"] }) });
+    const page = await opened();
+    fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
+    type(page, "Mama Nkechi");
+    await act(async () => {
+      fireEvent.click(lightIt(page));
+      await Promise.resolve();
+    });
+    expect(problems(page)).toEqual(["Four words at most."]);
+    expect(page.querySelector("[data-own-light]")).toBeNull();
+  });
+
+  test("[R-ACCOUNT-033] given the server cannot be reached when the light is sent, then the page says the water is out of reach and nothing is lit", async () => {
+    server({ count: 0, lights: [] }, { put: () => Promise.reject(new Error("network")) });
+    const page = await opened();
+    fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
+    type(page, "Mama Nkechi");
+    await act(async () => {
+      fireEvent.click(lightIt(page));
+      await Promise.resolve();
+    });
+    expect(page.querySelector("[data-light-out]")?.textContent).toBe("The water is out of reach right now.");
+    expect(page.querySelector("[data-own-light]")).toBeNull();
+  });
+
+  test("[R-ACCOUNT-033] given an approved light of the account's own, then it still hangs beside the maintainer's with its name", async () => {
+    server({ count: 1, lights: [{ id: "light.mine", name: "Mama Nkechi" }], mine: { ...MINE, approved: true } });
+    const page = await opened();
+    expect(page.querySelector("[data-own-light]")?.textContent).toBe("Mama Nkechi1951 to 2024");
+    expect(page.querySelectorAll("[data-light-name]")).toHaveLength(0);
   });
 });

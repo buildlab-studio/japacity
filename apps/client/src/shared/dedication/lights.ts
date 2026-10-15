@@ -3,6 +3,7 @@
 // among it, and the two writes, lighting one and putting it out. Shared because the dedication page draws the lights
 // and the map's lantern canoe carries a second lantern once the account's own is lit. Offline, in a build with no
 // server, or when the read fails, the water is out of reach and nothing is guessed. Nothing here is counted.
+import type { LightProblem } from "@japacity/content";
 import { useEffect, useSyncExternalStore } from "react";
 
 import { authorityMode } from "../../authority/mode";
@@ -36,7 +37,7 @@ export interface DedicationReply {
 export type Water = { kind: "unasked" } | { kind: "asking" } | { kind: "out" } | { kind: "read"; count: number; lights: SharedLight[]; mine: MyLight | null };
 
 /** Why a light was not lit: the shared check's problems from the server, or no answer the page can use. */
-export type LightRefused = { ok: false; problems: string[] } | { ok: false; out: true };
+export type LightRefused = { ok: false; problems: LightProblem[] } | { ok: false; out: true };
 
 /**
  * A picture never moves the page: a login wall met here is left to the account's own reads, which reload for it
@@ -116,7 +117,7 @@ export async function lightOne(sent: { name: string; from: number | null; to: nu
   if (asked === null) return { ok: false, out: true };
   try {
     const body = { name: sent.name, ...(sent.from === null ? {} : { from: sent.from }), ...(sent.to === null ? {} : { to: sent.to }) };
-    const reply = await asked.put<{ ok: true; mine: MyLight } | { ok: false; code: string; problems?: string[] }>("/api/dedication/light", body);
+    const reply = await asked.put<{ ok: true; mine: MyLight } | { ok: false; code: string; problems?: LightProblem[] }>("/api/dedication/light", body);
     if (!reply.ok) return reply.code === "bad-light" ? { ok: false, problems: reply.problems ?? [] } : { ok: false, out: true };
     const before = water;
     if (before.kind === "read") {

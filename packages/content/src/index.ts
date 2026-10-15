@@ -78,7 +78,7 @@ import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
 
-export { DEDICATION, DEDICATION_NICKNAME } from "./about/about.data";
+export { DEDICATION, DEDICATION_NICKNAME, DEDICATION_SHORT } from "./about/about.data";
 export { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, LIGHT_PROBLEMS, lightWords, lightYears } from "./about/light";
 export type { Light, LightAsked, LightChecked, LightProblem } from "./about/light";
 export { blockedWords, reservedNames } from "./account/account.data";
