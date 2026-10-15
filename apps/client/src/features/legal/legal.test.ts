@@ -144,6 +144,13 @@ describe("the privacy notice", () => {
     for (const item of privacy().querySelectorAll("[data-kept-item]")) expect(words(item)).toMatch(/[Kk]ept|30 days/);
   });
 
+  test("[R-ACCOUNT-033] given the notice, when it is read, then it says the name and years a player types for a dedication light are kept with the account and shown to other players once looked over", () => {
+    const light = words(privacy().querySelector('[data-kept-item="dedication"]'));
+    expect(light).toContain("the name and the years you type");
+    expect(light).toContain("kept with your account and shown to other players only once we have looked them over");
+    expect(light).toContain("Kept until");
+  });
+
   test("[R-MODERATION-015] given the notice, when it is read, then it names the log of decisions among what is kept, and for how long", () => {
     const log = words(privacy().querySelector('[data-kept-item="moderation"]'));
     expect(log).toContain("in a log that is never changed");
