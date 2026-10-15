@@ -330,6 +330,16 @@ export const DECOR: readonly Decor[] = [
   decor("veh_danfo", [6585, 3350], 12, 80, "car"),
 ];
 
+/**
+ * The lantern canoe (docs/rules/world.md R-WORLD-036): one canoe moored on the open lagoon north-east of the Third
+ * Mainland Bridge, where nothing is staged and no ride goes, water on every side at the open zoom, well clear of the
+ * ferry's line, the bridges and every stop. Not a stop and not decor: drawn by the open map alone, with its lantern.
+ */
+export const LANTERN_CANOE = { at: at([6536, 3430]) } as const;
+
+/** How far the scatter's waves keep from the lantern canoe, in paper units. */
+export const LANTERN_CANOE_CLEAR = 22;
+
 /** Palms along the beach and here and there inland, as [x, y, size in hundredths, facing]. */
 export const PALMS: readonly (readonly [number, number, number, 1 | -1])[] = [
   ...[3404, 3414, 3424, 3434, 3446, 3458, 3470, 3484, 3498, 3512].map((lon, index): readonly [number, number, number, 1 | -1] => {

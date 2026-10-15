@@ -9,7 +9,8 @@ import { memo, use, useMemo } from "react";
 import { headingOf } from "../RideSheet";
 import { mapWords } from "../map.words";
 import type { Point } from "./fit";
-import { DECOR } from "./geometry";
+import { DECOR, LANTERN_CANOE } from "./geometry";
+import { type CanoeFill, LanternCanoe } from "./LanternCanoe";
 import { PaperSvg, type Variant } from "./PaperSvg";
 import { PlacePicture } from "./PlacePicture";
 import { midway } from "./route";
@@ -43,6 +44,12 @@ export function sizeOf(id: string): number {
   return SIZE[id] ?? 92;
 }
 
+/** R-WORLD-036: the lantern canoe as the open map draws it: its glow, its tap, and whether it carries a second lantern. */
+export interface Canoe extends CanoeFill {
+  onOpen: () => void;
+  mine: boolean;
+}
+
 export interface WorldProps {
   variant: Variant;
   frame: Frame;
@@ -59,6 +66,8 @@ export interface WorldProps {
   /** The part of the paper this view shows, when it never moves: the grain outside it is left undrawn. */
   within?: readonly [number, number, number, number] | null;
   onPick?: (id: string) => void;
+  /** R-WORLD-036: the lantern canoe, drawn on the open map alone. */
+  canoe?: Canoe | null;
   className?: string;
   style?: CSSProperties | undefined;
 }
@@ -82,7 +91,7 @@ function shiftStyle(shift: NameShift | undefined): CSSProperties | undefined {
   return { "--nx": `${String(shift[0])}px`, "--ny": `${String(shift[1])}px` } as CSSProperties;
 }
 
-export const World = memo(function World({ variant, frame, uid, stops = [], names = (id) => id, marks = { home: null, picked: null, step: null }, tiles, pinPx = 50, route = null, within = null, onPick, className = "", style }: WorldProps) {
+export const World = memo(function World({ variant, frame, uid, stops = [], names = (id) => id, marks = { home: null, picked: null, step: null }, tiles, pinPx = 50, route = null, within = null, onPick, canoe = null, className = "", style }: WorldProps) {
   const z = frame.sx;
   const routeD = useMemo(() => (route === null ? null : curve(route)), [route]);
   const danfo = useMemo(() => (route === null || route.length < 2 ? null : midway(route)), [route]);
@@ -122,6 +131,7 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
               </span>
             );
           })}
+      {variant === "open" && canoe !== null ? <LanternCanoe at={LANTERN_CANOE.at} mine={canoe.mine} fill={canoe} onOpen={canoe.onOpen} /> : null}
       {folded
         ? null
         : stops.map((stop) => {

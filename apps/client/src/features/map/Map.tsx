@@ -6,7 +6,7 @@
 import { X } from "lucide-react";
 import "./map.css";
 
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, type ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
 import { formatMoney } from "../../shared/words/format";
@@ -47,6 +47,18 @@ export interface MapProps {
   pickFirst?: string | null;
   /** The place the live step points to: the map opens on its neighbourhood, its sticker ringed and named (the plan 16). */
   step?: string | null;
+  /** The dedication page and its glow, handed in by the shell: the lantern canoe on the open map opens it (world.md R-WORLD-036). */
+  dedication?: MapDedication | null;
+}
+
+/**
+ * What the shell hands the map for the lantern canoe (world.md R-WORLD-036, account.md R-ACCOUNT-032): the dedication
+ * page drawn open or closed with its way to close, and the glow's fill, the two lights' one glow, so this feature
+ * imports neither.
+ */
+export interface MapDedication {
+  page: (open: boolean, onClose: () => void) => ReactNode;
+  glow: (alpha: number) => string;
 }
 
 /** The pins as a key, so a new array with the same pins does not rebuild the city. */
@@ -54,7 +66,7 @@ function keyOf(pins: readonly MapPin[]): string {
   return pins.map((pin) => `${pin.id}:${pin.state}:${String(pin.position.latE3)}:${String(pin.position.lonE3)}:${pin.name}`).join("|");
 }
 
-export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onTurnBack, onCountry, home = null, by, pickFirst = null, step = null }: MapProps) {
+export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onTurnBack, onCountry, home = null, by, pickFirst = null, step = null, dedication = null }: MapProps) {
   const view = useView();
   // All the naira: the fare leaves cash first and the bank for the rest (R-PLACE-010).
   const have = view.pockets.NGN.cash + view.pockets.NGN.bank;
@@ -123,6 +135,9 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   );
   const countryMenu = <Countries country={country} countries={countries} up={lagos} {...(onCountry === undefined ? {} : { onCountry })} />;
   const named = useCallback((id: string): string => stable.find((candidate) => candidate.id === id)?.name ?? id, [stable]);
+  // R-WORLD-036: the canoe opens the dedication page over the map, and closing it leaves the map as it was.
+  const [dedicated, setDedicated] = useState(false);
+  const canoe = useMemo(() => (dedication === null ? null : { glow: dedication.glow, onOpen: () => setDedicated(true) }), [dedication?.glow]);
 
   return (
     <div className="fixed inset-0 z-[40] bg-sheet text-text" data-map data-picked={picked ?? ""}>
@@ -143,7 +158,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       {lagos && riding === null ? (
         <Suspense fallback={<div className="absolute top-3 right-3">{closeButton}</div>}>
           <RouteVehicle value={routeVehicle}>
-            <PaperMap pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} />
+            <PaperMap pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} canoe={canoe} />
           </RouteVehicle>
         </Suspense>
       ) : lagos ? null : (
@@ -188,6 +203,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
               })}
         />
       )}
+      {dedication === null || !lagos ? null : dedication.page(dedicated, () => setDedicated(false))}
     </div>
   );
 }

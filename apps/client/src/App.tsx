@@ -13,6 +13,7 @@ import type { GameStore } from "./authority/store";
 import { readPerson } from "./authority/person";
 import { AccountGate } from "./features/account/AccountGate";
 import { DedicationLater } from "./features/account/DedicationLater";
+import { glowFill } from "./features/account/TwoLights";
 import { StartTrouble } from "./features/account/StartTrouble";
 import { canDraw } from "./shared/frontdoor/Gate";
 import { AgentSheets } from "./features/advice/AgentSheet";
@@ -32,7 +33,7 @@ import { ChapterView } from "./features/chapter/ChapterView";
 import { City } from "./features/city/City";
 import { CreditsRow } from "./features/city/Credits";
 import { GuidesMenu } from "./features/guides/GuidesMenu";
-import { Map } from "./features/map/Map";
+import { Map, type MapDedication } from "./features/map/Map";
 import { MomentCard } from "./features/moment/MomentCard";
 import { HeldShareCard } from "./features/notify/held";
 import { NotifyAsk } from "./features/notify/NotifyAsk";
@@ -100,6 +101,12 @@ function PhoneWarnings() {
   );
 }
 
+/**
+ * What the map is handed for the lantern canoe (world.md R-WORLD-036): the dedication page, fetched on its first opening
+ * (account.md R-ACCOUNT-032), and the two lights' one glow for the lantern (R-WORLD-021).
+ */
+const MAP_DEDICATION: MapDedication = { page: (open, onClose) => <DedicationLater open={open} onClose={onClose} />, glow: glowFill };
+
 /** The world is the game: the place fills the screen under a see-through bar, the month plays in the scene, and the map is a fly-over. */
 function WorldPlaying() {
   const view = useView();
@@ -151,7 +158,7 @@ function WorldPlaying() {
         } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <><PeopleSlots api={talk} /><BoardsView /></> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} advert={<PhoneTile />} dedication={(open, onClose) => <DedicationLater open={open} onClose={onClose} />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
-        cityMap={(props) => <Map {...props} />}
+        cityMap={(props) => <Map {...props} dedication={MAP_DEDICATION} />}
         // R-LOTTERY-001: online the street kiosk sells the Friday draw from its own sheet.
         kiosk={(close, label) => <KioskSheet open onClose={close} label={label} />}
       />

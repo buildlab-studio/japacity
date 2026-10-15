@@ -10,6 +10,7 @@ import "./paper.css";
 import type { PointerEvent as ReactPointerEvent, ReactNode, WheelEvent as ReactWheelEvent } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from "react";
 
+import { useMineLit } from "../../../shared/dedication/lights";
 import type { MapPin } from "../pins";
 import { mapWords } from "../map.words";
 import { CardView } from "./CardView";
@@ -21,7 +22,9 @@ import { buildGraph, type Channel, routeBetween, routeChannel } from "./route";
 import { type Marks, type Placed, placeStops } from "./stops";
 import { STRIP_H, Strip, stripFrame } from "./Strip";
 import { useTiles } from "./useTiles";
-import { type Frame, World } from "./World";
+import { LANTERN_CANOE } from "./geometry";
+import type { CanoeFill } from "./LanternCanoe";
+import { type Canoe, type Frame, World } from "./World";
 
 /** What a browser test reads of the map: where the stops stand, which card shows, the fold, the route and its channel. */
 export interface MapProbe {
@@ -31,6 +34,8 @@ export interface MapProbe {
   stops: { id: string; state: string; card: CardId; at: Point }[];
   route: Point[] | null;
   channel: Channel | null;
+  /** R-WORLD-036: the lantern canoe's point on the paper, when the open map draws it; never one of the stops. */
+  canoe: Point | null;
 }
 
 declare global {
@@ -136,9 +141,11 @@ export interface PaperMapProps {
   close: ReactNode;
   /** Whether a ride sheet is up at the foot. */
   sheetUp: boolean;
+  /** R-WORLD-036: the lantern canoe's glow and what its tap opens, from the shell; none, no canoe. */
+  canoe?: (CanoeFill & { onOpen: () => void }) | null;
 }
 
-export function PaperMap({ pins, home, picked, step, names, onPick, country, close, sheetUp }: PaperMapProps) {
+export function PaperMap({ pins, home, picked, step, names, onPick, country, close, sheetUp, canoe: handed = null }: PaperMapProps) {
   const tiles = useTiles();
   const wide = useMedia(WIDE);
   const still = useMedia(STILL);
@@ -150,6 +157,9 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
   const stepStop = step === null ? null : (byId.get(step) ?? null);
   const marks: Marks = useMemo(() => ({ home, picked, step }), [home, picked, step]);
   const homeStop = home === null ? null : (byId.get(home) ?? null);
+  // R-WORLD-036: the canoe's second lantern once the account's own light is lit.
+  const mine = useMineLit();
+  const canoe: Canoe | null = useMemo(() => (handed === null ? null : { glow: handed.glow, onOpen: handed.onOpen, mine }), [handed, mine]);
 
   const [state, dispatch] = useReducer(fold, null, () => folded(openingCard({ picked: pickedStop?.card ?? null, step: stepStop?.card ?? null, here: here?.card ?? null, fallback: "ojuelegba" })));
   const open = unfolded(state);
@@ -176,8 +186,8 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
   }, []);
   // The probe a browser test reads.
   useEffect(() => {
-    window.__map = { ready: painted || wide, phase: state.phase, card: state.card, stops: placed.map((stop) => ({ id: stop.id, state: stop.state, card: stop.card, at: stop.at })), route, channel };
-  }, [painted, wide, state.phase, state.card, placed, route, channel]);
+    window.__map = { ready: painted || wide, phase: state.phase, card: state.card, stops: placed.map((stop) => ({ id: stop.id, state: stop.state, card: stop.card, at: stop.at })), route, channel, canoe: canoe === null ? null : LANTERN_CANOE.at };
+  }, [painted, wide, state.phase, state.card, placed, route, channel, canoe]);
   useEffect(
     () => () => {
       delete window.__map;
@@ -206,7 +216,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
   if (wide) {
     return (
       <div ref={box} className="paper absolute inset-0 overflow-hidden" data-paper-map="wide">
-        <OpenLayer size={size} view={view} setView={setView} stops={placed} names={names} marks={marks} tiles={tiles} route={channel === "open" ? route : null} onPick={pick} onDistrict={(card) => {
+        <OpenLayer size={size} view={view} setView={setView} stops={placed} names={names} marks={marks} tiles={tiles} route={channel === "open" ? route : null} canoe={canoe} onPick={pick} onDistrict={(card) => {
           dispatch({ type: "swipe", card });
         }} />
         <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto flex max-w-[430px] items-start justify-between gap-2 p-3 pt-[max(12px,env(safe-area-inset-top))]">
@@ -278,6 +288,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
           marks={marks}
           tiles={tiles}
           route={channel === "open" ? route : null}
+          canoe={canoe}
           onPick={pick}
           onDistrict={(card) => dispatch({ type: "tap-district", card })}
           onSettled={() => dispatch({ type: "settled" })}
@@ -419,6 +430,7 @@ interface LayerProps {
   marks: Marks;
   tiles: ReturnType<typeof useTiles>;
   route: readonly Point[] | null;
+  canoe: Canoe | null;
   onPick: (id: string) => void;
   onDistrict: (card: CardId) => void;
   frame?: Frame | undefined;
@@ -427,7 +439,7 @@ interface LayerProps {
 }
 
 /** The open map: the whole painted map, dragged to pan, pinched or wheeled to zoom; a tap on a district picks its card. */
-function OpenLayer({ size, view, setView, stops, names, marks, tiles, route, onPick, onDistrict, frame, transition, opacity }: LayerProps) {
+function OpenLayer({ size, view, setView, stops, names, marks, tiles, route, canoe, onPick, onDistrict, frame, transition, opacity }: LayerProps) {
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const down = useRef<{ x: number; y: number; moved: boolean } | null>(null);
   const pinch = useRef<number | null>(null);
@@ -477,7 +489,7 @@ function OpenLayer({ size, view, setView, stops, names, marks, tiles, route, onP
   };
   return (
     <div className="paper-open" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} style={{ opacity }} data-open-map>
-      <World variant="open" uid="open" frame={shown} within={seen(own, size)} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={36} route={route} onPick={onPick} style={transition === undefined ? undefined : { transition }} />
+      <World variant="open" uid="open" frame={shown} within={seen(own, size)} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={36} route={route} canoe={canoe} onPick={onPick} style={transition === undefined ? undefined : { transition }} />
     </div>
   );
 }

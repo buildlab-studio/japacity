@@ -4,11 +4,11 @@
 import { content } from "@japacity/content";
 
 import { type Point, toPaper, PAPER } from "./fit";
-import { BEACH, BRIDGE_NAME_PATH, DECOR, FERRY_LINE, LABELS, LAND, LANDMARKS, PALMS, ROADS } from "./geometry";
+import { BEACH, BRIDGE_NAME_PATH, DECOR, FERRY_LINE, LABELS, LAND, LANDMARKS, LANTERN_CANOE, LANTERN_CANOE_CLEAR, PALMS, ROADS } from "./geometry";
 import { type Clear, type Ground, type House, ROOFS, scatter, type Scattered } from "./scatter";
 import { curve, loop } from "./smooth";
 
-/** What the scatter keeps clear of: every place of Lagos with a position, the names, the landmarks and the decor. */
+/** What the scatter keeps clear of: every place of Lagos with a position, the names, the landmarks, the decor and the lantern canoe. */
 export function groundOf(): Ground {
   const places: Clear[] = Object.values(content.place)
     .filter((place) => place.where === "home" && place.position !== null)
@@ -19,10 +19,12 @@ export function groundOf(): Ground {
   const names: Clear[] = LABELS.map((label) => [label.at[0], label.at[1] - 3, Math.round((label.size * label.key.length) / 9) + 4]);
   const landmarks: Clear[] = Object.values(LANDMARKS).map(([x, y]) => [x, y, 16]);
   const decor: Clear[] = DECOR.map((item) => [item.at[0], item.at[1], Math.round(item.size / 2) + 2]);
+  // R-WORLD-036: no wave is drawn over the lantern canoe.
+  const canoe: Clear = [LANTERN_CANOE.at[0], LANTERN_CANOE.at[1], LANTERN_CANOE_CLEAR];
   return {
     land: Object.values(LAND),
     roads: ROADS.map((road) => ({ points: road.points, reach: road.bridge === undefined ? (road.main ? 8 : 6) : 9 })),
-    clear: [...places, ...names, ...landmarks, ...decor],
+    clear: [...places, ...names, ...landmarks, ...decor, canoe],
     box: [-140, 0, PAPER.width + 140, PAPER.height],
   };
 }

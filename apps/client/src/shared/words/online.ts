@@ -68,7 +68,7 @@ export const onlineText: Record<string, string> = {
   "ui.lights.unsaid": "The two lights, home and abroad",
   // The third light past abroad and the dedication page it opens (R-ACCOUNT-032), and a light of the player's own
   // (R-ACCOUNT-033). the owner's line and the nickname under the big light are content's (about.data.ts), never here.
-  "ui.dedication.light": "A small light",
+  "ui.dedication.canoe": "A canoe with a lantern",
   "ui.dedication.page": "Dedication",
   "ui.dedication.rest": "Sun re o.",
   "ui.dedication.close": "Close",

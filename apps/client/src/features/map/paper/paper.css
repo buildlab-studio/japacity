@@ -216,3 +216,18 @@
 }
 
 .paper-name[data-name="new"] { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+
+/* The lantern canoe (docs/rules/world.md R-WORLD-036): a sticker on the open water, the same size on the screen at every
+   zoom, its glow breathing by opacity alone and still under reduced motion (R-WORLD-023). By day a warm dot's small
+   glow; under the night paint the light on that water, drawn over the paper's night so it never goes out. */
+.paper-canoe { position: absolute; left: 0; top: 0; width: 44px; height: 44px; transform-origin: 0 0; transform: scale(var(--inv, 1)) translate(-50%, -50%); background: none; border: 0; padding: 0; cursor: pointer; z-index: 1; -webkit-tap-highlight-color: transparent; transition: opacity 160ms ease; }
+.paper-canoe:focus-visible { outline: 2px solid #f6b800; outline-offset: 2px; border-radius: 8px; }
+.paper-canoe-boat { position: absolute; overflow: visible; pointer-events: none; }
+.paper-canoe-breath { position: absolute; border-radius: 50%; pointer-events: none; mix-blend-mode: screen; animation: paper-breathe 4s ease-in-out infinite alternate; }
+.paper-canoe-night { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+[data-paint="night"] .paper-canoe-night { opacity: 1; }
+@keyframes paper-breathe { from { opacity: 0.75; } to { opacity: 1; } }
+.paper-moving .paper-canoe { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .paper-canoe-breath { animation: none; }
+}
