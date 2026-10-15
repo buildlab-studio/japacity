@@ -66,6 +66,27 @@ export const onlineText: Record<string, string> = {
   "ui.lights.everyone": "Everyone playing, now",
   "ui.lights.said": "{home} lives at home, {abroad} abroad",
   "ui.lights.unsaid": "The two lights, home and abroad",
+  // The third light past abroad and the dedication page it opens (R-ACCOUNT-032), and a light of the player's own
+  // (R-ACCOUNT-033). the owner's line and the nickname under the big light are content's (about.data.ts), never here.
+  "ui.dedication.light": "A small light",
+  "ui.dedication.page": "Dedication",
+  "ui.dedication.rest": "Sun re o.",
+  "ui.dedication.close": "Close",
+  "ui.dedication.light-one": "Light one for yours",
+  "ui.dedication.kept": "Kept on this phone only. Nobody else sees it.",
+  "ui.dedication.sheet": "Light one for yours",
+  "ui.dedication.name": "Their name",
+  "ui.dedication.years": "Years, if you want",
+  "ui.dedication.from": "First year",
+  "ui.dedication.to": "Last year",
+  "ui.dedication.between": "to",
+  "ui.dedication.light-it": "Light it",
+  "ui.dedication.put-out": "Put it out",
+  "ui.dedication.problem.name-words": "Four words at most.",
+  "ui.dedication.problem.name-characters": "Forty letters at most.",
+  "ui.dedication.problem.first-year": "A year from {first} to {year}.",
+  "ui.dedication.problem.last-year": "A year from {first} to {year}.",
+  "ui.dedication.problem.last-before": "The last year cannot come before the first.",
   "ui.account.back": "Back",
 
   // The age screen (R-ACCOUNT-012)

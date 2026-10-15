@@ -12,6 +12,7 @@ import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { readPerson } from "./authority/person";
 import { AccountGate } from "./features/account/AccountGate";
+import { DedicationLater } from "./features/account/DedicationLater";
 import { StartTrouble } from "./features/account/StartTrouble";
 import { canDraw } from "./shared/frontdoor/Gate";
 import { AgentSheets } from "./features/advice/AgentSheet";
@@ -147,7 +148,7 @@ function WorldPlaying() {
             <AccountButton more={<NotifySetting />} />
             <ReadyEntry />
           </>
-        } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <><PeopleSlots api={talk} /><BoardsView /></> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} advert={<PhoneTile />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
+        } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <><PeopleSlots api={talk} /><BoardsView /></> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} advert={<PhoneTile />} dedication={(open, onClose) => <DedicationLater open={open} onClose={onClose} />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}

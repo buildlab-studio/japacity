@@ -23,7 +23,7 @@ import { Market } from "./apps/Market";
 import { Lotto } from "./apps/Lotto";
 import { News } from "./apps/News";
 import { type PaperCards, Papers } from "./apps/Papers";
-import { Settings } from "./apps/Settings";
+import { type DedicationScreen, Settings } from "./apps/Settings";
 import { Notices, useSignalsWaiting } from "./Notices";
 import { Phone } from "./Phone";
 import { phoneWords } from "./phone.words";
@@ -77,6 +77,8 @@ interface Handed {
   briefs: ReactNode;
   /** The place the world shows, for the Market: it sells only at home. */
   here: string | null;
+  /** The dedication page the version line's five taps open, from the shell (account.md R-ACCOUNT-032). */
+  dedication: DedicationScreen | null;
 }
 
 function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Opening, handed: Handed): ReactNode {
@@ -102,7 +104,7 @@ function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Open
     case "news":
       return <News />;
     case "settings":
-      return <Settings account={account} about={about} />;
+      return <Settings account={account} about={about} dedication={handed.dedication} />;
     default: {
       const never: never = id;
       throw new Error(`Unknown app ${String(never)}.`);
@@ -111,7 +113,7 @@ function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Open
 }
 
 /** The apps, each with its dot from what the player has not seen. */
-export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null, briefs = null, warnings = null, here = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null; briefs?: ReactNode; warnings?: ReactNode; here?: string | null } = {}): PhoneApp[] {
+export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null, briefs = null, warnings = null, here = null, dedication = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null; briefs?: ReactNode; warnings?: ReactNode; here?: string | null; dedication?: DedicationScreen | null } = {}): PhoneApp[] {
   const view = useView();
   // A brief handed changes no view, so its mark is read as it is kept.
   useJapaMark(view.scenario);
@@ -125,7 +127,7 @@ export function usePhoneApps({ account = null, about = null, opening = null, cal
       <>
         {warnings}
         <Refused />
-        {screenOf(id, account, about, opening?.app === id ? opening.act : null, { calendar, cards, briefs, here })}
+        {screenOf(id, account, about, opening?.app === id ? opening.act : null, { calendar, cards, briefs, here, dedication })}
       </>
     ),
     waiting: waiting[id],
@@ -178,6 +180,8 @@ export interface PhoneAppsProps {
   advert?: ReactNode;
   /** The place the world shows, by id, for the Market. */
   here?: string | null;
+  /** The dedication page, from the shell, which the five taps on Settings' version line open (account.md R-ACCOUNT-032). */
+  dedication?: DedicationScreen | null;
 }
 
 /** The place's picture for the wallpaper's pill: the place whose name the shell hands in, where the tiles have one. */
@@ -187,10 +191,10 @@ function areaPicture(area: string): ReactNode {
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null, warnings = null, here = null, advert = null }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null, warnings = null, here = null, advert = null, dedication = null }: PhoneAppsProps) {
   const view = useView();
   const [app, act] = start === null ? [null, null] : start.split(":");
-  const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards, briefs, warnings, here });
+  const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards, briefs, warnings, here, dedication });
   const marks = marksOf(view);
   return (
     <PhoneTalk value={talk}>
