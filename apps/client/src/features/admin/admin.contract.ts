@@ -78,7 +78,7 @@ export const REPORT_ACTIONS = ["dismiss", "warn", "mute", "suspend", "ban", "res
 export type ReportAction = (typeof REPORT_ACTIONS)[number];
 
 /** packages/store/src/moderation.types.ts AdminAction. */
-export type AdminAction = ReportAction | "pull-advert" | "approve-advert" | "refuse-advert";
+export type AdminAction = ReportAction | "pull-advert" | "approve-advert" | "refuse-advert" | "approve-light" | "refuse-light";
 
 /** apps/server/src/moderation/reports.ts ReportCite. */
 export type ReportCite =
@@ -215,6 +215,25 @@ export interface DecideAppealBody {
 export type QueueReply = { ok: true; queue: QueueView } | AdminRefusal;
 export type DecidedReply = { ok: true; entry: ModerationLogEntry; appeal?: AppealRow; rollback?: RollbackCheck } | AdminRefusal;
 export type LogReply = { ok: true; entries: ModerationLogEntry[] } | AdminRefusal;
+
+// ---------------------------------------------------------------------------
+// apps/server/src/routes/admin-dedication.ts (R-MODERATION-021)
+// ---------------------------------------------------------------------------
+
+/** apps/server/src/routes/admin-dedication.ts PendingLight: a dedication light whose name awaits a look. */
+export interface PendingLight {
+  account: string;
+  id: string;
+  name: string;
+  years: { from: number | null; to: number | null };
+  username: string | null;
+  region: string | null;
+  litAt: number;
+}
+
+export type PendingLightsReply = { ok: true; lights: PendingLight[] } | AdminRefusal;
+/** An approval or a refusal, with the admin log's entry it was written as. */
+export type LightDecidedReply = { ok: true; entry: string } | AdminRefusal;
 export type FeedbackReply = { ok: true; feedback: FeedbackRow[] } | AdminRefusal;
 
 // ---------------------------------------------------------------------------

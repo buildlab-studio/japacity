@@ -5,7 +5,7 @@ import { api, type Fetch } from "../../shared/net/http";
 import { formatMoney } from "../../shared/words/format";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
-import { ADMIN_GETS, CAMPAIGNS, QUEUE, ROLLBACK, SWITCH_ROW, YESTERDAY } from "./admin.fixtures";
+import { ADMIN_GETS, CAMPAIGNS, PENDING_LIGHTS, QUEUE, ROLLBACK, SWITCH_ROW, YESTERDAY } from "./admin.fixtures";
 import { words } from "./admin.words";
 import { AdminPage, type AdminTab } from "./AdminPage";
 import { AdminRoute } from "./AdminRoute";
@@ -309,6 +309,55 @@ describe("the moderation tab", () => {
     expect(within(table).getByRole("row", { name: "2026-09-19 12:00 UTC account.owner report.old warn account account.ada harassment First time." })).toBeTruthy();
     expect(within(table).queryAllByRole("button")).toEqual([]);
     expect(server.calls.filter((call) => call.path === "/api/admin/moderation/log").map((call) => call.query)).toEqual(["?account=account.ada"]);
+  });
+});
+
+describe("the dedication lights", () => {
+  test("[R-MODERATION-021] given lights awaiting a look, when the moderation tab opens, then each shows its name, years, the account's username and region and when lit, oldest first, with Approve and Refuse", async () => {
+    const server = page("moderation");
+    const list = await screen.findByRole("list", { name: words("admin.lights.list") });
+    const items = [...list.querySelectorAll("[data-light]")];
+    expect(items.map((item) => item.getAttribute("data-light"))).toEqual(["account.ada", "account.bola"]);
+    expect(items[0]?.textContent).toContain("Mama Nkechi");
+    expect(items[0]?.textContent).toContain("1951 to 2024");
+    expect(items[0]?.textContent).toContain(words("admin.lights.who", { username: "ada_lagos", account: "account.ada", region: "NG", at: "2026-10-06 12:00 UTC" }));
+    expect(items[1]?.textContent).toContain(words("admin.lights.no-years"));
+    expect(within(items[0] as HTMLElement).getByRole("button", { name: words("admin.lights.approve") })).toBeTruthy();
+    expect(within(items[0] as HTMLElement).getByRole("button", { name: words("admin.lights.refuse") })).toBeTruthy();
+    expect(server.calls.filter((call) => call.path === "/api/admin/dedication/pending")).toHaveLength(1);
+    expectOnlyAdminRoutes(server.calls);
+  });
+
+  test("[R-MODERATION-021] [R-MODERATION-015] given a light, when it is approved, then it is confirmed, the approval is sent for that account, the logged entry shows and the list is read again", async () => {
+    let reads = 0;
+    const server = page("moderation", {
+      "GET /api/admin/dedication/pending": () => {
+        reads += 1;
+        return reads === 1 ? PENDING_LIGHTS : { ok: true, lights: (PENDING_LIGHTS as { lights: unknown[] }).lights.slice(1) };
+      },
+      "POST /api/admin/dedication/account.ada/approve": () => ({ ok: true, entry: "log.21" }),
+    });
+    const item = (await screen.findByRole("heading", { name: "Mama Nkechi" })).closest("li")!;
+    fireEvent.click(within(item).getByRole("button", { name: words("admin.lights.approve") }));
+    await confirm(words("admin.lights.confirm.approve", { name: "Mama Nkechi", account: "account.ada" }));
+    expect((await screen.findByRole("status", { name: words("admin.moderation.answer") })).textContent).toBe(words("admin.close.done", { entry: "log.21" }));
+    expect(posts(server.calls)).toEqual([{ method: "POST", path: "/api/admin/dedication/account.ada/approve", query: "", body: {} }]);
+    await waitFor(() => expect(document.querySelectorAll("[data-light]")).toHaveLength(1));
+    expect(reads).toBe(2);
+  });
+
+  test("[R-MODERATION-021] given a light, when it is refused, then it is confirmed and the refusal is sent; a refusal from the server shows as it came", async () => {
+    const server = page("moderation", { "POST /api/admin/dedication/account.bola/refuse": () => ({ ok: false, code: "unknown-id", detail: "No light for account.bola." }) });
+    const item = (await screen.findByRole("heading", { name: "Uncle Tunde" })).closest("li")!;
+    fireEvent.click(within(item).getByRole("button", { name: words("admin.lights.refuse") }));
+    await confirm(words("admin.lights.confirm.refuse", { name: "Uncle Tunde", account: "account.bola" }));
+    expect((await within(item).findByRole("alert")).textContent).toBe(words("admin.refused.code", { code: "unknown-id", detail: "No light for account.bola." }));
+    expect(posts(server.calls).map((call) => call.path)).toEqual(["/api/admin/dedication/account.bola/refuse"]);
+  });
+
+  test("[R-MODERATION-021] given no light awaiting a look, when the tab opens, then the list says so", async () => {
+    page("moderation", { "GET /api/admin/dedication/pending": () => ({ ok: true, lights: [] }) });
+    expect(await screen.findByText(words("admin.lights.empty"))).toBeTruthy();
   });
 });
 

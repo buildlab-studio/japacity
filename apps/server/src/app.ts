@@ -16,6 +16,7 @@ import { viewRoute } from "./routes/view";
 import { worldRoute } from "./routes/world";
 import { lightsRoute } from "./routes/lights";
 import { dedicationRoutes } from "./routes/dedication";
+import { adminDedicationRoutes } from "./routes/admin-dedication";
 import { adminRoutes } from "./routes/admin";
 import { switchRoutes } from "./routes/admin-switches";
 import { adminAnalyticsRoutes } from "./routes/admin-analytics";
@@ -60,6 +61,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", worldRoute(deps));
   app.route("/", lightsRoute(deps));
   app.route("/", dedicationRoutes(deps));
+  app.route("/", adminDedicationRoutes(deps));
   app.route("/", characterRoute(deps));
   app.route("/", placeRoutes(deps));
   app.route("/", notifyRoutes(deps));

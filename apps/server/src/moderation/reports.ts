@@ -9,6 +9,15 @@ export const REPORT_REASONS = ["scam", "harassment", "impersonation", "underage"
 
 export type ReportReason = (typeof REPORT_REASONS)[number];
 
+/**
+ * R-MODERATION-015: the reasons an admin action is written to the log with: a report's reasons, and the dedication's
+ * lights (R-MODERATION-021), which no player reports.
+ */
+export const LOG_REASONS = [...REPORT_REASONS, "dedication"] as const;
+
+/** R-MODERATION-021: the reason a dedication light's approval or refusal is logged under. */
+export const DEDICATION_LOG_REASON = "dedication" satisfies (typeof LOG_REASONS)[number];
+
 export type ReportCite =
   | { messages: string[] }
   | { place: string; phrase: string; at: number }

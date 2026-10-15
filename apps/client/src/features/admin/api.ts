@@ -16,7 +16,9 @@ import type {
   DecidedReply,
   DialChange,
   FeedbackReply,
+  LightDecidedReply,
   LogReply,
+  PendingLightsReply,
   QueueReply,
   RecheckReply,
   RejectionsReply,
@@ -43,6 +45,10 @@ export interface AdminApi {
   decideAppeal: (item: string, body: DecideAppealBody) => Promise<DecidedReply>;
   log: (filter: { item?: string; account?: string }) => Promise<LogReply>;
   feedback: () => Promise<FeedbackReply>;
+  /** R-MODERATION-021: the dedication lights whose names await a look, oldest first. */
+  pendingLights: () => Promise<PendingLightsReply>;
+  /** R-MODERATION-021: a light's name approved for everyone, or the light refused and put out. */
+  decideLight: (account: string, outcome: Outcome) => Promise<LightDecidedReply>;
   analytics: (day: string | null) => Promise<DashboardReply>;
   /** R-ANALYTICS-012: the numbers, live. */
   stats: () => Promise<StatsReply>;
@@ -92,6 +98,8 @@ export function adminApi(server: Api, baseUrl: string): AdminApi {
     decideAppeal: (item, body) => settle(server.post(`/api/admin/moderation/${part(item)}/close`, body)),
     log: (filter) => settle(server.get(`/api/admin/moderation/log${query(filter)}`)),
     feedback: () => settle(server.get("/api/admin/moderation/feedback")),
+    pendingLights: () => settle(server.get("/api/admin/dedication/pending")),
+    decideLight: (account, outcome) => settle(server.post(`/api/admin/dedication/${part(account)}/${outcome}`, {})),
     analytics: (day) => settle(server.get(`/api/admin/analytics${query({ day: day ?? undefined })}`)),
     stats: () => settle(server.get("/api/admin/stats")),
     switches: () => settle(server.get("/api/admin/switches")),

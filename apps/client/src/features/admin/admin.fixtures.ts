@@ -1,6 +1,6 @@
 // The admin routes' answers for the page's tests and its browser pictures, in
 // the server's shapes. Made-up accounts and businesses only.
-import type { AlarmsReply, CampaignsReply, DashboardReply, FeedbackReply, LogReply, QueueReply, RejectionsReply, ReportReply, RollbackCheck, StatsPeriod, StatsReply, Switches, SwitchesReply, SwitchLogReply } from "./admin.contract";
+import type { AlarmsReply, CampaignsReply, DashboardReply, FeedbackReply, LogReply, PendingLightsReply, QueueReply, RejectionsReply, ReportReply, RollbackCheck, StatsPeriod, StatsReply, Switches, SwitchesReply, SwitchLogReply } from "./admin.contract";
 
 export const NOW = Date.parse("2026-10-08T12:00:00Z");
 const HOUR = 3_600_000;
@@ -104,6 +104,15 @@ export const QUEUE: QueueReply = {
 export const LOG: LogReply = {
   ok: true,
   entries: [{ id: "log.1", admin: "account.owner", at: NOW - 19 * DAY, item: "report.old", action: "warn", params: { account: "account.ada" }, reason: "harassment", note: "First time." }],
+};
+
+/** R-MODERATION-021: two dedication lights awaiting a look, the older first. */
+export const PENDING_LIGHTS: PendingLightsReply = {
+  ok: true,
+  lights: [
+    { account: "account.ada", id: "light.1a2b", name: "Mama Nkechi", years: { from: 1951, to: 2024 }, username: "ada_lagos", region: "NG", litAt: NOW - 2 * DAY },
+    { account: "account.bola", id: "light.3c4d", name: "Uncle Tunde", years: { from: null, to: null }, username: "bola_b", region: "GB", litAt: NOW - DAY },
+  ],
 };
 
 export const FEEDBACK: FeedbackReply = {
@@ -280,6 +289,7 @@ export const ADMIN_GETS: Record<string, unknown> = {
   "/api/admin/moderation/queue": QUEUE,
   "/api/admin/moderation/log": LOG,
   "/api/admin/moderation/feedback": FEEDBACK,
+  "/api/admin/dedication/pending": PENDING_LIGHTS,
   "/api/admin/analytics": DASHBOARD,
   "/api/admin/stats": STATS,
   "/api/admin/adverts/campaigns": CAMPAIGNS,

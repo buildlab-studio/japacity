@@ -14,6 +14,9 @@ export type AdminAction =
   | "pull-advert"
   | "approve-advert"
   | "refuse-advert"
+  /** R-MODERATION-021: a dedication light's name approved, or the light refused and put out. */
+  | "approve-light"
+  | "refuse-light"
   | "refer"
   | "rollback";
 

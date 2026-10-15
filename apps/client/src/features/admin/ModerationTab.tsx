@@ -1,12 +1,13 @@
 // The moderation queue in the server's order, reason weight then age
 // (R-MODERATION-010, R-MODERATION-011), what each item shows (R-MODERATION-013),
-// the actions it may be closed with (R-MODERATION-014), appeals (R-MODERATION-016)
+// the actions it may be closed with (R-MODERATION-014), appeals (R-MODERATION-016),
+// the dedication lights awaiting a look with Approve and Refuse (R-MODERATION-021)
 // and the log, read by item or account (R-MODERATION-015), which has no edit.
 import { useState, type ReactNode } from "react";
 
 import { Button } from "../../shared/ui/Button";
 import { Tag } from "../../shared/ui/Panel";
-import { REPORT_ACTIONS, REPORT_REASONS, type AccountSummary, type DecidedReply, type ModerationLogEntry, type QueueItem, type ReportAction, type ReportCite, type ReportReason } from "./admin.contract";
+import { REPORT_ACTIONS, REPORT_REASONS, type AccountSummary, type DecidedReply, type ModerationLogEntry, type PendingLight, type QueueItem, type ReportAction, type ReportCite, type ReportReason } from "./admin.contract";
 import { duration, utcTime } from "./admin.format";
 import { words } from "./admin.words";
 import type { AdminApi } from "./api";
@@ -264,6 +265,77 @@ function LogView({ api }: { api: AdminApi }) {
   );
 }
 
+/** A light's years as the list shows them: both with "to" between, the one given, or none. */
+function yearsWords({ from, to }: PendingLight["years"]): string {
+  if (from !== null && to !== null) return words("admin.lights.years", { years: `${String(from)} to ${String(to)}` });
+  if (from !== null || to !== null) return words("admin.lights.years", { years: String(from ?? to) });
+  return words("admin.lights.no-years");
+}
+
+/** R-MODERATION-021: one light awaiting a look, its name, years and account, with Approve and Refuse. */
+function LightItem({ api, light, onDone }: { api: AdminApi; light: PendingLight; onDone: (answer: ReactNode) => void }) {
+  const at = utcTime(light.litAt);
+  const done = (reply: { entry: string }) => <p>{words("admin.close.done", { entry: reply.entry })}</p>;
+  return (
+    <li data-light={light.account} className="flex flex-col gap-3 rounded-md border border-sheet-line bg-sheet-2 p-4">
+      <h3 className="font-semibold">{light.name}</h3>
+      <p className="text-sm">{yearsWords(light.years)}</p>
+      <p className="text-sm text-text-2">
+        {light.username === null ? words("admin.lights.who.gone", { account: light.account, at }) : words("admin.lights.who", { username: light.username, account: light.account, region: light.region ?? "", at })}
+      </p>
+      <div className="flex flex-wrap gap-3 border-t border-sheet-line pt-3">
+        <Confirm
+          label={words("admin.lights.approve")}
+          variant="primary"
+          summary={words("admin.lights.confirm.approve", { name: light.name, account: light.account })}
+          send={() => api.decideLight(light.account, "approve")}
+          done={done}
+          onDone={(reply) => onDone(done(reply))}
+        />
+        <Confirm
+          label={words("admin.lights.refuse")}
+          summary={words("admin.lights.confirm.refuse", { name: light.name, account: light.account })}
+          send={() => api.decideLight(light.account, "refuse")}
+          done={done}
+          onDone={(reply) => onDone(done(reply))}
+        />
+      </div>
+    </li>
+  );
+}
+
+/** R-MODERATION-021: the dedication lights whose names await a look, oldest first. */
+function LightsView({ api }: { api: AdminApi }) {
+  const pending = useLoad(() => api.pendingLights());
+  const [answer, setAnswer] = useState<ReactNode>(null);
+  const decided = (node: ReactNode) => {
+    setAnswer(node);
+    pending.reload();
+  };
+  return (
+    <Section title={words("admin.lights.title")} action={<ReloadButton onClick={pending.reload} />}>
+      {answer === null ? null : (
+        <div role="status" aria-label={words("admin.moderation.answer")} className="rounded-md border border-sheet-line bg-sheet-muted p-3">
+          {answer}
+        </div>
+      )}
+      <Loaded reply={pending.reply}>
+        {({ lights }) =>
+          lights.length === 0 ? (
+            <p className="text-text-2">{words("admin.lights.empty")}</p>
+          ) : (
+            <ol className="flex flex-col gap-4" aria-label={words("admin.lights.list")}>
+              {lights.map((light) => (
+                <LightItem key={light.account} api={api} light={light} onDone={decided} />
+              ))}
+            </ol>
+          )
+        }
+      </Loaded>
+    </Section>
+  );
+}
+
 function FeedbackView({ api }: { api: AdminApi }) {
   const feedback = useLoad(() => api.feedback());
   return (
@@ -316,6 +388,7 @@ export function ModerationTab({ api }: { api: AdminApi }) {
           )}
         </Loaded>
       </Section>
+      <LightsView api={api} />
       <LogView api={api} />
       <FeedbackView api={api} />
     </div>
