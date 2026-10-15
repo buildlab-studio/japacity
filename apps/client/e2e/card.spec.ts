@@ -1,6 +1,7 @@
 // The share card in a real browser on a phone (docs/rules/share.md): Ada's
-// recorded life boards the plane, the send-off card opens, and the player
-// saves it as a file where the browser has no share sheet.
+// recorded life boards the plane through the send-off scene, the send-off card
+// is opened from the phone (R-SHARE-015), and the player saves it as a file
+// where the browser has no share sheet.
 import { readFileSync } from "node:fs";
 
 import { devices, expect, test, type Page } from "@playwright/test";
@@ -8,7 +9,7 @@ import { devices, expect, test, type Page } from "@playwright/test";
 // The recorded lives and the tuning are the simulation's and the content's own data.
 import { content } from "../../../packages/content/src/index";
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
-import { closeGranted, doAct, LIVED, placeReady, rideTo } from "./live";
+import { boardThroughTheScene, closeGranted, doAct, LIVED, placeReady, rideTo } from "./live";
 
 // A device's browser type can be chosen only by the project; the rest of the profile applies here.
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
@@ -37,8 +38,8 @@ function jpegSize(bytes: Buffer): { width: number; height: number } | null {
 
 /**
  * Ada boards the plane in the world (R-CHAPTER-006, route/depart): the granted card owed on load is closed, the map rides
- * her to the airport, the gate's Board the plane takes the flight, and the landing's moment card is closed; the send-off
- * card then opens over the world.
+ * her to the airport, the gate's act opens the send-off scene whose Board the plane takes the flight (R-CHAPTER-012), the
+ * landing's moment card is closed, and the send-off card is opened from its tile on the phone's home (R-SHARE-015).
  */
 async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
   await page.addInitScript(
@@ -60,12 +61,13 @@ async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
   await placeReady(page);
   await rideTo(page, "place.airport-lagos");
   await doAct(page, "gate", "depart");
-  const board = page.locator("[data-ask-main]");
-  await expect(board).toContainText("Board the plane");
-  await board.click();
+  await boardThroughTheScene(page);
   const landing = page.locator("[data-moment-screen]");
   await expect(landing).toBeVisible({ timeout: 30_000 });
   await landing.getByRole("button", { name: "Close" }).click();
+  await expect(page.locator("[data-share-card]")).toHaveCount(0);
+  await page.locator('[data-thumb="phone"]').click();
+  await page.locator("[data-keepsake-open]").click();
 }
 
 test("[R-SHARE-009] [R-CHAPTER-006] a recorded life's send-off card is saved on a phone as a JPEG at the card's size and under its limit", async ({ page }) => {
@@ -88,7 +90,9 @@ test("[R-SHARE-009] [R-CHAPTER-006] a recorded life's send-off card is saved on 
 
   // R-SHARE-011: closed, the card goes to the gallery on this device, newest first, after the granted card closed on load.
   await sheet.getByRole("button", { name: "Close" }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  // The card's screen is gone; the phone it was opened from stays open under it (R-SHARE-015).
+  await expect(page.locator("[data-share-card]")).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "Your send-off card is ready" })).toHaveCount(0);
   const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("japacity.cards") ?? "[]") as { card: { kind: string } }[]);
   expect(kept.map((entry) => entry.card.kind)).toEqual(["send-off", "granted"]);
 });

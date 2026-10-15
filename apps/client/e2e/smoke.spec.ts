@@ -9,7 +9,7 @@ import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 import { start } from "../../../packages/sim/src/testing/play";
 import { standInWorld } from "../../../packages/sim/src/world/standIn";
 import { startArchetype, startReadyLife } from "./door";
-import { backFromResults, closeGranted, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, rideTo, seedSave, sleepTheMonth } from "./live";
+import { backFromResults, boardThroughTheScene, closeGranted, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, rideTo, seedSave, sleepTheMonth } from "./live";
 
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -191,24 +191,18 @@ function adaBeforeFlight(): string {
   return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, -1) }, clock: { anchor: 0 } });
 }
 
-/** The send-off card opens once the flight's moment is closed; it is closed in turn (R-CHAPTER-006). */
-async function closeSendOff(page: Page): Promise<void> {
-  const card = page.locator("[data-share-card='send-off']");
-  await expect(card).toBeVisible();
-  await expect(card.getByText("Japacity is a game.")).toBeVisible();
-  await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
+/** The send-off card opens on no screen of its own once the flight's moment is closed (R-SHARE-015): the phone keeps it. */
+async function noSendOffScreen(page: Page): Promise<void> {
   await expect(page.locator("[data-share-card]")).toHaveCount(0);
 }
 
-/** At the airport's departures, Board the plane (R-CHAPTER-006, route/depart): the landing takes the whole screen, then the send-off. */
+/** At the airport's departures, the send-off scene and its Board the plane (R-CHAPTER-012, route/depart): the landing takes the whole screen after it. */
 async function boardThePlane(page: Page): Promise<void> {
   await closeGranted(page);
   await placeReady(page);
   await rideTo(page, "place.airport-lagos");
   await doAct(page, "gate", "depart");
-  const board = page.locator("[data-ask-main]");
-  await expect(board).toContainText("Board the plane");
-  await board.click();
+  await boardThroughTheScene(page);
   const moment = page.locator("[data-moment-screen]");
   await expect(moment).toBeVisible({ timeout: 30_000 });
   const box = await moment.boundingBox();
@@ -217,7 +211,7 @@ async function boardThePlane(page: Page): Promise<void> {
   await expect(moment).toContainText(/landed/i);
   await expectNothingBroken(page, "on the landing");
   await moment.getByRole("button", { name: "Close" }).click();
-  await closeSendOff(page);
+  await noSendOffScreen(page);
   await passCards(page);
   await placeReady(page);
   await passHomeTeach(page);

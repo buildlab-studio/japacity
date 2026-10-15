@@ -247,3 +247,18 @@ export async function rideTo(page: Page, id: string): Promise<void> {
     return city?.place === stop && city.ready === true;
   }, id, { timeout: 90_000 });
 }
+
+/**
+ * The send-off as a scene (chapter.md R-CHAPTER-012), once the gate's act has opened it: three taps of Step forward, the
+ * stub taken, Board the plane, the plane's cut, the landing's staple, then Ring the bell into the room abroad.
+ */
+export async function boardThroughTheScene(page: Page): Promise<void> {
+  const scene = page.locator("[data-send-off]");
+  await expect(scene).toHaveAttribute("data-send-off", "departures", { timeout: 20_000 });
+  for (let tap = 0; tap < 3; tap += 1) await scene.locator("[data-so-go='step']").click();
+  await scene.locator("[data-so-go='take']").click({ timeout: 10_000 });
+  await scene.locator("[data-so-go='board']").click();
+  await scene.locator("[data-so-go='ride']").click({ timeout: 30_000 });
+  await scene.locator("[data-so-go='ring']").click();
+  await expect(scene).toHaveCount(0);
+}
