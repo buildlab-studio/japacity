@@ -78,7 +78,7 @@ import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
 
-export { DEDICATION } from "./about/about.data";
+export { DEDICATION, DEDICATION_NICKNAME } from "./about/about.data";
 export { blockedWords, reservedNames } from "./account/account.data";
 export { CSP_DIRECTIVES, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "./analytics/analytics.data";
 export { japaTypes, officialAccounts, shareChapters, shareKinds } from "./share/share.data";
