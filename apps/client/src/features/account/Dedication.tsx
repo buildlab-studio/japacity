@@ -108,6 +108,8 @@ export interface Placed {
   kind: "bulb" | "dot";
   /** A bulb on the owner's own string, whose name keeps to one row above his. */
   top?: boolean;
+  /** A named bulb's row for its name, alternating among the named so neighbours' names keep apart. */
+  row?: 0 | 1;
   x: number;
   y: number;
   r: number;
@@ -150,12 +152,29 @@ export function placeLights(lights: readonly SharedLight[], ownId: string | null
   const others = lights.filter((light) => light.id !== ownId).slice(0, MOST_DRAWN - (ownId === null ? 0 : 1));
   const bulbs = bulbPlaces(withOwnSlot);
   const dots = dotPlaces();
-  return others.flatMap((light, index): Placed[] => {
-    const bulb = bulbs[index];
-    if (bulb !== undefined) return [{ light, kind: "bulb", top: bulb.top, x: bulb.x, y: bulb.y + hangOf(7), r: 7, light01: 1 }];
-    const dot = dots[index - bulbs.length];
+  const first = others.slice(0, bulbs.length);
+  // A named light takes every other place on the strings, a bare one between, so two names are never neighbours and
+  // each has room under its bulb; once one kind runs out the other fills what is left.
+  const named = first.filter((light) => light.name !== undefined);
+  const bare = first.filter((light) => light.name === undefined);
+  const placedBulbs: Placed[] = [];
+  let n = 0;
+  let b = 0;
+  for (let slot = 0; slot < first.length; slot += 1) {
+    const bulb = bulbs[slot];
+    const fromNamed = slot % 2 === 0 ? n < named.length : b >= bare.length;
+    const light = fromNamed ? named[n] : bare[b];
+    if (bulb === undefined || light === undefined) continue;
+    const row: 0 | 1 = fromNamed && n % 2 === 1 ? 1 : 0;
+    if (fromNamed) n += 1;
+    else b += 1;
+    placedBulbs.push({ light, kind: "bulb", top: bulb.top, row, x: bulb.x, y: bulb.y + hangOf(7), r: 7, light01: 1 });
+  }
+  const placedDots = others.slice(bulbs.length).flatMap((light, index): Placed[] => {
+    const dot = dots[index];
     return dot === undefined ? [] : [{ light, kind: "dot", x: dot.x, y: dot.y, r: dot.r, light01: dot.light01 }];
   });
+  return [...placedBulbs, ...placedDots];
 }
 
 /** Every place a light may be drawn, so the cap of 240 is the page's own and never more than it can show. */
@@ -234,14 +253,14 @@ function Strings({ placed, own, naming }: { placed: readonly Placed[]; own: bool
   );
 }
 
-/** The name under a named light, as the design sets them: small, quiet, alternately a little lower so neighbours keep apart. */
-function NameUnder({ one, index }: { one: Placed; index: number }) {
+/** The name under a named light, as the design sets them: small, quiet, every other named one a little lower so neighbours keep apart. */
+function NameUnder({ one }: { one: Placed }) {
   if (one.kind !== "bulb" || one.light.name === undefined) return null;
   const years = one.light.years === undefined ? null : lightYears(one.light.years, say("ui.dedication.between"));
   return (
     <p
       className="absolute max-w-[76px] -translate-x-1/2 truncate text-center text-[11.5px] leading-tight text-text/75"
-      style={{ left: one.x, top: one.y + one.r + 6 + (one.top === true || index % 2 === 0 ? 0 : 15) }}
+      style={{ left: one.x, top: one.y + one.r + 6 + (one.top === true || one.row !== 1 ? 0 : 15) }}
       title={years === null ? one.light.name : `${one.light.name}, ${years}`}
       data-light-name
     >
@@ -408,7 +427,7 @@ export function Dedication({ open, onClose, year }: DedicationProps) {
               </p>
             ) : null}
             {named.map((one) => (
-              <NameUnder key={one.light.id} one={one} index={placed.indexOf(one)} />
+              <NameUnder key={one.light.id} one={one} />
             ))}
           </div>
           <div className="relative z-[1] mx-auto flex max-w-[390px] flex-col items-center gap-0.5 px-5 text-center">

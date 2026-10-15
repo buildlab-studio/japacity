@@ -129,6 +129,19 @@ describe("the page", () => {
     expect(page.querySelector("[data-dedication-count] p")?.textContent).toBe("5,000 lights");
   });
 
+  test("[R-ACCOUNT-032] given named and bare lights on the strings, then a named light takes every other place with a bare one between and every other name sits a row lower, so two names are never neighbours", () => {
+    const named = Array.from({ length: 6 }, (_, at) => ({ id: `light.named-${String(at)}`, name: `Name ${String(at)}` }));
+    const bare = Array.from({ length: 10 }, (_, at) => ({ id: `light.bare-${String(at)}` }));
+    const placed = placeLights([...named, ...bare], null, false).filter((one) => one.kind === "bulb");
+    const kinds = placed.map((one) => (one.light.name === undefined ? "bare" : "named"));
+    expect(kinds.slice(0, 12)).toEqual(["named", "bare", "named", "bare", "named", "bare", "named", "bare", "named", "bare", "named", "bare"]);
+    expect(kinds.slice(12).every((kind) => kind === "bare")).toBe(true);
+    expect(placed.filter((one) => one.light.name !== undefined).map((one) => one.row)).toEqual([0, 1, 0, 1, 0, 1]);
+    // With no bare lights left to space them, names still fill the strings in order.
+    const allNamed = placeLights(named, null, false);
+    expect(allNamed.map((one) => one.light.id)).toEqual(named.map((one) => one.id));
+  });
+
   test("[R-ACCOUNT-032] given the account's own light among the lights, then it is never drawn on the strings: it hangs beside the owner's, and with it at most 240 are drawn", () => {
     const listed = [{ id: "light.mine" }, ...lights([], 300)];
     const placed = placeLights(listed, "light.mine", true);
