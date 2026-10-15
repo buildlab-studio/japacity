@@ -41,9 +41,11 @@ afterEach(() => {
 });
 
 describe("the ticket stub beside the send-off card", () => {
-  test("[R-SHARE-001] [R-SHARE-004] given Ada just flown, when her send-off opens, then the card shows first, and the stub beside it carries FROM Lagos, TO the country, the months, the figure, her type and her name", async () => {
+  test("[R-SHARE-001] [R-SHARE-004] [R-SHARE-015] given Ada just flown, when her send-off opens from its tile, then the card shows first, and the stub beside it carries FROM Lagos, TO the country, the months, the figure, her type and her name", async () => {
     const view = adaSendOff();
     await renderWithView(<CardView />, view);
+    // R-SHARE-015: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     const sheet = await screen.findByRole("dialog");
     expect(sheet.querySelector("[data-share-card='send-off']")).not.toBeNull();
     const pickStub = within(sheet).getByRole("button", { name: say("share.stub.pick.stub") });
@@ -71,6 +73,8 @@ describe("the ticket stub beside the send-off card", () => {
     const share = phoneShare();
     const drawn = fakeCanvas(() => 1000);
     await renderWithView(<CardView />, adaSendOff());
+    // R-SHARE-015: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     const sheet = await screen.findByRole("dialog");
     fireEvent.click(within(sheet).getByRole("button", { name: say("share.stub.pick.stub") }));
     expect(share).not.toHaveBeenCalled();
@@ -87,6 +91,8 @@ describe("the ticket stub beside the send-off card", () => {
   test("[R-SHARE-011] given the send-off closed, then its type is kept with it on this device, the data page can read it, and the gallery offers the stub again with the type", async () => {
     const view = adaSendOff();
     const { store } = await renderWithView(<CardView />, view);
+    // R-SHARE-015: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: say("ui.report.close") }));
     expect(keptType(gallery.getState().kept)).toBe(japaTypeOf(view));
     const stored = JSON.parse(localStorage.getItem("japacity.cards") ?? "[]") as { type?: string }[];

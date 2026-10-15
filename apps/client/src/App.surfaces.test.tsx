@@ -174,9 +174,10 @@ describe("where no advert shows", () => {
   });
 
   test("[R-ADVERT-003] given every slot filled, when a share card is due, then the card holds no advert", async () => {
-    const card = { kind: "send-off" as const, route: "route.uk-masters" as const, percent: 82, months: 35, standing: 61, topActivities: [], chapter: null, name: null };
+    // A card that opens on its own when due: the send-off no longer does (share.md R-SHARE-015), the granted card still does.
+    const card = { kind: "granted" as const, route: "route.uk-masters" as const, percent: 82, months: 35, standing: 61, topActivities: [], chapter: null, name: null };
     const store = await storeOf({ ...advertsOn(), card });
-    // A send-off comes long after the early win, which the share card waits for (R-GUIDE-015).
+    // A grant comes long after the early win, which the share card waits for (R-GUIDE-015).
     store.setState({ earlyWin: true });
     render(providers(everything(), <App store={store} />));
     const sheet = await screen.findByRole("dialog");

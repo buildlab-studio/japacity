@@ -20,6 +20,7 @@ import { FullScreen } from "../../shared/ui/FullScreen";
 import { Seal } from "../../shared/ui/Wordmark";
 import { Card } from "../../shared/ui/Panel";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
+import { type Seat, useSeat, useSendOffSaved, useSendOffShowing } from "../../shared/world/sendOff";
 import { japaTypeOf } from "../../shared/words/japaType";
 import { say } from "../../shared/words/text";
 import { gallery, useKept, type Kept } from "./gallery";
@@ -167,7 +168,14 @@ export function StubCardFace({ face }: { face: StubFace }) {
           )}
           <div className="grid grid-cols-2 gap-x-3 gap-y-2">
             <StubField label={face.labels.from}>{face.fields.from}</StubField>
-            <StubField label={face.labels.to}>{face.fields.to}</StubField>
+            <StubField label={face.labels.to}>
+              {face.fields.to}
+              {face.seat === null ? null : (
+                <span className="block text-sm font-bold opacity-75" data-stub-seat>
+                  {face.seat}
+                </span>
+              )}
+            </StubField>
             <StubField label={face.labels.months}>{face.fields.months}</StubField>
             {face.fields.japacity === null ? null : <StubField label={face.labels.japacity}>{`${face.fields.japacity}%`}</StubField>}
           </div>
@@ -245,9 +253,9 @@ export function ShareButton({ card, scenario, stub = null, device = browserDevic
  * A card with its share button; at the send-off, the card and the ticket stub side by side to pick from
  * (R-SHARE-001: the stub is due beside the send-off card, and the player picks which to share).
  */
-function CardToShare({ card, scenario, type }: { card: ShareCard; scenario: Id<"scenario">; type: JapaType | null }) {
+function CardToShare({ card, scenario, type, seat = null }: { card: ShareCard; scenario: Id<"scenario">; type: JapaType | null; seat?: Seat | null }) {
   const [picked, setPicked] = useState<"card" | "stub">("card");
-  const stub = stubFace(card, scenario, type);
+  const stub = stubFace(card, scenario, type, seat);
   if (stub === null) {
     return (
       <>
@@ -296,7 +304,7 @@ function GalleryView({ open, onClose, cards, scenario }: { open: boolean; onClos
           </>
         ) : (
           <>
-            <CardToShare card={shown.card} scenario={scenario} type={shown.type ?? null} />
+            <CardToShare card={shown.card} scenario={scenario} type={shown.type ?? null} seat={shown.seat ?? null} />
             <Button variant="quiet" onClick={() => setShown(null)}>
               {say("share.gallery.back")}
             </Button>
@@ -329,6 +337,17 @@ export function CardView() {
   const others = kept.filter((entry) => entry.key !== key);
   // Read when the send-off is due, kept with its card when it closes (decision 0018).
   const type = japaTypeOf(view);
+  const seat = useSeat();
+  const scene = useSendOffShowing();
+  const saved = useSendOffSaved();
+  // R-SHARE-015: the send-off card is no screen of its own. It is saved as the first ride says so, or at once when no scene
+  // shows it (a life reopened after the plane), and from then it is reached where the phone keeps the cards (Keepsake).
+  const sendOff = card?.kind === "send-off";
+  useEffect(() => {
+    if (!sendOff || card === null || key === null || closed === key || (scene && !saved)) return;
+    closeCard(key);
+    gallery.getState().keep(scenario, card, type, seat);
+  }, [sendOff, card, key, closed, scene, saved, scenario, type, seat, closeCard]);
   // R-MOMENT-006: a chapter's close its moment card told is not told a third time;
   // its card goes to the gallery as a closed one does, without opening.
   useEffect(() => {
@@ -344,10 +363,10 @@ export function CardView() {
       </div>
     );
   if (card === null || key === null) return galleryTile;
-  const open = turn && (closed !== key || reopened);
+  const open = turn && !scene && (sendOff ? reopened : closed !== key || reopened);
   const close = () => {
     closeCard(key);
-    gallery.getState().keep(scenario, card, type);
+    gallery.getState().keep(scenario, card, type, sendOff ? seat : null);
     setReopened(false);
   };
   return (
@@ -359,19 +378,56 @@ export function CardView() {
         </Button>
       </Card>
       {galleryTile}
-      <FullScreen open={open} onClose={close} title={say(`share.${card.kind}.ready`)} tone="over">
-        {/* R-WORLD-001: one tap on the dimmed world dismisses the moment; the face and its buttons keep their taps. */}
-        <button type="button" aria-label={say("ui.card.dismiss")} onClick={close} className="absolute inset-0 cursor-default" data-card-scrim />
-        <div className="relative flex flex-col items-center gap-3" onClick={(event) => event.stopPropagation()}>
-          <InDialog value>
-            <CardToShare card={card} scenario={scenario} type={type} />
-          </InDialog>
-          <p className="max-w-sm text-center text-sm opacity-80">{say("ui.card.how")}</p>
-          <Button variant="secondary" onClick={close}>
-            {say("ui.report.close")}
-          </Button>
-        </div>
-      </FullScreen>
+      <CardScreen open={open} onClose={close} card={card} scenario={scenario} type={type} seat={sendOff ? (keptSeat(kept, key) ?? seat) : null} />
     </>
+  );
+}
+
+/** The seat kept with a send-off card in the gallery, or null. */
+function keptSeat(kept: readonly Kept[], key: string): Seat | null {
+  return kept.find((entry) => entry.key === key)?.seat ?? null;
+}
+
+/** The card full screen over the dimmed world, with its share, the screenshot hint and Close. */
+function CardScreen({ open, onClose, card, scenario, type, seat }: { open: boolean; onClose: () => void; card: ShareCard; scenario: Id<"scenario">; type: JapaType | null; seat: Seat | null }) {
+  return (
+    <FullScreen open={open} onClose={onClose} title={say(`share.${card.kind}.ready`)} tone="over">
+      {/* R-WORLD-001: one tap on the dimmed world dismisses the moment; the face and its buttons keep their taps. */}
+      <button type="button" aria-label={say("ui.card.dismiss")} onClick={onClose} className="absolute inset-0 cursor-default" data-card-scrim />
+      <div className="relative flex flex-col items-center gap-3" onClick={(event) => event.stopPropagation()}>
+        <InDialog value>
+          <CardToShare card={card} scenario={scenario} type={type} seat={seat} />
+        </InDialog>
+        <p className="max-w-sm text-center text-sm opacity-80">{say("ui.card.how")}</p>
+        <Button variant="secondary" onClick={onClose}>
+          {say("ui.report.close")}
+        </Button>
+      </div>
+    </FullScreen>
+  );
+}
+
+/**
+ * The send-off card where the phone keeps the player's cards (share.md R-SHARE-015): from the first ride until the card's
+ * time ends (the first month abroad), a tile on the phone's home with Open the card, the share of R-SHARE-009 unchanged and
+ * the stub carrying the seat the counter gave. Nothing while the scene still shows, or before the card is due.
+ */
+export function Keepsake() {
+  const view = useView();
+  const { card, scenario } = view;
+  const kept = useKept(scenario, view.month);
+  const seat = useSeat();
+  const scene = useSendOffShowing();
+  const [open, setOpen] = useState(false);
+  const key = cardKey(card);
+  if (card?.kind !== "send-off" || key === null || scene) return null;
+  return (
+    <div className="phone-notice mx-4 mt-4 flex flex-wrap items-center justify-between gap-3 p-3" data-keepsake>
+      <p className="font-semibold">{say("share.send-off.ready")}</p>
+      <Button small onClick={() => setOpen(true)} data-keepsake-open>
+        {say("ui.card.open")}
+      </Button>
+      <CardScreen open={open} onClose={() => setOpen(false)} card={card} scenario={scenario} type={japaTypeOf(view)} seat={keptSeat(kept, key) ?? seat} />
+    </div>
   );
 }

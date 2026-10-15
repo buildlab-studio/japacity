@@ -40,9 +40,11 @@ afterEach(() => {
 });
 
 describe("a card for every moment", () => {
-  test("[R-SHARE-001] given each kind of card the view carries, when it is due, then it opens on its own with the kind's title and a tile names it", async () => {
+  test("[R-SHARE-001] [R-SHARE-015] given each kind of card the view carries, when it is due, then it opens with the kind's title and a tile names it, the send-off from its tile", async () => {
     for (const kind of shareKinds) {
       const { store } = await renderWithView(<CardView />, adaWith(kind));
+      // R-SHARE-015: the send-off opens from its tile (that it never opens on its own is SendOffKeepsake.test.tsx's).
+      if (kind === "send-off") fireEvent.click(screen.getByRole("button", { name: say("ui.card.open") }));
       const sheet = await screen.findByRole("dialog");
       const face = sheet.querySelector(`[data-share-card='${kind}']`) as HTMLElement;
       expect(face).not.toBeNull();
@@ -115,6 +117,8 @@ describe("a card for every moment", () => {
   test("[R-SHARE-011] given the same card closed twice, then the gallery keeps it once", async () => {
     const view = adaWith("send-off");
     await renderWithView(<CardView />, view);
+    // R-SHARE-015: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: say("ui.report.close") }));
     gallery.getState().keep(view.scenario, view.card!);
     expect(gallery.getState().kept).toHaveLength(1);

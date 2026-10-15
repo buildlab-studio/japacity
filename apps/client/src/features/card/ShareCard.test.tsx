@@ -52,7 +52,8 @@ describe("the share cards", () => {
   });
 
   test("given a card due, then it opens full screen on its own, and once closed the tile opens it again", async () => {
-    await renderWithView(<CardView />, withCard(SEND_OFF));
+    // R-SHARE-015: the send-off no longer opens on its own (SendOffKeepsake.test.tsx); a granted card still does.
+    await renderWithView(<CardView />, withCard({ ...SEND_OFF, kind: "granted" }));
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).getByText(say("ui.card.how"))).toBeDefined();
     fireEvent.click(within(sheet).getByRole("button", { name: say("ui.report.close") }));

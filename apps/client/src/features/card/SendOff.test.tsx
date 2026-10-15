@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { playedWords, standingWords } from "../../shared/card/face";
@@ -8,11 +8,13 @@ import { nameOf, say } from "../../shared/words/text";
 import { CardView } from "./ShareCard";
 
 describe("the send-off card from the engine", () => {
-  test("[R-CHAPTER-006] given Ada's recorded life just flown, then the card carries the route, the figure, the months, the standing and what was done most, and says it is a game", async () => {
+  test("[R-CHAPTER-006] [R-SHARE-015] given Ada's recorded life just flown, when its tile is opened, then the card carries the route, the figure, the months, the standing and what was done most, and says it is a game", async () => {
     const view = recordedGame("ada-careful").view();
     const card = view.card!;
     expect(card.kind).toBe("send-off");
     await renderWithView(<CardView />, view);
+    // R-SHARE-015: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     const face = (await screen.findByRole("dialog")).querySelector("[data-share-card='send-off']") as HTMLElement;
     expect(within(face).getByText(nameOf(card.route!))).toBeDefined();
     expect(face.textContent).toContain(`${String(card.percent)}%`);
@@ -22,8 +24,10 @@ describe("the send-off card from the engine", () => {
     expect(within(face).getByText(say("ui.card.is-a-game"))).toBeDefined();
   });
 
-  test("[R-CHAPTER-006] given Ada just flown and a report open, then the card waits for it to close", async () => {
+  test("[R-CHAPTER-006] [R-SHARE-015] given Ada just flown and her card opened from its tile, when a report opens, then the card waits for it to close", async () => {
     const { store } = await renderWithView(<CardView />, recordedGame("ada-careful").view());
+    // R-SHARE-015: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     await screen.findByRole("dialog");
     store.getState().setReportOpen(true);
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());

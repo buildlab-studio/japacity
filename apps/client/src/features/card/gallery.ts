@@ -8,6 +8,7 @@ import { createStore } from "zustand/vanilla";
 
 import type { ShareCard } from "../../shared/card/face";
 import { cardKey } from "../../shared/ui/stage";
+import type { Seat } from "../../shared/world/sendOff";
 
 export interface Kept {
   key: string;
@@ -15,11 +16,13 @@ export interface Kept {
   card: ShareCard;
   /** The japa type read when the send-off was due, kept with that card (decision 0018); absent on every other card. */
   type?: JapaType;
+  /** The seat the counter gave at the send-off (share.md R-SHARE-015), kept with that card for its stub; absent on every other card. */
+  seat?: Seat;
 }
 
 interface Gallery {
   kept: Kept[];
-  keep: (scenario: Id<"scenario">, card: ShareCard, type?: JapaType | null) => void;
+  keep: (scenario: Id<"scenario">, card: ShareCard, type?: JapaType | null, seat?: Seat | null) => void;
   clear: () => void;
 }
 
@@ -47,10 +50,10 @@ function save(kept: Kept[]): void {
 
 export const gallery = createStore<Gallery>()((set, get) => ({
   kept: load(),
-  keep(scenario, card, type = null) {
+  keep(scenario, card, type = null, seat = null) {
     const key = cardKey(card);
     if (key === null || get().kept.some((entry) => entry.key === key && entry.scenario === scenario)) return;
-    const kept = [{ key, scenario, card, ...(type === null ? {} : { type }) }, ...get().kept].slice(0, MOST_KEPT);
+    const kept = [{ key, scenario, card, ...(type === null ? {} : { type }), ...(seat === null || card.kind !== "send-off" ? {} : { seat }) }, ...get().kept].slice(0, MOST_KEPT);
     save(kept);
     set({ kept });
   },

@@ -182,6 +182,8 @@ export interface PhoneAppsProps {
   here?: string | null;
   /** The dedication page, from the shell, which the five taps on Settings' version line open (account.md R-ACCOUNT-032). */
   dedication?: DedicationScreen | null;
+  /** The send-off card where the phone keeps the cards, from the shell (share.md R-SHARE-015): a tile on the home among the notices. */
+  keepsake?: ReactNode;
 }
 
 /** The place's picture for the wallpaper's pill: the place whose name the shell hands in, where the tiles have one. */
@@ -191,7 +193,7 @@ function areaPicture(area: string): ReactNode {
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null, warnings = null, here = null, advert = null, dedication = null }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap, briefs = null, warnings = null, here = null, advert = null, dedication = null, keepsake = null }: PhoneAppsProps) {
   const view = useView();
   const [app, act] = start === null ? [null, null] : start.split(":");
   const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards, briefs, warnings, here, dedication });
@@ -213,6 +215,7 @@ export function PhoneApps({ onClose, area, account = null, about = null, talk = 
                   {warnings}
                 </div>
               )}
+              {keepsake}
               <Notices />
               {/* The phone's one sponsored tile among its tiles, when the hour fills it online (adverts.md R-ADVERT-002). */}
               {advert === null ? null : (

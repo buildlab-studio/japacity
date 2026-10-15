@@ -103,6 +103,9 @@ export const shareText: Record<string, string> = {
   "share.stub.home": "Lagos",
   "share.stub.badge": "Japa type",
   "share.stub.ready": "Your ticket stub is ready",
+  // Where the counter put you at the send-off (share.md R-SHARE-015), in words under the place flown to: never a seat's number.
+  "share.stub.seat.window": "By the window",
+  "share.stub.seat.aisle": "On the aisle",
   "share.stub.pick.card": "The card",
   "share.stub.pick.stub": "The ticket stub",
 

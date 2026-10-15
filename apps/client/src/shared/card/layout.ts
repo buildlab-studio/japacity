@@ -24,9 +24,10 @@ export type TextRole =
   | "address"
   | "official"
   | "disclaimer"
-  // The ticket stub's own (stub.ts): a field's name and its value, the type badge's heading, name and line.
+  // The ticket stub's own (stub.ts): a field's name and its value, the seat the counter gave, the type badge's heading, name and line.
   | "stub-label"
   | "stub-value"
+  | "stub-seat"
   | "type-label"
   | "type-name"
   | "type-line";

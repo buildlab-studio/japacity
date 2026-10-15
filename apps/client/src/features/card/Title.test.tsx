@@ -2,11 +2,12 @@
 // in the display caps "A CHAPTER CLOSES" and "THE SEND-OFF" read hard on a phone, as the word mark did.
 import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { recordedGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
+import { say } from "../../shared/words/text";
 import { CardView } from "./ShareCard";
 
 type Shared = NonNullable<PlayerView["card"]>;
@@ -23,7 +24,9 @@ describe("a card's title", () => {
     ["send-off", "share.send-off.title"],
   ] as const)("[R-SHARE-004] given the %s card, when it shows, then its title is in the plain face, not the display caps", async (kind, key) => {
     await renderWithView(<CardView />, adaWith(kind));
-    const title = screen.getByRole("heading", { name: text[key] ?? key });
+    // R-SHARE-015: the send-off opens from its tile; every other card on its own.
+    if (kind === "send-off") fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
+    const title = await screen.findByRole("heading", { name: text[key] ?? key });
     expect(title.className).toContain("font-sans");
     expect(title.className).not.toContain("font-display");
   });

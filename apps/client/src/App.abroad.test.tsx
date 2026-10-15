@@ -46,7 +46,7 @@ async function showing(view: PlayerView) {
 }
 
 describe("the shell by where the character is", () => {
-  test("[R-GATE-003] [R-CHAPTER-006] given Ada's recorded life up to the flight, when she boards, then the flight is a moment of its own, the send-off card follows it, and the world turns to life abroad", async () => {
+  test("[R-GATE-003] [R-CHAPTER-006] [R-CHAPTER-012] [R-SHARE-015] given Ada's recorded life up to the flight, when she boards through the send-off scene, then the flight is a moment of its own after it, the send-off card is kept on the phone, and the world turns to life abroad", async () => {
     const save = recordedSave("ada-careful");
     const beforeFlight = { ...save, commands: save.commands.slice(0, -1) };
     expect(save.commands.at(-1)?.command.type).toBe("route/depart");
@@ -69,24 +69,31 @@ describe("the shell by where the character is", () => {
       await waitFor(() => expect(document.querySelector("[data-band]")).not.toBeNull());
       expect(document.querySelector("[data-tab]")).toBeNull();
       await pressFanAct("bag", "pack", 5000);
+      // R-CHAPTER-012: the act opens the send-off as a scene; its gate's Board the plane is the flight.
+      for (let tap = 0; tap < 3; tap += 1) fireEvent.click(await waitFor(() => found("[data-so-go='step']"), { timeout: 5000 }));
+      fireEvent.click(await waitFor(() => found("[data-so-go='take']"), { timeout: 5000 }));
       fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${say("ui.route.depart")}`) }));
+      // Beats 4 to 6 run over the view after the reply: the plane, the landing, the first ride, then the bell.
+      fireEvent.click(await waitFor(() => found("[data-so-go='ride']"), { timeout: 10000 }));
+      expect(screen.queryByRole("dialog", { name: say("moment.landed.kicker") })).toBeNull();
+      fireEvent.click(found("[data-so-go='ring']"));
 
-      // The flight is a moment of its own (R-MOMENT-001: landing abroad), with no share card in it.
+      // The flight is a moment of its own (R-MOMENT-001: landing abroad), with no share card in it, once the scene is over.
       const moment = await screen.findByRole("dialog", { name: say("moment.landed.kicker") }, { timeout: 10000 });
       expect(moment.querySelector("[data-moment-card='landed']")).not.toBeNull();
       expect(moment.querySelector("[data-share-card]")).toBeNull();
       fireEvent.click(within(moment).getByRole("button", { name: say("moment.close") }));
 
-      // R-CHAPTER-006: the send-off card comes after the flight's moment, before life abroad.
-      const card = await screen.findByRole("dialog", { name: words("chapter.send-off.title") }, { timeout: 10000 });
-      expect(card.querySelector("[data-share-card='send-off']")).not.toBeNull();
-      fireEvent.click(within(card).getByRole("button", { name: say("ui.report.close") }));
+      // R-SHARE-015: the send-off card opens on no screen of its own; the phone keeps it, below.
+      expect(screen.queryByRole("dialog", { name: words("chapter.send-off.title") })).toBeNull();
 
       // Life abroad: the world opens abroad, and the phone's Japa holds the status she lives on.
       await waitFor(() => expect(store.getState().view?.place.where).toBe("abroad"));
       const status = store.getState().view?.status?.entry ?? null;
       expect(status).not.toBeNull();
       fireEvent.click(await waitFor(() => found("[data-thumb='phone']")));
+      // R-SHARE-015: the send-off card kept where the phone keeps the cards, opened from its tile.
+      expect(await waitFor(() => found("[data-keepsake]"))).toBeDefined();
       fireEvent.click(await waitFor(() => found('[data-app="japa"]')));
       expect(await waitFor(() => found(`[data-japa-visa="${status ?? ""}"]`))).toBeDefined();
     } finally {

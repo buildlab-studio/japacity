@@ -28,7 +28,7 @@ import { ActivityPicker } from "./features/activity/ActivityView";
 import { PhoneTile, PlaceAdverts } from "./features/adverts/placed";
 import { BoardsView } from "./features/boards/BoardsView";
 import { EndingView } from "./features/card/EndingView";
-import { CardView } from "./features/card/ShareCard";
+import { CardView, Keepsake } from "./features/card/ShareCard";
 import { ChapterView } from "./features/chapter/ChapterView";
 import { City } from "./features/city/City";
 import { CreditsRow } from "./features/city/Credits";
@@ -60,6 +60,8 @@ import { usePaint } from "./shared/world/paint";
 import { useScreenCount } from "./useScreenCount";
 
 const StartCity = lazy(() => import("./features/map/StartCity"));
+/** The send-off's plane cut over the painted map (world.md R-WORLD-037), fetched with the scene that shows it. */
+const PlaneCut = lazy(() => import("./features/map/paper/PlaneCut"));
 
 /** Whether WebGL draws here, asked once: each ask makes a context. */
 let drawsHere: boolean | null = null;
@@ -155,12 +157,18 @@ function WorldPlaying() {
             <AccountButton more={<NotifySetting />} />
             <ReadyEntry />
           </>
-        } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <><PeopleSlots api={talk} /><BoardsView /></> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} advert={<PhoneTile />} dedication={(open, onClose) => <DedicationLater open={open} onClose={onClose} />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
+        } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <><PeopleSlots api={talk} /><BoardsView /></> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} advert={<PhoneTile />} dedication={(open, onClose) => <DedicationLater open={open} onClose={onClose} />} keepsake={<Keepsake />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} dedication={MAP_DEDICATION} />}
         // R-LOTTERY-001: online the street kiosk sells the Friday draw from its own sheet.
         kiosk={(close, label) => <KioskSheet open onClose={close} label={label} />}
+        // R-CHAPTER-012 beat 4: the send-off's plane cut, the map's own layer, handed to the scene.
+        planeCut={(slot) => (
+          <Suspense fallback={null}>
+            <PlaneCut {...slot} />
+          </Suspense>
+        )}
       />
       {/* The share card opens full screen when it is due; its tile has no place in the world. */}
       <div hidden>

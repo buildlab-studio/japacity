@@ -1,11 +1,13 @@
 // The send-off's ticket stub (docs/rules/share.md R-SHARE-001, R-SHARE-004 to R-SHARE-006, R-SHARE-009;
 // decision 0018): a drawn paper stub over the departure art, with FROM, TO, MONTHS and JAPACITY, the
-// type badge and the first name. Place names and words only: no airline, no barcode, no seat, no
+// type badge and the first name. Place names and words only: no airline, no barcode, no seat number, no
 // booking, no airport code and no crest, so it never reads as a real ticket. Landscape: the card's own
-// size turned on its side.
+// size turned on its side. The seat the send-off's counter gave (share.md R-SHARE-015) is carried in words
+// under the place flown to, "By the window" or "On the aisle", never as a seat's number.
 import { content, type JapaType } from "@japacity/content";
 import type { Content, Id } from "@japacity/sim";
 
+import type { Seat } from "../world/sendOff";
 import { typeWords } from "../words/japaType";
 import { nameOf, say } from "../words/text";
 import { artShapes, type Box, type Shape } from "./art";
@@ -18,6 +20,8 @@ export interface StubFace {
   name: string | null;
   /** The japacity figure is its digits; the layout adds the sign. */
   fields: { from: string; to: string; months: string; japacity: string | null };
+  /** Where the character sat, in words, when the counter gave a seat (R-SHARE-015); null when none was given. */
+  seat: string | null;
   labels: { from: string; to: string; months: string; japacity: string };
   /** The type read at the send-off, or null before it is read. */
   type: { label: string; name: string; line: string } | null;
@@ -39,8 +43,13 @@ function countryOf(route: Id<"route"> | null): Id<"country"> | null {
   return content.route[route]?.country ?? null;
 }
 
+/** The seat's words on the stub (R-SHARE-015). */
+export function seatWords(seat: Seat): string {
+  return say(`share.stub.seat.${seat}`);
+}
+
 /** The stub for a send-off card, or null for any other card or a send-off with no country to name. */
-export function stubFace(card: ShareCard, scenario: Id<"scenario"> | null, type: JapaType | null): StubFace | null {
+export function stubFace(card: ShareCard, scenario: Id<"scenario"> | null, type: JapaType | null, seat: Seat | null = null): StubFace | null {
   if (card.kind !== "send-off") return null;
   const country = countryOf(card.route);
   if (country === null) return null;
@@ -49,6 +58,7 @@ export function stubFace(card: ShareCard, scenario: Id<"scenario"> | null, type:
     kicker: say("share.stub.kicker"),
     name: face.name,
     fields: { from: say("share.stub.home"), to: nameOf(country), months: playedWords(card.months), japacity: card.percent === null ? null : String(card.percent) },
+    seat: seat === null ? null : seatWords(seat),
     labels: { from: say("share.stub.from"), to: say("share.stub.to"), months: say("share.stub.months"), japacity: say("share.stub.japacity") },
     type: type === null ? null : { label: say("share.stub.badge"), ...typeWords(type) },
     art: say("share.send-off.art"),
@@ -81,7 +91,7 @@ export function stubSteps(face: StubFace, size: Size, measure: Measure): Step[] 
   const soft = "charcoal";
   const text: TextStep[] = [];
   const put = (role: TextRole, words: string, x: number, y: number, sizePx: number, weight: TextStep["weight"], family: Family, align: TextStep["align"] = "left") =>
-    text.push({ op: "text", role, text: words, x, y, size: sizePx, weight, family, color: role === "stub-label" || role === "type-label" || role === "kicker" ? soft : ink, align });
+    text.push({ op: "text", role, text: words, x, y, size: sizePx, weight, family, color: role === "stub-label" || role === "stub-seat" || role === "type-label" || role === "kicker" ? soft : ink, align });
 
   /** Puts `words` at the largest size from `largest` down to `smallest` that fits `width`; under that, wraps at the smallest. */
   const fitted = (role: TextRole, words: string, x: number, y: number, width: number, largest: number, smallest: number, family: Family): number => {
@@ -119,7 +129,9 @@ export function stubSteps(face: StubFace, size: Size, measure: Measure): Step[] 
   // The arrow from one place to the other: a drawn mark, not a sign from any airport.
   shapes.push({ op: "rect", x: unit(380), y: unit(422), w: unit(70), h: unit(14), color: ink });
   shapes.push({ op: "poly", points: [[unit(446), unit(404)], [unit(486), unit(429)], [unit(446), unit(454)]], color: ink });
-  const toEnd = fitted("stub-value", face.fields.to, second, unit(452), columnEnd - second, unit(64), unit(44), "sans");
+  const toValueEnd = fitted("stub-value", face.fields.to, second, unit(452), columnEnd - second, unit(64), unit(44), "sans");
+  // The seat under the place flown to, in words, smaller than the place (R-SHARE-015).
+  const toEnd = face.seat === null ? toValueEnd : fitted("stub-seat", face.seat, second, toValueEnd + unit(56), columnEnd - second, unit(36), unit(28), "sans");
   const row = Math.max(unit(580), Math.max(fromEnd, toEnd) + unit(110));
   put("stub-label", face.labels.months.toUpperCase(), left, row, unit(30), 700, "sans");
   put("stub-label", face.labels.japacity.toUpperCase(), second, row, unit(30), 700, "sans");
