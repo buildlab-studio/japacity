@@ -42,10 +42,10 @@ describe("the sheet's limits", () => {
 
   test("[R-ACCOUNT-033] given the years, then 1900 and the current year light, 1899 and next year do not, and anything not a year does not", () => {
     expect(years("1900", String(YEAR))).toEqual({ ok: true, light: { name: "Mama Nkechi", from: 1900, to: YEAR } });
-    expect(years("1899", "")).toEqual({ ok: false, problems: ["from-year"] });
-    expect(years("", String(YEAR + 1))).toEqual({ ok: false, problems: ["to-year"] });
-    expect(years("19", "")).toEqual({ ok: false, problems: ["from-year"] });
-    expect(years("abcd", "")).toEqual({ ok: false, problems: ["from-year"] });
+    expect(years("1899", "")).toEqual({ ok: false, problems: ["first-year"] });
+    expect(years("", String(YEAR + 1))).toEqual({ ok: false, problems: ["last-year"] });
+    expect(years("19", "")).toEqual({ ok: false, problems: ["first-year"] });
+    expect(years("abcd", "")).toEqual({ ok: false, problems: ["first-year"] });
   });
 
   test("[R-ACCOUNT-033] given the years, then they are optional, either may stand alone, the end may be the start's own year, and never before it", () => {
@@ -53,7 +53,7 @@ describe("the sheet's limits", () => {
     expect(years("1951", "")).toEqual({ ok: true, light: { name: "Mama Nkechi", from: 1951, to: null } });
     expect(years("", "2024")).toEqual({ ok: true, light: { name: "Mama Nkechi", from: null, to: 2024 } });
     expect(years("2024", "2024").ok).toBe(true);
-    expect(years("2024", "2023")).toEqual({ ok: false, problems: ["to-before"] });
+    expect(years("2024", "2023")).toEqual({ ok: false, problems: ["last-before"] });
   });
 
   test("[R-ACCOUNT-033] given a light, then its words are the name and its years as a person says them", () => {

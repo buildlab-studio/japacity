@@ -84,9 +84,9 @@ export const onlineText: Record<string, string> = {
   "ui.dedication.put-out": "Put it out",
   "ui.dedication.problem.name-words": "Four words at most.",
   "ui.dedication.problem.name-characters": "Forty letters at most.",
-  "ui.dedication.problem.from-year": "A year from {first} to {year}.",
-  "ui.dedication.problem.to-year": "A year from {first} to {year}.",
-  "ui.dedication.problem.to-before": "The last year cannot come before the first.",
+  "ui.dedication.problem.first-year": "A year from {first} to {year}.",
+  "ui.dedication.problem.last-year": "A year from {first} to {year}.",
+  "ui.dedication.problem.last-before": "The last year cannot come before the first.",
   "ui.account.back": "Back",
 
   // The age screen (R-ACCOUNT-012)

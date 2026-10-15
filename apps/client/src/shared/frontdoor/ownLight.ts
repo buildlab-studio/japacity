@@ -30,7 +30,7 @@ export interface LightAsked {
 }
 
 /** Why the sheet cannot light it yet: the field and the reason, each with its words in the start screen's table. */
-export type LightProblem = "name-empty" | "name-words" | "name-characters" | "from-year" | "to-year" | "to-before";
+export type LightProblem = "name-empty" | "name-words" | "name-characters" | "first-year" | "last-year" | "last-before";
 
 export type LightChecked = { ok: true; light: OwnLight } | { ok: false; problems: LightProblem[] };
 
@@ -64,9 +64,9 @@ export function checkLight(asked: LightAsked, thisYear: number): LightChecked {
   }
   const from = yearOf(asked.from, thisYear);
   const to = yearOf(asked.to, thisYear);
-  if (from === "bad") problems.push("from-year");
-  if (to === "bad") problems.push("to-year");
-  if (typeof from === "number" && typeof to === "number" && to < from) problems.push("to-before");
+  if (from === "bad") problems.push("first-year");
+  if (to === "bad") problems.push("last-year");
+  if (typeof from === "number" && typeof to === "number" && to < from) problems.push("last-before");
   if (problems.length > 0 || from === "bad" || to === "bad") return { ok: false, problems };
   return { ok: true, light: { name, from, to } };
 }
