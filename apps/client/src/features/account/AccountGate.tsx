@@ -24,6 +24,7 @@ import { SignIn } from "./SignIn";
 import { refreshAccount } from "./standing";
 import { StartScreen } from "./StartScreen";
 import { useLights } from "./lights";
+import { ThirdLight } from "./ThirdLight";
 import { TwoLights } from "./TwoLights";
 import { loadTurnstile, siteKey, type LoadTurnstile } from "./Turnstile";
 
@@ -68,12 +69,16 @@ export interface AccountGateProps {
   behind?: ReactNode;
 }
 
-/** The two lights over the start screen, edge to edge from the very top (R-ACCOUNT-031). */
+/**
+ * The two lights over the start screen, edge to edge from the very top (R-ACCOUNT-031), and on their wire past abroad
+ * the third light that opens the dedication (R-ACCOUNT-032), a layer of its own over the picture.
+ */
 function StartLights() {
   const shown = useLights();
   return (
-    <div className="-mx-3 -mt-[max(10px,env(safe-area-inset-top))]">
+    <div className="relative -mx-3 -mt-[max(10px,env(safe-area-inset-top))]">
       <TwoLights shown={shown} />
+      <ThirdLight />
     </div>
   );
 }
