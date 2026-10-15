@@ -15,3 +15,4 @@ export { memoryConversationStore } from "./conversation.memory";
 export { memoryInviteStore } from "./invite.memory";
 export { memoryModerationStore } from "./report.memory";
 export { memoryBoardStore } from "./boards.memory";
+export { memoryDedicationStore } from "./dedication.memory";

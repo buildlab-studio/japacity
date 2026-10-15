@@ -14,6 +14,8 @@ import type { Context, Env } from "hono";
 export interface EdgeCache {
   match: (key: string) => Promise<Response | undefined>;
   put: (key: string, response: Response) => Promise<void>;
+  /** Lets a kept reply go before its time (the dedication's lights once one is lit, R-SERVER-045). */
+  delete?: (key: string) => Promise<boolean>;
 }
 
 /** A reply the database made, with the moment it stops being the same for everyone. */
@@ -120,6 +122,15 @@ export async function throughEdgeIfAny(edge: EdgeCache | null, key: string, now:
   if (hit !== null) return hit;
   const made = await make();
   return made === null ? null : stored(edge, key, now, made);
+}
+
+/** Lets the reply under `key` go, so the next request makes it again. A cache that refuses or fails costs nothing. */
+export async function forgetKept(edge: EdgeCache | null, key: string): Promise<void> {
+  try {
+    await edge?.delete?.(key);
+  } catch {
+    return;
+  }
 }
 
 /** The JSON content type Hono's `c.json` sends, so a reply from the cache is byte for byte the one made. */

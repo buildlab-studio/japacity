@@ -3,6 +3,7 @@
 import type {
   AdvertStore,
   BoardStore,
+  DedicationStore,
   PushStore,
   ConversationStore,
   InviteStore,
@@ -25,6 +26,7 @@ import type { Handle } from "./handle";
 import {
   pgAdvertStore,
   pgBoardStore,
+  pgDedicationStore,
   pgPushStore,
   pgConversationStore,
   pgInviteStore,
@@ -48,6 +50,7 @@ export * as schema from "./schema";
 export {
   pgAdvertStore,
   pgBoardStore,
+  pgDedicationStore,
   pgPushStore,
   pgConversationStore,
   pgInviteStore,
@@ -86,6 +89,8 @@ export interface PgStores {
   appeals: AppealStore;
   feedback: FeedbackStore;
   boards: BoardStore;
+  /** server.md R-SERVER-045. */
+  dedication: DedicationStore;
 }
 
 /** Every Postgres store over one handle, as the server builds them for one request. */
@@ -110,5 +115,6 @@ export function pgStores(handle: Handle): PgStores {
     appeals: pgAppealStore(handle),
     feedback: pgFeedbackStore(handle),
     boards: pgBoardStore(handle),
+    dedication: pgDedicationStore(handle),
   };
 }

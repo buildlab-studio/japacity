@@ -14,6 +14,8 @@ export interface FakeEdge extends EdgeCache {
   asked: string[];
   /** Every key stored, in order, with the headers it was stored with. */
   stored: { key: string; headers: Record<string, string> }[];
+  /** Every key let go before its time, in order. */
+  forgotten: string[];
   /** Drops everything kept, as a new data centre would start. */
   clear: () => void;
 }
@@ -28,9 +30,11 @@ export function fakeEdge(): FakeEdge {
   const held = new Map<string, Held>();
   const asked: string[] = [];
   const stored: FakeEdge["stored"] = [];
+  const forgotten: string[] = [];
   return {
     asked,
     stored,
+    forgotten,
     clear: () => {
       held.clear();
     },
@@ -44,6 +48,10 @@ export function fakeEdge(): FakeEdge {
       stored.push({ key, headers });
       const body = await response.arrayBuffer();
       if (keepable(response.headers)) held.set(key, { body, headers: [...response.headers.entries()] });
+    },
+    delete: (key) => {
+      forgotten.push(key);
+      return Promise.resolve(held.delete(key));
     },
   };
 }

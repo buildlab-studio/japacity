@@ -26,6 +26,7 @@ async function deletedPlayer(h: Harness) {
   await h.deps.stores.audit.retire({ character, why: "rollback", at: START, note: "kept", segments: [], log: [], snapshots: [] });
   await h.deps.stores.world.putDraw({ draw: 1, secret: "s", fingerprint: "f", beaconRound: 1, odds: h.deps.contents.current.tuning.lottery.odds, jackpot: 1 });
   await h.deps.stores.world.addTickets(1, character, 2);
+  await h.deps.stores.dedication.light({ account, id: "light.ada", name: "Mama Nkechi", from: null, to: null, litAt: START });
   h.tables.passkey.push({ id: "passkey-1", userId: account, publicKey: "key", credentialID: "credential-1", counter: 0, deviceType: "singleDevice", backedUp: false, createdAt: new Date() });
   const reply = await h.call("/api/account", { method: "DELETE", jar, ip: "192.0.2.70" });
   expect(reply.status).toBe(200);
@@ -33,7 +34,7 @@ async function deletedPlayer(h: Harness) {
 }
 
 describe("the deletion job", () => {
-  test("[R-ACCOUNT-017] given a deletion, when the job runs a millisecond before it is due, then nothing is removed; at its due time everything the account named is gone", async () => {
+  test("[R-ACCOUNT-017] given a deletion, when the job runs a millisecond before it is due, then nothing is removed; at its due time everything the account named is gone, its dedication light with it (R-ACCOUNT-033)", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(START);
     const h = harness();
@@ -50,6 +51,7 @@ describe("the deletion job", () => {
     expect(await h.deps.stores.account.get(account)).toBeNull();
     expect(await h.deps.stores.player.load(character)).toBeNull();
     expect(await h.deps.stores.ledger.mark(character)).toBeNull();
+    expect(await h.deps.stores.dedication.mine(account)).toBeNull();
     expect(h.tables.user).toHaveLength(0);
     expect(h.tables.session).toHaveLength(0);
     expect(h.tables.account).toHaveLength(0);

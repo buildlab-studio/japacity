@@ -21,4 +21,6 @@ export { suiteForInviteStore } from "./invite.contract";
 export { suiteForModerationStore } from "./report.contract";
 export { suiteForBoardStore } from "./boards.contract";
 export type { BoardStores } from "./boards.contract";
+export { suiteForDedicationStore } from "./dedication.contract";
+export type { DedicationStores } from "./dedication.contract";
 export { DRAW_ODDS, logRow, must, newCharacter } from "./fixtures";

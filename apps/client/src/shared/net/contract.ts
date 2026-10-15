@@ -38,7 +38,9 @@ export type ServerCode =
   | "not-adult"
   | "moved-on"
   /** R-ACCOUNT-022: only a secured account may do this; the detail names the way to secure. */
-  | "guest-only";
+  | "guest-only"
+  /** R-SERVER-045: a dedication light the shared check refuses; the reply carries its problems. */
+  | "bad-light";
 
 /**
  * Copied from apps/server/src/types.ts. `retryAfter` is in seconds: with

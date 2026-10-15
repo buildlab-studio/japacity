@@ -46,6 +46,8 @@ const REJECTION_CODES = [
   "not-adult",
   "moved-on",
   "guest-only",
+  // The dedication's light refused by the shared check (server.md R-SERVER-045), from 15 Oct 2026.
+  "bad-light",
 ];
 
 /** R-SHARE-001: the moments a card is due at, as the view's `card.kind` names them. */

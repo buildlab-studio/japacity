@@ -32,6 +32,8 @@ export async function runDeletions(deps: ServerDeps, auth: Auth): Promise<number
     await forgetPairs(deps, account, character);
     if (character !== null) await deps.stores.player.remove(character);
     await deps.stores.push.forget(account);
+    // R-ACCOUNT-033: the dedication light goes with the account (the database's foreign key does it too).
+    await deps.stores.dedication.putOut(account);
     await deps.stores.account.remove(account);
     await removeAuthUser(auth, account);
     if (character !== null) await deps.stores.ledger.dropMark(character);

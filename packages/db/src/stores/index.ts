@@ -14,3 +14,4 @@ export { pgConversationStore } from "./conversation";
 export { pgInviteStore } from "./invite";
 export { pgModerationStore } from "./report";
 export { pgBoardStore } from "./boards";
+export { pgDedicationStore } from "./dedication";

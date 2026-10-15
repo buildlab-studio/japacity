@@ -10,3 +10,4 @@ export * from "./switches";
 export * from "./moderation";
 export * from "./people";
 export * from "./boards";
+export * from "./dedication";

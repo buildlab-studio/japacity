@@ -10,3 +10,4 @@ export { sameDraw } from "./draw";
 export * from "./memory";
 export * from "./switches";
 export * from "./boards";
+export * from "./dedication";

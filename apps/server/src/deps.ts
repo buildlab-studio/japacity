@@ -10,6 +10,7 @@ import type {
   BoardStore,
   CounterStore,
   BannedIdentityStore,
+  DedicationStore,
   DeletionStore,
   FeedbackStore,
   LedgerStore,
@@ -33,6 +34,7 @@ import {
   memoryBoardStore,
   memoryCounterStore,
   memoryBannedIdentityStore,
+  memoryDedicationStore,
   memoryDeletionStore,
   memoryFeedbackStore,
   memoryLedgerStore,
@@ -73,6 +75,8 @@ export interface Stores {
   adverts: AdvertStore;
   /** city.md R-CITY-039, R-CITY-040. */
   boards: BoardStore;
+  /** server.md R-SERVER-045, the dedication's lights. */
+  dedication: DedicationStore;
 }
 
 /** R-SERVER-023: the current content and the one before, with any overlay already applied (R-SERVER-016). */
@@ -183,6 +187,7 @@ export function memoryStores(): Stores {
     push: memoryPushStore(),
     adverts: memoryAdvertStore(),
     boards: memoryBoardStore(),
+    dedication: memoryDedicationStore(),
   };
 }
 

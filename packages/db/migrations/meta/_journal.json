@@ -15,6 +15,13 @@
       "when": 1791727812173,
       "tag": "0001_functions-and-triggers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792095279329,
+      "tag": "0002_dedication-lights",
+      "breakpoints": true
     }
   ]
 }
