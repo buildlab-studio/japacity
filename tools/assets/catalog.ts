@@ -60,6 +60,10 @@ import * as things from "@japacity/assets-src/prop/home/things";
 import { buildAbra } from "@japacity/assets-src/veh/abra/build";
 import { buildLabourBus } from "@japacity/assets-src/veh/labour-bus/build";
 import { buildDanfo, buildKeke, buildOkada } from "@japacity/assets-src/veh/vehicles";
+import { buildLondonBus } from "@japacity/assets-src/veh/london-bus/build";
+import { buildTrainCarriage } from "@japacity/assets-src/veh/train-carriage/build";
+import { buildCornerPub } from "@japacity/assets-src/bld/corner-pub/build";
+import * as london from "@japacity/assets-src/prop/london/build";
 import { Group } from "three";
 
 import { type BakedModel, bakeGroup, linearColour } from "./bake";
@@ -235,6 +239,12 @@ const ROOM_FOLDERS: Record<RoomName, string> = {
   abroad: "the-room",
   compound: "compound-room",
   arrivals: "arrivals-hall",
+  bigshop: "big-shop-uk",
+  care: "care-home-uk",
+  ward: "ward-uk",
+  office: "office-uk",
+  warehouse: "warehouse-uk",
+  church: "church-uk",
 };
 
 /** The place each room's folder serves, for the register. */
@@ -249,6 +259,12 @@ const ROOM_PLACES: Record<RoomName, string> = {
   abroad: "place.the-room",
   compound: "place.compound-room",
   arrivals: "place.airport-lagos",
+  bigshop: "place.big-shop-uk",
+  care: "place.care-home-uk",
+  ward: "place.ward-uk",
+  office: "place.office-uk",
+  warehouse: "place.warehouse-uk",
+  church: "place.church-uk",
 };
 
 function roomEntry(room: RoomName): CatalogEntry {
@@ -589,6 +605,54 @@ ENTRIES.push(
   homePiece("prop_phone", "shared", things.buildPhone),
   homePiece("prop_foam-mattress", "shared", things.buildFoamMattress),
   homePiece("prop_tv", "shared", things.buildTv),
+);
+
+/** London on the Lagos mold (design page 14): the bus and the train for the ride abroad, the frontages and the rooms of its places. */
+const LONDON = "The makers, written as code from the kit";
+ENTRIES.push(
+  { name: "veh_london-bus", file: "shared/veh/veh_london-bus.glb", place: "shared", source: "assets-src/veh/london-bus", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_london-bus", buildLondonBus()) },
+  { name: "veh_train-carriage", file: "shared/veh/veh_train-carriage.glb", place: "shared", source: "assets-src/veh/train-carriage", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_train-carriage", buildTrainCarriage()) },
+  // Rye Lane redrawn (R-WORLD-011): two more terraces as data, the pub on the corner, the produce, the stalls and the kitchen's door.
+  ...(["c", "d"] as const).map(
+    (variant): CatalogEntry => ({
+      name: `bld_rye-lane-terrace_${variant}`,
+      file: `places/rye-lane/bld_rye-lane-terrace_${variant}.glb`,
+      place: "place.rye-lane",
+      source: `assets-src/bld/rye-lane-terrace/${variant}`,
+      author: LONDON,
+      views: [...ELEVATIONS, "plan", "phone"],
+      build: () => {
+        const spec = readJson<TerraceSpec>(join(SOURCE, "bld", "rye-lane-terrace", variant, "spec.json"));
+        return staticModel(spec.name, buildTerrace(spec, PECKHAM_DISH_YAW));
+      },
+    }),
+  ),
+  placePiece("bld_corner-pub", "rye-lane", () => buildCornerPub(PECKHAM_DISH_YAW), [...ELEVATIONS, "plan", "phone"]),
+  placePiece("prop_produce-stand", "rye-lane", london.buildProduceStand),
+  placePiece("prop_gazebo-stall", "rye-lane", london.buildGazeboStall),
+  placePiece("prop_side-door", "rye-lane", london.buildSideDoor),
+  // Peckham Rye station: the machine for the pass, the gates under the arch, the courier's bike and the board by the stair.
+  placePiece("prop_ticket-machine", "peckham-rye-station", london.buildTicketMachine),
+  placePiece("prop_ticket-gates", "peckham-rye-station", london.buildTicketGates),
+  placePiece("prop_courier-bike", "peckham-rye-station", london.buildCourierBike),
+  placePiece("prop_platform-sign", "peckham-rye-station", () => london.buildPlatformSign("place.peckham.sign.31", { board: "white", ink: "blue", border: "blue" })),
+  // The rooms' things: the big shop, the care home, the ward, the office, the warehouse and the church; the rota board and the tea point shared by the workplaces.
+  placePiece("prop_shop-aisle", "big-shop-uk", london.buildShopAisle),
+  placePiece("prop_trolley-bay", "big-shop-uk", london.buildTrolleyBay),
+  placePiece("prop_tills", "big-shop-uk", london.buildTills),
+  placePiece("prop_reception-desk", "care-home-uk", london.buildReceptionDesk),
+  { ...furniturePiece("prop_rota-board", "shared", "shared", london.buildRotaBoard), author: LONDON },
+  { ...furniturePiece("prop_tea-point", "shared", "shared", london.buildTeaPoint), author: LONDON },
+  placePiece("prop_nurses-station", "ward-uk", london.buildNursesStation),
+  placePiece("prop_hospital-bed", "ward-uk", london.buildHospitalBed),
+  placePiece("prop_desk-pod", "office-uk", london.buildDeskPod),
+  placePiece("prop_glass-office", "office-uk", london.buildGlassOffice),
+  placePiece("prop_clock-in", "warehouse-uk", london.buildClockIn),
+  placePiece("prop_racking", "warehouse-uk", london.buildRacking),
+  placePiece("prop_cage-trolley", "warehouse-uk", london.buildCageTrolley),
+  placePiece("prop_smoking-shelter", "warehouse-uk", london.buildSmokingShelter),
+  placePiece("prop_pew", "church-uk", london.buildPew),
+  placePiece("prop_altar", "church-uk", london.buildAltar),
 );
 
 /** Every shipped asset, each model a player could be shown as a thing with the tile view beside its fixed views. */
