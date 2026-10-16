@@ -30,11 +30,11 @@ const LONDON: readonly Row[] = [
     stages: ["activity.send-money", "activity.street-shopping-uk", "activity.chicken-shop", "activity.job-uk-kitchen-cash", "activity.naija-shop-uk", "activity.barber-uk", "activity.buy-clothes-uk", "activity.pub-pint"],
   },
   { id: "place.peckham-rye-station", nameKind: "public", position: [51470, -69], scope: "exterior", assets: "peckham-rye-station", stages: ["activity.bus-pass-uk", "activity.job-uk-courier-cash"] },
-  { id: "place.big-shop-uk", nameKind: "business", position: [51474, -68], scope: "interior", assets: "big-shop-uk", stages: ["activity.weekly-shop-uk", "activity.job-uk-retail-part"] },
+  { id: "place.big-shop-uk", nameKind: "business", position: [51474, -68], scope: "interior", assets: "big-shop-uk", stages: ["activity.weekly-shop-uk", "activity.job-uk-retail-part", "activity.overtime"] },
   { id: "place.care-home-uk", nameKind: "business", position: [51467, -54], scope: "interior", assets: "care-home-uk", stages: ["activity.job-uk-care", "activity.job-uk-senior-care", "activity.overtime"] },
-  { id: "place.ward-uk", nameKind: "institution", position: [51468, -94], scope: "interior", assets: "ward-uk", stages: ["activity.job-uk-nurse"] },
+  { id: "place.ward-uk", nameKind: "institution", position: [51468, -94], scope: "interior", assets: "ward-uk", stages: ["activity.job-uk-nurse", "activity.overtime"] },
   { id: "place.office-uk", nameKind: "business", position: [51505, -86], scope: "interior", assets: "office-uk", stages: ["activity.job-uk-skilled", "activity.job-uk-graduate", "activity.job-uk-senior-dev"] },
-  { id: "place.warehouse-uk", nameKind: "business", position: [51487, -62], scope: "interior", assets: "warehouse-uk", stages: ["activity.job-uk-warehouse"] },
+  { id: "place.warehouse-uk", nameKind: "business", position: [51487, -62], scope: "interior", assets: "warehouse-uk", stages: ["activity.job-uk-warehouse", "activity.overtime"] },
   { id: "place.church-uk", nameKind: "institution", position: [51486, -66], scope: "interior", assets: "church-uk", stages: ["activity.community-uk"] },
   { id: "place.test-centre-uk", nameKind: "institution", position: [51494, -100], scope: "interior", assets: "english-test-centre", stages: ["activity.nmc-tests", "activity.driving-test"] },
   { id: "place.heathrow", nameKind: "public", position: [51468, -459], scope: "interior", assets: "heathrow", stages: [] },
@@ -74,11 +74,11 @@ describe("the places of London", () => {
     expect(workplace).toEqual(expect.arrayContaining(["activity.job-ca-warehouse", "activity.job-gulf-guard", "activity.job-it-farm-cash"]));
   });
 
-  test("[R-CITY-010] given every place, when the staged ids are counted for each where and country, then none is staged twice", () => {
+  test("[R-CITY-010] given every place, when the staged ids are counted for each where and country, then none is staged twice but overtime, the rota board's act at every workplace", () => {
     const seen = new Map<string, Id<"place">>();
     const twice: string[] = [];
     for (const place of places) {
-      for (const id of place.stages) {
+      for (const id of place.stages.filter((staged) => staged !== "activity.overtime")) {
         const key = `${place.where} ${String(place.country)} ${id}`;
         const before = seen.get(key);
         if (before !== undefined) twice.push(`${id} at ${before} and ${place.id}`);

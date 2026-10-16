@@ -111,6 +111,16 @@ describe("what happens where", () => {
     expect(place("place.test-centre-uk").stages).toContain("activity.nmc-tests");
     expect(placeChecks(content)).toEqual([]);
   });
+
+  test("[R-CITY-010] given overtime staged at four workplaces of the UK, when checked, then it is allowed as the rota board's act at each; any other id at two places of one country is still refused", () => {
+    // overtime alone may stand at several places of one country.
+    const atOvertime = Object.values(content.place).filter((one) => one.country === "country.uk" && (one.stages as readonly string[]).includes("activity.overtime")).map((one) => one.id);
+    expect(atOvertime.sort()).toEqual(["place.big-shop-uk", "place.care-home-uk", "place.ward-uk", "place.warehouse-uk"]);
+    expect(placeChecks(content)).toEqual([]);
+    const job = withPlace({ ...place("place.ward-uk"), stages: ["activity.overtime", "activity.job-uk-care"] });
+    expect(placeChecks(job).join("\n")).toMatch(/place\.ward-uk: stages activity\.job-uk-care, already staged at place\.care-home-uk/);
+    expect(placeChecks(job).join("\n")).not.toMatch(/stages activity\.overtime, already staged/);
+  });
 });
 
 describe("the hub", () => {

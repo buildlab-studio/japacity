@@ -379,16 +379,17 @@ const entries: PlaceEntry[] = [
   }),
   // The station (place.md R-PLACE-012): the ticket machine's bus pass, the courier's bike; the train's platform.
   abroad("place.peckham-rye-station", "country.uk", "london", "peckham", "Peckham Rye", 51470, -69, { stages: ["activity.bus-pass-uk", "activity.job-uk-courier-cash"], crowd: BUSY, traditionalBp: HUB }),
-  // The big shop on Peckham High Street: the weekly shop and the part-time job at the tills.
-  london("place.big-shop-uk", "business", "peckham", 51474, -68, { stages: ["activity.weekly-shop-uk", "activity.job-uk-retail-part"], crowd: BUSY, traditionalBp: HUB }),
+  // The rota board's overtime stands at every workplace (R-CITY-010 as amended 16 Oct 2026: the one id at several places).
+  // The big shop on Peckham High Street: the weekly shop, the part-time job at the tills and the staff notice's overtime.
+  london("place.big-shop-uk", "business", "peckham", 51474, -68, { stages: ["activity.weekly-shop-uk", "activity.job-uk-retail-part", "activity.overtime"], crowd: BUSY, traditionalBp: HUB }),
   // The care home in Nunhead: the door, the rota board's overtime and the manager's door.
   london("place.care-home-uk", "business", "nunhead", 51467, -54, { stages: ["activity.job-uk-care", "activity.job-uk-senior-care", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
-  // The ward on Denmark Hill, shown by plain description: the nurses' station.
-  london("place.ward-uk", "institution", "camberwell", 51468, -94, { stages: ["activity.job-uk-nurse"], crowd: QUIET, traditionalBp: OFFICE }),
+  // The ward on Denmark Hill, shown by plain description: the nurses' station and the rota board.
+  london("place.ward-uk", "institution", "camberwell", 51468, -94, { stages: ["activity.job-uk-nurse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
   // The office at London Bridge: the desk and the glass office.
   london("place.office-uk", "business", "london-bridge", 51505, -86, { stages: ["activity.job-uk-skilled", "activity.job-uk-graduate", "activity.job-uk-senior-dev"], crowd: QUIET, traditionalBp: OFFICE }),
-  // The warehouse on the Old Kent Road: the clock-in.
-  london("place.warehouse-uk", "business", "old-kent-road", 51487, -62, { stages: ["activity.job-uk-warehouse"], crowd: QUIET, traditionalBp: OFFICE }),
+  // The warehouse on the Old Kent Road: the clock-in and the rota board.
+  london("place.warehouse-uk", "business", "old-kent-road", 51487, -62, { stages: ["activity.job-uk-warehouse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
   // The church on the Old Kent Road, the community's place (world.md R-WORLD-020), shown by plain description.
   london("place.church-uk", "institution", "old-kent-road", 51486, -66, { occasion: true, stages: ["activity.community-uk"], crowd: BUSY, traditionalBp: HUB }),
   // The UK's test centre at Elephant and Castle, on the English test centre's scene (R-CITY-010: the country's own place

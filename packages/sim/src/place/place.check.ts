@@ -59,13 +59,17 @@ function fieldProblems(key: string, place: PlaceEntry): string[] {
   return problems;
 }
 
-/** R-CITY-010: every staged id exists, and is staged once for each `where` and country. */
+/** R-CITY-010 as amended 16 Oct 2026: the rota board's act at every workplace of a country, the one id that may stand at several places. */
+const MANY_PLACES: ReadonlySet<Staged> = new Set<Staged>(["activity.overtime"]);
+
+/** R-CITY-010: every staged id exists, and is staged once for each `where` and country, overtime alone excepted. */
 function stagingProblems(content: Content, places: PlaceEntry[]): string[] {
   const problems: string[] = [];
   const stagedAt = new Map<string, Id<"place">>();
   for (const place of places) {
     for (const id of place.stages) {
       if (!exists(content, id)) problems.push(`${place.id}: stages ${id}, which does not exist (R-CITY-010).`);
+      if (MANY_PLACES.has(id)) continue;
       const scope = `${place.where} ${place.country ?? "any"} ${id}`;
       const earlier = stagedAt.get(scope);
       if (earlier !== undefined) problems.push(`${place.id}: stages ${id}, already staged at ${earlier} for the same where and country (R-CITY-010).`);
