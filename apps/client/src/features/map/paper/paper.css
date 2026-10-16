@@ -98,6 +98,18 @@
 .paper-svg .bridge-edge { stroke: var(--map-line); stroke-width: calc(10.5px / var(--z, 1)); }
 .paper-svg .bridge-deck { stroke: var(--road); stroke-width: calc(8px / var(--z, 1)); }
 .paper-svg .bridge-lamps { stroke: var(--lamps); stroke-width: calc(2.6px / var(--z, 1)); stroke-dasharray: 0 calc(11px / var(--z, 1)); }
+/* London's railway (R-WORLD-038): a dark line with pale ties across it, its width kept on the screen as the roads'. */
+.paper-svg .rail path { fill: none; stroke-linecap: butt; stroke-linejoin: round; }
+.paper-svg .rail-edge { stroke: var(--map-line); stroke-width: calc(4px / var(--z, 1)); }
+.paper-svg .rail-ties { stroke: var(--road); stroke-width: calc(2px / var(--z, 1)); stroke-dasharray: calc(3px / var(--z, 1)) calc(4px / var(--z, 1)); }
+/* Heathrow's inset: a framed panel of the paper, its words sized with the paper so they stay inside the frame. */
+.paper-svg .inset-frame { fill: var(--map-paper); stroke: var(--frame-edge); stroke-width: 2.4; }
+.paper-svg .inset-runway { fill: #9aa6b2; stroke: var(--map-line); stroke-width: 0.8; }
+.paper-svg .inset-dash { fill: none; stroke: #ffffff; stroke-width: 1.2; stroke-dasharray: 4 4; }
+.paper-svg .inset-west { fill: none; stroke: var(--frame-edge); stroke-width: 2; stroke-dasharray: 4 3; }
+.paper-svg .inset-arrow { fill: var(--frame-edge); }
+.paper-svg .inset-name { font-weight: 700; fill: var(--label); font-size: 13px; stroke: var(--halo); stroke-width: 2.4px; }
+.paper-svg .inset-note { font-weight: 500; fill: var(--label); font-size: 9px; stroke: none; opacity: 0.8; }
 .paper-svg .ferry-line { fill: none; stroke: var(--ferry); stroke-width: calc(1.6px / var(--z, 1)); stroke-dasharray: calc(5px / var(--z, 1)) calc(6px / var(--z, 1)); stroke-linecap: round; }
 .paper-svg .palm-trunk { fill: none; stroke: #9b6b43; stroke-width: 2.2; stroke-linecap: round; }
 .paper-svg .palm { fill: var(--palm); stroke: var(--map-line); stroke-width: 0.7; }
