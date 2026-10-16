@@ -51,6 +51,10 @@ export const storyText: Record<string, string> = {
   "chats.mum.rent.text": "How much is the rent there? Do not let anybody cheat you because you are new.",
   "chats.sibling.first-pay.text": "First salary over there. Remember your people o.",
   "chats.friend.landed.text": "You have landed. Send pictures of everything. Even the bus stop.",
+  // The same line for the staple the life rides on landing (chapter.md R-CHAPTER-012 (k)): the buses of London and
+  // Castel Volturno keep the line above, Dubai's taxi and Calgary's truck end on their own.
+  "chats.friend.landed.text.taxi": "You have landed. Send pictures of everything. Even the taxi.",
+  "chats.friend.landed.text.pickup": "You have landed. Send pictures of everything. Even the truck.",
 
   // Secure.
   "chats.dad.door.text": "Whatever you decide over there, this house is still your house.",

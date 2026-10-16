@@ -123,14 +123,15 @@ export interface Ping {
 const FRIEND_LANDED = "chats.friend.landed.text";
 
 /**
- * The friend's line on the ride, by the staple she rides (R-CHAPTER-012 (k)): content's own for a bus, the same line
- * ending on the taxi or the truck she sits in (sendOff.words.ts), so the ping fits the ride it pings in.
+ * The friend's line on the ride, by the staple she rides (R-CHAPTER-012 (k)): content's own for a bus, and content's
+ * line for the taxi or the truck (`chats.friend.landed.text.<staple>`), so the ping fits the ride it pings in and the
+ * words have one home.
  */
-const FRIEND_BY_STAPLE: Readonly<Record<Staple, string>> = {
+export const FRIEND_BY_STAPLE: Readonly<Record<Staple, string>> = {
   "double-decker": FRIEND_LANDED,
   "domitiana-bus": FRIEND_LANDED,
-  taxi: "sendoff.ride.ping.friend.taxi",
-  pickup: "sendoff.ride.ping.friend.pickup",
+  taxi: `${FRIEND_LANDED}.taxi`,
+  pickup: `${FRIEND_LANDED}.pickup`,
 };
 
 /**

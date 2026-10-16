@@ -77,9 +77,6 @@ export const sendOffText: Record<string, string> = {
   "sendoff.band.ride.country.canada": "The long road, Calgary",
   "sendoff.band.ride.country.uae": "Along the creek, Dubai",
   "sendoff.band.ride.country.italy": "Via Domitiana, Italy",
-  // The friend's landed line (story.text.ts) on the ride, ending on the staple she sits in; the buses keep content's own.
-  "sendoff.ride.ping.friend.taxi": "You have landed. Send pictures of everything. Even the taxi.",
-  "sendoff.ride.ping.friend.pickup": "You have landed. Send pictures of everything. Even the truck.",
   "sendoff.saved": "Send-off card saved",
   "sendoff.ring": "Ring the bell",
   "sendoff.phone": "Phone",
