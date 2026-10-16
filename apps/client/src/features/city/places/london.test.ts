@@ -76,6 +76,13 @@ describe("Rye Lane", () => {
     expect(sceneWords(thingIn(ryeLane, "naija-shop").acts[0]?.label ?? "")).toBe("A taste of home");
   });
 
+  test("[R-WORLD-039] [R-WORLD-005] given two shops on one terrace, when their things are placed, then each is marked at its own spot along the frontage, never one over the other", () => {
+    const stage = stageOf(ryeLane as unknown as PlaceFile);
+    const spots = ["chicken-shop", "barber", "clothes-shop", "transfer"].map((id) => thingSpot(stage, thingIn(ryeLane, id)));
+    expect(spots).toEqual(["chicken-shop", "barber", "clothes-shop", "transfer"].map((id) => thingIn(ryeLane, id).at));
+    expect(new Set(spots.map((spot) => spot?.join(","))).size).toBe(4);
+  });
+
   test("[R-CITY-024] given Rye Lane's terraces, when their boards are read, then each shop's board is Rye Lane's own sign, never Peckham's", () => {
     const boards = stageOf(ryeLane as unknown as PlaceFile).models.flatMap((model) => (model.signs ?? []).flat());
     expect(boards.sort()).toEqual(["place.rye-lane.sign.barber", "place.rye-lane.sign.chicken", "place.rye-lane.sign.clothes", "place.rye-lane.sign.naija", "place.rye-lane.sign.transfer"]);

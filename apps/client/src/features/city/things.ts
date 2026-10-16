@@ -104,9 +104,12 @@ export function thingsOf(stage: Pick<Stage, "models" | "things">): Thing[] {
  * Where a thing stands: where the person standing as it stands (world.md R-WORLD-020), so their mark is over them; else its
  * model's copy, or the spot it names when its model is not in the place. Null when it has none.
  */
-export function thingSpot(stage: Pick<Stage, "models"> & Partial<Pick<Stage, "standing">>, thing: Pick<Thing, "file" | "copy" | "at"> & Partial<Pick<Thing, "id">>): [number, number] | null {
+export function thingSpot(stage: Pick<Stage, "models"> & Partial<Pick<Stage, "standing" | "things">>, thing: Pick<Thing, "file" | "copy" | "at"> & Partial<Pick<Thing, "id">>): [number, number] | null {
   const stander = thing.id === undefined ? undefined : stage.standing?.find((one) => one.thing === thing.id);
   if (stander !== undefined) return [stander.at[0], stander.at[1]];
+  // Two shops of one terrace are one model copy (Rye Lane's chicken shop and barber, world.md R-WORLD-039: the things'
+  // spots are the place file's): a thing that shares its copy with another standing elsewhere is marked at its own spot.
+  if (thing.at !== undefined && (stage.things ?? []).some((other) => other.id !== thing.id && other.file === thing.file && other.copy === thing.copy && other.at !== undefined && (other.at[0] !== thing.at?.[0] || other.at[1] !== thing.at?.[1]))) return thing.at;
   const copy = stage.models.find((model) => model.file === thing.file)?.at[thing.copy];
   if (copy !== undefined) return [copy[0], copy[1]];
   return thing.at ?? null;
