@@ -16,6 +16,7 @@ import { AccountGate } from "./AccountGate";
 import { answerAge } from "./age.testing";
 import { YEARS_LISTED } from "./AgeScreen";
 import { AccountSettings } from "./Settings";
+import { StartTrouble } from "./StartTrouble";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./Turnstile";
 
 const OK: AuthResult = { ok: true };
@@ -275,6 +276,56 @@ describe("the start screen online", () => {
       </GameProvider>,
     );
     expect(container.innerHTML).toBe("");
+  });
+});
+
+/** True where the sheet of the given mark stands in the centred column: the one lane the world's thumbs and the door's frame use on a wide screen. */
+function sheetInLane(mark: string): boolean {
+  const sheet = document.querySelector(`[data-gate-sheet="${mark}"]`);
+  if (sheet === null) throw new Error(`No sheet marked ${mark}`);
+  return sheet.closest("[data-centred-column]") !== null;
+}
+
+describe("the door's sheets on a desktop", () => {
+  test("[R-ACCOUNT-029] given the start screen, then its sheet stands in the centred column while the scene behind and the two lights over it stay the whole window's", async () => {
+    const store = signedOutStore(fakeAccount());
+    render(
+      <GameProvider store={store}>
+        <AccountGate load={fakeTurnstile().load} sitekey={TEST_SITE_KEY} behind={<div data-test-city />} />
+      </GameProvider>,
+    );
+    await screen.findByRole("button", { name: say("ui.account.start.play") });
+    expect(sheetInLane("start")).toBe(true);
+    expect(document.querySelector("[data-test-city]")?.closest("[data-centred-column]")).toBeNull();
+    expect(document.querySelector("[data-two-lights]")?.closest("[data-centred-column]")).toBeNull();
+  });
+
+  test("[R-ACCOUNT-012] [R-ACCOUNT-029] given the age screen, then its sheet stands in the centred column with its three fields and Continue inside it", async () => {
+    gate(fakeAccount());
+    await play();
+    await screen.findByRole("combobox", { name: say("ui.account.age.day") });
+    expect(sheetInLane("age")).toBe(true);
+    const form = document.querySelector("[data-age-screen]");
+    expect(form?.closest("[data-centred-column]")).not.toBeNull();
+    expect(form?.querySelectorAll("select")).toHaveLength(3);
+  });
+
+  test("[R-ACCOUNT-029] given the ways back in, then its sheet stands in the centred column", async () => {
+    gate(fakeAccount());
+    await returning();
+    await screen.findByRole("heading", { name: say("ui.account.returning.title") });
+    expect(sheetInLane("returning")).toBe(true);
+  });
+
+  test("[R-SERVER-032] given sign-ups switched off, then the full screen's sheet stands in the centred column", async () => {
+    gate(fakeAccount({ ageStatus: () => Promise.resolve({ full: true, retryAfter: 30 }) }));
+    expect(await screen.findByText(say("server.full"))).toBeDefined();
+    expect(sheetInLane("other")).toBe(true);
+  });
+
+  test("[R-SERVER-043] given the server out of reach for a new visitor, then the start screen's frame keeps its sheet in the centred column", () => {
+    render(<StartTrouble trouble={null} />);
+    expect(sheetInLane("start-trouble")).toBe(true);
   });
 });
 
