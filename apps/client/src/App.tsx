@@ -7,6 +7,7 @@ import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { bootGame } from "./authority/boot";
 import { CountedBoundary } from "./shared/analytics/CountedBoundary";
 import { SoundNotice } from "./shared/sound/SoundNotice";
+import { Rejection } from "./shared/ui/Rejection";
 import { TroubleCard, TroubleFace } from "./shared/ui/Trouble";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
@@ -196,6 +197,8 @@ export const SLOW_MS = 5_000;
  */
 function Opening() {
   const trouble = useGame((state) => state.trouble);
+  // R-SERVER-003: a life the server must check is refused before it opens; its sheet, with Retry, stands in the loading screen's place.
+  const diverged = useGame((state) => state.rejection?.code === "diverged");
   const online = useGame((state) => state.account !== null);
   const [lifeKept] = useState(() => readPerson() !== null);
   const [slow, setSlow] = useState(false);
@@ -203,6 +206,13 @@ function Opening() {
     const timer = window.setTimeout(() => setSlow(true), SLOW_MS);
     return () => window.clearTimeout(timer);
   }, []);
+  if (diverged) {
+    return (
+      <div className="mx-auto w-full max-w-[420px] p-4">
+        <Rejection />
+      </div>
+    );
+  }
   if (online && !lifeKept) return <StartTrouble trouble={trouble} />;
   if (trouble !== null) return <TroubleFace trouble={trouble} inline />;
   return (

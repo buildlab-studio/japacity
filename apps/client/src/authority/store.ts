@@ -185,6 +185,11 @@ export interface GameState {
   stopPick: (pick: SlotPick) => void;
   clearPlan: () => void;
   dismissRejection: () => void;
+  /**
+   * R-SERVER-003: the Retry of a `diverged` sheet. Fetches the view again and clears the sheet when it comes; while the
+   * life still needs checking the sheet stays. Nothing for any other rejection.
+   */
+  recheck: () => Promise<void>;
   /** Moves on from the moment on screen to the next, or to the report. */
   nextMoment: () => void;
   /** Dismisses the moment card on screen (R-MOMENT-006). */
@@ -397,7 +402,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
     /** What Retry runs: the request that failed, sent again, its answer handed to whoever waited on the first. */
     let again: (() => Promise<void>) | null = null;
     /** The refresh under way, so a focus, a page shown again and a nudge at once cost one request. */
-    let refreshing: Promise<void> | null = null;
+    let refreshing: Promise<boolean> | null = null;
 
     /**
      * R-ENGINE-015: shows the card for a failed request and keeps it to send again. The promise settles with the
@@ -546,8 +551,11 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       set({ opened: [...get().opened, ...opened] });
     }
 
-    /** R-ENGINE-015: the view, asked for again twice with a pause before the card; a fault that is no request's replaces the screen. */
-    async function fetchView(): Promise<void> {
+    /**
+     * R-ENGINE-015: the view, asked for again twice with a pause before the card; a fault that is no request's replaces
+     * the screen. True when a view came.
+     */
+    async function fetchView(): Promise<boolean> {
       for (let attempt = 0; ; attempt += 1) {
         try {
           take(await authority.view());
@@ -556,31 +564,39 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             again = null;
             set({ trouble: null });
           }
-          return;
+          return true;
         } catch (error) {
           const kind = failureOf(error);
-          if (kind === null) return broke(error);
+          if (kind === null) {
+            broke(error);
+            return false;
+          }
           const pause = VIEW_RETRY_MS[attempt];
           if (pause === undefined || isReloading(error)) {
             void held(kind, "view", refresh, error);
-            return;
+            return false;
           }
           await wait(pause);
         }
       }
     }
 
-    function refresh(): Promise<void> {
+    /** One fetch of the view at a time; a second caller waits on the first. True when a view came. */
+    function fetched(): Promise<boolean> {
       refreshing ??= fetchView().finally(() => {
         refreshing = null;
       });
       return refreshing;
     }
 
-    /** A view asked for after a refusal: one that set out before it may be older, so a new one follows it. */
-    async function viewAfter(): Promise<void> {
+    function refresh(): Promise<void> {
+      return fetched().then(() => undefined);
+    }
+
+    /** A view asked for after a refusal: one that set out before it may be older, so a new one follows it. True when it came. */
+    async function viewAfter(): Promise<boolean> {
       if (refreshing !== null) await refreshing;
-      await refresh();
+      return fetched();
     }
 
     return {
@@ -658,6 +674,11 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       },
       dismissRejection() {
         set({ rejection: null });
+      },
+      async recheck() {
+        if (get().rejection?.code !== "diverged") return;
+        const came = await viewAfter();
+        if (came && get().rejection?.code === "diverged") set({ rejection: null });
       },
       nextMoment() {
         set({ moments: get().moments.slice(1) });
@@ -738,6 +759,10 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             return;
           case "rate-limited":
             set({ rejection: { code: "rate-limited", words: sayCount("ui.online.wait", event.retryAfter, { seconds: event.retryAfter }) } });
+            return;
+          case "diverged":
+            // R-SERVER-003: its own words and a Retry, never the line for a failure of the server's.
+            set({ rejection: { code: "diverged", words: rejectionWords("diverged") } });
             return;
           case "lines":
             // The authority's own lines (a draw paid while away): staged as the command's are, never as a report.

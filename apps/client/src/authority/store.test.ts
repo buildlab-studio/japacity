@@ -5,8 +5,9 @@ import { describe, expect, test } from "vitest";
 import type { ServerRejection } from "../shared/net/contract";
 import { reportedError } from "../shared/net/http";
 import { engineView } from "../shared/testing/fixtures";
-import { deferred } from "../shared/testing/server";
+import { BASE, deferred, fakeServer } from "../shared/testing/server";
 import { sayCount } from "../shared/words/text";
+import { remoteAuthority } from "./remote";
 import { createGameStore, rejectionWords } from "./store";
 
 const at = (v: number): PlayerView => ({ ...engineView(), v });
@@ -88,6 +89,76 @@ describe("the store online", () => {
     await store.getState().refresh();
     store.getState().leave("ui.account.notice.deleted");
     expect(store.getState()).toMatchObject({ signedOut: true, view: null, accountNotice: "ui.account.notice.deleted" });
+  });
+});
+
+describe("a life the server must check (R-SERVER-003)", () => {
+  const diverged = { status: 409, body: { ok: false, code: "diverged", detail: "This character is being checked. Play resumes once it is mended." } };
+  const viewed = (v: number) => ({ body: { ok: true, view: at(v), lines: [], clock: { tick: 1, nextTickAt: 10, nextTurnAt: 5, morningAt: 0, world: worldClockAt(0) } } });
+
+  /** The store over the remote authority and a stand-in server, the authority's events heard as the online shell hears them. */
+  function online() {
+    const server = fakeServer();
+    const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch, wall: { met: () => false, passed: () => undefined } });
+    const store = createGameStore(remote, { wait: () => Promise.resolve() });
+    remote.listen((event) => store.getState().heard(event));
+    return { server, store };
+  }
+
+  test("[R-SERVER-003] given the view refused as diverged, when the life opens, then the rejection is diverged's own words and no failure of the server's is shown", async () => {
+    const { server, store } = online();
+    server.answer("GET /api/view", diverged);
+    await store.getState().refresh();
+    expect(store.getState().rejection).toEqual({ code: "diverged", words: rejectionWords("diverged") });
+    expect(rejectionWords("diverged")).toBe("Your life needs checking on our side. Try again in a while.");
+    expect(store.getState().failed).toBeNull();
+    expect(store.getState().trouble).toBeNull();
+    expect(store.getState().view).toBeNull();
+  });
+
+  test("[R-SERVER-003] given a command refused as diverged and the view after it too, then the rejection is diverged's, the view held stays, and no failure is shown", async () => {
+    const { server, store } = online();
+    server.answer("GET /api/view", viewed(3));
+    await store.getState().refresh();
+    server.answer("POST /api/command", diverged);
+    server.answer("GET /api/view", diverged);
+    await store.getState().endMonth();
+    expect(store.getState().rejection?.code).toBe("diverged");
+    expect(store.getState().rejection?.words).toBe(rejectionWords("diverged"));
+    expect(store.getState().failed).toBeNull();
+    expect(store.getState().view?.v).toBe(3);
+  });
+
+  test("[R-SERVER-003] given the diverged rejection, when Retry is pressed while the life still needs checking, then it stays; when the view comes, then it clears and the life opens", async () => {
+    const { server, store } = online();
+    server.answer("GET /api/view", diverged, diverged, viewed(7));
+    await store.getState().refresh();
+    await store.getState().recheck();
+    expect(store.getState().rejection?.code).toBe("diverged");
+    expect(store.getState().view).toBeNull();
+    await store.getState().recheck();
+    expect(store.getState().rejection).toBeNull();
+    expect(store.getState().view?.v).toBe(7);
+    expect(store.getState().failed).toBeNull();
+  });
+
+  test("[R-SERVER-003] given any other rejection on show, when Retry is asked for, then nothing is fetched and the rejection stays", async () => {
+    let asked = 0;
+    const store = createGameStore({
+      view: () => {
+        asked += 1;
+        return Promise.resolve(at(2));
+      },
+      send: () => Promise.resolve({ ok: false, code: "not-legal", detail: "No." }),
+    });
+    await store.getState().refresh();
+    await store.getState().endMonth();
+    const shown = store.getState().rejection;
+    const fetched = asked;
+    await store.getState().recheck();
+    expect(shown?.code).toBe("not-legal");
+    expect(store.getState().rejection).toEqual(shown);
+    expect(asked).toBe(fetched);
   });
 });
 
