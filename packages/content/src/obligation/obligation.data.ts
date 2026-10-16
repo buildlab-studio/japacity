@@ -12,7 +12,7 @@ const MISSED_MONTH: Effect[] = [
   { type: "quality/add", quality: "quality.wellbeing", amount: -5 },
 ];
 
-/** Food, transport and the pay-as-you-go phone in one country; in the UK the phone alone (R-ABROAD-003 as amended 16 Oct 2026). */
+/** The phone's pay as you go in one country, food and fares lived by hand (R-ABROAD-003 as amended twice on 16 Oct 2026). */
 function upkeepAbroad(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
   return {
     id,
@@ -329,9 +329,10 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
 
   // R-ABROAD-003 as amended 16 Oct 2026: in the UK food and fares are lived by hand, so the upkeep is the phone's pay as you go alone.
   "obligation.upkeep-uk": upkeepAbroad("obligation.upkeep-uk", "GBP", pounds(15)),
-  "obligation.upkeep-ca": upkeepAbroad("obligation.upkeep-ca", "CAD", cad(600)),
-  "obligation.upkeep-uae": upkeepAbroad("obligation.upkeep-uae", "AED", aed(450)),
-  "obligation.upkeep-it": upkeepAbroad("obligation.upkeep-it", "EUR", euros(250)),
+  // R-ABROAD-003 as amended again 16 Oct 2026 (design page 15 section 5): in Canada, the UAE and Italy too the upkeep is the prepaid phone alone.
+  "obligation.upkeep-ca": upkeepAbroad("obligation.upkeep-ca", "CAD", cad(30)),
+  "obligation.upkeep-uae": upkeepAbroad("obligation.upkeep-uae", "AED", aed(50)),
+  "obligation.upkeep-it": upkeepAbroad("obligation.upkeep-it", "EUR", euros(10)),
 
   // SpareRoom's £668 for a room outside London, rounded as the page does.
   "obligation.rent-room-uk": rentRoom("obligation.rent-room-uk", "GBP", pounds(670)),

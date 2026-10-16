@@ -325,7 +325,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
 
   // Free slots abroad
 
-  // The phone is in upkeep (in the UK the upkeep is the phone alone, R-ABROAD-003 as amended).
+  // The phone is in upkeep (the upkeep abroad is the phone alone, R-ABROAD-003 as amended).
   "activity.call-home": free("activity.call-home", null, [ABROAD], {
     cost: [],
     effects: [gain("quality.standing", 3), wellbeing(2)],
@@ -342,8 +342,9 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     cost: [{ currency: "GBP", amount: tuning.street.shoppingGbp, reason: "enjoyment" }],
     effects: [wellbeing(tuning.street.shoppingMood)],
   }),
+  // streets.md R-STREET-014: the souq stands in Naif and is enjoyment, as London's stalls are.
   "activity.street-shopping-uae": free("activity.street-shopping-uae", "country.uae", [IN_UAE], {
-    cost: [{ currency: "AED", amount: tuning.street.shoppingAed, reason: "social" }],
+    cost: [{ currency: "AED", amount: tuning.street.shoppingAed, reason: "enjoyment" }],
     effects: [wellbeing(tuning.street.shoppingMood)],
   }),
   // With a job that is not a student's part-time job. The extra quarter of the month's

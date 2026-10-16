@@ -1,0 +1,20 @@
+// Names and blurbs for Dubai lived by hand (docs/rules/place.md R-PLACE-012 as amended, streets.md R-STREET-014). The
+// place's answer to each is in activity.now.text.ts with the other now-lines. First drafts, rewritten for voice.
+export const activityDubaiText: Record<string, string> = {
+  "activity.transit-pass-uae.name": "The zone pass",
+  "activity.transit-pass-uae.blurb": "One top-up at the machine and the buses and the metro are yours for the month.",
+  "activity.weekly-shop-uae.name": "The weekly shop",
+  "activity.weekly-shop-uae.blurb": "A trolley round the hypermarket: rice, bread, eggs, chicken and the rest of the week's food.",
+  "activity.cook-own-uae.name": "A meal of your own",
+  "activity.cook-own-uae.blurb": "Rice and stew on the camp's shared stove, with the men from the next room waiting their turn.",
+  "activity.cafeteria-uae.name": "The cafeteria",
+  "activity.cafeteria-uae.blurb": "A shawarma and sweet tea at the cafeteria in Deira, the fan turning overhead.",
+  "activity.naija-shop-uae.name": "The African foods shop",
+  "activity.naija-shop-uae.blurb": "Garri, yam and a bottle of malt from the African foods shop. Dearer than the hypermarket, worth it.",
+  "activity.barber-uae.name": "A fresh cut",
+  "activity.barber-uae.blurb": "The barber in Deira knows a low cut. The air conditioner hums and the gist is free.",
+  "activity.buy-clothes-uae.name": "The tailor",
+  "activity.buy-clothes-uae.blurb": "A day in Naif for a shirt and trousers made to measure by the tailor.",
+  "activity.laundry-uae.name": "The laundry",
+  "activity.laundry-uae.blurb": "Your work clothes washed and pressed at the laundry in Naif, back folded by evening.",
+};

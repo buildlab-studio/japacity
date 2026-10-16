@@ -101,8 +101,9 @@ describe("shopping on the street abroad", () => {
     expect(options.find((option) => option.id === SHOP_UAE)?.allowed).toBe(true);
     expect(options.find((option) => option.id === SHOP_UK)?.allowed ?? false).toBe(false);
     const result = month(game, [slot(SHOP_UAE)]);
-    expect(debitsOf(result, "AED").filter((debit) => debit.reason === "social")).toEqual([
-      { type: "wallet/debited", currency: "AED", pocket: "cash", amount: street.shoppingAed, reason: "social" },
+    // the souq is paid as enjoyment, as London's stalls are.
+    expect(debitsOf(result, "AED").filter((debit) => debit.reason === "enjoyment")).toEqual([
+      { type: "wallet/debited", currency: "AED", pocket: "cash", amount: street.shoppingAed, reason: "enjoyment" },
     ]);
     expect(moodFrom(result, SHOP_UAE)).toBe(street.shoppingMood);
   });
