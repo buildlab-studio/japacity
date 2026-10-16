@@ -12,7 +12,7 @@ import { cameraAt, projected } from "../../features/city/scene.testing";
 import { aimShot, roomShot, shotOf } from "../../features/city/shot";
 import { thingSpot, thingsOf } from "../../features/city/things";
 import { standAt } from "../../features/city/walk";
-import { bubbleSpot, Corner, CORNER_MAX, isLong, linesNow, murmur, NEAR_SPEAKER, QUIET_MS, resetLines, speak, SPEECH_MS, SpeechBubble, TALK_EVERY_MS, JOIN_MS, tell, TOLD_MS, useStreetTalk, WORDS_MAX } from "./Lines";
+import { bubbleRect, bubbleSpot, Corner, CORNER_MAX, isLong, linesNow, murmur, NEAR_SPEAKER, overlap, QUIET_MS, resetLines, speak, SPEECH_MS, SpeechBubble, TAIL, tailPaths, TALK_EVERY_MS, JOIN_MS, tell, TOLD_MS, useStreetTalk, WORDS_MAX } from "./Lines";
 
 const MAMA = "You have eaten? Sit small.";
 const ORANGES = "Mama presses a bag of oranges on you.";
@@ -106,6 +106,58 @@ describe("the bubble over a person", () => {
     expect(bubbleSpot({ x: 0.99, y: 0, z: 0.5 }, size, { width: 180, height: 60 }).x).toBe(size.width - 98);
     expect(bubbleSpot({ x: -0.99, y: 0.99, z: 0.5 }, size, { width: 180, height: 60 }, 120)).toMatchObject({ x: 98, y: 188 });
     expect(bubbleSpot({ x: 0, y: 0, z: 1.2 }, size, { width: 180, height: 60 }).shown).toBe(false);
+  });
+});
+
+describe("the bubble's tail and its room", () => {
+  test("[R-WORLD-026] given a person speaking, when the bubble shows, then its tail is drawn in the bubble's own fill with the edge round its sides and the underside under its point, and its words wear one pair of curly quotes that are the bubble's, not the line's", () => {
+    render(<SpeechBubble anchored={false} />);
+    act(() => speak("mama", "Mama", MAMA));
+    const tail = bubble()?.querySelector("[data-speech-tail]");
+    expect(tail?.querySelector(".talk-tail-fill")?.getAttribute("d")).toMatch(/^M/);
+    expect(tail?.querySelector(".talk-tail-edge")?.getAttribute("d")).toMatch(/^M/);
+    expect(tail?.querySelector(".talk-tail-under")?.getAttribute("d")).toMatch(/^M/);
+    const words = bubble()?.querySelector("[data-speech-words]");
+    expect(words?.classList.contains("talk-said")).toBe(true);
+    expect(words?.textContent).toBe(MAMA);
+  });
+
+  test("[R-WORLD-026] given a bubble moved off its speaker, when its tail is drawn, then it leaves the box between its rounded corners, starts inside the box so its fill covers the edge there, and its point ends over the speaker", () => {
+    const paths = tailPaths(240, { x: -150, length: 70 });
+    const points = (d: string): number[][] => [...d.matchAll(/([\d.-]+) ([\d.-]+)/g)].map((match) => [Number(match[1]), Number(match[2])]);
+    const fill = points(paths.fill);
+    // The point is 150 pixels left of the box's middle and 70 under its foot: past the box's left end.
+    expect(fill[2]).toEqual([-30, 70]);
+    // The base stays inside the box, clear of its rounded corner, and starts inside it.
+    for (const [x, y] of fill.slice(0, 2)) {
+      expect(x).toBeGreaterThanOrEqual(8);
+      expect(y).toBeLessThan(0);
+    }
+    expect(points(paths.edge)[1]).toEqual([-30, 70]);
+  });
+
+  test("[R-WORLD-026] given heads right over the speaker, when the bubble is placed, then it steps aside or rises clear of them, its tail reaching down to the speaker; with room it keeps the spot it had, so it does not hop", () => {
+    const size = { width: 412, height: 839 };
+    const box = { width: 220, height: 70 };
+    const at = { x: 0, y: -0.1, z: 0.5 };
+    const over = { x: 206, y: ((1 + 0.1) / 2) * 839 };
+    const plain = bubbleSpot(at, size, box, 120);
+    // Two heads where the plain bubble stands, one each side of the speaker.
+    const clear = [
+      { left: 150, right: 170, top: over.y - 60, bottom: over.y - 40 },
+      { left: 240, right: 260, top: over.y - 50, bottom: over.y - 30 },
+    ];
+    expect(clear.some((head) => overlap(bubbleRect(plain, box), head) > 0)).toBe(true);
+    const placed = bubbleSpot(at, size, box, 120, { clear });
+    expect(clear.every((head) => overlap(bubbleRect(placed, box), head) === 0)).toBe(true);
+    expect(placed.x + placed.tail.x).toBeCloseTo(over.x, 5);
+    expect(placed.y - TAIL + placed.tail.length).toBeCloseTo(over.y, 5);
+    // The last frame's spot, still clear, is kept over a nearer one.
+    const kept = bubbleSpot(at, size, box, 120, { clear: [], last: { lift: placed.lift, shift: placed.shift } });
+    expect([kept.lift, kept.shift]).toEqual([placed.lift, placed.shift]);
+    // A dot is covered only when nothing clear of it is in reach.
+    const soft = [{ left: 200, right: 212, top: over.y - 30, bottom: over.y - 18 }];
+    expect(soft.every((dot) => overlap(bubbleRect(bubbleSpot(at, size, box, 120, { soft }), box), dot) === 0)).toBe(true);
   });
 });
 

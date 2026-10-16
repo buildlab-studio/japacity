@@ -604,7 +604,14 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   color: var(--text);
   box-shadow: 0 0 0 1.5px var(--edge), 0 4px 0 var(--edge);
 }
-.talk-tail { border-top-color: var(--edge); }
+/* The tail is the bubble's own: its fill over the box's edge where it leaves the box, the edge round its two sides and the
+   underside under its point, by day and by night (the three of 16 Oct, item 1). */
+.talk-tail-under { fill: var(--edge); }
+.talk-tail-fill { fill: var(--sheet-2); }
+.talk-tail-edge { fill: none; stroke: var(--edge); stroke-width: 1.5px; stroke-linejoin: round; }
+/* A person's words wear one pair of curly quotes, whatever line it is: the quotes are the bubble's, never the line's. */
+.talk-said::before { content: "\201C"; }
+.talk-said::after { content: "\201D"; }
 /* A long line in the bubble: two lines at most, the rest behind the tap. */
 .talk-clip { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .talk-corner {
