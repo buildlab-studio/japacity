@@ -46,7 +46,7 @@ export const phoneText: Record<string, string> = {
 
   "phone.bank.balance": "In the bank",
   "phone.bank.cash": "Cash on you: {amount}",
-  "phone.bank.also": "Also held: {amounts}",
+  "phone.bank.also": "Also held",
   "phone.bank.also.bank": "{amount} in the bank",
   "phone.bank.also.cash": "{amount} in cash",
   "phone.bank.savings": "Saved for the move",
