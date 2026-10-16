@@ -82,7 +82,7 @@ describe("old saves", () => {
       const reply = await view(server, "acc-1");
       if (!reply.body.ok) throw new Error(reply.body.detail);
       const stored = await held(server, id);
-      expect([previous.version, content.version]).toEqual(["m0.1", "m0.2"]);
+      expect([previous.version, content.version]).toEqual(["m0.2", "m0.3"]);
       expect(stored.segments.map((segment) => [segment.segment, segment.content, segment.fromV])).toEqual([
         [0, previous.version, 0],
         [1, content.version, ended.v],
@@ -143,7 +143,7 @@ describe("old saves", () => {
     expect(stored.snapshot.state.turn.banked).toBe(content.tuning.turn.cap - 1);
   });
 
-  test("[R-SERVER-021] [R-SERVER-022] [R-SERVER-023] given a character stored under m0.1 by the code before schema 4 (no spent half-days, no offers rolled, no body), when its view is fetched under m0.2, then the new segment's base has them filled as a new life starts them, at schema 4, and the invariants hold", async () => {
+  test("[R-SERVER-021] [R-SERVER-022] [R-SERVER-023] given a character stored under the previous content by the code before schema 4 (no spent half-days, no offers rolled, no body), when its view is fetched under the current one, then the new segment's base has them filled as a new life starts them, at schema 4, and the invariants hold", async () => {
     const server = testServer();
     await storeWorlds(server, "golden-world", 0);
     server.setNow(epoch);
@@ -161,7 +161,7 @@ describe("old saves", () => {
     const reply = await view(server, "acc-1");
     if (!reply.body.ok) throw new Error(reply.body.detail);
     const stored = await held(server, id);
-    expect(stored.segments.map((segment) => segment.content)).toEqual(["m0.1", "m0.2"]);
+    expect(stored.segments.map((segment) => segment.content)).toEqual([previous.version, content.version]);
     const base = stored.snapshot.state;
     expect(base.schema).toBe(4);
     expect(base.turn.spent).toBe(0);
@@ -172,16 +172,16 @@ describe("old saves", () => {
     expect(checkInvariants(base, content)).toEqual([]);
   });
 
-  test("[R-SERVER-023] [R-SERVER-024] given the worker's contents with and without an overlay, when a segment names m0.1 or m0.2, then each is bundled under its own overlay", () => {
+  test("[R-SERVER-023] [R-SERVER-024] given the worker's contents with and without an overlay, when a segment names m0.2 or m0.3, then each is bundled under its own overlay", () => {
     const plain = withContentBefore(contentsFor(content, undefined), content);
-    expect(contentNamed(plain, "m0.2", undefined)).toBe(content);
-    expect(contentNamed(plain, "m0.1", undefined)).toEqual({ ...content, version: "m0.1" });
+    expect(contentNamed(plain, "m0.3", undefined)).toBe(content);
+    expect(contentNamed(plain, "m0.2", undefined)).toEqual({ ...content, version: "m0.2" });
     const overlaid = withContentBefore(contentsFor(content, JSON.stringify(dials)), content);
-    expect(contentNamed(overlaid, "m0.2", "dials-1")).toBe(overlaid.current);
-    expect(contentNamed(overlaid, "m0.2", undefined)).toBe(content);
-    expect(contentNamed(overlaid, "m0.1", undefined)).toEqual({ ...content, version: "m0.1" });
-    expect(contentNamed(overlaid, "m0.1", "dials-1")).toEqual({ ...overlaid.current, version: "m0.1" });
-    expect(() => contentNamed(plain, "m0.0", undefined)).toThrow(/bundles no content m0.0/);
+    expect(contentNamed(overlaid, "m0.3", "dials-1")).toBe(overlaid.current);
+    expect(contentNamed(overlaid, "m0.3", undefined)).toBe(content);
+    expect(contentNamed(overlaid, "m0.2", undefined)).toEqual({ ...content, version: "m0.2" });
+    expect(contentNamed(overlaid, "m0.2", "dials-1")).toEqual({ ...overlaid.current, version: "m0.2" });
+    expect(() => contentNamed(plain, "m0.1", undefined)).toThrow(/bundles no content m0.1/);
     expect(withContentBefore(contentsFor(content, undefined), content, content.version)).toEqual({ current: content, previous: null });
   });
 });
