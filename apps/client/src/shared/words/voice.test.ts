@@ -11,6 +11,7 @@ import { cityText } from "../../features/city/city.words";
 import { sceneText } from "../../features/city/scene.words";
 import { mapText } from "../../features/map/map.words";
 import { londonText } from "../../features/map/paper/london";
+import { londonWords } from "./london.words";
 import { phoneText } from "../../features/phone/phone.words";
 import { roomText } from "../../features/setpiece/room.words";
 import { turnText } from "../../features/turn/turn.words";
@@ -26,6 +27,7 @@ const clientTables: Record<string, Record<string, string>> = {
   scene: sceneText,
   map: mapText,
   london: londonText,
+  londonPlaces: { ...londonWords },
   phone: phoneText,
   room: roomText,
   turn: turnText,

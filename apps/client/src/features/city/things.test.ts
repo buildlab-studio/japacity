@@ -8,6 +8,11 @@ import { builtPlaces } from "./scene.testing";
 import { sceneWords } from "./scene.words";
 import { plainActLine } from "./actLines";
 import { MAX_ACTS, stagedNow, STOP_SHORT, thingSpot, thingsNow, thingsOf, vehicleOf, walkSpot } from "./things";
+import { addLateWords } from "../../shared/words/late";
+import { londonWords } from "../../shared/words/london.words";
+
+// London's words ride their own chunk in the game (shared/words/late.ts); a test of London adds them as the city does.
+addLateWords(londonWords);
 
 const street = (bodeThomas as unknown as PlaceFile).stage;
 if (street === undefined) throw new Error("Bode Thomas has no stage");

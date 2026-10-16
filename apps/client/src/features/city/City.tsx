@@ -10,6 +10,7 @@ import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, t
 import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
 import { bandName as characterName } from "../../shared/card/face";
+import { loadLondonWords } from "../../shared/words/late";
 import { FigurePicture } from "../../shared/frontdoor/LookPicture";
 import { lookOf } from "../../shared/frontdoor/looks";
 import { plannedShut, worldVar } from "../../authority/store";
@@ -671,6 +672,19 @@ export function City({
   const where = view.place.where;
   const country = view.place.country;
   const here = useMemo(() => ({ where, country }), [where, country]);
+  // London's words ride their own chunk (engine.md R-ENGINE-020): fetched once the life is in the UK, and the city drawn
+  // again once they are in, so its things' names and its people's lines read in words.
+  const [, setLateWords] = useState(0);
+  useEffect(() => {
+    if (where !== "abroad" || country !== "country.uk") return;
+    let live = true;
+    void loadLondonWords().then(() => {
+      if (live) setLateWords((count) => count + 1);
+    });
+    return () => {
+      live = false;
+    };
+  }, [where, country]);
   // The game opens where the character lives (R-HOME-006): a start in Makoko opens on the water.
   const home = homeOf(view);
   const [placeId, setPlaceId] = useState<string>(() => (world ? lastPlace(here, home, dayClock.served ? dayClock.day : null) : openingPlace(here, PLACES)));

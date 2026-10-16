@@ -7,6 +7,7 @@ import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";
 import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEnding } from "./format";
 import { nowHometown, nowMonth, swapped } from "./now";
 import { peopleParam } from "./people";
+import { lateWord } from "./late";
 import { uiText } from "./ui";
 
 export type Params = Record<string, ReportParam>;
@@ -14,12 +15,12 @@ export type Params = Record<string, ReportParam>;
 const BRACE = /\{([A-Za-z][\w-]*)\}/g;
 
 export function hasWords(key: string): boolean {
-  return text[key] !== undefined || uiText[key] !== undefined;
+  return text[key] !== undefined || uiText[key] !== undefined || lateWord(key) !== undefined;
 }
 
 function lookup(key: string): string {
   // A computer person never carries the player's own first name (R-PEOPLE-061).
-  return swapped(key, text[key] ?? uiText[key] ?? key);
+  return swapped(key, text[key] ?? uiText[key] ?? lateWord(key) ?? key);
 }
 
 /**
