@@ -31,6 +31,7 @@
     "teaser:record": "pnpm --filter @japacity/teaser record",
     "teaser:render": "pnpm --filter @japacity/teaser render",
     "rollback": "tsx apps/server/src/admin/rollback.main.ts",
+    "snapshot:all": "tsx apps/server/src/admin/snapshot.main.ts",
     "check": "tsx tools/check.ts",
     "dev": "pnpm --filter @japacity/client dev",
     "dev:full": "tsx tools/local/full.ts",
