@@ -20,6 +20,7 @@ import { AgeScreen } from "./AgeScreen";
 import { failureWords } from "./CodeForm";
 import { Full, type FullCheck } from "./Full";
 import { GuestForm, useGuestDoor, type GuestDoor } from "./GuestStart";
+import { SheetColumn } from "../../shared/ui/lively/SheetColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { Wordmark } from "../../shared/ui/Wordmark";
 import { SignIn, type SignedInBy } from "./SignIn";
@@ -235,15 +236,19 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   const over = marked ? top : shown === "start" ? <StartLights /> : null;
   return (
     <Gate mark="start" {...(over === null ? {} : { over })} {...(behind === undefined ? {} : { scene: behind })}>
-      <GateSheet mark={shown} label={say("ui.game")}>
-        {notice === null || moved ? null : (
-          <p role="status" className="mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]">
-            {say(notice)}
-          </p>
-        )}
-        {body(account)}
-        <LegalLinks />
-      </GateSheet>
+      {/* On a wide screen the sheet stands in a centred column at a reading width, the scene filling the window around it;
+          on a phone the column is the screen. */}
+      <SheetColumn>
+        <GateSheet mark={shown} label={say("ui.game")}>
+          {notice === null || moved ? null : (
+            <p role="status" className="mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]">
+              {say(notice)}
+            </p>
+          )}
+          {body(account)}
+          <LegalLinks />
+        </GateSheet>
+      </SheetColumn>
     </Gate>
   );
 }

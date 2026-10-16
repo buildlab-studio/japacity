@@ -5,6 +5,7 @@
 import { StartHook } from "../../shared/frontdoor/Hook";
 import { Gate, GateSheet } from "../../shared/frontdoor/Gate";
 import type { Trouble } from "../../authority/store";
+import { SheetColumn } from "../../shared/ui/lively/SheetColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { TroubleFace } from "../../shared/ui/Trouble";
 import { say } from "../../shared/words/text";
@@ -12,21 +13,24 @@ import { say } from "../../shared/words/text";
 export function StartTrouble({ trouble }: { trouble: Trouble | null }) {
   return (
     <Gate mark="start" scene={null}>
-      <GateSheet mark="start-trouble" label={say("ui.game")}>
-        <div className="flex flex-col" data-start-trouble={trouble?.kind ?? "asking"}>
-          <StartHook />
-          {trouble === null ? (
-            <p role="status" className="mt-4 text-[14px] text-text-2">
-              {say("ui.account.loading")}
-            </p>
-          ) : (
-            <div className="-mx-4 mt-2">
-              <TroubleFace trouble={trouble} inline named />
-            </div>
-          )}
-        </div>
-        <LegalLinks />
-      </GateSheet>
+      {/* In the start screen's column on a wide screen, as the start screen's own sheet stands (AccountGate.tsx). */}
+      <SheetColumn>
+        <GateSheet mark="start-trouble" label={say("ui.game")}>
+          <div className="flex flex-col" data-start-trouble={trouble?.kind ?? "asking"}>
+            <StartHook />
+            {trouble === null ? (
+              <p role="status" className="mt-4 text-[14px] text-text-2">
+                {say("ui.account.loading")}
+              </p>
+            ) : (
+              <div className="-mx-4 mt-2">
+                <TroubleFace trouble={trouble} inline named />
+              </div>
+            )}
+          </div>
+          <LegalLinks />
+        </GateSheet>
+      </SheetColumn>
     </Gate>
   );
 }

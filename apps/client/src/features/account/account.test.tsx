@@ -9,6 +9,8 @@ import { createGameStore, type GameStore } from "../../authority/store";
 import type { AccountApi, AgeStanding, AuthResult } from "../../shared/net/auth";
 import type { AccountView } from "../../shared/net/contract";
 import { engineView } from "../../shared/testing/fixtures";
+import { COLUMN_PX } from "../../shared/ui/lively/CentredColumn";
+import { SHEET_COLUMN_PX } from "../../shared/ui/lively/SheetColumn";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { App } from "../../App";
@@ -16,6 +18,7 @@ import { AccountGate } from "./AccountGate";
 import { answerAge } from "./age.testing";
 import { YEARS_LISTED } from "./AgeScreen";
 import { AccountSettings } from "./Settings";
+import { StartTrouble } from "./StartTrouble";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./Turnstile";
 import { WayToast } from "./WayToast";
 
@@ -276,6 +279,64 @@ describe("the start screen online", () => {
       </GameProvider>,
     );
     expect(container.innerHTML).toBe("");
+  });
+});
+
+/** True where the sheet of the given mark stands in the door's sheet column: centred, at most SHEET_COLUMN_PX wide on a wide screen. */
+function sheetInLane(mark: string): boolean {
+  const sheet = document.querySelector(`[data-gate-sheet="${mark}"]`);
+  if (sheet === null) throw new Error(`No sheet marked ${mark}`);
+  const column = sheet.closest("[data-sheet-column]");
+  return column !== null && column.classList.contains("centred-column") && column.classList.contains(`max-w-[${String(SHEET_COLUMN_PX)}px]`);
+}
+
+describe("the door's sheets on a desktop", () => {
+  test("[R-ACCOUNT-029] given the sheet column, then it is wider than the thumbs' lane, at a reading width", () => {
+    expect(SHEET_COLUMN_PX).toBeGreaterThan(COLUMN_PX);
+    expect(SHEET_COLUMN_PX).toBeGreaterThanOrEqual(560);
+    expect(SHEET_COLUMN_PX).toBeLessThanOrEqual(640);
+  });
+
+
+  test("[R-ACCOUNT-029] given the start screen, then its sheet stands in the sheet column, centred at a reading width, while the scene behind and the two lights over it stay the whole window's", async () => {
+    const store = signedOutStore(fakeAccount());
+    render(
+      <GameProvider store={store}>
+        <AccountGate load={fakeTurnstile().load} sitekey={TEST_SITE_KEY} behind={<div data-test-city />} />
+      </GameProvider>,
+    );
+    await screen.findByRole("button", { name: say("ui.account.start.play") });
+    expect(sheetInLane("start")).toBe(true);
+    expect(document.querySelector("[data-test-city]")?.closest("[data-sheet-column]")).toBeNull();
+    expect(document.querySelector("[data-two-lights]")?.closest("[data-sheet-column]")).toBeNull();
+  });
+
+  test("[R-ACCOUNT-012] [R-ACCOUNT-029] given the age screen, then its sheet stands in the sheet column with its three fields and Continue inside it", async () => {
+    gate(fakeAccount());
+    await play();
+    await screen.findByRole("combobox", { name: say("ui.account.age.day") });
+    expect(sheetInLane("age")).toBe(true);
+    const form = document.querySelector("[data-age-screen]");
+    expect(form?.closest("[data-sheet-column]")).not.toBeNull();
+    expect(form?.querySelectorAll("select")).toHaveLength(3);
+  });
+
+  test("[R-ACCOUNT-029] given the ways back in, then its sheet stands in the sheet column", async () => {
+    gate(fakeAccount());
+    await returning();
+    await screen.findByRole("heading", { name: say("ui.account.returning.title") });
+    expect(sheetInLane("returning")).toBe(true);
+  });
+
+  test("[R-SERVER-032] given sign-ups switched off, then the full screen's sheet stands in the sheet column", async () => {
+    gate(fakeAccount({ ageStatus: () => Promise.resolve({ full: true, retryAfter: 30 }) }));
+    expect(await screen.findByText(say("server.full"))).toBeDefined();
+    expect(sheetInLane("other")).toBe(true);
+  });
+
+  test("[R-SERVER-043] given the server out of reach for a new visitor, then the start screen's frame keeps its sheet in the sheet column", () => {
+    render(<StartTrouble trouble={null} />);
+    expect(sheetInLane("start-trouble")).toBe(true);
   });
 });
 
