@@ -96,15 +96,25 @@ function artOf(card: ShareCard): string {
   return say(byChapter !== null && hasWords(byChapter) ? byChapter : `share.${card.kind}.art`);
 }
 
-/** The name the player chose when the view carries one, else the character's first name from content. */
-function nameFor(card: ShareCard, scenario: Id<"scenario"> | null): string | null {
-  if (card.name !== undefined && card.name !== null && card.name.trim() !== "") return card.name.trim();
-  // The name the player gave at the door comes before the ready life's own.
-  const given = readPerson()?.name ?? "";
-  if (given.trim() !== "") return given.trim();
+/**
+ * The character's name as the band says it (share.md R-SHARE-004 as amended 16 Oct 2026), the one source for the card, the
+ * stub, the image that travels and the send-off scene: the name given at the door, else the first
+ * word of the life's own name ("Adaeze"), else the scenario's `share.first-name`. Null with no life.
+ */
+export function bandName(scenario: string | null): string | null {
+  const given = readPerson()?.name.trim() ?? "";
+  if (given !== "") return given;
   if (scenario === null) return null;
+  const first = hasWords(`${scenario}.name`) ? (words(`${scenario}.name`).trim().split(/\s+/)[0] ?? "") : "";
+  if (first !== "") return first;
   const key = `share.first-name.${scenario}`;
   return hasWords(key) ? say(key) : null;
+}
+
+/** The name the player chose when the view carries one, else the name the band says. */
+function nameFor(card: ShareCard, scenario: Id<"scenario"> | null): string | null {
+  if (card.name !== undefined && card.name !== null && card.name.trim() !== "") return card.name.trim();
+  return bandName(scenario);
 }
 
 function bodyOf(card: ShareCard): string | null {

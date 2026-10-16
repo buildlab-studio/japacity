@@ -8,7 +8,8 @@ import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { playerName, readPerson } from "../../authority/person";
+import { readPerson } from "../../authority/person";
+import { bandName as characterName } from "../../shared/card/face";
 import { FigurePicture } from "../../shared/frontdoor/LookPicture";
 import { lookOf } from "../../shared/frontdoor/looks";
 import { plannedShut, worldVar } from "../../authority/store";
@@ -115,10 +116,9 @@ const SendOffScene = lazy(() => import("./sendoff/SendOffScene"));
 function sendOffYou(view: { scenario: string }) {
   const kept = readPerson();
   const look = lookOf(kept?.look)?.id ?? lookOf(`chr_${view.scenario.slice("scenario.".length)}`)?.id ?? "chr_ada";
-  const first = playerName(view as Parameters<typeof playerName>[0]) ?? "";
-  // The band's first word of the life's name, as the data page's band says it.
-  const name = kept !== null && kept.name !== "" ? kept.name : ((text[`${view.scenario}.name`] ?? "").split(/\s+/)[0] || first);
-  return { name, first: first === "" ? name : first, look, figure: <FigurePicture look={look} style={kept?.look === look ? kept.style : undefined} view="figure" className="so-fig" /> };
+  // One name everywhere, the band's (share.md R-SHARE-004 as amended 16 Oct 2026), read from the card's own source.
+  const name = characterName(view.scenario) ?? "";
+  return { name, first: name, look, figure: <FigurePicture look={look} style={kept?.look === look ? kept.style : undefined} view="figure" className="so-fig" /> };
 }
 
 // Development only: the picture runs open a beat of the send-off straight from the page (a player's build drops it).

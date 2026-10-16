@@ -4,15 +4,14 @@
 // says in plain sight that Japacity is a game, is sent by the game itself, and
 // is offered, never sent: nothing leaves the device until the player taps.
 import { Dialog } from "@base-ui/react/dialog";
-import { text, type JapaType, type ShareKind } from "@japacity/content";
+import type { JapaType, ShareKind } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { createContext, use, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { readPerson } from "../../authority/person";
 import { counting } from "../../shared/analytics/start";
 import type { Encoded } from "../../shared/card/encode";
-import { cardFace, type CardFace, type ShareCard } from "../../shared/card/face";
+import { bandName, cardFace, type CardFace, type ShareCard } from "../../shared/card/face";
 import { renderCard, renderStub } from "../../shared/card/render";
 import { stubFace, type StubFace } from "../../shared/card/stub";
 import { browserDevice, canShareFiles, sendCard, type Device } from "../../shared/card/travel";
@@ -252,14 +251,14 @@ export function ShareButton({ card, scenario, stub = null, device = browserDevic
 }
 
 /**
- * The character's name as the band says it (share.md R-SHARE-004 as amended 16 Oct 2026): the name given at the door, else
- * the first word of the life's own name, "Adaeze". The band said "Adaeze" while the card said "Ada" (
- * pictures 141, 168, 169): one name, the band's, on the card, the stub and the image that travels.
+ * The card named as the band names the character (share.md R-SHARE-004 as amended 16 Oct 2026), read from the card's face
+ * (`bandName`), the one source the send-off scene reads too: the band said "Adaeze" while the card said "Ada" (catalog
+ * 1b952f4b, pictures 141, 168, 169).
  */
 export function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard {
-  if ((card.name ?? "").trim() !== "" || (readPerson()?.name.trim() ?? "") !== "") return card;
-  const first = (text[`${scenario}.name`] ?? "").trim().split(/\s+/)[0] ?? "";
-  return first === "" ? card : { ...card, name: first };
+  if ((card.name ?? "").trim() !== "") return card;
+  const name = bandName(scenario);
+  return name === null ? card : { ...card, name };
 }
 
 /**

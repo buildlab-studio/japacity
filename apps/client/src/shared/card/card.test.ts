@@ -17,6 +17,9 @@ const PREVIEW = { width: tuning.previewWidth, height: tuning.previewHeight };
 /** About the width of a system font: wide enough that long words wrap as they would on a phone. */
 const measure: Measure = (words, size) => Math.round(words.length * size * 0.55);
 
+/** Ada's name as the band says it (R-SHARE-004 as amended 16 Oct 2026): "Adaeze", never a shorter name the band does not use. */
+const BAND_NAME = (text["scenario.ada.name"] ?? "").split(/\s+/)[0];
+
 /** Ada's send-off card, as the engine makes it. */
 function adaCard(): ShareCard {
   const card = recordedGame("ada-careful").view().card;
@@ -61,7 +64,8 @@ describe("what is on a card", () => {
   test("[R-SHARE-004] [R-TEXT-005] given Ada's send-off, when laid out, then her first name, the route, the japacity figure, the time played in years and months, the standing as its band and what she did most are drawn", () => {
     const card = adaCard();
     const steps = cardSteps(cardFace(card, "scenario.ada"), SIZE, measure);
-    expect(role(steps, "name")[0]?.text).toBe("Ada");
+    // R-SHARE-004 as amended 16 Oct 2026: the name the band says, the first word of the life's own name.
+    expect(role(steps, "name")[0]?.text).toBe(BAND_NAME);
     expect(role(steps, "route")[0]?.text).toBe(text[`${card.route!}.name`]);
     expect(role(steps, "percent")[0]?.text).toBe(String(card.percent));
     const [months, ...standing] = role(steps, "value").map((step) => step.text);
@@ -132,7 +136,7 @@ describe("what is on a card", () => {
 
   test("[R-SHARE-008] given a card with the player's own name, then that name is drawn and no other; given none, then the character's first name; given no character, then no name", () => {
     expect(cardFace({ ...adaCard(), name: "Kemi" }, "scenario.ada").name).toBe("Kemi");
-    expect(cardFace({ ...adaCard(), name: null }, "scenario.ada").name).toBe("Ada");
+    expect(cardFace({ ...adaCard(), name: null }, "scenario.ada").name).toBe(BAND_NAME);
     expect(cardFace(adaCard(), null).name).toBeNull();
     const steps = cardSteps(cardFace({ ...adaCard(), name: "Kemi" }, "scenario.ada"), SIZE, measure);
     expect(texts(steps).filter((step) => step.text.includes("Ada"))).toEqual([]);
