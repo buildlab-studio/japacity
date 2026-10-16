@@ -79,6 +79,19 @@ export function choresWords(view: Pick<PlayerView, "obligations" | "activities">
   return null;
 }
 
+/** The month's bus pass in the country the life is in (place.md R-PLACE-012): the act that buys it, by country. */
+const BUS_PASS: Readonly<Record<string, string>> = { "country.uk": "activity.bus-pass-uk" };
+
+/**
+ * The bus pass bought this month (R-PLACE-012, world.md R-WORLD-039): the month's, so the Calendar says the bus is free
+ * until the month ends, and the next month asks again. Null where no pass was bought this month.
+ */
+export function passWords(view: Pick<PlayerView, "activities" | "place">): string | null {
+  const pass = view.place.country === null ? undefined : BUS_PASS[view.place.country];
+  if (view.place.where !== "abroad" || pass === undefined) return null;
+  return view.activities.some((option) => option.id === pass && option.done === true) ? turnWords("turn.calendar.pass") : null;
+}
+
 /** A held slot as a row of the month: "At the burial", or the lock's sentence where content has no row words. */
 function lockRow(lock: SlotLock, month: number): string {
   return hasWords(`ui.locks.row.${lock.why}`) ? say(`ui.locks.row.${lock.why}`) : lockWords(lock, month);
@@ -120,6 +133,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
   const stretched = stretchedWords(view, plan);
   const rentShort = rentShortWords(view);
   const chores = choresWords(view);
+  const pass = passWords(view);
   const jobs = jobRows(view.job);
   // A row of what is coming opens where it is dealt with: a paper in Papers, a wait in Japa, a due in Bills (R-WORLD-002, R-WORLD-019).
   const openFor = (item: Coming): (() => void) | null => {
@@ -215,11 +229,18 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
         )}
         {carrying.length === 0 && view.locks.length === 0 ? <p className="text-[13px] text-text-2">{turnWords("turn.month.hint")}</p> : null}
       </Section>
-      {chores === null ? null : (
+      {chores === null && pass === null ? null : (
         <Section title={turnWords("turn.calendar.done")} mark="chores">
-          <p className="lively-card px-3.5 py-3 text-[15px] font-semibold" data-month-chores>
-            {chores}
-          </p>
+          {chores === null ? null : (
+            <p className="lively-card px-3.5 py-3 text-[15px] font-semibold" data-month-chores>
+              {chores}
+            </p>
+          )}
+          {pass === null ? null : (
+            <p className="lively-card mt-2 px-3.5 py-3 text-[15px] font-semibold first:mt-0" data-month-pass>
+              {pass}
+            </p>
+          )}
         </Section>
       )}
       <div ref={coming} className="scroll-mt-2">

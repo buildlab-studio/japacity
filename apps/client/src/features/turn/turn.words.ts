@@ -27,6 +27,8 @@ export const turnText: Record<string, string> = {
   "turn.calendar.chores.both": "Cooked and fetched water: {amount} less this month",
   "turn.calendar.chores.cooked": "Cooked for the week",
   "turn.calendar.chores.drum": "The drum is full",
+  // The month's bus pass (place.md R-PLACE-012): the bus asks nothing until the month ends.
+  "turn.calendar.pass": "Bus pass bought: the bus is free till the month ends",
   "turn.calendar.at": "At {place}",
   // Where a dated ask is attended when no place of the city stages it (R-WORLD-002).
   "turn.calendar.where.offer.village-burial": "In the village",

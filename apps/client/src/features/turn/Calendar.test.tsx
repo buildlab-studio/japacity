@@ -12,11 +12,11 @@ import { plannable } from "../../shared/words/acts";
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, MONTH_KEY } from "../../authority/store";
 import { PhoneNav } from "../../shared/phone/nav";
-import { chargedLivingGame, engineView, gameAuthority, newGame, richView } from "../../shared/testing/fixtures";
+import { abroadGame, chargedLivingGame, engineView, gameAuthority, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf, say, words } from "../../shared/words/text";
-import { Calendar, calendarOpening, choresWords } from "./Calendar";
+import { Calendar, calendarOpening, choresWords, passWords } from "./Calendar";
 import { turnWords } from "./turn.words";
 import { carriedPlan } from "./carried";
 
@@ -208,6 +208,17 @@ describe("the Calendar's other sections", () => {
     const share = content.tuning.room.cookedBp + content.tuning.room.waterBp;
     await renderWithView(<Calendar />, view);
     expect(document.querySelector("[data-month-chores]")?.textContent).toBe(`Cooked and fetched water: ${formatMoney(Math.floor((upkeep.due * share) / 10000), "NGN")} less this month`);
+  });
+
+  test("[R-PLACE-012] [R-WORLD-039] given Ada in London, when she buys the month's bus pass, then the Calendar says the bus is free till the month ends, and before it says nothing of a pass", async () => {
+    const game = abroadGame();
+    expect(passWords(game.view())).toBeNull();
+    const bought = game.accept({ type: "activity/now", activity: "activity.bus-pass-uk", param: null });
+    if (!bought.ok) throw new Error("The pass was refused.");
+    expect(passWords(game.view())).toBe("Bus pass bought: the bus is free till the month ends");
+    await renderWithView(<Calendar />, game.view());
+    expect(document.querySelector("[data-month-pass]")?.textContent).toBe("Bus pass bought: the bus is free till the month ends");
+    expect(passWords(engineView("scenario.ada"))).toBeNull();
   });
 
   test("[R-WORLD-002] [R-WORLD-019] given what is coming, when a paper on its way or the room's rent is tapped in the Calendar, then Papers or Bills opens; an ask names where it is answered", async () => {
