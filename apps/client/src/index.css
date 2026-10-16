@@ -814,3 +814,18 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 @keyframes door-deal { from { opacity: 0; transform: translate(-18px, 10px) rotate(-6deg); } to { opacity: 1; transform: none; } }
 .door-deal { animation: door-deal 240ms ease-out both; }
 @media (prefers-reduced-motion: reduce) { .door-deal { animation: none; } }
+/* The loader (R-ENGINE-015; shared/ui/Loader.tsx): the bar under every wait's words, the column's width, the
+   band's ink on the sheet's ground. It runs by transform alone over two seconds; under reduced motion it stands as a
+   full quiet bar. */
+.loader-column { display: flex; flex-direction: column; align-items: stretch; width: max-content; min-width: 160px; max-width: 100%; margin: 0 auto; text-align: center; }
+.loader { position: relative; display: block; width: 100%; height: 4px; overflow: hidden; border-radius: 999px; background: var(--sheet-line); }
+.loader-column > .loader { margin-top: 14px; }
+.loader-small { width: 56px; height: 3px; }
+.loader > span { position: absolute; inset: 0; border-radius: inherit; background: var(--ink); transform-origin: 0 50%; }
+.loader[data-loader="share"] > span { transition: transform 200ms ease-out; }
+.loader[data-loader="busy"] > span { width: 40%; animation: loader-run 2s ease-in-out infinite; }
+@keyframes loader-run { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+@media (prefers-reduced-motion: reduce) {
+  .loader[data-loader="busy"] > span { width: 100%; animation: none; opacity: 0.35; }
+  .loader[data-loader="share"] > span { transition: none; }
+}

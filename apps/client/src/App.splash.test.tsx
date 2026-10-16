@@ -51,6 +51,23 @@ describe("the opening screen as the splash (R-ENGINE-015)", () => {
   });
 });
 
+describe("the opening's bar (R-ENGINE-015)", () => {
+  test("[R-ENGINE-015] given a view that takes long, then a thin running bar stands right under Opening your life, with no known share, and Still opening comes under the bar so the bar never moves", async () => {
+    vi.useFakeTimers();
+    const store = createGameStore({ view: () => new Promise(() => undefined), send: unused });
+    render(<App store={store} />);
+    const bar = screen.getByRole("progressbar", { name: say("ui.loading") });
+    expect(bar.closest("[data-splash][data-opening]")).not.toBeNull();
+    expect(bar.dataset["loader"]).toBe("busy");
+    expect(bar.hasAttribute("aria-valuenow")).toBe(false);
+    expect(bar.previousElementSibling?.textContent).toBe(say("ui.loading"));
+    expect(bar.nextElementSibling).toBeNull();
+    await act(() => vi.advanceTimersByTimeAsync(SLOW_MS));
+    expect(bar.nextElementSibling?.textContent).toBe(say("ui.loading.slow"));
+    expect(document.querySelectorAll("[role='progressbar']")).toHaveLength(1);
+  });
+});
+
 describe("the fault card (R-ENGINE-015)", () => {
   test("[R-ENGINE-015] given a kept life and a view the server never answers, then the card stands on the splash under the mark in the game's card dress: the line, a plain detail, Retry as the yellow pressed button, and no red text", async () => {
     keepPerson({ look: "chr_ada", name: "Bayo", archetype: "developer" });
