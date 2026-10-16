@@ -7,7 +7,7 @@ import { PhoneNav } from "../../shared/phone/nav";
 import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { invertedTransform, layoutBox, type LayoutBox, motionOn } from "../../shared/ui/motion";
 import type { PhoneApp } from "../../shared/world/contract";
-import { Corner, tell } from "../../shared/world/Lines";
+import { tell, useLines } from "../../shared/world/Lines";
 import { PhoneBack, PhoneSaid } from "./act";
 import { PhoneIcon } from "./icons";
 import { phoneWords } from "./phone.words";
@@ -31,6 +31,31 @@ export interface PhoneProps {
   onMap?: (stop: string) => void;
   /** The place's picture beside its name on the wallpaper, where it has one. */
   areaPicture?: ReactNode;
+}
+
+/**
+ * The room the grown handset leaves above it for the told lane (R-WORLD-026): grown to the screen's top, a lane above it
+ * would stand off the screen, so the grown handset is this much shorter, still nearly the whole screen (R-WORLD-018).
+ */
+export const TOLD_LANE = "h-[calc(100dvh-max(8px,env(safe-area-inset-top))-max(8px,env(safe-area-inset-bottom))-44px)]";
+
+/**
+ * What an app's act did, told over the handset in the corner's own look (R-WORLD-026), in a lane of its own just above the
+ * handset: never inside the glass, where it sat on the Jobs and Market icons and on Send money home (
+ * pictures 149 and 150). Above the handset at rest is the dimmed world under the band; grown, the room it leaves.
+ */
+function Told() {
+  const { lines } = useLines();
+  const line = lines[0];
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-full mb-2 flex justify-center" data-phone-told-lane>
+      {line === undefined ? null : (
+        <p key={line.id} className="talk-corner rise max-w-[92%] px-4 py-1.5 text-center text-[14px] leading-snug font-bold" role="status" data-corner data-told>
+          {line.text}
+        </p>
+      )}
+    </div>
+  );
 }
 
 const CLOCK = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -180,11 +205,12 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
           ref={handset}
           className={`pointer-events-auto absolute ${away ? "motion-away handset-away" : `motion-handset ${grown ? "handset-grown" : "handset-rest"}`} ${
             grown
-              ? "bottom-[max(8px,env(safe-area-inset-bottom))] left-2 h-[calc(100dvh-max(8px,env(safe-area-inset-top))-max(8px,env(safe-area-inset-bottom)))] w-[calc(100%-16px)]"
+              ? `bottom-[max(8px,env(safe-area-inset-bottom))] left-2 ${TOLD_LANE} w-[calc(100%-16px)]`
               : "bottom-[max(12px,env(safe-area-inset-bottom))] left-[calc(50%-min(44vw,170px))] h-[min(78dvh,600px)] w-[min(88vw,340px)]"
           }`}
           data-handset
         >
+          <Told />
           <div className="phone-up flex h-full flex-col rounded-[34px] bg-device p-[7px] shadow-[0_24px_60px_rgba(10,14,30,0.55)]">
             <div className={`relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] ${app === null ? "phone-wall" : "bg-sheet text-text"}`} data-phone-glass>
               <div ref={screen} className="motion-screen flex min-h-0 flex-1 flex-col" data-phone-screen>
@@ -211,8 +237,12 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                     </div>
                     {grow}
                   </div>
-                  {notices}
-                  <ul className="mt-auto grid grid-cols-4 gap-x-2 gap-y-4 px-4 pt-6 pb-4" aria-label={phoneWords("phone.apps")}>
+                  {/* What the wallpaper tells scrolls in its own room, so the grid of apps stays whole above the home bar
+                      however tall it runs: the status clock's banner pushed the last row under it. */}
+                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain" data-wallpaper-room>
+                    {notices}
+                  </div>
+                  <ul className="grid shrink-0 grid-cols-4 gap-x-2 gap-y-4 px-4 pt-4 pb-4" aria-label={phoneWords("phone.apps")}>
                     {apps.map((candidate) => (
                       <li key={candidate.id} className="flex flex-col items-center gap-1">
                         <button
@@ -271,8 +301,6 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
           </div>
         </div>
         </CentredColumn>
-        {/* What an app's act did is told over the handset, in the corner's own look, so it is read while the phone covers the world (R-WORLD-026). */}
-        <Corner told />
       </div>
       </PhoneNav>
       </PhoneBack>

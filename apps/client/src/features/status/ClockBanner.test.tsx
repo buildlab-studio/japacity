@@ -16,6 +16,9 @@ describe("the status clock", () => {
     expect(banner.querySelector("[data-clock-figure]")?.textContent).toBe("2");
     expect(banner.querySelector("[data-clock-figure]")?.className).toContain("text-6xl");
     expect(banner.querySelector(".font-display")).toBeNull();
+    // The words take the row's room beside the figure and may shrink to it, never pushed into a narrow column.
+    expect(banner.querySelector("[data-clock-words]")?.className).toContain("flex-1");
+    expect(banner.querySelector("[data-clock-words]")?.className).toContain("min-w-0");
   });
 
   test("[R-STATUS-003] given no clock running, then there is no banner", async () => {

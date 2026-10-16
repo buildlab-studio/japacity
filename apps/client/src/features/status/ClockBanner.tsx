@@ -11,12 +11,16 @@ export function ClockBanner({ className = "" }: { className?: string }) {
   const clock = view.status?.clock ?? null;
   if (clock === null || view.status === null) return null;
   return (
-    <div role="alert" data-clock className={`flex items-center gap-4 rounded-md bg-bad p-4 text-on-strong ${className}`}>
-      <AlarmClock size={36} className="shrink-0" />
-      <p className="text-6xl leading-none font-bold tabular-nums" data-clock-figure>{clock}</p>
-      <div className="flex flex-col">
-        <p className="text-lg font-bold">{sayCount("ui.status.clock", clock, { months: clock })}</p>
-        <p className="text-sm opacity-90">{say("ui.status.clock-why", { status: nameOf(view.status.entry) })}</p>
+    // The figure stays big; the alarm sits small over it and the words take the rest of the row, so "2 months on the clock"
+    // keeps to one line beside it on a phone at rest ("2 months on the / clock").
+    <div role="alert" data-clock className={`flex items-center gap-3 rounded-md bg-bad px-3 py-3 text-on-strong ${className}`}>
+      <div className="flex shrink-0 flex-col items-center gap-1">
+        <AlarmClock size={22} aria-hidden />
+        <p className="text-6xl leading-none font-bold tabular-nums" data-clock-figure>{clock}</p>
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-1" data-clock-words>
+        <p className="text-base leading-tight font-bold">{sayCount("ui.status.clock", clock, { months: clock })}</p>
+        <p className="text-sm leading-snug opacity-90">{say("ui.status.clock-why", { status: nameOf(view.status.entry) })}</p>
       </div>
     </div>
   );
