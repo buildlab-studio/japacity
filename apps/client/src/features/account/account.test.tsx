@@ -17,6 +17,7 @@ import { answerAge } from "./age.testing";
 import { YEARS_LISTED } from "./AgeScreen";
 import { AccountSettings } from "./Settings";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./Turnstile";
+import { WayToast } from "./WayToast";
 
 const OK: AuthResult = { ok: true };
 
@@ -653,5 +654,59 @@ describe("the shell online", () => {
     render(<App store={store} />);
     expect(await screen.findByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
     expect(screen.queryByText(say("ui.failed", { why: "no session" }))).toBeNull();
+  });
+});
+
+describe("the signed-out notice goes when the player moves on (R-ACCOUNT-021)", () => {
+  function signedOut(account: AccountApi = fakeAccount()) {
+    const store = signedOutStore(account);
+    store.getState().leave("ui.account.notice.signed-out");
+    render(
+      <GameProvider store={store}>
+        <AccountGate load={fakeTurnstile().load} sitekey={TEST_SITE_KEY} />
+        <WayToast account={account} />
+      </GameProvider>,
+    );
+    return store;
+  }
+  const notice = () => screen.queryByText(say("ui.account.notice.signed-out"));
+
+  test("[R-ACCOUNT-021] given a player who signed out, when I already have a life here is tapped, then the notice is gone from the ways back in, and stays gone back on the start screen", async () => {
+    signedOut();
+    expect(await screen.findByText(say("ui.account.notice.signed-out"))).toBeDefined();
+    await returning();
+    expect(await screen.findByRole("button", { name: say("ui.account.google") })).toBeDefined();
+    expect(notice()).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.back") }));
+    expect(await screen.findByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
+    expect(notice()).toBeNull();
+  });
+
+  test("[R-ACCOUNT-021] given a player who signed out, when Play is tapped, then the age screen opens with no notice", async () => {
+    signedOut();
+    expect(await screen.findByText(say("ui.account.notice.signed-out"))).toBeDefined();
+    await play();
+    expect(await screen.findByText(say("ui.account.age.title"))).toBeDefined();
+    expect(notice()).toBeNull();
+  });
+
+  test("[R-ACCOUNT-021] [R-ACCOUNT-023] given a player who signed out, when a life is opened again by a code, then the notice is gone, the sheet closes into the life and the world says Signed in with your email", async () => {
+    const account = fakeAccount({ view: () => Promise.resolve(SECURED) });
+    const store = signedOut(account);
+    await returning();
+    fireEvent.change(await screen.findByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.com" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.email.send") }));
+    fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "123456" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.code.go") }));
+    await waitFor(() => expect(store.getState().signedOut).toBe(false));
+    expect(store.getState().accountNotice).toBeNull();
+    await waitFor(() => expect(document.querySelector("[data-way-toast]")?.textContent).toBe(say("ui.account.toast.in.email")));
+    expect(say("ui.account.toast.in.email")).toBe("Signed in with your email");
+  });
+
+  test("[R-ACCOUNT-023] given Google came back because its address was kept by a code, then the ways back in show and point to the code, never the library's code", async () => {
+    gate(fakeAccount({ returnedFromGoogle: () => "not-linked" }));
+    expect(await screen.findByText(say("ui.account.fail.not-linked"))).toBeDefined();
+    expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
   });
 });

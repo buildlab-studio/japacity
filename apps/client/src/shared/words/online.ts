@@ -162,6 +162,7 @@ export const onlineText: Record<string, string> = {
   "ui.account.fail.refused": "That did not work. Try another way in.",
   "ui.account.fail.no-life": "No life is kept with that yet. Go back and tap Play to start one.",
   "ui.account.fail.passkey-first": "Sign in with your passkey first, then add the new one here.",
+  "ui.account.fail.not-linked": "The life on that Google address was kept with a code by email. Send a code to that address to sign in.",
 
   // Back to a kept life, from the start screen (R-ACCOUNT-029, R-ACCOUNT-023)
   "ui.account.returning.title": "Sign back in",
@@ -183,7 +184,7 @@ export const onlineText: Record<string, string> = {
   "ui.account.name.blocked": "That name is not allowed. Pick another.",
   "ui.account.name.taken": "Someone has that name. Pick another.",
   "ui.account.name.wait": "You changed it not long ago. You can change it again from {date}.",
-  "ui.account.name.current": "Your username: {name}",
+  "ui.account.name.current": "@{name}",
   "ui.account.name.change": "Change it",
   "ui.account.name.change.go": "Save the new name",
   "ui.account.name.changed": "Saved. Others now see {name}.",
@@ -228,9 +229,23 @@ export const onlineText: Record<string, string> = {
 
   // The settings (R-ACCOUNT-003, R-ACCOUNT-016)
   "ui.account.settings": "Account",
-  "ui.account.heading": "Account",
   "ui.account.passkey.add": "Add a passkey",
   "ui.account.passkey.added": "Passkey added. Use it next time you sign in.",
+  // The account's row at the top of Settings and the rows on its sheet (R-ACCOUNT-024, R-ACCOUNT-027 as to be amended).
+  "ui.account.person.label": "Name",
+  "ui.account.ways.google": "Kept with Google as {email}",
+  "ui.account.ways.email": "Kept with your email as {email}",
+  "ui.account.ways.email.short": "Kept with your email",
+  "ui.account.ways.guest": "Only on this phone until kept",
+  "ui.account.passkeys": "{count} passkeys",
+  "ui.account.passkeys.one": "1 passkey",
+  "ui.account.passkeys.zero": "Passkey: none yet",
+  // A short toast over the world once a life is kept or signed back in to, naming the way (R-ACCOUNT-023).
+  "ui.account.toast.kept.google": "Kept with Google",
+  "ui.account.toast.kept.email": "Kept with your email",
+  "ui.account.toast.in.google": "Signed in with Google",
+  "ui.account.toast.in.email": "Signed in with your email",
+  "ui.account.toast.in.passkey": "Signed in with your passkey",
   "ui.account.sign-out": "Sign out",
   "ui.account.delete": "Delete my account",
   "ui.account.delete.warn": "This ends your life in Japacity for good. Your character, your saves and your account go, and nobody can bring them back.",

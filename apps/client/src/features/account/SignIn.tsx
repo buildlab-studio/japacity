@@ -13,9 +13,12 @@ import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
 import { browserLink, inAppBrowser } from "./inApp";
 
+/** The way a sign-in on this sheet went through, for the welcome that names it (R-ACCOUNT-023); Google's comes back by its own trip. */
+export type SignedInBy = "email" | "passkey";
+
 export interface SignInProps {
   account: AccountApi;
-  onSignedIn: () => void;
+  onSignedIn: (by: SignedInBy) => void;
   /** Back to the start screen; none inside another page. */
   onBack?: (() => void) | null;
   /** What a trip to Google came back with, when it was refused. */
@@ -40,13 +43,13 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
   const inApp = inAppBrowser(agent);
   const outLink = inApp ? browserLink(href, agent) : null;
 
-  async function run(action: () => Promise<AuthResult>) {
+  async function run(action: () => Promise<AuthResult>, by: SignedInBy | null) {
     setBusy(true);
     setProblem(null);
     try {
       const result = await action();
       setProblem(failureWords(result));
-      if (result.ok) onSignedIn();
+      if (result.ok && by !== null) onSignedIn(by);
     } finally {
       setBusy(false);
     }
@@ -89,11 +92,11 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
           {copied ? <p role="status">{say("ui.account.in-app.copied")}</p> : null}
         </div>
       ) : (
-        <GoogleButton label={say("ui.account.google")} disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null))} />
+        <GoogleButton label={say("ui.account.google")} disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null, "sign-in"), null)} />
       )}
-      <CodeForm account={account} onSignedIn={onSignedIn} />
+      <CodeForm account={account} onSignedIn={() => onSignedIn("email")} />
       <div>
-        <Button variant="quiet" disabled={busy} onClick={() => void run(() => account.signInWithPasskey())}>
+        <Button variant="quiet" disabled={busy} onClick={() => void run(() => account.signInWithPasskey(), "passkey")}>
           {say("ui.account.passkey")}
         </Button>
       </div>
