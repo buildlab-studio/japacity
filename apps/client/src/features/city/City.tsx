@@ -76,7 +76,7 @@ import { personOf, personOfLook } from "./roster";
 import type { Picked, ScenePick } from "./scene.types";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./school";
 import { sceneWords } from "./scene.words";
-import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
+import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, roomSpot, servesHere, type ViewPlace } from "./staging";
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { Fan } from "./fan/Fan";
@@ -994,7 +994,8 @@ export function City({
         // R-WORLD-017: the vehicle's act opens the same ride sheet as the map, with its way chosen.
         const vehicle = vehicleOf(thing) ?? "danfo";
         setPicked(null);
-        setRideBy(vehicle === "keke" || vehicle === "okada" ? vehicle : "danfo");
+        // Abroad the stop is the bus's and the platform the train's (R-WORLD-039); in Lagos the vehicle tapped.
+        setRideBy(where === "abroad" ? (act.id === "train" ? "train" : "bus") : vehicle === "keke" || vehicle === "okada" ? vehicle : "danfo");
         setMap(true);
         return;
       }
@@ -1133,7 +1134,8 @@ export function City({
     const spotted = new Map<string, number>();
     const spotOf = (place: PlaceEntry): { latE3: number; lonE3: number } => {
       if (place.position !== null) return place.position;
-      if (place.id === home) return HOME_SPOT;
+      // The room abroad sits off its country's hub (R-WORLD-038), never at Lagos's home spot.
+      if (place.id === home) return (where === "abroad" ? roomSpot(country, PLACES) : null) ?? HOME_SPOT;
       if (place.id === FAMILY_HOUSE && where === "home") return FAMILY_SPOT;
       // Their room has no address of its own: it sits a little off the place it is near, or off home for one who is home only for December (R-WORLD-020).
       if (place.id === THEIR_ROOM) {
@@ -1153,6 +1155,8 @@ export function City({
       // R-WORLD-014: the family house stays on the map for every life in Nigeria, home or not (the people met there, R-WORLD-020).
       // R-HOME-010, R-HOME-002: a rented room or the hostel stands on the map only as the home lived in, never as a stop to visit.
       .filter((place) => onMap(place.id, home))
+      // R-CITY-010, R-WORLD-038: a place serving every country gives way to the country's own where they stage its entries.
+      .filter((place) => place.id === home || servesHere(place, here, PLACES, content.activity))
       .filter((place) => (place.id === THEIR_ROOM ? roomOpen(view) && shipped?.has(place.id) === true : place.position !== null || place.id === home || (place.id === FAMILY_HOUSE && where === "home") || (place.area !== null && shipped?.has(place.id) === true)) && (shipped === null || shipped.has(place.id) || place.id === home || (place.id === FAMILY_HOUSE && where === "home")))
       .map((place) => {
         const reached = stopReached(view.chapter, where, place.id, early);

@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { abroadView, engineView, richView } from "../../shared/testing/fixtures";
 import { heardHere, overheard, placeLines } from "./overheard";
-import { byHandAt, enterable, offersHere, openingPlace, openScene, reportHere, stagedAt } from "./staging";
+import { byHandAt, enterable, offersHere, openingPlace, openScene, reportHere, roomSpot, servesHere, stagedAt } from "./staging";
 import { ARRIVED, standAt, stepWalk, WALK_SPEED, walkTo } from "./walk";
 
 const places = Object.values(content.place);
@@ -68,6 +68,27 @@ describe("staging", () => {
     const view: Pick<PlayerView, "report" | "place"> = { place: abroadView().place, report: { month: 1, lines: [line], japacityBefore: null, japacityAfter: null, attention: false } };
     for (const id of workplaces) expect(reportHere(view, id, places)).toEqual([line]);
     expect(reportHere(view, "place.rye-lane", places)).toEqual([]);
+  });
+
+  test("[R-CITY-010] [R-WORLD-038] given the places serving every country, when the map of London is read, then the test centre and the workplace give way to London's own, while in Calgary the workplace stands with its Canadian jobs and the test centre, whose tests are the UK's, does not; the room stands everywhere", () => {
+    const of = (id: Id<"place">) => {
+      const place = content.place[id];
+      if (place === undefined) throw new Error(id);
+      return place;
+    };
+    const CANADA = { where: "abroad", country: "country.canada" } as const;
+    expect(servesHere(of("place.test-centre-abroad"), UK, places, content.activity)).toBe(false);
+    expect(servesHere(of("place.workplace-abroad"), UK, places, content.activity)).toBe(false);
+    expect(servesHere(of("place.the-room"), UK, places, content.activity)).toBe(true);
+    expect(servesHere(of("place.test-centre-abroad"), CANADA, places, content.activity)).toBe(false);
+    expect(servesHere(of("place.workplace-abroad"), CANADA, places, content.activity)).toBe(true);
+    expect(servesHere(of("place.peckham"), UK, places, content.activity)).toBe(true);
+    expect(servesHere(of("place.family-house"), HOME, places, content.activity)).toBe(true);
+  });
+
+  test("[R-WORLD-038] given the room abroad with no address of its own, when its spot on the map is read, then in London it is the design's home spot off Choumert Road, near the hub", () => {
+    expect(roomSpot("country.uk", places)).toEqual({ latE3: 51471, lonE3: -73 });
+    expect(roomSpot(null, places)).toBeNull();
   });
 
   test("[R-CITY-002] given open offers, when a place lists what waits there, then it names each offer by its entry only and nothing the view does not hold", () => {

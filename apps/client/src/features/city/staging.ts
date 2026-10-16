@@ -47,6 +47,31 @@ export function stagedAt(id: string, where: ViewPlace, places: readonly PlaceEnt
 }
 
 /**
+ * Whether a place serving every country stands on the map of the country the character is in (R-CITY-010, world.md
+ * R-WORLD-038): it does unless every entry it stages is shown instead at a place of that country, or is another
+ * country's own (the workplace's Canadian jobs in London). So in London the country-less test centre and workplace give
+ * way to the test centre at Elephant and Castle and the workplaces with a door; in Calgary they still stand.
+ */
+export function servesHere(place: PlaceEntry, where: ViewPlace, places: readonly PlaceEntry[], activities: Readonly<Record<string, Pick<ActivityEntry, "country">>>): boolean {
+  if (where.where !== "abroad" || place.where !== "abroad" || place.country !== null || where.country === null) return true;
+  const own = places.filter((other) => other.where === "abroad" && other.country === where.country);
+  return (place.stages as readonly string[]).some((id) => {
+    const country = activities[id]?.country ?? null;
+    if (country !== null && country !== where.country) return false;
+    return !own.some((other) => (other.stages as readonly string[]).includes(id));
+  });
+}
+
+/**
+ * The room abroad's spot on the map (world.md R-WORLD-038): a made-up spot a little off the country's hub, as its street
+ * is made up; in London 51471, -73, off Choumert Road (design page 14 section 4). Null where the country has no hub.
+ */
+export function roomSpot(country: string | null, places: readonly PlaceEntry[]): { latE3: number; lonE3: number } | null {
+  const hub = places.find((place) => place.where === "abroad" && place.country === country && place.hub)?.position ?? null;
+  return hub === null ? null : { latE3: hub.latE3 - 2, lonE3: hub.lonE3 - 3 };
+}
+
+/**
  * The home's own acts where the character lives (home.md R-HOME-006, R-HOME-010): a room of their own (Makoko's, the
  * room in a compound) stages nothing itself, since an id is staged at one place (R-CITY-010); while it is the home it
  * stages what the family house stages, so its bed, stove, drum and papers box act as the parlour's do.
