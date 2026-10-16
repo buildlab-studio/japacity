@@ -97,6 +97,19 @@ export function rideChoices(from: Position, to: Position, country: string | null
   return [drove, ...ways];
 }
 
+/** Farther than any ride inside a city goes (Heathrow is 27 km from Peckham): a pin so far off stands in another country. */
+const CITY_REACH_METRES = 80_000;
+
+/**
+ * The metres the minutes are read from: content's positions where both places have one, else the pins' (the room has
+ * no address of its own and stands at the map's home spot). A distance past any city's reach means a pin stands at
+ * another country's spot, so the ride is timed as the shortest, as its fare is the flag-down figure.
+ */
+function minutesMetres(at: { from: Position; to: Position }, lonMetresPerE3: number): number {
+  const metres = metresApart(at.from, at.to, lonMetresPerE3);
+  return metres > CITY_REACH_METRES ? 0 : metres;
+}
+
 /** The ways abroad the ride sheet can draw and the ride can play (R-WORLD-039): London's bus and train, and on foot. */
 const DRAWN_ABROAD: ReadonlySet<RideChoice["id"]> = new Set(["bus", "train", "walk"]);
 
@@ -116,7 +129,7 @@ export function waysAbroad(ways: readonly RideWayView[], ids: { from: string; to
     .filter((way) => DRAWN_ABROAD.has(way.way as RideChoice["id"]))
     .map((way): RideChoice => {
       const id = way.way as RideChoice["id"];
-      const metres = metresApart(at.from, at.to, way.lonMetresPerE3);
+      const metres = minutesMetres(from !== null && to !== null ? { from, to } : at, way.lonMetresPerE3);
       // The simulation shuts a walk only between two places it knows the positions of, and never one to the room.
       const far = id === "walk" && from !== null && to !== null && metresApart(from, to, way.lonMetresPerE3) > walkMetres;
       return {

@@ -81,6 +81,10 @@ describe("the ways in London", () => {
     expect(walkTo("place.office-uk")?.shut).toBe("far");
     expect(walkTo("place.test-centre-uk")?.shut).toBe("far");
     expect(walkTo(ROOM)?.shut).toBeUndefined();
+    // The room has no address of its own; a pin standing at another country's spot never times a ride in thousands of minutes.
+    const lagosSpot = { latE3: 6507, lonE3: 3359 };
+    const home = waysAbroad(view.place.ways ?? [], { from: ROOM, to: PECKHAM }, { from: lagosSpot, to: positionOf(PECKHAM) }, false, view.place.fareBp);
+    expect(Math.max(...home.map((way) => way.minutes))).toBeLessThan(60);
   });
 
   test("[R-PLACE-012] [R-WORLD-039] given the bus pass bought this month, when the ways are read, then the bus asks nothing and its pill says £0, bus pass, while the train still asks its fare", () => {
