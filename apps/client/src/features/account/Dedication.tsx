@@ -401,6 +401,17 @@ export function Dedication({ open, onClose, year }: DedicationProps) {
           data-dedication-page
           data-water={water.kind}
         >
+          {/* The count stands still at the head on the sky's own colour, as the close does, so filling the form (the page
+              scrolled up over the keyboard) never takes them out of view. At rest the head is
+              the sky over the strings; scrolled, the strings pass under it. */}
+          {read === null ? null : (
+            <div className="pointer-events-none fixed inset-x-0 top-0 z-[2] h-[118px] bg-[#172647]" data-dedication-head>
+              <div className="absolute inset-x-0 top-[54px] text-center" data-dedication-count>
+                <p className="text-[26px] leading-tight font-bold">{sayCount("ui.dedication.count", read.count, { count: read.count })}</p>
+                <p className="text-[14px] text-text-2">{say("ui.dedication.tonight")}</p>
+              </div>
+            </div>
+          )}
           <div className="relative left-1/2 -translate-x-1/2" style={{ width: STAGE.width, height: STAGE.height }}>
             {/* The sky over the water, under the glows; the water is the page's own ground, on under the foot. */}
             <div className="absolute bg-[#172647]" style={{ left: -400, right: -400, top: -400, height: HORIZON + 400 }} aria-hidden />
@@ -410,12 +421,6 @@ export function Dedication({ open, onClose, year }: DedicationProps) {
               <Glow key={one.light.id} x={one.x} y={one.y} radius={24} alpha={0.55} offsetMs={(index * 700) % 4_000} name="named" />
             ))}
             <Strings placed={placed} own={mine !== null} naming={naming} />
-            {read === null ? null : (
-              <div className="absolute inset-x-0 top-[54px] text-center" data-dedication-count>
-                <p className="text-[26px] leading-tight font-bold">{sayCount("ui.dedication.count", read.count, { count: read.count })}</p>
-                <p className="text-[14px] text-text-2">{say("ui.dedication.tonight")}</p>
-              </div>
-            )}
             {/* The big light carries its name under it, exactly as the owner wrote it (R-ACCOUNT-032, city.md R-CITY-021). */}
             <p className="absolute -translate-x-1/2 text-[14px] font-semibold tracking-wide" style={{ left: HIS_X, top: hisY + HIS_R + 10 }} data-dedication-name>
               {DEDICATION_NICKNAME}
@@ -480,7 +485,7 @@ export function Dedication({ open, onClose, year }: DedicationProps) {
           </div>
           <Dialog.Close
             aria-label={say("ui.dedication.close")}
-            className="absolute top-[max(14px,env(safe-area-inset-top))] right-[14px] inline-flex size-11 items-center justify-center rounded-md opacity-80 focus-visible:outline-2 focus-visible:outline-text"
+            className="fixed top-[max(14px,env(safe-area-inset-top))] right-[14px] z-[3] inline-flex size-11 items-center justify-center rounded-md opacity-80 focus-visible:outline-2 focus-visible:outline-text"
             data-dedication-close
           >
             <X size={22} aria-hidden />
