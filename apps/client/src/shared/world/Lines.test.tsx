@@ -12,7 +12,7 @@ import { cameraAt, projected } from "../../features/city/scene.testing";
 import { aimShot, roomShot, shotOf } from "../../features/city/shot";
 import { thingSpot, thingsOf } from "../../features/city/things";
 import { standAt } from "../../features/city/walk";
-import { bubbleRect, bubbleSpot, Corner, CORNER_MAX, isLong, linesNow, murmur, NEAR_SPEAKER, overlap, QUIET_MS, resetLines, speak, SPEECH_MS, SpeechBubble, TAIL, tailPaths, TALK_EVERY_MS, JOIN_MS, tell, TOLD_MS, useStreetTalk, WORDS_MAX } from "./Lines";
+import { bubbleRect, bubbleSpot, Corner, CORNER_MAX, isLong, LIFT_MAX, linesNow, murmur, NEAR_SPEAKER, overlap, QUIET_MS, resetLines, speak, SPEECH_MS, SpeechBubble, TAIL, TAIL_MAX, tailPaths, TALK_EVERY_MS, JOIN_MS, tell, TOLD_MS, useStreetTalk, WORDS_MAX } from "./Lines";
 
 const MAMA = "You have eaten? Sit small.";
 const ORANGES = "Mama presses a bag of oranges on you.";
@@ -136,7 +136,7 @@ describe("the bubble's tail and its room", () => {
     expect(points(paths.edge)[1]).toEqual([-30, 70]);
   });
 
-  test("[R-WORLD-026] given heads right over the speaker, when the bubble is placed, then it steps aside or rises clear of them, its tail reaching down to the speaker; with room it keeps the spot it had, so it does not hop", () => {
+  test("[R-WORLD-026] given heads right over the speaker, when the bubble is placed, then it steps aside or rises clear of them, its tail reaching down to the speaker and never longer than a bubble's height; with room it keeps the spot it had, so it does not hop; a dot under it is better than a far spot", () => {
     const size = { width: 412, height: 839 };
     const box = { width: 220, height: 70 };
     const at = { x: 0, y: -0.1, z: 0.5 };
@@ -155,9 +155,15 @@ describe("the bubble's tail and its room", () => {
     // The last frame's spot, still clear, is kept over a nearer one.
     const kept = bubbleSpot(at, size, box, 120, { clear: [], last: { lift: placed.lift, shift: placed.shift } });
     expect([kept.lift, kept.shift]).toEqual([placed.lift, placed.shift]);
-    // A dot is covered only when nothing clear of it is in reach.
+    // A near spot over a thing's dot beats a far one: the bubble stays over its speaker rather than rise off the dot.
     const soft = [{ left: 200, right: 212, top: over.y - 30, bottom: over.y - 18 }];
-    expect(soft.every((dot) => overlap(bubbleRect(bubbleSpot(at, size, box, 120, { soft }), box), dot) === 0)).toBe(true);
+    const onDot = bubbleSpot(at, size, box, 120, { soft });
+    expect([onDot.lift, onDot.shift]).toEqual([0, 0]);
+    // Where no near spot is clear of the heads, the bubble stands over the crowd, its tail at the longest and no longer.
+    const crowd = [-160, -120, -80, -40, 0, 40, 80, 120, 160].flatMap((dx) => [0, 30, 60].map((up) => ({ left: over.x + dx - 10, right: over.x + dx + 10, top: over.y - 40 - up, bottom: over.y - 28 - up })));
+    const high = bubbleSpot(at, size, box, 120, { clear: crowd });
+    expect(high.tail.length).toBe(TAIL_MAX);
+    expect(high.lift).toBe(LIFT_MAX);
   });
 });
 

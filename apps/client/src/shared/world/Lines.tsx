@@ -249,13 +249,15 @@ const TAIL_BASE = 18;
 const TAIL_INSET = 22;
 /** The bubble's underside: the edge drawn under its box (index.css, `.talk-bubble`). */
 const UNDERSIDE = 4;
-/** The most the bubble is lifted over the crowd to stand clear of it, its tail reaching down to the speaker. */
-export const LIFT_MAX = 360;
-const LIFT_STEP = 12;
+/** The longest the tail ever reaches, a bubble's own height at most: a longer one reads as broken. */
+export const TAIL_MAX = 80;
+/** The most the bubble is lifted off its plain spot, so its tail stays within TAIL_MAX. */
+export const LIFT_MAX = TAIL_MAX - TAIL;
+const LIFT_STEP = 5;
 /** How far the bubble steps aside at a time, looking for room beside its speaker. */
-const SHIFT_STEP = 16;
-/** What a square pixel of a dot under the box costs against a pixel of shift. */
-const SOFT_WEIGHT = 3;
+const SHIFT_STEP = 8;
+/** What a square pixel of a dot under the box costs against a pixel of shift: little, so a near spot over a dot beats a far one. */
+const SOFT_WEIGHT = 0.25;
 /** What a square pixel of a head or a name under a lifted tail costs against a pixel of shift. */
 const TAIL_WEIGHT = 2;
 
@@ -328,9 +330,13 @@ export function bubbleSpot(at: { x: number; y: number; z: number }, size: { widt
   if (over.y < lowest) return { x: centred, y: Math.min(lowest, size.height - EDGE), shown, tail: { x: 0, length: TAIL }, lift: 0, shift: 0 };
   const y = Math.min(over.y, size.height - EDGE);
   const tipX = over.x;
-  let best: { spot: BubbleSpot; hard: number; light: number; cost: number } | null = null;
+  // Near spots first: over or beside the speaker, the tail short, clear of every head and name; among those, one over a
+  // dot or the road is better than one further off. Only when no near spot is clear does the bubble stand over the crowd,
+  // its tail at TAIL_MAX and the bubble as low as that allows, covering what it must least.
+  let near: { spot: BubbleSpot; cost: number } | null = null;
+  let high: { spot: BubbleSpot; lift: number; hard: number; cost: number } | null = null;
   let kept: BubbleSpot | null = null;
-  for (let lift = 0; lift <= LIFT_MAX && y - lift >= lowest; lift += LIFT_STEP) {
+  for (let lift = 0; lift <= LIFT_MAX && y - lift >= lowest; lift = lift + LIFT_STEP > LIFT_MAX && lift < LIFT_MAX ? LIFT_MAX : lift + LIFT_STEP) {
     const length = TAIL + lift;
     for (const shift of shifts(box.width / 2 + length)) {
       const x = Math.min(Math.max(centred + shift, half), Math.max(half, size.width - half));
@@ -346,15 +352,14 @@ export function bubbleSpot(at: { x: number; y: number; z: number }, size: { widt
       const crossed = lift > 0 ? clear.reduce((sum, other) => sum + overlap(tail, other), 0) : 0;
       const light = soft.reduce((sum, other) => sum + overlap(rect, other), 0);
       const spot = { x, y: foot, shown, tail: { x: tipX - x, length }, lift, shift: x - centred };
-      if (last !== undefined && hard === 0 && crossed === 0 && light === 0 && lift === last.lift && Math.abs(spot.shift - last.shift) < SHIFT_STEP / 2) kept = spot;
-      // A whole dot covered weighs about as much as a bubble's height of lift and more: the box keeps off the dots unless that
-      // takes a long tail. A tail across a head or a name weighs too, though never as much as the box on a face.
+      if (last !== undefined && hard === 0 && crossed === 0 && lift === last.lift && Math.abs(spot.shift - last.shift) < SHIFT_STEP / 2) kept = spot;
       const cost = Math.abs(spot.shift) + lift * 1.5 + light * SOFT_WEIGHT + crossed * TAIL_WEIGHT;
-      if (best === null || hard < best.hard || (hard === best.hard && cost < best.cost)) best = { spot, hard, light, cost };
+      if (hard === 0 && (near === null || cost < near.cost)) near = { spot, cost };
+      if (high === null || lift > high.lift || (lift === high.lift && (hard < high.hard || (hard === high.hard && cost < high.cost)))) high = { spot, lift, hard, cost };
     }
   }
   if (kept !== null) return kept;
-  return best?.spot ?? { x: centred, y, shown, tail: { x: tipX - centred, length: TAIL }, lift: 0, shift: 0 };
+  return near?.spot ?? high?.spot ?? { x: centred, y, shown, tail: { x: tipX - centred, length: TAIL }, lift: 0, shift: 0 };
 }
 
 /**

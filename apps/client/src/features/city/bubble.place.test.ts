@@ -4,7 +4,7 @@
 // clear, never far. Proved over every place the game draws, seen whole as the scene first shows it on a phone.
 import { describe, expect, test } from "vitest";
 
-import { bubbleRect, bubbleSpot, overlap, type Rect, TAIL } from "../../shared/world/Lines";
+import { bubbleRect, bubbleSpot, LIFT_MAX, overlap, type Rect, TAIL, TAIL_MAX } from "../../shared/world/Lines";
 import { dotRect, HEAD_CHIN, HEAD_TOP, headRect, LABEL_Y, type LabelBox, layNames, MARK_HIT, NAME_LIFT_MAX } from "./labels";
 import { isPerson } from "./mark";
 import { sceneWords } from "./scene.words";
@@ -22,6 +22,21 @@ const BOX = { width: 250, height: 78 };
 
 function onPixels(at: { x: number; y: number }): { x: number; y: number } {
   return { x: ((at.x + 1) / 2) * SIZE.width, y: ((1 - at.y) / 2) * SIZE.height };
+}
+
+/** True when some box within the tail's reach over the tip covers none of `clear`: every lift and every step aside tried. */
+function clearWithin(tip: { x: number; y: number }, clear: readonly Rect[]): boolean {
+  const lowest = BAND + BOX.height + 8;
+  for (let lift = 0; lift <= LIFT_MAX && tip.y - lift >= lowest; lift += 2) {
+    const length = TAIL + lift;
+    for (let x = BOX.width / 2 + 8; x <= SIZE.width - BOX.width / 2 - 8; x += 2) {
+      const base = Math.min(Math.max(tip.x, x - BOX.width / 2 + 22), x + BOX.width / 2 - 22);
+      if (Math.abs(tip.x - base) > length) continue;
+      const rect = bubbleRect({ x, y: tip.y - lift }, BOX);
+      if (clear.every((other) => overlap(rect, other) === 0)) return true;
+    }
+  }
+  return false;
 }
 
 /** Each place as the scene first shows it: the whole house for a wide home, else the raised whole view. */
@@ -46,8 +61,9 @@ const SCENES = builtPlaces().map(({ folder, file }) => {
 });
 
 describe("no line over a face", () => {
-  test("[R-WORLD-026] given every place seen whole with its crowd at its fullest, every resident and person a speaker in turn, every thing's dot shown and no one named or one person named for an ask, when a bubble is placed, then it covers no head and no name, and its tail still ends over the speaker", () => {
-    const covering: string[] = [];
+  test("[R-WORLD-026] given every place seen whole with its crowd at its fullest, every resident and person a speaker in turn, every thing's dot shown and no one named or one person named for an ask, when a bubble is placed, then its tail is never longer than a bubble's height and still ends over the speaker, and it covers no head and no name wherever any spot within that reach is clear of them; where none is, it stands over the crowd with its tail at the longest", () => {
+    const missed: string[] = [];
+    let covering = 0;
     let placed = 0;
     let onDots = 0;
     for (const scene of SCENES) {
@@ -85,7 +101,17 @@ describe("no line over a face", () => {
           placed += 1;
           const rect = bubbleRect(spot, BOX);
           const covered = clear.reduce((sum, other) => sum + overlap(rect, other), 0);
-          if (covered > 0) covering.push(`${scene.folder}${named === null ? "" : ` with ${named.id} named`} over [${String(x)}, ${String(z)}]: ${String(Math.round(covered))} px²`);
+          expect(spot.tail.length).toBeLessThanOrEqual(TAIL_MAX);
+          if (covered > 0) {
+            covering += 1;
+            const where = `${scene.folder}${named === null ? "" : ` with ${named.id} named`} over [${String(x)}, ${String(z)}]`;
+            // Covering is allowed only where no spot within the tail's reach is clear: every box the reach allows is tried.
+            if (clearWithin(over, clear)) missed.push(`${where}: a clear spot was in reach`);
+            // And then the bubble stands over the crowd, its tail at the longest the band leaves room for.
+            if (spot.lift !== Math.min(LIFT_MAX, Math.floor((over.y - (BAND + BOX.height + 8)) / 10) * 10, LIFT_MAX)) {
+              if (spot.lift < Math.min(LIFT_MAX, over.y - (BAND + BOX.height + 8) - 10)) missed.push(`${where}: covering at lift ${String(spot.lift)}, not at the longest tail`);
+            }
+          }
           if (soft.some((dot) => overlap(rect, dot) > 0)) onDots += 1;
           // The tail ends over the speaker: its point is the speaker's anchor on the screen.
           expect(spot.x + spot.tail.x).toBeCloseTo(over.x, 5);
@@ -97,10 +123,13 @@ describe("no line over a face", () => {
       }
     }
     expect(placed).toBeGreaterThan(100);
-    expect(covering).toEqual([]);
-    // A dot is covered only where no spot in reach is clear of the dots (a home's back wall seen whole), and the bubble
-    // hands a tap on it through (R-WORLD-005): never in more than one placement in ten.
-    expect(onDots * 10).toBeLessThanOrEqual(placed);
+    expect(missed).toEqual([]);
+    // With the crowd at its fullest, about three placements in ten have no clear spot within the tail's reach (the
+    // catalog's busiest streets and the family house seen whole); never more than one in three.
+    expect(covering * 3).toBeLessThanOrEqual(placed);
+    // A near spot over a dot beats a far one (a dot can be tapped again a moment later, a face is read): the bubble hands
+    // a tap on a dot through (R-WORLD-005), and covers one in at most three placements in five.
+    expect(onDots * 5).toBeLessThanOrEqual(placed * 3);
   });
 });
 
