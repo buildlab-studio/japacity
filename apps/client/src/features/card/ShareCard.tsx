@@ -268,7 +268,7 @@ export function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard 
  * screenshot's hint and Close over the dimmed world), the share button stands with it on a ground of its own, never
  * printed over what lies under the dim (over the phone's icons).
  */
-function CardToShare({ card: due, scenario, type, seat = null, foot = null }: { card: ShareCard; scenario: Id<"scenario">; type: JapaType | null; seat?: Seat | null; foot?: ReactNode }) {
+function CardToShare({ card: due, scenario, type, seat = null, foot = null, note = null }: { card: ShareCard; scenario: Id<"scenario">; type: JapaType | null; seat?: Seat | null; foot?: ReactNode; note?: ReactNode }) {
   const [picked, setPicked] = useState<"card" | "stub">("card");
   const card = bandNamed(due, scenario);
   const stub = stubFace(card, scenario, type, seat);
@@ -278,8 +278,12 @@ function CardToShare({ card: due, scenario, type, seat = null, foot = null }: { 
       share
     ) : (
       <div className="sticky bottom-0 flex w-full max-w-[24rem] flex-col items-center gap-2 rounded-[16px] bg-sheet p-3 text-text shadow-2xl" data-card-foot>
-        {share}
-        {foot}
+        {/* The share and Close side by side, the hint under them: a short foot, so the card and its picker keep the screen. */}
+        <div className="flex w-full items-start justify-center gap-3">
+          {share}
+          {foot}
+        </div>
+        {note}
       </div>
     );
   if (stub === null) {
@@ -430,13 +434,11 @@ function CardScreen({ open, onClose, card, scenario, type, seat }: { open: boole
             type={type}
             seat={seat}
             foot={
-              <div className="flex w-full items-center justify-between gap-3">
-                <p className="min-w-0 flex-1 text-sm leading-snug text-text-2">{say("ui.card.how")}</p>
-                <Button variant="secondary" onClick={onClose}>
-                  {say("ui.report.close")}
-                </Button>
-              </div>
+              <Button variant="secondary" onClick={onClose}>
+                {say("ui.report.close")}
+              </Button>
             }
+            note={<p className="text-center text-sm leading-snug text-text-2">{say("ui.card.how")}</p>}
           />
         </InDialog>
       </div>
