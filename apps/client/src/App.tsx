@@ -7,7 +7,8 @@ import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { bootGame } from "./authority/boot";
 import { CountedBoundary } from "./shared/analytics/CountedBoundary";
 import { SoundNotice } from "./shared/sound/SoundNotice";
-import { TroubleCard, TroubleFace } from "./shared/ui/Trouble";
+import { FaultCard, reloadPage, TroubleCard, TroubleFace } from "./shared/ui/Trouble";
+import { Splash } from "./shared/ui/Splash";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { readPerson } from "./authority/person";
@@ -87,7 +88,7 @@ function AdminGate({ children }: { children: ReactNode }) {
   const [asked] = useState(() => typeof location !== "undefined" && adminAsked(location.pathname));
   if (!asked) return <>{children}</>;
   return (
-    <Suspense fallback={<p className="p-4 text-text-2">{say("ui.loading")}</p>}>
+    <Suspense fallback={<Splash />}>
       <AdminRoute>{children}</AdminRoute>
     </Suspense>
   );
@@ -189,7 +190,8 @@ function WorldPlaying() {
 export const SLOW_MS = 5_000;
 
 /**
- * "Opening your life...", a second line once it takes long, and the card in its place when the view could not be read.
+ * The splash (R-ENGINE-015) with "Opening your life..." under the game's name, a second line once it takes long,
+ * and the card under the mark in the words' place when the view could not be read.
  * Online, for a visitor this device has no life for, the start screen's frame instead: never "Opening your life" for
  * someone with no life, and with the server down the card stands in its sheet, naming the game (R-ENGINE-015, amended
  * 11 Oct 2026).
@@ -204,12 +206,17 @@ function Opening() {
     return () => window.clearTimeout(timer);
   }, []);
   if (online && !lifeKept) return <StartTrouble trouble={trouble} />;
-  if (trouble !== null) return <TroubleFace trouble={trouble} inline />;
   return (
-    <div className="p-4 text-text-2" data-opening>
-      <p>{say("ui.loading")}</p>
-      {slow ? <p className="mt-1 text-sm">{say("ui.loading.slow")}</p> : null}
-    </div>
+    <Splash data-opening="">
+      {trouble !== null ? (
+        <TroubleFace trouble={trouble} inline />
+      ) : (
+        <>
+          <p className="splash-words">{say("ui.loading")}</p>
+          {slow ? <p className="splash-more">{say("ui.loading.slow")}</p> : null}
+        </>
+      )}
+    </Splash>
   );
 }
 
@@ -233,7 +240,19 @@ function Screen() {
   // The version the prologue's handover was passed at, so it shows once.
   const [handedOver, setHandedOver] = useState<number | null>(null);
   useScreenCount(choosingLife ? "scenario" : view !== null && view.prologue !== null ? "prologue" : view?.place.where === "road" ? "road" : null);
-  if (failed !== null) return <p className="p-4 text-bad">{say("ui.failed", { why: failed })}</p>;
+  // The game's own fault: the same card on the splash, with Reload.
+  if (failed !== null)
+    return (
+      <Splash>
+        <div className="fade mx-auto w-full max-w-[420px] p-4">
+          <FaultCard role="alert" line={say("ui.failed", { why: failed })} detail={say("ui.failed.detail")}>
+            <button type="button" className="press-button w-full" onClick={reloadPage}>
+              {say("ui.trouble.reload")}
+            </button>
+          </FaultCard>
+        </div>
+      </Splash>
+    );
   // Online and signed out: the start screen, the age screen, then the door, whose Begin makes the guest life (R-ACCOUNT-029).
   // The live city stands behind it, as designed, where WebGL draws; the compound comes back at the door.
   if (signedOut) return <AccountGate door={(guest) => <ScenarioView guest={guest} />} {...(draws() ? { behind: <StartCityBehind /> } : {})} />;

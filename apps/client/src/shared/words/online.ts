@@ -39,10 +39,15 @@ export const onlineText: Record<string, string> = {
   "ui.trouble.server": "Something broke on our side.",
   "ui.trouble.retry": "Retry",
   "ui.trouble.reload": "Reload",
+  // Under the card's line, small and plain: what the player can do, never a status or a code
+  "ui.trouble.network.detail": "Check your connection, then try again.",
+  "ui.trouble.wall.detail": "Reload, then sign in if the game asks.",
+  "ui.trouble.server.detail": "It is not your connection. Give it a moment, then try again.",
   // "The game could not start: {why}" (ui.failed), the why by the same kinds
   "ui.failed.why.network": "the server did not answer",
   "ui.failed.why.wall": "your session ended",
   "ui.failed.why.server": "something broke on our side",
+  "ui.failed.detail": "Nothing you did caused this. Open the game again.",
 
   // The start screen online (R-ACCOUNT-029): a hook, the whole game in three steps, then Play
   "ui.account.start.play": "Play",
