@@ -392,7 +392,8 @@ function settlingRouteInReach(view: PlayerView, habits: Habits): boolean {
     if (!habits.otherRoutes.includes(item.id) || item.id === GULF) return false;
     if (item.state !== "known" && item.state !== "applying" && item.state !== "granted") return false;
     if (item.window === "closed") return false;
-    if (item.gate?.gate === "points") return item.gate.points >= Math.min(item.gate.cutoff, item.gate.careCutoff ?? item.gate.cutoff);
+    // R-POINTS-006: the clocks would invite now; the care cut-off counts only for a carer.
+    if (item.gate?.gate === "points") return item.gate.invites;
     return true;
   });
 }
@@ -647,6 +648,16 @@ function otherRoutePicks(view: PlayerView, habits: Habits): SlotPick[] {
       if (entry.id === "sponsor" && playable(view, "activity.find-sponsor")) {
         const params = option(view, "activity.find-sponsor")?.params ?? [];
         if (params.includes(item.id)) add("activity.find-sponsor", item.id);
+        continue;
+      }
+      // A player with no study plan never fetches the passport the study plan would, and the points table pays for the
+      // band: so it gets the passport the test asks for, and practises to its usual mark before sitting.
+      if (entry.id === "english" && !habits.studies) {
+        const passport = documentState(view, "document.passport")?.state;
+        if (passport !== "held" && passport !== "pending" && playable(view, "activity.get-passport")) add("activity.get-passport");
+        else if (quality(view, "quality.english") < habits.englishBeforeTest) {
+          if (playable(view, "activity.study-english")) add("activity.study-english");
+        } else if (playable(view, "activity.sit-english-test")) add("activity.sit-english-test");
         continue;
       }
       if (entry.id === "english" && quality(view, "quality.english") < 50) {
