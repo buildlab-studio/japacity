@@ -21,12 +21,12 @@ import type { Clear, Ground } from "./scatter";
 type LatLon = readonly [number, number];
 
 /**
- * London's fit: north up, a thousandth of a degree twenty-two paper units south and fourteen east, so the paper keeps
+ * London's fit: north up, a thousandth of a degree sixteen paper units south and ten east, so the paper keeps
  * London's true shape (a thousandth of a degree of longitude is about 69 m at 51.5 degrees north against 111 m of
  * latitude, R-PLACE-010 as amended). The paper runs from 0.108 to 0.040 west and from 51.520 down to 51.458 north.
  */
-export const LONDON_FIT: Fit = { xLon: 14, xLat: 0, x0: 1512, yLon: 0, yLat: -22, y0: 1133440 };
-export const LONDON_PAPER = { width: 952, height: 1364 } as const;
+export const LONDON_FIT: Fit = { xLon: 10, xLat: 0, x0: 1080, yLon: 0, yLat: -16, y0: 824320 };
+export const LONDON_PAPER = { width: 680, height: 992 } as const;
 
 const fitted = fitOf(LONDON_FIT);
 const at = ([latE3, lonE3]: LatLon): Point => fitted.toPaper({ latE3, lonE3 });
@@ -161,11 +161,11 @@ const RAILS: readonly (readonly Point[])[] = [
     [51466, -160],
     [51468, -89],
     [51470, -69],
-    [51473, -57],
-    [51482, -52],
-    [51490, -58],
-    [51498, -70],
-    [51504, -84],
+    [51474, -58],
+    [51485, -55],
+    [51493, -62],
+    [51500, -74],
+    [51505, -84],
   ]),
   ring([
     [51470, -69],
@@ -182,17 +182,17 @@ const RAILS: readonly (readonly Point[])[] = [
 
 /** The parks, as [x, y, rx, ry] on the paper: Burgess Park, Peckham Rye, Nunhead's cemetery, Southwark Park, Ruskin Park. */
 const PARKS: readonly (readonly [number, number, number, number])[] = [
-  [...at([51482, -82]), 74, 22],
-  [...at([51460, -65]), 34, 26],
-  [...at([51463, -52]), 24, 18],
-  [...at([51495, -56]), 28, 18],
-  [...at([51465, -93]), 18, 14],
+  [...at([51482, -82]), 53, 16],
+  [...at([51460, -65]), 24, 19],
+  [...at([51463, -52]), 17, 13],
+  [...at([51495, -56]), 20, 13],
+  [...at([51465, -93]), 13, 10],
 ];
 
 const label = (key: string, where: LatLon, tilt: number, size: number): Label => ({ key, at: at(where), tilt, size });
 
 const LABELS: readonly Label[] = [
-  label("map.area.peckham", [51468, -78], -4, 13),
+  label("map.area.peckham", [51463, -80], -4, 13),
   label("map.area.camberwell", [51478, -100], -3, 12),
   label("map.area.nunhead", [51460, -54], 2, 11),
   label("map.area.old-kent-road", [51490, -72], 34, 11),
@@ -241,9 +241,9 @@ function Spire({ at: [x, y] }: { at: Point }) {
 export const HEATHROW = "place.heathrow";
 export const INSET = {
   /** The panel, [x0, y0, x1, y1] on the paper. */
-  box: [36, 1186, 146, 1296] as const,
+  box: [20, 868, 120, 968] as const,
   /** Where Heathrow's sticker stands. */
-  at: [70, 1238] as Point,
+  at: [52, 916] as Point,
   /** The card it shows on: Camberwell's, the paper's west. */
   card: "camberwell",
 };
@@ -282,11 +282,11 @@ const STRIP_LANDMARKS: readonly StripMark[] = [
 /** The neighbourhoods, north to south: the Elephant and London Bridge, the Old Kent Road, Camberwell, Peckham, Nunhead. */
 const card = (id: string, model: string, centre: Point, zoom: number): Card => ({ id, key: `map.card.${id}`, model, centre, zoom });
 const CARDS: readonly Card[] = [
-  card("elephant", "prop_desk-pod", [210, 450], 150),
-  card("old-kent-road", "prop_racking", at([51486, -65]), 250),
-  card("camberwell", "prop_hospital-bed", [140, 1190], 180),
-  card("peckham", "bld_rye-lane-terrace_a", at([51471, -70]), 300),
-  card("nunhead", "prop_reception-desk", at([51466, -56]), 250),
+  card("elephant", "prop_desk-pod", [150, 328], 200),
+  card("old-kent-road", "prop_racking", at([51486, -65]), 300),
+  card("camberwell", "prop_hospital-bed", [92, 880], 230),
+  card("peckham", "bld_rye-lane-terrace_a", at([51471, -70]), 280),
+  card("nunhead", "prop_reception-desk", at([51466, -56]), 300),
 ];
 
 /** The districts, as rules read in order; the first that holds a position is its card. */
@@ -342,7 +342,7 @@ function groundOf(): Ground {
     land: Object.values(LAND),
     roads: [...ROADS.map((item) => ({ points: item.points, reach: item.bridge === undefined ? (item.main ? 8 : 6) : 9 })), ...RAILS.map((points) => ({ points, reach: 6 }))],
     clear: [...places, ...names, ...landmarks, ...decorClear, inset],
-    box: [-140, 0, LONDON_PAPER.width + 140, LONDON_PAPER.height],
+    box: [-140, -200, LONDON_PAPER.width + 140, LONDON_PAPER.height + 200],
   };
 }
 
@@ -391,8 +391,8 @@ export const LONDON: PaperCity = {
       <Inset />
     </>
   ),
-  // The district a little below the middle, so the river and the City stay in the first look from the north.
-  opening: { phone: [0, 90], wide: [0, 60] },
+  // The district a little below the middle of the first look, so the river and the City come into it from the north.
+  opening: { phone: [0, -150], wide: [0, -100] },
   canoe: null,
   words: londonWords,
   sizes: { "place.heathrow": 118, "place.peckham": 108, "place.rye-lane": 104 },
