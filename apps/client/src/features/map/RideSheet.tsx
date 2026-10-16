@@ -22,6 +22,8 @@ export interface RideSheetProps {
   /** The money in the wallet now, in kobo. */
   have: number;
   formatMoney: (amount: number) => string;
+  /** A fare as words, keeping the pence a fare abroad has ("£1.75"); the money held stays in whole units. `formatMoney` when left out. */
+  formatFare?: (amount: number) => string;
   onChoose: (way: RideChoice) => void;
   onClose: () => void;
   /** "Stay here" on the stop the character stands at: closes the map as well, back to the place. */
@@ -33,7 +35,7 @@ export interface RideSheetProps {
 }
 
 /** Each way's picture: the vehicle's own tile; on foot, the footprints. */
-export const WAY_MODEL: Readonly<Record<RideChoice["id"], string | null>> = { danfo: "veh_danfo", keke: "veh_keke", okada: "veh_okada", walk: null, drive: "veh_car" };
+export const WAY_MODEL: Readonly<Record<RideChoice["id"], string | null>> = { danfo: "veh_danfo", keke: "veh_keke", okada: "veh_okada", walk: null, drive: "veh_car", bus: "veh_london-bus", train: "veh_train-carriage" };
 
 /** The first sentence of a place's blurb: a line about it. */
 function firstSentence(blurb: string): string {
@@ -77,7 +79,17 @@ export function firstWay(ways: readonly RideChoice[], have: number, by?: RideCho
   return ways.find((way) => way.shut === undefined && way.fare <= have)?.id ?? ways[0]?.id ?? "danfo";
 }
 
-export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClose, onStay, by, onWay }: RideSheetProps) {
+/**
+ * What a way's tile says under its name: the fare; on foot "Free"; the bus in a pass month "£0, bus pass" (R-PLACE-012,
+ * R-WORLD-039); the single way of a country with no fares yet "Bus pass", as before.
+ */
+export function fareTile(choice: RideChoice, formatMoney: (amount: number) => string, formatFare: (amount: number) => string = formatMoney): string {
+  if (choice.passed === true) return mapWords("map.way.passed", { amount: formatMoney(0) });
+  if (choice.fare !== 0) return formatFare(choice.fare);
+  return say(choice.id === "walk" ? "ui.world.free" : "ui.world.pass");
+}
+
+export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = formatMoney, onChoose, onClose, onStay, by, onWay }: RideSheetProps) {
   const [chosen, setChosen] = useState<RideChoice["id"]>(() => firstWay(ways, have, by));
   useEffect(() => {
     onWay?.(chosen);
@@ -95,8 +107,8 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
       way.id === "walk" ? mapWords(home ? "map.walk-home" : "map.walk") : way.id === "drive" ? mapWords(home ? "map.drive-home" : "map.drive") : mapWords(home ? "map.go-home" : "map.go", { way: way.label.toLowerCase() });
     if (way.fare === 0) return { label, after: null, disabled: false };
     // R-WORLD-006: the button says the ride and its fare; short, it says how much instead, the one exception.
-    const priced = pricedLabel(label, formatMoney(way.fare));
-    if (short) return { label: priced, after: mapWords("map.short", { amount: formatMoney(-left) }), disabled: true };
+    const priced = pricedLabel(label, formatFare(way.fare));
+    if (short) return { label: priced, after: mapWords("map.short", { amount: formatFare(-left) }), disabled: true };
     return { label: priced, after: null, disabled: false };
   })();
   // The balance before the fare, struck, and after it, under the button; nothing moves until the tap.
@@ -127,7 +139,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
           </div>
         </div>
         {here || locked ? null : (
-          <div role="radiogroup" aria-label={mapWords("map.ways")} className={`mb-3.5 grid gap-2 ${ways.length > 4 ? "grid-cols-5" : "grid-cols-4"}`}>
+          <div role="radiogroup" aria-label={mapWords("map.ways")} className={`mb-3.5 grid gap-2 ${ways.length > 4 ? "grid-cols-5" : ways.length === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
             {ways.map((choice) => {
               const on = choice.id === chosen;
               const shut = choice.shut !== undefined;
@@ -157,7 +169,9 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
                     )}
                   </span>
                   <span className="text-[13px] font-semibold">{choice.label}</span>
-                  <span className="text-[14px] font-semibold">{choice.fare === 0 ? say(choice.id === "walk" ? "ui.world.free" : "ui.world.pass") : formatMoney(choice.fare)}</span>
+                  <span className={`font-semibold ${choice.passed === true ? "text-[12px] leading-tight" : "text-[14px]"}`} data-way-fare>
+                    {fareTile(choice, formatMoney, formatFare)}
+                  </span>
                   <span className="text-[11px] leading-tight text-text-2">{shut ? mapWords("map.way.walk-far") : mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
                 </button>
               );

@@ -185,15 +185,18 @@ export interface CountryChoice {
 
 /** A way to travel (R-WORLD-017), with its fare in the wallet's smallest unit and the minutes. */
 export interface RideChoice {
-  /** `drive`: the life's own car, offered while it stands at home. */
-  id: "danfo" | "keke" | "okada" | "walk" | "drive";
+  /** `drive`: the life's own car, offered while it stands at home. `bus` and `train`: the UK's ways (R-PLACE-010 as amended 16 Oct 2026). */
+  id: "danfo" | "keke" | "okada" | "walk" | "drive" | "bus" | "train";
   label: string;
+  /** In the smallest unit of the money the ride is paid in: naira at home, the country's money abroad. */
   fare: number;
   minutes: number;
   /** Why the way cannot be taken: too far on foot (R-WORLD-017). */
   shut?: "far";
   /** A walk home past the walking limit: open all the same, played long and with no Skip (R-WORLD-017). */
   long?: true;
+  /** The bus in a month the bus pass is bought: it asks nothing, and the sheet says so (R-PLACE-012). */
+  passed?: true;
 }
 
 /** An app on the phone (R-WORLD-018). */

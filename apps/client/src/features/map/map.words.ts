@@ -33,6 +33,11 @@ export const mapText: Record<string, string> = {
   "map.drive-home": "Drive home",
   "map.walk-home": "Walk home",
   "map.way.minutes": "{minutes} min",
+  // London's ways (R-PLACE-010 as amended 16 Oct 2026, R-WORLD-039): the bus at one flat fare, the train by distance.
+  "map.way.bus": "Bus",
+  "map.way.train": "Train",
+  // The bus in a month the pass is bought (R-PLACE-012): the fare pill says it asks nothing, and why.
+  "map.way.passed": "{amount}, bus pass",
   "map.way.abroad.country.uk": "Bus",
   "map.way.abroad.country.canada": "Bus",
   "map.way.abroad.country.uae": "Taxi",
@@ -59,6 +64,13 @@ export const mapText: Record<string, string> = {
   "map.ride.along.road.3.danfo": "The driver cuts through a side street.",
   "map.ride.along.road.3.walk": "You cut through a side street.",
   "map.ride.along.road.3.drive": "You cut through a side street.",
+  // London's own road, seen from the top deck and from the carriage (R-WORLD-039).
+  "map.ride.along.road.1.bus": "The bus crawls past the chicken shops and the phone repairs.",
+  "map.ride.along.road.2.bus": "Downstairs, a woman is on speaker phone in Yoruba.",
+  "map.ride.along.road.3.bus": "The driver waits at the stop for a man running with shopping.",
+  "map.ride.along.road.1.train": "Back gardens and brick walls slide past the window.",
+  "map.ride.along.road.2.train": "Everybody is looking at their phone. Nobody talks.",
+  "map.ride.along.road.3.train": "The train rattles over a bridge and the city opens out.",
   "map.ride.along.near": "Your stop: {to}",
   "map.ride.arrived": "{place}",
 
@@ -82,6 +94,20 @@ export const mapText: Record<string, string> = {
   "map.ride.line.danfo.4": "Who never pay? Hand am come.",
   "map.ride.line.danfo.5": "Driver, carry go. Everybody don settle.",
   "map.ride.line.danfo.6": "No pay me with that torn note o.",
+  // London's bus: the driver, a fellow passenger and the voice in the ceiling, as you board (R-WORLD-039).
+  "map.ride.line.bus.1": "Tap your card. Upstairs, the front seat is free.",
+  "map.ride.line.bus.2": "Move down inside, please. There is space upstairs.",
+  "map.ride.line.bus.3": "Hold on. The bus is about to move.",
+  "map.ride.line.bus.4": "My sister, sit here. This one dey go your side.",
+  "map.ride.line.bus.5": "Please do not stand on the stairs while the bus is moving.",
+  "map.ride.line.bus.6": "No eating upstairs o. The driver go talk.",
+  // London's train: the platform's voice and the people on it, as the doors close (R-WORLD-039).
+  "map.ride.line.train.1": "Mind the gap between the train and the platform.",
+  "map.ride.line.train.2": "Stand clear of the closing doors, please.",
+  "map.ride.line.train.3": "Two minutes late again. At least it came.",
+  "map.ride.line.train.4": "The window seat is free. Sit, my brother.",
+  "map.ride.line.train.5": "Hold the pole. This driver brakes hard.",
+  "map.ride.line.train.6": "This train is busy. Please use all the doors.",
   // The boy who parks you out, as you drive off.
   "map.ride.line.drive.1": "Oga, I watch your motor. Remember me.",
   "map.ride.line.drive.2": "Reverse, reverse. Small again. You don free.",
@@ -138,5 +164,5 @@ export function mapWords(key: string, params: Record<string, string | number> = 
   });
 }
 
-/** The ways in the order the sheet lists them: cheapest first. */
-export const WAYS: readonly Exclude<RideChoice["id"], "drive">[] = ["danfo", "keke", "okada", "walk"];
+/** The ways of Lagos in the order the sheet lists them: cheapest first. */
+export const WAYS: readonly Exclude<RideChoice["id"], "drive" | "bus" | "train">[] = ["danfo", "keke", "okada", "walk"];

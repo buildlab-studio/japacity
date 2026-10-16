@@ -1,10 +1,11 @@
 // What the map shows and what a ride costs (docs/rules/world.md R-WORLD-015 to 017), as plain
 // functions of the view, the kept list and content, so the screen only draws them.
 import { content } from "@japacity/content";
-import { rideFare } from "@japacity/sim";
+import { type Currency, metresApart, rideFare, type RideWayView } from "@japacity/sim";
 
 import type { Pin, PinState, RideChoice } from "../../shared/world/contract";
 import { onMap, RENTED_HOMES } from "../../shared/world/rentedHomes";
+import { formatMoney, formatRate } from "../../shared/words/format";
 import { mapWords, WAYS } from "./map.words";
 
 export { onMap, RENTED_HOMES };
@@ -94,4 +95,45 @@ export function rideChoices(from: Position, to: Position, country: string | null
     minutes: Math.max(1, Math.round(metres / content.tuning.thing.drive.metresPerMinute)),
   };
   return [drove, ...ways];
+}
+
+/** The ways abroad the ride sheet can draw and the ride can play (R-WORLD-039): London's bus and train, and on foot. */
+const DRAWN_ABROAD: ReadonlySet<RideChoice["id"]> = new Set(["bus", "train", "walk"]);
+
+/**
+ * The ways to a place abroad, from the view's `place.ways` (R-PLACE-010 as amended 16 Oct 2026, R-WORLD-039): each priced
+ * by the simulation's own `rideFare` from content's positions of the two places, so the sheet says what the ride takes to
+ * the penny; the bus asks nothing in a month the pass is bought (R-PLACE-012). Minutes are the wait plus the straight-line
+ * metres at the way's pace as at home, the metres a thousandth of a degree of longitude is worth there read from the way. On foot is
+ * shut past the walking limit, as the simulation shuts it, except to the room, which is the home there and always walkable.
+ */
+export function waysAbroad(ways: readonly RideWayView[], ids: { from: string; to: string }, at: { from: Position; to: Position }, home = false, fareBp = 10000): RideChoice[] {
+  const { waitMinutes, walkMetres } = content.tuning.city.ride;
+  const positionOf = (id: string): Position | null => content.place[id as keyof typeof content.place]?.position ?? null;
+  const from = positionOf(ids.from);
+  const to = positionOf(ids.to);
+  return ways
+    .filter((way) => DRAWN_ABROAD.has(way.way as RideChoice["id"]))
+    .map((way): RideChoice => {
+      const id = way.way as RideChoice["id"];
+      const metres = metresApart(at.from, at.to, way.lonMetresPerE3);
+      // The simulation shuts a walk only between two places it knows the positions of, and never one to the room.
+      const far = id === "walk" && from !== null && to !== null && metresApart(from, to, way.lonMetresPerE3) > walkMetres;
+      return {
+        id,
+        label: mapWords(`map.way.${id}`),
+        fare: id === "walk" || way.passed ? 0 : rideFare(way, from, to, fareBp),
+        minutes: waitMinutes + Math.max(1, Math.round(metres / way.metresPerMinute)),
+        ...(far ? (home ? { long: true as const } : { shut: "far" as const }) : {}),
+        ...(way.passed ? { passed: true as const } : {}),
+      };
+    });
+}
+
+/**
+ * A fare as the sheet and the ride say it: whole naira or pounds where it is whole, and the pence where a fare has them
+ * (a London bus is £1.75, and the sheet must say what the ride takes, R-PLACE-010); a balance stays in whole units.
+ */
+export function fareWords(minor: number, currency: Currency): string {
+  return minor % 100 === 0 ? formatMoney(minor, currency) : formatRate(minor, currency);
 }
