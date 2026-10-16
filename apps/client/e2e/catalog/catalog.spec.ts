@@ -499,6 +499,47 @@ test("places: abroad", async ({ page }) => {
   missed("place-deira-day", "Every recorded life that flies goes to the UK; no life stands in the UAE, so Deira is never open to one.");
 });
 
+test("places: London on the Lagos mold, its things, a colleague and the bus pass", async ({ page }) => {
+  await openLife(page, "ada-abroad", ADA_IN_LONDON, DAY);
+  await shootPlaces(page, [
+    { id: "place.rye-lane", key: "place-rye-lane", night: true },
+    { id: "place.peckham-rye-station", key: "place-peckham-rye-station", night: true },
+    { id: "place.big-shop-uk", key: "place-big-shop-uk", night: false },
+    { id: "place.care-home-uk", key: "place-care-home-uk", night: false },
+    { id: "place.ward-uk", key: "place-ward-uk", night: false },
+    { id: "place.office-uk", key: "place-office-uk", night: false },
+    { id: "place.warehouse-uk", key: "place-warehouse-uk", night: false },
+    { id: "place.church-uk", key: "place-church-uk", night: false },
+    { id: "place.test-centre-uk", key: "place-test-centre-uk", night: false },
+  ]);
+  await attempt(page, "london-fan", async () => {
+    await standIn(page, "place.rye-lane", false, DAY);
+    if (!(await openFan(page, "chicken-shop"))) throw new Error("The chicken shop's fan did not open.");
+    await shot(page, "london-fan");
+  });
+  await closeAll(page);
+  await attempt(page, "london-colleague", async () => {
+    await standIn(page, "place.care-home-uk", false, DAY);
+    await doAct(page, "colleague", "talk");
+    await page.locator("[data-speech], [data-bubble]").first().waitFor({ state: "visible", timeout: 15_000 }).catch(() => undefined);
+    await shot(page, "london-colleague", 900);
+  });
+  await closeAll(page);
+  await attempt(page, "london-pass", async () => {
+    await standIn(page, "place.peckham-rye-station", false, DAY);
+    await doAct(page, "ticket-machine", "bus-pass");
+    await page.getByRole("dialog").last().waitFor({ state: "visible", timeout: 20_000 });
+    await shot(page, "london-pass");
+  });
+  await closeAll(page);
+  await attempt(page, "map-london-pass", async () => {
+    await mapReady(page);
+    await pickStop(page, "place.big-shop-uk");
+    await shot(page, "map-london-pass");
+  });
+  await closeMap(page);
+});
+
 test("street: a thing's fan and sheet, the paper slip and a person, at Bode Thomas", async ({ page }) => {
   await openLife(page, "ada-careful", ADA_BEFORE_ANSWER, DAY);
   await standIn(page, "place.bode-thomas", false, DAY);
@@ -618,6 +659,33 @@ test("map: folded, open, the ride sheet and the country menu, by day and by nigh
   await clearTheWorld(page);
   await mapAt(page, "night");
 });
+
+/** A London ride (R-WORLD-039), its four angles shot as they come, as the danfo's are. */
+async function londonRide(page: Page, way: "bus" | "train", stop: string): Promise<void> {
+  const angles = ["outside", "above", "window", "seat"];
+  const rode = await attempt(page, `ride-${way}-outside`, async () => {
+    await mapReady(page);
+    await pickStop(page, stop);
+    await page.locator(`[data-way="${way}"]`).click();
+    await page.locator("[data-ride-main]").click();
+    await page.locator("[data-ride]").waitFor({ timeout: 20_000 });
+    const seen = new Set<string>();
+    for (let poll = 0; poll < 300 && seen.size < angles.length; poll += 1) {
+      const angle = await page.evaluate(() => document.querySelector<HTMLElement>("[data-ride]")?.dataset.rideAngle ?? null);
+      if (angle === null && seen.size > 0) break;
+      if (angle !== null && !seen.has(angle) && angles.includes(angle)) {
+        seen.add(angle);
+        await shot(page, `ride-${way}-${angle}`, angle === "outside" ? 550 : 350);
+      }
+      await page.waitForTimeout(80);
+    }
+    if (!seen.has("outside")) throw new Error("The ride's first angle was not seen.");
+    for (const angle of angles.slice(1)) if (!seen.has(angle)) missed(`ride-${way}-${angle}`, "The ride moved past this angle before the picture could be taken.");
+  });
+  if (!rode) for (const angle of angles.slice(1)) missed(`ride-${way}-${angle}`, "The ride did not start.");
+  await page.waitForFunction((id) => (window as unknown as { __city?: { ready?: boolean; place?: string } }).__city?.place === id, stop, { timeout: 90_000 }).catch(() => undefined);
+  await clearTheWorld(page);
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 // The phone.
@@ -797,13 +865,27 @@ test("month: the morning's envelope on the phone's lock screen", async ({ page }
 
 test("abroad: the map's list, the phone, the Bank's Send money, a month, and the status clock", async ({ page }) => {
   await openLife(page, "ada-abroad", ADA_IN_LONDON, DAY);
+  // R-WORLD-038: London is a painted map as Lagos is, folded on Peckham's card, the stops list kept for a screen reader.
   await attempt(page, "map-abroad", async () => {
-    // Abroad the map is a list, with no painted map to wait for.
-    await page.locator('[data-thumb="map"]').click();
-    await page.locator("[data-map] [data-stop]").first().waitFor({ timeout: 30_000 });
-    await shot(page, "map-abroad", 900);
-    await closeMap(page);
+    await mapReady(page);
+    await shot(page, "map-abroad", 1200);
   });
+  await attempt(page, "map-london-open", async () => {
+    await page.locator("[data-strip]").click();
+    await page.waitForFunction(() => (window as unknown as { __map?: { phase?: string } }).__map?.phase === "open", null, { timeout: 30_000 });
+    await shot(page, "map-london-open", 1500);
+  });
+  await closeMap(page);
+  await attempt(page, "map-london-ride-sheet", async () => {
+    await mapReady(page);
+    await pickStop(page, "place.office-uk");
+    await shot(page, "map-london-ride-sheet");
+  });
+  await closeMap(page);
+  await londonRide(page, "bus", "place.big-shop-uk");
+  await londonRide(page, "train", "place.office-uk");
+  // Back in the room, where the bed turns the month for the results below.
+  await standIn(page, "place.the-room", false, DAY);
   await attempt(page, "abroad-phone-home", async () => {
     await openPhone(page);
     await shot(page, "abroad-phone-home", 900);
