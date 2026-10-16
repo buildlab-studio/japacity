@@ -5,6 +5,7 @@ import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 import { startReadyLife } from "./door";
+import { passCards } from "./live";
 
 const PREVIEW = process.env.PREVIEW_DIR;
 
@@ -44,6 +45,7 @@ test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and come
   // The place behind the phone, when the software renderer gets there in time; the phone does not wait on it.
   // `window.__city` is declared by city.spec.ts.
   await page.waitForFunction(() => window.__city?.ready === true, null, { timeout: 60_000 }).catch(() => undefined);
+  await passCards(page);
   await page.waitForTimeout(800);
 
   await page.locator('[data-thumb="phone"]').click();

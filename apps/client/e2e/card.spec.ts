@@ -77,7 +77,8 @@ test("[R-SHARE-009] [R-CHAPTER-006] a recorded life's send-off card is saved on 
   const card = sheet.locator("[data-share-card='send-off']");
   await expect(card).toBeVisible();
   await expect(card.getByText("Japacity is a game.")).toBeVisible();
-  await expect(card.getByText("Ada", { exact: true })).toBeVisible();
+  // The card names her as the band does: the first word of the life's own name (R-SHARE-004 as amended 16 Oct 2026).
+  await expect(card.getByText("Adaeze", { exact: true })).toBeVisible();
 
   const download = page.waitForEvent("download");
   await sheet.getByRole("button", { name: "Save the card" }).click();

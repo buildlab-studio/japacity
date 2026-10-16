@@ -7,6 +7,7 @@ import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 import { startReadyLife } from "./door";
+import { passCards } from "./live";
 
 const PREVIEW = process.env.PREVIEW_DIR;
 /** Every 40 ms over the grow and the screen's fade after it, the longest of the three (Phone.tsx GROW_MS + SCREEN_FADE_MS). */
@@ -142,6 +143,7 @@ async function openPhone(page: Page): Promise<Sample> {
   await startReadyLife(page);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   await page.waitForFunction(() => window.__city?.ready === true, null, { timeout: 60_000 }).catch(() => undefined);
+  await passCards(page);
   await settled(page);
   const world = await sampleAt(page, 0);
   await page.locator('[data-thumb="phone"]').click();

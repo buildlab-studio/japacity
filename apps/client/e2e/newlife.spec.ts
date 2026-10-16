@@ -10,6 +10,7 @@ import { content } from "../../../packages/content/src/index";
 import type { Command, Id, PlayerView, ReportLine } from "../../../packages/sim/src/engine/types";
 import { start, type Game } from "../../../packages/sim/src/testing/play";
 import { passOpeningWords, startArchetype } from "./door";
+import { passCards } from "./live";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
@@ -86,6 +87,7 @@ test("[R-ACCOUNT-030] a guest ends the life from Settings by a hold, the door op
   await page.goto("/");
   await passOpeningWords(page, 20_000);
 
+  await passCards(page);
   await page.locator('[data-thumb="phone"]').click({ timeout: 30_000 });
   await page.locator('[data-app="settings"]').click();
   const entry = page.locator("[data-life-end]");
@@ -135,6 +137,7 @@ test("[R-CITY-021] a guest opens the Credits from the phone's Settings: the same
   await fakeServer(page);
   await page.goto("/");
   await passOpeningWords(page, 20_000);
+  await passCards(page);
   await page.locator('[data-thumb="phone"]').click({ timeout: 30_000 });
   await page.locator('[data-app="settings"]').click();
   const row = page.locator("[data-credits-row]");

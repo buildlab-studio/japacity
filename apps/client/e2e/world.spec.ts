@@ -9,7 +9,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 import { passOpeningWords, startReadyLife } from "./door";
-import { backFromResults, LIVED, passHomeTeach, placeNow, placeReady, putPhoneAway, seedSave, sleepTheMonth } from "./live";
+import { backFromResults, LIVED, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, seedSave, sleepTheMonth } from "./live";
 
 test.use({ viewport: { width: 390, height: 844 }, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -30,6 +30,7 @@ async function startLife(page: Page): Promise<void> {
   await startReadyLife(page);
   await expect(page.locator("[data-band]")).toBeVisible();
   await placeReady(page);
+  await passCards(page);
 }
 
 /**

@@ -200,6 +200,19 @@ describe("when the asks come", () => {
     expect(await screen.findByText(say("ui.secure.ask.first-chapter"), undefined, { timeout: 2000 })).toBeDefined();
   });
 
+  test("[R-ACCOUNT-023] [R-CHAPTER-011] given the first brief's card still waiting for the place's first frame when the first ask is due, then the ask waits for the card as for an open sheet and opens once the card is handed", async () => {
+    const pending = document.createElement("span");
+    pending.setAttribute("data-brief-pending", "");
+    document.body.append(pending);
+    const account = fakeAccount(me("guest"));
+    await mount(account, <SecureAsk />, withChapter(engineView(), ["chapter.find-your-feet"]), true);
+    await waitFor(() => expect(account.calls).toContain("view()"));
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
+    pending.remove();
+    expect(await screen.findByText(say("ui.secure.ask.first-chapter"), undefined, { timeout: 2000 })).toBeDefined();
+  });
+
   test("[R-ACCOUNT-023] given a guest reaching the decision-day chapter after its win, then the visa ask opens; a secured account is never asked", async () => {
     const decision = withChapter(engineView(), ["chapter.find-your-feet", "chapter.build-the-file"], "chapter.decision-day");
     const guest = fakeAccount(me("guest"));

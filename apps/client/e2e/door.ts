@@ -11,12 +11,24 @@ import type { Page } from "@playwright/test";
 export async function passOpeningWords(page: Page, timeout = 4_000): Promise<void> {
   const title = page.locator("[data-opening-title]");
   if (await title.isVisible().catch(() => false)) await title.waitFor({ state: "detached", timeout }).catch(() => undefined);
+  await cardsSettled(page);
   const go = page.locator("[data-opening-go]");
+  await go.waitFor({ state: "visible", timeout: 1_500 }).catch(() => undefined);
   if (!(await go.isVisible().catch(() => false))) return;
   await go.click();
   const close = page.locator("[data-map-close]");
   await close.waitFor({ state: "visible", timeout }).catch(() => undefined);
   if (await close.isVisible()) await close.click();
+}
+
+/**
+ * The first brief's card waits for the place's first frame (R-CHAPTER-011 as amended 16 Oct 2026) and the city marks the
+ * wait with `[data-brief-pending]` from the moment the band stands: a card is looked for only once that mark is gone, so
+ * a card still coming never stands over the next tap. Where no world comes the waits end on their own.
+ */
+export async function cardsSettled(page: Page): Promise<void> {
+  await page.locator("[data-band]").first().waitFor({ state: "attached", timeout: 20_000 }).catch(() => undefined);
+  await page.waitForFunction(() => document.querySelector("[data-brief-pending]") === null, null, { timeout: 60_000 }).catch(() => undefined);
 }
 
 /** Begin on Where you live (still marked as the page it stood in for), until the door has gone. */

@@ -8,7 +8,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { content } from "../../../packages/content/src/index";
 import { start } from "../../../packages/sim/src/testing/play";
 import { passOpeningWords } from "./door";
-import { openApp, passHomeTeach, placeReady } from "./live";
+import { openApp, passCards, passHomeTeach, placeReady } from "./live";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
@@ -73,6 +73,7 @@ test("[R-CITY-039] the four boards behind the two pickers, each with the player'
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
   await passOpeningWords(page);
   await placeReady(page);
+  await passCards(page);
   await passHomeTeach(page);
   // The boards stand with the people in the phone's Chats, where the old month page's People tab held them.
   const chats = await openApp(page, "chats");

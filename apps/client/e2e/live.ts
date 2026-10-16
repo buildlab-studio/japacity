@@ -4,6 +4,8 @@
 // only, which the suite's server is. The phone's apps are opened from the Phone thumb.
 import { expect, type Page } from "@playwright/test";
 
+import { cardsSettled } from "./door";
+
 import { text } from "../../../packages/content/src/index";
 
 /** The address a test opens: the sleep cut to two seconds and the morning's results opened at once. */
@@ -151,6 +153,8 @@ export async function passMomentCard(page: Page, seen?: () => Promise<void>): Pr
 
 /** Every card standing over the world passed, until none is left. */
 export async function passCards(page: Page, seen?: () => Promise<void>): Promise<void> {
+  // The first brief's card may still be coming (R-CHAPTER-011 as amended 16 Oct 2026): wait for it before looking.
+  await cardsSettled(page);
   for (let passed = 0; passed < 6 && (await passMomentCard(page, seen)); passed += 1) await page.waitForTimeout(300);
 }
 

@@ -90,6 +90,23 @@ describe("the first brief's card", () => {
   });
 });
 
+describe("the first brief's card's wait", () => {
+  test("[R-CHAPTER-011] [R-ACCOUNT-023] given a new life whose place is still drawing, then the card's wait is marked in the document for the asks and the suite, and the mark goes once the card stands", async () => {
+    const view = engineView();
+    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
+    await renderWithView(world(), view);
+    await waitFor(() => found("[data-stand-in-scene] [data-stand-in-draw]"));
+    expect(document.querySelector("[data-opening]")).toBeNull();
+    expect(document.querySelector("[data-brief-pending]")).not.toBeNull();
+    fireEvent.click(found("[data-stand-in-draw]"));
+    await waitFor(() => found("[data-opening]"));
+    expect(document.querySelector("[data-brief-pending]")).toBeNull();
+    fireEvent.click(found("[data-opening-go]"));
+    await waitFor(() => expect(document.querySelector("[data-opening]")).toBeNull());
+    expect(document.querySelector("[data-brief-pending]")).toBeNull();
+  });
+});
+
 describe("the chip that shows the whole place", () => {
   test("[R-WORLD-009] given the view close on the character, when a line stands in the corner or a thing's fan opens, then See the whole place steps back, so it never shares the foot with the corner's line nor stands under an open card, and comes back once the world is free", async () => {
     resetLines();

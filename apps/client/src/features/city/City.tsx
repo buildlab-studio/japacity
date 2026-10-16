@@ -1998,6 +1998,8 @@ export function City({
           <Cut cutting={cutting} />
           {/* The chapter's brief is handed as a mission card by its person (design page 13 section 4; R-CHAPTER-011 as the hand
               redraws it): the first chapter's once in a life, a later chapter's until a month is played. Let's go carries it. */}
+          {/* The card's wait for the first frame is marked, so the keep-this-life ask (R-ACCOUNT-023) and the suite's helpers wait with it. */}
+          {openingUp && brief !== null && !briefUp ? <span data-brief-pending hidden /> : null}
           {briefUp && brief !== null ? (
             <MissionCard
               brief={brief}

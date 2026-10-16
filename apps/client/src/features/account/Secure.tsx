@@ -152,9 +152,12 @@ export function askMoment(view: PlayerView | null): AskMoment | null {
 /** How often a staged ask that is due looks again for the sheet or card over it to close. */
 const CLEAR_EVERY_MS = 500;
 
-/** Another sheet or card is up (a chapter's opening, an ask, the results): a staged ask waits for it to close. */
+/**
+ * Another sheet or card is up (a chapter's opening, an ask, the results), or the first brief's card is still waiting for
+ * the place's first frame (its pending mark, R-CHAPTER-011 as amended 16 Oct 2026): a staged ask waits for it to close.
+ */
 function otherSheetUp(): boolean {
-  return typeof document !== "undefined" && document.querySelector('[role="dialog"][data-open]') !== null;
+  return typeof document !== "undefined" && document.querySelector('[role="dialog"][data-open], [data-brief-pending]') !== null;
 }
 
 /** An ask is made once per account and moment; kept in this browser, as the life is. */
