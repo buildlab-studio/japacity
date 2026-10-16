@@ -12,6 +12,8 @@ export interface TerraceSpec {
   name: string;
   units: number;
   storeys: 2 | 3;
+  /** The frontage of one shop in metres, when it is not the street's usual five: Rye Lane's narrower units. */
+  unit?: number;
   brick: PaletteName;
   soot: PaletteName;
   /** One colour a shopfront's frame, in unit order. */
@@ -27,7 +29,8 @@ export function buildTerrace(spec: TerraceSpec, dishYaw: number): Group {
   const g = new Group();
   g.name = spec.name;
   const random = seeded(spec.seed);
-  const { unit, depth, shop, storey, parapet } = TERRACE;
+  const { depth, shop, storey, parapet } = TERRACE;
+  const unit = spec.unit ?? TERRACE.unit;
   const w = spec.units * unit;
   const top = shop + (spec.storeys - 1) * storey;
   const front = depth / 2;

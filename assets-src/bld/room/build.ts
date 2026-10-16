@@ -10,7 +10,7 @@ import { Group, type Object3D } from "three";
 
 /** Where a fitting hangs: on the back wall (x along it) or the side wall (z along it). */
 export interface Fitting {
-  kind: "window" | "clock" | "notices" | "ac" | "board" | "picture" | "glass";
+  kind: "window" | "clock" | "notices" | "ac" | "board" | "picture" | "glass" | "pane" | "banner";
   wall: "back" | "side";
   /** Metres along the wall from its middle. */
   at: number;
@@ -77,6 +77,20 @@ function fit(w: Object3D, fitting: Fitting, room: RoomSpec, random: () => number
       quad(w, 3.2, 2.4, x, 0.6, 0.012, "concrete");
       quad(w, 3.0, 2.2, x, 0.7, 0.02, "glass");
       for (const along of [-1, 0, 1]) quad(w, 0.06, 2.2, x + along * 1.0, 0.7, 0.026, "hub");
+      return;
+    case "pane":
+      // A window as London's rooms have them: a white frame of two panes over a sill, no louvres or bars.
+      quad(w, 1.3, 1.5, x, 0.9, 0.012, "white");
+      quad(w, 1.14, 0.64, x, 0.98, 0.02, "glass");
+      quad(w, 1.14, 0.64, x, 1.68, 0.02, "glass");
+      quad(w, 1.42, 0.06, x, 0.86, 0.024, "white");
+      return;
+    case "banner":
+      // A church's cloth banner hung high on the wall: wine with a gold border and a white cross, no words.
+      quad(w, 1.6, 2.6, x, 0.9, 0.012, "gold");
+      quad(w, 1.44, 2.44, x, 0.98, 0.02, "wine");
+      quad(w, 0.16, 1.5, x, 1.4, 0.026, "white");
+      quad(w, 0.8, 0.16, x, 2.3, 0.028, "white");
       return;
     default: {
       const never: never = fitting.kind;
