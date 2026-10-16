@@ -145,7 +145,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "place-church-it-day", what: "The church in Castel Volturno" },
   { key: "place-the-room-it-day", what: "The room in a shared flat on the Domitiana" },
   { key: "castel-colleague", what: "A day labourer at the fields' tap says a line" },
-  // Calgary on the mold: no life reaches Canada yet (the points route's cut-off stands above every life's score).
+  // Calgary on the mold: the canada player's Zainab, landed and on the warehouse job.
   { key: "place-calgary-north-east-day", what: "The strip mall in north-east Calgary: the coffee shop, the African store and its counter, the barber" },
   { key: "place-ctrain-station-ca-day", what: "The CTrain station: the ticket machine, the platform" },
   { key: "place-library-ca-day", what: "The library: the course desk, the shelves" },
@@ -198,7 +198,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "map-castel-ride-sheet", what: "The fields picked: the bus at €0, the van" },
   ...rideScreens("italy-bus", "The coast road's bus"),
   ...rideScreens("van", "The gangmaster's van to the fields"),
-  // Calgary's map and its rides (not reached while no life reaches Canada).
+  // Calgary's map and its rides.
   { key: "map-calgary", what: "Calgary's painted map, folded" },
   { key: "map-calgary-open", what: "The whole map of Calgary open: the CTrain, the airport, the Bow" },
   { key: "map-calgary-ride-sheet", what: "A stop picked in Calgary: the bus, the CTrain and the taxi in dollars" },

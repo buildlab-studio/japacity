@@ -600,12 +600,14 @@ test("places: London on the Lagos mold, its things, a colleague and the bus pass
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Calgary, Dubai and Castel Volturno on the mold (design page 15): no recorded life flies to them yet, so each life is
+// Calgary, Dubai and Castel Volturno on the mold (design page 15): each life is
 // played to its country by the sweep's own player on the real content, as the browser suite's specs play it (../abroad).
 // ---------------------------------------------------------------------------------------------------------------------
 
 /** The sweep's borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
 const GULF: AbroadLife = { strategy: "borrower", life: "scenario.ada", seed: "three-ada-0", country: "country.uae", money: "AED", holding: 60_000 };
+/** The sweep's canada player on Zainab's life, the recorded zainab-canada: lands in Calgary in month 42, the warehouse job hers in month 45. */
+const POINTS: AbroadLife = { strategy: "canada", life: "scenario.zainab", seed: "golden-zainab-canada-0", country: "country.canada", money: "CAD", holding: 60_000 };
 /** The sweep's risky player from the front door's life takes the road and reaches Castel Volturno in month 28. */
 const ROAD: AbroadLife = { strategy: "risky", life: "scenario.prologue", seed: "three-prologue-0", country: "country.italy", money: "EUR", holding: 60_000 };
 
@@ -739,10 +741,37 @@ test("abroad on the mold: Castel Volturno, its places, a colleague, its map and 
   await countryRide(page, "van", "bus", "place.farm-it");
 });
 
-test("abroad on the mold: Calgary, not reached while no life reaches Canada", () => {
-  const why = "No life reaches Canada: the points route's cut-off (520 and up) stands above every life's score (about 225 played, 404 at best), so Calgary is never open to one.";
-  for (const key of ["place-calgary-north-east-day", "place-ctrain-station-ca-day", "place-library-ca-day", "place-big-shop-ca-day", "place-warehouse-ca-day", "place-care-home-ca-day", "place-office-ca-day", "place-church-ca-day", "map-calgary", "map-calgary-open", "map-calgary-ride-sheet"]) missed(key, why);
-  for (const vehicle of ["calgary-bus", "ctrain"]) for (const angle of ["outside", "above", "window", "seat"]) missed(`ride-${vehicle}-${angle}`, why);
+test("abroad on the mold: Calgary, its places, its map and its rides", async ({ page }) => {
+  await openAbroad(page, POINTS, DAY);
+  await shootPlaces(page, [
+    { id: "place.calgary-north-east", key: "place-calgary-north-east", night: false },
+    { id: "place.ctrain-station-ca", key: "place-ctrain-station-ca", night: false },
+    { id: "place.library-ca", key: "place-library-ca", night: false },
+    { id: "place.big-shop-ca", key: "place-big-shop-ca", night: false },
+    { id: "place.warehouse-ca", key: "place-warehouse-ca", night: false },
+    { id: "place.care-home-ca", key: "place-care-home-ca", night: false },
+    { id: "place.office-ca", key: "place-office-ca", night: false },
+    { id: "place.church-ca", key: "place-church-ca", night: false },
+  ]);
+  await standIn(page, "place.calgary-north-east", false, DAY);
+  await attempt(page, "map-calgary", async () => {
+    await mapReady(page);
+    await shot(page, "map-calgary", 1200);
+  });
+  await attempt(page, "map-calgary-open", async () => {
+    await page.locator("[data-strip]").click();
+    await page.waitForFunction(() => (window as unknown as { __map?: { phase?: string } }).__map?.phase === "open", null, { timeout: 30_000 });
+    await shot(page, "map-calgary-open", 1500);
+  });
+  await closeMap(page);
+  await attempt(page, "map-calgary-ride-sheet", async () => {
+    await mapReady(page);
+    await pickStop(page, "place.office-ca");
+    await shot(page, "map-calgary-ride-sheet");
+  });
+  await closeMap(page);
+  await countryRide(page, "calgary-bus", "bus", "place.big-shop-ca");
+  await countryRide(page, "ctrain", "train", "place.office-ca");
 });
 
 test("street: a thing's fan and sheet, the paper slip and a person, at Bode Thomas", async ({ page }) => {
