@@ -158,7 +158,7 @@
 .paper-name[data-name="here"] { top: calc(100% - 4px); background: #fff; color: #1b2a4a; font-size: 13px; padding: 4px 11px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }
 .paper-name[data-name="home"] { top: calc(100% - 4px); background: #1b2a4a; color: #fff; font-size: 13px; padding: 4px 11px; box-shadow: 0 0 0 2px #fff, 0 3px 6px rgba(0, 0, 0, 0.25); }
 .paper-name[data-name="picked"], .paper-name[data-name="step"] { bottom: calc(100% + 4px); background: #fff; color: #1b2a4a; font-size: 15px; padding: 6px 13px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 4px 0 #1b2a4a; }
-.paper-name[data-name="new"] { top: calc(100% - 2px); background: rgba(255, 255, 255, 0.92); color: #1b2a4a; font-size: 11px; padding: 2px 7px; box-shadow: 0 0 0 1px rgba(27, 42, 74, 0.35); }
+.paper-name[data-name="new"], .paper-name[data-name="been"] { top: calc(100% - 2px); background: rgba(255, 255, 255, 0.92); color: #1b2a4a; font-size: 11px; padding: 2px 7px; box-shadow: 0 0 0 1px rgba(27, 42, 74, 0.35); }
 [data-paint="night"] .paper-name[data-name="here"] { box-shadow: 0 0 0 1.5px #f6edd8, 0 3px 0 #f6edd8; }
 [data-paint="night"] .paper-name[data-name="home"] { background: #f6edd8; color: #1b2a4a; box-shadow: 0 0 0 2px #1b2a4a; }
 .paper-danfo { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: scale(var(--inv, 1)) translate(-50%, -60%); pointer-events: none; }
@@ -205,6 +205,9 @@
 .paper-moving .paper-frame { border-radius: 18px; box-shadow: 0 0 0 1.5px var(--frame-edge), 0 14px 30px rgba(20, 40, 50, 0.25); }
 .paper-moving .paper-pin, .paper-moving .paper-danfo, .paper-moving .paper-world .stk { opacity: 0; }
 .paper-world .paper-pin, .paper-danfo, .paper-world .stk { transition: opacity 160ms ease; }
+/* The unfolding's last part: the stickers, the canoe and the head row wait 120 ms, then fade in over 160 ms, ending as
+   the fold's 280 ms motion ends (fold.ts FOLD_MS), so the open map is whole at the motion's end. */
+.paper-arriving .paper-pin, .paper-arriving .paper-danfo, .paper-arriving .paper-world .stk, .paper-arriving .paper-canoe, .paper-arriving .paper-open-head { transition-delay: 120ms; }
 .paper-open-head { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: flex-start; padding: max(12px, env(safe-area-inset-top)) 12px 0; pointer-events: none; transition: opacity 160ms ease; }
 .paper-open-head > * { pointer-events: auto; }
 .paper-row { position: absolute; left: 0; right: 0; bottom: 24px; display: flex; justify-content: center; align-items: flex-end; gap: 18px; z-index: 3; pointer-events: none; }
