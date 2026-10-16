@@ -10,6 +10,7 @@ import { content } from "../../../../packages/content/src/index";
 import { lifeSaves } from "../../../../packages/sim/src/goldens/lives.data";
 import { start } from "../../../../packages/sim/src/testing/play";
 import { ADMIN_GETS } from "../../src/features/admin/admin.fixtures";
+import { type AbroadLife, clear as clearAbroad, lifeIn } from "../abroad";
 import { passOpeningWords, passThePage } from "../door";
 import { backFromResults, bedThing, doAct, intoTheRoom, passCards, passHomeTeach, passMoments, placeReady, seedSave } from "../live";
 import { attempt, missed, shot, shotPages } from "./shoot";
@@ -496,7 +497,6 @@ test("places: abroad", async ({ page }) => {
     { id: "place.the-room", key: "place-the-room", night: true },
     { id: "place.peckham", key: "place-peckham", night: true },
   ]);
-  missed("place-deira-day", "Every recorded life that flies goes to the UK; no life stands in the UAE, so Deira is never open to one.");
 });
 
 test("places: London on the Lagos mold, its things, a colleague and the bus pass", async ({ page }) => {
@@ -538,6 +538,152 @@ test("places: London on the Lagos mold, its things, a colleague and the bus pass
     await shot(page, "map-london-pass");
   });
   await closeMap(page);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Calgary, Dubai and Castel Volturno on the mold (design page 15): no recorded life flies to them yet, so each life is
+// played to its country by the sweep's own player on the real content, as the browser suite's specs play it (../abroad).
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** The sweep's borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
+const GULF: AbroadLife = { strategy: "borrower", life: "scenario.ada", seed: "three-ada-0", country: "country.uae", money: "AED", holding: 60_000 };
+/** The sweep's risky player from the front door's life takes the road and reaches Castel Volturno in month 28. */
+const ROAD: AbroadLife = { strategy: "risky", life: "scenario.prologue", seed: "three-prologue-0", country: "country.italy", money: "EUR", holding: 60_000 };
+
+/** A life played to its country opened in the world at `search`, past its opening words and every card. */
+async function openAbroad(page: Page, want: AbroadLife, search: string): Promise<void> {
+  await seedSave(page, lifeIn(want));
+  await page.goto(`/${search}`);
+  await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
+  await passOpeningWords(page);
+  await clearAbroad(page);
+  await placeReady(page);
+  await clearAbroad(page);
+}
+
+/** A ride abroad in the country's own vehicle (R-WORLD-039 as amended), its four angles shot as they come. */
+async function countryRide(page: Page, vehicle: string, way: string, stop: string): Promise<void> {
+  const angles = ["outside", "above", "window", "seat"];
+  const rode = await attempt(page, `ride-${vehicle}-outside`, async () => {
+    await mapReady(page);
+    await pickStop(page, stop);
+    await page.locator(`[data-way="${way}"]`).click();
+    await page.locator("[data-ride-main]").click();
+    await page.locator("[data-ride]").waitFor({ timeout: 20_000 });
+    const seen = new Set<string>();
+    for (let poll = 0; poll < 300 && seen.size < angles.length; poll += 1) {
+      const angle = await page.evaluate(() => document.querySelector<HTMLElement>("[data-ride]")?.dataset.rideAngle ?? null);
+      if (angle === null && seen.size > 0) break;
+      if (angle !== null && !seen.has(angle) && angles.includes(angle)) {
+        seen.add(angle);
+        await shot(page, `ride-${vehicle}-${angle}`, angle === "outside" ? 550 : 350);
+      }
+      await page.waitForTimeout(80);
+    }
+    if (!seen.has("outside")) throw new Error("The ride's first angle was not seen.");
+    for (const angle of angles.slice(1)) if (!seen.has(angle)) missed(`ride-${vehicle}-${angle}`, "The ride moved past this angle before the picture could be taken.");
+  });
+  if (!rode) for (const angle of angles.slice(1)) missed(`ride-${vehicle}-${angle}`, "The ride did not start.");
+  await page.waitForFunction((id) => (window as unknown as { __city?: { ready?: boolean; place?: string } }).__city?.place === id, stop, { timeout: 90_000 }).catch(() => undefined);
+  await clearAbroad(page);
+}
+
+test("abroad on the mold: Dubai, its places, the zone pass, a colleague, its map and its rides", async ({ page }) => {
+  await openAbroad(page, GULF, DAY);
+  await shootPlaces(page, [
+    { id: "place.deira", key: "place-deira", night: true },
+    { id: "place.naif", key: "place-naif", night: false },
+    { id: "place.metro-station-uae", key: "place-metro-station-uae", night: true },
+    { id: "place.big-shop-uae", key: "place-big-shop-uae", night: false },
+    { id: "place.site-uae", key: "place-site-uae", night: true },
+    { id: "place.the-room", key: "place-the-room-uae", night: false },
+  ]);
+  await attempt(page, "dubai-colleague", async () => {
+    await standIn(page, "place.site-uae", false, DAY);
+    await doAct(page, "colleague", "talk");
+    await page.locator("[data-speech], [data-bubble]").first().waitFor({ state: "visible", timeout: 15_000 }).catch(() => undefined);
+    await shot(page, "dubai-colleague", 900);
+  });
+  await closeAll(page);
+  await standIn(page, "place.deira", false, DAY);
+  await attempt(page, "map-dubai", async () => {
+    await mapReady(page);
+    await shot(page, "map-dubai", 1200);
+  });
+  await attempt(page, "map-dubai-open", async () => {
+    await page.locator("[data-strip]").click();
+    await page.waitForFunction(() => (window as unknown as { __map?: { phase?: string } }).__map?.phase === "open", null, { timeout: 30_000 });
+    await shot(page, "map-dubai-open", 1500);
+  });
+  await closeMap(page);
+  await attempt(page, "map-dubai-ride-sheet", async () => {
+    await mapReady(page);
+    await pickStop(page, "place.site-uae");
+    await shot(page, "map-dubai-ride-sheet");
+  });
+  await closeMap(page);
+  await countryRide(page, "dubai-taxi", "taxi", "place.metro-station-uae");
+  await attempt(page, "dubai-pass", async () => {
+    await standIn(page, "place.metro-station-uae", false, DAY);
+    await doAct(page, "nol-machine", "transit-pass");
+    await page.getByRole("dialog").last().waitFor({ state: "visible", timeout: 20_000 });
+    await shot(page, "dubai-pass");
+  });
+  await closeAll(page);
+  await clearAbroad(page);
+  await attempt(page, "map-dubai-pass", async () => {
+    await mapReady(page);
+    await pickStop(page, "place.big-shop-uae");
+    await shot(page, "map-dubai-pass");
+  });
+  await closeMap(page);
+  await countryRide(page, "dubai-bus", "bus", "place.big-shop-uae");
+  await countryRide(page, "dubai-metro", "train", "place.metro-station-uae");
+  await countryRide(page, "labour-bus", "bus", "place.site-uae");
+});
+
+test("abroad on the mold: Castel Volturno, its places, a colleague, its map and its rides", async ({ page }) => {
+  await openAbroad(page, ROAD, DAY);
+  await shootPlaces(page, [
+    { id: "place.castel-volturno", key: "place-castel-volturno", night: true },
+    { id: "place.via-domitiana", key: "place-via-domitiana", night: false },
+    { id: "place.farm-it", key: "place-farm-it", night: false },
+    { id: "place.big-shop-it", key: "place-big-shop-it", night: false },
+    { id: "place.church-it", key: "place-church-it", night: false },
+    { id: "place.the-room", key: "place-the-room-it", night: false },
+  ]);
+  await attempt(page, "castel-colleague", async () => {
+    await standIn(page, "place.farm-it", false, DAY);
+    await doAct(page, "colleague", "talk");
+    await page.locator("[data-speech], [data-bubble]").first().waitFor({ state: "visible", timeout: 15_000 }).catch(() => undefined);
+    await shot(page, "castel-colleague", 900);
+  });
+  await closeAll(page);
+  await standIn(page, "place.castel-volturno", false, DAY);
+  await attempt(page, "map-castel", async () => {
+    await mapReady(page);
+    await shot(page, "map-castel", 1200);
+  });
+  await attempt(page, "map-castel-open", async () => {
+    await page.locator("[data-strip]").click();
+    await page.waitForFunction(() => (window as unknown as { __map?: { phase?: string } }).__map?.phase === "open", null, { timeout: 30_000 });
+    await shot(page, "map-castel-open", 1500);
+  });
+  await closeMap(page);
+  await attempt(page, "map-castel-ride-sheet", async () => {
+    await mapReady(page);
+    await pickStop(page, "place.farm-it");
+    await shot(page, "map-castel-ride-sheet");
+  });
+  await closeMap(page);
+  await countryRide(page, "italy-bus", "bus", "place.via-domitiana");
+  await countryRide(page, "van", "bus", "place.farm-it");
+});
+
+test("abroad on the mold: Calgary, not reached while no life reaches Canada", () => {
+  const why = "No life reaches Canada: the points route's cut-off (520 and up) stands above every life's score (about 225 played, 404 at best), so Calgary is never open to one.";
+  for (const key of ["place-calgary-north-east-day", "place-ctrain-station-ca-day", "place-library-ca-day", "place-big-shop-ca-day", "place-warehouse-ca-day", "place-care-home-ca-day", "place-office-ca-day", "place-church-ca-day", "map-calgary", "map-calgary-open", "map-calgary-ride-sheet"]) missed(key, why);
+  for (const vehicle of ["calgary-bus", "ctrain"]) for (const angle of ["outside", "above", "window", "seat"]) missed(`ride-${vehicle}-${angle}`, why);
 });
 
 test("street: a thing's fan and sheet, the paper slip and a person, at Bode Thomas", async ({ page }) => {
