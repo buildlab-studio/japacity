@@ -352,7 +352,7 @@ const entries: PlaceEntry[] = [
     traditionalBp: HUB,
   }),
   abroad("place.rye-lane", "country.uk", "london", "peckham", "Rye Lane", 51468, -69, { stages: ["activity.send-money", "activity.community-uk"], crowd: BUSY, traditionalBp: HUB }),
-  abroad("place.peckham-rye-station", "country.uk", "london", "peckham", "Peckham Rye", 51470, -69, { stages: ["activity.job-uk-courier-cash"], crowd: BUSY, traditionalBp: HUB }),
+  abroad("place.peckham-rye-station", "country.uk", "london", "peckham", "Peckham Rye", 51470, -69, { stages: ["activity.bus-pass-uk", "activity.job-uk-courier-cash"], crowd: BUSY, traditionalBp: HUB }),
   abroad("place.calgary-airport", "country.canada", "calgary", "north-east", "Calgary International Airport", 51122, -114014, { scope: "interior", crowd: QUIET, traditionalBp: AIRPORT }),
   // The city's position, not the street's: the street is made up.
   abroad("place.calgary-north-east", "country.canada", "calgary", "north-east", "Northeast Calgary", 51046, -114058, { hub: true, stages: ["activity.community-ca"], crowd: QUIET, traditionalBp: HUB }),

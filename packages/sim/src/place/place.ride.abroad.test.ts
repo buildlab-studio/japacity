@@ -206,3 +206,56 @@ describe("the ways in the view", () => {
     expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: HEATHROW, way: "train" }))).toMatchObject({ fare: priced });
   });
 });
+
+const PASS: Id<"activity"> = "activity.bus-pass-uk";
+
+describe("the bus pass", () => {
+  test("[R-PLACE-012] given the bus pass, when its entry is read, then it is a now-act once a month in the UK, costing the UK's pass figure in pounds as a fare, staged at the station's machine", () => {
+    expect(content.activity[PASS]).toMatchObject({ slot: "none", when: "now", halfDays: 0, where: "abroad", country: UK, cost: [{ currency: "GBP", amount: rides.pass, reason: "fare" }], effects: [] });
+    expect(content.activity[PASS]?.repeat).toBeUndefined();
+    expect(content.activity[PASS]?.purchase).toBeUndefined();
+    expect(Object.values(content.place).filter((place) => (place.stages as readonly string[]).includes(PASS)).map((place) => place.id)).toEqual(["place.peckham-rye-station"]);
+  });
+
+  test("[R-PLACE-012] given a life in London that buys the pass, when the bus and the train are taken that month, then the pass is paid as a fare, the bus asks nothing and says so, the train asks its fare, and the view marks the bus passed", () => {
+    const game = flown(content);
+    pounds(game, 20000);
+    const bought = game.accept({ type: "activity/now", activity: PASS, param: null });
+    expect(debits(bought)).toMatchObject([{ currency: "GBP", amount: 9500, reason: "fare" }]);
+    expect(game.view().place.ways?.map((way) => [way.way, way.passed])).toEqual([
+      ["bus", true],
+      ["train", false],
+      ["walk", false],
+    ]);
+    const byBus = game.accept({ type: "place/ride", from: PECKHAM, to: HEATHROW, way: "bus" });
+    expect(debits(byBus)).toEqual([]);
+    expect(rode(byBus)).toEqual({ type: "place/rode", from: PECKHAM, to: HEATHROW, way: "bus", fare: 0, currency: "GBP" });
+    const fare = rideFare({ ...train, step: rides.step }, positionOf(PECKHAM), positionOf(RYE_LANE));
+    expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "train" }))).toMatchObject({ way: "train", fare });
+    expect(game.state.wallet.pockets.GBP.cash + game.state.wallet.pockets.GBP.bank).toBe(20000 - 9500 - fare);
+    // Once a month: a second pass the same month is refused.
+    game.expectRejected({ type: "activity/now", activity: PASS, param: null }, "not-legal");
+  });
+
+  test("[R-PLACE-012] given the pass bought last month, when the next month comes, then the bus asks its fare again and the pass may be bought again", () => {
+    const game = flown(content);
+    pounds(game, 50000);
+    game.accept({ type: "activity/now", activity: PASS, param: null });
+    if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
+    game.endTurn();
+    pounds(game, 50000);
+    expect(game.view().place.ways?.find((way) => way.way === "bus")?.passed).toBe(false);
+    expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "bus" }))).toMatchObject({ fare: bus.fare });
+    expect(debits(game.accept({ type: "activity/now", activity: PASS, param: null }))).toMatchObject([{ amount: 9500, reason: "fare" }]);
+  });
+
+  test("[R-PLACE-012] given a life at home, when the pass is asked for, then it is refused; and given a UK with no pass figure, when the act is played, then the bus still asks its fare", () => {
+    start({ content }).expectRejected({ type: "activity/now", activity: PASS, param: null }, "not-legal");
+    const noPass = { ...content, tuning: { ...content.tuning, city: { ...content.tuning.city, ride: { ...content.tuning.city.ride, abroad: { ...content.tuning.city.ride.abroad, [UK]: { ...rides, pass: null } } } } } };
+    const game = flown(noPass);
+    pounds(game, 20000);
+    game.accept({ type: "activity/now", activity: PASS, param: null });
+    expect(game.view().place.ways?.find((way) => way.way === "bus")?.passed).toBe(false);
+    expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "bus" }))).toMatchObject({ fare: bus.fare });
+  });
+});

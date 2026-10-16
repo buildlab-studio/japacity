@@ -25,6 +25,7 @@ export const activityNowText: Record<string, string> = {
   "line.activity.ask-family-loan.now": "Papa listens to the end before he says anything.",
   "line.activity.buy-phone.now": "The seller says: London used, clean. The phone is yours.",
   "line.activity.street-shopping-uk.now": "Bags in hand. Rye Lane has everything from home.",
+  "line.activity.bus-pass-uk.now": "The machine prints your pass. Tap it on every bus this month.",
   "line.activity.street-shopping-uae.now": "The man in the souk names his price, and you name yours.",
   "line.activity.buy-car-finance.now": "The dealer hands you the keys. The payments start next month.",
   "line.activity.rent-flat-uk.now": "The agent hands you the keys. The rent is due every month.",

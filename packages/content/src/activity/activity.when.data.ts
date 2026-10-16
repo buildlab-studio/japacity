@@ -99,6 +99,8 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.beer-joint": "repeat",
   "activity.night-out": "repeat",
   "activity.buy-clothes": "once",
+  // London lived by hand (place.md R-PLACE-012, streets.md R-STREET-012): the bus pass once a month at the machine.
+  "activity.bus-pass-uk": "once",
 };
 
 /**
