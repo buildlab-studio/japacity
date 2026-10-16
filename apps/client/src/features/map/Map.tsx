@@ -1,8 +1,8 @@
 // The map and the ride (docs/rules/world.md R-WORLD-015 to 017), composed. The city hands the pins,
 // the country and its neighbours, whether WebGL draws (for the ride's scene), a ride already chosen in a
 // place, the step's place, and what to do on arriving and on closing; `onRide` carries the fare of the way
-// chosen. Lagos is the painted map, folding between the strip and the cards (paper/PaperMap.tsx), the same
-// on every device; abroad, until a city there is drawn, the stops are a list.
+// chosen. Lagos and London are painted maps, folding between the strip and the cards (paper/PaperMap.tsx), the same
+// on every device (R-WORLD-038); in a country with no painted map yet the stops are a list.
 import { X } from "lucide-react";
 import "./map.css";
 
@@ -20,6 +20,12 @@ import { RouteVehicle } from "./paper/routeVehicle";
 
 /** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
 const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
+/** London's painted map (R-WORLD-038): the same folding map handed London, whose drawing is a chunk of its own, loaded only abroad. */
+const LondonPaper = lazy(() =>
+  import("./paper/london").then((london) => ({ default: london.LondonPaperMap })),
+);
+/** The countries abroad drawn as a painted map; the rest keep the stops as a list until their waves. */
+const PAINTED_ABROAD = "country.uk";
 
 export interface MapProps {
   pins: readonly MapPin[];
@@ -142,6 +148,8 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const ridingTo = riding === null ? null : (stable.find((candidate) => candidate.id === riding.id) ?? null);
 
   const lagos = country.id === "lagos";
+  const painted = lagos || country.id === PAINTED_ABROAD;
+  const Paper = lagos ? PaperMap : LondonPaper;
   const closeButton = (
     <button type="button" onClick={onClose} aria-label={mapWords("map.close")} className="map-round press pointer-events-auto inline-flex size-[42px] items-center justify-center" data-map-close>
       <X size={20} strokeWidth={2.5} />
@@ -158,7 +166,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   return (
     <div className="fixed inset-0 z-[40] bg-sheet text-text" data-map data-picked={picked ?? ""}>
       {/* The stops as a list: the whole map abroad, where no city is drawn yet, and for a screen reader in Lagos. */}
-      <ul aria-label={mapWords("map.stops")} className={lagos ? "sr-only" : "absolute inset-x-3 top-20 flex flex-col gap-1.5"}>
+      <ul aria-label={mapWords("map.stops")} className={painted ? "sr-only" : "absolute inset-x-3 top-20 flex flex-col gap-1.5"}>
         {stable.map((stop) => (
           <li key={stop.id}>
             <button type="button" onClick={() => setPicked(stop.id)} data-stop={stop.id} data-state={stop.state} data-home={stop.id === homeId} className="chip press flex w-full items-center gap-2 px-3 py-2.5 text-left text-[14px] font-semibold">
@@ -171,13 +179,13 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       </ul>
 
       {/* While a ride plays the painted map is put away: the ride fills the screen, and nothing under it keeps drawing. */}
-      {lagos && riding === null ? (
+      {painted && riding === null ? (
         <Suspense fallback={<div className="absolute top-3 right-3">{closeButton}</div>}>
           <RouteVehicle value={routeVehicle}>
-            <PaperMap pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} canoe={canoe} />
+            <Paper pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} canoe={canoe} />
           </RouteVehicle>
         </Suspense>
-      ) : lagos ? null : (
+      ) : painted ? null : (
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3 pt-[max(10px,env(safe-area-inset-top))]">
           {countryMenu(false)}
           {closeButton}
@@ -185,7 +193,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       )}
 
       {pin === null ? (
-        lagos ? null : (
+        painted ? null : (
           <p className="chip pointer-events-none absolute bottom-[max(16px,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 px-3 py-2 text-[13px] font-bold whitespace-nowrap" data-map-hint>
             {mapWords("map.hint")}
           </p>

@@ -1,13 +1,14 @@
 // The neighbourhoods (docs/rules/world.md R-WORLD-015): the painted map zoomed in on one district is a card, and the
 // cards swipe sideways in the city's order, north to south. A place belongs to the card whose district holds its
-// position, by the first rule that matches, so a new place with a position finds its card by itself.
+// position, by the first rule that matches, so a new place with a position finds its card by itself. Each painted city
+// has its own cards and rules (R-WORLD-038); the ones here are Lagos's.
 import { at, type Point, type Position } from "./fit";
 
 export const CARD_IDS = ["ikeja", "yaba", "ojuelegba", "surulere", "bode", "ebute", "makoko", "island", "lekki"] as const;
 export type CardId = (typeof CARD_IDS)[number];
 
-export interface Card {
-  id: CardId;
+export interface Card<Id extends string = string> {
+  id: Id;
   /** The words key of its name, folded into the card's top edge as a small pill. */
   key: string;
   /** The model whose tile sits in the pill. */
@@ -18,9 +19,9 @@ export interface Card {
   zoom: number;
 }
 
-const card = (id: CardId, model: string, centre: readonly [number, number], zoom: number): Card => ({ id, key: `map.card.${id}`, model, centre: at(centre), zoom });
+const card = (id: CardId, model: string, centre: readonly [number, number], zoom: number): Card<CardId> => ({ id, key: `map.card.${id}`, model, centre: at(centre), zoom });
 
-export const CARDS: readonly Card[] = [
+export const CARDS: readonly Card<CardId>[] = [
   card("ikeja", "bld_phone-plaza", [6588, 3337], 230),
   card("yaba", "bld_market-block", [6505, 3375], 300),
   card("ojuelegba", "bld_flyover-span", [6509, 3362], 300),
@@ -33,8 +34,8 @@ export const CARDS: readonly Card[] = [
 ];
 
 /** One rule of where a district is, in thousandths of a degree; a missing bound is open. */
-interface Rule {
-  card: CardId;
+export interface Rule<Id extends string = string> {
+  card: Id;
   latMin?: number;
   latMax?: number;
   lonMin?: number;
@@ -42,7 +43,7 @@ interface Rule {
 }
 
 /** The districts, as rules read in order; the first that holds a position is its card. */
-const RULES: readonly Rule[] = [
+const RULES: readonly Rule<CardId>[] = [
   { card: "ikeja", latMin: 6545 },
   { card: "makoko", latMin: 6484, latMax: 6506, lonMin: 3386 },
   { card: "lekki", lonMin: 3450 },
@@ -54,20 +55,25 @@ const RULES: readonly Rule[] = [
   { card: "ebute" },
 ];
 
-/** The card a position belongs to. */
-export function cardOf(position: Position): CardId {
+/** The card a position belongs to by a city's rules, read in order; the fallback when none holds it. */
+export function cardByRules<Id extends string>(rules: readonly Rule<Id>[], fallback: Id, position: Position): Id {
   const { latE3, lonE3 } = position;
-  const rule = RULES.find((candidate) => (candidate.latMin === undefined || latE3 >= candidate.latMin) && (candidate.latMax === undefined || latE3 < candidate.latMax) && (candidate.lonMin === undefined || lonE3 >= candidate.lonMin) && (candidate.lonMax === undefined || lonE3 < candidate.lonMax));
-  return rule?.card ?? "ebute";
+  const rule = rules.find((candidate) => (candidate.latMin === undefined || latE3 >= candidate.latMin) && (candidate.latMax === undefined || latE3 < candidate.latMax) && (candidate.lonMin === undefined || lonE3 >= candidate.lonMin) && (candidate.lonMax === undefined || lonE3 < candidate.lonMax));
+  return rule?.card ?? fallback;
 }
 
-export function cardById(id: CardId): Card {
-  return CARDS.find((candidate) => candidate.id === id) ?? (CARDS[0] as Card);
+/** The card a position belongs to. */
+export function cardOf(position: Position): CardId {
+  return cardByRules(RULES, "ebute", position);
+}
+
+export function cardById(id: string): Card<CardId> {
+  return CARDS.find((candidate) => candidate.id === id) ?? (CARDS[0] as Card<CardId>);
 }
 
 /** Where a card stands in the swipe, from 0. */
-export function cardIndex(id: CardId): number {
-  return CARD_IDS.indexOf(id);
+export function cardIndex(id: string): number {
+  return (CARD_IDS as readonly string[]).indexOf(id);
 }
 
 /** Whether a paper point shows on a card of the given size in pixels, with a margin kept clear at its edges. */

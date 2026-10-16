@@ -9,7 +9,7 @@ import { memo, use, useMemo } from "react";
 import { headingOf } from "../RideSheet";
 import { mapWords } from "../map.words";
 import type { Point } from "./fit";
-import { DECOR, LANTERN_CANOE } from "./geometry";
+import { LAGOS_SIZES, usePaperCity } from "./lagos";
 import { type CanoeFill, LanternCanoe } from "./LanternCanoe";
 import { PaperSvg, type Variant } from "./PaperSvg";
 import { PlacePicture } from "./PlacePicture";
@@ -27,21 +27,9 @@ export interface Frame {
   sy: number;
 }
 
-/** How much larger than the rest a place's sticker stands: the stadium's bowl, the buildings, then the rooms' things. */
-const SIZE: Readonly<Record<string, number>> = {
-  "place.national-stadium": 150,
-  "place.family-house": 118,
-  "place.airport-lagos": 120,
-  "place.ojuelegba": 112,
-  "place.computer-village": 110,
-  "place.tejuosho-market": 108,
-  "place.bode-thomas": 106,
-  "place.makoko": 104,
-  "place.compound-room": 96,
-};
-
-export function sizeOf(id: string): number {
-  return SIZE[id] ?? 92;
+/** How much larger than the rest a place's sticker stands, by the city's own sizes (Lagos's unless another is given). */
+export function sizeOf(id: string, sizes: Readonly<Record<string, number>> = LAGOS_SIZES): number {
+  return sizes[id] ?? 92;
 }
 
 /** R-WORLD-036: the lantern canoe as the open map draws it: its glow, its tap, and whether it carries a second lantern. */
@@ -95,6 +83,7 @@ function shiftStyle(shift: NameShift | undefined): CSSProperties | undefined {
 
 export const World = memo(function World({ variant, frame, uid, stops = [], names = (id) => id, marks = { home: null, picked: null, step: null }, tiles, pinPx = 50, route = null, within = null, onPick, canoe = null, labels = null, className = "", style }: WorldProps) {
   const z = frame.sx;
+  const city = usePaperCity();
   const routeD = useMemo(() => (route === null ? null : curve(route)), [route]);
   const danfo = useMemo(() => (route === null || route.length < 2 ? null : midway(route)), [route]);
   const vehicle = use(RouteVehicle);
@@ -105,7 +94,7 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
     const boxes = stops.flatMap((stop) => {
       const kind = nameOf(stop, marks, variant === "card");
       if (kind === null) return [];
-      const size = Math.round((pinPx * sizeOf(stop.id)) / 100);
+      const size = Math.round((pinPx * sizeOf(stop.id, city.sizes)) / 100);
       const text = nameWords(kind, names(stop.id));
       const up = kind === "picked" || kind === "step";
       return [{ id: stop.id, x: stop.at[0] * z, y: stop.at[1] * z + (up ? -size : size * 0.4), width: text.length * 7 + 22, height: up ? 30 : 22, name: kind }];
@@ -114,7 +103,7 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
     const seen = within === null ? null : ([(within[0] + MARGIN) * z, (within[1] + MARGIN) * z, (within[2] - MARGIN) * z, (within[3] - MARGIN) * z] as const);
     const centre = seen === null ? null : ([(seen[0] + seen[2]) / 2, (seen[1] + seen[3]) / 2] as const);
     return placeNames(boxes, variant === "card" ? { newest: NEWEST, centre, seen } : { newest: 0 });
-  }, [stops, marks, pinPx, names, z, variant, within]);
+  }, [stops, marks, pinPx, names, z, variant, within, city.sizes]);
 
   return (
     <div
@@ -125,7 +114,7 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
       <PaperSvg variant={variant} route={routeD} uid={uid} within={within} labels={labels} />
       {folded
         ? null
-        : DECOR.map((item, index) => {
+        : city.decor.map((item, index) => {
             const url = tiles(item.model);
             return url === null ? null : (
               <span key={index} className={`stk paper-chip ${item.kind === "boat" ? "boat" : ""}`} style={{ left: item.at[0], top: item.at[1], width: item.size, height: item.size, transform: `translate(-50%, -62%) rotate(${String(item.tilt)}deg)`, ...({ "--e": "0.6px" } as CSSProperties) }} data-decor={item.model}>
@@ -133,13 +122,13 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
               </span>
             );
           })}
-      {variant === "open" && canoe !== null ? <LanternCanoe at={LANTERN_CANOE.at} mine={canoe.mine} fill={canoe} onOpen={canoe.onOpen} /> : null}
+      {variant === "open" && canoe !== null && city.canoe !== null ? <LanternCanoe at={city.canoe} mine={canoe.mine} fill={canoe} onOpen={canoe.onOpen} /> : null}
       {folded
         ? null
         : stops.map((stop) => {
             const ring = ringOf(stop, marks);
             const kind = nameOf(stop, marks, variant === "card");
-            const size = Math.round((pinPx * sizeOf(stop.id)) / 100);
+            const size = Math.round((pinPx * sizeOf(stop.id, city.sizes)) / 100);
             const name = names(stop.id);
             return (
               <button

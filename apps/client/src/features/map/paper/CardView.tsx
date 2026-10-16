@@ -7,7 +7,8 @@ import { memo, useMemo } from "react";
 import { mapWords } from "../map.words";
 import { type Card } from "./districts";
 import type { Point } from "./fit";
-import { LABELS } from "./geometry";
+import { LABELS, type Label } from "./geometry";
+import { usePaperCity } from "./lagos";
 import type { Marks, Placed } from "./stops";
 import type { TileUrl } from "./useTiles";
 import { type Frame, World } from "./World";
@@ -47,11 +48,11 @@ export function titleBox(title: string): readonly [number, number, number, numbe
  * title pill, so no name runs under the pill nor is cut by the card's edge. A name's box is reckoned from its letters
  * at its own size on the screen, turned by its tilt.
  */
-export function cardLabels(frame: Frame, width: number, height: number, title: string, words: (key: string) => string = mapWords): Set<string> {
+export function cardLabels(frame: Frame, width: number, height: number, title: string, words: (key: string) => string = mapWords, labels: readonly Label[] = LABELS): Set<string> {
   const pill = titleBox(title);
   const keep = 4;
   const shown = new Set<string>();
-  for (const label of LABELS) {
+  for (const label of labels) {
     const text = words(label.key);
     const across = text.length * label.size * 0.62 + 6;
     const tall = label.size * 1.25;
@@ -95,10 +96,11 @@ export const CardView = memo(function CardView({ card, width, height, drawn, sto
   const frame = cardFrame(card, inner.width, inner.height, lift);
   // The card never pans, so only the paper inside it (and a little round it) is drawn.
   const within = [Math.floor(-frame.x / frame.sx) - 20, Math.floor(-frame.y / frame.sy) - 20, Math.ceil((inner.width - frame.x) / frame.sx) + 20, Math.ceil((inner.height - frame.y) / frame.sy) + 20] as const;
-  const title = mapWords(card.key);
-  const labels = useMemo(() => cardLabels(frame, inner.width, inner.height, title), [frame.x, frame.y, frame.sx, frame.sy, inner.width, inner.height, title]);
+  const city = usePaperCity();
+  const title = city.words(card.key);
+  const labels = useMemo(() => cardLabels(frame, inner.width, inner.height, title, city.words, city.labels), [frame.x, frame.y, frame.sx, frame.sy, inner.width, inner.height, title, city]);
   return (
-    <section className={`paper-card ${className}`} style={{ width, height, ...style }} aria-label={mapWords(card.key)} data-card={card.id} data-current={current} onClick={onCard}>
+    <section className={`paper-card ${className}`} style={{ width, height, ...style }} aria-label={title} data-card={card.id} data-current={current} onClick={onCard}>
       <div className="paper-card-in">
         {drawn ? <World variant="card" uid={`card-${card.id}`} frame={frame} within={within} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={50} route={route} onPick={onPick} labels={labels} /> : null}
       </div>

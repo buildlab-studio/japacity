@@ -38,3 +38,21 @@ export function at([latE3, lonE3]: readonly [number, number]): Point {
 export function fromPaper([x, y]: Point): Position {
   return { latE3: Math.round((y - FIT.y0) / FIT.yLat), lonE3: Math.round((x - FIT.x0) / FIT.xLon) };
 }
+
+/** An affine fit as whole numbers, of the shape of `FIT`: each city's painted map has its own (world.md R-WORLD-038). */
+export interface Fit {
+  xLon: number;
+  xLat: number;
+  x0: number;
+  yLon: number;
+  yLat: number;
+  y0: number;
+}
+
+/** A fit's two ways: a position onto its paper, and a paper point back to the position under it (north up, no turn). */
+export function fitOf(fit: Fit): { toPaper: (position: Position) => Point; fromPaper: (point: Point) => Position } {
+  return {
+    toPaper: (position) => [fit.xLon * position.lonE3 + fit.xLat * position.latE3 + fit.x0, fit.yLon * position.lonE3 + fit.yLat * position.latE3 + fit.y0],
+    fromPaper: ([x, y]) => ({ latE3: Math.round((y - fit.y0) / fit.yLat), lonE3: Math.round((x - fit.x0) / fit.xLon) }),
+  };
+}

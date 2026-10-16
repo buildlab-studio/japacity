@@ -12,17 +12,16 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, u
 
 import { useMineLit } from "../../../shared/dedication/lights";
 import type { MapPin } from "../pins";
-import { mapWords } from "../map.words";
 import { CardView } from "./CardView";
-import { CARD_IDS, CARDS, type CardId, cardById, cardIndex, cardOf } from "./districts";
+import type { PaperCity } from "./city";
 import { fold, FOLD_MS, folded, openingCard, unfolded } from "./fold";
 import { CELL } from "./draw";
-import { fromPaper, type Point } from "./fit";
-import { buildGraph, type Channel, routeBetween, routeChannel } from "./route";
+import type { Point } from "./fit";
+import { buildGraph, type Channel, type Graph, routeBetween, routeChannel } from "./route";
 import { type Marks, type Placed, placeStops } from "./stops";
 import { STRIP_H, Strip, stripFrame } from "./Strip";
 import { useTiles } from "./useTiles";
-import { LANTERN_CANOE } from "./geometry";
+import { LAGOS, PaperCityContext, usePaperCity } from "./lagos";
 import type { CanoeFill } from "./LanternCanoe";
 import { clampView, openFrame, openingView, type OpenView } from "./view";
 import { type Canoe, type Frame, World } from "./World";
@@ -31,8 +30,8 @@ import { type Canoe, type Frame, World } from "./World";
 export interface MapProbe {
   ready: boolean;
   phase: string;
-  card: CardId;
-  stops: { id: string; state: string; card: CardId; at: Point }[];
+  card: string;
+  stops: { id: string; state: string; card: string; at: Point }[];
   route: Point[] | null;
   channel: Channel | null;
   /** R-WORLD-036: the lantern canoe's point on the paper, when the open map draws it; never one of the stops. */
@@ -45,7 +44,15 @@ declare global {
   }
 }
 
-const GRAPH = buildGraph();
+/** Each city's roads as a graph, built once the first time its map opens. */
+const GRAPHS = new WeakMap<PaperCity, Graph>();
+function graphOf(city: PaperCity): Graph {
+  const kept = GRAPHS.get(city);
+  if (kept !== undefined) return kept;
+  const made = buildGraph(city.draw.roads);
+  GRAPHS.set(city, made);
+  return made;
+}
 const WIDE = "(min-width: 64rem)";
 /** How long after a card shows its neighbours draw. */
 const NEIGHBOURS_MS = 450;
@@ -113,14 +120,26 @@ export interface PaperMapProps {
   sheetUp: boolean;
   /** R-WORLD-036: the lantern canoe's glow and what its tap opens, from the shell; none, no canoe. */
   canoe?: (CanoeFill & { onOpen: () => void }) | null;
+  /** The painted city drawn: Lagos, or London abroad (R-WORLD-038). */
+  city?: PaperCity;
 }
 
-export function PaperMap({ pins, home, picked, step, names, onPick, country, close, sheetUp, canoe: handed = null }: PaperMapProps) {
+/** The folding map of one painted city: every part inside reads the city from the context it is handed here. */
+export function PaperMap({ city = LAGOS, ...props }: PaperMapProps) {
+  return (
+    <PaperCityContext value={city}>
+      <CityMap {...props} />
+    </PaperCityContext>
+  );
+}
+
+function CityMap({ pins, home, picked, step, names, onPick, country, close, sheetUp, canoe: handed = null }: Omit<PaperMapProps, "city">) {
+  const city = usePaperCity();
   const tiles = useTiles();
   const wide = useMedia(WIDE);
   const still = useMedia(STILL);
   const [box, size] = useBox();
-  const placed = useMemo(() => placeStops(pins.map((pin) => ({ id: pin.id, state: pin.state, position: pin.position }))), [pins]);
+  const placed = useMemo(() => placeStops(pins.map((pin) => ({ id: pin.id, state: pin.state, position: pin.position })), city), [pins, city]);
   const byId = useMemo(() => new Map(placed.map((stop) => [stop.id, stop])), [placed]);
   const here = placed.find((stop) => stop.state === "here") ?? null;
   const pickedStop = picked === null ? null : (byId.get(picked) ?? null);
@@ -131,7 +150,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
   const mine = useMineLit();
   const canoe: Canoe | null = useMemo(() => (handed === null ? null : { glow: handed.glow, onOpen: handed.onOpen, mine }), [handed, mine]);
 
-  const [state, dispatch] = useReducer(fold, null, () => folded(openingCard({ picked: pickedStop?.card ?? null, step: stepStop?.card ?? null, here: here?.card ?? null, fallback: "ojuelegba" })));
+  const [state, dispatch] = useReducer(fold, null, () => folded(openingCard({ picked: pickedStop?.card ?? null, step: stepStop?.card ?? null, here: here?.card ?? null, fallback: city.fallbackCard })));
   const open = unfolded(state);
 
   // A stop picked from outside the map (the stops list, the nudge's step) brings its card round.
@@ -139,7 +158,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
     if (pickedStop !== null) dispatch({ type: "swipe", card: pickedStop.card });
   }, [pickedStop?.id]);
 
-  const route = useMemo(() => (here === null || pickedStop === null || pickedStop.id === here.id ? null : routeBetween(GRAPH, here.at, pickedStop.at)), [here, pickedStop]);
+  const route = useMemo(() => (here === null || pickedStop === null || pickedStop.id === here.id ? null : routeBetween(graphOf(city), here.at, pickedStop.at)), [here, pickedStop, city]);
   const channel = route === null || here === null || pickedStop === null ? null : routeChannel({ open: state.phase === "open" || state.phase === "opening", wide, sameCard: here.card === pickedStop.card });
 
   // Ready once the cards have drawn and a frame has shown them, so a test (or a slow phone) never acts on a map still drawing.
@@ -156,8 +175,8 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
   }, []);
   // The probe a browser test reads.
   useEffect(() => {
-    window.__map = { ready: painted || wide, phase: state.phase, card: state.card, stops: placed.map((stop) => ({ id: stop.id, state: stop.state, card: stop.card, at: stop.at })), route, channel, canoe: canoe === null ? null : LANTERN_CANOE.at };
-  }, [painted, wide, state.phase, state.card, placed, route, channel, canoe]);
+    window.__map = { ready: painted || wide, phase: state.phase, card: state.card, stops: placed.map((stop) => ({ id: stop.id, state: stop.state, card: stop.card, at: stop.at })), route, channel, canoe: canoe === null ? null : city.canoe };
+  }, [painted, wide, state.phase, state.card, placed, route, channel, canoe, city]);
   useEffect(
     () => () => {
       delete window.__map;
@@ -166,7 +185,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
   );
 
   // The open map's view: framed on the card's district when it opens.
-  const [view, setView] = useState<OpenView>(() => openingView(state.card, wide, size));
+  const [view, setView] = useState<OpenView>(() => openingView(state.card, wide, size, city));
 
   const pick = useCallback(
     (id: string) => {
@@ -180,7 +199,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
     [byId, onPick, state.phase, wide],
   );
 
-  const hereName = here === null ? null : mapWords(cardById(here.card).key);
+  const hereName = here === null ? null : city.words((city.cards.find((card) => card.id === here.card) ?? city.cards[0])?.key ?? "");
   const stadium = byId.get("place.national-stadium")?.at ?? null;
 
   if (wide) {
@@ -195,8 +214,8 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
         </div>
         <CardRow current={state.card} stops={placed} names={names} marks={marks} tiles={tiles} route={channel === "card" ? route : null} lift={null} onPick={pick} sheetUp={sheetUp} onCard={(card) => {
           dispatch({ type: "swipe", card });
-          const framed = cardById(card);
-          setView((before) => clampView({ ...before, cx: framed.centre[0], cy: framed.centre[1] }));
+          const framed = city.cards.find((candidate) => candidate.id === card);
+          if (framed !== undefined) setView((before) => clampView({ ...before, cx: framed.centre[0], cy: framed.centre[1] }, city.paper));
         }} />
       </div>
     );
@@ -215,11 +234,11 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
         route={channel === "strip" ? route : null}
         tiles={tiles}
         onTap={() => {
-          setView(openingView(state.card, false, size));
+          setView(openingView(state.card, false, size, city));
           dispatch({ type: "tap-strip" });
         }}
         onDrag={(dy) => {
-          if (state.pull === 0) setView(openingView(state.card, false, size));
+          if (state.pull === 0) setView(openingView(state.card, false, size, city));
           dispatch({ type: "drag", dy });
         }}
         onRelease={() => dispatch({ type: "release" })}
@@ -272,7 +291,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
 }
 
 interface TrackProps {
-  current: CardId;
+  current: string;
   width: number;
   height: number;
   stops: readonly Placed[];
@@ -280,10 +299,10 @@ interface TrackProps {
   marks: Marks;
   tiles: ReturnType<typeof useTiles>;
   route: readonly Point[] | null;
-  routeCard: CardId | null;
+  routeCard: string | null;
   lift: Placed | null;
   onPick: (id: string) => void;
-  onSwipe: (card: CardId) => void;
+  onSwipe: (card: string) => void;
   /** Called once the card shown and its neighbours are drawn; returns its own clean-up. */
   onDrawn: () => () => void;
   hidden: boolean;
@@ -295,7 +314,8 @@ interface TrackProps {
 /** The cards, one to the screen, swiped sideways with the browser's own scroll and its snap; pager dots under them. */
 function CardTrack({ current, width, height, stops, names, marks, tiles, route, routeCard, lift, onPick, onSwipe, onDrawn, hidden, pull, still, sheetUp }: TrackProps) {
   const track = useRef<HTMLDivElement>(null);
-  const index = cardIndex(current);
+  const { cards } = usePaperCity();
+  const index = cards.findIndex((card) => card.id === current);
   const cardWidth = width - 32;
   const top = 12 + STRIP_H + 8 + 26;
   const cardHeight = Math.max(200, height - top - 92);
@@ -305,7 +325,7 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
     const element = track.current;
     if (element === null || settling.current) return;
     const next = Math.round(element.scrollLeft / Math.max(1, width));
-    const id = CARD_IDS[next];
+    const id = cards[next]?.id;
     if (id !== undefined && id !== current) onSwipe(id);
   };
   const latest = useRef(scrolled);
@@ -362,7 +382,7 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
         onScroll={scrolled}
         data-track
       >
-        {CARDS.map((card, at) => (
+        {cards.map((card, at) => (
           <div key={card.id} className="paper-slot" style={{ width }}>
             <CardView
               card={card}
@@ -383,7 +403,7 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
       </div>
       {sheetUp ? null : (
         <div className="paper-pager" style={{ top: `calc(${String(top + cardHeight + 18)}px + env(safe-area-inset-top))`, opacity: shown }} aria-hidden data-pager>
-          {CARDS.map((card) => (
+          {cards.map((card) => (
             <i key={card.id} className={card.id === current ? "on" : ""} />
           ))}
         </div>
@@ -403,7 +423,7 @@ interface LayerProps {
   route: readonly Point[] | null;
   canoe: Canoe | null;
   onPick: (id: string) => void;
-  onDistrict: (card: CardId) => void;
+  onDistrict: (card: string) => void;
   frame?: Frame | undefined;
   transition?: string | undefined;
   opacity?: number | undefined;
@@ -411,6 +431,7 @@ interface LayerProps {
 
 /** The open map: the whole painted map, dragged to pan, pinched or wheeled to zoom; a tap on a district picks its card. */
 function OpenLayer({ size, view, setView, stops, names, marks, tiles, route, canoe, onPick, onDistrict, frame, transition, opacity }: LayerProps) {
+  const city = usePaperCity();
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const down = useRef<{ x: number; y: number; moved: boolean } | null>(null);
   const pinch = useRef<number | null>(null);
@@ -433,7 +454,7 @@ function OpenLayer({ size, view, setView, stops, names, marks, tiles, route, can
       if (a === undefined || b === undefined) return;
       const gap = Math.hypot(a.x - b.x, a.y - b.y);
       const last = pinch.current;
-      if (last !== null) setView((current) => clampView({ ...current, z: (current.z * gap) / Math.max(1, last) }));
+      if (last !== null) setView((current) => clampView({ ...current, z: (current.z * gap) / Math.max(1, last) }, city.paper));
       pinch.current = gap;
       down.current.moved = true;
       return;
@@ -445,7 +466,7 @@ function OpenLayer({ size, view, setView, stops, names, marks, tiles, route, can
     if (!down.current.moved) return;
     const dx = event.clientX - before.x;
     const dy = event.clientY - before.y;
-    setView((current) => clampView({ ...current, cx: current.cx - dx / current.z, cy: current.cy - dy / current.z }));
+    setView((current) => clampView({ ...current, cx: current.cx - dx / current.z, cy: current.cy - dy / current.z }, city.paper));
   };
   const pointerUp = (event: ReactPointerEvent<HTMLDivElement>): void => {
     pointers.current.delete(event.pointerId);
@@ -457,10 +478,10 @@ function OpenLayer({ size, view, setView, stops, names, marks, tiles, route, can
     const rect = event.currentTarget.getBoundingClientRect();
     const x = (event.clientX - rect.left - own.x) / own.sx;
     const y = (event.clientY - rect.top - own.y) / own.sy;
-    onDistrict(cardOf(fromPaper([Math.round(x), Math.round(y)])));
+    onDistrict(city.cardOf(city.fromPaper([Math.round(x), Math.round(y)])));
   };
   const wheel = (event: ReactWheelEvent<HTMLDivElement>): void => {
-    setView((current) => clampView({ ...current, z: current.z * (1 - event.deltaY * 0.0015) }));
+    setView((current) => clampView({ ...current, z: current.z * (1 - event.deltaY * 0.0015) }, city.paper));
   };
   return (
     <div className="paper-open" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} style={{ opacity }} data-open-map>
@@ -547,7 +568,7 @@ function Unfold({ state, size, stripWidth, still, onSettled, country, close, ...
 }
 
 interface RowProps {
-  current: CardId;
+  current: string;
   stops: readonly Placed[];
   names: (id: string) => string;
   marks: Marks;
@@ -555,14 +576,15 @@ interface RowProps {
   route: readonly Point[] | null;
   lift: Point | null;
   onPick: (id: string) => void;
-  onCard: (card: CardId) => void;
+  onCard: (card: string) => void;
   sheetUp: boolean;
 }
 
 /** On a laptop: the card shown and its two neighbours as a row at the foot, the one shown raised with a yellow edge. */
 function CardRow({ current, stops, names, marks, tiles, route, lift, onPick, onCard, sheetUp }: RowProps) {
-  const index = cardIndex(current);
-  const row = [CARDS[index - 1], CARDS[index], CARDS[index + 1]].filter((card) => card !== undefined);
+  const { cards } = usePaperCity();
+  const index = cards.findIndex((card) => card.id === current);
+  const row = [cards[index - 1], cards[index], cards[index + 1]].filter((card) => card !== undefined);
   if (sheetUp) return null;
   return (
     <div className="paper-row" data-card-row>

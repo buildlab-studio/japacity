@@ -4,7 +4,7 @@
 import { content } from "@japacity/content";
 
 import { type Point, toPaper, PAPER } from "./fit";
-import { BEACH, BRIDGE_NAME_PATH, DECOR, FERRY_LINE, LABELS, LAND, LANDMARKS, LANTERN_CANOE, LANTERN_CANOE_CLEAR, PALMS, ROADS } from "./geometry";
+import { BEACH, BRIDGE_NAME_PATH, DECOR, FERRY_LINE, LABELS, LAND, LANDMARKS, LANTERN_CANOE, LANTERN_CANOE_CLEAR, PALMS, type Road, ROADS } from "./geometry";
 import { type Clear, type Ground, type House, ROOFS, scatter, type Scattered } from "./scatter";
 import { curve, loop } from "./smooth";
 
@@ -102,6 +102,8 @@ export interface Drawing {
   roadsMain: string;
   roadsMinor: string;
   bridges: { id: string; d: string }[];
+  /** The railways' path data, empty where none is drawn. */
+  rails: string;
   ferry: string;
   bridgeName: string;
   cells: Cell[];
@@ -137,30 +139,62 @@ function cellsOf(scattered: Scattered): Cell[] {
   });
 }
 
-let drawn: Drawing | null = null;
+/**
+ * What a painted city's drawing is made from (world.md R-WORLD-015, R-WORLD-038): its land, its beach, its roads and
+ * bridges, its railways, the ferry's line and the bridge's name where it has them, its palms, and the ground its grain
+ * is scattered over. An empty line draws nothing.
+ */
+export interface DrawSource {
+  land: Readonly<Record<string, readonly Point[]>>;
+  beach: readonly Point[];
+  roads: readonly Road[];
+  rails: readonly (readonly Point[])[];
+  ferry: readonly Point[];
+  bridgeName: readonly Point[];
+  palms: readonly (readonly [number, number, number, 1 | -1])[];
+  ground: () => Ground;
+}
 
-/** The drawing, built the first time it is asked for and kept: the same strings for every view. */
-export function drawing(): Drawing {
-  if (drawn !== null) return drawn;
-  const scattered = scatter(groundOf());
-  const palms = PALMS.map(([x, y, size, facing]) => palm(x, y, size, facing));
-  drawn = {
-    land: Object.values(LAND).map(loop).join(""),
-    coast: Object.values(LAND).map(loop).join(""),
-    beach: curve(BEACH),
-    roadsMain: ROADS.filter((road) => road.main && road.bridge === undefined)
+/** Lagos's drawing, from the drawing of Lagos (geometry.ts); it has no railway drawn. */
+export const LAGOS_DRAW: DrawSource = { land: LAND, beach: BEACH, roads: ROADS, rails: [], ferry: FERRY_LINE, bridgeName: BRIDGE_NAME_PATH, palms: PALMS, ground: groundOf };
+
+const drawn = new WeakMap<DrawSource, Drawing>();
+
+/** A line as path data, or nothing for a line with no points. */
+const line = (points: readonly Point[]): string => (points.length === 0 ? "" : curve(points));
+
+/** A city's drawing, built the first time it is asked for and kept: the same strings for every view. */
+export function drawingOf(source: DrawSource): Drawing {
+  const kept = drawn.get(source);
+  if (kept !== undefined) return kept;
+  const scattered = scatter(source.ground());
+  const palms = source.palms.map(([x, y, size, facing]) => palm(x, y, size, facing));
+  const made: Drawing = {
+    land: Object.values(source.land).map(loop).join(""),
+    coast: Object.values(source.land).map(loop).join(""),
+    beach: line(source.beach),
+    roadsMain: source.roads
+      .filter((road) => road.main && road.bridge === undefined)
       .map((road) => curve(road.points))
       .join(""),
-    roadsMinor: ROADS.filter((road) => !road.main && road.bridge === undefined)
+    roadsMinor: source.roads
+      .filter((road) => !road.main && road.bridge === undefined)
       .map((road) => curve(road.points))
       .join(""),
-    bridges: ROADS.filter((road) => road.bridge !== undefined).map((road) => ({ id: road.bridge ?? "", d: curve(road.points) })),
-    ferry: curve(FERRY_LINE),
-    bridgeName: curve(BRIDGE_NAME_PATH),
+    bridges: source.roads.filter((road) => road.bridge !== undefined).map((road) => ({ id: road.bridge ?? "", d: curve(road.points) })),
+    rails: source.rails.map(line).join(""),
+    ferry: line(source.ferry),
+    bridgeName: line(source.bridgeName),
     cells: cellsOf(scattered),
     palmTrunks: palms.map(([trunk]) => trunk).join(""),
     palmFronds: palms.map(([, fronds]) => fronds).join(""),
     scattered,
   };
-  return drawn;
+  drawn.set(source, made);
+  return made;
+}
+
+/** Lagos's drawing. */
+export function drawing(): Drawing {
+  return drawingOf(LAGOS_DRAW);
 }

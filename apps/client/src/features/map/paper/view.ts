@@ -1,9 +1,10 @@
 // The open map's view (docs/rules/world.md R-WORLD-015, R-WORLD-036): which paper point stands in the middle of the
 // screen and at what zoom, where it first opens from a card, and the frame it gives the drawing. Plain numbers, so
-// where the open map lands from every card is tested without a screen.
-import { type CardId, cardById } from "./districts";
+// where the open map lands from every card is tested without a screen. Each painted city opens on its own paper
+// (R-WORLD-038); Lagos's unless another is given.
+import type { PaperCity } from "./city";
 import { PAPER, type Point } from "./fit";
-import { LANTERN_CANOE } from "./geometry";
+import { LAGOS } from "./lagos";
 import type { Frame } from "./World";
 
 /** The open map's zoom on a phone, and how far a pinch may take it. */
@@ -25,9 +26,9 @@ export interface Size {
   height: number;
 }
 
-export function clampView(view: OpenView): OpenView {
+export function clampView(view: OpenView, paper: { width: number; height: number } = PAPER): OpenView {
   const z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, view.z));
-  return { cx: Math.min(PAPER.width, Math.max(0, view.cx)), cy: Math.min(PAPER.height, Math.max(0, view.cy)), z };
+  return { cx: Math.min(paper.width, Math.max(0, view.cx)), cy: Math.min(paper.height, Math.max(0, view.cy)), z };
 }
 
 export function openFrame(view: OpenView, width: number, height: number): Frame {
@@ -60,16 +61,19 @@ export function canoeRoom(size: Size): readonly [number, number, number, number]
  * lantern canoe, or put it under the head row, it moves by the least that brings the canoe whole into view (R-WORLD-036);
  * a look that leaves the canoe wholly off the screen stays as it is.
  */
-export function openingView(card: CardId, wide: boolean, size: Size): OpenView {
-  const framed = cardById(card);
+export function openingView(card: string, wide: boolean, size: Size, city: Pick<PaperCity, "cards" | "paper" | "opening" | "canoe"> = LAGOS): OpenView {
+  const framed = city.cards.find((candidate) => candidate.id === card) ?? city.cards[0];
+  if (framed === undefined) return clampView({ cx: city.paper.width / 2, cy: city.paper.height / 2, z: wide ? WIDE_ZOOM : OPEN_ZOOM }, city.paper);
   // A laptop's screen is wide: it takes the district closer, the lagoon and the island beside it.
-  const view = wide ? clampView({ cx: framed.centre[0] + 90, cy: framed.centre[1] + 110, z: WIDE_ZOOM }) : clampView({ cx: framed.centre[0] + 70, cy: framed.centre[1] + 150, z: OPEN_ZOOM });
-  const [x, y] = onScreen(view, size, LANTERN_CANOE.at);
+  const [ox, oy] = wide ? city.opening.wide : city.opening.phone;
+  const view = clampView({ cx: framed.centre[0] + ox, cy: framed.centre[1] + oy, z: wide ? WIDE_ZOOM : OPEN_ZOOM }, city.paper);
+  if (city.canoe === null) return view;
+  const [x, y] = onScreen(view, size, city.canoe);
   const off = x < -CANOE_HALF || x > size.width + CANOE_HALF || y < -CANOE_HALF || y > size.height + CANOE_HALF;
   if (off) return view;
   const [left, top, right, bottom] = canoeRoom(size);
   // A pixel past the room's edge, so the canoe lands inside it whatever the rounding.
   const dx = x < left ? x - left - 1 : x > right ? x - right + 1 : 0;
   const dy = y < top ? y - top - 1 : y > bottom ? y - bottom + 1 : 0;
-  return dx === 0 && dy === 0 ? view : clampView({ ...view, cx: view.cx + dx / view.z, cy: view.cy + dy / view.z });
+  return dx === 0 && dy === 0 ? view : clampView({ ...view, cx: view.cx + dx / view.z, cy: view.cy + dy / view.z }, city.paper);
 }

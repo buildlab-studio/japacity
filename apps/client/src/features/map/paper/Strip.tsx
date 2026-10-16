@@ -1,58 +1,32 @@
-// The strip (docs/rules/world.md R-WORLD-015; the second design): the whole painted map folded flat into a white card
-// with a navy edge and a pull handle, under the band's place at the top. A filled dot where the player stands with the
-// neighbourhood's name, a tiny house for home, a yellow dot for the step's place; the route across the city when the
-// stop picked is in another neighbourhood. The city's landmarks stand upright on it and its folds show, so it reads as
-// the whole city folded, not a crop of the mainland. A tap anywhere on it, or a drag down, unfolds the map.
-import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from "react";
+// The strip (docs/rules/world.md R-WORLD-015, R-WORLD-038; the second design): the whole painted map folded flat into
+// a white card with a navy edge and a pull handle, under the band's place at the top. A filled dot where the player
+// stands with the neighbourhood's name, a tiny house for home, a yellow dot for the step's place; the route across the
+// city when the stop picked is in another neighbourhood. The city's landmarks stand upright on it and its folds show, so
+// it reads as the whole city folded, not a crop of it. A tap anywhere on it, or a drag down, unfolds the map.
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import { useRef } from "react";
 
 import { mapWords } from "../map.words";
-import { at, type Point, PAPER } from "./fit";
-import { DECOR, LANDMARKS } from "./geometry";
-import { Theatre, Tower, Towers } from "./PaperSvg";
+import { type Point, PAPER } from "./fit";
+import { LAGOS, usePaperCity } from "./lagos";
 import type { Placed } from "./stops";
 import type { TileUrl } from "./useTiles";
 import { type Frame, World } from "./World";
 
 /** The strip's inner height on the screen, in pixels. */
 export const STRIP_H = 84;
-/** The paper rows the strip folds: from the top of Ikeja to the beach. */
-const TOP = at([6612, 3290])[1];
-const BOTTOM = at([6407, 3290])[1];
 
-/** The fold: the whole width of the paper and the rows from Ikeja to the beach, squeezed into the strip's box. */
-export function stripFrame(width: number, height = STRIP_H): Frame {
-  const sx = width / PAPER.width;
-  const sy = height / (BOTTOM - TOP);
-  return { x: 0, y: -TOP * sy, sx, sy };
+/** The fold: the whole width of the paper and the city's rows (Lagos's from Ikeja to the beach), squeezed into the strip's box. */
+export function stripFrame(width: number, height = STRIP_H, rows: { top: number; bottom: number } = LAGOS.strip, paperWidth: number = PAPER.width): Frame {
+  const sx = width / paperWidth;
+  const sy = height / (rows.bottom - rows.top);
+  return { x: 0, y: -rows.top * sy, sx, sy };
 }
 
 /** A paper point on the strip, in the strip's own pixels. */
 export function onStrip(frame: Frame, [x, y]: Point): Point {
   return [frame.x + x * frame.sx, frame.y + y * frame.sy];
 }
-
-/** The few pictures that stay standing on the folded paper: the stadium, Makoko's huts, two canoes. */
-const MINIS: readonly { model: string; at: Point; size: number }[] = [
-  ...DECOR.filter((item) => item.model.startsWith("bld_makoko") || item.model === "bld_stilt-house")
-    .slice(0, 3)
-    .map((item) => ({ model: item.model, at: item.at, size: 13 })),
-  ...DECOR.filter((item) => item.kind === "boat")
-    .slice(1, 3)
-    .map((item) => ({ model: item.model, at: item.at, size: 16 })),
-];
-
-/**
- * The landmarks that say the folded paper is the whole city, standing upright on it as the round's strip drew them:
- * the theatre's hat on the mainland's shore, the island's towers, Victoria Island's and the one by the toll gate.
- * Each is the open map's own drawing at its own shape, not squeezed with the paper.
- */
-const STRIP_LANDMARKS: readonly { id: string; at: Point; draw: () => ReactNode }[] = [
-  { id: "theatre", at: LANDMARKS.theatre, draw: () => <Theatre at={[0, 0]} /> },
-  { id: "towers", at: LANDMARKS.towers, draw: () => <Towers at={[0, 0]} /> },
-  { id: "towers-vi", at: LANDMARKS.towersVi, draw: () => <Towers at={[0, 0]} size={50} /> },
-  { id: "tower", at: LANDMARKS.tower, draw: () => <Tower at={[0, 0]} /> },
-];
 
 export interface StripProps {
   width: number;
@@ -71,8 +45,9 @@ export interface StripProps {
 }
 
 export function Strip({ width, stops, home, step, hereName, stadium, route, tiles, onTap, onDrag, onRelease, style }: StripProps) {
+  const city = usePaperCity();
   const inner = Math.max(1, width - 8);
-  const frame = stripFrame(inner);
+  const frame = stripFrame(inner, STRIP_H, city.strip, city.paper.width);
   const here = stops.find((stop) => stop.state === "here") ?? null;
   const homeStop = stops.find((stop) => stop.id === home) ?? null;
   const stepStop = stops.find((stop) => stop.id === step) ?? null;
@@ -126,14 +101,14 @@ export function Strip({ width, stops, home, step, hereName, stadium, route, tile
             {tiles("lm_national-stadium") === null ? null : <img src={tiles("lm_national-stadium") ?? ""} alt="" width={26} height={26} className="paper-cut" draggable={false} />}
           </span>
         )}
-        {STRIP_LANDMARKS.map((mark) => (
+        {city.strip.landmarks.map((mark) => (
           <span key={mark.id} className="paper-mk paper-strip-lm" style={{ ...at(mark.at, 1), marginTop: -8 }} data-strip-landmark={mark.id}>
             <svg width="22" height="24" viewBox="-20 -36 40 44" aria-hidden>
               {mark.draw()}
             </svg>
           </span>
         ))}
-        {MINIS.map((mini, index) => (
+        {city.strip.minis.map((mini, index) => (
           <span key={index} className="paper-mk" style={at(mini.at, 1)}>
             {tiles(mini.model) === null ? null : <img src={tiles(mini.model) ?? ""} alt="" width={mini.size} height={mini.size} className="paper-cut" draggable={false} />}
           </span>

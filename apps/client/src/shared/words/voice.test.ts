@@ -10,6 +10,7 @@ import { adviceUiText } from "../../features/advice/advice.words";
 import { cityText } from "../../features/city/city.words";
 import { sceneText } from "../../features/city/scene.words";
 import { mapText } from "../../features/map/map.words";
+import { londonText } from "../../features/map/paper/london";
 import { phoneText } from "../../features/phone/phone.words";
 import { roomText } from "../../features/setpiece/room.words";
 import { turnText } from "../../features/turn/turn.words";
@@ -24,6 +25,7 @@ const clientTables: Record<string, Record<string, string>> = {
   city: cityText,
   scene: sceneText,
   map: mapText,
+  london: londonText,
   phone: phoneText,
   room: roomText,
   turn: turnText,
