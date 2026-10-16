@@ -131,7 +131,7 @@ const LABELS: readonly Label[] = [
   label("map.area.castel.town", [41024, 13968], -4, 13),
   label("map.area.castel.pinetamare", [40978, 13978], -36, 11),
   label("map.area.castel.fields", [41000, 14025], 0, 12),
-  label("map.area.castel.varcaturo", [40918, 14030], -30, 11),
+  label("map.area.castel.varcaturo", [40912, 14012], -30, 11),
 ];
 
 const WATER_LABELS: readonly Label[] = [label("map.water.tyrrhenian", [40975, 13925], -60, 15), label("map.water.volturno", [41053, 13975], 0, 12)];
