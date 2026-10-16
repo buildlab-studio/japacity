@@ -10,6 +10,7 @@ import { SoundNotice } from "./shared/sound/SoundNotice";
 import { Rejection } from "./shared/ui/Rejection";
 import { FaultCard, reloadPage, TroubleCard, TroubleFace } from "./shared/ui/Trouble";
 import { Splash } from "./shared/ui/Splash";
+import { Waiting } from "./shared/ui/Loader";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { readPerson } from "./authority/person";
@@ -191,7 +192,8 @@ function WorldPlaying() {
 export const SLOW_MS = 5_000;
 
 /**
- * The splash (R-ENGINE-015) with "Opening your life..." under the game's name, a second line once it takes long,
+ * The splash (R-ENGINE-015) with "Opening your life..." under the game's name and the bar under it, a
+ * second line under the bar once it takes long,
  * and the card under the mark in the words' place when the view could not be read.
  * Online, for a visitor this device has no life for, the start screen's frame instead: never "Opening your life" for
  * someone with no life, and with the server down the card stands in its sheet, naming the game (R-ENGINE-015, amended
@@ -221,10 +223,7 @@ function Opening() {
       {trouble !== null ? (
         <TroubleFace trouble={trouble} inline />
       ) : (
-        <>
-          <p className="splash-words">{say("ui.loading")}</p>
-          {slow ? <p className="splash-more">{say("ui.loading.slow")}</p> : null}
-        </>
+        <Waiting words={say("ui.loading")} more={slow ? say("ui.loading.slow") : null} />
       )}
     </Splash>
   );

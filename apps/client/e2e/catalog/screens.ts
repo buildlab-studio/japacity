@@ -11,6 +11,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "open-splash-page", what: "The splash as the page paints it, before the game's code runs" },
   { key: "open-splash", what: "Opening your life: the splash for a life kept on this device" },
   { key: "open-splash-night", what: "Opening your life with the night paint stood in" },
+  { key: "open-page-waiting", what: "The page after Begin while the server plays the years: Drawing your family with the bar" },
   { key: "open-fault", what: "The fault card on the splash: the server did not answer" },
   { key: "open-fault-wall", what: "The fault card for an ended session: Retry and Reload" },
   // The front, online against a faked server: the start screen over the compound, the age screen, the ways back in.

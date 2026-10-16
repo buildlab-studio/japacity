@@ -56,7 +56,28 @@ async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void
   );
 }
 
-test("open: the splash the page paints, the life opening, and the fault cards", async ({ page }) => {
+/**
+ * The page after Begin while the server plays the years (R-PROLOGUE-014, R-SERVER-046;): a kept life still at
+ * its first card, the view answered and the preset's reply held back, so the page stays on its wait.
+ */
+async function pageWaiting(page: Page): Promise<void> {
+  const game = start({ scenario: "scenario.prologue", content });
+  if (game.state.turn.banked === 0) game.grant(1);
+  const view = { ok: true, view: game.view(), lines: [], clock: { tick: game.tick, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null } };
+  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
+  await page.route(
+    (url) => url.pathname.startsWith("/api/"),
+    (route) => {
+      const json = (status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
+      const asked = `${route.request().method()} ${new URL(route.request().url()).pathname}`;
+      if (asked === "GET /api/view") return json(200, view);
+      if (asked === "POST /api/prologue/preset") return new Promise<void>(() => undefined);
+      return json(404, { ok: false, code: "unknown-id", detail: "not faked" });
+    },
+  );
+}
+
+test("open: the splash the page paints, the life opening, the page after Begin waiting, and the fault cards", async ({ page }) => {
   await attempt(page, "open-splash-page", async () => {
     // The game's code held back, so the page's own first paint stays.
     await page.route("**/src/main.tsx", () => new Promise<void>(() => undefined));
@@ -79,6 +100,13 @@ test("open: the splash the page paints, the life opening, and the fault cards", 
     await page.evaluate(() => {
       delete document.documentElement.dataset.paint;
     });
+  });
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await pageWaiting(page);
+  await attempt(page, "open-page-waiting", async () => {
+    await page.goto(`${ONLINE}/`);
+    await page.locator("[data-page-waiting] [role='progressbar']").waitFor({ timeout: 30_000 });
+    await shot(page, "open-page-waiting", 1200);
   });
   await page.unrouteAll({ behavior: "ignoreErrors" });
   await opening(page, "down");

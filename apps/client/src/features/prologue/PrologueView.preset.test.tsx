@@ -139,6 +139,35 @@ describe("the preset offline", () => {
   });
 });
 
+describe("the page while the server plays the years", () => {
+  test("[R-PROLOGUE-014] [R-ENGINE-015] given Begin online and the preset's reply not yet in, then the page is the splash's wait in its own frame: Drawing your family with the running bar under it and no chips, until the reply lands and the handover fills", async () => {
+    begun();
+    const { game, server, store, commands } = onlineLife("preset-waiting", false);
+    let release: (() => void) | null = null;
+    server.answer("POST /api/prologue/preset", () => {
+      const request = server.sent.at(-1)?.body as PresetRequest;
+      return new Promise((resolve) => {
+        release = () => resolve({ body: playPresetOn(game, request, CLOCK, commands) });
+      });
+    });
+    await store.getState().refresh();
+    render(<App store={store} />);
+    await waitFor(() => expect(posted(server, "/api/prologue/preset")).toHaveLength(1));
+    const waiting = document.querySelector("[data-page-running][data-page-waiting]");
+    expect(waiting?.querySelector("[data-gate='years']")).not.toBeNull();
+    const bar = screen.getByRole("progressbar", { name: say("ui.page.family.drawing") });
+    expect(bar.dataset["loader"]).toBe("busy");
+    expect(bar.previousElementSibling?.textContent).toBe(say("ui.page.family.drawing"));
+    expect(waiting?.querySelector(".splash-words")).not.toBeNull();
+    expect(document.querySelector("[data-fact], [data-page], [data-years]")).toBeNull();
+    expect(waiting?.textContent).toBe(say("ui.page.family.drawing"));
+    act(() => release?.());
+    await waitFor(() => expect(document.querySelector("[data-page-handover]")).not.toBeNull(), { timeout: 10_000 });
+    expect(document.querySelector("[data-page-waiting]")).toBeNull();
+    expect(screen.queryByRole("progressbar")).toBeNull();
+  });
+});
+
 describe("the page filled from the reply", () => {
   test("[R-PROLOGUE-010] [R-PROLOGUE-014] given the trail the server played in one request, when the handover opens, then its years come on a chip after another over about two seconds, and the family turns over only after the last", async () => {
     keepPerson({ look: "chr_ada", name: "Ada", archetype: "developer" });
