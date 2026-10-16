@@ -34,7 +34,7 @@ const MODELS: [string, () => Group][] = [
   ["prop_cleaner-trolley", north.buildCleanerTrolley],
   ["prop_water-cooler", north.buildWaterCooler],
   ["bld_strip-mall", () => buildStripMall(spec as StripMallSpec)],
-  ["bld_metro-station", () => buildMetroStation("place.metro-station-uae.sign.1", { board: "white", ink: "red" })],
+  ["bld_metro-station", () => buildMetroStation("place.metro-station-uae.sign.name", { board: "white", ink: "red" })],
   ["bld_metro-viaduct", buildMetroViaduct],
   ["bld_site-frame", buildSiteFrame],
   ["bld_room_library", () => buildRoom(ROOMS.library)],

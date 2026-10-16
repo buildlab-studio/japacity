@@ -685,7 +685,7 @@ ENTRIES.push(
   placePiece("prop_library-table", "library-ca", north.buildLibraryTable),
   placePiece("prop_course-desk", "library-ca", north.buildCourseDesk),
   // Union station: the hall under its shell, the viaduct with the car on it, the Nol machine and the escalator's foot.
-  placePiece("bld_metro-station", "metro-station-uae", () => buildMetroStation("place.metro-station-uae.sign.1", { board: "white", ink: "red", border: "red" }), [...ELEVATIONS, "plan", "phone"]),
+  placePiece("bld_metro-station", "metro-station-uae", () => buildMetroStation("place.metro-station-uae.sign.name", { board: "white", ink: "red", border: "red" }), [...ELEVATIONS, "plan", "phone"]),
   placePiece("bld_metro-viaduct", "metro-station-uae", buildMetroViaduct, [...ELEVATIONS, "plan", "phone"]),
   placePiece("prop_nol-machine", "metro-station-uae", north.buildNolMachine),
   placePiece("prop_escalator", "metro-station-uae", north.buildEscalator),
