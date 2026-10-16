@@ -198,3 +198,12 @@ describe("the road in the world, only in the moment", () => {
     expect(found("[data-brief-chip]").dataset.briefChip).toBe("handed");
   });
 });
+
+describe("the notes' lane in the world", () => {
+  test("[R-CITY-018] given the world up, when the place's notes lane is drawn, then it starts under the band and not behind it", async () => {
+    await standing("place.family-house");
+    const lane = found("[data-notes-lane]");
+    expect(lane.className).toContain("mt-[72px]");
+  });
+
+});

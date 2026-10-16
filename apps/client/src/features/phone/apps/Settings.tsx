@@ -54,6 +54,8 @@ export function Settings({ account = null, about = null, dedication = null }: { 
   const muted = useSound((state) => state.muted);
   return (
     <div data-phone-app="settings">
+      {/* The account first, as one full row (R-ACCOUNT-027): the maintainer read the small icon as a heading. */}
+      {account === null ? null : <div data-account>{account}</div>}
       {/* The sound and the city's graphics in one card: each a name with its icon and one
           segmented pill. */}
       <div className="lively-card flex flex-col gap-3 p-3.5" data-settings-card>
@@ -90,7 +92,6 @@ export function Settings({ account = null, about = null, dedication = null }: { 
       <p className="text-[13px] text-text-2">{phoneWords("phone.settings.graphics.when")}</p>
       </div>
 
-      {account === null ? null : <div data-account>{account}</div>}
       {/* R-MODERATION-020, R-MODERATION-016: the feedback box and the team's notice, in the game's menu. */}
       <ModerationRows />
       {about === null ? null : (

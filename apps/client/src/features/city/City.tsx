@@ -2053,7 +2053,9 @@ export function City({
             </div>
           )}
 
-          <div className="flex flex-col gap-2 lg:max-w-md">
+          {/* In the world the band (shared/world/Band, 12 px from the top, a 52 px pill and its toggle) stands over this lane, so
+              the lane starts under it: a place loading is a note the player can see, never one behind the band (R-CITY-018). */}
+          <div className={`flex flex-col gap-2 lg:max-w-md ${world ? "mt-[72px]" : ""}`} data-notes-lane>
             {loading ? <LoadingNote place={name} percent={percent} /> : null}
             {failed === null ? null : <p className="pointer-events-auto rounded-md bg-sheet/90 px-3 py-2 text-sm text-bad">{cityWords("city.failed", { place: name })}</p>}
             {/* In the world only the band, the nudge and the two thumb buttons stand over the place (R-WORLD-001): the question, the offers and the month's lines open from the nudge, the results and the phone. */}

@@ -207,7 +207,7 @@ test.describe("one new player, played in order on one phone", () => {
   test("[R-ACCOUNT-023] [R-ACCOUNT-014] the guest keeps the life by a code sent to an email: the code is read from Mailpit's inbox, and the same life goes on", async () => {
     test.skip(!target.local, NO_MAILPIT);
     await openApp(page, "settings");
-    await page.getByRole("button", { name: "Account", exact: true }).click();
+    await page.locator("[data-account-row]").click();
     await page.locator("[data-guest-reminder]").getByRole("button").click();
     const sheet = page.getByRole("dialog", { name: "Keep this life" });
     await expect(sheet).toBeVisible();
@@ -273,7 +273,7 @@ test.describe("one new player, played in order on one phone", () => {
   test("[R-ACCOUNT-001] [R-ACCOUNT-002] the player signs out, then signs in again by a code from Mailpit, and the same life opens", async () => {
     test.skip(!target.local, NO_MAILPIT);
     await openApp(page, "settings");
-    await page.getByRole("button", { name: "Account", exact: true }).click();
+    await page.locator("[data-account-row]").click();
     await page.getByRole("button", { name: "Sign out" }).click();
     // Signed out, the client asks again who is there.
     seen.allow("401 GET /api/view", "401 GET /api/account");
