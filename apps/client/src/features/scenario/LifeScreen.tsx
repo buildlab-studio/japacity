@@ -46,7 +46,9 @@ function LifeCard({ tile, look, on, onPick }: { tile: Archetype; look: string; o
       className="door-life door-card w-[282px] p-2.5 text-left"
       style={{ rotate: on ? "-1.5deg" : "1.5deg" }}
     >
-      <span className={`relative block h-[clamp(160px,calc(100dvh-620px),200px)] rounded-[14px] ${TINTS[thing.tint]}`}>
+      {/* The picture gives way on a phone so a life whose ways run to two rows still shows the age whole above the dots
+          (); on a taller screen it keeps its full height. */}
+      <span className={`relative block h-[clamp(150px,calc(100dvh-735px),200px)] rounded-[14px] ${TINTS[thing.tint]}`}>
         <span className="sticker-chip absolute top-3 left-3 z-[3] bg-[var(--soft)]! px-3! py-1! text-[14px]! text-[var(--soft-ink)]!" style={{ rotate: "-4deg" }} data-tile-tag>
           {say(`ui.door.tag.${tile.id}`)}
         </span>
@@ -122,13 +124,13 @@ export function LifeScreen({ look, picked, once, onPick, lowest, older, open, on
           {say("prologue.archetype.once")}
         </p>
       ) : null}
-      <div ref={deck} className="door-deck mt-4 px-[calc(50%-141px)] pt-2 pb-8" role="radiogroup" aria-label={say("ui.door.life")} onScroll={scrolled} data-archetypes>
+      <div ref={deck} className="door-deck mt-4 px-[calc(50%-141px)] pt-2 pb-5" role="radiogroup" aria-label={say("ui.door.life")} onScroll={scrolled} data-archetypes>
         {ARCHETYPES.map((tile) => (
           <LifeCard key={tile.id} tile={tile} look={look} on={tile.id === picked?.id} onPick={() => onPick(tile)} />
         ))}
       </div>
       {picked === null ? null : <WayChips id={picked.id} mark="data-tile-opens" />}
-      <div className="mt-3.5 flex justify-center" aria-hidden data-door-pager>
+      <div className="mt-2 flex justify-center" aria-hidden data-door-pager>
         <span className="door-dots">
           {ARCHETYPES.map((tile, index) => (
             <i key={tile.id} {...(index === at ? { "data-now": "" } : {})} />
@@ -137,7 +139,7 @@ export function LifeScreen({ look, picked, once, onPick, lowest, older, open, on
       </div>
       <span className="sr-only">{say("ui.door.lives", { n: at + 1, count: ARCHETYPES.length })}</span>
       {lowest === null ? null : (
-        <section className="door-card mx-5 mt-4 mb-4 px-3.5 py-3" aria-label={say("prologue.door.age")} data-door-age>
+        <section className="door-card mx-5 mt-3 mb-4 px-3.5 py-3" aria-label={say("prologue.door.age")} data-door-age>
           <div className="flex items-center gap-3" data-age-steps>
             <span className="sticker-cut" style={{ rotate: "-6deg" }} aria-hidden>
               <span className="flex size-11 items-center justify-center rounded-[12px] bg-[var(--soft)]">
