@@ -58,6 +58,7 @@ import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./actLines";
+import { onShift, shiftMarks } from "./shift";
 import { NAP, SLEEP_MS, sleepMsOf, wakeCommand, wokeWords } from "./sleep";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
@@ -641,6 +642,8 @@ export function City({
   const [nightTeach, setNightTeach] = useState<string | null>(null);
   /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
   const [rideBy, setRideBy] = useState<RideChoice["id"] | null>(null);
+  // How many times each plain act has been tapped in each place: a colleague's lines go round in turn (R-WORLD-039).
+  const tapsHere = useRef(new Map<string, number>());
   const [shipped, setShipped] = useState<Set<string> | null>(null);
   const [menu, setMenu] = useState(false);
   const [credits, setCredits] = useState(false);
@@ -906,6 +909,7 @@ export function City({
   // R-LOTTERY-001: while the world runs the Friday draw the kiosk's act stays, and opens the draw's sheet.
   const activityKey = [...withKiosk(actsOffered(view), view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"]), ...(goHomeOffered(view) ? [`command:${GO_HOME}`] : []), ...(view.ended ? [] : [`command:${COURT}`])].join("|");
   const chapterNow = view.chapter.current;
+  const heldJob = view.job.id;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
   // The world's part of the day decides which things are open (R-CLOCK-033): the viewing centre and the joint from the evening.
@@ -915,8 +919,10 @@ export function City({
     const offered = new Set(activityKey.split("|"));
     const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? []), ...homeStagesAt(placeId, home, here, PLACES), ...byHandAt(placeId, home, here, content.activity)]);
     // Someone standing as themselves (their room's partner) has no act, so is kept past the acts' filter: a tap shows their name (R-PEOPLE-054).
-    return [...thingsNow(withMoreAt(withMeetings(thingsOf(stageOf(file)), meetPlace, standing), meetPlace), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow), dayPart), ...standingAsThemselves(stageOf(file))];
-  }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing, dayPart]);
+    // A job held abroad is held at its thing: the job's act there becomes the shift, its label On shift (R-WORLD-039).
+    const held = onShift(withMoreAt(withMeetings(thingsOf(stageOf(file)), meetPlace, standing), meetPlace), heldJob, here.where === "abroad");
+    return [...thingsNow(held, stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow), dayPart), ...standingAsThemselves(stageOf(file))];
+  }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing, dayPart, heldJob]);
   // The chosen thing's acts already in this month's plan say Planned and are shut.
   const pickedThing = picked?.kind === "thing" ? picked.thing : null;
   // R-ACTIVITY-020: an act done at once that waits for sleep says so on its fan button.
@@ -1013,7 +1019,11 @@ export function City({
         setPicked(null);
         // A person at the thing speaks over their head and what follows is told in the corner; a thing tells its line;
         // an act the scene shows (sit) says nothing.
-        const line = plainActLine(thing, act);
+        // A colleague says the next of their lines at each tap (R-WORLD-039), counted by place for as long as the game is open.
+        const tapKey = `${placeId}:${thing.id}:${act.id}`;
+        const told = tapsHere.current.get(tapKey) ?? 0;
+        tapsHere.current.set(tapKey, told + 1);
+        const line = plainActLine(thing, act, told);
         if (line?.kind === "say") {
           speak(line.who, line.name, line.words);
           const then = line.then;
@@ -1685,7 +1695,7 @@ export function City({
     return () => window.clearTimeout(timer);
   }, [lastLines, world]);
   // The thing's label says what of it is planned this month (R-WORLD-005).
-  const marks = useMemo(() => (things === undefined ? {} : plannedMarks(things, new Set(plannedKey.split("|")))), [things, plannedKey]);
+  const marks = useMemo(() => (things === undefined ? {} : { ...plannedMarks(things, new Set(plannedKey.split("|"))), ...shiftMarks(things, cityWords("city.thing.on-shift")) }), [things, plannedKey]);
   const wasCovered = useRef(covered);
   useEffect(() => {
     if (covered === wasCovered.current) return;
