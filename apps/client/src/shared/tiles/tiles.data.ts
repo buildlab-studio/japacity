@@ -138,7 +138,7 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.buy-clothes-uk": "bld_rye-lane-terrace_d",
   "activity.overtime": "prop_rota-board",
   // Calgary, Dubai and Castel Volturno by hand (streets.md R-STREET-013 to R-STREET-015, place.md R-PLACE-012 as amended):
-  // each act shows the thing it is done at; Naif's tailor and laundry, whose street is not drawn, show Deira's arcades.
+  // each act shows the thing it is done at; Naif's tailor and laundry stand on Deira's arcades.
   "activity.transit-pass-ca": "prop_ticket-machine",
   "activity.transit-pass-uae": "prop_nol-machine",
   "activity.weekly-shop-ca": "prop_trolley-bay",
@@ -258,6 +258,7 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "place.library-ca": "prop_bookshelf",
   "place.church-ca": "prop_pew",
   "place.metro-station-uae": "bld_metro-station",
+  "place.naif": "prop_market-stall",
   "place.big-shop-uae": "prop_trolley-bay",
   "place.site-uae": "prop_guard-post",
   "place.castel-volturno": "prop_roundabout",

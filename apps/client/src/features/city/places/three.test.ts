@@ -19,6 +19,7 @@ import ctrain from "../../../../public/assets/places/ctrain-station-ca/place.jso
 import farm from "../../../../public/assets/places/farm-it/place.json";
 import library from "../../../../public/assets/places/library-ca/place.json";
 import metro from "../../../../public/assets/places/metro-station-uae/place.json";
+import naif from "../../../../public/assets/places/naif/place.json";
 import officeCa from "../../../../public/assets/places/office-ca/place.json";
 import site from "../../../../public/assets/places/site-uae/place.json";
 import domitiana from "../../../../public/assets/places/via-domitiana/place.json";
@@ -66,6 +67,7 @@ const FRONTAGES = [
   ["place.calgary-north-east", calgary],
   ["place.ctrain-station-ca", ctrain],
   ["place.metro-station-uae", metro],
+  ["place.naif", naif],
   ["place.site-uae", site],
   ["place.castel-volturno", castel],
   ["place.via-domitiana", domitiana],
@@ -106,6 +108,19 @@ describe("Calgary's strip mall and its station", () => {
     expect(opens(metro, "nol-machine")).toEqual(["activity.transit-pass-uae"]);
     expect(stagedAt("activity.transit-pass-uae", UAE, PLACES)).toBe("place.metro-station-uae");
     for (const raw of [ctrain, metro]) expect(thingIn(raw, "platform").acts.map((act) => act.kind)).toContain("ride");
+  });
+});
+
+describe("Naif", () => {
+  test("[R-STREET-014] [R-STREET-005] [R-WORLD-005] given Naif's souq frontage on Deira's arcades, when its things are read, then the stall opens the souq's shopping, the tailor the tailor and the laundry the laundry, each staged there for the UAE, under Naif's own boards", () => {
+    const acts: Record<string, string> = { "spice-stall": "activity.street-shopping-uae", tailor: "activity.buy-clothes-uae", laundry: "activity.laundry-uae" };
+    for (const [thing, act] of Object.entries(acts)) {
+      expect([thing, opens(naif, thing)]).toEqual([thing, [act]]);
+      expect([thing, stagedAt(act, UAE, PLACES)]).toEqual([thing, "place.naif"]);
+    }
+    const boards = stageOf(naif as unknown as PlaceFile).models.flatMap((model) => (model.signs ?? []).flat());
+    expect(boards.length).toBe(7);
+    expect(boards.every((key) => key.startsWith("place.naif.sign."))).toBe(true);
   });
 });
 

@@ -10,6 +10,11 @@ export const dubaiWords: Readonly<Record<string, string>> = {
   "city.act.naija-shop": "A taste of home",
   "city.thing.cafeteria": "Cafeteria",
   "city.act.cafeteria": "Rice and curry",
+  // Naif (R-STREET-014): the tailor and the laundry on the souq's arcades.
+  "city.thing.tailor": "Tailor",
+  "city.act.tailor": "Get measured",
+  "city.thing.laundry": "Laundry",
+  "city.act.laundry": "Wash and iron",
   // Union station: the Nol machine that sells the month's zone pass (place.md R-PLACE-012 as amended), the gates.
   "city.thing.nol-machine": "Nol machine",
   "city.act.transit-pass": "Zone pass",
