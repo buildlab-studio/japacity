@@ -148,9 +148,9 @@ export function waysAbroad(ways: readonly RideWayView[], ids: { from: string; to
   const from = positionOf(ids.from);
   const to = positionOf(ids.to);
   return ways
-    .filter((way) => DRAWN_ABROAD.has(way.way as RideChoice["id"]))
+    .filter((way) => DRAWN_ABROAD.has(way.way))
     .map((way): RideChoice => {
-      const id = way.way as RideChoice["id"];
+      const id = way.way;
       const metres = minutesMetres(from !== null && to !== null ? { from, to } : at, way.lonMetresPerE3);
       // The simulation shuts a walk only between two places it knows the positions of, and never one to the room.
       const far = id === "walk" && from !== null && to !== null && metresApart(from, to, way.lonMetresPerE3) > walkMetres;

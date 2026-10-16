@@ -73,7 +73,9 @@ const FRONTAGES = [
 ] as const;
 
 // The site's models carry no sign (its hoarding, its frame, the guard's post): held to that instead of to its boards.
-for (const [id, raw] of FRONTAGES) describe(id, () => frontageTests(raw, id, { boards: id !== "place.site-uae" }));
+describe.each(FRONTAGES)("%s", (id, raw) => {
+  frontageTests(raw, id, { boards: id !== "place.site-uae" });
+});
 
 describe("Calgary's strip mall and its station", () => {
   test("[R-STREET-013] [R-WORLD-005] given the strip mall, when its things are read, then the notice opens the hunt, the coffee shop, the African store and the barber their acts, the transfer counter money home and the bench the find, each staged here for Canada", () => {

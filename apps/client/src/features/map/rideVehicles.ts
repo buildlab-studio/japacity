@@ -67,17 +67,17 @@ export const VEHICLES: Readonly<Record<AbroadVehicle, VehicleSpec>> = {
  * ways and London's, which keep their own.
  */
 export function vehicleFor(country: string | null, way: RideChoice["id"], shuttle: boolean): AbroadVehicle | null {
-  switch (country) {
-    case "country.canada":
-      return way === "bus" ? "calgary-bus" : way === "train" ? "ctrain" : way === "taxi" ? "canada-taxi" : null;
-    case "country.uae":
-      return way === "bus" ? (shuttle ? "labour-bus" : "dubai-bus") : way === "train" ? "dubai-metro" : way === "taxi" ? "dubai-taxi" : null;
-    case "country.italy":
-      return way === "bus" ? (shuttle ? "van" : "italy-bus") : null;
-    default:
-      return null;
-  }
+  const ways = country === null ? undefined : BY_COUNTRY[country];
+  if (ways === undefined) return null;
+  return (shuttle && way === "bus" ? ways.shuttle : undefined) ?? ways[way] ?? null;
 }
+
+/** Each country's vehicles by way, and the shuttle's bus where the country has one. */
+const BY_COUNTRY: Readonly<Record<string, Partial<Record<RideChoice["id"] | "shuttle", AbroadVehicle>>>> = {
+  "country.canada": { bus: "calgary-bus", train: "ctrain", taxi: "canada-taxi" },
+  "country.uae": { bus: "dubai-bus", train: "dubai-metro", taxi: "dubai-taxi", shuttle: "labour-bus" },
+  "country.italy": { bus: "italy-bus", shuttle: "van" },
+};
 
 /** A way's tile on the ride sheet in the country the life is in: its vehicle's model, or null where Lagos's or London's own stands. */
 export function wayModelFor(country: string | null, way: RideChoice["id"], shuttle: boolean): string | null {

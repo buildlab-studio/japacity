@@ -149,8 +149,8 @@ describe("the country's own vehicle", () => {
     const way = spec.rail ? "train" : kind.endsWith("taxi") ? "taxi" : "bus";
     expect(anglesOf(way)).toEqual(anglesOf("danfo"));
     const ride = buildRide(way, undefined, kind);
-    if (spec.rail) expect(ride.vehicle.position.x).toBe(0);
-    else expect(ride.vehicle.position.x).toBeGreaterThan(0);
+    // On rails the car keeps the middle; on the road the right-hand lane, the world's +x.
+    expect(spec.rail ? ride.vehicle.position.x === 0 : ride.vehicle.position.x > 0).toBe(true);
     const windowAt = anglesOf(way).find((part) => part.angle === "window")?.from ?? 0;
     ride.frame(windowAt + 10, 0.46);
     // The body turns to face its travel, so the seat's -x side, the kerb's, is the world's +x.
