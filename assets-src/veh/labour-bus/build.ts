@@ -18,10 +18,10 @@ import type { RideSeat } from "../ride";
 export const LABOUR_BUS = { length: 7.3, width: 2.3, floor: 0.95, sill: 1.79, head: 2.41, roof: 2.8 } as const;
 
 /** The ride's seat in the built frame: a window seat on the kerb side, in the row by the middle window. */
-export const LABOUR_BUS_SEAT_BUILT: RideSeat = { eye: [0.12, 2.1, 0.8], window: [1.5, 1.8, 6], ahead: [8, 1.9, 0.3] };
+export const LABOUR_BUS_SEAT_BUILT: RideSeat = { eye: [-0.08, 2.1, 0.8], window: [0.6, 1.8, 6], ahead: [8, 1.9, 0.3] };
 
 /** The same seat in the turned model's own frame (facing +z, the kerb side at -x), as the ride reads it. */
-export const LABOUR_BUS_SEAT: RideSeat = { eye: [-0.8, 2.1, 0.12], window: [-6, 1.8, 1.5], ahead: [-0.3, 1.9, 8] };
+export const LABOUR_BUS_SEAT: RideSeat = { eye: [-0.8, 2.1, -0.08], window: [-6, 1.8, 0.6], ahead: [-0.3, 1.9, 8] };
 
 export function buildLabourBus(): Group {
   const g = new Group();
@@ -85,13 +85,13 @@ export function buildLabourBus(): Group {
   cbox(g, L, 0.08, width, 0, roof + 0.04, 0, "white");
   cbox(g, 0.8, 0.12, 0.8, -0.8, roof + 0.14, 0, "hub");
 
-  // The seats: rows of two and two facing ahead, the bench across the back; a grab rail down the aisle.
+  // The seats: rows of two and two facing ahead, each by its window, the bench across the back; a grab rail down the aisle.
   const seat = (x: number, z: number, w = 0.86): void => {
     cbox(g, 0.42, 0.1, w, x, floor + 0.44, z, "seat");
     cbox(g, 0.08, 0.6, w, x - 0.22, floor + 0.76, z, "seat");
     cbox(g, 0.06, 0.4, 0.06, x - 0.08, floor + 0.2, z, "hub");
   };
-  for (let x = 1.75; x > -hl + 0.9; x -= 0.82) {
+  for (let x = 1.52; x > -hl + 0.9; x -= 0.82) {
     seat(x, -0.62);
     seat(x, 0.62);
   }
