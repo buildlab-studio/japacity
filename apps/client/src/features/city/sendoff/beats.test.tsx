@@ -118,7 +118,9 @@ describe("the send-off's beats, laid out", () => {
     const inside: Record<string, string> = { "double-decker": ".so-pole", pickup: ".so-wheel", taxi: ".so-headrest", "domitiana-bus": ".so-rail" };
     expect(document.querySelector("[data-so-beat='ride']")?.getAttribute("data-staple")).toBe(landing.staple);
     expect(document.querySelector(inside[landing.staple]!)).not.toBeNull();
-    for (const [staple, selector] of Object.entries(inside)) if (staple !== landing.staple && selector !== ".so-pole") expect(document.querySelector(selector)).toBeNull();
+    // No other staple's own inside is drawn (the pole stands on both buses).
+    const others = Object.entries(inside).filter(([staple, selector]) => staple !== landing.staple && selector !== ".so-pole");
+    expect(others.filter(([, selector]) => document.querySelector(selector) !== null)).toEqual([]);
     const ending: Record<string, string> = { "double-decker": "Even the bus stop.", pickup: "Even the truck.", taxi: "Even the taxi.", "domitiana-bus": "Even the bus stop." };
     expect(document.querySelector("[data-so-ping='2']")?.textContent).toContain(ending[landing.staple]);
     expect(text["chats.friend.landed.text"]).toContain("Even the bus stop.");
@@ -135,8 +137,9 @@ describe("the send-off's beats, laid out", () => {
     const landing = landingOf(country as `country.${string}`)!;
     const people = STOP_PEOPLE[country]!;
     const label = sendOffWords(`sendoff.landing.by.${country}`);
-    const named = /^(Aunty|Sister|Woman)\b/.test(label) ? "f" : /^(Man|Brother|Uncle)\b/.test(label) ? "m" : null;
-    if (named !== null) expect([label, people.sex]).toEqual([label, named]);
+    // A label that names a sex names the person's; the neighbour may be either.
+    const named = /^(Aunty|Sister|Woman)\b/.test(label) ? "f" : /^(Man|Brother|Uncle)\b/.test(label) ? "m" : people.sex;
+    expect([label, people.sex]).toEqual([label, named]);
     for (const look of people.looks) {
       expect([look, ROSTER.find((person) => person.file === `shared/chr/${look}.glb`)?.sex]).toEqual([look, people.sex]);
       expect(content.place[landing.hub]).toBeDefined();
