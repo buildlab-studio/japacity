@@ -4,7 +4,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Img, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
-import { CLIPS, type ClipName } from "../clips";
+import { ALL_CLIPS, type ClipName } from "../clips";
 import { land, pop, wobble } from "./motion";
 import { DAY, DEVICE, FONT, NAVY, type Paint, YELLOW } from "./tokens";
 
@@ -121,7 +121,7 @@ export function Title({ words, size = 168, color = DAY.ink, delay = 0, align = "
 
 /** A recorded moment of the game, from apps/teaser/clips. */
 export function Clip({ name, from = 0, style }: { name: ClipName; from?: number; style?: CSSProperties }) {
-  const clip = CLIPS.find((one) => one.name === name);
+  const clip = ALL_CLIPS.find((one) => one.name === name);
   if (clip === undefined) throw new Error(`No clip named ${name}`);
   return <OffthreadVideo src={staticFile(`clips/${clip.file}`)} muted trimBefore={from} style={{ width: "100%", height: "100%", objectFit: "cover", ...style }} />;
 }

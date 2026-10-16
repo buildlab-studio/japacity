@@ -51,9 +51,10 @@ export async function startScreencast(page: Page, folder: string, size: { width:
 
 /**
  * Writes the frames between two times as a WebM at a steady 30 frames a second: each frame holds until the next one came,
- * as the screencast only sends a frame when the screen changed.
+ * as the screencast only sends a frame when the screen changed. `shape` is an ffmpeg filter run on each frame first (the
+ * tall shots' crop to 1080 by 1920).
  */
-export function cutClip(frames: readonly Frame[], from: number, to: number, out: string, ffmpeg: string): number {
+export function cutClip(frames: readonly Frame[], from: number, to: number, out: string, ffmpeg: string, shape?: string): number {
   const inside = frames.filter((frame) => frame.at <= to);
   const startAt = inside.findLastIndex((frame) => frame.at <= from);
   const chosen = inside.slice(Math.max(0, startAt));
@@ -71,7 +72,7 @@ export function cutClip(frames: readonly Frame[], from: number, to: number, out:
   writeFileSync(list, `${lines.join("\n")}\n`);
   const result = spawnSync(
     ffmpeg,
-    ["-loglevel", "error", "-y", "-safe", "0", "-f", "concat", "-i", list, "-vf", "fps=30,format=yuv420p", "-c:v", "libvpx-vp9", "-crf", "30", "-b:v", "0", "-row-mt", "1", "-deadline", "good", "-cpu-used", "2", "-an", out],
+    ["-loglevel", "error", "-y", "-safe", "0", "-f", "concat", "-i", list, "-vf", `${shape === undefined ? "" : `${shape},`}fps=30,format=yuv420p`, "-c:v", "libvpx-vp9", "-crf", "30", "-b:v", "0", "-row-mt", "1", "-deadline", "good", "-cpu-used", "2", "-an", out],
     { stdio: "inherit" },
   );
   rmSync(list, { force: true });
