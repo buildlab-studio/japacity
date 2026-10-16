@@ -1778,8 +1778,8 @@ export function City({
             pins,
             country: shownCountry,
             countries,
-            // The drawn city is Lagos; abroad the map is its list of stops until that city is drawn (R-WORLD-015).
-            drawing: drawing && where === "home",
+            // The ride's scene draws at home and in a country whose ways are drawn (R-WORLD-015, R-WORLD-039).
+            drawing: drawing && (where === "home" || (where === "abroad" && (view.place.ways ?? []).length > 0)),
             diveTo,
             pickFirst: mapPick,
             step: stepWay?.go ?? null,
@@ -1800,9 +1800,9 @@ export function City({
               setMapPick(null);
             },
             // R-PLACE-010: the fare leaves cash through the command, and the ride plays only once it is
-            // accepted; abroad the map asks no fare (decision 0011).
+            // accepted, at home and, since 16 Oct 2026, in a country that lists its ways; a country with none asks no fare.
             onRide: async (choice, to) => {
-              if (view.place.where !== "home") return true;
+              if (view.place.where === "road" || (view.place.where === "abroad" && (view.place.ways ?? []).length === 0)) return true;
               const reply = await send({ type: "place/ride", from: placeId as Id<"place">, to: to as Id<"place">, way: choice.id });
               return reply?.ok === true;
             },
