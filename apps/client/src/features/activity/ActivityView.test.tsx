@@ -12,16 +12,28 @@ import { blurbOf, lowerFirst, say } from "../../shared/words/text";
 import { ActivityView } from "./ActivityView";
 
 const addButton = (id: string) => screen.getByRole("button", { name: `${text[`${id}.name`] ?? id}` });
+/**
+ * An act's own card (16 Oct 2026, the three countries' wave): the weekly shop, a meal of your own and a fresh cut are named
+ * alike in every country, so an act is found within its card, not by its name across the page.
+ */
+const cardOf = (id: string): HTMLElement => {
+  const card = document.querySelector<HTMLElement>(`[data-act-card="${id}"]`);
+  if (card === null) throw new Error(`No card for ${id}`);
+  return card;
+};
+const addButtonIn = (id: string) => within(cardOf(id)).getByRole("button", { name: `${text[`${id}.name`] ?? id}` });
 
 describe("the month plan", () => {
   // The picker lists every act of the life with its card; reading each by role takes time under load.
   test("[R-TURN-006] given a new life, then every free-slot activity shows its name and blurb from content, but rest, which an empty slot already is", { timeout: 30_000 }, async () => {
     const view = engineView();
     await renderWithView(<ActivityView />, view);
+    // each act is read within its own card, since several countries' acts
+    // share a name ("The weekly shop", "A meal of your own", "A fresh cut").
     for (const option of view.activities.filter((candidate) => candidate.id !== "activity.rest")) {
-      expect(screen.getByRole("heading", { name: text[`${option.id}.name`]! })).toBeDefined();
+      expect(within(cardOf(option.id)).getByRole("heading", { name: text[`${option.id}.name`]! })).toBeDefined();
       // the blurb as the screen says it, its `{hometown}` filled (R-PROLOGUE-002, amended).
-      expect(screen.getByText(blurbOf(option.id) ?? "")).toBeDefined();
+      expect(within(cardOf(option.id)).getByText(blurbOf(option.id) ?? "")).toBeDefined();
     }
     expect(screen.queryByRole("heading", { name: text["activity.rest.name"]! })).toBeNull();
   });
@@ -101,7 +113,8 @@ describe("the month plan", () => {
     expect(within(later as HTMLElement).getByText(say("ui.activity.later"))).toBeDefined();
     const abroad = view.activities.filter((option) => content.activity[option.id]?.where === "abroad");
     expect(abroad.length).toBeGreaterThan(0);
-    for (const option of abroad) expect(later.contains(addButton(option.id))).toBe(true);
+    // each act's button is found within its own card, the names shared.
+    for (const option of abroad) expect(later.contains(addButtonIn(option.id))).toBe(true);
     expect(later.contains(addButton("activity.family-time"))).toBe(false);
   });
 
