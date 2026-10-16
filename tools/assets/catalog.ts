@@ -64,6 +64,11 @@ import { buildLondonBus } from "@japacity/assets-src/veh/london-bus/build";
 import { buildTrainCarriage } from "@japacity/assets-src/veh/train-carriage/build";
 import { buildCornerPub } from "@japacity/assets-src/bld/corner-pub/build";
 import * as london from "@japacity/assets-src/prop/london/build";
+import * as castel from "@japacity/assets-src/places/castel-volturno/build";
+import * as farm from "@japacity/assets-src/places/farm-it/build";
+import { buildPine } from "@japacity/assets-src/places/via-domitiana/build";
+import { buildItalyBus } from "@japacity/assets-src/veh/italy-bus/build";
+import { buildVan } from "@japacity/assets-src/veh/van/build";
 import { Group } from "three";
 
 import { type BakedModel, bakeGroup, linearColour } from "./bake";
@@ -653,6 +658,43 @@ ENTRIES.push(
   placePiece("prop_smoking-shelter", "warehouse-uk", london.buildSmokingShelter),
   placePiece("prop_pew", "church-uk", london.buildPew),
   placePiece("prop_altar", "church-uk", london.buildAltar),
+);
+
+/** Castel Volturno on the mold (design page 15): the coast road's bus and the gangmaster's van for the ride, the roundabout, the Domitiana and the fields. */
+const ITALY = "The makers, written as code from the kit";
+/** Every dish at the roundabout and on the Domitiana faces one way (R-ASSET-019); their blocks all stand square to the road. */
+const CASTEL_DISH_YAW = 2.1;
+
+/** A piece of one of Castel Volturno's places, its renders beside its builder under the place's folder. */
+function italyPiece(name: string, folder: string, source: string, build: () => Group, views: ViewName[] = [...ELEVATIONS, "phone"]): CatalogEntry {
+  return { name, file: `places/${folder}/${name}.glb`, place: `place.${folder}`, source: `assets-src/places/${folder}/${source}`, author: ITALY, views, build: () => staticModel(name, build()) };
+}
+
+/** A plaster row from its numbers in spec.json (R-ASSET-014). */
+function plasterRow(name: string, folder: string, source: string): CatalogEntry {
+  const build = (): Group => castel.buildPlasterRow(readJson<castel.PlasterRowSpec>(join(SOURCE, "places", folder, source, "spec.json")), CASTEL_DISH_YAW);
+  return italyPiece(name, folder, source, build, [...ELEVATIONS, "plan", "phone"]);
+}
+
+ENTRIES.push(
+  { name: "veh_italy-bus", file: "shared/veh/veh_italy-bus.glb", place: "shared", source: "assets-src/veh/italy-bus", author: ITALY, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_italy-bus", buildItalyBus()) },
+  { name: "veh_van", file: "shared/veh/veh_van.glb", place: "shared", source: "assets-src/veh/van", author: ITALY, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_van", buildVan()) },
+  // The roundabout (R-WORLD-011): two plaster rows with the bar, the African shop and the call shop, the island and its sign, the bar's counter, the palms and the stop's pole.
+  plasterRow("bld_castel-row_a", "castel-volturno", "row-a"),
+  plasterRow("bld_castel-row_b", "castel-volturno", "row-b"),
+  italyPiece("prop_roundabout", "castel-volturno", "roundabout", () => castel.buildRoundabout("place.castel-volturno.sign.roundabout", { board: "blue", ink: "white", border: "white" }), [...ELEVATIONS, "plan", "phone"]),
+  italyPiece("prop_bar-counter", "castel-volturno", "bar-counter", castel.buildBarCounter),
+  italyPiece("prop_palm", "castel-volturno", "palm", castel.buildPalm),
+  italyPiece("prop_bus-pole", "castel-volturno", "bus-pole", () => castel.buildBusPole("place.castel-volturno.sign.stop", { board: "white", ink: "blue", border: "blue" })),
+  // The Domitiana: the low block of the Nigerian shop and the barber, and the stone pines of the coast.
+  plasterRow("bld_domitiana-block", "via-domitiana", "block"),
+  italyPiece("prop_pine", "via-domitiana", "pine", buildPine),
+  // The fields: the rows, the gangmaster's table, the crates, the tap and the tree.
+  italyPiece("prop_crop-row", "farm-it", "crop-row", farm.buildCropRow, [...ELEVATIONS, "plan", "phone"]),
+  italyPiece("prop_tarp-table", "farm-it", "tarp-table", () => farm.buildTarpTable("place.farm-it.sign.table", { board: "tan", ink: "black", painted: true })),
+  italyPiece("prop_field-crates", "farm-it", "field-crates", farm.buildFieldCrates),
+  italyPiece("prop_water-tap", "farm-it", "water-tap", farm.buildWaterTap),
+  italyPiece("prop_shade-tree", "farm-it", "shade-tree", farm.buildShadeTree),
 );
 
 /** Every shipped asset, each model a player could be shown as a thing with the tile view beside its fixed views. */
