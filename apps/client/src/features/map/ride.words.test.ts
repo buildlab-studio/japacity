@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { mapWords } from "./map.words";
 import { alongOf } from "./Ride";
-import type { Way } from "./rideScene";
+import { anglesOf, PRE_MS, RIDE_MS, type Way } from "./rideScene";
 
 const WAYS: readonly Way[] = ["okada", "keke", "danfo", "walk"];
 
@@ -19,6 +19,19 @@ describe("the ride's lines", () => {
     for (const key of keys) expect({ key, one: oneLine(mapWords(key, { things: 3, from: "Ojuelegba", to: "Bode Thomas Street" })) }).toEqual({ key, one: true });
     expect(mapWords("map.line.here", { things: 3 })).not.toContain(mapWords("map.state.here"));
     expect(mapWords("map.line.not")).not.toContain(mapWords("map.state.not"));
+  });
+
+  test("[R-WORLD-032] given a danfo ride, when it cuts from the window to the seat, then the two angles carry different captions, whatever the ride's seed", () => {
+    const at = (angle: string) => anglesOf("danfo").find((part) => part.angle === angle)?.from ?? Number.NaN;
+    const u = (ms: number) => (ms - PRE_MS) / (RIDE_MS - PRE_MS);
+    // A moment into each angle, as the catalog's picture of it is taken.
+    const window = u(at("window") + 350);
+    const seat = u(at("seat") + 350);
+    for (let seed = 0; seed < 12; seed += 1) {
+      const onWindow = mapWords(alongOf(window, seed, "danfo").key);
+      const onSeat = mapWords(alongOf(seat, seed, "danfo").key);
+      expect([seed, onWindow === onSeat]).toEqual([seed, false]);
+    }
   });
 
   test("[R-WORLD-017] given each way, when the ride's road line that names a person is said, then it names that way's own: the okada's rider, the keke's and the danfo's driver, and on foot yourself; the other road lines are shared", () => {

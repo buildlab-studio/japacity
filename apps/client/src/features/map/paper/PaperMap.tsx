@@ -17,13 +17,14 @@ import { CardView } from "./CardView";
 import { CARD_IDS, CARDS, type CardId, cardById, cardIndex, cardOf } from "./districts";
 import { fold, FOLD_MS, folded, openingCard, unfolded } from "./fold";
 import { CELL } from "./draw";
-import { fromPaper, PAPER, type Point } from "./fit";
+import { fromPaper, type Point } from "./fit";
 import { buildGraph, type Channel, routeBetween, routeChannel } from "./route";
 import { type Marks, type Placed, placeStops } from "./stops";
 import { STRIP_H, Strip, stripFrame } from "./Strip";
 import { useTiles } from "./useTiles";
 import { LANTERN_CANOE } from "./geometry";
 import type { CanoeFill } from "./LanternCanoe";
+import { clampView, openFrame, openingView, type OpenView } from "./view";
 import { type Canoe, type Frame, World } from "./World";
 
 /** What a browser test reads of the map: where the stops stand, which card shows, the fold, the route and its channel. */
@@ -45,11 +46,6 @@ declare global {
 }
 
 const GRAPH = buildGraph();
-/** The open map's zoom on a phone, and how far a pinch may take it. */
-const OPEN_ZOOM = 0.92;
-const WIDE_ZOOM = 1.3;
-const ZOOM_MIN = 0.55;
-const ZOOM_MAX = 2.6;
 const WIDE = "(min-width: 64rem)";
 /** How long after a card shows its neighbours draw. */
 const NEIGHBOURS_MS = 450;
@@ -88,32 +84,6 @@ function useBox(): [React.RefObject<HTMLDivElement | null>, { width: number; hei
   return [ref, size];
 }
 
-/** The open map's view: the paper point in the middle and the zoom. */
-interface OpenView {
-  cx: number;
-  cy: number;
-  z: number;
-}
-
-/**
- * The open map's first look from a card: the district a little up and to the left of the middle, so the lagoon, its
- * bridge and the island come into the same look as where the player was.
- */
-function openingView(card: CardId, wide = false): OpenView {
-  const framed = cardById(card);
-  // A laptop's screen is wide: it takes the district closer, the lagoon and the island beside it.
-  return wide ? clampView({ cx: framed.centre[0] + 90, cy: framed.centre[1] + 110, z: WIDE_ZOOM }) : clampView({ cx: framed.centre[0] + 70, cy: framed.centre[1] + 150, z: OPEN_ZOOM });
-}
-
-function clampView(view: OpenView): OpenView {
-  const z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, view.z));
-  return { cx: Math.min(PAPER.width, Math.max(0, view.cx)), cy: Math.min(PAPER.height, Math.max(0, view.cy)), z };
-}
-
-function openFrame(view: OpenView, width: number, height: number): Frame {
-  return { x: width / 2 - view.z * view.cx, y: height / 2 - view.z * view.cy, sx: view.z, sy: view.z };
-}
-
 /**
  * The part of the paper an open view shows, with a margin, in whole squares of the grain, so it changes only as a pan
  * crosses a square and the grain far off the screen is never drawn.
@@ -136,8 +106,8 @@ export interface PaperMapProps {
   step: string | null;
   names: (id: string) => string;
   onPick: (id: string) => void;
-  /** The country menu and the close button, which this layout places. */
-  country: ReactNode;
+  /** The country menu, its list opening upward (at the folded map's foot) or downward (at the top), and the close button, which this layout places. */
+  country: (up: boolean) => ReactNode;
   close: ReactNode;
   /** Whether a ride sheet is up at the foot. */
   sheetUp: boolean;
@@ -196,7 +166,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
   );
 
   // The open map's view: framed on the card's district when it opens.
-  const [view, setView] = useState<OpenView>(() => openingView(state.card, wide));
+  const [view, setView] = useState<OpenView>(() => openingView(state.card, wide, size));
 
   const pick = useCallback(
     (id: string) => {
@@ -220,7 +190,7 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
           dispatch({ type: "swipe", card });
         }} />
         <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto flex max-w-[430px] items-start justify-between gap-2 p-3 pt-[max(12px,env(safe-area-inset-top))]">
-          {country}
+          {country(false)}
           {close}
         </div>
         <CardRow current={state.card} stops={placed} names={names} marks={marks} tiles={tiles} route={channel === "card" ? route : null} lift={null} onPick={pick} sheetUp={sheetUp} onCard={(card) => {
@@ -245,11 +215,11 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
         route={channel === "strip" ? route : null}
         tiles={tiles}
         onTap={() => {
-          setView(openingView(state.card));
+          setView(openingView(state.card, false, size));
           dispatch({ type: "tap-strip" });
         }}
         onDrag={(dy) => {
-          if (state.pull === 0) setView(openingView(state.card));
+          if (state.pull === 0) setView(openingView(state.card, false, size));
           dispatch({ type: "drag", dy });
         }}
         onRelease={() => dispatch({ type: "release" })}
@@ -274,7 +244,8 @@ export function PaperMap({ pins, home, picked, step, names, onPick, country, clo
         still={still}
         sheetUp={sheetUp}
       />
-      {sheetUp ? null : <div className="paper-country">{country}</div>}
+      {/* The folded map's menu stands at its foot; once the map unfolds, the open map's own menu at the top is the one. */}
+      {sheetUp || open ? null : <div className="paper-country">{country(true)}</div>}
       {open ? (
         <Unfold
           state={state}
@@ -445,6 +416,10 @@ function OpenLayer({ size, view, setView, stops, names, marks, tiles, route, can
   const pinch = useRef<number | null>(null);
   const own = openFrame(view, size.width, size.height);
   const shown = frame ?? own;
+  // The paper drawn round the view changes only as a pan crosses a square of the grain: kept by its numbers, the drawing
+  // is not redrawn on every frame of the unfolding or of a pan (the open map ends its unfolding crisp on a busy phone).
+  const [x0, y0, x1, y1] = seen(own, size);
+  const within = useMemo(() => [x0, y0, x1, y1] as const, [x0, y0, x1, y1]);
   const pointerDown = (event: ReactPointerEvent<HTMLDivElement>): void => {
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     down.current = { x: event.clientX, y: event.clientY, moved: false };
@@ -489,7 +464,7 @@ function OpenLayer({ size, view, setView, stops, names, marks, tiles, route, can
   };
   return (
     <div className="paper-open" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} style={{ opacity }} data-open-map>
-      <World variant="open" uid="open" frame={shown} within={seen(own, size)} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={36} route={route} canoe={canoe} onPick={onPick} style={transition === undefined ? undefined : { transition }} />
+      <World variant="open" uid="open" frame={shown} within={within} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={36} route={route} canoe={canoe} onPick={onPick} style={transition === undefined ? undefined : { transition }} />
     </div>
   );
 }
@@ -499,7 +474,7 @@ interface UnfoldProps extends Omit<LayerProps, "frame" | "transition" | "opacity
   stripWidth: number;
   still: boolean;
   onSettled: () => void;
-  country: ReactNode;
+  country: (up: boolean) => ReactNode;
   close: ReactNode;
 }
 
@@ -547,9 +522,13 @@ function Unfold({ state, size, stripWidth, still, onSettled, country, close, ...
   const moving = !still && !pulling && state.phase !== "open";
   const motion = moving ? `transform ${String(FOLD_MS)}ms cubic-bezier(0.2, 0.9, 0.25, 1)` : undefined;
   const opacity = still ? (grown || state.phase === "open" ? 1 : 0) : 1;
+  // Once the unfolding moves, the head row and the stickers fade in over its last part (paper.css .paper-arriving), so
+  // the open map stands whole when the motion ends, whenever the fold is told it has settled.
+  const arriving = !still && state.phase === "opening" && grown;
+  const hidden = state.phase !== "open" && !arriving;
   return (
     <div
-      className={`paper-unfold ${still ? "paper-fade" : ""} ${state.phase === "open" ? "" : "paper-moving"}`}
+      className={`paper-unfold ${still ? "paper-fade" : ""} ${hidden ? "paper-moving" : ""} ${arriving ? "paper-arriving" : ""}`}
       style={{ opacity, transition: still ? `opacity ${String(FOLD_MS)}ms ease` : undefined }}
       onTransitionEnd={(event) => {
         if (moving && event.propertyName === "transform" && (event.target as HTMLElement).dataset.frame !== undefined) onSettled();
@@ -559,8 +538,8 @@ function Unfold({ state, size, stripWidth, still, onSettled, country, close, ...
       <div className="paper-frame" style={{ transform: `translate(${String(outer.x)}px, ${String(outer.y)}px) scale(${String(outer.sx)}, ${String(outer.sy)})`, transition: motion }} data-frame>
         <OpenLayer {...layer} size={size} frame={paper} transition={motion} />
       </div>
-      <div className="paper-open-head" style={{ opacity: state.phase === "open" ? 1 : 0 }}>
-        {country}
+      <div className="paper-open-head" style={{ opacity: hidden ? 0 : 1 }} data-open-head>
+        {country(false)}
         {close}
       </div>
     </div>

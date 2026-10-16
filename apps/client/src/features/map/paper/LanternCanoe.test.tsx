@@ -21,7 +21,9 @@ import { FOLD_MS } from "./fold";
 import { BRIDGE_NAME_PATH, DECOR, FERRY_LINE, LAND, LANTERN_CANOE, LANTERN_CANOE_CLEAR, ROADS } from "./geometry";
 import { CANOE_HIT } from "./LanternCanoe";
 import { inside, nearLine, scatter } from "./scatter";
+import { CARD_IDS } from "./districts";
 import { placeStops } from "./stops";
+import { canoeRoom, onScreen, openingView } from "./view";
 // Loaded here, so the map screen's own lazy load of it settles at once.
 import "./PaperMap";
 
@@ -101,6 +103,31 @@ describe("where the canoe is moored", () => {
     const ground = groundOf();
     expect(ground.clear).toContainEqual([CX, CY, LANTERN_CANOE_CLEAR]);
     for (const [x, y] of scatter(ground).waves) expect(Math.hypot(x - CX, y - CY)).toBeGreaterThanOrEqual(LANTERN_CANOE_CLEAR);
+  });
+});
+
+describe("where the open map opens", () => {
+  test("[R-WORLD-036] given the open map opening from any neighbourhood's card, on a phone of either size or a laptop, then the canoe stands whole on the screen below the head row, or wholly off it, never half off", () => {
+    const screens = [
+      { size: { width: 412, height: 839 }, wide: false },
+      { size: { width: 390, height: 844 }, wide: false },
+      { size: { width: 1280, height: 800 }, wide: true },
+    ];
+    for (const { size, wide } of screens) {
+      for (const card of CARD_IDS) {
+        const [x, y] = onScreen(openingView(card, wide, size), size, LANTERN_CANOE.at);
+        const half = CANOE_HIT / 2;
+        const off = x + half <= 0 || x - half >= size.width || y + half <= 0 || y - half >= size.height;
+        const [left, top, right, bottom] = canoeRoom(size);
+        const whole = x >= left && x <= right && y >= top && y <= bottom;
+        expect([size.width, card, off || whole]).toEqual([size.width, card, true]);
+      }
+    }
+    // From Bode Thomas by day on a phone, where it opened half off at the top right, it now opens whole.
+    const size = { width: 412, height: 839 };
+    const [x, y] = onScreen(openingView("bode", false, size), size, LANTERN_CANOE.at);
+    expect(x + CANOE_HIT / 2).toBeLessThanOrEqual(size.width);
+    expect(y).toBeGreaterThanOrEqual(canoeRoom(size)[1]);
   });
 });
 

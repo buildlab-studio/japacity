@@ -2,7 +2,7 @@
 // (Makoko's huts, the canoes, the danfos) and the places, each its own sticker and the sticker the pin, moved and
 // zoomed together by one transform. The stickers keep their size on the screen at every zoom; the huts and boats are
 // part of the paper and grow with it. One pin rule in every zoom (stops.ts): a ring only where the player stands, on the
-// stop picked and on the step's place; names on those, on home and on a place never visited.
+// stop picked and on the step's place; names on those, on home and on a place never visited, and on a card on a place visited.
 import type { CSSProperties } from "react";
 import { memo, use, useMemo } from "react";
 
@@ -68,11 +68,13 @@ export interface WorldProps {
   onPick?: (id: string) => void;
   /** R-WORLD-036: the lantern canoe, drawn on the open map alone. */
   canoe?: Canoe | null;
+  /** The district names painted, by key; all when absent. */
+  labels?: ReadonlySet<string> | null;
   className?: string;
   style?: CSSProperties | undefined;
 }
 
-const NAME_KEYS: Readonly<Record<Exclude<Name, "picked" | "step" | "new">, string>> = { here: "map.state.here", home: "map.state.home" };
+const NAME_KEYS: Readonly<Record<Exclude<Name, "picked" | "step" | "been" | "new">, string>> = { here: "map.state.here", home: "map.state.home" };
 
 /** The words on a name: "You are here", "Home", or the place's own name (with a chevron when it opens the ride). */
 function nameWords(kind: Name, name: string): string {
@@ -91,7 +93,7 @@ function shiftStyle(shift: NameShift | undefined): CSSProperties | undefined {
   return { "--nx": `${String(shift[0])}px`, "--ny": `${String(shift[1])}px` } as CSSProperties;
 }
 
-export const World = memo(function World({ variant, frame, uid, stops = [], names = (id) => id, marks = { home: null, picked: null, step: null }, tiles, pinPx = 50, route = null, within = null, onPick, canoe = null, className = "", style }: WorldProps) {
+export const World = memo(function World({ variant, frame, uid, stops = [], names = (id) => id, marks = { home: null, picked: null, step: null }, tiles, pinPx = 50, route = null, within = null, onPick, canoe = null, labels = null, className = "", style }: WorldProps) {
   const z = frame.sx;
   const routeD = useMemo(() => (route === null ? null : curve(route)), [route]);
   const danfo = useMemo(() => (route === null || route.length < 2 ? null : midway(route)), [route]);
@@ -101,7 +103,7 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
   // place's only on a card, a few at a time, the nearest the card's middle first, and only where it covers none.
   const shown = useMemo(() => {
     const boxes = stops.flatMap((stop) => {
-      const kind = nameOf(stop, marks);
+      const kind = nameOf(stop, marks, variant === "card");
       if (kind === null) return [];
       const size = Math.round((pinPx * sizeOf(stop.id)) / 100);
       const text = nameWords(kind, names(stop.id));
@@ -120,7 +122,7 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
       style={{ transform: `translate(${String(frame.x)}px, ${String(frame.y)}px) scale(${String(frame.sx)}, ${String(frame.sy)})`, ...({ "--z": z, "--inv": 1 / z } as CSSProperties), ...style }}
       data-world={variant}
     >
-      <PaperSvg variant={variant} route={routeD} uid={uid} within={within} />
+      <PaperSvg variant={variant} route={routeD} uid={uid} within={within} labels={labels} />
       {folded
         ? null
         : DECOR.map((item, index) => {
@@ -136,7 +138,7 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
         ? null
         : stops.map((stop) => {
             const ring = ringOf(stop, marks);
-            const kind = nameOf(stop, marks);
+            const kind = nameOf(stop, marks, variant === "card");
             const size = Math.round((pinPx * sizeOf(stop.id)) / 100);
             const name = names(stop.id);
             return (

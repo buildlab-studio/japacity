@@ -7,11 +7,12 @@ import { join } from "node:path";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
+import { cardFrame, cardLabels, titleBox } from "./CardView";
 import { CARD_IDS, CARDS, cardById, cardOf, onCard } from "./districts";
 import { groundOf } from "./draw";
 import { fold, folded, openingCard, PULL_OPENS, DRAG_FULL, unfolded } from "./fold";
 import { at, fromPaper, PAPER, toPaper } from "./fit";
-import { LAND, ROADS } from "./geometry";
+import { LABELS, LAND, ROADS } from "./geometry";
 import { buildGraph, midway, routeBetween, routeChannel } from "./route";
 import { inside, near, nearLine, scatter, sequence, TUNING } from "./scatter";
 import { curve, loop } from "./smooth";
@@ -204,6 +205,50 @@ describe("the stickers, the rings and the names", () => {
     }
     // Where the player stands keeps its own place; the others move.
     expect(placed.get("here")).toEqual([0, 0]);
+  });
+});
+
+describe("the names on a card", () => {
+  test("[R-WORLD-015] given a place already visited, when a card shows its sticker, then it carries its name like every other sticker there; on the open map and the strip it carries none", () => {
+    const marks = { home: "place.family-house", picked: null, step: null };
+    expect(nameOf({ id: "place.bode-thomas", state: "been" }, marks, true)).toBe("been");
+    expect(nameOf({ id: "place.bode-thomas", state: "been" }, marks)).toBeNull();
+    // The other kinds keep their own names on a card.
+    expect(nameOf({ id: "place.tejuosho-market", state: "can" }, marks, true)).toBe("new");
+    expect(nameOf({ id: "place.ojuelegba", state: "here" }, marks, true)).toBe("here");
+    expect(nameOf({ id: "place.airport-lagos", state: "not" }, marks, true)).toBeNull();
+    // A visited place's name shows wherever it stands, moved clear of a name already there.
+    const box = (id: string, x: number, y: number, name: NameBox["name"]): NameBox => ({ id, x, y, width: 90, height: 22, name });
+    const placed = placeNames([box("here", 200, 200, "here"), box("been", 204, 202, "been"), box("far", 600, 600, "new")], { newest: 0 });
+    expect([...placed.keys()].sort()).toEqual(["been", "here"]);
+    expect(placed.get("been")).not.toEqual([0, 0]);
+  });
+
+  test("[R-WORLD-015] given each neighbourhood's card at phone size, when its district names are painted, then each stands whole on the card and clear of the card's title pill: Ojuelegba's name no longer runs under the Surulere card's pill", () => {
+    for (const [width, height] of [
+      [412, 839],
+      [390, 844],
+    ] as const) {
+      // PaperMap.tsx: the card is the screen less 32 across, and the room under the strip less the pager's 92 down; the paper is 8 less.
+      const inner = { width: width - 32 - 8, height: Math.max(200, height - (12 + 92 + 8 + 26) - 92) - 8 };
+      for (const card of CARDS) {
+        const frame = cardFrame(card, inner.width, inner.height);
+        const title = card.id === "surulere" ? "Surulere" : card.id;
+        const shown = cardLabels(frame, inner.width, inner.height, title, (key) => key.replace("map.area.", ""));
+        const pill = titleBox(title);
+        for (const label of LABELS.filter((each) => shown.has(each.key))) {
+          const x = frame.x + label.at[0] * frame.sx;
+          const y = frame.y + label.at[1] * frame.sy;
+          expect([card.id, label.key, x > 0 && x < inner.width && y > 0 && y < inner.height]).toEqual([card.id, label.key, true]);
+          expect([card.id, label.key, x > pill[0] && x < pill[2] && y > pill[1] && y < pill[3] + label.size]).toEqual([card.id, label.key, false]);
+        }
+        expect([card.id, card.id === "surulere" && shown.has("map.area.ojuelegba")]).toEqual([card.id, false]);
+      }
+    }
+    // A card still names the districts it shows whole: Ojuelegba's own name on its card.
+    const ojuelegba = cardById("ojuelegba");
+    const inner = { width: 372, height: 601 };
+    expect(cardLabels(cardFrame(ojuelegba, inner.width, inner.height), inner.width, inner.height, "Ojuelegba").has("map.area.ojuelegba")).toBe(true);
   });
 });
 

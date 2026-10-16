@@ -3,7 +3,7 @@
 // map, a pin there folds it back on its card with the stop picked, the route runs from the player's
 // stop to the stop, the ride sheet rises, and the ride plays and lands in the place. With MAP_SHOTS
 // set to a folder, the pictures of each step are saved there.
-import { expect, type Page, test } from "@playwright/test";
+import { devices, expect, type Page, test } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
 import { startReadyLife } from "./door";
@@ -217,4 +217,57 @@ test("[R-WORLD-016] given the map open on a phone, when a locked country in the 
   await expect(locked).toHaveAttribute("data-shake", "true");
   await expect(page.locator("[data-country-menu] > button")).toHaveAttribute("data-country", "lagos");
   await shot(page, "05-country-locked");
+});
+
+test.describe("on a Pixel 7", () => {
+  const { viewport, userAgent, deviceScaleFactor, isMobile, hasTouch } = devices["Pixel 7"];
+  test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch });
+
+  test("[R-WORLD-016] given the whole map open on a Pixel 7, when the country menu at its top is opened, then its list opens downward and every country is on the screen and can be tapped; folded, the menu at the foot opens upward, every country on the screen", async ({ page }, info) => {
+    test.skip(info.project.name !== "Pixel 7", "The map is shown at phone size");
+    test.setTimeout(120_000);
+    await startLife(page);
+    await page.locator('[data-thumb="map"]').click();
+    await page.waitForSelector("[data-map]");
+    await page.waitForFunction(() => window.__map?.ready === true, null, { timeout: 60_000 });
+    const screen = page.viewportSize() ?? viewport;
+    /** Every option of the open list stands whole inside the screen and takes a tap where it stands. */
+    async function everyOptionOnScreen(): Promise<void> {
+      const options = page.locator("[data-country-option]");
+      const count = await options.count();
+      expect(count).toBeGreaterThan(1);
+      for (let index = 0; index < count; index += 1) {
+        const option = options.nth(index);
+        await expect(option).toBeInViewport({ ratio: 1 });
+        const box = await option.boundingBox();
+        expect(box).not.toBeNull();
+        if (box === null) continue;
+        expect(box.y).toBeGreaterThanOrEqual(0);
+        expect(box.y + box.height).toBeLessThanOrEqual(screen.height);
+        // Nothing stands over it: a finger at its middle lands on the option itself (a locked one takes the tap and shakes).
+        const hit = await option.evaluate((element) => {
+          const rect = element.getBoundingClientRect();
+          const under = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          return under !== null && element.contains(under);
+        });
+        expect(hit).toBe(true);
+      }
+    }
+    // Folded: the menu at the foot, its list upward.
+    await page.locator("[data-country-menu] > button").click();
+    await everyOptionOnScreen();
+    await page.locator("[data-country-menu] > button").click();
+    // Open: the menu at the top, its list downward.
+    await page.locator("[data-strip]").click();
+    await page.waitForFunction(() => window.__map?.phase === "open", null, { timeout: 30_000 });
+    await expect(page.locator("[data-country-menu]")).toHaveCount(1);
+    await page.locator("[data-country-menu] > button").click();
+    const list = page.getByRole("listbox");
+    await expect(list).toBeVisible();
+    // Once its short drop has played, the list stands under the pill.
+    const pill = await page.locator("[data-country-menu] > button").boundingBox();
+    await expect.poll(async () => ((await list.boundingBox())?.y ?? 0) >= (pill === null ? Number.POSITIVE_INFINITY : pill.y + pill.height)).toBe(true);
+    await everyOptionOnScreen();
+    await shot(page, "06-country-menu-open-map");
+  });
 });

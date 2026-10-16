@@ -2,7 +2,8 @@
 // sticker, and the sticker is the pin. Where it stands comes from content's position through the one fit; places a
 // few hundred metres apart are eased apart by a fixed, ordered spread so neither hides the other. One rule for rings
 // and names in every zoom: a ring only where the player stands, on the stop picked and on the step's place; a name on
-// those, on home, and on a place never visited (on a card only, a few at a time); names that meet move clear of each other.
+// those, on home, and on a place never visited (on a card only, a few at a time); on a card a place already visited
+// carries its name too; names that meet move clear of each other.
 import type { PinState } from "../../../shared/world/contract";
 import { type CardId, cardOf } from "./districts";
 import { type Point, type Position, toPaper } from "./fit";
@@ -90,15 +91,20 @@ export function ringOf(stop: Pick<Placed, "id" | "state">, marks: Marks): Ring |
   return null;
 }
 
-/** A sticker's name: where the player stands, home, the stop picked, the step's place, a place never visited; or none. */
-export type Name = "here" | "home" | "picked" | "step" | "new";
+/** A sticker's name: where the player stands, home, the stop picked, the step's place, a place visited (on a card), a place never visited; or none. */
+export type Name = "here" | "home" | "picked" | "step" | "been" | "new";
 
-export function nameOf(stop: Pick<Placed, "id" | "state">, marks: Marks): Name | null {
+/**
+ * A sticker's name, by the one rule. `onCard` is a neighbourhood's card, where a place already visited carries its name
+ * as well (16 Oct 2026: one sticker on a card had none while the rest had theirs).
+ */
+export function nameOf(stop: Pick<Placed, "id" | "state">, marks: Marks, onCard = false): Name | null {
   if (stop.state === "here") return "here";
   if (stop.id === marks.picked) return "picked";
   if (stop.id === marks.step) return "step";
   if (stop.id === marks.home || stop.state === "home") return "home";
   if (stop.state === "can") return "new";
+  if (onCard && stop.state === "been") return "been";
   return null;
 }
 
@@ -112,7 +118,7 @@ export interface NameBox {
   name: Name;
 }
 
-const RANK: Readonly<Record<Name, number>> = { here: 0, picked: 1, step: 2, home: 3, new: 4 };
+const RANK: Readonly<Record<Name, number>> = { here: 0, picked: 1, step: 2, home: 3, been: 4, new: 5 };
 
 /** How the names are chosen in one view. */
 export interface NameRule {
@@ -131,7 +137,7 @@ export type NameShift = readonly [number, number];
 
 /**
  * Which names show and where. Every name that matters always shows (where the player stands, the stop picked, the
- * step's place, home); where one would cover a name already placed, it moves clear: further down, then up, then to a
+ * step's place, home, and on a card a place visited); where one would cover a name already placed, it moves clear: further down, then up, then to a
  * side, by its own height or half its width, so here, home and the hub never pile up where districts meet. A name of a
  * place never visited shows only where it covers none, and only the first few of them, the nearest the view's middle
  * first (else the nearer the foot of the screen), so the quiet names never crowd a card.

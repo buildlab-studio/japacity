@@ -2,11 +2,12 @@
 // district inside a white card with a navy edge, its name folded into the card's top edge as a small pill. The stickers
 // are larger here, and still the pins.
 import type { CSSProperties } from "react";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 
 import { mapWords } from "../map.words";
 import { type Card } from "./districts";
 import type { Point } from "./fit";
+import { LABELS } from "./geometry";
 import type { Marks, Placed } from "./stops";
 import type { TileUrl } from "./useTiles";
 import { type Frame, World } from "./World";
@@ -32,6 +33,39 @@ export function cardFrame(card: Card, width: number, height: number, lift: Point
     if (across < side) x += side - across;
   }
   return { x, y, sx: z, sy: z };
+}
+
+/** The card's title pill on the paper's box, in the box's pixels: it stands over the card's top edge at its left. */
+export function titleBox(title: string): readonly [number, number, number, number] {
+  // paper.css: the pill sits 14 px in and 14 px above the card's edge, the paper's box 4 px inside the card; the tile,
+  // the gaps and each letter of the name at 14 px make its width.
+  return [10, -18, 10 + 44 + Math.ceil(title.length * 8.4), 12];
+}
+
+/**
+ * The district names a card paints (R-WORLD-015): each one whole on the card's paper, clear of its edges and of its
+ * title pill, so no name runs under the pill nor is cut by the card's edge. A name's box is reckoned from its letters
+ * at its own size on the screen, turned by its tilt.
+ */
+export function cardLabels(frame: Frame, width: number, height: number, title: string, words: (key: string) => string = mapWords): Set<string> {
+  const pill = titleBox(title);
+  const keep = 4;
+  const shown = new Set<string>();
+  for (const label of LABELS) {
+    const text = words(label.key);
+    const across = text.length * label.size * 0.62 + 6;
+    const tall = label.size * 1.25;
+    const turn = (Math.abs(label.tilt) * Math.PI) / 180;
+    const halfX = (across * Math.cos(turn) + tall * Math.sin(turn)) / 2;
+    const halfY = (across * Math.sin(turn) + tall * Math.cos(turn)) / 2;
+    // The text stands on its baseline, centred across: its middle is a third of its size above the point.
+    const x = frame.x + label.at[0] * frame.sx;
+    const y = frame.y + label.at[1] * frame.sy - label.size * 0.35;
+    const whole = x - halfX >= keep && x + halfX <= width - keep && y - halfY >= keep && y + halfY <= height - keep;
+    const underPill = x - halfX < pill[2] + keep && x + halfX > pill[0] - keep && y - halfY < pill[3] + keep && y + halfY > pill[1] - keep;
+    if (whole && !underPill) shown.add(label.key);
+  }
+  return shown;
 }
 
 export interface CardViewProps {
@@ -61,14 +95,16 @@ export const CardView = memo(function CardView({ card, width, height, drawn, sto
   const frame = cardFrame(card, inner.width, inner.height, lift);
   // The card never pans, so only the paper inside it (and a little round it) is drawn.
   const within = [Math.floor(-frame.x / frame.sx) - 20, Math.floor(-frame.y / frame.sy) - 20, Math.ceil((inner.width - frame.x) / frame.sx) + 20, Math.ceil((inner.height - frame.y) / frame.sy) + 20] as const;
+  const title = mapWords(card.key);
+  const labels = useMemo(() => cardLabels(frame, inner.width, inner.height, title), [frame.x, frame.y, frame.sx, frame.sy, inner.width, inner.height, title]);
   return (
     <section className={`paper-card ${className}`} style={{ width, height, ...style }} aria-label={mapWords(card.key)} data-card={card.id} data-current={current} onClick={onCard}>
       <div className="paper-card-in">
-        {drawn ? <World variant="card" uid={`card-${card.id}`} frame={frame} within={within} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={50} route={route} onPick={onPick} /> : null}
+        {drawn ? <World variant="card" uid={`card-${card.id}`} frame={frame} within={within} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={50} route={route} onPick={onPick} labels={labels} /> : null}
       </div>
       <span className="paper-card-title" data-card-title>
         <span className="paper-card-tile">{url === null ? null : <img src={url} alt="" width={22} height={22} draggable={false} />}</span>
-        {mapWords(card.key)}
+        {title}
       </span>
     </section>
   );
