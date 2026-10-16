@@ -20,11 +20,12 @@ import { Answered, BondFace, End, Facts, Held, Joint, Mark, momentsLeft, Pending
 import { AfterEarlyWin, InviteMaker, InviteOut } from "./InviteCard";
 import type { PairApi } from "./pairApi";
 
+/**
+ * Who the slot is to the character: "Partner", "Sibling", "Mother", "Father". A sibling's slot carries no number ("Sibling
+ * 2" read as a placeholder, ); the name under it tells two siblings apart, as bondName does.
+ */
 function slotTitle(key: string): string {
-  const kind = slotKind(key);
-  if (kind !== "sibling") return say(`ui.people.slot.${kind}`);
-  const number = key.slice("sibling-".length);
-  return `${say("ui.people.slot.sibling")} ${number}`;
+  return say(`ui.people.slot.${slotKind(key)}`);
 }
 
 function siblingWhere(bond: BondView): string | null {
@@ -65,11 +66,12 @@ export function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: 
         <div className="flex items-start gap-3">
           {bond === null ? null : <BondFace bond={bond} />}
           <div className="flex min-w-0 flex-1 flex-col">
-            <span className="text-[13px] font-semibold text-text-2">{slotTitle(slotKey)}</span>
-            <span className="flex flex-wrap items-center gap-2 text-[16px] font-bold">
-              {name ?? say(`ui.people.slot.state.${slot.state}`)}
+            {/* The quiet mark stands beside who the slot is, the one place on every card, so a long name never moves it. */}
+            <span className="flex flex-wrap items-center gap-2 text-[13px] font-semibold text-text-2" data-slot-title>
+              {slotTitle(slotKey)}
               {slot.label === null ? null : <Mark label={slot.label} />}
             </span>
+            <span className="text-[16px] font-bold">{name ?? say(`ui.people.slot.state.${slot.state}`)}</span>
           </div>
           {bond === null || kind === "sibling" ? null : (
             <StickerChip tint="people" tilt={3} className="shrink-0 text-[12px] font-bold">

@@ -70,6 +70,22 @@ describe("the slots on the People row", () => {
     expect(order).toEqual(["partner", "sibling-1", "sibling-2", "mother", "father"]);
   });
 
+  test("[R-PEOPLE-007] given the family played by the game, when the People row opens, then the quiet mark stands in one place on every card, beside who the slot is, and no slot is a numbered placeholder", async () => {
+    // The catalog's picture 116 (1b952f4b): "Not a player" on its own line for a sibling and beside the name for a parent;
+    // "Sibling 2" read as a numbered placeholder.
+    const game = peopleGame();
+    playFirst(game);
+    await renderWithGame(offline(<PeopleSlots api={null} />), game);
+    for (const slot of ["sibling-1", "sibling-2", "mother", "father"]) {
+      const card = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
+      const title = card.querySelector<HTMLElement>("[data-slot-title]")!;
+      expect(title.querySelector("[data-mark-label='computer']")).not.toBeNull();
+      expect(card.querySelectorAll("[data-mark-label]")).toHaveLength(1);
+      expect(title.textContent).not.toMatch(/\d/);
+    }
+    expect(document.querySelector('[data-slot="sibling-1"] [data-slot-title]')!.textContent).toContain(say("ui.people.slot.sibling"));
+  });
+
   test("[R-PEOPLE-047] given computer siblings drawn with the family, then each sibling's card names them from content where the facts tell them apart, and says where they live", async () => {
     const game = peopleGame();
     playFirst(game);
