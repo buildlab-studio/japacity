@@ -4,7 +4,7 @@ import type { WorldClock } from "@japacity/sim";
 // client imports nothing from the server's side (decision 0004,
 // tests/boundaries.test.ts). Each copy names its source; contract.test.ts
 // holds every copy to its source's declaration, comments aside.
-import type { Command, ConversationRow, Id, InviteCard, LotteryOdds, LotteryResult, PairView, PlayerView, RejectionCode, Reply, ReportLine, World } from "@japacity/sim";
+import type { Command, ConversationRow, Id, InviteCard, LotteryOdds, LotteryResult, PairView, PlayerView, PrologueSlice, Rejection, RejectionCode, Reply, ReportLine, World } from "@japacity/sim";
 
 /** Copied from apps/server/src/types.ts: the server's own refusals beside the simulation's. */
 export type ServerCode =
@@ -74,6 +74,25 @@ export interface CommandRequest {
   command: Command;
   basedOn: number;
 }
+
+/** Copied from apps/server/src/types.ts: `POST /api/prologue/preset` (R-SERVER-046), the age step and home chosen at the door. */
+export interface PresetRequest {
+  archetype: string;
+  age: number;
+  home: string;
+  basedOn: number;
+}
+
+/** Copied from apps/server/src/types.ts: one step the preset played, for the page's trail (R-PROLOGUE-014). */
+export interface PresetStep {
+  step: string;
+  answer: string;
+  draw: PrologueSlice["draw"];
+  outcome: string | null;
+}
+
+/** Copied from apps/server/src/types.ts: the view after the last step, the trail, and `refusal` when an answer was refused after some steps stood. */
+export type PresetReply = { ok: true; view: PlayerView; lines: ReportLine[]; clock: ClockView; stepped: number; trail: PresetStep[]; refusal?: Rejection } | (Rejection & { clock: ClockView }) | ServerRejection;
 
 /** Copied from apps/server/src/types.ts: `GET /api/view`, with `?since=<version>` for the authority's lines after it. */
 export type ViewReply = { ok: true; view: PlayerView; lines: ReportLine[]; clock: ClockView } | ServerRejection;

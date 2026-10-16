@@ -9,7 +9,7 @@ import { earlyWinIn } from "../features/guides/earlyWin";
 import { momentLine } from "../shared/moment/moment";
 import { carriedPlan } from "../features/turn/carried";
 import type { AccountApi } from "../shared/net/auth";
-import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
+import type { ClockView, PresenceReply, PresetReply, PresetRequest, PresetStep, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
 import { failureOf, type FailureKind, isReloading, isReported } from "../shared/net/http";
 import { plannable } from "../shared/words/acts";
 import { isSaid, tidyLines } from "../shared/words/lines";
@@ -45,6 +45,8 @@ export type PlayerCommand = Command extends infer C
 export interface StoreAuthority {
   view(): Promise<PlayerView>;
   send(command: Command): Promise<Reply | ServerRejection>;
+  /** R-SERVER-046: the prologue's preset played in one request, for an authority that plays it (the remote one). */
+  preset?(request: Omit<PresetRequest, "basedOn">): Promise<PresetReply>;
   /** The month's clock as this authority keeps it, for one that reports no clock through events (the local one): when the next month comes (R-WORLD-027). */
   clock?(): ClockView | null;
   /** The world's numbers at this tick, for one whose world is not fetched (the local one): the season the meetings read (R-WORLD-020). */
@@ -163,6 +165,12 @@ export interface GameState {
   /** R-ENGINE-015: sends again what failed (the view, the command kept, or the life); its first caller gets the answer. */
   retry: () => Promise<void>;
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
+  /**
+   * R-SERVER-046, R-PROLOGUE-010: the prologue's preset sent as one request, its reply applied as a command's; `keep` is
+   * handed the trail before the view lands, so the page reads it as it opens. Null where the authority plays no preset
+   * (offline, where each answer goes as a command).
+   */
+  preset: ((request: Omit<PresetRequest, "basedOn">, keep?: (trail: PresetStep[]) => void) => Promise<PresetReply | null>) | null;
   /**
    * Ends the month with the commitments that carry on (R-WORLD-007), and the results open in the room. `rest`: the bed's
    * Sleep, the month's time left rested (R-TURN-010). The command does not carry it yet: the contract's `turn/end` has
@@ -487,6 +495,45 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       }
     }
 
+    /** R-SERVER-046: the preset in one request; a retry after a lost answer that comes back stale most likely landed, and refuses nothing. */
+    async function playPreset(request: Omit<PresetRequest, "basedOn">, keep?: (trail: PresetStep[]) => void, retried = false): Promise<PresetReply | null> {
+      const { view, busy } = get();
+      if (authority.preset === undefined || view === null || busy) return null;
+      set({ busy: true, rejection: null });
+      try {
+        const reply = await authority.preset(request);
+        if (reply.ok) {
+          keep?.(reply.trail);
+          const cards = withMoment(get().momentCards, reply.lines, get().momentScreens > 0 ? reply.view : null, view, get().monthLines);
+          const refused = reply.refusal;
+          set({
+            earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, null),
+            view: reply.view,
+            plan: fitPlan(get().plan, reply.view.freeSlots),
+            lines: reply.lines,
+            moments: bigLines(reply.lines),
+            momentCards: cards,
+            ...chapterTold(get().momentCards, cards, reply.view),
+            monthLines: [...get().monthLines, ...reply.lines],
+            // The steps before a refused answer stand; the refusal shows as a command's would, and its card with it.
+            ...(refused === undefined ? {} : { rejection: { code: refused.code, words: rejectionWords(refused.code), detail: refused.detail } }),
+            ...ownClock(),
+          });
+        } else {
+          if (!(retried && reply.code === "stale")) set({ rejection: { code: reply.code, words: rejectionWords(reply.code), detail: reply.detail } });
+          if (!get().signedOut) await viewAfter();
+        }
+        return reply;
+      } catch (error) {
+        const kind = failureOf(error);
+        if (kind !== null) return held(kind, "command", () => playPreset(request, keep, true), error);
+        broke(error);
+        return null;
+      } finally {
+        set({ busy: false });
+      }
+    }
+
     /**
      * R-CLOCK-032: the results whose morning has come, from an authority that keeps them (the remote one does not yet).
      * Kept until the lock screen tells them; their lines join the month's, so each is told once.
@@ -577,6 +624,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         else await run();
       },
       send: (command) => send(command),
+      preset: authority.preset === undefined ? null : (request, keep) => playPreset(request, keep),
       // `rest` waits for the contract (see the type above): the plain command is sent until `turn/end` carries it.
       async endMonth() {
         const slots = get().plan.filter((pick): pick is SlotPick => pick !== null);

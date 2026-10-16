@@ -4,7 +4,7 @@
 // seed or a world it was not sent, and predicts nothing (R-SERVER-019).
 import type { Command, Id, PlayerView, Reply, ReportLine } from "@japacity/sim";
 
-import type { ClockView, CommandRequest, NewCharacterReply, NewCharacterRequest, PresenceReply, ServerRejection, ServerReply, ViewReply, WorldReply } from "../shared/net/contract";
+import type { ClockView, CommandRequest, NewCharacterReply, NewCharacterRequest, PresenceReply, PresetReply, PresetRequest, ServerRejection, ServerReply, ViewReply, WorldReply } from "../shared/net/contract";
 import { api, reportedError, retryAfterMs, type Api, type Fetch } from "../shared/net/http";
 import { pacer } from "../shared/net/pace";
 import type { WallGuard } from "../shared/net/wall";
@@ -33,6 +33,8 @@ export interface RemoteAuthorityOptions {
 export interface RemoteAuthority {
   view(): Promise<PlayerView>;
   send(command: Command): Promise<Reply | ServerRejection>;
+  /** `POST /api/prologue/preset` (R-SERVER-046): the prologue's preset played by the server in one request, on the version held. */
+  preset(request: Omit<PresetRequest, "basedOn">): Promise<PresetReply>;
   /** `POST /api/character`: the account's one character (R-ACCOUNT-015). */
   newLife(scenario: Id<"scenario">): Promise<PlayerView>;
   /** `POST /api/character/end`: the account's character ended for good, so another may start (R-ACCOUNT-030). False when it was refused. */
@@ -168,6 +170,23 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
       } else {
         report(reply);
       }
+      return reply;
+    },
+
+    async preset(request) {
+      fresh = null;
+      await holdOff();
+      // R-SERVER-025: the whole preset is one request on the command limit.
+      await pace.take();
+      const body: PresetRequest = { ...request, basedOn: version ?? 0 };
+      const reply = await http.post<PresetReply>("/api/prologue/preset", body);
+      if (reply.ok) {
+        keep(reply);
+        return reply;
+      }
+      if (reply.code === "stale") fresh = await fetchView();
+      else if (reply.code === "rate-limited") await limited(reply);
+      else report(reply);
       return reply;
     },
 

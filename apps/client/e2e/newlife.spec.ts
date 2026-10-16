@@ -8,7 +8,10 @@ import { expect, test, type Page } from "@playwright/test";
 // for. Played against a faked server that runs the simulation itself, as asks.spec.ts does.
 import { content } from "../../../packages/content/src/index";
 import type { Command, Id, PlayerView, ReportLine } from "../../../packages/sim/src/engine/types";
+import { worldClockAt } from "../../../packages/sim/src/index";
 import { start, type Game } from "../../../packages/sim/src/testing/play";
+import type { PresetRequest } from "../src/shared/net/contract";
+import { playPresetOn } from "../src/shared/net/preset.testing";
 import { passOpeningWords, startArchetype } from "./door";
 import { passCards } from "./live";
 
@@ -65,6 +68,10 @@ async function fakeServer(page: Page): Promise<{ sent: string[]; scenarios: Id<"
         const result = game.send(command);
         if (!result.ok) return route.fulfill(json({ ok: false, code: result.code, detail: result.detail }, 409));
         return route.fulfill(json({ ...viewOf(game), lines: result.lines }));
+      }
+      // R-SERVER-046: Begin sends the new life's preset once, played here as the server plays it.
+      if (asked === "POST /api/prologue/preset" && game !== null) {
+        return route.fulfill(json(playPresetOn(game, request.postDataJSON() as PresetRequest, { ...clock(game), morningAt: 0, world: worldClockAt(game.tick) })));
       }
       if (asked === "GET /api/account") return route.fulfill(json({ ok: true, account: { ...GUEST, character: game === null ? null : "c-1" } }));
       if (asked === "GET /api/moderation/standing") return route.fulfill(json(STANDING));

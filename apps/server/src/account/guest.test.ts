@@ -540,4 +540,17 @@ describe("the last time a life was played", () => {
     await h.call("/api/command", { method: "POST", jar, json: { command: { type: "turn/end", slots: [], basedOn: view.view.v }, basedOn: view.view.v } });
     expect((await h.deps.stores.account.get(account))?.lastPlayedAt).toBe(start + 120_000);
   });
+
+  test("[R-ACCOUNT-026] [R-SERVER-046] given a guest with a new life from sixteen, when its preset is sent later, then its last play follows the preset request", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const start = Date.parse("2026-10-09T19:00:00Z");
+    vi.setSystemTime(start);
+    const h = harness();
+    const { jar, account } = await h.guest();
+    await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.prologue" } });
+    vi.setSystemTime(start + 60_000);
+    const played = await (await h.call("/api/prologue/preset", { method: "POST", jar, json: { archetype: "developer", age: 0, home: "family-house", basedOn: 0 } })).json<{ ok: boolean }>();
+    expect(played.ok).toBe(true);
+    expect((await h.deps.stores.account.get(account))?.lastPlayedAt).toBe(start + 60_000);
+  });
 });

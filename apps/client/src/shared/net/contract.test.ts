@@ -29,7 +29,7 @@ const REPORTS = "apps/server/src/moderation/reports.ts";
 const same = (file: string, ...names: string[]): Copy[] => names.map((name) => ({ client: [CONTRACT, name], server: [file, name] }));
 
 const COPIES: Copy[] = [
-  ...same(TYPES, "ServerCode", "ServerRejection", "ClockView", "ServerReply", "CommandRequest", "ViewReply", "WorldReply", "NewCharacterRequest", "PresenceReply"),
+  ...same(TYPES, "ServerCode", "ServerRejection", "ClockView", "ServerReply", "CommandRequest", "PresetRequest", "PresetStep", "PresetReply", "ViewReply", "WorldReply", "NewCharacterRequest", "PresenceReply"),
   ...same("packages/store/src/types.ts", "Nudge"),
   ...same("apps/server/src/routes/age.ts", "AgeRequest", "AgeStatus"),
   ...same("apps/server/src/routes/account.ts", "AccountView", "DeleteRequest", "GuestRequest", "UsernameRequest"),

@@ -2,7 +2,7 @@
 // the year its path reaches with no setback, and the player steps it a few years older, within 18 to 29. The age picked
 // is the age the life starts at: the years past the path's end are worked, and the prologue's work card says what each
 // year brings. The client only reads the cards, sends the year picked through the tile's preset, and says what a step does.
-import { content } from "@japacity/content";
+import { content, PRESET_STEPS_OLDER, presetAges } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 
 import { AGE_CARDS, type Archetype, lowestYear, startYearOf } from "../frontdoor/archetypes";
@@ -13,8 +13,8 @@ import { say, sayCount } from "../words/text";
 export const WORK_CARD = "work";
 const PASSPORT = "document.passport";
 const CANADA = "points.canada" as Id<"points">;
-/** How many years older than its own a tile's age steps on the door (R-PROLOGUE-009: a few years). */
-export const STEPS_OLDER = 3;
+/** How many years older than its own a tile's age steps on the door (R-PROLOGUE-009: a few years), content's own. */
+export const STEPS_OLDER = PRESET_STEPS_OLDER;
 
 function years(): number[] {
   return AGE_CARDS.flatMap((card) => (content.prologue[card]?.answers ?? []).flatMap((answer) => {
@@ -32,10 +32,12 @@ export function startYearFor(archetype: Archetype, older: number): number {
   return lowestYear(archetype) + older;
 }
 
-/** The steps older the door offers a tile, its own age first: up to three, never past the oldest start. */
+/**
+ * The steps older the door offers a tile, its own age first: up to three, never past the oldest start. Content's
+ * `presetAges`, the ones the server takes (server.md R-SERVER-046), so the door and the server never drift apart.
+ */
 export function stepsOpen(archetype: Archetype): number[] {
-  const most = Math.max(0, Math.min(STEPS_OLDER, OLDEST - lowestYear(archetype)));
-  return Array.from({ length: most + 1 }, (_, at) => at);
+  return presetAges(archetype.preset);
 }
 
 export interface Worked {

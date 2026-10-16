@@ -4,9 +4,11 @@
 // top no fabric; where no figure is drawn there is nothing to see recoloured, and nothing shows.
 import type { PaletteName } from "@japacity/assets";
 import { Check } from "lucide-react";
+import { useRef } from "react";
 
 import { say } from "../words/text";
 import { FABRICS, isMade, type LookStyle, type OwnColours, type Part, pickStyle, swatchCss, swatchesFor, useOwnColours } from "./style";
+import { bringIntoView } from "./view";
 
 /** A swatch light enough that its tick is drawn dark. */
 const LIGHT = new Set<PaletteName>(["white", "cream", "gold", "skin8", "khaki", "tan", "sand"]);
@@ -48,13 +50,24 @@ function Row({ part, own, style, onStyle }: { part: Part; own: OwnColours; style
   );
 }
 
-/** `heading`: the rows' own heading; the door's first screen heads them with its own disclosure button instead. */
-export function OwnColoursRows({ look, style, onStyle, heading = true }: { look: string; style: LookStyle | undefined; onStyle: (style: LookStyle) => void; heading?: boolean }) {
+/**
+ * `heading`: the rows' own heading; the door's first screen heads them with its own disclosure button instead.
+ * `follow`: each pick brings the next row shown into view, so the next part to choose is never out of sight (R-PROLOGUE-013).
+ */
+export function OwnColoursRows({ look, style, onStyle, heading = true, follow = false }: { look: string; style: LookStyle | undefined; onStyle: (style: LookStyle) => void; heading?: boolean; follow?: boolean }) {
   const own = useOwnColours(look);
+  const rows = useRef<HTMLElement>(null);
   if (own === null) return null;
   const fabric = style?.fabric ?? own.fabric;
+  const picked = (part: Part | "fabric", next: LookStyle): void => {
+    onStyle(next);
+    if (!follow) return;
+    const shown = [...(rows.current?.querySelectorAll("[data-yours-row]") ?? [])];
+    const at = shown.findIndex((row) => row.getAttribute("data-yours-row") === part);
+    if (at >= 0) bringIntoView(shown[at + 1]);
+  };
   return (
-    <section className={heading ? "mt-3.5" : ""} aria-label={say("ui.door.yours")} data-yours>
+    <section ref={rows} className={heading ? "mt-3.5" : ""} aria-label={say("ui.door.yours")} data-yours>
       <div className="flex items-baseline justify-between gap-2">
         {heading ? <h2 className="text-[15px] font-extrabold">{say("ui.door.yours")}</h2> : <span />}
         {isMade(style) ? null : (
@@ -63,9 +76,9 @@ export function OwnColoursRows({ look, style, onStyle, heading = true }: { look:
           </button>
         )}
       </div>
-      <Row part="skin" own={own} style={style} onStyle={onStyle} />
-      <Row part="hair" own={own} style={style} onStyle={onStyle} />
-      <Row part="top" own={own} style={style} onStyle={onStyle} />
+      <Row part="skin" own={own} style={style} onStyle={(next) => picked("skin", next)} />
+      <Row part="hair" own={own} style={style} onStyle={(next) => picked("hair", next)} />
+      <Row part="top" own={own} style={style} onStyle={(next) => picked("top", next)} />
       {own.fabric === null ? null : (
         <div className="mt-3.5" data-yours-row="fabric">
           <h3 className="label mb-1.5 text-text-2">{say("ui.door.yours.fabric")}</h3>
@@ -79,7 +92,7 @@ export function OwnColoursRows({ look, style, onStyle, heading = true }: { look:
                   role="radio"
                   aria-checked={on}
                   data-fabric={one}
-                  onClick={() => onStyle(pickStyle(style, own, "fabric", one))}
+                  onClick={() => picked("fabric", pickStyle(style, own, "fabric", one))}
                   className={`press h-9 rounded-[6px] px-3 text-[13px] font-bold ${on ? "bg-pick text-on-pick" : "bg-sheet-muted"}`}
                 >
                   {say(`ui.door.fabric.${one}`)}

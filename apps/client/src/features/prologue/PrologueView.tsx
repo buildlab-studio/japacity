@@ -4,7 +4,7 @@
 // page is the handover (R-PROLOGUE-014): the family the game drew turned over, the years before as fact chips, the
 // money as it stands, and the world opens when Go is tapped. A life with no archetype (the setting
 // `prologue.full`, or a fixed life a test starts) shows each card, one at a time, its answers greyed with the reason.
-import { content } from "@japacity/content";
+import { content, presetAges, presetAnswer } from "@japacity/content";
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { ArrowRight, Dices } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -22,7 +22,7 @@ import { nextStepOf, ownWayOf, RACKS_STEP, racksAtHand } from "../../shared/word
 import { bandWords, hasWords, hometownWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { gateLook } from "../../shared/frontdoor/Gate";
 import { lookOf } from "../../shared/frontdoor/looks";
-import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, type Home, HOMES, withAge, withHome } from "../../shared/frontdoor/archetypes";
+import { type Archetype, answersInOrder, archetypeOf, fullPrologue, type Home, homeOf, HOMES, homesFor, withAge, withHome } from "../../shared/frontdoor/archetypes";
 import { DataPage, type PageFields } from "../../shared/datapage/DataPage";
 import { JapacityLine, StatBox } from "../../shared/datapage/PageParts";
 import { DoorAction, DoorFrame } from "../../shared/frontdoor/DoorFrame";
@@ -32,9 +32,8 @@ import { FigurePicture, ModelPicture } from "../../shared/frontdoor/LookPicture"
 import { readDoor } from "../../shared/datapage/door";
 import { WayChips } from "../../shared/frontdoor/WayChips";
 import { pageOf } from "../../shared/datapage/PageSheet";
-import { presetWait } from "../../shared/net/pace";
 import { readyPercent, readyWords } from "../../shared/words/ready";
-import { familyCard, noteAnswer, noteCard, readTrail, storyChips, type YearChip, yearChips } from "./years";
+import { familyCard, noteAnswer, noteCard, noteSteps, readTrail, startTrail, storyChips, type Trail, trailShown, type YearChip, yearChips } from "./years";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 type Draw = NonNullable<Prologue["draw"]>;
@@ -236,45 +235,58 @@ function LifeSoFar({ view, draw, open = false, archetype = null }: { view: Playe
   );
 }
 
+/** A tile's preset as the door set it: the tile, the age step and the home, each within what the door offers it (R-PROLOGUE-009, 013). */
+export interface PresetChoice {
+  base: Archetype;
+  age: number;
+  home: Home;
+}
+
+/** The tile kept beside the save for this life, with the age step and the home the front door set, unless the setting `prologue.full` asks for every card. */
+export function presetChoice(): PresetChoice | null {
+  if (fullPrologue()) return null;
+  const base = archetypeOf(readPerson()?.archetype);
+  if (base === null) return null;
+  const door = readDoor();
+  const most = presetAges(base.preset).at(-1) ?? 0;
+  const age = Math.min(Math.max(0, door?.age ?? 0), most);
+  const home = homesFor(base).find((one) => one === door?.home) ?? homeOf(base);
+  return { base, age, home };
+}
+
 /** The archetype kept beside the save for this life, with the age and the home the front door set, unless the setting `prologue.full` asks for every card. */
 export function presetArchetype(): Archetype | null {
-  if (fullPrologue()) return null;
-  const archetype = archetypeOf(readPerson()?.archetype);
-  const door = readDoor();
-  return archetype === null ? null : withHome(withAge(archetype, door?.age ?? 0), door?.home);
+  const choice = presetChoice();
+  return choice === null ? null : withHome(withAge(choice.base, choice.age), choice.home);
 }
 
 /**
- * Sends the archetype's answer at every card, once per view (R-PROLOGUE-010), and keeps each
- * answer and what its draw gave for the page (R-PROLOGUE-014). Null `answer`: the card shows (a refusal, or a card
- * with every answer shut). Online the answers leave one every `PRESET_STEP_MS`, so the longest preset stays under the
- * server's command limit and the page fills at an even pace (R-SERVER-025); offline they go at once.
+ * Plays the archetype's answer at every card (R-PROLOGUE-010), and keeps each answer and what its
+ * draw gave for the page (R-PROLOGUE-014). The answer is content's `presetAnswer`, the one the server plays. Null
+ * `answer`: the card shows (a refusal, or a card with every answer shut). Online, Begin sends the whole preset as one
+ * request and the server plays every step (server.md R-SERVER-046); the page fills from the reply's trail. Offline each
+ * answer goes at once as a command.
  */
-function usePreset(view: PlayerView, prologue: Prologue, archetype: Archetype | null): string | null {
+function usePreset(view: PlayerView, prologue: Prologue, choice: PresetChoice | null): string | null {
   const send = useGame((state) => state.send);
+  const preset = useGame((state) => state.preset);
   const busy = useGame((state) => state.busy);
   const rejected = useGame((state) => state.rejection !== null);
-  const online = useGame((state) => state.account !== null);
   const sentAt = useRef<number | null>(null);
-  const leftAt = useRef<number | null>(null);
-  const answer = archetype === null || rejected ? null : doorAnswer(archetype, prologue);
+  const answer = choice === null || rejected ? null : presetAnswer(choice.base.id, choice.age, choice.home, prologue.step, prologue.answers);
+  const [id, age, home] = [choice?.base.id ?? null, choice?.age ?? 0, choice?.home ?? null];
   useEffect(() => {
-    if (answer === null || busy || sentAt.current === view.v) return;
-    const go = (): void => {
-      sentAt.current = view.v;
-      leftAt.current = Date.now();
-      noteCard(prologue.draw, prologue.lastOutcome);
-      noteAnswer(prologue.step, answer, prologue.step === "draw");
-      void send({ type: "prologue/choose", step: prologue.step, answer });
-    };
-    const wait = online ? presetWait(leftAt.current, Date.now()) : 0;
-    if (wait === 0) {
-      go();
+    if (answer === null || id === null || home === null || busy || sentAt.current === view.v) return;
+    sentAt.current = view.v;
+    noteCard(prologue.draw, prologue.lastOutcome);
+    if (preset !== null) {
+      if (prologue.step === "draw") startTrail();
+      void preset({ archetype: id, age, home }, noteSteps);
       return;
     }
-    const timer = window.setTimeout(go, wait);
-    return () => window.clearTimeout(timer);
-  }, [answer, busy, online, view.v, prologue.step, prologue.lastOutcome, prologue.draw, send]);
+    noteAnswer(prologue.step, answer, prologue.step === "draw");
+    void send({ type: "prologue/choose", step: prologue.step, answer });
+  }, [answer, id, age, home, busy, preset, view.v, prologue.step, prologue.lastOutcome, prologue.draw, send]);
   return answer;
 }
 
@@ -286,8 +298,9 @@ export function PrologueView() {
 }
 
 function PrologueCard({ view, prologue }: { view: PlayerView; prologue: Prologue }) {
-  const archetype = presetArchetype();
-  const answer = usePreset(view, prologue, archetype);
+  const choice = presetChoice();
+  const archetype = choice === null ? null : withHome(withAge(choice.base, choice.age), choice.home);
+  const answer = usePreset(view, prologue, choice);
   // A card answered by hand keeps its trail for the page as a preset does.
   useEffect(() => {
     if (answer === null) noteCard(prologue.draw, prologue.lastOutcome);
@@ -342,6 +355,21 @@ export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "quali
 
 /** When the family's card turns over on the handover page; no stamp lands, and the world opens only on Go or a tap (R-PROLOGUE-014). */
 export const TURN_MS = 450;
+
+/**
+ * About how long the years the server played in one request take to come onto the page, a chip after another, so the
+ * years still read as years (R-PROLOGUE-010); the family turns over after the last.
+ */
+export const REVEAL_MS = 2000;
+
+/** The chips the page shows before the server's fresh steps, and the pause between each of the rest (R-PROLOGUE-010). */
+function revealOf(trail: Trail, view: PlayerView, water: boolean, total: number): { from: number; every: number } {
+  const fresh = trail.fresh ?? 0;
+  if (fresh <= 0) return { from: total, every: 0 };
+  const earlier = trail.steps.slice(0, Math.max(0, trail.steps.length - fresh));
+  const from = earlier.length === 0 ? 0 : Math.min(total, yearChips({ draw: trail.draw, steps: earlier }, view, water).length);
+  return { from, every: Math.round(REVEAL_MS / Math.max(1, total - from)) };
+}
 
 
 /** The family the game drew, face down until it turns over once, the same height before and after. */
@@ -439,17 +467,26 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
     done.current = true;
     onDone();
   };
-  useEffect(() => {
-    if (!handover) return;
-    // The page waits for the player: ten facts are not read in three seconds.
-    const timers = [window.setTimeout(() => setTurned(true), TURN_MS)];
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
-    // The page's timeline runs once, as the handover opens.
-  }, [handover]);
-
   const trail = readTrail();
   const kept = draw ?? trail.draw;
   const water = archetype?.id === "water";
+  const lived = yearChips(trail, view, water);
+  // The years the server played in one request come on one after another, as the handover opens (R-PROLOGUE-010).
+  const [reveal] = useState(() => (handover ? revealOf(trail, view, water, lived.length) : { from: lived.length, every: 0 }));
+  const [brought, setBrought] = useState(reveal.from);
+  const revealing = handover && brought < lived.length;
+  useEffect(() => {
+    if (!handover) return;
+    if (revealing) {
+      const timer = window.setTimeout(() => setBrought((count) => count + 1), reveal.every);
+      return () => window.clearTimeout(timer);
+    }
+    trailShown();
+    // The page waits for the player: ten facts are not read in three seconds.
+    const timer = window.setTimeout(() => setTurned(true), TURN_MS);
+    return () => window.clearTimeout(timer);
+  }, [handover, revealing, brought, reveal.every]);
+
   const base = pageOf(view, person);
   // The family and where it is from print on the page as its card turns over; until then their lines wait (R-PROLOGUE-009, 014).
   const shown = handover && turned && kept !== null;
@@ -460,9 +497,9 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
     family: shown ? familyCard(kept, water, view.hometown).means : "",
     from: shown && view.hometown !== null ? hometownWords(view.hometown) : "",
   };
-  const lived = yearChips(trail, view, water);
   // While the years go by, the years the tile will pass and has not yet are listed as not yet, and fill as they are lived.
-  const years = handover || archetype === null ? lived : [...lived, ...plannedYears(archetype).flatMap((planned): YearChip[] => (lived.some((chip) => chip.id === planned.id) ? [] : [{ id: planned.id, icon: planned.icon, label: planned.label, note: planned.note ?? null, state: planned.state ?? null }]))];
+  const going = handover && !revealing ? null : lived.slice(0, handover ? brought : lived.length);
+  const years = going === null || archetype === null ? (going ?? lived) : [...going, ...plannedYears(archetype).flatMap((planned): YearChip[] => (going.some((chip) => chip.id === planned.id) ? [] : [{ id: planned.id, icon: planned.icon, label: planned.label, note: planned.note ?? null, state: planned.state ?? null }]))];
   // Where the life starts stands beside the cheering figure with the home's picture; the story's other chips stay in the grid.
   const told = handover ? storyChips(view) : [];
   const starts = told.find((chip) => chip.id === "home") ?? null;

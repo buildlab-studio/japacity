@@ -13,7 +13,8 @@ import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";
 import { archetypeOf } from "../../shared/frontdoor/archetypes";
 import { toTheArchetypes } from "../../shared/frontdoor/frontDoor.testing";
-import type { ClockView } from "../../shared/net/contract";
+import type { ClockView, PresetRequest } from "../../shared/net/contract";
+import { playPresetOn } from "../../shared/net/preset.testing";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
 // Registers Testing Library's cleanup for this file.
@@ -49,6 +50,8 @@ function onlineServer(seed: string) {
     const result = game().send(command);
     return Promise.resolve(result.ok ? reply(game(), result.lines) : { status: 409, body: result });
   });
+  // R-SERVER-046: Begin sends the preset once, and the server plays every year as the commands it logs.
+  server.answer("POST /api/prologue/preset", () => Promise.resolve({ body: playPresetOn(game(), server.sent.at(-1)?.body as PresetRequest, CLOCK, held.sent) }));
   return { server, held, game };
 }
 
