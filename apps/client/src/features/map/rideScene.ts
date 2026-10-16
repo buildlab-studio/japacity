@@ -157,12 +157,13 @@ function onTheLeft(way: Way): boolean {
 /**
  * London's top-deck seat and its carriage seat, in the turned model's own frame (assets-src/veh/london-bus and
  * train-carriage, BUS_TOP_SEAT and CARRIAGE_SEAT): the eye, where the window beside it looks, and where the seat looks
- * ahead. The bus's doors and the seat are on its +x side, the kerb side in the UK; the ride keeps it in the left lane,
+ * ahead. The bus's window looks a little ahead and level out of its side glass, over the panel under it, so the shopfronts run
+ * past. The bus's doors and the seat are on its +x side, the kerb side in the UK; the ride keeps it in the left lane,
  * so that side faces the pavement and the shops (the hand-on from the scenes wave). The carriage's eye stands at x 0.55,
  * in from the model's 1.05, so the window's posts frame the view rather than fill it.
  */
 export const LONDON_SEAT: Readonly<Record<"bus" | "train", { eye: [number, number, number]; window: [number, number, number]; ahead: [number, number, number] }>> = {
-  bus: { eye: [0.62, 3.55, 4.25], window: [5, 2.6, 3.4], ahead: [0.4, 3.2, 12] },
+  bus: { eye: [0.62, 3.55, 4.25], window: [4, 2.9, 7.5], ahead: [0.4, 3.2, 12] },
   train: { eye: [0.55, 2.28, -1.2], window: [8, 1.9, -0.9], ahead: [0, 2.0, 9] },
 };
 
@@ -416,11 +417,14 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
   const box = keep(new BoxGeometry(1, 1, 1));
   box.translate(0, 0.5, 0);
   const walls = london ? [palette.roofRed, palette.wallCream] : [palette.wallCream, palette.wallPeach];
+  // The railway runs behind the houses, so from the carriage the backs stand off across the ballast and the sky shows;
+  // London's high street keeps a wide pavement, so the top deck looks down on it before the shopfronts.
+  const setBack = way === "train" ? 13 : london ? 8.5 : 6.5;
   const lots: { x: number; z: number; w: number; d: number; h: number }[][] = [[], []];
   for (const side of [-1, 1]) {
     for (let z = 20; z > -STREET; z -= 7 + next() * 3) {
       const w = 5 + next() * 4;
-      lots[next() < 0.5 ? 0 : 1]?.push({ x: side * (6.5 + w / 2), z, w, d: 5 + next() * 2, h: 3 + next() * 7 });
+      lots[next() < 0.5 ? 0 : 1]?.push({ x: side * (setBack + w / 2), z, w, d: 5 + next() * 2, h: 3 + next() * 7 });
     }
   }
   lots.forEach((group, colour) => {
@@ -435,7 +439,8 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
   });
   const trees = new InstancedMesh(keep(new IcosahedronGeometry(1.4, 0)), keep(new MeshLambertMaterial({ color: palette.green, flatShading: true })), 24);
   for (let index = 0; index < trees.count; index += 1) {
-    holder.position.set((index % 2 === 0 ? -1 : 1) * 4.9, 2.2, 10 - index * 10 - next() * 4);
+    // London's kerb side keeps its pavement clear, so the top deck's window looks down the shopfronts, not into a tree.
+    holder.position.set((london || index % 2 !== 0 ? 1 : -1) * 4.9, 2.2, 10 - index * 10 - next() * 4);
     holder.scale.setScalar(0.8 + next() * 0.5);
     holder.updateMatrix();
     trees.setMatrixAt(index, holder.matrix);
