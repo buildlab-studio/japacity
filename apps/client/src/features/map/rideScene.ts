@@ -84,7 +84,10 @@ export function stepClock(ms: number, dt: number, length: number = RIDE_MS): num
 export function anglesOf(way: Way): readonly { angle: Angle; from: number }[] {
   const rest = RIDE_MS - PRE_MS;
   switch (way) {
+    // London's bus and train cut as the danfo does (R-WORLD-039): the stop, above, the window, the seat.
     case "danfo":
+    case "bus":
+    case "train":
       return [
         { angle: "outside", from: 0 },
         { angle: "above", from: PRE_MS },
@@ -146,6 +149,23 @@ const VERGE_X = 4.8;
 /** The danfo pulls away during its pre-roll, in metres a second squared. */
 const PULL = 3;
 
+/** The ways that run on the left, as London's do: their lane is on the road's -x side, its kerb beyond it. */
+function onTheLeft(way: Way): boolean {
+  return way === "bus" || way === "train";
+}
+
+/**
+ * London's top-deck seat and its carriage seat, in the turned model's own frame (assets-src/veh/london-bus and
+ * train-carriage, BUS_TOP_SEAT and CARRIAGE_SEAT): the eye, where the window beside it looks, and where the seat looks
+ * ahead. The bus's doors and the seat are on its +x side, the kerb side in the UK; the ride keeps it in the left lane,
+ * so that side faces the pavement and the shops (the hand-on from the scenes wave). The carriage's eye stands at x 0.55,
+ * in from the model's 1.05, so the window's posts frame the view rather than fill it.
+ */
+export const LONDON_SEAT: Readonly<Record<"bus" | "train", { eye: [number, number, number]; window: [number, number, number]; ahead: [number, number, number] }>> = {
+  bus: { eye: [0.62, 3.55, 4.25], window: [5, 2.6, 3.4], ahead: [0.4, 3.2, 12] },
+  train: { eye: [0.55, 2.28, -1.2], window: [8, 1.9, -0.9], ahead: [0, 2.0, 9] },
+};
+
 const RIDER = "shared/chr/chr_rider.glb";
 /** The keke's and the danfo's drivers, the second where the character is the first. */
 const DRIVERS: Record<"keke" | "danfo", readonly [string, string]> = {
@@ -182,6 +202,11 @@ function seatsOf(way: Way): SeatSpec[] {
       ];
     case "walk":
       return [{ role: "own", at: [0, 0, 0], pose: "walk" }];
+    // On the top deck's front seat and the carriage's window seat; the driver is out of sight in the cab below and ahead.
+    case "bus":
+      return [{ role: "own", at: [0.62, 2.45, 4.0], pose: "sit" }];
+    case "train":
+      return [{ role: "own", at: [1.05, 1.15, -1.45], pose: "sit" }];
     // At the wheel of your own car, on the road side (a car drives on the right in Lagos, its wheel on the left).
     case "drive":
       return [{ role: "own", at: [0.36, 0.12, 0.15], pose: "ride" }];
@@ -207,6 +232,8 @@ export function peopleOf(way: Way, own: string): Partial<Record<Role, string>> {
     }
     case "walk":
     case "drive":
+    case "bus":
+    case "train":
       return { own };
     default: {
       const never: never = way;
@@ -250,8 +277,9 @@ export function figuresOn(ride: RideScene): Role[] {
 
 /** A plain box in the way's colour until the real model arrives (or where it cannot); on foot, a body-sized one until the character's figure arrives. */
 function standIn(way: Way): Mesh {
-  const size = way === "danfo" ? [2.1, 2.2, 5.2] : way === "keke" ? [1.4, 1.7, 2.6] : way === "walk" ? [0.5, 1.7, 0.4] : way === "drive" ? [1.8, 1.4, 4.2] : [0.7, 1.3, 1.9];
-  const mesh = new Mesh(new BoxGeometry(size[0], size[1], size[2]), new MeshLambertMaterial({ color: way === "okada" ? palette.red : way === "walk" ? palette.charcoal : way === "drive" ? palette.blue : palette.danfoYellow }));
+  const size = way === "danfo" ? [2.1, 2.2, 5.2] : way === "keke" ? [1.4, 1.7, 2.6] : way === "walk" ? [0.5, 1.7, 0.4] : way === "drive" ? [1.8, 1.4, 4.2] : way === "bus" ? [2.5, 4.05, 10.6] : way === "train" ? [2.8, 3.3, 19.6] : [0.7, 1.3, 1.9];
+  const colour = way === "okada" || way === "bus" ? palette.red : way === "walk" ? palette.charcoal : way === "drive" ? palette.blue : way === "train" ? palette.white : palette.danfoYellow;
+  const mesh = new Mesh(new BoxGeometry(size[0], size[1], size[2]), new MeshLambertMaterial({ color: colour }));
   mesh.position.y = (size[1] ?? 1) / 2;
   return mesh;
 }
@@ -348,7 +376,9 @@ function turnBone(figure: Figure, name: string, x: number, y: number, z: number)
 /** The street, the vehicle and its seats, for the way given. */
 export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
   const scene = new Scene();
-  const air = new Color(palette.sky);
+  // London's street under London's sky: a cooler sky, grey pavements and brick (R-WORLD-039); Lagos keeps its own.
+  const london = onTheLeft(way);
+  const air = new Color(london ? palette.wallSky : palette.sky);
   scene.background = air;
   scene.fog = new Fog(air, 60, 140);
   scene.add(new HemisphereLight(0xffffff, new Color(palette.sand), 1.8));
@@ -362,11 +392,12 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
     return thing;
   };
 
-  const ground = new Mesh(keep(new PlaneGeometry(80, STREET + 60)), keep(new MeshLambertMaterial({ color: palette.laterite })));
+  const ground = new Mesh(keep(new PlaneGeometry(80, STREET + 60)), keep(new MeshLambertMaterial({ color: london ? palette.concrete : palette.laterite })));
   ground.rotation.x = -Math.PI / 2;
   ground.position.z = -STREET / 2 + 20;
   scene.add(ground);
-  const road = new Mesh(keep(new PlaneGeometry(8, STREET + 60)), keep(new MeshLambertMaterial({ color: palette.asphalt })));
+  // The train runs on its ballast, with no road marks.
+  const road = new Mesh(keep(new PlaneGeometry(8, STREET + 60)), keep(new MeshLambertMaterial({ color: way === "train" ? palette.concreteWorn : palette.asphalt })));
   road.rotation.x = -Math.PI / 2;
   road.position.set(0, 0.03, -STREET / 2 + 20);
   scene.add(road);
@@ -378,13 +409,13 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
     holder.updateMatrix();
     marks.setMatrixAt(index, holder.matrix);
   }
-  scene.add(marks);
+  if (way !== "train") scene.add(marks);
 
   // Buildings both sides in two colours of wall, so the street passes in two draw calls.
   const next = sequence(17);
   const box = keep(new BoxGeometry(1, 1, 1));
   box.translate(0, 0.5, 0);
-  const walls = [palette.wallCream, palette.wallPeach];
+  const walls = london ? [palette.roofRed, palette.wallCream] : [palette.wallCream, palette.wallPeach];
   const lots: { x: number; z: number; w: number; d: number; h: number }[][] = [[], []];
   for (const side of [-1, 1]) {
     for (let z = 20; z > -STREET; z -= 7 + next() * 3) {
@@ -413,7 +444,7 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
 
   // The vehicle travels toward -z; its body is turned so its own frame faces +z like its model.
   const vehicle = new Group();
-  vehicle.position.x = way === "walk" ? VERGE_X : LANE_X;
+  vehicle.position.x = way === "walk" ? VERGE_X : way === "train" ? 0 : onTheLeft(way) ? -LANE_X : LANE_X;
   const body = new Group();
   body.rotation.y = Math.PI;
   vehicle.add(body);
@@ -450,6 +481,12 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
 
   const setAngle = (next: Angle): void => {
     angle = next;
+    // London's bus and train are drawn inside by their own models (thin walls with an inner face), so the model stays;
+    // from the window and the seat the camera is the character's eyes, so their figure is not drawn around it.
+    if (onTheLeft(way)) {
+      for (const seat of seats) seat.group.visible = next === "outside";
+      return;
+    }
     if (way !== "danfo") return;
     // Outside and above the danfo is its model; from the window and the seat, its inside drawn
     // around the camera. From above nothing is drawn inside it; outside, the two in front sit in it.
@@ -520,6 +557,10 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
         camera.near = 0.2;
         // At the stop: the danfo from the road's side, clear of the trees along the kerb; the keke and the okada close beside them at the kerb.
         if (way === "danfo") aimFrom([5.0 - push * 2, 2.2, 5.2], [0.2, 1.1, 0.4]);
+        // At the bus stop on the pavement, ahead of the bus's kerb side, the whole red front and its doors in view.
+        else if (way === "bus") aimFrom([4.0 - push * 2, 2.0, 11.5], [0.2, 2.0, 1.5]);
+        // On the platform beside the carriage, along its side to the yellow end.
+        else if (way === "train") aimFrom([4.2 - push * 2, 2.3, 15.5], [0.3, 1.9, 4.0]);
         else if (way === "keke") aimFrom([-3.6 + push * 2, 1.35, 1.6], [-0.1, 1.0, -0.2]);
         else if (way === "drive") aimFrom([6.0 - push * 2, 2.3, 6.2], [0.0, 0.75, 0.3]);
         else aimFrom([-3.6 + push * 2, 1.45, 1.5 - push], [-0.25, 0.9, -0.3]);
@@ -540,13 +581,18 @@ export function buildRide(way: Way, length: number = RIDE_MS): RideScene {
         // it: the road, its marks and the far side slide past (the kerb side is a wall of shops at arm's length).
         camera.fov = 62;
         camera.near = 0.05;
-        aimFrom([-0.7, 1.5, -0.8], [3, 1.05, -0.6]);
+        // London: from the top deck's seat out of the side glass at the pavement and the shops, or from the carriage's
+        // window seat out at the line's side (R-WORLD-039).
+        if (way === "bus" || way === "train") aimFrom(LONDON_SEAT[way].eye, LONDON_SEAT[way].window);
+        else aimFrom([-0.7, 1.5, -0.8], [3, 1.05, -0.6]);
         return;
       case "seat":
         // From a back seat: the two in front at the edges, the roof, the dashboard, the road through the windscreen.
         camera.fov = 60;
         camera.near = 0.05;
-        aimFrom([0, 1.7, -0.3], [0, 1.05, 6]);
+        // London: the top deck's front window over the road ahead, or down the carriage to its front.
+        if (way === "bus" || way === "train") aimFrom(LONDON_SEAT[way].eye, LONDON_SEAT[way].ahead);
+        else aimFrom([0, 1.7, -0.3], [0, 1.05, 6]);
         return;
       case "ahead":
         // Where the character sits, a little up and out, past the rider's or driver's shoulder to the street ahead.

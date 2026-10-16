@@ -78,6 +78,8 @@ export interface RideProps {
   onTurnBack?: () => void;
   /** A walk home past the walking limit: it plays for `LONG_WALK_MS` and has no Skip (R-WORLD-017). */
   long?: boolean;
+  /** The fare paid, as words, shown as a pill under the title abroad: "£1.75", or "£0, bus pass" in a pass month (R-WORLD-039). */
+  fare?: string;
 }
 
 /** How many road lines the card may say in the middle of a ride (map.words.ts). */
@@ -104,7 +106,9 @@ export function alongOf(u: number, seed: number, way: Way): { key: string; needs
   const seat = seatFrom(way);
   const onward = seat !== null && u >= seat ? 1 : 0;
   const road = ((Math.abs(Math.trunc(seed)) + onward) % ROAD_LINES) + 1;
-  if (u < 0.78) return { key: PERSON_LINES.has(road) ? `map.ride.along.road.${String(road)}.${way}` : `map.ride.along.road.${String(road)}`, needs: null };
+  // London's bus and train say their own road, every line of it (R-WORLD-039).
+  const own = way === "bus" || way === "train" || PERSON_LINES.has(road);
+  if (u < 0.78) return { key: own ? `map.ride.along.road.${String(road)}.${way}` : `map.ride.along.road.${String(road)}`, needs: null };
   return { key: "map.ride.along.near", needs: "to" };
 }
 
@@ -117,9 +121,12 @@ export function lineOf(way: Way, seed: number): string | null {
   return `map.ride.line.${way}.${String((Math.abs(Math.trunc(seed)) % LINES) + 1)}`;
 }
 
-/** The vehicle a way rides in: the danfo, keke or okada of the street, or the life's own car. */
+/** The model each way rides in where its file is not named for the way: the life's own car, London's red bus and its train. */
+const VEHICLE_FILE: Readonly<Partial<Record<Way, string>>> = { drive: "car", bus: "london-bus", train: "train-carriage" };
+
+/** The vehicle a way rides in: the danfo, keke or okada of the street, the life's own car, or London's bus or train (R-WORLD-039). */
 export function vehicleFile(way: Exclude<Way, "walk">): string {
-  return `shared/veh/veh_${way === "drive" ? "car" : way}.glb`;
+  return `shared/veh/veh_${VEHICLE_FILE[way] ?? way}.glb`;
 }
 
 /** The ways whose shaders the ride's renderer has compiled this session, by the character shown. */
@@ -163,7 +170,7 @@ export function preloadRide(own: string): void {
 
 const FRAMES_KEPT = 240;
 
-export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone, from, onTurnBack, long = false }: RideProps) {
+export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone, from, onTurnBack, long = false, fare }: RideProps) {
   const box = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
   const dark = useRef<HTMLDivElement>(null);
@@ -331,6 +338,11 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
             <div className="title line-clamp-2 text-[16px] leading-tight [overflow-wrap:anywhere]" data-ride-title>
               {title}
             </div>
+            {fare === undefined ? null : (
+              <span className="mt-1 inline-block rounded-full bg-on-strong/15 px-2 py-0.5 text-[12px] font-bold" data-ride-fare>
+                {fare}
+              </span>
+            )}
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-[2px] bg-on-strong/20" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={100}>
               <div ref={bar} className="h-full origin-left rounded-[2px] bg-signal" style={{ transform: "scaleX(0)" }} data-ride-progress />
             </div>
