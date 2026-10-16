@@ -5,6 +5,7 @@
 // it joins two features as App.tsx does.
 import { content } from "@japacity/content";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { useCallback, useState, type ReactNode } from "react";
 import { describe, expect, test } from "vitest";
 
 import { moderationApi } from "./shared/moderation/api";
@@ -14,6 +15,7 @@ import { slotOrder } from "./shared/sim/people";
 import { BASE, fakeServer } from "./shared/testing/server";
 import { courted, eagerContent, linkedFriend, peopleGame, playMonth, renderWithGame, TOBI } from "./shared/testing/people";
 import { nameOf, say, sayCount } from "./shared/words/text";
+import { PhoneBack } from "./features/phone/act";
 import { Chats, PhonePeople } from "./features/phone/apps/Chats";
 import { phoneWords } from "./features/phone/phone.words";
 import { pairApiFor } from "./features/people/pairApi";
@@ -21,11 +23,25 @@ import { askName, BondHead, leftWords, PeopleSlots, togetherWords } from "./feat
 
 const people = content.tuning.people;
 
+/** The handset's head Back, as the phone hands it: an inner screen's way back to the chats while one is open (R-WORLD-018). */
+function Handset({ children }: { children: ReactNode }) {
+  const [back, setBack] = useState<(() => void) | null>(null);
+  const hand = useCallback((next: (() => void) | null) => setBack(() => next), []);
+  return (
+    <PhoneBack value={hand}>
+      <button type="button" onClick={() => back?.()} data-phone-back />
+      {children}
+    </PhoneBack>
+  );
+}
+
 function chats() {
   return (
-    <PhonePeople value={{ head: (bond) => <BondHead bond={bond} api={null} />, slots: <PeopleSlots api={null} /> }}>
-      <Chats />
-    </PhonePeople>
+    <Handset>
+      <PhonePeople value={{ head: (bond) => <BondHead bond={bond} api={null} />, slots: <PeopleSlots api={null} /> }}>
+        <Chats />
+      </PhonePeople>
+    </Handset>
   );
 }
 
@@ -154,9 +170,11 @@ describe("a bond's thread head", () => {
     const pairs = pairApiFor(BASE, server.fetch);
     await renderWithGame(
       <ModerationProvider api={moderationApi(api({ baseUrl: BASE, fetch: server.fetch }))}>
-        <PhonePeople value={{ head: (one) => <BondHead bond={one} api={pairs} />, slots: <PeopleSlots api={pairs} /> }}>
-          <Chats />
-        </PhonePeople>
+        <Handset>
+          <PhonePeople value={{ head: (one) => <BondHead bond={one} api={pairs} />, slots: <PeopleSlots api={pairs} /> }}>
+            <Chats />
+          </PhonePeople>
+        </Handset>
       </ModerationProvider>,
       game,
     );
@@ -165,7 +183,7 @@ describe("a bond's thread head", () => {
     expect(moderation).not.toBeNull();
     expect(within(moderation!).getByRole("button", { name: "Block" })).toBeDefined();
     expect(within(moderation!).getByRole("button", { name: "Report" })).toBeDefined();
-    fireEvent.click(document.querySelector<HTMLElement>("[data-chats-back]")!);
+    fireEvent.click(document.querySelector<HTMLElement>("[data-phone-back]")!);
     fireEvent.click(document.querySelector<HTMLElement>(`[data-chat-row="${computer}"]`)!);
     expect(head(computer).querySelector("[data-moderation]")).toBeNull();
   });
@@ -237,7 +255,7 @@ describe("a thread that ended", () => {
     // The month after, the thread is gone.
     playMonth(game);
     act(() => store.setState({ view: game.view() }));
-    fireEvent.click(document.querySelector<HTMLElement>("[data-chats-back]")!);
+    fireEvent.click(document.querySelector<HTMLElement>("[data-phone-back]")!);
     expect(document.querySelector(`[data-chat-row="${bond}"]`)).toBeNull();
   });
 

@@ -1,14 +1,14 @@
 // The phone (docs/rules/world.md R-WORLD-018), its apps four across. The apps are handed in as the
 // contract's `PhoneApp`, so the handset knows nothing of what they show.
 import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
-import { type ReactNode, type RefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type ReactNode, type RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { PhoneNav } from "../../shared/phone/nav";
 import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { invertedTransform, layoutBox, type LayoutBox, motionOn } from "../../shared/ui/motion";
 import type { PhoneApp } from "../../shared/world/contract";
-import { Corner, tell } from "../../shared/world/Lines";
-import { PhoneSaid } from "./act";
+import { tell, useLines } from "../../shared/world/Lines";
+import { PhoneBack, PhoneSaid } from "./act";
 import { PhoneIcon } from "./icons";
 import { phoneWords } from "./phone.words";
 
@@ -31,6 +31,31 @@ export interface PhoneProps {
   onMap?: (stop: string) => void;
   /** The place's picture beside its name on the wallpaper, where it has one. */
   areaPicture?: ReactNode;
+}
+
+/**
+ * The room the grown handset leaves above it for the told lane (R-WORLD-026): grown to the screen's top, a lane above it
+ * would stand off the screen, so the grown handset is this much shorter, still nearly the whole screen (R-WORLD-018).
+ */
+export const TOLD_LANE = "h-[calc(100dvh-max(8px,env(safe-area-inset-top))-max(8px,env(safe-area-inset-bottom))-44px)]";
+
+/**
+ * What an app's act did, told over the handset in the corner's own look (R-WORLD-026), in a lane of its own just above the
+ * handset: never inside the glass, where it sat on the Jobs and Market icons and on Send money home (
+ * pictures 149 and 150). Above the handset at rest is the dimmed world under the band; grown, the room it leaves.
+ */
+function Told() {
+  const { lines } = useLines();
+  const line = lines[0];
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-full mb-2 flex justify-center" data-phone-told-lane>
+      {line === undefined ? null : (
+        <p key={line.id} className="talk-corner rise max-w-[92%] px-4 py-1.5 text-center text-[14px] leading-snug font-bold" role="status" data-corner data-told>
+          {line.text}
+        </p>
+      )}
+    </div>
+  );
 }
 
 const CLOCK = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -148,6 +173,10 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
     setOpen(id);
     onOpen?.(id);
   };
+  // An app's inner screen hands the head's Back its way to the app's first screen (act.tsx, useInnerBack).
+  const [inner, setInner] = useState<(() => void) | null>(null);
+  const handBack = useCallback((back: (() => void) | null) => setInner(() => back), []);
+  const back = () => (inner === null ? setOpen(null) : inner());
   const grow = (
     <button
       type="button"
@@ -163,6 +192,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
 
   return (
     <PhoneSaid value={tell}>
+      <PhoneBack value={handBack}>
       <PhoneNav value={{ openApp, close: putAway, ...(onMap === undefined ? {} : { openMap: onMap }) }}>
       <div className="fixed inset-0 z-[44]" role="dialog" aria-modal="true" aria-label={phoneWords("phone.title")} data-phone data-grown={grown} data-away={away}>
         <button type="button" tabIndex={-1} aria-hidden onClick={putAway} className={`motion-in-fade absolute inset-0 cursor-default bg-scrim ${away ? "opacity-0" : ""}`} data-phone-scrim />
@@ -175,11 +205,12 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
           ref={handset}
           className={`pointer-events-auto absolute ${away ? "motion-away handset-away" : `motion-handset ${grown ? "handset-grown" : "handset-rest"}`} ${
             grown
-              ? "bottom-[max(8px,env(safe-area-inset-bottom))] left-2 h-[calc(100dvh-max(8px,env(safe-area-inset-top))-max(8px,env(safe-area-inset-bottom)))] w-[calc(100%-16px)]"
+              ? `bottom-[max(8px,env(safe-area-inset-bottom))] left-2 ${TOLD_LANE} w-[calc(100%-16px)]`
               : "bottom-[max(12px,env(safe-area-inset-bottom))] left-[calc(50%-min(44vw,170px))] h-[min(78dvh,600px)] w-[min(88vw,340px)]"
           }`}
           data-handset
         >
+          <Told />
           <div className="phone-up flex h-full flex-col rounded-[34px] bg-device p-[7px] shadow-[0_24px_60px_rgba(10,14,30,0.55)]">
             <div className={`relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] ${app === null ? "phone-wall" : "bg-sheet text-text"}`} data-phone-glass>
               <div ref={screen} className="motion-screen flex min-h-0 flex-1 flex-col" data-phone-screen>
@@ -206,8 +237,12 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                     </div>
                     {grow}
                   </div>
-                  {notices}
-                  <ul className="mt-auto grid grid-cols-4 gap-x-2 gap-y-4 px-4 pt-6 pb-4" aria-label={phoneWords("phone.apps")}>
+                  {/* What the wallpaper tells and the grid of apps scroll together above the home bar: the status clock's
+                      banner stands whole and the grid scrolls under it when both do not fit, never pushed out of reach under
+                      the home bar. With room to spare the grid rests at the foot. */}
+                  <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain" data-wallpaper-room>
+                    {notices}
+                    <ul className="mt-auto grid shrink-0 grid-cols-4 gap-x-2 gap-y-4 px-4 pt-6 pb-4" aria-label={phoneWords("phone.apps")}>
                     {apps.map((candidate) => (
                       <li key={candidate.id} className="flex flex-col items-center gap-1">
                         <button
@@ -226,14 +261,15 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                         </span>
                       </li>
                     ))}
-                  </ul>
+                    </ul>
+                  </div>
                 </div>
               ) : (
                 <div key={app.id} className="motion-in-right flex min-h-0 flex-1 flex-col bg-sheet text-text">
                   {/* The app's head: back, the app's own icon as a small tile, its name in
                       Rubik, and the grow as a round white button; plain on the sheet, no band. */}
                   <div className="flex items-center gap-2 px-2.5 pt-3 pb-2" data-app-head>
-                    <button type="button" onClick={() => setOpen(null)} aria-label={phoneWords("phone.back")} data-phone-back className="press phone-round flex size-9 shrink-0 items-center justify-center">
+                    <button type="button" onClick={back} aria-label={phoneWords("phone.back")} data-phone-back className="press phone-round flex size-9 shrink-0 items-center justify-center">
                       <ChevronLeft size={24} aria-hidden />
                     </button>
                     <span className="phone-app-tile flex size-10 shrink-0 items-center justify-center rounded-[12px] text-white" style={{ background: `var(${app.tint})` }} aria-hidden data-app-tile>
@@ -266,10 +302,9 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
           </div>
         </div>
         </CentredColumn>
-        {/* What an app's act did is told over the handset, in the corner's own look, so it is read while the phone covers the world (R-WORLD-026). */}
-        <Corner told />
       </div>
       </PhoneNav>
+      </PhoneBack>
     </PhoneSaid>
   );
 }

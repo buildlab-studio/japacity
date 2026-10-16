@@ -796,6 +796,9 @@ export const placeText: Record<string, string> = {
   "place.warehouse-uk.short": "The warehouse",
   "place.church-uk.short": "The church",
   "place.test-centre-uk.short": "The test centre",
+  // The band says a home abroad by its area beside the age, so the area's own short name keeps the line whole.
+  "place.calgary-north-east.short": "Calgary",
+  "place.castel-volturno.short": "Castel",
   "place.calgary-airport.short": "The airport",
   "place.dubai-airport.short": "The airport",
   "place.naples-airport.short": "The airport",

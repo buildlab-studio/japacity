@@ -78,6 +78,19 @@ describe("the month's close", () => {
     expect(document.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe(String(45_000_000 - 12_000_000 - 3_000_000));
   });
 
+  test("[R-WORLD-008] given a month with pay and the visa granted, when the results open, then the visa's answer leads as the hero before payday, then the rent, then Kept", async () => {
+    const turned = [
+      line("line.wallet.salary", { amount: naira(45_000_000) }, "good"),
+      line("line.wallet.rent", { amount: naira(12_000_000) }, "bad"),
+      line("line.route.granted", { route: "route.uk-masters" }, "good"),
+    ];
+    const view: PlayerView = { ...richView(), setpiece: null, interview: null, report: { month: 4, lines: turned, japacityBefore: null, japacityAfter: null, attention: false } };
+    const { store } = await renderWithView(<Results place="Peckham" />, view);
+    act(() => store.setState({ reportOpen: true, lastMonthLines: [] }));
+    expect(rows()).toEqual(["moment", "payday", "rent", "kept"]);
+    expect(document.querySelector("[data-results-story] li")?.hasAttribute("data-results-best")).toBe(true);
+  });
+
   test("[R-WORLD-008] given pay, rent and more moments than fit, when the close is read, then the moments take only the room left, so the sheet holds six lines with Kept", () => {
     const turned = [
       line("line.wallet.salary", { amount: naira(45_000_000) }, "good"),

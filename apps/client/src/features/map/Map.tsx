@@ -133,7 +133,9 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       <X size={20} strokeWidth={2.5} />
     </button>
   );
-  const countryMenu = <Countries country={country} countries={countries} up={lagos} {...(onCountry === undefined ? {} : { onCountry })} />;
+  // The menu's list opens away from the edge its pill stands on: upward from the folded map's foot, downward from the top
+  // of the open map and of the list abroad, so every country stays on the screen (R-WORLD-016).
+  const countryMenu = (up: boolean) => <Countries country={country} countries={countries} up={up} {...(onCountry === undefined ? {} : { onCountry })} />;
   const named = useCallback((id: string): string => stable.find((candidate) => candidate.id === id)?.name ?? id, [stable]);
   // R-WORLD-036: the canoe opens the dedication page over the map, and closing it leaves the map as it was.
   const [dedicated, setDedicated] = useState(false);
@@ -163,7 +165,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
         </Suspense>
       ) : lagos ? null : (
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3 pt-[max(10px,env(safe-area-inset-top))]">
-          {countryMenu}
+          {countryMenu(false)}
           {closeButton}
         </div>
       )}

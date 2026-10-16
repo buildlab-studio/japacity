@@ -507,7 +507,8 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
         </div>
         <div className="mx-4 mt-4 flex flex-col" data-prologue-handover={handover ? "" : undefined}>
           {kept === null && !handover ? null : <Family draw={kept} water={water} turned={handover && turned} hometown={view.hometown} />}
-          <h2 className="mt-4 text-[14px] font-bold text-text-2">{say(handover ? "ui.page.years" : "ui.page.years.running")}</h2>
+          {/* The heading only over chips: a page with no years yet shows no empty heading. */}
+          {years.length === 0 ? null : <h2 className="mt-4 text-[14px] font-bold text-text-2">{say(handover ? "ui.page.years" : "ui.page.years.running")}</h2>}
           <Chips chips={years} mark="data-years" />
           {story.length === 0 ? null : <Chips chips={story} mark="data-handover-story" />}
           {handover ? (

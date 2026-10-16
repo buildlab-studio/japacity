@@ -101,3 +101,19 @@ describe("Send money home", () => {
     expect(card().textContent).toContain(`${formatMoney(naira, "NGN")} lands in the bank at home next month`);
   });
 });
+
+describe("the Bank's foot and an open chooser", () => {
+  test("[R-WORLD-019] given Send money home opened abroad, when its ways stand, then the foot's buttons come after the last way and never stand over it; closed, the foot stands at the screen's foot again", async () => {
+    // The catalog's picture 146 (1b952f4b): Through someone cut under the foot's two buttons, with no sign it scrolled.
+    const game = recordedGame("ada-careful");
+    await renderWithView(<Bank opening="send" />, game.view());
+    const foot = document.querySelector<HTMLElement>("[data-bank-foot]")!;
+    const ways = [...document.querySelectorAll<HTMLElement>("[data-channel]")];
+    expect(ways.length).toBe(3);
+    expect(ways.at(-1)!.compareDocumentPosition(foot) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(foot.className).not.toContain("sticky");
+    fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
+    expect(document.querySelector('[data-chooser="send"]')).toBeNull();
+    expect(document.querySelector<HTMLElement>("[data-bank-foot]")!.className).toContain("sticky");
+  });
+});

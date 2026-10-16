@@ -11,7 +11,7 @@ export const offerHomeText: Record<string, string> = {
 
   "offer.where-next.name": "Where next",
   "offer.where-next.title": "Time to move",
-  "offer.where-next.body": "'You are welcome here o, but it has been {months} months, so find your own place again.'",
+  "offer.where-next.body": "“You are welcome here o, but it has been {months} months, so find your own place again.”",
   "offer.where-next.choice.makoko": "A room in Makoko again. Some months the settlement is cleared",
   "offer.where-next.choice.family": "Back to the family house",
 };

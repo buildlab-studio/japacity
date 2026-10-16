@@ -86,6 +86,10 @@ export function MissionCard({ brief, onGo }: { brief: Brief; onGo: () => void })
   useEffect(() => cue("open"), []);
   const now = brief.items.find((item) => item.now);
   return (
+    <>
+    {/* The card stands on the drawn place, dimmed as behind the chapter's close (R-WORLD-001), never on a blank world: the
+        shell shows it only once the place's first frame is drawn. */}
+    <div aria-hidden className="fade fixed inset-0 z-[45] bg-scrim/60" data-brief-scrim />
     <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-0 z-[46] px-3 pb-[max(12px,env(safe-area-inset-bottom))]">
       <section className="brief-card pop pointer-events-auto flex max-h-[78dvh] flex-col gap-3 overflow-y-auto p-3.5" role="dialog" aria-label={say("ui.brief.label", { title: brief.title, name: brief.giver.name })} data-brief={brief.chapter} data-opening={brief.chapter} data-open>
         <Giver brief={brief} />
@@ -122,6 +126,7 @@ export function MissionCard({ brief, onGo }: { brief: Brief; onGo: () => void })
         </PressButton>
       </section>
     </CentredColumn>
+    </>
   );
 }
 

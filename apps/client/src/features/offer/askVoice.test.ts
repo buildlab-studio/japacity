@@ -5,6 +5,7 @@
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
+import { faceMark } from "../../shared/ui/lively/Face";
 import { say } from "../../shared/words/text";
 import { askerOf } from "./OfferView";
 
@@ -44,5 +45,23 @@ describe("the ask in the person's voice", () => {
     expect(plain.length).toBeGreaterThan(8);
     const broken = plain.filter((id) => PIDGIN.test(`${text[`${id}.title`] ?? ""} ${text[`${id}.body`] ?? ""}`));
     expect(broken).toEqual([]);
+  });
+});
+
+describe("the ask's quotes and mark", () => {
+  test("[R-TEXT-007] given every ask's line, when it is read, then speech wears curly double quotes and no straight single quote opens a quoted part", () => {
+    const straight = offers.filter((id) => /(^|[\s:(])'/.test(text[`${id}.body`] ?? ""));
+    expect(straight).toEqual([]);
+    expect(text["offer.brother-fees.body"]?.startsWith("“")).toBe(true);
+    expect(text["offer.brother-fees.body"]?.endsWith("”")).toBe(true);
+    expect(text["offer.land-buyer.body"]).toContain("“I will pay");
+  });
+
+  test("[R-TEXT-007] given who asks, when the mark is drawn, then it carries the first letter of who they are, never of Your or The", () => {
+    expect(faceMark("Your brother").initial).toBe("B");
+    expect(faceMark("The conductor").initial).toBe("C");
+    expect(faceMark("A recruiter").initial).toBe("R");
+    expect(faceMark("Mama").initial).toBe("M");
+    expect(faceMark("Your brother").colour).toBe(faceMark("Your brother").colour);
   });
 });

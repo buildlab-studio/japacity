@@ -649,9 +649,9 @@ describe("once per life", () => {
 });
 
 describe("the band says what the home is", () => {
-  test("[R-WORLD-002] given each home, when the band's place line is read, then it names the home's kind in few words: the room in a compound, the family house, the room on the water, the shared room abroad by its area", async () => {
+  test("[R-WORLD-002] given each home, when the band's place line is read, then it names the home's kind in few words, short enough for the band beside the age: your room by its area, the family house, the room on the water, the shared room abroad by its area", async () => {
     const base = engineView();
-    expect(homeLine("place.compound-room", base)).toBe("Your room, a compound in Ojuelegba");
+    expect(homeLine("place.compound-room", base)).toBe("Your room, Ojuelegba");
     expect(homeLine("place.family-house", base)).toBe("The family house");
     expect(homeLine("place.hostel-room", base)).toBe("Your hostel room, Yaba");
     expect(homeLine("place.makoko", { ...base, home: { ...base.home, place: "place.makoko" } })).toBe("The room on the water");
@@ -659,9 +659,17 @@ describe("the band says what the home is", () => {
     expect(homeLine("place.makoko", base)).toBeNull();
     expect(homeLine("place.the-room", { ...base, place: { ...base.place, where: "abroad", country: "country.uk" } })).toBe("The shared room, Peckham");
     expect(homeLine("place.yaba", base)).toBeNull();
+    // The catalog of 16 Oct cut "Your room, a compound in Oj..." at 27 letters beside the age: every home's line is shorter.
+    const abroad = { ...base, place: { ...base.place, where: "abroad" as const } };
+    const lines = [
+      ...(["place.compound-room", "place.family-house", "place.hostel-room"] as const).map((home) => homeLine(home, base)),
+      homeLine("place.makoko", { ...base, home: { ...base.home, place: "place.makoko" } }),
+      ...(["country.uk", "country.canada", "country.uae", "country.italy"] as const).map((country) => homeLine("place.the-room", { ...abroad, place: { ...abroad.place, country } })),
+    ];
+    for (const line of lines) expect(line?.length ?? 0).toBeLessThanOrEqual(24);
     localStorage.removeItem("japacity.city.last");
     const view = { ...base, home: { ...base.home, place: "place.compound-room" as const, rent: { currency: "NGN" as const, amount: 50_000_00 } } };
     await opened(world(), view);
-    expect(band().textContent).toContain("Your room, a compound in Ojuelegba");
+    expect(band().textContent).toContain("Your room, Ojuelegba");
   });
 });

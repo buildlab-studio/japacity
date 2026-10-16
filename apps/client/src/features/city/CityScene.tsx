@@ -16,7 +16,7 @@ import { keptStyleOf } from "../../authority/person";
 import { wear } from "../../shared/frontdoor/colours";
 import type { Act, Shot, Thing } from "../../shared/world/contract";
 import { useMotionReduced } from "../../shared/ui/motion";
-import { bubbleSpot, NEAR_SPEAKER } from "../../shared/world/Lines";
+import { type BubbleSpot, bubbleSpot, drawTail, NEAR_SPEAKER, type Rect } from "../../shared/world/Lines";
 import { advanceClock } from "../../shared/three/clock";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest } from "../../shared/three/manifest";
@@ -33,7 +33,7 @@ import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { anchorFan } from "./fan/anchor";
 import { markNode, showMark } from "./mark";
 import { bedLie, othersSeen, sleepMarkNode } from "./sleep";
-import { type LabelBox, spreadLabels } from "./labels";
+import { dotRect, HEAD_CHIN, HEAD_TOP, headRect, LABEL_Y, type LabelBox, layNames, MARK_HIT } from "./labels";
 import { aimRoom, aimShot, clampTurn, EASE, easeRoomView, easeZoom, homeTap, quarterTurns, roomAt, roomFirst, roomShot, SETTLE, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapTilt, snapTurn, snapZoom, turnedShot, turnsRound, turnToward, widthEnds } from "./shot";
 import { showWalls, wallsQuarter } from "./walls";
 import { thingSpot, walkBeforeAct, walkSpot } from "./things";
@@ -67,8 +67,6 @@ const LIE_Y = 0.5;
 const BACK_DEPTH = 0.12;
 /** The length of the lying body, feet to head, so it is centred on the seat. */
 const LIE_LENGTH = 1.6;
-/** A label, and a thing's acts, float this high over the thing's spot. */
-const LABEL_Y = 2.6;
 /** The fan's hinge stands on the thing's body, under its label (docs/design/13-the-lively-layer.md section 3). */
 const FAN_Y = 0.9;
 /** How high over the bed the sleep mark floats, clear of the lying figure (R-WORLD-025). */
@@ -209,6 +207,23 @@ function onScreen(camera: Camera, size: { width: number; height: number }, x: nu
   return { x: ((at.x + 1) / 2) * size.width, y: ((1 - at.y) / 2) * size.height };
 }
 
+const headAt = new Vector3();
+
+/** Where a person's head stands on the screen, as a box a word bubble keeps clear of, or null when it is not in view. */
+function headBox(camera: Camera, size: { width: number; height: number }, figure: { root: Object3D }): Rect | null {
+  if (!figure.root.visible) return null;
+  figure.root.getWorldPosition(headAt);
+  const top = onScreen(camera, size, headAt.x, headAt.y + HEAD_TOP, headAt.z, 1.1);
+  const chin = onScreen(camera, size, headAt.x, headAt.y + HEAD_CHIN, headAt.z, 1.1);
+  return top === null || chin === null ? null : headRect(top, chin);
+}
+
+/** The box of a node on the screen, for what a bubble keeps clear of. */
+function boxOf(node: Element): Rect {
+  const { left, top, right, bottom } = node.getBoundingClientRect();
+  return { left, top, right, bottom };
+}
+
 /** The street camera behind the character along the start's facing, or the plan view as far as `plan` has risen. */
 function aimStreet(camera: Camera, walker: Walker, heading: number, plan: number, aspect: number): void {
   const { position, target } = cameraAim(walker, heading, plan, aspect);
@@ -286,6 +301,8 @@ function Place(props: PlaceProps) {
   const wallsShown = useRef<{ world: World | null; quarter: number }>({ world: null, quarter: 0 });
   /** An act chosen while the character still walks to its thing: it follows on arrival (R-WORLD-010). */
   const labels = useRef<{ thing: Thing; node: HTMLButtonElement }[]>([]);
+  /** The bubble's spot the last frame chose, for the bubble it was chosen for, so it stays put while it stays clear. */
+  const lastBubble = useRef<{ node: HTMLElement; spot: BubbleSpot } | null>(null);
   const pick = useRef(onPick);
   pick.current = onPick;
   const gl = useThree((state) => state.gl);
@@ -890,16 +907,6 @@ function Place(props: PlaceProps) {
     // The street's line is given to the resident nearest the player's figure, and only while one stands near (the talk budget).
     const nearest = bubble?.dataset.speech === NEAR_SPEAKER ? nearestResident(world, next.x, next.z) : null;
     const voice = nearest ?? (speaker === undefined ? null : thingVoice(thingSpot(stage, speaker), bubble?.dataset.speechAmbient !== undefined, next));
-    if (bubble !== null) {
-      if (voice === null) bubble.style.visibility = "hidden";
-      else {
-        const at = new Vector3(voice[0], LABEL_Y, voice[1]).project(state.camera);
-        const bandBottom = document.querySelector("[data-band]")?.getBoundingClientRect().bottom ?? 0;
-        const spot = bubbleSpot(at, state.size, { width: bubble.offsetWidth, height: bubble.offsetHeight }, bandBottom);
-        bubble.style.transform = `translate(${String(spot.x)}px, ${String(spot.y)}px)`;
-        bubble.style.visibility = spot.shown ? "visible" : "hidden";
-      }
-    }
     // The emotes stand over the residents they belong to, held over them as they idle (the talk budget's pictures).
     for (const node of document.querySelectorAll<HTMLElement>("[data-emote-slot]")) {
       const placed = world?.crowd.find((entry) => String(entry.slot) === node.dataset.emoteSlot);
@@ -939,20 +946,54 @@ function Place(props: PlaceProps) {
       node.style.visibility = at === null ? "hidden" : "visible";
       if (at !== null) node.style.transform = `translate(${String(node === marker ? within(at.x, node.firstElementChild instanceof HTMLElement ? node.firstElementChild : node) : at.x)}px, ${String(at.y)}px)`;
     }
-    const laid: { node: HTMLElement; box: LabelBox }[] = [];
+    // Each mark's dot stands on its thing, always; only a name shown over it moves (R-WORLD-005).
+    const dots: { x: number; y: number }[] = [];
+    const names: { name: HTMLElement; x: number; box: LabelBox }[] = [];
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
       const at = spot === null || fanned?.id === thing.id || marked?.id === thing.id || (voice !== null && speaker?.id === thing.id) ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
       // No mark while the opening words stand over the world (R-WORLD-001).
       node.style.display = at === null || labelsHidden ? "none" : "";
-      if (at !== null && !labelsHidden) laid.push({ node, box: { x: within(at.x, node), y: at.y, width: node.offsetWidth, height: node.offsetHeight } });
+      if (at === null || labelsHidden) continue;
+      node.style.left = `${String(at.x)}px`;
+      node.style.top = `${String(at.y)}px`;
+      dots.push(at);
+      const name = node.querySelector<HTMLElement>("[data-mark-name]");
+      if (name !== null && !name.hidden) names.push({ name, x: at.x, box: { x: within(at.x, name), y: at.y - MARK_HIT, width: name.offsetWidth, height: name.offsetHeight } });
     }
-    // Labels that would cover each other are lifted clear.
-    const feet = spreadLabels(laid.map((one) => one.box));
-    laid.forEach(({ node, box }, index) => {
-      node.style.left = `${String(box.x)}px`;
-      node.style.top = `${String(feet[index] ?? box.y)}px`;
+    // Names that would cover each other or a dot are lifted clear, two rows at most, else they wait.
+    const dotBoxes = dots.map((dot) => ({ x: dot.x, y: dot.y - MARK_HIT / 2 + 6, width: 12, height: 12 }));
+    const laidNames = layNames(names.map((one) => one.box), dotBoxes);
+    const soft: Rect[] = dots.map(dotRect);
+    const clear: Rect[] = [];
+    names.forEach(({ name, x, box }, index) => {
+      const laid = laidNames[index] ?? { foot: box.y, shown: false };
+      name.style.translate = `${String(box.x - x)}px ${String(laid.foot - box.y)}px`;
+      name.style.visibility = laid.shown ? "" : "hidden";
+      if (laid.shown) clear.push({ left: box.x - box.width / 2, right: box.x + box.width / 2, top: laid.foot - box.height, bottom: laid.foot });
     });
+    // A person's words stand over them as the camera moves (R-WORLD-005), clear of every head, name, mark and the marker in
+    // the scene (R-WORLD-026), the tail leaning down to the speaker.
+    if (bubble !== null) {
+      if (voice === null) bubble.style.visibility = "hidden";
+      else {
+        const at = new Vector3(voice[0], LABEL_Y, voice[1]).project(state.camera);
+        const bandBottom = document.querySelector("[data-band]")?.getBoundingClientRect().bottom ?? 0;
+        for (const figure of [world?.own, ...(world?.crowd.map((entry) => entry.figure) ?? []), ...(world?.dancers.map((entry) => entry.figure) ?? []), ...(world?.standers ?? [])]) {
+          const head = figure === undefined ? null : headBox(state.camera, state.size, figure);
+          if (head !== null) clear.push(head);
+        }
+        for (const node of document.querySelectorAll<HTMLElement>("[data-marker-tap], [data-thumb], [data-turn-house], [data-corner]")) {
+          if (node.closest<HTMLElement>("[data-marker]")?.style.visibility !== "hidden") clear.push(boxOf(node));
+        }
+        const last = lastBubble.current?.node === bubble ? lastBubble.current.spot : undefined;
+        const spot = bubbleSpot(at, state.size, { width: bubble.offsetWidth, height: bubble.offsetHeight }, bandBottom, { clear, soft, ...(last === undefined ? {} : { last }) });
+        lastBubble.current = { node: bubble, spot };
+        bubble.style.transform = `translate(${String(spot.x)}px, ${String(spot.y)}px)`;
+        drawTail(bubble, spot.tail);
+        bubble.style.visibility = spot.shown ? "visible" : "hidden";
+      }
+    }
     // Buy mode: the lifted thing rides up off the floor and follows the finger, turns and shakes back with short eases,
     // and the hold areas and the hint follow the things as the camera moves.
     const held = lifted.current;

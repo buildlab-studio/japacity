@@ -31,3 +31,13 @@ describe("an answer that moves a quality says what came of it", () => {
     expect(said).toMatch(/task/);
   });
 });
+
+describe("the family's light bill, wherever the character is", () => {
+  test("[R-ABROAD-007] given the NEPA bill, which comes abroad as at home, when its name and what came of each answer are read, then each says it is the bill at home, never a bill where the character lives", () => {
+    // The catalog's pictures 087 to 090 and 148 (1b952f4b): in London "NEPA has brought the bill, next month" read as London's.
+    expect(content.offer["offer.nepa-bill"]?.where).toBe("any");
+    for (const key of ["offer.nepa-bill.name", "offer.nepa-bill.said.pay", "offer.nepa-bill.said.leave"]) {
+      expect(text[key]).toMatch(/\bthe NEPA bill at home\b|\bthe bill at home\b/);
+    }
+  });
+});

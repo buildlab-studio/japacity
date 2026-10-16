@@ -96,7 +96,8 @@ function Field({ id, label, value, delay }: { id: string; label: string; value: 
       <div className={LABEL} style={{ opacity: 0.72 }}>
         {label}
       </div>
-      <div key={value} className={`truncate text-[15px] leading-tight font-bold ${delay === null ? "" : "drop"}`} style={delay === null ? undefined : { animationDelay: `${String(delay)}ms` }}>
+      {/* A long value wraps to a second line where the card has room, never cut with an ellipsis. */}
+      <div key={value} className={`text-[15px] leading-tight font-bold break-words ${delay === null ? "" : "drop"}`} style={delay === null ? undefined : { animationDelay: `${String(delay)}ms` }}>
         {value === "" ? say("prologue.page.empty") : value}
       </div>
     </div>

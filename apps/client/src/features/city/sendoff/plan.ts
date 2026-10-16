@@ -119,21 +119,61 @@ export interface Ping {
   from: string;
 }
 
+/** The friend's line as content has it: "Even the bus stop.", which fits the two buses. */
+const FRIEND_LANDED = "chats.friend.landed.text";
+
+/**
+ * The friend's line on the ride, by the staple she rides (R-CHAPTER-012 (k)): content's own for a bus, the same line
+ * ending on the taxi or the truck she sits in (sendOff.words.ts), so the ping fits the ride it pings in.
+ */
+const FRIEND_BY_STAPLE: Readonly<Record<Staple, string>> = {
+  "double-decker": FRIEND_LANDED,
+  "domitiana-bus": FRIEND_LANDED,
+  taxi: "sendoff.ride.ping.friend.taxi",
+  pickup: "sendoff.ride.ping.friend.pickup",
+};
+
 /**
  * The family's first messages abroad, in the order they ping in: Mama's (the Chats line the landing brings), the
  * cousin's in the family group, and the friend's. Every one is a line the phone already carries after the landing
- * (story.chats.data.ts, family.data.ts), so the badge counts messages that are really there.
+ * (story.chats.data.ts, family.data.ts), so the badge counts messages that are really there; the friend's ends on the
+ * staple she rides in.
  */
-export function firstPings(scenario: Id<"scenario">): Ping[] {
+export function firstPings(scenario: Id<"scenario">, staple: Staple = "double-decker"): Ping[] {
+  // Each ping stands for a message the phone carries: the friend's shows only where content has the friend's line.
   return [
-    { key: "chats.mum.landed.text", from: text["chats.from.mum"] ?? "Mama" },
-    { key: "family.size-44.text", from: speakerName("cousin", scenario, "") },
-    { key: "chats.friend.landed.text", from: text["chats.from.friend"] ?? "" },
-  ].filter((ping) => text[ping.key] !== undefined && ping.from !== "");
+    { key: "chats.mum.landed.text", carried: "chats.mum.landed.text", from: text["chats.from.mum"] ?? "Mama" },
+    { key: "family.size-44.text", carried: "family.size-44.text", from: speakerName("cousin", scenario, "") },
+    { key: FRIEND_BY_STAPLE[staple], carried: FRIEND_LANDED, from: text["chats.from.friend"] ?? "" },
+  ]
+    .filter((ping) => text[ping.carried] !== undefined && ping.from !== "")
+    .map(({ key, from }) => ({ key, from }));
 }
 
-/** The look of the family's stickers, never the character's own: Mama, Papa, the cousin, then the two ahead and the clerk. */
-const FAMILY_LOOKS = ["chr_bisi", "chr_kunle", "chr_tobi", "chr_ngozi", "chr_segun", "chr_femi", "chr_emeka"] as const;
+/**
+ * Who stands at the stop on the landing (R-CHAPTER-012 (j)), each city its own person from the published looks, and of
+ * the sex the stop's label names: an aunty in London, a neighbour in Calgary, a man at the corner in Dubai, a brother
+ * at Castel Volturno. The second look stands in when the first is the character's own.
+ */
+export const STOP_PEOPLE: Readonly<Record<string, { sex: "f" | "m"; looks: readonly [string, string] }>> = {
+  "country.uk": { sex: "f", looks: ["chr_amaka", "chr_zainab"] },
+  "country.canada": { sex: "m", looks: ["chr_dayo", "chr_tunde"] },
+  "country.uae": { sex: "m", looks: ["chr_emeka", "chr_femi"] },
+  "country.italy": { sex: "m", looks: ["chr_bayo", "chr_segun"] },
+};
+
+/** The look of the person at the stop in a country, never the character's own. */
+export function stopLookFor(country: Id<"country">, own: string): string {
+  const [first, second] = STOP_PEOPLE[country]?.looks ?? ["chr_ngozi", "chr_kemi"];
+  return first === own ? second : first;
+}
+
+/**
+ * The looks of the hall's people, never the character's own: Mama, Papa, the cousin, the two ahead in the queue, the
+ * clerk at counter 4 (the counter's officer), and the clerks at counters 3 and 5. One more than the hall needs, so the
+ * character's own look is left out and every person of the hall still wears a look of their own.
+ */
+const HALL_LOOKS = ["chr_bisi", "chr_kunle", "chr_tobi", "chr_ngozi", "chr_segun", "chr_femi", "chr_kemi", "chr_dayo", "chr_emeka"] as const;
 
 export interface Cast {
   mum: string;
@@ -141,11 +181,13 @@ export interface Cast {
   cousin: string;
   ahead: [string, string];
   clerk: string;
+  /** The clerks behind counters 3 and 5. */
+  desks: [string, string];
 }
 
-/** The people of the hall, none wearing the character's own look. */
+/** The people of the hall, none wearing the character's own look, no two the same. */
 export function castFor(own: string): Cast {
-  const looks = FAMILY_LOOKS.filter((look) => look !== own);
-  const [mum = "chr_bisi", dad = "chr_kunle", cousin = "chr_tobi", first = "chr_ngozi", second = "chr_segun", clerk = "chr_femi"] = looks;
-  return { mum, dad, cousin, ahead: [first, second], clerk };
+  const looks = HALL_LOOKS.filter((look) => look !== own);
+  const [mum = "chr_bisi", dad = "chr_kunle", cousin = "chr_tobi", first = "chr_ngozi", second = "chr_segun", clerk = "chr_femi", left = "chr_kemi", right = "chr_dayo"] = looks;
+  return { mum, dad, cousin, ahead: [first, second], clerk, desks: [left, right] };
 }

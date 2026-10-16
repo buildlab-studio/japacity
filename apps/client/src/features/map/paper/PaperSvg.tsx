@@ -117,10 +117,12 @@ export interface PaperSvgProps {
   uid: string;
   /** The part of the paper this view shows, [x0, y0, x1, y1]: the grain outside it is not drawn. All of it when absent. */
   within?: readonly [number, number, number, number] | null;
+  /** The district names this view paints, by key; all of them when absent (a card leaves off the ones it would cut). */
+  labels?: ReadonlySet<string> | null;
 }
 
 /** The paper, one SVG. Memoised: a view's drawing changes only with its variant and its route. */
-export const PaperSvg = memo(function PaperSvg({ variant, route = null, uid, within = null }: PaperSvgProps) {
+export const PaperSvg = memo(function PaperSvg({ variant, route = null, uid, within = null, labels = null }: PaperSvgProps) {
   const d = drawing();
   const whole = variant !== "folded";
   const cells = within === null ? d.cells : d.cells.filter(({ box }) => box[0] < within[2] && box[2] > within[0] && box[1] < within[3] && box[3] > within[1]);
@@ -191,7 +193,7 @@ export const PaperSvg = memo(function PaperSvg({ variant, route = null, uid, wit
           <Toll at={LANDMARKS.toll} />
           <Ferry at={LANDMARKS.ferry} />
           <Cranes at={LANDMARKS.cranes} />
-          {LABELS.map((label) => (
+          {LABELS.filter((label) => labels === null || labels.has(label.key)).map((label) => (
             <text key={label.key} className="district" x={label.at[0]} y={label.at[1]} transform={`rotate(${n(label.tilt)} ${n(label.at[0])} ${n(label.at[1])})`} style={{ "--s": label.size } as CSSProperties} data-district={label.key}>
               {mapWords(label.key)}
             </text>

@@ -1,7 +1,7 @@
 // The folding map on the screen (docs/rules/world.md R-WORLD-015, R-WORLD-017): it opens on the right card, the strip
 // unfolds it, a pin of the open map folds it back on that pin's card, a sticker picks its stop, and the route takes its
 // channel.
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
@@ -33,13 +33,13 @@ const BUILT = new Set(
 const HOME = "place.family-house";
 const LAGOS: CountryChoice = { id: "lagos", name: "Lagos", locked: null };
 
-function pinsAt(here: string): MapPin[] {
+function pinsAt(here: string, been: readonly string[] = []): MapPin[] {
   const places = Object.values(content.place).filter((place) => place.where === "home");
-  return mapPins({ places, here, home: HOME, homeSpot: { latE3: 6507, lonE3: 3359 }, been: [], built: BUILT, name: nameOf });
+  return mapPins({ places, here, home: HOME, homeSpot: { latE3: 6507, lonE3: 3359 }, been: [...been], built: BUILT, name: nameOf });
 }
 
-async function open(props: { here?: string; step?: string | null; pickFirst?: string | null } = {}): Promise<void> {
-  await renderWithView(<Map pins={pinsAt(props.here ?? "place.ojuelegba")} country={LAGOS} countries={[LAGOS]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={HOME} step={props.step ?? null} pickFirst={props.pickFirst ?? null} />, engineView());
+async function open(props: { here?: string; step?: string | null; pickFirst?: string | null; been?: readonly string[] } = {}): Promise<void> {
+  await renderWithView(<Map pins={pinsAt(props.here ?? "place.ojuelegba", props.been ?? [])} country={LAGOS} countries={[LAGOS]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={HOME} step={props.step ?? null} pickFirst={props.pickFirst ?? null} />, engineView());
   // The painted map is its own chunk: wait for it to come in.
   for (let tries = 0; tries < 200 && document.querySelector("[data-paper-map]") === null; tries += 1) {
     await act(async () => {
@@ -187,5 +187,65 @@ describe("the folding map", () => {
     const marks = [...document.querySelectorAll<HTMLElement>("[data-strip] [data-strip-landmark]")].map((mark) => mark.dataset.stripLandmark);
     expect(marks).toEqual(["theatre", "towers", "towers-vi", "tower"]);
     expect(document.querySelector("[data-strip] .paper-folds")).not.toBeNull();
+  });
+  test("[R-WORLD-015] given a place visited, when a card draws its sticker, then the sticker carries its name; the open map names no place visited", async () => {
+    vi.useFakeTimers();
+    await open({ here: "place.national-stadium", been: ["place.bode-thomas"] });
+    // The card shown draws at once and its neighbours a moment later.
+    act(() => {
+      vi.advanceTimersByTime(600);
+    });
+    const onCards = [...document.querySelectorAll('[data-card] [data-pin="place.bode-thomas"]')];
+    expect(onCards.length).toBeGreaterThan(0);
+    for (const pin of onCards) expect(pin.querySelector("[data-name]")?.getAttribute("data-name")).toBe("been");
+    fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);
+    act(() => {
+      vi.advanceTimersByTime(FOLD_MS + 300);
+    });
+    expect(document.querySelector('[data-open-map] [data-pin="place.bode-thomas"] [data-name]')).toBeNull();
+  });
+
+  test("[R-WORLD-016] given the map folded, then the country menu at its foot opens its list upward; unfolded, the open map's menu at the top opens its list downward, and it is the only menu", async () => {
+    vi.useFakeTimers();
+    await open();
+    const menus = () => [...document.querySelectorAll<HTMLElement>("[data-country-menu]")];
+    expect(menus()).toHaveLength(1);
+    fireEvent.click(menus()[0]?.querySelector("button") as HTMLElement);
+    expect(document.querySelector('[role="listbox"]')?.className).toContain("bottom-full");
+    fireEvent.click(menus()[0]?.querySelector("button") as HTMLElement);
+    fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);
+    act(() => {
+      vi.advanceTimersByTime(FOLD_MS + 300);
+    });
+    expect(phase()).toBe("open");
+    expect(menus()).toHaveLength(1);
+    expect(menus()[0]?.closest("[data-open-head]")).not.toBeNull();
+    fireEvent.click(menus()[0]?.querySelector("button") as HTMLElement);
+    const list = document.querySelector('[role="listbox"]');
+    expect(list?.className).toContain("top-full");
+    expect(list?.className).not.toContain("bottom-full");
+  });
+
+  test("[R-WORLD-015] given the strip tapped, when the unfolding moves, then the head row and the stickers fade in over its last part, ending with the fold's motion, so the open map stands whole at the motion's end however late it settles", async () => {
+    vi.useFakeTimers();
+    await open();
+    fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);
+    const unfold = () => document.querySelector<HTMLElement>("[data-unfold]");
+    expect(unfold()?.className).toContain("paper-moving");
+    expect(document.querySelector<HTMLElement>("[data-open-head]")?.style.opacity).toBe("0");
+    // The motion begins on the next frames, well before the fold is told it has settled.
+    act(() => {
+      vi.advanceTimersByTime(40);
+    });
+    expect(phase()).toBe("opening");
+    expect(unfold()?.className).not.toContain("paper-moving");
+    expect(unfold()?.className).toContain("paper-arriving");
+    expect(document.querySelector<HTMLElement>("[data-open-head]")?.style.opacity).toBe("1");
+    // The wait and the fade end together with the motion: transform and opacity only.
+    const css = readFileSync(join(import.meta.dirname, "paper.css"), "utf8");
+    const delay = Number(/\.paper-arriving[^{]*\{\s*transition-delay:\s*(\d+)ms/.exec(css)?.[1] ?? "NaN");
+    const fade = Number(/\.paper-world \.paper-pin, \.paper-danfo, \.paper-world \.stk \{ transition: opacity (\d+)ms/.exec(css)?.[1] ?? "NaN");
+    expect(delay + fade).toBeLessThanOrEqual(FOLD_MS);
+    expect(delay).toBeGreaterThan(0);
   });
 });

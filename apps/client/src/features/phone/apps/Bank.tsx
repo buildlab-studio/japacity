@@ -107,7 +107,9 @@ function shareOf(pocket: number, share: Share): number {
  * The most the bank will change into foreign money now, in whole units of the money paid in, by
  * the month's limit (R-WALLET-005): the bank's charge comes off first and what is left is counted
  * in US cents at the official rate, as the wallet counts it. Null where no limit binds: a sale for
- * naira, the FX man, or abroad, where the view shows no limit.
+ * naira, the FX man, or abroad, where the view shows no limit. A remainder too small to buy one whole
+ * unit of the money bought counts as nothing: twelve cents left came to ₦191 for nine pence, a change
+ * the screen can only say as "£0".
  */
 export function bankLimit(view: Pick<PlayerView, "rates" | "bankAllowanceLeft">, from: Currency, to: Currency): number | null {
   const left = view.bankAllowanceLeft;
@@ -124,7 +126,8 @@ export function bankLimit(view: Pick<PlayerView, "rates" | "bankAllowanceLeft">,
     if (cents(middle * 100) <= left) low = middle;
     else high = middle;
   }
-  return low * 100;
+  const most = low * 100;
+  return int.convertMinor(most - int.bp(most, content.tuning.wallet.bankChargeBp), from, to, official) < 100 ? 0 : most;
 }
 
 /** The amounts offered for a change: the limit's remainder first where the bank's limit binds, then the shares it would take. */
@@ -530,6 +533,29 @@ function HeldBar({ book }: { book: PassbookView }) {
   );
 }
 
+/**
+ * The other money held, one chip a money, each saying where it is held, the bank or cash. One long chip for them all ran past the card and the phone's glass: a chip a money
+ * lets the row wrap between monies, and a chip may wrap inside itself where one money is held in both pockets.
+ */
+function AlsoHeld({ view, others }: { view: PlayerView; others: Currency[] }) {
+  const held = others
+    .map((currency) => ({ currency, words: (["bank", "cash"] as const).filter((pocket) => view.pockets[currency][pocket] > 0).map((pocket) => phoneWords(`phone.bank.also.${pocket}`, { amount: formatMoney(view.pockets[currency][pocket], currency) })).join(", ") }))
+    .filter((each) => each.words !== "");
+  if (held.length === 0) return null;
+  return (
+    <>
+      <span className="self-center text-[12px] font-bold text-text-2">{phoneWords("phone.bank.also")}</span>
+      {held.map((each, index) => (
+        <span key={each.currency} className="max-w-full" data-also={each.currency}>
+          <StickerChip tilt={index % 2 === 0 ? -1 : 1} className="chip-wrap max-w-full">
+            {each.words}
+          </StickerChip>
+        </span>
+      ))}
+    </>
+  );
+}
+
 function PassbookCard({ view, book, shown, others }: { view: PlayerView; book: PassbookView; shown: Currency; others: Currency[] }) {
   return (
     <LivelyCard className="rise p-3" data-passbook>
@@ -553,15 +579,7 @@ function PassbookCard({ view, book, shown, others }: { view: PlayerView; book: P
           <span>{passbookWords("passbook.bank")}</span>
           <Counter value={view.pockets[shown].bank} format={(value) => formatMoney(value, shown)} />
         </StickerChip>
-        {others.length === 0 ? null : (
-          <StickerChip tilt={-1} className="whitespace-normal">
-            {phoneWords("phone.bank.also", {
-              amounts: others
-                .flatMap((currency) => (["bank", "cash"] as const).filter((pocket) => view.pockets[currency][pocket] > 0).map((pocket) => phoneWords(`phone.bank.also.${pocket}`, { amount: formatMoney(view.pockets[currency][pocket], currency) })))
-                .join(", "),
-            })}
-          </StickerChip>
-        )}
+        <AlsoHeld view={view} others={others} />
       </div>
     </LivelyCard>
   );
@@ -809,16 +827,7 @@ function BalanceCard({ view, shown, others }: { view: PlayerView; shown: Currenc
       <Counter value={view.pockets[shown].bank} format={(value) => formatMoney(value, shown)} className="num block text-[26px] font-bold leading-tight" />
       <div className="mt-2 flex flex-wrap gap-1.5">
         <StickerChip tilt={-1.5}>{phoneWords("phone.bank.cash", { amount: formatMoney(view.pockets[shown].cash, shown) })}</StickerChip>
-        {others.length === 0 ? null : (
-          // Each other money says where it is held, the bank or cash.
-          <StickerChip tilt={1} className="whitespace-normal">
-            {phoneWords("phone.bank.also", {
-              amounts: others
-                .flatMap((currency) => (["bank", "cash"] as const).filter((pocket) => view.pockets[currency][pocket] > 0).map((pocket) => phoneWords(`phone.bank.also.${pocket}`, { amount: formatMoney(view.pockets[currency][pocket], currency) })))
-                .join(", "),
-            })}
-          </StickerChip>
-        )}
+        <AlsoHeld view={view} others={others} />
       </div>
     </LivelyCard>
   );
@@ -1035,8 +1044,10 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
       )}
 
       {view.ended ? null : (
-        // The acts stand at the foot of the screen, over the page as it scrolls, as the after set draws them.
-        <div className="sticky -bottom-3 -mx-3 -mb-3 border-t border-sheet-line bg-sheet px-3 pt-3 pb-3" data-bank-foot>
+        // The acts stand at the foot of the screen, over the page as it scrolls, as the after set draws them. While a chooser
+        // is open the foot comes after it instead, so its last way is never under the foot's buttons (
+        // picture 146: Through someone cut under them); the chooser's own button does the act, the foot only opens and closes.
+        <div className={`${choosing === null ? "sticky -bottom-3" : ""} -mx-3 -mb-3 border-t border-sheet-line bg-sheet px-3 pt-3 pb-3`} data-bank-foot>
           <div className="flex gap-2">
             {/* Abroad with other monies held, Change money heads their pairs above; it is not said again here. */}
             {pairsShown ? null : (

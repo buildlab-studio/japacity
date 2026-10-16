@@ -39,7 +39,7 @@ import { Cut, useCut } from "../../shared/world/Cut";
 import { type PlaneCutSlot, sendOff, useSendOffShowing } from "../../shared/world/sendOff";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
-import { Corner, hush, murmur, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
+import { Corner, hush, murmur, resetLines, speak, SpeechBubble, tell, useLines, useStreetTalk } from "../../shared/world/Lines";
 import { calloutsShown } from "../../shared/world/callouts";
 import { Emotes } from "./emotes";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
@@ -277,7 +277,7 @@ function keep(key: string, value: string[]): void {
 
 /**
  * The band's place line for a home (R-WORLD-002): what the home is, in few words, so a
- * room drawn alone is never read as a whole compound: "Your room, a compound in Ojuelegba", "The family house", "The
+ * room drawn alone is never read as a whole compound: "Your room, Ojuelegba", "The family house", "The
  * room on the water", abroad "The shared room, Peckham". Makoko is the room on the water only for a life that lives
  * there. Null for any other place, which keeps its own name.
  */
@@ -827,6 +827,8 @@ export function City({
   const heard = entry === null ? null : overheard(view, entry.id, date, heardCount);
   const lines = entry === null ? [] : reportHere(view, entry.id, PLACES);
   const ready = progress !== null && progress.loaded >= progress.total && failed === null;
+  /** The place whose first frame has been drawn. */
+  const [drawnAt, setDrawnAt] = useState<string | null>(null);
   // The place's name, and inside a room that is another entry's (the hub's room is place.yaba) that entry's own name.
   const name = entry === null ? "" : placeName(entry.id);
   const hereName = (inside && insideEntry?.id === "place.yaba") || placeId === "place.yaba" ? say("ui.inside.hub") : inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : inside ? cityWords("city.inside.name", { place: name }) : name;
@@ -1543,6 +1545,8 @@ export function City({
       setTeaching(false);
     };
   }, [world, ready, openingUp, hasThings, hereId, view.scenario]);
+  // The names are due as this render commits, before the effect above has begun teaching them: the street waits for them too.
+  const teachDue = world && ready && !openingUp && hasThings && !wasTaught(`place:${hereId}`, view.scenario);
   // R-HOME-008: the first entry into a home in a life shows what the home is, its blurb,
   // once, as a small card the player dismisses; kept beside the save, so it never shows again in this life.
   const homeHere = home !== null && (placeId === home || hereId === home) ? home : null;
@@ -1642,6 +1646,17 @@ export function City({
   const rowShown = !(phone || asksOpen || menu || credits || picked !== null || asleep !== null);
   const markerShown = atStep && stepThing !== null && markable && nowItem !== null && worldFree && fanned === null && picked === null;
   const callouts = calloutsShown({ fan: fanned !== null, chip: rowShown && chipMoment !== null, marker: markerShown, bubble: true });
+  // A fan opened hushes whoever was speaking: its title and buttons would stand on their words (092).
+  const fannedId = fanned?.id ?? null;
+  useEffect(() => {
+    if (fannedId !== null) hush();
+  }, [fannedId]);
+  const { speech, lines: toldLines } = useLines();
+  const talking = speech !== null;
+  // The first brief's card stands once the place's first frame is drawn; the chapter's close once a chapter has closed.
+  const briefUp = openingUp && brief !== null && (!drawing || drawnAt === placeId);
+  const closeUp = closeShown && closeBrief !== null && closedNow !== null;
+  const zoomChipFree = worldFree && picked === null && fanned === null && asleep === null && nightTeach === null && !homeTeachShown && !briefUp && !closeUp && toldLines.length === 0;
   const heardNth = useRef(0);
   const thingsHere = useRef(things);
   thingsHere.current = things;
@@ -1651,7 +1666,9 @@ export function City({
     heardNth.current += 1;
     // A line one person plainly says names them, over their own figure where they stand in the place (R-WORLD-026).
     return heardNow === null ? null : { text: heardWords(heardNow.key, heardNow.params), ...speakerOf(heardNow, thingsHere.current ?? [], (key) => cityWords(key)) };
-  }, worldFree && settled && callouts.bubble && !homeTeachShown, home !== null && placeId === home ? say("ui.talk.home") : undefined);
+    // The street waits while a place's names are taught on its first entry, and while the brief's card stands: names and words
+    // never share the scene (024).
+  }, worldFree && settled && callouts.bubble && !homeTeachShown && !teaching && !teachDue && !briefUp, home !== null && placeId === home ? say("ui.talk.home") : undefined);
   // A person speaks only in the place they stand in: going elsewhere takes their words down.
   useEffect(() => hush(), [placeId, inside]);
   // R-WORLD-005: the light bill paid at home, Mama says so over her head, the corner tells the bill paid, and a moment later the next compound is heard.
@@ -1723,6 +1740,8 @@ export function City({
                   }
                 : {})}
               onFrame={(frameMs) => {
+                // The first frame drawn of a place: the first brief's card waits for it, so it never stands on a blank world.
+                if (drawnAt !== placeId) setDrawnAt(placeId);
                 const next = observeFrame(watch.current, frameMs, city);
                 watch.current = next;
                 if (next.mode !== mode) setMode(next.mode);
@@ -1811,7 +1830,8 @@ export function City({
             open={bandOpen}
             {...(coming === null ? {} : { onToggle: () => setBandOpen((open) => !open) })}
             more={
-              !(phone || asksOpen || menu || credits || picked !== null || asleep !== null) ? (
+              // The chip under the band and the nudge wait while the brief's card or the chapter's close stands: the card says it.
+              !(phone || asksOpen || menu || credits || picked !== null || asleep !== null || briefUp || closeUp) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
                   {moneyIn === null ? null : <MoneyToast key={moneyIn.at} toast={moneyIn} onGone={() => setMoneyIn(null)} />}
                   {said === null ? null : <SaidToast key={said.at} said={said} onGone={() => setSaid(null)} />}
@@ -1836,10 +1856,12 @@ export function City({
             phoneWaiting={phoneWaiting ?? view.offers.length > 0}
             hidden={map || resultsOpen || closeShown}
             // The house turns a quarter round from its button; it steps back while a sheet, the phone, the map or a fan is open.
-            {...(turnable ? { onTurn: () => { cue("tap"); turnHouse(turnQuarter + 1); }, turnHidden: !worldFree || picked !== null || fanned !== null || asleep !== null || homeTeachShown || openingUp } : {})}
+            {...(turnable ? { onTurn: () => { cue("tap"); turnHouse(turnQuarter + 1); }, turnHidden: !worldFree || picked !== null || fanned !== null || asleep !== null || homeTeachShown || nightTeach !== null || openingUp } : {})}
           />
           <FirstUseLabels tapped={firstUse.tapped} hidden={map || resultsOpen || covered || openingUp || closeShown} />
-          {zoomed && !map ? (
+          {/* "See the whole place" stands only on a free world: it steps back under a card, a sheet, a share card, the chapter's
+              close, a fan, the first-night card and the sleep, and gives the foot to the corner's line while one stands. */}
+          {zoomed && !map && zoomChipFree ? (
             <button type="button" onClick={() => setZoomed(false)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
               {say("ui.world.whole")}
             </button>
@@ -1927,8 +1949,9 @@ export function City({
             </div>
             </CentredColumn>
           ) : null}
-          <SpeechBubble hidden={!worldFree || !callouts.bubble} anchored={drawing && ready} />
-          {drawing && ready && sample !== null ? <Emotes people={sample.people} hidden={!worldFree || !settled || asleep !== null || openingUp} onTap={(slot) => readPick({ kind: "person", slot })} /> : null}
+          {/* An open fan hushes the words over the scene (the talk budget keeps nothing over an open fan). */}
+          <SpeechBubble hidden={!worldFree || !callouts.bubble || fanned !== null} anchored={drawing && ready} />
+          {drawing && ready && sample !== null ? <Emotes people={sample.people} hidden={!worldFree || !settled || asleep !== null || openingUp} quiet={talking} onTap={(slot) => readPick({ kind: "person", slot })} /> : null}
           {fanned !== null && fanEntries !== null && picked?.kind === "thing" ? (
             fanSheet === fanned.id ? (
               <FanSheet key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onClose={() => setPicked(null)} going={fanGoingId} />
@@ -1947,7 +1970,7 @@ export function City({
           <Cut cutting={cutting} />
           {/* The chapter's brief is handed as a mission card by its person (design page 13 section 4; R-CHAPTER-011 as the hand
               redraws it): the first chapter's once in a life, a later chapter's until a month is played. Let's go carries it. */}
-          {openingUp && brief !== null ? (
+          {briefUp && brief !== null ? (
             <MissionCard
               brief={brief}
               onGo={() => {
@@ -1957,7 +1980,7 @@ export function City({
               }}
             />
           ) : null}
-          {closeShown && closeBrief !== null && closedNow !== null ? (
+          {closeUp && closeBrief !== null ? (
             <ChapterClose
               brief={closeBrief}
               line={hasWords(`${closedNow}.close`) ? words(`${closedNow}.close`) : ""}

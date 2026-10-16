@@ -5,9 +5,13 @@
 const FACE_COLOURS = 6;
 
 /** A name's mark: its first letter, raised, and which of the mark colours it takes. */
+/** The words a name may start with that say whose or which, never who: the mark takes the letter after them. */
+const LEAD_WORDS = /^(your|the|a|an)\s+/i;
+
 export function faceMark(name: string): { initial: string; colour: string } {
   const letters = [...name.normalize("NFC").trim()];
-  const initial = letters[0]?.toLocaleUpperCase() ?? "?";
+  // "Your brother" marks B, not Y; the colour still comes from the whole name.
+  const initial = [...name.normalize("NFC").trim().replace(LEAD_WORDS, "")][0]?.toLocaleUpperCase() ?? "?";
   const sum = letters.reduce((total, letter) => total + (letter.codePointAt(0) ?? 0), 0);
   return { initial, colour: `var(--face-${String((sum % FACE_COLOURS) + 1)})` };
 }

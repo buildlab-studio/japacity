@@ -4,11 +4,12 @@
 // says in plain sight that Japacity is a game, is sent by the game itself, and
 // is offered, never sent: nothing leaves the device until the player taps.
 import { Dialog } from "@base-ui/react/dialog";
-import type { JapaType, ShareKind } from "@japacity/content";
+import { text, type JapaType, type ShareKind } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { createContext, use, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { readPerson } from "../../authority/person";
 import { counting } from "../../shared/analytics/start";
 import type { Encoded } from "../../shared/card/encode";
 import { cardFace, type CardFace, type ShareCard } from "../../shared/card/face";
@@ -251,17 +252,45 @@ export function ShareButton({ card, scenario, stub = null, device = browserDevic
 }
 
 /**
- * A card with its share button; at the send-off, the card and the ticket stub side by side to pick from
- * (R-SHARE-001: the stub is due beside the send-off card, and the player picks which to share).
+ * The character's name as the band says it (share.md R-SHARE-004 as amended 16 Oct 2026): the name given at the door, else
+ * the first word of the life's own name, "Adaeze". The band said "Adaeze" while the card said "Ada" (
+ * pictures 141, 168, 169): one name, the band's, on the card, the stub and the image that travels.
  */
-function CardToShare({ card, scenario, type, seat = null }: { card: ShareCard; scenario: Id<"scenario">; type: JapaType | null; seat?: Seat | null }) {
+export function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard {
+  if ((card.name ?? "").trim() !== "" || (readPerson()?.name.trim() ?? "") !== "") return card;
+  const first = (text[`${scenario}.name`] ?? "").trim().split(/\s+/)[0] ?? "";
+  return first === "" ? card : { ...card, name: first };
+}
+
+/**
+ * A card with its share button; at the send-off, the card and the ticket stub side by side to pick from
+ * (R-SHARE-001: the stub is due beside the send-off card, and the player picks which to share). Given a `foot` (the
+ * screenshot's hint and Close over the dimmed world), the share button stands with it on a ground of its own, never
+ * printed over what lies under the dim (over the phone's icons).
+ */
+function CardToShare({ card: due, scenario, type, seat = null, foot = null, note = null }: { card: ShareCard; scenario: Id<"scenario">; type: JapaType | null; seat?: Seat | null; foot?: ReactNode; note?: ReactNode }) {
   const [picked, setPicked] = useState<"card" | "stub">("card");
+  const card = bandNamed(due, scenario);
   const stub = stubFace(card, scenario, type, seat);
+  const share = <ShareButton card={card} scenario={scenario} stub={stub !== null && picked === "stub" ? stub : null} />;
+  const footed =
+    foot === null ? (
+      share
+    ) : (
+      <div className="sticky bottom-0 flex w-full max-w-[24rem] flex-col items-center gap-2 rounded-[16px] bg-sheet p-3 text-text shadow-2xl" data-card-foot>
+        {/* The share and Close side by side, the hint under them: a short foot, so the card and its picker keep the screen. */}
+        <div className="flex w-full items-start justify-center gap-3">
+          {share}
+          {foot}
+        </div>
+        {note}
+      </div>
+    );
   if (stub === null) {
     return (
       <>
         <ShareCardFace card={card} scenario={scenario} />
-        <ShareButton card={card} scenario={scenario} />
+        {footed}
       </>
     );
   }
@@ -275,7 +304,7 @@ function CardToShare({ card, scenario, type, seat = null }: { card: ShareCard; s
         ))}
       </div>
       {picked === "card" ? <ShareCardFace card={card} scenario={scenario} /> : <StubCardFace face={stub} />}
-      <ShareButton card={card} scenario={scenario} stub={picked === "stub" ? stub : null} />
+      {footed}
     </>
   );
 }
@@ -395,14 +424,23 @@ function CardScreen({ open, onClose, card, scenario, type, seat }: { open: boole
     <FullScreen open={open} onClose={onClose} title={say(`share.${card.kind}.ready`)} tone="over">
       {/* R-WORLD-001: one tap on the dimmed world dismisses the moment; the face and its buttons keep their taps. */}
       <button type="button" aria-label={say("ui.card.dismiss")} onClick={onClose} className="absolute inset-0 cursor-default" data-card-scrim />
-      <div className="relative flex flex-col items-center gap-3" onClick={(event) => event.stopPropagation()}>
+      {/* The face, its picker and its foot scroll inside the screen's height, so on a short screen nothing stands above the
+          top edge out of reach (the picker above the screen), the foot held at the bottom. */}
+      <div className="relative flex max-h-full w-full flex-col items-center gap-3 overflow-y-auto overscroll-contain" onClick={(event) => event.stopPropagation()} data-card-screen>
         <InDialog value>
-          <CardToShare card={card} scenario={scenario} type={type} seat={seat} />
+          <CardToShare
+            card={card}
+            scenario={scenario}
+            type={type}
+            seat={seat}
+            foot={
+              <Button variant="secondary" onClick={onClose}>
+                {say("ui.report.close")}
+              </Button>
+            }
+            note={<p className="text-center text-sm leading-snug text-text-2">{say("ui.card.how")}</p>}
+          />
         </InDialog>
-        <p className="max-w-sm text-center text-sm opacity-80">{say("ui.card.how")}</p>
-        <Button variant="secondary" onClick={onClose}>
-          {say("ui.report.close")}
-        </Button>
       </div>
     </FullScreen>
   );

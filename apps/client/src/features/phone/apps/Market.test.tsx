@@ -50,6 +50,22 @@ describe("the Market", () => {
     unmount();
   });
 
+  test("[R-HOME-013] [R-HOME-006] given a thing with a running cost beside things with none, when the Market opens, then every tile ends on its price, the running cost over it, so the prices of a row line up", async () => {
+    // The catalog's picture 120 (1b952f4b): the data router's running chip under its price lifted the price off its neighbour's.
+    const game = newGame();
+    setPockets(game, { NGN: 500_000_00 });
+    const { unmount } = await openMarket(game, FAMILY);
+    const running = Object.values(content.thing).find((thing) => thing.running > 0 && card(thing.id)?.querySelector("[data-market-price]") !== null);
+    expect(running).toBeDefined();
+    for (const tile of document.querySelectorAll<HTMLElement>("[data-market-thing]")) {
+      const foot = tile.querySelector<HTMLElement>("[data-market-foot-of]")!;
+      expect(foot.lastElementChild?.matches("[data-market-price], [data-word-chip]:not([data-market-running])")).toBe(true);
+    }
+    const foot = card(running!.id)!.querySelector<HTMLElement>("[data-market-foot-of]")!;
+    expect(foot.firstElementChild?.hasAttribute("data-market-running")).toBe(true);
+    unmount();
+  });
+
   test("[R-HOME-013] [R-HOME-006] [R-WORLD-006] given a fan picked at home, when Buy is pressed, then the balance before and after shows, the fan is bought at its price, the delivery's toast stands and the card says it is yours", async () => {
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });

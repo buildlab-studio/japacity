@@ -14,7 +14,8 @@ import { APP_IDS, marksOf, reloadSeen, SEEN_KEY, waitingOf } from "./seen";
 import { todayWords } from "../../shared/words/format";
 import { inMonths, nameOf } from "../../shared/words/text";
 import { phoneWords } from "./phone.words";
-import { resetLines } from "../../shared/world/Lines";
+import { resetLines, tell } from "../../shared/world/Lines";
+import { TOLD_LANE } from "./Phone";
 import { handBrief } from "../../shared/world/briefHanded";
 
 const NOON = () => new Date(2026, 9, 8, 12, 5);
@@ -118,6 +119,34 @@ describe("the handset", () => {
     fireEvent.click(screen.getByRole("button", { name: "Make the phone smaller" }));
     expect(phone?.getAttribute("data-grown")).toBe("false");
     expect(document.querySelector("[data-handset]")?.className).toContain("handset-rest");
+  });
+
+  test("[R-WORLD-026] [R-WORLD-018] given a line told over the phone, at rest or grown, when it shows, then it stands in a lane of its own above the handset, never inside the glass on an icon or a button", async () => {
+    // The catalog's pictures 149 and 150 (1b952f4b): "You quit" sat on the Jobs and Market icons, then on Send money home.
+    await openPhone(engineView());
+    act(() => tell("You quit"));
+    const told = document.querySelector<HTMLElement>("[data-phone] [data-told]")!;
+    expect(told.textContent).toBe("You quit");
+    const lane = told.closest<HTMLElement>("[data-phone-told-lane]")!;
+    expect(lane.parentElement?.hasAttribute("data-handset")).toBe(true);
+    expect(lane.className).toContain("bottom-full");
+    expect(document.querySelector("[data-phone-glass]")?.contains(told)).toBe(false);
+    // Grown, the handset leaves the lane's room above it, so the lane is never off the top of the screen.
+    fireEvent.click(screen.getByRole("button", { name: "Make the phone bigger" }));
+    expect(document.querySelector("[data-handset]")?.className).toContain(TOLD_LANE);
+  });
+
+  test("[R-STATUS-003] [R-WORLD-018] given what the wallpaper tells is taller than its room, when the phone's home shows, then the notices stand whole and the grid scrolls under them above the home bar, never out of reach", async () => {
+    // The catalog's picture 149 (1b952f4b): the status clock's banner pushed the last row of apps under the home bar.
+    await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={NOON} talk={null} warnings={<div style={{ height: 2000 }} data-tall-notice />} />, engineView());
+    const notices = document.querySelector<HTMLElement>("[data-wallpaper-room]")!;
+    expect(notices.contains(document.querySelector("[data-tall-notice]"))).toBe(true);
+    expect(notices.className).toContain("overflow-y-auto");
+    expect(notices.className).toContain("min-h-0");
+    const grid = screen.getByRole("list", { name: "Apps" });
+    expect(notices.contains(grid)).toBe(true);
+    expect(document.querySelector("[data-tall-notice]")!.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(notices.contains(document.querySelector("[data-home-bar]"))).toBe(false);
   });
 
   test("[R-WORLD-018] given an app is open, when Back is tapped, then the grid returns, and the home bar puts the phone away", async () => {
@@ -248,6 +277,20 @@ describe("what the phone carries", () => {
     expect(feed).toHaveLength(4);
     expect(new Set(feed.map((line) => line.month)).size).toBe(feed.length);
     for (const line of feed) expect(screen.getAllByText(line.words).length).toBeGreaterThan(0);
+  });
+
+  test("[R-WORLD-018] given the family group's thread open in Chats, when the way back is looked for, then there is one, the app's Back: it returns to the chats, and once more to the grid", async () => {
+    // The catalog's pictures 115 and 130 (1b952f4b): the app's back arrow and a "Chats" link under it, two ways back stacked.
+    await openPhone({ ...engineView(), month: 3 });
+    openApp("chats");
+    fireEvent.click(document.querySelector<HTMLElement>('[data-chat-row="family"]')!);
+    expect(screen.getAllByRole("button", { name: phoneWords("phone.back") })).toHaveLength(1);
+    expect(screen.queryByRole("button", { name: phoneWords("phone.app.chats") })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: phoneWords("phone.back") }));
+    expect(document.querySelector('[data-chat-row="family"]')).not.toBeNull();
+    expect(document.querySelector("[data-phone-home]")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: phoneWords("phone.back") }));
+    expect(document.querySelector("[data-phone-home]")).not.toBeNull();
   });
 
   test("[R-WORLD-019] given the visa granted, when the feed is read, then the billing that waits for the news has started", () => {

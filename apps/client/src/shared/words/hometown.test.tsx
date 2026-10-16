@@ -29,17 +29,17 @@ describe("lines from home", () => {
     setNow(4, "hometown.enugu");
     expect(hometownWords()).toBe("Enugu");
     // Who asks stands in the ask's name pill now, and the line is theirs alone.
-    expect([say("offer.roof.who"), words("offer.roof.body", { cost: 4500000 })]).toEqual(["Papa", "'Rain entered the roof of the house in Enugu, and the carpenter wants ₦45,000 for zinc and labour.'"]);
+    expect([say("offer.roof.who"), words("offer.roof.body", { cost: 4500000 })]).toEqual(["Papa", "“Rain entered the roof of the house in Enugu, and the carpenter wants ₦45,000 for zinc and labour.”"]);
     expect(say("offer.harvest.who")).toBe("Your uncle");
-    expect(words("offer.harvest.body", { cost: 1500000 })).toMatch(/^'They are calling families by name at the harvest in Enugu,/);
+    expect(words("offer.harvest.body", { cost: 1500000 })).toMatch(/^“They are calling families by name at the harvest in Enugu,/);
     expect(say("offer.uncle-burial.who")).toBe("Papa");
-    expect(words("offer.uncle-burial.body", { cost: 5000000 })).toMatch(/^'The family in Enugu is contributing for the burial,/);
+    expect(words("offer.uncle-burial.body", { cost: 5000000 })).toMatch(/^“The family in Enugu is contributing for the burial,/);
     expect(say("ui.prologue.town.city")).toBe("Your family is from Enugu, a city.");
     expect(nameOf("person.sib-home")).toBe("Your sibling in Enugu");
     expect(blurbOf("person.sib-home")).toBe("Still in Enugu, still in the family's business, still asking how far.");
     // Mama and Papa live in the family's Lagos house: their own asks and the People screen say home, never the town.
-    expect(words("offer.nepa-bill.body", { cost: 1800000 })).toMatch(/^'They want ₦18,000 or they cut the light, and your father says he will handle it o\.'$/);
-    expect(words("offer.mum-shop.body", { cost: 1800000 })).toMatch(/^'The supplier has stopped my credit/);
+    expect(words("offer.nepa-bill.body", { cost: 1800000 })).toMatch(/^“They want ₦18,000 or they cut the light, and your father says he will handle it o\.”$/);
+    expect(words("offer.mum-shop.body", { cost: 1800000 })).toMatch(/^“The supplier has stopped my credit/);
     for (const key of ["offer.nepa-bill.body", "offer.mum-shop.body"]) expect(words(key, { cost: 1800000 })).not.toContain("Enugu");
     expect(say("ui.people.parent.blurb.mother")).toBe("At home, as she has always been. She calls when there is news.");
     expect(blurbOf("activity.call-home")).toBe("You call your mother and listen to all of it.");

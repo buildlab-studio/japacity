@@ -144,7 +144,10 @@ export function Market({ here = null }: { here?: string | null }) {
                 </span>
                 <span className="text-[16px] leading-tight font-bold">{nameOf(offer.thing)}</span>
                 <span className="text-[13px] leading-snug text-text-2">{phoneWords(`${offer.thing}.line`)}</span>
-                <span className="mt-auto flex flex-wrap items-center gap-1.5 pt-1">
+                {/* The price stands last in every tile, the running cost over it, so the tiles of a row end at one height
+                    with their prices in line (a running chip under one price lifted it). */}
+                <span className="mt-auto flex flex-col items-start gap-1.5 pt-1" data-market-foot-of={offer.thing}>
+                  {offer.running > 0 && one === undefined && shut === null ? <WordChip tone="plain" data-market-running>{phoneWords("phone.market.running", { amount: naira(offer.running) })}</WordChip> : null}
                   {one !== undefined ? (
                     <WordChip tone="soft" data-market-owned={offer.thing}>
                       {phoneWords(one.stored ? "phone.market.stored" : "phone.market.owned")}
@@ -156,7 +159,6 @@ export function Market({ here = null }: { here?: string | null }) {
                       {naira(offer.price)}
                     </span>
                   )}
-                  {offer.running > 0 && one === undefined && shut === null ? <WordChip tone="plain">{phoneWords("phone.market.running", { amount: naira(offer.running) })}</WordChip> : null}
                 </span>
               </button>
             </li>

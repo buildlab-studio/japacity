@@ -14,7 +14,7 @@ export const offerHealthText: Record<string, string> = {
   "offer.illness-worse.name": "It has got worse",
   "offer.illness-worse.title": "It is worse",
   "offer.illness-worse.body":
-    "'The fever is back and worse, so I want a scan, an X-ray and a bed for you, {hospital}, and either way it will be weeks before you are well.'",
+    "“The fever is back and worse, so I want a scan, an X-ray and a bed for you, {hospital}, and either way it will be weeks before you are well.”",
   "offer.illness-worse.choice.hospital": "Be admitted",
   "offer.illness-worse.choice.cannot": "Stay home and let the family nurse you",
   "offer.illness-worse.said.hospital": "You were admitted: the scan, the X-ray and a bed for weeks.",
@@ -23,7 +23,7 @@ export const offerHealthText: Record<string, string> = {
   "offer.village-burial.name": "A burial in the village",
   "offer.village-burial.title": "My uncle died",
   "offer.village-burial.body":
-    "'My uncle has died, and the family expects to see you at the burial in the village this month; the trip is ₦60,000.'",
+    "“My uncle has died, and the family expects to see you at the burial in the village this month; the trip is ₦60,000.”",
   "offer.village-burial.choice.go": "Travel home for it",
   "offer.village-burial.choice.send-money": "Send ₦100,000 instead",
   "offer.village-burial.choice.absent": "Stay away",
