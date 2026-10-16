@@ -20,7 +20,7 @@ describe("the rollback command line", () => {
     expect(result.lines).toHaveLength(2);
   });
 
-  test("[R-SERVER-008] given no character, or no memory save while packages/db does not exist, when the tool is run, then it prints its usage and exits 2", async () => {
+  test("[R-SERVER-008] given no character, or no memory save with no database named in the environment, when the tool is run, then it prints its usage and exits 2", async () => {
     for (const args of [["check"], ["fix", "character.tunde"], ["apply", "character.tunde"]]) {
       expect((await rollbackCli(args, read(""))).exit).toBe(2);
     }
