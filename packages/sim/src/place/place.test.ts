@@ -108,7 +108,7 @@ describe("a new character", () => {
   test("[R-PLACE-001] given a new life, when it starts, then the character is at home with no country, no move and no return on record", () => {
     const game = start({ content });
     expect(game.state.place).toEqual({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null, decemberMonth: null });
-    expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null, fareBp: 10000, wayHome: null, ways: lagosWays() });
+    expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null, fareBp: 10000, wayHome: null, ways: lagosWays(), shuttles: [] });
   });
 });
 
@@ -518,6 +518,8 @@ describe("the view and the record", () => {
       fareBp: 10000,
       wayHome: null,
       ways: lagosWays(),
+      // R-PLACE-013 (decision 0043): no shuttle's stop at home.
+      shuttles: [],
     });
   });
 

@@ -403,7 +403,10 @@ const CountryRidesSchema = z.strictObject({
   ways: z.strictObject({ bus: RideFiguresSchema.exactOptional(), train: RideFiguresSchema.exactOptional(), taxi: RideFiguresSchema.exactOptional() }),
   step: z.int().positive(),
   pass: CountSchema.nullable(),
+  // R-PLACE-012 as amended 16 Oct 2026 (decision 0043): the ways the pass covers.
+  passWays: z.array(z.enum(["bus", "train", "taxi"])),
   lonMetresPerE3: z.int().positive(),
+  walkMetresPerMinute: z.int().positive(),
 });
 
 export const TuningSchema = z.strictObject({

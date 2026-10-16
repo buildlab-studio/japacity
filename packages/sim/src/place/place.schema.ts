@@ -22,6 +22,8 @@ export const PlaceEntrySchema = z.strictObject({
   crowd: z.strictObject({ low: CountSchema, high: CountSchema, target: CountSchema }),
   traditionalBp: BpSchema,
   assets: z.string().min(1),
+  // R-PLACE-013 (decision 0043): the employer's shuttle serves the place.
+  shuttle: z.boolean(),
 });
 
 export type PlaceEntryMatches = Proof<Same<z.infer<typeof PlaceEntrySchema>, PlaceEntry>>;

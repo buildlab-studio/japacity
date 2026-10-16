@@ -106,9 +106,11 @@ describe("what happens where", () => {
   });
 
   test("[R-CITY-010] given an id staged by a place of one country and by a place that serves every country, when checked, then both are allowed", () => {
-    // The UK's test centre and the country-less one both stage the nurse's tests (city.md; the UK's jobs left the workplace abroad).
-    expect(place("place.test-centre-abroad").stages).toContain("activity.nmc-tests");
+    // The country-less test centre is gone (city.md, design page 15), so the room, which serves every country, stands in for
+    // a country-less place staging the UK test centre's nurse's tests.
     expect(place("place.test-centre-uk").stages).toContain("activity.nmc-tests");
+    const room = place("place.the-room");
+    expect(placeChecks(withPlace({ ...room, stages: [...room.stages, "activity.nmc-tests"] }))).toEqual([]);
     expect(placeChecks(content)).toEqual([]);
   });
 
