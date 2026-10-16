@@ -1,0 +1,208 @@
+// Rides abroad: docs/rules/place.md R-PLACE-010 as amended 16 Oct 2026 (decision 0042, design page 14 section 5). A ride
+// is accepted in the country the character is in, between two places of that country, on the ways it lists or on foot,
+// the fare taken from the country's money; the scarcity factor is Lagos's only.
+import { content } from "@japacity/content";
+import { describe, expect, test } from "vitest";
+
+import { BP_WHOLE, divCeil, mulDiv } from "../engine/int";
+import type { Accepted, BaseEvent, Currency, Effect, Id } from "../engine/types";
+import { applyEffects } from "../route/route.journey";
+import type { Game } from "../testing/play";
+import { start } from "../testing/play";
+import { flown } from "./place.journey";
+import { metresApart, rideFare, withinMetres } from "./place.logic";
+
+const UK: Id<"country"> = "country.uk";
+const PECKHAM: Id<"place"> = "place.peckham";
+const RYE_LANE: Id<"place"> = "place.rye-lane";
+const HEATHROW: Id<"place"> = "place.heathrow";
+const ROOM: Id<"place"> = "place.the-room";
+const TEST_CENTRE: Id<"place"> = "place.test-centre-abroad";
+const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
+const rides = content.tuning.city.ride.abroad[UK]!;
+const bus = rides.ways.bus!;
+const train = rides.ways.train!;
+
+function positionOf(id: Id<"place">): { latE3: number; lonE3: number } {
+  const position = content.place[id]?.position;
+  if (position === null || position === undefined) throw new Error(`${id} has no position.`);
+  return position;
+}
+
+/** Empties every pocket, then leaves the pounds in cash and the bank as given. */
+function pounds(game: Game, cash: number, bank = 0): void {
+  const takes: Effect[] = CURRENCIES.flatMap((currency): Effect[] => {
+    const pocket = game.state.wallet.pockets[currency];
+    const held = pocket.bank + pocket.cash;
+    return held === 0 ? [] : [{ type: "money/take", currency, pocket: "any", amount: held, reason: "mishap" }];
+  });
+  const adds: Effect[] = [
+    ...(cash > 0 ? [{ type: "money/add", currency: "GBP", pocket: "cash", amount: cash, reason: "gift" } as const] : []),
+    ...(bank > 0 ? [{ type: "money/add", currency: "GBP", pocket: "bank", amount: bank, reason: "gift" } as const] : []),
+  ];
+  applyEffects(game, [...takes, ...adds]);
+}
+
+function rode(result: Accepted): BaseEvent | undefined {
+  return result.events.find((event) => event.type === "place/rode");
+}
+
+function debits(result: Accepted): BaseEvent[] {
+  return result.events.filter((event) => event.type === "wallet/debited");
+}
+
+describe("the fare abroad", () => {
+  test("[R-PLACE-010] given the UK's ways, when their figures are read, then the bus is £1.75 flat at 250 m a minute, the train £2.80 and 10p a kilometre at 600 m a minute, fares in fives of pence, and the pass £95", () => {
+    expect(rides).toEqual({ ways: { bus: { fare: 175, farePerKm: 0, metresPerMinute: 250 }, train: { fare: 280, farePerKm: 10, metresPerMinute: 600 } }, step: 5, pass: 9500 });
+    for (const country of ["country.canada", "country.uae", "country.italy"] as const) expect(content.tuning.city.ride.abroad[country]?.ways).toEqual({});
+    expect(content.tuning.city.ride.abroad["country.uae"]?.step).toBe(25);
+  });
+
+  test("[R-PLACE-010] given two places in London, when a way's fare is read with the country's figures, then the bus is one fare whatever the distance, the train grows with it rounded up to five pence, a place with no position stands at the flag-down figure, and the month's factor is the caller's", () => {
+    const peckham = positionOf(PECKHAM);
+    const rye = positionOf(RYE_LANE);
+    const heathrow = positionOf(HEATHROW);
+    const busFare = { ...bus, step: rides.step };
+    const trainFare = { ...train, step: rides.step };
+    expect(rideFare(busFare, peckham, rye)).toBe(175);
+    expect(rideFare(busFare, peckham, heathrow)).toBe(175);
+    const near = rideFare(trainFare, peckham, rye);
+    const far = rideFare(trainFare, peckham, heathrow);
+    expect(near).toBe(divCeil(280 + mulDiv(10, metresApart(peckham, rye), 1000), 5) * 5);
+    expect(far).toBe(divCeil(280 + mulDiv(10, metresApart(peckham, heathrow), 1000), 5) * 5);
+    expect(far).toBeGreaterThan(near);
+    expect([near % 5, far % 5]).toEqual([0, 0]);
+    // The step's edge: a figure one penny past a step rounds up to the next five, one on it stays.
+    expect(rideFare({ fare: 281, farePerKm: 0, step: 5 }, null, null)).toBe(285);
+    expect(rideFare({ fare: 285, farePerKm: 0, step: 5 }, null, null)).toBe(285);
+    expect(rideFare(trainFare, null, heathrow)).toBe(280);
+    expect(rideFare({ fare: 0, farePerKm: 0, step: 5 }, peckham, heathrow)).toBe(0);
+    expect(rideFare(busFare, peckham, rye, 20000)).toBe(350);
+    // Lagos's ways price as before from content and the way.
+    expect(rideFare(content, positionOf("place.ojuelegba"), positionOf("place.bode-thomas"), "danfo")).toBe(
+      rideFare({ fare: content.tuning.city.ride.fareKobo.danfo, farePerKm: content.tuning.city.ride.farePerKmKobo.danfo, step: 5000 }, positionOf("place.ojuelegba"), positionOf("place.bode-thomas"), BP_WHOLE),
+    );
+  });
+});
+
+describe("a ride abroad", () => {
+  test("[R-PLACE-010] given a life in London with pounds in cash, when the bus and the train are taken, then each fare leaves the pound cash as a fare and the ride is on record in pounds", () => {
+    const game = flown(content);
+    pounds(game, 5000);
+    const byBus = game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "bus" });
+    expect(debits(byBus)).toMatchObject([{ currency: "GBP", pocket: "cash", amount: 175, reason: "fare" }]);
+    expect(rode(byBus)).toEqual({ type: "place/rode", from: PECKHAM, to: RYE_LANE, way: "bus", fare: 175, currency: "GBP" });
+    const fare = rideFare({ ...train, step: rides.step }, positionOf(PECKHAM), positionOf(HEATHROW));
+    const byTrain = game.accept({ type: "place/ride", from: PECKHAM, to: HEATHROW, way: "train" });
+    expect(debits(byTrain)).toMatchObject([{ currency: "GBP", pocket: "cash", amount: fare, reason: "fare" }]);
+    expect(rode(byTrain)).toEqual({ type: "place/rode", from: PECKHAM, to: HEATHROW, way: "train", fare, currency: "GBP" });
+    expect(game.state.wallet.pockets.GBP.cash).toBe(5000 - 175 - fare);
+    expect(game.state.wallet.pockets.NGN.cash + game.state.wallet.pockets.NGN.bank).toBe(0);
+  });
+
+  test("[R-PLACE-010] given the fare over the pound cash but within the pounds, when a ride is sent, then cash goes first and the bank pays the rest", () => {
+    const game = flown(content);
+    pounds(game, 100, 1000);
+    const result = game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "bus" });
+    expect(debits(result)).toMatchObject([
+      { currency: "GBP", pocket: "cash", amount: 100, reason: "fare" },
+      { currency: "GBP", pocket: "bank", amount: 75, reason: "fare" },
+    ]);
+  });
+
+  test("[R-PLACE-010] given a country-less place abroad, when a ride goes there, then it is accepted at the flag-down figure, and walked to with no fare", () => {
+    const game = flown(content);
+    pounds(game, 5000);
+    expect(content.place[TEST_CENTRE]).toMatchObject({ where: "abroad", country: null, position: null });
+    expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: TEST_CENTRE, way: "train" }))).toMatchObject({ way: "train", fare: train.fare, currency: "GBP" });
+    expect(rode(game.accept({ type: "place/ride", from: TEST_CENTRE, to: PECKHAM, way: "walk" }))).toMatchObject({ way: "walk", fare: 0, currency: "GBP" });
+  });
+
+  test("[R-PLACE-010] given a life in London, when a ride goes to another country's place, to a place in Lagos, by a way of Lagos, or to the same place, then it is refused and nothing is paid", () => {
+    const game = flown(content);
+    pounds(game, 5000);
+    game.expectRejected({ type: "place/ride", from: PECKHAM, to: "place.deira", way: "bus" }, "not-legal");
+    game.expectRejected({ type: "place/ride", from: "place.deira", to: PECKHAM, way: "bus" }, "not-legal");
+    game.expectRejected({ type: "place/ride", from: PECKHAM, to: "place.ojuelegba", way: "bus" }, "not-legal");
+    game.expectRejected({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "danfo" }, "not-legal");
+    game.expectRejected({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "taxi" }, "not-legal");
+    game.expectRejected({ type: "place/ride", from: PECKHAM, to: PECKHAM, way: "bus" }, "not-legal");
+    expect(game.state.wallet.pockets.GBP.cash).toBe(5000);
+  });
+
+  test("[R-PLACE-010] given pounds short of the fare, when the bus is taken, then it is refused as unaffordable and nothing is paid; one penny more and it is taken", () => {
+    const game = flown(content);
+    pounds(game, 174);
+    game.expectRejected({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "bus" }, "cannot-afford");
+    expect(game.state.wallet.pockets.GBP.cash).toBe(174);
+    pounds(game, 175);
+    expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "bus" }))).toMatchObject({ fare: 175 });
+    expect(game.state.wallet.pockets.GBP.cash).toBe(0);
+  });
+
+  test("[R-PLACE-010] given no pounds at all, when a walk goes home to the room from Heathrow, then it is accepted with no fare however far; a walk from Peckham to Heathrow is refused, and one to Rye Lane is walked", () => {
+    const game = flown(content);
+    pounds(game, 0);
+    const limit = content.tuning.city.ride.walkMetres;
+    expect(withinMetres(positionOf(PECKHAM), positionOf(HEATHROW), limit)).toBe(false);
+    expect(withinMetres(positionOf(PECKHAM), positionOf(RYE_LANE), limit)).toBe(true);
+    const home = game.accept({ type: "place/ride", from: HEATHROW, to: ROOM, way: "walk" });
+    expect(debits(home)).toEqual([]);
+    expect(rode(home)).toMatchObject({ way: "walk", fare: 0, currency: "GBP" });
+    game.expectRejected({ type: "place/ride", from: PECKHAM, to: HEATHROW, way: "walk" }, "not-legal");
+    expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "walk" }))).toMatchObject({ way: "walk", fare: 0 });
+  });
+
+  test("[R-PLACE-010] given the fuel scarcity's month carried abroad, when the bus is taken in London, then the fare stands at its figure and the view's factor is whole", () => {
+    const game = flown(content);
+    pounds(game, 5000);
+    const month = game.state.turn.month;
+    game.state = { ...game.state, offer: { ...game.state.offer, lastOpened: { ...game.state.offer.lastOpened, "offer.fuel-scarcity": month } } };
+    expect(game.view().place.fareBp).toBe(BP_WHOLE);
+    expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "bus" }))).toMatchObject({ fare: 175 });
+  });
+
+  test("[R-PLACE-010] given a country that lists no ways, when any ride is sent there, then it is refused as before, and the view lists no way", () => {
+    const game = start({ content });
+    game.state = { ...game.state, place: { ...game.state.place, where: "abroad", country: "country.canada" } };
+    game.expectRejected({ type: "place/ride", from: "place.calgary-airport", to: "place.calgary-north-east", way: "bus" }, "not-legal");
+    game.expectRejected({ type: "place/ride", from: "place.calgary-airport", to: "place.calgary-north-east", way: "walk" }, "not-legal");
+    expect(game.view().place.ways).toEqual([]);
+  });
+
+  test("[R-PLACE-010] given a life at home, when the bus or the train is sent in Lagos, then it is refused; a danfo's ride is on record in naira", () => {
+    const game = start({ content });
+    game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "bus" }, "not-legal");
+    game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "train" }, "not-legal");
+    expect(rode(game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "danfo" }))).toMatchObject({ way: "danfo", currency: "NGN" });
+  });
+});
+
+describe("the ways in the view", () => {
+  test("[R-PLACE-010] given a life in London, at home and on the road, when the view is read, then the ways are the country's with their figures and on foot, the four of Lagos, and none", () => {
+    const abroad = flown(content);
+    const walkPace = content.tuning.city.ride.metresPerMinute.walk;
+    expect(abroad.view().place.ways).toEqual([
+      { way: "bus", currency: "GBP", fare: 175, farePerKm: 0, step: 5, metresPerMinute: 250, passed: false },
+      { way: "train", currency: "GBP", fare: 280, farePerKm: 10, step: 5, metresPerMinute: 600, passed: false },
+      { way: "walk", currency: "GBP", fare: 0, farePerKm: 0, step: 5, metresPerMinute: walkPace, passed: false },
+    ]);
+    const { fareKobo, farePerKmKobo, metresPerMinute } = content.tuning.city.ride;
+    const home = start({ content });
+    expect(home.view().place.ways).toEqual(
+      (["danfo", "keke", "okada", "walk"] as const).map((way) => ({ way, currency: "NGN", fare: fareKobo[way], farePerKm: farePerKmKobo[way], step: 5000, metresPerMinute: metresPerMinute[way], passed: false })),
+    );
+    const road = start({ content });
+    road.state = { ...road.state, place: { ...road.state.place, where: "road", country: null } };
+    expect(road.view().place.ways).toEqual([]);
+  });
+
+  test("[R-PLACE-010] given a way from the view, when the ride sheet prices it with rideFare and the ride is sent, then the fare taken is the one priced", () => {
+    const game = flown(content);
+    pounds(game, 5000);
+    const way = game.view().place.ways?.find((one) => one.way === "train");
+    if (way === undefined) throw new Error("No train in the view.");
+    const priced = rideFare(way, positionOf(PECKHAM), positionOf(HEATHROW), game.view().place.fareBp);
+    expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: HEATHROW, way: "train" }))).toMatchObject({ fare: priced });
+  });
+});

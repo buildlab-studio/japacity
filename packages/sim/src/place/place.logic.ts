@@ -1,4 +1,4 @@
-// Place: docs/rules/place.md, R-PLACE-001 to 009, and the mechanics of coming
+// Place: docs/rules/place.md, R-PLACE-001 to 012, and the mechanics of coming
 // home in return.md. A character is at home, abroad in one country, or on the road.
 import { check, worldVarOr } from "../engine/check";
 import { bp, BP_WHOLE, convertMinor, divFloor, isqrt, mulDiv, roundUpTo } from "../engine/int";
@@ -6,15 +6,19 @@ import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
+  AbroadWay,
   BaseEvent,
   Cause,
   Command,
   Content,
+  CountryRides,
+  Currency,
   Ctx,
   Effect,
   Id,
   MoneyParam,
   ObligationType,
+  PlaceEntry,
   PlaceSlice,
   PlayerView,
   ReadCtx,
@@ -23,7 +27,9 @@ import type {
   Requirement,
   RequirementResult,
   ReturnShape,
+  RideFigures,
   RideWay,
+  RideWayView,
   State,
   WayHome,
   WhereEntry,
@@ -314,7 +320,7 @@ export function withinMetres(from: { latE3: number; lonE3: number }, to: { latE3
   return dx * dx + dy * dy <= metres * metres;
 }
 
-/** A ride's fare is said in fifties of naira. */
+/** A ride's fare at home is said in fifties of naira. */
 const FARE_STEP_KOBO = 5000;
 
 /** Metres in a straight line between two positions in thousandths of a degree, in whole numbers (no root beyond the integer one). */
@@ -324,41 +330,204 @@ export function metresApart(from: { latE3: number; lonE3: number }, to: { latE3:
   return isqrt(dx * dx + dy * dy);
 }
 
-/**
- * R-PLACE-010 as amended 12 Oct 2026: a way's fare is its flag-down figure
- * plus its figure a kilometre times the straight-line distance between the two places, rounded up to fifty naira, then
- * the month's factor (the fuel scarcity). A place with no position stands at its flag-down figure. On foot nothing.
- */
-export function rideFare(
-  content: Pick<Content, "tuning">,
-  from: { latE3: number; lonE3: number } | null,
-  to: { latE3: number; lonE3: number } | null,
-  way: RideWay,
-  fareBp = BP_WHOLE,
-): number {
-  // The car of your own: its fuel is its fare, by distance as the rides are, and the scarcity raises it the same.
-  const { fareKobo, farePerKmKobo } = way === "drive" ? content.tuning.thing.drive : { fareKobo: content.tuning.city.ride.fareKobo[way], farePerKmKobo: content.tuning.city.ride.farePerKmKobo[way] };
-  if (fareKobo === 0 && farePerKmKobo === 0) return 0;
+/** What `rideFare` prices from: the flag-down figure, the figure a kilometre and the step the fare is rounded up to, in one currency's smallest unit. */
+export interface RideFare {
+  fare: number;
+  farePerKm: number;
+  step: number;
+}
+
+/** The ways a country abroad may list, in the order the ride sheet shows them. */
+const ABROAD_WAYS: readonly AbroadWay[] = ["bus", "train", "taxi"];
+
+/** Home's figures for a way, from the tuning; null for a way only a country abroad lists. */
+function homeFigures(content: Pick<Content, "tuning">, way: RideWay): RideFigures | null {
+  switch (way) {
+    case "drive": {
+      const { fareKobo, farePerKmKobo, metresPerMinute } = content.tuning.thing.drive;
+      return { fare: fareKobo, farePerKm: farePerKmKobo, metresPerMinute };
+    }
+    case "danfo":
+    case "keke":
+    case "okada":
+    case "walk": {
+      const { fareKobo, farePerKmKobo, metresPerMinute } = content.tuning.city.ride;
+      return { fare: fareKobo[way], farePerKm: farePerKmKobo[way], metresPerMinute: metresPerMinute[way] };
+    }
+    case "bus":
+    case "train":
+    case "taxi":
+      return null;
+    default: {
+      const never: never = way;
+      throw new Error(`Unknown way ${String(never)}.`);
+    }
+  }
+}
+
+/** A country's figures for a way it lists; undefined for a way it does not list, and for every way of Lagos. */
+function abroadFigures(rides: CountryRides, way: RideWay): RideFigures | undefined {
+  switch (way) {
+    case "bus":
+    case "train":
+    case "taxi":
+      return rides.ways[way];
+    case "danfo":
+    case "keke":
+    case "okada":
+    case "walk":
+    case "drive":
+      return undefined;
+    default: {
+      const never: never = way;
+      throw new Error(`Unknown way ${String(never)}.`);
+    }
+  }
+}
+
+function priced(figures: RideFare, from: { latE3: number; lonE3: number } | null, to: { latE3: number; lonE3: number } | null, fareBp: number): number {
+  if (figures.fare === 0 && figures.farePerKm === 0) return 0;
   const metres = from === null || to === null ? 0 : metresApart(from, to);
-  const plain = roundUpTo(fareKobo + mulDiv(farePerKmKobo, metres, 1000), FARE_STEP_KOBO);
-  return bp(plain, fareBp);
+  return bp(roundUpTo(figures.fare + mulDiv(figures.farePerKm, metres, 1000), figures.step), fareBp);
 }
 
 /**
- * R-PLACE-010 (decision 0011, amended 10 Oct): a ride between two places of the city. On foot there
- * is no fare, so a character with nothing can always move. The simulation keeps no place of the city,
- * so nothing here moves; the client moves once the ride is accepted.
+ * R-PLACE-010 as amended 12 Oct 2026 and 16 Oct 2026 (decision 0042): a
+ * way's fare is its flag-down figure plus its figure a kilometre times the straight-line distance between the two
+ * places, rounded up to the step (fifty naira at home, the country's step abroad), then the month's factor. A place
+ * with no position stands at its flag-down figure. On foot nothing. Given the figures and the step, it prices any
+ * country's way, as the view's `place.ways` carries them; given content and a way, it prices a way of Lagos.
+ */
+export function rideFare(figures: RideFare, from: { latE3: number; lonE3: number } | null, to: { latE3: number; lonE3: number } | null, fareBp?: number): number;
+export function rideFare(content: Pick<Content, "tuning">, from: { latE3: number; lonE3: number } | null, to: { latE3: number; lonE3: number } | null, way: RideWay, fareBp?: number): number;
+export function rideFare(
+  first: RideFare | Pick<Content, "tuning">,
+  from: { latE3: number; lonE3: number } | null,
+  to: { latE3: number; lonE3: number } | null,
+  fourth?: RideWay | number,
+  fifth: number = BP_WHOLE,
+): number {
+  if (!("tuning" in first)) return priced(first, from, to, typeof fourth === "number" ? fourth : BP_WHOLE);
+  if (typeof fourth !== "string") throw new Error("A fare read from content needs its way.");
+  // The car of your own: its fuel is its fare, by distance as the rides are, and the scarcity raises it the same.
+  const figures = homeFigures(first, fourth);
+  if (figures === null) throw new Error(`The way ${fourth} is not a way of Lagos.`);
+  return priced({ ...figures, step: FARE_STEP_KOBO }, from, to, fifth);
+}
+
+/** The room abroad: the home there, so a walk to it is always accepted (R-PLACE-010 as amended 16 Oct 2026). */
+const ROOM: Id<"place"> = "place.the-room";
+
+/** R-PLACE-012: the act that buys a country's bus pass. Only a country whose rides carry a `pass` figure has one. */
+const BUS_PASS: Readonly<Partial<Record<Id<"country">, Id<"activity">>>> = { "country.uk": "activity.bus-pass-uk" };
+
+/** A country's rides, or null when it lists no way (Canada, the UAE and Italy until their waves): a ride there is refused. */
+function countryRides(content: Pick<Content, "tuning">, country: Id<"country">): CountryRides | null {
+  const rides = content.tuning.city.ride.abroad[country];
+  if (rides === undefined) return null;
+  return ABROAD_WAYS.some((way) => rides.ways[way] !== undefined) ? rides : null;
+}
+
+/** R-PLACE-012: the month's bus pass is bought in the country the character is in, read from the month's played acts. */
+export function busPassHeld(read: ReadCtx): boolean {
+  const { where, country } = read.state.place;
+  if (where !== "abroad" || country === null) return false;
+  const act = BUS_PASS[country];
+  const pass = read.content.tuning.city.ride.abroad[country]?.pass;
+  if (act === undefined || pass === undefined || pass === null) return false;
+  return check(read, { type: "activity/played", activity: act }).met;
+}
+
+/** A place of the country: an abroad place of that country, or a country-less abroad place such as the room. */
+function ofCountry(place: Pick<PlaceEntry, "where" | "country">, country: Id<"country">): boolean {
+  return place.where === "abroad" && (place.country === null || place.country === country);
+}
+
+/**
+ * R-PLACE-010: the ways a ride may take where the character is, with their figures, so the ride
+ * sheet prices with `rideFare` what the command takes. At home the four ways of Lagos, and the car while it stands at
+ * home; abroad the country's ways and on foot; nothing on the road or in a country with no ways.
+ */
+export function waysHere(read: ReadCtx): RideWayView[] {
+  const { where, country } = read.state.place;
+  const walk = homeFigures(read.content, "walk");
+  if (walk === null) throw new Error("On foot has no figures.");
+  if (where === "home") {
+    const ways: RideWay[] = ["danfo", "keke", "okada", "walk", ...(drives(read) ? (["drive"] as const) : [])];
+    return ways.map((way): RideWayView => {
+      const figures = homeFigures(read.content, way) ?? walk;
+      return { way, currency: "NGN", ...figures, step: FARE_STEP_KOBO, passed: false };
+    });
+  }
+  if (where !== "abroad" || country === null) return [];
+  const rides = countryRides(read.content, country);
+  if (rides === null) return [];
+  const currency: Currency = countryEntry(read.content, country).currency;
+  const passed = busPassHeld(read);
+  const listed = ABROAD_WAYS.flatMap((way): RideWayView[] => {
+    const figures = rides.ways[way];
+    return figures === undefined ? [] : [{ way, currency, ...figures, step: rides.step, passed: way === "bus" && passed }];
+  });
+  return [...listed, { way: "walk", currency, ...walk, step: rides.step, passed: false }];
+}
+
+/** The fare taken from the currency, cash first and the bank for the rest, and the ride on record (R-PLACE-010). */
+function payRide(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>, fare: number, currency: Currency): BaseEvent[] | Rejection {
+  const { from, to, way } = command;
+  const cause: Cause = { source: command.type, param: to, terms: { way } };
+  if (fare > 0) {
+    if (!ctx.check({ type: "money/min", currency, amount: fare }).met) {
+      return reject("cannot-afford", `The ${way} fare is ${String(fare)} in ${currency} and cannot be paid.`);
+    }
+    ctx.apply([{ type: "money/take", currency, pocket: "any", amount: fare, reason: "fare" }], cause);
+  }
+  return record(ctx, [{ type: "place/rode", from, to, way, fare, currency }]);
+}
+
+/**
+ * R-PLACE-010 as amended 16 Oct 2026 (decision 0042) and R-PLACE-012: a ride abroad, between two places of the
+ * character's country, on the country's ways or on foot. The scarcity factor is Lagos's and is not applied; the bus asks
+ * nothing in a month the pass is bought.
+ */
+function rideAbroad(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>, country: Id<"country">): BaseEvent[] | Rejection {
+  const { from, to, way } = command;
+  const rides = countryRides(ctx.content, country);
+  if (rides === null) return reject("not-legal", "No ride is drawn in this country yet.");
+  const start = ctx.content.place[from];
+  const end = ctx.content.place[to];
+  if (start === undefined || end === undefined) throw new Error("A ride's places were looked up before.");
+  if (!ofCountry(start, country) || !ofCountry(end, country)) return reject("not-legal", "A ride abroad stays in the country.");
+  const currency = countryEntry(ctx.content, country).currency;
+  if (way === "walk") {
+    if (to !== ROOM && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres)) {
+      return reject("not-legal", "Too far to walk.");
+    }
+    return payRide(ctx, command, 0, currency);
+  }
+  const figures = abroadFigures(rides, way);
+  if (figures === undefined) return reject("not-legal", `There is no ${way} here.`);
+  const fare = way === "bus" && busPassHeld(ctx) ? 0 : rideFare({ ...figures, step: rides.step }, start.position, end.position);
+  return payRide(ctx, command, fare, currency);
+}
+
+/**
+ * R-PLACE-010 (decision 0011, amended 10 Oct and 16 Oct 2026): a ride between two places of the city, at home or in the
+ * country the character is in. On foot there is no fare, so a character with nothing can always move. The simulation
+ * keeps no place of the city, so nothing here moves; the client moves once the ride is accepted.
  */
 function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "place/ride") throw new Error(`place/ride cannot handle ${command.type}.`);
   const { from, to, way } = command;
-  if (ctx.state.place.where !== "home") return reject("not-legal", "A ride inside the city is for a character at home.");
+  const { where, country } = ctx.state.place;
+  if (where === "road") return reject("not-legal", "A ride inside a city is for a character at home or abroad.");
   const start = ctx.content.place[from];
   const end = ctx.content.place[to];
   if (start === undefined) return reject("unknown-id", `No place ${from}.`);
   if (end === undefined) return reject("unknown-id", `No place ${to}.`);
   if (from === to) return reject("not-legal", "A ride goes somewhere else.");
+  if (where === "abroad") return country === null ? reject("not-legal", "Abroad with no country.") : rideAbroad(ctx, command, country);
   if (start.where !== "home" || end.where !== "home") return reject("not-legal", "A ride inside the city stays in the city.");
+  if (homeFigures(ctx.content, way) === null) return reject("not-legal", `There is no ${way} in Lagos.`);
   // : Drive is a way only while the life's car stands at home.
   if (way === "drive" && !drives(ctx)) return reject("not-legal", "No car stands at home to drive.");
   // On foot only within walking distance: past it a fare is the only way, so a fare is a real cost.
@@ -367,15 +536,7 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (way === "walk" && to !== home && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres)) {
     return reject("not-legal", "Too far to walk.");
   }
-  const fare = rideFare(ctx.content, start.position, end.position, way, fareBpOf(ctx));
-  const cause: Cause = { source: command.type, param: to, terms: { way } };
-  if (fare > 0) {
-    if (!ctx.check({ type: "money/min", currency: "NGN", amount: fare }).met) {
-      return reject("cannot-afford", `The ${way} fare is ${String(fare)} kobo and the naira cannot cover it.`);
-    }
-    ctx.apply([{ type: "money/take", currency: "NGN", pocket: "any", amount: fare, reason: "fare" }], cause);
-  }
-  return record(ctx, [{ type: "place/rode", from, to, way, fare }]);
+  return payRide(ctx, command, rideFare(ctx.content, start.position, end.position, way, fareBpOf(ctx)), "NGN");
 }
 
 /**
@@ -561,6 +722,7 @@ function view(read: ReadCtx): Pick<PlayerView, "place"> {
       fareHome: fareHome(read),
       fareBp: fareBpOf(read),
       wayHome: wayHomeOf(read),
+      ways: waysHere(read),
     },
   };
 }
@@ -570,11 +732,13 @@ const FUEL_SCARCITY = "offer.fuel-scarcity" as const;
 
 /**
  * R-PLACE-010: the month's fares as basis points of the flat fares. The month the fuel scarcity opens
- * (answered or not: `lastOpened` keeps the month), every ride costs `tuning.city.ride.scarcityBp` of
- * its fare; any other month, the fare as it stands.
+ * (answered or not: `lastOpened` keeps the month), every ride at home costs `tuning.city.ride.scarcityBp` of
+ * its fare; any other month, and abroad, the fare as it stands.
  */
 export function fareBpOf(read: Pick<ReadCtx, "state" | "content">): number {
-  return read.state.offer.lastOpened[FUEL_SCARCITY] === read.state.turn.month ? read.content.tuning.city.ride.scarcityBp : 10000;
+  // The scarcity is Lagos's (R-PLACE-010 as amended 16 Oct 2026): abroad, even in the month a flight follows it, fares stand.
+  if (read.state.place.where !== "home") return BP_WHOLE;
+  return read.state.offer.lastOpened[FUEL_SCARCITY] === read.state.turn.month ? read.content.tuning.city.ride.scarcityBp : BP_WHOLE;
 }
 
 function invariants(state: State, content: Content): string[] {
