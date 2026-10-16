@@ -165,7 +165,7 @@ describe("the three countries lived by hand", () => {
     for (const act of RULE) {
       expect({ id: act.id, name: text[`${act.id}.name`] }).toEqual({ id: act.id, name: act.name });
       for (const key of [`${act.id}.blurb`, `line.activity.${act.id.slice("activity.".length)}.now`]) {
-        expect({ key, words: (text[key] ?? "").trim().length > 0, dashed: /[–—]/u.test(text[key] ?? "") }).toEqual({ key, words: true, dashed: false });
+        expect({ key, words: (text[key] ?? "").trim().length > 0, dashed: /[\u2013\u2014]/u.test(text[key] ?? "") }).toEqual({ key, words: true, dashed: false });
       }
     }
   });
