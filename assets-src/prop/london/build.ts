@@ -233,7 +233,8 @@ export function buildShopAisle(): Group {
   box(g, L, 1.75, 0.08, 0, 0, 0, "white");
   box(g, L, 0.1, d, 0, 0, 0, "charcoal");
   for (const end of [-1, 1]) box(g, 0.06, 1.8, d, end * (L / 2 - 0.03), 0, 0, "white");
-  const shelves = [0.12, 0.55, 0.98, 1.4];
+  // Three shelves, not four: the aisle stays under a prop's 800 triangles (R-ASSET-007) with its goods out on both sides.
+  const shelves = [0.15, 0.72, 1.3];
   shelves.forEach((y, i) => {
     for (const s of [-1, 1]) {
       box(g, L - 0.12, 0.03, d / 2 - 0.06, 0, y, s * (d / 4 + 0.02), "hub");
