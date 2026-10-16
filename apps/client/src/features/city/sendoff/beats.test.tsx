@@ -10,7 +10,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { ROSTER } from "../roster";
 import { sendOffWords } from "../sendOff.words";
-import { COUNTER, Counter, Departures, type Dress, GATE, Gate, HALL, LANE_TOP, LandingBeat, Ride, RIDE } from "./beats";
+import { COUNTER, Counter, Departures, type Dress, GATE, Gate, HALL, LANDING, LANE_TOP, LandingBeat, Ride, RIDE } from "./beats";
 import { castFor, firstPings, landingOf, STOP_PEOPLE, stopLookFor } from "./plan";
 
 // Every published tile is there, by its own path, so each sticker draws and its place can be read.
@@ -77,6 +77,16 @@ describe("the send-off's beats, laid out", () => {
       expect([name, document.querySelector<HTMLElement>(".so-lane")?.style.top]).toEqual([name, `${String(LANE_TOP)}px`]);
       view.unmount();
     }
+  });
+
+  test.each(Object.keys(STOP_PEOPLE))("[R-CHAPTER-012] given the landing in %s, then the character, her bag and the person at the stop stand clear of the lane at the foot, the button stands in it, and the stop's line hangs above her head", (country) => {
+    // The catalog's pictures 158, 161 and 165: Get on the bus stood over the character's feet and her bag.
+    for (const person of [LANDING.you, LANDING.stop]) expect(footOf(person)).toBeLessThanOrEqual(LANE_TOP);
+    expect(LANDING.bag.top + LANDING.bag.width).toBeLessThanOrEqual(LANE_TOP);
+    expect(844 - LANDING.bubbleBottom).toBeLessThanOrEqual(LANDING.you.top);
+    const landing = landingOf(country as `country.${string}`)!;
+    render(<LandingBeat dress={dress} landing={landing} place="Peckham, London" weather="4 degrees" marker="Peckham Rye" heard={{ name: "Aunty", words: "You just land?", look: "chr_amaka" }} go="Get on the bus" blind="12 · PECKHAM" onGo={none} />);
+    expect(document.querySelector<HTMLElement>("[data-so-beat='landing'] .so-lane")?.style.top).toBe(`${String(LANE_TOP)}px`);
   });
 
   test("[R-CHAPTER-012] given the counter, then the officer behind it is smaller than the character and his head no higher than hers, and the Window and Aisle chips stand above his head", async () => {

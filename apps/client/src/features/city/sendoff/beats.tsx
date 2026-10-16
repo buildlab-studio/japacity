@@ -559,6 +559,19 @@ function Behind({ landing }: { landing: Landing }) {
   }
 }
 
+/**
+ * The landing (beat 5), laid out on the hall's lane (R-CHAPTER-012 (k); the catalog's pictures 158, 161 and 165): the
+ * character, the bag at her feet and the person at the stop stand clear of the lane at the foot, so the button stands
+ * under them and never over her feet or her bag. A person's picture is twice as tall as it is wide; the bag's is square.
+ */
+export const LANDING = {
+  you: { left: 130, top: 424, width: 120 },
+  stop: { left: 262, top: 444, width: 100 },
+  bag: { left: 86, top: 568, width: 92 },
+  /** The stop's line hangs from here, above the character's head, so a longer line grows upward. */
+  bubbleBottom: 844 - 412,
+} as const;
+
 /** Beat 5: out into the place. The weather, the bag on the ground, the first line at the stop, the staple pulling in. */
 export function LandingBeat({ dress, landing, place, weather, marker, heard, go, blind, onGo }: { dress: Dress; landing: Landing; place: string; weather: string; marker: string; heard: { name: string; words: string; look: string }; go: string; blind: string; onGo: () => void }) {
   const road = landing.staple === "pickup";
@@ -571,21 +584,21 @@ export function LandingBeat({ dress, landing, place, weather, marker, heard, go,
       <div className="so-pavement" />
       {landing.air === "rain" ? (
         <>
-          <span className="so-puddle" style={{ left: 40, top: 640, width: 120, height: 26 }} />
-          <span className="so-puddle" style={{ left: 250, top: 700, width: 90, height: 20 }} />
+          <span className="so-puddle" style={{ left: 40, top: 612, width: 120, height: 26 }} />
+          <span className="so-puddle" style={{ left: 250, top: 630, width: 90, height: 20 }} />
         </>
       ) : null}
       {landing.country === "country.uk" ? <Pic model="prop_bus-shelter" style={{ left: 238, top: 440, width: 170, zIndex: 2 }} /> : null}
       <span data-so-stop-person={heard.look}>
-        <Person look={heard.look} style={{ left: 262, top: 484, width: 100, transform: "scaleX(-1)", zIndex: 3 }} />
+        <Person look={heard.look} style={{ ...LANDING.stop, transform: "scaleX(-1)", zIndex: 3 }} />
       </span>
-      <You dress={dress} style={{ left: 130, top: 470, width: 120, zIndex: 3 }} />
-      <Pic model="prop_travel-bag" style={{ left: 86, top: 626, width: 92, zIndex: 3 }} />
-      {landing.air === "rain" || landing.air === "snow" ? <span className="so-breath" style={{ left: 218, top: 512 }} aria-hidden data-so-breath /> : null}
+      <You dress={dress} style={{ ...LANDING.you, zIndex: 3 }} />
+      <Pic model="prop_travel-bag" style={{ ...LANDING.bag, zIndex: 3 }} />
+      {landing.air === "rain" || landing.air === "snow" ? <span className="so-breath" style={{ left: 218, top: LANDING.you.top + 42 }} aria-hidden data-so-breath /> : null}
       {landing.air === "rain" ? <div className="so-rain" /> : null}
       {landing.air === "snow" ? <Snow /> : null}
       {/* Hung from its foot so a longer line grows upward, never down over the character's face. */}
-      <Bubble name={heard.name} words={heard.words} right style={{ right: 14, bottom: 384, maxWidth: 210 }} mark="stop" />
+      <Bubble name={heard.name} words={heard.words} right style={{ right: 14, bottom: LANDING.bubbleBottom, maxWidth: 210 }} mark="stop" />
       <p className="so-chip study" style={{ left: 16, top: 96 }} data-so-weather>
         <span className="spot" aria-hidden />
         {weather}
@@ -593,6 +606,7 @@ export function LandingBeat({ dress, landing, place, weather, marker, heard, go,
       <p className="so-marker" style={{ top: 140 }} data-so-marker>
         {marker}
       </p>
+      <div className="so-lane" style={{ top: LANE_TOP }} />
       <Band dress={dress} place={place} />
       <Go onClick={onGo} mark="ride">
         {go}
