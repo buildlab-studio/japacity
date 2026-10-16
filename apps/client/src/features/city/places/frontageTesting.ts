@@ -34,8 +34,11 @@ export function actEntries(raw: unknown, id: Id<"place">): string[] {
   return withMoreAt(stage.things ?? [], id).flatMap((thing) => thing.acts.flatMap((act) => [...(act.stages === undefined ? [] : [act.stages]), ...(act.more ?? [])]));
 }
 
-/** The tests every rebuilt frontage shares; `raw` is the place's file as imported. */
-export function frontageTests(raw: unknown, id: Id<"place">): void {
+/**
+ * The tests every rebuilt frontage shares; `raw` is the place's file as imported. `boards: false` is for a frontage whose
+ * models carry no sign at all (the site in Dubai, behind its hoarding): it is held to that instead, no model lettered.
+ */
+export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: { boards?: boolean } = {}): void {
   const { file, stage, entry } = staged(raw, id);
   const models = [...new Set(stage.models.map((model) => model.file))];
 
@@ -104,7 +107,13 @@ export function frontageTests(raw: unknown, id: Id<"place">): void {
     expect(file.people.sample.length).toBeGreaterThan(high);
   });
 
-  test(`[R-CITY-024] given ${id}'s lettered models, when their boards are read, then every copy has a key for each of its boards, no key shows twice, and every key has words of the place`, async () => {
+  if (!boards) {
+    test(`[R-CITY-024] given ${id}'s models, which carry no sign, when their boards are read, then none is lettered and no key is named`, async () => {
+      for (const model of stage.models) expect([model.file, (await measured(model.file)).signs, model.signs]).toEqual([model.file, 0, undefined]);
+    });
+  }
+
+  if (boards) test(`[R-CITY-024] given ${id}'s lettered models, when their boards are read, then every copy has a key for each of its boards, no key shows twice, and every key has words of the place`, async () => {
     for (const model of stage.models.filter((candidate) => candidate.signs !== undefined)) {
       const boards = (await measured(model.file)).signs;
       expect(model.signs).toHaveLength(model.at.length);
