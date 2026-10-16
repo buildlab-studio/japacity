@@ -103,6 +103,7 @@ export type { ChatLine, ChatReply, ChatSender, ChatThread } from "./story/story.
 export { noticeKey, noticesDue, OBLIGATION_TYPES, reminders, remindersDue } from "./story/story.notice.data";
 export type { Notice, Reminder } from "./story/story.notice.data";
 export { meetingThings, partnerMeetings, placesWanted } from "./person/person.meet.data";
+export { roomName, roomNameKey } from "./place/place.room";
 export type { PartnerMeeting } from "./person/person.meet.data";
 export { spendingLines, versionedLines } from "./comedy/comedy.data";
 export { versionCount, versionKey } from "./comedy/comedy";

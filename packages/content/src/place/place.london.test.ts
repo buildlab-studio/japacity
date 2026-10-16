@@ -57,21 +57,23 @@ describe("the places of London", () => {
     expect(made).toEqual(made.map(({ id }) => ({ id, data: { source: "own", licence: null, checked: "2026-10-16" }, realName: null })));
   });
 
-  test("[R-CITY-010] given the room abroad, when its stages are read, then it cooks in pounds for the UK and keeps the country-less acts", () => {
+  test("[R-CITY-010] given the room abroad, when its stages are read, then it cooks in each country's money and keeps the country-less acts, the hunt, the community and money home being at each country's own places", () => {
+    // the room keeps rest, the call home, the flats,
+    // the phone contracts and the four meals.
     const room = content.place["place.the-room"];
-    expect(room?.stages).toEqual(expect.arrayContaining(["activity.cook-own-uk", "activity.community-uk", "activity.job-hunt", "activity.send-money"]));
+    expect(room?.stages).toEqual(expect.arrayContaining(["activity.cook-own-uk", "activity.rest", "activity.call-home"]));
+    expect(room?.stages.filter((id) => ["activity.community-uk", "activity.job-hunt", "activity.send-money"].includes(id))).toEqual([]);
     expect(content.activity["activity.cook-own-uk"]?.country).toBe("country.uk");
   });
 
-  test("[R-CITY-010] given every job in the UK, when the places are read, then each is staged at one London place and the workplace abroad stages none of them", () => {
+  test("[R-CITY-010] given every job in the UK, when the places are read, then each is staged at one London place, and the workplace abroad is gone", () => {
     expect(UK_JOBS.length).toBeGreaterThan(8);
     for (const job of UK_JOBS) {
       const at = places.filter((place) => place.country === "country.uk" && (place.stages as readonly string[]).includes(job)).map((place) => place.id);
       expect({ job, at: at.length }).toEqual({ job, at: 1 });
     }
-    const workplace = content.place["place.workplace-abroad"]?.stages ?? [];
-    expect(workplace.filter((id) => (UK_JOBS as readonly string[]).includes(id))).toEqual([]);
-    expect(workplace).toEqual(expect.arrayContaining(["activity.job-ca-warehouse", "activity.job-gulf-guard", "activity.job-it-farm-cash"]));
+    // every country's jobs are at its own places, so the country-less workplace is removed.
+    expect(content.place["place.workplace-abroad"]).toBeUndefined();
   });
 
   test("[R-CITY-010] given every place, when the staged ids are counted for each where and country, then none is staged twice but overtime, the rota board's act at every workplace", () => {

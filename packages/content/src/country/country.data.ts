@@ -21,6 +21,8 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     overstayer: "status.uk-overstayer",
     deceptionBanMonths: 120,
     partnerBarMonths: 0,
+    // The room abroad's made-up spot on the painted map, off Choumert Road in Peckham (design page 14 section 4).
+    homeSpot: { latE3: 51471, lonE3: -73 },
   },
   "country.canada": {
     id: "country.canada",
@@ -41,6 +43,8 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     // R-INTERVIEW: five years after misrepresentation (IRPA s. 40); R-UNDERTAKING-004: five years after arriving through a partner (IRPR s. 130(3)).
     deceptionBanMonths: 60,
     partnerBarMonths: 60,
+    // The room abroad's made-up spot on the painted map, in the north-east (design page 15 section 3).
+    homeSpot: { latE3: 51088, lonE3: -113955 },
   },
   "country.uae": {
     id: "country.uae",
@@ -59,6 +63,8 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     // R-CONTRACT-003: R-GATE-005 does not apply to a fraud agent; nothing was forged in your name.
     deceptionBanMonths: 0,
     partnerBarMonths: 0,
+    // The room abroad's made-up spot on the painted map, the camp, east of the city (design page 15 section 3).
+    homeSpot: { latE3: 25270, lonE3: 55395 },
   },
   "country.italy": {
     id: "country.italy",
@@ -78,5 +84,7 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     // The road has no fraud refusal of its own.
     deceptionBanMonths: 0,
     partnerBarMonths: 0,
+    // The room abroad's made-up spot on the painted map, on the Domitiana (design page 15 section 3).
+    homeSpot: { latE3: 40950, lonE3: 14010 },
   },
 };
