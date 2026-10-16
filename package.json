@@ -38,6 +38,7 @@
     "build": "pnpm --filter @japacity/client build",
     "test:browser": "playwright test -c apps/client/e2e/playwright.config.ts",
     "test:browser:real": "tsx tools/local/real.ts",
+    "catalog": "playwright test -c apps/client/e2e/catalog/playwright.catalog.config.ts",
     "docs:dev": "vitepress dev docs/site --port 5180",
     "docs:build": "vitepress build docs/site",
     "docs:preview": "vitepress preview docs/site --port 5181"

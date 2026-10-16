@@ -11,6 +11,8 @@ const ONLINE_PORT = Number(process.env.E2E_ONLINE_PORT ?? "5180");
 export default defineConfig({
   testDir: ".",
   testMatch: "*.spec.ts",
+  // The screen catalog is a tool run by hand (pnpm catalog), with its own config; it is never part of this suite.
+  testIgnore: "catalog/**",
   fullyParallel: true,
   forbidOnly: true,
   retries: 0,
