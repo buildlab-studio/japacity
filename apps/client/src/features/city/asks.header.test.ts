@@ -1,6 +1,7 @@
 // The asks sheet's header over the exam (docs/rules/world.md R-WORLD-006): with
 // the exam, the fuel ask and an offer waiting, the header read "1 OF 3", and once the other two were answered it read
-// "3 OF 3" over the exam's first question. Over a set piece of several questions the count is its own questions.
+// "3 OF 3" over the exam's first question. Over a set piece the header counts nothing: the set piece counts its own
+// questions, and a screen once showed "1 of 3" over "Question 1 of 3" at the visa interview.
 // Review 14's smaller notes: "4 OF 4" stood over the one ask left; the count is what is left.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -12,15 +13,16 @@ import { askHeader } from "./acts";
 const EXAM = content.activity["activity.nurse-certification"]?.exam?.setpiece;
 
 describe("the asks sheet's header", () => {
-  test("[R-WORLD-006] given the nurse's exam open, its first question asked, when the other asks have been answered, then the header counts the exam's own questions, one of three, never three of three", () => {
+  test("[R-WORLD-006] given the nurse's exam open, its first question asked, when the asks are counted, then the header counts nothing over it, never three of three, since the exam counts its own questions", () => {
     if (EXAM === undefined) throw new Error("The certification has no exam in content.");
     const game = newGame("scenario.ngozi");
     applyEffects(game, [{ type: "setpiece/open", setpiece: EXAM, route: null }]);
     const setpiece = game.view().setpiece;
     expect(setpiece).toMatchObject({ entry: EXAM, asked: 0 });
     expect(setpiece!.total).toBeGreaterThan(1);
-    // The sheet opened with three asks; two are answered and the exam is left.
-    expect(askHeader({ left: 1, index: 0, setpiece })).toEqual({ n: 1, count: setpiece!.total });
+    // The sheet opened with three asks; over the exam, with the others waiting or answered, the header holds no count.
+    expect(askHeader({ left: 1, index: 0, setpiece })).toBeNull();
+    expect(askHeader({ left: 3, index: 0, setpiece })).toBeNull();
     // Over any other ask, the count is the asks still waiting: two left, the first of them.
     expect(askHeader({ left: 2, index: 0, setpiece: null })).toEqual({ n: 1, count: 2 });
     expect(askHeader({ left: 1, index: 0, setpiece: null })).toBeNull();

@@ -53,14 +53,22 @@ describe("talk overheard abroad", () => {
     expect(overheard(view, "place.nowhere-abroad", "2026-10-09", 0)).toBeNull();
   });
 
-  test("[R-WORLD-026] given every story's headline at every stage, when it is talked of in the street, then the talk sits inside one pair of curly quotes and carries no straight quote", () => {
+  test("[R-WORLD-026] given every story's headline at every stage, when it is talked of in the street, then the talk carries no quote mark of its own, straight or curly, so the bubble's one pair of curly quotes holds it as it holds every line", () => {
     const heads = Object.keys(text).filter((key) => key.startsWith("news.") && key.endsWith(".head"));
     expect(heads.some((key) => (text[key] ?? "").startsWith('"'))).toBe(true);
     for (const head of heads) {
       const said = heardWords("city.overheard.news", { head });
       expect(said).not.toContain('"');
-      expect(said.match(/[\u201c\u201d]/g)).toHaveLength(2);
+      expect(said.match(/[\u201c\u201d]/g)).toBeNull();
     }
+  });
+
+  test("[R-WORLD-026] given every line the street and the homes overhear, when it is read, then none wears quote marks of its own: the bubble gives each the same curly pair", () => {
+    const keys = Object.keys(text).filter((key) => /^place\.[a-z0-9-]+\.overheard\.\d+$/.test(key));
+    expect(keys.length).toBeGreaterThan(100);
+    const quoted = keys.map((key) => heardWords(key, {})).filter((said) => /^["'\u2018\u201c]|["'\u2019\u201d]$/.test(said));
+    expect(quoted).toEqual([]);
+    expect(heardWords("city.overheard.route", { route: "route.uk-talent" }).match(/["\u201c\u201d]/g)).toBeNull();
   });
 
   test("[R-WORLD-026] given the room in a compound, when its own lines are read, then each names what only a compound has: the compound itself, next door, its one tap for the rooms, the landlord; none could be the family's yard", () => {
