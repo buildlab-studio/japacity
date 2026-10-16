@@ -37,7 +37,7 @@ describe("the family's light bill, wherever the character is", () => {
     // The catalog's pictures 087 to 090 and 148 (1b952f4b): in London "NEPA has brought the bill, next month" read as London's.
     expect(content.offer["offer.nepa-bill"]?.where).toBe("any");
     for (const key of ["offer.nepa-bill.name", "offer.nepa-bill.said.pay", "offer.nepa-bill.said.leave"]) {
-      expect(text[key], key).toMatch(/\bthe NEPA bill at home\b|\bthe bill at home\b/);
+      expect(text[key]).toMatch(/\bthe NEPA bill at home\b|\bthe bill at home\b/);
     }
   });
 });
