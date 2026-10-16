@@ -72,7 +72,9 @@ export function WordChip({ children, tone = "study", ...rest }: { children: Reac
   const tones = { study: "bg-tint-study", soft: "bg-[var(--soft)]", bad: "bg-sheet-2", body: "bg-tint-body", plain: "bg-sheet-2" } as const;
   const ink = tone === "soft" ? "var(--soft-ink)" : tone === "bad" ? "var(--out)" : undefined;
   return (
-    <span {...rest} className={`sticker-chip text-[13px] ${tones[tone]}`} style={{ rotate: "1.5deg", ...(ink === undefined ? {} : { color: ink }) }} data-word-chip={tone}>
+    // A chip may wrap inside its card rather than run out of it: the era's "Begun 27 months ago. Due to end in 3 months"
+    // ran past the News card and was cut. A short chip still keeps to one line.
+    <span {...rest} className={`sticker-chip chip-wrap max-w-full text-[13px] ${tones[tone]}`} style={{ rotate: "1.5deg", ...(ink === undefined ? {} : { color: ink }) }} data-word-chip={tone}>
       {children}
     </span>
   );

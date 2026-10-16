@@ -14,12 +14,17 @@ type View = Pick<PlayerView, "activities" | "offers" | "lottery" | "obligations"
 
 const HUNT = "activity.job-hunt";
 
+/** The jobs up on the board that the hunt can ask for now; Jobs' screen counts the same where no offer waits. */
+export function openJobs(view: Pick<PlayerView, "activities">): number {
+  const hunt = view.activities.find((option) => option.id === HUNT);
+  return hunt?.allowed === true ? (hunt.params?.length ?? 0) : 0;
+}
+
 /** Jobs: the offers waiting first, else the jobs the hunt can ask for now. */
 function jobsContext(view: View): string | null {
   const offers = jobOffers(view).length;
   if (offers > 0) return phoneWords(offers === 1 ? "phone.context.jobs.offer" : "phone.context.jobs.offers", { count: offers });
-  const hunt = view.activities.find((option) => option.id === HUNT);
-  const open = hunt?.allowed === true ? (hunt.params?.length ?? 0) : 0;
+  const open = openJobs(view);
   return open === 0 ? null : phoneWords("phone.context.jobs.open", { count: open });
 }
 

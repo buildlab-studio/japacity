@@ -170,6 +170,9 @@ export const phoneText: Record<string, string> = {
   "phone.jobs.side": "Side job",
   "phone.jobs.offers": "Offers",
   "phone.jobs.offers.none": "No job offers right now.",
+  // No offer yet, with jobs up on the board: the pill's "8 open" said on the screen too.
+  "phone.jobs.offers.board.one": "No offer yet. One job is open on the board: ask there.",
+  "phone.jobs.offers.board": "No offer yet. {count} jobs are open on the board: ask there.",
   // The board where jobs go up, while no offer waits: a way to the map ("Hope is free").
   "phone.jobs.board": "The board at {place}",
   "phone.jobs.board.line": "Jobs go up there. Hope is free.",

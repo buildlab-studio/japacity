@@ -42,6 +42,20 @@ describe("the context pill's words", () => {
     expect(appContext("jobs", { ...open, activities: [] })).toBeNull();
   });
 
+  test("[R-WORLD-018] given jobs open on the board and no offer, when Jobs opens, then its screen counts the same jobs the pill counts and never says there is nothing", async () => {
+    // The catalog's picture 119 (1b952f4b): the pill said "8 open" over "No job offers right now."
+    const base = engineView();
+    const hunt = { id: "activity.job-hunt", allowed: true, params: ["activity.job-a", "activity.job-b", "activity.job-c"] } as unknown as PlayerView["activities"][number];
+    const view: PlayerView = { ...base, activities: [hunt], offers: [] };
+    expect(appContext("jobs", view)).toBe("3 open");
+    await renderWithView(<PhoneApps onClose={() => undefined} area="Yaba" talk={null} />, view);
+    fireEvent.click(document.querySelector<HTMLElement>('[data-app="jobs"]')!);
+    expect(document.querySelector("[data-app-context]")?.textContent).toBe("3 open");
+    const said = document.querySelector<HTMLElement>("[data-jobs-none]")!;
+    expect(said.textContent).toBe(phoneWords("phone.jobs.offers.board", { count: 3 }));
+    expect(document.body.textContent).not.toContain(phoneWords("phone.jobs.offers.none"));
+  });
+
   test("[R-WORLD-018] [R-LUCK-005] given a life in Lagos, when Lotto's pill is read, then it says the draw is on Friday; abroad with no online draw it says nothing", () => {
     expect(appContext("lotto", engineView())).toBe("Draw on Friday");
     const abroad = abroadView();
