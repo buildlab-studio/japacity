@@ -88,8 +88,8 @@ function Band({ dress, place }: { dress: Dress; place: string }) {
       <span className="face">{dress.name.slice(0, 1).toUpperCase()}</span>
       <span className="who">
         <b>{dress.name}</b>
-        <span>
-          {dress.age} · {place}
+        <span data-so-place>
+          <span className="age">{dress.age}</span> · {place}
         </span>
       </span>
       <span className="money" data-so-money>
@@ -128,10 +128,15 @@ function Thumbs({ badge = null, dot = false }: { badge?: number | null; dot?: bo
   );
 }
 
-/** A line said in a bubble with the speaker's name on it. */
-function Bubble({ name, words, right = false, className = "", style, mark }: { name: string; words: string; right?: boolean; className?: string; style?: CSSProperties; mark?: string }) {
+/**
+ * A line said in a bubble with the speaker's name on it. Its tail points down at the speaker, `tail` pixels in from the
+ * bubble's left edge (near its right corner with `right` and no `tail`), or from its left side at a speaker beside it.
+ */
+function Bubble({ name, words, right = false, side = false, tail, className = "", style, mark }: { name: string; words: string; right?: boolean; side?: boolean; tail?: number; className?: string; style?: CSSProperties; mark?: string }) {
+  const aimed = tail === undefined ? style : ({ ...style, "--so-tail": `${String(tail)}px` } as CSSProperties);
+  const corner = tail === undefined && right ? "right" : "";
   return (
-    <p className={`so-bubble so-pop ${right ? "right" : ""} ${className}`} style={style} data-so-said={mark}>
+    <p className={`so-bubble so-pop ${corner} ${side ? "side" : ""} ${className}`} style={aimed} data-so-said={mark}>
       <span className="name">{name}</span>
       {words}
     </p>
@@ -162,20 +167,80 @@ export interface Said {
   who: "mum" | "dad" | "cousin" | "you";
 }
 
-/** Where each speaker's bubble stands in the hall, over their head. */
-const HALL_BUBBLE: Readonly<Record<Said["who"], CSSProperties>> = {
-  mum: { left: 24, top: 470, maxWidth: 200 },
-  cousin: { left: 150, top: 486, maxWidth: 220 },
-  dad: { left: 120, top: 470, maxWidth: 220 },
-  you: { left: 150, top: 300, maxWidth: 220 },
+/** A sticker's box on the stage: where it stands and how wide; a person's picture is twice as tall as it is wide. */
+export interface Box {
+  left: number;
+  top: number;
+  width: number;
+}
+
+/**
+ * The lane at the foot of the hall, the counter and the gate: the yellow button, Not yet and the two thumbs stand on it,
+ * under the scene, and no person of the scene reaches into it (R-CHAPTER-012 (k)).
+ */
+export const LANE_TOP = 664;
+
+/**
+ * The hall (beat 1), laid out at one scale (R-CHAPTER-012 (k)): the clerks behind the three counters small with
+ * distance, the queue in front of counter 4 at one size, the character the queue's last, and the family behind the rope
+ * nearest, each standing clear of the lane. The queue's places run back to the counter: the first is at it.
+ */
+export const HALL = {
+  deskTop: 266,
+  clerks: [
+    { left: 50, top: 214, width: 56 },
+    { left: 198, top: 214, width: 56 },
+    { left: 300, top: 214, width: 56 },
+  ],
+  places: [
+    { left: 104, top: 236, width: 84 },
+    { left: 158, top: 268, width: 84 },
+    { left: 212, top: 300, width: 84 },
+  ],
+  family: {
+    mum: { left: 28, top: 476, width: 88 },
+    dad: { left: 152, top: 470, width: 92 },
+    cousin: { left: 272, top: 480, width: 86 },
+  },
+} as const satisfies { deskTop: number; clerks: readonly Box[]; places: readonly Box[]; family: Readonly<Record<"mum" | "dad" | "cousin", Box>> };
+
+/**
+ * Where each speaker's bubble stands in the hall. The family's hang from a fixed foot over their own heads, so a longer
+ * line grows upward over the floor and never down over a face; the character's stands beside her at the counter, its
+ * tail on its side, clear of the clerks behind.
+ */
+const HALL_BUBBLE: Readonly<Record<Said["who"], { style: CSSProperties; tail?: number; side?: boolean }>> = {
+  mum: { style: { left: 18, bottom: 844 - 466, width: 210 }, tail: HALL.family.mum.left + HALL.family.mum.width / 2 - 18 - 8 },
+  cousin: { style: { left: 156, bottom: 844 - 470, width: 220 }, tail: HALL.family.cousin.left + HALL.family.cousin.width / 2 - 156 - 8 },
+  dad: { style: { left: 104, bottom: 844 - 460, width: 220 }, tail: HALL.family.dad.left + HALL.family.dad.width / 2 - 104 - 8 },
+  you: { style: { left: HALL.places[0].left + HALL.places[0].width + 4, top: 274, maxWidth: 190 }, side: true },
 };
+
+/** How a queue's member stands after `step` taps: moved up to its place now, or gone to the counter's side once served. */
+function queued(own: number, step: number, flip = false): CSSProperties {
+  const from = HALL.places[own] ?? HALL.places[0];
+  const at = own - step;
+  const to = HALL.places[Math.max(0, at)] ?? HALL.places[0];
+  const mirror = flip ? " scaleX(-1)" : "";
+  const gone = at < 0;
+  return {
+    left: from.left,
+    top: from.top,
+    width: from.width,
+    zIndex: 2 + own,
+    opacity: gone ? 0 : 1,
+    transform: `translate(${String(to.left - from.left - (gone ? 48 : 0))}px, ${String(to.top - from.top)}px)${mirror}`,
+  };
+}
 
 /** Beat 1: Departures. The queue moves one place a tap; one of the family speaks a line a tap; the character's line last. */
 export function Departures({ dress, step, said, onStep, onLeave, waiting }: { dress: Dress; step: number; said: Said; onStep: () => void; onLeave: () => void; waiting: boolean }) {
   const ahead = Math.max(0, 2 - step);
   const marker = step >= 3 ? sendOffWords("sendoff.queue.front") : ahead === 0 ? sendOffWords("sendoff.queue.next") : sendOffWords("sendoff.queue.ahead", { count: ahead });
-  // The queue steps up by moving everyone ahead out to the counter's side and the character up a place.
-  const rise = Math.min(step, 3) * 22;
+  // Two ahead and the character last: each tap the one at the counter is served and the rest step up a place.
+  const moved = Math.min(step, 2);
+  const you = queued(2, moved);
+  const bubble = HALL_BUBBLE[said.who];
   return (
     <div className="so-beat so-in" data-so-beat="departures" data-so-step={step}>
       <div className="so-hall-wall">
@@ -184,34 +249,38 @@ export function Departures({ dress, step, said, onStep, onLeave, waiting }: { dr
         <span className="win" style={{ left: 222, width: 90 }} />
         <span className="win" style={{ left: 326, width: 60 }} />
       </div>
-      <Pic model="prop_flight-board" style={{ right: 8, top: 150, width: 150 }} />
-      <div className="so-counters">
+      <Pic model="prop_flight-board" style={{ right: 6, top: 104, width: 120 }} />
+      {HALL.clerks.map((clerk, index) => (
+        <Person key={index} look={index === 1 ? dress.cast.clerk : dress.cast.desks[index === 0 ? 0 : 1]} className="so-clerk-far" style={{ ...clerk, zIndex: 0, transform: index === 2 ? "scaleX(-1)" : undefined }} />
+      ))}
+      <div className="so-counters" style={{ top: HALL.deskTop }}>
         {[3, 4, 5].map((n, index) => (
           <span key={n} className="sign" style={{ left: 36 + index * 125 }}>
             {sendOffWords("sendoff.counter.desk", { n })}
           </span>
         ))}
       </div>
-      <div className="so-floor" />
-      <Person look={dress.cast.ahead[0]} className="so-queue" style={{ left: 120, top: 236, width: 60, zIndex: 0, opacity: step >= 1 ? 0 : 1, transform: step >= 1 ? "translateX(-40px)" : "none" }} />
-      <Person look={dress.cast.ahead[1]} className="so-queue" style={{ left: 232, top: 230, width: 64, zIndex: 0, opacity: step >= 2 ? 0 : 1, transform: step >= 2 ? "translateX(40px) scaleX(-1)" : "scaleX(-1)" }} />
-      <You dress={dress} className="so-queue" style={{ left: 118, top: 372, width: 118, zIndex: 2, transform: `translateY(-${String(rise)}px)` }} />
-      <Pic model="prop_travel-bag" className="so-queue" style={{ left: 232, top: 520, width: 90, zIndex: 2, transform: `translateY(-${String(rise)}px)` }} />
+      <div className="so-floor" style={{ top: HALL.deskTop + 56 }} />
+      <Person look={dress.cast.ahead[0]} className="so-queue" style={queued(0, moved)} />
+      <Person look={dress.cast.ahead[1]} className="so-queue" style={queued(1, moved, true)} />
+      <You dress={dress} className="so-queue" style={you} />
+      <Pic model="prop_travel-bag" className="so-queue" style={{ ...you, left: (you.left as number) + 66, top: (you.top as number) + 112, width: 62, zIndex: 4 }} />
       <p className="so-marker" style={{ top: 92 }} data-so-marker>
         {marker}
       </p>
-      <span className="so-post" style={{ left: 26 }} />
-      <span className="so-post" style={{ left: 352 }} />
+      <span className="so-post" style={{ left: 18 }} />
+      <span className="so-post" style={{ left: 360 }} />
       <span className="so-rope" />
-      <Person look={dress.cast.mum} style={{ left: 34, top: 596, width: 96, zIndex: 3 }} />
-      <Person look={dress.cast.dad} style={{ left: 150, top: 590, width: 100, zIndex: 3 }} />
-      <Person look={dress.cast.cousin} style={{ left: 262, top: 606, width: 90, transform: "scaleX(-1)", zIndex: 3 }} />
-      <Bubble key={`${String(step)}-${said.who}`} name={said.name} words={said.words} style={HALL_BUBBLE[said.who]} mark={said.who} />
+      <Person look={dress.cast.mum} style={{ ...HALL.family.mum, zIndex: 6 }} />
+      <Person look={dress.cast.dad} style={{ ...HALL.family.dad, zIndex: 6 }} />
+      <Person look={dress.cast.cousin} style={{ ...HALL.family.cousin, transform: "scaleX(-1)", zIndex: 6 }} />
+      <Bubble key={`${String(step)}-${said.who}`} name={said.name} words={said.words} style={{ ...bubble.style, zIndex: 8 }} {...(bubble.tail === undefined ? {} : { tail: bubble.tail })} side={bubble.side === true} mark={said.who} />
       {said.who === "mum" ? (
-        <span className="so-emote" style={{ left: 298, top: 572 }} aria-hidden>
+        <span className="so-emote" style={{ left: 330, top: 452 }} aria-hidden>
           ...
         </span>
       ) : null}
+      <div className="so-lane" style={{ top: LANE_TOP }} />
       <Band dress={dress} place={sendOffWords("sendoff.band.departures")} />
       <Go onClick={onStep} disabled={waiting} mark="step">
         {sendOffWords("sendoff.step")}
@@ -222,18 +291,29 @@ export function Departures({ dress, step, said, onStep, onLeave, waiting }: { dr
   );
 }
 
+/**
+ * The counter (beat 2), close (R-CHAPTER-012 (k)): the character in front of the desk and the officer behind it,
+ * further away and so smaller, his head no higher than hers, the Window and Aisle chips above his head.
+ */
+export const COUNTER = {
+  deskTop: 420,
+  you: { left: 20, top: 300, width: 150 },
+  clerk: { left: 236, top: 316, width: 104 },
+  seats: { right: 26, top: 242, height: 38 },
+} as const;
+
 /** Beat 2: the counter. The passport and the stub slide across; Window or aisle changes the stub's seat letter only. */
 export function Counter({ dress, flight, to, seat, seatWords, onSeat, onTake, onLeave }: { dress: Dress; flight: string; to: string; seat: Seat; seatWords: string; onSeat: (seat: Seat) => void; onTake: () => void; onLeave: () => void }) {
   return (
     <div className="so-beat so-in" data-so-beat="counter">
       <div className="so-desk-wall" />
       <p className="so-desk-sign">{sendOffWords("sendoff.counter.desk", { n: 4 })}</p>
-      <div className="so-clerk">
-        <Person look={dress.cast.clerk} style={{ left: 0, top: 0, width: 120, position: "relative" }} />
+      <div className="so-clerk" style={{ left: COUNTER.clerk.left, top: COUNTER.clerk.top, width: COUNTER.clerk.width, height: COUNTER.deskTop - COUNTER.clerk.top }} data-so-clerk>
+        <Person look={dress.cast.clerk} style={{ left: 0, top: 0, width: COUNTER.clerk.width, position: "relative" }} />
       </div>
-      <div className="so-desk" />
-      <div className="so-desk-floor" />
-      <You dress={dress} style={{ left: 20, top: 300, width: 150, zIndex: 2 }} />
+      <div className="so-desk" style={{ top: COUNTER.deskTop }} />
+      <div className="so-desk-floor" style={{ top: COUNTER.deskTop + 150 }} />
+      <You dress={dress} style={{ ...COUNTER.you, zIndex: 2 }} />
       <Pic model="prop_travel-bag" style={{ left: 52, top: 560, width: 110, zIndex: 2 }} />
       <div className="so-passport so-slide-l" style={{ left: 188, top: 372, rotate: "-9deg" }} aria-hidden data-so-passport>
         {sendOffWords("sendoff.passport")}
@@ -256,7 +336,7 @@ export function Counter({ dress, flight, to, seat, seatWords, onSeat, onTake, on
         <div className="cut" />
       </div>
       <Bubble name={sendOffWords("sendoff.counter.by")} words={sendOffWords("sendoff.counter.ask")} right style={{ right: 18, top: 160, maxWidth: 190 }} mark="counter" />
-      <div className="so-seat" style={{ right: 26, top: 246 }} role="group" aria-label={sendOffWords("sendoff.counter.ask")} data-so-seats>
+      <div className="so-seat" style={{ right: COUNTER.seats.right, top: COUNTER.seats.top }} role="group" aria-label={sendOffWords("sendoff.counter.ask")} data-so-seats>
         {(["window", "aisle"] as const).map((which) => (
           <button key={which} type="button" aria-pressed={seat === which} onClick={() => onSeat(which)} data-so-seat-chip={which}>
             {sendOffWords(`sendoff.seat.${which}`)}
@@ -269,6 +349,7 @@ export function Counter({ dress, flight, to, seat, seatWords, onSeat, onTake, on
         </span>
         {flight}
       </p>
+      <div className="so-lane" style={{ top: LANE_TOP }} />
       <Band dress={dress} place={sendOffWords("sendoff.band.departures")} />
       <Go onClick={onTake} mark="take">
         {sendOffWords("sendoff.take")}
@@ -278,6 +359,22 @@ export function Counter({ dress, flight, to, seat, seatWords, onSeat, onTake, on
     </div>
   );
 }
+
+/**
+ * The gate (beat 3), laid out so the family waving stand above the lane and Board the plane sits under them, never over
+ * their bodies (R-CHAPTER-012 (k)); Papa's bubble hangs over the door's side with its tail at his raised hands, clear of
+ * his head.
+ */
+export const GATE = {
+  door: { left: 112, top: 214, width: 166, height: 250 },
+  you: { left: 150, top: 256, width: 100 },
+  family: {
+    mum: { left: 16, top: 448, width: 96 },
+    dad: { left: 146, top: 440, width: 100 },
+    cousin: { left: 280, top: 456, width: 92 },
+  },
+  papa: { left: 12, bottom: 844 - 424, width: 172 },
+} as const;
 
 /** Beat 3: the gate. The plane in the window, the family waving, Papa's line; Board the plane sends the flight. */
 export function Gate({ dress, city, papa, board, blocked, busy, rejection, onBoard, onLeave }: { dress: Dress; city: string; papa: { name: string; words: string }; board: string; blocked: string | null; busy: boolean; rejection: ReactNode; onBoard: () => void; onLeave: () => void }) {
@@ -294,15 +391,16 @@ export function Gate({ dress, city, papa, board, blocked, busy, rejection, onBoa
           <path d="M12 33 L2 46 L9 46 L22 33 Z" />
         </g>
       </svg>
-      <div className="so-door" />
+      <div className="so-door" style={GATE.door} />
       <p className="so-gate-sign">{sendOffWords("sendoff.gate.sign", { city: city.toUpperCase() })}</p>
-      <div className="so-gate-floor" />
-      <You dress={dress} style={{ left: 150, top: 320, width: 100, zIndex: 2 }} />
-      <Pic model="prop_travel-bag" style={{ left: 228, top: 440, width: 64, zIndex: 2 }} />
-      <Person look={dress.cast.mum} pose="cheer" className="so-wave" style={{ left: 22, top: 560, width: 104, zIndex: 3 }} />
-      <Person look={dress.cast.dad} pose="cheer" className="so-wave" style={{ left: 146, top: 548, width: 110, zIndex: 3, animationDelay: "0.15s" }} />
-      <Person look={dress.cast.cousin} pose="cheer" className="so-wave" style={{ left: 272, top: 566, width: 100, zIndex: 3, animationDelay: "0.3s" }} />
-      <Bubble name={papa.name} words={papa.words} style={{ left: 118, top: 476, maxWidth: 200 }} mark="dad" />
+      <div className="so-gate-floor" style={{ top: GATE.door.top + GATE.door.height }} />
+      <You dress={dress} style={{ ...GATE.you, zIndex: 2 }} />
+      <Pic model="prop_travel-bag" style={{ left: 226, top: 384, width: 60, zIndex: 2 }} />
+      <Person look={dress.cast.mum} pose="cheer" className="so-wave" style={{ ...GATE.family.mum, zIndex: 3 }} />
+      <Person look={dress.cast.dad} pose="cheer" className="so-wave" style={{ ...GATE.family.dad, zIndex: 3, animationDelay: "0.15s" }} />
+      <Person look={dress.cast.cousin} pose="cheer" className="so-wave" style={{ ...GATE.family.cousin, zIndex: 3, animationDelay: "0.3s" }} />
+      <Bubble name={papa.name} words={papa.words} style={GATE.papa} tail={GATE.family.dad.left - GATE.papa.left - 8} mark="dad" />
+      <div className="so-lane" style={{ top: LANE_TOP }} />
       <Band dress={dress} place={sendOffWords("sendoff.band.gate")} />
       {blocked === null ? null : (
         <p className="so-blocked" role="status" data-so-blocked>
@@ -462,7 +560,7 @@ function Behind({ landing }: { landing: Landing }) {
 }
 
 /** Beat 5: out into the place. The weather, the bag on the ground, the first line at the stop, the staple pulling in. */
-export function LandingBeat({ dress, landing, place, weather, marker, heard, go, blind, onGo }: { dress: Dress; landing: Landing; place: string; weather: string; marker: string; heard: { name: string; words: string }; go: string; blind: string; onGo: () => void }) {
+export function LandingBeat({ dress, landing, place, weather, marker, heard, go, blind, onGo }: { dress: Dress; landing: Landing; place: string; weather: string; marker: string; heard: { name: string; words: string; look: string }; go: string; blind: string; onGo: () => void }) {
   const road = landing.staple === "pickup";
   return (
     <div className="so-beat so-in" data-so-beat="landing" data-so-country={landing.country} data-so-hub={landing.hub}>
@@ -478,7 +576,9 @@ export function LandingBeat({ dress, landing, place, weather, marker, heard, go,
         </>
       ) : null}
       {landing.country === "country.uk" ? <Pic model="prop_bus-shelter" style={{ left: 238, top: 440, width: 170, zIndex: 2 }} /> : null}
-      <Person look={dress.cast.ahead[0]} style={{ left: 262, top: 484, width: 100, transform: "scaleX(-1)", zIndex: 3 }} />
+      <span data-so-stop-person={heard.look}>
+        <Person look={heard.look} style={{ left: 262, top: 484, width: 100, transform: "scaleX(-1)", zIndex: 3 }} />
+      </span>
       <You dress={dress} style={{ left: 130, top: 470, width: 120, zIndex: 3 }} />
       <Pic model="prop_travel-bag" style={{ left: 86, top: 626, width: 92, zIndex: 3 }} />
       {landing.air === "rain" || landing.air === "snow" ? <span className="so-breath" style={{ left: 218, top: 512 }} aria-hidden data-so-breath /> : null}
@@ -541,8 +641,9 @@ function AtTheWindow({ landing }: { landing: Landing }) {
     default:
       return (
         <>
-          <Pic model="bld_shop-row" style={{ left: -40, top: 90, width: 220 }} />
-          <div className="so-sea" style={{ top: 120, height: 80 }} />
+          <div className="so-sea" style={{ top: 64, height: 76 }} />
+          <Pic model="bld_shop-row" style={{ left: -34, top: 70, width: 210 }} />
+          <Pic model="prop_street-bench" style={{ right: 30, top: 150, width: 70 }} />
           <div className="pave" />
           <div className="road" />
         </>
@@ -550,46 +651,113 @@ function AtTheWindow({ landing }: { landing: Landing }) {
   }
 }
 
+/**
+ * The first ride (beat 6), laid out so the character stands clear of the pings (R-CHAPTER-012 (k)): the pings in a stack
+ * on the left above the lane, the character on the right with "So this is it." over her head, and "Send-off card saved"
+ * in the scene's toast lane under the band, on nobody.
+ */
+export const RIDE = {
+  toastTop: 90,
+  window: { top: 132, height: 288 },
+  /** The pings' stack: each ping whole (no line cut short), the stack ending above the lane. */
+  pings: { left: 12, top: 428, width: 216, gap: 8 },
+  you: { left: 238, top: 398, width: 128 },
+  said: { right: 16, bottom: 844 - 392, width: 170 },
+} as const;
+
+/** What the inside of each staple carries, in front of the window: the top deck's pole, the cab's wheel, the taxi's front seats, the bus's rail and handles. */
+function Inside({ landing }: { landing: Landing }) {
+  switch (landing.staple) {
+    case "double-decker":
+      return (
+        <>
+          <div className="so-pole" />
+          <div className="so-seatback" style={{ left: 18, top: 470 }}>
+            <span className="back" />
+            <span className="pattern" />
+            <span className="cush" />
+          </div>
+        </>
+      );
+    case "pickup":
+      return (
+        <>
+          <span className="so-mirror" aria-hidden />
+          <span className="so-wheel" aria-hidden />
+          <span className="so-bench" aria-hidden />
+        </>
+      );
+    case "taxi":
+      return (
+        <>
+          <span className="so-headrest" style={{ left: 44 }} aria-hidden />
+          <span className="so-headrest" style={{ left: 232 }} aria-hidden />
+          <span className="so-driver" aria-hidden />
+          <span className="so-backseat" aria-hidden />
+        </>
+      );
+    case "domitiana-bus":
+      return (
+        <>
+          <span className="so-rail" aria-hidden>
+            {[40, 120, 200, 280].map((left) => (
+              <span key={left} className="loop" style={{ left }} />
+            ))}
+          </span>
+          <div className="so-pole" />
+          <div className="so-seatback" style={{ left: 18, top: 470 }}>
+            <span className="back" />
+            <span className="pattern" />
+            <span className="cush" />
+          </div>
+        </>
+      );
+    default: {
+      const never: never = landing.staple;
+      throw new Error(`Unknown staple ${String(never)}`);
+    }
+  }
+}
+
 /** Beat 6: the first ride. The place at the window, "So this is it.", the pings, the card saved, the Phone's badge. */
 export function Ride({ dress, landing, place, marker, pings, saved, onRing }: { dress: Dress; landing: Landing; place: string; marker: string; pings: { from: string; words: string }[]; saved: string; onRing: () => void }) {
   return (
-    <div className="so-beat so-ride so-in" data-so-beat="ride" data-country={landing.country}>
+    <div className="so-beat so-ride so-in" data-so-beat="ride" data-country={landing.country} data-staple={landing.staple}>
       <div className="so-ceiling" />
-      <div className="so-window">
+      <div className="so-window" style={{ top: RIDE.window.top, height: RIDE.window.height }}>
         <div className="so-abs so-coming" style={{ inset: 0 }}>
           <AtTheWindow landing={landing} />
         </div>
         {landing.air === "rain" ? <div className="so-drops" /> : null}
+        {landing.staple === "domitiana-bus" ? <span className="so-pillar" aria-hidden /> : null}
       </div>
       <div className="so-frame" />
       <div className="so-dash" />
       <div className="so-ride-floor" />
-      <div className="so-pole" />
-      <div className="so-seatback">
-        <span className="back" />
-        <span className="pattern" />
-        <span className="cush" />
-      </div>
-      <You dress={dress} style={{ left: 92, top: 400, width: 138, zIndex: 3 }} />
-      <Pic model="prop_travel-bag" style={{ left: 196, top: 600, width: 84, zIndex: 3 }} />
-      <p className="so-marker" style={{ top: 106 }} data-so-marker>
+      <Inside landing={landing} />
+      <You dress={dress} style={{ ...RIDE.you, zIndex: 3 }} />
+      {/* In a car the bag rides on the seat beside her, its top over the seat's edge; on a bus it stands at her feet. */}
+      <Pic model="prop_travel-bag" style={{ left: 312, top: landing.staple === "pickup" || landing.staple === "taxi" ? 540 : 590, width: 70, zIndex: 3 }} />
+      {landing.staple === "pickup" || landing.staple === "taxi" ? <span className={landing.staple === "pickup" ? "so-bench near" : "so-backseat near"} aria-hidden /> : null}
+      <p className="so-marker" style={{ top: RIDE.window.top + 10 }} data-so-marker>
         {marker}
       </p>
-      <Bubble name={dress.name} words={sendOffWords("sendoff.ride.said")} style={{ left: 150, top: 300, maxWidth: 180 }} mark="you" />
-      <p className="so-chip money" style={{ right: 14, top: 432 }} data-so-saved>
+      <Bubble name={dress.name} words={sendOffWords("sendoff.ride.said")} style={RIDE.said} tail={RIDE.you.left + RIDE.you.width / 2 - (390 - RIDE.said.right - RIDE.said.width) - 8} mark="you" />
+      <p className="so-toast" style={{ top: RIDE.toastTop }} data-so-saved>
         <span className="tick" aria-hidden>
           {"✓"}
         </span>
         {saved}
       </p>
-      <ol aria-live="polite">
+      <ol className="so-pings" aria-live="polite" style={{ left: RIDE.pings.left, top: RIDE.pings.top, width: RIDE.pings.width, gap: RIDE.pings.gap }} data-so-pings>
         {pings.map((ping, index) => (
-          <li key={index} className="so-ping so-ping-in" style={{ top: 482 + index * 62, animationDelay: `${String(0.25 + index * 0.35)}s` }} data-so-ping={index}>
+          <li key={index} className="so-ping so-ping-in" style={{ animationDelay: `${String(0.25 + index * 0.35)}s` }} data-so-ping={index}>
             <b>{ping.from}</b>
             <span className="words">{ping.words}</span>
           </li>
         ))}
       </ol>
+      <div className="so-lane ride" style={{ top: LANE_TOP }} />
       <Band dress={dress} place={place} />
       <Go onClick={onRing} mark="ring">
         {sendOffWords("sendoff.ring")}

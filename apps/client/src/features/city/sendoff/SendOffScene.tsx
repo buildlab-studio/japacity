@@ -18,7 +18,7 @@ import { formatMoney } from "../../../shared/words/format";
 import { nameOf, say, words } from "../../../shared/words/text";
 import { sendOffWords } from "../sendOff.words";
 import { Counter, Departures, type Dress, Gate, LandingBeat, Plane, Ride, useStageScale } from "./beats";
-import { blindName, castFor, firstPings, flightCost, FRONT_MS, GATE_LINE, landingOf, PLANE_MS, queueLine, speakerName } from "./plan";
+import { blindName, castFor, firstPings, flightCost, FRONT_MS, GATE_LINE, landingOf, PLANE_MS, queueLine, speakerName, stopLookFor } from "./plan";
 
 /** The city the plane's sticker names, by the hub's city in content (world.md R-WORLD-037). */
 export function planeCity(city: string): string {
@@ -186,7 +186,7 @@ export default function SendOffScene({ you, game, planeCut }: SendOffSceneProps)
             place={sendOffWords(`sendoff.band.landing.${landing.country}`, { hub: nameOf(landing.hub) })}
             weather={sendOffWords(`sendoff.landing.weather.${landing.country}`)}
             marker={sendOffWords(`sendoff.landing.marker.${landing.country}`)}
-            heard={{ name: sendOffWords(`sendoff.landing.by.${landing.country}`), words: words(landing.heard) }}
+            heard={{ name: sendOffWords(`sendoff.landing.by.${landing.country}`), words: words(landing.heard), look: stopLookFor(landing.country, look) }}
             go={sendOffWords(`sendoff.landing.go.${landing.country}`)}
             blind={sendOffWords(blindKey, { hub: blindName(landing.hub) })}
             onGo={() => {
@@ -204,7 +204,7 @@ export default function SendOffScene({ you, game, planeCut }: SendOffSceneProps)
             landing={landing}
             place={sendOffWords(`sendoff.band.ride.${landing.country}`)}
             marker={sendOffWords(`sendoff.ride.marker.${landing.country}`)}
-            pings={firstPings(view.scenario).map((ping) => ({ from: ping.from, words: words(ping.key) }))}
+            pings={firstPings(view.scenario, landing.staple).map((ping) => ({ from: ping.from, words: sendOffWords(ping.key) }))}
             saved={sendOffWords("sendoff.saved")}
             onRing={() => {
               cue("done");
