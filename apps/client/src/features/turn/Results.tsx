@@ -105,6 +105,30 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
     cue("close");
     setReportOpen(false);
   };
+  const bigNews = story.some(leadsAlone);
+  const storySection =
+    story.length === 0 ? null : (
+      <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
+        {/* The best thing first with its picture, when payday has not led: a good
+            moment or the grant; then two more as rows with a picture each, the rest behind "See the whole month". */}
+        <h3 className="text-[14px] font-bold text-text-2">{turnWords("turn.results.story")}</h3>
+        <ul className="flex flex-col gap-1.5">
+          {story.slice(0, SHOWN_MOMENTS).map((line, index) => (
+            <StoryRow key={`${line.key}-${String(index)}`} line={line} hero={index === 0 && (close.payday.length === 0 || leadsAlone(line)) && (line.tone === "good" || leadsAlone(line))} />
+          ))}
+        </ul>
+        {story.length <= SHOWN_MOMENTS ? null : (
+          <details className="results-more" data-results-more>
+            <summary className="press mx-auto mt-1 w-max cursor-pointer list-none text-[16px] font-bold underline decoration-2 underline-offset-4">{say("ui.results.whole-month")}</summary>
+            <ul className="mt-2 flex flex-col gap-1.5">
+              {story.slice(SHOWN_MOMENTS).map((line, index) => (
+                <StoryRow key={`${line.key}-more-${String(index)}`} line={line} hero={false} />
+              ))}
+            </ul>
+          </details>
+        )}
+      </section>
+    );
 
   return (
     <WorldSheet
@@ -121,35 +145,16 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
     >
       <div className="flex flex-col gap-4">
         {birthday ? <p className="text-[14px] font-bold text-strong" data-results-birthday>{turnWords("turn.results.birthday", { years: Math.floor(ageMonths / 12) })}</p> : null}
-        {/* Payday leads, then the rent when it was due: the month's turn in money, each its own line (the shrunk close). */}
+        {/* Payday leads, then the rent when it was due: the month's turn in money, each its own line (the shrunk close),
+            unless the month's news is the visa's answer, which leads before any money. */}
+        {bigNews ? storySection : null}
         {close.payday.map((entry, index) => (
           <MoneyRow key={`payday-${String(index)}`} entry={entry} mark="payday" />
         ))}
         {close.rent.map((entry, index) => (
           <MoneyRow key={`rent-${String(index)}`} entry={entry} mark="rent" />
         ))}
-        {story.length === 0 ? null : (
-          <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
-            {/* The best thing first with its picture, when payday has not led: a good
-                moment or the grant; then two more as rows with a picture each, the rest behind "See the whole month". */}
-            <h3 className="text-[14px] font-bold text-text-2">{turnWords("turn.results.story")}</h3>
-            <ul className="flex flex-col gap-1.5">
-              {story.slice(0, SHOWN_MOMENTS).map((line, index) => (
-                <StoryRow key={`${line.key}-${String(index)}`} line={line} hero={index === 0 && close.payday.length === 0 && (line.tone === "good" || leadsAlone(line))} />
-              ))}
-            </ul>
-            {story.length <= SHOWN_MOMENTS ? null : (
-              <details className="results-more" data-results-more>
-                <summary className="press mx-auto mt-1 w-max cursor-pointer list-none text-[16px] font-bold underline decoration-2 underline-offset-4">{say("ui.results.whole-month")}</summary>
-                <ul className="mt-2 flex flex-col gap-1.5">
-                  {story.slice(SHOWN_MOMENTS).map((line, index) => (
-                    <StoryRow key={`${line.key}-more-${String(index)}`} line={line} hero={false} />
-                  ))}
-                </ul>
-              </details>
-            )}
-          </section>
-        )}
+        {bigNews ? null : storySection}
 
         {/* A paper the plan needs that runs out within two months, the application not sent: one line each. */}
         {expiring.map((paper) => (

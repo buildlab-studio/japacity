@@ -50,6 +50,15 @@ describe("the page while the years go by", () => {
     expect(document.querySelector("[data-stat]")).toBeNull();
   });
 
+  test("[R-PROLOGUE-014] given a life with no years yet and no tile kept, when the page shows, then no years heading stands over nothing", async () => {
+    keepPerson({ look: "chr_ada", name: "Ada", archetype: null });
+    await renderWithView(<PrologueView />, newGame("scenario.prologue").view());
+    expect(document.querySelector("[data-years]")).toBeNull();
+    const headings = [...document.querySelectorAll("h2")].map((node) => node.textContent);
+    expect(headings).not.toContain(say("ui.page.years.running"));
+    expect(headings).not.toContain(say("ui.page.years"));
+  });
+
   test("[R-PROLOGUE-014] given the handover, then the page stands at the top under its heading as before, with the money and japacity printed", async () => {
     await renderWithView(<PageHandover onDone={() => undefined} />, engineView());
     expect(document.querySelector("[data-gate='handover'] [data-door-body] [data-page]")).not.toBeNull();
