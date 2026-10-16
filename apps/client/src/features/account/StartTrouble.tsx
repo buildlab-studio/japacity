@@ -5,10 +5,10 @@
 import { StartHook } from "../../shared/frontdoor/Hook";
 import { Gate, GateSheet } from "../../shared/frontdoor/Gate";
 import type { Trouble } from "../../authority/store";
+import { SheetColumn } from "../../shared/ui/lively/SheetColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { TroubleFace } from "../../shared/ui/Trouble";
 import { say } from "../../shared/words/text";
-import { SheetColumn } from "./SheetColumn";
 
 export function StartTrouble({ trouble }: { trouble: Trouble | null }) {
   return (

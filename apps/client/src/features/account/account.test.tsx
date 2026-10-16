@@ -10,6 +10,7 @@ import type { AccountApi, AgeStanding, AuthResult } from "../../shared/net/auth"
 import type { AccountView } from "../../shared/net/contract";
 import { engineView } from "../../shared/testing/fixtures";
 import { COLUMN_PX } from "../../shared/ui/lively/CentredColumn";
+import { SHEET_COLUMN_PX } from "../../shared/ui/lively/SheetColumn";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { App } from "../../App";
@@ -17,7 +18,6 @@ import { AccountGate } from "./AccountGate";
 import { answerAge } from "./age.testing";
 import { YEARS_LISTED } from "./AgeScreen";
 import { AccountSettings } from "./Settings";
-import { SHEET_COLUMN_PX } from "./SheetColumn";
 import { StartTrouble } from "./StartTrouble";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./Turnstile";
 
