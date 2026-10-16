@@ -96,6 +96,8 @@ export function guestGates(deps: ServerDeps): Hono<SessionEnv> {
   }
   gates.use("/api/command", commandGate(deps));
   gates.use("/api/command", keepLastPlay(deps));
+  // R-SERVER-046: the prologue's preset is the player's commands in one request.
+  gates.use("/api/prologue/preset", keepLastPlay(deps));
   gates.use("/api/character", keepLastPlay(deps));
   return gates;
 }
