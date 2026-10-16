@@ -2,12 +2,12 @@
 // day and the navy by night (the world's clock, decision 0038), the lockup on the first screen, Back as a round white
 // button and Shuffle and Skip on the right on the first two screens, the screen's question as its one heading with one
 // line under it, the body scrolling, and at the foot the three screens' dots over the one yellow action. On a laptop the
-// screen stands in a centred column of phone width on the same sky. `data-gate` carries the screen's mark, as the gate
+// screen stands in the door's reading column (SheetColumn, 600 px) on the same sky, as the start and age sheets do. `data-gate` carries the screen's mark, as the gate
 // did, so tests and the browser suite find each screen where they found it.
 import { ChevronLeft, Shuffle } from "lucide-react";
 import { type ReactNode, type RefObject, useEffect, useRef, useState } from "react";
 
-import { CentredColumn } from "../ui/lively/CentredColumn";
+import { SheetColumn } from "../ui/lively/SheetColumn";
 import { Wordmark } from "../ui/Wordmark";
 import { usePaint } from "../world/paint";
 import { say } from "../words/text";
@@ -77,7 +77,7 @@ export function DoorFrame({ mark, look, title, line, lockup = false, onBack = nu
   const { body, more, measure } = useMoreBelow();
   return (
     <div className="door-sky fixed inset-0 overflow-hidden" data-gate={mark} data-door-frame {...(look === undefined ? {} : { "data-look": look })}>
-      <CentredColumn className="flex h-full flex-col">
+      <SheetColumn className="flex h-full flex-col">
         {/* The head row stands on the sky's own ground over the body, so a card scrolled up never shows through it (catalog
             1b952f4b, picture 006: the figure's card under the lockup, Shuffle and Skip). */}
         <div className="door-sky relative z-10 flex shrink-0 items-center gap-2.5 px-4 pt-[max(14px,env(safe-area-inset-top))] pb-1" data-door-progress>
@@ -119,7 +119,7 @@ export function DoorFrame({ mark, look, title, line, lockup = false, onBack = nu
             {foot}
           </div>
         )}
-      </CentredColumn>
+      </SheetColumn>
     </div>
   );
 }

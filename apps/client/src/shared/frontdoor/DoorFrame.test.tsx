@@ -4,6 +4,7 @@
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
+import { SHEET_COLUMN_PX } from "../ui/lively/SheetColumn";
 import { DoorFrame } from "./DoorFrame";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
@@ -44,5 +45,19 @@ describe("the door's frame", () => {
     fireEvent.scroll(body);
     expect(foot.hasAttribute("data-door-more")).toBe(false);
     expect(foot.querySelector("[data-door-fold]")?.className).toContain("opacity-0");
+  });
+
+  test("[R-PROLOGUE-013] given a door screen on a wide screen, then it stands in the door's reading column, the one the start and age sheets use, wider than the thumbs' lane", () => {
+    render(
+      <DoorFrame mark="page" title="Where you live" onSkip={() => undefined} at={2} foot={<button type="button">Begin</button>}>
+        <p>Body</p>
+      </DoorFrame>,
+    );
+    const column = document.querySelector("[data-door-frame] > [data-sheet-column]");
+    expect(column).not.toBeNull();
+    expect(column?.classList.contains("centred-column")).toBe(true);
+    expect(column?.classList.contains(`max-w-[${String(SHEET_COLUMN_PX)}px]`)).toBe(true);
+    expect(column?.querySelector("[data-door-body]")).not.toBeNull();
+    expect(column?.querySelector("[data-door-foot]")).not.toBeNull();
   });
 });
