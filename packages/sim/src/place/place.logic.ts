@@ -307,15 +307,18 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return comeHome(ctx, returnShape(ctx, payment !== null), cause);
 }
 
-/** Metres on the ground for one thousandth of a degree, either way: near Lagos a degree of longitude is within one in a hundred of a degree of latitude, so one figure serves both. */
+/**
+ * Metres on the ground for one thousandth of a degree of latitude, everywhere; longitude's figure is the country's
+ * (R-PLACE-010 as amended 16 Oct 2026), since a degree of longitude shrinks toward the poles. Near Lagos the two agree.
+ */
 const METRES_PER_E3 = 111;
 
 /**
  * Whether two positions in thousandths of a degree are within `metres` of each other, in whole numbers:
  * the two legs in metres and their squares against the square of the limit, so no root is taken.
  */
-export function withinMetres(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }, metres: number): boolean {
-  const dx = Math.abs(to.lonE3 - from.lonE3) * METRES_PER_E3;
+export function withinMetres(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }, metres: number, lonMetresPerE3: number = METRES_PER_E3): boolean {
+  const dx = Math.abs(to.lonE3 - from.lonE3) * lonMetresPerE3;
   const dy = Math.abs(to.latE3 - from.latE3) * METRES_PER_E3;
   return dx * dx + dy * dy <= metres * metres;
 }
@@ -324,17 +327,21 @@ export function withinMetres(from: { latE3: number; lonE3: number }, to: { latE3
 const FARE_STEP_KOBO = 5000;
 
 /** Metres in a straight line between two positions in thousandths of a degree, in whole numbers (no root beyond the integer one). */
-export function metresApart(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }): number {
-  const dx = Math.abs(to.lonE3 - from.lonE3) * METRES_PER_E3;
+export function metresApart(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }, lonMetresPerE3: number = METRES_PER_E3): number {
+  const dx = Math.abs(to.lonE3 - from.lonE3) * lonMetresPerE3;
   const dy = Math.abs(to.latE3 - from.latE3) * METRES_PER_E3;
   return isqrt(dx * dx + dy * dy);
 }
 
-/** What `rideFare` prices from: the flag-down figure, the figure a kilometre and the step the fare is rounded up to, in one currency's smallest unit. */
+/**
+ * What `rideFare` prices from: the flag-down figure, the figure a kilometre and the step the fare is rounded up to, in one
+ * currency's smallest unit, and the metres a thousandth of a degree of longitude is worth in that country.
+ */
 export interface RideFare {
   fare: number;
   farePerKm: number;
   step: number;
+  lonMetresPerE3: number;
 }
 
 /** The ways a country abroad may list, in the order the ride sheet shows them. */
@@ -387,7 +394,7 @@ function abroadFigures(rides: CountryRides, way: RideWay): RideFigures | undefin
 
 function priced(figures: RideFare, from: { latE3: number; lonE3: number } | null, to: { latE3: number; lonE3: number } | null, fareBp: number): number {
   if (figures.fare === 0 && figures.farePerKm === 0) return 0;
-  const metres = from === null || to === null ? 0 : metresApart(from, to);
+  const metres = from === null || to === null ? 0 : metresApart(from, to, figures.lonMetresPerE3);
   return bp(roundUpTo(figures.fare + mulDiv(figures.farePerKm, metres, 1000), figures.step), fareBp);
 }
 
@@ -412,7 +419,7 @@ export function rideFare(
   // The car of your own: its fuel is its fare, by distance as the rides are, and the scarcity raises it the same.
   const figures = homeFigures(first, fourth);
   if (figures === null) throw new Error(`The way ${fourth} is not a way of Lagos.`);
-  return priced({ ...figures, step: FARE_STEP_KOBO }, from, to, fifth);
+  return priced({ ...figures, step: FARE_STEP_KOBO, lonMetresPerE3: first.tuning.city.ride.lonMetresPerE3 }, from, to, fifth);
 }
 
 /** The room abroad: the home there, so a walk to it is always accepted (R-PLACE-010 as amended 16 Oct 2026). */
@@ -456,7 +463,7 @@ export function waysHere(read: ReadCtx): RideWayView[] {
     const ways: RideWay[] = ["danfo", "keke", "okada", "walk", ...(drives(read) ? (["drive"] as const) : [])];
     return ways.map((way): RideWayView => {
       const figures = homeFigures(read.content, way) ?? walk;
-      return { way, currency: "NGN", ...figures, step: FARE_STEP_KOBO, passed: false };
+      return { way, currency: "NGN", ...figures, step: FARE_STEP_KOBO, lonMetresPerE3: read.content.tuning.city.ride.lonMetresPerE3, passed: false };
     });
   }
   if (where !== "abroad" || country === null) return [];
@@ -466,9 +473,9 @@ export function waysHere(read: ReadCtx): RideWayView[] {
   const passed = busPassHeld(read);
   const listed = ABROAD_WAYS.flatMap((way): RideWayView[] => {
     const figures = rides.ways[way];
-    return figures === undefined ? [] : [{ way, currency, ...figures, step: rides.step, passed: way === "bus" && passed }];
+    return figures === undefined ? [] : [{ way, currency, ...figures, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3, passed: way === "bus" && passed }];
   });
-  return [...listed, { way: "walk", currency, ...walk, step: rides.step, passed: false }];
+  return [...listed, { way: "walk", currency, ...walk, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3, passed: false }];
 }
 
 /** The fare taken from the currency, cash first and the bank for the rest, and the ride on record (R-PLACE-010). */
@@ -499,14 +506,14 @@ function rideAbroad(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>,
   if (!ofCountry(start, country) || !ofCountry(end, country)) return reject("not-legal", "A ride abroad stays in the country.");
   const currency = countryEntry(ctx.content, country).currency;
   if (way === "walk") {
-    if (to !== ROOM && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres)) {
+    if (to !== ROOM && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres, rides.lonMetresPerE3)) {
       return reject("not-legal", "Too far to walk.");
     }
     return payRide(ctx, command, 0, currency);
   }
   const figures = abroadFigures(rides, way);
   if (figures === undefined) return reject("not-legal", `There is no ${way} here.`);
-  const fare = way === "bus" && busPassHeld(ctx) ? 0 : rideFare({ ...figures, step: rides.step }, start.position, end.position);
+  const fare = way === "bus" && busPassHeld(ctx) ? 0 : rideFare({ ...figures, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3 }, start.position, end.position);
   return payRide(ctx, command, fare, currency);
 }
 
@@ -533,7 +540,7 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   // On foot only within walking distance: past it a fare is the only way, so a fare is a real cost.
   // A life may always walk home, however far: the long walk is its cost.
   const home = ctx.state.home.place ?? FAMILY_HOUSE;
-  if (way === "walk" && to !== home && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres)) {
+  if (way === "walk" && to !== home && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres, ctx.content.tuning.city.ride.lonMetresPerE3)) {
     return reject("not-legal", "Too far to walk.");
   }
   return payRide(ctx, command, rideFare(ctx.content, start.position, end.position, way, fareBpOf(ctx)), "NGN");

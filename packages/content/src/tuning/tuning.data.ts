@@ -262,15 +262,18 @@ export const tuning: Tuning = {
     // world.md: nothing roams and the fly-over is retired (R-WORLD-010, 015); the crowd and sheet caps (R-WORLD-011); the rides' fares in kobo and pace, and how far a walk goes (R-WORLD-017, R-PLACE-010: beyond it a fare is the only way).
     roam: false, flyover: false, indoorLow: 4, indoorHigh: 6, outdoorLow: 6, outdoorHigh: 10, motionSheets: 1,
     ride: { fareKobo: { danfo: 20000, keke: 30000, okada: 50000, walk: 0 }, farePerKmKobo: { danfo: 5000, keke: 10000, okada: 15000, walk: 0 }, metresPerMinute: { danfo: 250, keke: 300, okada: 450, walk: 80 }, waitMinutes: 6, scarcityBp: 20000, walkMetres: 2000,
+      // R-PLACE-010 as amended 16 Oct 2026: the metres a thousandth of a degree of longitude is worth, 111 times the cosine
+      // of the latitude, rounded: Lagos 111 here, and each country's below; latitude is 111 everywhere.
+      lonMetresPerE3: 111,
       // place.md R-PLACE-010 as amended 16 Oct 2026 and R-PLACE-012 (decision 0042, design page 14 section 5): each
       // country's ways in its smallest unit, the step a fare is rounded up to, and the month's bus pass. London's are 2025
       // fares, rounded: the hopper bus fare, an off-peak train single by distance, a monthly bus and tram pass. Canada, the
       // UAE and Italy list no ways until their waves, so a ride there is still refused.
       abroad: {
-        "country.uk": { ways: { bus: { fare: 175, farePerKm: 0, metresPerMinute: 250 }, train: { fare: 280, farePerKm: 10, metresPerMinute: 600 } }, step: 5, pass: pounds(95) },
-        "country.canada": { ways: {}, step: 5, pass: null },
-        "country.uae": { ways: {}, step: 25, pass: null },
-        "country.italy": { ways: {}, step: 5, pass: null },
+        "country.uk": { ways: { bus: { fare: 175, farePerKm: 0, metresPerMinute: 250 }, train: { fare: 280, farePerKm: 10, metresPerMinute: 600 } }, step: 5, pass: pounds(95), lonMetresPerE3: 69 },
+        "country.canada": { ways: {}, step: 5, pass: null, lonMetresPerE3: 71 },
+        "country.uae": { ways: {}, step: 25, pass: null, lonMetresPerE3: 100 },
+        "country.italy": { ways: {}, step: 5, pass: null, lonMetresPerE3: 84 },
       } } },
 
   // people.md, pair.md, interview.md, undertaking.md: their Numbers tables
