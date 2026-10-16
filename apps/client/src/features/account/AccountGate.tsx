@@ -6,7 +6,9 @@
 // makes an account. A refusal is said plainly and nothing else is offered (R-ACCOUNT-011, R-ACCOUNT-012). While
 // sign-ups are switched off, the full screen instead, which asks again once the server's wait is over (R-SERVER-032).
 // Inside the invite page the card is the start, so the gate begins at the age screen there, and the username stands
-// under it (the card makes the life, not the door).
+// under it (the card makes the life, not the door). A notice the last screen left ("You have signed out.") shows on
+// the first screen here and goes as soon as the player moves on: to the age screen, to the ways back in, back to the
+// start, or into a life (R-ACCOUNT-021, as the AL wave proposes to amend it).
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
@@ -20,11 +22,12 @@ import { Full, type FullCheck } from "./Full";
 import { GuestForm, useGuestDoor, type GuestDoor } from "./GuestStart";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { Wordmark } from "../../shared/ui/Wordmark";
-import { SignIn } from "./SignIn";
+import { SignIn, type SignedInBy } from "./SignIn";
 import { refreshAccount } from "./standing";
 import { StartScreen } from "./StartScreen";
 import { useLights } from "./lights";
 import { TwoLights } from "./TwoLights";
+import { tellWay } from "./WayToast";
 import { loadTurnstile, siteKey, type LoadTurnstile } from "./Turnstile";
 
 type Standing = AgeStanding | FullStanding | "loading" | "failed";
@@ -90,6 +93,12 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   const signedIn = useGame((state) => state.signedIn);
   const [standing, setStanding] = useState<Standing>("loading");
   const [step, setStep] = useState<Step>("start");
+  // Once the player moves on from the screen the gate opened on, the notice it carried is done with.
+  const [moved, setMoved] = useState(false);
+  const go = (next: Step) => {
+    setMoved(true);
+    setStep(next);
+  };
   const [back, setBack] = useState<string | null>(null);
   const shown = shownOf(standing, step, embedded);
   const key = counted(shown, embedded);
@@ -98,10 +107,11 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     if (key !== null) counting().count("screen/opened", key);
   }, [key, shown]);
 
-  // A trip to Google that found no life comes back here with the reason (R-ACCOUNT-021).
+  // A trip to Google that found no life comes back here with the reason (R-ACCOUNT-021). One that went through opens
+  // the life instead, where the shell tells it (Secure.tsx), so it never lands here.
   useEffect(() => {
     const failed = account?.returnedFromGoogle() ?? null;
-    if (failed === null) return;
+    if (failed === null || failed === "kept" || failed === "signed-in") return;
     setStep("returning");
     setBack(failureWords({ ok: false, why: failed }));
   }, [account]);
@@ -132,8 +142,11 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
 
   if (account === null) return null;
   const sitekeyShown = sitekey === undefined ? siteKey() : sitekey;
-  const toStart = embedded ? null : () => setStep("start");
-  const enter = async (api: AccountApi): Promise<void> => {
+  const toStart = embedded ? null : () => go("start");
+  const enter = async (api: AccountApi, by: SignedInBy | null = null): Promise<void> => {
+    setMoved(true);
+    // R-ACCOUNT-023: the sheet closes as the life opens, and the world says which way it was.
+    if (by !== null) tellWay(api, `in.${by}`);
     void refreshAccount(api);
     await signedIn();
   };
@@ -142,7 +155,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
       account={api}
       problem={back}
       onBack={toStart}
-      onSignedIn={() => void enter(api)}
+      onSignedIn={(by) => void enter(api, by)}
       {...(agent === undefined ? {} : { agent })}
       {...(href === undefined ? {} : { href })}
     />
@@ -163,7 +176,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
       case "passed":
         switch (shown) {
           case "start":
-            return <StartScreen onPlay={() => setStep("age")} onReturning={() => setStep("returning")} />;
+            return <StartScreen onPlay={() => go("age")} onReturning={() => go("returning")} />;
           case "age":
             return <AgeScreen account={api} onStanding={setStanding} onBack={toStart} />;
           case "returning":
@@ -194,7 +207,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
         onExpired={() => setStanding("unasked")}
         onFull={() => setStanding({ full: true, retryAfter: 30 })}
         onStarted={() => enter(api)}
-        onReturning={() => setStep("returning")}
+        onReturning={() => go("returning")}
       />
     );
   }
@@ -223,7 +236,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   return (
     <Gate mark="start" {...(over === null ? {} : { over })} {...(behind === undefined ? {} : { scene: behind })}>
       <GateSheet mark={shown} label={say("ui.game")}>
-        {notice === null ? null : (
+        {notice === null || moved ? null : (
           <p role="status" className="mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]">
             {say(notice)}
           </p>

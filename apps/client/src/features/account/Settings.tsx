@@ -5,16 +5,21 @@
 // `DELETE /api/account`. Deleting needs a session signed in within the last 10
 // minutes; when the server says it is older, the player signs in again or
 // sends the code the server's email carries along with the deletion. A guest
-// has no other way in, so its own session confirms it.
-import { UserRoundCog } from "lucide-react";
+// has no other way in, so its own session confirms it. The account opens from its own row at the head of the phone's
+// Settings: the name's initial, the name, the username and the way the life is kept, the whole row one tap (the maintainer,
+// 16 Oct 2026); its sheet names the username and the name as two plain rows, then the way in and the passkeys
+// (R-ACCOUNT-024, R-ACCOUNT-027 as the AL wave proposes to amend it).
+import { ChevronRight } from "lucide-react";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
+import { pageOf } from "../../shared/datapage/PageSheet";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
+import type { AccountView } from "../../shared/net/contract";
 import { Button } from "../../shared/ui/Button";
 import { GoogleButton } from "../../shared/ui/GoogleButton";
 import { Sheet } from "../../shared/ui/Sheet";
-import { say } from "../../shared/words/text";
+import { say, sayCount } from "../../shared/words/text";
 import { counting, setUsageCounts } from "../../shared/analytics/start";
 import { CodeForm, failureWords } from "./CodeForm";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
@@ -70,6 +75,42 @@ export function UsageCounts({ account }: { account: AccountApi }) {
   );
 }
 
+/** A guest's ways back in: none but its own session (R-ACCOUNT-021). */
+const NO_WAYS: AccountView["ways"] = { google: null, email: null, passkeys: 0 };
+
+/** The account's ways back in; none from a server older than `ways`. */
+function waysOf(view: AccountView): AccountView["ways"] {
+  return (view as Partial<AccountView>).ways ?? NO_WAYS;
+}
+
+/**
+ * The way the life is kept, in one line (R-ACCOUNT-023, 027): Google by its address where Google is linked, else the
+ * email. `full`: the email's address too, as the sheet says it; the row says it short. A guest's life is on this phone.
+ */
+export function keptLine(view: AccountView, full: boolean): string {
+  if (view.state === "guest") return say("ui.account.ways.guest");
+  const { google, email } = waysOf(view);
+  if (google !== null) return say("ui.account.ways.google", { email: google });
+  if (email === null) return "";
+  return full ? say("ui.account.ways.email", { email }) : say("ui.account.ways.email.short");
+}
+
+/** The character's name as given at the door, or "" while there is none. */
+function useLifeName(): string {
+  const view = useGame((state) => state.view);
+  return view === null ? "" : pageOf(view).name;
+}
+
+/** A plain labelled row: the label small above the value. */
+function Row({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <p className="text-sm text-text-2">{label}</p>
+      <p className="text-[17px] font-bold break-words">{children}</p>
+    </div>
+  );
+}
+
 /** R-ACCOUNT-024: the username, and its change: the first free, then one after each wait the server sets. */
 export function Username({ account }: { account: AccountApi }) {
   const me = useAccountView();
@@ -98,7 +139,7 @@ export function Username({ account }: { account: AccountApi }) {
 
   return (
     <div className="flex flex-col gap-2" data-username>
-      <p>{say("ui.account.name.current", { name: me.username })}</p>
+      <Row label={say("ui.account.name.label")}>{say("ui.account.name.current", { name: me.username })}</Row>
       {waiting ? <p className="text-sm text-text-2">{say("ui.account.name.wait", { date: dayOf(me.renameFrom) })}</p> : null}
       {!waiting && !editing ? (
         <div className="flex flex-col gap-1">
@@ -143,9 +184,35 @@ function dayOf(at: number): string {
 
 type Step = "idle" | "warn" | "confirm";
 
+/** The name given at the door, as its own row beside the username, so the two are never guessed at. */
+function LifeName() {
+  const name = useLifeName();
+  if (name === "") return null;
+  return (
+    <div data-life-name>
+      <Row label={say("ui.account.person.label")}>{name}</Row>
+    </div>
+  );
+}
+
+/** The ways in of a kept life (R-ACCOUNT-027 as to be amended): the way it is kept with its address, and the passkeys held. */
+function WaysIn({ view }: { view: AccountView }) {
+  if (view.state === "guest") return null;
+  const { passkeys } = waysOf(view);
+  return (
+    <div className="flex flex-col gap-1" data-ways>
+      <p>{keptLine(view, true)}</p>
+      <p className="text-sm text-text-2" data-passkeys={passkeys}>
+        {sayCount("ui.account.passkeys", passkeys, { count: passkeys })}
+      </p>
+    </div>
+  );
+}
+
 export function AccountSettings({ account, more = null }: { account: AccountApi; more?: ReactNode }) {
   const leave = useGame((state) => state.leave);
-  const guest = useAccountView()?.state === "guest";
+  const me = useAccountView();
+  const guest = me?.state === "guest";
   const [leaving, setLeaving] = useState(false);
   const [step, setStep] = useState<Step>("idle");
   const [busy, setBusy] = useState(false);
@@ -194,22 +261,28 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
     <div className="flex flex-col gap-6">
       <GuestReminder />
       <Username account={account} />
+      <LifeName />
+      {me === null ? null : <WaysIn view={me} />}
       <div className="flex flex-col gap-2">
         {guest ? null : (
+        <div>
         <Button
           disabled={busy}
           onClick={() =>
             void run(
               () => account.addPasskey(),
               (result) => {
-                if (result.ok) setMessage(say("ui.account.passkey.added"));
-                else setProblem(failureWords(result));
+                if (!result.ok) return setProblem(failureWords(result));
+                setMessage(say("ui.account.passkey.added"));
+                // The passkeys held are read again, so the row above counts the new one.
+                void refreshAccount(account);
               },
             )
           }
         >
           {say("ui.account.passkey.add")}
         </Button>
+        </div>
         )}
         {/* R-ACCOUNT-021: a guest's session is its only way back, so signing out of it is said plainly first. */}
         {guest && !leaving ? (
@@ -291,26 +364,41 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
   );
 }
 
-/** The header's way into the settings. Nothing offline. `more`: another feature's settings, placed by the shell. */
+/**
+ * The way into the account from the phone's Settings: one row in the phone's dress, the whole of it the tap. The name's
+ * initial in a round mark, the name and the username on two lines, the way the life is kept under them, and a chevron.
+ * Nothing offline, so the phone's Settings shows no empty account then. `more`: another feature's
+ * settings, placed by the shell.
+ */
 export function AccountButton({ more = null }: { more?: ReactNode }) {
   const account = useGame((state) => state.account);
+  const me = useAccountView();
+  const name = useLifeName();
   const [open, setOpen] = useState(false);
   if (account === null) return null;
-  // The heading comes with the button, so the phone's Settings shows no empty "Account" offline.
+  const username = me === null ? "" : say("ui.account.name.current", { name: me.username });
+  const initial = (name === "" ? (me?.username ?? "") : name).charAt(0).toUpperCase();
   return (
     <>
-      <p className="label mt-3 text-text-2">{say("ui.account.heading")}</p>
-      <Button
-        small
-        variant="quiet"
-        aria-label={say("ui.account.settings")}
+      <button
+        type="button"
+        className="lively-card press mt-1 mb-3 flex w-full items-center gap-3 p-3 text-left"
         onClick={() => {
           counting().count("screen/opened", "settings");
           setOpen(true);
         }}
+        data-account-row
       >
-        <UserRoundCog size={18} />
-      </Button>
+        <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-full bg-action text-[20px] font-bold text-action-text">
+          {initial}
+        </span>
+        <span className="min-w-0 flex-1">
+          {name === "" ? null : <span className="block truncate text-[17px] font-bold">{name}</span>}
+          <span className={`block truncate ${name === "" ? "text-[17px] font-bold" : "text-[14px] text-text-2"}`}>{username === "" ? say("ui.account.settings") : username}</span>
+          {me === null ? null : <span className="block text-[13px] leading-snug text-text-2">{keptLine(me, false)}</span>}
+        </span>
+        <ChevronRight size={20} className="shrink-0" aria-hidden />
+      </button>
       <Sheet open={open} onOpenChange={setOpen} title={say("ui.account.settings")}>
         <AccountSettings account={account} more={more} />
       </Sheet>

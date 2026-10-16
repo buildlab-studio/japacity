@@ -9,6 +9,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { content } from "../../../packages/content/src/index";
 import { start } from "../../../packages/sim/src/testing/play";
 import { onlineText } from "../src/shared/words/online";
+import { uiText } from "../src/shared/words/ui";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
@@ -28,7 +29,9 @@ type Answer = { status?: number; body: unknown };
 const SIGNED_OUT: Answer = { status: 401, body: { ok: false, code: "signed-out", detail: "Sign in to play." } };
 const NO_CHARACTER: Answer = { status: 404, body: { ok: false, code: "no-character", detail: "No character yet." } };
 const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
-const GUEST = { id: "account-guest", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1", sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0 };
+const GUEST = { id: "account-guest", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1", sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0, ways: { google: null, email: null, passkeys: 0 } };
+/** The same life once kept with Google: Google's address is the code's address too (GET /api/account's ways). */
+const KEPT_WITH_GOOGLE = { ...GUEST, state: "secured", ways: { google: "ada@example.com", email: "ada@example.com", passkeys: 0 } };
 const STANDING = { body: { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } } };
 
 const TURNSTILE = `window.turnstile = {
@@ -190,4 +193,59 @@ test("[R-ACCOUNT-023] a guest secures the life later by a code sent to an email,
   expect(sent).toContain("POST /api/auth/sign-in/email-otp");
   // The life goes on as it was: no new character was asked for.
   expect(sent).not.toContain("POST /api/character");
+});
+
+test("[R-ACCOUNT-023] a guest that comes back from Google with the life kept sees the keeping sheet in its kept state, the address left clean, and the world says Kept with Google as it closes", async ({ page }, info) => {
+  await fakeServer(page, {
+    "GET /api/view": pastFirstChapter(),
+    "GET /api/account": { body: { ok: true, account: KEPT_WITH_GOOGLE } },
+    "GET /api/moderation/standing": STANDING,
+  });
+  // Where the library's callback sends the page once Google kept the life (shared/net/auth.ts, GOOGLE_BACK).
+  await page.goto("/?google=kept");
+  const kept = page.getByRole("dialog", { name: "Kept" });
+  await expect(kept).toBeVisible({ timeout: 20_000 });
+  await expect(kept.getByText("Done. This life is yours on any phone now.")).toBeVisible();
+  await expect(kept.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
+  expect(new URL(page.url()).search).toBe("");
+  await shoot(page, "kept-with-google", info.project.name);
+  await kept.getByRole("button", { name: uiText["ui.report.close"] ?? "Close" }).click();
+  await expect(page.locator("[data-way-toast]")).toHaveText("Kept with Google");
+});
+
+test("[R-ACCOUNT-021] [R-ACCOUNT-027] a kept life names its way in on Settings' account row; signing out says so once on the start screen, and the notice goes when I already have a life here is tapped", async ({ page }, info) => {
+  const sent: string[] = [];
+  const answers: Record<string, Answer> = {
+    "GET /api/view": pastFirstChapter(),
+    "GET /api/account": { body: { ok: true, account: KEPT_WITH_GOOGLE } },
+    "GET /api/moderation/standing": STANDING,
+    "POST /api/auth/sign-out": { body: { success: true } },
+    "GET /api/age": { body: { refused: false } },
+  };
+  await fakeServer(page, answers, sent);
+  await page.goto("/");
+  await pastTheCard(page);
+  await page.locator('[data-thumb="phone"]').click({ timeout: 30_000 });
+  await page.locator('[data-app="settings"]').click();
+  const row = page.locator("[data-account-row]");
+  await expect(row).toContainText("@ada_lagos");
+  await expect(row).toContainText("Kept with Google as ada@example.com");
+  await shoot(page, "settings-account-row", info.project.name);
+  await row.click();
+  const sheet = page.getByRole("dialog", { name: onlineText["ui.account.settings"] ?? "Account" });
+  await expect(sheet.getByText("Kept with Google as ada@example.com")).toBeVisible();
+  await expect(sheet.getByText("Passkey: none yet")).toBeVisible();
+  await shoot(page, "settings-account-sheet", info.project.name);
+  answers["GET /api/view"] = SIGNED_OUT;
+  answers["GET /api/account"] = SIGNED_OUT;
+  await sheet.getByRole("button", { name: "Sign out" }).click();
+  const notice = page.getByText(onlineText["ui.account.notice.signed-out"] ?? "You have signed out.");
+  await expect(notice).toBeVisible({ timeout: 20_000 });
+  expect(sent).toContain("POST /api/auth/sign-out");
+  await page.getByRole("button", { name: "I already have a life here" }).click();
+  await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+  await expect(notice).toHaveCount(0);
+  await page.getByRole("button", { name: onlineText["ui.account.back"] ?? "Back" }).click();
+  await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible();
+  await expect(notice).toHaveCount(0);
 });

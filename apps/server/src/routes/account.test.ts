@@ -1,9 +1,112 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { harness, makeJar } from "../auth/testing";
+import type { Harness, Jar } from "../auth/testing";
+import type { AccountReply } from "./account";
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.unstubAllGlobals();
+});
+
+function unsignedJwt(claims: Record<string, unknown>): string {
+  const part = (value: unknown) => btoa(JSON.stringify(value)).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+  return `${part({ alg: "none", typ: "JWT" })}.${part(claims)}.`;
+}
+
+/** The whole Google round trip from the jar's browser, Google's token endpoint answered here for one identity; returns where the callback sent it. */
+async function withGoogle(h: Harness, jar: Jar, identity: { sub: string; email: string }): Promise<URL> {
+  const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, json: { provider: "google", callbackURL: "/?google=in", errorCallbackURL: "/" } });
+  const state = new URL(String((await start.json<{ url: string }>()).url)).searchParams.get("state") ?? "";
+  const real = globalThis.fetch;
+  vi.stubGlobal("fetch", (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = input instanceof Request ? input.url : String(input);
+    if (!url.startsWith("https://oauth2.googleapis.com/token")) return real(input, init);
+    const idToken = unsignedJwt({ ...identity, email_verified: true, iss: "https://accounts.google.com" });
+    return Promise.resolve(Response.json({ access_token: "google-access-token", refresh_token: "google-refresh-token", id_token: idToken, token_type: "Bearer", expires_in: 3600 }));
+  });
+  const back = await h.call(`/api/auth/callback/google?code=stub-code&state=${state}`, { jar });
+  vi.unstubAllGlobals();
+  return new URL(back.headers.get("location") ?? "/", "https://japacity.test");
+}
+
+async function accountOf(h: Harness, jar: Jar): Promise<{ text: string; reply: AccountReply }> {
+  const text = await (await h.call("/api/account", { jar })).text();
+  return { text, reply: JSON.parse(text) as AccountReply };
+}
+
+describe("the ways back in (GET /api/account's ways)", () => {
+  test("[R-ACCOUNT-027] [R-ACCOUNT-020] given a guest, a life kept by a code and a life kept with Google, when each reads its row, then ways names the Google address where Google is linked, the code's address and the passkeys held, and a guest has none", async () => {
+    const h = harness();
+    const guest = await h.guest();
+    expect((await accountOf(h, guest.jar)).reply).toMatchObject({ ok: true, account: { state: "guest", ways: { google: null, email: null, passkeys: 0 } } });
+
+    const byCode = await h.signUp("bola@example.com");
+    expect((await accountOf(h, byCode.jar)).reply).toMatchObject({ ok: true, account: { id: byCode.account, ways: { google: null, email: "bola@example.com", passkeys: 0 } } });
+
+    const kept = await h.guest();
+    expect((await withGoogle(h, kept.jar, { sub: "google-ada", email: "ada@example.com" })).searchParams.get("error")).toBeNull();
+    const read = await accountOf(h, kept.jar);
+    expect(read.reply).toMatchObject({ ok: true, account: { id: kept.account, state: "secured", ways: { google: "ada@example.com", email: "ada@example.com", passkeys: 0 } } });
+
+    // Passkeys are counted from the library's own rows (the registration itself is proved in auth.test.ts).
+    h.tables.passkey.push({ id: "passkey-1", userId: kept.account, publicKey: "public-key", credentialID: "credential-1", counter: 0, deviceType: "singleDevice", backedUp: false, createdAt: new Date() });
+    expect((await accountOf(h, kept.jar)).reply).toMatchObject({ ok: true, account: { ways: { google: "ada@example.com", email: "ada@example.com", passkeys: 1 } } });
+  });
+
+  test("[R-ACCOUNT-027] [R-ACCOUNT-020] given a life kept with Google, when its row is read, then ways holds the three fields alone: no token, no Google subject, no key", async () => {
+    const h = harness();
+    const kept = await h.guest();
+    await withGoogle(h, kept.jar, { sub: "google-subject-secret", email: "ada@example.com" });
+    h.tables.passkey.push({ id: "passkey-1", userId: kept.account, publicKey: "public-key-secret", credentialID: "credential-secret", counter: 0, deviceType: "singleDevice", backedUp: false, createdAt: new Date() });
+    const { text, reply } = await accountOf(h, kept.jar);
+    if (!reply.ok) throw new Error(reply.detail);
+    expect(Object.keys(reply.account.ways).sort()).toEqual(["email", "google", "passkeys"]);
+    for (const secret of ["google-subject-secret", "google-access-token", "google-refresh-token", "public-key-secret", "credential-secret", "eyJ"]) expect(text).not.toContain(secret);
+  });
+});
+
+describe("another way in to the same account (R-ACCOUNT-023)", () => {
+  test("[R-ACCOUNT-023] given a life kept with Google, when a code is sent to that Google address from another browser and typed, then it opens the same account and its life, and no account is made", async () => {
+    const h = harness();
+    const kept = await h.guest();
+    await withGoogle(h, kept.jar, { sub: "google-ada", email: "ada@example.com" });
+    const users = h.tables.user.length;
+
+    const elsewhere = makeJar();
+    const otp = await h.codeFor("ada@example.com", elsewhere);
+    const signed = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar: elsewhere, json: { email: "ada@example.com", otp } });
+    expect(signed.status).toBe(200);
+
+    expect((await accountOf(h, elsewhere)).reply).toMatchObject({ ok: true, account: { id: kept.account, state: "secured", ways: { google: "ada@example.com", email: "ada@example.com" } } });
+    expect(h.tables.user).toHaveLength(users);
+  });
+
+  test("[R-ACCOUNT-023] given a life kept by a code, when Google with that same verified address signs in from another browser, then it opens the same account, and from then Google is one of its ways", async () => {
+    const h = harness();
+    const byCode = await h.signUp("ada@example.com");
+    const users = h.tables.user.length;
+
+    const elsewhere = makeJar();
+    expect((await withGoogle(h, elsewhere, { sub: "google-ada", email: "ada@example.com" })).searchParams.get("error")).toBeNull();
+
+    expect((await accountOf(h, elsewhere)).reply).toMatchObject({ ok: true, account: { id: byCode.account, ways: { google: "ada@example.com", email: "ada@example.com", passkeys: 0 } } });
+    expect((await accountOf(h, byCode.jar)).reply).toMatchObject({ ok: true, account: { id: byCode.account, ways: { google: "ada@example.com" } } });
+    expect(h.tables.user).toHaveLength(users);
+  });
+
+  test("[R-ACCOUNT-023] [R-ACCOUNT-001] given an address no life is kept with, when a code to it is typed at the door, then it opens nothing and makes no account", async () => {
+    const h = harness();
+    await h.signUp("ada@example.com");
+    const users = h.tables.user.length;
+    const jar = makeJar();
+    const otp = await h.codeFor("nobody@example.com", jar);
+    const signed = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "nobody@example.com", otp } });
+    expect(signed.status).toBe(403);
+    expect(await signed.json()).toMatchObject({ code: "no-account" });
+    expect(h.tables.user).toHaveLength(users);
+    expect((await h.call("/api/account", { jar })).status).toBe(401);
+  });
 });
 
 const START = Date.parse("2026-10-08T09:00:00Z");
@@ -26,6 +129,7 @@ describe("GET /api/account", () => {
       state: "secured",
       username: "player_1",
       renameFrom: 0,
+      ways: { google: null, email: "ada@example.com", passkeys: 0 },
     });
     const row = await h.deps.stores.account.get(account);
     expect(Object.keys(row ?? {}).sort()).toEqual(["age", "character", "country", "createdAt", "id", "lastPlayedAt", "notifyBankFull", "sendUsageCounts", "state", "username", "usernameChangedAt"]);

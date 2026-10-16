@@ -6,7 +6,8 @@
 // (guides.md R-GUIDE-015). And the quiet lines, on the settings and on the
 // month results after the first chapter, each saying plainly that the life
 // lives only on this phone; the page at the door says it when the life starts
-// (GuestStart.tsx).
+// (GuestStart.tsx). Once kept, by the code here or by the trip to Google and back, the sheet says so in its kept
+// state, and as it closes the world says which way in a short line (WayToast.tsx).
 import type { PlayerView } from "@japacity/sim";
 import { useEffect, useRef, useState } from "react";
 
@@ -22,6 +23,7 @@ import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
 import { browserLink, inAppBrowser } from "./inApp";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
+import { tellWay, WayToast } from "./WayToast";
 
 const userAgent = () => (typeof navigator === "undefined" ? "" : navigator.userAgent);
 
@@ -62,6 +64,8 @@ export interface SecureSheetProps {
   reason: string | null;
   /** A failure to say as the sheet opens, as when Google came back refused. */
   problem?: string | null;
+  /** The life came back kept from Google: the sheet opens in its kept state. */
+  kept?: "google" | null;
   /** Seam for tests: the browser's user agent. */
   agent?: string;
 }
@@ -71,34 +75,44 @@ export interface SecureSheetProps {
  * life is kept. Once kept, the sheet says only that: the kept heading, the one line and its close; the reason, the ways
  * to keep and Not now are gone.
  */
-export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, agent }: SecureSheetProps) {
+export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, kept: back = null, agent }: SecureSheetProps) {
   const earlyWin = useGame((state) => state.earlyWin);
   const [problem, setProblem] = useState<string | null>(given);
-  const [done, setDone] = useState(false);
+  // Which way the life was kept, once it is: the sheet's kept state, and the line the world says as it closes.
+  const [keptWith, setKeptWith] = useState<"google" | "email" | null>(back);
+  const done = keptWith !== null;
   const [busy, setBusy] = useState(false);
   const browser = agent ?? userAgent();
   const inApp = inAppBrowser(browser);
 
   useEffect(() => setProblem(given), [given]);
+  useEffect(() => {
+    if (back !== null) setKeptWith(back);
+  }, [back]);
 
   async function google() {
     setBusy(true);
     setProblem(null);
-    const result: AuthResult = await account.signInWithGoogle(null);
+    const result: AuthResult = await account.signInWithGoogle(null, "keep");
     setBusy(false);
     setProblem(failureWords(result));
   }
 
   function kept() {
     countAsk("sign-in", "accepted", earlyWin);
-    setDone(true);
+    setKeptWith("email");
     void refreshAccount(account);
+  }
+
+  function openChange(next: boolean) {
+    if (!next && keptWith !== null) tellWay(account, `kept.${keptWith}`);
+    onOpenChange(next);
   }
 
   return (
     <Sheet
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={openChange}
       title={say(done ? "ui.secure.done.title" : "ui.secure.title")}
       {...(done ? {} : { description: reason ?? say("ui.secure.why") })}
       top={<Wordmark ground="light" />}
@@ -127,7 +141,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
             </p>
           )}
           <div>
-            <Button variant="quiet" onClick={() => onOpenChange(false)}>
+            <Button variant="quiet" onClick={() => openChange(false)}>
               {say("ui.secure.later")}
             </Button>
           </div>
@@ -196,6 +210,7 @@ export function SecureAsk() {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  const [kept, setKept] = useState<"google" | null>(null);
   const won = useRef(earlyWin);
   useEffect(() => {
     won.current = earlyWin;
@@ -206,6 +221,7 @@ export function SecureAsk() {
       onGuestOnly(() => {
         setReason(say("reject.guest-only"));
         setProblem(null);
+        setKept(null);
         setOpen(true);
         countAsk("sign-in", "shown", won.current);
       }),
@@ -216,7 +232,21 @@ export function SecureAsk() {
     if (account === null) return;
     const back = account.returnedFromGoogle();
     if (back === null) return;
+    // A kept life signed back in to with Google: the world says so, and nothing opens.
+    if (back === "signed-in") {
+      tellWay(account, "in.google");
+      return;
+    }
     setReason(null);
+    if (back === "kept") {
+      // R-ACCOUNT-023: the guest's life came back kept from Google; the sheet opens kept, as the emailed code's does.
+      setProblem(null);
+      setKept("google");
+      setOpen(true);
+      void refreshAccount(account);
+      return;
+    }
+    setKept(null);
     setProblem(failureWords({ ok: false, why: back }));
     setOpen(true);
   }, [account]);
@@ -239,12 +269,18 @@ export function SecureAsk() {
     markAsked(key);
     setReason(say(`ui.secure.ask.${moment}`));
     setProblem(null);
+    setKept(null);
     setOpen(true);
     countAsk("sign-in", "shown", true);
   }, [moment, me, quiet, open, clear]);
 
   if (account === null) return null;
-  return <SecureSheet account={account} open={open} onOpenChange={setOpen} reason={reason} problem={problem} />;
+  return (
+    <>
+      <SecureSheet account={account} open={open} onOpenChange={setOpen} reason={reason} problem={problem} kept={kept} />
+      <WayToast account={account} />
+    </>
+  );
 }
 
 /** R-ACCOUNT-027: the quiet reminder, a line and a way to keep the life. Nothing for a secured account or offline. */

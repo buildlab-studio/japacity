@@ -22,7 +22,7 @@ import { GUEST_NAME_HEADER } from "../account/signup";
 import { checkTurnstile } from "../account/turnstile";
 import { nameProblem, renameFrom } from "../account/username";
 import type { NameProblem } from "../account/username";
-import type { Accounts } from "../auth/auth";
+import type { Accounts, Auth } from "../auth/auth";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
@@ -46,6 +46,12 @@ export interface AccountView {
   username: string;
   /** R-ACCOUNT-024: from when the username may change; 0 while the free change is unused. */
   renameFrom: number;
+  /**
+   * R-ACCOUNT-027 (to be amended), R-ACCOUNT-020: the ways back in, read from the auth library's rows and never written
+   * here. `google`: the address Google gave where Google is linked; `email`: the address a code goes to; `passkeys`: how
+   * many are held. A guest has none. No token, no Google subject.
+   */
+  ways: { google: string | null; email: string | null; passkeys: number };
 }
 
 /** The body of `PUT /api/account`. */
@@ -90,7 +96,26 @@ function cookiesFrom(headers: Headers): Headers {
   return new Headers({ cookie: pairs.filter((pair) => pair !== "").join("; ") });
 }
 
-function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">, passkey: boolean): AccountView {
+/** A guest's ways back in: none but its own session (R-ACCOUNT-021). */
+const NO_WAYS: AccountView["ways"] = { google: null, email: null, passkeys: 0 };
+
+/**
+ * R-ACCOUNT-023, R-ACCOUNT-027: the ways a secured account opens by. The library signs a code in by the user's own
+ * address, so the code's address is the user's email whatever way the life was kept. Google joins an account only by
+ * the same verified address (a guest's own link, or the library's linking by email), so a linked Google account's
+ * address is that email too. Read-only: the subject id and the tokens on the Google row stay on the server.
+ */
+async function waysOf(auth: Auth, row: AccountRow): Promise<AccountView["ways"]> {
+  if (row.state === "guest") return NO_WAYS;
+  const context = await auth.$context;
+  const user = await context.internalAdapter.findUserById(row.id);
+  const email = user === null || user.email === "" ? null : user.email;
+  const methods = await context.internalAdapter.findAccounts(row.id);
+  const passkeys = await context.adapter.count({ model: "passkey", where: [{ field: "userId", value: row.id }] });
+  return { google: methods.some((method) => method.providerId === "google") ? email : null, email, passkeys };
+}
+
+function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">, passkey: boolean, ways: AccountView["ways"]): AccountView {
   const { id, country, age, createdAt, character, sendUsageCounts, state, username } = row;
   return {
     id,
@@ -103,6 +128,7 @@ function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">, passkey: bool
     state,
     username,
     renameFrom: renameFrom(row, deps.config),
+    ways,
   };
 }
 
@@ -172,7 +198,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     deleteCookie(c, PASS_COOKIE, { path: PASS_PATH, secure: true });
     const row = await deps.stores.account.get(signed.response.user.id);
     if (row === null) throw new Error(`The guest ${signed.response.user.id} has no account row.`);
-    return c.json<NameReply>({ ok: true, account: viewOf(row, deps, false) });
+    return c.json<NameReply>({ ok: true, account: viewOf(row, deps, false, NO_WAYS) });
   });
 
   app.get("/api/account", limit(deps, "reads"), async (c) => {
@@ -180,7 +206,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     if (session === null) return c.json<AccountReply>(rejection("signed-out", "Sign in first."), 401);
     const row = await deps.stores.account.get(session.account);
     if (row === null) return c.json<AccountReply>(rejection("signed-out", "No account."), 401);
-    return c.json<AccountReply>({ ok: true, account: viewOf(row, deps, session.passkey) });
+    return c.json<AccountReply>({ ok: true, account: viewOf(row, deps, session.passkey, await waysOf(auth, row)) });
   });
 
   app.put("/api/account", limit(deps, "commands"), async (c) => {
@@ -191,7 +217,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     if (typeof asked !== "boolean") return c.json<AccountReply>(rejection("not-legal", "Send { sendUsageCounts: true | false }."), 400);
     const changed = await deps.stores.account.setUsageCounts(session.account, asked);
     if (!changed.ok) return c.json<AccountReply>(rejection("signed-out", "No account."), 401);
-    return c.json<AccountReply>({ ok: true, account: viewOf(changed.value, deps, session.passkey) });
+    return c.json<AccountReply>({ ok: true, account: viewOf(changed.value, deps, session.passkey, await waysOf(auth, changed.value)) });
   });
 
   // R-ACCOUNT-024: one free change, then one each `renameDays`.
@@ -206,7 +232,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     if (deps.now() < renameFrom(row, deps.config)) return c.json<NameReply>(nameRefused("wait"), 403);
     const changed = await deps.stores.account.setUsername(session.account, username, deps.now());
     if (!changed.ok) return changed.code === "conflict" ? c.json<NameReply>(nameRefused("taken"), 409) : c.json<NameReply>(rejection("signed-out", "No account."), 401);
-    return c.json<NameReply>({ ok: true, account: viewOf(changed.value, deps, session.passkey) });
+    return c.json<NameReply>({ ok: true, account: viewOf(changed.value, deps, session.passkey, await waysOf(auth, changed.value)) });
   });
 
   app.delete("/api/account", limit(deps, "commands"), async (c) => {

@@ -128,7 +128,7 @@ describe("the ways in and the settings, as the server refuses them", () => {
   });
 });
 
-const VIEW = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0 };
+const VIEW = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0, ways: { google: null, email: null, passkeys: 0 } };
 
 describe("the guest start and the username, as the server built them", () => {
   test("[R-ACCOUNT-021] [R-ACCOUNT-013] given a username and the bot check's token, when a guest life is started, then POST /api/guest carries the username and the token in its header", async () => {
@@ -183,5 +183,38 @@ describe("the guest start and the username, as the server built them", () => {
     expect(api.returnedFromGoogle()).toBeNull();
     history.replaceState(null, "", "/?error=no-account");
     expect(api.returnedFromGoogle()).toBe("no-life");
+  });
+});
+
+describe("the trip to Google and back (R-ACCOUNT-023)", () => {
+  test("[R-ACCOUNT-023] given a trip to keep a guest's life or to sign back in, when it leaves, then the library is asked to come back to the page marked with that trip, and a refusal to the bare page", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/auth/sign-in/social", { body: { url: "https://accounts.google.test/o", redirect: false } }, { body: { url: "https://accounts.google.test/o", redirect: false } });
+    expect(await api.signInWithGoogle(null, "keep")).toEqual({ ok: true });
+    expect(await api.signInWithGoogle(null)).toEqual({ ok: true });
+    const asked = server.sent.filter((request) => request.path === "/api/auth/sign-in/social").map((request) => request.body as { callbackURL: string; errorCallbackURL: string });
+    expect(asked.map((body) => new URL(body.callbackURL).search)).toEqual(["?google=kept", "?google=in"]);
+    expect(asked.map((body) => new URL(body.errorCallbackURL).search)).toEqual(["", ""]);
+  });
+
+  test("[R-ACCOUNT-023] given Google sent the page back having kept the life, or signed back in, or with nothing, when it is read, then it tells each apart, once, and the address is left clean", () => {
+    const { api } = account();
+    history.replaceState(null, "", "/?google=kept");
+    expect(api.returnedFromGoogle()).toBe("kept");
+    expect(location.search).toBe("");
+    expect(api.returnedFromGoogle()).toBeNull();
+    history.replaceState(null, "", "/?google=in#map");
+    expect(api.returnedFromGoogle()).toBe("signed-in");
+    expect(`${location.search}${location.hash}`).toBe("#map");
+    history.replaceState(null, "", "/?google=other");
+    expect(api.returnedFromGoogle()).toBeNull();
+    expect(location.search).toBe("");
+  });
+
+  test("[R-ACCOUNT-023] given the library would not join Google to an address kept by a code, when the page comes back with account_not_linked, then it is the not-linked failure, never the library's code", () => {
+    const { api } = account();
+    history.replaceState(null, "", "/?error=account_not_linked");
+    expect(api.returnedFromGoogle()).toBe("not-linked");
+    expect(location.search).toBe("");
   });
 });

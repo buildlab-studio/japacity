@@ -34,8 +34,16 @@ import { pageWall, type WallGuard } from "./wall";
  * `taken`: that sign-in already has a life, so securing with it joins nothing (R-ACCOUNT-023).
  * `guest-only`: a passkey waits until the life is secured (R-ACCOUNT-023).
  * `passkey-first`: R-ACCOUNT-003's refusal of a new passkey on an admin account from a session not opened with a passkey.
+ * `not-linked`: Google on an address whose life was kept by a code, where the library would not join the two
+ * (its `account_not_linked`); the player is pointed to the code (R-ACCOUNT-023).
  */
-export type AuthFailure = "not-fresh" | "bad-code" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused" | "no-life" | "taken" | "guest-only" | "passkey-first";
+export type AuthFailure = "not-fresh" | "bad-code" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused" | "no-life" | "taken" | "guest-only" | "passkey-first" | "not-linked";
+
+/** Why the page leaves for Google: to keep a guest's life (R-ACCOUNT-023), or to sign back in to a kept one. */
+export type GoogleTrip = "keep" | "sign-in";
+
+/** A trip to Google that went through: the guest's life kept, or a kept life signed back in to. */
+export type GoogleDone = "kept" | "signed-in";
 
 export type AuthResult = { ok: true } | { ok: false; why: AuthFailure };
 
@@ -74,12 +82,13 @@ export interface AccountApi {
   rename(username: string): Promise<NameAnswer>;
   /**
    * Leaves the page for Google and comes back signed in. From a guest's
-   * session this secures the guest (R-ACCOUNT-023); a refusal comes back as
-   * `?error=` on the page, read by `returnedFromGoogle`.
+   * session this secures the guest (R-ACCOUNT-023), `trip` "keep"; a refusal
+   * comes back as `?error=` on the page and a success as `?google=` with the
+   * trip, both read by `returnedFromGoogle`.
    */
-  signInWithGoogle(bot: string | null): Promise<AuthResult>;
-  /** What the last trip to Google came back with, once: null when it went through or there was none. */
-  returnedFromGoogle(): AuthFailure | null;
+  signInWithGoogle(bot: string | null, trip?: GoogleTrip): Promise<AuthResult>;
+  /** What the last trip to Google came back with, once: a failure, a success by its trip, or null when there was none. */
+  returnedFromGoogle(): AuthFailure | GoogleDone | null;
   signInWithPasskey(): Promise<AuthResult>;
   /** R-ACCOUNT-003: only from a signed-in session. */
   addPasskey(): Promise<AuthResult>;
@@ -117,7 +126,16 @@ const FAILURES: Record<string, AuthFailure> = {
   TOO_MANY_ATTEMPTS: "too-many",
   AUTH_CANCELLED: "cancelled",
   REGISTRATION_CANCELLED: "cancelled",
+  // The library's OAuth callback says its refusal with spaces made underscores (better-auth's oauth2/link-account).
+  account_not_linked: "not-linked",
 };
+
+/**
+ * The mark Google's callback carries back on a success: the library sends the page to the `callbackURL` it was given,
+ * so the trip's own answer rides in that address, and a refusal goes to `errorCallbackURL` with `?error=` instead.
+ */
+export const GOOGLE_BACK = "google";
+const GOOGLE_DONE: Record<GoogleTrip, string> = { keep: "kept", "sign-in": "in" };
 
 function failure(error: LibraryError, byStatus: Partial<Record<number, AuthFailure>>): AuthFailure {
   const known = error.code === undefined ? undefined : FAILURES[error.code];
@@ -193,7 +211,7 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
     plugins: [emailOTPClient(), passkeyClient()],
   });
   const home = () => (typeof location === "undefined" ? "/" : `${location.origin}/`);
-  const google = () => ({ provider: "google" as const, callbackURL: home(), errorCallbackURL: home() });
+  const google = (trip: GoogleTrip) => ({ provider: "google" as const, callbackURL: `${home()}?${GOOGLE_BACK}=${GOOGLE_DONE[trip]}`, errorCallbackURL: home() });
 
   return {
     async ageStatus() {
@@ -245,16 +263,18 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
       forgetAccount(server);
       return result;
     },
-    signInWithGoogle: (bot) => attempt(() => client.signIn.social({ ...google(), fetchOptions: botHeaders(bot) })),
+    signInWithGoogle: (bot, trip = "sign-in") => attempt(() => client.signIn.social({ ...google(trip), fetchOptions: botHeaders(bot) })),
     returnedFromGoogle() {
       if (typeof location === "undefined") return null;
       const url = new URL(location.href);
       const error = url.searchParams.get("error");
-      if (error === null) return null;
-      url.searchParams.delete("error");
-      url.searchParams.delete("error_description");
+      const done = url.searchParams.get(GOOGLE_BACK);
+      if (error === null && done === null) return null;
+      for (const name of ["error", "error_description", GOOGLE_BACK]) url.searchParams.delete(name);
       if (typeof history !== "undefined") history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-      return FAILURES[error] ?? "refused";
+      if (error !== null) return FAILURES[error] ?? "refused";
+      if (done === GOOGLE_DONE.keep) return "kept";
+      return done === GOOGLE_DONE["sign-in"] ? "signed-in" : null;
     },
     // A button, not the browser's autofill: autofill needs a field this game does not have.
     signInWithPasskey: () => attempt(() => client.signIn.passkey({ autoFill: false })),
