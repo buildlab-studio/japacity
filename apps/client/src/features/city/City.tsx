@@ -1545,6 +1545,8 @@ export function City({
       setTeaching(false);
     };
   }, [world, ready, openingUp, hasThings, hereId, view.scenario]);
+  // The names are due as this render commits, before the effect above has begun teaching them: the street waits for them too.
+  const teachDue = world && ready && !openingUp && hasThings && !wasTaught(`place:${hereId}`, view.scenario);
   // R-HOME-008: the first entry into a home in a life shows what the home is, its blurb,
   // once, as a small card the player dismisses; kept beside the save, so it never shows again in this life.
   const homeHere = home !== null && (placeId === home || hereId === home) ? home : null;
@@ -1666,7 +1668,7 @@ export function City({
     return heardNow === null ? null : { text: heardWords(heardNow.key, heardNow.params), ...speakerOf(heardNow, thingsHere.current ?? [], (key) => cityWords(key)) };
     // The street waits while a place's names are taught on its first entry, and while the brief's card stands: names and words
     // never share the scene (024).
-  }, worldFree && settled && callouts.bubble && !homeTeachShown && !teaching && !briefUp, home !== null && placeId === home ? say("ui.talk.home") : undefined);
+  }, worldFree && settled && callouts.bubble && !homeTeachShown && !teaching && !teachDue && !briefUp, home !== null && placeId === home ? say("ui.talk.home") : undefined);
   // A person speaks only in the place they stand in: going elsewhere takes their words down.
   useEffect(() => hush(), [placeId, inside]);
   // R-WORLD-005: the light bill paid at home, Mama says so over her head, the corner tells the bill paid, and a moment later the next compound is heard.
