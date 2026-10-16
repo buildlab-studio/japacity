@@ -237,12 +237,12 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                     </div>
                     {grow}
                   </div>
-                  {/* What the wallpaper tells scrolls in its own room, so the grid of apps stays whole above the home bar
-                      however tall it runs: the status clock's banner pushed the last row under it. */}
-                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain" data-wallpaper-room>
+                  {/* What the wallpaper tells and the grid of apps scroll together above the home bar: the status clock's
+                      banner stands whole and the grid scrolls under it when both do not fit, never pushed out of reach under
+                      the home bar. With room to spare the grid rests at the foot. */}
+                  <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain" data-wallpaper-room>
                     {notices}
-                  </div>
-                  <ul className="grid shrink-0 grid-cols-4 gap-x-2 gap-y-4 px-4 pt-4 pb-4" aria-label={phoneWords("phone.apps")}>
+                    <ul className="mt-auto grid shrink-0 grid-cols-4 gap-x-2 gap-y-4 px-4 pt-6 pb-4" aria-label={phoneWords("phone.apps")}>
                     {apps.map((candidate) => (
                       <li key={candidate.id} className="flex flex-col items-center gap-1">
                         <button
@@ -261,7 +261,8 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                         </span>
                       </li>
                     ))}
-                  </ul>
+                    </ul>
+                  </div>
                 </div>
               ) : (
                 <div key={app.id} className="motion-in-right flex min-h-0 flex-1 flex-col bg-sheet text-text">

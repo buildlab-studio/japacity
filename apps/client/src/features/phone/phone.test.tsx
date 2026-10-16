@@ -136,14 +136,17 @@ describe("the handset", () => {
     expect(document.querySelector("[data-handset]")?.className).toContain(TOLD_LANE);
   });
 
-  test("[R-STATUS-003] [R-WORLD-018] given what the wallpaper tells is taller than its room, when the phone's home shows, then the grid stays whole above the home bar and the notices scroll over it", async () => {
+  test("[R-STATUS-003] [R-WORLD-018] given what the wallpaper tells is taller than its room, when the phone's home shows, then the notices stand whole and the grid scrolls under them above the home bar, never out of reach", async () => {
     // The catalog's picture 149 (1b952f4b): the status clock's banner pushed the last row of apps under the home bar.
     await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={NOON} talk={null} warnings={<div style={{ height: 2000 }} data-tall-notice />} />, engineView());
     const notices = document.querySelector<HTMLElement>("[data-wallpaper-room]")!;
     expect(notices.contains(document.querySelector("[data-tall-notice]"))).toBe(true);
     expect(notices.className).toContain("overflow-y-auto");
     expect(notices.className).toContain("min-h-0");
-    expect(screen.getByRole("list", { name: "Apps" }).className).toContain("shrink-0");
+    const grid = screen.getByRole("list", { name: "Apps" });
+    expect(notices.contains(grid)).toBe(true);
+    expect(document.querySelector("[data-tall-notice]")!.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(notices.contains(document.querySelector("[data-home-bar]"))).toBe(false);
   });
 
   test("[R-WORLD-018] given an app is open, when Back is tapped, then the grid returns, and the home bar puts the phone away", async () => {
