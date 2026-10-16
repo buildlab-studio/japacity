@@ -13,10 +13,3 @@ export function addLateWords(table: Readonly<Record<string, string>>): void {
 export function lateWord(key: string): string | undefined {
   return late[key];
 }
-
-/** London's words, in their own chunk: fetched once, then added. */
-let london: Promise<void> | null = null;
-export function loadLondonWords(): Promise<void> {
-  london ??= import("./london.words").then((table) => addLateWords(table.londonWords));
-  return london;
-}

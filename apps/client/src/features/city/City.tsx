@@ -10,7 +10,6 @@ import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, t
 import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
 import { bandName as characterName } from "../../shared/card/face";
-import { loadLondonWords } from "../../shared/words/late";
 import { FigurePicture } from "../../shared/frontdoor/LookPicture";
 import { lookOf } from "../../shared/frontdoor/looks";
 import { plannedShut, worldVar } from "../../authority/store";
@@ -59,6 +58,7 @@ import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./actLines";
+import { loadLondonWords } from "./londonWords";
 import { onShift, shiftMarks } from "./shift";
 import { NAP, SLEEP_MS, sleepMsOf, wakeCommand, wokeWords } from "./sleep";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";

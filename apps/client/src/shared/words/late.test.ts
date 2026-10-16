@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { loadLondonWords } from "./late";
+import { loadLondonWords } from "../../features/city/londonWords";
 import { hasWords, words } from "./text";
 
 const SRC = join(import.meta.dirname, "..", "..");
@@ -21,8 +21,8 @@ function sources(folder: string): string[] {
 describe("words a first visit does not carry", () => {
   test("[R-ENGINE-020] [R-WORLD-039] given London's words, when the game's modules are read, then only the loader names their table, and by a dynamic import", () => {
     const naming = sources(SRC).filter((path) => readFileSync(path, "utf8").includes("london.words"));
-    expect(naming.map((path) => path.slice(SRC.length + 1))).toEqual(["shared/words/late.ts"]);
-    expect(readFileSync(join(SRC, "shared", "words", "late.ts"), "utf8")).toMatch(/import\("\.\/london\.words"\)/);
+    expect(naming.map((path) => path.slice(SRC.length + 1))).toEqual(["features/city/londonWords.ts"]);
+    expect(readFileSync(join(SRC, "features", "city", "londonWords.ts"), "utf8")).toMatch(/import\("\.\.\/\.\.\/shared\/words\/london\.words"\)/);
   });
 
   test("[R-ENGINE-020] [R-WORLD-039] given a London key, when it is read before its table is loaded and after, then it shows as itself first and in words once loaded", async () => {
