@@ -292,10 +292,10 @@ export function homeLine(shown: string, view: Pick<PlayerView, "place" | "home">
     case "place.makoko":
       return view.place.where === "home" && view.home.place === "place.makoko" ? cityWords("city.home.makoko") : null;
     case "place.the-room": {
-      // Calgary's basement room, the bed space at the camp, the room in a shared flat on the Domitiana: the room named per
-      // country by content (world.md R-WORLD-038 as amended); London keeps its line by the hub's name.
-      const country = view.place.country;
-      if (view.place.where === "abroad" && country !== null && country !== "country.uk" && roomName(country) !== roomName(null)) return bandName(roomName(country));
+      // Calgary's basement room, the bed space at the camp, the shared flat on the Domitiana: the room per country (world.md
+      // R-WORLD-038 as amended), said short enough for the band beside the age; London keeps its line by the hub's name.
+      const own = `city.home.the-room.${view.place.country ?? ""}`;
+      if (view.place.where === "abroad" && cityWords(own) !== own) return cityWords(own);
       const hub = PLACES.find((place) => place.hub === true && place.country === view.place.country);
       if (hub === undefined) return bandName(placeName(shown));
       return cityWords("city.home.the-room", { area: hasWords(`${hub.id}.short`) ? say(`${hub.id}.short`) : placeName(hub.id) });
