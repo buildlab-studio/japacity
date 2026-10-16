@@ -482,7 +482,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     rumourLead: 2,
     forceLag: 3,
     endsAfter: null,
-    adds: [{ var: "var.ca-cutoff", value: 30 }],
+    adds: [{ var: "var.ca-cutoff", value: 20 }],
     once: true,
   }),
   "news.ca-points-overhaul": pool({

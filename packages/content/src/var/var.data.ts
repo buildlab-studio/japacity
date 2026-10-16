@@ -63,8 +63,11 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   "var.ca-funds": { id: "var.ca-funds", start: 1526300 },
   "var.ca-eca-fee": { id: "var.ca-eca-fee", start: 32900 },
   "var.ca-apply-fee": { id: "var.ca-apply-fee", start: 152500 },
-  "var.ca-cutoff": { id: "var.ca-cutoff", start: 520 },
-  "var.ca-care-cutoff": { id: "var.ca-care-cutoff", start: 475 },
+  // Working values, not the real draws: a bachelor's, band 7.0, a year of work and under thirty (404) is one short, and
+  // three years of work (429) clears it after the general pause too (+20, news.ca-general-stops); a diploma, band 6.0
+  // and no work (289) never reaches either. The care cut-off sits below by the share of the real ones, 475 of 520.
+  "var.ca-cutoff": { id: "var.ca-cutoff", start: 405 },
+  "var.ca-care-cutoff": { id: "var.ca-care-cutoff", start: 370 },
   "var.ca-decision-months": { id: "var.ca-decision-months", start: 6 },
 
   // route-gates.md: the endorsement route, in pence.

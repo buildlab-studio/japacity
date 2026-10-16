@@ -134,7 +134,7 @@ describe("the director's pool", () => {
     expect(story("news.uk-settle-ten-years").standIn.sets).toEqual([{ var: "var.uk-settle-months", value: 120 }]);
     expect(story("news.uk-graduate-shortened").standIn.sets).toEqual([{ var: "var.uk-graduate-months", value: 18 }]);
     expect(story("news.ca-care-draw").director?.adds).toEqual([{ var: "var.ca-care-cutoff", value: -20 }]);
-    expect(story("news.ca-general-stops").director?.adds).toEqual([{ var: "var.ca-cutoff", value: 30 }]);
+    expect(story("news.ca-general-stops").director?.adds).toEqual([{ var: "var.ca-cutoff", value: 20 }]);
     expect(story("news.ca-funds-rise").standIn.sets).toEqual([{ var: "var.ca-funds", value: 1600000 }]);
     expect(story("news.passport-fee-doubles").standIn.sets).toEqual([{ var: "var.passport-fee", value: 20000000 }]);
     expect(story("news.fuel-subsidy").director?.adds).toEqual([{ var: "var.inflation", value: 2000 }]);

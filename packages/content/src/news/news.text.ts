@@ -183,7 +183,7 @@ export const newsText: Record<string, string> = {
   "news.ca-general-stops.announced.head": "Canada pauses general draws",
   "news.ca-general-stops.announced.body": "Most invitations will go to people with Canadian experience or a target job. The general cut-off will be higher.",
   "news.ca-general-stops.in-force.head": "The general cut-off is higher",
-  "news.ca-general-stops.in-force.body": "The cut-off for a profile without a job offer is thirty points higher than before.",
+  "news.ca-general-stops.in-force.body": "The cut-off for a profile without a job offer is twenty points higher than before.",
 
   "news.ca-points-overhaul.name": "Canada overhauls the points system",
   "news.ca-points-overhaul.rumour.head": "Canada may change the points",
