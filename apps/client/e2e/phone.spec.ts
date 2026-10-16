@@ -83,6 +83,9 @@ test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and come
   await page.locator('[data-chat-row="family"]').click();
   await expect(page.locator("[data-feed] li").first()).toBeVisible();
   await shot(page, "phone-05-chats");
+  // One way back from the thread (R-WORLD-018): Back returns to the chats, then to the grid.
+  await page.getByRole("button", { name: "Back" }).click();
+  await expect(page.locator('[data-chat-row="family"]')).toBeVisible();
   await page.getByRole("button", { name: "Back" }).click();
 
   await page.locator('[data-app="japa"]').click();

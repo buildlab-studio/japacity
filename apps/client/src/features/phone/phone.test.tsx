@@ -250,6 +250,20 @@ describe("what the phone carries", () => {
     for (const line of feed) expect(screen.getAllByText(line.words).length).toBeGreaterThan(0);
   });
 
+  test("[R-WORLD-018] given the family group's thread open in Chats, when the way back is looked for, then there is one, the app's Back: it returns to the chats, and once more to the grid", async () => {
+    // The catalog's pictures 115 and 130 (1b952f4b): the app's back arrow and a "Chats" link under it, two ways back stacked.
+    await openPhone({ ...engineView(), month: 3 });
+    openApp("chats");
+    fireEvent.click(document.querySelector<HTMLElement>('[data-chat-row="family"]')!);
+    expect(screen.getAllByRole("button", { name: phoneWords("phone.back") })).toHaveLength(1);
+    expect(screen.queryByRole("button", { name: phoneWords("phone.app.chats") })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: phoneWords("phone.back") }));
+    expect(document.querySelector('[data-chat-row="family"]')).not.toBeNull();
+    expect(document.querySelector("[data-phone-home]")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: phoneWords("phone.back") }));
+    expect(document.querySelector("[data-phone-home]")).not.toBeNull();
+  });
+
   test("[R-WORLD-019] given the visa granted, when the feed is read, then the billing that waits for the news has started", () => {
     const view = richView();
     const granted = { ...view, routes: view.routes.map((route) => ({ ...route, state: "granted" as const })) };

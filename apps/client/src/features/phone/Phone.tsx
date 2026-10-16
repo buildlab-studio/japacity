@@ -1,14 +1,14 @@
 // The phone (docs/rules/world.md R-WORLD-018), its apps four across. The apps are handed in as the
 // contract's `PhoneApp`, so the handset knows nothing of what they show.
 import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
-import { type ReactNode, type RefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type ReactNode, type RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { PhoneNav } from "../../shared/phone/nav";
 import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { invertedTransform, layoutBox, type LayoutBox, motionOn } from "../../shared/ui/motion";
 import type { PhoneApp } from "../../shared/world/contract";
 import { Corner, tell } from "../../shared/world/Lines";
-import { PhoneSaid } from "./act";
+import { PhoneBack, PhoneSaid } from "./act";
 import { PhoneIcon } from "./icons";
 import { phoneWords } from "./phone.words";
 
@@ -148,6 +148,10 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
     setOpen(id);
     onOpen?.(id);
   };
+  // An app's inner screen hands the head's Back its way to the app's first screen (act.tsx, useInnerBack).
+  const [inner, setInner] = useState<(() => void) | null>(null);
+  const handBack = useCallback((back: (() => void) | null) => setInner(() => back), []);
+  const back = () => (inner === null ? setOpen(null) : inner());
   const grow = (
     <button
       type="button"
@@ -163,6 +167,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
 
   return (
     <PhoneSaid value={tell}>
+      <PhoneBack value={handBack}>
       <PhoneNav value={{ openApp, close: putAway, ...(onMap === undefined ? {} : { openMap: onMap }) }}>
       <div className="fixed inset-0 z-[44]" role="dialog" aria-modal="true" aria-label={phoneWords("phone.title")} data-phone data-grown={grown} data-away={away}>
         <button type="button" tabIndex={-1} aria-hidden onClick={putAway} className={`motion-in-fade absolute inset-0 cursor-default bg-scrim ${away ? "opacity-0" : ""}`} data-phone-scrim />
@@ -233,7 +238,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                   {/* The app's head: back, the app's own icon as a small tile, its name in
                       Rubik, and the grow as a round white button; plain on the sheet, no band. */}
                   <div className="flex items-center gap-2 px-2.5 pt-3 pb-2" data-app-head>
-                    <button type="button" onClick={() => setOpen(null)} aria-label={phoneWords("phone.back")} data-phone-back className="press phone-round flex size-9 shrink-0 items-center justify-center">
+                    <button type="button" onClick={back} aria-label={phoneWords("phone.back")} data-phone-back className="press phone-round flex size-9 shrink-0 items-center justify-center">
                       <ChevronLeft size={24} aria-hidden />
                     </button>
                     <span className="phone-app-tile flex size-10 shrink-0 items-center justify-center rounded-[12px] text-white" style={{ background: `var(${app.tint})` }} aria-hidden data-app-tile>
@@ -270,6 +275,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
         <Corner told />
       </div>
       </PhoneNav>
+      </PhoneBack>
     </PhoneSaid>
   );
 }

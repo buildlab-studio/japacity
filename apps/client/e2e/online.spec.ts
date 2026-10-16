@@ -424,7 +424,8 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   await page.waitForTimeout(800);
   await shoot(page, "m68-3-thread-head", info.project.name);
 
-  await page.locator("[data-chats-back]").click();
+  // The thread's one way back, the app's Back, returns to the chats (R-WORLD-018).
+  await page.locator("[data-phone-back]").click();
   await page.locator('[data-chat-row="people"]').click();
   const slots = page.locator("[data-people-slots]");
   await expect(slots.locator('[data-slot="partner"]')).toBeVisible();

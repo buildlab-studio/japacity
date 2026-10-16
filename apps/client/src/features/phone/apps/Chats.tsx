@@ -6,7 +6,7 @@
 // feature's own screens, handed in by the shell.
 import { content } from "@japacity/content";
 import { fillOptions, type ConversationRow, type Id, type SayRefusal } from "@japacity/sim";
-import { ChevronLeft, ChevronRight, UserRound, Users } from "lucide-react";
+import { ChevronRight, UserRound, Users } from "lucide-react";
 import { createContext, Fragment, use, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
@@ -15,7 +15,7 @@ import { bondName, conversationPhrases, endStillTold, fillWords, momentWords, ph
 import { hasWords, monthsAgo, say, sayCount, words } from "../../../shared/words/text";
 import { faceMark } from "../../../shared/ui/lively/Face";
 import { PressButton } from "../../../shared/ui/lively/PressButton";
-import { Head } from "../act";
+import { Head, useInnerBack } from "../act";
 import { familyFeedLines } from "../feed";
 import { phoneWords } from "../phone.words";
 import { troubleWords } from "../../../shared/words/trouble";
@@ -307,14 +307,12 @@ export function Chats() {
   const people = chatPeople(view);
   const bond = people.find((candidate) => candidate.id === open) ?? null;
   const groupName = say("family.group.name");
+  // A thread or the People slots is an inner screen: the head's Back returns to the chats, the one way back (R-WORLD-018).
+  useInnerBack(open === null ? null : () => setOpen(null));
 
   if (open === SLOTS && screens !== null) {
     return (
       <div data-phone-app="chats">
-        <button type="button" onClick={() => setOpen(null)} className="press mb-2 flex items-center gap-1 text-[14px] font-bold text-text-2" data-chats-back>
-          <ChevronLeft size={16} aria-hidden />
-          {phoneWords("phone.app.chats")}
-        </button>
         <h3 className="mb-3 text-[20px] font-bold">{phoneWords("phone.chats.slots")}</h3>
         <div data-chat={SLOTS}>{screens.slots}</div>
       </div>
@@ -325,10 +323,6 @@ export function Chats() {
     const name = bond === null ? groupName : bondName(bond, view.people.bonds);
     return (
       <div data-phone-app="chats">
-        <button type="button" onClick={() => setOpen(null)} className="press mb-2 flex items-center gap-1 text-[14px] font-bold text-text-2" data-chats-back>
-          <ChevronLeft size={16} aria-hidden />
-          {phoneWords("phone.app.chats")}
-        </button>
         <h3 className="mb-3 flex items-center gap-2 text-[20px] font-bold">
           {name}
           {/* The quiet mark a person the game plays carries on every screen (people.md R-PEOPLE-009, R-PEOPLE-054), and a stand-in's (R-PEOPLE-044). */}
