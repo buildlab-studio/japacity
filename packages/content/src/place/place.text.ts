@@ -627,6 +627,13 @@ export const placeText: Record<string, string> = {
   "place.rye-lane.overheard.3": "Braids take six hours. Bring a book.",
   "place.peckham-rye-station.name": "Peckham Rye",
   "place.peckham-rye-station.blurb": "The station. Couriers outside, phones out for the next drop.",
+  // The boards on the railway bridge's arches and the platform sign (R-CITY-024): trades and the station's own name, no business named.
+  "place.peckham-rye-station.sign.1": "PECKHAM RYE\nSTATION",
+  "place.peckham-rye-station.sign.2": "ARCH MARKET\nYAM, PLANTAIN",
+  "place.peckham-rye-station.sign.3": "TYRES FITTED",
+  "place.peckham-rye-station.sign.4": "CAFE\nTEA AND PATTIES",
+  "place.peckham-rye-station.sign.5": "BIKE REPAIRS",
+  "place.peckham-rye-station.sign.6": "PECKHAM RYE",
   "place.peckham-rye-station.overheard.1": "Stand back from the edge, please.",
   "place.peckham-rye-station.overheard.2": "My next drop is in Brixton. Twenty minutes.",
   "place.peckham-rye-station.overheard.3": "The train is cancelled. Of course it is.",

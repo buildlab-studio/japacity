@@ -32,7 +32,14 @@ export function placeLines(place: string): string[] {
 /** A place's own short set in the city's words (city.words.ts), beside content's lines: the room abroad's landlord, radiator and neighbour. */
 const OWN_SET: Readonly<Record<string, readonly string[]>> = {
   "place.the-room": ["city.overheard.room.1", "city.overheard.room.2", "city.overheard.room.3", "city.overheard.room.4"],
+  // London's places on the Lagos mold (world.md R-WORLD-039; streets.md R-STREET-007's spirit): content's three lines each and these.
+  ...londonSets(["rye-lane", "peckham-rye-station", "big-shop-uk", "care-home-uk", "ward-uk", "office-uk", "warehouse-uk", "church-uk", "test-centre-uk"]),
 };
+
+/** `city.overheard.<slug>.1` and `.2` for each London place `place.<slug>`. */
+function londonSets(slugs: readonly string[]): Record<string, readonly string[]> {
+  return Object.fromEntries(slugs.map((slug) => [`place.${slug}`, [`city.overheard.${slug}.1`, `city.overheard.${slug}.2`]]));
+}
 
 /** The news and the routes are talked of in Lagos and on the road out; a place abroad, or one content does not know, has only its own lines. */
 function hearsLagos(place: string): boolean {

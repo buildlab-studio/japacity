@@ -1,6 +1,6 @@
 // The Bank abroad (docs/rules/world.md R-WORLD-002, R-WORLD-019): on
 // Ada's recorded life, landed in London with £1,954 (the figure follows the recording as it is re-cut; re-recorded for decision 0022, then for decision 0035) while rent, living costs and a tuition instalment
-// of £4,687 fall due, the app leads with the gap and the way to close it, then the pounds, then the
+// of £4,352 fall due (the UK upkeep the phone's £15 since R-ABROAD-003 as amended 16 Oct 2026), the app leads with the gap and the way to close it, then the pounds, then the
 // naira and the dollars each with Change money. Once flown, the move's target is gone.
 import type { Command, PlayerView } from "@japacity/sim";
 import { fireEvent, waitFor, within } from "@testing-library/react";
@@ -41,7 +41,7 @@ describe("the month's dues abroad", () => {
     expect(view.place.where).toBe("abroad");
     const gap = duesGap(view);
     expect(gap).toEqual({ currency: "GBP", due: dueOf(view), held: view.pockets.GBP.bank + view.pockets.GBP.cash, from: ["NGN", "USD"] });
-    expect(formatMoney(gap?.due ?? 0, "GBP")).toBe("£4,687");
+    expect(formatMoney(gap?.due ?? 0, "GBP")).toBe("£4,352");
     expect(formatMoney(gap?.held ?? 0, "GBP")).toBe("£1,954");
   });
 
@@ -89,8 +89,8 @@ describe("the Bank abroad", () => {
     const first = app?.firstElementChild as HTMLElement | null;
     expect(first?.hasAttribute("data-dues-gap")).toBe(true);
     // Decision 0037: the re-recorded life lands with £1,954.
-    expect(first?.textContent).toContain(abroadWords("phone.bank.dues", { due: "£4,687", held: "£1,954" }));
-    expect(abroadWords("phone.bank.dues", { due: "£4,687", held: "£1,954" })).toBe("Due this month: £4,687. You hold £1,954.");
+    expect(first?.textContent).toContain(abroadWords("phone.bank.dues", { due: "£4,352", held: "£1,954" }));
+    expect(abroadWords("phone.bank.dues", { due: "£4,352", held: "£1,954" })).toBe("Due this month: £4,352. You hold £1,954.");
     // The way names the pair only: Change money is said once on the screen.
     expect(within(first ?? document.body).getByRole("button").textContent).toBe("Naira or dollars to pounds");
   });

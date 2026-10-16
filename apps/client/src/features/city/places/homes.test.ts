@@ -479,12 +479,16 @@ describe("each home's cooking corner", () => {
       return [act?.stages, act?.more];
     };
     expect(corner(familyRaw)).toEqual(["activity.cook-at-home", ["activity.cook-jollof"]]);
-    for (const raw of [roomRaw, hostelRaw, abroadRaw]) expect(corner(raw)).toEqual(["activity.cook-own", ["activity.cook-own-pot"]]);
+    for (const raw of [roomRaw, hostelRaw]) expect(corner(raw)).toEqual(["activity.cook-own", ["activity.cook-own-pot"]]);
+    // the room abroad cooks in the country's money, in the UK a meal in pounds.
+    expect(corner(abroadRaw)).toEqual(["activity.cook-own-uk", undefined]);
     expect(content.activity["activity.cook-at-home"]?.cost).toEqual([]);
     expect(content.activity["activity.cook-jollof"]?.cost).toEqual([{ currency: "NGN", amount: 7_500_00, reason: "foodstuff" }]);
     expect(content.activity["activity.cook-own"]?.cost).toEqual([{ currency: "NGN", amount: 1_500_00, reason: "food" }]);
     expect(content.activity["activity.cook-own-pot"]?.cost).toEqual([{ currency: "NGN", amount: 7_500_00, reason: "food" }]);
-    expect(content.place["place.the-room"]?.stages).toContain("activity.cook-own");
+    expect(content.activity["activity.cook-own-uk"]?.cost).toEqual([{ currency: "GBP", amount: 6_00, reason: "food" }]);
+    expect(content.place["place.the-room"]?.stages).toContain("activity.cook-own-uk");
+    expect(content.place["place.the-room"]?.stages).not.toContain("activity.cook-own");
   });
 });
 

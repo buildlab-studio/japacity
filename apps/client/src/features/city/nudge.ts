@@ -108,10 +108,27 @@ const STEP_WAYS: Record<string, StepWay> = {
   "chapter.decision-day-gulf.applied": AGENT_DESK,
   "chapter.decision-day-gulf.granted": MONTH_END,
   "chapter.send-off.departed": { go: "place.airport-lagos", at: ["place.airport-lagos:gate"] },
-  // Abroad the nudge never opens the map (the map there is a list), so the steps are reached through `at`.
+  // Abroad the steps are reached through `at` in the place the character stands. In London the job is got at the
+  // notice or the agency in Peckham and also at each workplace's own door, desk or clock-in (world.md R-WORLD-039), and
+  // money home is sent from the phone or the transfer shop on Rye Lane.
   "chapter.landing.room": { go: "place.the-room", at: ["place.the-room:post"] },
-  "chapter.landing.job": { go: "place.peckham", at: ["place.peckham:jobs-notice", "place.peckham:agency", "place.deira:agency", "place.deira:site-bus"] },
-  "chapter.landing.request": { go: "place.the-room", at: ["place.the-room:phone"] },
+  "chapter.landing.job": {
+    go: "place.peckham",
+    at: [
+      "place.peckham:jobs-notice",
+      "place.peckham:agency",
+      "place.big-shop-uk:tills",
+      "place.rye-lane:kitchen",
+      "place.peckham-rye-station:courier",
+      "place.care-home-uk:reception",
+      "place.ward-uk:station",
+      "place.warehouse-uk:clock-in",
+      "place.office-uk:desk",
+      "place.deira:agency",
+      "place.deira:site-bus",
+    ],
+  },
+  "chapter.landing.request": { go: "place.the-room", at: ["place.the-room:phone", "place.rye-lane:transfer"] },
   "chapter.landing.file": MONTH_END,
   "chapter.landing.status": MONTH_END,
   "chapter.secure.secure": MONTH_END,

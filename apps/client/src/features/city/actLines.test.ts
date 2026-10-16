@@ -99,7 +99,7 @@ describe("where an act done at once lands its line", () => {
   });
 
   test("[R-WORLD-005] given what the scene shows (the pot, the drum) or an act done once a month, when it is done, then nothing lands here: the scene shows the first, the second answers in its sheet", () => {
-    for (const activity of ["activity.cook-at-home", "activity.cook-own", "activity.fetch-water", "activity.fill-drum"]) expect(nowLands(now(activity), parlour)).toBeNull();
+    for (const activity of ["activity.cook-at-home", "activity.cook-own", "activity.cook-own-uk", "activity.fetch-water", "activity.fill-drum"]) expect(nowLands(now(activity), parlour)).toBeNull();
     expect(nowLands(now("activity.job-hunt"), parlour)).toBeNull();
   });
 });

@@ -26,12 +26,31 @@ function wordsFor(key: string): string | null {
   return found === key ? null : found;
 }
 
+/** A person's own line named by a thing's act: a colleague at the tea point (world.md R-WORLD-039). */
+const PERSON_LINE = "city.line.";
+
+/**
+ * A line told in turn (R-WORLD-039): a key ending `.1` names the first of a set, `.2`, `.3` and on while they have words,
+ * and the `nth` tap tells the next of them, round again after the last. Any other key is itself.
+ */
+export function inTurn(key: string, nth: number): string {
+  const set = /^(.*)\.1$/.exec(key)?.[1];
+  if (set === undefined) return key;
+  let count = 1;
+  while (wordsFor(`${set}.${String(count + 1)}`) !== null) count += 1;
+  return `${set}.${String((Math.max(0, nth) % count) + 1)}`;
+}
+
 /**
  * The line of a plain act (no cost, no story) as it lands: the person's words when someone speaks, else the
- * corner's line, else nothing.
+ * corner's line, else nothing. A person's own line (a colleague's) is said over the thing they stand at, in a bubble,
+ * a new one at each tap (`nth`, from 0).
  */
-export function plainActLine(thing: Pick<Thing, "id" | "label">, act: Pick<Act, "label"> & Partial<Pick<Act, "tells">>): ActLine {
-  const told = wordsFor(act.tells ?? `${act.label}.done`);
+export function plainActLine(thing: Pick<Thing, "id" | "label">, act: Pick<Act, "label"> & Partial<Pick<Act, "tells">>, nth = 0): ActLine {
+  const tells = act.tells === undefined ? undefined : inTurn(act.tells, nth);
+  const own = tells?.startsWith(PERSON_LINE) === true ? wordsFor(tells) : null;
+  if (own !== null) return { kind: "say", who: thing.id, name: sceneWords(thing.label), words: own, then: null };
+  const told = wordsFor(tells ?? `${act.label}.done`);
   const says = wordsFor(`${act.label}.says`);
   if (says !== null) return { kind: "say", who: thing.id, name: wordsFor(`${act.label}.who`) ?? sceneWords(thing.label), words: says, then: told };
   return told === null ? null : { kind: "tell", words: told };
@@ -68,7 +87,7 @@ export function lightBack(lines: readonly { key: string; params: Record<string, 
 }
 
 /** The acts the scene shows (the pot steams, the drum fills): the place says no line for them (R-WORLD-005). */
-export const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.cook-own", "activity.fetch-water", "activity.fill-drum"]);
+export const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.cook-own", "activity.cook-own-uk", "activity.fetch-water", "activity.fill-drum"]);
 
 /** Gist with Mama, and the big pot bought for the house: her own words over her head. */
 const MAMA_SAYS: ReadonlySet<string> = new Set(["activity.family-time", "activity.cook-jollof"]);
