@@ -106,8 +106,9 @@ describe("what happens where", () => {
   });
 
   test("[R-CITY-010] given an id staged by a place of one country and by a place that serves every country, when checked, then both are allowed", () => {
-    expect(place("place.workplace-abroad").stages).toContain("activity.job-uk-courier-cash");
-    expect(place("place.peckham-rye-station").stages).toContain("activity.job-uk-courier-cash");
+    // The UK's test centre and the country-less one both stage the nurse's tests (city.md; the UK's jobs left the workplace abroad).
+    expect(place("place.test-centre-abroad").stages).toContain("activity.nmc-tests");
+    expect(place("place.test-centre-uk").stages).toContain("activity.nmc-tests");
     expect(placeChecks(content)).toEqual([]);
   });
 });

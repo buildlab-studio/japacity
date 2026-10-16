@@ -263,5 +263,128 @@
       "result": "Replaced. CCj/Clearline Inc is a telecom company in Kitchener, Ontario, too close. Candidates dropped: \"Eleven Lines\" (close to ElevenLabs, which sells call centre agents), \"Kettle Hill\" (Kettlehill Asset Management on the UK register), \"Press Two\" (Press-One Customer Care, a contact centre company). \"Morning Shift\": no contact centre or business found."
     },
     "status": "draft"
+  },
+  {
+    "file": "places/big-shop-uk/sign_fairbasket",
+    "place": "place.big-shop-uk",
+    "source": "code",
+    "author": "Japacity",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": null,
+    "aiTool": null,
+    "date": "2026-10-16",
+    "modified": false,
+    "triangles": null,
+    "drawCalls": null,
+    "materials": null,
+    "bytes": null,
+    "paletteCheck": null,
+    "reference": null,
+    "outline": null,
+    "review": null,
+    "nameCheck": {
+      "name": "Fairbasket",
+      "workingName": "Fairbasket",
+      "searches": [
+        "web: \"Fairbasket\" supermarket London",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Fairbasket\" (no results)"
+      ],
+      "date": "2026-10-16",
+      "result": "Passed. No shop or company of that name found on the web or the UK register; the nearest is a Wembley company with a different name."
+    },
+    "status": "draft"
+  },
+  {
+    "file": "places/care-home-uk/sign_wrenhollow-house",
+    "place": "place.care-home-uk",
+    "source": "code",
+    "author": "Japacity",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": null,
+    "aiTool": null,
+    "date": "2026-10-16",
+    "modified": false,
+    "triangles": null,
+    "drawCalls": null,
+    "materials": null,
+    "bytes": null,
+    "paletteCheck": null,
+    "reference": null,
+    "outline": null,
+    "review": null,
+    "nameCheck": {
+      "name": "Wrenhollow House",
+      "workingName": "Wrenhollow House",
+      "searches": [
+        "web: \"Wrenhollow\" care home",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Wrenhollow\" (no results)"
+      ],
+      "date": "2026-10-16",
+      "result": "Passed. No care home or company of that name found; the nearest is a Wren House care home in Warminster, Wiltshire, outside London."
+    },
+    "status": "draft"
+  },
+  {
+    "file": "places/office-uk/sign_pellowmere-software",
+    "place": "place.office-uk",
+    "source": "code",
+    "author": "Japacity",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": null,
+    "aiTool": null,
+    "date": "2026-10-16",
+    "modified": false,
+    "triangles": null,
+    "drawCalls": null,
+    "materials": null,
+    "bytes": null,
+    "paletteCheck": null,
+    "reference": null,
+    "outline": null,
+    "review": null,
+    "nameCheck": {
+      "name": "Pellowmere Software",
+      "workingName": "Kettleyard Software",
+      "searches": [
+        "web: \"Kettleyard\" software OR digital OR company London",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Kettleyard\" (Kettle Yard Limited, dissolved)",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Quaymark\" (Quaymark Ltd, active)",
+        "web: \"Pellowmere\"",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Pellowmere\" (no results)"
+      ],
+      "date": "2026-10-16",
+      "result": "Replaced twice. \"Kettle Yard Limited\" is on the UK register, and \"Quaymark Ltd\" trades under the second working name, Quaymark. \"Pellowmere\": no business found on the web or the UK register."
+    },
+    "status": "draft"
+  },
+  {
+    "file": "places/warehouse-uk/sign_orrinsby-logistics",
+    "place": "place.warehouse-uk",
+    "source": "code",
+    "author": "Japacity",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": null,
+    "aiTool": null,
+    "date": "2026-10-16",
+    "modified": false,
+    "triangles": null,
+    "drawCalls": null,
+    "materials": null,
+    "bytes": null,
+    "paletteCheck": null,
+    "reference": null,
+    "outline": null,
+    "review": null,
+    "nameCheck": {
+      "name": "Orrinsby Logistics",
+      "workingName": "Orrinsby Logistics",
+      "searches": [
+        "web: \"Orrinsby\"",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Orrinsby\" (no results)"
+      ],
+      "date": "2026-10-16",
+      "result": "Passed. No business or company of that name found; the nearest results are the surname Ormsby and places of other names."
+    },
+    "status": "draft"
   }
 ]

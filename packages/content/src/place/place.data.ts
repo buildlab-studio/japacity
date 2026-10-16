@@ -127,18 +127,37 @@ function unnamed(
   };
 }
 
-/** Every job held abroad, shown at the workplace unless a place of the country stages it. */
+/** The day London's made-up spots were placed by hand against the public places round them (design page 14 section 4). */
+const LONDON_SPOTS_PLACED = "2026-10-16";
+
+/**
+ * A place of London with no real name of its own (city.md "Entries: abroad"): a business by made-up name
+ * or an institution by plain description, at a made-up spot in its area, its own source with no licence (R-CITY-008).
+ */
+function london(id: Id<"place">, nameKind: "business" | "institution", area: string, latE3: number, lonE3: number, shape: Shape): PlaceEntry {
+  return {
+    id,
+    where: "abroad",
+    country: "country.uk",
+    city: "london",
+    area,
+    nameKind,
+    realName: null,
+    position: { latE3, lonE3 },
+    data: { source: "own", licence: null, checked: LONDON_SPOTS_PLACED },
+    sponsor: null,
+    scope: shape.scope ?? "interior",
+    hub: false,
+    occasion: shape.occasion ?? false,
+    stages: shape.stages ?? [],
+    crowd: shape.crowd,
+    traditionalBp: shape.traditionalBp,
+    assets: shape.assets ?? slugOf(id),
+  };
+}
+
+/** Every job held abroad, shown at the workplace unless a place of the country stages it. The UK's are staged at London's own places. */
 const JOBS_ABROAD: Staged = [
-  "activity.job-uk-care",
-  "activity.job-uk-senior-care",
-  "activity.job-uk-nurse",
-  "activity.job-uk-skilled",
-  "activity.job-uk-senior-dev",
-  "activity.job-uk-warehouse",
-  "activity.job-uk-retail-part",
-  "activity.job-uk-graduate",
-  "activity.job-uk-kitchen-cash",
-  "activity.job-uk-courier-cash",
   "activity.job-ca-warehouse",
   "activity.job-ca-care-aide",
   "activity.job-ca-professional",
@@ -343,16 +362,38 @@ const entries: PlaceEntry[] = [
 
   // Abroad. the design table's shares are for Lagos; abroad uses the hub and office share.
   abroad("place.heathrow", "country.uk", "london", "heathrow", "London Heathrow Airport", 51468, -459, { scope: "interior", crowd: BUSY, traditionalBp: AIRPORT }),
-  // streets.md R-STREET-005 and 006: the grocer's shopping and the find on the street. The UK jobs the hunt
-  // can ask for, on the jobs notice by the grocer and at the job agency's stand (world.md R-WORLD-005).
+  // London on the Lagos mold (city.md "Entries: abroad", design page 14 section 4). The hub: the jobs
+  // notice and the agency's stand where the hunt is sent (world.md R-WORLD-005), and the find on the street (R-STREET-006).
   abroad("place.peckham", "country.uk", "london", "peckham", "Peckham", 51473, -70, {
     hub: true,
-    stages: ["activity.street-shopping-uk", "offer.street-find-uk", "activity.job-uk-retail-part", "activity.job-uk-kitchen-cash", "activity.job-uk-senior-care", "activity.job-uk-nurse", "activity.job-uk-warehouse"],
+    stages: ["activity.job-hunt", "offer.street-find-uk"],
     crowd: BUSY,
     traditionalBp: HUB,
   }),
-  abroad("place.rye-lane", "country.uk", "london", "peckham", "Rye Lane", 51468, -69, { stages: ["activity.send-money", "activity.community-uk"], crowd: BUSY, traditionalBp: HUB }),
+  // The shopping street (streets.md R-STREET-005 as amended, R-STREET-012): the transfer shop, the stalls, the chicken
+  // shop and its kitchen, the Nigerian shop, the barber, the clothes shop and the pub.
+  abroad("place.rye-lane", "country.uk", "london", "peckham", "Rye Lane", 51468, -69, {
+    stages: ["activity.send-money", "activity.street-shopping-uk", "activity.chicken-shop", "activity.job-uk-kitchen-cash", "activity.naija-shop-uk", "activity.barber-uk", "activity.buy-clothes-uk", "activity.pub-pint"],
+    crowd: BUSY,
+    traditionalBp: HUB,
+  }),
+  // The station (place.md R-PLACE-012): the ticket machine's bus pass, the courier's bike; the train's platform.
   abroad("place.peckham-rye-station", "country.uk", "london", "peckham", "Peckham Rye", 51470, -69, { stages: ["activity.bus-pass-uk", "activity.job-uk-courier-cash"], crowd: BUSY, traditionalBp: HUB }),
+  // The big shop on Peckham High Street: the weekly shop and the part-time job at the tills.
+  london("place.big-shop-uk", "business", "peckham", 51474, -68, { stages: ["activity.weekly-shop-uk", "activity.job-uk-retail-part"], crowd: BUSY, traditionalBp: HUB }),
+  // The care home in Nunhead: the door, the rota board's overtime and the manager's door.
+  london("place.care-home-uk", "business", "nunhead", 51467, -54, { stages: ["activity.job-uk-care", "activity.job-uk-senior-care", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
+  // The ward on Denmark Hill, shown by plain description: the nurses' station.
+  london("place.ward-uk", "institution", "camberwell", 51468, -94, { stages: ["activity.job-uk-nurse"], crowd: QUIET, traditionalBp: OFFICE }),
+  // The office at London Bridge: the desk and the glass office.
+  london("place.office-uk", "business", "london-bridge", 51505, -86, { stages: ["activity.job-uk-skilled", "activity.job-uk-graduate", "activity.job-uk-senior-dev"], crowd: QUIET, traditionalBp: OFFICE }),
+  // The warehouse on the Old Kent Road: the clock-in.
+  london("place.warehouse-uk", "business", "old-kent-road", 51487, -62, { stages: ["activity.job-uk-warehouse"], crowd: QUIET, traditionalBp: OFFICE }),
+  // The church on the Old Kent Road, the community's place (world.md R-WORLD-020), shown by plain description.
+  london("place.church-uk", "institution", "old-kent-road", 51486, -66, { occasion: true, stages: ["activity.community-uk"], crowd: BUSY, traditionalBp: HUB }),
+  // The UK's test centre at Elephant and Castle, on the English test centre's scene (R-CITY-010: the country's own place
+  // stages what the country-less one stages).
+  london("place.test-centre-uk", "institution", "elephant-and-castle", 51494, -100, { assets: "english-test-centre", stages: ["activity.nmc-tests", "activity.driving-test"], crowd: QUIET, traditionalBp: OFFICE }),
   abroad("place.calgary-airport", "country.canada", "calgary", "north-east", "Calgary International Airport", 51122, -114014, { scope: "interior", crowd: QUIET, traditionalBp: AIRPORT }),
   // The city's position, not the street's: the street is made up.
   abroad("place.calgary-north-east", "country.canada", "calgary", "north-east", "Northeast Calgary", 51046, -114058, { hub: true, stages: ["activity.community-ca"], crowd: QUIET, traditionalBp: HUB }),
@@ -372,7 +413,8 @@ const entries: PlaceEntry[] = [
   unnamed("place.their-room", "stylised", "home", "lagos", null, { stages: ["activity.see-someone"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.the-room", "stylised", "abroad", null, null, {
     // The bed, the window and the laptop in the room abroad (R-WORLD-025; R-CITY-010 lets the country-less room stage what a country's own place also stages).
-    stages: ["activity.rest", "activity.community-uk", "activity.community-ca", "activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own"],
+    // The cooking corner cooks in pounds in the UK (streets.md R-STREET-012): activity.cook-own-uk shows only there.
+    stages: ["activity.rest", "activity.community-uk", "activity.community-ca", "activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own", "activity.cook-own-uk"],
     crowd: FEW,
     traditionalBp: OFFICE,
   }),

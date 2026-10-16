@@ -1,5 +1,5 @@
 // The life of the streets abroad in content (docs/rules/streets.md R-STREET-005 to 007, world.md
-// R-WORLD-026): the shopping and the find at Peckham and Deira, their numbers from `tuning.street`,
+// R-WORLD-026): the shopping on Rye Lane and at Deira, the find at Peckham and Deira, their numbers from `tuning.street`,
 // where they are staged, and the street talk in Nigerian voices.
 import type { Id, PlaceEntry } from "@japacity/sim";
 import { ActivityEntrySchema, OfferEntrySchema } from "@japacity/sim/schemas";
@@ -27,7 +27,7 @@ function overheard(place: string): string[] {
 
 const SHOPPING = [
   // the UK's stalls stand on Rye Lane and are paid as enjoyment.
-  { id: "activity.street-shopping-uk" as Id<"activity">, country: "country.uk", currency: "GBP", amount: street.shoppingGbp, reason: "enjoyment", place: "place.peckham" },
+  { id: "activity.street-shopping-uk" as Id<"activity">, country: "country.uk", currency: "GBP", amount: street.shoppingGbp, reason: "enjoyment", place: "place.rye-lane" },
   { id: "activity.street-shopping-uae" as Id<"activity">, country: "country.uae", currency: "AED", amount: street.shoppingAed, reason: "social", place: "place.deira" },
 ] as const;
 
@@ -50,7 +50,7 @@ describe("shopping on the street abroad", () => {
     }
   });
 
-  test("[R-STREET-005] [R-CITY-010] given the two street shoppings, when the places are read, then each is staged once, at Peckham and at Deira, and each has a name and a blurb with no dash", () => {
+  test("[R-STREET-005] [R-CITY-010] given the two street shoppings, when the places are read, then each is staged once, on Rye Lane and at Deira, and each has a name and a blurb with no dash", () => {
     for (const want of SHOPPING) {
       expect(stagedAt(want.id)).toEqual([want.place]);
       const keys = [`${want.id}.name`, `${want.id}.blurb`];

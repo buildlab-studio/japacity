@@ -81,7 +81,8 @@ describe("real names as neutral scenery", () => {
     const agent = realNameChecks(withPlace({ ...place("place.agent-office"), realName: "A Real Agent" }), text, realNames).join("\n");
     expect(agent).toMatch(/stages offer\.held-funds-agent, offer\.gulf-agent, which can be a fraud, a mishap or bad news \(R-CITY-022\)/);
     const employer = realNameChecks(withPlace({ ...place("place.workplace-abroad"), realName: "A Real Care Home" }), text, realNames).join("\n");
-    expect(employer).toMatch(/A Real Care Home and employs through activity\.job-uk-care/);
+    // The workplace abroad stages Canada's, the UAE's and Italy's jobs since London's places stage the UK's (city.md).
+    expect(employer).toMatch(/A Real Care Home and employs through activity\.job-ca-warehouse/);
   });
 
   test("[R-CITY-041] given a real place staging the visa interview or a paid activity, when the place table is checked, then it is failed for refusing and for charging", () => {
