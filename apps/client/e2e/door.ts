@@ -16,8 +16,9 @@ export async function passOpeningWords(page: Page, timeout = 4_000): Promise<voi
   await go.waitFor({ state: "visible", timeout: 1_500 }).catch(() => undefined);
   if (!(await go.isVisible().catch(() => false))) return;
   await go.click();
+  // A later chapter's Go opens the map in the same tick; the first brief's Let's go opens none, so the look is short.
   const close = page.locator("[data-map-close]");
-  await close.waitFor({ state: "visible", timeout }).catch(() => undefined);
+  await close.waitFor({ state: "visible", timeout: Math.min(timeout, 2_000) }).catch(() => undefined);
   if (await close.isVisible()) await close.click();
 }
 
