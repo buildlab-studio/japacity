@@ -35,16 +35,22 @@ export interface StandInProps {
   asleep?: string | null | undefined;
   /** The act done at once that landed last (R-WORLD-005), shown as `data-stand-in-acted`. */
   acted?: { activity: string; at: number } | null | undefined;
+  /** The scene's frame drawn: the stand-in's `data-stand-in-draw` button draws one. */
+  onFrame?: ((ms: number) => void) | undefined;
+  /** The pinch come to rest close on the character: the stand-in's `data-stand-in-zoom` button brings it. */
+  onZoomed?: ((zoomed: boolean) => void) | undefined;
 }
 
 /**
- * The scene's stand-in: a button for the player's own figure, for a person, for a shopfront with its sign, and one for
- * each thing, which opens its fan beside it.
+ * The scene's stand-in: a button that draws a frame, one for the player's own figure, for a person, for a shopfront with
+ * its sign, and one for each thing, which opens its fan beside it.
  */
-export function StandInScene({ things, actOn, onPick, asleep, acted }: StandInProps) {
+export function StandInScene({ things, actOn, onPick, asleep, acted, onFrame, onZoomed }: StandInProps) {
   useStandInWalk(actOn, onPick);
   return (
     <div data-stand-in-scene data-stand-in-asleep={asleep ?? ""} data-stand-in-acted={acted?.activity ?? ""}>
+      <button type="button" data-stand-in-draw onClick={() => onFrame?.(16)} />
+      <button type="button" data-stand-in-zoom onClick={() => onZoomed?.(true)} />
       <button type="button" data-stand-in-own onClick={() => onPick({ kind: "own" })} />
       <button type="button" data-stand-in-person onClick={() => onPick({ kind: "person", slot: 0 })} />
       <button type="button" data-stand-in-shopfront onClick={() => onPick({ kind: "model", file: "shopfront.glb", signs: ["place.bode-thomas.sign.1"] })} />

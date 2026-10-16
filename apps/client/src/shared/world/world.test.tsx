@@ -1,12 +1,16 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 afterEach(() => {
   cleanup();
 });
 
+import type { MomentShot } from "../../authority/store";
+import { engineView } from "../testing/fixtures";
+import { renderWithView } from "../testing/render";
 import { say } from "../words/text";
 import { AskSheet } from "./AskSheet";
+import { WorldSheet } from "./WorldSheet";
 import { Band } from "./Band";
 import { Nudge } from "./Nudge";
 import { ThumbBar } from "./ThumbBar";
@@ -45,6 +49,26 @@ describe("the thumb bar", () => {
     expect(onPhone).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("button", { name: "Phone" }).querySelector("[data-dot]")).not.toBeNull();
     expect(screen.getByRole("button", { name: "Map" }).querySelector("[data-dot]")).toBeNull();
+  });
+});
+
+describe("a world sheet under a moment card", () => {
+  test("[R-MOMENT-006] given the results up, when a moment card stands over them, then the sheet's head, its title and its close, steps back so one close is in view, and comes back as the card goes", async () => {
+    const { store } = await renderWithView(
+      <WorldSheet open onClose={() => undefined} label="25 yrs 6 mo" title="The month is done" mark="results">
+        <p>Salary</p>
+      </WorldSheet>,
+      engineView(),
+    );
+    const head = (): HTMLElement | null => document.querySelector<HTMLElement>("[data-world-sheet-head]");
+    act(() => store.setState({ reportOpen: true }));
+    expect(head()?.dataset.worldSheetHead).toBe("shown");
+    act(() => store.setState({ momentCards: [{} as MomentShot] }));
+    expect(head()?.dataset.worldSheetHead).toBe("covered");
+    expect(head()?.getAttribute("aria-hidden")).toBe("true");
+    act(() => store.setState({ momentCards: [] }));
+    expect(head()?.dataset.worldSheetHead).toBe("shown");
+    expect(screen.getByRole("button", { name: say("ui.world.close") })).toBeTruthy();
   });
 });
 

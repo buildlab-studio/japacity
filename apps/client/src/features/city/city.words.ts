@@ -42,7 +42,7 @@ export const cityText: Record<string, string> = {
   "city.map.not-open": "Not in this life yet",
   "city.hud.month": "Month {month}",
   // The band says what a home is, in few words (R-WORLD-002).
-  "city.home.compound-room": "Your room, a compound in Ojuelegba",
+  "city.home.compound-room": "Your room, Ojuelegba",
   "city.home.hostel-room": "Your hostel room, Yaba",
   "city.home.family-house": "The family house",
   "city.home.makoko": "The room on the water",
@@ -313,8 +313,8 @@ export const cityText: Record<string, string> = {
   "city.role.trader": "trader",
   "city.role.elder": "elder of the area",
 
-  "city.overheard.news": "“Did you hear? {head}”",
-  "city.overheard.route": "“My cousin's friend went by {route}. It is not easy, they say.”",
+  "city.overheard.news": "Did you hear? {head}",
+  "city.overheard.route": "My cousin's friend went by {route}. It is not easy, they say.",
   // The room abroad's own talk (R-WORLD-026): the landlord, the radiator, a neighbour through the wall.
   "city.overheard.room.1": "The landlord said Thursday for the boiler. Which Thursday, he did not say.",
   "city.overheard.room.2": "Bleed the radiator, my sister. Na air dey inside, no be heat.",
@@ -374,7 +374,7 @@ export function placeName(id: string): string {
 
 /** A line overheard, as words: the place's own line, or talk of a story or a route the view holds. */
 export function heardWords(key: string, params: Record<string, string>): string {
-  // A headline that is itself someone's words keeps them, without its own straight quotes, inside the speaker's curly ones.
+  // A headline that is itself someone's words keeps them, without its own straight quotes: the bubble's curly ones hold the line.
   if (key === "city.overheard.news") return cityWords(key, { head: words(params.head ?? "").replace(/^"(.*)"$/, "$1").replaceAll('"', "") });
   if (key === "city.overheard.route") return cityWords(key, { route: runningName(params.route ?? "") });
   return text[key] ?? cityWords(key);

@@ -13,6 +13,7 @@ import { renderWithGame } from "../../shared/testing/people";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import type { Act, Thing } from "../../shared/world/contract";
+import { linesNow, murmur, NEAR_SPEAKER, resetLines } from "../../shared/world/Lines";
 import { markTaught } from "../../shared/world/taught";
 import { City } from "./City";
 import { anchorFan } from "./fan/anchor";
@@ -145,6 +146,23 @@ describe("the cooking corner's fan", () => {
     expect(document.querySelector("[data-thing-chip]")).toBeNull();
     expect(document.querySelector("[data-nudge]")).toBeNull();
     expect(document.querySelector("[role=dialog]")).toBeNull();
+  });
+
+  test("[R-WORLD-026] [R-WORLD-034] given someone overheard over the room, when the cooking corner's fan opens, then their words are hushed at once and do not come back when the fan closes, since the fan's title and buttons would stand on them", async () => {
+    resetLines();
+    await inTheParlour();
+    act(() => {
+      murmur("Somebody should fix that gate.", Date.now() + 60_000, "Someone in the house", NEAR_SPEAKER);
+    });
+    expect(linesNow().speech).not.toBeNull();
+    fanTheCookingCorner();
+    expect(found('[data-fan="cooking"]')).toBeTruthy();
+    expect(linesNow().speech).toBeNull();
+    expect(document.querySelector("[data-speech]")).toBeNull();
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => expect(document.querySelector('[data-fan="cooking"]')).toBeNull());
+    expect(document.querySelector("[data-speech]")).toBeNull();
+    resetLines();
   });
 
   test("[R-WORLD-034] [R-WORLD-005] [R-WORLD-010] given the cooking corner's fan, when food from the pot is tapped, then once the walk reaches the corner the act is sent at once as its sheet would send it, and the fan closes", async () => {

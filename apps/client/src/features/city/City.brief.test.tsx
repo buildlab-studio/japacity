@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
+import { resetLines, tell } from "../../shared/world/Lines";
 import { markTaught } from "../../shared/world/taught";
 import { DONE_TOAST_MS, doneToast } from "./brief/brief";
 import { City } from "./City";
@@ -68,6 +69,48 @@ async function standing(place: string, view = engineView()) {
   await waitFor(() => found("[data-stand-in-scene] [data-stand-in-thing]"), { timeout: 3000 });
   return rendered;
 }
+
+describe("the first brief's card", () => {
+  test("[R-CHAPTER-011] [R-WORLD-003] given a new life whose place is still drawing, when the world opens, then the brief's card waits for the place's first frame, then stands on the dimmed place with nothing under the band, and the chip comes only once Let's go has carried it", async () => {
+    const view = engineView();
+    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
+    await renderWithView(world(), view);
+    await waitFor(() => found("[data-stand-in-scene] [data-stand-in-draw]"), { timeout: 3000 });
+    // The catalog of 16 Oct: the card stood over a blank world before the place had drawn behind it.
+    expect(document.querySelector("[data-opening]")).toBeNull();
+    fireEvent.click(found("[data-stand-in-draw]"));
+    await waitFor(() => found("[data-opening]"));
+    expect(document.querySelector("[data-brief-scrim]")).not.toBeNull();
+    // The card says the brief: no chip and no nudge under the band say it again (032).
+    expect(document.querySelector("[data-band] [data-nudge]")).toBeNull();
+    fireEvent.click(found("[data-opening-go]"));
+    await waitFor(() => expect(document.querySelector("[data-opening]")).toBeNull());
+    expect(document.querySelector("[data-brief-scrim]")).toBeNull();
+    await waitFor(() => found("[data-band] [data-brief-chip]"));
+  });
+});
+
+describe("the chip that shows the whole place", () => {
+  test("[R-WORLD-009] given the view close on the character, when a line stands in the corner or a thing's fan opens, then See the whole place steps back, so it never shares the foot with the corner's line nor stands under an open card, and comes back once the world is free", async () => {
+    resetLines();
+    await standing("place.family-house");
+    // The home's small card is put away, so the world is free.
+    const teach = document.querySelector<HTMLElement>("[data-home-teach-ok]");
+    if (teach !== null) fireEvent.click(teach);
+    fireEvent.click(found("[data-stand-in-zoom]"));
+    await waitFor(() => found("[data-zoom-preset]"));
+    act(() => tell("Mama presses a bag of oranges on you."));
+    expect(document.querySelector("[data-corner]")).not.toBeNull();
+    expect(document.querySelector("[data-zoom-preset]")).toBeNull();
+    act(() => resetLines());
+    await waitFor(() => found("[data-zoom-preset]"));
+    fireEvent.click(found('[data-stand-in-thing="cooking"]'));
+    await waitFor(() => found('[data-fan="cooking"]'));
+    expect(document.querySelector("[data-zoom-preset]")).toBeNull();
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => found("[data-zoom-preset]"));
+  });
+});
 
 describe("the road in the world, only in the moment", () => {
   test("[R-WORLD-003] given the first brief carried and the player at home, away from its place, when the world shows, then nothing stands under the band and no marker stands anywhere", async () => {
