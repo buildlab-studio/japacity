@@ -284,6 +284,26 @@ export const ROOMS = {
     ],
     seed: 9406,
   },
+  // Calgary's library (design page 15 section 3): a reading room of about 16 by 9 metres seen down its length, the
+  // side wall on the right as the London rooms', pale walls over a wood dado, tall pane windows on the back wall and a
+  // notice board by the door.
+  library: {
+    name: "bld_room_library",
+    size: [16, 9],
+    height: 3.6,
+    side: "right",
+    upper: "wallCream",
+    lower: "wood",
+    dado: 1.0,
+    skirting: "darkWood",
+    fittings: [
+      { kind: "pane", wall: "back", at: -7.1 },
+      { kind: "clock", wall: "back", at: 6.4 },
+      { kind: "board", wall: "side", at: -2.4 },
+      { kind: "picture", wall: "side", at: 0.6 },
+    ],
+    seed: 5121,
+  },
 } as const satisfies Record<string, RoomSpec>;
 
 export type RoomName = keyof typeof ROOMS;
