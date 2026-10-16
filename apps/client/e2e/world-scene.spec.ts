@@ -9,7 +9,7 @@ import { expect, type Page, test } from "@playwright/test";
 import { text } from "../../../packages/content/src/index";
 import budgets from "../../../assets-src/budgets.json" with { type: "json" };
 import { startReadyLife } from "./door";
-import { doAct } from "./live";
+import { doAct, passCards } from "./live";
 
 /** The cut's hold, Cut.tsx's CUT_MS, and its fade, its `duration-300` (the e2e tsconfig takes no .tsx import). */
 const CUT_MS = 260;
@@ -81,9 +81,12 @@ async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<vo
   }
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   await waitPlace(page, null);
+  // The first brief's card stands on the drawn place, dimmed, until its Let's go (R-CHAPTER-011 as amended 16 Oct 2026).
+  await passCards(page);
   // The home says what it is once, on its first entry in a life (R-HOME-008); dismissed, the place is clear.
   const teach = page.locator("[data-home-teach-ok]");
   if (await teach.waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await teach.click();
+  await passCards(page);
 }
 
 /** Goes to a place through the city's list, and waits until it is drawn. */
