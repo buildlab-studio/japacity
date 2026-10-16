@@ -38,6 +38,18 @@ export const mapText: Record<string, string> = {
   "map.way.train": "Train",
   // The bus in a month the pass is bought (R-PLACE-012): the fare pill says it asks nothing, and why.
   "map.way.passed": "{amount}, bus pass",
+  // The other countries' ways and pills (R-PLACE-012 and R-PLACE-013 as amended, R-WORLD-039): the taxi, the train by its
+  // country's name, the pass that covers the bus and the train, and the employer's shuttle that asks nothing.
+  "map.way.taxi": "Taxi",
+  "map.way.train.country.canada": "CTrain",
+  "map.way.train.country.uae": "Metro",
+  "map.way.passed.country.canada": "{amount}, transit pass",
+  "map.way.passed.country.uae": "{amount}, zone pass",
+  "map.way.shuttle.country.uae": "{amount}, site bus",
+  "map.way.shuttle.country.italy": "{amount}, the van",
+  // The shuttle's vehicle names itself in the ride's title: the labour bus to the site, the gangmaster's van to the fields.
+  "map.vehicle.labour-bus": "Site bus",
+  "map.vehicle.van": "Van",
   "map.way.abroad.country.uk": "Bus",
   "map.way.abroad.country.canada": "Bus",
   "map.way.abroad.country.uae": "Taxi",
@@ -144,4 +156,4 @@ export function mapWords(key: string, params: Record<string, string | number> = 
 }
 
 /** The ways of Lagos in the order the sheet lists them: cheapest first. */
-export const WAYS: readonly Exclude<RideChoice["id"], "drive" | "bus" | "train">[] = ["danfo", "keke", "okada", "walk"];
+export const WAYS: readonly Exclude<RideChoice["id"], "drive" | "bus" | "train" | "taxi">[] = ["danfo", "keke", "okada", "walk"];

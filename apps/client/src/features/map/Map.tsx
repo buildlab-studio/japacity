@@ -17,6 +17,7 @@ import { fareWords, type MapPin, rideChoices, waysAbroad } from "./pins";
 import { ownLook, preloadRide, Ride } from "./Ride";
 import { headingOf, RideSheet, WAY_MODEL } from "./RideSheet";
 import { RouteVehicle } from "./paper/routeVehicle";
+import { type AbroadVehicle, vehicleFor, wayModelFor } from "./rideVehicles";
 
 /** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
 const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
@@ -81,6 +82,9 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   // The ways where the character is (R-PLACE-010 as amended 16 Oct 2026): abroad, the country's from the view; none listed
   // (Canada, the UAE and Italy until their waves), the single way at no fare as before.
   const abroadWays = view.place.where === "abroad" ? (view.place.ways ?? []) : [];
+  // The country the life is in and the stops its employer's shuttle serves, for the pills and the vehicles (R-PLACE-013).
+  const placeCountry = view.place.where === "abroad" ? view.place.country : null;
+  const shuttles: readonly string[] = view.place.shuttles ?? [];
   const currency = abroadWays[0]?.currency ?? "NGN";
   // All the money of the country's currency: the fare leaves cash first and the bank for the rest (R-PLACE-010).
   const pocket = view.pockets[currency];
@@ -90,10 +94,10 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const stable = useMemo(() => pins, [key]);
   const homeId = home ?? stable.find((pin) => pin.state === "home")?.id ?? null;
   const [picked, setPicked] = useState<string | null>(pickFirst);
-  const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean; fare?: string } | null>(null);
+  const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean; fare?: string; vehicle: AbroadVehicle | null; label?: string } | null>(null);
   // The way picked on the ride sheet: its vehicle rides the route on the map, the danfo when none or on foot.
   const [wayShown, setWayShown] = useState<RideChoice["id"]>("danfo");
-  const routeVehicle = WAY_MODEL[wayShown] ?? "veh_danfo";
+  const routeVehicle = wayModelFor(placeCountry, wayShown, false) ?? WAY_MODEL[wayShown] ?? "veh_danfo";
 
   const here = stable.find((pin) => pin.state === "here") ?? null;
   const pin = stable.find((candidate) => candidate.id === picked) ?? null;
@@ -103,7 +107,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const drive = view.things.drive;
   const choicesTo = (to: MapPin, at: MapPin): RideChoice[] =>
     abroadWays.length > 0
-      ? waysAbroad(abroadWays, { from: at.id, to: to.id }, { from: at.position, to: to.position }, to.id === homeId, view.place.fareBp)
+      ? waysAbroad(abroadWays, { from: at.id, to: to.id }, { from: at.position, to: to.position }, to.id === homeId, view.place.fareBp, { country: placeCountry, shuttles })
       : rideChoices(at.position, to.position, abroad, view.place.fareBp, to.id === homeId, { from: at.id, to: to.id }, drive);
   const ways = useMemo(() => (pin === null || here === null ? [] : choicesTo(pin, here)), [pin, here, abroad, view.place.fareBp, homeId, drive, abroadWays]);
 
@@ -118,8 +122,12 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
     // The ride starts once for the place chosen.
   }, [diveTo]);
 
-  /** A fare as words: "£0, bus pass" on the bus in a pass month (R-PLACE-012), else the fare in the country's money. */
-  const fareOf = (choice: RideChoice): string => (choice.passed === true ? mapWords("map.way.passed", { amount: formatMoney(0, currency) }) : fareWords(choice.fare, currency));
+  /**
+   * A fare as words: the country's pass or its shuttle by name ("£0, bus pass", "C$0, transit pass", "AED 0, site bus",
+   * R-PLACE-012, R-PLACE-013), else the fare in the country's money.
+   */
+  const fareOf = (choice: RideChoice): string =>
+    choice.pill ?? (choice.passed === true ? mapWords("map.way.passed", { amount: formatMoney(0, currency) }) : fareWords(choice.fare, currency));
 
   /** The fare first: a ride the city refuses does not play, and the sheet closes. A city with nothing to say rides at once. */
   const start = (choice: RideChoice | undefined, to: string, way: RideChoice["id"]): void => {
@@ -127,12 +135,15 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
     const long = choice?.long === true;
     // Abroad the ride carries its fare as a pill, in the country's money (R-WORLD-039); on foot nothing is paid.
     const fare = abroadWays.length === 0 || choice === undefined || choice.id === "walk" ? {} : { fare: fareOf(choice) };
+    // The country's own vehicle (R-WORLD-039 as amended): the labour bus or the van on the shuttle's bus, else the way's.
+    const shuttle = choice?.shuttle === true || (way === "bus" && here !== null && (shuttles.includes(here.id) || shuttles.includes(to)));
+    const ridden = { vehicle: vehicleFor(placeCountry, way, shuttle), ...(choice === undefined || placeCountry === null ? {} : { label: choice.label }) };
     if (answer instanceof Promise) {
       void answer.then((accepted) => {
-        if (accepted) setRiding({ id: to, way, long, ...fare });
+        if (accepted) setRiding({ id: to, way, long, ...fare, ...ridden });
       });
     } else if (answer !== false) {
-      setRiding({ id: to, way, long, ...fare });
+      setRiding({ id: to, way, long, ...fare, ...ridden });
     }
   };
 
@@ -204,12 +215,28 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
           </p>
         )
       ) : (
-        <RideSheet key={pin.id} pin={pin} home={pin.id === homeId} ways={ways} have={have} formatMoney={(amount) => formatMoney(amount, currency)} formatFare={(amount) => fareWords(amount, currency)} onChoose={go} onClose={() => setPicked(null)} onStay={onClose} onWay={setWayShown} {...(by === undefined ? {} : { by })} />
+        <RideSheet
+          key={pin.id}
+          pin={pin}
+          home={pin.id === homeId}
+          ways={ways}
+          have={have}
+          formatMoney={(amount) => formatMoney(amount, currency)}
+          formatFare={(amount) => fareWords(amount, currency)}
+          onChoose={go}
+          onClose={() => setPicked(null)}
+          onStay={onClose}
+          onWay={setWayShown}
+          wayModel={(choice) => wayModelFor(placeCountry, choice.id, choice.shuttle === true)}
+          {...(by === undefined ? {} : { by })}
+        />
       )}
 
       {riding === null ? null : (
         <Ride
           way={riding.way}
+          vehicle={riding.vehicle}
+          {...(riding.label === undefined ? {} : { wayName: riding.label })}
           long={riding.long}
           place={ridingTo === null ? "" : ridingTo.name}
           drawing={drawing}
