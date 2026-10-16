@@ -20,14 +20,14 @@ describe("obligations abroad", () => {
     expect(content.obligation["obligation.rent-room-uk"]?.creditMin).toBeUndefined();
     expect(content.obligation["obligation.rent-flat-uk"]).toMatchObject({ type: "rent", amount: 95000, creditMin: 20 });
     expect(content.obligation["obligation.phone-uk"]).toMatchObject({ type: "phone", amount: 2500, creditMin: 10 });
-    // Canada: C$600, C$900, C$1,700, C$45. The UAE: AED 450 and AED 1,200. Italy: €250 and €350.
-    expect(content.obligation["obligation.upkeep-ca"]?.amount).toBe(60000);
+    // Canada: C$30 (the prepaid phone alone, R-ABROAD-003 as amended again 16 Oct 2026), C$900, C$1,700, C$45. The UAE: AED 50 and AED 1,200. Italy: €10 and €350.
+    expect(content.obligation["obligation.upkeep-ca"]?.amount).toBe(3000);
     expect(content.obligation["obligation.rent-room-ca"]?.amount).toBe(90000);
     expect(content.obligation["obligation.rent-flat-ca"]?.amount).toBe(170000);
     expect(content.obligation["obligation.phone-ca"]?.amount).toBe(4500);
-    expect(content.obligation["obligation.upkeep-uae"]?.amount).toBe(45000);
+    expect(content.obligation["obligation.upkeep-uae"]?.amount).toBe(5000);
     expect(content.obligation["obligation.rent-room-uae"]?.amount).toBe(120000);
-    expect(content.obligation["obligation.upkeep-it"]?.amount).toBe(25000);
+    expect(content.obligation["obligation.upkeep-it"]?.amount).toBe(1000);
     expect(content.obligation["obligation.rent-room-it"]?.amount).toBe(35000);
     // Tuition in three instalments, every three months, one month's grace, then the status lapses.
     expect(content.obligation["obligation.tuition"]).toMatchObject({ type: "tuition", term: 3, everyMonths: 3, grace: 1, sink: "fee-school" });

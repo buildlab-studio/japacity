@@ -222,6 +222,7 @@ export const miniContent: Content = {
       overstayer: null,
       deceptionBanMonths: 120,
     partnerBarMonths: 0,
+      homeSpot: null,
     },
   },
   status: {

@@ -103,6 +103,7 @@ export type { ChatLine, ChatReply, ChatSender, ChatThread } from "./story/story.
 export { noticeKey, noticesDue, OBLIGATION_TYPES, reminders, remindersDue } from "./story/story.notice.data";
 export type { Notice, Reminder } from "./story/story.notice.data";
 export { meetingThings, partnerMeetings, placesWanted } from "./person/person.meet.data";
+export { roomName, roomNameKey } from "./place/place.room";
 export type { PartnerMeeting } from "./person/person.meet.data";
 export { spendingLines, versionedLines } from "./comedy/comedy.data";
 export { versionCount, versionKey } from "./comedy/comedy";
@@ -115,12 +116,14 @@ export type { JapaType, OfficialAccount, OfficialPlatform, ShareKind } from "./s
  * so a life saved under it replays and is upgraded on its first load. m0.2 followed m0.1 when the lived
  * month, the arrivals, the body and the street's money landed; m0.3 follows m0.2 when London was built on
  * the Lagos mold: rides abroad and the bus pass, London's places, food bought in pounds and the UK's upkeep the phone
- * alone (decision 0042).
+ * alone (decision 0042); m0.4 follows m0.3 when Calgary, Dubai and Castel Volturno were built on the same
+ * mold: each country's ways, its pass on the ways it covers and the employer's shuttle (decision 0043), their places,
+ * food bought in their money and each upkeep the prepaid phone alone.
  */
-export const PREVIOUS_CONTENT_VERSION = "m0.2";
+export const PREVIOUS_CONTENT_VERSION = "m0.3";
 
 export const content: Content = {
-  version: "m0.3",
+  version: "m0.4",
   quality: qualityTable,
   // advice.md: the friend, the adviser and the agents.
   activity: withWhen({ ...activityTable, ...adviceActivityTable }),

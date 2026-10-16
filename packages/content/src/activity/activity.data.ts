@@ -6,6 +6,9 @@ import type { ActivityEntry, Cost, Id, Requirement } from "@japacity/sim";
 import { dollars, naira, pct } from "../units";
 import { abroadActivityTable, foreignPocketActivityTable } from "./activity.abroad.data";
 import { enjoyActivityTable } from "./activity.enjoy.data";
+import { calgaryActivityTable } from "./activity.calgary.data";
+import { castelActivityTable } from "./activity.castel.data";
+import { dubaiActivityTable } from "./activity.dubai.data";
 import { londonActivityTable } from "./activity.london.data";
 import { peopleActivityTable } from "./activity.people.data";
 import { profileActivityTable } from "./activity.profile.data";
@@ -603,6 +606,10 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...enjoyActivityTable,
   // place.md R-PLACE-012 and streets.md R-STREET-012: London lived by hand.
   ...londonActivityTable,
+  // place.md R-PLACE-012 as amended and streets.md R-STREET-013 to R-STREET-015: Calgary, Dubai and Castel Volturno lived by hand.
+  ...calgaryActivityTable,
+  ...dubaiActivityTable,
+  ...castelActivityTable,
   // activity.md R-ACTIVITY-013: the waiting months' acts.
   ...profileActivityTable,
   // The trader's own shop.

@@ -861,6 +861,12 @@ export interface CountryEntry {
   deceptionBanMonths: number;
   /** Months after arriving through a partner before sponsoring a new one (R-UNDERTAKING-004). */
   partnerBarMonths: number;
+  /**
+   * Where the room abroad stands on the country's painted map, in thousandths of a degree (design pages 14 and 15,
+   * world.md R-WORLD-038 as amended 16 Oct 2026): a made-up spot, since the room is country-less and has no position of
+   * its own. Null for a country with no painted map.
+   */
+  homeSpot: { latE3: number; lonE3: number } | null;
 }
 
 export interface StatusEntry {
@@ -931,6 +937,8 @@ export interface PlaceEntry {
   traditionalBp: number;
   /** The folder under `public/assets/places/`. */
   assets: string;
+  /** R-PLACE-013 (decision 0043): the employer's shuttle serves it, so a ride by bus to or from it asks no fare. */
+  shuttle: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -1397,20 +1405,26 @@ export interface RideFigures {
 }
 
 /**
- * A country's rides (R-PLACE-010 as amended, R-PLACE-012): the ways it lists, the step every fare is rounded up to,
- * the month's bus pass, null where there is none, and the metres a thousandth of a degree of longitude is worth there.
- * A country with no ways listed refuses a ride.
+ * A country's rides (R-PLACE-010 as amended, R-PLACE-012 as amended, decision 0043): the ways it lists, the step every
+ * fare is rounded up to, the month's pass, null where there is none, the ways the pass covers, the metres a thousandth
+ * of a degree of longitude is worth there, and the pace on foot (the heat of the Gulf slows a walk). A country with no
+ * ways listed refuses a ride.
  */
 export interface CountryRides {
   ways: { bus?: RideFigures; train?: RideFigures; taxi?: RideFigures };
   step: number;
   pass: number | null;
+  /** The ways the month's pass makes ask nothing (R-PLACE-012 as amended 16 Oct 2026): the UK the bus, Canada and the UAE the bus and the train, Italy none. */
+  passWays: AbroadWay[];
   lonMetresPerE3: number;
+  /** Metres a minute on foot in that country (design page 15 section 4: the UAE 60, elsewhere 80). */
+  walkMetresPerMinute: number;
 }
 
 /**
  * One way the ride sheet offers where the character is (R-PLACE-010 as amended 16 Oct 2026): its figures in `currency`'s
- * smallest unit, as `rideFare` takes them, and `passed` when this month's bus pass makes it ask nothing (R-PLACE-012).
+ * smallest unit, as `rideFare` takes them, and `passed` when this month's pass covers it and it asks nothing (R-PLACE-012
+ * as amended 16 Oct 2026: every way the country's `passWays` names).
  */
 export interface RideWayView {
   way: RideWay;
@@ -2385,7 +2399,8 @@ export interface PlayerView {
   /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (R-PLACE-006). */
   /** `wayHome` (R-PLACE-011): the way home from where the character is today, as `return/home` would take it; null when not abroad. */
   /** `ways` (R-PLACE-010 as amended 16 Oct 2026): the ways a ride may take where the character is, with their figures; empty on the road and in a country with none. Always set by the simulation; optional only so a view written by hand before it stays whole. */
-  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null; ways?: RideWayView[] };
+  /** `shuttles` (R-PLACE-013, decision 0043): the stops of the character's country the employer's shuttle serves, so a bus to or from one asks no fare; empty at home, on the road and in a country with none. Always set by the simulation; optional for the same reason as `ways`. */
+  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null; ways?: RideWayView[]; shuttles?: Id<"place">[] };
   status: {
     entry: Id<"status">;
     monthsLeft: number | null;

@@ -28,7 +28,8 @@ function overheard(place: string): string[] {
 const SHOPPING = [
   // the UK's stalls stand on Rye Lane and are paid as enjoyment.
   { id: "activity.street-shopping-uk" as Id<"activity">, country: "country.uk", currency: "GBP", amount: street.shoppingGbp, reason: "enjoyment", place: "place.rye-lane" },
-  { id: "activity.street-shopping-uae" as Id<"activity">, country: "country.uae", currency: "AED", amount: street.shoppingAed, reason: "social", place: "place.deira" },
+  // the souq stands in Naif and is paid as enjoyment.
+  { id: "activity.street-shopping-uae" as Id<"activity">, country: "country.uae", currency: "AED", amount: street.shoppingAed, reason: "enjoyment", place: "place.naif" },
 ] as const;
 
 const FINDS = [
@@ -37,7 +38,7 @@ const FINDS = [
 ] as const;
 
 describe("shopping on the street abroad", () => {
-  test("[R-STREET-005] given the two street shoppings, when their entries are read, then each is a free slot abroad in its own country, costs the street's price in that currency (London's as enjoyment) and lifts the mood by the street's figure", () => {
+  test("[R-STREET-005] given the two street shoppings, when their entries are read, then each is a free slot abroad in its own country, costs the street's price in that currency as enjoyment and lifts the mood by the street's figure", () => {
     expect(street).toMatchObject({ shoppingGbp: 2000, shoppingAed: 8000, shoppingMood: 5 });
     for (const want of SHOPPING) {
       const entry = content.activity[want.id];
@@ -50,7 +51,7 @@ describe("shopping on the street abroad", () => {
     }
   });
 
-  test("[R-STREET-005] [R-CITY-010] given the two street shoppings, when the places are read, then each is staged once, on Rye Lane and at Deira, and each has a name and a blurb with no dash", () => {
+  test("[R-STREET-005] [R-CITY-010] given the two street shoppings, when the places are read, then each is staged once, on Rye Lane and in Naif, and each has a name and a blurb with no dash", () => {
     for (const want of SHOPPING) {
       expect(stagedAt(want.id)).toEqual([want.place]);
       const keys = [`${want.id}.name`, `${want.id}.blurb`];

@@ -42,6 +42,8 @@ interface Shape {
   traditionalBp: number;
   /** A made-up spot for a place with no address of its own, in thousandths of a degree (R-CITY-008 as amended 12 Oct 2026): the map and the fares read it. */
   spot?: [number, number];
+  /** R-PLACE-013: the employer's shuttle serves it, so the bus to or from it asks no fare. */
+  shuttle?: boolean;
 }
 
 /** The day the made-up spots were placed by hand against the public places around them. */
@@ -71,6 +73,7 @@ function lagos(id: Id<"place">, realName: string, area: string, latE3: number, l
     crowd: shape.crowd,
     traditionalBp: shape.traditionalBp,
     assets: shape.assets ?? slugOf(id),
+    shuttle: shape.shuttle ?? false,
   };
 }
 
@@ -94,6 +97,7 @@ function abroad(id: Id<"place">, country: Id<"country">, city: string, area: str
     crowd: shape.crowd,
     traditionalBp: shape.traditionalBp,
     assets: shape.assets ?? slugOf(id),
+    shuttle: shape.shuttle ?? false,
   };
 }
 
@@ -118,54 +122,72 @@ function unnamed(
     data: shape.spot === undefined ? null : { source: "own", licence: null, checked: OWN_SPOTS_PLACED },
     sponsor: null,
     scope: shape.scope ?? "interior",
-    hub: false,
+    hub: shape.hub ?? false,
     occasion: shape.occasion ?? false,
     stages: shape.stages ?? [],
     crowd: shape.crowd,
     traditionalBp: shape.traditionalBp,
     assets: shape.assets ?? slugOf(id),
+    shuttle: shape.shuttle ?? false,
   };
 }
 
-/** The day London's made-up spots were placed by hand against the public places round them (design page 14 section 4). */
-const LONDON_SPOTS_PLACED = "2026-10-16";
+/**
+ * The day the made-up spots abroad were placed by hand against the public places around them: London's (design page 14
+ * section 4), and Calgary's, Dubai's and Castel Volturno's (design page 15 section 3) the same day.
+ */
+const ABROAD_SPOTS_PLACED = "2026-10-16";
 
 /**
  * A place of London with no real name of its own (city.md "Entries: abroad"): a business by made-up name
  * or an institution by plain description, at a made-up spot in its area, its own source with no licence (R-CITY-008).
  */
 function london(id: Id<"place">, nameKind: "business" | "institution", area: string, latE3: number, lonE3: number, shape: Shape): PlaceEntry {
+  return madeUp(id, "country.uk", "london", nameKind, area, latE3, lonE3, shape);
+}
+
+/** A place of Calgary with no real name of its own, at a made-up spot (design page 15 section 3). */
+function calgary(id: Id<"place">, nameKind: "business" | "institution", area: string, latE3: number, lonE3: number, shape: Shape): PlaceEntry {
+  return madeUp(id, "country.canada", "calgary", nameKind, area, latE3, lonE3, shape);
+}
+
+/** A place of Dubai with no real name of its own, at a made-up spot (design page 15 section 3). */
+function dubai(id: Id<"place">, nameKind: "business" | "institution", area: string, latE3: number, lonE3: number, shape: Shape): PlaceEntry {
+  return madeUp(id, "country.uae", "dubai", nameKind, area, latE3, lonE3, shape);
+}
+
+/** A place of Castel Volturno with no real name of its own, at a made-up spot (design page 15 section 3). */
+function castel(id: Id<"place">, nameKind: "business" | "institution", area: string, latE3: number, lonE3: number, shape: Shape): PlaceEntry {
+  return madeUp(id, "country.italy", "castel-volturno", nameKind, area, latE3, lonE3, shape);
+}
+
+/**
+ * A place abroad with no real name of its own (city.md "Entries: abroad", design pages 14 and 15): a business by
+ * description or made-up name or an institution by plain description, at a made-up spot in its area, its own source
+ * with no licence (R-CITY-008).
+ */
+function madeUp(id: Id<"place">, country: Id<"country">, city: string, nameKind: "business" | "institution", area: string, latE3: number, lonE3: number, shape: Shape): PlaceEntry {
   return {
     id,
     where: "abroad",
-    country: "country.uk",
-    city: "london",
+    country,
+    city,
     area,
     nameKind,
     realName: null,
     position: { latE3, lonE3 },
-    data: { source: "own", licence: null, checked: LONDON_SPOTS_PLACED },
+    data: { source: "own", licence: null, checked: ABROAD_SPOTS_PLACED },
     sponsor: null,
     scope: shape.scope ?? "interior",
-    hub: false,
+    hub: shape.hub ?? false,
     occasion: shape.occasion ?? false,
     stages: shape.stages ?? [],
     crowd: shape.crowd,
     traditionalBp: shape.traditionalBp,
     assets: shape.assets ?? slugOf(id),
+    shuttle: shape.shuttle ?? false,
   };
 }
-
-/** Every job held abroad, shown at the workplace unless a place of the country stages it. The UK's are staged at London's own places. */
-const JOBS_ABROAD: Staged = [
-  "activity.job-ca-warehouse",
-  "activity.job-ca-care-aide",
-  "activity.job-ca-professional",
-  "activity.job-ca-dev",
-  "activity.job-gulf-guard",
-  "activity.job-gulf-cleaner",
-  "activity.job-it-farm-cash",
-];
 
 const entries: PlaceEntry[] = [
   // Lagos: public places.
@@ -395,32 +417,85 @@ const entries: PlaceEntry[] = [
   // The UK's test centre at Elephant and Castle, on the English test centre's scene (R-CITY-010: the country's own place
   // stages what the country-less one stages).
   london("place.test-centre-uk", "institution", "elephant-and-castle", 51494, -100, { assets: "english-test-centre", stages: ["activity.nmc-tests", "activity.driving-test"], crowd: QUIET, traditionalBp: OFFICE }),
+  // Calgary on the mold (city.md "Entries: abroad", design page 15 section 3). Made-up spots in the
+  // north-east, placed against the airport, the CTrain's north-east line and downtown so the paper reads right.
   abroad("place.calgary-airport", "country.canada", "calgary", "north-east", "Calgary International Airport", 51122, -114014, { scope: "interior", crowd: QUIET, traditionalBp: AIRPORT }),
-  // The city's position, not the street's: the street is made up.
-  abroad("place.calgary-north-east", "country.canada", "calgary", "north-east", "Northeast Calgary", 51046, -114058, { hub: true, stages: ["activity.community-ca"], crowd: QUIET, traditionalBp: HUB }),
+  // The hub, redressed as a strip mall at a made-up spot (was the city's position): the jobs notice, the coffee shop, the
+  // African store, the barber, the bus stop and the find. A row of shops shown by description, so a business.
+  calgary("place.calgary-north-east", "business", "north-east", 51090, -113960, {
+    scope: "exterior",
+    hub: true,
+    stages: ["activity.job-hunt", "activity.coffee-ca", "activity.naija-shop-ca", "activity.barber-ca", "offer.street-find-ca"],
+    crowd: QUIET,
+    traditionalBp: HUB,
+  }),
+  // The station (place.md R-PLACE-012 as amended): the ticket machine's transit pass; the train's platform. Which station
+  // is not said, so it is shown by plain description.
+  calgary("place.ctrain-station-ca", "institution", "north-east", 51073, -113977, { scope: "exterior", stages: ["activity.transit-pass-ca"], crowd: QUIET, traditionalBp: HUB }),
+  // The rooms Calgary shares with London are London's scenes under Calgary's own entries (R-WORLD-039 as amended).
+  calgary("place.big-shop-ca", "business", "north-east", 51095, -113980, { assets: "big-shop-uk", stages: ["activity.weekly-shop-ca", "activity.buy-clothes-ca"], crowd: BUSY, traditionalBp: HUB }),
+  calgary("place.warehouse-ca", "business", "north-east", 51110, -113990, { assets: "warehouse-uk", stages: ["activity.job-ca-warehouse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.care-home-ca", "business", "north-east", 51080, -113995, { assets: "care-home-uk", stages: ["activity.job-ca-care-aide", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.office-ca", "business", "downtown", 51046, -114063, { assets: "office-uk", stages: ["activity.job-ca-professional", "activity.job-ca-dev"], crowd: QUIET, traditionalBp: OFFICE }),
+  // The library's evening course, a room of its own.
+  calgary("place.library-ca", "institution", "north-east", 51092, -113972, { stages: ["activity.learn-tech-ca"], crowd: QUIET, traditionalBp: OFFICE }),
+  // The church hall, the community's place (world.md R-WORLD-020).
+  calgary("place.church-ca", "institution", "north-east", 51085, -113965, { assets: "church-uk", occasion: true, stages: ["activity.community-ca"], crowd: BUSY, traditionalBp: HUB }),
+  // The registry on the English test centre's scene, for Alberta's licence (R-CITY-010: the country's own place stages
+  // what the country-less test centre staged).
+  calgary("place.registry-ca", "institution", "north-east", 51092, -113968, { assets: "english-test-centre", stages: ["activity.driving-test"], crowd: QUIET, traditionalBp: OFFICE }),
+
+  // Dubai on the mold (design page 15 section 3).
   abroad("place.dubai-airport", "country.uae", "dubai", "garhoud", "Dubai International Airport", 25252, 55367, { scope: "interior", crowd: PACKED, traditionalBp: AIRPORT }),
-  // The Gulf jobs at the typing centre and the site bus; both come by the agent's contract (world.md R-WORLD-005).
+  // The hub: the typing centre where the hunt is sent, the exchange house for money home, the cafeteria, the African foods
+  // shop, the barber, the corner by the creek and the find. The souq moved to Naif and the Gulf's jobs to the site.
   abroad("place.deira", "country.uae", "dubai", "deira", "Deira", 25273, 55305, {
     hub: true,
-    stages: ["activity.community-uae", "activity.street-shopping-uae", "offer.street-find-uae", "activity.job-gulf-guard", "activity.job-gulf-cleaner"],
+    stages: ["activity.job-hunt", "activity.send-money", "activity.cafeteria-uae", "activity.naija-shop-uae", "activity.barber-uae", "activity.community-uae", "offer.street-find-uae"],
     crowd: PACKED,
     traditionalBp: HUB,
   }),
-  abroad("place.naif", "country.uae", "dubai", "deira", "Naif", 25272, 55310, { crowd: PACKED, traditionalBp: HUB }),
-  abroad("place.castel-volturno", "country.italy", "castel-volturno", "castel-volturno", "Castel Volturno", 41034, 13941, { hub: true, crowd: QUIET, traditionalBp: HUB }),
-  abroad("place.via-domitiana", "country.italy", "castel-volturno", "castel-volturno", "Via Domitiana", 40929, 14025, { stages: ["activity.overtime"], crowd: QUIET, traditionalBp: HUB }),
+  // The souq streets (streets.md R-STREET-014): the souq, the laundry and the tailor.
+  abroad("place.naif", "country.uae", "dubai", "deira", "Naif", 25272, 55310, { stages: ["activity.street-shopping-uae", "activity.laundry-uae", "activity.buy-clothes-uae"], crowd: PACKED, traditionalBp: HUB }),
+  // The metro station (place.md R-PLACE-012 as amended): the Nol machine's zone pass; the metro's platform. Looked up in
+  // OpenStreetMap's search on 16 Oct 2026 (the station's gates on Al Maktoum Street, 25.2665, 55.3122).
+  { ...abroad("place.metro-station-uae", "country.uae", "dubai", "deira", "Union station", 25266, 55312, { stages: ["activity.transit-pass-uae"], crowd: BUSY, traditionalBp: HUB }), data: { ...OSM, checked: ABROAD_SPOTS_PLACED } },
+  dubai("place.big-shop-uae", "business", "al-rigga", 25265, 55320, { assets: "big-shop-uk", stages: ["activity.weekly-shop-uae"], crowd: BUSY, traditionalBp: HUB }),
+  // The site among the towers across the creek, reached by the labour bus for nothing (R-PLACE-013): the guard's post,
+  // the cleaner's trolley and the rota board.
+  dubai("place.site-uae", "business", "towers", 25186, 55263, { scope: "exterior", shuttle: true, stages: ["activity.job-gulf-guard", "activity.job-gulf-cleaner", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
+
+  // Castel Volturno on the mold (design page 15 section 3).
+  // The hub: the roundabout where the vans come at dawn, the bar, the African shop, the call shop for money home and the find.
+  abroad("place.castel-volturno", "country.italy", "castel-volturno", "castel-volturno", "Castel Volturno", 41034, 13941, {
+    hub: true,
+    stages: ["activity.job-hunt", "activity.coffee-it", "activity.naija-shop-it", "activity.send-money", "offer.street-find-it"],
+    crowd: QUIET,
+    traditionalBp: HUB,
+  }),
+  // The coast road: the pickup point's second shift, the Nigerian shop, the barber and the market stall.
+  abroad("place.via-domitiana", "country.italy", "castel-volturno", "castel-volturno", "Via Domitiana", 40929, 14025, {
+    stages: ["activity.overtime", "activity.street-shopping-it", "activity.barber-it", "activity.buy-clothes-it"],
+    crowd: QUIET,
+    traditionalBp: HUB,
+  }),
+  // The fields inland, reached by the gangmaster's van for nothing (R-PLACE-013): the gangmaster's table.
+  castel("place.farm-it", "business", "fields", 41010, 13990, { scope: "exterior", shuttle: true, stages: ["activity.job-it-farm-cash"], crowd: QUIET, traditionalBp: ROADSIDE }),
+  castel("place.big-shop-it", "business", "castel-volturno", 41030, 13950, { assets: "big-shop-uk", stages: ["activity.weekly-shop-it"], crowd: BUSY, traditionalBp: HUB }),
+  // The church, the community's place (world.md R-WORLD-020).
+  castel("place.church-it", "institution", "castel-volturno", 41028, 13945, { assets: "church-uk", occasion: true, stages: ["activity.community-it"], crowd: BUSY, traditionalBp: HUB }),
   abroad("place.naples-airport", "country.italy", "naples", "capodichino", "Naples Airport", 40884, 14285, { scope: "interior", crowd: QUIET, traditionalBp: AIRPORT }),
   // One shared room dressed per person: a friend's room, and a partner's home once courting (world.md R-WORLD-020).
   unnamed("place.their-room", "stylised", "home", "lagos", null, { stages: ["activity.see-someone"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.the-room", "stylised", "abroad", null, null, {
     // The bed, the window and the laptop in the room abroad (R-WORLD-025; R-CITY-010 lets the country-less room stage what a country's own place also stages).
-    // The cooking corner cooks in pounds in the UK (streets.md R-STREET-012, home.md R-HOME-012 as amended): activity.cook-own-uk shows only there.
-    stages: ["activity.rest", "activity.community-uk", "activity.community-ca", "activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own-uk"],
+    // The cooking corner cooks in each country's money (streets.md R-STREET-012 to R-STREET-015, home.md R-HOME-012 as
+    // amended): each country's meal shows only there. The hunt, the community and money home are at each country's own
+    // places (city.md "Entries: abroad" as amended 16 Oct 2026).
+    stages: ["activity.rest", "activity.call-home", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own-uk", "activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-it"],
     crowd: FEW,
     traditionalBp: OFFICE,
   }),
-  unnamed("place.test-centre-abroad", "institution", "abroad", null, OWN_AREA, { stages: ["activity.nmc-tests", "activity.driving-test"], crowd: QUIET, traditionalBp: OFFICE }),
-  unnamed("place.workplace-abroad", "business", "abroad", null, OWN_AREA, { stages: JOBS_ABROAD, crowd: QUIET, traditionalBp: OFFICE }),
 ];
 
 export const placeTable: Record<Id<"place">, PlaceEntry> = Object.fromEntries(entries.map((entry) => [entry.id, entry]));

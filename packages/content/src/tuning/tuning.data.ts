@@ -3,7 +3,7 @@
 import type { Tuning } from "@japacity/sim";
 
 import { hometownByHome, hometownCities, hometownTowns } from "../prologue/prologue.hometown.data";
-import { naira, pct, pounds } from "../units";
+import { aed, cad, naira, pct, pounds } from "../units";
 
 export const tuning: Tuning = {
   // turn.md
@@ -266,14 +266,31 @@ export const tuning: Tuning = {
       // of the latitude, rounded: Lagos 111 here, and each country's below; latitude is 111 everywhere.
       lonMetresPerE3: 111,
       // place.md R-PLACE-010 as amended 16 Oct 2026 and R-PLACE-012 (decision 0042, design page 14 section 5): each
-      // country's ways in its smallest unit, the step a fare is rounded up to, and the month's bus pass. London's are 2025
-      // fares, rounded: the hopper bus fare, an off-peak train single by distance, a monthly bus and tram pass. Canada, the
-      // UAE and Italy list no ways until their waves, so a ride there is still refused.
+      // country's ways in its smallest unit, the step a fare is rounded up to, the month's pass and the ways it covers
+      // (R-PLACE-012 as amended, decision 0043), and the pace on foot. London's are 2025 fares, rounded: the hopper bus
+      // fare, an off-peak train single by distance, a monthly bus and tram pass. Calgary, Dubai and Castel Volturno's are
+      // design page 15 section 4's 2025 figures, rounded: Calgary's one flat fare on the bus and the CTrain and the month's
+      // transit pass on both; Dubai's zone fare read as distance on the bus and the metro, the Nol zone pass on both, and a
+      // slower walk in the heat; the coast road's bus at one flat fare, and no train, taxi or pass in Castel Volturno.
       abroad: {
-        "country.uk": { ways: { bus: { fare: 175, farePerKm: 0, metresPerMinute: 250 }, train: { fare: 280, farePerKm: 10, metresPerMinute: 600 } }, step: 5, pass: pounds(95), lonMetresPerE3: 69 },
-        "country.canada": { ways: {}, step: 5, pass: null, lonMetresPerE3: 71 },
-        "country.uae": { ways: {}, step: 25, pass: null, lonMetresPerE3: 100 },
-        "country.italy": { ways: {}, step: 5, pass: null, lonMetresPerE3: 84 },
+        "country.uk": { ways: { bus: { fare: 175, farePerKm: 0, metresPerMinute: 250 }, train: { fare: 280, farePerKm: 10, metresPerMinute: 600 } }, step: 5, pass: pounds(95), passWays: ["bus"], lonMetresPerE3: 69, walkMetresPerMinute: 80 },
+        "country.canada": {
+          ways: { bus: { fare: 380, farePerKm: 0, metresPerMinute: 300 }, train: { fare: 380, farePerKm: 0, metresPerMinute: 700 }, taxi: { fare: 380, farePerKm: 200, metresPerMinute: 600 } },
+          step: 5,
+          pass: cad(118),
+          passWays: ["bus", "train"],
+          lonMetresPerE3: 71,
+          walkMetresPerMinute: 80,
+        },
+        "country.uae": {
+          ways: { bus: { fare: 400, farePerKm: 50, metresPerMinute: 250 }, train: { fare: 400, farePerKm: 50, metresPerMinute: 700 }, taxi: { fare: 1200, farePerKm: 200, metresPerMinute: 600 } },
+          step: 25,
+          pass: aed(140),
+          passWays: ["bus", "train"],
+          lonMetresPerE3: 100,
+          walkMetresPerMinute: 60,
+        },
+        "country.italy": { ways: { bus: { fare: 160, farePerKm: 0, metresPerMinute: 200 } }, step: 5, pass: null, passWays: [], lonMetresPerE3: 84, walkMetresPerMinute: 80 },
       } } },
 
   // people.md, pair.md, interview.md, undertaking.md: their Numbers tables

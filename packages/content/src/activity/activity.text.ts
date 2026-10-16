@@ -1,5 +1,8 @@
 // Names are from docs/rules/activity.md. Blurbs are first drafts.
 import { activityEnjoyText } from "./activity.enjoy.text";
+import { activityCalgaryText } from "./activity.calgary.text";
+import { activityCastelText } from "./activity.castel.text";
+import { activityDubaiText } from "./activity.dubai.text";
 import { activityLondonText } from "./activity.london.text";
 import { activityNowText } from "./activity.now.text";
 import { activityProfileText } from "./activity.profile.text";
@@ -155,6 +158,10 @@ export const activityText: Record<string, string> = {
   ...activityEnjoyText,
   // place.md R-PLACE-012 and streets.md R-STREET-012: London lived by hand.
   ...activityLondonText,
+  // place.md R-PLACE-012 as amended and streets.md R-STREET-013 to R-STREET-015: Calgary, Dubai and Castel Volturno lived by hand.
+  ...activityCalgaryText,
+  ...activityDubaiText,
+  ...activityCastelText,
   ...activityProfileText,
   ...activityShopText,
   ...activityWaterText,

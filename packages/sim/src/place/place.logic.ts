@@ -425,8 +425,15 @@ export function rideFare(
 /** The room abroad: the home there, so a walk to it is always accepted (R-PLACE-010 as amended 16 Oct 2026). */
 const ROOM: Id<"place"> = "place.the-room";
 
-/** R-PLACE-012: the act that buys a country's bus pass. Only a country whose rides carry a `pass` figure has one. */
-const BUS_PASS: Readonly<Partial<Record<Id<"country">, Id<"activity">>>> = { "country.uk": "activity.bus-pass-uk" };
+/**
+ * R-PLACE-012 as amended 16 Oct 2026 (decision 0043): the act that buys a country's pass, the country's own now-act at its
+ * station's machine. Only a country whose rides carry a `pass` figure has one; Italy has none.
+ */
+const PASS_ACT: Readonly<Partial<Record<Id<"country">, Id<"activity">>>> = {
+  "country.uk": "activity.bus-pass-uk",
+  "country.canada": "activity.transit-pass-ca",
+  "country.uae": "activity.transit-pass-uae",
+};
 
 /** A country's rides, or null when it lists no way (Canada, the UAE and Italy until their waves): a ride there is refused. */
 function countryRides(content: Pick<Content, "tuning">, country: Id<"country">): CountryRides | null {
@@ -435,14 +442,37 @@ function countryRides(content: Pick<Content, "tuning">, country: Id<"country">):
   return ABROAD_WAYS.some((way) => rides.ways[way] !== undefined) ? rides : null;
 }
 
-/** R-PLACE-012: the month's bus pass is bought in the country the character is in, read from the month's played acts. */
-export function busPassHeld(read: ReadCtx): boolean {
+/** R-PLACE-012: the month's pass is bought in the country the character is in, read from the month's played acts. */
+export function passHeld(read: ReadCtx): boolean {
   const { where, country } = read.state.place;
   if (where !== "abroad" || country === null) return false;
-  const act = BUS_PASS[country];
+  const act = PASS_ACT[country];
   const pass = read.content.tuning.city.ride.abroad[country]?.pass;
   if (act === undefined || pass === undefined || pass === null) return false;
   return check(read, { type: "activity/played", activity: act }).met;
+}
+
+/** R-PLACE-012 as amended 16 Oct 2026 (decision 0043): a way the country's pass covers, in a month it is bought. */
+function passCovers(read: ReadCtx, rides: CountryRides, way: RideWay): boolean {
+  return (rides.passWays as readonly RideWay[]).includes(way) && passHeld(read);
+}
+
+/**
+ * R-PLACE-013 (decision 0043): a ride by bus to or from a place the employer's shuttle serves (the labour bus to the
+ * site, the gangmaster's van to the fields) asks no fare in any month. Every other way is priced, and no other stop is
+ * covered. The ride sheet reads the same from the view's `place.shuttles`.
+ */
+export function shuttleRide(from: Pick<PlaceEntry, "shuttle">, to: Pick<PlaceEntry, "shuttle">, way: RideWay): boolean {
+  return way === "bus" && (from.shuttle || to.shuttle);
+}
+
+/** R-PLACE-013: the stops of the character's country the employer's shuttle serves, for the view; none at home or on the road. */
+export function shuttlesHere(read: ReadCtx): Id<"place">[] {
+  const { where, country } = read.state.place;
+  if (where !== "abroad" || country === null) return [];
+  return Object.values(read.content.place)
+    .filter((place) => place.shuttle && ofCountry(place, country))
+    .map((place) => place.id);
 }
 
 /** A place of the country: an abroad place of that country, or a country-less abroad place such as the room. */
@@ -470,12 +500,12 @@ export function waysHere(read: ReadCtx): RideWayView[] {
   const rides = countryRides(read.content, country);
   if (rides === null) return [];
   const currency: Currency = countryEntry(read.content, country).currency;
-  const passed = busPassHeld(read);
   const listed = ABROAD_WAYS.flatMap((way): RideWayView[] => {
     const figures = rides.ways[way];
-    return figures === undefined ? [] : [{ way, currency, ...figures, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3, passed: way === "bus" && passed }];
+    return figures === undefined ? [] : [{ way, currency, ...figures, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3, passed: passCovers(read, rides, way) }];
   });
-  return [...listed, { way: "walk", currency, ...walk, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3, passed: false }];
+  // On foot at the country's own pace (design page 15 section 4: the Gulf's heat slows a walk).
+  return [...listed, { way: "walk", currency, ...walk, metresPerMinute: rides.walkMetresPerMinute, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3, passed: false }];
 }
 
 /** The fare taken from the currency, cash first and the bank for the rest, and the ride on record (R-PLACE-010). */
@@ -492,9 +522,10 @@ function payRide(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>, fa
 }
 
 /**
- * R-PLACE-010 as amended 16 Oct 2026 (decision 0042) and R-PLACE-012: a ride abroad, between two places of the
- * character's country, on the country's ways or on foot. The scarcity factor is Lagos's and is not applied; the bus asks
- * nothing in a month the pass is bought.
+ * R-PLACE-010 as amended 16 Oct 2026 (decision 0042), R-PLACE-012 and R-PLACE-013 (decision 0043): a ride abroad,
+ * between two places of the character's country, on the country's ways or on foot. The scarcity factor is Lagos's and
+ * is not applied; a way the pass covers asks nothing in a month it is bought, and the bus to or from a shuttle's stop
+ * asks nothing in any month.
  */
 function rideAbroad(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>, country: Id<"country">): BaseEvent[] | Rejection {
   const { from, to, way } = command;
@@ -513,7 +544,8 @@ function rideAbroad(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>,
   }
   const figures = abroadFigures(rides, way);
   if (figures === undefined) return reject("not-legal", `There is no ${way} here.`);
-  const fare = way === "bus" && busPassHeld(ctx) ? 0 : rideFare({ ...figures, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3 }, start.position, end.position);
+  const free = passCovers(ctx, rides, way) || shuttleRide(start, end, way);
+  const fare = free ? 0 : rideFare({ ...figures, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3 }, start.position, end.position);
   return payRide(ctx, command, fare, currency);
 }
 
@@ -730,6 +762,7 @@ function view(read: ReadCtx): Pick<PlayerView, "place"> {
       fareBp: fareBpOf(read),
       wayHome: wayHomeOf(read),
       ways: waysHere(read),
+      shuttles: shuttlesHere(read),
     },
   };
 }

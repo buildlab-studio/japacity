@@ -42,7 +42,7 @@ export const activityAbroadText: Record<string, string> = {
   "activity.community-uk.name": "Join the community, UK",
   "activity.community-uk.blurb": "Church, the mosque or the Nigerian association. People who know who is hiring.",
   "activity.community-ca.name": "Join the community, Canada",
-  "activity.community-ca.blurb": "Sunday service in Brampton, then jollof in the church hall. Somebody always knows a hiring manager.",
+  "activity.community-ca.blurb": "Sunday service in the north-east, then jollof in the church hall. Somebody always knows a hiring manager.",
   "activity.community-uae.name": "Join the community, Dubai",
   "activity.community-uae.blurb": "Friday with the people from home. They know which companies pay on time.",
   "activity.street-shopping-uk.name": "Shop on Rye Lane, London",

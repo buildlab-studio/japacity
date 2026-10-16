@@ -109,6 +109,32 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.pub-pint": "repeat",
   "activity.barber-uk": "once",
   "activity.buy-clothes-uk": "once",
+  // Calgary, Dubai and Castel Volturno lived by hand (place.md R-PLACE-012 as amended, streets.md R-STREET-013 to 015):
+  // each pass once a month at its machine, the coffees a purchase, the food and the evenings as often as the month's
+  // time allows, the barbers and the clothes once a month, the church's community once as the other countries' are.
+  "activity.transit-pass-ca": "once",
+  "activity.weekly-shop-ca": "repeat",
+  "activity.cook-own-ca": "repeat",
+  "activity.coffee-ca": "purchase",
+  "activity.naija-shop-ca": "repeat",
+  "activity.barber-ca": "once",
+  "activity.buy-clothes-ca": "once",
+  "activity.transit-pass-uae": "once",
+  "activity.weekly-shop-uae": "repeat",
+  "activity.cook-own-uae": "repeat",
+  "activity.cafeteria-uae": "repeat",
+  "activity.naija-shop-uae": "repeat",
+  "activity.barber-uae": "once",
+  "activity.buy-clothes-uae": "once",
+  "activity.laundry-uae": "repeat",
+  "activity.weekly-shop-it": "repeat",
+  "activity.cook-own-it": "repeat",
+  "activity.coffee-it": "purchase",
+  "activity.naija-shop-it": "repeat",
+  "activity.barber-it": "once",
+  "activity.buy-clothes-it": "once",
+  "activity.street-shopping-it": "repeat",
+  "activity.community-it": "once",
 };
 
 /**

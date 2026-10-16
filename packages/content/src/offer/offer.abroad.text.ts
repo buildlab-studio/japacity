@@ -20,6 +20,24 @@ export const offerAbroadText: Record<string, string> = {
   "offer.street-find-uae.choice.walk-on": "Walk on",
   "offer.street-find-uae.said.walk-on": "You walk back along the creek. By morning the dhow is gone.",
 
+  "offer.street-find-ca.name": "A warm wind in January",
+  "offer.street-find-ca.title": "Feel that wind",
+  "offer.street-find-ca.body":
+    "In the middle of January the wind turns warm, the snow at the kerb starts to run, and a man at the bus stop says this is a chinook, enjoy it while it lasts.",
+  "offer.street-find-ca.choice.look": "Stand in it",
+  "offer.street-find-ca.said.look": "You open your coat and stand in the warm wind. For an hour Calgary feels kind.",
+  "offer.street-find-ca.choice.walk-on": "Walk on",
+  "offer.street-find-ca.said.walk-on": "You walk on to the bus. By night the cold is back.",
+
+  "offer.street-find-it.name": "A naming on the beach",
+  "offer.street-find-it.title": "Come and eat",
+  "offer.street-find-it.body":
+    "On the beach past the roundabout a family is roasting fish and corn for a baby's naming, and the grandmother waves you over to eat.",
+  "offer.street-find-it.choice.look": "Join them",
+  "offer.street-find-it.said.look": "You eat fish and corn with strangers and dance a little. For an evening it is home.",
+  "offer.street-find-it.choice.walk-on": "Walk on",
+  "offer.street-find-it.said.walk-on": "You walk on along the road. The drumming follows you to the bus stop.",
+
   "offer.returnee-question.name": "So when are you going back?",
   "offer.returnee-question.title": "Back so soon?",
   "offer.returnee-question.body":
