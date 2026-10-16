@@ -10,7 +10,7 @@ import type { Regions } from "./region";
 export interface ServerConfig {
   /** server.md Numbers. */
   server: { snapshotEvery: number; seedBits: number };
-  /** R-SERVER-025 to 027; the body sizes R-SERVER-036, the command size R-SERVER-037. */
+  /** R-SERVER-025 to 027; the body sizes R-SERVER-036, the command size R-SERVER-037, the preset's steps R-SERVER-046. */
   limits: {
     commandsPer10s: number;
     commandsPer60s: number;
@@ -20,6 +20,8 @@ export interface ServerConfig {
     bodyBytes: number;
     adminBodyBytes: number;
     commandBytes: number;
+    /** R-SERVER-046: the most prologue steps one preset request plays. */
+    presetSteps: number;
   };
   /** R-CLOCK-001 to 006, 019. `epoch` is a Friday at 18:00 UTC (R-CLOCK-002); the maintainer picks which. */
   clock: { epoch: number; worldTickMs: number; turnRefillMs: number; worldFetchSpreadMs: number };
@@ -107,6 +109,8 @@ export const productionConfig: ServerConfig = {
     adminBodyBytes: KIB * KIB,
     // R-SERVER-037: the largest command, a month's slots, is a few hundred bytes of JSON.
     commandBytes: 4 * KIB,
+    // R-SERVER-046: the longest preset is seventeen answers (counted 11 Oct 2026 over every tile, home and age).
+    presetSteps: 20,
   },
   clock: { epoch: DEFAULT_EPOCH, worldTickMs: time.WORLD_TICK_MS, turnRefillMs: time.TURN_REFILL_MS, worldFetchSpreadMs: 60 * time.SECOND_MS },
   presence: { maxPerObject: 2000, sample: 20, nudgeEveryMs: 10 * time.SECOND_MS, attachmentBytes: 1024, todayMax: 20 },

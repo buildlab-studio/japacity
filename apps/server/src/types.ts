@@ -1,7 +1,7 @@
 // The server's reply and clock types (docs/rules/server.md contract item 5,
 import type { WorldClock } from "@japacity/sim";
 // docs/rules/clock.md contract items 3 and 4). This file is kept by hand.
-import type { Command, Id, PlayerView, RejectionCode, Reply, ReportLine, World } from "@japacity/sim";
+import type { Command, Id, PlayerView, PrologueSlice, Rejection, RejectionCode, Reply, ReportLine, World } from "@japacity/sim";
 import type { Nudge } from "@japacity/store";
 
 export type { Nudge };
@@ -74,6 +74,29 @@ export interface CommandRequest {
   command: Command;
   basedOn: number;
 }
+
+/** R-SERVER-046: `POST /api/prologue/preset`. The archetype's id, the age step and the home chosen at the door, and the version seen. */
+export interface PresetRequest {
+  archetype: string;
+  age: number;
+  home: string;
+  basedOn: number;
+}
+
+/** R-SERVER-046, R-PROLOGUE-014: one step the preset played: its answer, the draw once made, and the outcome its draw gave. */
+export interface PresetStep {
+  step: string;
+  answer: string;
+  draw: PrologueSlice["draw"];
+  outcome: string | null;
+}
+
+/**
+ * R-SERVER-046: the view after the last step, its lines, the clock, the count stepped and the trail; `refusal` when an
+ * answer was refused after some steps stood. Refused at the first step, nothing is written and the reply is the
+ * rejection with the clock, as a command's.
+ */
+export type PresetReply = { ok: true; view: PlayerView; lines: ReportLine[]; clock: ClockView; stepped: number; trail: PresetStep[]; refusal?: Rejection } | (Rejection & { clock: ClockView }) | ServerRejection;
 
 /** `GET /api/view`: the view, the lines since the client's last fetch are not kept (R-SERVER-019), and the clock. */
 export type ViewReply = { ok: true; view: PlayerView; lines: ReportLine[]; clock: ClockView } | ServerRejection;
