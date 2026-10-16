@@ -13,6 +13,7 @@ import ryeLane from "../../../../public/assets/places/rye-lane/place.json";
 import ward from "../../../../public/assets/places/ward-uk/place.json";
 import warehouse from "../../../../public/assets/places/warehouse-uk/place.json";
 import type { Thing } from "../../../shared/world/contract";
+import { isLong } from "../../../shared/world/Lines";
 import { abroadView, viewAfter, abroadGame } from "../../../shared/testing/fixtures";
 import { inTurn, plainActLine } from "../actLines";
 import { cityWords } from "../city.words";
@@ -151,7 +152,11 @@ describe("the workplaces with a door", () => {
     const lines = [1, 2, 3].map((n) => cityWords(`city.line.colleague.${folder}.${String(n)}`));
     expect(said.map((line) => (line?.kind === "say" ? line.words : null))).toEqual([...lines, lines[0]]);
     expect(new Set(lines).size).toBe(3);
-    for (const line of lines) expect(line).not.toMatch(/[–—"]/);
+    // No dash in a person's words, by their codes (the two dashes the repository keeps out), and no straight quote.
+    const dashes = [String.fromCharCode(0x2013), String.fromCharCode(0x2014), '"'];
+    for (const line of lines) expect(dashes.filter((mark) => line.includes(mark))).toEqual([]);
+    // The talk budget: a line over a head floats whole, never cut short (world.md R-WORLD-026).
+    expect(lines.filter((line) => isLong(line))).toEqual([]);
     expect(sceneWords(colleague.label)).toBe("Colleague");
   });
 
@@ -191,6 +196,8 @@ describe("talk overheard in London", () => {
       expect([id, heard.length >= 4]).toEqual([id, true]);
       expect(heard.filter((line) => line.key === "city.overheard.news" || line.key === "city.overheard.route")).toEqual([]);
       for (const line of heard) expect(cityWords(line.key)).not.toBe(line.key);
+      // The London lines of the city's own float whole over a head (the talk budget, world.md R-WORLD-026).
+      expect(heard.filter((line) => line.key.startsWith("city.overheard.") && isLong(cityWords(line.key))).map((line) => line.key)).toEqual([]);
     }
   });
 });
