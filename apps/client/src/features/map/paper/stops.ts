@@ -3,7 +3,7 @@
 // few hundred metres apart are eased apart by a fixed, ordered spread so neither hides the other. One rule for rings
 // and names in every zoom: a ring only where the player stands, on the stop picked and on the step's place; a name on
 // those, on home, and on a place never visited (on a card only, a few at a time); on a card a place already visited
-// carries its name too, so every sticker there is named; names that meet move clear of each other.
+// carries its name too; names that meet move clear of each other.
 import type { PinState } from "../../../shared/world/contract";
 import { type CardId, cardOf } from "./districts";
 import { type Point, type Position, toPaper } from "./fit";
