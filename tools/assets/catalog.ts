@@ -69,6 +69,13 @@ import * as farm from "@japacity/assets-src/places/farm-it/build";
 import { buildPine } from "@japacity/assets-src/places/via-domitiana/build";
 import { buildItalyBus } from "@japacity/assets-src/veh/italy-bus/build";
 import { buildVan } from "@japacity/assets-src/veh/van/build";
+import { buildCalgaryBus } from "@japacity/assets-src/veh/calgary-bus/build";
+import { buildCtrainCar } from "@japacity/assets-src/veh/ctrain-car/build";
+import { buildDubaiMetro } from "@japacity/assets-src/veh/dubai-metro/build";
+import { buildStripMall, type StripMallSpec } from "@japacity/assets-src/bld/strip-mall/build";
+import { buildMetroStation, buildMetroViaduct } from "@japacity/assets-src/bld/metro-station/build";
+import { buildSiteFrame } from "@japacity/assets-src/bld/site-frame/build";
+import * as north from "@japacity/assets-src/prop/north/build";
 import { Group } from "three";
 
 import { type BakedModel, bakeGroup, linearColour } from "./bake";
@@ -250,6 +257,7 @@ const ROOM_FOLDERS: Record<RoomName, string> = {
   office: "office-uk",
   warehouse: "warehouse-uk",
   church: "church-uk",
+  library: "library-ca",
 };
 
 /** The place each room's folder serves, for the register. */
@@ -270,6 +278,7 @@ const ROOM_PLACES: Record<RoomName, string> = {
   office: "place.office-uk",
   warehouse: "place.warehouse-uk",
   church: "place.church-uk",
+  library: "place.library-ca",
 };
 
 function roomEntry(room: RoomName): CatalogEntry {
@@ -695,6 +704,40 @@ ENTRIES.push(
   italyPiece("prop_field-crates", "farm-it", "field-crates", farm.buildFieldCrates),
   italyPiece("prop_water-tap", "farm-it", "water-tap", farm.buildWaterTap),
   italyPiece("prop_shade-tree", "farm-it", "shade-tree", farm.buildShadeTree),
+);
+
+/** Calgary and Dubai on the mold (design page 15): the vehicles for their rides, the frontages and the library. */
+const NORTH = "The makers, written as code from the kit";
+ENTRIES.push(
+  { name: "veh_calgary-bus", file: "shared/veh/veh_calgary-bus.glb", place: "shared", source: "assets-src/veh/calgary-bus", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_calgary-bus", buildCalgaryBus()) },
+  { name: "veh_ctrain-car", file: "shared/veh/veh_ctrain-car.glb", place: "shared", source: "assets-src/veh/ctrain-car", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_ctrain-car", buildCtrainCar()) },
+  { name: "veh_dubai-metro", file: "shared/veh/veh_dubai-metro.glb", place: "shared", source: "assets-src/veh/dubai-metro", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_dubai-metro", buildDubaiMetro()) },
+  // The strip mall in north-east Calgary (R-WORLD-011), its row as data, and the bare trees of its winter.
+  placePiece(
+    "bld_strip-mall",
+    "calgary-north-east",
+    () => buildStripMall(readJson<StripMallSpec>(join(SOURCE, "bld", "strip-mall", "spec.json"))),
+    [...ELEVATIONS, "plan", "phone"],
+  ),
+  placePiece("prop_bare-tree", "calgary-north-east", north.buildBareTree),
+  // The CTrain station: the shelter on the platform; the machine, the gates' sign and the car are London's and the ride's.
+  placePiece("prop_platform-shelter", "ctrain-station-ca", north.buildPlatformShelter),
+  // The library's things.
+  placePiece("prop_bookshelf", "library-ca", north.buildBookshelf),
+  placePiece("prop_library-table", "library-ca", north.buildLibraryTable),
+  placePiece("prop_course-desk", "library-ca", north.buildCourseDesk),
+  // Union station: the hall under its shell, the viaduct with the car on it, the Nol machine and the escalator's foot.
+  placePiece("bld_metro-station", "metro-station-uae", () => buildMetroStation("place.metro-station-uae.sign.name", { board: "white", ink: "red", border: "red" }), [...ELEVATIONS, "plan", "phone"]),
+  placePiece("bld_metro-viaduct", "metro-station-uae", buildMetroViaduct, [...ELEVATIONS, "plan", "phone"]),
+  placePiece("prop_nol-machine", "metro-station-uae", north.buildNolMachine),
+  placePiece("prop_escalator", "metro-station-uae", north.buildEscalator),
+  // The site: the towers' base over the hoarding, the crane's foot, the gate's post, the cleaner's trolley and the cooler.
+  placePiece("bld_site-frame", "site-uae", buildSiteFrame, [...ELEVATIONS, "plan", "phone"]),
+  placePiece("prop_hoarding", "site-uae", north.buildHoarding),
+  placePiece("prop_crane-foot", "site-uae", north.buildCraneFoot),
+  placePiece("prop_guard-post", "site-uae", north.buildGuardPost),
+  placePiece("prop_cleaner-trolley", "site-uae", north.buildCleanerTrolley),
+  placePiece("prop_water-cooler", "site-uae", north.buildWaterCooler),
 );
 
 /** Every shipped asset, each model a player could be shown as a thing with the tile view beside its fixed views. */
