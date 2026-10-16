@@ -104,7 +104,7 @@ describe("the preset online", () => {
       for (let step = 0; step < 3; step += 1) {
         const card = life.view().prologue;
         if (card === null) throw new Error("No card.");
-        life.send({ type: "prologue/choose", step: card.step, answer: presetAnswer("developer", 1, "hostel-room", card.step, card.answers) ?? "", basedOn: life.state.v });
+        life.send({ type: "prologue/choose", step: card.step, answer: presetAnswer("developer", 1, "hostel-room", card.step, card.answers) ?? "" });
       }
       return Promise.resolve({ body: { ok: true, view: life.view(), lines: [], clock: CLOCK, stepped: 3, trail: [], refusal: { ok: false, code: "not-legal", detail: "The answer is not open." } } });
     });

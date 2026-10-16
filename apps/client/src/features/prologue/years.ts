@@ -101,6 +101,11 @@ export function noteSteps(steps: readonly { step: string; answer: string; draw: 
   keepTrail({ draw, steps: [...kept.steps, ...steps.map(({ step, answer, outcome }) => ({ step, answer, outcome }))], fresh: steps.length });
 }
 
+/** A new life's years begin: nothing kept from before stands on its page while the server plays them. */
+export function startTrail(): void {
+  keepTrail(EMPTY);
+}
+
 /** The page has brought the fresh steps on: they are ordinary trail from now. */
 export function trailShown(): void {
   const kept = readTrail();

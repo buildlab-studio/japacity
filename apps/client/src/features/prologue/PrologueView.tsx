@@ -33,7 +33,7 @@ import { readDoor } from "../../shared/datapage/door";
 import { WayChips } from "../../shared/frontdoor/WayChips";
 import { pageOf } from "../../shared/datapage/PageSheet";
 import { readyPercent, readyWords } from "../../shared/words/ready";
-import { familyCard, noteAnswer, noteCard, noteSteps, readTrail, storyChips, type Trail, trailShown, type YearChip, yearChips } from "./years";
+import { familyCard, noteAnswer, noteCard, noteSteps, readTrail, startTrail, storyChips, type Trail, trailShown, type YearChip, yearChips } from "./years";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 type Draw = NonNullable<Prologue["draw"]>;
@@ -280,6 +280,7 @@ function usePreset(view: PlayerView, prologue: Prologue, choice: PresetChoice | 
     sentAt.current = view.v;
     noteCard(prologue.draw, prologue.lastOutcome);
     if (preset !== null) {
+      if (prologue.step === "draw") startTrail();
       void preset({ archetype: id, age, home }, noteSteps);
       return;
     }
