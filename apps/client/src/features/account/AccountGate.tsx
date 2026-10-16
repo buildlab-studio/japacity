@@ -18,10 +18,10 @@ import { AgeScreen } from "./AgeScreen";
 import { failureWords } from "./CodeForm";
 import { Full, type FullCheck } from "./Full";
 import { GuestForm, useGuestDoor, type GuestDoor } from "./GuestStart";
-import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { Wordmark } from "../../shared/ui/Wordmark";
 import { SignIn } from "./SignIn";
+import { SheetColumn } from "./SheetColumn";
 import { refreshAccount } from "./standing";
 import { StartScreen } from "./StartScreen";
 import { useLights } from "./lights";
@@ -223,9 +223,9 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   const over = marked ? top : shown === "start" ? <StartLights /> : null;
   return (
     <Gate mark="start" {...(over === null ? {} : { over })} {...(behind === undefined ? {} : { scene: behind })}>
-      {/* On a wide screen the sheet stands in the one centred lane the world's thumbs and the door's frame use, the scene
-          filling the window around it; on a phone the lane is the screen. */}
-      <CentredColumn>
+      {/* On a wide screen the sheet stands in a centred column at a reading width, the scene filling the window around it;
+          on a phone the column is the screen. */}
+      <SheetColumn>
         <GateSheet mark={shown} label={say("ui.game")}>
           {notice === null ? null : (
             <p role="status" className="mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]">
@@ -235,7 +235,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
           {body(account)}
           <LegalLinks />
         </GateSheet>
-      </CentredColumn>
+      </SheetColumn>
     </Gate>
   );
 }

@@ -5,16 +5,16 @@
 import { StartHook } from "../../shared/frontdoor/Hook";
 import { Gate, GateSheet } from "../../shared/frontdoor/Gate";
 import type { Trouble } from "../../authority/store";
-import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { TroubleFace } from "../../shared/ui/Trouble";
 import { say } from "../../shared/words/text";
+import { SheetColumn } from "./SheetColumn";
 
 export function StartTrouble({ trouble }: { trouble: Trouble | null }) {
   return (
     <Gate mark="start" scene={null}>
-      {/* In the start screen's lane on a wide screen, as the start screen's own sheet stands (AccountGate.tsx). */}
-      <CentredColumn>
+      {/* In the start screen's column on a wide screen, as the start screen's own sheet stands (AccountGate.tsx). */}
+      <SheetColumn>
         <GateSheet mark="start-trouble" label={say("ui.game")}>
           <div className="flex flex-col" data-start-trouble={trouble?.kind ?? "asking"}>
             <StartHook />
@@ -30,7 +30,7 @@ export function StartTrouble({ trouble }: { trouble: Trouble | null }) {
           </div>
           <LegalLinks />
         </GateSheet>
-      </CentredColumn>
+      </SheetColumn>
     </Gate>
   );
 }
