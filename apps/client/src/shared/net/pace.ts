@@ -7,8 +7,9 @@
 export const COMMANDS_PER_WINDOW = 8;
 export const WINDOW_MS = 10_000;
 /**
- * The prologue's presets online leave one at a time, this far apart, so the page fills at an even pace and a long
- * preset never stalls against the limit (prologue.md R-PROLOGUE-010): eight in ten seconds.
+ * The pace the prologue's presets kept online while they left one at a time (prologue.md R-PROLOGUE-010 as amended 11 Oct
+ * 2026): eight in ten seconds. Since 16 Oct 2026 the preset leaves as one request (server.md R-SERVER-046) and the page
+ * paces its own chips, so nothing in the game reads this or `presetWait`; pace.test.ts still holds them to the limit.
  */
 export const PRESET_STEP_MS = WINDOW_MS / COMMANDS_PER_WINDOW;
 

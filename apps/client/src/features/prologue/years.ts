@@ -30,6 +30,11 @@ export interface TrailStep {
 export interface Trail {
   draw: Draw | null;
   steps: TrailStep[];
+  /**
+   * The steps at the end that came in at once from the server's reply (server.md R-SERVER-046), still to come onto the
+   * page one after another (R-PROLOGUE-010). Absent once the page has shown them.
+   */
+  fresh?: number;
 }
 
 
@@ -45,8 +50,8 @@ function storage(): Pick<Storage, "getItem" | "setItem"> | null {
 
 function isTrail(value: unknown): value is Trail {
   if (typeof value !== "object" || value === null) return false;
-  const { draw, steps } = value as Record<string, unknown>;
-  return (draw === null || typeof draw === "object") && Array.isArray(steps) && steps.every((one) => typeof one === "object" && one !== null && typeof (one as TrailStep).step === "string" && typeof (one as TrailStep).answer === "string");
+  const { draw, steps, fresh } = value as Record<string, unknown>;
+  return (draw === null || typeof draw === "object") && (fresh === undefined || (typeof fresh === "number" && Number.isInteger(fresh))) && Array.isArray(steps) && steps.every((one) => typeof one === "object" && one !== null && typeof (one as TrailStep).step === "string" && typeof (one as TrailStep).answer === "string");
 }
 
 export function readTrail(): Trail {
@@ -81,6 +86,25 @@ export function noteCard(draw: Draw | null, outcome: string | null): void {
   const steps = last !== undefined && last.outcome === null && outcome !== null ? [...kept.steps.slice(0, -1), { ...last, outcome }] : kept.steps;
   if (draw === kept.draw && steps === kept.steps) return;
   keepTrail({ draw: draw ?? kept.draw, steps });
+}
+
+/**
+ * Keeps the steps the server played in one request (R-SERVER-046) as the cards would have kept them one by one: each
+ * answer with the outcome its draw gave, the draw once made; the opening draw starts a new trail. They are marked fresh,
+ * so the page brings them on one after another.
+ */
+export function noteSteps(steps: readonly { step: string; answer: string; draw: Draw | null; outcome: string | null }[]): void {
+  const first = steps[0];
+  if (first === undefined) return;
+  const kept = first.step === "draw" ? EMPTY : readTrail();
+  const draw = steps.findLast((one) => one.draw !== null)?.draw ?? kept.draw;
+  keepTrail({ draw, steps: [...kept.steps, ...steps.map(({ step, answer, outcome }) => ({ step, answer, outcome }))], fresh: steps.length });
+}
+
+/** The page has brought the fresh steps on: they are ordinary trail from now. */
+export function trailShown(): void {
+  const kept = readTrail();
+  if (kept.fresh !== undefined) keepTrail({ draw: kept.draw, steps: kept.steps });
 }
 
 export interface YearChip {
