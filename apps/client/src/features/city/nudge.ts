@@ -137,9 +137,9 @@ const STEP_WAYS: Record<string, StepWay> = {
       "place.farm-it:table",
     ],
   },
-  // Money home from the phone, or the country's counter: Rye Lane's transfer shop, the strip mall's transfer counter,
-  // Deira's exchange house, Castel Volturno's call shop.
-  "chapter.landing.request": { go: "place.the-room", at: ["place.the-room:phone", "place.rye-lane:transfer", "place.calgary-north-east:transfer", "place.deira:exchange", "place.castel-volturno:call-shop"] },
+  // Money home from the country's counter (the room's phone only calls home now, R-CITY-010): Rye Lane's transfer shop,
+  // the strip mall's transfer counter, Deira's exchange house, Castel Volturno's call shop.
+  "chapter.landing.request": { go: "place.rye-lane", at: ["place.rye-lane:transfer", "place.calgary-north-east:transfer", "place.deira:exchange", "place.castel-volturno:call-shop"] },
   "chapter.landing.file": MONTH_END,
   "chapter.landing.status": MONTH_END,
   "chapter.secure.secure": MONTH_END,
@@ -197,21 +197,21 @@ const HELD_FUNDS_WAY: StepWay = { go: "place.olokun-office", at: ["place.olokun-
 type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets" | "routes" | "documents" | "job" | "activities" | "place">>;
 
 /**
- * Where the landing chapter's job is got in each country abroad, so the nudge's way goes to the country's own stop and
- * not London's (world.md R-WORLD-039 as amended): Peckham's notice, Calgary's strip mall, Dubai's site (the contract's
- * job is held there from the first morning), the roundabout at Castel Volturno where the vans come.
+ * Where the landing chapter's steps are taken in each country abroad, so the nudge's way goes to the country's own stop
+ * and not London's (world.md R-WORLD-039 as amended): the job at Peckham's notice, Calgary's strip mall, Dubai's site (the
+ * contract's job is held there from the first morning) or the roundabout at Castel Volturno where the vans come; money
+ * home at Rye Lane, the strip mall, Deira or the roundabout's call shop.
  */
-const LANDING_JOB_STOP: Readonly<Record<string, string>> = {
-  "country.uk": "place.peckham",
-  "country.canada": "place.calgary-north-east",
-  "country.uae": "place.site-uae",
-  "country.italy": "place.castel-volturno",
+const LANDING_STOPS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  "chapter.landing.job": { "country.uk": "place.peckham", "country.canada": "place.calgary-north-east", "country.uae": "place.site-uae", "country.italy": "place.castel-volturno" },
+  "chapter.landing.request": { "country.uk": "place.rye-lane", "country.canada": "place.calgary-north-east", "country.uae": "place.deira", "country.italy": "place.castel-volturno" },
 };
 
-/** A step's way in the country the life is in: the landing job's stop is the country's own; every other way as the table gives it. */
+/** A step's way in the country the life is in: the landing's stops are the country's own; every other way as the table gives it. */
 function inCountry(key: string, way: StepWay | null, place: StepView["place"]): StepWay | null {
-  if (way === null || key !== "chapter.landing.job" || place?.where !== "abroad" || place.country === null) return way;
-  const go = LANDING_JOB_STOP[place.country];
+  const stops = LANDING_STOPS[key];
+  if (way === null || stops === undefined || place?.where !== "abroad" || place.country === null) return way;
+  const go = stops[place.country];
   return go === undefined ? way : { ...way, go };
 }
 
