@@ -3,8 +3,10 @@
 // apps/teaser/clips/ (the list is src/clips.ts). The front door is played on the phone profile (390 by 844 at scale 2,
 // touch) and makes a life named Ada; every other session starts from that life. The world's shots are taken on a wide
 // screen (1280 by 720 at scale 1.5, so 1920 by 1080) with every surface over the scene hidden, the world alone; the
-// results morning is taken on the phone. The painted map is taken as two stills, by day and at night. A development
-// server already answering on the port is used; otherwise one is started and stopped after.
+// results morning is taken on the phone. The tall shots are the same sessions on the phone (390 by 844 at scale 3, so
+// 1170 by 2532, cropped to the portrait cut's 1080 by 1920), the world alone as the hand holds it. The painted map is
+// taken as two stills, by day and at night. A development server already answering on the port is used; otherwise one is
+// started and stopped after.
 import { type ChildProcess, spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -12,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 import { type Browser, type BrowserContext, chromium, type Page } from "@playwright/test";
 
-import { CLIPS, type ClipName, type Session as SessionName } from "../src/clips";
+import { ALL_CLIPS, type ClipName, type Session as SessionName } from "../src/clips";
 import { cutClip, type Frame, startScreencast } from "./screencast";
 
 const ROOT = fileURLToPath(new URL("../../..", import.meta.url));
@@ -21,7 +23,14 @@ const WORK = join(OUT, ".frames");
 const PHONE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } as const;
 /** A laptop's screen at the teaser's own 1920 by 1080: the world fills it round the centred column (design page 13). */
 const WIDE = { viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1.5 } as const;
-const PIXELS = { phone: { width: 780, height: 1688 }, wide: { width: 1920, height: 1080 } } as const;
+/**
+ * The phone at scale 3 for the portrait cut's tall shots. The screencast hands a frame at the device's pixels only when the
+ * browser itself is started at that scale (--force-device-scale-factor), so the tall sessions run in a browser of their own.
+ */
+const TALL = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true } as const;
+const PIXELS = { phone: { width: 780, height: 1688 }, wide: { width: 1920, height: 1080 }, tall: { width: 1170, height: 2532 } } as const;
+/** The tall frame cut to 9 by 16 round the middle of the screen (2532 less 2080 is 452, half above), then to 1080 by 1920. */
+const TALL_CROP = "crop=1170:2080:0:226,scale=1080:1920:flags=lanczos";
 /**
  * The world alone: every surface over the scene hidden while a wide shot rolls, so the shot is the city and its people.
  * The fan's mode keeps a thing's fan of acts (R-WORLD-034) over the scene, and nothing else.
@@ -125,8 +134,11 @@ interface Session {
 /** Everything the device keeps of a life, as the front door left it: the save, the person, the door's years. */
 type Kept = Record<string, string>;
 
-async function session(browser: Browser, base: string, name: string, kept: Kept | null, wide: boolean): Promise<Session> {
-  const context = await browser.newContext({ ...(wide ? WIDE : PHONE), baseURL: base });
+type Shape = "wide" | "phone" | "tall";
+
+async function session(browser: Browser, base: string, name: string, kept: Kept | null, shape: Shape): Promise<Session> {
+  const profile = shape === "wide" ? WIDE : shape === "tall" ? TALL : PHONE;
+  const context = await browser.newContext({ ...profile, baseURL: base });
   await context.addInitScript((css) => {
     document.addEventListener("DOMContentLoaded", () => {
       const style = document.createElement("style");
@@ -144,7 +156,7 @@ async function session(browser: Browser, base: string, name: string, kept: Kept 
     }, kept);
   }
   const page = await context.newPage();
-  const recording = await startScreencast(page, join(WORK, name), wide ? PIXELS.wide : PIXELS.phone);
+  const recording = await startScreencast(page, join(WORK, name), PIXELS[shape]);
   return { context, page, now: recording.now, stop: recording.stop };
 }
 
@@ -173,8 +185,8 @@ async function door(s: Session): Promise<Kept> {
   return page.evaluate(() => Object.fromEntries(Object.keys(localStorage).map((key) => [key, localStorage.getItem(key) ?? ""])));
 }
 
-/** The family house, wide and alone: by day it turns a quarter twice, at night its lamps are lit as it turns once. */
-async function wideHouse(s: Session, marks: Marks, part: "day" | "night"): Promise<void> {
+/** The family house alone, wide or tall: by day it turns a quarter twice, at night its lamps are lit as it turns once. */
+async function house(s: Session, marks: Marks, part: "day" | "night", frame: "wide" | "tall"): Promise<void> {
   const { page } = s;
   await page.goto(part === "day" ? "/?clock=afternoon" : "/?clock=night&paint=night");
   await placeReady(page, "place.family-house");
@@ -190,11 +202,11 @@ async function wideHouse(s: Session, marks: Marks, part: "day" | "night"): Promi
     await press(page, "[data-turn-house]");
     await page.waitForTimeout(2400);
   }
-  marks[part === "day" ? "wide-day" : "wide-night"] = [from, s.now()];
+  marks[`${frame}-${part}`] = [from, s.now()];
 }
 
 /** The sofa tapped: the view eases into its room, the fan of acts opens out of it, Sit is taken and the character sits. */
-async function wideSofa(s: Session, marks: Marks): Promise<void> {
+async function sofa(s: Session, marks: Marks, frame: "wide" | "tall"): Promise<void> {
   const { page } = s;
   await page.goto("/?clock=afternoon");
   await placeReady(page, "place.family-house");
@@ -212,11 +224,11 @@ async function wideSofa(s: Session, marks: Marks): Promise<void> {
   await page.waitForTimeout(1300);
   await press(page, sit);
   await page.waitForTimeout(3600);
-  marks["wide-sofa"] = [from, s.now()];
+  marks[`${frame}-sofa`] = [from, s.now()];
 }
 
-/** The ride from the map, wide and alone: the danfo from above, then from inside; then the street it stops at. */
-async function wideRide(s: Session, marks: Marks): Promise<void> {
+/** The ride from the map alone, wide or tall: the danfo from above, then from inside; then the street it stops at. */
+async function ride(s: Session, marks: Marks, frame: "wide" | "tall"): Promise<void> {
   const { page } = s;
   await page.goto("/?clock=morning&paint=day");
   await placeReady(page, "place.family-house");
@@ -232,14 +244,14 @@ async function wideRide(s: Session, marks: Marks): Promise<void> {
   await clean(page, "on");
   const rideFrom = s.now();
   await page.waitForTimeout(6000);
-  marks["wide-ride"] = [rideFrom, s.now()];
+  marks[`${frame}-ride`] = [rideFrom, s.now()];
   await placeReady(page, stop);
   await passCards(page);
   await clean(page, "on");
   await page.waitForTimeout(1500);
   const streetFrom = s.now();
   await page.waitForTimeout(5000);
-  marks["wide-street"] = [streetFrom, s.now()];
+  marks[`${frame}-street`] = [streetFrom, s.now()];
 }
 
 /** The bed's Sleep on the phone, the night going by and the results morning over the scene. */
@@ -292,49 +304,61 @@ async function stills(browser: Browser, base: string, kept: Kept): Promise<void>
   await context.close();
 }
 
-const SESSIONS: Record<Exclude<SessionName, "door">, { wide: boolean; play: (s: Session, marks: Marks) => Promise<void> }> = {
-  "wide-day": { wide: true, play: (s, marks) => wideHouse(s, marks, "day") },
-  "wide-night": { wide: true, play: (s, marks) => wideHouse(s, marks, "night") },
-  "wide-sofa": { wide: true, play: wideSofa },
-  "wide-ride": { wide: true, play: wideRide },
-  morning: { wide: false, play: morning },
+const SESSIONS: Record<Exclude<SessionName, "door">, { shape: Shape; play: (s: Session, marks: Marks) => Promise<void> }> = {
+  "wide-day": { shape: "wide", play: (s, marks) => house(s, marks, "day", "wide") },
+  "wide-night": { shape: "wide", play: (s, marks) => house(s, marks, "night", "wide") },
+  "wide-sofa": { shape: "wide", play: (s, marks) => sofa(s, marks, "wide") },
+  "wide-ride": { shape: "wide", play: (s, marks) => ride(s, marks, "wide") },
+  morning: { shape: "phone", play: morning },
+  "tall-day": { shape: "tall", play: (s, marks) => house(s, marks, "day", "tall") },
+  "tall-night": { shape: "tall", play: (s, marks) => house(s, marks, "night", "tall") },
+  "tall-sofa": { shape: "tall", play: (s, marks) => sofa(s, marks, "tall") },
+  "tall-ride": { shape: "tall", play: (s, marks) => ride(s, marks, "tall") },
 };
 
 async function main(): Promise<void> {
   const options = parse(process.argv.slice(2));
-  const wanted = (name: string) => options.only.length === 0 || options.only.includes(name);
+  // A session is wanted when it or one of the clips it makes is named (tall-street comes from the tall-ride session).
+  const wanted = (name: string) => options.only.length === 0 || options.only.includes(name) || ALL_CLIPS.some((clip) => clip.session === name && options.only.includes(clip.name));
   const server = await devServer(options.port);
   const base = `http://localhost:${String(options.port)}`;
   // The GPU through Metal where there is one; the scene is drawn at a phone's pace, not the software renderer's.
-  const browser = await chromium.launch({ args: ["--use-angle=metal", "--ignore-gpu-blocklist", "--enable-gpu"] });
+  const gpu = ["--use-angle=metal", "--ignore-gpu-blocklist", "--enable-gpu"];
+  const browser = await chromium.launch({ args: gpu });
+  const tall: { browser: Browser | null } = { browser: null };
+  const browserFor = async (shape: Shape): Promise<Browser> => {
+    if (shape !== "tall") return browser;
+    tall.browser ??= await chromium.launch({ args: [...gpu, `--force-device-scale-factor=${String(TALL.deviceScaleFactor)}`] });
+    return tall.browser;
+  };
   mkdirSync(WORK, { recursive: true });
   const keptPath = join(WORK, "kept.json");
   const marks: Marks = {};
   const cut = async (name: SessionName, s: Session) => {
     const frames = await s.stop();
     await s.context.close();
-    for (const clip of CLIPS.filter((one) => one.session === name)) {
+    for (const clip of ALL_CLIPS.filter((one) => one.session === name)) {
       const mark = marks[clip.name];
       if (mark === undefined) {
         console.log(`teaser:record: no marks for ${clip.name}`);
         continue;
       }
-      const seconds = cutClip(frames, mark[0], mark[1], join(OUT, clip.file), FFMPEG);
+      const seconds = cutClip(frames, mark[0], mark[1], join(OUT, clip.file), FFMPEG, clip.shape === "tall" ? TALL_CROP : undefined);
       console.log(`teaser:record: ${clip.file} ${seconds.toFixed(1)} s`);
     }
   };
   try {
     let kept = existsSync(keptPath) ? (JSON.parse(readFileSync(keptPath, "utf8")) as Kept) : null;
     if (wanted("door") || kept === null) {
-      const s = await session(browser, base, "door", null, false);
+      const s = await session(browser, base, "door", null, "phone");
       kept = await door(s);
       writeFileSync(keptPath, JSON.stringify(kept));
       await cut("door", s);
     }
     if (wanted("stills")) await stills(browser, base, kept);
-    for (const [name, { wide, play }] of Object.entries(SESSIONS) as [Exclude<SessionName, "door">, (typeof SESSIONS)[keyof typeof SESSIONS]][]) {
+    for (const [name, { shape, play }] of Object.entries(SESSIONS) as [Exclude<SessionName, "door">, (typeof SESSIONS)[keyof typeof SESSIONS]][]) {
       if (!wanted(name)) continue;
-      const s = await session(browser, base, name, kept, wide);
+      const s = await session(await browserFor(shape), base, name, kept, shape);
       try {
         await play(s, marks);
       } catch (error) {
@@ -345,6 +369,7 @@ async function main(): Promise<void> {
     }
   } finally {
     await browser.close();
+    await tall.browser?.close();
     server?.kill();
     if (options.only.length === 0) rmSync(WORK, { recursive: true, force: true });
   }

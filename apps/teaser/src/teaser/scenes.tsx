@@ -1,12 +1,14 @@
 // The teaser's shots: a title card on the sky, a wide shot of the world, the painted map pushed in, the night falling over
 // the house, the flight to the route's city over the night map, the phone with a results morning, and the end card at
-// night with the seal's bulbs lighting, the name and "Play it".
+// night with the seal's bulbs lighting, the name and "Play it". The map, the night and the flight also have a portrait
+// layout, read from the frame a cut draws them in (parts/frame.ts).
 import type { ReactNode } from "react";
 import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 import type { ClipName } from "../clips";
 import { Seal, Wordmark } from "../parts/brand";
 import { Card, Clip, Phone, Plane, PressButton, Sticker, Title } from "../parts/dress";
+import { useFrameShape } from "../parts/frame";
 import { land, pop, ramp } from "../parts/motion";
 import { CREAM, DAY, FONT, NAVY, NIGHT, type Paint } from "../parts/tokens";
 
@@ -34,34 +36,41 @@ export function WideShot({ clip, from = 0, push = 0.06, toward = [0.5, 0.5] }: {
   );
 }
 
-/** The painted map, by day or at night, pushed in slowly toward a point (fractions of the picture). */
+/**
+ * The painted map, by day or at night, pushed in slowly toward a point (fractions of the picture). In the tall frame the
+ * wide still is cut to the frame's shape round the same point, so the push goes where the landscape's goes.
+ */
 export function MapShot({ paint, zoom = [1.05, 1.25], toward = [0.5, 0.5] }: { paint: "day" | "night"; zoom?: readonly [number, number]; toward?: readonly [number, number] }) {
   const frame = useCurrentFrame();
   const { durationInFrames, fps } = useVideoConfig();
+  const tall = useFrameShape() === "tall";
   const t = land(frame, fps, 0, durationInFrames);
   const scale = interpolate(t, [0, 1], zoom);
+  const point = `${String(toward[0] * 100)}% ${String(toward[1] * 100)}%`;
   return (
     <AbsoluteFill style={{ overflow: "hidden", background: paint === "day" ? "#f6efdf" : NIGHT.sky }}>
-      <Img src={staticFile(`clips/map-${paint}.png`)} style={{ width: "100%", height: "100%", objectFit: "cover", transformOrigin: `${String(toward[0] * 100)}% ${String(toward[1] * 100)}%`, transform: `scale(${String(scale)})` }} />
+      <Img src={staticFile(`clips/map-${paint}.png`)} style={{ width: "100%", height: "100%", objectFit: "cover", ...(tall ? { objectPosition: point } : {}), transformOrigin: tall ? "50% 50%" : point, transform: `scale(${String(scale)})` }} />
     </AbsoluteFill>
   );
 }
 
 /**
  * The night falling over the family house: the same view by day and at night, the night drawn down over the day with a
- * soft edge, as the world's clock turns the paint (R-CLOCK-033). A wipe of the shot, not a fade of the frame.
+ * soft edge, as the world's clock turns the paint (R-CLOCK-033). A wipe of the shot, not a fade of the frame. The tall
+ * frame draws the phone's own recordings of the house.
  */
 export function NightFalls({ from = 0, falls = [14, 40] }: { from?: number; falls?: readonly [number, number] }) {
   const frame = useCurrentFrame();
+  const tall = useFrameShape() === "tall";
   const edge = ramp(frame, falls[0], falls[1], -20, 120);
   const mask = `linear-gradient(to bottom, black ${String(edge)}%, transparent ${String(edge + 20)}%)`;
   return (
     <AbsoluteFill style={{ overflow: "hidden", background: NAVY }}>
       <AbsoluteFill>
-        <Clip name="wide-day" from={from} />
+        <Clip name={tall ? "tall-day" : "wide-day"} from={from} />
       </AbsoluteFill>
       <AbsoluteFill style={{ maskImage: mask, WebkitMaskImage: mask }}>
-        <Clip name="wide-night" from={from} />
+        <Clip name={tall ? "tall-night" : "wide-night"} from={from} />
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -69,15 +78,17 @@ export function NightFalls({ from = 0, falls = [14, 40] }: { from?: number; fall
 
 /**
  * The send-off's flight: the plane leaves Lagos from the airport's side of the night map and climbs off toward the route's
- * city, a dashed line behind it, and the city's name lands on a sticker card where it went.
+ * city, a dashed line behind it, and the city's name lands on a sticker card where it went. In the tall frame the plane
+ * climbs from low on the left to the top right, under the city's card.
  */
 export function Flight({ city, tile }: { city: string; tile: string }) {
   const frame = useCurrentFrame();
   const { durationInFrames, width, height, fps } = useVideoConfig();
+  const tall = useFrameShape() === "tall";
   const t = ramp(frame, 6, durationInFrames - 22);
   const eased = t * t * (3 - 2 * t);
-  const start = { x: width * 0.3, y: height * 0.7 };
-  const end = { x: width * 1.1, y: height * 0.02 };
+  const start = tall ? { x: width * 0.22, y: height * 0.64 } : { x: width * 0.3, y: height * 0.7 };
+  const end = tall ? { x: width * 1.2, y: height * 0.12 } : { x: width * 1.1, y: height * 0.02 };
   const lift = Math.sin(eased * Math.PI) * 70;
   const x = interpolate(eased, [0, 1], [start.x, end.x]);
   const y = interpolate(eased, [0, 1], [start.y, end.y]) - lift;
@@ -86,7 +97,7 @@ export function Flight({ city, tile }: { city: string; tile: string }) {
   const card = land(frame, fps, durationInFrames - 34);
   return (
     <AbsoluteFill>
-      <MapShot paint="night" zoom={[1.18, 1.0]} toward={[0.35, 0.65]} />
+      <MapShot paint="night" zoom={[1.18, 1.0]} toward={tall ? [0.3, 0.6] : [0.35, 0.65]} />
       <svg width={width} height={height} style={{ position: "absolute", inset: 0 }}>
         <circle cx={start.x} cy={start.y} r={18 * pop(frame, fps, 0)} fill={CREAM} opacity={0.9} />
         <path d={`M${String(start.x)} ${String(start.y)} Q${String((start.x + x) / 2)} ${String((start.y + y) / 2 - lift * 0.6)} ${String(x)} ${String(y)}`} stroke={CREAM} strokeWidth={7} strokeDasharray="22 18" strokeLinecap="round" fill="none" opacity={0.8} />
@@ -94,7 +105,7 @@ export function Flight({ city, tile }: { city: string; tile: string }) {
       <div style={{ position: "absolute", left: x - size / 2, top: y - size * 0.3, transform: `rotate(${String(angle)}deg)`, filter: "drop-shadow(0 18px 12px rgba(13, 17, 36, 0.4))" }}>
         <Plane size={size} color={CREAM} />
       </div>
-      <div style={{ position: "absolute", right: 120, top: 120, transform: `translateY(${String((1 - card) * -260)}px) rotate(${String(interpolate(card, [0, 1], [-14, -4]))}deg)`, opacity: Math.min(1, card * 3) }}>
+      <div style={{ position: "absolute", right: tall ? 70 : 120, top: tall ? 210 : 120, transform: `translateY(${String((1 - card) * -260)}px) rotate(${String(interpolate(card, [0, 1], [-14, -4]))}deg)`, opacity: Math.min(1, card * 3) }}>
         <Card paint={NIGHT} style={{ display: "flex", alignItems: "center", gap: 26, padding: "22px 44px 22px 26px", boxShadow: `0 0 0 8px ${CREAM}, 0 24px 40px rgba(0, 0, 0, 0.35)` }}>
           <Sticker tile={tile} size={150} delay={durationInFrames - 30} edge={6} />
           <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 96, color: CREAM }}>{city}</div>
