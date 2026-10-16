@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
 import { FactChip } from "../../shared/ui/FactChip";
+import { Waiting } from "../../shared/ui/Loader";
 import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { ToneTag } from "../../shared/ui/ToneTag";
@@ -460,6 +461,7 @@ function StartsIn({ home, chip }: { home: Home | null; chip: YearChip }) {
 function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; archetype: Archetype | null; draw: Draw | null; onDone?: () => void }) {
   const person = readPerson();
   const handover = onDone !== undefined;
+  const online = useGame((state) => state.preset !== null);
   const [turned, setTurned] = useState(false);
   const done = useRef(false);
   const finish = (): void => {
@@ -487,10 +489,23 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
     return () => window.clearTimeout(timer);
   }, [handover, revealing, brought, reveal.every]);
 
+  const look = gateLook(person?.look);
+  // Online the server plays the years in one request (R-SERVER-046): until its first step is in, the page is the splash's
+  // wait in the page's own frame, its words where the opening's stand and the bar under them.
+  if (!handover && online && trail.steps.length === 0)
+    return (
+      <div data-page-running="" data-page-waiting="" data-v={view.v}>
+        <DoorFrame mark="years" look={look} title={null}>
+          <div className="px-4 pt-[calc(22vh+130px)]">
+            <Waiting words={say("ui.page.family.drawing")} />
+          </div>
+        </DoorFrame>
+      </div>
+    );
+
   const base = pageOf(view, person);
   // The family and where it is from print on the page as its card turns over; until then their lines wait (R-PROLOGUE-009, 014).
   const shown = handover && turned && kept !== null;
-  const look = gateLook(person?.look);
   const page: PageFields = {
     ...base,
     photo: lookOf(look)?.picture ?? "",
