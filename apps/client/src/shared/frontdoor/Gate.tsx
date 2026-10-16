@@ -13,14 +13,34 @@ import type { LookStyle } from "./style";
 
 const FrontScene = lazy(() => import("./FrontScene"));
 
-/** True where WebGL 2 can draw: the scene, and the page's photo in the player's colours. */
+/** The answer of the first ask, kept for the visit. */
+let draws: boolean | null = null;
+
+/** Lets the asking context go; where it cannot be let go, it is left for the browser. */
+function letGo(context: WebGL2RenderingContext | null): void {
+  try {
+    context?.getExtension("WEBGL_lose_context")?.loseContext();
+  } catch {
+    // A context with no way to lose it is collected with its canvas.
+  }
+}
+
+/**
+ * True where WebGL 2 can draw: the scene, and the page's photo in the player's colours. Asking makes a context, and the
+ * door asks on every look, colour and Begin, so it asks once a visit and lets that context go at once (a phone holds
+ * only a few, and each one made costs the main thread, the more so while the GPU is busy).
+ */
 export function canDraw(): boolean {
   if (typeof window === "undefined" || !("WebGL2RenderingContext" in window)) return false;
+  if (draws !== null) return draws;
   try {
-    return document.createElement("canvas").getContext("webgl2") !== null;
+    const context = document.createElement("canvas").getContext("webgl2");
+    draws = context !== null;
+    letGo(context);
   } catch {
-    return false;
+    draws = false;
   }
+  return draws;
 }
 
 /** The look shown at the gate: the one given, else the one kept beside the save, else the strip's first. */
