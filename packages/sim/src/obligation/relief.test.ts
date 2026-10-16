@@ -19,6 +19,7 @@ import { abroad, eventsOf, owedOf, setPounds, UPKEEP } from "./obligation.journe
 // The meal bought and cooked, at home or abroad: a meal of your own since the home's wave, the old
 // cooking act's entry as it was; the family house's pot is free and tested in home/pot.test.ts.
 const COOK: Id<"activity"> = "activity.cook-own";
+const COOK_UK: Id<"activity"> = "activity.cook-own-uk";
 const WATER: Id<"activity"> = "activity.fetch-water";
 const DRUM: Id<"activity"> = "activity.fill-drum";
 const HOME_UPKEEP: Id<"obligation"> = "obligation.upkeep";
@@ -65,9 +66,10 @@ function wellbeingFrom(result: Accepted, source: string): number[] {
 }
 
 describe("the two activities", () => {
-  test("[R-OBLIGATION-014] given the content, when cooking and water are read, then both fill no slot, cooking applies at home and abroad and water at home only, and each relieves the upkeep by its tuning share", () => {
+  test("[R-OBLIGATION-014] given the content, when cooking and water are read, then both fill no slot, both apply at home only, and each relieves the upkeep by its tuning share", () => {
     // Decision 0035: a meal is bought and eaten now, and repeats; it still relieves a charged upkeep by its share.
-    expect(entry(COOK)).toMatchObject({ slot: "none", where: "any", when: "now", repeat: true, requires: [] });
+    // the naira meal is cooked at home only; the room abroad cooks in the country's money.
+    expect(entry(COOK)).toMatchObject({ slot: "none", where: "home", when: "now", repeat: true, requires: [] });
     expect(entry(COOK).cost).toEqual([{ currency: "NGN", amount: 150000, reason: "food" }]);
     expect(entry(COOK).effects).toEqual([
       { type: "obligation/relief", obligationType: "upkeep", bp: room.cookedBp },
@@ -189,24 +191,32 @@ describe("water at home", () => {
 });
 
 describe("abroad", () => {
-  test("[R-OBLIGATION-014] given a life landed in the UK, when the month's choices are listed and water is sent, then water is not offered and is refused, and cooking is", () => {
+  test("[R-OBLIGATION-014] given a life landed in the UK, when the month's choices are listed and water and the naira meal are sent, then neither is offered and both are refused, and the meal in pounds is offered", () => {
     const game = abroad(content);
+    setPounds(game, 1_000_000);
     const ids = game.view().activities.map((option) => option.id);
-    expect(ids).toContain(COOK);
+    expect(ids).toContain(COOK_UK);
+    expect(ids).not.toContain(COOK);
     expect(ids).not.toContain(WATER);
     game.expectRejected({ type: "turn/end", slots: [slot(WATER)] }, "not-legal");
+    // the naira meal is home's alone.
+    game.expectRejected({ type: "activity/now", activity: COOK, param: null }, "not-legal");
   });
 
-  test("[R-OBLIGATION-014] given cooking in the room abroad, when the month ends, then the country's upkeep falls by the cooked share in pounds", () => {
+  test("[R-OBLIGATION-014] given the meal in pounds cooked in the room in the UK, when the month ends, then nothing is relieved: the upkeep is charged whole and no relief is recorded or told", () => {
+    // abroad the country's own meal relieves nothing, since the UK's upkeep is the phone alone.
     const game = abroad(content);
     const twin = abroad(content);
     for (const life of [game, twin]) setPounds(life, 1_000_000);
-    const played = game.endTurn([slot(COOK)]);
+    const cooked = game.accept({ type: "activity/now", activity: COOK_UK, param: null });
+    expect(cooked.events.filter((event) => event.type === "wallet/debited")).toMatchObject([{ currency: "GBP", amount: entry(COOK_UK).cost[0]?.amount, reason: "food" }]);
+    expect(eventsOf(cooked, "obligation/relieved")).toEqual([]);
+    expect(owedOf(game, UPKEEP).relief ?? []).toEqual([]);
+    const played = game.endTurn([]);
     const plain = twin.endTurn([]);
-    const full = upkeepPaid(plain);
-    expect(full).toBe(owedOf(twin, UPKEEP).amount);
-    expect(upkeepPaid(played)).toBe(full - bp(full, room.cookedBp));
-    expect(reliefLines(played)).toEqual([{ key: COOKED_LINE, amount: { currency: "GBP", amount: bp(full, room.cookedBp) } }]);
+    expect(upkeepPaid(played)).toBe(upkeepPaid(plain));
+    expect(upkeepPaid(played)).toBe(owedOf(game, UPKEEP).amount);
+    expect(reliefLines(played)).toEqual([]);
   });
 });
 

@@ -414,8 +414,8 @@ const entries: PlaceEntry[] = [
   unnamed("place.their-room", "stylised", "home", "lagos", null, { stages: ["activity.see-someone"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.the-room", "stylised", "abroad", null, null, {
     // The bed, the window and the laptop in the room abroad (R-WORLD-025; R-CITY-010 lets the country-less room stage what a country's own place also stages).
-    // The cooking corner cooks in pounds in the UK (streets.md R-STREET-012): activity.cook-own-uk shows only there.
-    stages: ["activity.rest", "activity.community-uk", "activity.community-ca", "activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own", "activity.cook-own-uk"],
+    // The cooking corner cooks in pounds in the UK (streets.md R-STREET-012, home.md R-HOME-012 as amended): activity.cook-own-uk shows only there.
+    stages: ["activity.rest", "activity.community-uk", "activity.community-ca", "activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own-uk"],
     crowd: FEW,
     traditionalBp: OFFICE,
   }),

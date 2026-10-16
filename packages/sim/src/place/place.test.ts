@@ -19,7 +19,7 @@ const CANADA: Id<"country"> = "country.canada";
 /** The four ways of Lagos as the view lists them with no car at home (R-PLACE-010 as amended 16 Oct 2026). */
 function lagosWays(): unknown[] {
   const { fareKobo, farePerKmKobo, metresPerMinute } = content.tuning.city.ride;
-  return (["danfo", "keke", "okada", "walk"] as const).map((way) => ({ way, currency: "NGN", fare: fareKobo[way], farePerKm: farePerKmKobo[way], step: 5000, metresPerMinute: metresPerMinute[way], passed: false }));
+  return (["danfo", "keke", "okada", "walk"] as const).map((way) => ({ way, currency: "NGN", fare: fareKobo[way], farePerKm: farePerKmKobo[way], step: 5000, lonMetresPerE3: 111, metresPerMinute: metresPerMinute[way], passed: false }));
 }
 
 function at(where: State["place"]["where"], country: Id<"country"> | null): State {

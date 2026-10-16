@@ -403,6 +403,7 @@ const CountryRidesSchema = z.strictObject({
   ways: z.strictObject({ bus: RideFiguresSchema.exactOptional(), train: RideFiguresSchema.exactOptional(), taxi: RideFiguresSchema.exactOptional() }),
   step: z.int().positive(),
   pass: CountSchema.nullable(),
+  lonMetresPerE3: z.int().positive(),
 });
 
 export const TuningSchema = z.strictObject({
@@ -589,7 +590,7 @@ export const TuningSchema = z.strictObject({
   share: z.strictObject({ width: CountSchema, height: CountSchema, maxBytes: CountSchema, previewWidth: CountSchema, previewHeight: CountSchema, previewMaxBytes: CountSchema }),
   guide: z.strictObject({ staleMonths: CountSchema }),
   analytics: z.strictObject({ batchSeconds: CountSchema, maxBatchBytes: CountSchema, maxCount: CountSchema, batchesPerHour: CountSchema, minShown: CountSchema, refD1Bp: BpSchema, refD7Bp: BpSchema }),
-  city: z.strictObject({ crowdLow: CountSchema, crowdHigh: CountSchema, playersMax: CountSchema, fridayBp: BpSchema, saturdayBp: BpSchema, raiseAfterMs: CountSchema, raiseFrameMs: CountSchema, dropAfterMs: CountSchema, dropFrameMs: CountSchema, maxPixelRatio: CountSchema, desktopMinWidth: CountSchema, idleAfterMs: CountSchema, idleFps: CountSchema, walkMmPerS: CountSchema, stopShortMm: CountSchema, tagNearMm: CountSchema, residentFloor: CountSchema, roam: z.boolean(), flyover: z.boolean(), indoorLow: CountSchema, indoorHigh: CountSchema, outdoorLow: CountSchema, outdoorHigh: CountSchema, motionSheets: CountSchema, ride: z.strictObject({ fareKobo: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), farePerKmKobo: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), metresPerMinute: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), waitMinutes: CountSchema, scarcityBp: CountSchema, walkMetres: CountSchema, abroad: z.record(idOf("country"), CountryRidesSchema) }) }),
+  city: z.strictObject({ crowdLow: CountSchema, crowdHigh: CountSchema, playersMax: CountSchema, fridayBp: BpSchema, saturdayBp: BpSchema, raiseAfterMs: CountSchema, raiseFrameMs: CountSchema, dropAfterMs: CountSchema, dropFrameMs: CountSchema, maxPixelRatio: CountSchema, desktopMinWidth: CountSchema, idleAfterMs: CountSchema, idleFps: CountSchema, walkMmPerS: CountSchema, stopShortMm: CountSchema, tagNearMm: CountSchema, residentFloor: CountSchema, roam: z.boolean(), flyover: z.boolean(), indoorLow: CountSchema, indoorHigh: CountSchema, outdoorLow: CountSchema, outdoorHigh: CountSchema, motionSheets: CountSchema, ride: z.strictObject({ fareKobo: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), farePerKmKobo: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), metresPerMinute: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), waitMinutes: CountSchema, scarcityBp: CountSchema, walkMetres: CountSchema, lonMetresPerE3: z.int().positive(), abroad: z.record(idOf("country"), CountryRidesSchema) }) }),
   people: z.strictObject({
     matchmaker: z.boolean(),
     maxCourting: CountSchema,
