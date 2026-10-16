@@ -8,7 +8,10 @@ import { expect, test, type Page, type Route } from "@playwright/test";
 // server that runs the simulation itself, as newlife.spec.ts does.
 import { content } from "../../../packages/content/src/index";
 import type { Command, Id, PlayerView, ReportLine } from "../../../packages/sim/src/engine/types";
+import { worldClockAt } from "../../../packages/sim/src/index";
 import { start, type Game } from "../../../packages/sim/src/testing/play";
+import type { PresetRequest } from "../src/shared/net/contract";
+import { playPresetOn } from "../src/shared/net/preset.testing";
 import { passOpeningWords } from "./door";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
@@ -77,6 +80,11 @@ async function fakeServer(page: Page, commandDelayMs = 0): Promise<Faked> {
         if (!result.ok) return route.fulfill(json({ ok: false, code: result.code, detail: result.detail }, 409));
         return route.fulfill(json({ ...viewOf(game), lines: result.lines }));
       }
+      // R-SERVER-046: Begin sends the new life's preset once, played here as the server plays it, after the same delay a command takes.
+      if (asked === "POST /api/prologue/preset" && game !== null) {
+        if (commandDelayMs > 0) await new Promise((resolve) => setTimeout(resolve, commandDelayMs));
+        return route.fulfill(json(playPresetOn(game, request.postDataJSON() as PresetRequest, { ...clock(game), morningAt: 0, world: worldClockAt(game.tick) })));
+      }
       if (asked === "GET /api/account") return route.fulfill(json({ ok: true, account: { ...ACCOUNT, character: game === null ? null : "c-1" } }));
       if (asked === "GET /api/moderation/standing") return route.fulfill(json(STANDING));
       return route.fulfill(json({ ok: false, code: "unknown-id", detail: "not faked" }, 404));
@@ -121,8 +129,8 @@ test("[R-ENGINE-015] a reload at each step of the door comes back to that step f
 
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect(page.locator("[data-gate='years']")).toBeVisible({ timeout: 30_000 });
-  // Some of the years are in: the server holds the life, and the page is reloaded halfway.
-  await expect.poll(() => faked.sent.filter((asked) => asked === "POST /api/command").length, { timeout: 30_000 }).toBeGreaterThanOrEqual(2);
+  // The years are in (the preset played by the server in one request, R-SERVER-046): the server holds the life, and the page is reloaded while its chips still come in.
+  await expect.poll(() => faked.sent.filter((asked) => asked === "POST /api/prologue/preset").length, { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
   await shoot(page, "resume-04-years-before-reload", info.project.name);
   await page.reload();
   await expect(page.locator("[data-gate='years'], [data-gate='handover'], [data-thumb='phone']").first()).toBeVisible({ timeout: 30_000 });
