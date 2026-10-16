@@ -614,6 +614,14 @@ export const placeText: Record<string, string> = {
   "place.rye-lane.sign.1": "African and Caribbean foods",
   "place.rye-lane.sign.2": "Money transfer to Nigeria",
   "place.rye-lane.sign.3": "Hair and braids",
+  // The terrace's boards, a name line and a trade line each. Made-up names checked under R-CITY-007 and
+  // recorded in place.names.json; the client swaps them into Rye Lane's stage file.
+  "place.rye-lane.sign.chicken": "Peppercrest\nChicken and chips",
+  "place.rye-lane.sign.naija": "Ogbono House\nNigerian foods",
+  "place.rye-lane.sign.barber": "Brimfade\nBarbers",
+  "place.rye-lane.sign.clothes": "Wrennick\nClothing",
+  "place.rye-lane.sign.transfer": "Kobowire\nMoney to Nigeria",
+  "place.rye-lane.sign.pub": "Tollhouse Lantern\nPub",
   "place.rye-lane.overheard.1": "Do you have the big tin of palm oil?",
   "place.rye-lane.overheard.2": "Send it today and they get it in the morning.",
   "place.rye-lane.overheard.3": "Braids take six hours. Bring a book.",

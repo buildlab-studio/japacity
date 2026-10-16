@@ -386,5 +386,193 @@
       "result": "Passed. No business or company of that name found; the nearest results are the surname Ormsby and places of other names."
     },
     "status": "draft"
+  },
+  {
+    "file": "places/rye-lane/sign_peppercrest",
+    "place": "place.rye-lane",
+    "source": "code",
+    "author": "Japacity",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": null,
+    "aiTool": null,
+    "date": "2026-10-16",
+    "modified": false,
+    "triangles": null,
+    "drawCalls": null,
+    "materials": null,
+    "bytes": null,
+    "paletteCheck": null,
+    "reference": null,
+    "outline": null,
+    "review": null,
+    "nameCheck": {
+      "name": "Peppercrest",
+      "workingName": "Peppercrest",
+      "searches": [
+        "web: \"Peppercrest\" chicken OR restaurant OR takeaway",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Peppercrest\" (no results)"
+      ],
+      "date": "2026-10-16",
+      "result": "Passed. No takeaway or company of that name found on the web or the UK register."
+    },
+    "status": "draft"
+  },
+  {
+    "file": "places/rye-lane/sign_ogbono-house",
+    "place": "place.rye-lane",
+    "source": "code",
+    "author": "Japacity",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": null,
+    "aiTool": null,
+    "date": "2026-10-16",
+    "modified": false,
+    "triangles": null,
+    "drawCalls": null,
+    "materials": null,
+    "bytes": null,
+    "paletteCheck": null,
+    "reference": null,
+    "outline": null,
+    "review": null,
+    "nameCheck": {
+      "name": "Ogbono House",
+      "workingName": "Adire Pantry",
+      "searches": [
+        "web: \"Adire Pantry\"",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Adire Pantry\" (several companies named Adire)",
+        "web: \"Ogbono House\" shop OR foods OR restaurant",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Ogbono House\" (none holds Ogbono)"
+      ],
+      "date": "2026-10-16",
+      "result": "Replaced. Several companies named \"Adire\" are on the UK register, too close for a shop. \"Ogbono House\": no shop or company of that name found; only menus that sell ogbono soup."
+    },
+    "status": "draft"
+  },
+  {
+    "file": "places/rye-lane/sign_brimfade",
+    "place": "place.rye-lane",
+    "source": "code",
+    "author": "Japacity",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": null,
+    "aiTool": null,
+    "date": "2026-10-16",
+    "modified": false,
+    "triangles": null,
+    "drawCalls": null,
+    "materials": null,
+    "bytes": null,
+    "paletteCheck": null,
+    "reference": null,
+    "outline": null,
+    "review": null,
+    "nameCheck": {
+      "name": "Brimfade",
+      "workingName": "Clipwell",
+      "searches": [
+        "web: \"Clipwell\" barbers",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Clipwell\" (Clipwell Limited, dissolved, and two former names)",
+        "web: \"Brimfade\"",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Brimfade\" (no results)"
+      ],
+      "date": "2026-10-16",
+      "result": "Replaced. \"Clipwell Limited\" is on the UK register. \"Brimfade\": no barber or company found on the web or the UK register."
+    },
+    "status": "draft"
+  },
+  {
+    "file": "places/rye-lane/sign_wrennick",
+    "place": "place.rye-lane",
+    "source": "code",
+    "author": "Japacity",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": null,
+    "aiTool": null,
+    "date": "2026-10-16",
+    "modified": false,
+    "triangles": null,
+    "drawCalls": null,
+    "materials": null,
+    "bytes": null,
+    "paletteCheck": null,
+    "reference": null,
+    "outline": null,
+    "review": null,
+    "nameCheck": {
+      "name": "Wrennick",
+      "workingName": "Hemway",
+      "searches": [
+        "web: \"Hemway\" clothing OR clothes shop",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Hemway\" (a dozen Hemway companies)",
+        "web: \"Wrennick\" clothing OR shop OR company",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Wrennick\" (no results)"
+      ],
+      "date": "2026-10-16",
+      "result": "Replaced. A dozen companies named \"Hemway\" are on the UK register. \"Wrennick\": no shop or company found; the nearest is a dissolved knitwear wholesaler named Wren."
+    },
+    "status": "draft"
+  },
+  {
+    "file": "places/rye-lane/sign_kobowire",
+    "place": "place.rye-lane",
+    "source": "code",
+    "author": "Japacity",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": null,
+    "aiTool": null,
+    "date": "2026-10-16",
+    "modified": false,
+    "triangles": null,
+    "drawCalls": null,
+    "materials": null,
+    "bytes": null,
+    "paletteCheck": null,
+    "reference": null,
+    "outline": null,
+    "review": null,
+    "nameCheck": {
+      "name": "Kobowire",
+      "workingName": "Ferrylane",
+      "searches": [
+        "web: \"Ferrylane\"",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Ferrylane\" (many Ferry Lane companies, one formerly Ferrylane Limited)",
+        "web: \"Kobowire\" OR \"Kobo Wire\" money transfer",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Kobowire\" (no results)"
+      ],
+      "date": "2026-10-16",
+      "result": "Replaced. Many \"Ferry Lane\" companies are on the UK register. \"Kobowire\": no transfer service or company found; the nearest is iKobo, a transfer service in the United States that closed in 2008."
+    },
+    "status": "draft"
+  },
+  {
+    "file": "places/rye-lane/sign_tollhouse-lantern",
+    "place": "place.rye-lane",
+    "source": "code",
+    "author": "Japacity",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": null,
+    "aiTool": null,
+    "date": "2026-10-16",
+    "modified": false,
+    "triangles": null,
+    "drawCalls": null,
+    "materials": null,
+    "bytes": null,
+    "paletteCheck": null,
+    "reference": null,
+    "outline": null,
+    "review": null,
+    "nameCheck": {
+      "name": "Tollhouse Lantern",
+      "workingName": "Tollhouse Lantern",
+      "searches": [
+        "web: \"Tollhouse Lantern\" pub",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Tollhouse Lantern\" (no company holds both words)"
+      ],
+      "date": "2026-10-16",
+      "result": "Passed. No pub or company of that name found; the nearest are a pub called the Tollhouse in Lymington and the Lantern in Kent, both outside London."
+    },
+    "status": "draft"
   }
 ]

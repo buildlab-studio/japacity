@@ -98,4 +98,12 @@ describe("the places of London", () => {
     }
     for (const row of LONDON) expect({ id: row.id, blurb: (text[`${row.id}.blurb`] ?? "").trim() !== "", dashed: /[\u2013\u2014]/u.test(text[`${row.id}.blurb`] ?? "") }).toEqual({ id: row.id, blurb: true, dashed: false });
   });
+
+  test("[R-CITY-007] [R-CITY-024] given Rye Lane's terrace, when its boards are read, then the chicken shop, the Nigerian shop, the barber, the clothes shop, the transfer shop and the pub each have a short board of two lines at most, a made-up name over its trade, the name's check recorded", () => {
+    const checked = new Set(names.map((row) => row.nameCheck.name));
+    for (const board of ["chicken", "naija", "barber", "clothes", "transfer", "pub"]) {
+      const lines = (text[`place.rye-lane.sign.${board}`] ?? "").split("\n");
+      expect({ board, lines: lines.length, long: lines.filter((line) => line.length > 20), checked: checked.has(lines[0] ?? "") }).toEqual({ board, lines: 2, long: [], checked: true });
+    }
+  });
 });
