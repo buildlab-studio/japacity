@@ -1,3 +1,4 @@
+import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -60,6 +61,26 @@ describe("the share cards", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: say("ui.card.open") }));
     expect(await screen.findByRole("dialog")).toBeDefined();
+  });
+
+  test("[R-SHARE-004] [R-SHARE-003] given a card opened over the world, then it names the character as the band does, and its share, the screenshot's hint and Close stand together on a ground of their own at the foot of a sheet that scrolls within the screen", async () => {
+    // The catalog's pictures 141, 168 and 169 (1b952f4b): the card said "Ada" under a band that said "Adaeze"; the picker
+    // stood above the screen's top and the hint and Close were printed over the phone's icons with nothing behind them.
+    const view = withCard({ ...SEND_OFF, kind: "granted" });
+    await renderWithView(<CardView />, view);
+    const sheet = await screen.findByRole("dialog");
+    const band = (text[`${view.scenario}.name`] ?? "").split(/\s+/)[0]!;
+    expect(band).not.toBe("");
+    expect(within(sheet).getByText(band, { selector: "[data-card-name]" })).toBeDefined();
+    const foot = sheet.querySelector<HTMLElement>("[data-card-foot]")!;
+    expect(foot.className).toContain("bg-sheet");
+    expect(foot.className).toContain("sticky");
+    expect(within(foot).getByText(say("ui.card.how"))).toBeDefined();
+    expect(within(foot).getByRole("button", { name: say("ui.report.close") })).toBeDefined();
+    expect(foot.querySelector("[data-share-button]")).not.toBeNull();
+    const scroller = sheet.querySelector<HTMLElement>("[data-card-screen]")!;
+    expect(scroller.className).toContain("max-h-full");
+    expect(scroller.className).toContain("overflow-y-auto");
   });
 
   test("given a life lost on the road, then the ending card and the real-story card are all there is", async () => {
