@@ -1768,8 +1768,8 @@ export function City({
             pins,
             country: shownCountry,
             countries,
-            // The drawn city is Lagos; abroad the map is its list of stops until that city is drawn (R-WORLD-015).
-            drawing: drawing && where === "home",
+            // The ride's scene draws at home and in a country whose ways are drawn (R-WORLD-015, R-WORLD-039).
+            drawing: drawing && (where === "home" || (where === "abroad" && (view.place.ways ?? []).length > 0)),
             diveTo,
             pickFirst: mapPick,
             step: stepWay?.go ?? null,
