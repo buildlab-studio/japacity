@@ -14,6 +14,7 @@ import type { DrawSource } from "./draw";
 import { type Fit, fitOf, type Point, type Position } from "./fit";
 import type { Decor, Label, Road } from "./geometry";
 import { Tower, Towers } from "./landmarks";
+import { PaperMap, type PaperMapProps } from "./PaperMap";
 import type { Clear, Ground } from "./scatter";
 
 /** [lat, lon] in thousandths of a degree. */
@@ -396,3 +397,8 @@ export const LONDON: PaperCity = {
   words: londonWords,
   sizes: { "place.heathrow": 118, "place.peckham": 108, "place.rye-lane": 104 },
 };
+
+/** The folding map handed London: what the map screen loads abroad, in this chunk with its drawing. */
+export function LondonPaperMap(props: Omit<PaperMapProps, "city">) {
+  return <PaperMap {...props} city={LONDON} />;
+}

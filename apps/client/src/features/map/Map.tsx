@@ -6,7 +6,7 @@
 import { X } from "lucide-react";
 import "./map.css";
 
-import { type ComponentProps, lazy, type ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, type ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
 import { formatMoney } from "../../shared/words/format";
@@ -22,7 +22,7 @@ import { RouteVehicle } from "./paper/routeVehicle";
 const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
 /** London's painted map (R-WORLD-038): the same folding map handed London, whose drawing is a chunk of its own, loaded only abroad. */
 const LondonPaper = lazy(() =>
-  Promise.all([import("./paper/PaperMap"), import("./paper/london")]).then(([paper, london]) => ({ default: (props: Omit<ComponentProps<typeof paper.PaperMap>, "city">) => <paper.PaperMap {...props} city={london.LONDON} /> })),
+  import("./paper/london").then((london) => ({ default: london.LondonPaperMap })),
 );
 /** The countries abroad drawn as a painted map; the rest keep the stops as a list until their waves. */
 const PAINTED_ABROAD = "country.uk";
@@ -135,6 +135,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
 
   const lagos = country.id === "lagos";
   const painted = lagos || country.id === PAINTED_ABROAD;
+  const Paper = lagos ? PaperMap : LondonPaper;
   const closeButton = (
     <button type="button" onClick={onClose} aria-label={mapWords("map.close")} className="map-round press pointer-events-auto inline-flex size-[42px] items-center justify-center" data-map-close>
       <X size={20} strokeWidth={2.5} />
@@ -167,7 +168,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       {painted && riding === null ? (
         <Suspense fallback={<div className="absolute top-3 right-3">{closeButton}</div>}>
           <RouteVehicle value={routeVehicle}>
-            {lagos ? <PaperMap pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} canoe={canoe} /> : <LondonPaper pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} canoe={null} />}
+            <Paper pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} canoe={canoe} />
           </RouteVehicle>
         </Suspense>
       ) : painted ? null : (
