@@ -10,6 +10,7 @@ import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";
 import placeFile from "../../../../public/assets/places/inverter-room/place.json";
+import hubFile from "../../../../public/assets/places/yaba-hub/place.json";
 import { plainActLine } from "../actLines";
 import { crowdSize } from "../crowd";
 import { crowdTuning } from "../limits";
@@ -32,6 +33,22 @@ describe("the Inverter Room's file", () => {
     expect(entry.assets).toBe("inverter-room");
     expect(file.place).toBe(ID);
     expect(content.place["place.yaba"]?.assets).not.toBe(entry.assets);
+  });
+
+  test("[R-WORLD-011] given the hub and the Inverter Room, when their dressings are read, then they are two pictures: the inverter with its batteries, the laptop desks and the fan are the room's alone, the hub's long table and meetup corner are not in it, and their floors differ", () => {
+    const hub = staged(hubFile, "place.yaba").stage;
+    const hubModels = new Set(hub.models.map((model) => model.file));
+    for (const own of ["shared/prop/prop_inverter.glb", "shared/prop/prop_laptop-desk.glb", "shared/prop/prop_fan.glb"]) {
+      expect(models).toContain(own);
+      expect(hubModels.has(own)).toBe(false);
+    }
+    for (const hubs of ["places/yaba-hub/prop_long-desk.glb", "places/yaba-hub/prop_meetup-corner.glb"]) {
+      expect(hubModels.has(hubs)).toBe(true);
+      expect(models).not.toContain(hubs);
+    }
+    expect(stage.ground.colour).not.toBe(hub.ground.colour);
+    expect(thing("inverter")?.file).toBe("shared/prop/prop_inverter.glb");
+    expect(thing("laptops")?.file).toBe("shared/prop/prop_laptop-desk.glb");
   });
 
   test("[R-ASSET-007] given the room's shipped files measured as the build check measures them, when it is counted, then both modes fit the interior row and its download fits the row's bytes", async () => {
