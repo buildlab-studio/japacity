@@ -127,7 +127,7 @@ describe("London lived by hand", () => {
     expect(names).toEqual(["The weekly shop", "A meal of your own", "The chicken shop", "A taste of home", "A pint", "A fresh cut", "New clothes"]);
     for (const act of RULE) {
       for (const key of [`${act.id}.blurb`, `line.activity.${act.id.slice("activity.".length)}.now`]) {
-        expect({ key, words: (text[key] ?? "").trim().length > 0, dashed: /[–—]/u.test(text[key] ?? "") }).toEqual({ key, words: true, dashed: false });
+        expect({ key, words: (text[key] ?? "").trim().length > 0, dashed: /[\u2013\u2014]/u.test(text[key] ?? "") }).toEqual({ key, words: true, dashed: false });
       }
     }
   });

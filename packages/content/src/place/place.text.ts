@@ -782,7 +782,6 @@ export const placeText: Record<string, string> = {
   "place.compound-room.short": "Your room",
   "place.hostel-room.short": "Your hostel room",
   "place.heathrow.short": "Heathrow",
-  "place.big-shop-uk.short": "The big shop",
   "place.care-home-uk.short": "The care home",
   "place.ward-uk.short": "The ward",
   "place.office-uk.short": "The office",

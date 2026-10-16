@@ -96,6 +96,6 @@ describe("the places of London", () => {
       expect({ id: row.id, checked: checked.has(sign) }).toEqual({ id: row.id, checked: true });
       expect((text[`${row.id}.sign.2`] ?? "").trim()).not.toBe("");
     }
-    for (const row of LONDON) expect({ id: row.id, blurb: (text[`${row.id}.blurb`] ?? "").trim() !== "", dashed: /[–—]/u.test(text[`${row.id}.blurb`] ?? "") }).toEqual({ id: row.id, blurb: true, dashed: false });
+    for (const row of LONDON) expect({ id: row.id, blurb: (text[`${row.id}.blurb`] ?? "").trim() !== "", dashed: /[\u2013\u2014]/u.test(text[`${row.id}.blurb`] ?? "") }).toEqual({ id: row.id, blurb: true, dashed: false });
   });
 });
