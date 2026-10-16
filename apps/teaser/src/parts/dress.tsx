@@ -119,11 +119,11 @@ export function Title({ words, size = 168, color = DAY.ink, delay = 0, align = "
   );
 }
 
-/** A recorded moment of the game, from apps/teaser/clips. */
-export function Clip({ name, from = 0, style }: { name: ClipName; from?: number; style?: CSSProperties }) {
+/** A recorded moment of the game, from apps/teaser/clips, from a frame of the clip and at a speed (1 is as recorded). */
+export function Clip({ name, from = 0, rate = 1, style }: { name: ClipName; from?: number; rate?: number; style?: CSSProperties }) {
   const clip = ALL_CLIPS.find((one) => one.name === name);
   if (clip === undefined) throw new Error(`No clip named ${name}`);
-  return <OffthreadVideo src={staticFile(`clips/${clip.file}`)} muted trimBefore={from} style={{ width: "100%", height: "100%", objectFit: "cover", ...style }} />;
+  return <OffthreadVideo src={staticFile(`clips/${clip.file}`)} muted trimBefore={from} playbackRate={rate} style={{ width: "100%", height: "100%", objectFit: "cover", ...style }} />;
 }
 
 /** The phone drawn in code: a rounded dark frame round a screen of the phone's shape (390 by 844). */

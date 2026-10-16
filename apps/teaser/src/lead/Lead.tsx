@@ -34,14 +34,21 @@ const TALL_FULL: Box = { x: 0, y: 0, w: TALL_VIDEO.width, h: TALL_VIDEO.height }
 /** The strip's window across the middle of the tall frame: the words stand above it, the stickers below. */
 export const STRIP: Box = { x: 36, y: 560, w: 1008, h: 800 };
 const STRIP_RADIUS = 44;
-/** The wide recording inside the strip, at 1500 wide, so the window shows two thirds of it and the rest is travel. */
-const PICTURE = { w: 1500, h: 844 } as const;
-/** How far the picture travels left to right through a strip shot, and how much of that the stickers under it follow. */
-const TRAVEL = 300;
+/** A wide recording's own pixels, which a strip shot's framing is given in. */
+const WIDE_CLIP = { w: 1280, h: 720 } as const;
+/** How much of the picture's travel the stickers under the strip follow: a touch slower, so the two layers slide apart. */
 const PARALLAX = 0.8;
 /** The turn's one spring, from the strip to the frame, on the frame "Find your way out." lands. */
 const GROW_FRAMES = 18;
 const TURN_AT = 20;
+/** The frame of the turn the band starts to rise to the top of the frame on: landed before the chip pops. */
+const BAND_RISES_AT = 4;
+/**
+ * The turn fades through the day sky, never across: the wide picture goes while the window grows, a beat of sky, then the
+ * phone's recording comes up. Frames after the turn starts.
+ */
+const WIDE_GOES = [4, 10] as const;
+const PHONE_COMES = [12, 18] as const;
 
 interface Stage {
   readonly act: Act;
@@ -49,7 +56,7 @@ interface Stage {
   readonly box: Box;
   /** 0 while the world is a strip, 1 once it fills the frame. */
   readonly grow: number;
-  /** How far the strip's picture has travelled at this frame, in pixels. */
+  /** How far the strip's picture stands from where it stands halfway through the shot, in pixels of the frame. */
   readonly travel: number;
 }
 
@@ -80,7 +87,7 @@ function Slide({ delay = 0, children }: { delay?: number; children: ReactNode })
   const stage = useContext(StageContext);
   if (useFrameShape() === "wide" || (stage.act !== "strip" && stage.act !== "turn")) return <>{children}</>;
   const enter = land(frame, fps, delay, 16);
-  const drift = (stage.travel - TRAVEL / 2) * PARALLAX;
+  const drift = stage.travel * PARALLAX;
   const off = stage.act === "strip" ? ramp(frame, durationInFrames - 10, durationInFrames) : 0;
   const x = (1 - enter) * -1100 + drift + off * off * 1200;
   return <div style={{ position: "absolute", inset: 0, transform: `translateX(${String(x)}px)` }}>{children}</div>;
@@ -171,9 +178,11 @@ function Band({ name, when, where, naira, age = "23 yrs 1 mo", paint = DAY, dela
   const shape = useFrameShape();
   const stage = useContext(StageContext);
   const p = land(frame, fps, delay, 14);
-  // In the tall frame the band rides the window's top edge: across the strip, then at the top of the frame once it grows.
-  const inset = mix(24, 40, stage.grow);
-  const at = shape === "tall" ? { left: stage.box.x + inset, right: TALL_FULL.w - stage.box.x - stage.box.w + inset, top: stage.box.y + mix(22, 60, stage.grow) } : { left: 40, right: 40, top: 32 };
+  // In the tall frame the band rides the window's top edge across the strip, and stands at the top of the frame in the
+  // hand. In the turn it rises there on its own before "Find your way out." lands, so the chip never covers it.
+  const rise = stage.act === "turn" ? land(frame, fps, BAND_RISES_AT, 12) : stage.grow;
+  const inset = mix(24, 40, rise);
+  const at = shape === "tall" ? { left: mix(STRIP.x, 0, rise) + inset, right: mix(TALL_FULL.w - STRIP.x - STRIP.w, 0, rise) + inset, top: mix(STRIP.y + 22, 60, rise) } : { left: 40, right: 40, top: 32 };
   return (
     <div style={{ position: "absolute", ...at, transform: `translateY(${String((1 - p) * -160)}px)` }}>
       <Card paint={paint} style={{ display: "flex", alignItems: "center", gap: 26, padding: "16px 28px", borderRadius: 999 }}>
@@ -214,13 +223,13 @@ function BriefChip({ tile, children, delay = 0, paint = DAY }: { tile: string; c
 
 /**
  * A big tilted sticker chip of two or three words, the trailer's title, standing in a corner of the world. In the tall frame
- * it stands at `tall` (under the strip, sliding with it, unless `still`).
+ * it stands at `tall` (under the strip, sliding with it, unless `still`; `tilt` there, where a flatter chip fits better).
  */
-function BigChip({ children, tint, delay = 0, tilt = -4, style, tall }: { children: ReactNode; tint: string; delay?: number; tilt?: number; style?: CSSProperties; tall: { left: number; top: number; still?: boolean } }) {
+function BigChip({ children, tint, delay = 0, tilt = -4, style, tall }: { children: ReactNode; tint: string; delay?: number; tilt?: number; style?: CSSProperties; tall: { left: number; top: number; still?: boolean; tilt?: number } }) {
   if (useFrameShape() === "tall") {
     const chip = (
       <div style={{ position: "absolute", left: tall.left, top: tall.top }}>
-        <Chip tint={tint} tilt={tilt} delay={delay} size={74}>
+        <Chip tint={tint} tilt={tall.tilt ?? tilt} delay={delay} size={74}>
           {children}
         </Chip>
       </div>
@@ -236,6 +245,12 @@ function BigChip({ children, tint, delay = 0, tilt = -4, style, tall }: { childr
   );
 }
 
+/** The left, the top and the width of a wide recording's pixels a strip window shows. */
+type Framing = readonly [number, number, number];
+
+/** The whole height of the recording, travelling across it: the framing a strip shot has unless it is given its own. */
+const WHOLE: { from: Framing; to: Framing } = { from: [373, 0, 907], to: [0, 0, 907] };
+
 interface WorldProps {
   readonly clip: "wide-ride" | "wide-street" | "wide-day" | "wide-sofa" | "wide-night";
   /** The phone's recording of the same place, which the turn grows into. */
@@ -243,8 +258,15 @@ interface WorldProps {
   readonly from?: number;
   readonly push?: number;
   readonly toward?: readonly [number, number];
-  /** Where the strip's travel starts: 0 shows the picture's right end first, 1 its middle. */
-  readonly pan?: number;
+  /**
+   * What the strip's window frames, at the shot's first frame and at its last: the left, the top and the width of the
+   * wide recording's own pixels (1280 by 720) shown, the height following from the window's shape. The left only falls,
+   * so the picture travels left to right; each framing is chosen to stay inside the drawn city for the whole shot.
+   */
+  readonly strip?: { readonly from: Framing; readonly to: Framing };
+  /** The strip's own frame of the clip to start on and its speed, where the landscape's would show the house turning away. */
+  readonly stripFrom?: number;
+  readonly stripRate?: number;
   /** The frame of a turn shot the window starts to grow on. */
   readonly turnAt?: number;
   readonly children?: ReactNode;
@@ -269,33 +291,39 @@ function WideWorld({ clip, from = 0, push = 0.06, toward = [0.5, 0.5], children 
   );
 }
 
+/** Where the wide recording stands in the tall frame when the strip's window frames `at`. */
+function placeOf(at: Framing): { x: number; y: number; scale: number } {
+  const scale = STRIP.w / at[2];
+  return { x: STRIP.x - at[0] * scale, y: STRIP.y - at[1] * scale, scale };
+}
+
 /**
- * The world in the tall frame. In the strip, the wide recording at 1500 wide inside the card's window, travelling left to
- * right over the shot on top of its push. In the turn, the window grows to the frame on one spring and the phone's
- * recording of the same place comes up inside it while the wide picture holds still in the frame. In the hand, the phone's
- * recording fills the frame.
+ * The world in the tall frame. In the strip, the wide recording inside the card's window, its framing easing from the
+ * shot's first to its last, so the picture travels left to right and pushes in. In the turn, the window grows to the frame
+ * on one spring and the picture fades through the day sky to the phone's recording of the same place. In the hand, the
+ * phone's recording fills the frame.
  */
-function TallWorld({ clip, tall, from = 0, push = 0.06, toward = [0.5, 0.5], pan = 0, turnAt = 20, children }: WorldProps) {
+function TallWorld({ clip, tall, from = 0, push = 0.06, strip = WHOLE, stripFrom, stripRate = 1, turnAt = 20, children }: WorldProps) {
   const frame = useCurrentFrame();
   const { durationInFrames, fps } = useVideoConfig();
   const act = useContext(ActContext);
   const t = ramp(frame, 0, durationInFrames);
   const turning = act === "turn";
   const grow = act === "hand" ? 1 : turning ? land(frame, fps, turnAt, GROW_FRAMES) : 0;
-  const travel = TRAVEL * ease(ramp(frame, 0, turning ? turnAt + GROW_FRAMES : durationInFrames));
+  const k = ease(ramp(frame, 0, turning ? turnAt : durationInFrames));
+  const at: Framing = [mix(strip.from[0], strip.to[0], k), mix(strip.from[1], strip.to[1], k), mix(strip.from[2], strip.to[2], k)];
+  const place = placeOf(at);
+  const middle = placeOf([mix(strip.from[0], strip.to[0], 0.5), mix(strip.from[1], strip.to[1], 0.5), mix(strip.from[2], strip.to[2], 0.5)]);
+  const travel = place.x - middle.x;
   const box = mixBox(STRIP, TALL_FULL, grow);
-  const slack = PICTURE.w - STRIP.w;
-  const picture = { x: STRIP.x - slack + pan * (slack - TRAVEL) + travel, y: STRIP.y + (STRIP.h - PICTURE.h) / 2 };
-  // The phone's recording comes up as the window starts to grow, so what the growing window shows is its day sky.
-  const phone = act === "hand" ? 1 : turning ? ramp(frame, turnAt, turnAt + 10) : 0;
+  const wide = act === "hand" ? 0 : turning ? 1 - ramp(frame, turnAt + WIDE_GOES[0], turnAt + WIDE_GOES[1]) : 1;
+  const phone = act === "hand" ? 1 : turning ? ramp(frame, turnAt + PHONE_COMES[0], turnAt + PHONE_COMES[1]) : 0;
   return (
     <AbsoluteFill style={{ background: DAY.sky, overflow: "hidden" }}>
       <div data-stage-window={act} style={{ position: "absolute", left: box.x, top: box.y, width: box.w, height: box.h, overflow: "hidden", borderRadius: STRIP_RADIUS * (1 - grow), background: DAY.sky, boxShadow: grow < 1 ? `0 0 0 ${String(3 * (1 - grow))}px ${DAY.edge}, 0 18px 40px rgba(19, 26, 51, ${String(0.16 * (1 - grow))})` : "none" }}>
-        {phone < 1 ? (
-          <div style={{ position: "absolute", left: picture.x - box.x, top: picture.y - box.y, width: PICTURE.w, height: PICTURE.h }}>
-            <div style={{ width: "100%", height: "100%", transformOrigin: `${String(toward[0] * 100)}% ${String(toward[1] * 100)}%`, transform: `scale(${String(1 + push * t)})` }}>
-              <Clip name={clip} from={from} />
-            </div>
+        {wide > 0 ? (
+          <div data-strip-picture={clip} style={{ position: "absolute", left: place.x - box.x, top: place.y - box.y, width: WIDE_CLIP.w * place.scale, height: WIDE_CLIP.h * place.scale, opacity: wide }}>
+            <Clip name={clip} from={stripFrom ?? from} rate={stripRate} />
           </div>
         ) : null}
         {phone > 0 ? (
@@ -593,7 +621,7 @@ const SHOTS: readonly Shot[] = [
     </>
   ) },
   { frames: 56, act: "strip", node: (
-    <World clip="wide-ride" tall="tall-ride" from={30} push={0.08} pan={1}>
+    <World clip="wide-ride" tall="tall-ride" from={30} push={0.08} stripFrom={42} stripRate={0.76} strip={{ from: [440, 40, 820], to: [200, 40, 820] }}>
       <Bubble name="Conductor" x={900} y={720} delay={6} size={44} tall={{ x: 540, y: 552 }}>
         Oshodi, Oshodi. Enter with your change o.
       </Bubble>
@@ -603,7 +631,7 @@ const SHOTS: readonly Shot[] = [
     </World>
   ) },
   { frames: 46, act: "strip", node: (
-    <World clip="wide-ride" tall="tall-ride" from={140} push={0.05}>
+    <World clip="wide-ride" tall="tall-ride" from={140} push={0.05} strip={{ from: [420, 20, 860], to: [240, 20, 860] }}>
       <Bubble name="Ada" x={1500} y={330} delay={4} size={44} width={720} tall={{ x: 600, y: 552 }}>
         Who get change for one thousand?
       </Bubble>
@@ -616,7 +644,7 @@ const SHOTS: readonly Shot[] = [
     </World>
   ) },
   { frames: 84, act: "strip", node: (
-    <World clip="wide-day" tall="tall-day" from={40} push={0.05} toward={[0.4, 0.3]}>
+    <World clip="wide-day" tall="tall-day" from={40} push={0.05} toward={[0.4, 0.3]} stripFrom={66} stripRate={0.7} strip={{ from: [390, 150, 680], to: [230, 160, 640] }}>
       <Bubble name="Mama" x={1440} y={330} delay={10} size={42} width={700} tall={{ x: 600, y: 552 }}>
         Your uncle called. When are you going?
       </Bubble>
@@ -629,7 +657,7 @@ const SHOTS: readonly Shot[] = [
     </World>
   ) },
   { frames: 66, act: "strip", node: (
-    <World clip="wide-sofa" tall="tall-sofa" from={40} push={0.14} toward={[0.4, 0.45]} pan={0.6}>
+    <World clip="wide-sofa" tall="tall-sofa" from={40} push={0.14} toward={[0.4, 0.45]} strip={{ from: [600, 170, 600], to: [450, 200, 560] }}>
       <Band name="Ada" when="Evening" where="The family house" naira="₦498,500" age="23 yrs 1 mo" delay={0} />
       <Bubble name="Ada" x={1240} y={540} delay={30} size={42} width={620} tall={{ x: 560, y: 552 }}>
         Small rest, then I go hustle.
@@ -642,15 +670,15 @@ const SHOTS: readonly Shot[] = [
     </World>
   ) },
   { frames: 72, act: "strip", node: (
-    <World clip="wide-street" tall="tall-street" from={0} push={0.12} toward={[0.5, 0.7]} pan={1}>
+    <World clip="wide-street" tall="tall-street" from={0} push={0.12} toward={[0.5, 0.7]} strip={{ from: [360, 230, 620], to: [290, 290, 540] }}>
       <Band name="Ada" when="Morning" where="Ojuelegba" naira="₦498,200" age="23 yrs 2 mo" delay={0} />
       <Bubble name="Conductor" x={760} y={760} delay={6} size={40} width={620} tall={{ x: 500, y: 552 }}>
         Na Yaba you dey go? Enter, enter.
       </Bubble>
-      <Bubble name="Water seller" mark="W" x={1300} y={700} delay={26} size={40} width={560} tall={{ x: 520, y: 1380, tail: "up" }}>
+      <Bubble name="Water seller" mark="W" x={1300} y={700} delay={26} size={40} width={560} tall={{ x: 640, y: 1366, tail: "up", width: 760 }}>
         Cold water, cold one. Buy cold water.
       </Bubble>
-      <BigChip tint={TINT.people} delay={44} tall={{ left: 120, top: 1660 }}>
+      <BigChip tint={TINT.people} delay={44} tall={{ left: 56, top: 1615, tilt: -2 }}>
         Your people.
       </BigChip>
       <Sfx name="crowd.m4a" volume={0.5} />
@@ -661,13 +689,13 @@ const SHOTS: readonly Shot[] = [
     </World>
   ) },
   { frames: 80, act: "strip", node: (
-    <World clip="wide-day" tall="tall-day" from={110} push={0.05} toward={[0.5, 0.3]} pan={0.5}>
+    <World clip="wide-day" tall="tall-day" from={110} push={0.05} toward={[0.5, 0.3]} stripFrom={138} stripRate={0.75} strip={{ from: [370, 150, 680], to: [225, 160, 640] }}>
       <Band name="Ada" when="Afternoon" where="The family house" naira="₦2,500,000" age="24 yrs 6 mo" delay={0} />
       <Passbook delay={4} />
       <Bubble name="Ada" x={1180} y={420} delay={34} size={42} width={520} tall={{ x: 540, y: 552 }}>
         Small small, I go reach.
       </Bubble>
-      <BigChip tint={TINT.money} delay={54} style={{ left: "auto", right: 60 }} tall={{ left: 690, top: 1650 }}>
+      <BigChip tint={TINT.money} delay={54} style={{ left: "auto", right: 60 }} tall={{ left: 690, top: 1600 }}>
         Save up.
       </BigChip>
       <Sfx name="swish.wav" at={4} volume={0.4} />
@@ -679,11 +707,11 @@ const SHOTS: readonly Shot[] = [
     </World>
   ) },
   { frames: 76, act: "turn", node: (
-    <World clip="wide-day" tall="tall-day" from={10} push={0.05} toward={[0.3, 0.5]} pan={0.5} turnAt={TURN_AT}>
+    <World clip="wide-day" tall="tall-day" from={10} push={0.05} toward={[0.3, 0.5]} strip={{ from: [350, 150, 680], to: [250, 150, 680] }} turnAt={TURN_AT}>
       <Band name="Ada" when="Evening" where="The family house" naira="₦3,120,000" age="25 yrs 1 mo" delay={0} />
-      <RouteCard tile="prop_travel-bag" title="Care work in the UK" line="Your papers and a sponsor" tint={TINT.people} top={170} tallTop={1330} delay={2} />
-      <RouteCard tile="prop_laptop-desk" title="A master's" line="A school that says yes" tint={TINT.study} top={360} tallTop={1490} delay={8} />
-      <RouteCard tile="prop_flight-board" title="The Gulf" line="A job before the flight" tint={TINT.food} top={550} tallTop={1650} delay={14} />
+      <RouteCard tile="prop_travel-bag" title="Care work in the UK" line="Your papers and a sponsor" tint={TINT.people} top={170} tallTop={1300} delay={2} />
+      <RouteCard tile="prop_laptop-desk" title="A master's" line="A school that says yes" tint={TINT.study} top={360} tallTop={1450} delay={8} />
+      <RouteCard tile="prop_flight-board" title="The Gulf" line="A job before the flight" tint={TINT.food} top={550} tallTop={1600} delay={14} />
       {CONFETTI.map((bit) => (
         <Bit key={`${String(bit.x)}-${String(bit.y)}`} bit={bit} />
       ))}
@@ -752,7 +780,7 @@ export const LEAD_COMPOSITIONS = {
 
 /** What a shot's pieces read in the tall frame before a world gives them more: the strip's window, or the whole frame. */
 function stageOf(act: Act): Stage {
-  return act === "strip" ? { act, box: STRIP, grow: 0, travel: TRAVEL / 2 } : { act, box: TALL_FULL, grow: 1, travel: 0 };
+  return act === "strip" ? { act, box: STRIP, grow: 0, travel: 0 } : { act, box: TALL_FULL, grow: 1, travel: 0 };
 }
 
 function Cut({ shape }: { shape: FrameShape }) {

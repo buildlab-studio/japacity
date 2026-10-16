@@ -106,6 +106,19 @@ describe("the decision in its two frames", () => {
     expect(sources.some((source) => source.includes("clips/tall-day.webm"))).toBe(true);
   });
 
+  test("given the turn, when it is mounted on each of its frames, then the wide picture and the phone's recording are never drawn together", () => {
+    const turn = LEAD_SHOTS.find((shot) => shot.act === "turn");
+    expect(turn).toBeDefined();
+    if (turn === undefined) return;
+    const both: number[] = [];
+    for (let frame = turn.from; frame < turn.from + turn.frames; frame += 1) {
+      const sources = [...portraitAt(frame).querySelectorAll("video")].map((video) => video.getAttribute("src") ?? "");
+      if (sources.some((source) => source.includes("clips/wide-day.webm")) && sources.some((source) => source.includes("clips/tall-day.webm"))) both.push(frame);
+      unmount();
+    }
+    expect(both).toEqual([]);
+  });
+
   test("given the end card, when each composition is mounted on its last frame, then it carries the line under the address", () => {
     expect(END_LINE).toBe("Free. Open source.");
     for (const [component, size] of [
