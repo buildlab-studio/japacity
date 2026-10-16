@@ -4,7 +4,7 @@
     "schema": 3,
     "segments": [
       {
-        "content": "m0.3",
+        "content": "m0.4",
         "start": {
           "scenario": "scenario.zainab",
           "seed": "golden-zainab-abroad-0",
@@ -6191,351 +6191,351 @@
       "v": 14,
       "banked": 23,
       "nairaBank": 102500000,
-      "hash": "ade59ce32b13f61e"
+      "hash": "a5b8123e19222d88"
     },
     {
       "month": 2,
       "v": 19,
       "banked": 22,
       "nairaBank": 205500000,
-      "hash": "e879fd6c9838d392"
+      "hash": "be58451174c38351"
     },
     {
       "month": 3,
       "v": 25,
       "banked": 24,
       "nairaBank": 235081762,
-      "hash": "0db59c140f619aa2"
+      "hash": "83409c3334d5570f"
     },
     {
       "month": 4,
       "v": 32,
       "banked": 23,
       "nairaBank": 250389366,
-      "hash": "efcb91af0f0061a1"
+      "hash": "f7cc4c448a512cba"
     },
     {
       "month": 5,
       "v": 38,
       "banked": 22,
       "nairaBank": 280858564,
-      "hash": "e69c814b3319b5c4"
+      "hash": "0e66a2a07b1dfc40"
     },
     {
       "month": 6,
       "v": 51,
       "banked": 21,
       "nairaBank": 174870780,
-      "hash": "91a7b4a524eec3e6"
+      "hash": "5819683ea195c442"
     },
     {
       "month": 7,
       "v": 57,
       "banked": 24,
       "nairaBank": 475448482,
-      "hash": "01ca8ac2f8095ec7"
+      "hash": "bcd23d47eb7e5130"
     },
     {
       "month": 8,
       "v": 61,
       "banked": 23,
       "nairaBank": 844424558,
-      "hash": "f2317b734755ded0"
+      "hash": "f6a5d434495775ca"
     },
     {
       "month": 9,
       "v": 67,
       "banked": 22,
       "nairaBank": 1184386148,
-      "hash": "efdc4b9f156b34a9"
+      "hash": "faf55de2c6ab4cd1"
     },
     {
       "month": 10,
       "v": 75,
       "banked": 21,
       "nairaBank": 1194136232,
-      "hash": "5ca1baa1d166766a"
+      "hash": "dbf70f60fdafa2c5"
     },
     {
       "month": 11,
       "v": 82,
       "banked": 20,
       "nairaBank": 1194122922,
-      "hash": "d2f509a26d149fb3"
+      "hash": "cbf9addbdaa82a9e"
     },
     {
       "month": 12,
       "v": 89,
       "banked": 19,
       "nairaBank": 1194122573,
-      "hash": "37ae1c7c7a9c2bbb"
+      "hash": "79814aab68c042f4"
     },
     {
       "month": 13,
       "v": 95,
       "banked": 18,
       "nairaBank": 1194122989,
-      "hash": "7055abca65d2f666"
+      "hash": "f9b88c97fdcc9026"
     },
     {
       "month": 14,
       "v": 102,
       "banked": 24,
       "nairaBank": 1194121967,
-      "hash": "2278ba218695ba70"
+      "hash": "17a6d70abeceb928"
     },
     {
       "month": 15,
       "v": 107,
       "banked": 24,
       "nairaBank": 1022011322,
-      "hash": "d0fe83bfb4ef3dc6"
+      "hash": "255e510650b5be8f"
     },
     {
       "month": 16,
       "v": 109,
       "banked": 24,
       "nairaBank": 968011322,
-      "hash": "0e47afc7193946ab"
+      "hash": "263368c265bdf8ac"
     },
     {
       "month": 17,
       "v": 110,
       "banked": 23,
       "nairaBank": 950011322,
-      "hash": "e27e92e425495cf3"
+      "hash": "f54dfdd73a071b58"
     },
     {
       "month": 18,
       "v": 112,
       "banked": 22,
       "nairaBank": 914011322,
-      "hash": "6b4417ed80523857"
+      "hash": "20620322df6aa976"
     },
     {
       "month": 19,
       "v": 126,
       "banked": 21,
       "nairaBank": 1282617705,
-      "hash": "af823c521518ad89"
+      "hash": "dad059278c9ad41f"
     },
     {
       "month": 20,
       "v": 140,
       "banked": 20,
       "nairaBank": 1690270100,
-      "hash": "9055e1ad4d1d332f"
+      "hash": "5e2ebeeab8e9ee5c"
     },
     {
       "month": 21,
       "v": 154,
       "banked": 19,
       "nairaBank": 2098420596,
-      "hash": "f7bde4267e3542e7"
+      "hash": "dd05286501b57638"
     },
     {
       "month": 22,
       "v": 168,
       "banked": 18,
       "nairaBank": 2507019821,
-      "hash": "19a1a2ce25de4f31"
+      "hash": "28bb444d10274d04"
     },
     {
       "month": 23,
       "v": 182,
       "banked": 17,
       "nairaBank": 2877299247,
-      "hash": "2fd9bbd0aa0ed9de"
+      "hash": "e122ce675dc5715d"
     },
     {
       "month": 24,
       "v": 196,
       "banked": 16,
       "nairaBank": 3109990834,
-      "hash": "1e2d1a5014fc78c1"
+      "hash": "3a1909a910860e92"
     },
     {
       "month": 25,
       "v": 210,
       "banked": 15,
       "nairaBank": 3692298204,
-      "hash": "7bc1153b4940a447"
+      "hash": "e6c7b35ae33cceac"
     },
     {
       "month": 26,
       "v": 224,
       "banked": 14,
       "nairaBank": 4119212355,
-      "hash": "aca312f79ea3548f"
+      "hash": "a3efa52459cf009d"
     },
     {
       "month": 27,
       "v": 238,
       "banked": 13,
       "nairaBank": 4537374449,
-      "hash": "3d3ddb46bf970427"
+      "hash": "64ca87d706bd1f19"
     },
     {
       "month": 28,
       "v": 252,
       "banked": 12,
       "nairaBank": 4952673375,
-      "hash": "7cbd4c60e3b24d65"
+      "hash": "8ee1a9af036739bb"
     },
     {
       "month": 29,
       "v": 266,
       "banked": 11,
       "nairaBank": 5341052590,
-      "hash": "5540b9edecb6770f"
+      "hash": "6aa7ace81d285954"
     },
     {
       "month": 30,
       "v": 280,
       "banked": 10,
       "nairaBank": 5766857445,
-      "hash": "c7e1c246e960fea6"
+      "hash": "353319f38a5f9fbe"
     },
     {
       "month": 31,
       "v": 294,
       "banked": 9,
       "nairaBank": 6149816538,
-      "hash": "776ef585d9029455"
+      "hash": "741f13e0574bbb43"
     },
     {
       "month": 32,
       "v": 308,
       "banked": 8,
       "nairaBank": 6572293529,
-      "hash": "7764df93317bf206"
+      "hash": "083942aa8a7b1a81"
     },
     {
       "month": 33,
       "v": 322,
       "banked": 7,
       "nairaBank": 6997072915,
-      "hash": "863c785a9e8b373e"
+      "hash": "15d6c53bfde7ef80"
     },
     {
       "month": 34,
       "v": 336,
       "banked": 6,
       "nairaBank": 7423805763,
-      "hash": "b750f83749e49114"
+      "hash": "505621aaf321561d"
     },
     {
       "month": 35,
       "v": 350,
       "banked": 5,
       "nairaBank": 7839649778,
-      "hash": "315d59f85416baa0"
+      "hash": "8b765f658c89acc1"
     },
     {
       "month": 36,
       "v": 364,
       "banked": 4,
       "nairaBank": 8098860725,
-      "hash": "afcbbc9fb6b25aaf"
+      "hash": "ffdc423a40f6d22c"
     },
     {
       "month": 37,
       "v": 378,
       "banked": 3,
       "nairaBank": 8702719632,
-      "hash": "0238afebae5308d4"
+      "hash": "79cf6db8f640ff1c"
     },
     {
       "month": 38,
       "v": 392,
       "banked": 2,
       "nairaBank": 9153456719,
-      "hash": "5d520addb5fced36"
+      "hash": "5afe5d44830550bb"
     },
     {
       "month": 39,
       "v": 406,
       "banked": 1,
       "nairaBank": 9563808550,
-      "hash": "01f920b61138235b"
+      "hash": "9823bdd391ab9394"
     },
     {
       "month": 40,
       "v": 420,
       "banked": 0,
       "nairaBank": 9978332924,
-      "hash": "280914bb1ab8707e"
+      "hash": "aa9370a8cd761fda"
     },
     {
       "month": 41,
       "v": 435,
       "banked": 0,
       "nairaBank": 10431187022,
-      "hash": "1e1d6f45a67f9b6d"
+      "hash": "c2f485e2cbabea22"
     },
     {
       "month": 42,
       "v": 450,
       "banked": 0,
       "nairaBank": 10885956157,
-      "hash": "24e149664f183ba6"
+      "hash": "8e3f9765f41afdf0"
     },
     {
       "month": 43,
       "v": 465,
       "banked": 0,
       "nairaBank": 11346111027,
-      "hash": "005431b367d856a4"
+      "hash": "77106a7ef61a8bc9"
     },
     {
       "month": 44,
       "v": 480,
       "banked": 0,
       "nairaBank": 11812288485,
-      "hash": "db0c48a4a7048f4e"
+      "hash": "386f43e744989310"
     },
     {
       "month": 45,
       "v": 495,
       "banked": 0,
       "nairaBank": 12279481598,
-      "hash": "ed01c981d9a358f7"
+      "hash": "a1afba9683dc0e76"
     },
     {
       "month": 46,
       "v": 510,
       "banked": 0,
       "nairaBank": 12753320307,
-      "hash": "69107f1156b4084c"
+      "hash": "4ee8e9f6bf2198be"
     },
     {
       "month": 47,
       "v": 525,
       "banked": 0,
       "nairaBank": 13227747633,
-      "hash": "930b0926401c14e4"
+      "hash": "fd2a5ef91390484c"
     },
     {
       "month": 48,
       "v": 530,
       "banked": 0,
       "nairaBank": 13209747633,
-      "hash": "d36787b138d2f221"
+      "hash": "66b4f2e8713cea47"
     },
     {
       "month": 49,
       "v": 545,
       "banked": 0,
       "nairaBank": 13320063579,
-      "hash": "856cfb383d996a44"
+      "hash": "6531d137a803cebd"
     },
     {
       "month": 50,
       "v": 560,
       "banked": 0,
       "nairaBank": 13567128244,
-      "hash": "5de01b2d0a6d1256"
+      "hash": "3d175dba69d2a52d"
     }
   ],
-  "finalHash": "e776dfe2ddd69942"
+  "finalHash": "77131125c0938e4c"
 }
