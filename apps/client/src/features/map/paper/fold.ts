@@ -1,8 +1,9 @@
 // The fold (docs/rules/world.md R-WORLD-015; the second design): one map at two zooms with the strip as the hinge. The
 // strip is the whole map folded at the top; a tap on it, or a drag down far enough, unfolds it into the open map while
 // the card slides away; a tap on a district or a pin of the open map folds it back while that neighbourhood's card
-// rises; folded, the cards swipe sideways. Plain states and events, whole numbers, so every step is tested.
-import type { CardId } from "./districts";
+// rises; folded, the cards swipe sideways. Plain states and events, whole numbers, so every step is tested. A card is
+// named by its id, whichever painted city it belongs to (R-WORLD-038).
+type CardId = string;
 
 export type Phase = "folded" | "opening" | "open" | "closing";
 

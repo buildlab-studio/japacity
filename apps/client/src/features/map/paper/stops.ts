@@ -5,8 +5,18 @@
 // those, on home, and on a place never visited (on a card only, a few at a time); on a card a place already visited
 // carries its name too; names that meet move clear of each other.
 import type { PinState } from "../../../shared/world/contract";
-import { type CardId, cardOf } from "./districts";
+import { cardOf } from "./districts";
 import { type Point, type Position, toPaper } from "./fit";
+
+/** How a painted city stands its stops: its fit, its districts, and any stop it stands somewhere of its own (R-WORLD-038). */
+export interface Placer {
+  toPaper: (position: Position) => Point;
+  cardOf: (position: Position) => string;
+  /** A stop stood where the fit alone would not put it (London's home spot, Heathrow on its inset); null for the fit. */
+  fixed?: (stop: { id: string; position: Position }) => { at: Point; card: string } | null;
+}
+
+const LAGOS_PLACER: Placer = { toPaper, cardOf };
 
 /** A stop as the paper needs it. */
 export interface PaperStop {
@@ -20,7 +30,7 @@ export interface Placed {
   id: string;
   state: PinState;
   at: Point;
-  card: CardId;
+  card: string;
 }
 
 /** Two places' stickers keep at least this many paper units apart. */
@@ -68,9 +78,18 @@ export function spread(points: readonly { id: string; at: Point }[], apart = APA
 }
 
 /** The stops on the paper, each at its eased point and with its card. */
-export function placeStops(stops: readonly PaperStop[]): Placed[] {
-  const eased = spread(stops.map((stop) => ({ id: stop.id, at: toPaper(stop.position) })));
-  return stops.map((stop) => ({ id: stop.id, state: stop.state, at: eased.get(stop.id) ?? toPaper(stop.position), card: cardOf(stop.position) }));
+export function placeStops(stops: readonly PaperStop[], placer: Placer = LAGOS_PLACER): Placed[] {
+  // A stop the city stands somewhere of its own keeps that point; the rest are eased apart among themselves.
+  const fixed = new Map(stops.flatMap((stop) => {
+    const own = placer.fixed?.(stop) ?? null;
+    return own === null ? [] : [[stop.id, own] as const];
+  }));
+  const eased = spread(stops.filter((stop) => !fixed.has(stop.id)).map((stop) => ({ id: stop.id, at: placer.toPaper(stop.position) })));
+  return stops.map((stop) => {
+    const own = fixed.get(stop.id);
+    if (own !== undefined) return { id: stop.id, state: stop.state, at: own.at, card: own.card };
+    return { id: stop.id, state: stop.state, at: eased.get(stop.id) ?? placer.toPaper(stop.position), card: placer.cardOf(stop.position) };
+  });
 }
 
 /** What the player has in view now, for the ring and name rule. */
