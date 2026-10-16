@@ -5,7 +5,7 @@
 import { describe, expect, test } from "vitest";
 
 import { bubbleRect, bubbleSpot, overlap, type Rect, TAIL } from "../../shared/world/Lines";
-import { HEAD_CHIN, HEAD_TOP, headRect, LABEL_Y, type LabelBox, layNames, MARK_HIT, NAME_LIFT_MAX } from "./labels";
+import { dotRect, HEAD_CHIN, HEAD_TOP, headRect, LABEL_Y, type LabelBox, layNames, MARK_HIT, NAME_LIFT_MAX } from "./labels";
 import { isPerson } from "./mark";
 import { sceneWords } from "./scene.words";
 import { stageOf } from "./placeFile";
@@ -52,16 +52,18 @@ describe("no line over a face", () => {
     let onDots = 0;
     for (const scene of SCENES) {
       const dots: LabelBox[] = [];
+      const anchors: { x: number; y: number }[] = [];
       const persons: { id: string; spot: [number, number]; name: LabelBox }[] = [];
       for (const { thing, spot } of scene.things) {
         const at = scene.inView(spot[0], LABEL_Y, spot[1]);
         if (at === null) continue;
         dots.push({ x: at.x, y: at.y - MARK_HIT / 2 + 6, width: 12, height: 12 });
+        anchors.push(at);
         // A person's name shows while they hold an ask; every other thing is its dot (R-WORLD-005). Nothing speaks in a
         // place's first seconds, while the first entry names everything (R-WORLD-026).
         if (isPerson(thing)) persons.push({ id: thing.id, spot, name: { x: at.x, y: at.y - MARK_HIT, width: sceneWords(thing.label).length * 8 + 24, height: 26 } });
       }
-      const soft: Rect[] = dots.map((dot) => ({ left: dot.x - 6, right: dot.x + 6, top: dot.y - 12, bottom: dot.y }));
+      const soft: Rect[] = anchors.map(dotRect);
       const heads: Rect[] = [];
       for (const [x, z] of scene.people) {
         const top = scene.inView(x, HEAD_TOP, z);

@@ -33,7 +33,7 @@ import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { anchorFan } from "./fan/anchor";
 import { markNode, showMark } from "./mark";
 import { bedLie, othersSeen, sleepMarkNode } from "./sleep";
-import { HEAD_CHIN, HEAD_TOP, headRect, LABEL_Y, type LabelBox, layNames, MARK_HIT } from "./labels";
+import { dotRect, HEAD_CHIN, HEAD_TOP, headRect, LABEL_Y, type LabelBox, layNames, MARK_HIT } from "./labels";
 import { aimRoom, aimShot, clampTurn, EASE, easeRoomView, easeZoom, homeTap, quarterTurns, roomAt, roomFirst, roomShot, SETTLE, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapTilt, snapTurn, snapZoom, turnedShot, turnsRound, turnToward, widthEnds } from "./shot";
 import { showWalls, wallsQuarter } from "./walls";
 import { thingSpot, walkBeforeAct, walkSpot } from "./things";
@@ -964,7 +964,7 @@ function Place(props: PlaceProps) {
     // Names that would cover each other or a dot are lifted clear, two rows at most, else they wait.
     const dotBoxes = dots.map((dot) => ({ x: dot.x, y: dot.y - MARK_HIT / 2 + 6, width: 12, height: 12 }));
     const laidNames = layNames(names.map((one) => one.box), dotBoxes);
-    const soft: Rect[] = dotBoxes.map((dot) => ({ left: dot.x - dot.width / 2, right: dot.x + dot.width / 2, top: dot.y - dot.height, bottom: dot.y }));
+    const soft: Rect[] = dots.map(dotRect);
     const clear: Rect[] = [];
     names.forEach(({ name, x, box }, index) => {
       const laid = laidNames[index] ?? { foot: box.y, shown: false };

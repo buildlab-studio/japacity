@@ -97,3 +97,9 @@ export function headRect(top: { x: number; y: number }, chin: { x: number; y: nu
   const half = Math.max(9, (chin.y - top.y) * 0.6);
   return { left: top.x - half, right: top.x + half, top: top.y - 4, bottom: chin.y };
 }
+
+/** A thing's dot on the screen, from its mark's anchor (the foot of its tap target): the 6 px dot, its ring and a little room round it. */
+export function dotRect(at: { x: number; y: number }): { left: number; top: number; right: number; bottom: number } {
+  const middle = at.y - MARK_HIT / 2;
+  return { left: at.x - 6, right: at.x + 6, top: middle - 6, bottom: middle + 6 };
+}
