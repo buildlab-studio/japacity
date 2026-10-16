@@ -101,6 +101,8 @@ describe("the era on the front of News", () => {
     const months = document.querySelector("[data-era-months]")?.textContent;
     expect(months).toBe(`${phoneWords("phone.news.era.since", { when: monthsAgo(era.sinceMonth, view.month).toLowerCase() })} ${phoneWords("phone.news.era.until", { when: inMonths(era.untilMonth, view.month) })}`);
     expect(months).not.toMatch(/\bmonth \d/i);
+    // The chip wraps inside the era's card rather than running out of it.
+    expect(document.querySelector("[data-era-months]")?.className).toContain("chip-wrap");
   });
 
   test("[R-DIRECTOR-002] given an era that began before the life, then it says so rather than a month before the first", async () => {

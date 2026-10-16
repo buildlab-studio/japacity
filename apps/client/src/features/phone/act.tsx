@@ -3,7 +3,7 @@
 // sent, and the corner tells it is done. A refusal shows in the app, in content's words.
 import type { Currency } from "@japacity/sim";
 import { CircleAlert, X } from "lucide-react";
-import { createContext, use, useState, type ReactNode } from "react";
+import { createContext, use, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import type { PlayerCommand } from "../../authority/store";
@@ -15,6 +15,26 @@ import { phoneWords } from "./phone.words";
 
 /** The phone's told line: an app says what happened, the corner over the handset shows it (R-WORLD-026). */
 export const PhoneSaid = createContext<(words: string) => void>(() => undefined);
+
+/**
+ * The app's one way back (R-WORLD-018): an app on an inner screen of its own (a Chats thread, the People slots) hands the
+ * handset its way back to its first screen, and the head's Back takes it; on its first screen Back returns to the grid.
+ * Two ways back stacked, the head's arrow and a link of the app's own under it, read as the same thing twice (the catalog,
+ * 1b952f4b, pictures 115 and 130).
+ */
+export const PhoneBack = createContext<(back: (() => void) | null) => void>(() => undefined);
+
+/** Hands the head's Back to an inner screen while `back` is given; null hands it back to the grid. */
+export function useInnerBack(back: (() => void) | null): void {
+  const hand = use(PhoneBack);
+  const latest = useRef(back);
+  latest.current = back;
+  const inner = back !== null;
+  useEffect(() => {
+    hand(inner ? () => latest.current?.() : null);
+    return () => hand(null);
+  }, [inner, hand]);
+}
 
 export interface AskSpec {
   form: Ask["form"];

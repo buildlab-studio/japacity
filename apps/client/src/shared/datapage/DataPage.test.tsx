@@ -33,6 +33,8 @@ describe("the data page", () => {
     expect(document.querySelector("[data-page-strip]")?.textContent).toBe(stripLines("Ifẹ́", PAGE.strip).join(""));
     // No stamp before a visa.
     expect(document.querySelector("[data-stamp]")).toBeNull();
+    // A long value wraps to a second line where the card has room, never cut with an ellipsis.
+    for (const value of document.querySelectorAll<HTMLElement>("[data-page] [data-field] > div:last-child")) expect(value.className).not.toContain("truncate");
   });
 
   test("[R-PROLOGUE-009] given where the life is from, then FROM prints in the row under the photo before FAMILY, with READY beside them; before the family is drawn it waits as the page's dots", () => {

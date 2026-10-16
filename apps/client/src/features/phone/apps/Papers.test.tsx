@@ -94,6 +94,8 @@ describe("the Papers app", () => {
     expect(onMap).toHaveBeenCalledWith("place.passport-office");
     // The English result waits on the passport: no act is offered for it yet.
     expect(document.querySelector('[data-paper="document.english-test"] [data-paper-act]')).toBeNull();
+    // An act's words wrap and the button grows with them, never cut with an ellipsis.
+    for (const words of document.querySelectorAll<HTMLElement>("[data-paper-act-words]")) expect(words.className).not.toContain("truncate");
   });
 
   test("[R-WORLD-019] [R-ACTIVITY-015] [R-WORLD-026] given the transcript's act on the phone, when it is tapped, then its card opens in Papers, and once sent the registry's answer is told in the corner and the list comes back", async () => {

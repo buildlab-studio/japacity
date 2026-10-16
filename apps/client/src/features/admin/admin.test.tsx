@@ -76,6 +76,10 @@ describe("where the admin page mounts", () => {
     expect(await screen.findByRole("heading", { name: words("admin.title"), level: 1 })).toBeTruthy();
     expect(screen.queryByText("the game")).toBeNull();
     expect(screen.getAllByRole("tab").map((tab) => tab.textContent)).toEqual(["Money", "Rejections", "Rollback", "Moderation", "Analytics", "Numbers", "Adverts", "Switches"]);
+    // On a phone the tabs wrap to a second row rather than run off the right edge unseen.
+    const row = screen.getByRole("tablist");
+    expect(row.className).toContain("flex-wrap");
+    expect(row.className).not.toContain("overflow-x-auto");
   });
 
   test("[R-MODERATION-012] given /admin and an account off the list, when the app opens, then the ordinary app shows and the page never mounts", async () => {

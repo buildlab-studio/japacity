@@ -41,7 +41,7 @@ afterEach(() => {
 });
 
 describe("the ticket stub beside the send-off card", () => {
-  test("[R-SHARE-001] [R-SHARE-004] [R-SHARE-015] given Ada just flown, when her send-off opens from its tile, then the card shows first, and the stub beside it carries FROM Lagos, TO the country, the months, the figure, her type and her name", async () => {
+  test("[R-SHARE-001] [R-SHARE-004] [R-SHARE-015] given Ada just flown, when her send-off opens from its tile, then the card shows first, and the stub beside it carries FROM Lagos, TO the country, the months, the figure, her type and her name as the band says it", async () => {
     const view = adaSendOff();
     await renderWithView(<CardView />, view);
     // R-SHARE-015: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
@@ -54,7 +54,9 @@ describe("the ticket stub beside the send-off card", () => {
     expect(pickStub.getAttribute("aria-pressed")).toBe("true");
     const stub = sheet.querySelector("[data-share-card='stub']") as HTMLElement;
     expect(sheet.querySelector("[data-share-card='send-off']")).toBeNull();
-    for (const words of ["Lagos", text["country.uk.name"]!, playedWords(view.card!.months), `${String(view.card!.percent)}%`, typeWords(japaTypeOf(view)!).name, typeWords(japaTypeOf(view)!).line, "Ada", "Japacity is a game.", "japacity.app"]) {
+    // Her name as the band says it, the first word of the life's own name (R-SHARE-004 as amended 16 Oct 2026).
+    const band = (text["scenario.ada.name"] ?? "").split(/\s+/)[0]!;
+    for (const words of ["Lagos", text["country.uk.name"]!, playedWords(view.card!.months), `${String(view.card!.percent)}%`, typeWords(japaTypeOf(view)!).name, typeWords(japaTypeOf(view)!).line, band, "Japacity is a game.", "japacity.app"]) {
       expect(within(stub).getByText(words)).toBeDefined();
     }
     fireEvent.click(within(sheet).getByRole("button", { name: say("share.stub.pick.card") }));

@@ -87,6 +87,11 @@ describe("the page", () => {
     const buttons = within(page).getAllByRole("button");
     expect(buttons.map((button) => button.textContent || button.getAttribute("aria-label"))).toEqual(["Light one for yours", "Close"]);
     expect(page.dataset.paint).toBe("night");
+    // The count and the close stand still at the head while the page scrolls, so filling the form never takes them out
+    // of view.
+    expect(page.querySelector("[data-dedication-head]")?.className).toContain("fixed");
+    expect(page.querySelector("[data-dedication-head]")?.contains(page.querySelector("[data-dedication-count]"))).toBe(true);
+    expect(page.querySelector("[data-dedication-close]")?.className).toContain("fixed");
   });
 
   test("[R-ACCOUNT-032] given the count, then it is the true number, never rounded, one light said as one", async () => {

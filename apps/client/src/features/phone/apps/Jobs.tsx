@@ -15,6 +15,7 @@ import { PhoneNav } from "../../../shared/phone/nav";
 import { PressButton } from "../../../shared/ui/lively/PressButton";
 import { Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
+import { openJobs } from "../context";
 import { jobOffers } from "../seen";
 import { GhostButton, MoneyChip, PicCard, PicTile, WordChip } from "../ui";
 
@@ -160,6 +161,7 @@ export function Jobs() {
   const job = view.job.id;
   const side = view.job.side;
   const offers = jobOffers(view);
+  const onBoard = openJobs(view);
   const applied = appliedJobs(view, useGame((state) => state.monthLines));
   const raised = raiseWords(view);
   const months = sayCount("ui.job.months", view.job.months, { months: view.job.months });
@@ -232,7 +234,10 @@ export function Jobs() {
       {offers.length === 0 ? (
         applied.length > 0 ? null : (
           <>
-            <p className="px-0.5 text-[15px] text-text-2">{phoneWords("phone.jobs.offers.none")}</p>
+            {/* The head's pill counts the jobs open on the board where no offer waits; the screen says the same count. */}
+            <p className="px-0.5 text-[15px] text-text-2" data-jobs-none>
+              {onBoard === 0 ? phoneWords("phone.jobs.offers.none") : phoneWords(onBoard === 1 ? "phone.jobs.offers.board.one" : "phone.jobs.offers.board", { count: onBoard })}
+            </p>
             {view.ended ? null : <Board />}
           </>
         )

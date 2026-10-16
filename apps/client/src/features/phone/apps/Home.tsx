@@ -139,11 +139,15 @@ export function HomeCard() {
         ) : null}
       </div>
       {moves.length === 0 ? null : (
-        <ul className="mt-3 grid grid-cols-2 gap-2">
+        // One move a row, its picture beside a button as wide as the row: in a two-column grid the ghost button's own size
+        // and padding broke "Take a hostel room in Yaba" over four short lines, and an odd move stood alone in a wide row
+        // (). A row keeps the words to one or two lines and every row the same width.
+        <ul className="mt-3 flex flex-col gap-2" data-home-moves>
           {moves.map((move) => (
-            <li key={move.to} className="flex flex-col items-center gap-1.5 rounded-[16px] bg-tint-plain p-2 text-center">
+            <li key={move.to} className="flex items-center gap-2.5 rounded-[16px] bg-tint-plain p-2" data-home-move-row={move.to}>
               <PicTile of={move.to} size={52} tint="plain" />
-              <button type="button" onClick={() => ask(move)} disabled={move.shut !== null} className="phone-ghost press min-h-11 w-full flex-col justify-center gap-0.5 px-2 py-1.5 text-[14px] leading-tight" data-home-move={move.to}>
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5 text-center">
+              <button type="button" onClick={() => ask(move)} disabled={move.shut !== null} className="phone-ghost press min-h-11 w-full flex-col justify-center gap-0.5 py-1.5 leading-tight" data-home-move={move.to}>
                 <span>{phoneWords(`phone.home.move.${move.to}`)}</span>
                 {move.now > 0 ? (
                   <>
@@ -163,6 +167,7 @@ export function HomeCard() {
                   {move.shut}
                 </p>
               )}
+              </div>
             </li>
           ))}
         </ul>

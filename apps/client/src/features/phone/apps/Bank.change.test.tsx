@@ -4,7 +4,7 @@
 // money only up to the month's limit, so the chips offer only what it will take, the limit's remainder first, the
 // limit is said before the button, and any refusal shows beside the button. Played on the real engine.
 import { content, text } from "@japacity/content";
-import type { Command, PlayerView } from "@japacity/sim";
+import { int, type Command, type PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -99,6 +99,26 @@ describe("the Bank's change at home, within the month's limit", () => {
     fireEvent.click(screen.getByRole("radio", { name: say("ui.wallet.via.aboki") }));
     expect(chips()).toEqual(["quarter", "half", "all"].map((share) => phoneWords(`phone.bank.${share}`)));
     expect(document.querySelector("[data-bank-limit]")).toBeNull();
+  });
+
+  test("[R-WALLET-005] [R-WORLD-019] given a month whose limit has only cents left, too few to buy one whole pound, when the change opens at the bank, then the limit counts as spent: no chip, the FX man's way said, never a change for nothing", async () => {
+    // The catalog's month: twelve US cents of the allowance left, ₦191 that bought nine pence.
+    const view = { ...heldAtHome().view(), bankAllowanceLeft: 12 };
+    expect(bankLimit(view, "NGN", "GBP")).toBe(0);
+    await renderWithView(<Bank opening="change" />, view);
+    expect(document.querySelector("[data-bank-limit]")?.textContent).toBe(phoneWords("phone.bank.limit.none"));
+    expect(document.querySelector('[data-go="change"]')).toBeNull();
+  });
+
+  test("[R-WALLET-005] given a limit left that buys more than one whole pound, when it is read, then the bank still offers it, and the line says what is left this month", async () => {
+    const base = heldAtHome().view();
+    // The cents one pound costs at the bank, its charge on top: the smallest remainder still worth a change.
+    const pound = int.convertMinor(100, "GBP", "USD", { GBP: base.rates.GBP.official, USD: base.rates.USD.official, CAD: base.rates.CAD.official, AED: base.rates.AED.official, EUR: base.rates.EUR.official });
+    const view = { ...base, bankAllowanceLeft: pound * 2 };
+    const limit = bankLimit(view, "NGN", "GBP")!;
+    expect(limit).toBeGreaterThan(0);
+    await renderWithView(<Bank opening="change" />, view);
+    expect(document.querySelector("[data-bank-limit]")?.textContent).toBe(phoneWords("phone.bank.limit.line", { amount: formatMoney(limit, "NGN") }));
   });
 
   test("[R-WORLD-006] given the bank's limit spent this month, when the change opens at the bank, then it says so and the FX man's way, with no button", async () => {

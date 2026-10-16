@@ -269,4 +269,21 @@ describe("the home says what it is", () => {
     expect(room.card()?.querySelector("[data-home-blurb]")?.textContent).toMatch(/^One room in a compound of ten/);
     room.unmount();
   });
+
+  test("[R-HOME-007] given Ada at the family house with money and three moves open, when Bills opens, then each move is its own row with its picture beside a button as wide as the row, never a narrow pill in a two-column grid", async () => {
+    // The catalog's picture 122 (1b952f4b): the moves' words broken over three or four short lines, the hostel alone in a wide row.
+    const game = newGame();
+    setPockets(game, { NGN: 500_000_00 });
+    const { unmount } = await openBills(game);
+    const list = document.querySelector<HTMLElement>("[data-home-moves]")!;
+    expect(list.className).not.toContain("grid-cols-2");
+    const rows = [...list.querySelectorAll<HTMLElement>("[data-home-move-row]")];
+    expect(rows.length).toBeGreaterThan(1);
+    for (const row of rows) {
+      expect(row.querySelector("[data-pic]")).not.toBeNull();
+      expect(row.querySelector("[data-home-move]")?.className).toContain("w-full");
+    }
+    unmount();
+  });
 });
+
