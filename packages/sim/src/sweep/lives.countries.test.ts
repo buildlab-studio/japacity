@@ -11,14 +11,15 @@ import { standInWorld } from "../world/standIn";
 import { countryLifeSaves } from "./lives.countries.data";
 import { newLifeSaves } from "./lives.data";
 
-// Canada's and Italy's lives wait on the players' strategies (tools/record-lives.ts): the Gulf's is recorded.
+// Italy's life waits on the road's strategy (tools/record-lives.ts): the Gulf's and Canada's are recorded.
 const LANDS: Record<string, { country: Id<"country">; route: Id<"route"> }> = {
   "tunde-gulf": { country: "country.uae", route: "route.gulf-contract" },
+  "zainab-canada": { country: "country.canada", route: "route.canada-points" },
 };
 const recorded = Object.entries(countryLifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
 
 describe("the lives recorded for the three countries", () => {
-  test("[R-ENGINE-010] given the countries' recordings, when listed, then a life lands in each country recorded (the UAE today), each starts from a life in the content, and none shares a name with another recording", () => {
+  test("[R-ENGINE-010] given the countries' recordings, when listed, then a life lands in each country recorded (the UAE and Canada today), each starts from a life in the content, and none shares a name with another recording", () => {
     expect(recorded.map((script) => script.name).sort()).toEqual(Object.keys(LANDS).sort());
     for (const script of recorded) {
       expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();

@@ -48,8 +48,8 @@ const ABROAD: { name: string; life: Id<"scenario"> }[] = [
  */
 const COUNTRIES: { name: string; life: Id<"scenario">; strategy: StrategyName; country: Id<"country">; route: Id<"route"> }[] = [
   { name: "tunde-gulf", life: "scenario.tunde", strategy: "borrower", country: "country.uae", route: "route.gulf-contract" },
-  // Canada and the road wait on the players: the `canada` and `road` strategies exist, but a careful player does not pass the
-  // English band Canada asks for within a hundred months, and the road's journey starts too late.
+  { name: "zainab-canada", life: "scenario.zainab", strategy: "canada", country: "country.canada", route: "route.canada-points" },
+  // The road waits on its player: the `road` strategy exists, but the road's journey starts too late.
 ];
 /** The months a country's life carries on after the landing before its save is cut. */
 const MONTHS_IN_COUNTRY = 12;

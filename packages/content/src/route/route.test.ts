@@ -141,8 +141,8 @@ describe("spot checks against route-gates.md and road.md", () => {
     expect(start("var.uk-talent-endorse-fee")).toBe(56100);
     expect(start("var.uk-talent-visa-fee")).toBe(20500);
     // Cut-offs and windows.
-    expect(start("var.ca-cutoff")).toBe(520);
-    expect(start("var.ca-care-cutoff")).toBe(475);
+    expect(start("var.ca-cutoff")).toBe(405);
+    expect(start("var.ca-care-cutoff")).toBe(370);
     expect(start("var.ca-decision-months")).toBe(6);
     expect(start("var.uk-care-window")).toBe(0);
     expect(start("var.uae-window")).toBe(2);
