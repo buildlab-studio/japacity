@@ -425,7 +425,8 @@ const entries: PlaceEntry[] = [
   calgary("place.calgary-north-east", "business", "north-east", 51090, -113960, {
     scope: "exterior",
     hub: true,
-    stages: ["activity.job-hunt", "activity.coffee-ca", "activity.naija-shop-ca", "activity.barber-ca", "offer.street-find-ca"],
+    // Money home goes from the transfer counter at the African store (city.md, 16 Oct 2026: the room stages it no more).
+    stages: ["activity.job-hunt", "activity.coffee-ca", "activity.naija-shop-ca", "activity.barber-ca", "activity.send-money", "offer.street-find-ca"],
     crowd: QUIET,
     traditionalBp: HUB,
   }),
@@ -443,7 +444,6 @@ const entries: PlaceEntry[] = [
   calgary("place.church-ca", "institution", "north-east", 51085, -113965, { assets: "church-uk", occasion: true, stages: ["activity.community-ca"], crowd: BUSY, traditionalBp: HUB }),
   // The registry on the English test centre's scene, for Alberta's licence (R-CITY-010: the country's own place stages
   // what the country-less test centre staged).
-  calgary("place.registry-ca", "institution", "north-east", 51092, -113968, { assets: "english-test-centre", stages: ["activity.driving-test"], crowd: QUIET, traditionalBp: OFFICE }),
 
   // Dubai on the mold (design page 15 section 3).
   abroad("place.dubai-airport", "country.uae", "dubai", "garhoud", "Dubai International Airport", 25252, 55367, { scope: "interior", crowd: PACKED, traditionalBp: AIRPORT }),

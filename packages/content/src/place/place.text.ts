@@ -711,8 +711,6 @@ export const placeText: Record<string, string> = {
   "place.library-ca.blurb": "Long tables, quiet shelves and the evening course's desk with a notice. Warm, and free to sit in.",
   "place.church-ca.name": "the church hall",
   "place.church-ca.blurb": "A church hall in the north-east: Sunday service, then jollof, and a group for new people.",
-  "place.registry-ca.name": "the registry",
-  "place.registry-ca.blurb": "A counter, a queue and a camera for the photo. The licence test is booked here.",
   "place.dubai-airport.name": "Dubai International Airport",
   "place.dubai-airport.blurb": "The arrival. Marble floors, cool air, and heat like an oven when the doors open.",
   "place.dubai-airport.overheard.1": "Passport and visa copy, please.",

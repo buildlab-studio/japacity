@@ -28,7 +28,7 @@ const ITALY: Id<"country"> = "country.italy";
 /** The page's rows for the three countries, in its order, with what each stages. */
 const ROWS: readonly Row[] = [
   { id: "place.calgary-airport", country: CANADA, nameKind: "public", position: [51122, -114014], scope: "interior", assets: "calgary-airport", stages: [] },
-  { id: "place.calgary-north-east", country: CANADA, nameKind: "business", position: [51090, -113960], scope: "exterior", assets: "calgary-north-east", stages: ["activity.job-hunt", "activity.coffee-ca", "activity.naija-shop-ca", "activity.barber-ca", "offer.street-find-ca"], hub: true },
+  { id: "place.calgary-north-east", country: CANADA, nameKind: "business", position: [51090, -113960], scope: "exterior", assets: "calgary-north-east", stages: ["activity.job-hunt", "activity.coffee-ca", "activity.naija-shop-ca", "activity.barber-ca", "activity.send-money", "offer.street-find-ca"], hub: true },
   { id: "place.ctrain-station-ca", country: CANADA, nameKind: "institution", position: [51073, -113977], scope: "exterior", assets: "ctrain-station-ca", stages: ["activity.transit-pass-ca"] },
   { id: "place.big-shop-ca", country: CANADA, nameKind: "business", position: [51095, -113980], scope: "interior", assets: "big-shop-uk", stages: ["activity.weekly-shop-ca", "activity.buy-clothes-ca"] },
   { id: "place.warehouse-ca", country: CANADA, nameKind: "business", position: [51110, -113990], scope: "interior", assets: "warehouse-uk", stages: ["activity.job-ca-warehouse", "activity.overtime"] },
@@ -36,7 +36,6 @@ const ROWS: readonly Row[] = [
   { id: "place.office-ca", country: CANADA, nameKind: "business", position: [51046, -114063], scope: "interior", assets: "office-uk", stages: ["activity.job-ca-professional", "activity.job-ca-dev"] },
   { id: "place.library-ca", country: CANADA, nameKind: "institution", position: [51092, -113972], scope: "interior", assets: "library-ca", stages: ["activity.learn-tech-ca"] },
   { id: "place.church-ca", country: CANADA, nameKind: "institution", position: [51085, -113965], scope: "interior", assets: "church-uk", stages: ["activity.community-ca"] },
-  { id: "place.registry-ca", country: CANADA, nameKind: "institution", position: [51092, -113968], scope: "interior", assets: "english-test-centre", stages: ["activity.driving-test"] },
   { id: "place.dubai-airport", country: UAE, nameKind: "public", position: [25252, 55367], scope: "interior", assets: "dubai-airport", stages: [] },
   { id: "place.deira", country: UAE, nameKind: "public", position: [25273, 55305], scope: "exterior", assets: "deira", stages: ["activity.job-hunt", "activity.send-money", "activity.cafeteria-uae", "activity.naija-shop-uae", "activity.barber-uae", "activity.community-uae", "offer.street-find-uae"], hub: true },
   { id: "place.naif", country: UAE, nameKind: "public", position: [25272, 55310], scope: "exterior", assets: "naif", stages: ["activity.street-shopping-uae", "activity.laundry-uae", "activity.buy-clothes-uae"] },
