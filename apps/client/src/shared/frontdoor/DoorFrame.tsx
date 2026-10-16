@@ -5,7 +5,7 @@
 // screen stands in a centred column of phone width on the same sky. `data-gate` carries the screen's mark, as the gate
 // did, so tests and the browser suite find each screen where they found it.
 import { ChevronLeft, Shuffle } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, type RefObject, useEffect, useRef, useState } from "react";
 
 import { CentredColumn } from "../ui/lively/CentredColumn";
 import { Wordmark } from "../ui/Wordmark";
@@ -44,13 +44,43 @@ export function DoorDots({ at, count, label }: { at: number; count: number; labe
   );
 }
 
+/**
+ * Whether the body has more below what shows: the foot then says so with a soft edge over it, so a panel cut at the fold
+ * reads as a page that scrolls, never as a card running under the dots.
+ */
+function useMoreBelow(): { body: RefObject<HTMLDivElement | null>; more: boolean; measure: () => void } {
+  const body = useRef<HTMLDivElement | null>(null);
+  const [more, setMore] = useState(false);
+  const measure = () => {
+    const shown = body.current;
+    if (shown === null) return;
+    setMore(shown.scrollHeight - shown.scrollTop - shown.clientHeight > 4);
+  };
+  useEffect(() => {
+    const shown = body.current;
+    if (shown === null || typeof ResizeObserver === "undefined") {
+      measure();
+      return;
+    }
+    const watch = new ResizeObserver(measure);
+    watch.observe(shown);
+    for (const child of shown.children) watch.observe(child);
+    measure();
+    return () => watch.disconnect();
+  });
+  return { body, more, measure };
+}
+
 export function DoorFrame({ mark, look, title, line, lockup = false, onBack = null, onShuffle = null, onSkip = null, at = null, foot, children }: DoorFrameProps) {
   // The lockup's file for the ground under it: the light ground's by day, the dark's on the night's navy.
   const ground = usePaint() === "night" ? "dark" : "light";
+  const { body, more, measure } = useMoreBelow();
   return (
     <div className="door-sky fixed inset-0 overflow-hidden" data-gate={mark} data-door-frame {...(look === undefined ? {} : { "data-look": look })}>
       <CentredColumn className="flex h-full flex-col">
-        <div className="flex shrink-0 items-center gap-2.5 px-4 pt-[max(14px,env(safe-area-inset-top))]" data-door-progress>
+        {/* The head row stands on the sky's own ground over the body, so a card scrolled up never shows through it (catalog
+            1b952f4b, picture 006: the figure's card under the lockup, Shuffle and Skip). */}
+        <div className="door-sky relative z-10 flex shrink-0 items-center gap-2.5 px-4 pt-[max(14px,env(safe-area-inset-top))] pb-1" data-door-progress>
           {onBack === null ? null : (
             <button type="button" className="round-button" aria-label={say("ui.door.back")} onClick={onBack} data-door-back>
               <ChevronLeft size={22} strokeWidth={2.4} aria-hidden />
@@ -69,7 +99,7 @@ export function DoorFrame({ mark, look, title, line, lockup = false, onBack = nu
             </button>
           )}
         </div>
-        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-door-body>
+        <div ref={body} onScroll={measure} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-door-body>
           {title === null ? null : (
             <div className="px-5 pt-4">
               <h1 className="text-[24px] leading-[1.15] font-bold">{title}</h1>
@@ -79,7 +109,8 @@ export function DoorFrame({ mark, look, title, line, lockup = false, onBack = nu
           {children}
         </div>
         {foot === undefined && at === null ? null : (
-          <div className="shrink-0 px-4 pt-2 pb-[max(18px,env(safe-area-inset-bottom))]" data-door-foot>
+          <div className="relative shrink-0 px-4 pt-2 pb-[max(18px,env(safe-area-inset-bottom))]" data-door-foot data-door-more={more ? "" : undefined}>
+            <span aria-hidden className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-sheet-line shadow-[0_-6px_12px_rgba(19,26,51,0.16)] transition-opacity duration-200 ${more ? "opacity-100" : "opacity-0"}`} data-door-fold />
             {at === null ? null : (
               <div className="mb-3 flex justify-center">
                 <DoorDots at={at} count={3} label={say("prologue.door.step", { n: at + 1, count: 3 })} />
