@@ -478,13 +478,14 @@ export function LandingBeat({ dress, landing, place, weather, marker, heard, go,
         </>
       ) : null}
       {landing.country === "country.uk" ? <Pic model="prop_bus-shelter" style={{ left: 238, top: 440, width: 170, zIndex: 2 }} /> : null}
-      <Person look={dress.cast.ahead[0]} style={{ left: 290, top: 520, width: 70, transform: "scaleX(-1)", zIndex: 3 }} />
+      <Person look={dress.cast.ahead[0]} style={{ left: 262, top: 484, width: 100, transform: "scaleX(-1)", zIndex: 3 }} />
       <You dress={dress} style={{ left: 130, top: 470, width: 120, zIndex: 3 }} />
       <Pic model="prop_travel-bag" style={{ left: 86, top: 626, width: 92, zIndex: 3 }} />
       {landing.air === "rain" || landing.air === "snow" ? <span className="so-breath" style={{ left: 218, top: 512 }} aria-hidden data-so-breath /> : null}
       {landing.air === "rain" ? <div className="so-rain" /> : null}
       {landing.air === "snow" ? <Snow /> : null}
-      <Bubble name={heard.name} words={heard.words} right style={{ right: 14, top: landing.country === "country.uk" ? 396 : 432, maxWidth: 210 }} mark="stop" />
+      {/* Hung from its foot so a longer line grows upward, never down over the character's face. */}
+      <Bubble name={heard.name} words={heard.words} right style={{ right: 14, bottom: 384, maxWidth: 210 }} mark="stop" />
       <p className="so-chip study" style={{ left: 16, top: 96 }} data-so-weather>
         <span className="spot" aria-hidden />
         {weather}
