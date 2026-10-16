@@ -34,10 +34,14 @@ export function openingPlace(where: ViewPlace, places: readonly PlaceEntry[]): I
 
 /**
  * The place that stages an id for where the character is (R-CITY-010): a place of the character's
- * own country first, then one serving every country, then the default place.
+ * own country first, then one serving every country, then the default place. One id may stand at
+ * several places of a country (R-CITY-010 as amended 16 Oct 2026: overtime on every workplace's rota
+ * board), so given the place in hand, an id staged there is shown there.
  */
-export function stagedAt(id: string, where: ViewPlace, places: readonly PlaceEntry[]): Id<"place"> {
+export function stagedAt(id: string, where: ViewPlace, places: readonly PlaceEntry[], here: string | null = null): Id<"place"> {
   const open = enterable(where, places).filter((place) => (place.stages as readonly string[]).includes(id));
+  const inHand = here === null ? undefined : open.find((place) => place.id === here);
+  if (inHand !== undefined) return inHand.id;
   const own = open.find((place) => place.country !== null && place.country === where.country);
   return (own ?? open[0])?.id ?? DEFAULT_PLACE[where.where];
 }
@@ -88,11 +92,11 @@ export function activityOf(line: ReportLine): string | null {
 export function reportHere(view: Pick<PlayerView, "report" | "place">, place: Id<"place">, places: readonly PlaceEntry[]): ReportLine[] {
   return (view.report?.lines ?? []).filter((line) => {
     const activity = activityOf(line);
-    return activity !== null && stagedAt(activity, view.place, places) === place;
+    return activity !== null && stagedAt(activity, view.place, places, place) === place;
   });
 }
 
 /** The open offers staged at this place, by entry only: never a field the offer did not show (R-CITY-002). */
 export function offersHere(view: Pick<PlayerView, "offers" | "place">, place: Id<"place">, places: readonly PlaceEntry[]): Id<"offer">[] {
-  return view.offers.filter((offer) => stagedAt(offer.entry, view.place, places) === place).map((offer) => offer.entry);
+  return view.offers.filter((offer) => stagedAt(offer.entry, view.place, places, place) === place).map((offer) => offer.entry);
 }

@@ -1,5 +1,5 @@
 import { content } from "@japacity/content";
-import type { PlayerView, ReportLine } from "@japacity/sim";
+import type { Id, PlayerView, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { abroadView, engineView, richView } from "../../shared/testing/fixtures";
@@ -52,6 +52,22 @@ describe("staging", () => {
     expect(stagedAt("activity.rest", HOME, places)).toBe("place.family-house");
     expect(stagedAt("activity.nothing-stages-this", UK, places)).toBe("place.the-room");
     expect(stagedAt("activity.send-money", UK, places)).toBe("place.rye-lane");
+  });
+
+  test("[R-CITY-010] given overtime staged on the rota board of every workplace in London, when the city looks for it from each, then it is shown at the workplace in hand, and from elsewhere at the first of them", () => {
+    const workplaces: Id<"place">[] = ["place.care-home-uk", "place.ward-uk", "place.warehouse-uk", "place.big-shop-uk"];
+    for (const id of workplaces) {
+      expect(content.place[id]?.stages).toContain("activity.overtime");
+      expect(stagedAt("activity.overtime", UK, places, id)).toBe(id);
+    }
+    expect(workplaces).toContain(stagedAt("activity.overtime", UK, places));
+    expect(workplaces).toContain(stagedAt("activity.overtime", UK, places, "place.rye-lane"));
+    // An id staged once is where it is staged, whatever place is in hand.
+    expect(stagedAt("activity.send-money", UK, places, "place.ward-uk")).toBe("place.rye-lane");
+    const line: ReportLine = { key: "line.activity.played", params: { activity: "activity.overtime" }, tone: "plain", attention: false, counts: [] };
+    const view: Pick<PlayerView, "report" | "place"> = { place: abroadView().place, report: { month: 1, lines: [line], japacityBefore: null, japacityAfter: null, attention: false } };
+    for (const id of workplaces) expect(reportHere(view, id, places)).toEqual([line]);
+    expect(reportHere(view, "place.rye-lane", places)).toEqual([]);
   });
 
   test("[R-CITY-002] given open offers, when a place lists what waits there, then it names each offer by its entry only and nothing the view does not hold", () => {
