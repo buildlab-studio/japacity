@@ -24,7 +24,7 @@ const POUND_TARGET = 600000;
 
 const SAFE_CASH_MOVE = 50000000;
 
-export type StrategyName = "careful" | "borrower" | "risky" | "honest-home" | "spender";
+export type StrategyName = "careful" | "borrower" | "risky" | "honest-home" | "spender" | "canada" | "road";
 
 export const STRATEGY_NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
 
@@ -48,6 +48,8 @@ interface Habits {
   bufferMonths: number;
   /** Pursues any route at all. */
   leaves: boolean;
+  /** Whether the study route is a plan at all; false for a player working another route from the start. */
+  studies: boolean;
   /** Leaves the study route for another formal route that can settle, once one is in reach. */
   prefersSettling: boolean;
   /** Formal routes beyond the study route that this player works toward. */
@@ -84,7 +86,7 @@ const STAY_ON_ROAD = ["go", "pay", "call-home"];
 
 const FORMAL: Id<"route">[] = ["route.uk-care", "route.uk-skilled", "route.uk-talent", "route.canada-points"];
 
-const HABITS: Record<StrategyName, Habits> = {
+const PLAYED = {
   careful: {
     englishBeforeTest: 72,
     prep: 40,
@@ -96,6 +98,7 @@ const HABITS: Record<StrategyName, Habits> = {
     buysPounds: true,
     bufferMonths: 2,
     leaves: true,
+    studies: true,
     prefersSettling: true,
     otherRoutes: FORMAL,
     takesRoad: false,
@@ -124,6 +127,7 @@ const HABITS: Record<StrategyName, Habits> = {
     buysPounds: false,
     bufferMonths: 1,
     leaves: true,
+    studies: true,
     prefersSettling: false,
     otherRoutes: [...FORMAL, GULF],
     takesRoad: false,
@@ -152,6 +156,7 @@ const HABITS: Record<StrategyName, Habits> = {
     buysPounds: false,
     bufferMonths: 1,
     leaves: true,
+    studies: true,
     prefersSettling: false,
     otherRoutes: [GULF],
     takesRoad: true,
@@ -180,6 +185,7 @@ const HABITS: Record<StrategyName, Habits> = {
     buysPounds: false,
     bufferMonths: 2,
     leaves: false,
+    studies: true,
     prefersSettling: false,
     otherRoutes: [],
     takesRoad: false,
@@ -210,6 +216,7 @@ const HABITS: Record<StrategyName, Habits> = {
     buysPounds: false,
     bufferMonths: 0,
     leaves: true,
+    studies: true,
     prefersSettling: false,
     otherRoutes: [...FORMAL, GULF],
     takesRoad: false,
@@ -227,6 +234,17 @@ const HABITS: Record<StrategyName, Habits> = {
     road: LEAVE_ROAD,
     prologue: "first",
   },
+} satisfies Record<Exclude<StrategyName, "canada" | "road">, Habits>;
+
+/**
+ * The two recorded lives for the countries beyond the UK (tools/record-lives.ts, design page 15 section 7) play the careful
+ * habits with Canada as the one settling route and no study plan, and the risky habits with the road as the one way out; neither is among
+ * the sweeps' strategies (STRATEGY_NAMES), so the sweeps' figures stand.
+ */
+const HABITS: Record<StrategyName, Habits> = {
+  ...PLAYED,
+  canada: { ...PLAYED.careful, studies: false, otherRoutes: ["route.canada-points"] },
+  road: { ...PLAYED.risky, studies: false, otherRoutes: [], takesGulf: false },
 };
 
 // ---------------------------------------------------------------------------
@@ -381,7 +399,7 @@ function settlingRouteInReach(view: PlayerView, habits: Habits): boolean {
 
 /** Whether the study route is still the plan: always, except for a player who would rather settle and has a way to. */
 function studyOn(view: PlayerView, habits: Habits): boolean {
-  if (!habits.leaves) return false;
+  if (!habits.leaves || !habits.studies) return false;
   const uk = route(view);
   if (uk === undefined) return false;
   if (!habits.prefersSettling) return true;
@@ -1038,6 +1056,8 @@ export const strategies: Record<StrategyName, Strategy> = {
   risky: strategyOf("risky"),
   "honest-home": strategyOf("honest-home"),
   spender: strategyOf("spender"),
+  canada: strategyOf("canada"),
+  road: strategyOf("road"),
 };
 
 // ---------------------------------------------------------------------------
