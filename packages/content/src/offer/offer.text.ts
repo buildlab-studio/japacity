@@ -9,14 +9,16 @@ import { offerStreetText } from "./offer.street.text";
 export const offerText: Record<string, string> = {
   // Family requests
 
-  "offer.nepa-bill.name": "NEPA has brought the bill",
+  // The family's light bill at home, wherever the character is: abroad the same ask comes (R-ABROAD-007), and "the bill"
+  // alone read as London's.
+  "offer.nepa-bill.name": "NEPA has brought the bill at home",
   "offer.nepa-bill.title": "NEPA bill again",
   "offer.nepa-bill.body":
     "'They want {cost} or they cut the light, and your father says he will handle it o.'",
   "offer.nepa-bill.choice.pay": "Pay the bill",
   "offer.nepa-bill.choice.leave": "Leave it to your father",
-  "offer.nepa-bill.said.pay": "You paid the NEPA bill. The light stayed on, and your mother told the street who paid.",
-  "offer.nepa-bill.said.leave": "You left the NEPA bill to your father. They cut the light, and the house knew why.",
+  "offer.nepa-bill.said.pay": "You paid the NEPA bill at home. The light stayed on, and your mother told the street who paid.",
+  "offer.nepa-bill.said.leave": "You left the NEPA bill at home to your father. They cut the light, and the house knew why.",
 
   "offer.brother-fees.name": "Your brother's school fees",
   "offer.brother-fees.title": "School fees, abeg",
