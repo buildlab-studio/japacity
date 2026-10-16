@@ -128,7 +128,7 @@ describe("the ways in and the settings, as the server refuses them", () => {
   });
 });
 
-const VIEW = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0 };
+const VIEW = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0, ways: { google: null, email: null, passkeys: 0 } };
 
 describe("the guest start and the username, as the server built them", () => {
   test("[R-ACCOUNT-021] [R-ACCOUNT-013] given a username and the bot check's token, when a guest life is started, then POST /api/guest carries the username and the token in its header", async () => {

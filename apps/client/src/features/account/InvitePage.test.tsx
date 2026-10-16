@@ -43,7 +43,7 @@ function cardServer(looking: "partner" | "sibling" = "partner", view = SIGNED_OU
 }
 
 /** An account whose sign-in the server then honours: the next view fetch answers as the server would for a new account. */
-const KEPT: AccountView = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "secured", username: "ada_lagos", renameFrom: 0 };
+const KEPT: AccountView = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "secured", username: "ada_lagos", renameFrom: 0, ways: { google: null, email: "ada@example.com", passkeys: 0 } };
 
 function account(age: AgeAnswer = "passed", afterSignIn: () => void = () => undefined, state: AccountView["state"] = "secured"): AccountApi & { declared: string[] } {
   const declared: string[] = [];

@@ -20,7 +20,7 @@ import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./Turn
 
 const OK: AuthResult = { ok: true };
 
-const SECURED: AccountView = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "secured", username: "ada_lagos", renameFrom: 0 };
+const SECURED: AccountView = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "secured", username: "ada_lagos", renameFrom: 0, ways: { google: null, email: "ada@example.com", passkeys: 0 } };
 const DUMMY_TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
 
 /** The server's own rule, standing in for it: 18 or over on today's date passes. The client never applies it. */

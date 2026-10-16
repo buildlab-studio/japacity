@@ -21,7 +21,7 @@ let made = 0;
 /** A fresh account id each time: an ask is made once per account and moment. */
 function me(state: AccountView["state"], over: Partial<AccountView> = {}): AccountView {
   made += 1;
-  return { id: `account-${String(made)}`, country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1", sendUsageCounts: true, admin: false, state, username: "ada_lagos", renameFrom: 0, ...over };
+  return { id: `account-${String(made)}`, country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1", sendUsageCounts: true, admin: false, state, username: "ada_lagos", renameFrom: 0, ways: state === "guest" ? { google: null, email: null, passkeys: 0 } : { google: null, email: "ada@example.com", passkeys: 0 }, ...over };
 }
 
 function fakeAccount(view: AccountView, over: Partial<AccountApi> = {}): AccountApi & { calls: string[] } {

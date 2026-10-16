@@ -167,6 +167,8 @@ export interface AccountView {
   username: string;
   /** R-ACCOUNT-024: from when the username may change; 0 while the free change is unused. */
   renameFrom: number;
+  /** R-ACCOUNT-027 (to be amended): the address Google gave where Google is linked, the address a code goes to, the passkeys held; none for a guest. */
+  ways: { google: string | null; email: string | null; passkeys: number };
 }
 
 /** Copied from apps/server/src/routes/account.ts: the body of `POST /api/guest`; the Turnstile token goes in the `x-captcha-response` header (R-ACCOUNT-013). */
