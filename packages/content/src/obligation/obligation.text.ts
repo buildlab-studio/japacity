@@ -21,7 +21,7 @@ export const obligationText: Record<string, string> = {
   "line.obligation.seized": "The lender took {amount} from your account toward the loan.",
   "line.obligation.taken-back": "The interest was not paid. The lender has taken back the {amount} that was held for you.",
   "line.obligation.closed": "That one is settled. Nothing more is owed on it.",
-  "obligation.upkeep-uk.name": "Food and transport in the UK",
+  "obligation.upkeep-uk.name": "Your phone, pay as you go, in the UK",
   "obligation.upkeep-ca.name": "Food and transport in Canada",
   "obligation.upkeep-uae.name": "Food and transport in Dubai",
   "obligation.upkeep-it.name": "Food and transport in Italy",

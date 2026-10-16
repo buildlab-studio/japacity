@@ -3,4 +3,18 @@
 export const activityLondonText: Record<string, string> = {
   "activity.bus-pass-uk.name": "The bus pass",
   "activity.bus-pass-uk.blurb": "One tap at the machine and the buses are yours for the month. The train is still per trip.",
+  "activity.weekly-shop-uk.name": "The weekly shop",
+  "activity.weekly-shop-uk.blurb": "A trolley round the big shop: rice, bread, eggs, chicken and the rest of the week's food.",
+  "activity.cook-own-uk.name": "A meal of your own",
+  "activity.cook-own-uk.blurb": "Rice and stew in the shared kitchen, before somebody else wants the hob.",
+  "activity.chicken-shop.name": "The chicken shop",
+  "activity.chicken-shop.blurb": "Two wings and chips in a box, eaten standing by the window.",
+  "activity.naija-shop-uk.name": "A taste of home",
+  "activity.naija-shop-uk.blurb": "Egusi, pounded yam and a bottle of malt from the Nigerian shop. Dearer than the big shop, worth it.",
+  "activity.pub-pint.name": "A pint",
+  "activity.pub-pint.blurb": "One cold one at the pub on the corner, the football on the screen.",
+  "activity.barber-uk.name": "A fresh cut",
+  "activity.barber-uk.blurb": "The barber on Rye Lane knows a low cut. The chair is warm and the gist is free.",
+  "activity.buy-clothes-uk.name": "New clothes",
+  "activity.buy-clothes-uk.blurb": "A day on Rye Lane for a coat that keeps the cold out and a shirt for interviews.",
 };

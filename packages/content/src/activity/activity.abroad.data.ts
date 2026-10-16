@@ -325,7 +325,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
 
   // Free slots abroad
 
-  // The phone is in upkeep.
+  // The phone is in upkeep (in the UK the upkeep is the phone alone, R-ABROAD-003 as amended).
   "activity.call-home": free("activity.call-home", null, [ABROAD], {
     cost: [],
     effects: [gain("quality.standing", 3), wellbeing(2)],
@@ -335,10 +335,11 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     cost: [{ currency: "GBP", amount: pounds(10), reason: "social" }],
     effects: [gain("quality.network", 4), wellbeing(4)],
   }),
-  // streets.md R-STREET-005: shopping on the street, at Peckham and Deira. Each is in this table, not
-  // the foreign pockets' one, so that one keeps the activities the wallet's pockets brought in.
+  // streets.md R-STREET-005: shopping on the street, on Rye Lane and in Deira. Each is in this table, not
+  // the foreign pockets' one, so that one keeps the activities the wallet's pockets brought in. Amended 16 Oct 2026:
+  // London's stalls are enjoyment, as the street's spending is at home; nothing of it fills the belly.
   "activity.street-shopping-uk": free("activity.street-shopping-uk", "country.uk", [IN_UK], {
-    cost: [{ currency: "GBP", amount: tuning.street.shoppingGbp, reason: "social" }],
+    cost: [{ currency: "GBP", amount: tuning.street.shoppingGbp, reason: "enjoyment" }],
     effects: [wellbeing(tuning.street.shoppingMood)],
   }),
   "activity.street-shopping-uae": free("activity.street-shopping-uae", "country.uae", [IN_UAE], {

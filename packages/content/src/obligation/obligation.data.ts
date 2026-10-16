@@ -12,7 +12,7 @@ const MISSED_MONTH: Effect[] = [
   { type: "quality/add", quality: "quality.wellbeing", amount: -5 },
 ];
 
-/** Food, transport and the pay-as-you-go phone in one country (R-ABROAD-003). */
+/** Food, transport and the pay-as-you-go phone in one country; in the UK the phone alone (R-ABROAD-003 as amended 16 Oct 2026). */
 function upkeepAbroad(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
   return {
     id,
@@ -327,7 +327,8 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
 
   // Abroad: abroad-money.md "Entries".
 
-  "obligation.upkeep-uk": upkeepAbroad("obligation.upkeep-uk", "GBP", pounds(350)),
+  // R-ABROAD-003 as amended 16 Oct 2026: in the UK food and fares are lived by hand, so the upkeep is the phone's pay as you go alone.
+  "obligation.upkeep-uk": upkeepAbroad("obligation.upkeep-uk", "GBP", pounds(15)),
   "obligation.upkeep-ca": upkeepAbroad("obligation.upkeep-ca", "CAD", cad(600)),
   "obligation.upkeep-uae": upkeepAbroad("obligation.upkeep-uae", "AED", aed(450)),
   "obligation.upkeep-it": upkeepAbroad("obligation.upkeep-it", "EUR", euros(250)),
