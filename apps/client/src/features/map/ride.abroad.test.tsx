@@ -24,6 +24,8 @@ const PECKHAM = "place.peckham";
 const ROOM = "place.the-room";
 const HOME_SPOT = { latE3: 51471, lonE3: -73 };
 const PASS: Id<"activity"> = "activity.bus-pass-uk";
+/** A words key left unsaid, or an en or em dash (docs/rules/text.md), built from their codes so no dash stands in this file. */
+const KEY_OR_DASH = new RegExp(`map\\.ride|[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);
 
 function positionOf(id: string): { latE3: number; lonE3: number } {
   const position = content.place[id as Id<"place">]?.position;
@@ -200,7 +202,7 @@ describe("the ride in London", () => {
       const road = [0, 1, 2].map((seed) => alongOf(0.5, seed, way).key);
       expect(road.every((key) => key.endsWith(`.${way}`))).toBe(true);
       for (const line of [...said, ...road.map((key) => mapWords(key))]) {
-        expect(line).not.toMatch(/map\.ride|[–—]/);
+        expect(line).not.toMatch(KEY_OR_DASH);
       }
     }
     expect(alongOf(0.1, 0, "bus").key).toBe("map.ride.along.start");
