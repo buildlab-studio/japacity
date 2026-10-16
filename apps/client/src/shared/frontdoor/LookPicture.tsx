@@ -11,6 +11,7 @@ import { type Tint, TINTS } from "../ui/lively/tint";
 import { canDraw } from "./Gate";
 import { lookOf } from "./looks";
 import { isMade, type LookStyle, styleKey } from "./style";
+import { afterPaint } from "./view";
 
 export type Portrait = "face" | "figure" | "cheer";
 
@@ -72,16 +73,21 @@ export function useFigureInColours(look: string, style: LookStyle | undefined, v
   useEffect(() => {
     if (key === null || drawn.has(key) || !canDraw()) return;
     let alive = true;
-    void import("../datapage/photoRender")
-      .then(({ renderFigure }) => renderFigure(`shared/chr/${look}.glb`, style, view))
-      .then((src) => {
-        if (src === null) return;
-        drawn.set(key, src);
-        if (alive) setStill({ key, src });
-      })
-      .catch(() => undefined);
+    // Drawing holds the main thread, so the swatch's tick paints first, and of colours tapped faster than a frame only
+    // the last is drawn.
+    const wait = afterPaint(() => {
+      void import("../datapage/photoRender")
+        .then(({ renderFigure }) => renderFigure(`shared/chr/${look}.glb`, style, view))
+        .then((src) => {
+          if (src === null) return;
+          drawn.set(key, src);
+          if (alive) setStill({ key, src });
+        })
+        .catch(() => undefined);
+    });
     return () => {
       alive = false;
+      wait();
     };
     // Drawn once for each look and style; the style object may be a new one with the same choices.
   }, [key]);
