@@ -9,6 +9,7 @@ import type { RideChoice } from "../../shared/world/contract";
 export const mapText: Record<string, string> = {
   "map.title": "Map",
   "map.close": "Close the map",
+  "map.loading": "Getting the map ready",
   "map.country": "Country",
   "map.stops": "Stops",
   "map.hint": "Tap a stop to go there",

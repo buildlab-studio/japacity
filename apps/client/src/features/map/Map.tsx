@@ -9,6 +9,7 @@ import "./map.css";
 import { lazy, type ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
+import { Loader } from "../../shared/ui/Loader";
 import { formatMoney } from "../../shared/words/format";
 import type { CountryChoice, RideChoice } from "../../shared/world/contract";
 import { Countries } from "./Countries";
@@ -196,7 +197,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
 
       {/* While a ride plays the painted map is put away: the ride fills the screen, and nothing under it keeps drawing. */}
       {painted && riding === null ? (
-        <Suspense fallback={<div className="absolute top-3 right-3">{closeButton}</div>}>
+        <Suspense fallback={<MapWaiting close={closeButton} />}>
           <RouteVehicle value={routeVehicle}>
             <Paper pins={stable} home={homeId} picked={picked} step={step} names={named} onPick={setPicked} country={countryMenu} close={closeButton} sheetUp={pin !== null} canoe={canoe} />
           </RouteVehicle>
@@ -288,4 +289,17 @@ function dotClass(state: MapPin["state"], home: boolean): string {
       throw new Error(`Unknown pin state: ${String(never)}`);
     }
   }
+}
+
+/**
+ * The painted map's own chunk on its way: the bar alone, small, running beside the map's close where the close
+ * stands, so the player can still leave; the one look every wait takes (shared/ui/Loader), never a spinner.
+ */
+export function MapWaiting({ close }: { close: ReactNode }) {
+  return (
+    <div className="absolute top-3 right-3 flex items-center gap-3" data-map-waiting>
+      <Loader label={mapWords("map.loading")} small />
+      {close}
+    </div>
+  );
 }
