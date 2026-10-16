@@ -106,9 +106,20 @@ describe("what happens where", () => {
   });
 
   test("[R-CITY-010] given an id staged by a place of one country and by a place that serves every country, when checked, then both are allowed", () => {
-    expect(place("place.workplace-abroad").stages).toContain("activity.job-uk-courier-cash");
-    expect(place("place.peckham-rye-station").stages).toContain("activity.job-uk-courier-cash");
+    // The UK's test centre and the country-less one both stage the nurse's tests (city.md; the UK's jobs left the workplace abroad).
+    expect(place("place.test-centre-abroad").stages).toContain("activity.nmc-tests");
+    expect(place("place.test-centre-uk").stages).toContain("activity.nmc-tests");
     expect(placeChecks(content)).toEqual([]);
+  });
+
+  test("[R-CITY-010] given overtime staged at four workplaces of the UK, when checked, then it is allowed as the rota board's act at each; any other id at two places of one country is still refused", () => {
+    // overtime alone may stand at several places of one country.
+    const atOvertime = Object.values(content.place).filter((one) => one.country === "country.uk" && (one.stages as readonly string[]).includes("activity.overtime")).map((one) => one.id);
+    expect(atOvertime.sort()).toEqual(["place.big-shop-uk", "place.care-home-uk", "place.ward-uk", "place.warehouse-uk"]);
+    expect(placeChecks(content)).toEqual([]);
+    const job = withPlace({ ...place("place.ward-uk"), stages: ["activity.overtime", "activity.job-uk-care"] });
+    expect(placeChecks(job).join("\n")).toMatch(/place\.ward-uk: stages activity\.job-uk-care, already staged at place\.care-home-uk/);
+    expect(placeChecks(job).join("\n")).not.toMatch(/stages activity\.overtime, already staged/);
   });
 });
 

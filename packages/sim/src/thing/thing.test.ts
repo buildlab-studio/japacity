@@ -336,7 +336,7 @@ describe("the car on the map (R-PLACE-010 and R-WORLD-017 to be amended)", () =>
     expect(fare).toBeLessThan(rideFare(content, from, to, "okada"));
     const before = naira(game);
     const result = game.accept({ type: "place/ride", from: FROM, to: TO, way: "drive" });
-    expect(eventsOf(result, "place/rode")).toEqual([{ type: "place/rode", from: FROM, to: TO, way: "drive", fare }]);
+    expect(eventsOf(result, "place/rode")).toEqual([{ type: "place/rode", from: FROM, to: TO, way: "drive", fare, currency: "NGN" }]);
     expect(naira(game)).toBe(before - fare);
   });
 

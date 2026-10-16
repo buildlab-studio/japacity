@@ -1350,7 +1350,7 @@ export interface Tuning {
   /** docs/rules/analytics.md Numbers. */
   analytics: { batchSeconds: number; maxBatchBytes: number; maxCount: number; batchesPerHour: number; minShown: number; refD1Bp: number; refD7Bp: number };
   /** The city's crowd bands, the graphics modes' switches and the screen split (docs/rules/city.md). The simulation never reads it. */
-  city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; idleAfterMs: number; idleFps: number; walkMmPerS: number; stopShortMm: number; tagNearMm: number; residentFloor: number; roam: boolean; flyover: boolean; indoorLow: number; indoorHigh: number; outdoorLow: number; outdoorHigh: number; motionSheets: number; ride: { fareKobo: { danfo: number; keke: number; okada: number; walk: number }; farePerKmKobo: { danfo: number; keke: number; okada: number; walk: number }; metresPerMinute: { danfo: number; keke: number; okada: number; walk: number }; waitMinutes: number; scarcityBp: number; walkMetres: number } };
+  city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; idleAfterMs: number; idleFps: number; walkMmPerS: number; stopShortMm: number; tagNearMm: number; residentFloor: number; roam: boolean; flyover: boolean; indoorLow: number; indoorHigh: number; outdoorLow: number; outdoorHigh: number; motionSheets: number; ride: { fareKobo: { danfo: number; keke: number; okada: number; walk: number }; farePerKmKobo: { danfo: number; keke: number; okada: number; walk: number }; metresPerMinute: { danfo: number; keke: number; okada: number; walk: number }; waitMinutes: number; scarcityBp: number; walkMetres: number; abroad: Record<Id<"country">, CountryRides> } };
   /** The people around the character (docs/rules/people.md Numbers). */
   people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; weddingStanding: number; gossipStanding: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number; computerAfterMonths: number };
   /** Invites and phrases (docs/rules/pair.md Numbers). */
@@ -1380,8 +1380,45 @@ export interface Tuning {
   thing: { drive: { fareKobo: number; farePerKmKobo: number; metresPerMinute: number } };
 }
 
-/** The ways of a ride in the city: the three vehicles, on foot, and the car of your own while the life has one. */
-export type RideWay = "danfo" | "keke" | "okada" | "walk" | "drive";
+/**
+ * The ways of a ride in the city: the three vehicles, on foot, and the car of your own while the life has one; abroad
+ * the ways a country lists (decision 0042): the bus, the train and the taxi.
+ */
+export type RideWay = "danfo" | "keke" | "okada" | "walk" | "drive" | AbroadWay;
+
+/** The ways a country abroad may list (R-PLACE-010 as amended 16 Oct 2026). */
+export type AbroadWay = "bus" | "train" | "taxi";
+
+/** One way of a country's rides, in that country's smallest unit: the flag-down figure, the figure a kilometre, and the pace. */
+export interface RideFigures {
+  fare: number;
+  farePerKm: number;
+  metresPerMinute: number;
+}
+
+/**
+ * A country's rides (R-PLACE-010 as amended, R-PLACE-012): the ways it lists, the step every fare is rounded up to,
+ * and the month's bus pass, null where there is none. A country with no ways listed refuses a ride.
+ */
+export interface CountryRides {
+  ways: { bus?: RideFigures; train?: RideFigures; taxi?: RideFigures };
+  step: number;
+  pass: number | null;
+}
+
+/**
+ * One way the ride sheet offers where the character is (R-PLACE-010 as amended 16 Oct 2026): its figures in `currency`'s
+ * smallest unit, as `rideFare` takes them, and `passed` when this month's bus pass makes it ask nothing (R-PLACE-012).
+ */
+export interface RideWayView {
+  way: RideWay;
+  currency: Currency;
+  fare: number;
+  farePerKm: number;
+  step: number;
+  metresPerMinute: number;
+  passed: boolean;
+}
 
 /** A quality a thing adds to: once when it lands, each month it is lived with, or each time an act is done. */
 export interface ThingAdd {
@@ -2343,7 +2380,8 @@ export interface PlayerView {
   news: { id: Id<"news">; stage: NewsStage; since: number; forYou: boolean }[];
   /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (R-PLACE-006). */
   /** `wayHome` (R-PLACE-011): the way home from where the character is today, as `return/home` would take it; null when not abroad. */
-  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null };
+  /** `ways` (R-PLACE-010 as amended 16 Oct 2026): the ways a ride may take where the character is, with their figures; empty on the road and in a country with none. Always set by the simulation; optional only so a view written by hand before it stays whole. */
+  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null; ways?: RideWayView[] };
   status: {
     entry: Id<"status">;
     monthsLeft: number | null;

@@ -112,13 +112,15 @@ export type { JapaType, OfficialAccount, OfficialPlatform, ShareKind } from "./s
 
 /**
  * The content version before this one (docs/rules/server.md R-SERVER-023): the server bundles it beside the current,
- * so a life saved under it replays and is upgraded on its first load. m0.2 follows m0.1 when the lived
- * month, the arrivals, the body and the street's money landed.
+ * so a life saved under it replays and is upgraded on its first load. m0.2 followed m0.1 when the lived
+ * month, the arrivals, the body and the street's money landed; m0.3 follows m0.2 when London was built on
+ * the Lagos mold: rides abroad and the bus pass, London's places, food bought in pounds and the UK's upkeep the phone
+ * alone (decision 0042).
  */
-export const PREVIOUS_CONTENT_VERSION = "m0.1";
+export const PREVIOUS_CONTENT_VERSION = "m0.2";
 
 export const content: Content = {
-  version: "m0.2",
+  version: "m0.3",
   quality: qualityTable,
   // advice.md: the friend, the adviser and the agents.
   activity: withWhen({ ...activityTable, ...adviceActivityTable }),

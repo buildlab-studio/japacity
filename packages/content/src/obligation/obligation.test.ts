@@ -14,8 +14,8 @@ describe("obligations abroad", () => {
   });
 
   test("[R-ENGINE-014] given the abroad obligations, when figures from abroad-money.md are read back, then each matches the page", () => {
-    // UK: upkeep £350, a room £670, a flat £950 at credit 20, a phone £25 at credit 10.
-    expect(content.obligation["obligation.upkeep-uk"]).toMatchObject({ type: "upkeep", currency: "GBP", amount: 35000 });
+    // UK: upkeep £15, the phone's pay as you go alone (R-ABROAD-003 as amended 16 Oct 2026), a room £670, a flat £950 at credit 20, a phone £25 at credit 10.
+    expect(content.obligation["obligation.upkeep-uk"]).toMatchObject({ type: "upkeep", currency: "GBP", amount: 1500 });
     expect(content.obligation["obligation.rent-room-uk"]).toMatchObject({ type: "rent", amount: 67000 });
     expect(content.obligation["obligation.rent-room-uk"]?.creditMin).toBeUndefined();
     expect(content.obligation["obligation.rent-flat-uk"]).toMatchObject({ type: "rent", amount: 95000, creditMin: 20 });

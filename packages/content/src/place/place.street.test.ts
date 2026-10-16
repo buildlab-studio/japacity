@@ -1,5 +1,5 @@
 // The life of the streets abroad in content (docs/rules/streets.md R-STREET-005 to 007, world.md
-// R-WORLD-026): the shopping and the find at Peckham and Deira, their numbers from `tuning.street`,
+// R-WORLD-026): the shopping on Rye Lane and at Deira, the find at Peckham and Deira, their numbers from `tuning.street`,
 // where they are staged, and the street talk in Nigerian voices.
 import type { Id, PlaceEntry } from "@japacity/sim";
 import { ActivityEntrySchema, OfferEntrySchema } from "@japacity/sim/schemas";
@@ -26,8 +26,9 @@ function overheard(place: string): string[] {
 }
 
 const SHOPPING = [
-  { id: "activity.street-shopping-uk" as Id<"activity">, country: "country.uk", currency: "GBP", amount: street.shoppingGbp, place: "place.peckham" },
-  { id: "activity.street-shopping-uae" as Id<"activity">, country: "country.uae", currency: "AED", amount: street.shoppingAed, place: "place.deira" },
+  // the UK's stalls stand on Rye Lane and are paid as enjoyment.
+  { id: "activity.street-shopping-uk" as Id<"activity">, country: "country.uk", currency: "GBP", amount: street.shoppingGbp, reason: "enjoyment", place: "place.rye-lane" },
+  { id: "activity.street-shopping-uae" as Id<"activity">, country: "country.uae", currency: "AED", amount: street.shoppingAed, reason: "social", place: "place.deira" },
 ] as const;
 
 const FINDS = [
@@ -36,7 +37,7 @@ const FINDS = [
 ] as const;
 
 describe("shopping on the street abroad", () => {
-  test("[R-STREET-005] given the two street shoppings, when their entries are read, then each is a free slot abroad in its own country, costs the street's price in that currency and lifts the mood by the street's figure", () => {
+  test("[R-STREET-005] given the two street shoppings, when their entries are read, then each is a free slot abroad in its own country, costs the street's price in that currency (London's as enjoyment) and lifts the mood by the street's figure", () => {
     expect(street).toMatchObject({ shoppingGbp: 2000, shoppingAed: 8000, shoppingMood: 5 });
     for (const want of SHOPPING) {
       const entry = content.activity[want.id];
@@ -44,12 +45,12 @@ describe("shopping on the street abroad", () => {
       expect(ActivityEntrySchema.safeParse(entry).error?.issues ?? []).toEqual([]);
       expect(entry).toMatchObject({ slot: "free", where: "abroad", country: want.country, param: null, pay: null, hireBp: null });
       expect(entry.requires).toEqual([{ type: "place/is", where: "abroad", country: want.country }]);
-      expect(entry.cost).toEqual([{ currency: want.currency, amount: want.amount, reason: "social" }]);
+      expect(entry.cost).toEqual([{ currency: want.currency, amount: want.amount, reason: want.reason }]);
       expect(entry.effects).toEqual([{ type: "quality/add", quality: "quality.wellbeing", amount: street.shoppingMood }]);
     }
   });
 
-  test("[R-STREET-005] [R-CITY-010] given the two street shoppings, when the places are read, then each is staged once, at Peckham and at Deira, and each has a name and a blurb with no dash", () => {
+  test("[R-STREET-005] [R-CITY-010] given the two street shoppings, when the places are read, then each is staged once, on Rye Lane and at Deira, and each has a name and a blurb with no dash", () => {
     for (const want of SHOPPING) {
       expect(stagedAt(want.id)).toEqual([want.place]);
       const keys = [`${want.id}.name`, `${want.id}.blurb`];

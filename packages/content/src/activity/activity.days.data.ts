@@ -25,6 +25,16 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.beer-joint": 1,
   "activity.night-out": 2,
   "activity.buy-clothes": 2,
+  // London lived by hand (place.md R-PLACE-012, streets.md R-STREET-012): the pass is a tap at the machine and takes no time.
+  "activity.bus-pass-uk": 0,
+  // A morning each, the clothes a day.
+  "activity.weekly-shop-uk": 1,
+  "activity.cook-own-uk": 1,
+  "activity.chicken-shop": 1,
+  "activity.naija-shop-uk": 1,
+  "activity.pub-pint": 1,
+  "activity.barber-uk": 1,
+  "activity.buy-clothes-uk": 2,
   "activity.ask-around": 1,
   "activity.look-into-route": 1,
   "activity.see-adviser": 2,

@@ -397,6 +397,14 @@ export type TermSpecMatches = Proof<Same<z.infer<typeof TermSpecSchema>, TermSpe
 // Tuning
 // ---------------------------------------------------------------------------
 
+// The ways of a country abroad (R-PLACE-010 as amended 16 Oct 2026, decision 0042), in that country's smallest unit.
+const RideFiguresSchema = z.strictObject({ fare: CountSchema, farePerKm: CountSchema, metresPerMinute: z.int().positive() });
+const CountryRidesSchema = z.strictObject({
+  ways: z.strictObject({ bus: RideFiguresSchema.exactOptional(), train: RideFiguresSchema.exactOptional(), taxi: RideFiguresSchema.exactOptional() }),
+  step: z.int().positive(),
+  pass: CountSchema.nullable(),
+});
+
 export const TuningSchema = z.strictObject({
   turn: z.strictObject({
     cap: CountSchema,
@@ -581,7 +589,7 @@ export const TuningSchema = z.strictObject({
   share: z.strictObject({ width: CountSchema, height: CountSchema, maxBytes: CountSchema, previewWidth: CountSchema, previewHeight: CountSchema, previewMaxBytes: CountSchema }),
   guide: z.strictObject({ staleMonths: CountSchema }),
   analytics: z.strictObject({ batchSeconds: CountSchema, maxBatchBytes: CountSchema, maxCount: CountSchema, batchesPerHour: CountSchema, minShown: CountSchema, refD1Bp: BpSchema, refD7Bp: BpSchema }),
-  city: z.strictObject({ crowdLow: CountSchema, crowdHigh: CountSchema, playersMax: CountSchema, fridayBp: BpSchema, saturdayBp: BpSchema, raiseAfterMs: CountSchema, raiseFrameMs: CountSchema, dropAfterMs: CountSchema, dropFrameMs: CountSchema, maxPixelRatio: CountSchema, desktopMinWidth: CountSchema, idleAfterMs: CountSchema, idleFps: CountSchema, walkMmPerS: CountSchema, stopShortMm: CountSchema, tagNearMm: CountSchema, residentFloor: CountSchema, roam: z.boolean(), flyover: z.boolean(), indoorLow: CountSchema, indoorHigh: CountSchema, outdoorLow: CountSchema, outdoorHigh: CountSchema, motionSheets: CountSchema, ride: z.strictObject({ fareKobo: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), farePerKmKobo: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), metresPerMinute: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), waitMinutes: CountSchema, scarcityBp: CountSchema, walkMetres: CountSchema }) }),
+  city: z.strictObject({ crowdLow: CountSchema, crowdHigh: CountSchema, playersMax: CountSchema, fridayBp: BpSchema, saturdayBp: BpSchema, raiseAfterMs: CountSchema, raiseFrameMs: CountSchema, dropAfterMs: CountSchema, dropFrameMs: CountSchema, maxPixelRatio: CountSchema, desktopMinWidth: CountSchema, idleAfterMs: CountSchema, idleFps: CountSchema, walkMmPerS: CountSchema, stopShortMm: CountSchema, tagNearMm: CountSchema, residentFloor: CountSchema, roam: z.boolean(), flyover: z.boolean(), indoorLow: CountSchema, indoorHigh: CountSchema, outdoorLow: CountSchema, outdoorHigh: CountSchema, motionSheets: CountSchema, ride: z.strictObject({ fareKobo: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), farePerKmKobo: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), metresPerMinute: z.strictObject({ danfo: CountSchema, keke: CountSchema, okada: CountSchema, walk: CountSchema }), waitMinutes: CountSchema, scarcityBp: CountSchema, walkMetres: CountSchema, abroad: z.record(idOf("country"), CountryRidesSchema) }) }),
   people: z.strictObject({
     matchmaker: z.boolean(),
     maxCourting: CountSchema,

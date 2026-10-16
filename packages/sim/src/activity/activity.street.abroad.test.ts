@@ -71,7 +71,7 @@ function openEntries(game: Game): Id<"offer">[] {
 }
 
 describe("shopping on the street abroad", () => {
-  test("[R-STREET-005] given a student in London whose pounds are all in cash, when the month's free slot shops on Rye Lane, then the price leaves the pound cash and the mood rises by the street's figure", () => {
+  test("[R-STREET-005] given a student in London whose pounds are all in cash, when the month's free slot shops on Rye Lane, then the price leaves the pound cash as enjoyment and the mood rises by the street's figure", () => {
     const game = flown(content);
     // R-STREET-005 says the price comes from the currency's cash, but an entry's cost is paid by
     // R-WALLET-009 (the bank pocket first). With the pounds all in cash, the two readings agree.
@@ -83,8 +83,9 @@ describe("shopping on the street abroad", () => {
     lowMood(game);
     expect(game.view().activities.find((option) => option.id === SHOP_UK)?.allowed).toBe(true);
     const result = month(game, [slot(SHOP_UK)]);
-    expect(debitsOf(result, "GBP").filter((debit) => debit.reason === "social")).toEqual([
-      { type: "wallet/debited", currency: "GBP", pocket: "cash", amount: street.shoppingGbp, reason: "social" },
+    // London's stalls are paid as enjoyment.
+    expect(debitsOf(result, "GBP").filter((debit) => debit.reason === "enjoyment")).toEqual([
+      { type: "wallet/debited", currency: "GBP", pocket: "cash", amount: street.shoppingGbp, reason: "enjoyment" },
     ]);
     expect(moodFrom(result, SHOP_UK)).toBe(street.shoppingMood);
   });

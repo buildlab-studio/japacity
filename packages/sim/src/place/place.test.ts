@@ -16,6 +16,12 @@ import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnSh
 const UK: Id<"country"> = "country.uk";
 const CANADA: Id<"country"> = "country.canada";
 
+/** The four ways of Lagos as the view lists them with no car at home (R-PLACE-010 as amended 16 Oct 2026). */
+function lagosWays(): unknown[] {
+  const { fareKobo, farePerKmKobo, metresPerMinute } = content.tuning.city.ride;
+  return (["danfo", "keke", "okada", "walk"] as const).map((way) => ({ way, currency: "NGN", fare: fareKobo[way], farePerKm: farePerKmKobo[way], step: 5000, metresPerMinute: metresPerMinute[way], passed: false }));
+}
+
 function at(where: State["place"]["where"], country: Id<"country"> | null): State {
   const game = start({ content });
   return { ...game.state, place: { ...game.state.place, where, country } };
@@ -102,7 +108,7 @@ describe("a new character", () => {
   test("[R-PLACE-001] given a new life, when it starts, then the character is at home with no country, no move and no return on record", () => {
     const game = start({ content });
     expect(game.state.place).toEqual({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null, decemberMonth: null });
-    expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null, fareBp: 10000, wayHome: null });
+    expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null, fareBp: 10000, wayHome: null, ways: lagosWays() });
   });
 });
 
@@ -511,6 +517,7 @@ describe("the view and the record", () => {
       fareHome: null,
       fareBp: 10000,
       wayHome: null,
+      ways: lagosWays(),
     });
   });
 

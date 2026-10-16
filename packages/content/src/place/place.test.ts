@@ -14,13 +14,13 @@ function numbered(id: string, part: "sign" | "overheard"): string[] {
 const SHOPFRONTS = ["place.bode-thomas", "place.adeniran-ogunsanya", "place.broad-street", "place.ogba", "place.victoria-island", "place.yaba"];
 
 describe("the place table", () => {
-  test("[R-CITY-004] given the page's entries, when the table is read, then there are 49 public places in Lagos, 9 institutions, 3 businesses, 6 homes and stylised places and 15 abroad", () => {
+  test("[R-CITY-004] given the page's entries, when the table is read, then there are 49 public places in Lagos, 9 institutions, 3 businesses, 6 homes and stylised places and 22 abroad (London's own places of 16 Oct 2026 among them)", () => {
     const home = places.filter((place) => place.where !== "abroad");
     expect(home.filter((place) => place.nameKind === "public")).toHaveLength(49);
     expect(home.filter((place) => place.nameKind === "institution")).toHaveLength(9);
     expect(home.filter((place) => place.nameKind === "business")).toHaveLength(3);
     expect(home.filter((place) => place.nameKind === "stylised")).toHaveLength(6);
-    expect(places.filter((place) => place.where === "abroad")).toHaveLength(15);
+    expect(places.filter((place) => place.where === "abroad")).toHaveLength(22);
   });
 
   test("[R-CITY-010] given every place, when its staged ids are looked up, then each exists in its kind's table", () => {
