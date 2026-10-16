@@ -4,8 +4,9 @@
 // above it. Its body scrolls inside the sheet; its foot holds the one main button.
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import { createContext, type ReactNode } from "react";
+import { createContext, type ReactNode, useSyncExternalStore } from "react";
 
+import { useGameStoreIfAny } from "../../authority/GameProvider";
 import { say } from "../words/text";
 
 /** The sheet's own close, for a sheet inside it (the parcel's slip) whose Not now lowers the whole sheet (R-WORLD-006). */
@@ -24,7 +25,26 @@ export interface WorldSheetProps {
   mark?: string;
 }
 
+const NOTHING = (): void => undefined;
+
+/**
+ * True while a moment card stands over the sheets (moments.md R-MOMENT-006): over the results once they are up, over
+ * the world once the corner's staged lines have passed. Outside a game, never.
+ */
+function useMomentStanding(): boolean {
+  const store = useGameStoreIfAny();
+  return useSyncExternalStore(
+    (listener) => store?.subscribe(listener) ?? NOTHING,
+    () => {
+      const state = store?.getState();
+      return state !== undefined && state.momentCards.length > 0 && (state.reportOpen || state.moments.length === 0);
+    },
+  );
+}
+
 export function WorldSheet({ open, onClose, label, title, children, foot, mark }: WorldSheetProps) {
+  // Under a moment card the sheet's head steps back, its title and its close, so one close is in view (139).
+  const covered = useMomentStanding();
   return (
     <Dialog.Root
       open={open}
@@ -39,7 +59,7 @@ export function WorldSheet({ open, onClose, label, title, children, foot, mark }
           {/* The lively sheet (docs/design/13-the-lively-layer.md section 2): the sheet's pale sky, a 26 px top, the handle,
               a title of a few words over a small line, in the centred column on a laptop; navy at night. */}
           <div className="rise mx-auto flex max-h-[min(86dvh,700px)] w-full max-w-[430px] flex-col overflow-hidden rounded-t-[26px] bg-sheet text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]" data-lively-frame>
-            <div className="relative shrink-0 px-4 pt-2 pr-12 pb-1">
+            <div className={`relative shrink-0 px-4 pt-2 pr-12 pb-1 transition-opacity duration-200 ease-out ${covered ? "pointer-events-none opacity-0" : ""}`} aria-hidden={covered || undefined} data-world-sheet-head={covered ? "covered" : "shown"}>
               <span aria-hidden className="mx-auto mb-2 block h-[5px] w-10 rounded-[3px] bg-text/25" />
               <Dialog.Description className="truncate text-[13px] font-medium text-text-2">{label}</Dialog.Description>
               <Dialog.Title className="text-title font-bold">{title}</Dialog.Title>
