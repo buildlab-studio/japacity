@@ -10,8 +10,8 @@ import type { ServerCode } from "../types";
 import { countRejected } from "./rejected";
 import { counterDef, keyAllowed } from "./list";
 
-/** The routes that act for a player: the command, and the people routes that change a life, a record or a block. */
-export const COUNTED_PATHS: readonly string[] = ["/api/command", "/api/invite", "/api/invite/*", "/api/pair/*", "/api/moderation/block", "/api/moderation/unblock", "/api/moderation/report"];
+/** The routes that act for a player: the command and the prologue's preset (R-SERVER-046), and the people routes that change a life, a record or a block. */
+export const COUNTED_PATHS: readonly string[] = ["/api/command", "/api/prologue/preset", "/api/invite", "/api/invite/*", "/api/pair/*", "/api/moderation/block", "/api/moderation/unblock", "/api/moderation/report"];
 
 /** The code of a refusal body, or null for an accepted reply or anything that is not JSON. */
 async function refusalCode(response: Response): Promise<string | null> {
