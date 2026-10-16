@@ -69,14 +69,16 @@ export const roomActivityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: POT,
     counts: [],
   },
-  // A meal of your own, bought and cooked now, in your room or the room abroad (decision 0035: living by hand).
+  // A meal of your own, bought and cooked now, in a room of your own at home (decision 0035: living by hand). It is naira,
+  // so the room abroad cooks in the country's money instead (home.md R-HOME-012 as amended 16 Oct 2026; in the UK
+  // activity.cook-own-uk, streets.md R-STREET-012).
   "activity.cook-own": {
     id: "activity.cook-own",
     slot: "none",
     when: "now",
     repeat: true,
     halfDays: 1,
-    where: "any",
+    where: "home",
     requires: [],
     param: null,
     cost: [{ currency: "NGN", amount: naira(1500), reason: "food" }],
