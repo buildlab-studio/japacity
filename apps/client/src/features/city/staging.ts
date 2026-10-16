@@ -66,7 +66,11 @@ export function servesHere(place: PlaceEntry, where: ViewPlace, places: readonly
  * The room abroad's spot on the map (world.md R-WORLD-038): a made-up spot a little off the country's hub, as its street
  * is made up; in London 51471, -73, off Choumert Road (design page 14 section 4). Null where the country has no hub.
  */
-export function roomSpot(country: string | null, places: readonly PlaceEntry[]): { latE3: number; lonE3: number } | null {
+export function roomSpot(country: string | null, places: readonly PlaceEntry[], countries: Readonly<Record<string, { homeSpot: { latE3: number; lonE3: number } | null } | undefined>> = {}): { latE3: number; lonE3: number } | null {
+  // The country's home spot as content's country table keeps it (design page 15 section 3: north-east Calgary, the camp
+  // east of Dubai, the Domitiana), else a little off its hub.
+  const spot = country === null ? null : (countries[country]?.homeSpot ?? null);
+  if (spot !== null) return spot;
   const hub = places.find((place) => place.where === "abroad" && place.country === country && place.hub)?.position ?? null;
   return hub === null ? null : { latE3: hub.latE3 - 2, lonE3: hub.lonE3 - 3 };
 }
