@@ -7,6 +7,7 @@ import { devices, expect, type Page, test } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
 import { startReadyLife } from "./door";
+import { passCards } from "./live";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -57,6 +58,10 @@ async function startLife(page: Page): Promise<void> {
     await page.waitForTimeout(250);
   }
   await page.waitForSelector("[data-band]", { timeout: 30_000 });
+  // The first brief's card stands on the drawn place until its Let's go (R-CHAPTER-011 as amended 16 Oct 2026), so the
+  // place is waited for and the card passed before any thumb is tapped.
+  await page.waitForFunction(() => (window as unknown as { __city?: CityProbe }).__city?.ready === true, null, { timeout: 90_000 });
+  await passCards(page);
 }
 
 test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map opens, unfolds and a pin is picked and ridden to, then it opens folded on the player's card, the pin folds it back on its own card with the route from the player's stop, and the ride lands there", async ({ page }, info) => {
