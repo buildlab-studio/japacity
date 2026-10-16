@@ -124,8 +124,8 @@ describe("Settings names the ways in (R-ACCOUNT-027, R-ACCOUNT-024)", () => {
     const shapes: [AccountView, string[], string[]][] = [
       [me("guest"), [say("ui.guest.reminder")], [say("ui.account.passkeys.zero")]],
       [me("secured", { google: null, email: "ada@example.com", passkeys: 0 }), ["Kept with your email as ada@example.com", "Passkey: none yet"], ["Kept with Google as ada@example.com", say("ui.guest.reminder")]],
-      [me("secured", { google: "ada@gmail.com", email: "ada@gmail.com", passkeys: 1 }), ["Kept with Google as ada@gmail.com", "1 passkey"], ["Kept with your email as ada@gmail.com", "Passkey: none yet"]],
-      [me("secured", { google: "ada@gmail.com", email: "ada@gmail.com", passkeys: 2 }), ["Kept with Google as ada@gmail.com", "2 passkeys"], []],
+      [me("secured", { google: "ada.g@example.com", email: "ada.g@example.com", passkeys: 1 }), ["Kept with Google as ada.g@example.com", "1 passkey"], ["Kept with your email as ada.g@example.com", "Passkey: none yet"]],
+      [me("secured", { google: "ada.g@example.com", email: "ada.g@example.com", passkeys: 2 }), ["Kept with Google as ada.g@example.com", "2 passkeys"], []],
     ];
     for (const [view, shown, hidden] of shapes) {
       const account = fakeAccount(view);
@@ -166,13 +166,13 @@ describe("the account's row at the head of Settings", () => {
   test("[R-ACCOUNT-024] [R-ACCOUNT-027] given a kept life, then the account is one button whose name holds the name, the username and the way it is kept, and a tap opens the account's sheet", async () => {
     const view = engineView();
     const name = pageOf(view).name;
-    const account = fakeAccount(me("secured", { google: "ada@gmail.com", email: "ada@gmail.com", passkeys: 0 }));
+    const account = fakeAccount(me("secured", { google: "ada.g@example.com", email: "ada.g@example.com", passkeys: 0 }));
     await mount(account, <AccountButton />, view);
-    const row = await screen.findByRole("button", { name: new RegExp(`${name}.*@ada_lagos.*Kept with Google as ada@gmail\\.com`) });
+    const row = await screen.findByRole("button", { name: new RegExp(`${name}.*@ada_lagos.*Kept with Google as ada.g@example\\.com`) });
     expect(row.querySelector("[aria-hidden]")?.textContent).toBe(name.charAt(0).toUpperCase());
     fireEvent.click(row);
     const sheet = await screen.findByRole("dialog", { name: say("ui.account.settings") });
-    expect(within(sheet).getByText("Kept with Google as ada@gmail.com")).toBeDefined();
+    expect(within(sheet).getByText("Kept with Google as ada.g@example.com")).toBeDefined();
   });
 
   test("[R-ACCOUNT-027] given a guest, then the row says the life is only on this phone until kept; a life kept by a code says Kept with your email", async () => {
