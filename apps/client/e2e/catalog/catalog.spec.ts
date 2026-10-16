@@ -38,6 +38,65 @@ async function signedOut(page: Page): Promise<void> {
   await page.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({ contentType: "text/javascript", body: "window.turnstile = { render() { return 'widget-1'; }, reset() {}, remove() {} };" }));
 }
 
+/**
+ * The opening for a life kept on this device (R-ENGINE-015): the view held back, failed with the server's own
+ * 503 or behind a wall; every other /api route not found.
+ */
+async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void> {
+  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
+  await page.route(
+    (url) => url.pathname.startsWith("/api/"),
+    (route) => {
+      const json = (status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
+      if (new URL(route.request().url()).pathname !== "/api/view") return json(404, { ok: false, code: "unknown-id", detail: "not faked" });
+      if (view === "hold") return new Promise<void>(() => undefined);
+      if (view === "wall") return route.fulfill({ status: 401, body: "" });
+      return json(503, { ok: false, code: "unavailable", detail: "The game's server could not reach its database.", retryAfter: 5 });
+    },
+  );
+}
+
+test("open: the splash the page paints, the life opening, and the fault cards", async ({ page }) => {
+  await attempt(page, "open-splash-page", async () => {
+    // The game's code held back, so the page's own first paint stays.
+    await page.route("**/src/main.tsx", () => new Promise<void>(() => undefined));
+    await page.goto(`${ONLINE}/`, { waitUntil: "commit" });
+    await page.locator("[data-splash]").waitFor();
+    await shot(page, "open-splash-page", 800);
+    await page.unroute("**/src/main.tsx");
+  });
+  await opening(page, "hold");
+  await attempt(page, "open-splash", async () => {
+    await page.goto(`${ONLINE}/`);
+    await page.getByText("Opening your life...").waitFor({ timeout: 30_000 });
+    await shot(page, "open-splash", 1200);
+  });
+  await attempt(page, "open-splash-night", async () => {
+    await page.evaluate(() => {
+      document.documentElement.dataset.paint = "night";
+    });
+    await shot(page, "open-splash-night");
+    await page.evaluate(() => {
+      delete document.documentElement.dataset.paint;
+    });
+  });
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await opening(page, "down");
+  await attempt(page, "open-fault", async () => {
+    await page.goto(`${ONLINE}/`);
+    await page.getByRole("alertdialog", { name: "Something broke on our side." }).waitFor({ timeout: 30_000 });
+    await shot(page, "open-fault");
+  });
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await opening(page, "wall");
+  await attempt(page, "open-fault-wall", async () => {
+    // The first wall reloads the page once (R-ACCOUNT-006); the second shows the card.
+    await page.goto(`${ONLINE}/`);
+    await page.getByRole("alertdialog", { name: "Your session ended: open the game again." }).waitFor({ timeout: 30_000 });
+    await shot(page, "open-fault-wall");
+  });
+});
+
 /** The start screen's compound, drawn in its own chunk, given its moment to draw. */
 async function startScreen(page: Page, search: string): Promise<void> {
   await page.goto(`${ONLINE}/${search}`);
