@@ -321,6 +321,8 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
   const cardHeight = Math.max(200, height - top - 92);
   const settling = useRef(false);
   const mounted = useRef(false);
+  // The card a one-card slide leaves stays drawn until the slide settles, so the track never shows a blank card.
+  const [leaving, setLeaving] = useState<number | null>(null);
   const scrolled = (): void => {
     const element = track.current;
     if (element === null || settling.current) return;
@@ -341,9 +343,13 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
       return;
     }
     settling.current = true;
-    // The first card is there at once; later ones slide round, unless the track is out of sight or motion is reduced.
-    const smooth = mounted.current && !still && !hidden;
+    // The first card is there at once; a neighbour slides round, unless the track is out of sight or motion is reduced. A
+    // card further off (a stop picked across the city) is there at once too: a slide past cards not drawn shows them blank
+    // under the sheet (the catalog's picture of London), and drawing every card passed costs a phone too much.
+    const from = Math.round(element.scrollLeft / Math.max(1, width));
+    const smooth = mounted.current && !still && !hidden && Math.abs(from - index) <= 1;
     mounted.current = true;
+    setLeaving(smooth && from !== index ? from : null);
     if (typeof element.scrollTo === "function") element.scrollTo({ left, behavior: smooth ? "smooth" : "auto" });
     else element.scrollLeft = left;
     // Settled once the track stands on the card (a long slide takes longer than a short one), or after two seconds.
@@ -356,6 +362,7 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
         return;
       }
       settling.current = false;
+      setLeaving(null);
       latest.current();
     };
     done = window.setTimeout(settle, 120);
@@ -388,7 +395,7 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
               card={card}
               width={cardWidth}
               height={cardHeight}
-              drawn={at === index || (near && Math.abs(at - index) <= 1)}
+              drawn={at === index || at === leaving || (near && Math.abs(at - index) <= 1)}
               stops={stops}
               names={names}
               marks={marks}

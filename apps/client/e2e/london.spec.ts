@@ -107,3 +107,36 @@ test("[R-WORLD-039] [R-PLACE-012] [R-STREET-012] given Ada landed in London, whe
   await expect(page.locator('[data-ride-sheet="place.the-room"] [data-way="walk"]')).not.toHaveAttribute("data-shut", "far");
   await rideBy(page, "place.the-room", "walk");
 });
+
+/** The card the track stands on, read where its scroll stands, and whether its piece of the paper is drawn with the stop ringed. */
+async function cardUnderTheSheet(page: Page, stop: string): Promise<{ card: string | null; drawn: boolean; ringed: boolean }> {
+  return page.evaluate((id) => {
+    const track = document.querySelector<HTMLElement>("[data-track]");
+    if (track === null) return { card: null, drawn: false, ringed: false };
+    const slots = [...track.querySelectorAll<HTMLElement>("[data-card]")];
+    const card = slots[Math.round(track.scrollLeft / Math.max(1, track.clientWidth))] ?? null;
+    if (card === null) return { card: null, drawn: false, ringed: false };
+    return { card: card.dataset.card ?? null, drawn: (card.querySelector(".paper-card-in")?.childElementCount ?? 0) > 0, ringed: card.querySelector(`[data-pin="${id}"][data-ring="picked"]`) !== null };
+  }, stop);
+}
+
+test("[R-WORLD-038] [R-WORLD-015] given London's map folded on Peckham, when the office at London Bridge is picked across the city, then the card under the open sheet is its district's, drawn with the office ringed, from the moment the sheet is up", async ({ page }) => {
+  test.setTimeout(180_000);
+  await seedSave(page, adaInLondon());
+  await page.goto(`/${LIVED}&clock=afternoon`);
+  await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
+  await passOpeningWords(page);
+  await clear(page);
+  await placeReady(page);
+  await clear(page);
+  await page.locator('[data-thumb="map"]').click();
+  await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean; card?: string } }).__map?.ready === true, null, { timeout: 60_000 });
+  expect(await page.evaluate(() => (window as unknown as { __map?: { card?: string } }).__map?.card)).toBe("peckham");
+  await page.evaluate(() => document.querySelector<HTMLButtonElement>('[data-stop="place.office-uk"]')?.click());
+  await page.locator('[data-ride-sheet="place.office-uk"]').waitFor({ timeout: 10_000 });
+  // At once, and again once everything has settled: never a blank card passed on the way.
+  for (const wait of [80, 1500]) {
+    await page.waitForTimeout(wait);
+    expect(await cardUnderTheSheet(page, "place.office-uk")).toEqual({ card: "elephant", drawn: true, ringed: true });
+  }
+});
