@@ -29,6 +29,9 @@ export const turnText: Record<string, string> = {
   "turn.calendar.chores.drum": "The drum is full",
   // The month's bus pass (place.md R-PLACE-012): the bus asks nothing until the month ends.
   "turn.calendar.pass": "Bus pass bought: the bus is free till the month ends",
+  // Calgary's transit pass and Dubai's zone pass (R-PLACE-012 as amended): each covers the bus and the train.
+  "turn.calendar.pass.country.canada": "Transit pass bought: the bus and the CTrain are free till the month ends",
+  "turn.calendar.pass.country.uae": "Zone pass bought: the bus and the metro are free till the month ends",
   "turn.calendar.at": "At {place}",
   // Where a dated ask is attended when no place of the city stages it (R-WORLD-002).
   "turn.calendar.where.offer.village-burial": "In the village",

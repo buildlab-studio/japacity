@@ -87,7 +87,7 @@ export function lightBack(lines: readonly { key: string; params: Record<string, 
 }
 
 /** The acts the scene shows (the pot steams, the drum fills): the place says no line for them (R-WORLD-005). */
-export const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.cook-own", "activity.cook-own-uk", "activity.fetch-water", "activity.fill-drum"]);
+export const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.cook-own", "activity.cook-own-uk", "activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-it", "activity.fetch-water", "activity.fill-drum"]);
 
 /** Gist with Mama, and the big pot bought for the house: her own words over her head. */
 const MAMA_SAYS: ReadonlySet<string> = new Set(["activity.family-time", "activity.cook-jollof"]);

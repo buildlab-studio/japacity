@@ -110,8 +110,30 @@ function minutesMetres(at: { from: Position; to: Position }, lonMetresPerE3: num
   return metres > CITY_REACH_METRES ? 0 : metres;
 }
 
-/** The ways abroad the ride sheet can draw and the ride can play (R-WORLD-039): London's bus and train, and on foot. */
-const DRAWN_ABROAD: ReadonlySet<RideChoice["id"]> = new Set(["bus", "train", "walk"]);
+/** The ways abroad the ride sheet can draw and the ride can play (R-WORLD-039 as amended): the bus, the train, the taxi, and on foot. */
+const DRAWN_ABROAD: ReadonlySet<RideChoice["id"]> = new Set(["bus", "train", "taxi", "walk"]);
+
+/** The country a ride abroad is in and the stops its employer's shuttle serves (the view's `place.shuttles`, R-PLACE-013). */
+export interface AbroadContext {
+  country: string | null;
+  shuttles: readonly string[];
+}
+
+/** A way's name on the sheet: the country's own where it has one (the CTrain, the metro), else the way's. */
+function wayLabel(id: RideChoice["id"], country: string | null): string {
+  const own = country === null ? null : `map.way.${id}.${country}`;
+  return own !== null && mapWords(own) !== own ? mapWords(own) : mapWords(`map.way.${id}`);
+}
+
+/**
+ * The pill of a way that asks nothing for the country's pass or its shuttle, in the country's money ("C$0, transit pass",
+ * "AED 0, site bus", "€0, the van"); undefined where the way is paid, or in London, whose pill stays the bus pass's own.
+ */
+function pillOf(way: RideWayView, country: string | null, shuttle: boolean): string | undefined {
+  if (country === null || country === "country.uk") return undefined;
+  const key = shuttle ? `map.way.shuttle.${country}` : way.passed ? `map.way.passed.${country}` : null;
+  return key === null ? undefined : mapWords(key, { amount: formatMoney(0, way.currency) });
+}
 
 /**
  * The ways to a place abroad, from the view's `place.ways` (R-PLACE-010 as amended 16 Oct 2026, R-WORLD-039): each priced
@@ -120,25 +142,30 @@ const DRAWN_ABROAD: ReadonlySet<RideChoice["id"]> = new Set(["bus", "train", "wa
  * metres at the way's pace as at home, the metres a thousandth of a degree of longitude is worth there read from the way. On foot is
  * shut past the walking limit, as the simulation shuts it, except to the room, which is the home there and always walkable.
  */
-export function waysAbroad(ways: readonly RideWayView[], ids: { from: string; to: string }, at: { from: Position; to: Position }, home = false, fareBp = 10000): RideChoice[] {
+export function waysAbroad(ways: readonly RideWayView[], ids: { from: string; to: string }, at: { from: Position; to: Position }, home = false, fareBp = 10000, context: AbroadContext = { country: null, shuttles: [] }): RideChoice[] {
   const { waitMinutes, walkMetres } = content.tuning.city.ride;
   const positionOf = (id: string): Position | null => content.place[id as keyof typeof content.place]?.position ?? null;
   const from = positionOf(ids.from);
   const to = positionOf(ids.to);
   return ways
-    .filter((way) => DRAWN_ABROAD.has(way.way as RideChoice["id"]))
+    .filter((way) => DRAWN_ABROAD.has(way.way))
     .map((way): RideChoice => {
-      const id = way.way as RideChoice["id"];
+      const id = way.way;
       const metres = minutesMetres(from !== null && to !== null ? { from, to } : at, way.lonMetresPerE3);
       // The simulation shuts a walk only between two places it knows the positions of, and never one to the room.
       const far = id === "walk" && from !== null && to !== null && metresApart(from, to, way.lonMetresPerE3) > walkMetres;
+      // The employer's bus to or from the site or the fields asks nothing in any month, as the simulation takes it (R-PLACE-013).
+      const shuttle = id === "bus" && (context.shuttles.includes(ids.from) || context.shuttles.includes(ids.to));
+      const pill = pillOf(way, context.country, shuttle);
       return {
         id,
-        label: mapWords(`map.way.${id}`),
-        fare: id === "walk" || way.passed ? 0 : rideFare(way, from, to, fareBp),
+        label: wayLabel(id, context.country),
+        fare: id === "walk" || way.passed || shuttle ? 0 : rideFare(way, from, to, fareBp),
         minutes: waitMinutes + Math.max(1, Math.round(metres / way.metresPerMinute)),
         ...(far ? (home ? { long: true as const } : { shut: "far" as const }) : {}),
         ...(way.passed ? { passed: true as const } : {}),
+        ...(shuttle ? { shuttle: true as const } : {}),
+        ...(pill === undefined ? {} : { pill }),
       };
     });
 }

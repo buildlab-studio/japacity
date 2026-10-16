@@ -32,10 +32,12 @@ export interface RideSheetProps {
   by?: RideChoice["id"];
   /** Hears the way picked, from the first, so the route on the map carries its sticker. */
   onWay?: (way: RideChoice["id"]) => void;
+  /** A way's picture where the country's own vehicle stands for it (Calgary's bus, Dubai's metro car, the van); `WAY_MODEL`'s else (R-WORLD-039 as amended). */
+  wayModel?: (choice: RideChoice) => string | null;
 }
 
 /** Each way's picture: the vehicle's own tile; on foot, the footprints. */
-export const WAY_MODEL: Readonly<Record<RideChoice["id"], string | null>> = { danfo: "veh_danfo", keke: "veh_keke", okada: "veh_okada", walk: null, drive: "veh_car", bus: "veh_london-bus", train: "veh_train-carriage" };
+export const WAY_MODEL: Readonly<Record<RideChoice["id"], string | null>> = { danfo: "veh_danfo", keke: "veh_keke", okada: "veh_okada", walk: null, drive: "veh_car", bus: "veh_london-bus", train: "veh_train-carriage", taxi: "veh_taxi-dubai" };
 
 /** The first sentence of a place's blurb: a line about it. */
 function firstSentence(blurb: string): string {
@@ -84,12 +86,14 @@ export function firstWay(ways: readonly RideChoice[], have: number, by?: RideCho
  * R-WORLD-039); the single way of a country with no fares yet "Bus pass", as before.
  */
 export function fareTile(choice: RideChoice, formatMoney: (amount: number) => string, formatFare: (amount: number) => string = formatMoney): string {
+  // The country's pass or its shuttle, named in the country's money (R-PLACE-012 and R-PLACE-013 as amended).
+  if (choice.pill !== undefined) return choice.pill;
   if (choice.passed === true) return mapWords("map.way.passed", { amount: formatMoney(0) });
   if (choice.fare !== 0) return formatFare(choice.fare);
   return say(choice.id === "walk" ? "ui.world.free" : "ui.world.pass");
 }
 
-export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = formatMoney, onChoose, onClose, onStay, by, onWay }: RideSheetProps) {
+export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = formatMoney, onChoose, onClose, onStay, by, onWay, wayModel }: RideSheetProps) {
   const [chosen, setChosen] = useState<RideChoice["id"]>(() => firstWay(ways, have, by));
   useEffect(() => {
     onWay?.(chosen);
@@ -143,7 +147,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = for
             {ways.map((choice) => {
               const on = choice.id === chosen;
               const shut = choice.shut !== undefined;
-              const model = WAY_MODEL[choice.id];
+              const model = wayModel?.(choice) ?? WAY_MODEL[choice.id];
               const url = model === null ? null : tiles(model);
               return (
                 <button
@@ -169,7 +173,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = for
                     )}
                   </span>
                   <span className="text-[13px] font-semibold">{choice.label}</span>
-                  <span className={`font-semibold ${choice.passed === true ? "text-[12px] leading-tight" : "text-[14px]"}`} data-way-fare>
+                  <span className={`font-semibold ${choice.passed === true || choice.pill !== undefined ? "text-[12px] leading-tight" : "text-[14px]"}`} data-way-fare>
                     {fareTile(choice, formatMoney, formatFare)}
                   </span>
                   <span className="text-[11px] leading-tight text-text-2">{shut ? mapWords("map.way.walk-far") : mapWords("map.way.minutes", { minutes: choice.minutes })}</span>

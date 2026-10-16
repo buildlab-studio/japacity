@@ -58,7 +58,7 @@ import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./actLines";
-import { loadLondonWords } from "./londonWords";
+import { hasAbroadWords, loadAbroadWords } from "./abroadWords";
 import { onShift, shiftMarks } from "./shift";
 import { NAP, SLEEP_MS, sleepMsOf, wakeCommand, wokeWords } from "./sleep";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
@@ -70,7 +70,7 @@ import { nudgeHere, stepOpen } from "./stepOpen";
 import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard, speakerOf } from "./overheard";
-import { dancerShown, dressPlace, filesOf, openGround, parkCar, type PlaceFile, showPlanned, stageOf } from "./placeFile";
+import { dancerShown, dressPlace, filesOf, openGround, parkCar, type PlaceFile, showPlanned, stageFilePath, stageOf } from "./placeFile";
 import { shotOf, turnsRound } from "./shot";
 import { HOUSE, insideOf, roomOf } from "./room";
 import { personOf, personOfLook } from "./roster";
@@ -292,6 +292,10 @@ export function homeLine(shown: string, view: Pick<PlayerView, "place" | "home">
     case "place.makoko":
       return view.place.where === "home" && view.home.place === "place.makoko" ? cityWords("city.home.makoko") : null;
     case "place.the-room": {
+      // Calgary's basement room, the bed space at the camp, the shared flat on the Domitiana: the room per country (world.md
+      // R-WORLD-038 as amended), said short enough for the band beside the age; London keeps its line by the hub's name.
+      const own = `city.home.the-room.${view.place.country ?? ""}`;
+      if (view.place.where === "abroad" && cityWords(own) !== own) return cityWords(own);
       const hub = PLACES.find((place) => place.hub === true && place.country === view.place.country);
       if (hub === undefined) return bandName(placeName(shown));
       return cityWords("city.home.the-room", { area: hasWords(`${hub.id}.short`) ? say(`${hub.id}.short`) : placeName(hub.id) });
@@ -389,7 +393,7 @@ function usePlaceFile(place: PlaceEntry | null, drawing: boolean): PlaceFile | n
     if (place === null || !drawing) return;
     let alive = true;
     void loadManifest()
-      .then((manifest) => loadJson<PlaceFile>(manifest, `places/${place.assets}/place.json`))
+      .then((manifest) => loadJson<PlaceFile>(manifest, stageFilePath(place, (path) => assetUrl(manifest, path) !== null)))
       .catch(() => null)
       .then((found) => {
         if (alive) setFile({ place: place.id, file: found ?? openGround(place.id) });
@@ -672,13 +676,14 @@ export function City({
   const where = view.place.where;
   const country = view.place.country;
   const here = useMemo(() => ({ where, country }), [where, country]);
-  // London's words ride their own chunk (engine.md R-ENGINE-020): fetched once the life is in the UK, and the city drawn
-  // again once they are in, so its things' names and its people's lines read in words.
+  // Each country's words ride their own chunk (engine.md R-ENGINE-020): fetched once the life is in that country (London,
+  // Calgary, Dubai, Castel Volturno), and the city drawn again once they are in, so its things' names and its people's
+  // lines read in words.
   const [, setLateWords] = useState(0);
   useEffect(() => {
-    if (where !== "abroad" || country !== "country.uk") return;
+    if (where !== "abroad" || !hasAbroadWords(country)) return;
     let live = true;
-    void loadLondonWords().then(() => {
+    void loadAbroadWords(country).then(() => {
       if (live) setLateWords((count) => count + 1);
     });
     return () => {
@@ -707,7 +712,7 @@ export function City({
     let alive = true;
     void loadManifest()
       .then((manifest) => {
-        if (alive) setShipped(new Set(PLACES.filter((place) => !OLD_FILES.has(place.id) && assetUrl(manifest, `places/${place.assets}/place.json`) !== null).map((place) => place.id)));
+        if (alive) setShipped(new Set(PLACES.filter((place) => !OLD_FILES.has(place.id) && assetUrl(manifest, stageFilePath(place, (path) => assetUrl(manifest, path) !== null)) !== null).map((place) => place.id)));
       })
       .catch(() => {
         if (alive) setShipped(new Set());
@@ -1149,7 +1154,7 @@ export function City({
     const spotOf = (place: PlaceEntry): { latE3: number; lonE3: number } => {
       if (place.position !== null) return place.position;
       // The room abroad sits off its country's hub (R-WORLD-038), never at Lagos's home spot.
-      if (place.id === home) return (where === "abroad" ? roomSpot(country, PLACES) : null) ?? HOME_SPOT;
+      if (place.id === home) return (where === "abroad" ? roomSpot(country, PLACES, content.country) : null) ?? HOME_SPOT;
       if (place.id === FAMILY_HOUSE && where === "home") return FAMILY_SPOT;
       // Their room has no address of its own: it sits a little off the place it is near, or off home for one who is home only for December (R-WORLD-020).
       if (place.id === THEIR_ROOM) {
@@ -1175,7 +1180,11 @@ export function City({
       .map((place) => {
         const reached = stopReached(view.chapter, where, place.id, early);
         const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : !reached ? "not" : shipped === null || shipped.has(place.id) ? "can" : "not";
-        return { id: place.id, name: place.id === "place.yaba" ? say("ui.inside.hub") : placeName(place.id), state, position: spotOf(place), things: place.stages.length };
+        // The room abroad by its country's name on the map and its sheet (R-WORLD-038 as amended), said short as the band says it,
+        // since content's whole name ("the room in a shared flat on the Domitiana") runs off a sticker's label on a phone.
+        const roomShort = `city.home.the-room.${country ?? ""}`;
+        const name = place.id === "place.yaba" ? say("ui.inside.hub") : place.id === home && where === "abroad" && cityWords(roomShort) !== roomShort ? cityWords(roomShort) : placeName(place.id);
+        return { id: place.id, name, state, position: spotOf(place), things: place.stages.length };
       });
   })();
   // At home the map is Lagos; abroad it is the country the character is in. The rest are shut until a visa opens them.

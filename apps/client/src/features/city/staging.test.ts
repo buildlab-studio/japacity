@@ -70,25 +70,40 @@ describe("staging", () => {
     expect(reportHere(view, "place.rye-lane", places)).toEqual([]);
   });
 
-  test("[R-CITY-010] [R-WORLD-038] given the places serving every country, when the map of London is read, then the test centre and the workplace give way to London's own, while in Calgary the workplace stands with its Canadian jobs and the test centre, whose tests are the UK's, does not; the room stands everywhere", () => {
+  // Restated 16 Oct 2026 to R-CITY-010 and design page 15 (the three countries' wave): the country-less test centre and
+  // workplace are gone from content, since every job and test abroad is staged at a place of its own country.
+  test("[R-CITY-010] [R-WORLD-038] given the places serving every country, when each country's map is read, then the country-less test centre and workplace are no longer places, the room stands everywhere, and each country's own places stand on its map", () => {
     const of = (id: Id<"place">) => {
       const place = content.place[id];
       if (place === undefined) throw new Error(id);
       return place;
     };
-    const CANADA = { where: "abroad", country: "country.canada" } as const;
-    expect(servesHere(of("place.test-centre-abroad"), UK, places, content.activity)).toBe(false);
-    expect(servesHere(of("place.workplace-abroad"), UK, places, content.activity)).toBe(false);
-    expect(servesHere(of("place.the-room"), UK, places, content.activity)).toBe(true);
-    expect(servesHere(of("place.test-centre-abroad"), CANADA, places, content.activity)).toBe(false);
-    expect(servesHere(of("place.workplace-abroad"), CANADA, places, content.activity)).toBe(true);
-    expect(servesHere(of("place.peckham"), UK, places, content.activity)).toBe(true);
+    const COUNTRIES = [
+      [UK, "place.peckham"],
+      [{ where: "abroad", country: "country.canada" }, "place.calgary-north-east"],
+      [{ where: "abroad", country: "country.uae" }, "place.site-uae"],
+      [{ where: "abroad", country: "country.italy" }, "place.farm-it"],
+    ] as const;
+    expect(content.place["place.test-centre-abroad" as Id<"place">]).toBeUndefined();
+    expect(content.place["place.workplace-abroad" as Id<"place">]).toBeUndefined();
+    expect(places.filter((place) => place.where === "abroad" && place.country === null).map((place) => place.id)).toEqual(["place.the-room"]);
+    for (const [here, own] of COUNTRIES) {
+      expect([here.country, servesHere(of("place.the-room"), here, places, content.activity)]).toEqual([here.country, true]);
+      expect([here.country, servesHere(of(own), here, places, content.activity)]).toEqual([here.country, true]);
+    }
     expect(servesHere(of("place.family-house"), HOME, places, content.activity)).toBe(true);
   });
 
   test("[R-WORLD-038] given the room abroad with no address of its own, when its spot on the map is read, then in London it is the design's home spot off Choumert Road, near the hub", () => {
     expect(roomSpot("country.uk", places)).toEqual({ latE3: 51471, lonE3: -73 });
     expect(roomSpot(null, places)).toBeNull();
+  });
+
+  test("[R-WORLD-038] given the three countries' home spots in content, when the room's spot is read, then it is each country's own, north-east Calgary, the camp east of Dubai and the Domitiana, and London's stays off Choumert Road", () => {
+    expect(roomSpot("country.canada", places, content.country)).toEqual({ latE3: 51088, lonE3: -113955 });
+    expect(roomSpot("country.uae", places, content.country)).toEqual({ latE3: 25270, lonE3: 55395 });
+    expect(roomSpot("country.italy", places, content.country)).toEqual({ latE3: 40950, lonE3: 14010 });
+    expect(roomSpot("country.uk", places, content.country)).toEqual({ latE3: 51471, lonE3: -73 });
   });
 
   test("[R-CITY-002] given open offers, when a place lists what waits there, then it names each offer by its entry only and nothing the view does not hold", () => {

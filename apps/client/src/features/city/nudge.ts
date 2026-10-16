@@ -124,11 +124,22 @@ const STEP_WAYS: Record<string, StepWay> = {
       "place.ward-uk:station",
       "place.warehouse-uk:clock-in",
       "place.office-uk:desk",
+      // Calgary's jobs notice and its workplaces' doors, Dubai's typing centre and the site's post and trolley, the vans at
+      // Castel Volturno's roundabout and the gangmaster's table in the fields (world.md R-WORLD-039 as amended).
+      "place.calgary-north-east:jobs-notice",
+      "place.warehouse-ca:clock-in",
+      "place.care-home-ca:reception",
+      "place.office-ca:desk",
       "place.deira:agency",
-      "place.deira:site-bus",
+      "place.site-uae:guard-post",
+      "place.site-uae:cleaner-trolley",
+      "place.castel-volturno:roundabout",
+      "place.farm-it:table",
     ],
   },
-  "chapter.landing.request": { go: "place.the-room", at: ["place.the-room:phone", "place.rye-lane:transfer"] },
+  // Money home from the country's counter (the room's phone only calls home now, R-CITY-010): Rye Lane's transfer shop,
+  // the strip mall's transfer counter, Deira's exchange house, Castel Volturno's call shop.
+  "chapter.landing.request": { go: "place.rye-lane", at: ["place.rye-lane:transfer", "place.calgary-north-east:transfer", "place.deira:exchange", "place.castel-volturno:call-shop"] },
   "chapter.landing.file": MONTH_END,
   "chapter.landing.status": MONTH_END,
   "chapter.secure.secure": MONTH_END,
@@ -159,7 +170,8 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   // The sponsor step while the care window is shut goes to what the file can still take.
   const shut = detour === null ? sponsorShutWay(view, step, []) : null;
   if (shut !== null) return shut;
-  return STEP_WAYS[detour ?? `${view.chapter.current}.${step}`] ?? null;
+  const key = detour ?? `${view.chapter.current}.${step}`;
+  return inCountry(key, STEP_WAYS[key] ?? null, view.place);
 }
 
 /**
@@ -182,7 +194,26 @@ const RACKS_WAY: StepWay = { go: "place.makoko", at: ["place.makoko:racks", "pla
 /** Where held funds go back: the bank's counter (R-ROUTE-020). */
 const HELD_FUNDS_WAY: StepWay = { go: "place.olokun-office", at: ["place.olokun-office:clerk"] };
 
-type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets" | "routes" | "documents" | "job" | "activities">>;
+type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets" | "routes" | "documents" | "job" | "activities" | "place">>;
+
+/**
+ * Where the landing chapter's steps are taken in each country abroad, so the nudge's way goes to the country's own stop
+ * and not London's (world.md R-WORLD-039 as amended): the job at Peckham's notice, Calgary's strip mall, Dubai's site (the
+ * contract's job is held there from the first morning) or the roundabout at Castel Volturno where the vans come; money
+ * home at Rye Lane, the strip mall, Deira or the roundabout's call shop.
+ */
+const LANDING_STOPS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  "chapter.landing.job": { "country.uk": "place.peckham", "country.canada": "place.calgary-north-east", "country.uae": "place.site-uae", "country.italy": "place.castel-volturno" },
+  "chapter.landing.request": { "country.uk": "place.rye-lane", "country.canada": "place.calgary-north-east", "country.uae": "place.deira", "country.italy": "place.castel-volturno" },
+};
+
+/** A step's way in the country the life is in: the landing's stops are the country's own; every other way as the table gives it. */
+function inCountry(key: string, way: StepWay | null, place: StepView["place"]): StepWay | null {
+  const stops = LANDING_STOPS[key];
+  if (way === null || stops === undefined || place?.where !== "abroad" || place.country === null) return way;
+  const go = stops[place.country];
+  return go === undefined ? way : { ...way, go };
+}
 
 /** The chapter's next undone step: for a trader from sixteen with a shop's capital, the meetup and the page before the board. */
 function stepOf(view: StepView): string | null {

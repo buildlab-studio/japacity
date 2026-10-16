@@ -198,15 +198,15 @@ describe("the map abroad", () => {
     expect(document.querySelector(`[data-ride-sheet="${HEATHROW}"]`)).not.toBeNull();
   });
 
-  test("[R-WORLD-038] given a country with no painted map yet, when the map opens there, then the stops stand as a visible list with the hint, and no paper is drawn", async () => {
-    const pins: MapPin[] = [{ id: "place.calgary-north-east", name: "north-east Calgary", state: "here", position: { latE3: 51046, lonE3: -114058 }, things: 1 }];
+  test("[R-WORLD-038] given Canada, which has its own painted map since the three countries' wave, when the map opens there, then the stops stand as a list for a screen reader alone, with no hint, and Calgary's paper is drawn, not London's", async () => {
+    const pins: MapPin[] = [{ id: "place.calgary-north-east", name: "north-east Calgary", state: "here", position: { latE3: 51090, lonE3: -113960 }, things: 1 }];
     await renderWithView(<Map pins={pins} country={CANADA} countries={[CANADA]} drawing={false} onGo={() => undefined} onClose={() => undefined} />, engineView("scenario.ada"));
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await settle("[data-paper-map]");
     const list = screen.getByRole("list", { name: "Stops" });
-    expect(list.className).not.toContain("sr-only");
-    expect(document.querySelector("[data-map-hint]")).not.toBeNull();
-    expect(document.querySelector("[data-paper-map]")).toBeNull();
+    expect(list.className).toContain("sr-only");
+    expect(document.querySelector("[data-map-hint]")).toBeNull();
+    expect(document.querySelector("[data-paper-map]")).not.toBeNull();
+    expect(document.querySelector('[data-strip-landmark="city"]')).toBeNull();
+    expect(document.querySelector('[data-card][data-current="true"]')?.getAttribute("data-card")).toBe("north-east");
   });
 });

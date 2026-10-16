@@ -480,8 +480,10 @@ describe("each home's cooking corner", () => {
     };
     expect(corner(familyRaw)).toEqual(["activity.cook-at-home", ["activity.cook-jollof"]]);
     for (const raw of [roomRaw, hostelRaw]) expect(corner(raw)).toEqual(["activity.cook-own", ["activity.cook-own-pot"]]);
-    // the room abroad cooks in the country's money, in the UK a meal in pounds.
-    expect(corner(abroadRaw)).toEqual(["activity.cook-own-uk", undefined]);
+    // the room abroad cooks in the country's money, in the UK a meal in pounds;
+    // restated to R-HOME-012 as amended again that day (the three countries' wave): in Canada, the UAE and Italy a meal in
+    // dollars, dirhams or euros, listed on the same sheet, each open only in its country.
+    expect(corner(abroadRaw)).toEqual(["activity.cook-own-uk", ["activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-it"]]);
     expect(content.activity["activity.cook-at-home"]?.cost).toEqual([]);
     expect(content.activity["activity.cook-jollof"]?.cost).toEqual([{ currency: "NGN", amount: 7_500_00, reason: "foodstuff" }]);
     expect(content.activity["activity.cook-own"]?.cost).toEqual([{ currency: "NGN", amount: 1_500_00, reason: "food" }]);

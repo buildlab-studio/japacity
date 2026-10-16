@@ -9,6 +9,7 @@ import { loadManifest, type PublishManifest } from "../../shared/three/manifest"
 import { mountCanvas, sharedRenderer } from "../../shared/three/sharedRenderer";
 import { mapWords } from "./map.words";
 import { type Angle, angleAt, anglesOf, buildRide, darkAt, figuresOn, LONG_WALK_MS, peopleOf, type Phase, preMsOf, RIDE_MS, type RideScene, type Role, stepClock, type Way } from "./rideScene";
+import { type AbroadVehicle, VEHICLES } from "./rideVehicles";
 
 export { LONG_WALK_MS, PRE_MS, RIDE_MS } from "./rideScene";
 
@@ -34,6 +35,8 @@ export const LINES = 6;
 /** What the browser test and the shooter read while a ride plays. */
 export interface RideProbe {
   way: Way;
+  /** The country's own vehicle abroad (Calgary's bus, the CTrain, Dubai's metro, the labour bus, the van...), or null. */
+  vehicle: AbroadVehicle | null;
   phase: Phase;
   /** The angle on screen now (R-WORLD-032). */
   angle: Angle;
@@ -63,6 +66,10 @@ declare global {
 
 export interface RideProps {
   way: Way;
+  /** The country's own vehicle the ride plays in (R-WORLD-039 as amended), its lines its own; null for Lagos's ways and London's. */
+  vehicle?: AbroadVehicle | null;
+  /** The way's name as the sheet said it ("CTrain", "Metro"); the way's own words when left out. */
+  wayName?: string;
   /** The place's name, as the band says it. */
   place: string;
   drawing: boolean;
@@ -101,12 +108,13 @@ function seatFrom(way: Way): number | null {
  * after the pre-roll, 0 to 1. A road line that names a person is the way's own. Once the danfo's ride cuts from the window to
  * the seat, the road line moves on to the next, so the two angles never carry the same caption (R-WORLD-032).
  */
-export function alongOf(u: number, seed: number, way: Way): { key: string; needs: "from" | "to" | null } {
+export function alongOf(u: number, seed: number, way: Way, vehicle: AbroadVehicle | null = null): { key: string; needs: "from" | "to" | null } {
   if (u < 0.34) return { key: way === "walk" ? "map.ride.along.start.walk" : "map.ride.along.start", needs: "from" };
   const seat = seatFrom(way);
   const onward = seat !== null && u >= seat ? 1 : 0;
   const road = ((Math.abs(Math.trunc(seed)) + onward) % ROAD_LINES) + 1;
-  // London's bus and train say their own road, every line of it (R-WORLD-039).
+  // Each vehicle abroad says its own road, every line of it (R-WORLD-039 as amended), as London's bus and train do.
+  if (u < 0.78 && vehicle !== null) return { key: `map.ride.along.road.${String(road)}.${vehicle}`, needs: null };
   const own = way === "bus" || way === "train" || PERSON_LINES.has(road);
   if (u < 0.78) return { key: own ? `map.ride.along.road.${String(road)}.${way}` : `map.ride.along.road.${String(road)}`, needs: null };
   return { key: "map.ride.along.near", needs: "to" };
@@ -116,16 +124,17 @@ export function alongOf(u: number, seed: number, way: Way): { key: string; needs
 const TICK_MS = 50;
 
 /** The key of the line said in a way's pre-roll: the okada's rider, the keke's driver, the danfo's conductor; none on foot. */
-export function lineOf(way: Way, seed: number): string | null {
+export function lineOf(way: Way, seed: number, vehicle: AbroadVehicle | null = null): string | null {
   if (way === "walk") return null;
-  return `map.ride.line.${way}.${String((Math.abs(Math.trunc(seed)) % LINES) + 1)}`;
+  return `map.ride.line.${vehicle ?? way}.${String((Math.abs(Math.trunc(seed)) % LINES) + 1)}`;
 }
 
 /** The model each way rides in where its file is not named for the way: the life's own car, London's red bus and its train. */
 const VEHICLE_FILE: Readonly<Partial<Record<Way, string>>> = { drive: "car", bus: "london-bus", train: "train-carriage" };
 
 /** The vehicle a way rides in: the danfo, keke or okada of the street, the life's own car, or London's bus or train (R-WORLD-039). */
-export function vehicleFile(way: Exclude<Way, "walk">): string {
+export function vehicleFile(way: Exclude<Way, "walk">, vehicle: AbroadVehicle | null = null): string {
+  if (vehicle !== null) return VEHICLES[vehicle].file;
   return `shared/veh/veh_${VEHICLE_FILE[way] ?? way}.glb`;
 }
 
@@ -170,7 +179,7 @@ export function preloadRide(own: string): void {
 
 const FRAMES_KEPT = 240;
 
-export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone, from, onTurnBack, long = false, fare }: RideProps) {
+export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLBACK_OWN, seed = 0, onDone, from, onTurnBack, long = false, fare }: RideProps) {
   const box = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
   const dark = useRef<HTMLDivElement>(null);
@@ -199,13 +208,13 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
     back.current?.();
   };
   // The card's line follows the ride's own clock, so it matches what is outside.
-  const alongAt = (ms: number): ReturnType<typeof alongOf> | null => (ms >= pre && from !== undefined ? alongOf(Math.min(1, Math.max(0, (ms - pre) / (length - pre))), seed, way) : null);
+  const alongAt = (ms: number): ReturnType<typeof alongOf> | null => (ms >= pre && from !== undefined ? alongOf(Math.min(1, Math.max(0, (ms - pre) / (length - pre))), seed, way, vehicle) : null);
   const [along, setAlong] = useState(() => alongAt(0));
-  const line = phase === "pre" ? lineOf(way, seed) : along === null ? null : along.key;
+  const line = phase === "pre" ? lineOf(way, seed, vehicle) : along === null ? null : along.key;
   const lineParams: Record<string, string> = along === null ? {} : along.needs === "from" && from !== undefined ? { from } : along.needs === "to" ? { to: place } : {};
 
   // What the browser test reads; the scene is built whether or not it draws, so it can say who is on the vehicle.
-  const probe = useRef<RideProbe>({ way, phase, angle, angles: [angle], clock: 0, line, figures: [], loaded: 0, preMs: pre, drawCalls: 0, triangles: 0, frameMs: { pre: [], ride: [] } });
+  const probe = useRef<RideProbe>({ way, vehicle, phase, angle, angles: [angle], clock: 0, line, figures: [], loaded: 0, preMs: pre, drawCalls: 0, triangles: 0, frameMs: { pre: [], ride: [] } });
 
   // One step of the ride's clock, clamped so a slow frame never jumps the ride ahead (R-WORLD-032).
   // The angle and the line change only when the clock crosses into another; the bar and the dark follow every step.
@@ -251,7 +260,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
 
   const [ride, setRide] = useState<RideScene | null>(null);
   useEffect(() => {
-    const built = buildRide(way, length);
+    const built = buildRide(way, length, vehicle);
     setRide(built);
     const held = probe.current;
     window.__ride = held;
@@ -259,7 +268,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
       if (window.__ride === held) delete window.__ride;
       built.dispose();
     };
-  }, [way, length]);
+  }, [way, length, vehicle]);
   useEffect(() => {
     if (ride === null) return;
     ride.setAngle(angle);
@@ -277,7 +286,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
     void loadManifest()
       .then((manifest) => {
         if (way !== "walk") {
-          void loadModel(manifest, vehicleFile(way), () => undefined)
+          void loadModel(manifest, vehicleFile(way, vehicle), () => undefined)
             .then((model) => {
               if (!alive) return;
               ride.setVehicle(model.clone());
@@ -323,11 +332,14 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
       window.removeEventListener("resize", resize);
       unmount();
     };
-  }, [drawing, way, own, ride, pre]);
+  }, [drawing, way, vehicle, own, ride, pre]);
 
-  const title = mapWords("map.ride.to", { way: mapWords(`map.way.${way}`), place });
+  // The shuttle's vehicle names itself (the site bus, the van); elsewhere the way as the sheet named it (R-WORLD-039 as amended).
+  const vehicleName = vehicle === null ? null : `map.vehicle.${vehicle}`;
+  const named = vehicleName !== null && mapWords(vehicleName) !== vehicleName ? mapWords(vehicleName) : (wayName ?? mapWords(`map.way.${way}`));
+  const title = mapWords("map.ride.to", { way: named, place });
   return (
-    <div className="fade fixed inset-0 z-[46] bg-strong" data-ride={way} data-ride-phase={phase} data-ride-angle={angle} aria-live="polite">
+    <div className="fade fixed inset-0 z-[46] bg-strong" data-ride={way} data-ride-vehicle={vehicle ?? undefined} data-ride-phase={phase} data-ride-angle={angle} aria-live="polite">
       {drawing ? <div ref={box} className="size-full" aria-hidden /> : null}
       {/* The cut between angles: a short dark over the scene, never a slide (R-WORLD-013, R-WORLD-032). */}
       {drawing ? <div ref={dark} className="pointer-events-none absolute inset-0 bg-device opacity-0" aria-hidden data-ride-dark /> : null}

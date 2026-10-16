@@ -204,6 +204,23 @@ export function abroadGame(): Game {
   return game;
 }
 
+/** The money of each country abroad, for a life landed there. */
+const MONEY_OF: Readonly<Record<string, Currency>> = { "country.uk": "GBP", "country.canada": "CAD", "country.uae": "AED", "country.italy": "EUR" };
+
+/**
+ * A new life landed in a country abroad through the place kind's own move (no recorded life flies to Calgary, Dubai or
+ * Castel Volturno yet), with `amount` of the country's money in the bank and nothing else, so the screens abroad are the
+ * engine's own in that country.
+ */
+export function landedGame(country: Id<"country">, amount = 500_000): Game {
+  const game = start({ content, scenario: "scenario.ada" });
+  applyEffects(game, [{ type: "place/move", to: "abroad", country }]);
+  const currency = MONEY_OF[country];
+  if (currency === undefined) throw new Error(`No money for ${country}.`);
+  setPockets(game, { NGN: 0, USD: 0, GBP: 0, CAD: 0, AED: 0, EUR: 0, [currency]: amount });
+  return game;
+}
+
 /**
  * Ada's careful life, replayed up to the flight and then `months` months
  * abroad with the slots left empty, so the screens abroad are the engine's own.

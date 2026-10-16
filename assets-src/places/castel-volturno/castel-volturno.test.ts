@@ -133,7 +133,9 @@ interface ParkedFile {
   };
 }
 
-const parked = (folder: string): ParkedFile => JSON.parse(readFileSync(join(HERE, "..", folder, "place.json"), "utf8")) as ParkedFile;
+// The stage files went live with the client: read where the client reads them, under public/assets/places.
+const PUBLIC_PLACES = join(HERE, "..", "..", "..", "apps", "client", "public", "assets", "places");
+const parked = (folder: string): ParkedFile => JSON.parse(readFileSync(join(PUBLIC_PLACES, folder, "place.json"), "utf8")) as ParkedFile;
 const FILES: [string, ParkedFile][] = ["castel-volturno", "via-domitiana", "farm-it"].map((folder) => [folder, parked(folder)]);
 const builders = new Map<string, () => Group>([...MODELS.map(([, file, build]): [string, () => Group] => [file, build]), ...BORROWED]);
 

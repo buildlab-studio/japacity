@@ -47,6 +47,10 @@ export const cityText: Record<string, string> = {
   "city.home.family-house": "The family house",
   "city.home.makoko": "The room on the water",
   "city.home.the-room": "The shared room, {area}",
+  // The room per country on the band (world.md R-WORLD-038 as amended): content's full names, said short.
+  "city.home.the-room.country.canada": "The basement, Calgary",
+  "city.home.the-room.country.uae": "The bed space, Dubai",
+  "city.home.the-room.country.italy": "The shared flat, Castel",
   "city.home.teach.close": "Got it",
   "city.zoom.closer": "Closer",
   "city.zoom.whole": "Whole place",

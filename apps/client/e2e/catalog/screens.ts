@@ -118,7 +118,36 @@ export const SCREENS: readonly Screen[] = [
   { key: "london-fan", what: "A London thing's fan: Rye Lane's chicken shop" },
   { key: "london-colleague", what: "A colleague at the care home's tea point says a line" },
   { key: "london-pass", what: "The bus pass bought at the station's ticket machine" },
-  { key: "place-deira-day", what: "Deira, Dubai's street" },
+  // Dubai on the mold (world.md R-WORLD-039 as amended): a contract life played to Dubai by the sweep's own player.
+  { key: "place-deira-day", what: "Deira, Dubai's street: the exchange house, the African foods shop, the cafeteria, the typing centre, the barber" },
+  { key: "place-deira-night", what: "Deira by night" },
+  { key: "place-naif-day", what: "Naif: the souq's stall, the tailor, the laundry" },
+  { key: "place-metro-station-uae-day", what: "Union station: the Nol machine, the gates, the metro above" },
+  { key: "place-metro-station-uae-night", what: "Union station by night" },
+  { key: "place-big-shop-uae-day", what: "The hypermarket: the trolleys, the tills and the notice looked at" },
+  { key: "place-site-uae-day", what: "The site: the guard's post On shift, the cleaner's trolley, the rota, the cooler, the labour bus" },
+  { key: "place-site-uae-night", what: "The site by night" },
+  { key: "place-the-room-uae-day", what: "The bed space at the camp" },
+  { key: "dubai-pass", what: "The zone pass bought at Union station's Nol machine" },
+  { key: "dubai-colleague", what: "A colleague at the site's water cooler says a line" },
+  // Castel Volturno on the mold: a life that took the road, played to the coast by the sweep's own player.
+  { key: "place-castel-volturno-day", what: "Castel Volturno's roundabout: the vans' corner, the bar, the African shop, the call shop" },
+  { key: "place-castel-volturno-night", what: "The roundabout by night" },
+  { key: "place-via-domitiana-day", what: "Via Domitiana: the stop, the pickup point, the Nigerian shop, the barber, the stall" },
+  { key: "place-farm-it-day", what: "The fields: the gangmaster's table On shift, the crates, the van, the tap" },
+  { key: "place-big-shop-it-day", what: "The discount supermarket" },
+  { key: "place-church-it-day", what: "The church in Castel Volturno" },
+  { key: "place-the-room-it-day", what: "The room in a shared flat on the Domitiana" },
+  { key: "castel-colleague", what: "A day labourer at the fields' tap says a line" },
+  // Calgary on the mold: no life reaches Canada yet (the points route's cut-off stands above every life's score).
+  { key: "place-calgary-north-east-day", what: "The strip mall in north-east Calgary: the coffee shop, the African store and its counter, the barber" },
+  { key: "place-ctrain-station-ca-day", what: "The CTrain station: the ticket machine, the platform" },
+  { key: "place-library-ca-day", what: "The library: the course desk, the shelves" },
+  { key: "place-big-shop-ca-day", what: "The superstore: the carts, the winter clothes" },
+  { key: "place-warehouse-ca-day", what: "The warehouse by the airport" },
+  { key: "place-care-home-ca-day", what: "The care home in Calgary" },
+  { key: "place-office-ca-day", what: "The office downtown" },
+  { key: "place-church-ca-day", what: "The church hall in Calgary" },
   // A place's things: the fan, an act's sheet, the paper slip, a person.
   { key: "street-fan", what: "A street thing's fan (Bode Thomas)" },
   { key: "street-act", what: "A street act's sheet" },
@@ -148,6 +177,27 @@ export const SCREENS: readonly Screen[] = [
   { key: "ride-train-above", what: "The train ride: from above" },
   { key: "ride-train-window", what: "The train ride: the carriage window" },
   { key: "ride-train-seat", what: "The train ride: the seat" },
+  // Dubai's map and its rides (R-WORLD-038 and R-WORLD-039 as amended).
+  { key: "map-dubai", what: "Dubai's painted map, folded" },
+  { key: "map-dubai-open", what: "The whole map of Dubai open: the creek, the metro, the camp, the site" },
+  { key: "map-dubai-ride-sheet", what: "The site picked in Dubai: the bus at AED 0, site bus" },
+  { key: "map-dubai-pass", what: "The ride sheet in a zone pass month: the bus and the metro at AED 0" },
+  ...rideScreens("dubai-bus", "Dubai's city bus"),
+  ...rideScreens("dubai-metro", "The metro"),
+  ...rideScreens("labour-bus", "The labour bus to the site"),
+  ...rideScreens("dubai-taxi", "The taxi in Dubai"),
+  // Castel Volturno's map and its rides.
+  { key: "map-castel", what: "The coast's painted map, folded" },
+  { key: "map-castel-open", what: "The whole coast open: the sea, the Domitiana, the fields, Naples on its inset" },
+  { key: "map-castel-ride-sheet", what: "The fields picked: the bus at €0, the van" },
+  ...rideScreens("italy-bus", "The coast road's bus"),
+  ...rideScreens("van", "The gangmaster's van to the fields"),
+  // Calgary's map and its rides (not reached while no life reaches Canada).
+  { key: "map-calgary", what: "Calgary's painted map, folded" },
+  { key: "map-calgary-open", what: "The whole map of Calgary open: the CTrain, the airport, the Bow" },
+  { key: "map-calgary-ride-sheet", what: "A stop picked in Calgary: the bus, the CTrain and the taxi in dollars" },
+  ...rideScreens("calgary-bus", "Calgary's bus"),
+  ...rideScreens("ctrain", "The CTrain"),
   // The phone, Ada at home by day.
   { key: "phone-home-day", what: "The phone's home, by day" },
   { key: "phone-big-day", what: "The phone made bigger" },
@@ -225,3 +275,13 @@ export const SCREENS: readonly Screen[] = [
   { key: "dedication-admin-lights", what: "The admin page: lights awaiting a look" },
   { key: "dedication-settings", what: "Settings' version line, five taps: the dedication offline" },
 ];
+
+/** A ride abroad's four angles, each its own screen: at the stop, from above, the window, the seat. */
+function rideScreens(vehicle: string, name: string): Screen[] {
+  return [
+    { key: `ride-${vehicle}-outside`, what: `${name}: outside at the stop` },
+    { key: `ride-${vehicle}-above`, what: `${name}: from above` },
+    { key: `ride-${vehicle}-window`, what: `${name}: the window` },
+    { key: `ride-${vehicle}-seat`, what: `${name}: the seat` },
+  ];
+}

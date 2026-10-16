@@ -1,8 +1,8 @@
 // The map and the ride (docs/rules/world.md R-WORLD-015 to 017), composed. The city hands the pins,
 // the country and its neighbours, whether WebGL draws (for the ride's scene), a ride already chosen in a
 // place, the step's place, and what to do on arriving and on closing; `onRide` carries the fare of the way
-// chosen. Lagos and London are painted maps, folding between the strip and the cards (paper/PaperMap.tsx), the same
-// on every device (R-WORLD-038); in a country with no painted map yet the stops are a list.
+// chosen. Lagos, London, Calgary, Dubai and Castel Volturno are painted maps, folding between the strip and the cards
+// (paper/PaperMap.tsx), the same on every device (R-WORLD-038 as amended); the stops stay as a list for a screen reader.
 import { X } from "lucide-react";
 import "./map.css";
 
@@ -17,15 +17,20 @@ import { fareWords, type MapPin, rideChoices, waysAbroad } from "./pins";
 import { ownLook, preloadRide, Ride } from "./Ride";
 import { headingOf, RideSheet, WAY_MODEL } from "./RideSheet";
 import { RouteVehicle } from "./paper/routeVehicle";
+import { type AbroadVehicle, vehicleFor, wayModelFor } from "./rideVehicles";
 
 /** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
 const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
-/** London's painted map (R-WORLD-038): the same folding map handed London, whose drawing is a chunk of its own, loaded only abroad. */
-const LondonPaper = lazy(() =>
-  import("./paper/london").then((london) => ({ default: london.LondonPaperMap })),
-);
-/** The countries abroad drawn as a painted map; the rest keep the stops as a list until their waves. */
-const PAINTED_ABROAD = "country.uk";
+/**
+ * The painted maps abroad (R-WORLD-038 as amended): the same folding map handed London, Calgary, Dubai or Castel
+ * Volturno, each drawing a chunk of its own, loaded only when the map shows that country.
+ */
+const PAINTED_ABROAD: Readonly<Record<string, typeof PaperMap>> = {
+  "country.uk": lazy(() => import("./paper/london").then((london) => ({ default: london.LondonPaperMap }))),
+  "country.canada": lazy(() => import("./paper/calgary").then((calgary) => ({ default: calgary.CalgaryPaperMap }))),
+  "country.uae": lazy(() => import("./paper/dubai").then((dubai) => ({ default: dubai.DubaiPaperMap }))),
+  "country.italy": lazy(() => import("./paper/castel").then((castel) => ({ default: castel.CastelPaperMap }))),
+};
 
 export interface MapProps {
   pins: readonly MapPin[];
@@ -77,6 +82,9 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   // The ways where the character is (R-PLACE-010 as amended 16 Oct 2026): abroad, the country's from the view; none listed
   // (Canada, the UAE and Italy until their waves), the single way at no fare as before.
   const abroadWays = view.place.where === "abroad" ? (view.place.ways ?? []) : [];
+  // The country the life is in and the stops its employer's shuttle serves, for the pills and the vehicles (R-PLACE-013).
+  const placeCountry = view.place.where === "abroad" ? view.place.country : null;
+  const shuttles: readonly string[] = view.place.shuttles ?? [];
   const currency = abroadWays[0]?.currency ?? "NGN";
   // All the money of the country's currency: the fare leaves cash first and the bank for the rest (R-PLACE-010).
   const pocket = view.pockets[currency];
@@ -86,10 +94,10 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const stable = useMemo(() => pins, [key]);
   const homeId = home ?? stable.find((pin) => pin.state === "home")?.id ?? null;
   const [picked, setPicked] = useState<string | null>(pickFirst);
-  const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean; fare?: string } | null>(null);
+  const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean; fare?: string; vehicle: AbroadVehicle | null; label?: string } | null>(null);
   // The way picked on the ride sheet: its vehicle rides the route on the map, the danfo when none or on foot.
   const [wayShown, setWayShown] = useState<RideChoice["id"]>("danfo");
-  const routeVehicle = WAY_MODEL[wayShown] ?? "veh_danfo";
+  const routeVehicle = wayModelFor(placeCountry, wayShown, false) ?? WAY_MODEL[wayShown] ?? "veh_danfo";
 
   const here = stable.find((pin) => pin.state === "here") ?? null;
   const pin = stable.find((candidate) => candidate.id === picked) ?? null;
@@ -99,7 +107,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const drive = view.things.drive;
   const choicesTo = (to: MapPin, at: MapPin): RideChoice[] =>
     abroadWays.length > 0
-      ? waysAbroad(abroadWays, { from: at.id, to: to.id }, { from: at.position, to: to.position }, to.id === homeId, view.place.fareBp)
+      ? waysAbroad(abroadWays, { from: at.id, to: to.id }, { from: at.position, to: to.position }, to.id === homeId, view.place.fareBp, { country: placeCountry, shuttles })
       : rideChoices(at.position, to.position, abroad, view.place.fareBp, to.id === homeId, { from: at.id, to: to.id }, drive);
   const ways = useMemo(() => (pin === null || here === null ? [] : choicesTo(pin, here)), [pin, here, abroad, view.place.fareBp, homeId, drive, abroadWays]);
 
@@ -114,8 +122,12 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
     // The ride starts once for the place chosen.
   }, [diveTo]);
 
-  /** A fare as words: "£0, bus pass" on the bus in a pass month (R-PLACE-012), else the fare in the country's money. */
-  const fareOf = (choice: RideChoice): string => (choice.passed === true ? mapWords("map.way.passed", { amount: formatMoney(0, currency) }) : fareWords(choice.fare, currency));
+  /**
+   * A fare as words: the country's pass or its shuttle by name ("£0, bus pass", "C$0, transit pass", "AED 0, site bus",
+   * R-PLACE-012, R-PLACE-013), else the fare in the country's money.
+   */
+  const fareOf = (choice: RideChoice): string =>
+    choice.pill ?? (choice.passed === true ? mapWords("map.way.passed", { amount: formatMoney(0, currency) }) : fareWords(choice.fare, currency));
 
   /** The fare first: a ride the city refuses does not play, and the sheet closes. A city with nothing to say rides at once. */
   const start = (choice: RideChoice | undefined, to: string, way: RideChoice["id"]): void => {
@@ -123,12 +135,15 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
     const long = choice?.long === true;
     // Abroad the ride carries its fare as a pill, in the country's money (R-WORLD-039); on foot nothing is paid.
     const fare = abroadWays.length === 0 || choice === undefined || choice.id === "walk" ? {} : { fare: fareOf(choice) };
+    // The country's own vehicle (R-WORLD-039 as amended): the labour bus or the van on the shuttle's bus, else the way's.
+    const shuttle = choice?.shuttle === true || (way === "bus" && here !== null && (shuttles.includes(here.id) || shuttles.includes(to)));
+    const ridden = { vehicle: vehicleFor(placeCountry, way, shuttle), ...(choice === undefined || placeCountry === null ? {} : { label: choice.label }) };
     if (answer instanceof Promise) {
       void answer.then((accepted) => {
-        if (accepted) setRiding({ id: to, way, long, ...fare });
+        if (accepted) setRiding({ id: to, way, long, ...fare, ...ridden });
       });
     } else if (answer !== false) {
-      setRiding({ id: to, way, long, ...fare });
+      setRiding({ id: to, way, long, ...fare, ...ridden });
     }
   };
 
@@ -148,8 +163,9 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const ridingTo = riding === null ? null : (stable.find((candidate) => candidate.id === riding.id) ?? null);
 
   const lagos = country.id === "lagos";
-  const painted = lagos || country.id === PAINTED_ABROAD;
-  const Paper = lagos ? PaperMap : LondonPaper;
+  const abroadPaper = PAINTED_ABROAD[country.id];
+  const painted = lagos || abroadPaper !== undefined;
+  const Paper = lagos || abroadPaper === undefined ? PaperMap : abroadPaper;
   const closeButton = (
     <button type="button" onClick={onClose} aria-label={mapWords("map.close")} className="map-round press pointer-events-auto inline-flex size-[42px] items-center justify-center" data-map-close>
       <X size={20} strokeWidth={2.5} />
@@ -165,7 +181,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
 
   return (
     <div className="fixed inset-0 z-[40] bg-sheet text-text" data-map data-picked={picked ?? ""}>
-      {/* The stops as a list: the whole map abroad, where no city is drawn yet, and for a screen reader in Lagos. */}
+      {/* The stops as a list: for a screen reader, beside the painted map of every country (R-WORLD-038 as amended). */}
       <ul aria-label={mapWords("map.stops")} className={painted ? "sr-only" : "absolute inset-x-3 top-20 flex flex-col gap-1.5"}>
         {stable.map((stop) => (
           <li key={stop.id}>
@@ -199,12 +215,28 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
           </p>
         )
       ) : (
-        <RideSheet key={pin.id} pin={pin} home={pin.id === homeId} ways={ways} have={have} formatMoney={(amount) => formatMoney(amount, currency)} formatFare={(amount) => fareWords(amount, currency)} onChoose={go} onClose={() => setPicked(null)} onStay={onClose} onWay={setWayShown} {...(by === undefined ? {} : { by })} />
+        <RideSheet
+          key={pin.id}
+          pin={pin}
+          home={pin.id === homeId}
+          ways={ways}
+          have={have}
+          formatMoney={(amount) => formatMoney(amount, currency)}
+          formatFare={(amount) => fareWords(amount, currency)}
+          onChoose={go}
+          onClose={() => setPicked(null)}
+          onStay={onClose}
+          onWay={setWayShown}
+          wayModel={(choice) => wayModelFor(placeCountry, choice.id, choice.shuttle === true)}
+          {...(by === undefined ? {} : { by })}
+        />
       )}
 
       {riding === null ? null : (
         <Ride
           way={riding.way}
+          vehicle={riding.vehicle}
+          {...(riding.label === undefined ? {} : { wayName: riding.label })}
           long={riding.long}
           place={ridingTo === null ? "" : ridingTo.name}
           drawing={drawing}

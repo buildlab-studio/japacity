@@ -79,17 +79,24 @@ export function choresWords(view: Pick<PlayerView, "obligations" | "activities">
   return null;
 }
 
-/** The month's bus pass in the country the life is in (place.md R-PLACE-012): the act that buys it, by country. */
-const BUS_PASS: Readonly<Record<string, string>> = { "country.uk": "activity.bus-pass-uk" };
+/**
+ * The month's pass in the country the life is in (place.md R-PLACE-012 as amended): the act that buys it and the line
+ * that says what it covers, by country: London's bus pass, Calgary's transit pass, Dubai's zone pass. Italy has none.
+ */
+const PASSES: Readonly<Record<string, { act: string; line: string }>> = {
+  "country.uk": { act: "activity.bus-pass-uk", line: "turn.calendar.pass" },
+  "country.canada": { act: "activity.transit-pass-ca", line: "turn.calendar.pass.country.canada" },
+  "country.uae": { act: "activity.transit-pass-uae", line: "turn.calendar.pass.country.uae" },
+};
 
 /**
- * The bus pass bought this month (R-PLACE-012, world.md R-WORLD-039): the month's, so the Calendar says the bus is free
- * until the month ends, and the next month asks again. Null where no pass was bought this month.
+ * The pass bought this month (R-PLACE-012, world.md R-WORLD-039): the month's, so the Calendar says the ways it covers are
+ * free until the month ends, and the next month asks again. Null where no pass was bought this month.
  */
 export function passWords(view: Pick<PlayerView, "activities" | "place">): string | null {
-  const pass = view.place.country === null ? undefined : BUS_PASS[view.place.country];
+  const pass = view.place.country === null ? undefined : PASSES[view.place.country];
   if (view.place.where !== "abroad" || pass === undefined) return null;
-  return view.activities.some((option) => option.id === pass && option.done === true) ? turnWords("turn.calendar.pass") : null;
+  return view.activities.some((option) => option.id === pass.act && option.done === true) ? turnWords(pass.line) : null;
 }
 
 /** A held slot as a row of the month: "At the burial", or the lock's sentence where content has no row words. */

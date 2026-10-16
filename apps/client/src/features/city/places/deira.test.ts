@@ -5,6 +5,9 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/deira/place.json";
+import site from "../../../../public/assets/places/site-uae/place.json";
+import { dubaiWords } from "../../../shared/words/dubai.words";
+import { addLateWords } from "../../../shared/words/late";
 import { tidyLines } from "../../../shared/words/lines";
 import { words } from "../../../shared/words/text";
 import { sceneWords } from "../scene.words";
@@ -12,6 +15,9 @@ import { stagedAt } from "../staging";
 import { stagedNow, thingsNow } from "../things";
 import { frontageTests } from "./frontageTesting";
 import { copiesOf, staged, wordsOf } from "./placeTesting";
+
+// Dubai's words ride their own chunk in the game (shared/words/late.ts); a test of Dubai adds them as the city does.
+addLateWords(dubaiWords);
 
 const ID = "place.deira";
 const { file, stage, entry } = staged(raw, ID);
@@ -35,9 +41,11 @@ describe("Deira", () => {
     expect(stagedAt("activity.community-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe(ID);
   });
 
-  test("[R-WORLD-005] given the souk's other things, when they are read, then the gold shop is looked at, the spice stall shopped at and looked at, the cafe's chairs sat on with the find beside them, and the taxi opens the ride sheet", () => {
+  // Restated 16 Oct 2026 to R-STREET-005 as amended (the three countries' wave): the souq's shopping moved to Naif, so
+  // Deira's spice stall is looked at only.
+  test("[R-WORLD-005] [R-STREET-005] given the souk's other things, when they are read, then the gold shop and the spice stall are looked at, the cafe's chairs sat on with the find beside them, and the taxi opens the ride sheet", () => {
     expect(thing("gold-shop").acts.map((act) => act.kind)).toEqual(["plain"]);
-    expect(thing("spice-stall").acts.map((act) => act.kind)).toEqual(["sheet", "plain"]);
+    expect(thing("spice-stall").acts.map((act) => act.kind)).toEqual(["plain"]);
     expect(thing("cafe").acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([
       ["plain", "Sit"],
       ["sheet", "See what's on"],
@@ -46,10 +54,13 @@ describe("Deira", () => {
     expect(thing("taxi").file).toBe("places/deira/veh_taxi-dubai.glb");
   });
 
-  test("[R-STREET-005] given the spice stall, when its first act is read, then Shop opens the street shopping's sheet, staged here for Dubai", () => {
-    expect(thing("spice-stall").acts[0]).toMatchObject({ id: "shop", kind: "sheet", stages: "activity.street-shopping-uae" });
-    expect(sceneWords(thing("spice-stall").acts[0]?.label ?? "")).toBe("Shop");
-    expect(stagedAt("activity.street-shopping-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe(ID);
+  // Restated 16 Oct 2026 to R-STREET-005 as amended and R-STREET-014: the souq stands at Naif, so the stall here no longer
+  // opens the street shopping, which Deira no longer stages.
+  test("[R-STREET-005] [R-STREET-014] given the spice stall, when its acts are read, then it is looked at with words of its own, and the street shopping is staged at Naif for Dubai, not here", () => {
+    expect(thing("spice-stall").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([["plain", null]]);
+    expect(sceneWords(thing("spice-stall").acts[0]?.label ?? "")).not.toBe(thing("spice-stall").acts[0]?.label);
+    expect(entry.stages).not.toContain("activity.street-shopping-uae");
+    expect(stagedAt("activity.street-shopping-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe("place.naif");
   });
 
   test("[R-STREET-006] given the cafe, when the find in Dubai is open and then not, then its second act opens the find's sheet only while it is open, and Sit always stays", () => {
@@ -77,36 +88,50 @@ describe("Deira", () => {
   });
 });
 
-// Work at Deira: the UAE's jobs are staged at the typing centre that does
-// the labour papers and at the site bus. Both come by the agent's contract and the hunt never asks
-// for them (activity.abroad.data.ts: no hire chance), so each thing is looked at, and its job act
-// opens only for a job the hunt can ask for.
+// Work in Dubai (the review's finding 28; restated 16 Oct 2026 to R-CITY-010 and design page 15 section 3, the three
+// countries' wave): the typing centre that does the labour papers opens the hunt, and the UAE's two jobs are staged at
+// the site across the creek, at the guard's post and the cleaner's trolley. Both come by the agent's contract and the
+// hunt never asks for them (activity.abroad.data.ts: no hire chance), so each thing there is looked at, and its job act
+// opens only for a job the hunt can ask for. Deira's labour bus is looked at; the ride to the site is the site's own.
 describe("Deira's jobs", () => {
   const UAE = { where: "abroad", country: "country.uae" } as const;
+  const siteStaged = staged(site, "place.site-uae");
+  const atSite = (id: string) => {
+    const found = (siteStaged.stage.things ?? []).find((candidate) => candidate.id === id);
+    if (found === undefined) throw new Error(`No ${id} at the site`);
+    return found;
+  };
 
-  test("[R-WORLD-005] [R-CITY-010] given the UAE's jobs, when Deira is read, then the guard's job is at the typing centre and the cleaner's at the site bus, each staged here for the UAE, and both things are looked at", () => {
+  test("[R-WORLD-005] [R-CITY-010] given the UAE's jobs, when Deira and the site are read, then the typing centre opens the hunt, Deira's site bus is looked at, and the guard's and the cleaner's jobs are at the site's post and trolley, each staged there for the UAE and both looked at", () => {
     expect(thing("agency").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
+      ["sheet", "activity.job-hunt"],
+      ["plain", null],
+    ]);
+    expect(thing("site-bus").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([["plain", null]]);
+    expect(thing("agency").file).toBe("places/deira/bld_deira-arcade_b.glb");
+    expect(thing("site-bus").file).toBe("places/deira/veh_labour-bus.glb");
+    expect(atSite("guard-post").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
       ["sheet", "activity.job-gulf-guard"],
       ["plain", null],
     ]);
-    expect(thing("site-bus").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
+    expect(atSite("cleaner-trolley").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
       ["sheet", "activity.job-gulf-cleaner"],
       ["plain", null],
     ]);
-    expect(thing("agency").file).toBe("places/deira/bld_deira-arcade_b.glb");
-    expect(thing("site-bus").file).toBe("places/deira/veh_labour-bus.glb");
-    for (const job of ["activity.job-gulf-guard", "activity.job-gulf-cleaner"]) expect(stagedAt(job, UAE, Object.values(content.place))).toBe(ID);
+    for (const job of ["activity.job-gulf-guard", "activity.job-gulf-cleaner"]) expect(stagedAt(job, UAE, Object.values(content.place))).toBe("place.site-uae");
+    expect(stagedAt("activity.job-hunt", UAE, Object.values(content.place))).toBe(ID);
     const [, typing] = stage.models.find((model) => model.file.endsWith("bld_deira-arcade_b.glb"))?.signs?.[0] ?? [];
     expect(wordsOf(typing ?? "")).toContain("TYPING CENTRE");
   });
 
-  test("[R-WORLD-005] given a Gulf job started by the agent's contract, when the hunt cannot ask for it, then its act does not show and the thing keeps its look", () => {
+  test("[R-WORLD-005] given a Gulf job started by the agent's contract, when the hunt cannot ask for it, then its act does not show at the site and the thing keeps its look", () => {
     for (const job of ["activity.job-gulf-guard", "activity.job-gulf-cleaner"] as const) expect(content.activity[job]?.hireBp).toBeNull();
-    const now = thingsNow(stage.things ?? [], stagedNow(new Set(), new Set(entry.stages), new Set(), null));
-    expect(now.find((candidate) => candidate.id === "agency")?.acts.map((act) => act.kind)).toEqual(["plain"]);
-    expect(now.find((candidate) => candidate.id === "site-bus")?.acts.map((act) => act.kind)).toEqual(["plain"]);
-    const hunted = thingsNow(stage.things ?? [], stagedNow(new Set(["activity.job-gulf-guard"]), new Set(entry.stages), new Set(), null));
-    expect(hunted.find((candidate) => candidate.id === "agency")?.acts.map((act) => act.stages ?? null)).toEqual(["activity.job-gulf-guard", null]);
+    const things = siteStaged.stage.things ?? [];
+    const now = thingsNow(things, stagedNow(new Set(), new Set(siteStaged.entry.stages), new Set(), null));
+    expect(now.find((candidate) => candidate.id === "guard-post")?.acts.map((act) => act.kind)).toEqual(["plain"]);
+    expect(now.find((candidate) => candidate.id === "cleaner-trolley")?.acts.map((act) => act.kind)).toEqual(["plain"]);
+    const hunted = thingsNow(things, stagedNow(new Set(["activity.job-gulf-guard"]), new Set(siteStaged.entry.stages), new Set(), null));
+    expect(hunted.find((candidate) => candidate.id === "guard-post")?.acts.map((act) => act.stages ?? null)).toEqual(["activity.job-gulf-guard", null]);
   });
 });
 

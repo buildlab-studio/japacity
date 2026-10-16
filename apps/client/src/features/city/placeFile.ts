@@ -4,7 +4,7 @@
 // ground with its crowd, so every place can be entered before its models are built.
 import type { PaletteName, WalkablePolygon } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
-import type { Id } from "@japacity/sim";
+import type { Id, PlaceEntry } from "@japacity/sim";
 
 import type { Shot, Thing } from "../../shared/world/contract";
 import type { Shown } from "./crowd";
@@ -243,6 +243,19 @@ export const OPEN_STAGE: Stage = {
   people: ringSpots(),
   motion: [],
 };
+
+/**
+ * Where a place's stage file is read (R-CITY-018; world.md R-WORLD-039 as amended 16 Oct 2026): a country's entry abroad
+ * on a scene London keeps (the superstore, the hypermarket and the discount supermarket on the big shop, Calgary's
+ * warehouse, care home and office, the church hall and Castel Volturno's church) reads its own file, named for its id
+ * beside the shared models (`places/<id's slug>/place.json`), where one is shipped, so its acts, its looks and its
+ * colleague's lines are its country's; every other place reads its `assets` folder's file.
+ */
+export function stageFilePath(place: Pick<PlaceEntry, "id" | "assets" | "where">, shipped: (path: string) => boolean): string {
+  const slug = place.id.slice("place.".length);
+  const own = `places/${slug}/place.json`;
+  return place.where === "abroad" && slug !== place.assets && shipped(own) ? own : `places/${place.assets}/place.json`;
+}
 
 /** The stage of a place file, or open ground when it has none. */
 export function stageOf(file: PlaceFile): Stage {
