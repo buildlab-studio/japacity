@@ -3,14 +3,15 @@
 // slapped on; the name with its dice; the look strip as round face stickers, every look in one strip; and "Make it
 // yours" under it, opened on a tap, the figure then drawn in your colours.
 import { Check, ChevronDown, Dices } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { NAME_LONGEST, problemWords, type NameProblem } from "../../shared/datapage/name";
 import { canDraw } from "../../shared/frontdoor/Gate";
 import { FaceSticker, FigurePicture, ModelPicture } from "../../shared/frontdoor/LookPicture";
 import { LOOKS } from "../../shared/frontdoor/looks";
 import { OwnColoursRows } from "../../shared/frontdoor/OwnColours";
-import { isMade, type LookStyle, ownOf, reportOwn } from "../../shared/frontdoor/style";
+import { isMade, type LookStyle, ownOf, reportOwn, useOwnColours } from "../../shared/frontdoor/style";
+import { bringIntoView } from "../../shared/frontdoor/view";
 import type { Tint } from "../../shared/ui/lively/tint";
 import { say } from "../../shared/words/text";
 
@@ -72,6 +73,20 @@ export function YouScreen({ look, style, name, typed, problem, tried, onName, on
       alive = false;
     };
   }, [yours, look]);
+  // Opened, the section comes into view once its rows stand, so a panel opened below the fold is seen (R-PROLOGUE-013;
+  // the maintainer on staging). Once an opening: a pick inside it brings the next part instead.
+  const section = useRef<HTMLElement>(null);
+  const rowsShown = useOwnColours(look) !== null;
+  const broughtFor = useRef(false);
+  useEffect(() => {
+    if (!yours) {
+      broughtFor.current = false;
+      return;
+    }
+    if (!rowsShown || broughtFor.current) return;
+    broughtFor.current = true;
+    bringIntoView(section.current);
+  }, [yours, rowsShown]);
   return (
     <>
       <PhotoCard look={look} style={style} name={name} />
@@ -127,7 +142,7 @@ export function YouScreen({ look, style, name, typed, problem, tried, onName, on
         </div>
       </section>
       {/* Your own colours on the look (R-PROLOGUE-015), under the strip, opened on a tap. */}
-      <section className="mt-1 px-5 pb-4" data-door-yours>
+      <section ref={section} className="mt-1 px-5 pb-4" data-door-yours>
         <h2>
           <button type="button" className="pill-button h-9! text-[14px]!" aria-expanded={yours} onClick={() => setYours((open) => !open)} data-yours-open>
             {say("ui.door.yours")}
@@ -136,7 +151,7 @@ export function YouScreen({ look, style, name, typed, problem, tried, onName, on
         </h2>
         {yours ? (
           <div className="door-card mt-3 px-4 pt-1 pb-4 empty:hidden">
-            <OwnColoursRows look={look} style={style} heading={false} onStyle={(next) => onStyle(isMade(next) ? undefined : next)} />
+            <OwnColoursRows look={look} style={style} heading={false} follow onStyle={(next) => onStyle(isMade(next) ? undefined : next)} />
           </div>
         ) : null}
       </section>
