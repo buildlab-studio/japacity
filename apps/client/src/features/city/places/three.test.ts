@@ -2,6 +2,9 @@
 // as amended, streets.md R-STREET-013 to R-STREET-015, place.md R-PLACE-012 as amended): each country's frontages with
 // their things, its workplaces with a door, the interiors it shares with London under its own entry and its own stage
 // file, its colleagues' lines in turn and the talk overheard in every place.
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -22,7 +25,6 @@ import metro from "../../../../public/assets/places/metro-station-uae/place.json
 import naif from "../../../../public/assets/places/naif/place.json";
 import officeCa from "../../../../public/assets/places/office-ca/place.json";
 import site from "../../../../public/assets/places/site-uae/place.json";
-import domitiana from "../../../../public/assets/places/via-domitiana/place.json";
 import warehouseCa from "../../../../public/assets/places/warehouse-ca/place.json";
 import { landedGame, viewAfter } from "../../../shared/testing/fixtures";
 import { calgaryWords } from "../../../shared/words/calgary.words";
@@ -43,6 +45,13 @@ import { stagedAt } from "../staging";
 import { stagedNow, thingsNow, thingSpot } from "../things";
 import { actEntries, frontageTests } from "./frontageTesting";
 import { city, staged } from "./placeTesting";
+
+/** A place's file read from its assets folder, for a folder whose name reads as a style class to the palette's walk. */
+function placeJson(id: Id<"place">): unknown {
+  const folder = content.place[id]?.assets ?? "";
+  return JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "..", "..", "public", "assets", "places", folder, "place.json"), "utf8")) as unknown;
+}
+const domitiana = placeJson("place.via-domitiana");
 
 // Each country's words ride their own chunk in the game (shared/words/late.ts); the tests add them as the city does.
 for (const table of [calgaryWords, dubaiWords, castelWords]) addLateWords(table);
@@ -94,6 +103,13 @@ describe("Calgary's strip mall and its station", () => {
       expect([thing, stagedAt(act, CANADA, PLACES)]).toEqual([thing, "place.calgary-north-east"]);
     }
     expect(sceneWords(thingIn(calgary, "transfer").label)).toBe("Money transfer");
+  });
+
+  test("[R-CITY-013] given the hubs of Calgary and Castel Volturno, when their files are read, then each entry is its country's hub and its file is not the first download", () => {
+    for (const [id, raw] of [["place.calgary-north-east", calgary], ["place.castel-volturno", castel]] as const) {
+      const { file, entry } = staged(raw, id);
+      expect([id, entry.hub, file.hub]).toEqual([id, true, false]);
+    }
   });
 
   test("[R-WORLD-039] [R-WORLD-005] given the African store and its transfer counter on one unit, when their things are placed, then each is marked at its own spot", () => {

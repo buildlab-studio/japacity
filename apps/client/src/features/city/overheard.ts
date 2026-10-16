@@ -37,28 +37,28 @@ const OWN_SET: Readonly<Record<string, readonly string[]>> = {
   // Calgary's, Dubai's and Castel Volturno's places (world.md R-WORLD-039 as amended): a line beside content's three where
   // content has them, four of the city's own where it has none, so every place says at least four.
   ...ownSets([
-    ["calgary-north-east", 1],
-    ["ctrain-station-ca", 1],
-    ["big-shop-ca", 4],
-    ["warehouse-ca", 4],
-    ["care-home-ca", 4],
-    ["office-ca", 4],
-    ["library-ca", 4],
-    ["church-ca", 4],
-    ["metro-station-uae", 1],
-    ["site-uae", 1],
-    ["big-shop-uae", 4],
-    ["castel-volturno", 1],
-    ["via-domitiana", 1],
-    ["farm-it", 1],
-    ["big-shop-it", 4],
-    ["church-it", 4],
+    ["place.calgary-north-east", 1],
+    ["place.ctrain-station-ca", 1],
+    ["place.big-shop-ca", 4],
+    ["place.warehouse-ca", 4],
+    ["place.care-home-ca", 4],
+    ["place.office-ca", 4],
+    ["place.library-ca", 4],
+    ["place.church-ca", 4],
+    ["place.metro-station-uae", 1],
+    ["place.site-uae", 1],
+    ["place.big-shop-uae", 4],
+    ["place.castel-volturno", 1],
+    ["place.via-domitiana", 1],
+    ["place.farm-it", 1],
+    ["place.big-shop-it", 4],
+    ["place.church-it", 4],
   ]),
 };
 
 /** `city.overheard.<slug>.1` to `.<count>` for each place `place.<slug>`. */
 function ownSets(places: readonly (readonly [string, number])[]): Record<string, readonly string[]> {
-  return Object.fromEntries(places.map(([slug, count]) => [`place.${slug}`, Array.from({ length: count }, (_, index) => `city.overheard.${slug}.${String(index + 1)}`)]));
+  return Object.fromEntries(places.map(([id, count]) => [id, Array.from({ length: count }, (_, index) => `city.overheard.${id.slice("place.".length)}.${String(index + 1)}`)]));
 }
 
 /** `city.overheard.<slug>.1` and `.2` for each London place `place.<slug>`. */

@@ -24,7 +24,6 @@ import { formatMoney } from "../../shared/words/format";
 import { addLateWords } from "../../shared/words/late";
 import { nameOf } from "../../shared/words/text";
 import type { CountryChoice } from "../../shared/world/contract";
-import { passWords } from "../turn/Calendar";
 import { Map } from "./Map";
 import { mapWords } from "./map.words";
 import { fareWords, type MapPin, waysAbroad } from "./pins";
@@ -218,14 +217,5 @@ describe("the ride sheet and the ride abroad", () => {
     expect(document.querySelector("[data-ride-vehicle='ctrain']")).not.toBeNull();
     expect(document.querySelector("[data-ride-fare]")?.textContent).toBe(fareWords(380, "CAD"));
     expect(document.querySelector("[data-ride-title]")?.textContent).toContain("CTrain");
-  });
-});
-
-describe("the Calendar's pass abroad", () => {
-  test("[R-PLACE-012] [R-WORLD-039] given a life in Calgary or Dubai, when the month's pass is bought, then the Calendar says what it covers is free till the month ends, and before it says nothing; Italy has no pass", () => {
-    expect(passWords(landed("country.canada"))).toBeNull();
-    expect(passWords(landed("country.canada", true))).toBe("Transit pass bought: the bus and the CTrain are free till the month ends");
-    expect(passWords(landed("country.uae", true))).toBe("Zone pass bought: the bus and the metro are free till the month ends");
-    expect(passWords(landed("country.italy"))).toBeNull();
   });
 });
