@@ -2,7 +2,7 @@
 // "Look around". It reads the view and never changes it: entering a place, walking and tapping are
 // this screen's own state, and nothing here sends a command (R-CITY-001). The 3D scene is loaded
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
-import { content, roomName, text } from "@japacity/content";
+import { content, text } from "@japacity/content";
 import type { Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -1180,8 +1180,10 @@ export function City({
       .map((place) => {
         const reached = stopReached(view.chapter, where, place.id, early);
         const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : !reached ? "not" : shipped === null || shipped.has(place.id) ? "can" : "not";
-        // The room abroad by its country's name on the map and its sheet (R-WORLD-038 as amended): the basement room, the bed space at the camp.
-        const name = place.id === "place.yaba" ? say("ui.inside.hub") : place.id === home && where === "abroad" && country !== null && country !== "country.uk" ? roomName(country) : placeName(place.id);
+        // The room abroad by its country's name on the map and its sheet (R-WORLD-038 as amended), said short as the band says it,
+        // since content's whole name ("the room in a shared flat on the Domitiana") runs off a sticker's label on a phone.
+        const roomShort = `city.home.the-room.${country ?? ""}`;
+        const name = place.id === "place.yaba" ? say("ui.inside.hub") : place.id === home && where === "abroad" && cityWords(roomShort) !== roomShort ? cityWords(roomShort) : placeName(place.id);
         return { id: place.id, name, state, position: spotOf(place), things: place.stages.length };
       });
   })();
