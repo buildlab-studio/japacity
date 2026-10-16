@@ -604,7 +604,7 @@ test("map: folded, open, the ride sheet and the country menu, by day and by nigh
       if (angle !== null && !seen.has(angle) && angles.includes(angle)) {
         seen.add(angle);
         // The first angle fades in from the map; the later ones cut.
-        await shot(page, `ride-${angle}`, angle === "outside" ? 900 : 350);
+        await shot(page, `ride-${angle}`, angle === "outside" ? 550 : 350);
       }
       await page.waitForTimeout(80);
     }
