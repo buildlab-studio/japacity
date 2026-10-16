@@ -61,11 +61,57 @@ export function ModelPicture({ model, size, className = "" }: { model: string; s
   );
 }
 
+/**
+ * How many stills are kept for the visit besides those on screen: a colour picked again, or the first screen opened
+ * again from Back, shows at once. Each is an object address held until revoked, so the rest are let go.
+ */
+export const STILLS_KEPT = 4;
+/** The stills kept, oldest first, by look, view and style. */
 const drawn = new Map<string, string>();
+/** How many pictures show each still now. */
+const showing = new Map<string, number>();
+
+function letGo(src: string): void {
+  if (src.startsWith("blob:")) URL.revokeObjectURL(src);
+}
+
+/** Revokes the oldest stills off screen until no more than `STILLS_KEPT` are kept. */
+function trim(): void {
+  for (const [key, src] of drawn) {
+    if (drawn.size <= STILLS_KEPT) return;
+    if ((showing.get(src) ?? 0) > 0) continue;
+    drawn.delete(key);
+    letGo(src);
+  }
+}
+
+function keepStill(key: string, src: string): void {
+  const before = drawn.get(key);
+  drawn.delete(key);
+  drawn.set(key, src);
+  if (before !== undefined && before !== src && (showing.get(before) ?? 0) === 0) letGo(before);
+  trim();
+}
+
+/** Counts a still as on screen until the returned function is called, when it is revoked if no longer kept. */
+function onScreen(src: string): () => void {
+  showing.set(src, (showing.get(src) ?? 0) + 1);
+  return () => {
+    const left = (showing.get(src) ?? 1) - 1;
+    if (left > 0) {
+      showing.set(src, left);
+      return;
+    }
+    showing.delete(src);
+    if ([...drawn.values()].includes(src)) trim();
+    else letGo(src);
+  };
+}
 
 /**
  * The whole figure in the player's colours, drawn once a style as a still (R-PROLOGUE-015), or null while it draws,
- * as made, or where nothing can draw it: the published figure stands then.
+ * as made, or where nothing can draw it: the published figure stands then. The still is an object address, revoked
+ * once nothing shows it and it is not among the few kept.
  */
 export function useFigureInColours(look: string, style: LookStyle | undefined, view: Exclude<Portrait, "face">): string | null {
   const key = isMade(style) ? null : `${look}|${view}|${styleKey(style)}`;
@@ -80,7 +126,7 @@ export function useFigureInColours(look: string, style: LookStyle | undefined, v
         .then(({ renderFigure }) => renderFigure(`shared/chr/${look}.glb`, style, view))
         .then((src) => {
           if (src === null) return;
-          drawn.set(key, src);
+          keepStill(key, src);
           if (alive) setStill({ key, src });
         })
         .catch(() => undefined);
@@ -91,8 +137,10 @@ export function useFigureInColours(look: string, style: LookStyle | undefined, v
     };
     // Drawn once for each look and style; the style object may be a new one with the same choices.
   }, [key]);
-  if (key === null) return null;
-  return (still?.key === key ? still.src : undefined) ?? drawn.get(key) ?? null;
+  const src = key === null ? null : ((still?.key === key ? still.src : undefined) ?? drawn.get(key) ?? null);
+  // The still shown is never revoked; once it is replaced or its picture unmounted it is let go unless kept.
+  useEffect(() => (src === null ? undefined : onScreen(src)), [src]);
+  return src;
 }
 
 /** The whole figure: the still in the player's colours where one is drawn, else the published figure, else the look's picture. */
