@@ -125,6 +125,18 @@ describe("the remote authority", () => {
     expect(events).toEqual([{ kind: "signed-out" }]);
   });
 
+  test("[R-SERVER-003] given a life the server must check, when the view is fetched or a command sent, then the store hears diverged and the view's error is one it was told about", async () => {
+    const { server, remote, events } = setUp();
+    const diverged = { status: 409, body: { ok: false, code: "diverged", detail: "This character is being checked. Play resumes once it is mended." } };
+    server.answer("GET /api/view", diverged);
+    server.answer("POST /api/command", diverged);
+    const error: unknown = await remote.view().catch((caught: unknown) => caught);
+    expect(isReported(error)).toBe(true);
+    expect(failureOf(error)).toBeNull();
+    expect(await remote.send({ type: "turn/end", slots: [], basedOn: 0 })).toMatchObject({ ok: false, code: "diverged" });
+    expect(events).toEqual([{ kind: "diverged" }, { kind: "diverged" }]);
+  });
+
   test("[R-SERVER-001] [R-ACCOUNT-006] given a 401 with no body, then it is no refusal of the game's but a wall (restated 11 Oct 2026: the game's own 401 always says signed-out in its body)", async () => {
     const { server, remote, events } = setUp();
     server.answer("POST /api/command", { status: 401, body: undefined });

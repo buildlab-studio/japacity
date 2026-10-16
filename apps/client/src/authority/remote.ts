@@ -15,6 +15,8 @@ export type AuthorityEvent =
   | { kind: "signed-out" }
   | { kind: "no-character" }
   | { kind: "rate-limited"; retryAfter: number }
+  /** R-SERVER-003: the life replays to another hash on the server and waits for the rollback tool; the view is refused too. */
+  | { kind: "diverged" }
   /** The authority's lines since the view the client held, from a fetched view (R-LOTTERY-013): an away winner's letter. */
   | { kind: "lines"; lines: ReportLine[] };
 
@@ -101,6 +103,10 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
     }
     if (rejection.code === "rate-limited") {
       tell({ kind: "rate-limited", retryAfter: rejection.retryAfter ?? 1 });
+      return true;
+    }
+    if (rejection.code === "diverged") {
+      tell({ kind: "diverged" });
       return true;
     }
     return false;
