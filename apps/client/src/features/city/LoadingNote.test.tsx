@@ -14,4 +14,13 @@ describe("a place loading", () => {
     const bar = screen.getByRole("progressbar");
     expect(bar.getAttribute("aria-valuenow")).toBe("42");
   });
+
+  test("[R-CITY-018] [R-ENGINE-015] given a place loading, when its note shows, then its bar is the one every wait takes, filled to the known share, with the note's words unchanged", () => {
+    render(<LoadingNote place="Ojuelegba" percent={60} small />);
+    const bar = screen.getByRole("progressbar", { name: "Getting Ojuelegba ready" });
+    expect(bar.classList.contains("loader")).toBe(true);
+    expect(bar.dataset["loader"]).toBe("share");
+    expect(bar.querySelector("span")?.style.transform).toBe("scaleX(0.6)");
+    expect(document.querySelector("[data-loading]")?.textContent).toBe("Getting Ojuelegba ready");
+  });
 });
