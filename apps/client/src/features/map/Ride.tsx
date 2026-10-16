@@ -86,14 +86,24 @@ export const ROAD_LINES = 3;
 /** The road lines that name a person, said for each way in its own words: the okada's rider, the keke's and the danfo's driver, your own feet. */
 const PERSON_LINES: ReadonlySet<number> = new Set([3]);
 
+/** Where the danfo's seat angle begins, as the ride's progress after the pre-roll (0 to 1), or none for a way without it. */
+function seatFrom(way: Way): number | null {
+  const seat = anglesOf(way).find((part) => part.angle === "seat");
+  const pre = preMsOf(way);
+  return seat === undefined ? null : (seat.from - pre) / (RIDE_MS - pre);
+}
+
 /**
  * Where you are as the ride goes (the design): pulling out of the place left for the
  * first third, a road line through the middle, the stop named near the end. `u` is the ride's progress
- * after the pre-roll, 0 to 1. A road line that names a person is the way's own.
+ * after the pre-roll, 0 to 1. A road line that names a person is the way's own. Once the danfo's ride cuts from the window to
+ * the seat, the road line moves on to the next, so the two angles never carry the same caption (R-WORLD-032).
  */
 export function alongOf(u: number, seed: number, way: Way): { key: string; needs: "from" | "to" | null } {
   if (u < 0.34) return { key: way === "walk" ? "map.ride.along.start.walk" : "map.ride.along.start", needs: "from" };
-  const road = (Math.abs(Math.trunc(seed)) % ROAD_LINES) + 1;
+  const seat = seatFrom(way);
+  const onward = seat !== null && u >= seat ? 1 : 0;
+  const road = ((Math.abs(Math.trunc(seed)) + onward) % ROAD_LINES) + 1;
   if (u < 0.78) return { key: PERSON_LINES.has(road) ? `map.ride.along.road.${String(road)}.${way}` : `map.ride.along.road.${String(road)}`, needs: null };
   return { key: "map.ride.along.near", needs: "to" };
 }
