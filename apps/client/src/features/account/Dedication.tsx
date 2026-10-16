@@ -405,8 +405,9 @@ export function Dedication({ open, onClose, year }: DedicationProps) {
               scrolled up over the keyboard) never takes them out of view. At rest the head is
               the sky over the strings; scrolled, the strings pass under it. */}
           {read === null ? null : (
-            <div className="pointer-events-none fixed inset-x-0 top-0 z-[2] h-[118px] bg-[#172647]" data-dedication-head>
-              <div className="absolute inset-x-0 top-[54px] text-center" data-dedication-count>
+            // The head ends above the first string's ends (about 111 px down), so at rest it hides none of it.
+            <div className="pointer-events-none fixed inset-x-0 top-0 z-[2] h-[104px] bg-[#172647]" data-dedication-head>
+              <div className="absolute inset-x-0 top-[48px] text-center" data-dedication-count>
                 <p className="text-[26px] leading-tight font-bold">{sayCount("ui.dedication.count", read.count, { count: read.count })}</p>
                 <p className="text-[14px] text-text-2">{say("ui.dedication.tonight")}</p>
               </div>
