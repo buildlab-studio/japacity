@@ -4,8 +4,8 @@
 // dev server renders the same pages on request. Runs in Node, from vite.config.ts.
 import { createServer, type Plugin, type ViteDevServer } from "vite";
 
-import type { buildSite as BuildSite } from "./site.entry";
-import { siteFiles } from "./site.files";
+import type { buildSite as BuildSite } from "../src/features/guides/site.entry";
+import { siteFiles } from "../src/features/guides/site.files";
 
 const ENTRY = "/src/features/guides/site.entry.ts";
 const DEV_STYLES = "/src/features/guides/devStyles.ts";

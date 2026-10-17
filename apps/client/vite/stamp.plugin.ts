@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 
 import type { Plugin } from "vite";
 
-import { STAMP_META } from "./stamp";
+import { STAMP_META } from "../src/shared/stamp/stamp";
 
 /** The commit the build is made from, marked when the tree has changes not committed; `JAPACITY_BUILD` names it instead when set. */
 export function buildCommit(run: (args: string[]) => string = (args) => execFileSync("git", args, { encoding: "utf8" })): string {

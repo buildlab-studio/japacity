@@ -20,7 +20,7 @@ export const BUDGET_FILE = "tools/size-budget.json";
 export const PARTS = ["main", "three", "content-sim", "loader", "shared", "total"] as const;
 export type Part = (typeof PARTS)[number];
 
-/** One chunk as the client build's size report gives it (apps/client/src/shared/size/size.plugin.ts). */
+/** One chunk as the client build's size report gives it (apps/client/vite/size.plugin.ts). */
 export interface ReportChunk {
   file: string;
   isEntry: boolean;

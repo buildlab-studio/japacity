@@ -6,8 +6,8 @@
 // Node, from vite.config.ts.
 import { createServer, type Plugin, type ViteDevServer } from "vite";
 
-import { legalRoute } from "./addresses";
-import type { legalPages as LegalPages } from "./pages";
+import { legalRoute } from "../src/features/legal/addresses";
+import type { legalPages as LegalPages } from "../src/features/legal/pages";
 
 const ENTRY = "/src/features/legal/pages.ts";
 

@@ -1,11 +1,11 @@
 // Where the two legal pages live: their clean addresses and their built files.
 // Kept apart from pages.ts, which reads content's TypeScript, so that
-// vite.config.ts can load this through plugin.ts as plain Node.
+// vite.config.ts can load this through vite/legal.plugin.ts as plain Node.
 
 /**
  * Each page's address, its built file and its template, in this folder. Workers static
  * assets serve `terms.html` at `/terms` by their default html handling and send
- * `/terms.html` on to `/terms`; the dev server does the same through plugin.ts.
+ * `/terms.html` on to `/terms`; the dev server does the same through vite/legal.plugin.ts.
  */
 export const LEGAL_TEMPLATES = [
   { path: "/terms", file: "terms.html", template: "terms.html" },

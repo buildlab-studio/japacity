@@ -53,7 +53,7 @@ describe("the guide pages", () => {
     const changed = at(site({ text: { ...text, "guide.uk-masters.section.real": "Changed words." } }), guidePath("guide.uk-masters"));
     expect(changed.querySelector('[data-section="real"] p')?.textContent).toBe("Changed words.");
     // The page's code holds no copy of a guide's words.
-    const code = ["site.tsx", "site.entry.ts", "prerender.ts", "GuidesMenu.tsx"].map((file) => readFileSync(join(clientRoot, "src", "features", "guides", file), "utf8")).join("\n");
+    const code = [join("src", "features", "guides", "site.tsx"), join("src", "features", "guides", "site.entry.ts"), join("vite", "guides.plugin.ts"), join("src", "features", "guides", "GuidesMenu.tsx")].map((file) => readFileSync(join(clientRoot, file), "utf8")).join("\n");
     const sentences = Object.keys(content.guide).flatMap((id) => (text[`${id}.section.game`] ?? "").split(". ").filter((sentence) => sentence.length > 30));
     expect(sentences.length).toBeGreaterThan(10);
     expect(sentences.filter((sentence) => code.includes(sentence))).toEqual([]);

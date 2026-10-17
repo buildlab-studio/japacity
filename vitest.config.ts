@@ -130,7 +130,7 @@ export default defineConfig({
         test: {
           name: "client",
           environment: "jsdom",
-          include: ["apps/client/src/**/*.test.{ts,tsx}"],
+          include: ["apps/client/src/**/*.test.{ts,tsx}", "apps/client/vite/**/*.test.ts"],
         },
       },
       {
