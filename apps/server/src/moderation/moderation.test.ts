@@ -7,6 +7,7 @@ import { testDeps } from "../app.test";
 import { makeApp } from "../app";
 import { productionConfig, testConfig } from "../config";
 import { testSession } from "../deps";
+import { renameFrom } from "../account/username";
 import { identityHash, isBanned } from "./identities";
 import type { QueueView } from "./queue";
 import { readReport, REPORT_REASONS } from "./reports";
@@ -258,16 +259,19 @@ describe("closing a report", () => {
     expect(await h.deps.stores.deletion.due(h.deps.now() + h.deps.config.account.deleteWithinDays * time.DAY_MS)).toMatchObject([{ account: "account.reported" }]);
   });
 
-  test("[R-MODERATION-014] given a report on a player's name, when the name is reset, then the account's username is a generated one in place of the reported name", async () => {
+  test("[R-MODERATION-014] given a report on a player's name, when the name is reset, then the account's username is a generated one in place of the reported name, and the player may choose their own at once", async () => {
     const h = moderationHarness({ reports: [report("report.1")] });
-    await h.deps.stores.account.create({ id: "account.reported", country: "GB", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: null, notifyBankFull: false, sendUsageCounts: true, state: "secured", username: "rude_name", usernameChangedAt: null, lastPlayedAt: 0 });
+    await h.deps.stores.account.create({ id: "account.reported", country: "GB", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: null, notifyBankFull: false, sendUsageCounts: true, state: "secured", username: "rude_name", usernameChangedAt: 0, lastPlayedAt: 0 });
+    // Renamed at the start of the clock, so without the reset the next change would wait `renameDays`.
+    expect(renameFrom({ usernameChangedAt: 0 }, h.deps.config)).toBeGreaterThan(h.deps.now());
 
     const reply = await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close("reset-name")));
 
     expect(reply.status).toBe(200);
     const row = await h.deps.stores.account.get("account.reported");
     expect(row?.username).toMatch(/^player_[0-9a-z]{11}$/);
-    expect(row?.usernameChangedAt).toBe(h.deps.now());
+    expect(row?.usernameChangedAt).toBeNull();
+    expect(row === null ? null : renameFrom(row, h.deps.config)).toBeLessThanOrEqual(h.deps.now());
   });
 
   test("[R-MODERATION-017] given an underage report, when an admin upholds it with less than a ban, then it is refused; a ban closes the account and bars the same identity from a new date of birth", async () => {

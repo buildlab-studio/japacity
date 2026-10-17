@@ -122,10 +122,13 @@ export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admi
   return { ok: true, entry, report: closed.value };
 }
 
-/** Draws a generated name until one is free; an account already gone needs none (R-MODERATION-014 `reset-name`). */
+/**
+ * Draws a generated name until one is free; an account already gone needs none (R-MODERATION-014 `reset-name`).
+ * The change time is cleared, so the reset never costs the player their own rename.
+ */
 async function resetName(deps: ServerDeps, account: string): Promise<void> {
   for (let draw = 0; draw < NAME_DRAWS; draw += 1) {
-    const changed = await deps.stores.account.setUsername(account, generatedUsername(deps.randomBytes), deps.now());
+    const changed = await deps.stores.account.setUsername(account, generatedUsername(deps.randomBytes), null);
     if (changed.ok || changed.code === "missing") return;
   }
   throw new Error(`No free generated name for ${account} after ${String(NAME_DRAWS)} draws.`);

@@ -117,6 +117,14 @@ export function suiteForAccountStore(make: () => Promise<AccountStore>): void {
       expect(await store.setUsername("account-unknown", "free_name", 9_000)).toMatchObject({ ok: false, code: "missing" });
     });
 
+    test("[R-ACCOUNT-024] [R-MODERATION-014] given an account that changed its username, when a name is set with no time, then the name is taken and the change time is cleared", async () => {
+      const store = await make();
+      must(await store.create(account("account-1", { username: "first_one" })));
+      must(await store.setUsername("account-1", "second_one", 5_000));
+
+      expect(must(await store.setUsername("account-1", "player_abc", null))).toMatchObject({ username: "player_abc", usernameChangedAt: null });
+    });
+
     test("[R-ACCOUNT-021] given a guest, when it is secured, then it reads back secured and keeps everything else; an unknown id is refused with missing", async () => {
       const store = await make();
       must(await store.create(account("account-1")));
