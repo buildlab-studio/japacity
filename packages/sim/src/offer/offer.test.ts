@@ -23,7 +23,7 @@ import type {
   Terms, ForeignCurrency } from "../engine/types";
 import { hiddenPaths, viewWith } from "../engine/view";
 import { registry } from "../kinds";
-import { replayTo } from "../sweep/crossing.journey";
+import { replayTo } from "../testing/crossing.journey";
 import { freeHalfDays } from "../turn/turn.logic";
 import { legalCommands } from "../testing/legal";
 import type { Game, Loose } from "../testing/play";

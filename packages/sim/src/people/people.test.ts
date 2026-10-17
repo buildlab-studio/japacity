@@ -7,7 +7,7 @@ import { checkInvariants } from "../engine/invariants";
 import type { Content, Effect, Id, PersonFacts, SlotPick, State } from "../engine/types";
 import { registry } from "../kinds";
 import { hiddenPaths } from "../engine/view";
-import { applyEffects } from "../route/route.journey";
+import { applyEffects } from "../testing/route.journey";
 import { legalCommands } from "../testing/legal";
 import type { Game, Loose, StartOptions } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";

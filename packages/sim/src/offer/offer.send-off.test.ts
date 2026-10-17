@@ -5,9 +5,9 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id, OfferState } from "../engine/types";
-import { ALWAYS_GRANTED, offeredSeed } from "../place/place.journey";
-import type { LifeOptions } from "../route/route.journey";
-import { answerFirst, applyEffects, readyLife, toApplied, uk, UK, UNIT } from "../route/route.journey";
+import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
+import type { LifeOptions } from "../testing/route.journey";
+import { answerFirst, applyEffects, readyLife, toApplied, uk, UK, UNIT } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { rollOrder } from "./offer.logic";
 

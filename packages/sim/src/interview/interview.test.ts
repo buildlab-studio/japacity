@@ -8,7 +8,7 @@ import type { Accepted, ActivityEntry, Bond, Content, Ctx, Id, InterviewResult, 
 import { viewFor } from "../engine/view";
 import { checkInvariants } from "../engine/invariants";
 import { registry } from "../kinds";
-import { draw, drawnQuestions, seedWhere } from "../route/route.journey";
+import { draw, drawnQuestions, seedWhere } from "../testing/route.journey";
 import { computerFacts } from "../people/people.facts";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";

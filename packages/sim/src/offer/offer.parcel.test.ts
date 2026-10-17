@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 
 import { huntChanceBp } from "../activity/activity.logic";
 import type { Accepted, Content, Id, OfferState, State } from "../engine/types";
-import { applyEffects, slot, toKnown } from "../route/route.journey";
+import { applyEffects, slot, toKnown } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { PARCEL, parcelSender } from "./offer.parcel";

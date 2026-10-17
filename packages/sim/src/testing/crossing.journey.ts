@@ -4,8 +4,8 @@
 import type { Accepted, BaseEvent, Content, Id } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
 import { lifeStart, savedCommands } from "../engine/replay";
-import type { Game } from "../testing/play";
-import { start } from "../testing/play";
+import type { Game } from "./play";
+import { start } from "./play";
 
 /** A recorded life replayed command by command until `until` holds after a command. */
 export function replayTo(name: string, content: Content, until: (game: Game) => boolean): Game {

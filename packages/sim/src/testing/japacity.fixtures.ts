@@ -1,7 +1,7 @@
 // Test helpers for the japacity and chapter tests. Only tests import this file.
 //
 // Routes are moved by the real route kind: the tests play the journey in
-// route/route.journey.ts. Two route states no rule reaches are written into
+// route.journey.ts. Two route states no rule reaches are written into
 // the state by `writeRoute`. The offer kind's `offer/choose` is swapped for one
 // that carries out given effects, so a test can set a quality or grant a
 // document through the engine's own routing; the kinds that own those effects
@@ -11,8 +11,8 @@ import type { AnyKind, Registry } from "../engine/kind";
 import { stepWith } from "../engine/step";
 import type { Accepted, BaseEvent, Command, Ctx, Effect, Id, ReadCtx, RouteStateName, Terms } from "../engine/types";
 import { registry } from "../kinds";
-import type { Game, Loose } from "../testing/play";
-import type { Judge } from "./japacity.logic";
+import type { Game, Loose } from "./play";
+import type { Judge } from "../japacity/japacity.logic";
 
 function effectsOffer(kind: AnyKind, effects: Effect[]): AnyKind {
   return {

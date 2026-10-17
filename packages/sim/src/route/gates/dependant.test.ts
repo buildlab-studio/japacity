@@ -6,10 +6,10 @@ import { describe, expect, test } from "vitest";
 import { check } from "../../engine/check";
 import type { Id, PersonFacts, RouteState, RouteStateName, Tuning } from "../../engine/types";
 import type { Game } from "../../testing/play";
-import type { LifeOptions } from "../route.journey";
-import { slot } from "../route.journey";
+import type { LifeOptions } from "../../testing/route.journey";
+import { slot } from "../../testing/route.journey";
 import { dependantFee, dependantGate, leadStatusMonths } from "./dependant";
-import { applyAs, CA_ACCOMPANY, CANADA, facts, interviewOpen, joint, life, readOf, scored, setFacts, SKILLED, UK_DEPENDANT } from "./people.journey";
+import { applyAs, CA_ACCOMPANY, CANADA, facts, interviewOpen, joint, life, readOf, scored, setFacts, SKILLED, UK_DEPENDANT } from "../../testing/people.journey";
 
 const ukDependant = content.route[UK_DEPENDANT]!;
 const APPLY_UK: Id<"activity"> = "activity.apply-uk-dependant";

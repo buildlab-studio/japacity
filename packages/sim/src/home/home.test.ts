@@ -9,7 +9,7 @@ import { checkInvariants } from "../engine/invariants";
 import { applyOverlay } from "../engine/overlay";
 import type { Accepted, BaseEvent, Content, Effect, Id, PersonFacts, Tuning, World } from "../engine/types";
 import { homeCharges } from "./home.logic";
-import { applyEffects } from "../route/route.journey";
+import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";

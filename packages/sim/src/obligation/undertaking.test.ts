@@ -2,9 +2,9 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id, ObligationState, ReportLine } from "../engine/types";
-import { applyAs, BOND, CA_SPOUSE, facts, joint, life, setFacts, setPeople } from "../route/gates/people.journey";
+import { applyAs, BOND, CA_SPOUSE, facts, joint, life, setFacts, setPeople } from "../testing/people.journey";
 import { partnerGate } from "../route/gates/partner";
-import type { LifeOptions } from "../route/route.journey";
+import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { isSponsorUndertaking } from "./undertaking";
 

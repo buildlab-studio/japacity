@@ -5,8 +5,8 @@ import { describe, expect, test } from "vitest";
 
 import type { Id, RouteState, Tuning } from "../engine/types";
 import type { Game } from "../testing/play";
-import { answerInterview, applyAs, facts, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT, UK_PARTNER } from "./gates/people.journey";
-import { slot } from "./route.journey";
+import { answerInterview, applyAs, facts, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT, UK_PARTNER } from "../testing/people.journey";
+import { slot } from "../testing/route.journey";
 
 const used = content;
 const SURCHARGE_YEAR = content.var["var.uk-surcharge-year"]!.start;

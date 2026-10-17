@@ -7,7 +7,7 @@ import { checkContent } from "../engine/content";
 import { divFloor } from "../engine/int";
 import { characterRandom } from "../engine/random";
 import type { Accepted, BaseEvent, Content, Id, OfferEntry, OfferState, Requirement } from "../engine/types";
-import { applyEffects, slot } from "../route/route.journey";
+import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
 import type { WalletEvent } from "../wallet/wallet.events";

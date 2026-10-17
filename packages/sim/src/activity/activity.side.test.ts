@@ -5,8 +5,8 @@ import { describe, expect, test } from "vitest";
 
 import { bp } from "../engine/int";
 import type { Accepted, BaseEvent, Id, ReadCtx } from "../engine/types";
-import { ALWAYS_GRANTED, offeredSeed } from "../place/place.journey";
-import { applyEffects, draw, readyLife, slot, toDecision, UK } from "../route/route.journey";
+import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
+import { applyEffects, draw, readyLife, slot, toDecision, UK } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { freeSlots } from "../turn/turn.logic";

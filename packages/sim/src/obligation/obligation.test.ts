@@ -10,7 +10,7 @@ import { registry } from "../kinds";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { draw, seedWhere } from "../route/route.journey";
+import { draw, seedWhere } from "../testing/route.journey";
 import type { ObligationEvent } from "./obligation.events";
 
 /** Decision 0035 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */

@@ -2,7 +2,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id } from "../engine/types";
-import { applyEffects } from "../route/route.journey";
+import { applyEffects } from "../testing/route.journey";
 import { start } from "../testing/play";
 import { appliedAmount } from "./quality.logic";
 

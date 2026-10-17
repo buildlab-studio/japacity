@@ -6,12 +6,12 @@ import { step } from "../engine/step";
 import type { Currency, Effect, Id, ReadCtx, SetpieceAnswer, SetpieceEntry } from "../engine/types";
 import type { Game } from "../testing/play";
 import { legalCommands } from "../testing/legal";
-import { NORTHGATE, UK, UNIT, applyEffects, answerFirst, draw, drawnQuestions, readyLife, seedWhere, toApplied, toHeld, uk } from "../route/route.journey";
-import type { LifeOptions } from "../route/route.journey";
+import { NORTHGATE, UK, UNIT, applyEffects, answerFirst, draw, drawnQuestions, readyLife, seedWhere, toApplied, toHeld, uk } from "../testing/route.journey";
+import type { LifeOptions } from "../testing/route.journey";
 import { fundsRequired, offerChanceBp, unexplainedBp } from "../route/route.logic";
 import { mulDivCeil } from "../engine/int";
 import { answerScore } from "./setpiece.logic";
-import { flown } from "../place/place.journey";
+import { flown } from "../testing/place.journey";
 
 const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;

@@ -18,9 +18,9 @@ export {
   toKnown,
   uk,
   withEffects,
-} from "../route/route.journey";
-export { flownAda } from "../goal/goal.journey";
-export { ALWAYS_GRANTED, offeredSeed } from "../place/place.journey";
+} from "./route.journey";
+export { flownAda } from "./goal.journey";
+export { ALWAYS_GRANTED, offeredSeed } from "./place.journey";
 export { measure } from "../engine/golden";
 export type { Golden } from "../engine/golden";
 export { goldenScripts } from "../goldens/scripts";

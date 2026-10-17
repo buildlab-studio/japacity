@@ -9,7 +9,7 @@ import { describe, expect } from "vitest";
 import { check } from "../engine/check";
 import type { Accepted, BaseEvent, Content, Id, OfferEntry, OfferState, ReportLine, Requirement } from "../engine/types";
 import { hiddenPaths } from "../engine/view";
-import { applyEffects, answerFirst, READY, readyLife, toApplied, toKnown, UK } from "../route/route.journey";
+import { applyEffects, answerFirst, READY, readyLife, toApplied, toKnown, UK } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import type { AgentKind } from "./offer.agent";
 import {

@@ -3,11 +3,11 @@
 // effects applied through the engine as an activity or an offer would apply
 // them. Nothing in the simulation imports this file.
 import type { Accepted, BaseEvent, Content, Effect, Id, ObligationState, ReadCtx, Terms } from "../engine/types";
-import { answerFirst } from "../route/route.journey";
-import { flown } from "../place/place.journey";
-import { applyEffects } from "../route/route.journey";
-import type { LifeOptions } from "../route/route.journey";
-import type { Game } from "../testing/play";
+import { answerFirst } from "./route.journey";
+import { flown } from "./place.journey";
+import { applyEffects } from "./route.journey";
+import type { LifeOptions } from "./route.journey";
+import type { Game } from "./play";
 
 export const UK: Id<"country"> = "country.uk";
 const SETTLED: Id<"status"> = "status.uk-settled";

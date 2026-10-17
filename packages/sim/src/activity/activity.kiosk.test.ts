@@ -7,7 +7,7 @@ import { describe, expect } from "vitest";
 
 import { bp, mulDiv } from "../engine/int";
 import type { Accepted, BaseEvent, Id, MoneyParam, ReportLine } from "../engine/types";
-import { applyEffects, draw, slot } from "../route/route.journey";
+import { applyEffects, draw, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { ActivityEvent, Prize } from "./activity.events";

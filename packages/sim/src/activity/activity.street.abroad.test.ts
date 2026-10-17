@@ -7,8 +7,8 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Accepted, BaseEvent, Content, Currency, Id } from "../engine/types";
-import { flown } from "../place/place.journey";
-import { applyEffects, slot } from "../route/route.journey";
+import { flown } from "../testing/place.journey";
+import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 

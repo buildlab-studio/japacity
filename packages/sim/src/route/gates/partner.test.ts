@@ -6,11 +6,11 @@ import { describe, expect, test } from "vitest";
 import { check } from "../../engine/check";
 import type { Id, RouteState, Tuning } from "../../engine/types";
 import type { Game } from "../../testing/play";
-import type { LifeOptions } from "../route.journey";
-import { draw, READY_PAPERS, seedWhere, slot } from "../route.journey";
+import type { LifeOptions } from "../../testing/route.journey";
+import { draw, READY_PAPERS, seedWhere, slot } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { partnerGate } from "./partner";
-import { answerInterview, BOND, CA_SPOUSE, facts, interviewOpen, joint, life, readOf, scored, setFacts, setPeople, UK_PARTNER } from "./people.journey";
+import { answerInterview, BOND, CA_SPOUSE, facts, interviewOpen, joint, life, readOf, scored, setFacts, setPeople, UK_PARTNER } from "../../testing/people.journey";
 
 const ukPartner = content.route[UK_PARTNER]!;
 const caSpouse = content.route[CA_SPOUSE]!;

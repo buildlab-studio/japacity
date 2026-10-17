@@ -8,13 +8,13 @@ import { bp } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { Accepted, ActivityEntry, BaseEvent, Content, Id } from "../engine/types";
 import type { QualityEvent } from "../quality/quality.events";
-import { slot } from "../route/route.journey";
+import { slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 /** Decision 0035 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
 const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
 
 import { start } from "../testing/play";
-import { abroad, eventsOf, owedOf, setPounds, UPKEEP } from "./obligation.journey";
+import { abroad, eventsOf, owedOf, setPounds, UPKEEP } from "../testing/obligation.journey";
 
 // The meal bought and cooked, at home or abroad: a meal of your own; the family house's pot is free and tested in
 // home/pot.test.ts.

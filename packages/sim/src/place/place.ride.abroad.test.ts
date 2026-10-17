@@ -6,10 +6,10 @@ import { describe, expect, test } from "vitest";
 
 import { BP_WHOLE, divCeil, mulDiv } from "../engine/int";
 import type { Accepted, BaseEvent, Currency, Effect, Id } from "../engine/types";
-import { applyEffects } from "../route/route.journey";
+import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { flown } from "./place.journey";
+import { flown } from "../testing/place.journey";
 import { metresApart, rideFare, withinMetres } from "./place.logic";
 
 const UK: Id<"country"> = "country.uk";

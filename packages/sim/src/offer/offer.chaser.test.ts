@@ -5,7 +5,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Content, Id, OfferState } from "../engine/types";
-import { applyEffects, readyLife, READY, READY_PAPERS, toKnown } from "../route/route.journey";
+import { applyEffects, readyLife, READY, READY_PAPERS, toKnown } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import type { AgentKind, Pitch } from "./offer.agent";
 import { agentProblems, AGENT_KINDS, agentReadsMoney, carriedTells, CHASED, CHASER, feeRange, kindAt, kindOf, KIND_TERM, MONTHS_TERM, PAPER_TERM, PITCH_TERM, pitchAt } from "./offer.agent";

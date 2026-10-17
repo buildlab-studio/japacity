@@ -10,8 +10,8 @@ import { stepWith } from "../../engine/step";
 import type { Content, Ctx, Effect, Id, ReadCtx, ReportLine, Requirement, RouteState, ScenarioEntry, Terms, Tuning } from "../../engine/types";
 import { registry } from "../../kinds";
 import type { Game } from "../../testing/play";
-import { applyEffects, draw, READY, readyLife, slot, UK, UNIT, withEffects } from "../route.journey";
-import type { LifeOptions } from "../route.journey";
+import { applyEffects, draw, READY, readyLife, slot, UK, UNIT, withEffects } from "../../testing/route.journey";
+import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
 import { findChanceBp, findSponsor, sponsorGate, sponsorJob } from "./sponsor";
 

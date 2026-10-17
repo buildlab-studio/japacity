@@ -7,8 +7,8 @@ import type { Content, Effect, Id, ReadCtx, RouteEntry, RouteStateName } from ".
 import { miniContent } from "../testing/miniContent";
 import { finishPrologue, start } from "../testing/play";
 import type { Game } from "../testing/play";
-import { offeredWith, readyLife, toApplied, toDecision, toHeard, toKnown } from "../route/route.journey";
-import { carryOut, judgeWith, writeRoute } from "./japacity.fixtures";
+import { offeredWith, readyLife, toApplied, toDecision, toHeard, toKnown } from "../testing/route.journey";
+import { carryOut, judgeWith, writeRoute } from "../testing/japacity.fixtures";
 import { checklistView, japacity, routePercent } from "./japacity.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
