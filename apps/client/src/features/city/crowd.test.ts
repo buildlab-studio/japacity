@@ -5,6 +5,7 @@ import { content } from "@japacity/content";
 import type { PlaceEntry } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import testCentreFile from "../../../public/assets/places/english-test-centre/place.json";
 import hubFile from "../../../public/assets/places/ojuelegba/place.json";
 import { actPose, bandOf, crowdSize, hash, localDate, partSpots, placeCrowd, poolOf, resident, residents, sampleCrowd, type Shown, traditionalCount, walkPose, weekday } from "./crowd";
 import type { PlaceFile } from "./placeFile";
@@ -27,6 +28,17 @@ const YEAR = Array.from({ length: 365 }, (_, day) => localDate(new Date(2026, 0,
 afterEach(() => {
   vi.restoreAllMocks();
 });
+
+/** Every shipped place file with a stage. */
+function shippedStages(): { file: PlaceFile; stage: NonNullable<PlaceFile["stage"]> }[] {
+  const folder = join(import.meta.dirname, "..", "..", "..", "public", "assets", "places");
+  return readdirSync(folder).flatMap((name) => {
+    const path = join(folder, name, "place.json");
+    if (!existsSync(path)) return [];
+    const file = JSON.parse(readFileSync(path, "utf8")) as PlaceFile;
+    return file.stage === undefined ? [] : [{ file, stage: file.stage }];
+  });
+}
 
 describe("the sample's size and band", () => {
   test("[R-CITY-014] given every place, when its sample is drawn in each mode, then it is at most the mode's figure and the place's own", () => {
@@ -187,15 +199,10 @@ describe("the target headcount", () => {
     }
   });
 
-  test("[R-CITY-032] given every shipped place and more players present than its residents' slots, when the crowd stands, then every part spot keeps the resident it has with no one online and players take every other slot", () => {
-    const folder = join(import.meta.dirname, "..", "..", "..", "public", "assets", "places");
+  test("[R-CITY-032] given every shipped place and more players present than its residents' slots, when the crowd stands, then every part spot, each staff seat among them, keeps the resident it has with no one online and players take every other slot", () => {
     let parts = 0;
-    for (const name of readdirSync(folder)) {
-      const path = join(folder, name, "place.json");
-      if (!existsSync(path)) continue;
-      const file = JSON.parse(readFileSync(path, "utf8")) as PlaceFile;
-      const stage = file.stage;
-      if (stage === undefined) continue;
+    let staff = 0;
+    for (const { file, stage } of shippedStages()) {
       const kept = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
       const figure = Math.min(stage.people.length, city.crowdHigh);
       const place = { ...hub, id: file.place as PlaceEntry["id"], crowd: { low: figure, high: figure, target: figure } };
@@ -213,25 +220,51 @@ describe("the target headcount", () => {
         expect(shownAt(after, true)).toEqual(shownAt(before, true));
         expect(shownAt(after, true).every(([, kind]) => kind === "resident")).toBe(true);
         expect(shownAt(after, false).every(([, kind]) => kind === "player")).toBe(true);
+        const seats = (stage.acts ?? []).filter((act) => act.staff === true && act.spot < after.size).map((act) => act.spot);
+        expect(seats.filter((spot) => !spots.has(spot) || after.get(spot)?.kind !== "resident")).toEqual([]);
         parts += shownAt(before, true).length;
+        staff += seats.length;
         expect(crowded).toHaveLength(alone.length);
       }
     }
     expect(parts).toBeGreaterThan(0);
+    expect(staff).toBeGreaterThan(0);
   });
 
-  test("[R-CITY-032] given a place and no one online, when its crowd stands with its parts marked, then everyone stands where they stood unmarked", () => {
-    const stage = (hubFile as unknown as PlaceFile).stage;
-    if (stage === undefined) throw new Error("The hub has no stage");
+  test("[R-CITY-032] given the English test centre and more players present than its slots, when the crowd stands, then the invigilator keeps her desk and players sit at every candidate's desk shown", () => {
+    const stage = (testCentreFile as unknown as PlaceFile).stage;
+    const entry = content.place["place.english-test-centre"];
+    if (stage === undefined || entry === undefined) throw new Error("The English test centre is missing");
     const kept = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
-    for (const date of HUNDRED.slice(0, 14)) {
-      const where = (people: readonly Shown[]) => placeCrowd(people, stage.people, stage.prefer, stage.acts).map(({ index, shown }) => [index, shown.slot, shown.person.file]);
-      expect(where(sampleCrowd(hub, pool, date, "high", city, [], [], [], kept).people)).toEqual(where(sampleCrowd(hub, pool, date, "high", city).people));
+    const invigilator = (stage.acts ?? []).filter((act) => act.staff === true).map((act) => act.spot);
+    const candidates = (stage.acts ?? []).filter((act) => act.pose === "sit" && act.staff !== true).map((act) => act.spot);
+    expect(invigilator).toHaveLength(1);
+    expect(candidates).toHaveLength(5);
+    const many = Array.from({ length: 8 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+    for (const date of [THURSDAY, FRIDAY, SATURDAY]) {
+      const people = sampleCrowd(entry, poolOf(testCentreFile.people.sample), date, "high", city, many, [], [], kept).people;
+      const at = new Map(placeCrowd(people, stage.people, stage.prefer, stage.acts).map(({ index, shown }) => [index, shown.kind]));
+      expect(at.size).toBe(stage.people.length);
+      expect(invigilator.map((spot) => at.get(spot))).toEqual(["resident"]);
+      expect(candidates.map((spot) => at.get(spot))).toEqual(candidates.map(() => "player"));
     }
   });
 
-  test("[R-CITY-032] given a place's spots, when the parts are read, then a spot named for a role or given a pose or a sex is one and a crossing alone is not", () => {
-    expect([...partSpots({ prefer: { trader: [0], hawker: [4] }, acts: [{ spot: 1, pose: "sit" }, { spot: 2, to: [0, 1] }, { spot: 3, sex: "f" }] })].sort()).toEqual([0, 1, 3, 4]);
+  test("[R-CITY-032] given every shipped place and no one online, when its crowd stands with its parts marked, then everyone stands where they stood unmarked", () => {
+    for (const { file, stage } of shippedStages()) {
+      const kept = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
+      const figure = Math.min(stage.people.length, city.crowdHigh);
+      const place = { ...hub, id: file.place as PlaceEntry["id"], crowd: { low: figure, high: figure, target: figure } };
+      const local = poolOf(file.people.sample);
+      for (const date of HUNDRED.slice(0, 14)) {
+        const where = (people: readonly Shown[]) => placeCrowd(people, stage.people, stage.prefer, stage.acts).map(({ index, shown }) => [index, shown.slot, shown.person.file]);
+        expect(where(sampleCrowd(place, local, date, "high", city, [], [], [], kept).people)).toEqual(where(sampleCrowd(place, local, date, "high", city).people));
+      }
+    }
+  });
+
+  test("[R-CITY-032] given a place's spots, when the parts are read, then a spot named for a role, kept for a sex or marked staff is one, and a seat only posed or a crossing is not", () => {
+    expect([...partSpots({ prefer: { trader: [0], hawker: [4] }, acts: [{ spot: 1, pose: "sit" }, { spot: 2, to: [0, 1] }, { spot: 3, sex: "f" }, { spot: 5, pose: "sit", staff: true }] })].sort()).toEqual([0, 3, 4, 5]);
     expect(partSpots({}).size).toBe(0);
   });
 

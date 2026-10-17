@@ -31,7 +31,7 @@ export interface Shown {
   part?: number;
 }
 
-/** A place's spots and what keeps some of them for a part: `prefer` names spots for a role, an act a spot's pose or sex. */
+/** A place's spots and what keeps some of them for a part: `prefer` names spots for a role, an act a spot's sex or its staff. */
 export interface Parts {
   /** How many spots the place has. */
   spots: number;
@@ -192,13 +192,14 @@ export function sampleCrowd(
 }
 
 /**
- * The spots kept for a part: each spot `prefer` names for a role (a hawker among the vehicles, a trader at the stall)
- * and each spot an act gives a pose or a sex (the clerk seated at the counter, the rider on his machine). A crossing
- * alone is no part. The place files do not say which seat is staff and which is a visitor's, so every posed spot is kept.
+ * The spots kept for a part: each spot `prefer` names for a role (a hawker among the vehicles, a trader at the stall),
+ * each spot an act keeps for a man or a woman (Mama and Papa at home, the conductor at the danfo's door) and each act
+ * marked `staff` (the clerk seated at the counter, the invigilator at her desk). A seat an act only poses is a
+ * visitor's (a candidate's desk, a waiting chair, a pew), which players take before residents; a crossing is no part.
  */
 export function partSpots(parts: Pick<Parts, "prefer" | "acts">): Set<number> {
   const roles = Object.values(parts.prefer ?? {}).flatMap((indices) => [...(indices ?? [])]);
-  const acts = (parts.acts ?? []).filter((act) => act.pose !== undefined || act.sex !== undefined).map((act) => act.spot);
+  const acts = (parts.acts ?? []).filter((act) => act.sex !== undefined || act.staff === true).map((act) => act.spot);
   return new Set([...roles, ...acts]);
 }
 
