@@ -9,7 +9,7 @@ import type { Context } from "hono";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
-import type { PlaceOf } from "../nudge/place.nudge";
+import type { PlaceOf } from "../place/place.nudge";
 import { readsToday } from "../place/place.presence";
 import { openSocket } from "../place/place.rooms";
 import { STATUS_TOO_LARGE } from "../place/place.socket";

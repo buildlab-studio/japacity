@@ -2,7 +2,7 @@ import type { Nudge } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "../config";
-import { readNudge } from "../nudge/place.nudge";
+import { readNudge } from "./place.nudge";
 import { countryOf } from "../routes/place";
 import { pickRoom, roomName } from "./place.rooms";
 import { NUDGE_EVERY_MS, nudgeText, parseAttachment, parseLimits, tagsFor } from "./place.socket";

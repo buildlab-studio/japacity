@@ -4,10 +4,10 @@
 // that place: it receives the account's nudges and is never shown or counted.
 import type { Nudge, NudgeBus, NudgeHandler } from "@japacity/store";
 
-import { CLOSE_NORMAL } from "../place/place.socket";
-import { acceptedEnd } from "../place/place.presence";
-import { nudgeRooms, openSocket } from "../place/place.rooms";
-import type { Rooms } from "../place/place.rooms";
+import { CLOSE_NORMAL } from "./place.socket";
+import { acceptedEnd } from "./place.presence";
+import { nudgeRooms, openSocket } from "./place.rooms";
+import type { Rooms } from "./place.rooms";
 
 /** The character's place from its state, or null when the account has none. The core provides it. */
 export type PlaceOf = (account: string) => Promise<string | null>;
