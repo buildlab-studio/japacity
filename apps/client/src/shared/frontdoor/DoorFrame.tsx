@@ -78,8 +78,8 @@ export function DoorFrame({ mark, look, title, line, lockup = false, onBack = nu
   return (
     <div className="door-sky fixed inset-0 overflow-hidden" data-gate={mark} data-door-frame {...(look === undefined ? {} : { "data-look": look })}>
       <SheetColumn className="flex h-full flex-col">
-        {/* The head row stands on the sky's own ground over the body, so a card scrolled up never shows through it (catalog
-            1b952f4b, picture 006: the figure's card under the lockup, Shuffle and Skip). */}
+        {/* The head row stands on the sky's own ground over the body, so a card scrolled up never shows through it (the figure's
+            card under the lockup, Shuffle and Skip). */}
         <div className="door-sky relative z-10 flex shrink-0 items-center gap-2.5 px-4 pt-[max(14px,env(safe-area-inset-top))] pb-1" data-door-progress>
           {onBack === null ? null : (
             <button type="button" className="round-button" aria-label={say("ui.door.back")} onClick={onBack} data-door-back>

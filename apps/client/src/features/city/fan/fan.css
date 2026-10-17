@@ -1,7 +1,7 @@
-/* The fan's look (docs/design/13-the-lively-layer.md sections 2, 3 and 7), after the round-5 mockups: round sticker buttons
-   with a white ring and a navy edge and underside, tinted by kind; a white name pill; the yellow price pill with its navy
-   underside; the balance small beside it. Kept beside the fan until the lively system's tokens and classes land on the
-   branch: every colour reads the system's token first (`--tint-food`, `--edge`, `--action`) with the mockup's value behind it.
+/* The fan's look (docs/design/13-the-lively-layer.md sections 2, 3 and 7): round sticker buttons with a white ring and a
+   navy edge and underside, tinted by kind; a white name pill; the yellow price pill with its navy underside; the balance
+   small beside it. Every colour reads the system's token first (`--tint-food`, `--edge`, `--action`), with a fixed value
+   behind it for where the token is missing.
    Motion is transform and opacity only, under 300 ms, a fade under reduced motion (R-WORLD-023). */
 
 .fan {

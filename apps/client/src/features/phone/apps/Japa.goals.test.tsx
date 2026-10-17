@@ -13,7 +13,7 @@ import { Japa } from "./Japa";
 import { agoWords } from "./JapaWays";
 import { phoneWords } from "../phone.words";
 
-// The view rule for goals is still pending in the rule list until the goal kind lands; these tests use a hand-built view.
+// These tests build the view of goals by hand.
 describe("life goals in Japa", () => {
   test("given open goals, then each shows its items as met or not, in the words of its requirements", async () => {
     await renderWithView(<Japa />, richAbroadView());

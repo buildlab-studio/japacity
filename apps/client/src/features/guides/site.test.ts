@@ -194,7 +194,7 @@ describe("how this game was made", () => {
     expect(voices).toContain("Kokoro-82M");
     expect(voices).toContain("every line is also shown as text");
     expect(voices).not.toMatch(/no voice in the game is generated/i);
-    // The repository is private at launch, so the page links no register (R-GUIDE-011).
+    // While the repository is private, the page links no register (R-GUIDE-011).
     expect(made.querySelector('a[href*="github.com"]')).toBeNull();
     // The credits are a screen of the game and the sources a page of the documentation site (R-GUIDE-007, R-GUIDE-008).
     const paths = pages.map((page) => page.path);

@@ -4,7 +4,7 @@ import type { Point } from "./fit";
 
 const n = String;
 
-/** The landmarks, each a small drawing at three fifths of the round's size: the theatre's hat, the towers, the toll gate. */
+/** The landmarks, each a small drawing at three fifths of its full size: the theatre's hat, the towers, the toll gate. */
 export function Theatre({ at: [x, y] }: { at: Point }) {
   return (
     <g transform={`translate(${n(x)},${n(y)}) scale(0.6)`} className="lm">

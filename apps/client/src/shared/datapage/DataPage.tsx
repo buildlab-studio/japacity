@@ -182,7 +182,7 @@ export function DataPage({ page, print = false }: { page: PageFields; print?: bo
           ))}
         </div>
       )}
-      {/* The game's mark, faint across the paper, as designed. */}
+      {/* The game's mark, faint across the paper, turned like a stamp. */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden" aria-hidden data-page-mark>
         <span className="-rotate-[18deg] font-mono text-[44px] font-black tracking-[0.3em] whitespace-nowrap uppercase" style={{ color: PAGE_COLOURS.ink, opacity: 0.07 }}>
           {say("ui.game")}

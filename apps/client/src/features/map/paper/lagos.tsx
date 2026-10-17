@@ -25,7 +25,7 @@ export const LAGOS_SIZES: Readonly<Record<string, number>> = {
 };
 
 /**
- * The landmarks that say the folded paper is the whole city, standing upright on it as the round's strip drew them:
+ * The landmarks that say the folded paper is the whole city, standing upright on it as the folded strip draws them:
  * the theatre's hat on the mainland's shore, the island's towers, Victoria Island's and the one by the toll gate.
  * Each is the open map's own drawing at its own shape, not squeezed with the paper.
  */

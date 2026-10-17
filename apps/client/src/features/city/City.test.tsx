@@ -125,7 +125,7 @@ describe("credits", () => {
     const licences = document.querySelector('[data-credits="licences"]');
     for (const words of ["Code: MIT.", "Docs: CC BY 4.0.", "Game content and art: CC BY-SA 4.0.", "The name Japacity and its logo are reserved."]) expect(licences?.textContent).toContain(words);
     const full = within(licences as HTMLElement).getByRole("link", { name: "The full list: every package the game ships, with its licence." });
-    // The repository is private at launch, so the link is the licence file the build for players writes beside the page (tools/shipped-build.test.ts).
+    // While the repository is private, the link is the licence file the build for players writes beside the page (tools/shipped-build.test.ts).
     expect(full.getAttribute("href")).toBe("/licenses.txt");
   });
 });

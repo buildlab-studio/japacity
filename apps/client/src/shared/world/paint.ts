@@ -35,7 +35,7 @@ function search(): string {
 }
 
 /**
- * Whether the night paint follows the clock for players (design page 13, section 8): the
+ * Whether the night paint follows the clock for players (design page 13, section 2, "Night"): the
  * surfaces over the world read in both paints. `?paint=` still stands either paint in, in development.
  */
 export const NIGHT_PAINT_LIVE = true;

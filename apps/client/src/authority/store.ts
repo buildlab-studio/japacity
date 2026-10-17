@@ -535,7 +535,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
     }
 
     /**
-     * R-CLOCK-032: the results whose morning has come, from an authority that keeps them (the remote one does not yet).
+     * R-CLOCK-032: the results whose morning has come, from an authority that keeps them (the remote one keeps none).
      * Kept until the lock screen tells them; their lines join the month's, so each is told once.
      */
     function takeMorning(): void {

@@ -66,7 +66,7 @@ function length(from: Point, route: readonly Point[]): number {
 }
 
 describe("the route map", () => {
-  test("[R-CITY-030] given the walking grid, when the map's figures are read, then cells are 25 cm, the clearance is the tuning's stop-short distance and the pace its walking pace", () => {
+  test("[R-CITY-030] given the route map, when its figures are read, then cells are 25 cm, the clearance is the tuning's stop-short distance and the pace its walking pace", () => {
     expect(CELL).toBe(0.25);
     expect(CLEARANCE * 1000).toBe(content.tuning.city.stopShortMm);
     expect(WALK_SPEED * 1000).toBe(content.tuning.city.walkMmPerS);

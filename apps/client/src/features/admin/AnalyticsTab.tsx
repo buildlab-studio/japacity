@@ -1,4 +1,4 @@
-// The launch dashboard's data (R-ANALYTICS-009 to 011): the daily series and
+// The dashboard's data (R-ANALYTICS-009 to 011): the daily series and
 // the sign-up weeks as tables beside the reference lines. A count the server
 // hid under `minShown` shows only as "fewer than" (R-ANALYTICS-010).
 import { useState } from "react";

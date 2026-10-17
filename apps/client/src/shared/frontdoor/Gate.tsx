@@ -105,7 +105,7 @@ export function Gate({ look, children, mark, over, style, scene }: GateProps) {
         // The figure is dragged round, so the page under the finger never scrolls.
         style={{ background: "var(--strong-2)", touchAction: "none" }}
       >
-        {/* The theme's own band behind the figure, as the design's door has it (R-WORLD-021: an interface colour is a role token, never sand or cream). The compound keeps its own colours and shows through a clear sky. */}
+        {/* The theme's own band behind the figure (R-WORLD-021: an interface colour is a role token, never sand or cream). The compound keeps its own colours and shows through a clear sky. */}
         {/* The look's own picture stands in until the scene has loaded, so the first screen never reads empty on a slow phone, and where WebGL is missing. */}
         {scene !== undefined ? (
           <div className="pointer-events-none absolute inset-0" data-gate-scene>

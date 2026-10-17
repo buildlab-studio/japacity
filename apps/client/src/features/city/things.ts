@@ -56,8 +56,8 @@ const MORE_AT: Record<string, readonly string[]> = {
 
 /**
  * A thing as it stands in a place that borrows another place's room (city.md R-CITY-010, the hub's room in Yaba's
- * way), by `<place>:<thing>`: its own name and acts there, or none to stand empty. The passport office stands in the
- * visa centre's hall until its own is built: its desk takes the passport and nothing of the visa's (the passport is a
+ * way), by `<place>:<thing>`: its own name and acts there, or none to stand empty. The passport office has no hall of its
+ * own and stands in the visa centre's: its desk takes the passport and nothing of the visa's (the passport is a
  * visit).
  */
 const BORROWED_AT: Record<string, Pick<Thing, "label" | "acts"> | null> = {
