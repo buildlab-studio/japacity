@@ -398,7 +398,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   // The mark's word (R-PEOPLE-009).
   await expect(chip.locator("[data-fan-title] [data-person-mark]")).toHaveText("Not a player");
   await page.waitForTimeout(400);
-  await shoot(page, "m68-1-parlour-tobi", info.project.name);
+  await shoot(page, "parlour-tobi", info.project.name);
 
   await chip.locator('[data-fan-act="talk"] button').click();
   const card = page.getByRole("dialog");
@@ -406,7 +406,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   await expect(card).toContainText("After service, your mother brings him home for lunch.");
   // The sheet settles before the picture.
   await page.waitForTimeout(800);
-  await shoot(page, "m68-2-talk-sheet", info.project.name);
+  await shoot(page, "talk-sheet", info.project.name);
   await card.getByRole("button", { name: /Start seeing Tobi/ }).click();
   await expect.poll(() => sent.length).toBe(1);
   expect(sent[0]).toMatchObject({ command: { type: "people/court", with: TOBI } });
@@ -422,7 +422,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   await expect(head.locator('[data-head-row="end"]')).toBeVisible();
   // The handset settles before the picture.
   await page.waitForTimeout(800);
-  await shoot(page, "m68-3-thread-head", info.project.name);
+  await shoot(page, "thread-head", info.project.name);
 
   // The thread's one way back, the app's Back, returns to the chats (R-WORLD-018).
   await page.locator("[data-phone-back]").click();
@@ -430,9 +430,9 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   const slots = page.locator("[data-people-slots]");
   await expect(slots.locator('[data-slot="partner"]')).toBeVisible();
   await expect(slots.locator('[data-slot="mother"]')).toBeVisible();
-  await shoot(page, "m68-4-people-slots", info.project.name);
+  await shoot(page, "people-slots", info.project.name);
   await page.getByRole("button", { name: "Ask a friend to be your partner" }).click();
   await expect(page.locator("[data-invite-card]")).toContainText("Japacity is a game");
   await page.locator('[data-slot="partner"]').evaluate((element) => element.scrollIntoView({ block: "start" }));
-  await shoot(page, "m68-5-invite-card", info.project.name);
+  await shoot(page, "invite-card", info.project.name);
 });
