@@ -1,10 +1,8 @@
 import { content } from "@japacity/content";
 import type { Content } from "@japacity/sim";
 import { hashState } from "@japacity/sim";
+import { finishPrologue, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
-
-// The sim's own test handle, as the client's fixtures reach it: the package exports only its contract.
-import { finishPrologue, start } from "../../../../packages/sim/src/testing/play";
 
 function played(of: Content) {
   const game = start({ content: of, scenario: "scenario.tunde" });

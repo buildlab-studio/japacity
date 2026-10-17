@@ -4,13 +4,12 @@
 // ticket with the simulation's public function, pay each winner as the
 // authority, then publish the result.
 import type { LotteryResult } from "@japacity/sim";
-import { int } from "@japacity/sim";
+import { int, drawResults, drawSeed, fingerprintOf, jackpotHit, listHashOf, openingJackpot, rollJackpot, toHex } from "@japacity/sim";
 import type { DrawRow, TicketRow, WorldStore } from "@japacity/store";
 
 import { sendAuthority } from "../authority/command";
 import { tickAt, tickStartsAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
-import { drawResults, drawSeed, fingerprintOf, jackpotHit, listHashOf, openingJackpot, rollJackpot, toHex } from "../../../../packages/sim/src/lottery/lottery.draw";
 import { lotteryOdds } from "../switches/dials";
 import type { Beacon } from "./beacon";
 import { roundAfter } from "./beacon";

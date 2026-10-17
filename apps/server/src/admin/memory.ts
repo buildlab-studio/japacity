@@ -3,10 +3,9 @@
 // `snapshotEvery`, and the stand-in worlds as the stored world rows. For the
 // rollback tool's --memory mode until packages/db exists, and for tests.
 import type { FlatSave, SavedCommand, State } from "@japacity/sim";
-import { hashState, newState, step } from "@japacity/sim";
+import { hashState, newState, step, standInWorlds } from "@japacity/sim";
 import type { LogRow, SnapshotRow } from "@japacity/store";
 
-import { standInWorlds } from "../../../../packages/sim/src/world/standIn";
 import type { ServerDeps } from "../deps";
 
 type MemoryDeps = Pick<ServerDeps, "config" | "contents" | "stores">;

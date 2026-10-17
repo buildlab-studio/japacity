@@ -1,9 +1,8 @@
-import { time } from "@japacity/sim";
 import type { State } from "@japacity/sim";
+import { time, ledgerReport } from "@japacity/sim";
 import type { AuditStore, ByReason, LedgerStore } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { ledgerReport } from "../../../../packages/sim/src/wallet/report";
 import { testDeps } from "../app.test";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";

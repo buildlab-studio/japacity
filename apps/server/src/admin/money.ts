@@ -3,11 +3,9 @@
 // transfers left out, as `ledgerReport` gives them; the day's totals are the
 // differences between marks.
 import type { Content, State, WalletSlice } from "@japacity/sim";
-import { int } from "@japacity/sim";
+import { int, prizesOwed, ledgerReport } from "@japacity/sim";
 import type { ByReason, LogRow, SegmentRow } from "@japacity/store";
 
-import { prizesOwed } from "../../../../packages/sim/src/lottery/lottery.draw";
-import { ledgerReport } from "../../../../packages/sim/src/wallet/report";
 import type { ServerDeps } from "../deps";
 import { activeOn, noteActive } from "./active";
 import type { Alarm } from "./alarm";

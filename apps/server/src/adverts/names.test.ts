@@ -1,9 +1,7 @@
 import { content } from "@japacity/content";
 import { hashState, standInWorld } from "@japacity/sim";
+import { finishPrologue, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
-
-// The sim's own test handle, as the client's fixtures reach it: the package exports only its contract.
-import { finishPrologue, start } from "../../../../packages/sim/src/testing/play";
 
 describe("a real name on a place", () => {
   test("[R-ADVERT-018] given a world that puts a real name on a place, when a life is played through it, then every state is the same as under the made-up name", () => {

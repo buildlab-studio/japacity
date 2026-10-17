@@ -1,9 +1,9 @@
 import { content } from "@japacity/content";
 import type { Command, FlatSave, Overlay, State, World } from "@japacity/sim";
 import { applyOverlay, checkOverlay, hiddenPaths, newState, step, viewFor } from "@japacity/sim";
+import { lifeSaves } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { lifeSaves } from "../../../../packages/sim/src/goldens/lives.data";
 import { call, held, newLife, send, testServer, view } from "../authority/testing";
 import { testConfig } from "../config";
 import type { WorldReply } from "../types";

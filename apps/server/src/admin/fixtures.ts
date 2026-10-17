@@ -1,7 +1,6 @@
 // The recorded lives the admin tests store, by name.
 import type { FlatSave } from "@japacity/sim";
-
-import { lifeSaves } from "../../../../packages/sim/src/goldens/lives.data";
+import { lifeSaves } from "@japacity/sim/testing";
 
 export { createLife, playRows, storeWorlds } from "./memory";
 
