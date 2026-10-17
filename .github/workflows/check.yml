@@ -3,8 +3,8 @@ name: check
 # The quick checks on every push to main and every pull request: the Workers' generated types, typecheck, lint, the unit tests,
 # the size budget of a first visit and the audit of the production dependencies (about five minutes); on a pull request also a
 # secret scan of its commits. The full check (`pnpm check`: the rules and assets checks too) and the browser
-# suite stay local, run before every push by the maintainer's watcher, so Actions minutes stay low on the
-# free plan. Enabled on GitHub by the maintainer on 10 Oct 2026. It runs with no secrets, on pull_request (never
+# suite stay local, run before every push, so Actions minutes stay low on the
+# free plan. It runs with no secrets, on pull_request (never
 # pull_request_target), so a fork's code never meets this repository's secrets. Every action is pinned to a
 # commit, with its version beside it.
 on:

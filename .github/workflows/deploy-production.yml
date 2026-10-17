@@ -1,9 +1,9 @@
 name: deploy-production
 
-# Production on a release tag (v1.2.3) or when started by hand from main, never on a push to a branch (the maintainer's
-# decision of 11 Oct 2026; docs/site/built/your-own-copy.md). The `production` environment asks the maintainer to approve
+# Production on a release tag (v1.2.3) or when started by hand from main, never on a push to a branch
+# (docs/site/built/your-own-copy.md). The `production` environment asks the maintainer to approve
 # every run before it reaches its secrets. Safe in a fork: the job runs only in buildlab-studio/japacity, from main or
-# a v tag, and a fork never sees this repository's environments. Until the maintainer has set the environment's secrets
+# a v tag, and a fork never sees this repository's environments. While the environment's secrets are unset
 # the job stops quietly at its first step with a notice, and deploys nothing.
 on:
   push:
@@ -43,8 +43,8 @@ jobs:
         with:
           persist-credentials: false
 
-      # The production block of wrangler.jsonc names its Hyperdrive configurations with placeholders until the maintainer
-      # creates them; a deploy with a placeholder would fail halfway, so it stops here and says why.
+      # A REPLACE_WITH_ placeholder for a Hyperdrive id in wrangler.jsonc's production block would make the deploy
+      # fail halfway, so it stops here and says why.
       - name: Production's Hyperdrive ids are filled in
         if: steps.ready.outputs.set == 'true'
         run: |
@@ -98,8 +98,8 @@ jobs:
           VITE_BUILD="$(git rev-parse --short HEAD)" pnpm build
 
       # No --env: the top level of wrangler.jsonc is production. The admin accounts are the Worker's own ADMIN_ACCOUNTS
-      # secret, set once with `wrangler secret put ADMIN_ACCOUNTS` and kept by every deploy (server.md R-SERVER-012,
-      # restated 11 Oct 2026); unset, production has no admin. Wrangler is the version apps/server/package.json pins.
+      # secret, set once with `wrangler secret put ADMIN_ACCOUNTS` and kept by every deploy (server.md R-SERVER-012);
+      # unset, production has no admin. Wrangler is the version apps/server/package.json pins.
       - name: Deploy the Worker to production
         if: steps.ready.outputs.set == 'true'
         uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
