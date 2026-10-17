@@ -24,7 +24,7 @@ const HC = 1.578; // head centre height; the top of the head is 1.70 m
 
 /**
  * How faces are drawn: today's (a white round a dark eye), or one of the three directions of the
- * revamp exploration (the design): "a" soft marks, "b" low poly, "c" big and friendly.
+ * face exploration: "a" soft marks, "b" low poly, "c" big and friendly.
  * One switch for every person, so the same people export each way without touching their data.
  */
 export type FaceStyle = "today" | "a" | "b" | "c";

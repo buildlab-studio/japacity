@@ -136,7 +136,7 @@ describe("joining", () => {
 });
 
 
-describe("before launch, with the waitlist switched off", () => {
+describe("while the game is closed, with the waitlist switched off", () => {
   test("given a visit, when the page is served, then it says the game opens soon and links the X account, with no form", async () => {
     const response = await serve(new Request("https://japacity.app/"), fresh(), "", SHIPPED);
     const html = await response.text();
@@ -180,7 +180,7 @@ describe("before launch, with the waitlist switched off", () => {
   });
 });
 
-describe("on launch day", () => {
+describe("with the page set live", () => {
   test("given the page set live, when it is served, then it shows the play link and no form", async () => {
     const html = await (await serve(new Request("https://japacity.app/"), fresh(), "", { ...SHIPPED, live: true })).text();
     expect(html).toContain('href="https://japacity.app"');

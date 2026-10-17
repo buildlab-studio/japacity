@@ -309,7 +309,7 @@ describe("the dials' readers", () => {
     expect(lotteryOdds(target.deps)).toEqual(content.tuning.lottery.odds);
   });
 
-  test("[R-SERVER-030] [R-LOTTERY-021] given the raffle's top-up retired by decision 0010, when its dial is sent, then it is refused as no dial, nothing is logged and the row holds no top-up", async () => {
+  test("[R-SERVER-030] [R-LOTTERY-021] given decision 0010, under which the raffle has no top-up, when its dial is sent, then it is refused as no dial, nothing is logged and the row holds no top-up", async () => {
     const target = server();
     expect((await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "topUpTickets", value: 5000, reason: "test" })).status).toBe(400);
     expect(await target.deps.stores.switches.log()).toEqual([]);

@@ -1,5 +1,5 @@
 // pnpm tsx tools/assets/faces-explore.ts <out dir> [style,style...]
-// The face exploration of the 3D revamp (the design): four people built in each face
+// The face exploration: four people built in each face
 // style, exported and shot into a folder outside the repository, never over the shipped people in
 // public/assets. For each style a folder of glb files and pictures (front and three-quarter at the
 // shooter's size, a close-up of each head, and each person as small as the world shows them on a

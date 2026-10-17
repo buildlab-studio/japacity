@@ -121,7 +121,7 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     expect(screen.queryByText(say("ui.loading.slow"))).toBeNull();
   });
 
-  test("[R-ENGINE-015] given a player whose life is kept on this device and the server down, then the card stands where the life is opening, as before", async () => {
+  test("[R-ENGINE-015] given a player whose life is kept on this device and the server down, then the card stands where the life is opening", async () => {
     keepPerson({ look: "chr_ada", name: "Bayo", archetype: "developer" });
     const store = createGameStore({ view: () => Promise.reject(requestFailure("server", "502")), send: unused }, { ...noPause, account: {} as AccountApi });
     render(<App store={store} />);

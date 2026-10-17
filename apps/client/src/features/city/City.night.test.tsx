@@ -161,7 +161,7 @@ describe("the night's nudge", () => {
     await waitFor(() => expect(document.querySelector("[data-nudge]")).toBeNull());
   });
 
-  test("[R-CLOCK-033] given the world's night and a body that can still take it, when the band's second row shows, then the nudge stands as it was: nobody is sent to bed (the decision 41)", async () => {
+  test("[R-CLOCK-033] given the world's night and a body that can still take it, when the band's second row shows, then the nudge stands as it was: nobody is sent to bed", async () => {
     const { store, game } = await inTheParlour();
     expect(game.view().qualities.find((quality) => quality.id === "quality.energy")?.value).toBeGreaterThanOrEqual(30);
     setPart(store, "night");

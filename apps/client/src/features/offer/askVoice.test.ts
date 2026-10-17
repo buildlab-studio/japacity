@@ -17,7 +17,7 @@ const PLAIN = new Set(["Your bank", "The school", "A hospital trust", "A care ho
 const PIDGIN = /\b(o|abeg|wahala|don|dey|na|fit|sef|oga|abi)\b/i;
 
 describe("the ask in the person's voice", () => {
-  test("[R-TEXT-007] given every ask in content, when its title is read, then it is at most three words and never a label the old titles were", () => {
+  test("[R-TEXT-007] given every ask in content, when its title is read, then it is at most three words and never one of the bare labels", () => {
     const long = offers.filter((id) => (text[`${id}.title`] ?? "").split(/\s+/).length > 3);
     expect(long).toEqual([]);
     // The labels and rule words the pass replaced must not come back.
@@ -39,7 +39,7 @@ describe("the ask in the person's voice", () => {
     expect(offers.filter((id) => (text[`${id}.body`] ?? "").includes("%"))).toEqual([]);
   });
 
-  test("[R-TEXT-007] given an ask from an office, a firm, the school, the court or the bank, when its title and line are read, then they are plain English with no Pidgin (the plan 8)", () => {
+  test("[R-TEXT-007] given an ask from an office, a firm, the school, the court or the bank, when its title and line are read, then they are plain English with no Pidgin", () => {
     const plain = offers.filter((id) => PLAIN.has(askerOf({ entry: id as never })));
     expect(plain.length).toBeGreaterThan(8);
     const broken = plain.filter((id) => PIDGIN.test(`${text[`${id}.title`] ?? ""} ${text[`${id}.body`] ?? ""}`));

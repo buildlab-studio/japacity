@@ -156,7 +156,7 @@ describe("a thing's mark on its thing", () => {
     }
   });
 
-  test("[R-WORLD-005] given the family house's names stacked as they once stood, when they are laid out, then the dots never move, no name stands more than two rows over its dot, none covers another or a dot, and a name with no room within two rows waits unshown", () => {
+  test("[R-WORLD-005] given the family house's names stacked, when they are laid out, then the dots never move, no name stands more than two rows over its dot, none covers another or a dot, and a name with no room within two rows waits unshown", () => {
     // Six names bunched in one column, each over its dot, as the parlour's Mama, Tobi, the sofa and the water drum stood.
     const names: LabelBox[] = [330, 324, 318, 312, 306, 300].map((y, index) => ({ x: 160 + index * 6, y, width: 90, height: 24 }));
     const dots: LabelBox[] = names.map((name) => ({ x: name.x, y: name.y + 22, width: 12, height: 12 }));

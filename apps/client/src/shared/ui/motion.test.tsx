@@ -122,7 +122,7 @@ describe("state changes move on the compositor (R-WORLD-023)", () => {
     expect(CSS).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\*,\s*\*::before,\s*\*::after \{\s*transition: none !important;/);
   });
 
-  test("[R-WORLD-023] given the phone's reduced-motion setting, when the helper reads it, then it says so; where the page cannot answer it says no, so the camera's own ease goes on as before", () => {
+  test("[R-WORLD-023] given the phone's reduced-motion setting, when the helper reads it, then it says so; where the page cannot answer it says no, so the camera's own ease goes on", () => {
     stubReducedMotion(true);
     expect(motionReduced()).toBe(true);
     expect(motionOn()).toBe(false);

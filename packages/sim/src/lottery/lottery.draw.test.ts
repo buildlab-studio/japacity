@@ -157,7 +157,7 @@ describe("the raffle's tiers and prizes, switched off by decision 0010", () => {
     },
   );
 
-  test("[R-LOTTERY-012] given the review's draw, 200 tickets sold under a top-up of 5000, when the prizes are set, then a mid prize is not the ₦16,500 against a small ₦41,250: the small pays less", () => {
+  test("[R-LOTTERY-012] given a draw of 200 tickets sold under a top-up of 5000, when the prizes are set, then a mid prize is not the ₦16,500 against a small ₦41,250: the small pays less", () => {
     const count = 200;
     const pot = count * tuning.ticket + topUpFor(count, 5000, tuning.ticket);
     const amounts = prizesFor(pot, tiersFor(count, tuning), [], tuning).winners.map((tier) => tier.amount);

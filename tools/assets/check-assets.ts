@@ -219,8 +219,8 @@ export function checkBudgets(shipped: readonly Measured[], budgets: Budgets): st
       continue;
     }
     for (const key of ["triangles", "drawCalls", "materials", "bytes"] as const) {
-      // A home's shell shows one wall of each outer side's pair at a time: each pair is one draw call more than the body's
-      //; its triangles and bytes count both walls of every pair.
+      // A home's shell shows one wall of each outer side's pair at a time: each pair is one draw call more than the body's;
+      // its triangles and bytes count both walls of every pair.
       const limit = key === "drawCalls" && budget[key] !== undefined ? budget[key] + (file.pairs ?? 0) : budget[key];
       if (limit !== undefined && file[key] > limit) problems.push(`R-ASSET-007: ${file.file} has ${String(file[key])} ${key}, over its budget of ${String(limit)}`);
     }

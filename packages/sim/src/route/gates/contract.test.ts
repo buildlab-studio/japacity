@@ -380,7 +380,7 @@ describe("the Gulf contract renewed by the employer", () => {
     expect(before.expiresMonth).toBe(expires);
   });
 
-  test("[R-STATUS-006] given the employer's draw lost, when the contract's last month and the next end, then it is not renewed and lapses as before", () => {
+  test("[R-STATUS-006] given the employer's draw lost, when the contract's last month and the next end, then it is not renewed and lapses", () => {
     const game = toLastMonth(0);
     const expires = game.state.status.current!.expiresMonth!;
     month(game);

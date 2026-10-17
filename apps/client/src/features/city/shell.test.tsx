@@ -357,7 +357,7 @@ function noMeanwhile<T extends { activities: { id: string }[] }>(view: T): T {
   return { ...view, activities: view.activities.filter((option) => !["activity.open-source", "activity.tech-posts", "activity.be-noticed", "activity.nurse-certification"].includes(option.id)) };
 }
 
-describe("the nudge", () => {
+describe("the nudge while a step waits", () => {
   const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
 
   test("[R-WORLD-003] given a paper on its way and a better-paid job on the board, when the nudge is read, then it sends the life to the board, not to wait", () => {
@@ -471,7 +471,7 @@ describe("the archetypes' own ways", () => {
   });
 });
 
-describe("the nudge (the waiting months' acts)", () => {
+describe("the nudge in the waiting months", () => {
   const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
   const waiting = noMeanwhile({ ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null }, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }] });
 
@@ -603,7 +603,7 @@ describe("the home the game opens in", () => {
     expect(slot.pins.find((pin) => pin.id === "place.hostel-room")?.state).toBe("here");
   });
 
-  test("[R-HOME-006] given a life in the family house, when the world opens, then it opens in the compound as before", async () => {
+  test("[R-HOME-006] given a life in the family house, when the world opens, then it opens in the compound", async () => {
     localStorage.removeItem("japacity.city.last");
     await opened(world(), engineView());
     expect(document.querySelector("[data-city]")?.getAttribute("data-city")).toBe("place.family-house");

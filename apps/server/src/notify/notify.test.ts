@@ -120,7 +120,7 @@ describe("the push message", () => {
     await expect(open({ ...other, json: device.json }, body)).rejects.toThrow();
   });
 
-  test("[R-CLOCK-031] given the deployment's keys, when a push request is made, then its token is signed for the endpoint's origin, lives twelve hours and names the maintainer, beside the coding and the TTL", async () => {
+  test("[R-CLOCK-031] given the deployment's keys, when a push request is made, then its token is signed for the endpoint's origin, lives twelve hours and names its contact, beside the coding and the TTL", async () => {
     const device = await testDevice("one");
     const { keys, verify } = await testKeys();
 

@@ -80,7 +80,7 @@ describe("the file follows the lean", () => {
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(["eca", "english", "pool", "invited"]);
   });
 
-  test("[R-CHAPTER-009] given a graduate on the master's, when the master's is looked into and the first chapter closes, then the file is the master's as before, and looking into Canada later does not move the lean", () => {
+  test("[R-CHAPTER-009] given a graduate on the master's, when the master's is looked into and the first chapter closes, then the file stays the master's, and looking into Canada later does not move the lean", () => {
     const game = life("scenario.tunde");
     untilHeard(game, UK);
     const result = game.endTurn([slot(LOOK, UK)]);

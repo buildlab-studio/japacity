@@ -1,7 +1,6 @@
 // The live city behind the start screen and the ways in (account.md R-ACCOUNT-029): the painted map
 // of Lagos (paper/), open over the family house in Surulere, its built places standing as their stickers. A picture:
-// nothing in it is picked, and the compound with the figure comes back at the door. Loaded apart from the first
-// screen's code, as the compound is.
+// nothing in it is picked. Loaded apart from the first screen's code, as the compound is.
 import { content } from "@japacity/content";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "./paper/paper.css";

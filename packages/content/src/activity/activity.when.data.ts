@@ -1,7 +1,8 @@
 // When each act answers (docs/rules/activity.md R-ACTIVITY-015).
 // A now-act is anything quick, a purchase or a conversation, sent at once by `activity/now`; every
 // other entry, each job and side job among them, fills the month as a slot pick. A purchase runs as
-// often as money allows; any other now-act once a month.
+// often as money allows, an act marked repeat as often as the month's free time allows (R-ACTIVITY-019),
+// and any other now-act once a month.
 import type { ActivityEntry, Id } from "@japacity/sim";
 
 import { NOW_HALF_DAYS } from "./activity.days.data";

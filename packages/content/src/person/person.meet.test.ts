@@ -25,7 +25,7 @@ describe("the partner met in a place", () => {
     expect(problems).toEqual([]);
   });
 
-  test("[R-WORLD-020] given the places asked for, when content is read, then none is there yet, so the list empties as it is added", () => {
+  test("[R-WORLD-020] given the places asked for, when content is read, then none is there yet, so the list empties as the maintainer adds them", () => {
     expect(placesWanted.filter((place) => place in content.place)).toEqual([]);
   });
 

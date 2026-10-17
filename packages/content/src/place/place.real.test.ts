@@ -96,7 +96,7 @@ describe("real names as neutral scenery", () => {
     expect(realNameChecks(withPlace({ ...place("place.yaba-hub"), realName: "A Real Hub", stages: [] }), text, realNames)).toEqual([]);
   });
 
-  test("[R-CITY-022] given public places that stage a fraud or a mishap, when the place table is checked, then their public names stand as before", () => {
+  test("[R-CITY-022] given public places that stage a fraud or a mishap, when the place table is checked, then their public names stand", () => {
     expect(place("place.computer-village").stages).toContain("offer.laptop-fault");
     expect(place("place.ojuelegba").stages).toContain("offer.agent-stop");
     expect(realNameChecks(content, text, realNames).filter((problem) => /computer-village|ojuelegba/.test(problem))).toEqual([]);

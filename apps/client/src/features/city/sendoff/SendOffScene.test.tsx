@@ -126,7 +126,7 @@ describe("the send-off as a scene", () => {
     expect(authority.sent).toEqual([]);
   });
 
-  test("[R-CHAPTER-012] given the scene left before the gate's button, then it closes, nothing was sent, and the life is at the airport as before", async () => {
+  test("[R-CHAPTER-012] given the scene left before the gate's button, then it closes, nothing was sent, and the life is still at the airport", async () => {
     const { authority, store } = await adaAtTheGate();
     const before = store.getState().view;
     fireEvent.click(found("[data-so-go='step']"));

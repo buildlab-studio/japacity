@@ -528,7 +528,7 @@ describe("the switches tab", () => {
     ]);
   });
 
-  test("[R-SERVER-030] given the dials, when one is set at 0 and one unset, then each is confirmed and sent with its reason; a value that is not a whole number cannot be sent; the retired top-up is no dial", async () => {
+  test("[R-SERVER-030] given the dials, when one is set at 0 and one unset, then each is confirmed and sent with its reason; a value that is not a whole number cannot be sent; there is no top-up dial", async () => {
     const server = page("switches", { "POST /api/admin/dials": () => ADMIN_GETS["/api/admin/switches"] });
     const months = (await screen.findByText(words("admin.dial.computerAfterMonths"))).closest("li")!;
     expect(within(months).getByText("25")).toBeTruthy();

@@ -18,7 +18,7 @@ const FROM = "place.ojuelegba";
 const TO = "place.yaba";
 const at = (id: string) => content.place[id as keyof typeof content.place]!.position!;
 
-describe("Drive on the ride sheet (R-WORLD-017 to be amended)", () => {
+describe("Drive on the ride sheet (R-WORLD-017)", () => {
   test("[R-PLACE-010] [R-WORLD-017] given no car at home, when the ways are read, then Drive is not among them; with the car, Drive comes first at the simulation's own fuel fare, between the danfo's and the okada's, with no wait", () => {
     const plain = rideChoices(at(FROM), at(TO), null, 10000, false, { from: FROM, to: TO });
     expect(plain.map((way) => way.id)).toEqual(["danfo", "keke", "okada", "walk"]);

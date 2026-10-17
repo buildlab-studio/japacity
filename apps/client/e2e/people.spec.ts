@@ -16,7 +16,7 @@ const TOBI = "person.tobi-bank";
 const SEE = { activity: "activity.see-someone", param: null } as const;
 const PAIR = "pair-1";
 
-/** Where the pictures for the build notes go, when asked for. */
+/** Where the pictures go, when asked for. */
 const PREVIEW = process.env.PREVIEW_DIR;
 
 /** Text that must never reach the player, as the smoke spec holds it. */

@@ -39,7 +39,7 @@ describe("the chapter's checklist in Japa", () => {
     ]);
   });
 
-  test("[R-CHAPTER-009] [R-WORLD-019] given a graduate on the master's file, when Japa shows, then the route's steps stand alone, as before", async () => {
+  test("[R-CHAPTER-009] [R-WORLD-019] given a graduate on the master's file, when Japa shows, then the route's steps stand alone", async () => {
     const game = newGame("scenario.tunde");
     lookInto(game, UK);
     expect(game.view().chapter.current).toBe("chapter.build-the-file");

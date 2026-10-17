@@ -121,7 +121,7 @@ function toPaperByFit(position: { latE3: number; lonE3: number }): [number, numb
 }
 
 describe("Lagos beside London", () => {
-  test("[R-WORLD-015] [R-WORLD-038] given the painted city the map draws by default, when it is read, then it is Lagos's own fit, paper, cards, drawing, strip and lantern canoe, so Lagos is drawn as before", () => {
+  test("[R-WORLD-015] [R-WORLD-038] given the painted city the map draws by default, when it is read, then it is Lagos's own fit, paper, cards, drawing, strip and lantern canoe, so Lagos is drawn as its own", () => {
     expect(LAGOS.toPaper).toBe(toPaper);
     expect(LAGOS.fromPaper).toBe(fromPaper);
     expect(LAGOS.paper).toBe(PAPER);
@@ -198,7 +198,7 @@ describe("the map abroad", () => {
     expect(document.querySelector(`[data-ride-sheet="${HEATHROW}"]`)).not.toBeNull();
   });
 
-  test("[R-WORLD-038] given Canada, which has its own painted map since the three countries' wave, when the map opens there, then the stops stand as a list for a screen reader alone, with no hint, and Calgary's paper is drawn, not London's", async () => {
+  test("[R-WORLD-038] given Canada, which has its own painted map, when the map opens there, then the stops stand as a list for a screen reader alone, with no hint, and Calgary's paper is drawn, not London's", async () => {
     const pins: MapPin[] = [{ id: "place.calgary-north-east", name: "north-east Calgary", state: "here", position: { latE3: 51090, lonE3: -113960 }, things: 1 }];
     await renderWithView(<Map pins={pins} country={CANADA} countries={[CANADA]} drawing={false} onGo={() => undefined} onClose={() => undefined} />, engineView("scenario.ada"));
     await settle("[data-paper-map]");

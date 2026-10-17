@@ -191,7 +191,7 @@ describe("the week's turn", () => {
 });
 
 describe("the boards", () => {
-  test.each(FOUR)("[R-CITY-039] given the switch row as launched, when the %s board is asked for, then it answers", async (name) => {
+  test.each(FOUR)("[R-CITY-039] given the switch row as shipped, when the %s board is asked for, then it answers", async (name) => {
     const server = testServer();
     await newLife(server, "account.ada", "scenario.ada");
     const answered = await board(server, "account.ada", name);
@@ -214,7 +214,7 @@ describe("the boards", () => {
     expect((await board(server, "account.ada", name)).status).toBe(200);
   });
 
-  test("[R-CITY-039] given the joined-week board as launched, when it is asked for, then it is refused switched-off; when switched on, then it ranks only the accounts made in the player's week", async () => {
+  test("[R-CITY-039] given the joined-week board as shipped, when it is asked for, then it is refused switched-off; when switched on, then it ranks only the accounts made in the player's week", async () => {
     const server = testServer();
     expect(BOARD_NAMES).toContain("joined-week");
     await figure(server, "early", 90, { joinedAt: EPOCH - 7 * time.DAY_MS });

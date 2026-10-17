@@ -153,7 +153,7 @@ describe("side jobs", () => {
     expect(month.events.filter((event) => event.type === "activity/side-ended")).toEqual([]);
   });
 
-  test("[R-ACTIVITY-010] [R-PLACE-003] given no side job, when the character flies, then the flight ends no side job and the job at home ends as before", () => {
+  test("[R-ACTIVITY-010] [R-PLACE-003] given no side job, when the character flies, then the flight ends no side job and the job at home ends", () => {
     const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
     applyEffects(game, [{ type: "activity/start-job", job: "activity.job-bank-officer" }]);

@@ -111,7 +111,7 @@ describe("the sky and the sun by the world's clock", () => {
   });
 });
 
-describe("the rooms' light (the design)", () => {
+describe("the rooms' light", () => {
   test("[R-CLOCK-033] given a room by day, when its look is read, then its sun is warmed toward the room's own and both lights stand as strong as the room's are at noon; at night the look's lamps are untouched and the sun is the night's", () => {
     const noon = lookAt("afternoon", time.AFTERNOON_HOUR * HOUR, SUN);
     const room = roomLook(noon);

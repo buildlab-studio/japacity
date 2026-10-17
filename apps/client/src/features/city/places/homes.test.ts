@@ -197,7 +197,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     expect(Math.max(...near) - Math.min(...near)).toBeGreaterThan(1.6);
   });
 
-  test(`[R-CLOCK-033] [R-WORLD-005] given ${home.id}'s light, when it is read, then it takes the rooms' light (the design), a bulb glows as the light goes with a real light at it, every lamp inside the house and every lamp's light reaching a room or two, never the whole street`, () => {
+  test(`[R-CLOCK-033] [R-WORLD-005] given ${home.id}'s light, when it is read, then it takes the rooms' light, a bulb glows as the light goes with a real light at it, every lamp inside the house and every lamp's light reaching a room or two, never the whole street`, () => {
     expect(stage.light.room).toBe(true);
     const lamps = stage.light.lamps ?? [];
     expect(lamps.some((lamp) => lamp.bulb === true && lamp.light !== undefined)).toBe(true);

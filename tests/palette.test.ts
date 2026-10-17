@@ -124,7 +124,7 @@ describe("the palette", () => {
     expect(show([...findAll(clientFiles, GRADIENT_CLASS), ...findAll(clientFiles, GRADIENT_STOP), ...findAll(interfaceFiles, GRADIENT_CSS), ...findAll(clientFiles, BLUR), ...findAll(clientFiles, GLOW)])).toEqual([]);
   });
 
-  test("[R-WORLD-021] given the drawn map's water, then it is the design's lagoon tone in the game's one look, by day and by night, never the bands' navy (11 Oct 2026; one look since decision 0038)", () => {
+  test("[R-WORLD-021] given the drawn map's water, then it is the design's lagoon tone in the game's one look, by day and by night, never the bands' navy (decision 0038)", () => {
     const css = readFileSync(join(root, CLIENT, "index.css"), "utf8");
     expect([...css.matchAll(/--water:\s*([^;]+);/g)].map((found) => found[1])).toEqual(["#5f9fc0"]);
     // The night paint keeps the day's water: it sets no water of its own.

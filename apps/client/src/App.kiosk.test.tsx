@@ -126,7 +126,7 @@ describe("the street kiosk while the world runs the Friday draw", () => {
     expect(sheet.querySelector("[data-lottery-held]")?.getAttribute("data-lottery-held")).toBe("2");
   });
 
-  test("[R-LOTTERY-001] [R-WORLD-005] given the world offline, when the kiosk is tapped, then its slip is the luck kiosk's now-act, as before", async () => {
+  test("[R-LOTTERY-001] [R-WORLD-005] given the world offline, when the kiosk is tapped, then its slip is the luck kiosk's now-act", async () => {
     const { store, life } = await onTheStreet(null);
     expect(store.getState().view?.activities.find((option) => option.id === KIOSK)?.allowed).toBe(true);
     await tapKiosk();

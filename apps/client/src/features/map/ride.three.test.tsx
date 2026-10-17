@@ -139,7 +139,7 @@ describe("the country's own vehicle", () => {
     expect(vehicleFile("bus")).toBe("shared/veh/veh_london-bus.glb");
   });
 
-  test("[R-WORLD-039] given the seats the models wave exported, when the ride's copies are read, then each is the same eye, window and ahead", () => {
+  test("[R-WORLD-039] given the seats exported with the models, when the ride's copies are read, then each is the same eye, window and ahead", () => {
     expect(SEATS).toEqual({ CALGARY_BUS_SEAT, CTRAIN_SEAT, METRO_SEAT, LABOUR_BUS_SEAT, TAXI_SEAT, ITALY_BUS_SEAT, VAN_SEAT });
   });
 

@@ -83,7 +83,7 @@ test("[R-WORLD-001] [R-WORLD-024] [R-WORLD-003] the default address opens the wo
   await shoot(page, "open");
 });
 
-test("[R-WORLD-024] ?classic opens the world as any address does: the old month page is gone", async ({ page }, info) => {
+test("[R-WORLD-024] ?classic opens the world as any address does, with no month page", async ({ page }, info) => {
   phoneOnly(info.project.name);
   await page.goto("/?classic");
   await startReadyLife(page);
