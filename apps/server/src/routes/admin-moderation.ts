@@ -35,7 +35,7 @@ async function readBody(c: Context): Promise<unknown> {
 /** The admin gate sets `admin`; the player's two routes go through the limits, which set `session`. */
 type ModerationEnv = { Variables: AdminEnv["Variables"] & SessionEnv["Variables"] };
 
-export function moderationAdminRoutes(deps: ServerDeps, ports: ModerationPorts): Hono<ModerationEnv> {
+export function adminModerationRoutes(deps: ServerDeps, ports: ModerationPorts): Hono<ModerationEnv> {
   const routes = new Hono<ModerationEnv>();
 
   routes.use("/api/admin/moderation/*", adminOnly(deps));

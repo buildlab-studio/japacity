@@ -18,12 +18,12 @@ import { lightsRoute } from "./routes/lights";
 import { dedicationRoutes } from "./routes/dedication";
 import { adminDedicationRoutes } from "./routes/admin-dedication";
 import { adminRoutes } from "./routes/admin";
-import { switchRoutes } from "./routes/admin-switches";
+import { adminSwitchRoutes } from "./routes/admin-switches";
 import { adminAnalyticsRoutes } from "./routes/admin-analytics";
 import { countersRoute } from "./routes/counters";
 import { cspReportRoute } from "./routes/csp";
 import { feedbackRoute } from "./routes/feedback";
-import { moderationAdminRoutes } from "./routes/moderation-admin";
+import { adminModerationRoutes } from "./routes/admin-moderation";
 import { moderationPorts } from "./moderation/ports";
 import { conversationRoutes } from "./routes/conversation";
 import { inviteRoutes } from "./routes/invite";
@@ -51,7 +51,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   // R-SERVER-005, R-ANALYTICS-008: around the gates and the limits, so a refusal from either is counted too.
   for (const path of COUNTED_PATHS) app.use(path, countRefusals(deps));
   // R-SERVER-031: first, so its gates run before every route they close.
-  app.route("/", switchRoutes(deps));
+  app.route("/", adminSwitchRoutes(deps));
 
   if (accounts !== undefined) app.route("/", authRoutes(accounts)).route("/", ageRoutes(deps, accounts)).route("/", accountRoutes(deps, accounts));
 
@@ -71,7 +71,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", countersRoute(deps)).route("/api/admin", adminAnalyticsRoutes(deps));
   // R-SERVER-041: the page's content policy reports here.
   app.route("/", cspReportRoute(deps));
-  app.route("/", moderationAdminRoutes(deps, moderationPorts(deps, accounts)));
+  app.route("/", adminModerationRoutes(deps, moderationPorts(deps, accounts)));
   app.route("/", feedbackRoute(deps));
   app.route("/", inviteRoutes(deps));
   app.route("/", pairRoutes(deps));
