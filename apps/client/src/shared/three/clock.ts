@@ -20,8 +20,3 @@ export function advanceClock(seconds: number, uniforms: MotionUniforms = motionU
   uniforms.uTime.value += Math.min(seconds, 0.25);
   return uniforms.uTime.value;
 }
-
-/** The same gust the shaders compute, for the few things moved in script (a person's sway). */
-export function gustAt(time: number, x: number, z: number): number {
-  return 0.62 + 0.3 * Math.sin(time * 0.7 + x * 0.16 + z * 0.12) + 0.16 * Math.sin(time * 1.9 + x * 0.45);
-}

@@ -601,26 +601,3 @@ function boundsUv(geometry: BufferGeometry): void {
   }
   geometry.setAttribute("uv", new BufferAttribute(uv, 2));
 }
-
-const SHEETS = new Set<string>(["flag", "hang", "frond", "water"]);
-
-/**
- * Sets the motion material on every part of a model whose node extras name a motion
- * (`"motion": "flag" | "hang" | "frond" | "water"`), keeping its colours. Returns how many moved.
- */
-export function applyNodeMotion(root: Object3D): number {
-  let moved = 0;
-  root.traverse((object) => {
-    const kind = (object.userData as { motion?: unknown }).motion;
-    if (typeof kind !== "string" || !SHEETS.has(kind)) return;
-    object.traverse((part) => {
-      const mesh = part as Mesh;
-      if (!mesh.isMesh) return;
-      boundsUv(mesh.geometry);
-      const vertexColors = mesh.geometry.getAttribute("color") !== undefined;
-      mesh.material = motionMaterial(kind as MotionShader, 0xffffff, vertexColors);
-      moved += 1;
-    });
-  });
-  return moved;
-}

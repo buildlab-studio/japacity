@@ -59,22 +59,3 @@ export function loadModel(manifest: PublishManifest, path: string, text: (key: s
   loading.catch(() => models.delete(path));
   return loading;
 }
-
-/** Forgets a place's own models when it is left; shared people, vehicles and props stay loaded. */
-export function forgetPlace(folder: string): void {
-  for (const [path, loading] of models) {
-    if (!path.startsWith(`places/${folder}/`)) continue;
-    models.delete(path);
-    void loading.then((root) => {
-      root.traverse((object) => {
-        const mesh = object as Mesh;
-        if (!mesh.isMesh) return;
-        mesh.geometry.dispose();
-        for (const material of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
-          (material as MeshStandardMaterial).map?.dispose();
-          material.dispose();
-        }
-      });
-    });
-  }
-}
