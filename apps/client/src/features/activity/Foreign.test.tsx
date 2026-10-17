@@ -29,7 +29,7 @@ function endorsement(pounds: number): { view: PlayerView; option: ActivityOption
   const view = game.view();
   const option = view.activities.find((entry) => entry.id === ENDORSE);
   if (option === undefined) throw new Error("The view has no endorsement.");
-  // Its needs met, as at 23 years 10 months in the review: only the money stands in the way.
+  // Its needs met, as at 23 years 10 months: only the money stands in the way.
   return { view, option: { ...option, allowed: true, missing: [] } };
 }
 
