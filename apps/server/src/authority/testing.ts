@@ -2,8 +2,7 @@
 // the test session, with helpers to sign in, make a character and send
 // requests through the app as a client would. Never imported by the Worker.
 import { content } from "@japacity/content";
-import type { Command, Id, State } from "@japacity/sim";
-import { hashState, newState } from "@japacity/sim";
+import type { Command, Id } from "@japacity/sim";
 import type { Held } from "@japacity/store";
 import type { Hono } from "hono";
 
@@ -115,10 +114,4 @@ export async function held(server: TestServer, character: string): Promise<Held>
 /** A month with every free slot resting: legal whatever the character owes (R-ENGINE-011). */
 export function restMonth(state: { v: number }): Command {
   return { type: "turn/end", slots: [], basedOn: state.v };
-}
-
-/** The state a fresh character in `scenario` with `seed` starts from, and its hash. */
-export function startOf(scenario: Id<"scenario">, seed: string): { state: State; hash: string } {
-  const state = newState(scenario, seed, content);
-  return { state, hash: hashState(state) };
 }
