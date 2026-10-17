@@ -47,6 +47,9 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
 
+      # R-SERVER-048: the content version moves with any change to the content's data or the simulation's code.
+      - run: pnpm check:version
+
       # R-ENGINE-020: builds the client and holds each part of a first visit to tools/size-budget.json (a few seconds).
       - run: pnpm check:size
 

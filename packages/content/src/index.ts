@@ -122,6 +122,7 @@ export type { JapaType, OfficialAccount, OfficialPlatform, ShareKind } from "./s
 export const olderContents: readonly Content[] = [];
 
 export const content: Content = {
+  // Raised by one with any change to the content or the simulation, then sealed in seal.json (server.md R-SERVER-048).
   version: "1",
   quality: qualityTable,
   // advice.md: the friend, the adviser and the agents.

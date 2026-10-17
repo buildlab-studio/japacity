@@ -19,6 +19,8 @@
     "check:assets": "tsx tools/assets/check-assets.ts",
     "check:size": "tsx tools/check-size.ts",
     "check:scrub": "tsx tools/scrub-check.ts",
+    "check:version": "tsx tools/content-seal.ts check",
+    "content:seal": "tsx tools/content-seal.ts seal",
     "assets:export": "tsx tools/assets/export.ts",
     "assets:shoot": "tsx tools/assets/shoot.ts",
     "assets:outline": "tsx tools/assets/outline.ts",
