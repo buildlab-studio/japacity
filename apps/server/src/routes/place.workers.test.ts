@@ -90,7 +90,7 @@ describe("the place routes", () => {
     expect((await refusal(fetched)).code).toBe("signed-out");
   });
 
-  test("[R-CLOCK-030] given a signed-in account in a region that allows interaction, when it opens the socket, then it joins the place with its name, look and the server's time", async () => {
+  test("[R-CLOCK-030] given a signed-in account, when it opens the socket, then it joins the place with its name, look and the server's time", async () => {
     const setupped = setup({ "account-1": PLACE });
 
     listenTo(await opened(await socket(setupped, "account-1", "NG")));
