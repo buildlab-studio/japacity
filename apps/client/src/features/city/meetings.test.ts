@@ -137,6 +137,15 @@ describe("a person standing where content meets them", () => {
     ];
     expect(makeRoom(crowd, 2).map((one) => one.slot)).toEqual([0, 3]);
     expect(makeRoom(crowd, 0)).toEqual(crowd);
+    // R-CITY-032: a resident at a part is never taken; once the other residents are gone, players give way.
+    const parts = [
+      { slot: 0, kind: "resident" as const, part: 0 },
+      { slot: 1, kind: "resident" as const },
+      { slot: 2, kind: "player" as const },
+      { slot: 3, kind: "resident" as const, part: 2 },
+    ];
+    expect(makeRoom(parts, 2).map((one) => one.slot)).toEqual([0, 3]);
+    expect(makeRoom(parts, 4).map((one) => one.slot)).toEqual([0, 3]);
     // The parlour's Mama and Papa stay with two guests in a room of six; the hub's six make room for two.
     expect(roomFor(2, 2, 6)).toBe(0);
     expect(roomFor(6, 2, 6)).toBe(2);
