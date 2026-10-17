@@ -1,5 +1,6 @@
 // Browser tests at both sizes the game is built for: a mid-range Android
-// phone and a desktop (docs/design/03-feasibility-and-plan.md, "Screens").
+// phone, as most players in Nigeria come on a phone, and a desktop, which many
+// in the United Kingdom use.
 // Runs against the dev server, so the fast clock is on.
 import { defineConfig, devices } from "@playwright/test";
 
