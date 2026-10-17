@@ -2,9 +2,9 @@
 // R-CHAPTER-009, world.md R-WORLD-019): the care file's items in its words, ticked as the chapter ticks them.
 import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import type { Game } from "../../../../../../packages/sim/src/testing/play";
 import { newGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { chapterAhead, Japa } from "./Japa";

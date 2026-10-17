@@ -4,10 +4,10 @@
 // Window or aisle, the gate where Board the plane sends the flight once, the plane over the night map, the landing in
 // Peckham with the bus, the top deck with the pings, the card saved and the Phone's badge; Ring the bell and the life
 // stands in the room abroad, the card kept where the phone keeps it.
+import { lifeSaves } from "@japacity/sim/testing";
 import { devices, expect, test, type Page } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
-import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 import { closeGranted, doAct, LIVED, passCards, placeNow, placeReady, rideTo, seedSave } from "./live";
 
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).

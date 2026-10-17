@@ -3,12 +3,10 @@
 // risks taken and how home was held. Read from the recorded lives and a trader's tile played into her shop.
 import { content, japaTypes, text } from "@japacity/content";
 import type { FlatSave, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
+import { topActivities } from "@japacity/sim";
+import { lifeSaves, newLifeSaves, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { topActivities } from "../../../../../packages/sim/src/chapter/chapter.card";
-import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
-import { newLifeSaves } from "../../../../../packages/sim/src/sweep/lives.data";
-import { start } from "../../../../../packages/sim/src/testing/play";
 import { kept, localCurrency, moneyLines } from "../../features/turn/month.results";
 import { newGame, recordedGame } from "../testing/fixtures";
 import { japaTypeOf, typeWords } from "./japaType";

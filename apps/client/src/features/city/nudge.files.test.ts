@@ -3,10 +3,10 @@
 // shut step names the act that opens it; the meetup's nudge is one tap. Real content, lives played through `step`.
 import { content, text } from "@japacity/content";
 import type { Id, PlayerView, SlotPick } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { applyEffects, readyLife, slot } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects, readyLife, slot } from "../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { formatMoney } from "../../shared/words/format";
 import { hearCare, month, readCare, readyNurse, until } from "../../shared/testing/nurse";
 import { hasWords, say } from "../../shared/words/text";

@@ -4,10 +4,9 @@
 // already running is passed over. Real content, lives played through `step`.
 import { content } from "@japacity/content";
 import type { Id, PlayerView, SlotPick } from "@japacity/sim";
+import { applyEffects, readyLife, slot, start, type Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects, readyLife, slot } from "../../../../../packages/sim/src/route/route.journey";
-import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import { archetypeOf, answersInOrder, presetAnswer } from "../../shared/frontdoor/archetypes";
 import { shortfall } from "../../shared/words/cost";
 import { settle } from "../../shared/testing/nurse";

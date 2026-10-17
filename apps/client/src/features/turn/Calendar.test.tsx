@@ -4,10 +4,10 @@
 // when it is lived, so the Calendar holds no plan to fill, no pages, no Next month and no Until news.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
+import { slot } from "@japacity/sim/testing";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
-import { slot } from "../../../../../packages/sim/src/route/route.journey";
 import { plannable } from "../../shared/words/acts";
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, MONTH_KEY } from "../../authority/store";

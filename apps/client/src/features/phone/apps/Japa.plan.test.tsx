@@ -3,11 +3,11 @@
 // plan's marks in Coming up.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { readyLife, slot, toKnown } from "@japacity/sim/testing";
 import { act, fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { readyLife, slot, toKnown } from "../../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../../packages/sim/src/testing/play";
 import { GameProvider } from "../../../authority/GameProvider";
 import { createGameStore } from "../../../authority/store";
 import { gameAuthority, newGame } from "../../../shared/testing/fixtures";

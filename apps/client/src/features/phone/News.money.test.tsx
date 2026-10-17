@@ -2,10 +2,10 @@
 // lines, which give a change at the bank as the naira left after its charge instead of the sum with the charge apart,
 // call pounds that went into the bank money in hand, and tell the FX man's changes as the bank's.
 import type { ReportLine } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
 import { act, fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nowLineWords } from "../../shared/words/acts";

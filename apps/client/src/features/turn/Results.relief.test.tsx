@@ -3,12 +3,12 @@
 // off the upkeep, while the money count keeps the upkeep as it was paid.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
+import { int } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { slot } from "@japacity/sim/testing";
 import { act } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { bp } from "../../../../../packages/sim/src/engine/int";
-import { slot } from "../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { chargedLivingGame, newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
@@ -42,8 +42,8 @@ describe("the room's basics on the results", () => {
     expect(moneyLines(lines).filter(({ line }) => line.key.startsWith("line.obligation.relief."))).toEqual([]);
     await showResults(game, lines);
     const told = storyTexts();
-    expect(told).toContain(`Food, cooked at home: ${formatMoney(bp(due, room.cookedBp), "NGN")} less.`);
-    expect(told).toContain(`Water, fetched yourself: ${formatMoney(bp(due, room.waterBp), "NGN")} less.`);
+    expect(told).toContain(`Food, cooked at home: ${formatMoney(int.bp(due, room.cookedBp), "NGN")} less.`);
+    expect(told).toContain(`Water, fetched yourself: ${formatMoney(int.bp(due, room.waterBp), "NGN")} less.`);
   });
 
   test("[R-WORLD-008] [R-OBLIGATION-014] given the nurse's busy month (a page read, a paper asked for, a chapter closed, an offer) with food cooked and water fetched, when the results show, then both chores keep their own lines after the month's events", async () => {
@@ -66,8 +66,8 @@ describe("the room's basics on the results", () => {
     await showResults(game, lines);
     const told = storyTexts();
     expect(told.slice(-2)).toEqual([
-      `Food, cooked at home: ${formatMoney(bp(due, room.cookedBp), "NGN")} less.`,
-      `Water, fetched yourself: ${formatMoney(bp(due, room.waterBp), "NGN")} less.`,
+      `Food, cooked at home: ${formatMoney(int.bp(due, room.cookedBp), "NGN")} less.`,
+      `Water, fetched yourself: ${formatMoney(int.bp(due, room.waterBp), "NGN")} less.`,
     ]);
   });
 });

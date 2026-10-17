@@ -1,9 +1,9 @@
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
+import { int } from "@japacity/sim";
+import { draw, slot } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { bp } from "../../../../../../packages/sim/src/engine/int";
-import { draw, slot } from "../../../../../../packages/sim/src/route/route.journey";
 import { abroadGame, newGame, setPockets, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
@@ -66,7 +66,7 @@ describe("the raise in Jobs", () => {
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;
     if (typeof pay.amount !== "number") throw new Error("A fixed pay was expected.");
-    const raised = pay.amount + bp(pay.amount, content.tuning.activity.raiseBp);
+    const raised = pay.amount + int.bp(pay.amount, content.tuning.activity.raiseBp);
     game.endTurn([slot(NOTICED)]);
     await renderWithView(<Jobs />, game.view());
     const row = () => document.querySelector("[data-phone-app=jobs]")?.textContent ?? "";

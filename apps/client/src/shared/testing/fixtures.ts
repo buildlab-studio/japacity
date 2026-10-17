@@ -5,13 +5,7 @@
 import { content } from "@japacity/content";
 import type { Authority, Command, Content, Currency, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave } from "@japacity/sim";
 import { newState, standInWorld, viewFor } from "@japacity/sim";
-
-// The recorded lives, the rule tests' game handle and its way of applying effects are the
-// sim's own test tools; the package exports only its contract.
-import { flownAda } from "../../../../../packages/sim/src/goal/goal.journey";
-import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
-import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
-import { start, type Game } from "../../../../../packages/sim/src/testing/play";
+import { flownAda, lifeSaves, applyEffects, start, type Game } from "@japacity/sim/testing";
 
 const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
 

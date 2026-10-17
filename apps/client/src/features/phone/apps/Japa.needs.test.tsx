@@ -4,9 +4,9 @@
 // content, a developer played through `step`.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
+import { applyEffects, readyLife, slot } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects, readyLife, slot } from "../../../../../../packages/sim/src/route/route.journey";
 import { renderWithView } from "../../../shared/testing/render";
 import { checklistWords } from "../../../shared/words/requirement";
 import { say } from "../../../shared/words/text";

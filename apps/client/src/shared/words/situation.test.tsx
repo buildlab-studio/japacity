@@ -3,11 +3,11 @@
 // game is about leaving. On the real content and the real engine.
 import { content, text } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
+import { legalCommands } from "@japacity/sim/testing";
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { ScenarioView } from "../../features/scenario/ScenarioView";
-import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
 import { newGame } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { tidyLines } from "./lines";

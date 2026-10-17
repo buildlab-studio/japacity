@@ -4,10 +4,10 @@
 // the act's fan button. The place file is the one the game ships; the scene is a stand-in that hands the city the taps,
 // says where a tapped thing stands so its fan opens, and walks at once (R-WORLD-034).
 import { type DayPart, type WorldClock, worldClockAt } from "@japacity/sim";
+import { applyEffects } from "@japacity/sim/testing";
 import { act, cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import type { GameStore } from "../../authority/store";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/people";

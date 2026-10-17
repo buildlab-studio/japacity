@@ -1,3 +1,5 @@
+import type { Command, Id, PlayerView, ReportLine } from "@japacity/sim";
+import { start, type Game } from "@japacity/sim/testing";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -10,8 +12,6 @@ import { expect, test, type Page } from "@playwright/test";
 // month slept in the bed (docs/rules/world.md R-WORLD-025, R-WORLD-030), and
 // every screen before the first good line is searched for an ask.
 import { content, text } from "../../../packages/content/src/index";
-import type { Command, Id, PlayerView, ReportLine } from "../../../packages/sim/src/engine/types";
-import { start, type Game } from "../../../packages/sim/src/testing/play";
 import { chapterNextStep, FIRST_SESSION_TURNS } from "../src/shared/testing/firstSession";
 import { startReadyLife } from "./door";
 import { backFromResults, doAct, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, sleepTheMonth } from "./live";

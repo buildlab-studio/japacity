@@ -4,10 +4,10 @@
 // refusal: the talent route known, the endorsement asked for, the body sure to say no.
 import { content, text } from "@japacity/content";
 import type { Content, Id, PlayerView } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { applyEffects, readyLife, slot } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects, readyLife, slot } from "../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { inMonths, say } from "../../shared/words/text";
 import { nudgeOf } from "./nudge";
 

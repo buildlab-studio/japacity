@@ -3,11 +3,11 @@
 // certificate, never runs out unseen months after it was taken. Played on the real engine and content.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { slot } from "@japacity/sim/testing";
 import { act, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { slot } from "../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";

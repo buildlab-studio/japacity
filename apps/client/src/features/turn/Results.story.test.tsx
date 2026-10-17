@@ -3,12 +3,11 @@
 // At most six story lines show; the rest of the month stays in News.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
+import { slot, lifeSaves } from "@japacity/sim/testing";
 import { act, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { slot } from "../../../../../packages/sim/src/route/route.journey";
 import { newGame, recordedGame } from "../../shared/testing/fixtures";
-import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
 import { markWord } from "../../shared/ui/Mark";
 import { renderWithView } from "../../shared/testing/render";
 import { say, sayCount, words } from "../../shared/words/text";

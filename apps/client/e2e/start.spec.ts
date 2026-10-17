@@ -1,3 +1,5 @@
+import { standInWorld } from "@japacity/sim";
+import { finishPrologue, start } from "@japacity/sim/testing";
 import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
@@ -6,8 +8,6 @@ import { expect, test, type Page } from "@playwright/test";
 // /api route is answered here, in the shapes apps/client/src/shared/net/contract.ts copies from the server, and the
 // auth library's routes as Better Auth answers them.
 import { content } from "../../../packages/content/src/index";
-import { finishPrologue, start } from "../../../packages/sim/src/testing/play";
-import { standInWorld } from "../../../packages/sim/src/world/standIn";
 import { passThePage } from "./door";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;

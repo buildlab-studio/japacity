@@ -2,11 +2,9 @@
 // starting life as the view's next step suggests, and finds the early win.
 import { content as realContent } from "@japacity/content";
 import type { Content, Id, PlayerView, ReportLine, Requirement, SlotPick } from "@japacity/sim";
+import { legalCommands, start, type Game, type Loose } from "@japacity/sim/testing";
 
 import { earlyWinIn } from "../../features/guides/earlyWin";
-// The rule tests' game handle and its legal commands are the sim's own test tools.
-import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
-import { start, type Game, type Loose } from "../../../../../packages/sim/src/testing/play";
 import { ownRouteOf } from "../words/sixteen";
 
 export const FIRST_SESSION_TURNS = 3;

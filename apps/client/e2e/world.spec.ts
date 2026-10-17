@@ -3,11 +3,11 @@
 // opens the world as any address does; the band carries no Next month, its month opens the phone's Calendar; the month is lived and
 // the bed's Sleep turns it, the results show over the scene and go back to the place; an ask waiting keeps its line under
 // the band and a tap on it opens what is asked. With PREVIEW_DIR set, each step leaves a picture there.
+import { lifeSaves } from "@japacity/sim/testing";
 import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
-import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 import { passOpeningWords, startReadyLife } from "./door";
 import { backFromResults, LIVED, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, seedSave, sleepTheMonth } from "./live";
 

@@ -1,3 +1,4 @@
+import { start } from "@japacity/sim/testing";
 import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
@@ -6,7 +7,6 @@ import { expect, test, type Page } from "@playwright/test";
 // against a server, every /api route faked here in the shapes
 // apps/client/src/features/boards/boards.ts copies from the server.
 import { content } from "../../../packages/content/src/index";
-import { start } from "../../../packages/sim/src/testing/play";
 import { passOpeningWords } from "./door";
 import { openApp, passCards, passHomeTeach, placeReady } from "./live";
 

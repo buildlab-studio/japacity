@@ -3,11 +3,11 @@
 // the yellow pill, what is owned says so, a pick shows the balance before and after and one Buy, the delivery's toast;
 // only at home, and abroad a Lagos thing.
 import { content } from "@japacity/content";
+import type { Game } from "@japacity/sim/testing";
+import { applyEffects } from "@japacity/sim/testing";
 import { act, fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects } from "../../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../../packages/sim/src/testing/play";
 import { GameProvider } from "../../../authority/GameProvider";
 import { createGameStore } from "../../../authority/store";
 import { gameAuthority, newGame, setPockets } from "../../../shared/testing/fixtures";

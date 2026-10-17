@@ -2,9 +2,9 @@
 // said only "Answered: A hospital trust offers a nursing post." The answer is told with the choice, in the choice's
 // own words, where the offer has no words of its own for that answer.
 import type { ReportLine } from "@japacity/sim";
+import { applyEffects } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import { engineView, newGame } from "../testing/fixtures";
 import { newsLines } from "./told";
 import { nameOf, words } from "./text";

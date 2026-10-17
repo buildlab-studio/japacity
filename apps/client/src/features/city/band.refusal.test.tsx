@@ -4,10 +4,10 @@
 // row peeks with the nudge alone, and the handle still opens the chip. Real content, a real refusal played through step.
 import { content } from "@japacity/content";
 import type { Content, Id, PlayerView } from "@japacity/sim";
+import { applyEffects, readyLife, slot } from "@japacity/sim/testing";
 import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects, readyLife, slot } from "../../../../../packages/sim/src/route/route.journey";
 import { renderWithView } from "../../shared/testing/render";
 import { inMonths } from "../../shared/words/text";
 import { City, chipFolds } from "./City";

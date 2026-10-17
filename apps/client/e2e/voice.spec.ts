@@ -1,3 +1,4 @@
+import { lifeSaves } from "@japacity/sim/testing";
 import { join } from "node:path";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
@@ -6,7 +7,6 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 // most players arrive through one. Ada's recorded life is loaded just as her application went in; the interview waits in
 // the world as an ask, opened from the line under the band.
 import { setpieceVoice, text } from "../../../packages/content/src/index";
-import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 import { passOpeningWords } from "./door";
 import { LIVED, passCards, passHomeTeach, placeReady } from "./live";
 

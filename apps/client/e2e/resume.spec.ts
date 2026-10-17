@@ -1,3 +1,6 @@
+import type { Command, Id, PlayerView, ReportLine } from "@japacity/sim";
+import { worldClockAt } from "@japacity/sim";
+import { start, type Game } from "@japacity/sim/testing";
 import { join } from "node:path";
 
 import { expect, test, type Page, type Route } from "@playwright/test";
@@ -7,9 +10,6 @@ import { expect, test, type Page, type Route } from "@playwright/test";
 // browser's own words; a login wall reloads the page once and then shows the card with Reload. Played against a faked
 // server that runs the simulation itself, as newlife.spec.ts does.
 import { content } from "../../../packages/content/src/index";
-import type { Command, Id, PlayerView, ReportLine } from "../../../packages/sim/src/engine/types";
-import { worldClockAt } from "../../../packages/sim/src/index";
-import { start, type Game } from "../../../packages/sim/src/testing/play";
 import type { PresetRequest } from "../src/shared/net/contract";
 import { playPresetOn } from "../src/shared/net/preset.testing";
 import { passOpeningWords } from "./door";

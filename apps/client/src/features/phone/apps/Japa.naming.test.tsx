@@ -1,8 +1,8 @@
 // The Japa app names its way out once: the header names the route, so the figure
 // under it does not name it again.
+import { toKnown } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { toKnown } from "../../../../../../packages/sim/src/route/route.journey";
 import { newGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { nameOf, runningName, say } from "../../../shared/words/text";

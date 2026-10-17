@@ -3,9 +3,9 @@
 // settles. You feel well." and "Care skill up." every month. No line names a quality or which way it went.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
+import { slot } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { slot } from "../../../../../packages/sim/src/route/route.journey";
 import { newGame } from "../testing/fixtures";
 import { tidyLines } from "./lines";
 import { hasWords, nameOf, say, words } from "./text";

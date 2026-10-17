@@ -4,13 +4,11 @@
 // circle is never offered to a life on its way out (R-WORLD-003).
 import { content, text } from "@japacity/content";
 import type { Effect, Id, ReportLine } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { flownAda, ALWAYS_GRANTED, offeredSeed, answerFirst, applyEffects, readyLife, toApplied, toKnown } from "@japacity/sim/testing";
 import { screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { flownAda } from "../../../../../packages/sim/src/goal/goal.journey";
-import { ALWAYS_GRANTED, offeredSeed } from "../../../../../packages/sim/src/place/place.journey";
-import { answerFirst, applyEffects, readyLife, toApplied, toKnown } from "../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { newGame, openOffer } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";

@@ -3,10 +3,10 @@
 // ₦15,000 course, and the card says more than "₦84,700 left". The button stays
 // open; only a cost that cannot be paid at all shuts it.
 import type { Currency } from "@japacity/sim";
+import { applyEffects } from "@japacity/sim/testing";
 import { cleanup } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import { chargedLivingGame, newGame, viewAfter } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { afterPaying, monthDues } from "../words/cost";

@@ -1,10 +1,10 @@
 // The taken-in offer after the settlement is cleared (docs/rules/home.md R-HOME-004): three
 // answers, and `friend` shut with its reason when no joined player has a place in Lagos.
 import { content } from "@japacity/content";
+import { applyOverlay } from "@japacity/sim";
+import { start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { applyOverlay } from "../../../../../packages/sim/src/engine/overlay";
-import { start } from "../../../../../packages/sim/src/testing/play";
 import { setPockets } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { words } from "../../shared/words/text";

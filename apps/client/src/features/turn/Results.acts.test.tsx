@@ -5,12 +5,12 @@
 // anything. Each is told with the month's story, as a hunt's "not this time" is.
 import { content } from "@japacity/content";
 import type { Id, ReportLine } from "@japacity/sim";
+import { int } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { draw, slot } from "@japacity/sim/testing";
 import { act, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { bp } from "../../../../../packages/sim/src/engine/int";
-import { draw, slot } from "../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";
@@ -169,7 +169,7 @@ describe("being noticed at work on the results", () => {
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;
     if (typeof pay.amount !== "number") throw new Error("A fixed pay was expected.");
-    const rise = bp(pay.amount, content.tuning.activity.raiseBp);
+    const rise = int.bp(pay.amount, content.tuning.activity.raiseBp);
     const store = await storeOf(game);
     await month(store, game, [NOTICED]);
     const said = words("line.activity.raised", { job, amount: { currency: pay.currency, amount: pay.amount + rise }, rise: { currency: pay.currency, amount: rise } });

@@ -1,10 +1,10 @@
 // The English test's card after a month of study (docs/rules/world.md R-WORLD-006): it never says "a month of study
 // lifts the chance" when a month leaves it a long shot. It says how many months it takes, counted as the simulation
 // adds English.
+import { slot } from "@japacity/sim/testing";
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { slot } from "../../../../../packages/sim/src/route/route.journey";
 import { newGame, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { englishOf, ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";

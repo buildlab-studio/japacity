@@ -1,11 +1,11 @@
 // The month the settlement is cleared (docs/rules/home.md R-HOME-003), in the News app: the line
 // leads the month's lines as money unpaid does, and the story of the clearing is carried with it.
 import { content } from "@japacity/content";
+import { applyOverlay } from "@japacity/sim";
+import { start } from "@japacity/sim/testing";
 import { fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { applyOverlay } from "../../../../../packages/sim/src/engine/overlay";
-import { start } from "../../../../../packages/sim/src/testing/play";
 import { newGame, setPockets } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { words } from "../../shared/words/text";

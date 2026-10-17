@@ -5,11 +5,9 @@
 // recorded lives and a developer's life played through `step`.
 import { content } from "@japacity/content";
 import type { Content, Id, PlayerView, ReportLine } from "@japacity/sim";
+import { lifeSaves, applyEffects, readyLife, slot, start, type Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
-import { applyEffects, readyLife, slot } from "../../../../../packages/sim/src/route/route.journey";
-import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import { recordedSave } from "../../shared/testing/fixtures";
 import { tidyLines } from "../../shared/words/lines";
 import { words } from "../../shared/words/text";

@@ -2,9 +2,9 @@
 // faked here as online.spec fakes it, every command played through the real game. A tile and an age picked at the
 // door reach the world as they were picked, and the page as the years go by never names another life.
 import { content } from "@japacity/content";
-import { worldClockAt } from "@japacity/sim";
 import type { Command, Id, PlayerView } from "@japacity/sim";
-import { start, type Game } from "../../../../../packages/sim/src/testing/play";
+import { worldClockAt } from "@japacity/sim";
+import { start, type Game } from "@japacity/sim/testing";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
