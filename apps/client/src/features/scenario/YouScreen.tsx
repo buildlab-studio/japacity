@@ -73,8 +73,8 @@ export function YouScreen({ look, style, name, typed, problem, tried, onName, on
       alive = false;
     };
   }, [yours, look]);
-  // Opened, the section comes into view once its rows stand, so a panel opened below the fold is seen (R-PROLOGUE-013;
-  // the maintainer on staging). Once an opening: a pick inside it brings the next part instead.
+  // Opened, the section comes into view once its rows stand, so a panel opened below the fold is seen (R-PROLOGUE-013).
+  // Once an opening: a pick inside it brings the next part instead.
   const section = useRef<HTMLElement>(null);
   const rowsShown = useOwnColours(look) !== null;
   const broughtFor = useRef(false);

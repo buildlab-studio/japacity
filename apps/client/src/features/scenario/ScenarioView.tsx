@@ -300,7 +300,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
         {...frame}
         title={say("ui.life.title")}
         lockup
-        // R-TEXT-006, amended 11 Oct 2026: no sentence about the game. Offline, where the door is the first screen, it opens
+        // R-TEXT-006: no sentence about the game. Offline, where the door is the first screen, it opens
         // with the start screen's hook and three steps; online the hook was just seen, and the question and the fields carry it.
         line={
           offline ? (

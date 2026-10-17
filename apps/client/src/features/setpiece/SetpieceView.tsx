@@ -14,7 +14,7 @@ import { ClosingLine, InterviewRoom } from "./InterviewRoom";
 import { leaveRoomView, roomStore, VOICED } from "./room.store";
 
 // Section 7, limit 1 of docs/design/06-audio.md: the first tap anywhere in the game wakes sound.
-// installed here, where the game first loads a scene that speaks; main.tsx is kept apart.
+// installed here, where the game first loads a scene that speaks, rather than in main.tsx.
 
 function Plain() {
   const { setpiece, ended } = useView();
@@ -74,9 +74,8 @@ function Scene() {
 }
 
 /**
- * True while the officer's closing line is still to show, or shows, after the interview has closed (the
- * : from an answer given in the room until the one button, Leave the room, is tapped. The
- * sheet that holds the set piece keeps it while this holds, so the close is said before the sheet goes.
+ * True while the officer's closing line is still to show, or shows, after the interview has closed: from an answer
+ * given in the room until the one button, Leave the room, is tapped. The sheet that holds the set piece keeps it while this holds, so the close is said before the sheet goes.
  */
 export function useClosingOpen(): boolean {
   return useStore(roomStore, (state) => state.closing !== null || (state.inRoom && state.answered));
@@ -86,7 +85,7 @@ export function SetpieceView() {
   return (
     <>
       <Scene />
-      {/* the game's one notice belongs at the root of the app; it is mounted here until someone adds it. */}
+      {/* the game's one notice belongs at the root of the app; it is mounted here. */}
     </>
   );
 }

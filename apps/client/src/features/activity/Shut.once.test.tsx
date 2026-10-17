@@ -1,6 +1,5 @@
-// One shut reason per card (docs/rules/advice.md R-ADVICE-001, world.md R-WORLD-006): the
-// adviser's card said "Not yet: A way out you have heard of" over a button "Needs a route you have heard of", and the
-// word of someone who went said its reason three times. The reason is said once, on the card; the button is shut and
+// One shut reason per card (docs/rules/advice.md R-ADVICE-001, world.md R-WORLD-006): the adviser's card and the word
+// of someone who went never say their reason twice, once over the button and again on it. The reason is said once, on the card; the button is shut and
 // says only "Not yet". Real content, a real life from sixteen.
 import { describe, expect, test } from "vitest";
 

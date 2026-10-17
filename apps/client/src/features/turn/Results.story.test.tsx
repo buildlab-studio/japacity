@@ -26,8 +26,8 @@ describe("the month's story on the results", () => {
   test("[R-WORLD-008] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, before what was kept, and the foodstuff bought by hand is not listed again", async () => {
     const game = newGame("scenario.ada");
     // Decision 0035 (R-HOME-012): no living is charged as the month turns at home, so the money of the month is what was
-    // paid at the act: the big pot's foodstuff bought mid-month (the family house's meals from the pot are free, the plan
-    // section 2), which the results count with the month's own lines.
+    // paid at the act: the big pot's foodstuff bought mid-month (the family house's meals from the pot are free),
+    // which the results count with the month's own lines.
     const { lines: meal } = game.accept({ type: "activity/now", activity: "activity.cook-jollof", param: null });
     expect(moneyLines(meal)).toHaveLength(1);
     const { lines } = game.endTurn([slot("activity.job-hunt", TEACHER)]);
@@ -45,7 +45,7 @@ describe("the month's story on the results", () => {
     // One line for an offer: the offer it opens is not told again.
     expect(told).not.toContain(words(offer.key, offer.params));
     expect(told.filter((row) => row === words(found.key, found.params))).toHaveLength(1);
-    // The shrunk close: no pay and no rent this month, so the moments lead, then Kept; no list of money.
+    // The close: no pay and no rent this month, so the moments lead, then Kept; no list of money.
     const order = [...document.querySelectorAll("[data-results-kept], [data-results-story], [data-results-lines], [data-results-payday], [data-results-rent]")].map((node) => (node.hasAttribute("data-results-kept") ? "kept" : node.hasAttribute("data-results-story") ? "story" : "money"));
     expect(order).toEqual(["story", "kept"]);
     // The meal was paid as it was cooked: it is in Kept, never listed again.

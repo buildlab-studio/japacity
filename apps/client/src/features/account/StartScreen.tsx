@@ -35,7 +35,7 @@ export function StartScreen({ onPlay, onReturning }: StartScreenProps) {
   const then = useId();
   return (
     <div className="flex flex-col" data-start-screen>
-      {/* The lockup for the ground under it, the sheet's own paint (only the J mark showed). */}
+      {/* The lockup for the ground under it, the sheet's own paint, so the whole lockup shows and not the J mark alone. */}
       <Wordmark ground={useRootPaint() === "night" ? "dark" : "light"} align="start" className="mb-3" />
       <StartHook />
       {/* The button is named Play; its second line is said as its description. */}

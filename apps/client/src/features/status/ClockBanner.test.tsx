@@ -1,4 +1,4 @@
-// The status clock's banner (docs/rules/status.md R-STATUS-003), moved from the old status panel's test with it.
+// The status clock's banner (docs/rules/status.md R-STATUS-003).
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

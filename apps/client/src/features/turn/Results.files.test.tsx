@@ -1,6 +1,6 @@
-// What the results tell of the talk and of a paper running out (docs/rules/world.md R-WORLD-008; the thirteenth
-// review). Z8: "The talk is over." said nothing of how it went or what it counted for. Z10: the TB
-// certificate ran out unseen seven months after it was taken, ₦120,000 gone. Played on the real engine and content.
+// What the results tell of the talk and of a paper running out (docs/rules/world.md R-WORLD-008). The talk's
+// line says how it went and what it counted for, never only "The talk is over.". A paper the plan needs, such as a TB
+// certificate, never runs out unseen months after it was taken. Played on the real engine and content.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { act, render } from "@testing-library/react";

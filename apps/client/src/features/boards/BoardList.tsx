@@ -20,7 +20,7 @@ function figureWords(row: BoardRow, when: When): string {
   return say(row.figure > 0 ? "ui.boards.figure.this-week.up" : "ui.boards.figure.this-week.down", { figure });
 }
 
-/** The line's name: the account's username; a quiet word for an account no longer there. */
+/** The line's name: the account's username; a quiet word for an account that is gone. */
 function nameOf(row: BoardRow): string {
   return row.username ?? say("ui.boards.someone");
 }

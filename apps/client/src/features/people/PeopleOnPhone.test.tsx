@@ -1,6 +1,6 @@
 // The people of this life as the phone shows them (docs/rules/people.md; world.md R-WORLD-020): the slots on Chats'
-// People row, with the invite card behind a tap, and a bond's thread head with its rows. Moved from the old people tab
-// (PeopleView, retired 13 Oct 2026 by the rest wave), each assertion kept against the element the phone shows.
+// People row, with the invite card behind a tap, and a bond's thread head with its rows, each assertion
+// against the element the phone shows.
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
@@ -113,7 +113,7 @@ describe("the slots on the People row", () => {
     expect(mother.textContent).toMatch(/\bshe\b/i);
     expect(mother.textContent).not.toMatch(/\bthey\b/i);
     expect(mother.textContent).not.toContain(say("ui.people.slot.state.computer"));
-    // The mark stays a short tag, never a name: decided 11 Oct 2026 (after review 13), "Not a player".
+    // The mark stays a short tag, never a name: "Not a player".
     expect(say("ui.people.mark.computer")).toBe("Not a player");
     expect(say("ui.people.parent.name.mother")).not.toContain(say("ui.people.mark.computer"));
     expect(within(mother).getByText(say("ui.people.mark.computer")).textContent).toBe(say("ui.people.mark.computer"));

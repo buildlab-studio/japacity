@@ -1,6 +1,6 @@
-// One story per month (docs/rules/world.md R-WORLD-008). The results said "A piece for the
-// portfolio: two of three" while News, the same month, said "You have little work to show"; the results said the
-// endorsement "should be ready next month" and the next month it was refused. News reads the month as it closed,
+// One story per month (docs/rules/world.md R-WORLD-008): the results and News never tell the same month two ways, as
+// "A piece for the portfolio: two of three" beside "You have little work to show", and the results never promise an
+// endorsement "next month" that is then refused. News reads the month as it closed,
 // in the results' own words, and a wait whose outcome is still to be judged never promises one. Real content, the
 // recorded lives and a developer's life played through `step`.
 import { content } from "@japacity/content";

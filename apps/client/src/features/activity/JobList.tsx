@@ -1,6 +1,6 @@
 // The hunt's jobs as a list (docs/rules/world.md R-WORLD-006): each job the hunt can
 // ask for is a row with its pay a month and its chance in words, and the jobs at home still out of reach are listed
-// apart with what each still needs. A row is picked by a tap; the list replaces the bare select. The rows sit straight
+// apart with what each still needs. A row is picked by a tap. The rows sit straight
 // on the sheet, divided by hairlines; the chosen row fills with the pick colour (R-WORLD-021), and the chance is a
 // small three-step gauge beside its word.
 import { content } from "@japacity/content";
@@ -54,7 +54,7 @@ export function ofATrade(id: string): boolean {
 }
 
 /**
- * The job the board opens on (R-ACTIVITY-005 as amended 11 Oct 2026): the life's own trade
+ * The job the board opens on (R-ACTIVITY-005): the life's own trade
  * first, the first job of a trade in the board's order, before a job any school leaver may ask for; with a job held, the
  * first of them that pays more than it. While the racks lead the board in Makoko, they are the
  * pick (R-ACTIVITY-017). Null when nothing listed pays more than the job held.

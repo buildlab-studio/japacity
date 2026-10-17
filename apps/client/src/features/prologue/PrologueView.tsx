@@ -85,7 +85,7 @@ function ageYears(view: PlayerView): number {
 
 /**
  * Why an answer is not open (R-PROLOGUE-003): the situation in content's words, never the threshold
- *: "your family would not have it". A money line carries the sum it needs.
+ * ("your family would not have it"). A money line carries the sum it needs.
  * Only an answer content has no words for falls back to its requirements.
  */
 export function whyNot(step: string, answer: string): string[] {
@@ -335,12 +335,12 @@ export function prologueJustClosed(lines: readonly ReportLine[]): boolean {
 }
 
 /**
- * The story's first step, in its own nudge words, so the handover names where to start, never a month number (the
- * A trader with capital starts at the meetup or the official page; the
+ * The story's first step, in its own nudge words, so the handover names where to start, never a month number. A
+ * trader with capital starts at the meetup or the official page; the
  * handover has its own words for a step whose nudge is not something to do. A life whose archetype takes its first
  * step somewhere of its own says that place: the nurse's job at the clinic, a trade's motor park.
- * A life in Makoko's room with no job says the racks beside it, as the band's nudge does at the same moment (R-ACTIVITY-017;
- * ; the motor park comes after.
+ * A life in Makoko's room with no job says the racks beside it, as the band's nudge does at the same moment (R-ACTIVITY-017);
+ * the motor park comes after.
  */
 export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets"> & Partial<Pick<PlayerView, "documents" | "routes" | "job" | "activities">>): string | null {
   const step = nextStepOf(view);

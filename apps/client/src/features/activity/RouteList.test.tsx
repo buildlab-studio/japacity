@@ -25,7 +25,7 @@ function addButton(id: string): HTMLButtonElement {
   return within(card(id)).getByRole("button", { name: nameOf(id) });
 }
 
-/** Tunde with two routes heard of: the hub desk's "Ask about routes" sheet as asked for it. */
+/** Tunde with two routes heard of: the hub desk's "Ask about routes" sheet. */
 function twoRoutesHeard() {
   return viewAfter(newGame("scenario.tunde"), [
     { type: "route/hear", route: UK, via: "test" },
@@ -58,7 +58,7 @@ describe("the routes list", () => {
     fireEvent.click(within(card(OFFICIAL)).getByRole("radio", { name: new RegExp(nameOf(CANADA)) }));
     expect(addButton(OFFICIAL).disabled).toBe(false);
     fireEvent.click(addButton(OFFICIAL));
-    // the official page is read at once, so the route tapped goes with the command sent now.
+    // R-ACTIVITY-015: the official page is read at once, so the route tapped goes with the command sent now.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: OFFICIAL, param: CANADA }));
     expect(store.getState().plan.some((pick) => pick?.activity === OFFICIAL)).toBe(false);
   });

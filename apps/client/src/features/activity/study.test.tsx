@@ -1,5 +1,6 @@
-// The English test's card after a month of study (docs/rules/world.md R-WORLD-006): it said "a month of study lifts the chance" before and after the month, still a long shot. Now
-// it says how many months it takes, counted as the simulation adds English.
+// The English test's card after a month of study (docs/rules/world.md R-WORLD-006): it never says "a month of study
+// lifts the chance" when a month leaves it a long shot. It says how many months it takes, counted as the simulation
+// adds English.
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

@@ -54,7 +54,7 @@ describe("the ticket stub beside the send-off card", () => {
     expect(pickStub.getAttribute("aria-pressed")).toBe("true");
     const stub = sheet.querySelector("[data-share-card='stub']") as HTMLElement;
     expect(sheet.querySelector("[data-share-card='send-off']")).toBeNull();
-    // Her name as the band says it, the first word of the life's own name (R-SHARE-004 as amended 16 Oct 2026).
+    // Her name as the band says it, the first word of the life's own name (R-SHARE-004).
     const band = (text["scenario.ada.name"] ?? "").split(/\s+/)[0]!;
     for (const words of ["Lagos", text["country.uk.name"]!, playedWords(view.card!.months), `${String(view.card!.percent)}%`, typeWords(japaTypeOf(view)!).name, typeWords(japaTypeOf(view)!).line, band, "Japacity is a game.", "japacity.app"]) {
       expect(within(stub).getByText(words)).toBeDefined();

@@ -1,6 +1,4 @@
-// How long study takes to lift the English test's chance (docs/rules/world.md R-WORLD-006; the seventh
-// review): the card said "a month of study lifts the chance" before and after a month of study that
-// left it a long shot. The months are counted as the simulation adds English, so the card never promises
+// How long study takes to lift the English test's chance (docs/rules/world.md R-WORLD-006). The months are counted as the simulation adds English, so the card never promises
 // what one month cannot do.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -35,7 +33,7 @@ function studiesAMonth(): number {
   return content.activity[STUDY_ENGLISH]?.repeat === true ? content.tuning.turn.repeatPerSlot : 1;
 }
 
-/** The months of study before one sitting is no longer a long shot, or null when a year of it does not get there. */
+/** The months of study before one sitting stops being a long shot, or null when a year of it does not get there. */
 export function studyMonths(view: Pick<PlayerView, "qualities" | "job"> & BandView): number | null {
   const needed = bandNeeded(view);
   let english = englishOf(view);

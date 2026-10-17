@@ -1,4 +1,4 @@
-// The Calendar's line for each country's pass (place.md R-PLACE-012 as amended, world.md R-WORLD-039 as amended): Calgary's
+// The Calendar's line for each country's pass (place.md R-PLACE-012, world.md R-WORLD-039): Calgary's
 // transit pass and Dubai's zone pass say what they cover, as London's bus pass does; Italy has no pass.
 import type { Id, PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

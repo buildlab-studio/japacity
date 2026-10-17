@@ -1,6 +1,5 @@
-// Ask titles in the person's voice (docs/design/13-the-lively-layer.md section 4; the words pass of 13 Oct
-// 2026): every ask names who asks, its title is at most three words in their voice and never a rule's label, its line is
-// one sentence, and the registers hold (the plan 8): an office abroad, a bank, a school or a court speaks plain English,
+// Ask titles in the person's voice (docs/design/13-the-lively-layer.md section 4): every ask names who asks, its title is at most three words in their voice and never a rule's label, its line is
+// one sentence, and the registers hold (R-TEXT-007): an office abroad, a bank, a school or a court speaks plain English,
 // never Pidgin. The scam text's shout is the one exception R-TEXT-007 allows, and it stays an unknown number.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -12,7 +11,7 @@ import { askerOf } from "./OfferView";
 const offers = Object.keys(content.offer);
 /** The lines a scam shouts, one of R-TEXT-007's exceptions. */
 const SHOUTS = new Set(["offer.telco-promo"]);
-/** The askers who speak plain English: offices, firms, the school, the court and the bank (the plan 8). */
+/** The askers who speak plain English: offices, firms, the school, the court and the bank. */
 const PLAIN = new Set(["Your bank", "The school", "A hospital trust", "A care home", "A tech firm", "An agency", "Your manager", "The assistance office", "The court", "The migration agency", "The employer", "Your employer", "A recruiter"]);
 /** Pidgin's tells: none in a plain speaker's words. */
 const PIDGIN = /\b(o|abeg|wahala|don|dey|na|fit|sef|oga|abi)\b/i;

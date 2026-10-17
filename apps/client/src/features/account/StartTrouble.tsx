@@ -1,5 +1,5 @@
-// A new visitor online while the server cannot answer (engine.md R-ENGINE-015, server.md R-SERVER-043, amended 11 Oct
-// 2026). The start screen's frame still stands: the sheet with the hook and the three steps
+// A new visitor online while the server cannot answer (engine.md R-ENGINE-015, server.md R-SERVER-043): never a blank
+// page, and never "Opening your life..." to someone with no life. The start screen's frame still stands: the sheet with the hook and the three steps
 // over the scene's ground (the city need not draw), and the trouble card in the sheet, naming the game. Retry asks
 // again; while it asks, the frame stays, and once the server answers the start screen itself takes the frame's place.
 import { StartHook } from "../../shared/frontdoor/Hook";

@@ -1,6 +1,5 @@
-// "Make it yours" kept in sight (prologue.md R-PROLOGUE-013, the door's first screen with Make it yours as a disclosure;
-// the maintainer on staging, 16 Oct 2026: "when i click make it yours, and it expands user might not know so if its out of
-// view, you can scroll to the appearance section so they see it"): opened, the section is brought into view once its
+// "Make it yours" kept in sight (prologue.md R-PROLOGUE-013, the door's first screen with Make it yours as a disclosure),
+// since an expanded section can open below the fold: opened, the section is brought into view once its
 // rows stand, and each colour picked brings the next part to choose into view, smoothly, or at once under reduced motion.
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";

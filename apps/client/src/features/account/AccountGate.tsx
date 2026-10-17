@@ -8,7 +8,7 @@
 // Inside the invite page the card is the start, so the gate begins at the age screen there, and the username stands
 // under it (the card makes the life, not the door). A notice the last screen left ("You have signed out.") shows on
 // the first screen here and goes as soon as the player moves on: to the age screen, to the ways back in, back to the
-// start, or into a life (R-ACCOUNT-021, as the AL wave proposes to amend it).
+// start, or into a life (R-ACCOUNT-021).
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";

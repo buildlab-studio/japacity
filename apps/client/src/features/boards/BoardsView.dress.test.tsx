@@ -72,7 +72,7 @@ describe("the boards in the lively dress", () => {
     expect(boardFace("zainab_b", false)).toBe(boardFace("zainab_b", false));
     expect(LOOKS.map((look) => look.id)).toContain(boardFace("zainab_b", false));
     expect(boardFace("ada_lagos", true, "chr_kemi")).toBe("chr_kemi");
-    // A kept look the door no longer offers falls back to the name's face.
+    // A kept look the door does not offer falls back to the name's face.
     expect(boardFace("ada_lagos", true, "chr_nobody")).toBe(boardFace("ada_lagos", false));
 
     expect(KEPT_PERSON).toBe(PERSON_KEY);

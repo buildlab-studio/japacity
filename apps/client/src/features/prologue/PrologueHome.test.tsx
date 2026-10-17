@@ -1,4 +1,5 @@
-// The home card's answers say what each costs (docs/rules/prologue.md R-PROLOGUE-009): "The family house" and "Your own room" showed no cost, which first showed on the handover.
+// The home card's answers say what each costs (docs/rules/prologue.md R-PROLOGUE-009), on the card itself and not
+// first on the handover.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -19,8 +20,7 @@ describe("the home card", () => {
   test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the card that asks where you sleep, when its answers show, then there are the family house, the room in a compound, the hostel room and Makoko, and each says what it costs, as every other card says its cost", async () => {
     const house = formatMoney(upkeepOf("family-house"), "NGN");
     const makoko = formatMoney(upkeepOf("makoko"), "NGN");
-    // the room in a compound is a home again, its year's rent said.
-    // The hostel room joined as the fourth home (the home's wave): its month's rent said.
+    // The room in a compound says its year's rent; the hostel room, the fourth home, its month's rent.
     expect(content.prologue.home?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "hostel-room", "makoko"]);
     expect(answerHint("home", "hostel-room")).toBe(`Rent: ${formatMoney(content.tuning.home.hostelRentKobo, "NGN")} a month. No year's rent to find.`);
     expect(answerHint("home", "compound-room")).toBe(`Rent: ${formatMoney(upkeepOf("compound-room"), "NGN")} a year, paid upfront with the fees. Living costs every month.`);

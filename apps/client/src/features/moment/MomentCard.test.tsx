@@ -74,7 +74,7 @@ describe("the moment card on screen", () => {
     expect(face.querySelector("[data-moment-mark]")?.getAttribute("src")).toBe(markFile("light"));
   });
 
-  // Moved from the old month page's full-screen moment: the display face has no naira sign, so it never holds the letter.
+  // The display face has no naira sign, so it never holds the letter.
   test("[R-LOTTERY-013] given the win letter staged, then the card tells the prize with its naira sign, and nothing on it is set in the display face", async () => {
     const { store, authority } = await renderWithView(<MomentCard over="world" />, engineView());
     await arrive(store, authority, [WON]);
@@ -227,7 +227,7 @@ describe("the moment card on screen", () => {
       "line.passbook.stamped": { amount: naira(100_000_000) },
       "line.passbook.ready": { amount: naira(273_000_000), route: "route.uk-care" },
     };
-    // the deposit's card reads its figure from the month's lines where the pitch was
+    // The deposit's card reads its figure from the month's lines where the pitch was
     // taken, and the endorsement's refusal has its own kicker.
     const deposit = [line("line.wallet.fee-agent", { amount: naira(30_000_000) }, { tone: "bad" }), line("line.offer.taken", { offer: "offer.road-cousin", choice: "take" })];
     const kickers: Record<string, string> = { "line.route.endorsement-refused": "moment.refused.kicker.endorsement", "line.passbook.ready": "moment.held.kicker.ready" };

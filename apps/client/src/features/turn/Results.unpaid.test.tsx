@@ -99,7 +99,7 @@ describe("money that was not paid", () => {
 
 describe("a hunt's answer on the results", () => {
   test("[R-WORLD-008] given a hunt that found nothing, when the results show, then it says the job and not this time, among the story lines", async () => {
-    // On this seed the first draw for a junior developer finds nothing, as asked for; the hunt is past the
+    // On this seed the first draw for a junior developer finds nothing; the hunt is past the
     // sure first months (R-GUIDE-014), so the draw stands.
     const game = newGame("scenario.ada");
     for (let month = 0; month < 3; month += 1) game.endTurn([]);
@@ -114,7 +114,7 @@ describe("a hunt's answer on the results", () => {
     const game = newGame("scenario.ada");
     const { lines } = game.endTurn([slot("activity.job-hunt", "activity.job-teacher")]);
     await showResults(game, lines);
-    // the pay a month is the one the view gives the offer, as the wallet will book it.
+    // R-WALLET-016: the pay a month is the one the view gives the offer, as the wallet will book it.
     const pay = monthlyPayOf(game.view(), "activity.job-teacher");
     if (pay === null) throw new Error("The teacher's job has no pay.");
     const said = words("ui.results.hunt-offer", { job: "activity.job-teacher", pay });
@@ -123,7 +123,7 @@ describe("a hunt's answer on the results", () => {
   });
 
   test("[R-WORLD-008] [R-WALLET-016] given a job abroad under the tax line, whose pay content gives a year, when its pay a month is read from the view, then it is the year's pay over twelve", () => {
-    // the figure is the view's, the job held through the engine.
+    // R-WALLET-016: the figure is the view's, the job held through the engine.
     const year = content.activity["activity.job-uk-retail-part"]?.pay?.amount;
     expect(typeof year).toBe("number");
     const view = viewAfter(abroadGame(), [{ type: "activity/start-job", job: "activity.job-uk-retail-part" }]);

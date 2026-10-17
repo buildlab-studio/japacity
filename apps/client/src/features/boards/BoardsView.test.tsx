@@ -1,7 +1,6 @@
 // The boards screen against a faked server, in the shapes boards.ts copies
-// from apps/server/src/boards/board.ts. Restated 11 Oct 2026 (R-CITY-040, the
-// every board names each line
-// by the account's username, friends too, with no first name.
+// from apps/server/src/boards/board.ts. Every board names each line by the
+// account's username, friends too, with no first name (R-CITY-040).
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -62,7 +61,7 @@ describe("the boards screen", () => {
     pick("ui.boards.when", "ui.boards.when.all-time");
     await waitFor(() => expect(document.querySelector("[data-board]")?.getAttribute("data-board")).toBe("all-time.everyone"));
     pick("ui.boards.who", "ui.boards.who.friends");
-    // friends see the username as everyone does, and nothing under it.
+    // Friends see the username as everyone does, and nothing under it.
     await waitFor(() => expect(lines()).toEqual(["1tunde.k40", "2ada_lagosYou30"]));
     expect(Array.from(document.querySelectorAll("[data-board-lines] [data-board-name]")).map((name) => name.textContent)).toEqual(["tunde.k", "ada_lagos"]);
     pick("ui.boards.when", "ui.boards.when.this-week");
@@ -109,7 +108,7 @@ describe("the boards screen", () => {
   });
 
   test("[R-ACCOUNT-022] given a guest, when a board is asked for, then the screen asks the player to secure the life", async () => {
-    // the server refuses a guest `guest-only`, as R-ACCOUNT-022 names it; `not-legal` stood in before.
+    // The server refuses a guest `guest-only`, as R-ACCOUNT-022 names it.
     show(launched({ "GET /api/boards/this-week/everyone": [{ status: 403, body: { ok: false, code: "guest-only", detail: "Secure this life with Google or an email code to be on the boards." } }] }));
     await waitFor(() => expect(screen.getByText(say("ui.boards.secure"))).toBeTruthy());
   });

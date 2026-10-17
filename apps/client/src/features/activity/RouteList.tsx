@@ -1,7 +1,6 @@
-// The routes an activity asks about, as a list like the jobs list (docs/rules/world.md R-WORLD-006, the
+// The routes an activity asks about, as a list like the jobs list (docs/rules/world.md R-WORLD-006):
 // each route the activity can ask about is a row with its name, what it is, and
-// whether it is only heard of or already looked into. A row is picked by a tap; the list replaces the
-// bare select.
+// whether it is only heard of or already looked into. A row is picked by a tap.
 import type { PlayerView } from "@japacity/sim";
 
 import { blurbOf, nameOf, say } from "../../shared/words/text";

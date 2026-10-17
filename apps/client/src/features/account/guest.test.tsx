@@ -92,8 +92,8 @@ describe("the securing sheet", () => {
     fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.go") }));
     expect(await screen.findByText(say("ui.secure.done"))).toBeDefined();
     expect(account.calls).toEqual(['sendCode("ada@example.test")', 'signInWithCode("ada@example.test","123456")', "view()"]);
-    // kept, the sheet says only that. The kept heading, the one line and the
-    // close; the reason, Google, the email and Not now are gone.
+    // Kept, the sheet says only that: the kept heading, the one line and the close, with no reason, Google, email or
+    // Not now.
     const sheet = screen.getByRole("dialog");
     expect(within(sheet).getByRole("heading", { name: say("ui.secure.done.title") })).toBeDefined();
     expect(within(sheet).queryByText(say("ui.secure.title"))).toBeNull();

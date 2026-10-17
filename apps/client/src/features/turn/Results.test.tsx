@@ -93,7 +93,7 @@ describe("the results sheet", () => {
     expect(within(sheet).getByText(turnWords("turn.results.title"))).toBeTruthy();
     expect(within(sheet).queryByText(/Month \d+/)).toBeNull();
     expect(sheet.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe("35000000");
-    // The shrunk close: payday leads; no list of every line in and out, and no living line.
+    // The close: payday leads; no list of every line in and out, and no living line.
     const payday = sheet.querySelector("[data-results-payday]");
     expect(payday?.getAttribute("data-results-payday")).toBe("45000000");
     expect(within(sheet).getByText(`+${formatMoney(45_000_000, "NGN")}`).className).toContain("text-in");

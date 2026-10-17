@@ -23,7 +23,7 @@ describe("the page as the handover", () => {
     act(() => {
       vi.advanceTimersByTime(TURN_MS + 60_000);
     });
-    // The family has turned over and no stamp has landed: the page takes none before a visa (R-PROLOGUE-009, 014, amended).
+    // The family has turned over and no stamp has landed: the page takes none before a visa (R-PROLOGUE-009, 014).
     expect(document.querySelector("[data-family]")).not.toBeNull();
     expect(document.querySelector("[data-page] [data-stamp]")).toBeNull();
     expect(done).not.toHaveBeenCalled();

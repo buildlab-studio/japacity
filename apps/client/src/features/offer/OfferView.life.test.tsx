@@ -10,9 +10,8 @@ import { OfferView } from "./OfferView";
 import { moneyTerms, offerParams } from "./terms";
 
 /**
- * How far back in Ada's recorded life a school's offer is held while the study window is open. Restated for
- * R-ACTIVITY-015: the life was re-cut with its now-acts sent at once and is longer, so the offer is held 103 to 121
- * commands back (it was 84); the middle is taken.
+ * How far back in Ada's recorded life a school's offer is held while the study window is open. With its
+ * now-acts sent at once (R-ACTIVITY-015), the offer is held 103 to 121 commands back; the middle is taken.
  */
 /** The first cut of the recording, counted from its end, at which the scholarship round can open with a school's offer held: found, since the recording moves as content does. */
 function scholarshipDrop(): number {

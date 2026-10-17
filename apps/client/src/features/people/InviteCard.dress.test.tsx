@@ -59,7 +59,7 @@ describe("the invite card in the lively dress", () => {
     expect(slot?.textContent?.split(say("ui.people.invite.out")).length).toBe(2);
     const back = within(out as HTMLElement).getByRole("button", { name: say("ui.people.invite.withdraw") });
     expect(back.hasAttribute("data-ghost-button")).toBe(true);
-    // The slot itself is a lively card now, never the old panel.
+    // The slot itself is a lively card.
     expect(document.querySelector('[data-slot="partner"]')?.className).toContain("lively-card");
   });
 });

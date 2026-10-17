@@ -45,7 +45,7 @@ describe("the guides from the game", () => {
     const store = createGameStore(fakeAuthority(engineView("scenario.ada")));
     await store.getState().refresh();
     render(<App store={store} />);
-    // The world is the game (R-WORLD-001): the old page's header is gone, and the guides sit in the phone's Settings.
+    // The world is the game (R-WORLD-001): no page header, and the guides sit in the phone's Settings.
     fireEvent.click(await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 }));
     fireEvent.click(await waitFor(() => found('[data-app="settings"]')));
     const menu = await screen.findByRole("button", { name: say("guide.page.menu") });

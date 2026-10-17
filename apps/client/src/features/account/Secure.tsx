@@ -72,8 +72,8 @@ export interface SecureSheetProps {
 
 /**
  * R-ACCOUNT-023: Google first, on Google's own button, then the emailed code; a passkey waits for the settings once the
- * life is kept. Once kept, the sheet says only that: the kept heading, the one line and its close; the reason, the ways
- * to keep and Not now are gone.
+ * life is kept. Once kept, the sheet says only that: the kept heading, the one line and its close, with no reason, no
+ * ways to keep and no Not now.
  */
 export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, kept: back = null, agent }: SecureSheetProps) {
   const earlyWin = useGame((state) => state.earlyWin);
@@ -168,7 +168,7 @@ const CLEAR_EVERY_MS = 500;
 
 /**
  * Another sheet or card is up (a chapter's opening, an ask, the results), or the first brief's card is still waiting for
- * the place's first frame (its pending mark, R-CHAPTER-011 as amended 16 Oct 2026): a staged ask waits for it to close.
+ * the place's first frame (its pending mark, R-CHAPTER-011): a staged ask waits for it to close.
  */
 function otherSheetUp(): boolean {
   return typeof document !== "undefined" && document.querySelector('[role="dialog"][data-open], [data-brief-pending]') !== null;

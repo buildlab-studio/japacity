@@ -1,6 +1,6 @@
-// An exam is one sitting (docs/rules/world.md R-WORLD-007 and activity.md R-ACTIVITY-013): an
-// act with an exam on its entry leaves the plan the month it runs, pass or fail. The m78 driver run found the nurse's
-// certification "Ongoing" after a failed exam, charging its ₦120,000 again the next month with no tap.
+// An exam is one sitting (docs/rules/world.md R-WORLD-007 and activity.md R-ACTIVITY-013): an act with an exam on its
+// entry leaves the plan the month it runs, pass or fail, so a failed certification is never left "Ongoing", charging
+// its ₦120,000 again the next month with no tap.
 import { content } from "@japacity/content";
 import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

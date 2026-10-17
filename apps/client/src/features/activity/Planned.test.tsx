@@ -1,5 +1,5 @@
-// A thing started carries on each month until it is stopped (docs/rules/world.md R-WORLD-007; turn.md R-TURN-006; the
-// owner's planning agent): its button says Ongoing and is shut, since starting it again would only take
+// A thing started carries on each month until it is stopped (docs/rules/world.md R-WORLD-007; turn.md R-TURN-006):
+// its button says Ongoing and is shut, since starting it again would only take
 // more of the free time; cooking and the water are done at once and never planned (R-ACTIVITY-015).
 import { content } from "@japacity/content";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
