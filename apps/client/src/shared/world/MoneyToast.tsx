@@ -9,8 +9,6 @@ import { Tile } from "../tiles/Tile";
 
 /** How long a money toast stands. */
 export const MONEY_TOAST_MS = 3000;
-/** How long the coin's flight to the counter takes: under half a second (R-WORLD-023). */
-export const COIN_MS = 420;
 
 export interface MoneyIn {
   /** A key that changes with each new toast. */

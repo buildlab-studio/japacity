@@ -77,7 +77,7 @@ function BalanceOf({ balance, formatMoney, className }: { balance: NonNullable<M
 }
 
 /** The main button's words: the act and its price when the pockets pay for it (R-WORLD-006), else the act alone. */
-function labelOf(ask: Ask, main: Main, formatMoney: AskSheetProps["formatMoney"]): string {
+function labelOf(ask: Ask, formatMoney: AskSheetProps["formatMoney"]): string {
   const priced = ask.priced === true && ask.cost !== null && ask.blocked === undefined && ask.note === undefined;
   return priced && ask.cost !== null ? pricedLabel(ask.button, formatMoney(ask.cost.amount, ask.cost.currency)) : ask.button;
 }
@@ -164,7 +164,7 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
           </div>
         )}
         {/* The price stands on the button when the pockets pay for it; otherwise it has its own row. */}
-        {ask.cost === null || labelOf(ask, main, formatMoney) !== ask.button ? null : (
+        {ask.cost === null || labelOf(ask, formatMoney) !== ask.button ? null : (
           <div className="mt-3 flex items-baseline justify-between border-y border-sheet-line py-2.5">
             <span className="text-[14px] font-semibold">{say("ui.world.costs")}</span>
             <span className="num text-[26px]">{formatMoney(ask.cost.amount, ask.cost.currency)}</span>
@@ -172,7 +172,7 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
         )}
         {ask.spent === undefined ? (
           <>
-            <MainButton ask={ask} main={main} label={labelOf(ask, main, formatMoney)} />
+            <MainButton ask={ask} main={main} label={labelOf(ask, formatMoney)} />
             {main.balance === undefined ? null : <BalanceOf balance={main.balance} formatMoney={formatMoney} className="mt-2.5 justify-center" />}
           </>
         ) : (
@@ -262,7 +262,7 @@ function Slip({ ask, main, formatMoney }: { ask: Ask; main: Main; formatMoney: A
         <div className="mt-5 flex items-center gap-2 font-sans">
           <Dialog.Close className="h-[58px] shrink-0 rounded-[6px] border-2 border-text/20 px-4 text-[14px] font-bold">{say("ui.world.not-now")}</Dialog.Close>
           <button type="button" className="btn-main justify-center" onClick={ask.act} disabled={main.shut} data-ask-main data-short={main.shut ? "true" : undefined}>
-            {ask.rows === undefined ? labelOf(ask, main, formatMoney) : ask.button}
+            {ask.rows === undefined ? labelOf(ask, formatMoney) : ask.button}
           </button>
         </div>
       </div>

@@ -149,9 +149,6 @@ export interface TalkLine {
   who?: string;
 }
 
-/** The street's talk heard: an ambient line, as `murmur`. */
-export const hear = (text: string): boolean => murmur(text);
-
 /** Takes the words down: those with this id, or whoever is speaking. */
 export function hush(id?: number): void {
   if (said.speech === null || (id !== undefined && said.speech.id !== id)) return;

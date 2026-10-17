@@ -4,9 +4,6 @@
 import type { DayPart } from "@japacity/sim";
 import type { ReactNode } from "react";
 
-/** A spot in a place: x, z in metres, and the turn about +Y in radians. */
-export type Spot = [number, number, number];
-
 /** What a tap on a thing does (R-WORLD-005). */
 export type ActKind =
   /** Happens at once with no sheet: sit, turn on, look. */
@@ -218,10 +215,3 @@ export interface PhoneApp {
   /** A few words of what is there now, as a pill beside the app's name in its head ("5 open", "Rent in 3 months"); never days. */
   context?: string | null;
 }
-
-/** Where the player is, for the shell's band and the home point (R-WORLD-014). */
-export interface Here {
-  place: string;
-  inside: boolean;
-}
-
