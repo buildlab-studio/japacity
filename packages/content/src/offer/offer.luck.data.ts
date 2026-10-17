@@ -18,7 +18,7 @@ export const ANY_ROUTE_KNOWN: Requirement = {
   of: FORMAL_ROUTES.map((route): Requirement => ({ type: "route/state", route, in: ["known", "applying", "granted"] })),
 };
 
-// a win left unanswered lapses into nothing. Luck has to be picked up.
+// A win left unanswered lapses into nothing. Luck has to be picked up.
 export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
   // R-LUCK-002. Never rolled: the offer kind opens it once a life when its rule holds. The term
   // `rescue` is the tuning's, and the kind hands over the live tuning's figure when it opens, so an
@@ -57,7 +57,7 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
   },
 
   // R-LUCK-007. The term `promo` is the tuning's, handed over live by the offer kind as for the whip-round.
-  // a cooldown of 6, as the other life offers have; the page gives none.
+  // A cooldown of 6, as the other life offers have; the page gives none.
   "offer.telco-promo": {
     id: "offer.telco-promo",
     group: "life",
@@ -92,7 +92,7 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
 
   // R-LUCK-010: a relative abroad sends $500 to the dollar bank pocket, a gift, flagged. The risk has a way
   // round, said before it is taken: asked for through her bank with a note, the gift is documented and not
-  // flagged. should it arrive a month later? No effect credits money a month on, so it arrives now.
+  // flagged. It arrives in the month it is taken: no effect credits money a month on.
   "offer.relative-sends": {
     id: "offer.relative-sends",
     group: "life",
@@ -126,7 +126,7 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: null,
   },
 
-  // R-LUCK-010: a thirteenth month from the job, in the December tick. one month's pay is
+  // R-LUCK-010: a thirteenth month from the job, in the December tick. One month's pay is
   // the pay term at its figure of one, valued in naira at the official rate as every pay term is
   // (R-OFFER-002), and paid to the naira bank.
   "offer.december-bonus": {
@@ -153,9 +153,9 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: null,
   },
 
-  // R-LUCK-010: a school offer held on the UK master's, in the route's window. The page's 
+  // R-LUCK-010: a school offer held on the UK master's, in the route's window. The page gives
   // £3,000 to the pound bank pocket, a gift, not flagged, since a scholarship letter explains it.
-  // once a life.
+  // Once a life: the page gives no limit.
   "offer.scholarship-round": {
     id: "offer.scholarship-round",
     group: "life",

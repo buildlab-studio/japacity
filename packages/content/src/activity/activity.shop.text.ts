@@ -1,4 +1,4 @@
-// The trader's own shop. First drafts.
+// The trader's own shop.
 export const activityShopText: Record<string, string> = {
   "activity.open-shop.name": "Open the shop",
   // What it costs and what it pays, the shop's own figure (R-ACTIVITY-016).

@@ -1,6 +1,6 @@
 // Questions and answers are from docs/rules/route.md. The table's outer double
 // quotes mark speech and are not part of the words.
-// spoken and narrated answers are both kept as plain text, without
+// Spoken and narrated answers are both kept as plain text, without
 // speech quotes.
 import type { Currency } from "@japacity/sim";
 

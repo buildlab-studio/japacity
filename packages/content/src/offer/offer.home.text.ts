@@ -1,5 +1,5 @@
 // Words for the asks of living in Makoko (home.md R-HOME-004). The people speak; the narrator is
-// plain. The risk of the water is said once, on the room itself. First drafts.
+// plain. The risk of the water is said once, on the room itself.
 export const offerHomeText: Record<string, string> = {
   "offer.taken-in.name": "Somewhere to sleep",
   "offer.taken-in.title": "Somewhere to sleep",

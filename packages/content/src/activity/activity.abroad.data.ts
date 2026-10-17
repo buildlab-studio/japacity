@@ -2,15 +2,15 @@
 // abroad", car.md and abroad-money.md. Joined into the activity table in
 // activity.data.ts.
 //
-// every activity here also requires `place/is` for its place and country.
+// Every activity here also requires `place/is` for its place and country.
 // R-PLACE-003 and R-LADDER-001 already make it illegal elsewhere through `where` and
 // `country`; the requirement says so in the "why not" list as well.
 //
-// a job abroad holds its pay a year, not a month. R-ABROAD-002 pays "its
+// A job abroad holds its pay a year, not a month. R-ABROAD-002 pays "its
 // salary over twelve" less tax on the yearly salary above the tax-free line, the
 // ladders table gives pay a year, and `carBonus` is a year too.
 //
-// a job reached through a sponsor or an agent (uk-care, uk-skilled, the
+// A job reached through a sponsor or an agent (uk-care, uk-skilled, the
 // two Gulf jobs) pays the `salary` term recorded on the route (R-SPONSOR-007,
 // R-CONTRACT-004) and has no hiring chance: it is started by departure, never hunted.
 import type { ActivityEntry, Effect, Id, Money, Requirement } from "@japacity/sim";
@@ -186,7 +186,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     sickLeave: true,
   },
   // The first professional job. The page's "sponsor at 70% of these employers" has no
-  // field: it is not a sponsor job (reported).
+  // field, so it is not a sponsor job.
   "activity.job-uk-graduate": {
     ...job(
       "activity.job-uk-graduate",
@@ -225,7 +225,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     withheldBp: pct(15),
   },
   // On a rented account: tuning.ladder.accountRent comes off each week.
-  // the page gives no wage-theft chance for it; the rent is its loss.
+  // The page gives no wage-theft chance for it; the rent is its loss.
   "activity.job-uk-courier-cash": {
     ...job(
       "activity.job-uk-courier-cash",
@@ -373,7 +373,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     },
   ),
   // R-CAR-006: the lessons once (tuning.car.lessons), then the fee for each attempt
-  // (tuning.car.testFee), and the pass draw. the costs depend on earlier attempts
+  // (tuning.car.testFee), and the pass draw. The costs depend on earlier attempts
   // and the draw has no effect type, so both belong to the kind that runs the test;
   // the entry carries neither.
   "activity.driving-test": free("activity.driving-test", "country.uk", [IN_UK, { type: "document/absent", document: "document.uk-licence" }], {
@@ -410,7 +410,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
       { type: "obligation/open", obligation: "obligation.rent-flat-uk" },
     ],
   }),
-  // R-ABROAD-004: credit 10. the page does not say one contract at a time; read as one.
+  // R-ABROAD-004: credit 10. One contract at a time, though the page does not say so.
   "activity.phone-contract-uk": free(
     "activity.phone-contract-uk",
     "country.uk",
@@ -427,10 +427,10 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
   "activity.send-money": free("activity.send-money", null, [ABROAD], { cost: [], effects: [] }),
   // R-RETURN-005: in the December tick, the fare both ways times the December factor:
   // £620 x 2 x 2.5, C$1,350 x 2 x 2.2, AED 1,900 x 2 x 1.8 (place.md).
-  // an overstayer cannot fly out and back, so not on the overstayer status; and
+  // An overstayer cannot fly out and back, so not on the overstayer status; and
   // none from Italy, where the only status is irregular. The December set piece is not
   // opened: `setpiece/open` needs a route and the set piece's answers cannot carry the
-  // page's money and quality effects (reported).
+  // page's money and quality effects (an open question in return.md).
   "activity.december-home-uk": free(
     "activity.december-home-uk",
     "country.uk",
@@ -442,7 +442,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
   ),
 });
 
-/** The free-slot activities priced in Canadian dollars or dirhams, joined in activity.data.ts now the wallet keeps those pockets (R-ABROAD-001). */
+/** The free-slot activities priced in Canadian dollars or dirhams, joined in activity.data.ts, as the wallet keeps those pockets (R-ABROAD-001). */
 export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> = withWhen({
   "activity.community-ca": free("activity.community-ca", "country.canada", [IN_CANADA], {
     cost: [{ currency: "CAD", amount: cad(15), reason: "social" }],

@@ -71,7 +71,7 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     fare: euros(480),
     // 2.0
     decemberFactorBp: 20000,
-    // cash work only in this milestone, and cash work is untaxed (R-LADDER-003),
+    // Italy's only job is cash work, and cash work is untaxed (R-LADDER-003),
     // so the page gives Italy no tax line and none is entered.
     taxFreeLine: 0,
     taxBp: 0,

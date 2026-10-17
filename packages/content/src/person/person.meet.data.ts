@@ -5,7 +5,7 @@
 // The view's `candidates` is only what the world reads to know who stands where (people.md R-PEOPLE-009 and
 // R-PEOPLE-013): the city stands each row's person at its thing while the list holds them, a `decemberOnly` one only while `var.season-december` is 1, and the thing's
 // sheet sends `people/court` (apps/client/src/features/city/meetings.ts).
-// until the church is a built place, the people met after the service are met at
+// The church is not a built place, so the people met after the service are met at
 // the family house (after the service the family comes home with a guest), and a friend's guest is a friend of the
 // family visiting there, since a friend's room before courting would contradict their room opening only once courting
 // (world.md R-WORLD-020). The meetup's two stand at the meetup itself, in the hub (`place.yaba`).
@@ -22,7 +22,7 @@ export interface PartnerMeeting {
 }
 
 /**
- * The places the meetings need that content does not have yet, to be added as entries.
+ * The places the meetings need that content does not hold as entries; empty while every meeting's place is in content.
  * `place.their-room` is one stylised interior with no position, dressed per person as the room
  * abroad is dressed per country: a partner's home, where nobody is met. Its place file has one dressing for each person here whose home it is, a prop or two and the partner standing
  * in it alone, in the model they are met in (apps/client/public/assets/places/their-room/place.json).

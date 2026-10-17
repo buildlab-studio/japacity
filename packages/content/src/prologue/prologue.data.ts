@@ -1,13 +1,13 @@
 // From docs/rules/prologue.md, "The steps" and "The apprenticeship branch". A
 // step's months are added to age when it is answered (R-PROLOGUE-004).
 //
-// the first step is `draw`, the opening card that shows step 0's draw;
+// The first step is `draw`, the opening card that shows step 0's draw;
 // its one answer begins the prologue.
-// an answer's requirements read qualities, not flags or the draw, so
+// An answer's requirements read qualities, not flags or the draw, so
 // "science" is tech 10 or more (only science gives tech before the course), and
 // "town" is network 13 or less (only a town child of parents without schooling
 // is that low after the subjects step).
-// a retake is allowed once. The second retake card offers only work,
+// A retake is allowed once. The second retake card offers only work,
 // since a second retake or the apprenticeship would end the prologue past 25.
 import { int, pocketFor, type Effect, type Id, type PrologueStep, type Requirement, type ScenarioEntry } from "@japacity/sim";
 
@@ -72,7 +72,7 @@ const SHOP_WORK: Effect[] = [add(EDU_LEVEL, 1), earned(naira(300000))];
 
 /**
  * R-PROLOGUE-001 starts every quality at its minimum, and nothing on the page lifts wellbeing from 0, so
- * the life opened run down and fell ill by its third month. The draw card's answer gives the sixteen-year-old the
+ * a life would open run down and fall ill by its third month. The draw card's answer gives the sixteen-year-old the
  * wellbeing the fixed lives start with (50 to 70); the answers after it move it by -22 to +15, so every path closes
  * above the run-down line.
  */
@@ -97,7 +97,7 @@ const steps: Record<string, PrologueStep> = {
     ],
   },
 
-  // the school certificate fee (₦27,500) and the entrance exam fee (₦8,700) are paid by the family and
+  // The school certificate fee (₦27,500) and the entrance exam fee (₦8,700) are paid by the family and
   // move nothing the character holds. The standing -2 for a family under 30 needs an effect that reads a quality,
   // which an answer cannot hold, so it is left to the prologue kind.
   "after-school": {
@@ -173,7 +173,7 @@ const steps: Record<string, PrologueStep> = {
     ],
   },
 
-  // federal or private is its own card with no months, because an answer cannot change its effects by
+  // Federal or private is its own card with no months, because an answer cannot change its effects by
   // family means. Federal is open to all; its ₦110,000 a session is paid by the family. Private needs family means
   // 60: the family's ₦2,500,000 passes through the account as a flagged gift and out as the session's fee.
   university: {
@@ -194,7 +194,7 @@ const steps: Record<string, PrologueStep> = {
     ],
   },
 
-  // the strike draw follows the answer, and the answer's effects apply only if the strike comes. A strike
+  // The strike draw follows the answer, and the answer's effects apply only if the strike comes. A strike
   // adds its 8 months through the `strike-drag` card.
   strike: {
     id: "strike",
@@ -390,7 +390,7 @@ const steps: Record<string, PrologueStep> = {
     ],
   },
 
-  // the page sends the shop job straight to step 10, which would end the prologue at 17 or 18. Four years
+  // The page sends the shop job straight to step 10, which would end the prologue at 17 or 18. Four years
   // behind the counter bring it to about 22, as the other paths do.
   shop: {
     id: "shop",

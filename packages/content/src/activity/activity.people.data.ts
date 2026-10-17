@@ -1,10 +1,10 @@
 // From docs/rules/people.md "Entries: activities and offers" (R-PEOPLE-014).
 // Joined into the activity table in activity.data.ts.
 //
-// "in the same place" and "elsewhere" are written as requirements on
+// "In the same place" and "elsewhere" are written as requirements on
 // where the character is and where the bond's other side is, joined with
 // `not` and `any`, so a slot is offered only when a bond fits it.
-// the page prices seeing someone by country (₦20,000, £30, C$40 or
+// The page prices seeing someone by country (₦20,000, £30, C$40 or
 // AED 100), but an activity's cost is one list paid in full, so only the
 // naira price is entered.
 import type { ActivityEntry, BondStage, Id, Requirement } from "@japacity/sim";

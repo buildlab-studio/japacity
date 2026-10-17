@@ -1,5 +1,5 @@
 // Names and blurbs for the room's basics (obligation.md R-OBLIGATION-014), and the results line each
-// relief is told with when the upkeep's charge falls. First drafts.
+// relief is told with when the upkeep's charge falls.
 export const activityRoomText: Record<string, string> = {
   "activity.cook-at-home.name": "Food from the pot",
   "activity.cook-at-home.blurb": "Mama's pot is the house's. Dish yours, eat, and wash the plate.",

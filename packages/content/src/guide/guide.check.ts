@@ -85,7 +85,7 @@ export function addMonths(day: Day, months: number): Day {
 
 /**
  * R-GUIDE-004: the guides not checked for `tuning.guide.staleMonths` months on `today`, by id.
- * a guide checked exactly that many months ago is still fresh; one day more and it is listed.
+ * A guide checked exactly that many months ago is still fresh; one day more and it is listed.
  */
 export function staleGuides(content: Content, today: string): string[] {
   const now = parseDay(today);

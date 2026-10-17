@@ -351,7 +351,7 @@ export const offerText: Record<string, string> = {
   ...offerHomeText,
   ...offerParcelText,
 
-  // Luck: luck.md. First drafts.
+  // Luck: luck.md.
   "offer.whip-round.name": "A whip-round",
   "offer.whip-round.title": "From us all",
   "offer.whip-round.body":

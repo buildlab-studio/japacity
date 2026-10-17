@@ -1,4 +1,4 @@
-// First drafts for the offers of life abroad and of coming home. The pages name
+// Words for the offers of life abroad and of coming home. The pages name
 // what each one is about; the words are new.
 export const offerAbroadText: Record<string, string> = {
   "offer.street-find-uk.name": "A market behind the station",

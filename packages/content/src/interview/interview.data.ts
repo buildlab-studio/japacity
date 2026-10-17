@@ -10,7 +10,7 @@ export const interviewTable: Record<Id<"interview">, InterviewEntry> = {
       { id: "first-what", about: "couple", truth: "first-what", needs: { met: 1 }, options: "whats" },
       { id: "last-spot", about: "couple", truth: "last-spot", needs: { met: 2 }, options: "spots" },
       { id: "times-met", about: "couple", truth: "times-met", needs: {}, options: ["not-yet", "one-to-three", "four-to-eight", "nine-to-fifteen", "sixteen-or-more"] },
-      // the wedding spots of people.md R-PEOPLE-017 are listed here, as content has no list of them elsewhere.
+      // The wedding spots of people.md R-PEOPLE-017 are listed here, as content has no list of them elsewhere.
       { id: "wedding-spot", about: "couple", truth: "wedding-spot", needs: { married: true }, options: ["family-compound", "church", "mosque", "registry", "event-hall"] },
       { id: "calls", about: "couple", truth: "calls", needs: { calls: 3 }, options: "calls" },
       { id: "partner-job", about: "other", truth: "job", needs: {}, options: "jobs" },

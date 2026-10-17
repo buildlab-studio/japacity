@@ -55,7 +55,7 @@ const CARD_KINDS = ["chapter", "granted", "send-off", "first-pay-abroad", "secur
 
 /**
  * R-ANALYTICS-002: the screens the client counts as opened.
- * the page names no list, so these are the client's screens by their feature folder.
+ * The page names no list, so these are the client's screens by their feature folder.
  */
 const SCREENS = [
   "turn",
@@ -90,7 +90,7 @@ const SCREENS = [
   "page",
 ];
 
-/** R-ANALYTICS-002: a load's time in bands, never in milliseconds. the page names no bands. */
+/** R-ANALYTICS-002: a load's time in bands, never in milliseconds. The page names no bands. */
 export const LOAD_BANDS = ["under-1s", "1s-3s", "3s-10s", "over-10s"];
 
 /** R-ANALYTICS-011: an ask, by what was asked and whether the early win had been shown. */

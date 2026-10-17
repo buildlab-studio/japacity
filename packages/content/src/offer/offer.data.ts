@@ -74,7 +74,7 @@ const ROAD_WHEN: Requirement[] = [
 ];
 
 /**
- * Taking the pitch pays the deposit from cash. the offer's own fraud draw is the `fraud` kind, so
+ * Taking the pitch pays the deposit from cash. The offer's own fraud draw is the `fraud` kind, so
  * `fraudBp` is the fraud share and a fraud's money is simply gone; the offer kind splits the rest into real-ish
  * and road on taking (R-ROAD-003). Both of those open the night meeting through the road's step.
  */
@@ -399,8 +399,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     when: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
     chanceBp: pct(5),
     cooldown: 5,
-    // Terna leaves once. keeping it from a life from sixteen, whose prologue
-    // took him to a send-off, needs a requirement that reads the prologue; none does.
+    // Terna leaves once. A life from sixteen whose prologue took him to a send-off can
+    // still meet it: no requirement reads the prologue.
     maxTimes: 1,
     expiresAfter: 1,
     terms: {},
@@ -424,9 +424,9 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: "message",
   },
   // chapter.md R-CHAPTER-008: the month the visa is granted, home marks it. Certain while the route is
-  // granted, once. group `money`, though it is no money offer. R-OFFER-001 rolls money first and
-  // by id, so this one is rolled first of all; in `life` the grant month's loan offers took both of the
-  // month's places first (ada-careful) and it never opened before the flight. Not `family` either: it is
+  // granted, once. Group `money`, though it is no money offer: R-OFFER-001 rolls money first and
+  // by id, so this one is rolled first of all; in `life` the grant month's loan offers would take both of
+  // the month's places first (ada-careful) and it would never open before the flight. Not `family` either: it is
   // the character's own send-off, so no sibling shares it (R-PEOPLE-034). The party is spent as any party is.
   "offer.family-send-off": {
     id: "offer.family-send-off",
@@ -471,7 +471,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.laptop-fault": {
     id: "offer.laptop-fault",
     group: "life",
-    // R-LUCK-003. the blows of daily life are the ones marked; the page names none.
+    // R-LUCK-003. The blows of daily life are the ones marked; the page names none.
     bad: true,
     when: [{ type: "quality/min", quality: "quality.tech", value: 25 }],
     chanceBp: pct(3),
@@ -763,7 +763,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     cooldown: 24,
     maxTimes: 1,
     expiresAfter: 1,
-    // the relative's balance, in the group loan's own steps.
+    // The relative's balance, in the group loan's own steps.
     terms: { balance: { from: "range", min: naira(100000), max: naira(300000), step: naira(50000) } },
     fraudBp: 0,
     signs: [],
@@ -796,7 +796,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
       { type: "quality/min", quality: "quality.network", value: 20 },
       { type: "not", of: { type: "obligation/has", obligationType: "ajo" } },
       // Ten months of shares have no place in a life whose visa is granted or that has flown.
-      // no requirement reads a flight's month, so a flight booked within three months is not kept out.
+      // No requirement reads a flight's month, so a flight booked within three months is not kept out.
       { type: "not", of: LEAVING },
     ],
     // luck.md gives 800 a month.
@@ -958,8 +958,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.job",
     // A hunt lands at home and abroad (R-LADDER-001).
     where: "any",
-    // group `job`, as the contract allows. offer.md is fixed later,
-    // which lists it under "Money". It is never rolled, so R-OFFER-001's order is unchanged.
+    // Group `job` (offer.md). It is never rolled, so R-OFFER-001's order is unchanged.
     group: "job",
     when: [],
     chanceBp: 0,
@@ -986,7 +985,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   ...streetOfferTable,
   ...homeOfferTable,
   ...parcelOfferTable,
-  // route-gates.md, "Entries: sponsor offers". group `money`, as the Gulf agent is, so R-OFFER-001 rolls them.
+  // route-gates.md, "Entries: sponsor offers". Group `money`, as the Gulf agent is, so R-OFFER-001 rolls them.
 
   "offer.sponsor-care-home": {
     id: "offer.sponsor-care-home",
@@ -1018,7 +1017,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.sponsor-trust",
     group: "money",
     where: "home",
-    // "Needs care 60" is read as a condition for the offer coming up.
+    // "Needs care 60" is a condition for the offer coming up.
     when: [
       ...sponsorWhen("route.uk-care", "var.uk-care-window"),
       { type: "quality/min", quality: "quality.care", value: 60 },
@@ -1086,7 +1085,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
       fee: naira(5000000),
     },
     fraudBp: pct(50),
-    // "the same five signs" are the tech firm's, the row above on the same route.
+    // "The same five signs" are the tech firm's, the row above on the same route.
     signs: [
       { key: "pays-for-cos", honestBp: pct(5), fraudBp: pct(80) },
       { key: "licensed-register", honestBp: pct(90), fraudBp: pct(25) },
@@ -1113,7 +1112,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
       fee: { from: "range", min: naira(900000), max: naira(1800000), step: naira(100000) },
       // Fils a month: AED 1,500 to AED 2,200 by AED 100.
       salary: { from: "range", min: 150000, max: 220000, step: 10000 },
-      // a term is a number, so the role is 1 for guard and 2 for cleaner.
+      // A term is a number, so the role is 1 for guard and 2 for cleaner.
       role: { from: "range", min: 1, max: 2, step: 1 },
     },
     fraudBp: pct(40),
@@ -1205,7 +1204,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     cooldown: 12,
     maxTimes: null,
     expiresAfter: 2,
-    // steps of ₦100,000, as the radio pitch's.
+    // Steps of ₦100,000, as the radio pitch's.
     terms: { deposit: { from: "range", min: naira(300000), max: naira(600000), step: naira(100000) } },
     fraudBp: ROAD_KINDS.fraud,
     signs: [
@@ -1225,7 +1224,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     cooldown: 0,
     maxTimes: null,
     expiresAfter: 1,
-    // steps of ₦100,000.
+    // Steps of ₦100,000.
     terms: { sum: { from: "range", min: naira(500000), max: naira(2000000), step: naira(100000) } },
     fraudBp: 0,
     signs: [],
@@ -1234,7 +1233,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         id: "pay",
         requires: [],
         pick: null,
-        // the family pays. Family means fall 12, the middle sum (₦1,250,000) over ₦100,000 as R-ROAD-005
+        // The family pays. Family means fall 12, the middle sum (₦1,250,000) over ₦100,000 as R-ROAD-005
         // reads it for calling home; standing falls 5 as it does there. An amount on a quality cannot follow the term.
         effects: [
           { type: "quality/add", quality: "quality.family-means", amount: -12 },

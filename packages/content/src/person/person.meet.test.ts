@@ -25,11 +25,11 @@ describe("the partner met in a place", () => {
     expect(problems).toEqual([]);
   });
 
-  test("[R-WORLD-020] given the places asked for, when content is read, then none is there yet, so the list empties as the maintainer adds them", () => {
+  test("[R-WORLD-020] given the places asked for, when content is read, then none of them is in content, so the list holds only what is missing", () => {
     expect(placesWanted.filter((place) => place in content.place)).toEqual([]);
   });
 
-  // the meetup's two at the hub's meetup; after the service and a friend of the family at the family house, until the church is a built place.
+  // The meetup's two at the hub's meetup; after the service and a friend of the family at the family house, as the church is not a built place.
   test("[R-WORLD-020] given the meetings, when where they happen is read, then partners are met at the hub's meetup and at the family house, never in their room", () => {
     const where = new Set(partnerMeetings.map((meeting) => meeting.met.place));
     expect([...where].sort()).toEqual(["place.family-house", "place.yaba"]);
@@ -49,7 +49,7 @@ describe("the partner met in a place", () => {
     expect(institutionProblems(words)).toEqual([]);
   });
 
-  // once courted, the person answers in their own voice; if the bond
+  // Once courted, the person answers in their own voice; if the bond
   // ends without the player ending it, the reason is theirs too.
   test("[R-PEOPLE-013] [R-PEOPLE-042] [R-PEOPLE-041] given every partner who can be met, when their words are looked up, then there is an answer once courted, a reason for stopping waiting and a reason for leaving, each one line in quotes, with no institution beside a crime", () => {
     const keys = partnerMeetings.flatMap((meeting) => [`${meeting.person}.courted`, `${meeting.person}.drifted`, `${meeting.person}.left`]);

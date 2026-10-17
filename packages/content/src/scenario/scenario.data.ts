@@ -35,7 +35,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.forced-wait": 0,
     },
     job: null,
-    // R-PEOPLE-010: working values until scenario.md gives each life its count.
+    // R-PEOPLE-010: a working value, as scenario.md gives this life no count.
     siblings: 2,
     hometown: "hometown.enugu",
     tenure: {},
@@ -75,7 +75,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.forced-wait": 0,
     },
     job: "activity.job-bank-officer",
-    // R-PEOPLE-010: working values until scenario.md gives each life its count.
+    // R-PEOPLE-010: a working value, as scenario.md gives this life no count.
     siblings: 2,
     hometown: "hometown.abeokuta",
     tenure: { "activity.job-bank-officer": 48 },
@@ -112,7 +112,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.forced-wait": 0,
     },
     job: "activity.job-junior-dev",
-    // R-PEOPLE-010: working values until scenario.md gives each life its count.
+    // R-PEOPLE-010: a working value, as scenario.md gives this life no count.
     siblings: 2,
     hometown: "hometown.kaduna",
     tenure: { "activity.job-junior-dev": 18 },
@@ -141,7 +141,7 @@ export const ngoziScenario: ScenarioEntry = {
     // Second upper.
     "quality.edu-grade": 4,
     "quality.english": 58,
-    // the page gives no tech, prep, portfolio or land; each starts at 0.
+    // The page gives no tech, prep, portfolio or land; each starts at 0.
     "quality.tech": 0,
     "quality.interview-prep": 0,
     "quality.portfolio": 0,
@@ -164,7 +164,7 @@ export const ngoziScenario: ScenarioEntry = {
   },
   job: "activity.job-nurse",
   tenure: { "activity.job-nurse": 30 },
-    // R-PEOPLE-010: working values until scenario.md gives each life its count.
+    // R-PEOPLE-010: a working value, as scenario.md gives this life no count.
     siblings: 2,
     hometown: "hometown.owerri",
   pockets: { NGN: { bank: naira(650000), cash: naira(30000) } },
@@ -216,7 +216,7 @@ export const aniekanScenario: ScenarioEntry = {
   },
   job: "activity.job-teacher",
   tenure: { "activity.job-teacher": 48 },
-  // R-PEOPLE-010: working values until scenario.md gives each life its count.
+  // R-PEOPLE-010: the three siblings scenario.md gives.
   siblings: 3,
   hometown: "hometown.uyo",
   pockets: { NGN: { bank: naira(350000), cash: naira(20000) } },

@@ -20,7 +20,7 @@ function slot(id: string, place: string, surface: AdvertSlotEntry["surface"] = "
 const KIB = 1024;
 
 describe("the advert slots", () => {
-  test("[R-ADVERT-001] given the page's entries, when the table is read, then each slot at launch has its surface, place, size and byte limit", () => {
+  test("[R-ADVERT-001] given the page's entries, when the table is read, then each slot has its surface, place, size and byte limit", () => {
     expect(Object.values(content.advert).map(({ id, surface, width, height, maxBytes }) => [id, surface, width, height, maxBytes])).toEqual([
       ["advert.road-billboard", "billboard", 1024, 512, 200 * KIB],
       ["advert.park-billboard", "billboard", 1024, 512, 200 * KIB],
@@ -70,7 +70,7 @@ describe("the advert slots", () => {
 });
 
 describe("where adverts never go", () => {
-  test("[R-ADVERT-009] given the slots at launch, when their surfaces are read, then each is a billboard, a poster, a phone tile or a shopfront, and none is on the radio", () => {
+  test("[R-ADVERT-009] given the slots, when their surfaces are read, then each is a billboard, a poster, a phone tile or a shopfront, and none is on the radio", () => {
     const surfaces = new Set(Object.values(content.advert).map((entry) => entry.surface));
     expect([...surfaces].sort()).toEqual(["billboard", "phone-tile", "poster", "shopfront"]);
     expect(Object.keys(content.advert).filter((id) => /radio|news/.test(id))).toEqual([]);

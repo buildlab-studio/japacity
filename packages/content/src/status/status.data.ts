@@ -3,9 +3,9 @@
 // Conventions the page leaves open:
 // - `detectBp` and `overstayBanMonths` are only read on an overstayer
 //   (R-STATUS-005, R-STATUS-008). Every status of a country carries the country's
-//   figures, as the student status first entered here does, so a status that
-//   lapses keeps the same numbers it had.
-// - a settled or citizen status is never removed, so the page leaves its
+//   figures, as the student status does, so a status that lapses keeps the same
+//   numbers it had.
+// - A settled or citizen status is never removed, so the page leaves its
 //   ban cells empty; they are 0 here, and its detection chance is 0.
 // - `countsFromBefore` is true where a status follows another in the same
 //   country (a new sponsor, settlement, citizenship), false where it starts a stay.
@@ -231,7 +231,7 @@ const peopleStatuses: Record<Id<"status">, StatusEntry> = {
     work: "any",
     tiedTo: "partner",
     clockMonths: 2,
-    // "renews with the lead" has no command of its own, so it does not renew by asking.
+    // "Renews with the lead" has no command of its own, so it does not renew by asking.
     countsToSettlement: true,
     settleMonthsVar: "var.uk-settle-months",
     settleFeeVar: "var.uk-settle-fee",

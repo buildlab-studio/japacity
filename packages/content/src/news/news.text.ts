@@ -57,7 +57,7 @@ export const newsText: Record<string, string> = {
   "news.naira-float.in-force.body":
     "The bank rate jumped overnight. Naira savings buy fewer pounds this morning than last night. Dollars in the bank just got heavier.",
 
-  // director.md: the story pool and the eras. First drafts.
+  // director.md: the story pool and the eras.
 
   "news.uk-dependants-ban.name": "UK to stop most students bringing family",
   "news.uk-dependants-ban.rumour.head": "Talk of a ban on student families",

@@ -1,13 +1,13 @@
 // Computer characters who can fill a slot: docs/rules/people.md "Entries:
 // computer partners" and "Entries: computer siblings". All invented.
 //
-// the page gives no age gap for a partner, so each is drawn from two
+// The page gives no age gap for a partner, so each is drawn from two
 // years younger to three years older.
-// a partner abroad has been there from the first month
+// A partner abroad has been there from the first month
 // (`abroadFromMonth` 0), since it holds its status already (R-PEOPLE-021).
-// the page gives skills only for the nurse; the others carry working
+// The page gives skills only for the nurse; the others carry working
 // values that suit their work.
-// there is no driver's job in the Gulf ladder, so the driver holds no job id.
+// There is no driver's job in the Gulf ladder, so the driver holds no job id.
 import type { Id, PersonEntry, Requirement } from "@japacity/sim";
 
 import { aed, cad, naira, pounds } from "../units";

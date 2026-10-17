@@ -30,9 +30,8 @@ export interface StoryStep {
 }
 
 /**
- * The things this table points at, by place: outside, and in the room inside. The ids follow the
- * places brief's list of things; the place files' `stage.things` must use the same ids.
- * no place file declares things yet; these ids are the content's reading of that list.
+ * The things this table points at, by place: outside, and in the room inside. The place files'
+ * `stage.things` must use the same ids.
  */
 export const storyThings: Record<string, { outside: string[]; inside: string[] }> = {
   "place.family-house": { outside: ["gate", "house-door"], inside: ["sofa", "mama", "papa", "tv", "papers-box", "door"] },
@@ -42,7 +41,7 @@ export const storyThings: Record<string, { outside: string[]; inside: string[] }
   "place.agent-office": { outside: ["agent-desk", "door"], inside: [] },
   "place.english-test-centre": { outside: ["test-desk", "door"], inside: [] },
   "place.tb-clinic": { outside: ["nurse-desk", "door"], inside: [] },
-  // the places brief's "bank counter" names no place id; the held funds are staged here.
+  // The bank counter: the held funds are staged here.
   "place.olokun-office": { outside: ["counter", "door"], inside: [] },
   "place.yaba": { outside: ["long-desk", "jobs-board", "meetup-corner", "door"], inside: [] },
   "place.the-room": { outside: ["bed", "window", "door"], inside: [] },
@@ -80,7 +79,7 @@ export const storySteps: StoryStep[] = [
   // Find your feet: the hub in Yaba carries the first chapter.
   step(FEET, "job", { place: HUB, thing: "long-desk", app: "jobs", act: { entry: "activity.job-hunt" } }),
   step(FEET, "pay", { place: HUB, thing: "long-desk", app: "jobs", act: { wait: true } }),
-  // nothing at home makes a route heard on a tap (the send-off party opens by chance and
+  // Nothing at home makes a route heard on a tap (the send-off party opens by chance and
   // R-ROUTE-003 hears by month 3 on its own), so the step points at the meetup, which can.
   step(FEET, "heard", { place: HUB, thing: "meetup-corner", app: null, act: { entry: "activity.meetup" } }),
   step(FEET, "known", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.look-into-route" } }),
@@ -99,7 +98,7 @@ export const storySteps: StoryStep[] = [
   step(DECISION, "applied", { place: VISA, thing: "desk", app: null, act: { entry: "activity.apply-for-visa" }, fromBox: true }),
   step(DECISION, "granted", { place: VISA, thing: "desk", app: "japa", act: { wait: true } }),
 
-  // The file and decision day of each other way out (chapter.md R-CHAPTER-009). the file stays in
+  // The file and decision day of each other way out (chapter.md R-CHAPTER-009). The file stays in
   // the box for these rows (the four rows that take it to a desk are the master's); each row names where the
   // step is taken: the clinic's desk, the hub's desk, the visa centre, the agent's office.
   step("chapter.build-the-file-care", "tenure", { place: CLINIC, thing: "nurse-desk", app: "japa", act: { wait: true } }),

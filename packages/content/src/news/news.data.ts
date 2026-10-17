@@ -2,11 +2,11 @@
 // and "Eras". The five stories of news.md keep their fixed schedule and gain the
 // director's fields; the pool's stories are the director's.
 //
-// `needs` reads only the world's variables and the era, so "a story in
-// force" is read as the variable that story sets. "After a closure ended" is read
-// as its window still at 0, and the opening story ends the closure through `endedBy`.
-// the page gives no cooldowns. A story that may fire again waits 12
-// ticks; a story fired once has none.
+// `needs` reads only the world's variables and the era, so "a story in force"
+// is the variable that story sets. "After a closure ended" is its window still
+// at 0, and the opening story ends the closure through `endedBy`.
+// The page gives no cooldowns. A story that may fire again waits 12 ticks; a
+// story fired once has none.
 // `standIn.announce` is only what the fixed schedule reads until the
 // director runs. A story that follows another follows it there too; any other
 // is announced between ticks 6 and 120, after the longest rumour lead.
@@ -107,7 +107,7 @@ function pool(story: PoolStory): NewsEntry {
 
 /**
  * An era's own story, announced on the tick the era begins (R-DIRECTOR-002). It touches
- * every route (R-DIRECTOR-009). its chance is 0 because the director announces
+ * every route (R-DIRECTOR-009). Its chance is 0 because the director announces
  * it with the era, never by a roll; it ends with the era, which no field holds.
  */
 function eraStory(id: Id<"news">): NewsEntry {
@@ -121,7 +121,7 @@ function eraStory(id: Id<"news">): NewsEntry {
 }
 
 const stories: Record<Id<"news">, NewsEntry> = {
-  // news.md, with director.md's preconditions. their groups are `openings` for the recruiting
+  // news.md, with director.md's preconditions. Their groups are `openings` for the recruiting
   // fair, `strictness` for the two UK rules and `fx` for the two currency stories.
 
   "news.uk-unis-recruit": {
@@ -168,7 +168,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     id: "news.uk-refusals-up",
     touches: [UK],
     hear: [],
-    // The study route's backlash: the surge over 40 (R-DIRECTOR-005). each pass tightens
+    // The study route's backlash: the surge over 40 (R-DIRECTOR-005). Each pass tightens
     // strictness by 10 and spends 30 of the surge (refusals rise, applications fall), so the ban's
     // +15 is kept and the restriction needs two backlashes from the start value; a pass is news for
     // six ticks and may repeat after 18, and no more once strictness is past 80: the rules are as
@@ -210,7 +210,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
       adds: [],
     },
     standIn: {
-      // the director rolls this every tick, so the fixed schedule's 60% for the whole
+      // The director rolls this every tick, so the fixed schedule's 60% for the whole
       // run would start a scarcity in the first months and float the naira about once a year.
       // 1.5% a tick is a scarcity about every six years in calm, four times as often in a crash;
       // the float that follows each is then a few times in a life, not yearly.
@@ -218,8 +218,8 @@ const stories: Record<Id<"news">, NewsEntry> = {
       announce: { between: [6, 26] },
       rumourLead: 2,
       forceLag: 2,
-      // it ends when the float comes into force. The engine ends it by
-      // reading the stage of news.naira-float, so no count of ticks is given here.
+      // The engine ends it by reading the stage of news.naira-float, so no count
+      // of ticks is given here.
       endsAfter: null,
       sets: [
         { var: "var.fx-supply", value: 40 },
@@ -279,14 +279,14 @@ const stories: Record<Id<"news">, NewsEntry> = {
     id: "news.uk-study-narrows",
     touches: [UK],
     group: "closures",
-    // The restriction: the refusals story in force is strictness at its 70. the surge must still be over
-    // 40, so a reopened route runs the cycle again before it narrows again. the window must be open, so a
+    // The restriction: the refusals story in force is strictness at its 70. The surge must still be over
+    // 40, so a reopened route runs the cycle again before it narrows again. The window must be open, so a
     // closed or narrowing route is never narrowed again (R-DIRECTOR-005: no step is skipped).
     needs: [atLeast("var.uk-study-strictness", 70), over("var.uk-study-surge", 50), atLeast("var.uk-study-window", 2)],
     chanceBp: 500,
     rumourLead: 1,
     forceLag: 2,
-    // a narrowing that no closure follows lifts after two years, so the window is not 1 for good.
+    // A narrowing that no closure follows lifts after two years, so the window is not 1 for good.
     endsAfter: 24,
     sets: [{ var: "var.uk-study-window", value: 1 }],
     revert: true,
@@ -296,17 +296,17 @@ const stories: Record<Id<"news">, NewsEntry> = {
     id: "news.uk-study-closes",
     touches: [UK],
     group: "closures",
-    // The closure: the narrowing in force is the window at 1. a scandal era closes routes too.
+    // The closure: the narrowing in force is the window at 1. A scandal era closes routes too.
     needs: [atLeast("var.uk-study-window", 1), atMost("var.uk-study-window", 1), era("era.hard-line", "era.scandal")],
     chanceBp: 500,
     rumourLead: 2,
     forceLag: 2,
-    // the closure runs until the reopening ends it, so the window never falls back to narrowing on its own.
+    // The closure runs until the reopening ends it, so the window never falls back to narrowing on its own.
     endsAfter: null,
     sets: [{ var: "var.uk-study-window", value: 0 }],
     revert: true,
     shock: true,
-    // the reopening ends the closure, as with the Gulf ban.
+    // The reopening ends the closure, as with the Gulf ban.
     endedBy: "news.uk-study-reopens",
     announce: after("news.uk-study-narrows", [2, 12]),
   }),
@@ -321,7 +321,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     rumourLead: 0,
     forceLag: 2,
     endsAfter: null,
-    // a reopening relaxes the rules too: strictness back to its start.
+    // A reopening relaxes the rules too: strictness back to its start.
     sets: [
       { var: "var.uk-study-window", value: 2 },
       { var: "var.uk-study-surge", value: 0 },
@@ -374,7 +374,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     id: "news.uk-care-closes",
     touches: [CARE],
     group: "closures",
-    // "fired" is read as in force: the revocations' risk at its 1200.
+    // "Fired" means in force: the revocations' risk at its 1200.
     needs: [atLeast("var.uk-care-sponsor-risk", 1200)],
     chanceBp: 600,
     rumourLead: 2,
@@ -435,7 +435,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     chanceBp: 200,
     rumourLead: 1,
     forceLag: 2,
-    // the body stays closed until the reappointment, which waits the closed ticks (R-DIRECTOR-005).
+    // The body stays closed until the reappointment, which waits the closed ticks (R-DIRECTOR-005).
     endsAfter: null,
     sets: [{ var: "var.uk-talent-window", value: 0 }],
     revert: true,
@@ -468,7 +468,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     chanceBp: 600,
     rumourLead: 1,
     forceLag: 2,
-    // a draw round lowers the care cut-off for six ticks and then it is back, so the cut-off does not drift.
+    // A draw round lowers the care cut-off for six ticks and then it is back, so the cut-off does not drift.
     endsAfter: 6,
     adds: [{ var: "var.ca-care-cutoff", value: -20 }],
     revert: true,
@@ -535,7 +535,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     group: "openings",
     needs: [atMost("var.uae-window", 0)],
     chanceBp: 10000,
-    // the lifting is rolled once the window has been shut `tuning.director.closedTicks` (8), so its talk runs
+    // The lifting is rolled once the window has been shut `tuning.director.closedTicks` (8), so its talk runs
     // 8 ticks before the announcement and it comes into force, ending the ban, on the ban's 18th tick (director.md).
     rumourLead: 8,
     forceLag: 2,

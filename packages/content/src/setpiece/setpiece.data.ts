@@ -74,7 +74,7 @@ export function decemberFare(id: Id<"country">): { currency: Currency; amount: n
 
 /**
  * A naira amount of the page in the country's currency, in whole units.
- * the page pays it "at the official rate", and an answer's effect
+ * The page pays it "at the official rate", and an answer's effect
  * holds a fixed amount, so it is converted once at the content's starting
  * official rate (`tuning.rate.start`).
  */
@@ -116,7 +116,7 @@ function paying(id: string, price: { currency: Currency; amount: number }, effec
 export function decemberQuestions({ country, suffix }: { country: Id<"country">; suffix: string }, index: number): SetpieceQuestion[] {
   const here: Requirement[] =
     index === 0
-      ? // the first country's questions are asked wherever the character is in none of the
+      ? // The first country's questions are asked wherever the character is in none of the
         // others, so the scene still has questions when an effect opens it at home.
         DECEMBER_COUNTRIES.slice(1).map((other): Requirement => ({ type: "not", of: { type: "place/is", where: "abroad", country: other.country } }))
       : [{ type: "place/is", where: "abroad", country }];

@@ -25,7 +25,7 @@ function applied(route: Id<"route">): Requirement {
   return { type: "route/state", route, in: ["applying", "granted", "departed"] };
 }
 
-// the gate steps a checklist reads are named `sponsor` (a sponsor or
+// The gate steps a checklist reads are named `sponsor` (a sponsor or
 // agent recorded), `salary` (its salary at or above the route's bar), `pool`
 // (a live profile) and `invited`. The page names the items, not the steps.
 function step(route: Id<"route">, name: string): Requirement {
@@ -122,7 +122,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     sponsor: {
       salaryVar: "var.uk-care-salary",
       maintenanceVar: null,
-      // the page names `sponsorFindBp` but gives no figure. 10%, the care home offer's 8% a month and a little more for looking.
+      // The page names `sponsorFindBp` but gives no figure. 10%, the care home offer's 8% a month and a little more for looking.
       findBp: 1000,
       bandMin: 40,
       documents: ["document.nursing-licence", "document.nmcn-verification"],
@@ -162,7 +162,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     sponsor: {
       salaryVar: "var.uk-skilled-salary",
       maintenanceVar: "var.uk-skilled-maintenance",
-      // no figure on the page. 6%, between the tech firm's 4% and the agency's 6% a month, rounded up.
+      // The page gives no figure. 6%, between the tech firm's 4% and the agency's 6% a month, rounded up.
       findBp: 600,
       bandMin: 40,
       // The degree is a quality, so no document is named.
@@ -295,7 +295,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     dependants: null,
     country: null,
     status: null,
-    // the road has no decision draw, so no refusal base.
+    // The road has no decision draw, so no refusal base.
     refusalBaseBp: 0,
     flightPaidByEmployer: false,
     // Nothing on the profile locks the pitches (R-ROAD-012).

@@ -1,7 +1,7 @@
 // From docs/rules/people.md "Entries: activities and offers" (R-PEOPLE-038, R-PEOPLE-050).
 // Joined into the offer table in offer.data.ts.
 //
-// taking the papers offer carries a `people/moment` of kind
+// Taking the papers offer carries a `people/moment` of kind
 // `wedding`, which the people kind reads as the papers marriage, since no
 // effect opens a bond.
 import type { Id, OfferEntry, Requirement } from "@japacity/sim";
@@ -44,7 +44,7 @@ export const peopleOfferTable: Record<Id<"offer">, OfferEntry> = {
     group: "money",
     where: "home",
     when: [{ type: "place/is", where: "home" }, AGE_21, NO_PARTNER],
-    // the page rolls it at 1%, but a new roll moves every later draw on `offer`, and the recorded lives replay offer ids; it opens only by effect until the lives are recorded again.
+    // The page rolls it at 1%, but a new roll moves every later draw on `offer`, and the recorded lives replay offer ids, so it opens only by effect until the lives are recorded again.
     chanceBp: 0,
     cooldown: 12,
     maxTimes: null,

@@ -14,9 +14,9 @@ export const RACKS: Id<"activity"> = "activity.job-fish-racks";
 const RACKS_HIRE_BP = 9500;
 
 export const waterActivityTable: Record<Id<"activity">, ActivityEntry> = {
-  // Edu-level 0: no schooling asked. "lives in Makoko" reads as the room on the lagoon being rented, so a
+  // Edu-level 0: no schooling asked. "Lives in Makoko" is the room on the lagoon being rented, so a
   // guest taken in after an eviction keeps the job (R-ACTIVITY-007) but the board stops listing it.
-  // the rule also lists the racks for "anyone who asks around at Makoko"; no act asks around there yet.
+  // The rule also lists the racks for "anyone who asks around at Makoko"; no act asks around there.
   [RACKS]: {
     id: RACKS,
     slot: "main",

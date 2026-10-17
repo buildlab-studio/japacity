@@ -17,12 +17,12 @@ export const documentTable: Record<Id<"document">, DocumentEntry> = {
   "document.home-licence": { id: "document.home-licence", wait: [0, 0], validMonths: 12, result: null },
   // Granted by a pass in the driving test; never expires.
   "document.uk-licence": { id: "document.uk-licence", wait: [0, 0], validMonths: null, result: null },
-  // The nursing register in the UK, after the tests: 3 to 6 months. Never expires in this milestone.
+  // The nursing register in the UK, after the tests: 3 to 6 months. Never expires.
   "document.nmc-pin": { id: "document.nmc-pin", wait: [3, 6], validMonths: null, result: null },
   // route-gates.md, "New qualities, documents and starting life".
 
   // A starting life or the prologue's graduation holds it.
-  // a renewal is issued at once, as the page gives no wait.
+  // A renewal is issued at once, as the page gives no wait.
   "document.nursing-licence": { id: "document.nursing-licence", wait: [0, 0], validMonths: 36, result: null },
   // Requested only after 24 months in a nursing job (R-SPONSOR-005).
   "document.nmcn-verification": { id: "document.nmcn-verification", wait: [6, 12], validMonths: 24, result: null },
@@ -31,7 +31,7 @@ export const documentTable: Record<Id<"document">, DocumentEntry> = {
   // The endorsement for the talent route (R-ENDORSE-001 to 003).
   "document.endorsement": { id: "document.endorsement", wait: [1, 2], validMonths: 3, result: null },
   // The medical for the contract route (R-CONTRACT-003).
-  // valid 3 months, as a Gulf work medical is; the page gives no validity.
+  // Valid 3 months, as a Gulf work medical is; the page gives no validity.
   "document.medical": { id: "document.medical", wait: [1, 1], validMonths: 3, result: null },
   // The nurse's certification (activity.md R-ACTIVITY-013): asked for by a pass at the clinic's quiz, two months, for good.
   "document.nurse-certificate": { id: "document.nurse-certificate", wait: [2, 2], validMonths: null, result: null },

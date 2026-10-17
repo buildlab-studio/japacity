@@ -26,8 +26,8 @@ const NETWORK: Requirement = { type: "quality/min", quality: "quality.network", 
 
 /**
  * R-ADVICE-003: the relationship that lets the player ask someone who went: a
- * bond at courting or later with a person abroad, or the network. a
- * recurring person met in a place is not recorded in the simulation.
+ * bond at courting or later with a person abroad, or the network. A recurring
+ * person met in a place is not recorded in the simulation, so it cannot count.
  */
 const KNOWS_ONE_WHO_WENT: Requirement = {
   type: "any",
@@ -186,7 +186,7 @@ export const adviceOfferTable: Record<Id<"offer">, OfferEntry> = {
     // A friend's word is life, not money: rolled after the money offers, so it never takes their places.
     group: "life",
     when: CHASER_WHEN,
-    // a friend's word comes up about one month in seven while a paper she follows up is
+    // A friend's word comes up about one month in seven while a paper she follows up is
     // being made, and not again for six months. The page gives no chance.
     chanceBp: 1500,
     cooldown: 6,
@@ -201,7 +201,7 @@ export const adviceOfferTable: Record<Id<"offer">, OfferEntry> = {
     chanceBp: 0,
     cooldown: 0,
     maxTimes: null,
-    // he names a month past the one a fixer would bring.
+    // He names a month past the one a fixer would bring.
     expiresAfter: tuning.advice.fixerMonths + 1,
     terms: {},
     fraudBp: 0,

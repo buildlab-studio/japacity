@@ -75,7 +75,7 @@ export const profileActivityTable: Record<Id<"activity">, ActivityEntry> = {
     counts: [TALENT],
   },
   // Any job, six months in: the raise is a draw the activity kind makes (tuning.activity), once for each job.
-  // the six months are the months in work where the character is (activity/local-tenure), and the
+  // The six months are the months in work where the character is (activity/local-tenure), and the
   // raise goes to the job held now. A raise counts toward the funds the study visa and Canada's points ask for.
   "activity.be-noticed": {
     id: "activity.be-noticed",

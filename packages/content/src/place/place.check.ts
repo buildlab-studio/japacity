@@ -41,7 +41,7 @@ function placeProblems(content: Content, places: PlaceEntry[]): string[] {
   for (const place of places) {
     if (place.realName === null) continue;
     if (place.where === "road") problems.push(`${place.id}: the road's place carries the real name ${place.realName} (R-CITY-023).`);
-    // public places (R-CITY-005) keep their own names whatever they stage; the rest binds the names R-CITY-022 allows.
+    // Public places (R-CITY-005) keep their own names whatever they stage; the rest binds the names R-CITY-022 allows.
     if (place.nameKind === "public") continue;
     const frauds = place.stages.filter((id) => harmful(content, id));
     if (frauds.length > 0) problems.push(`${place.id}: carries the real name ${place.realName} and stages ${frauds.join(", ")}, which can be a fraud, a mishap or bad news (R-CITY-022).`);

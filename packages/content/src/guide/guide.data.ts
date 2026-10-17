@@ -1,5 +1,5 @@
-// From docs/rules/guides.md, "Entries: guides at launch". Every source is one read
-// in planning, in docs/research or a rule page's Sources, with the date read there.
+// From docs/rules/guides.md, "Entries: the guides". Every source is one in
+// docs/research or a rule page's Sources, with the date it was read there.
 import type { GuideEntry, Id } from "@japacity/sim";
 
 /** The three parts of every guide (R-GUIDE-002): the real rules, what the game changes, and what to read next. */

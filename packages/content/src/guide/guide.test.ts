@@ -26,7 +26,7 @@ function guideWords(): string[] {
 }
 
 describe("the guides", () => {
-  test("[R-GUIDE-001] given the guides at launch, when they are checked, then each has a title, sections with words, dated sources and a checked date", () => {
+  test("[R-GUIDE-001] given the guides, when they are checked, then each has a title, sections with words, dated sources and a checked date", () => {
     expect(Object.keys(content.guide).sort()).toEqual([
       "guide.agents",
       // The two family guides cover the people routes (R-GUIDE-002), added when those routes went live.
@@ -139,7 +139,7 @@ describe("staleness", () => {
     expect(staleGuides(august, "2027-03-01")).toContain(MASTERS);
   });
 
-  test("[R-GUIDE-004] given the guides at launch, when they are listed on the day they were checked, then none is stale", () => {
+  test("[R-GUIDE-004] given the guides, when they are listed on the day they were checked, then none is stale", () => {
     expect(staleGuides(content, "2026-10-08")).toEqual([]);
   });
 

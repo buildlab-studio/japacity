@@ -1,5 +1,5 @@
 // Names and blurbs for Dubai lived by hand (docs/rules/place.md R-PLACE-012, streets.md R-STREET-014). The
-// place's answer to each is in activity.now.text.ts with the other now-lines. First drafts, plain.
+// place's answer to each is in activity.now.text.ts with the other now-lines. Plain.
 export const activityDubaiText: Record<string, string> = {
   "activity.transit-pass-uae.name": "The zone pass",
   "activity.transit-pass-uae.blurb": "One top-up at the machine and the buses and the metro are yours for the month.",

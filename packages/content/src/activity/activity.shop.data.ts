@@ -2,7 +2,7 @@
 // settlement opens a shop of her own. The act is offered only to a life with no degree and a shop's capital in
 // hand; the shop it opens is a main job no hunt lists, since it has no hiring chance (R-ACTIVITY-005). Joined
 // into the activity table in activity.data.ts.
-// no rule id names the shop yet; the tests cite R-ACTIVITY-001 (a job held and paid) and R-PROLOGUE-011.
+// No rule id names the shop; its tests cite R-ACTIVITY-001 (a job held and paid) and R-PROLOGUE-011.
 import type { ActivityEntry, Id } from "@japacity/sim";
 
 import { naira } from "../units";
@@ -13,15 +13,15 @@ const EDU_LEVEL: Id<"quality"> = "quality.edu-level";
 /** A bachelor's degree is edu-level 3 (quality.md): the shop is a trade's way, never a graduate's. */
 const BELOW_DEGREE = 2;
 /**
- * The naira in hand that stocks a shop. under the fair settlement (₦2,500,000), so a trader keeps
+ * The naira in hand that stocks a shop. Under the fair settlement (₦2,500,000), so a trader keeps
  * the act for the months her living costs take before she opens; over the most a life from sixteen holds
  * without a settlement (the shop counter's savings, the cheated settlement), so only a settled trade has it.
  */
 const CAPITAL = naira(1000000);
 
 export const shopActivityTable: Record<Id<"activity">, ActivityEntry> = {
-  // should the capital become the stock? No ledger reason says "stock" (a new reason needs a decision
-  // record), so opening costs nothing and the takings are what the shop clears after it restocks.
+  // The capital does not become stock: no ledger reason says "stock" (a new reason needs a decision record),
+  // so opening costs nothing and the takings are what the shop clears after it restocks.
   [OPEN]: {
     id: OPEN,
     slot: "free",
@@ -38,7 +38,7 @@ export const shopActivityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "activity/start-job", job: SHOP }],
     counts: [],
   },
-  // the takings grow by `tuning.activity.raiseBp` a year in the shop (activity.pay.ts) until tuning has a key of its own.
+  // The takings grow by `tuning.activity.raiseBp` a year in the shop (activity.pay.ts); tuning has no key of the shop's own.
   [SHOP]: {
     id: SHOP,
     slot: "main",

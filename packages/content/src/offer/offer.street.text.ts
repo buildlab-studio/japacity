@@ -1,4 +1,4 @@
-// Words for the bridge's price (streets.md R-STREET-004). Told straight. First drafts.
+// Words for the bridge's price (streets.md R-STREET-004). Told straight.
 // The offer kind names a line by its key in a term (`lost`, `night`); the words read the key's `.name`.
 export const offerStreetText: Record<string, string> = {
   "offer.bridge-theft.name": "Your bag in the night",

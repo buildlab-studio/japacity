@@ -5,7 +5,7 @@
 // roll opens them on the stream `health` with the prices from `tuning.health`, which win over
 // the terms below. The burial and the court date are rolled like any other offer.
 //
-// each choice that takes a slot carries its own `turn/lock`. The burial's `lockNext`
+// Each choice that takes a slot carries its own `turn/lock`. The burial's `lockNext`
 // names the same lock, but only `go` takes it: `send-money` and `absent` lock nothing, so a lock
 // on every choice would be wrong. The same choices fill `quality.forced-wait`, which is how the
 // cap of one forced month in twelve is counted (R-HEALTH-005).
@@ -86,7 +86,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
   },
 
   // R-HEALTH-003. Opened only by the relapse. `wellbeing` is where wellbeing returns once it is over.
-  // unanswered, it lapses into `cannot`; when the hospital could have been paid, the health
+  // Unanswered, it lapses into `cannot`; when the hospital could have been paid, the health
   // roll still applies `cannot` at the next come-up, since the family nursed you all the same.
   "offer.illness-worse": {
     id: "offer.illness-worse",
@@ -134,7 +134,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
     when: [{ type: "place/is", where: "home" }, { type: "quality/min", quality: STANDING, value: 20 }, NO_FORCED_MONTH],
     // 1.5%
     chanceBp: 150,
-    // the page gives no cooldown; the forced-month cap already keeps it to one a year.
+    // The page gives no cooldown; the forced-month cap already keeps it to one a year.
     cooldown: 12,
     maxTimes: null,
     expiresAfter: 1,
@@ -171,9 +171,9 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
   },
 
   // R-HEALTH-006: abroad, a court date over what is still owed. A day lost: one slot next month.
-  // "a car shortfall or a defaulted loan abroad" is read as a loan held abroad. The car
-  // shortfall is a loan; `obligation/has` does not count a loan already in default, so a defaulted
-  // loan alone does not bring it. a requirement for a judgment on the file would fit better.
+  // "A car shortfall or a defaulted loan abroad" is a loan held abroad. The car shortfall is a
+  // loan; `obligation/has` does not count a loan already in default, so a defaulted loan alone does
+  // not bring it. No requirement reads a judgment on the file (an open question in health.md).
   "offer.court-date": {
     id: "offer.court-date",
     group: "abroad",
@@ -182,7 +182,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
     when: [{ type: "place/is", where: "abroad" }, { type: "obligation/has", obligationType: "loan" }, NO_FORCED_MONTH],
     // 5%
     chanceBp: 500,
-    // the page gives no cooldown; the forced-month cap already keeps it to one a year.
+    // The page gives no cooldown; the forced-month cap already keeps it to one a year.
     cooldown: 12,
     maxTimes: null,
     expiresAfter: 1,

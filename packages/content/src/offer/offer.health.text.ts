@@ -1,4 +1,4 @@
-// First drafts for health.md's offers.
+// Words for health.md's offers.
 export const offerHealthText: Record<string, string> = {
   "offer.illness.name": "You are ill",
   "offer.illness.title": "You need rest",

@@ -1,4 +1,4 @@
-// The whole content of the first milestone, and every word it uses.
+// The whole content, and every word it uses.
 import type { Content } from "@japacity/sim";
 
 import { aboutText } from "./about/about.text";

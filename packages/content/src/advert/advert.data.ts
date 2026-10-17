@@ -1,4 +1,4 @@
-// From docs/rules/adverts.md, "Entries: slots at launch". A slot is where an
+// From docs/rules/adverts.md, "Entries: slots". A slot is where an
 // advert may show; which campaign fills it is the server's (R-ADVERT-008).
 import type { AdvertSlotEntry, Id } from "@japacity/sim";
 
@@ -7,7 +7,7 @@ const KIB = 1024;
 /** The phone's app grid is not a place in the city; its one tile names this instead (R-ADVERT-002). */
 export const PHONE = "phone";
 
-// the page's places are descriptions. The motor park is stylised (R-CITY-023) and a slot
+// The page's places are descriptions. The motor park is stylised (R-CITY-023) and a slot
 // may not stand there, so the park billboard is at Jibowu's coach terminals; the arrivals poster is
 // at Heathrow, where most flights from Lagos land; the market street's food spot is Ogba's.
 export const advertTable: Record<Id<"advert">, AdvertSlotEntry> = {

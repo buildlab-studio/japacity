@@ -81,7 +81,7 @@ const degree = (subjects: string, course: string, side: string, hustle: string, 
 });
 
 /*
- * the table names no subjects for the trader and the shop worker, and leaves the subjects card
+ * The table names no subjects for the trader and the shop worker, and leaves the subjects card
  * out of their open cards. Commercial suits them, and it closes no door: the master is open after it to
  * exactly the children it is open to after science (a town child of parents without schooling, or a
  * family under 40).

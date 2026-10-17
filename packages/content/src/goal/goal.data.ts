@@ -54,7 +54,7 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.step-up",
     where: "abroad",
     openIf: [{ type: "place/months-here", where: "abroad", months: 12 }],
-    // no requirement compares pay with the first job abroad. These are the jobs
+    // No requirement compares pay with the first job abroad. These are the jobs
     // abroad paying at least 20% over the entry job of their ladder: care at £25,000, the
     // warehouse at £23,000 or C$38,000, the skilled salary bar of £41,700.
     doneIf: [
@@ -112,7 +112,7 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     where: "any",
     openIf: RETURNED,
     // The capital bonus is at its cap of +10 with ₦10,000,000 above the ₦500,000 broke line.
-    // no requirement reads the bank on the day of the return, so the bank now stands for it.
+    // No requirement reads the bank on the day of the return, so the bank stands for it.
     doneIf: [{ type: "place/returned", shapes: ["with-papers", "by-choice"] }, { type: "money/min", currency: "NGN", amount: naira(10500000), pocket: "bank" }],
     reward: [standing(8)],
   },
@@ -120,8 +120,8 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.the-house",
     where: "any",
     openIf: [{ type: "money/min", currency: "NGN", amount: naira(5000000), pocket: "bank" }],
-    // the building project and the reason `build` arrive with a later page, and no
-    // requirement reads a ledger total; until then ₦15,000,000 held stands for ₦15,000,000 paid.
+    // No building project pays under the reason `build`, and no requirement reads a ledger
+    // total, so ₦15,000,000 held stands for ₦15,000,000 paid (an open question in goal.md).
     doneIf: [
       { type: "quality/min", quality: "quality.land", value: 1 },
       { type: "money/min", currency: "NGN", amount: naira(15000000), pocket: "bank" },

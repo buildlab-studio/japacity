@@ -98,7 +98,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
   "chapter.build-the-file-talent": variant(FILE, TALENT, 4, [
     // The endorsement's bar for the portfolio (R-ENDORSE-001).
     { id: "portfolio", requirement: { type: "quality/min", quality: "quality.portfolio", value: 3 } },
-    // the endorsement gate's only step is its cooldown, so the item reads the endorsement held, as the route's checklist does.
+    // The endorsement gate's only step is its cooldown, so the item reads the endorsement held, as the route's checklist does.
     { id: "endorsement", requirement: held("document.endorsement") },
     { id: "applied", requirement: applied(TALENT) },
   ]),
@@ -115,7 +115,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
     { id: "medical", requirement: held("document.medical") },
     // The contract gate's one step: an agent recorded with the contract's terms (route-gates.md, the code's reading).
     { id: "agent", requirement: gateStep(GULF, "sponsor") },
-    // the page calls the contract a gate step, and the gate has one. The contract is made when the
+    // The page calls the contract a gate step, and the gate has one. The contract is made when the
     // agent takes your papers to the employer (`activity.apply-gulf-contract`), so the item is the route applied.
     { id: "contract", requirement: applied(GULF) },
   ]),
@@ -174,7 +174,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
     id: "chapter.landing",
     order: 13,
     items: [
-      // A roof: an open rent obligation. the Gulf worker is housed by the employer
+      // A roof: an open rent obligation. The Gulf worker is housed by the employer
       // and pays no rent (abroad-money.md), so holding that status meets it too.
       {
         id: "room",
@@ -210,7 +210,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
           ],
         },
       },
-      // no requirement reads an offer taken or lapsed. A request from home comes up
+      // No requirement reads an offer taken or lapsed. A request from home comes up
       // only when the naira pockets hold ₦150,000 (offer.md, "not when broke"), which abroad
       // means money has been sent home; every request is then answered or lapses in a month.
       { id: "request", requirement: { type: "money/min", currency: "NGN", amount: naira(150000) } },

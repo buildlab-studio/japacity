@@ -1,4 +1,4 @@
-// The fish racks at Makoko (R-ACTIVITY-017). First drafts.
+// The fish racks at Makoko (R-ACTIVITY-017).
 export const activityWaterText: Record<string, string> = {
   "activity.job-fish-racks.name": "The fish racks",
   // The hunt card and its button for the racks say the act, not "Look for a job".

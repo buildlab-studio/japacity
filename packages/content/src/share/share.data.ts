@@ -63,6 +63,6 @@ export const officialAccounts: readonly OfficialAccount[] = [
   { platform: "x", address: null, aliases: [] },
   { platform: "youtube", address: null, aliases: [] },
   { platform: "facebook", address: null, aliases: [] },
-  // the repository is the current remote; is it the public home?
+  // The repository's address is the git remote the code is kept in.
   { platform: "repository", address: "github.com/buildlab-studio/japacity", aliases: [] },
 ];

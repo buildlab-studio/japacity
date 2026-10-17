@@ -1,4 +1,4 @@
-// First drafts: the page names the route only as "the UK master's".
+// The page names the route only as "the UK master's".
 export const routeText: Record<string, string> = {
   "route.uk-masters.name": "A master's in the UK",
   "route.uk-masters.blurb": "A one-year taught master's at a UK university, on a student visa.",
@@ -15,7 +15,7 @@ export const routeText: Record<string, string> = {
   "route.uk-masters.item.tb": "TB certificate held",
   "route.uk-masters.item.applied": "Visa application sent",
 
-  // Report lines. First drafts.
+  // Report lines.
   // A route heard of, said by where the word came from and never as what the player heard (R-TEXT-007). The interface picks `line.route.heard.<via>` by the line's `via`;
   // the bare line is for a source it has no words for.
   "line.route.heard": "Word came round of {route}.",
@@ -43,7 +43,7 @@ export const routeText: Record<string, string> = {
   "line.route.departed": "You flew out on {route}. Home is a phone call away now.",
   // The job at home that ends with the flight, told beside the plane (the interface's variant of line.activity.job-ended).
   "line.route.departed-job-ended": "The job at home ended with the flight: {job}.",
-  // The sponsor and contract gates (route-gates.md). First drafts.
+  // The sponsor and contract gates (route-gates.md).
   "line.route.sponsor-recorded": "A sponsor for {route} sent you a certificate of sponsorship.",
   // A search for a sponsor that found nobody this month (R-SPONSOR-001).
   "line.route.sponsor-missed": "No trust answered this month. The search goes on.",
@@ -51,13 +51,13 @@ export const routeText: Record<string, string> = {
   "line.route.sponsor-under-bar":
     "A sponsor for {route} sent you a certificate, but the salary is under the bar. It cannot be used for the visa.",
   "line.route.agent-recorded": "The agent took your money and your details for {route}. He said the contract would follow.",
-  // The points gate (route-gates.md R-POINTS-002, 003, 005). First drafts.
+  // The points gate (route-gates.md R-POINTS-002, 003, 005).
   "line.route.pool-entered": "Your profile for {route} went into the pool. Each draw, the cut-off moves.",
   "line.route.invited": "You were invited to apply for {route}. The fee goes with the application.",
   "line.route.invite-unpaid": "You were invited to apply for {route}, but the fee could not be paid. The invitation holds one more month.",
   "line.route.invite-lapsed": "The invitation for {route} has lapsed. The fee was never paid. Your profile stays in the pool.",
   "line.route.profile-lapsed": "Your profile for {route} has run out without an invitation. You can enter the pool again.",
-  // The endorsement gate (R-ENDORSE-002). First draft.
+  // The endorsement gate (R-ENDORSE-002).
   "line.route.endorsement-refused": "The endorsing body did not back you for {route}. The letter was withdrawn. Build the work up, then ask again.",
   "route.uk-care.name": "Care work in the UK",
   "route.uk-care.blurb":
@@ -137,7 +137,7 @@ export const routeText: Record<string, string> = {
   "route.gulf-contract.item.police": "Police certificate held",
   "route.gulf-contract.item.applied": "Papers sent to the employer",
 
-  // The plan the chapters follow and the switch between ways (chapter.md R-CHAPTER-009). First drafts.
+  // The plan the chapters follow and the switch between ways (chapter.md R-CHAPTER-009).
   // Each way's name inside a sentence ("Instead of care work"), and the file its chapters build.
   "route.uk-care.short": "care work",
   "route.uk-masters.short": "the master's",
@@ -166,7 +166,7 @@ export const routeText: Record<string, string> = {
   "route.road.name": "The road",
   "route.road.blurb": "A way north that the man at the park does not describe.",
 
-  // The chain's report lines (R-ROAD-003 to 010). Plain, and they never say how. First drafts.
+  // The chain's report lines (R-ROAD-003 to 010). Plain, and they never say how.
   "line.route.road-fraud": "The man who took your deposit has stopped answering. Nobody at the park has seen him.",
   "line.route.road-go": "You got on the bus before light. Nobody at home knew yet.",
   "line.route.road-turned-back": "You went home before the bus left. The deposit stayed with the man.",
@@ -189,7 +189,7 @@ export const routeText: Record<string, string> = {
   "road.real-story.title": "This happened to real people",
   "road.real-story.line":
     "The road in this game follows reporting on the journey north through the desert and across the sea. Read their work.",
-  // credited by outlet, work and year. The reporters' names are left out (AGENTS.md: no real person in content).
+  // Credited by outlet, work and year. The reporters' names are left out (AGENTS.md: no real person in content).
   "road.real-story.credit.1": "Foundation for Investigative Journalism, an undercover journey north, 2026",
   "road.real-story.credit.2": "The Sun, an undercover Sahara trek, 2009",
   "road.real-story.credit.3": "CNN, migrants auctioned in Libya, 2017",
@@ -198,7 +198,7 @@ export const routeText: Record<string, string> = {
   "road.real-story.link.1": "https://fij.ng/article/undercover-europe-through-the-sahara-desert-and-the-mediterranean-sea-i/",
   "road.real-story.link.3": "https://undercover.hosting.nyu.edu/s/undercover-reporting/item/14851",
 
-  // docs/rules/people.md: the partner and dependant routes, their apply activities and the withdrawal. First drafts.
+  // docs/rules/people.md: the partner and dependant routes, their apply activities and the withdrawal.
   "route.uk-partner.name": "Joining your partner in the UK",
   "route.uk-partner.blurb": "A partner visa, for the husband, wife or long partner of someone settled or British. They must earn above the floor.",
   "route.uk-partner.item.married": "Married, or two years together",

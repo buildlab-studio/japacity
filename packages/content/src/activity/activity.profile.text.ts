@@ -1,5 +1,5 @@
 // The waiting months' acts (activity.md R-ACTIVITY-013): names, blurbs and the lines the raise and the
-// quiz are told with. First drafts.
+// quiz are told with.
 export const activityProfileText: Record<string, string> = {
   "activity.open-source.name": "Work on open source",
   "activity.open-source.blurb": "Fixes and features for code anyone can read. People who matter see your name on it, and some months it adds a piece worth showing.",

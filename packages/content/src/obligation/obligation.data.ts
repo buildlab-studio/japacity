@@ -33,7 +33,7 @@ function upkeepAbroad(id: Id<"obligation">, currency: Currency, amount: number):
 /**
  * A shared room, no credit needed (R-ABROAD-003). It reports to the file: the
  * first on-time rent is the first mark that closes chapter 5's `file` item.
- * a room has nowhere cheaper to evict to, so a default here does nothing
+ * A room has nowhere cheaper to evict to, so a default here does nothing
  * more than R-CREDIT-002's default figure.
  */
 function rentRoom(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
@@ -69,9 +69,9 @@ function rentFlat(id: Id<"obligation">, currency: Currency, amount: number, room
 
 /**
  * A phone contract: credit 10 to open, the cheapest way to build the file (R-ABROAD-004).
- * the page's 24 months has no field on a fixed charge; the contract rolls
- * on monthly after it, as UK contracts do. a default cuts the line, the
- * page giving nothing for a miss beyond the credit file.
+ * The page's 24 months has no field on a fixed charge; the contract rolls on
+ * monthly after it, as UK contracts do (an open question in abroad-money.md). A
+ * default cuts the line, the page giving nothing for a miss beyond the credit file.
  */
 function phone(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
   return {
@@ -279,7 +279,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     ],
   },
   // R-OBLIGATION-012: standing guarantor. Three months on, the relative may be gone and the balance is yours.
-  // the contract has no timer for this, so the guarantee is an undertaking of 3 months owing the balance.
+  // The contract has no timer for this, so the guarantee is an undertaking of 3 months owing the balance.
   "obligation.guarantee": {
     id: "obligation.guarantee",
     type: "undertaking",
@@ -294,7 +294,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onDefault: [{ type: "obligation/open", obligation: "obligation.group-loan", principal: { term: "outstanding" } }],
   },
   // luck.md R-LUCK-009: ₦20,000 a month for 10 months, the pot drawn on `lotto`.
-  // the page names no sink for a share paid into the circle; `social` is the nearest.
+  // The page names no sink for a share paid into the circle; `social` is the nearest.
   "obligation.ajo": {
     id: "obligation.ajo",
     type: "ajo",
@@ -351,7 +351,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   },
 
   // activity.md R-ACTIVITY-013: a master's at home, ₦1,800,000 in twelve monthly instalments, the
-  // principal handed over by the activity's first month. the page gives no default, so the grace
+  // principal handed over by the activity's first month. The page gives no default, so the grace
   // is the whole term: fees fall behind and stay owed, and no school withdraws you from a course at home.
   "obligation.masters-at-home": {
     id: "obligation.masters-at-home",
@@ -394,7 +394,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
       shortfall: "obligation.car-shortfall",
     },
     amount: 0,
-    // the ladder sets the rate when the car is bought (R-CREDIT-005); the
+    // The ladder sets the rate when the car is bought (R-CREDIT-005); the
     // entry's own rate is the bottom rung, the one a file at exactly 30 gets.
     rateBp: 120,
     term: 36,
@@ -408,7 +408,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   },
 
   // What is owed after a repossession: 12 months at 0%, opened with a judgment (R-CAR-003).
-  // it follows you home (R-RETURN-006), so it applies anywhere; it reports to
+  // It follows you home (R-RETURN-006), so it applies anywhere; it reports to
   // the file and has the salary loan's grace of 1, the page giving neither.
   "obligation.car-shortfall": {
     id: "obligation.car-shortfall",
@@ -445,7 +445,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   },
 
   // road.md R-ROAD-006 and 007: the ransom nobody paid. It follows the character home or on to Italy.
-  // the page gives no schedule, rate or grace, so it charges nothing a month and never defaults;
+  // The page gives no schedule, rate or grace, so it charges nothing a month and never defaults;
   // it stays open as what is owed.
   "obligation.agent-debt": {
     id: "obligation.agent-debt",

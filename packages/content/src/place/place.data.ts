@@ -287,7 +287,7 @@ const entries: PlaceEntry[] = [
   lagos("place.ikorodu", "Ikorodu", "ikorodu", 6619, 3504, { crowd: BUSY, traditionalBp: STREET }),
   // OpenStreetMap spells it "Mohammed"; the sign uses the official spelling. Exterior, with departures and arrivals inside.
   lagos("place.airport-lagos", "Murtala Muhammed International Airport", "ikeja", 6574, 3321, {
-    // the arrivals hall is an interior scene; the entry keeps "exterior" while the terminal front's test reads its scope against the entry.
+    // The arrivals hall is an interior scene, but the entry keeps "exterior" because the terminal front's test reads its scope against the entry.
     assets: "arrivals-hall",
     stages: ["chapter.send-off", "setpiece.december", "activity.december-home-uk", "activity.december-home-ca", "activity.december-home-uae"],
     crowd: BUSY,
@@ -295,10 +295,10 @@ const entries: PlaceEntry[] = [
   }),
 
   // Lagos: institutions, by plain description. An area and never a position.
-  // The passport is a visit to Immigration: the office stands in the visa centre's hall
-  // until its own room is built, as the hub's room borrows the inverter room.
+  // The passport is a visit to Immigration: the office has no room of its own and stands in
+  // the visa centre's hall, as the hub's room borrows the inverter room.
   unnamed("place.passport-office", "institution", "home", "lagos", "ikoyi", { spot: [6451, 3431], assets: "visa-centre", stages: ["activity.get-passport"], crowd: BUSY, traditionalBp: OFFICE }),
-  // R-DOCUMENT-007: the police certificate is asked at the notice here until a station is built.
+  // R-DOCUMENT-007: no police station is built, so the police certificate is asked at the notice here.
   unnamed("place.visa-centre", "institution", "home", "lagos", "victoria-island", { spot: [6428, 3422], stages: ["activity.apply-for-visa", "activity.apply-uk-care", "activity.apply-uk-talent", "setpiece.credibility-interview", "activity.get-police-certificate"], crowd: BUSY, traditionalBp: OFFICE }),
   unnamed("place.english-test-centre", "institution", "home", "lagos", "ikeja", { spot: [6598, 3352], stages: ["activity.sit-english-test", "activity.study-english"], crowd: QUIET, traditionalBp: OFFICE }),
   // The staff nurse's job is on the clinic's notice, where a nurse from sixteen takes her first step (prologue.md R-PROLOGUE-010).
@@ -382,7 +382,7 @@ const entries: PlaceEntry[] = [
     traditionalBp: ROADSIDE,
   }),
 
-  // Abroad. the design table's shares are for Lagos; abroad uses the hub and office share.
+  // Abroad. The design table's shares are for Lagos; abroad uses the hub and office share.
   abroad("place.heathrow", "country.uk", "london", "heathrow", "London Heathrow Airport", 51468, -459, { scope: "interior", crowd: BUSY, traditionalBp: AIRPORT }),
   // London on the Lagos mold (city.md "Entries: abroad", design page 14 section 4). The hub: the jobs
   // notice and the agency's stand where the hunt is sent (world.md R-WORLD-005), and the find on the street (R-STREET-006).

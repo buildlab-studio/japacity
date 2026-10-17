@@ -1,7 +1,7 @@
 // The offers of life abroad and of coming home: docs/rules/return.md R-RETURN-003
 // and ladders.md R-LADDER-005. Joined into the offer table in offer.data.ts.
 //
-// the pages name these offers and what each is about, but give no chance,
+// The pages name these offers and what each is about, but give no chance,
 // cooldown, terms or choices. Every number here is a working value for the sweep.
 // R-RETURN-003: the offer kind keeps the group `return` in the pool for
 // tuning.return.offerMonths after the last return, and judges each `when`
@@ -101,7 +101,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
     id: "offer.returnee-business",
     group: "return",
     where: "home",
-    // the cousin comes to the ones who came back with money: papers or by choice.
+    // The cousin comes to the ones who came back with money: papers or by choice.
     when: returned(["by-choice", "with-papers"]),
     chanceBp: pct(8),
     cooldown: 6,
@@ -147,7 +147,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
     id: "offer.returnee-hire",
     group: "return",
     where: "home",
-    // the foreign experience is on the CV of anyone who worked out there; a removal is on it too.
+    // The foreign experience is on the CV of anyone who worked out there; a removal is on it too.
     when: returned(["broke", "by-choice", "with-papers"]),
     chanceBp: pct(10),
     cooldown: 6,
@@ -187,7 +187,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
     id: "offer.returnee-leave-again",
     group: "return",
     where: "home",
-    // the friend's connection finds the ones who came back without what they went for.
+    // The friend's connection finds the ones who came back without what they went for.
     when: returned(["assisted", "broke", "by-choice"]),
     chanceBp: pct(6),
     cooldown: 6,

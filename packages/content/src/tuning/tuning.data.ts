@@ -232,7 +232,7 @@ export const tuning: Tuning = {
   room: { cookedBp: pct(15), waterBp: pct(4) },
 
   // lottery.md Numbers, the Friday draw at fixed odds: 1 in 10 wins ₦500, 1 in 2,000 wins ₦50,000, 1 in 5,000 the jackpot from ₦200,000, growing by 10% of the sales of a week nobody hits it.
-  // the page's cap of ₦2,000,000 returns ₦475 on a ₦200 ticket and fails R-LOTTERY-022; ₦380,000 gives the page's own "about ₦151 at the cap".
+  // The jackpot cap of ₦380,000 keeps a ticket's return under its price (R-LOTTERY-022): about ₦151 at the cap.
   lottery: {
     ticket: naira(200),
     maxTickets: 5,

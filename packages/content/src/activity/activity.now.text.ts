@@ -1,5 +1,5 @@
 // What the place says when a now-act is done there (docs/rules/activity.md R-ACTIVITY-015), in the
-// voice of whoever is there. First drafts, plain. {param} is the job or
+// voice of whoever is there. Plain. {param} is the job or
 // the route picked, {month} the month a paper is due, which the screen says as months away.
 export const activityNowText: Record<string, string> = {
   // The act itself among the month's lines, as "This month: ..." tells a slot.
