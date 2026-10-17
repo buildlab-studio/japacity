@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { Player } from "@remotion/player";
@@ -9,12 +9,15 @@ import { Internals } from "remotion";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { TALL_CLIPS } from "../clips";
+import { GITHUB_MARK } from "../parts/brand";
 import { TALL_VIDEO, VIDEO } from "../parts/tokens";
-import { type Act, END_LINE, Lead, LEAD_COMPOSITIONS, LEAD_FRAMES, LEAD_SHOTS, LeadPortrait, STRIP } from "./Lead";
-import { PORTRAIT_STILLS } from "./stills";
+import { FEED_BARS, type Zone, ZONES } from "../parts/zones";
+import { END_LINE, layLines, Lead, LEAD_COMPOSITIONS, LEAD_FRAMES, LEAD_SHOTS, LeadPortrait } from "./Lead";
+import { STILLS } from "./stills";
 
-// A page test reads the module as a web address, so the folder is found from the repository root the tests run in.
+// A page test reads the module as a web address, so the folders are found from the repository root the tests run in.
 const CLIP_FOLDER = join(process.cwd(), "apps", "teaser", "clips");
+const PARTS_FOLDER = join(process.cwd(), "apps", "teaser", "src", "parts");
 
 // React's act() needs this flag in a test page.
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -49,15 +52,24 @@ function mountAt(component: ComponentType, size: { width: number; height: number
 
 const portraitAt = (frame: number) => mountAt(LeadPortrait, TALL_VIDEO, frame);
 
-/** The middle frame of every shot in an act. */
-function middles(of: Act): number[] {
-  return LEAD_SHOTS.filter((shot) => shot.act === of).map((shot) => shot.from + Math.floor(shot.frames / 2));
+/** The frames a walk of a shot looks at: its first, a quarter in, the middle, three quarters in, and its last. */
+function walk(shot: { from: number; frames: number }): number[] {
+  return [0, 0.25, 0.5, 0.75, 1].map((at) => shot.from + Math.min(shot.frames - 1, Math.round((shot.frames - 1) * at)));
 }
 
-/** The window onto the world as the page draws it, in the frame's pixels. */
-function windowOf(page: HTMLElement): { width: number; height: number } | null {
-  const found = page.querySelector<HTMLElement>("[data-stage-window]");
-  return found === null ? null : { width: Number.parseFloat(found.style.width), height: Number.parseFloat(found.style.height) };
+/** Every piece of ours on the page, with its zone and its box in the tall frame's pixels. */
+function piecesOf(page: HTMLElement): { name: string; zone: Zone; top: number; bottom: number; left: number | null; right: number | null }[] {
+  return [...page.querySelectorAll<HTMLElement>("[data-piece]")].map((found) => {
+    const top = Number.parseFloat(found.style.top);
+    const left = found.style.left === "" ? null : Number.parseFloat(found.style.left);
+    const width = found.style.width === "" ? null : Number.parseFloat(found.style.width);
+    return { name: found.dataset.piece ?? "", zone: (found.dataset.zone ?? "safe") as Zone, top, bottom: top + Number.parseFloat(found.style.height), left, right: left === null || width === null ? null : left + width };
+  });
+}
+
+/** The recordings a page draws, by file. */
+function videosOf(page: HTMLElement): string[] {
+  return [...page.querySelectorAll("video")].map((video) => video.getAttribute("src") ?? "");
 }
 
 describe("the decision in its two frames", () => {
@@ -69,58 +81,48 @@ describe("the decision in its two frames", () => {
     expect(last === undefined ? 0 : last.from + last.frames).toBe(LEAD_FRAMES);
   });
 
-  test("given the portrait cut, when it is mounted in the middle of each strip shot, then the world is drawn in a window narrower than the frame", () => {
-    const frames = middles("strip");
-    expect(frames.length).toBeGreaterThan(0);
-    const seen = frames.map((frame) => {
-      const drawn = windowOf(portraitAt(frame));
-      unmount();
-      return drawn;
-    });
-    for (const drawn of seen) {
-      expect(drawn).toEqual({ width: STRIP.w, height: STRIP.h });
-      expect(drawn?.width ?? TALL_VIDEO.width).toBeLessThan(TALL_VIDEO.width);
-    }
-  });
-
-  test("given the portrait cut, when it is mounted in the middle of each shot in the hand, then the window is the whole frame", () => {
-    const frames = middles("hand");
-    expect(frames.length).toBeGreaterThan(0);
-    const seen = frames.map((frame) => {
-      const drawn = windowOf(portraitAt(frame));
-      unmount();
-      return drawn;
-    });
-    expect(seen).toEqual(frames.map(() => ({ width: TALL_VIDEO.width, height: TALL_VIDEO.height })));
-  });
-
-  test("given the turn, when it is mounted at its start and at its end, then the window grows from the strip to the frame and the phone's recording is drawn inside it", () => {
-    const turn = LEAD_SHOTS.find((shot) => shot.act === "turn");
-    expect(turn).toBeDefined();
-    if (turn === undefined) return;
-    expect(windowOf(portraitAt(turn.from))).toEqual({ width: STRIP.w, height: STRIP.h });
-    unmount();
-    const page = portraitAt(turn.from + turn.frames - 1);
-    expect(windowOf(page)).toEqual({ width: TALL_VIDEO.width, height: TALL_VIDEO.height });
-    const sources = [...page.querySelectorAll("video")].map((video) => video.getAttribute("src") ?? "");
-    expect(sources.some((source) => source.includes("clips/tall-day.webm"))).toBe(true);
-  });
-
-  test("given the turn, when it is mounted on each of its frames, then the wide picture and the phone's recording are never drawn together", () => {
-    const turn = LEAD_SHOTS.find((shot) => shot.act === "turn");
-    expect(turn).toBeDefined();
-    if (turn === undefined) return;
-    const both: number[] = [];
-    for (let frame = turn.from; frame < turn.from + turn.frames; frame += 1) {
-      const sources = [...portraitAt(frame).querySelectorAll("video")].map((video) => video.getAttribute("src") ?? "");
-      if (sources.some((source) => source.includes("clips/wide-day.webm")) && sources.some((source) => source.includes("clips/tall-day.webm"))) both.push(frame);
+  test("given the portrait teaser, when every shot of the city and the turn is mounted at its middle, then the phone's own recording fills the frame and no wide one is drawn", () => {
+    const shots = LEAD_SHOTS.filter((shot) => shot.act === "city" || shot.act === "turn");
+    expect(shots.length).toBe(7);
+    for (const shot of shots) {
+      const page = portraitAt(shot.from + Math.floor(shot.frames / 2));
+      const picture = page.querySelector<HTMLElement>("[data-picture]");
+      expect(picture?.dataset.picture).toMatch(/^tall-/);
+      expect(Number.parseFloat(picture?.style.width ?? "0")).toBeGreaterThanOrEqual(TALL_VIDEO.width);
+      expect(Number.parseFloat(picture?.style.height ?? "0")).toBeGreaterThanOrEqual(TALL_VIDEO.height);
+      expect(videosOf(page).filter((source) => source.includes("clips/wide-"))).toEqual([]);
       unmount();
     }
-    expect(both).toEqual([]);
   });
 
-  test("given the end card, when each composition is mounted on its last frame, then it carries the line under the address", () => {
-    expect(END_LINE).toBe("Free. Open source.");
+  test("given the portrait teaser, when every shot is walked at five frames, then every piece of ours stands in its zone, inside the frame and clear of the feed's bars above 220 and below 1540", () => {
+    const outside: string[] = [];
+    for (const [index, shot] of LEAD_SHOTS.entries()) {
+      const counted = walk(shot).map((frame) => {
+        const pieces = piecesOf(portraitAt(frame));
+        unmount();
+        for (const piece of pieces) {
+          const [top, bottom] = ZONES[piece.zone];
+          const where = `shot ${String(index)} frame ${String(frame)} ${piece.name} (${piece.zone}) ${String(Math.round(piece.top))} to ${String(Math.round(piece.bottom))}`;
+          if (piece.top < Math.max(top, FEED_BARS.top) || piece.bottom > Math.min(bottom, FEED_BARS.bottom)) outside.push(where);
+          if ((piece.left !== null && piece.left < 0) || (piece.right !== null && piece.right > TALL_VIDEO.width)) outside.push(`${where}, sideways`);
+        }
+        return pieces.length;
+      });
+      expect(Math.max(...counted), `shot ${String(index)} draws pieces`).toBeGreaterThan(0);
+    }
+    expect(outside).toEqual([]);
+  });
+
+  test("given a bubble's words, when they are laid in lines, then every line fits and a line ends where the sense does", () => {
+    expect(layLines("Small small, I go reach.", 28)).toEqual([["Small", "small,", "I", "go", "reach."]]);
+    expect(layLines("Oshodi, Oshodi. Enter with your change o.", 28)).toEqual([["Oshodi,", "Oshodi."], ["Enter", "with", "your", "change", "o."]]);
+    expect(layLines("Who get change for one thousand?", 26).map((line) => line.join(" "))).toEqual(["Who get change", "for one thousand?"]);
+    expect(() => layLines("Unbreakable", 4)).toThrow();
+  });
+
+  test("given both end cards, when each composition is mounted on its last frame, then GitHub's mark stands before the open source line, under the address", () => {
+    expect(END_LINE).toBe("Free. Open source on GitHub.");
     for (const [component, size] of [
       [Lead, VIDEO],
       [LeadPortrait, TALL_VIDEO],
@@ -130,13 +132,25 @@ describe("the decision in its two frames", () => {
       expect(text).toContain("japacity.app");
       expect(text).toContain(END_LINE);
       expect(text.indexOf(END_LINE)).toBeGreaterThan(text.indexOf("japacity.app"));
+      const line = page.querySelector<HTMLElement>("[data-end-line]");
+      expect(line?.textContent).toBe(END_LINE);
+      const mark = line?.firstElementChild;
+      expect(mark?.hasAttribute("data-github-mark")).toBe(true);
+      expect(mark?.querySelector("path")?.getAttribute("d")).toBe(GITHUB_MARK.path);
       unmount();
     }
   });
 
-  test("given the portrait stills a render keeps, when their frames are read, then each lands in the act it is named for", () => {
-    const landed = PORTRAIT_STILLS.map((still) => ({ name: still.name, act: LEAD_SHOTS.find((one) => still.frame >= one.from && still.frame < one.from + one.frames)?.act }));
-    expect(landed).toEqual(PORTRAIT_STILLS.map((still) => ({ name: still.name, act: still.act })));
+  test("given GitHub's mark as GitHub hands it out, when the file kept beside the brand is read, then the drawn mark has its box and its path unaltered", () => {
+    const file = readFileSync(join(PARTS_FOLDER, "GitHub_Invertocat_White.svg"), "utf8");
+    expect(file).toContain(`viewBox="0 0 ${String(GITHUB_MARK.width)} ${String(GITHUB_MARK.height)}"`);
+    expect(/<path d="([^"]+)"/.exec(file)?.[1]).toBe(GITHUB_MARK.path);
+  });
+
+  test("given the stills a render keeps, when their frames are read, then each lands in the act it is named for, in its composition's length", () => {
+    const landed = STILLS.map((still) => ({ name: still.name, act: LEAD_SHOTS.find((one) => still.frame >= one.from && still.frame < one.from + one.frames)?.act }));
+    expect(landed).toEqual(STILLS.map((still) => ({ name: still.name, act: still.act })));
+    expect(STILLS.map((still) => still.name)).toEqual(["portrait-open", "portrait-street", "portrait-turn", "portrait-hand", "portrait-end", "portrait-feed", "landscape-end"]);
   });
 
   test("given the tall clips listed, when the folder is read, then every one is on disk", () => {

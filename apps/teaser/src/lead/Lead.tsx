@@ -4,237 +4,271 @@
 // the seal's two bulbs for the oldest Nigerian joke about leaving. Twenty eight seconds, with sound.
 //
 // One list of shots draws two films: the landscape one (`Lead`, 1920 by 1080) and the portrait one for a phone's feed
-// (`LeadPortrait`, 1080 by 1920). In the portrait film the city is first a strip: the wide recording seen through a card's
-// window across the middle of the day sky, travelling left to right, what is said standing above it and what is shown
-// below it, sliding a touch slower than the picture. On "Find your way out." the window grows to the frame and the picture
-// inside becomes the phone's own recording of the house; from there the film is the game in the hand.
+// (`LeadPortrait`, 1080 by 1920). The portrait teaser is the game in the hand from the first shot: every shot of the world
+// is the phone's own recording, full frame, and the pieces stand where the game puts them on a phone, each in its zone of
+// a feed's frame (parts/zones.tsx): the band under the notch, the bubbles over heads, the beat's words in one big chip
+// where the eye rests, the cards under them, and nothing in the feed's own bars at the top and the bottom.
 import { type CSSProperties, createContext, type ReactNode, useContext } from "react";
-import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, interpolate, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 import type { ClipName } from "../clips";
-import { Seal, Wordmark } from "../parts/brand";
+import { GitHubMark, Seal, Wordmark } from "../parts/brand";
 import { Card, Chip, Clip, PressButton, Sticker, Title } from "../parts/dress";
 import { loadRubik } from "../parts/fonts";
 import { FrameContext, type FrameShape, useFrameShape } from "../parts/frame";
 import { land, pop, ramp } from "../parts/motion";
 import { CREAM, DAY, FONT, GREEN, NAVY, NIGHT, type Paint, TALL_VIDEO, TINT, VIDEO, YELLOW } from "../parts/tokens";
+import { FEED_BARS, Piece, ZONES } from "../parts/zones";
 import { Flight, MapShot, NightFalls } from "../teaser/scenes";
 
-/** Where a shot stands in the portrait film: the opening card, the strip, the turn, the hand, the end card. */
-export type Act = "open" | "strip" | "turn" | "hand" | "end";
+/** Where a shot stands in the portrait teaser: the opening card, the city, the turn, the hand, the end card. */
+export type Act = "open" | "city" | "turn" | "hand" | "end";
 
-interface Box {
-  readonly x: number;
-  readonly y: number;
-  readonly w: number;
-  readonly h: number;
+type Point = readonly [number, number];
+
+const TALL_W = TALL_VIDEO.width;
+const TALL_H = TALL_VIDEO.height;
+/** The day sky as the phone's recordings carry it, behind a recording drawn higher than the frame's top. */
+const RECORDED_SKY = "#eef1f8";
+/** The side margin of anything of ours in the tall frame. */
+const EDGE = 40;
+
+function clamp(value: number, low: number, high: number): number {
+  return Math.min(high, Math.max(low, value));
 }
 
-const TALL_FULL: Box = { x: 0, y: 0, w: TALL_VIDEO.width, h: TALL_VIDEO.height };
-/** The strip's window across the middle of the tall frame: the words stand above it, the stickers below. */
-export const STRIP: Box = { x: 36, y: 560, w: 1008, h: 800 };
-const STRIP_RADIUS = 44;
-/** A wide recording's own pixels, which a strip shot's framing is given in. */
-const WIDE_CLIP = { w: 1280, h: 720 } as const;
-/** How much of the picture's travel the stickers under the strip follow: a touch slower, so the two layers slide apart. */
-const PARALLAX = 0.8;
-/** The turn's one spring, from the strip to the frame, on the frame "Find your way out." lands. */
-const GROW_FRAMES = 18;
-const TURN_AT = 20;
-/** The frame of the turn the band starts to rise to the top of the frame on: landed before the chip pops. */
-const BAND_RISES_AT = 4;
-/**
- * The turn fades through the day sky, never across: the wide picture goes while the window grows, a beat of sky, then the
- * phone's recording comes up. Frames after the turn starts.
- */
-const WIDE_GOES = [4, 10] as const;
-const PHONE_COMES = [12, 18] as const;
-
-interface Stage {
-  readonly act: Act;
-  /** The window onto the world, in the tall frame's pixels. */
-  readonly box: Box;
-  /** 0 while the world is a strip, 1 once it fills the frame. */
-  readonly grow: number;
-  /** How far the strip's picture stands from where it stands halfway through the shot, in pixels of the frame. */
-  readonly travel: number;
-}
-
-const ActContext = createContext<Act>("hand");
-const StageContext = createContext<Stage>({ act: "hand", box: TALL_FULL, grow: 1, travel: 0 });
-
-function mix(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
-}
-
-function mixBox(a: Box, b: Box, t: number): Box {
-  return { x: mix(a.x, b.x, t), y: mix(a.y, b.y, t), w: mix(a.w, b.w, t), h: mix(a.h, b.h, t) };
-}
-
-/** A smooth step from 0 to 1, for travel that eases in and out. */
-function ease(t: number): number {
-  return t * t * (3 - 2 * t);
-}
-
-/**
- * A sticker under the strip (or a line over it) as the portrait film moves it: in from the left on a firm spring, drifting
- * right a touch slower than the picture travels, and off to the right in the shot's last frames. In the turn it stays.
- * Outside the strip it does nothing.
- */
-function Slide({ delay = 0, children }: { delay?: number; children: ReactNode }) {
-  const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
-  const stage = useContext(StageContext);
-  if (useFrameShape() === "wide" || (stage.act !== "strip" && stage.act !== "turn")) return <>{children}</>;
-  const enter = land(frame, fps, delay, 16);
-  const drift = stage.travel * PARALLAX;
-  const off = stage.act === "strip" ? ramp(frame, durationInFrames - 10, durationInFrames) : 0;
-  const x = (1 - enter) * -1100 + drift + off * off * 1200;
-  return <div style={{ position: "absolute", inset: 0, transform: `translateX(${String(x)}px)` }}>{children}</div>;
-}
-
-/** A place for anything in each frame: left and top (or bottom) in that frame's pixels, and a scale for the tall one. */
-interface Spot {
-  readonly left: number;
-  readonly top?: number;
-  readonly bottom?: number;
+/** How a phone's recording stands in the tall frame: its scale over the frame and where its top left corner stands. */
+interface Look {
   readonly scale?: number;
+  readonly at?: Point;
 }
 
-function Place({ wide, tall, delay = 0, children }: { wide: Spot; tall: Spot; delay?: number; children: ReactNode }) {
-  const shape = useFrameShape();
-  const spot = shape === "tall" ? tall : wide;
-  const scale = spot.scale ?? 1;
-  return (
-    <Slide delay={delay}>
-      <div style={{ position: "absolute", left: spot.left, top: spot.top, bottom: spot.bottom, transformOrigin: "0 0", transform: scale === 1 ? undefined : `scale(${String(scale)})` }}>{children}</div>
-    </Slide>
-  );
+/** The phone's own recording a shot of the world shows in the tall frame, full frame. */
+interface TallShot extends Look {
+  readonly clip: ClipName;
+  readonly from?: number;
+  readonly rate?: number;
+  /** How much closer the picture eases while the shot rolls, toward a point of the frame. */
+  readonly push?: number;
+  readonly toward?: Point;
+  /** From a frame of the shot on, where the recording cuts to another view, the look that frames that view. */
+  readonly after?: Look & { readonly frame: number };
 }
 
-/** Where a bubble stands in the tall frame: (x, y) is the tip of its tail, which points down at a head or up into the strip. */
+/** Where a point of the phone's recording (its own 1080 by 1920 pixels) stands in the tall frame on this frame of the shot. */
+type Mapper = (point: Point) => Point;
+
+const PictureContext = createContext<Mapper>((point) => point);
+
+/** A speaker's head in the phone's recording: one place, or places at frames of the shot as the speaker or the view moves. */
+type Head = Point | readonly (readonly [number, number, number])[];
+
+function isPoint(head: Head): head is Point {
+  return typeof head[0] === "number";
+}
+
+function headAt(head: Head, frame: number): Point {
+  if (isPoint(head)) return head;
+  const first = head[0];
+  if (first === undefined) return [TALL_W / 2, TALL_H / 2];
+  if (head.length === 1) return [first[1], first[2]];
+  const frames = head.map((key) => key[0]);
+  const options = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+  return [interpolate(frame, frames, head.map((key) => key[1]), options), interpolate(frame, frames, head.map((key) => key[2]), options)];
+}
+
+/** A sticker's entrance from a side of the tall frame, and its leaving to the other, as an offset in pixels. */
+function fromSide(frame: number, fps: number, delay: number, side: "left" | "right", leave?: number): number {
+  const enter = land(frame, fps, delay, 16);
+  const sign = side === "left" ? -1 : 1;
+  const gone = leave === undefined ? 0 : ramp(frame, leave, leave + 10);
+  return sign * (1 - enter) * 1100 - sign * gone * gone * 1200;
+}
+
+/** The tall bubble's measures: the words' size, a line's height, the card above its lines, the tail, the gap over a head. */
+const TB = { size: 46, line: 56, head: 100, tail: 24, gap: 12, padX: 30, char: 26, name: 0.72 } as const;
+
+/**
+ * The words of a tall bubble laid in lines that fit `cap` letters: one line if it fits, else the two (or three) lines whose
+ * longest is shortest, a break after a full stop or a comma counting a little shorter, so a line ends where the sense does.
+ */
+export function layLines(text: string, cap: number): string[][] {
+  const words = text.split(" ");
+  const len = (line: readonly string[]) => line.join(" ").length;
+  if (len(words) <= cap) return [words];
+  const sense = (line: readonly string[]) => (/[.,?!]$/.test(line.at(-1) ?? "") ? 6 : 0);
+  let best: { lines: string[][]; score: number } | null = null;
+  for (let i = 1; i < words.length; i += 1) {
+    const two = [words.slice(0, i), words.slice(i)];
+    const longest = Math.max(...two.map(len));
+    if (longest <= cap && (best === null || longest - sense(two[0] ?? []) < best.score)) best = { lines: two, score: longest - sense(two[0] ?? []) };
+  }
+  if (best !== null) return best.lines;
+  for (let i = 1; i < words.length - 1; i += 1) {
+    for (let j = i + 1; j < words.length; j += 1) {
+      const three = [words.slice(0, i), words.slice(i, j), words.slice(j)];
+      const longest = Math.max(...three.map(len));
+      if (longest <= cap && (best === null || longest < best.score)) best = { lines: three, score: longest };
+    }
+  }
+  if (best === null) throw new Error(`"${text}" does not fit a tall bubble of ${String(cap)} letters a line: widen it.`);
+  return best.lines;
+}
+
+/** Where a bubble stands in the tall frame: over a head in the phone's recording, and the widest it may grow. */
 interface TallBubble {
-  readonly x: number;
-  readonly y: number;
-  readonly tail?: "down" | "up";
+  readonly head: Head;
   readonly width?: number;
 }
 
-/**
- * A bubble over someone's head, as the world draws it: the name pill with the speaker's mark, the words, the tail. In the
- * tall frame the words spring in one after another from the left, as the portrait film's lines do.
- */
+/** A bubble over someone's head, as the world draws it: the name pill with the speaker's mark, the words, the tail. */
 function Bubble({ name, mark, children, x, y, delay = 0, paint = DAY, size = 40, width = 760, tall }: { name: string; mark?: string; children: string; x: number; y: number; delay?: number; paint?: Paint; size?: number; width?: number; tall: TallBubble }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const shape = useFrameShape();
+  const map = useContext(PictureContext);
   const p = pop(frame, fps, delay);
-  const up = shape === "tall" && tall.tail === "up";
-  const at = shape === "tall" ? { x: tall.x, y: up ? tall.y + 24 : tall.y - 24, size: 46, width: tall.width ?? 860 } : { x, y, size, width };
-  const words =
-    shape === "tall" ? (
-      <div style={{ display: "flex", flexWrap: "wrap", columnGap: at.size * 0.27 }}>
-        {children.split(" ").map((word, index) => {
-          const w = land(frame, fps, delay + 2 + index * 2, 10);
-          return (
-            <span key={`${word}-${String(index)}`} style={{ display: "inline-block", opacity: w, transform: `translateX(${String((1 - w) * -40)}px)` }}>
-              {word}
-            </span>
-          );
-        })}
-      </div>
-    ) : (
-      children
-    );
-  const bubble = (
-    <div style={{ position: "absolute", left: at.x, top: at.y, transform: `translate(-50%, ${up ? "0" : "-100%"}) scale(${String(p)})`, transformOrigin: up ? "50% 0" : "50% 100%", opacity: Math.min(1, p * 2), width: "max-content", maxWidth: at.width }}>
-      <div style={{ position: "relative", border: `4px solid ${paint.edge}`, borderRadius: 34, background: paint.card, color: paint.ink, padding: "18px 30px 22px", fontFamily: FONT, boxShadow: "0 16px 30px rgba(19, 26, 51, 0.22)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 8 }}>
-          <div style={{ width: at.size * 0.9, height: at.size * 0.9, borderRadius: 999, background: paint === DAY ? NAVY : CREAM, color: paint === DAY ? CREAM : NAVY, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: at.size * 0.5 }}>{mark ?? name.slice(0, 1)}</div>
-          <div style={{ fontWeight: 700, fontSize: at.size * 0.72, color: paint.ink2 }}>{name}</div>
+  const avatar = (at: number) => (
+    <div style={{ flex: "none", width: at * 0.9, height: at * 0.9, borderRadius: 999, background: paint === DAY ? NAVY : CREAM, color: paint === DAY ? CREAM : NAVY, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: at * 0.5 }}>{mark ?? name.slice(0, 1)}</div>
+  );
+  const tail = (left: number | string) => (
+    <>
+      <div style={{ position: "absolute", left, bottom: -24, width: 0, height: 0, marginLeft: -18, borderLeft: "18px solid transparent", borderRight: "18px solid transparent", borderTop: `22px solid ${paint.edge}` }} />
+      <div style={{ position: "absolute", left, bottom: -16, width: 0, height: 0, marginLeft: -13, borderLeft: "13px solid transparent", borderRight: "13px solid transparent", borderTop: `16px solid ${paint.card}` }} />
+    </>
+  );
+  const card: CSSProperties = { position: "relative", boxSizing: "border-box", border: `4px solid ${paint.edge}`, borderRadius: 34, background: paint.card, color: paint.ink, padding: "18px 30px 22px", fontFamily: FONT, boxShadow: "0 16px 30px rgba(19, 26, 51, 0.22)" };
+  if (useFrameShape() === "tall") {
+    // Laid in lines of known letters, so the bubble's box is known: the test of the feed's zones reads it.
+    const most = tall.width ?? 860;
+    const lines = layLines(children, Math.floor((most - TB.padX * 2 - 8) / TB.char));
+    const longest = Math.max(...lines.map((line) => line.join(" ").length), name.length * TB.name + 3);
+    const w = Math.min(most, Math.ceil(longest * TB.char + TB.padX * 2 + 8));
+    const cardH = TB.head + TB.line * lines.length;
+    const boxH = cardH + TB.tail;
+    const tip = map(headAt(tall.head, frame));
+    const left = clamp(tip[0] - w / 2, EDGE, TALL_W - EDGE - w);
+    const tailX = clamp(tip[0] - left, 54, w - 54);
+    let count = 0;
+    return (
+      <Piece zone="picture" name={`bubble: ${name}`} left={left} top={tip[1] - TB.gap - boxH} width={w} height={boxH} style={{ transformOrigin: `${String(tailX)}px 100%`, transform: `scale(${String(p)})`, opacity: Math.min(1, p * 2) }}>
+        <div style={{ ...card, width: w, height: cardH }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, height: 44, marginBottom: 8 }}>
+            {avatar(TB.size)}
+            <div style={{ fontWeight: 700, fontSize: TB.size * TB.name, color: paint.ink2, whiteSpace: "nowrap" }}>{name}</div>
+          </div>
+          {lines.map((line, row) => (
+            <div key={String(row)} style={{ display: "flex", columnGap: TB.size * 0.27, height: TB.line, lineHeight: `${String(TB.line)}px`, fontWeight: 700, fontSize: TB.size, whiteSpace: "nowrap" }}>
+              {line.map((word) => {
+                count += 1;
+                const w2 = land(frame, fps, delay + count * 2, 10);
+                return (
+                  <span key={`${word}-${String(count)}`} style={{ display: "inline-block", opacity: w2, transform: `translateX(${String((1 - w2) * -40)}px)` }}>
+                    {word}
+                  </span>
+                );
+              })}
+            </div>
+          ))}
+          {tail(tailX - 4)}
         </div>
-        <div style={{ fontWeight: 700, fontSize: at.size, lineHeight: 1.2 }}>{words}</div>
-        {up ? (
-          <>
-            <div style={{ position: "absolute", left: "50%", top: -24, width: 0, height: 0, marginLeft: -18, borderLeft: "18px solid transparent", borderRight: "18px solid transparent", borderBottom: `22px solid ${paint.edge}` }} />
-            <div style={{ position: "absolute", left: "50%", top: -16, width: 0, height: 0, marginLeft: -13, borderLeft: "13px solid transparent", borderRight: "13px solid transparent", borderBottom: `16px solid ${paint.card}` }} />
-          </>
-        ) : (
-          <>
-            <div style={{ position: "absolute", left: "50%", bottom: -24, width: 0, height: 0, marginLeft: -18, borderLeft: "18px solid transparent", borderRight: "18px solid transparent", borderTop: `22px solid ${paint.edge}` }} />
-            <div style={{ position: "absolute", left: "50%", bottom: -16, width: 0, height: 0, marginLeft: -13, borderLeft: "13px solid transparent", borderRight: "13px solid transparent", borderTop: `16px solid ${paint.card}` }} />
-          </>
-        )}
+      </Piece>
+    );
+  }
+  return (
+    <div style={{ position: "absolute", left: x, top: y - 24, transform: `translate(-50%, -100%) scale(${String(p)})`, transformOrigin: "50% 100%", opacity: Math.min(1, p * 2), width: "max-content", maxWidth: width }}>
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 8 }}>
+          {avatar(size)}
+          <div style={{ fontWeight: 700, fontSize: size * 0.72, color: paint.ink2 }}>{name}</div>
+        </div>
+        <div style={{ fontWeight: 700, fontSize: size, lineHeight: 1.2 }}>{children}</div>
+        {tail("50%")}
       </div>
     </div>
   );
-  return shape === "tall" ? <Slide delay={delay}>{bubble}</Slide> : bubble;
 }
+
+/** The band in the tall frame: the game's band at a phone's scale, as tall as its zone. */
+const TALL_BAND = { scale: 0.88 } as const;
 
 /** The band at the top of the world: who, when, where, and what is in the pocket. */
 function Band({ name, when, where, naira, age = "23 yrs 1 mo", paint = DAY, delay = 0 }: { name: string; when: string; where: string; naira: string; age?: string; paint?: Paint; delay?: number }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const shape = useFrameShape();
-  const stage = useContext(StageContext);
   const p = land(frame, fps, delay, 14);
-  // In the tall frame the band rides the window's top edge across the strip, and stands at the top of the frame in the
-  // hand. In the turn it rises there on its own before "Find your way out." lands, so the chip never covers it.
-  const rise = stage.act === "turn" ? land(frame, fps, BAND_RISES_AT, 12) : stage.grow;
-  const inset = mix(24, 40, rise);
-  const at = shape === "tall" ? { left: mix(STRIP.x, 0, rise) + inset, right: mix(TALL_FULL.w - STRIP.x - STRIP.w, 0, rise) + inset, top: mix(STRIP.y + 22, 60, rise) } : { left: 40, right: 40, top: 32 };
-  return (
-    <div style={{ position: "absolute", ...at, transform: `translateY(${String((1 - p) * -160)}px)` }}>
-      <Card paint={paint} style={{ display: "flex", alignItems: "center", gap: 26, padding: "16px 28px", borderRadius: 999 }}>
-        <div style={{ width: 70, height: 70, borderRadius: 999, background: paint === DAY ? DAY.skyDeep : "#2f3f7a", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>{paint === DAY ? "☀️" : "🌙"}</div>
-        <div style={{ fontFamily: FONT, lineHeight: 1.1 }}>
-          <div style={{ fontWeight: 700, fontSize: 40 }}>
-            {name} <span style={{ color: paint.ink2, fontWeight: 500 }}>· {when}</span>
-          </div>
-          <div style={{ fontWeight: 500, fontSize: 28, color: paint.ink2 }}>{age} · {where}</div>
+  const band = (
+    <Card paint={paint} style={{ display: "flex", alignItems: "center", gap: 26, padding: "16px 28px", borderRadius: 999 }}>
+      <div style={{ width: 70, height: 70, borderRadius: 999, background: paint === DAY ? DAY.skyDeep : "#2f3f7a", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>{paint === DAY ? "☀️" : "🌙"}</div>
+      <div style={{ fontFamily: FONT, lineHeight: 1.1 }}>
+        <div style={{ fontWeight: 700, fontSize: 40 }}>
+          {name} <span style={{ color: paint.ink2, fontWeight: 500 }}>· {when}</span>
         </div>
-        <div style={{ marginLeft: "auto", fontFamily: FONT, fontWeight: 700, fontSize: 42, color: paint === DAY ? GREEN : "#8fe3b0", background: paint === DAY ? TINT.money : "#1f4a3a", borderRadius: 999, padding: "10px 30px" }}>{naira}</div>
-      </Card>
-    </div>
+        <div style={{ fontWeight: 500, fontSize: 28, color: paint.ink2 }}>{age} · {where}</div>
+      </div>
+      <div style={{ marginLeft: "auto", fontFamily: FONT, fontWeight: 700, fontSize: 42, color: paint === DAY ? GREEN : "#8fe3b0", background: paint === DAY ? TINT.money : "#1f4a3a", borderRadius: 999, padding: "10px 30px" }}>{naira}</div>
+    </Card>
   );
+  if (useFrameShape() === "tall") {
+    // It settles in place under the notch rather than dropping from above, where the phone's own bar stands.
+    const [top, bottom] = ZONES.band;
+    const width = TALL_W - EDGE * 2;
+    return (
+      <Piece zone="band" name="band" left={EDGE} top={top} width={width} height={bottom - top} style={{ opacity: p, transform: `scale(${String(0.94 + 0.06 * p)})` }}>
+        <div style={{ width: width / TALL_BAND.scale, transformOrigin: "0 0", transform: `scale(${String(TALL_BAND.scale)})` }}>{band}</div>
+      </Piece>
+    );
+  }
+  return <div style={{ position: "absolute", left: 40, right: 40, top: 32, transform: `translateY(${String((1 - p) * -160)}px)` }}>{band}</div>;
 }
 
 /** The brief's chip, as the hand hands it: the sticker, the words, the dots of its steps. */
 function BriefChip({ tile, children, delay = 0, paint = DAY }: { tile: string; children: ReactNode; delay?: number; paint?: Paint }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const tall = useFrameShape() === "tall";
   const p = land(frame, fps, delay, 16);
   const chip = (
-    <div style={{ position: "absolute", left: 40, top: tall ? 1450 : 40, transform: tall ? undefined : `translateX(${String((1 - p) * -700)}px)` }}>
-      <Card paint={paint} style={{ display: "flex", alignItems: "center", gap: 20, padding: "14px 32px 14px 18px", borderRadius: 999 }}>
-        <Sticker tile={tile} size={78} delay={delay + 4} edge={5} />
-        <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 40 }}>{children}</div>
-        <div style={{ display: "flex", gap: 8, marginLeft: 8 }}>
-          {[YELLOW, paint.ink2, paint.ink2, paint.ink2].map((color, index) => (
-            <div key={String(index)} style={{ width: 18, height: 18, borderRadius: 999, background: color, opacity: index === 0 ? 1 : 0.35 }} />
-          ))}
-        </div>
-      </Card>
-    </div>
+    <Card paint={paint} style={{ display: "flex", alignItems: "center", gap: 20, padding: "14px 32px 14px 18px", borderRadius: 999 }}>
+      <Sticker tile={tile} size={78} delay={delay + 4} edge={5} />
+      <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 40 }}>{children}</div>
+      <div style={{ display: "flex", gap: 8, marginLeft: 8 }}>
+        {[YELLOW, paint.ink2, paint.ink2, paint.ink2].map((color, index) => (
+          <div key={String(index)} style={{ width: 18, height: 18, borderRadius: 999, background: color, opacity: index === 0 ? 1 : 0.35 }} />
+        ))}
+      </div>
+    </Card>
   );
-  return tall ? <Slide delay={delay}>{chip}</Slide> : chip;
+  if (useFrameShape() === "tall") {
+    return (
+      <Piece zone="cards" name="brief" left={EDGE} top={1210} width={TALL_W - EDGE * 2} height={120} style={{ display: "flex", alignItems: "center", justifyContent: "center", transform: `translateX(${String(fromSide(frame, fps, delay, "left"))}px)` }}>
+        {chip}
+      </Piece>
+    );
+  }
+  return <div style={{ position: "absolute", left: 40, top: 40, transform: `translateX(${String((1 - p) * -700)}px)` }}>{chip}</div>;
 }
 
 /**
  * A big tilted sticker chip of two or three words, the trailer's title, standing in a corner of the world. In the tall frame
- * it stands at `tall` (under the strip, sliding with it, unless `still`; `tilt` there, where a flatter chip fits better).
+ * it is the beat's words, one chip centred where a viewer's eye rests, springing up from under its place; or, given a
+ * `top`, it stands in the picture (the turn's chip over the house).
  */
-function BigChip({ children, tint, delay = 0, tilt = -4, style, tall }: { children: ReactNode; tint: string; delay?: number; tilt?: number; style?: CSSProperties; tall: { left: number; top: number; still?: boolean; tilt?: number } }) {
+function BigChip({ children, tint, delay = 0, tilt = -4, style, tall = {} }: { children: string; tint: string; delay?: number; tilt?: number; style?: CSSProperties; tall?: { top?: number; tilt?: number } }) {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   if (useFrameShape() === "tall") {
-    const chip = (
-      <div style={{ position: "absolute", left: tall.left, top: tall.top }}>
-        <Chip tint={tint} tilt={tall.tilt ?? tilt} delay={delay} size={74}>
-          {children}
-        </Chip>
-      </div>
+    const p = land(frame, fps, delay, 12);
+    const inPicture = tall.top !== undefined;
+    const top = tall.top ?? ZONES.words[0];
+    const height = inPicture ? 180 : ZONES.words[1] - ZONES.words[0];
+    return (
+      <Piece zone={inPicture ? "picture" : "words"} name={`chip: ${children}`} left={EDGE} top={top} width={TALL_W - EDGE * 2} height={height} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ transform: inPicture ? undefined : `translateY(${String((1 - p) * 24)}px)` }}>
+          <Chip tint={tint} tilt={tall.tilt ?? -2} delay={delay} size={74}>
+            {children}
+          </Chip>
+        </div>
+      </Piece>
     );
-    return tall.still === true ? chip : <Slide delay={delay}>{chip}</Slide>;
   }
   return (
     <div style={{ position: "absolute", left: 60, bottom: 70, ...style }}>
@@ -245,96 +279,59 @@ function BigChip({ children, tint, delay = 0, tilt = -4, style, tall }: { childr
   );
 }
 
-/** The left, the top and the width of a wide recording's pixels a strip window shows. */
-type Framing = readonly [number, number, number];
-
-/** The whole height of the recording, travelling across it: the framing a strip shot has unless it is given its own. */
-const WHOLE: { from: Framing; to: Framing } = { from: [373, 0, 907], to: [0, 0, 907] };
-
 interface WorldProps {
   readonly clip: "wide-ride" | "wide-street" | "wide-day" | "wide-sofa" | "wide-night";
-  /** The phone's recording of the same place, which the turn grows into. */
-  readonly tall: ClipName;
   readonly from?: number;
+  readonly rate?: number;
   readonly push?: number;
   readonly toward?: readonly [number, number];
-  /**
-   * What the strip's window frames, at the shot's first frame and at its last: the left, the top and the width of the
-   * wide recording's own pixels (1280 by 720) shown, the height following from the window's shape. The left only falls,
-   * so the picture travels left to right; each framing is chosen to stay inside the drawn city for the whole shot.
-   */
-  readonly strip?: { readonly from: Framing; readonly to: Framing };
-  /** The strip's own frame of the clip to start on and its speed, where the landscape's would show the house turning away. */
-  readonly stripFrom?: number;
-  readonly stripRate?: number;
-  /** The frame of a turn shot the window starts to grow on. */
-  readonly turnAt?: number;
+  /** The phone's recording of the same moment, which the tall frame shows full frame. */
+  readonly tall: TallShot;
   readonly children?: ReactNode;
 }
 
-/** A recording of the world: in the wide frame, the wide recording pushed in slowly toward a point; in the tall, the strip or the hand. */
+/** A recording of the world: the wide one pushed in slowly toward a point, or in the tall frame the phone's own, full frame. */
 function World(props: WorldProps) {
   return useFrameShape() === "tall" ? <TallWorld {...props} /> : <WideWorld {...props} />;
 }
 
-function WideWorld({ clip, from = 0, push = 0.06, toward = [0.5, 0.5], children }: WorldProps) {
+function WideWorld({ clip, from = 0, rate = 1, push = 0.06, toward = [0.5, 0.5], children }: WorldProps) {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const t = ramp(frame, 0, durationInFrames);
   return (
     <AbsoluteFill style={{ background: NAVY, overflow: "hidden" }}>
       <AbsoluteFill style={{ transformOrigin: `${String(toward[0] * 100)}% ${String(toward[1] * 100)}%`, transform: `scale(${String(1 + push * t)})` }}>
-        <Clip name={clip} from={from} />
+        <Clip name={clip} from={from} rate={rate} />
       </AbsoluteFill>
       {children}
     </AbsoluteFill>
   );
 }
 
-/** Where the wide recording stands in the tall frame when the strip's window frames `at`. */
-function placeOf(at: Framing): { x: number; y: number; scale: number } {
-  const scale = STRIP.w / at[2];
-  return { x: STRIP.x - at[0] * scale, y: STRIP.y - at[1] * scale, scale };
-}
-
 /**
- * The world in the tall frame. In the strip, the wide recording inside the card's window, its framing easing from the
- * shot's first to its last, so the picture travels left to right and pushes in. In the turn, the window grows to the frame
- * on one spring and the picture fades through the day sky to the phone's recording of the same place. In the hand, the
- * phone's recording fills the frame.
+ * The world in the tall frame: the phone's own recording of the moment over the whole frame, at its look (scaled up and
+ * moved where the view puts its people low, the frame never left bare), eased a little closer while it rolls. The pieces
+ * inside read where a point of the recording stands, so a bubble's tail stays on its speaker's head.
  */
-function TallWorld({ clip, tall, from = 0, push = 0.06, strip = WHOLE, stripFrom, stripRate = 1, turnAt = 20, children }: WorldProps) {
+function TallWorld({ tall, children }: WorldProps) {
   const frame = useCurrentFrame();
-  const { durationInFrames, fps } = useVideoConfig();
-  const act = useContext(ActContext);
+  const { durationInFrames } = useVideoConfig();
   const t = ramp(frame, 0, durationInFrames);
-  const turning = act === "turn";
-  const grow = act === "hand" ? 1 : turning ? land(frame, fps, turnAt, GROW_FRAMES) : 0;
-  const k = ease(ramp(frame, 0, turning ? turnAt : durationInFrames));
-  const at: Framing = [mix(strip.from[0], strip.to[0], k), mix(strip.from[1], strip.to[1], k), mix(strip.from[2], strip.to[2], k)];
-  const place = placeOf(at);
-  const middle = placeOf([mix(strip.from[0], strip.to[0], 0.5), mix(strip.from[1], strip.to[1], 0.5), mix(strip.from[2], strip.to[2], 0.5)]);
-  const travel = place.x - middle.x;
-  const box = mixBox(STRIP, TALL_FULL, grow);
-  const wide = act === "hand" ? 0 : turning ? 1 - ramp(frame, turnAt + WIDE_GOES[0], turnAt + WIDE_GOES[1]) : 1;
-  const phone = act === "hand" ? 1 : turning ? ramp(frame, turnAt + PHONE_COMES[0], turnAt + PHONE_COMES[1]) : 0;
+  const look = tall.after !== undefined && frame >= tall.after.frame ? tall.after : tall;
+  const scale = look.scale ?? 1;
+  const at = look.at ?? [0, 0];
+  const toward = tall.toward ?? [TALL_W / 2, TALL_H / 2];
+  const k = 1 + (tall.push ?? 0.04) * t;
+  const map: Mapper = (point) => [toward[0] + (at[0] + point[0] * scale - toward[0]) * k, toward[1] + (at[1] + point[1] * scale - toward[1]) * k];
   return (
-    <AbsoluteFill style={{ background: DAY.sky, overflow: "hidden" }}>
-      <div data-stage-window={act} style={{ position: "absolute", left: box.x, top: box.y, width: box.w, height: box.h, overflow: "hidden", borderRadius: STRIP_RADIUS * (1 - grow), background: DAY.sky, boxShadow: grow < 1 ? `0 0 0 ${String(3 * (1 - grow))}px ${DAY.edge}, 0 18px 40px rgba(19, 26, 51, ${String(0.16 * (1 - grow))})` : "none" }}>
-        {wide > 0 ? (
-          <div data-strip-picture={clip} style={{ position: "absolute", left: place.x - box.x, top: place.y - box.y, width: WIDE_CLIP.w * place.scale, height: WIDE_CLIP.h * place.scale, opacity: wide }}>
-            <Clip name={clip} from={stripFrom ?? from} rate={stripRate} />
-          </div>
-        ) : null}
-        {phone > 0 ? (
-          <div style={{ position: "absolute", left: -box.x, top: -box.y, width: TALL_FULL.w, height: TALL_FULL.h, opacity: phone }}>
-            <div style={{ width: "100%", height: "100%", transform: `scale(${String(1 + push * t)})` }}>
-              <Clip name={tall} from={from} />
-            </div>
-          </div>
-        ) : null}
+    <AbsoluteFill style={{ background: RECORDED_SKY, overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, transformOrigin: `${String(toward[0])}px ${String(toward[1])}px`, transform: `scale(${String(k)})` }}>
+        <div data-picture={tall.clip} style={{ position: "absolute", left: at[0], top: at[1], width: TALL_W * scale, height: TALL_H * scale }}>
+          <Clip name={tall.clip} from={tall.from ?? 0} rate={tall.rate ?? 1} />
+        </div>
       </div>
-      <StageContext.Provider value={{ act, box, grow, travel }}>{children}</StageContext.Provider>
+      <PictureContext.Provider value={map}>{children}</PictureContext.Provider>
     </AbsoluteFill>
   );
 }
@@ -352,7 +349,13 @@ function Stamp({ label, delay }: { label: string; delay: number }) {
   );
 }
 
-/** The passbook sliding up over the house, counting, its stamps landing as Mama hears. */
+/** The passbook's measures, so its box in the tall frame is known: its width, its height, and its scale there. */
+const PASSBOOK = { width: 760, height: 490, tall: 0.8 } as const;
+
+/**
+ * The passbook sliding up over the house, counting, its stamps landing as Mama hears. In the tall frame it comes in from
+ * the left under the house and, its second stamp landed, goes off to the right for the beat's words.
+ */
 function Passbook({ delay = 0 }: { delay?: number }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -361,78 +364,122 @@ function Passbook({ delay = 0 }: { delay?: number }) {
   const counted = ramp(frame, delay + 6, delay + 44);
   const eased = 1 - (1 - counted) * (1 - counted);
   const amount = Math.round((eased * 2_500_000) / 10_000) * 10_000;
-  // In the tall frame it slides in under the strip from the left, over the window's lower edge, at the frame's scale.
-  const at: CSSProperties = tall ? { left: 52, top: 1300, transformOrigin: "0 0", transform: `scale(0.78) rotate(${String(-3 * card)}deg)` } : { left: 90, bottom: 60, transform: `translateY(${String((1 - card) * 900)}px) rotate(${String(-3 * card)}deg)` };
   const book = (
-    <div style={{ position: "absolute", ...at }}>
-      <Card style={{ width: 760, padding: 36, fontFamily: FONT }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div style={{ width: 66, height: 66, borderRadius: 20, background: GREEN, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40, fontWeight: 700 }}>₦</div>
-          <div style={{ fontWeight: 700, fontSize: 46 }}>Bank</div>
-          <div style={{ marginLeft: "auto" }}>
-            <Chip tint={TINT.plain} delay={delay + 14} size={26}>
-              Next stamp ₦5m
-            </Chip>
-          </div>
+    <Card style={{ boxSizing: "border-box", width: PASSBOOK.width, height: PASSBOOK.height, padding: 36, fontFamily: FONT }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 18, height: 66 }}>
+        <div style={{ width: 66, height: 66, borderRadius: 20, background: GREEN, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40, fontWeight: 700 }}>₦</div>
+        <div style={{ fontWeight: 700, fontSize: 46 }}>Bank</div>
+        <div style={{ marginLeft: "auto" }}>
+          <Chip tint={TINT.plain} delay={delay + 14} size={26}>
+            Next stamp ₦5m
+          </Chip>
         </div>
-        <div style={{ marginTop: 22, fontWeight: 500, fontSize: 28, color: DAY.ink2 }}>Held for the road</div>
-        <div style={{ fontWeight: 700, fontSize: 96, letterSpacing: -2, fontVariantNumeric: "tabular-nums", color: DAY.ink }}>₦{amount.toLocaleString("en-NG")}</div>
-        <div style={{ marginTop: 14, height: 22, borderRadius: 99, background: DAY.skyDeep, overflow: "hidden" }}>
-          <div style={{ width: `${String(eased * 50)}%`, height: "100%", borderRadius: 99, background: GREEN }} />
-        </div>
-        <div style={{ marginTop: 26, display: "flex", gap: 26 }}>
-          <Stamp label="₦1m" delay={delay + 24} />
-          <Stamp label="₦2.5m" delay={delay + 44} />
-          <Stamp label="₦5m" delay={9999} />
-        </div>
-      </Card>
-    </div>
+      </div>
+      <div style={{ marginTop: 22, height: 34, lineHeight: "34px", fontWeight: 500, fontSize: 28, color: DAY.ink2 }}>Held for the road</div>
+      <div style={{ height: 110, lineHeight: "110px", fontWeight: 700, fontSize: 96, letterSpacing: -2, fontVariantNumeric: "tabular-nums", color: DAY.ink }}>₦{amount.toLocaleString("en-NG")}</div>
+      <div style={{ marginTop: 14, height: 22, borderRadius: 99, background: DAY.skyDeep, overflow: "hidden" }}>
+        <div style={{ width: `${String(eased * 50)}%`, height: "100%", borderRadius: 99, background: GREEN }} />
+      </div>
+      <div style={{ marginTop: 26, display: "flex", gap: 26 }}>
+        <Stamp label="₦1m" delay={delay + 24} />
+        <Stamp label="₦2.5m" delay={delay + 44} />
+        <Stamp label="₦5m" delay={9999} />
+      </div>
+    </Card>
   );
-  return tall ? <Slide delay={delay}>{book}</Slide> : book;
+  if (tall) {
+    const width = PASSBOOK.width * PASSBOOK.tall;
+    return (
+      <Piece zone="cards" name="passbook" left={(TALL_W - width) / 2} top={1060} width={width} height={PASSBOOK.height * PASSBOOK.tall} style={{ transform: `translateX(${String(fromSide(frame, fps, delay, "left", delay + 46))}px) rotate(${String(-2 * card)}deg)` }}>
+        <div style={{ transformOrigin: "0 0", transform: `scale(${String(PASSBOOK.tall)})` }}>{book}</div>
+      </Piece>
+    );
+  }
+  return <div style={{ position: "absolute", left: 90, bottom: 60, transform: `translateY(${String((1 - card) * 900)}px) rotate(${String(-3 * card)}deg)` }}>{book}</div>;
 }
+
+/** A way out's card: its height at the landscape's size, and its scale in the tall frame, where the three stack. */
+const ROUTE = { width: 700, height: 166, tall: 0.92 } as const;
 
 function RouteCard({ tile, title, line, tint, top, tallTop, delay }: { tile: string; title: string; line: string; tint: string; top: number; tallTop: number; delay: number }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const tall = useFrameShape() === "tall";
   const p = land(frame, fps, delay, 16);
-  // In the tall frame the ways out stack under the strip, coming in from the left with the other stickers.
-  const at: CSSProperties = tall ? { left: 218, top: tallTop, transformOrigin: "0 0", transform: `scale(0.92) rotate(${String((1 - p) * -6)}deg)` } : { right: 70, top, transform: `translateX(${String((1 - p) * 1200)}px) rotate(${String((1 - p) * 6)}deg)` };
   const card = (
-    <div style={{ position: "absolute", ...at }}>
-      <Card style={{ width: 700, padding: 20, display: "flex", alignItems: "center", gap: 24 }}>
-        <div style={{ width: 120, height: 120, borderRadius: 26, background: tint, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Sticker tile={tile} size={104} delay={delay + 4} edge={5} />
-        </div>
-        <div style={{ fontFamily: FONT }}>
-          <div style={{ fontWeight: 700, fontSize: 44 }}>{title}</div>
-          <div style={{ fontWeight: 500, fontSize: 28, color: DAY.ink2, marginTop: 2 }}>{line}</div>
-        </div>
-      </Card>
-    </div>
+    <Card style={{ boxSizing: "border-box", width: ROUTE.width, height: ROUTE.height, padding: 20, display: "flex", alignItems: "center", gap: 24 }}>
+      <div style={{ width: 120, height: 120, borderRadius: 26, background: tint, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Sticker tile={tile} size={104} delay={delay + 4} edge={5} />
+      </div>
+      <div style={{ fontFamily: FONT }}>
+        <div style={{ fontWeight: 700, fontSize: 44 }}>{title}</div>
+        <div style={{ fontWeight: 500, fontSize: 28, color: DAY.ink2, marginTop: 2 }}>{line}</div>
+      </div>
+    </Card>
   );
-  return tall ? <Slide delay={delay}>{card}</Slide> : card;
+  if (useFrameShape() === "tall") {
+    const width = ROUTE.width * ROUTE.tall;
+    return (
+      <Piece zone="cards" name={`way out: ${title}`} left={(TALL_W - width) / 2} top={tallTop} width={width} height={ROUTE.height * ROUTE.tall} style={{ transform: `translateX(${String((1 - p) * 1000)}px) rotate(${String((1 - p) * 6)}deg)` }}>
+        <div style={{ transformOrigin: "0 0", transform: `scale(${String(ROUTE.tall)})` }}>{card}</div>
+      </Piece>
+    );
+  }
+  return <div style={{ position: "absolute", right: 70, top, transform: `translateX(${String((1 - p) * 1200)}px) rotate(${String((1 - p) * 6)}deg)` }}>{card}</div>;
 }
 
 /** The bits that fly when the ways out land: where each stands in the wide frame, and round Ada in the tall one. */
 const CONFETTI = [
-  { x: 1180, y: 160, tx: 560, ty: 520, c: "#f2b705", r: -20, d: 30 },
-  { x: 1500, y: 120, tx: 900, ty: 430, c: "#c2185b", r: 25, d: 32 },
-  { x: 1120, y: 420, tx: 520, ty: 820, c: "#2a8656", r: 40, d: 34 },
-  { x: 1820, y: 520, tx: 1000, ty: 760, c: "#2c3f87", r: -35, d: 31 },
-  { x: 1380, y: 60, tx: 700, ty: 400, c: "#d4602e", r: 10, d: 33 },
+  { x: 1180, y: 160, tx: 600, ty: 600, c: "#f2b705", r: -20, d: 30 },
+  { x: 1500, y: 120, tx: 990, ty: 590, c: "#c2185b", r: 25, d: 32 },
+  { x: 1120, y: 420, tx: 580, ty: 900, c: "#2a8656", r: 40, d: 34 },
+  { x: 1820, y: 520, tx: 1000, ty: 880, c: "#2c3f87", r: -35, d: 31 },
+  { x: 1380, y: 60, tx: 830, ty: 540, c: "#d4602e", r: 10, d: 33 },
 ];
 
 function Bit({ bit }: { bit: (typeof CONFETTI)[number] }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const tall = useFrameShape() === "tall";
   const p = pop(frame, fps, bit.d);
-  return <div style={{ position: "absolute", left: tall ? bit.tx : bit.x, top: tall ? bit.ty : bit.y, width: 40, height: 20, borderRadius: 8, background: bit.c, boxShadow: "0 0 0 5px #fff", transform: `translateY(${String((1 - p) * 160)}px) rotate(${String(bit.r * p)}deg) scale(${String(p)})` }} />;
+  const style: CSSProperties = { width: 40, height: 20, borderRadius: 8, background: bit.c, boxShadow: "0 0 0 5px #fff", transform: `translateY(${String((1 - p) * 160)}px) rotate(${String(bit.r * p)}deg) scale(${String(p)})` };
+  if (useFrameShape() === "tall") {
+    return (
+      <Piece zone="picture" name="confetti" left={bit.tx} top={bit.ty} width={40} height={20}>
+        <div style={style} />
+      </Piece>
+    );
+  }
+  return <div style={{ position: "absolute", left: bit.x, top: bit.y, ...style }} />;
 }
 
-/** The end card's last line: the game costs nothing and its making is open to read. */
-export const END_LINE = "Free. Open source.";
+/** Ada cheering as the ways out land: in a corner of the wide frame, and over the house in the tall one. */
+function Cheer() {
+  const sticker = <Sticker tile="chr_ada-cheer" size={520} tilt={4} delay={28} />;
+  if (useFrameShape() === "tall") {
+    const size = 440;
+    return (
+      <Piece zone="picture" name="Ada cheering" left={600} top={560} width={size} height={size}>
+        <div style={{ transformOrigin: "0 0", transform: `scale(${String(size / 520)})` }}>{sticker}</div>
+      </Piece>
+    );
+  }
+  return <div style={{ position: "absolute", left: 90, bottom: 40 }}>{sticker}</div>;
+}
+
+/** The end cards' last line: the game costs nothing and its making is open to read, on GitHub. */
+export const END_LINE = "Free. Open source on GitHub.";
+
+/** The last line with GitHub's mark before it, the mark as tall as the line's letters and the smallest thing on the card. */
+function OpenLine({ size, opacity }: { size: number; opacity: number }) {
+  return (
+    <div data-end-line style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: size * 0.4, fontFamily: FONT, fontWeight: 500, fontSize: size, lineHeight: 1.2, color: NIGHT.ink2, opacity }}>
+      <GitHubMark height={Math.round(size * 0.8)} color={CREAM} />
+      <span>{END_LINE}</span>
+    </div>
+  );
+}
+
+/** The tall end card's stack, centred in a box clear of the feed's bars. */
+const TALL_END = { top: 320, height: 1200 } as const;
 
 /**
  * The oldest Lagos joke about leaving, then the seal: its two bulbs click off one after the other, and come back on with the
@@ -451,25 +498,29 @@ function LightsOut() {
   const click = frame >= 22 && frame < 46;
   if (tall) {
     return (
-      <AbsoluteFill style={{ background: click ? "#0b1130" : NIGHT.sky, alignItems: "center", justifyContent: "center", fontFamily: FONT, textAlign: "center" }}>
-        <div style={{ transform: `scale(${String(seal)}) rotate(${String((1 - seal) * -30)}deg)`, opacity: click ? 0.55 : 1 }}>
-          <Seal size={330} glow={glow} id="lead-end-tall" />
-        </div>
-        <div style={{ marginTop: 56, opacity: name, transform: `translateY(${String((1 - name) * 50)}px)` }}>
-          <Wordmark height={160} color={CREAM} />
-        </div>
-        <div style={{ marginTop: 96, display: "flex", flexDirection: "column", alignItems: "center", gap: 44, transform: `scale(${String(button)})` }}>
-          <PressButton size={66} style={{ borderColor: "#0b1130", boxShadow: `0 13px 0 ${CREAM}` }}>
-            Play it
-          </PressButton>
-          <div style={{ fontWeight: 700, fontSize: 66, color: CREAM }}>japacity.app</div>
-        </div>
-        <div style={{ marginTop: 48, fontWeight: 500, fontSize: 46, lineHeight: 1.3, color: NIGHT.ink2, opacity: button }}>
-          Japa is not by force.
-          <br />
-          How ready are you?
-        </div>
-        <div style={{ marginTop: 30, fontWeight: 500, fontSize: 34, color: NIGHT.ink2, opacity: button * 0.85 }}>{END_LINE}</div>
+      <AbsoluteFill style={{ background: click ? "#0b1130" : NIGHT.sky, fontFamily: FONT, textAlign: "center" }}>
+        <Piece zone="safe" name="end card" left={0} top={TALL_END.top} width={TALL_W} height={TALL_END.height} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ transform: `scale(${String(seal)}) rotate(${String((1 - seal) * -30)}deg)`, opacity: click ? 0.55 : 1 }}>
+            <Seal size={330} glow={glow} id="lead-end-tall" />
+          </div>
+          <div style={{ marginTop: 56, opacity: name, transform: `translateY(${String((1 - name) * 50)}px)` }}>
+            <Wordmark height={160} color={CREAM} />
+          </div>
+          <div style={{ marginTop: 90, display: "flex", flexDirection: "column", alignItems: "center", gap: 44, transform: `scale(${String(button)})` }}>
+            <PressButton size={66} style={{ borderColor: "#0b1130", boxShadow: `0 13px 0 ${CREAM}` }}>
+              Play it
+            </PressButton>
+            <div style={{ fontWeight: 700, fontSize: 66, color: CREAM }}>japacity.app</div>
+          </div>
+          <div style={{ marginTop: 44, fontWeight: 500, fontSize: 46, lineHeight: 1.3, color: NIGHT.ink2, opacity: button }}>
+            Japa is not by force.
+            <br />
+            How ready are you?
+          </div>
+          <div style={{ marginTop: 30 }}>
+            <OpenLine size={34} opacity={button * 0.85} />
+          </div>
+        </Piece>
       </AbsoluteFill>
     );
   }
@@ -490,7 +541,9 @@ function LightsOut() {
         <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 58, color: CREAM }}>japacity.app</div>
       </div>
       <div style={{ marginTop: 40, fontFamily: FONT, fontWeight: 500, fontSize: 40, color: NIGHT.ink2, opacity: button }}>Japa is not by force. How ready are you?</div>
-      <div style={{ marginTop: 20, fontFamily: FONT, fontWeight: 500, fontSize: 30, color: NIGHT.ink2, opacity: button * 0.85 }}>{END_LINE}</div>
+      <div style={{ marginTop: 20 }}>
+        <OpenLine size={30} opacity={button * 0.85} />
+      </div>
     </AbsoluteFill>
   );
 }
@@ -499,20 +552,27 @@ function LightsOut() {
 function Leaving() {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const tall = useFrameShape() === "tall";
   const p = land(frame, fps, 10, 14);
+  const joke = (
+    <Card paint={NIGHT} style={{ padding: "26px 44px", borderRadius: 40, boxShadow: `0 0 0 8px ${CREAM}, 0 24px 40px rgba(0, 0, 0, 0.35)` }}>
+      <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 64, lineHeight: 1.15, color: CREAM }}>
+        Last person out,
+        <br />
+        switch off the light.
+      </div>
+    </Card>
+  );
   return (
     <AbsoluteFill>
       <Flight city="London" tile="bld_rye-lane-terrace_a" />
-      <div style={{ position: "absolute", left: tall ? 60 : 80, bottom: tall ? 330 : 90, transform: `translateY(${String((1 - p) * 200)}px)`, opacity: p }}>
-        <Card paint={NIGHT} style={{ padding: "26px 44px", borderRadius: 40, boxShadow: `0 0 0 8px ${CREAM}, 0 24px 40px rgba(0, 0, 0, 0.35)` }}>
-          <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 64, lineHeight: 1.15, color: CREAM }}>
-            Last person out,
-            <br />
-            switch off the light.
-          </div>
-        </Card>
-      </div>
+      {useFrameShape() === "tall" ? (
+        // From the left over the lagoon, low but clear of the feed's caption.
+        <Piece zone="safe" name="the joke" left={60} top={1310} height={210} style={{ transform: `translateX(${String((1 - p) * -900)}px)`, opacity: p }}>
+          {joke}
+        </Piece>
+      ) : (
+        <div style={{ position: "absolute", left: 80, bottom: 90, transform: `translateY(${String((1 - p) * 200)}px)`, opacity: p }}>{joke}</div>
+      )}
     </AbsoluteFill>
   );
 }
@@ -523,15 +583,17 @@ function MeetAda() {
   const { fps } = useVideoConfig();
   const card = land(frame, fps, 14, 16);
   if (useFrameShape() === "tall") {
-    // Stacked for the phone: her card and the hook in the top half on the day sky, Ada herself standing in the lower half.
+    // Stacked for the phone: her card and the hook in the top half on the day sky, Ada herself standing in the lower half,
+    // her feet on the feed's caption line. Her card comes in from the left, never down through the phone's own bar.
+    const ada = { left: 380, size: 700 };
     return (
       <AbsoluteFill>
         <MapShot paint="day" zoom={[1.0, 1.18]} toward={[0.42, 0.4]} />
         <AbsoluteFill style={{ background: "linear-gradient(to bottom, rgba(234, 243, 251, 0.95) 0%, rgba(234, 243, 251, 0.88) 52%, rgba(234, 243, 251, 0.45) 100%)" }} />
-        <div style={{ position: "absolute", left: 250, bottom: 0 }}>
-          <Sticker tile="chr_ada-figure" size={900} tilt={-2} delay={4} edge={10} />
-        </div>
-        <div style={{ position: "absolute", left: 56, top: 210, transform: `translateY(${String((1 - card) * -120)}px) rotate(${String(-3 * card)}deg)`, opacity: card }}>
+        <Piece zone="safe" name="Ada" left={ada.left} top={FEED_BARS.bottom - ada.size} width={ada.size} height={ada.size}>
+          <Sticker tile="chr_ada-figure" size={ada.size} tilt={-2} delay={4} edge={10} />
+        </Piece>
+        <Piece zone="safe" name="her card" left={56} top={250} height={150} style={{ transform: `translateX(${String((1 - card) * -160)}px) rotate(${String(-3 * card)}deg)`, opacity: card }}>
           <Card style={{ display: "flex", alignItems: "center", gap: 24, padding: "18px 40px 18px 22px", borderRadius: 999 }}>
             <Sticker tile="chr_ada-face" size={104} delay={18} edge={5} />
             <div style={{ fontFamily: FONT, lineHeight: 1.1 }}>
@@ -539,16 +601,16 @@ function MeetAda() {
               <div style={{ fontWeight: 500, fontSize: 31, color: DAY.ink2 }}>23 yrs · The nurse · Surulere, Lagos</div>
             </div>
           </Card>
-        </div>
+        </Piece>
         {/* The hook broken by sense, two words a line or three, each line springing on from the one before. */}
-        <div style={{ position: "absolute", left: 64, top: 400, width: 960 }}>
+        <Piece zone="safe" name="the hook" left={64} top={440} width={960} height={600}>
           <Title words="Japa is not" size={128} align="left" delay={28} gap={2} />
           <Title words="by force." size={128} align="left" delay={34} gap={2} />
           <div style={{ marginTop: 14 }}>
             <Title words="How ready" size={128} align="left" delay={52} gap={2} />
             <Title words="are you?" size={128} align="left" delay={56} gap={2} />
           </div>
-        </div>
+        </Piece>
       </AbsoluteFill>
     );
   }
@@ -578,7 +640,6 @@ function MeetAda() {
   );
 }
 
-
 /** A sound at a frame of the shot, from public/sound (made by pnpm --filter @japacity/teaser sound). */
 function Sfx({ name, at = 0, volume = 1, from = 0 }: { name: string; at?: number; volume?: number; from?: number }) {
   return (
@@ -603,12 +664,18 @@ function Coins({ from, to, every = 3 }: { from: number; to: number; every?: numb
 
 interface Shot {
   readonly frames: number;
-  /** Where the shot stands in the portrait film. */
+  /** Where the shot stands in the portrait teaser. */
   readonly act: Act;
   readonly node: ReactNode;
 }
 
-/** The cut, as frames at 30 a second, for both frames: each piece carries where it stands in the tall one. */
+/** The family house by day in the tall frame: drawn higher, so the cards stand on the sky under it. */
+const HOUSE_UP: Point = [0, -150];
+
+/**
+ * The cut, as frames at 30 a second, for both frames. A world's `tall` is the phone's recording of the same moment and
+ * how it stands; a bubble's `tall` is its speaker's head in that recording (at frames of the shot where either moves).
+ */
 const SHOTS: readonly Shot[] = [
   { frames: 100, act: "open", node: (
     <>
@@ -620,9 +687,10 @@ const SHOTS: readonly Shot[] = [
       <Sfx name="swish.wav" at={52} volume={0.4} />
     </>
   ) },
-  { frames: 56, act: "strip", node: (
-    <World clip="wide-ride" tall="tall-ride" from={30} push={0.08} stripFrom={42} stripRate={0.76} strip={{ from: [440, 40, 820], to: [200, 40, 820] }}>
-      <Bubble name="Conductor" x={900} y={720} delay={6} size={44} tall={{ x: 540, y: 552 }}>
+  { frames: 56, act: "city", node: (
+    // The danfo alongside, then from above, where the phone's view puts it low: that view drawn larger and higher.
+    <World clip="wide-ride" from={30} push={0.08} tall={{ clip: "tall-ride", from: 12, after: { frame: 26, scale: 1.4, at: [-150, -768] } }}>
+      <Bubble name="Conductor" x={900} y={720} delay={6} size={44} tall={{ head: [[25, 440, 690], [26, 470, 1350]], width: 840 }}>
         Oshodi, Oshodi. Enter with your change o.
       </Bubble>
       <Sfx name="engine.m4a" volume={0.38} />
@@ -630,12 +698,12 @@ const SHOTS: readonly Shot[] = [
       <Sfx name="pop.wav" at={7} volume={0.8} />
     </World>
   ) },
-  { frames: 46, act: "strip", node: (
-    <World clip="wide-ride" tall="tall-ride" from={140} push={0.05} strip={{ from: [420, 20, 860], to: [240, 20, 860] }}>
-      <Bubble name="Ada" x={1500} y={330} delay={4} size={44} width={720} tall={{ x: 600, y: 552 }}>
+  { frames: 46, act: "city", node: (
+    <World clip="wide-ride" from={132} rate={0.97} push={0.05} tall={{ clip: "tall-ride", from: 131, rate: 0.96, push: 0.03 }}>
+      <Bubble name="Ada" x={1500} y={330} delay={4} size={44} width={720} tall={{ head: [1040, 690], width: 760 }}>
         Who get change for one thousand?
       </Bubble>
-      <BigChip tint={TINT.food} delay={14} tilt={-5} tall={{ left: 90, top: 1460 }}>
+      <BigChip tint={TINT.food} delay={14} tilt={-5}>
         Danfo ₦300
       </BigChip>
       <Sfx name="engine.m4a" volume={0.34} from={56} />
@@ -643,9 +711,9 @@ const SHOTS: readonly Shot[] = [
       <Sfx name="pop.wav" at={15} volume={0.6} />
     </World>
   ) },
-  { frames: 84, act: "strip", node: (
-    <World clip="wide-day" tall="tall-day" from={40} push={0.05} toward={[0.4, 0.3]} stripFrom={66} stripRate={0.7} strip={{ from: [390, 150, 680], to: [230, 160, 640] }}>
-      <Bubble name="Mama" x={1440} y={330} delay={10} size={42} width={700} tall={{ x: 600, y: 552 }}>
+  { frames: 84, act: "city", node: (
+    <World clip="wide-day" from={40} push={0.05} toward={[0.4, 0.3]} tall={{ clip: "tall-day", from: 40, at: HOUSE_UP, push: 0.03, toward: [540, 700] }}>
+      <Bubble name="Mama" x={1440} y={330} delay={10} size={42} width={700} tall={{ head: [[26, 665, 862], [32, 572, 965]], width: 860 }}>
         Your uncle called. When are you going?
       </Bubble>
       <BriefChip tile="prop_travel-bag" delay={40}>
@@ -656,29 +724,30 @@ const SHOTS: readonly Shot[] = [
       <Sfx name="pop.wav" at={45} volume={0.5} />
     </World>
   ) },
-  { frames: 66, act: "strip", node: (
-    <World clip="wide-sofa" tall="tall-sofa" from={40} push={0.14} toward={[0.4, 0.45]} strip={{ from: [600, 170, 600], to: [450, 200, 560] }}>
+  { frames: 66, act: "city", node: (
+    <World clip="wide-sofa" from={40} push={0.14} toward={[0.4, 0.45]} tall={{ clip: "tall-sofa", from: 40, push: 0.08, toward: [640, 880] }}>
       <Band name="Ada" when="Evening" where="The family house" naira="₦498,500" age="23 yrs 1 mo" delay={0} />
-      <Bubble name="Ada" x={1240} y={540} delay={30} size={42} width={620} tall={{ x: 560, y: 552 }}>
+      <Bubble name="Ada" x={1240} y={540} delay={30} size={42} width={620} tall={{ head: [[30, 640, 905], [48, 640, 905], [62, 780, 850]], width: 760 }}>
         Small rest, then I go hustle.
       </Bubble>
-      <BigChip tint={TINT.body} delay={8} tall={{ left: 80, top: 1470 }}>
+      <BigChip tint={TINT.body} delay={8}>
         One month at a time.
       </BigChip>
       <Sfx name="pop.wav" at={9} volume={0.7} />
       <Sfx name="pop.wav" at={31} volume={0.8} />
     </World>
   ) },
-  { frames: 72, act: "strip", node: (
-    <World clip="wide-street" tall="tall-street" from={0} push={0.12} toward={[0.5, 0.7]} strip={{ from: [360, 230, 620], to: [290, 290, 540] }}>
+  { frames: 72, act: "city", node: (
+    // The street seen from above, its people low in the phone's view: drawn larger and higher, its empty road under the bars.
+    <World clip="wide-street" from={0} push={0.12} toward={[0.5, 0.7]} tall={{ clip: "tall-street", from: 0, scale: 1.3, at: [-60, -576], push: 0.05, toward: [420, 900] }}>
       <Band name="Ada" when="Morning" where="Ojuelegba" naira="₦498,200" age="23 yrs 2 mo" delay={0} />
-      <Bubble name="Conductor" x={760} y={760} delay={6} size={40} width={620} tall={{ x: 500, y: 552 }}>
+      <Bubble name="Conductor" x={760} y={760} delay={6} size={40} width={620} tall={{ head: [262, 1048], width: 760 }}>
         Na Yaba you dey go? Enter, enter.
       </Bubble>
-      <Bubble name="Water seller" mark="W" x={1300} y={700} delay={26} size={40} width={560} tall={{ x: 640, y: 1366, tail: "up", width: 760 }}>
+      <Bubble name="Water seller" mark="W" x={1300} y={700} delay={26} size={40} width={560} tall={{ head: [456, 1262], width: 760 }}>
         Cold water, cold one. Buy cold water.
       </Bubble>
-      <BigChip tint={TINT.people} delay={44} tall={{ left: 56, top: 1615, tilt: -2 }}>
+      <BigChip tint={TINT.people} delay={44}>
         Your people.
       </BigChip>
       <Sfx name="crowd.m4a" volume={0.5} />
@@ -688,14 +757,14 @@ const SHOTS: readonly Shot[] = [
       <Sfx name="pop.wav" at={45} volume={0.6} />
     </World>
   ) },
-  { frames: 80, act: "strip", node: (
-    <World clip="wide-day" tall="tall-day" from={110} push={0.05} toward={[0.5, 0.3]} stripFrom={138} stripRate={0.75} strip={{ from: [370, 150, 680], to: [225, 160, 640] }}>
+  { frames: 80, act: "city", node: (
+    <World clip="wide-day" from={110} push={0.05} toward={[0.5, 0.3]} tall={{ clip: "tall-day", from: 110, at: [0, -130], push: 0.03, toward: [540, 700] }}>
       <Band name="Ada" when="Afternoon" where="The family house" naira="₦2,500,000" age="24 yrs 6 mo" delay={0} />
       <Passbook delay={4} />
-      <Bubble name="Ada" x={1180} y={420} delay={34} size={42} width={520} tall={{ x: 540, y: 552 }}>
+      <Bubble name="Ada" x={1180} y={420} delay={34} size={42} width={520} tall={{ head: [641, 664], width: 760 }}>
         Small small, I go reach.
       </Bubble>
-      <BigChip tint={TINT.money} delay={54} style={{ left: "auto", right: 60 }} tall={{ left: 690, top: 1600 }}>
+      <BigChip tint={TINT.money} delay={54} style={{ left: "auto", right: 60 }}>
         Save up.
       </BigChip>
       <Sfx name="swish.wav" at={4} volume={0.4} />
@@ -707,18 +776,16 @@ const SHOTS: readonly Shot[] = [
     </World>
   ) },
   { frames: 76, act: "turn", node: (
-    <World clip="wide-day" tall="tall-day" from={10} push={0.05} toward={[0.3, 0.5]} strip={{ from: [350, 150, 680], to: [250, 150, 680] }} turnAt={TURN_AT}>
+    <World clip="wide-day" from={10} push={0.05} toward={[0.3, 0.5]} tall={{ clip: "tall-day", from: 10, at: HOUSE_UP, push: 0.04, toward: [540, 700] }}>
       <Band name="Ada" when="Evening" where="The family house" naira="₦3,120,000" age="25 yrs 1 mo" delay={0} />
-      <RouteCard tile="prop_travel-bag" title="Care work in the UK" line="Your papers and a sponsor" tint={TINT.people} top={170} tallTop={1300} delay={2} />
-      <RouteCard tile="prop_laptop-desk" title="A master's" line="A school that says yes" tint={TINT.study} top={360} tallTop={1450} delay={8} />
-      <RouteCard tile="prop_flight-board" title="The Gulf" line="A job before the flight" tint={TINT.food} top={550} tallTop={1600} delay={14} />
+      <RouteCard tile="prop_travel-bag" title="Care work in the UK" line="Your papers and a sponsor" tint={TINT.people} top={170} tallTop={1040} delay={2} />
+      <RouteCard tile="prop_laptop-desk" title="A master's" line="A school that says yes" tint={TINT.study} top={360} tallTop={1203} delay={8} />
+      <RouteCard tile="prop_flight-board" title="The Gulf" line="A job before the flight" tint={TINT.food} top={550} tallTop={1366} delay={14} />
       {CONFETTI.map((bit) => (
         <Bit key={`${String(bit.x)}-${String(bit.y)}`} bit={bit} />
       ))}
-      <Place wide={{ left: 90, bottom: 40 }} tall={{ left: 560, top: 380, scale: 0.86 }}>
-        <Sticker tile="chr_ada-cheer" size={520} tilt={4} delay={28} />
-      </Place>
-      <BigChip tint={TINT.study} delay={TURN_AT} style={{ left: 640, bottom: 80 }} tall={{ left: 60, top: 250, still: true }}>
+      <Cheer />
+      <BigChip tint={TINT.study} delay={20} style={{ left: 640, bottom: 80 }} tall={{ top: 340, tilt: -3 }}>
         Find your way out.
       </BigChip>
       <Sfx name="swish.wav" at={2} volume={0.4} />
@@ -733,7 +800,7 @@ const SHOTS: readonly Shot[] = [
     <AbsoluteFill>
       <NightFalls from={0} falls={[6, 30]} />
       <Band name="Ada" when="Night" where="The family house" naira="₦3,120,000" age="25 yrs 2 mo" paint={NIGHT} delay={30} />
-      <Bubble name="Ada" x={760} y={700} delay={44} size={42} paint={NIGHT} width={560} tall={{ x: 540, y: 860, width: 800 }}>
+      <Bubble name="Ada" x={760} y={700} delay={44} size={42} paint={NIGHT} width={560} tall={{ head: [[54, 422, 1140], [62, 150, 830]], width: 760 }}>
         Sleep. The month is done.
       </Bubble>
       <Sfx name="night.m4a" volume={0.5} />
@@ -778,12 +845,39 @@ export const LEAD_COMPOSITIONS = {
   LeadPortrait: { ...TALL_VIDEO, durationInFrames: LEAD_FRAMES },
 } as const;
 
-/** What a shot's pieces read in the tall frame before a world gives them more: the strip's window, or the whole frame. */
-function stageOf(act: Act): Stage {
-  return act === "strip" ? { act, box: STRIP, grow: 0, travel: 0 } : { act, box: TALL_FULL, grow: 1, travel: 0 };
+/**
+ * A mock of a phone feed's own bars over the portrait teaser, for a still that shows what they cover: the status bar and
+ * the feed's header at the top, the caption, the buttons and the progress at the bottom. Generic shapes, no real app.
+ */
+function FeedBars() {
+  const shade = "rgba(8, 10, 20, 0.62)";
+  const line = (width: number, top: number, left = 44, height = 26) => <div style={{ position: "absolute", left, top, width, height, borderRadius: 99, background: "rgba(255, 255, 255, 0.78)" }} />;
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none", fontFamily: FONT, color: "#fff" }}>
+      <div style={{ position: "absolute", left: 0, top: 0, width: TALL_W, height: FEED_BARS.top, background: shade, borderBottom: "4px dashed rgba(255, 255, 255, 0.9)" }}>
+        <div style={{ position: "absolute", left: 60, top: 34, fontSize: 40, fontWeight: 700 }}>9:41</div>
+        {line(120, 46, 880, 24)}
+        <div style={{ position: "absolute", left: 0, right: 0, top: 128, display: "flex", justifyContent: "center", gap: 60, fontSize: 40, fontWeight: 700 }}>
+          <span style={{ opacity: 0.6 }}>Following</span>
+          <span>For you</span>
+        </div>
+      </div>
+      <div style={{ position: "absolute", left: 0, top: FEED_BARS.bottom, width: TALL_W, height: TALL_H - FEED_BARS.bottom, background: shade, borderTop: "4px dashed rgba(255, 255, 255, 0.9)" }}>
+        <div style={{ position: "absolute", left: 44, top: 34, fontSize: 40, fontWeight: 700 }}>@japacity</div>
+        {line(760, 100)}
+        {line(520, 144)}
+        {line(TALL_W - 88, 214, 44, 8)}
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 34, display: "flex", justifyContent: "space-around" }}>
+          {[0, 1, 2, 3, 4].map((at) => (
+            <div key={String(at)} style={{ width: 64, height: 64, borderRadius: 20, border: "5px solid rgba(255, 255, 255, 0.8)" }} />
+          ))}
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
 }
 
-function Cut({ shape }: { shape: FrameShape }) {
+function Cut({ shape, feed = false }: { shape: FrameShape; feed?: boolean }) {
   loadRubik();
   let at = 0;
   return (
@@ -801,23 +895,13 @@ function Cut({ shape }: { shape: FrameShape }) {
         {SHOTS.map((shot, index) => {
           const from = at;
           at += shot.frames;
-          // In the hand the world is the whole frame: the window the strip grew into.
-          const node =
-            shape === "tall" && shot.act === "hand" ? (
-              <div data-stage-window="hand" style={{ position: "absolute", left: 0, top: 0, width: TALL_FULL.w, height: TALL_FULL.h, overflow: "hidden" }}>
-                {shot.node}
-              </div>
-            ) : (
-              shot.node
-            );
           return (
             <Sequence key={String(index)} from={from} durationInFrames={shot.frames}>
-              <ActContext.Provider value={shot.act}>
-                <StageContext.Provider value={stageOf(shot.act)}>{node}</StageContext.Provider>
-              </ActContext.Provider>
+              {shot.node}
             </Sequence>
           );
         })}
+        {feed && shape === "tall" ? <FeedBars /> : null}
       </AbsoluteFill>
     </FrameContext.Provider>
   );
@@ -828,7 +912,7 @@ export function Lead() {
   return <Cut shape="wide" />;
 }
 
-/** The same cut for a phone's feed, 1080 by 1920: the strip, the turn, the hand and the stacked end card. */
-export function LeadPortrait() {
-  return <Cut shape="tall" />;
+/** The same cut for a phone's feed, 1080 by 1920: the game in the hand, full frame. `feed` draws a feed's bars over it. */
+export function LeadPortrait({ feed = false }: { feed?: boolean }) {
+  return <Cut shape="tall" feed={feed} />;
 }

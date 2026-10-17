@@ -2,11 +2,11 @@
 // Plays the game on a development server and records the moments the teaser shows, each as a short WebM under
 // apps/teaser/clips/ (the list is src/clips.ts). The front door is played on the phone profile (390 by 844 at scale 2,
 // touch) and makes a life named Ada; every other session starts from that life. The world's shots are taken on a wide
-// screen (1280 by 720 at scale 1.5, so 1920 by 1080) with every surface over the scene hidden, the world alone; the
-// results morning is taken on the phone. The tall shots are the same sessions on the phone (390 by 844 at scale 3, so
-// 1170 by 2532, cropped to the portrait cut's 1080 by 1920), the world alone as the hand holds it. The painted map is
-// taken as two stills, by day and at night. A development server already answering on the port is used; otherwise one is
-// started and stopped after.
+// screen (1280 by 720 at scale 1.5, so 1920 by 1080 in true pixels) with every surface over the scene hidden, the world
+// alone; the results morning is taken on the phone. The tall shots are the same sessions on the phone (390 by 844 at
+// scale 3, so 1170 by 2532, cropped to the portrait teaser's 1080 by 1920), the world alone as the hand holds it. The
+// painted map is taken as two stills, by day and at night. A development server already answering on the port is used;
+// otherwise one is started and stopped after.
 import { type ChildProcess, spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -21,12 +21,14 @@ const ROOT = fileURLToPath(new URL("../../..", import.meta.url));
 const OUT = fileURLToPath(new URL("../clips", import.meta.url));
 const WORK = join(OUT, ".frames");
 const PHONE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } as const;
-/** A laptop's screen at the teaser's own 1920 by 1080: the world fills it round the centred column (design page 13). */
-const WIDE = { viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1.5 } as const;
 /**
- * The phone at scale 3 for the portrait cut's tall shots. The screencast hands a frame at the device's pixels only when the
- * browser itself is started at that scale (--force-device-scale-factor), so the tall sessions run in a browser of their own.
+ * A laptop's screen at the teaser's own 1920 by 1080: the world fills it round the centred column (design page 13). The
+ * screencast hands a frame at the device's pixels only when the browser itself is started at that scale
+ * (--force-device-scale-factor); otherwise it sends the CSS size, 1280 by 720, so the wide sessions run in a browser of
+ * their own started at 1.5, as the tall ones do at 3.
  */
+const WIDE = { viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1.5 } as const;
+/** The phone at scale 3 for the portrait teaser's tall shots, in a browser started at that scale for the same reason. */
 const TALL = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true } as const;
 const PIXELS = { phone: { width: 780, height: 1688 }, wide: { width: 1920, height: 1080 }, tall: { width: 1170, height: 2532 } } as const;
 /** The tall frame cut to 9 by 16 round the middle of the screen (2532 less 2080 is 452, half above), then to 1080 by 1920. */
@@ -324,12 +326,16 @@ async function main(): Promise<void> {
   const base = `http://localhost:${String(options.port)}`;
   // The GPU through Metal where there is one; the scene is drawn at a phone's pace, not the software renderer's.
   const gpu = ["--use-angle=metal", "--ignore-gpu-blocklist", "--enable-gpu"];
-  const browser = await chromium.launch({ args: gpu });
-  const tall: { browser: Browser | null } = { browser: null };
+  // One browser open at a time, started at the scale its sessions need (the phone's own browser takes no forced scale); a
+  // session of another shape closes it and starts the next, so a small machine never holds two.
+  const open: { scale: number | null; browser: Browser | null } = { scale: null, browser: null };
   const browserFor = async (shape: Shape): Promise<Browser> => {
-    if (shape !== "tall") return browser;
-    tall.browser ??= await chromium.launch({ args: [...gpu, `--force-device-scale-factor=${String(TALL.deviceScaleFactor)}`] });
-    return tall.browser;
+    const scale = shape === "wide" ? WIDE.deviceScaleFactor : shape === "tall" ? TALL.deviceScaleFactor : null;
+    if (open.browser !== null && open.scale === scale) return open.browser;
+    await open.browser?.close();
+    open.browser = await chromium.launch({ args: scale === null ? gpu : [...gpu, `--force-device-scale-factor=${String(scale)}`] });
+    open.scale = scale;
+    return open.browser;
   };
   mkdirSync(WORK, { recursive: true });
   const keptPath = join(WORK, "kept.json");
@@ -350,12 +356,12 @@ async function main(): Promise<void> {
   try {
     let kept = existsSync(keptPath) ? (JSON.parse(readFileSync(keptPath, "utf8")) as Kept) : null;
     if (wanted("door") || kept === null) {
-      const s = await session(browser, base, "door", null, "phone");
+      const s = await session(await browserFor("phone"), base, "door", null, "phone");
       kept = await door(s);
       writeFileSync(keptPath, JSON.stringify(kept));
       await cut("door", s);
     }
-    if (wanted("stills")) await stills(browser, base, kept);
+    if (wanted("stills")) await stills(await browserFor("phone"), base, kept);
     for (const [name, { shape, play }] of Object.entries(SESSIONS) as [Exclude<SessionName, "door">, (typeof SESSIONS)[keyof typeof SESSIONS]][]) {
       if (!wanted(name)) continue;
       const s = await session(await browserFor(shape), base, name, kept, shape);
@@ -368,8 +374,7 @@ async function main(): Promise<void> {
       await cut(name, s);
     }
   } finally {
-    await browser.close();
-    await tall.browser?.close();
+    await open.browser?.close();
     server?.kill();
     if (options.only.length === 0) rmSync(WORK, { recursive: true, force: true });
   }
