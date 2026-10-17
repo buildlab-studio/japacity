@@ -45,11 +45,6 @@ function inCurrencyOf(content: Content, pay: YearlyPay | null, country: Id<"coun
   return pay !== null && pay.currency === currencyOf(content, country) ? pay.amount : 0;
 }
 
-/** R-UNDERTAKING-003: the pay a year from the job held, gross, in the currency of `country`. */
-export function payAYear(read: ReadCtx, country: Id<"country"> | null): number {
-  return inCurrencyOf(read.content, ownPayAYear(read), country);
-}
-
 /** R-UNDERTAKING-003: a partner route's floor met by this yearly pay. A route with no floor is always met. */
 function floorMetBy(read: ReadCtx, entry: RouteEntry & { partner: NonNullable<RouteEntry["partner"]> }, pay: YearlyPay | null): boolean {
   if (entry.partner.floorVar === null) return true;

@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import type { ActivityEntry, Content, Id } from "../engine/types";
 import { applyAs, BOND, CA_SPOUSE, facts, joint, life, readOf, setPeople, UK_PARTNER } from "../route/gates/people.journey";
 import type { Game } from "../testing/play";
-import { barUntilMonth, floorsMet, meetsFloor, payAYear, sponsorCheck } from "./sponsor-checks";
+import { barUntilMonth, floorsMet, meetsFloor, ownPayAYear, sponsorCheck } from "./sponsor-checks";
 
 const FLOOR = content.var["var.uk-partner-income"]!.start;
 const BAR = content.country["country.canada"]!.partnerBarMonths;
@@ -100,7 +100,7 @@ describe("R-UNDERTAKING-002: the sponsor's status", () => {
 describe("R-UNDERTAKING-003: the earnings floor", () => {
   test("[R-UNDERTAKING-003] given pay a year of exactly the floor, and the floor raised by one, when the floor is judged, then it is met only at the floor", () => {
     const at = abroad("country.uk", "status.uk-settled", JOB);
-    expect(payAYear(readOf(at), "country.uk")).toBe(FLOOR);
+    expect(ownPayAYear(readOf(at))).toEqual({ currency: "GBP", amount: FLOOR });
     expect(meetsFloor(readOf(at), UK_PARTNER)).toBe(true);
     const under = abroad("country.uk", "status.uk-settled", JOB, { "var.uk-partner-income": FLOOR + 1 });
     expect(meetsFloor(readOf(under), UK_PARTNER)).toBe(false);
