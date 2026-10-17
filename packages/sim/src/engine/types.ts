@@ -1508,7 +1508,7 @@ export interface Content {
   thing: Record<Id<"thing">, ThingEntry>;
   /** The spots people meet at, named by key (docs/rules/people.md R-PEOPLE-014). */
   people: { spots: string[] };
-  /** The advert slots, the guides and the counters (the pages). The simulation never reads them; the content checks and the client and server do. */
+  /** The advert slots, the guides and the counters (adverts.md, guides.md, analytics.md). The simulation never reads them; the content checks and the client and server do. */
   advert: Record<Id<"advert">, AdvertSlotEntry>;
   guide: Record<Id<"guide">, GuideEntry>;
   analytics: { counters: CounterDef[] };

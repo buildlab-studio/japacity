@@ -438,7 +438,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "document/request", document: "document.tb-certificate" }],
     counts: [UK],
   },
-  // R-DOCUMENT-007: the police certificate, asked at the visa centre's notice until a station is built.
+  // R-DOCUMENT-007: the police certificate, asked at the visa centre's notice, since no police station is built.
   "activity.get-police-certificate": {
     id: "activity.get-police-certificate",
     slot: "free",

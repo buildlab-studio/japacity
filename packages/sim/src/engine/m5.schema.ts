@@ -1,4 +1,4 @@
-// The pages' entries (adverts, guides, analytics). The simulation never reads them;
+// The entries of the adverts, guides and analytics pages. The simulation never reads them;
 // the content check and the client and server do (docs/rules/adverts.md, guides.md, analytics.md).
 import { z } from "zod";
 

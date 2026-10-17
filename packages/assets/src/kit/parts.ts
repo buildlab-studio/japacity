@@ -1,5 +1,5 @@
 // The kit of parts (R-ASSET-016), ported from the design's city.js and extended with the
-// parts asked for. Sizes come from the part table on
+// parts the six examples need. Sizes come from the part table on
 // docs/rules/assets.md; KIT_SIZES holds them so the tests can check every part.
 // Parts fixed to a wall are drawn in the wall's own frame: the face is z = 0 and
 // looks along +z. `onWall` gives that frame.

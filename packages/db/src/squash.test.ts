@@ -25,7 +25,7 @@ const CLEAN = fileURLToPath(new URL("../migrations", import.meta.url));
 /** The three, in the order they ran on both Neon branches before the squash. */
 const OLD_TAGS = ["0000_japacity", "0001_functions-and-triggers", "0002_dedication-lights"];
 
-/** The SHA-256 of the three SQL files in order, as at 6560ceca, so the fixture cannot be edited to match. */
+/** The SHA-256 of the three SQL files in order, as they stood before the squash, so the fixture cannot be edited to match. */
 const OLD_SQL_SHA256 = "86e1258543b51ff830e539f6f04cd860ba10f3c45258595c367af19511eedaa2";
 
 /** The clean set: one file, the generator's with the hand-written function and trigger at its end. */

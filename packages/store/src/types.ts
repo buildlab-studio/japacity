@@ -189,7 +189,7 @@ export interface PlayerStore {
   page: (after: string | null, limit: number) => Promise<CharacterRow[]>;
 }
 
-/** The pair record of pair.md R-PAIR-002. Typed `unknown` until `PairRecord` lands in packages/sim/src/pair/. */
+/** The pair record of pair.md R-PAIR-002. Typed `unknown` here; the simulation's own `PairRecord` is in packages/sim/src/engine/types.ts. */
 export type PairRecord = unknown;
 
 /** R-PAIR-001: one row per pair; `key` is the two ids sorted and joined by `~`, `a` the lower id. */

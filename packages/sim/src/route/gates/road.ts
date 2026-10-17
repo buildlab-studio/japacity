@@ -454,7 +454,7 @@ export const roadGate: Gate = {
   effects: { "route/road-step": roadStep },
   funds: () => null,
   // R-ROAD-001 keeps the road out of the routes view, so this part is never shown; the chain is seen
-  // through `place.where`, the report lines and the card (an open question in road.md).
+  // through `place.where`, the report lines and the card (road.md, under R-ROAD-001).
   view: (_read, _entry, held) => {
     const gate = roadOf(held);
     return { gate: "road", step: gate.step, monthsHere: gate.monthsHere };

@@ -279,7 +279,7 @@ const entries: PlaceEntry[] = [
   lagos("place.lekki-epe-expressway", "Lekki-Epe Expressway", "lekki", 6452, 3555, { crowd: QUIET, traditionalBp: ROADSIDE }),
   lagos("place.ajah", "Ajah", "ajah", 6469, 3562, { crowd: PACKED, traditionalBp: ROADSIDE }),
   lagos("place.tarkwa-bay", "Tarkwa Bay", "lagos-harbour", 6400, 3396, { crowd: QUIET, traditionalBp: STREET }),
-  // From the rail stop named after it. Not built in M3 (R-CITY-020).
+  // Placed at the rail stop named after it; its landmark is not built (R-CITY-020).
   lagos("place.national-theatre", "National Theatre", "iganmu", 6475, 3369, { crowd: QUIET, traditionalBp: STREET }),
   lagos("place.mile-2", "Mile 2", "amuwo-odofin", 6459, 3313, { crowd: PACKED, traditionalBp: ROADSIDE }),
   lagos("place.festac-town", "Festac Town", "amuwo-odofin", 6468, 3284, { crowd: BUSY, traditionalBp: STREET }),

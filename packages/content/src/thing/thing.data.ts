@@ -1,8 +1,8 @@
 // The market's things for the home (design page 12 sections 2 and 4). Prices are working figures from Lagos listings of 2025 and 2026 (a standing fan about
 // 30,000 to 45,000 naira, a 32-inch TV about 150,000 to 220,000, a small petrol generator about 200,000 to 300,000, a
 // 1.5 kVA inverter with batteries about 700,000 to 1.2 million, a home solar set about 2 to 3 million, a 1 hp standing
-// AC about 500,000 to 700,000, a used laptop about 250,000 to 400,000, a used car about 5 to 8 million), to be tuned by
-// play. What each does is a lift on acts the simulation has (the nap, the meals, the TV, the study), a lift each month
+// AC about 500,000 to 700,000, a used laptop about 250,000 to 400,000, a used car about 5 to 8 million).
+// What each does is a lift on acts the simulation has (the nap, the meals, the TV, the study), a lift each month
 // it is lived with, or a lift once when it lands; the light and the cool air do not add up (one generator, inverter or
 // solar set lights the room; the AC or the fan cools it). Where each may stand: the family house holds only the small
 // things, in your corner, and the car in the carport; a home of your own holds what fits it (the compound's room and yard
