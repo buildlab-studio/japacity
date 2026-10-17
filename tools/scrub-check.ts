@@ -8,6 +8,10 @@
 // client, a Cloudflare account id, an admin account list. Each names the places it may stand in, and a
 // placeholder (an example domain, a made-up run) never fails. docs/site/built/your-own-copy.md lists them.
 //
+// A third list holds the tags of how the game was planned and built: private notes files, review codes, wave
+// and branch names, and the comment tags that marked a choice or a doubt. A comment says what holds and why
+// instead.
+//
 // Usage: pnpm check:scrub
 import { execFileSync } from "node:child_process";
 import { readFileSync, realpathSync } from "node:fs";
@@ -82,8 +86,8 @@ export interface Hit {
   readonly line: number;
   readonly label: string;
   readonly text: string;
-  /** Which list caught it: the legal planning, or a value of one deployment. */
-  readonly kind: "planning" | "deployment";
+  /** Which list caught it: the legal planning, a value of one deployment, or a tag of the build's process. */
+  readonly kind: "planning" | "deployment" | "process";
 }
 
 export interface DeploymentValue {
@@ -210,6 +214,47 @@ export function findTellTales(file: string, text: string): Hit[] {
   return hits;
 }
 
+export interface ProcessTag extends TellTale {
+  /** False: the pattern is tested, and the tree is not looked through for it. */
+  readonly enforced: boolean;
+}
+
+const tag = (label: string, pattern: RegExp, example: string, enforced: boolean): ProcessTag => ({ label, pattern, example, enforced });
+
+/**
+ * Only tags that never mean anything in the game. A bare merge tag (`m60`) is left out, since an SVG path's
+ * `m12 5` reads the same, and so are "the lead", "the brief" and "milestone", which are also the game's words. A
+ * branch is matched by its numbered or `a branch-` prefix, since `land/` begins ordinary words too.
+ */
+export const PROCESS_TAGS: readonly ProcessTag[] = [
+  tag("a handoff note", /\bHANDOFF-/, "Read the notes first.", true),
+  tag("the build notes", /\bjapacity-build-notes\b|(?<![\w-])docs\/build\b/, "See the notes", true),
+  tag("the standing orders", /\bthe notes\b/, "As the notes says.", false),
+  tag("the decision", /\bthe notes\b/, "Logged in the notes.", false),
+  tag("a review code", /\bREVIEW-\d/, "For the review", false),
+  tag("the logic review", /\bthe review\b/, "Found by the the review.", false),
+  tag("the whole-life review", /\bwhole-life review\b/i, "Raised by the whole-life review.", false),
+  tag("a reading taken", /\bReading taken\b/, "the bank pocket.", false),
+  tag("a wave's name", /\bwave [A-Z]{1,4}\d?[a-z]?\b/, "Built in.", false),
+  tag("a builder's branch", /(?<![\w./-])(?:m\d{2,3}\/[a-z0-9]|fun\/wave-)/, "On the branch a branch.", false),
+  tag("a comment tag", /(?:\/\/|\/\*|^\s*\*\s|^\s*#\s|<!--).*\b(?:QUESTION|Decided):/, "const rate = 20; // no page gives the rate.", false),
+];
+
+/** Paths where no process tag is looked for: this list itself, which holds the patterns. */
+export const PROCESS_ALLOWED: ReadonlySet<string> = new Set(["tools/scrub-check.ts"]);
+
+/** Every tag of the build's process in one file's text, by the tags given. A binary file is passed over. */
+export function findProcessTags(file: string, text: string, tags: readonly ProcessTag[] = PROCESS_TAGS.filter((each) => each.enforced)): Hit[] {
+  if (PROCESS_ALLOWED.has(file) || text.includes("\u0000")) return [];
+  const hits: Hit[] = [];
+  text.split("\n").forEach((line, index) => {
+    for (const each of tags) {
+      if (each.pattern.test(line)) hits.push({ file, line: index + 1, label: each.label, text: line.trim(), kind: "process" });
+    }
+  });
+  return hits;
+}
+
 /** The files git would publish from `root`: tracked ones, and new ones that are not ignored. */
 export function publishedFiles(root: string): string[] {
   const output = execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "-z"], { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
@@ -226,7 +271,7 @@ export function scrubTree(root: string): Hit[] {
       // Listed by git but gone from the disk: a deletion not yet committed.
       continue;
     }
-    hits.push(...findTellTales(file, text), ...findDeploymentValues(file, text));
+    hits.push(...findTellTales(file, text), ...findDeploymentValues(file, text), ...findProcessTags(file, text));
   }
   return hits;
 }
@@ -245,9 +290,11 @@ if (isMain()) {
   const hits = scrubTree(process.cwd());
   for (const hit of hits) console.log(`${hit.file}:${String(hit.line)}: "${hit.label}": ${hit.text.slice(0, 160)}`);
   const planning = hits.filter((hit) => hit.kind === "planning").length;
-  const deployment = hits.length - planning;
+  const processTags = hits.filter((hit) => hit.kind === "process").length;
+  const deployment = hits.length - planning - processTags;
   if (planning > 0) console.log(`\n${String(planning)} line(s) carry legal or privacy planning. Keep that planning outside the repository.`);
   if (deployment > 0) console.log(`\n${String(deployment)} line(s) carry a value of one deployment. Keep it in .env.local, .dev.vars or the platform's secrets, and write a placeholder here.`);
+  if (processTags > 0) console.log(`\n${String(processTags)} line(s) carry a tag of how the game was planned or built. Say what holds and why, without the tag.`);
   if (hits.length > 0) process.exit(1);
-  console.log("No legal or privacy planning and no deployment value found.");
+  console.log("No legal or privacy planning, no deployment value and no process tag found.");
 }

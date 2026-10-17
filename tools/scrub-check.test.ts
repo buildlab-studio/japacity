@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, test } from "vitest";
 
-import { ALLOWED, findTellTales, scrubTree, TELL_TALES } from "./scrub-check";
+import { ALLOWED, findProcessTags, findTellTales, PROCESS_ALLOWED, PROCESS_TAGS, scrubTree, TELL_TALES } from "./scrub-check";
 
 const made: string[] = [];
 
@@ -63,5 +63,44 @@ describe("the scrub check", () => {
     });
     const hits = scrubTree(root);
     expect(hits.map((hit) => `${hit.file}:${String(hit.line)}`)).toEqual(["docs/planted.md:2"]);
+  });
+});
+
+describe("the scrub check's process tags", () => {
+  test("given a planted line for each process tag, enforced or not, when a file is checked against every tag, then each is caught on its line", () => {
+    for (const each of PROCESS_TAGS) {
+      const hits = findProcessTags("packages/sim/src/somewhere.ts", `const a = 1;\n\n${each.example}\n`, PROCESS_TAGS);
+      expect(hits.map((hit) => hit.label)).toContain(each.label);
+      expect(hits.every((hit) => hit.line === 3 && hit.kind === "process")).toBe(true);
+    }
+  });
+
+  test("given the game's own words, an SVG path and a tag word inside a string, when they are checked against every tag, then nothing is caught", () => {
+    const words = [
+      "The lead applicant's visa ends, and the dependant's with it.",
+      "The brief's mission card. The invite's milestone. A wave of refusals. The wave emote.",
+      "The a branch split of the map. A a branch corner.",
+      '<path d="m12 5 7 7-7 7" />',
+      `log(\`${["QUESTION", " pairs are planned."].join(":")}\`);`,
+      "The content version m0.4 is stored with every saved life.",
+    ].join("\n");
+    expect(findProcessTags("packages/content/src/news/news.text.ts", words, PROCESS_TAGS)).toEqual([]);
+  });
+
+  test("given a tag that is not enforced, when a file is checked by default, then it is not looked for", () => {
+    const held = PROCESS_TAGS.filter((each) => !each.enforced);
+    expect(held.length).toBeGreaterThan(0);
+    expect(findProcessTags("docs/rules/somewhere.md", held.map((each) => each.example).join("\n"))).toEqual([]);
+  });
+
+  test("given the list itself, when it carries every tag, then it is allowed", () => {
+    expect([...PROCESS_ALLOWED]).toEqual(["tools/scrub-check.ts"]);
+    expect(findProcessTags("tools/scrub-check.ts", PROCESS_TAGS.map((each) => each.example).join("\n"), PROCESS_TAGS)).toEqual([]);
+  });
+
+  test("given a repository with an enforced tag planted in a code file, when the tree is scrubbed, then the line fails as a process tag", () => {
+    const planted = PROCESS_TAGS.find((each) => each.enforced)?.example ?? "";
+    const root = repository({ "tools/planted.ts": `// Fine.\n// ${planted}\n`, "README.md": "A game." });
+    expect(scrubTree(root).map((hit) => `${hit.file}:${String(hit.line)} ${hit.kind}`)).toEqual(["tools/planted.ts:2 process"]);
   });
 });
