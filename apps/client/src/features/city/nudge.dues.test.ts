@@ -18,7 +18,7 @@ function landed(): Game {
 }
 
 describe("the nudge on the month's dues abroad", () => {
-  // The recorded life lands holding £1,954 (R-ACTIVITY-015, decisions 0022 and 0035), and the UK upkeep is the phone's
+  // The recorded life lands holding £1,954 (R-ACTIVITY-015, decisions 0014 and 0013), and the UK upkeep is the phone's
   // £15 (R-ABROAD-003).
   test("[R-WORLD-003] given Ada landed in London with the month's news in and £4,352 due against £1,954 held, when the nudge is chosen, then its report line says the gap and is about the money", () => {
     const view = landed().view();

@@ -27,7 +27,7 @@ export function slotKind(key: string): "partner" | "sibling" | "mother" | "fathe
   return "sibling";
 }
 
-/** The computer character a bond is with, as the view names it (decision 0009), or null for a player. */
+/** The computer character a bond is with, as the view names it (decision 0002), or null for a player. */
 export function personOf(bond: Pick<BondView, "person">): Id<"person"> | null {
   return bond.person;
 }

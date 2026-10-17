@@ -57,7 +57,7 @@ export interface PageFields {
    * name; empty until the family is drawn, absent where the page does not say it.
    */
   from?: string;
-  /** The japa type read at the send-off and kept with its card (decision 0018); absent before then. */
+  /** The japa type read at the send-off and kept with its card (decision 0024); absent before then. */
   type?: { name: string; line: string };
 }
 

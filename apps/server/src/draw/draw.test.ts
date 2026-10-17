@@ -545,7 +545,7 @@ describe("the odds are settings", () => {
     expect((await server.deps.stores.world.draw(1))?.odds).toEqual(later);
   });
 
-  test("[R-LOTTERY-021] [R-SERVER-030] given decision 0010, under which the raffle has no top-up, when the job opens a draw, then the draw carries no top-up and the switch row no top-up dial", async () => {
+  test("[R-LOTTERY-021] [R-SERVER-030] given decision 0016, under which the raffle has no top-up, when the job opens a draw, then the draw carries no top-up and the switch row no top-up dial", async () => {
     const server = testServer();
     await drawJob(server.deps, keysWith(fakeBeacon()), TICKS_CRON);
     expect(Object.keys((await server.deps.stores.world.draw(0)) ?? {})).not.toContain("topUpTickets");

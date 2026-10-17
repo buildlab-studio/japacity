@@ -1,4 +1,4 @@
-// The price and the balance on every priced act (docs/rules/world.md R-WORLD-006; decision 0035): the button says the
+// The price and the balance on every priced act (docs/rules/world.md R-WORLD-006; decision 0013): the button says the
 // act and its price ("Indomie and egg · ₦1,500"); under it the balance before stands struck beside the balance after,
 // from the view's pockets and the act's cost; nothing moves until the tap; short, the button says how much instead. The
 // time in words stays beside it, and what the act does, in words, on one line.

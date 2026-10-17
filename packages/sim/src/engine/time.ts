@@ -14,7 +14,7 @@ export const LAGOS_OFFSET_MS = HOUR_MS;
 /** The hour in Lagos a sealed result opens: what real life made you wait for comes in the morning (R-CLOCK-032). */
 export const MORNING_HOUR_LAGOS = 7;
 
-// The world's own clock (R-CLOCK-033, decision 0036): one game day runs on real time but faster than life, the same
+// The world's own clock (R-CLOCK-033, decision 0011): one game day runs on real time but faster than life, the same
 // moment for everyone, so a sitting sees the sun move. Each life's months turn only when that life sleeps.
 
 /**

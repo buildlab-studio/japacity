@@ -1,4 +1,4 @@
-// Saves and replay (R-ENGINE-010, R-SERVER-020 to 022, decision 0006). A save
+// Saves and replay (R-ENGINE-010, R-SERVER-020 to 022, decision 0004). A save
 // is a list of segments, each the commands accepted under one content version
 // and one overlay. The first starts from the scenario and the seeds; a later
 // one starts from a base state, the state the segment before ended in carried

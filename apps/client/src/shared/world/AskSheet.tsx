@@ -1,5 +1,5 @@
 // One action, one sheet (docs/rules/world.md R-WORLD-006). A priced act's button says the act and its price, and under
-// it the balance before stands struck beside the balance after (decision 0035). A main button the player cannot pay for
+// it the balance before stands struck beside the balance after (decision 0013). A main button the player cannot pay for
 // is shut and says how much is short, as the ride sheet does, so nothing is planned or sent that cannot be paid.
 import { Dialog } from "@base-ui/react/dialog";
 import type { Currency } from "@japacity/sim";
@@ -41,7 +41,7 @@ interface Main {
 
 /**
  * The button's money: how much is short, the one exception everywhere; for a priced act the balance before and after
- * under the button (R-WORLD-006, decision 0035), with the month's dues as its warning; for any other ask (a change of
+ * under the button (R-WORLD-006, decision 0013), with the month's dues as its warning; for any other ask (a change of
  * money, a bill from the phone) what is left after on the button's second line, as before.
  */
 function mainOf(paying: AfterPaying | null, formatMoney: AskSheetProps["formatMoney"], priced: boolean): Main {

@@ -1,5 +1,5 @@
 // The "changed into" lines under Kept (docs/rules/world.md R-WORLD-008). A change of money counts for nothing in Kept
-// (decision 0021: the kept figure leaves out the change's two sides, the bank's charge stays money out), so a month
+// (decision 0024: the kept figure leaves out the change's two sides, the bank's charge stays money out), so a month
 // whose band fell by the change could read as money hidden. So each change in the month is said under Kept on its own line, both sides
 // as they were: "Changed ₦806,930 into £561". The side paid in at the bank is what went at the
 // rate, the bank's charge told once on its own line, so Kept plus the changes is the band's move. Played on the real

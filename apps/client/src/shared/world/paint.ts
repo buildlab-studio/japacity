@@ -1,4 +1,4 @@
-// The two paints of the lively layer (docs/design/13-the-lively-layer.md, section 2; decision 0038): one system, the day's
+// The two paints of the lively layer (docs/design/13-the-lively-layer.md, section 2; decision 0025): one system, the day's
 // pale sky and the night's navy, driven by what already drives the sky, the world's clock (clock.md R-CLOCK-033). One
 // attribute on <html> switches the role tokens in index.css; nothing is remembered, since the clock says it every time.
 import type { DayPart } from "@japacity/sim";

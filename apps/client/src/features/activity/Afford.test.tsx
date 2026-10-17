@@ -14,7 +14,7 @@ import { nameOf, say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
 const TB = "activity.tb-test";
-// Decision 0035 (R-ACTIVITY-019): the coding course and the portfolio now answer at once and repeat, so the paid things
+// Decision 0012 (R-ACTIVITY-019): the coding course and the portfolio now answer at once and repeat, so the paid things
 // a plan holds are month-acts: the nurse's certification and a master's at home.
 const CERTIFICATE = "activity.nurse-certification";
 const MASTERS = "activity.masters-at-home";
@@ -65,7 +65,7 @@ describe("the picker's cards and money", () => {
     const first = 2_500_000;
     const second = naira(view) - first;
     // Only month-acts are planned, each once (R-ACTIVITY-015, R-WORLD-007), so the plan
-    // that pays is a course and then a second month-act beside it (decision 0035: two that still take the month).
+    // that pays is a course and then a second month-act beside it (decision 0012: two that still take the month).
     expect([CERTIFICATE, MASTERS].every((id) => plannable(id))).toBe(true);
     const { store } = await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(CERTIFICATE, first), offered(MASTERS, first), offered(TB, second)] });
     expect([balance("before"), balance("after")]).toEqual([naira(view), first]);

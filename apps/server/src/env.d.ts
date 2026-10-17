@@ -24,7 +24,7 @@ declare namespace Cloudflare {
     VAPID_PUBLIC_KEY?: string;
     VAPID_PRIVATE_KEY?: string;
     VAPID_SUBJECT?: string;
-    /** R-ACCOUNT-014, R-SERVER-038: `mailpit` on the local stack only; unset on every deployment, which sends through MAIL (decision 0031). */
+    /** R-ACCOUNT-014, R-SERVER-038: `mailpit` on the local stack only; unset on every deployment, which sends through MAIL (decision 0007). */
     MAIL_TRANSPORT?: string;
     /** Mailpit's address on this machine, for MAIL_TRANSPORT=mailpit. */
     MAILPIT_URL?: string;

@@ -120,7 +120,7 @@ function WorldPlaying() {
   const reportOpen = useGame((state) => state.reportOpen);
   // The officer's closing line holds the asks sheet after the interview closes, until Leave the room.
   const closing = useClosingOpen();
-  // The sheets over the world take the night's paint when the world's clock says night (decision 0038).
+  // The sheets over the world take the night's paint when the world's clock says night (decision 0025).
   usePaint();
   useScreenCount("world");
   useScreenCount(reportOpen ? "report" : null);

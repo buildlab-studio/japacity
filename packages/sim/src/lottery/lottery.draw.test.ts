@@ -32,7 +32,7 @@ import {
 import type { TierSpec } from "./lottery.draw";
 
 const { ticket, odds } = content.tuning.lottery;
-/** The raffle's settings when decision 0010 switched it off, for the raffle's own tests. */
+/** The raffle's settings when decision 0016 switched it off, for the raffle's own tests. */
 const tuning = RAFFLE_AT_SWITCH_OFF;
 
 function withOdds(change: Partial<LotteryOdds>): Content {
@@ -75,7 +75,7 @@ describe("SHA-256", () => {
   });
 });
 
-describe("the raffle, switched off by decision 0010", () => {
+describe("the raffle, switched off by decision 0016", () => {
   const SEED = sha256(ascii("japacity"));
   const SPEC = (jackpot: number, mid: number, small: number): TierSpec[] => [
     { tier: "jackpot", count: jackpot },
@@ -127,7 +127,7 @@ describe("the raffle, switched off by decision 0010", () => {
   });
 });
 
-describe("the raffle's tiers and prizes, switched off by decision 0010", () => {
+describe("the raffle's tiers and prizes, switched off by decision 0016", () => {
   test("[R-LOTTERY-012] given the tickets sold, when the tiers are set, then there is one jackpot, the mid count, and one small prize in every smallEvery, never fewer than keep a small share under a mid one", () => {
     const small = (count: number) => tiersFor(count, tuning).find((spec) => spec.tier === "small")?.count;
     expect(tiersFor(0, tuning).map((spec) => spec.tier)).toEqual(["jackpot", "mid", "small"]);
@@ -221,7 +221,7 @@ describe("the raffle's tiers and prizes, switched off by decision 0010", () => {
   });
 });
 
-describe("the raffle's house top-up, switched off by decision 0010", () => {
+describe("the raffle's house top-up, switched off by decision 0016", () => {
   const declared = tuning.topUpTickets;
 
   test("[R-LOTTERY-021] given sales one under, at and one over the declared number, when the top-up is set, then it makes the pot up to that many tickets' worth and is 0 from there", () => {

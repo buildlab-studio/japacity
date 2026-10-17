@@ -10,7 +10,7 @@ import type { Accepted, ActivityEntry, BaseEvent, Content, Id } from "../engine/
 import type { QualityEvent } from "../quality/quality.events";
 import { slot } from "../route/route.journey";
 import type { Game } from "../testing/play";
-/** Decision 0035 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
+/** Decision 0013 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
 const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
 
 import { start } from "../testing/play";
@@ -67,7 +67,7 @@ function wellbeingFrom(result: Accepted, source: string): number[] {
 
 describe("the two activities", () => {
   test("[R-OBLIGATION-014] given the content, when cooking and water are read, then both fill no slot, both apply at home only, and each relieves the upkeep by its tuning share", () => {
-    // Decision 0035: a meal is bought and eaten now, and repeats; it still relieves a charged upkeep by its share.
+    // Decision 0013: a meal is bought and eaten now, and repeats; it still relieves a charged upkeep by its share.
     // The naira meal is cooked at home only; the room abroad cooks in the country's money.
     expect(entry(COOK)).toMatchObject({ slot: "none", where: "home", when: "now", repeat: true, requires: [] });
     expect(entry(COOK).cost).toEqual([{ currency: "NGN", amount: 150000, reason: "food" }]);
@@ -106,7 +106,7 @@ describe("the two activities", () => {
 });
 
 describe("cooking at home", () => {
-  test("[R-OBLIGATION-014] [R-ACTIVITY-019] given Ada at home, when she cooks now, then it fills no slot, the relief is recorded at once on the upkeep for its next charge, and she may cook again this month (decision 0035)", () => {
+  test("[R-OBLIGATION-014] [R-ACTIVITY-019] given Ada at home, when she cooks now, then it fills no slot, the relief is recorded at once on the upkeep for its next charge, and she may cook again this month (decision 0012)", () => {
     const game = ada();
     expect(entry(COOK).when).toBe("now");
     expect(entry(WATER).when).toBe("now");
@@ -118,7 +118,7 @@ describe("cooking at home", () => {
     expect(owedOf(game, HOME_UPKEEP).relief).toEqual([{ source: COOK, bp: room.cookedBp }]);
   });
 
-  test("[R-OBLIGATION-014] given cooking chosen this month, when the month ends, then the upkeep's charge falls by the cooked share, the results say so in a line of its own, and a meal lifts wellbeing (decision 0035)", () => {
+  test("[R-OBLIGATION-014] given cooking chosen this month, when the month ends, then the upkeep's charge falls by the cooked share, the results say so in a line of its own, and a meal lifts wellbeing (decision 0013)", () => {
     const { played, plain } = againstNone([COOK]);
     const full = upkeepPaid(plain);
     const less = bp(full, room.cookedBp);

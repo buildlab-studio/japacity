@@ -1,5 +1,5 @@
 // The lively layer's preview page (development only, `?lively` at the boot): every primitive in both paints with sample
-// words, to judge each one apart from the screens (decision 0038).
+// words, to judge each one apart from the screens (decision 0025).
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

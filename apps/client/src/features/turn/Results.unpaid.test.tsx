@@ -40,7 +40,7 @@ function storyRows(): HTMLElement[] {
 
 describe("money that was not paid", () => {
   test("[R-WORLD-008] given Ada with nothing to pay her living costs, when the month ends, then the first story line says the living costs went unpaid, in red, with the figure and what it cost", async () => {
-    // Decision 0035 (R-HOME-012): at home nothing of the living is charged as the month turns, so a broke month there
+    // Decision 0013 (R-HOME-012): at home nothing of the living is charged as the month turns, so a broke month there
     // misses no living costs at all; the unpaid line is tested on the living charged whole, as the simulation's relief tests do.
     const lived = adaBroke().endTurn().lines;
     expect(lived.some((line) => line.key === "line.obligation.missed" && line.params["obligation"] === "obligation.upkeep")).toBe(false);

@@ -47,8 +47,8 @@ function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
  */
 function chargeWords(home: PlayerView["home"]): string {
   if (home.rent === null) return phoneWords("phone.home.charge.none");
-  // R-HOME-012 (decision 0035): nothing of the living is charged as the month turns, so no figure a month is said for it;
-  // the family house says it as your share for the house (decision 0040).
+  // R-HOME-012 (decision 0013): nothing of the living is charged as the month turns, so no figure a month is said for it;
+  // the family house says it as your share for the house (decision 0018).
   if (home.rent.amount === 0) {
     const byHand = home.place === null ? null : `phone.home.charge.by-hand.${home.place}`;
     return phoneWords(byHand !== null && hasWords(byHand) ? byHand : "phone.home.charge.by-hand");
@@ -65,7 +65,7 @@ function roomRentWords(home: PlayerView["home"]): string | null {
 
 /**
  * The move's line: from the room, the move back says the year paid stays with the landlord (R-HOME-010). Where
- * living there charges nothing a month (R-HOME-012, decision 0035), the line says it is bought as
+ * living there charges nothing a month (R-HOME-012, decision 0013), the line says it is bought as
  * you go and names no figure a month.
  */
 function moveLineKey(from: HomePlace | null, to: HomePlace, monthly: number): string {

@@ -1,4 +1,4 @@
-// The days of the month (docs/rules/world.md R-WORLD-030, for the lived month, decision 0034): the day is
+// The days of the month (docs/rules/world.md R-WORLD-030, for the lived month, decision 0011): the day is
 // read from the view's `halfDays`, the share of the month's free time spent laid over four weeks; the interface keeps
 // no count of its own, so a ride or a plan moves nothing. Each month-act tells of itself in the lines content gives
 // it, each in a week of the act counted from the day after it joined the month.

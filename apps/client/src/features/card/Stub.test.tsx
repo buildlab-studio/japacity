@@ -1,5 +1,5 @@
 // The ticket stub beside the send-off card (docs/rules/share.md R-SHARE-001, R-SHARE-003, R-SHARE-004,
-// R-SHARE-009, R-SHARE-011; decision 0018): the player picks which of the two to share, one tap shares
+// R-SHARE-009, R-SHARE-011; decision 0024): the player picks which of the two to share, one tap shares
 // the one picked, and the type read at the send-off is kept with the card for the gallery and the data page.
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";

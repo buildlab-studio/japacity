@@ -1,5 +1,5 @@
 // The send-off's ticket stub (docs/rules/share.md R-SHARE-001, R-SHARE-004 to R-SHARE-006, R-SHARE-009;
-// decision 0018): a landscape card in the game's drawn hand with FROM, TO, MONTHS and JAPACITY, the type
+// decision 0024): a landscape card in the game's drawn hand with FROM, TO, MONTHS and JAPACITY, the type
 // badge and the first name, and nothing a real ticket carries: no airline, no barcode, no airport code.
 import { content, japaTypes, shareKinds, text, type JapaType } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";

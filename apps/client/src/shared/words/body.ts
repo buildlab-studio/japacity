@@ -1,4 +1,4 @@
-// The body in words (docs/rules/quality.md R-QUALITY-007; decision 0035): the band says a word only when the body
+// The body in words (docs/rules/quality.md R-QUALITY-007; decision 0011): the band says a word only when the body
 // complains, "Hungry" when the belly is low, "Tired" when the energy is, both when both; nothing otherwise, and never a
 // number, a meter or a percentage.
 import { content } from "@japacity/content";

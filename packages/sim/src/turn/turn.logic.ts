@@ -1,4 +1,4 @@
-// Turns: docs/rules/turn.md. A turn is one month. Since decision 0034 the month is lived: now-acts spend its
+// Turns: docs/rules/turn.md. A turn is one month. Since decision 0011 the month is lived: now-acts spend its
 // free days (R-TURN-010) and the bank gates nothing (it goes at the online step).
 import { bp } from "../engine/int";
 import { reject } from "../engine/reject";
@@ -41,7 +41,7 @@ export function freeHalfDays(state: State, content: Content): number {
   return state.activity.job === null ? halfDays.noJob : halfDays.withJob;
 }
 
-/** Validates `turn/end` before any phase runs (R-SETPIECE-002, R-TURN-006). The bank does not gate it (R-TURN-003, decision 0034). */
+/** Validates `turn/end` before any phase runs (R-SETPIECE-002, R-TURN-006). The bank does not gate it (R-TURN-003, decision 0011). */
 function validateEnd(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "turn/end") throw new Error(`The turn kind cannot validate ${command.type}.`);
   const { state, content } = ctx;

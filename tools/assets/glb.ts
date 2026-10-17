@@ -1,4 +1,4 @@
-// Writing and reading the shipped files (decision 0005 sections 3 and 5). A model is written with
+// Writing and reading the shipped files (decision 0009 sections 3 and 5). A model is written with
 // gltf-transform's NodeIO, compressed with meshopt, and read back the same way by the check, so the
 // register's figures are always what is in the file. Normals are left out of hard-edged models: glTF
 // asks a loader for flat normals when none are given, which is the look R-ASSET-005 wants for them.

@@ -235,7 +235,7 @@ export const cityText: Record<string, string> = {
   "city.act.look-site-bus": "Look",
   "city.act.look-site-bus.done": "The bus to the site leaves before six.",
   "city.act.send-money": "Send money home",
-  // The street's things of decision 0037 (streets.md R-STREET-011): each sheet's entries take their names from content.
+  // The street's things of decision 0012 (streets.md R-STREET-011): each sheet's entries take their names from content.
   "city.thing.suya": "Suya spot",
   "city.act.suya": "Suya",
   "city.thing.tea": "The mallam's bench",

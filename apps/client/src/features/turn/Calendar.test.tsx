@@ -1,5 +1,5 @@
 // The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018; turn.md R-TURN-006, R-TURN-010;
-// decision 0034): the month on the phone, in order, with the job, the things started carrying on until they
+// decision 0011): the month on the phone, in order, with the job, the things started carrying on until they
 // are stopped, the chores done and what they saved, and what is coming opening where it is dealt with. The month turns
 // when it is lived, so the Calendar holds no plan to fill, no pages, no Next month and no Until news.
 import { content } from "@japacity/content";
@@ -21,7 +21,7 @@ import { turnWords } from "./turn.words";
 import { carriedPlan } from "./carried";
 
 const LEARN = "activity.learn-tech" as Id<"activity">;
-// Decision 0035 (R-ACTIVITY-019): the coding course and the portfolio now answer at once and repeat, so they are never
+// Decision 0012 (R-ACTIVITY-019): the coding course and the portfolio now answer at once and repeat, so they are never
 // planned; the course that carries on as a commitment is a master's at home.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 const MEETUP = "activity.meetup" as Id<"activity">;
@@ -82,7 +82,7 @@ describe("the Calendar's month", () => {
   test("[R-WORLD-007] [R-TURN-006] given every free slot taken, when another thing is started, then it is not taken until something stops", async () => {
     const view = engineView();
     const { store } = await renderWithView(<Calendar />, view);
-    // Decision 0035: the study and time with family answer at once now, so the month is filled with commitments that carry on.
+    // Decision 0012: the study and time with family answer at once now, so the month is filled with commitments that carry on.
     const picks = [COURSE, "activity.apprentice-repair" as Id<"activity">, "activity.sleep-rough" as Id<"activity">, "activity.sleep-at-office" as Id<"activity">].slice(0, view.freeSlots);
     act(() => {
       for (const activity of picks) store.getState().addToPlan({ activity, param: null });
@@ -97,7 +97,7 @@ describe("the Calendar's month", () => {
 
   test("[R-TURN-006] [R-ACTIVITY-015] given rest, a now-act and cooking, when each is offered to the plan, then none is taken: an empty slot rests and the others are done at once", async () => {
     const { store } = await renderWithView(<Calendar />, engineView());
-    // Decision 0035 (R-ACTIVITY-019): the study and time with family are now acts too, done at once and never planned.
+    // Decision 0012 (R-ACTIVITY-019): the study and time with family are now acts too, done at once and never planned.
     for (const activity of [REST, MEETUP, COOK, WATER, LEARN, "activity.family-time" as Id<"activity">]) {
       let added = true;
       act(() => {
@@ -172,7 +172,7 @@ describe("commitments carry on", () => {
   test("[R-ACTIVITY-015] [R-WORLD-007] given a month kept on the device from before holding a now-act and cooking, when the game loads, then the plan holds only what takes the month and Next month is accepted", async () => {
     const game = newGame("scenario.ada");
     const authority = gameAuthority(game);
-    // Decision 0035 (R-ACTIVITY-019): a month kept from before may hold the coding course as it was planned then; it now
+    // Decision 0012 (R-ACTIVITY-019): a month kept from before may hold the coding course as it was planned then; it now
     // answers at once, so it is dropped with the other now-acts, and the commitment that carries on stays.
     localStorage.setItem(MONTH_KEY, JSON.stringify({ v: game.view().v, scenario: game.view().scenario, plan: [{ activity: MEETUP, param: null }, { activity: LEARN, param: null }, { activity: COOK, param: null }, { activity: COURSE, param: null }], monthLines: [], lastMonthLines: [], cardClosed: null }));
     const store = createGameStore(authority, { rememberMonth: true });
@@ -190,7 +190,7 @@ describe("commitments carry on", () => {
 
 describe("the Calendar's other sections", () => {
   test("[R-OBLIGATION-014] given Ada cooking and fetching water now, when the Calendar shows, then the chores done say what they took off this month, from the relief held on the upkeep", async () => {
-    // Decision 0035 (R-HOME-012): at home nothing of the living is charged as the month turns, so the chores take nothing
+    // Decision 0013 (R-HOME-012): at home nothing of the living is charged as the month turns, so the chores take nothing
     // off and the Calendar says no saving.
     const lived = newGame("scenario.ada");
     lived.accept({ type: "activity/now", activity: COOK, param: null });

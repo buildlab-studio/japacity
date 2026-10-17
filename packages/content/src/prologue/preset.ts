@@ -191,7 +191,7 @@ export function agedAnswers(answers: PresetAnswers, years: number): PresetAnswer
 
 /**
  * The homes the door can start a life in (R-PROLOGUE-013): the home step's answers, the four homes of R-HOME-001, in the
- * order the door offers them (decision 0040): your own room first, the hostel second, the family house last, as the
+ * order the door offers them (decision 0018): your own room first, the hostel second, the family house last, as the
  * one more reason to leave; Makoko for the child of the water alone.
  */
 export const HOMES = ["compound-room", "hostel-room", "family-house", "makoko"] as const;

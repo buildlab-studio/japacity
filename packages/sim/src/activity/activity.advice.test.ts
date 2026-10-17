@@ -170,7 +170,7 @@ describe("the licensed adviser", () => {
     expect(uk.months).toBeGreaterThanOrEqual(due - game.state.turn.month);
   });
 
-  test("[R-ADVICE-004] given cash one naira short of the fee and the rest in the bank, when the adviser is seen, then cash goes first and the bank pays the rest (decision 0012); with the naira short in both, the slot fails and nothing is paid", () => {
+  test("[R-ADVICE-004] given cash one naira short of the fee and the rest in the bank, when the adviser is seen, then cash goes first and the bank pays the rest (decision 0014); with the naira short in both, the slot fails and nothing is paid", () => {
     const game = readyLife(content, { quiet: true, pockets: { NGN: { bank: 5000000 * 100, cash: advice.adviserFee - 100 } } });
     toHeard(game);
     const result = game.endTurn([slot(ADVISER)]);

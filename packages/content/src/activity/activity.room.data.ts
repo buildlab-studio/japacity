@@ -9,7 +9,7 @@ const { room } = tuning;
 
 /**
  * Living where the drum is filled free from a tap: the room in a compound (home.md R-HOME-010), its upkeep open, or a
- * hostel room (decision 0040), its rent open.
+ * hostel room (decision 0018), its rent open.
  */
 const COMPOUND: Requirement = {
   type: "any",
@@ -32,12 +32,12 @@ const POT: ActivityEntry["effects"] = [
   { type: "quality/add", quality: "quality.standing", amount: 2 },
 ];
 
-// Each home's cooking corner carries its own acts by id, in its place file (decision 0040): the family house's
+// Each home's cooking corner carries its own acts by id, in its place file (decision 0018): the family house's
 // pot is the house's, so eating from it costs nothing and the big pot is foodstuff bought for the house; a home of your
 // own buys its meals and its pot at the price they cost. The simulation charges an act what its entry says, wherever
 // it is done; which corner offers which act is the place file's.
 export const roomActivityTable: Record<Id<"activity">, ActivityEntry> = {
-  // Food from Mama's pot at the family house, as often as you are hungry (R-ACTIVITY-019; decision 0035): the house's.
+  // Food from Mama's pot at the family house, as often as you are hungry (R-ACTIVITY-019; decision 0012): the house's.
   "activity.cook-at-home": {
     id: "activity.cook-at-home",
     slot: "none",
@@ -69,7 +69,7 @@ export const roomActivityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: POT,
     counts: [],
   },
-  // A meal of your own, bought and cooked now, in a room of your own at home (decision 0035: living by hand). It is naira,
+  // A meal of your own, bought and cooked now, in a room of your own at home (decision 0013: living by hand). It is naira,
   // so the room abroad cooks in the country's money instead (home.md R-HOME-012; in the UK
   // activity.cook-own-uk, streets.md R-STREET-012).
   "activity.cook-own": {

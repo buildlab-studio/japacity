@@ -88,7 +88,7 @@ function browserStorage(): LocalStorage | null {
   }
 }
 
-/** A save in segments, or a flat one written before saves had segments (decision 0006). */
+/** A save in segments, or a flat one written before saves had segments (decision 0004). */
 function isSave(value: unknown): value is Save | FlatSave {
   if (typeof value !== "object" || value === null) return false;
   const save = value as Record<string, unknown>;
@@ -305,7 +305,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       const result = apply(command, "player");
       if (!result.ok) return Promise.resolve(result);
       // R-CLOCK-032: a result real life makes you wait for is sealed until the next morning in Lagos.
-      // Decision 0036: a sealed result opens with the world's next morning, at most one game day away.
+      // Decision 0011: a sealed result opens with the world's next morning, at most one game day away.
       if (before !== null) envelopes = [...envelopes, ...sealFrom(before, currentView(), result.lines, nextGameMorning(now()))];
       earnTurns();
       persist();

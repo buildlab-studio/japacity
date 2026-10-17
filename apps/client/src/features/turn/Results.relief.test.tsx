@@ -29,7 +29,7 @@ function storyTexts(): string[] {
 
 describe("the room's basics on the results", () => {
   test("[R-OBLIGATION-014] given Ada cooking and fetching water in one month, when the results show, then each saving is its own story line in its own words with its figure, and neither is counted as money in", async () => {
-    // Decision 0035 (R-HOME-012): at home nothing of the living is charged as the month turns, so there is nothing for the
+    // Decision 0013 (R-HOME-012): at home nothing of the living is charged as the month turns, so there is nothing for the
     // chores to take off and the results tell no relief.
     const lived = newGame("scenario.ada").endTurn([slot("activity.cook-at-home"), slot("activity.fetch-water")]).lines;
     expect(lived.filter((line) => line.key.startsWith("line.obligation.relief."))).toEqual([]);
@@ -48,7 +48,7 @@ describe("the room's basics on the results", () => {
 
   test("[R-WORLD-008] [R-OBLIGATION-014] given the nurse's busy month (a page read, a paper asked for, a chapter closed, an offer) with food cooked and water fetched, when the results show, then both chores keep their own lines after the month's events", async () => {
     // The nurse's 25y 3m: the month's events filled the story and the water's line fell off the end.
-    // Decision 0035 (R-HOME-012): the chores' relief is told only where the living is charged, so the month is played
+    // Decision 0013 (R-HOME-012): the chores' relief is told only where the living is charged, so the month is played
     // with the living charged whole, as the simulation's relief tests do.
     const game = chargedLivingGame("scenario.ngozi", "seed-2");
     game.endTurn([slot("activity.meetup")]);

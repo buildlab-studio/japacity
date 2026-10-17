@@ -399,7 +399,7 @@ function priced(figures: RideFare, from: { latE3: number; lonE3: number } | null
 }
 
 /**
- * R-PLACE-010 (decision 0042): a farther place costs more. A way's fare is its flag-down figure plus its figure a
+ * R-PLACE-010 (decision 0017): a farther place costs more. A way's fare is its flag-down figure plus its figure a
  * kilometre times the straight-line distance between the two places, rounded up to the step (fifty naira at home, the country's step abroad), then the month's factor. A place
  * with no position stands at its flag-down figure. On foot nothing. Given the figures and the step, it prices any
  * country's way, as the view's `place.ways` carries them; given content and a way, it prices a way of Lagos.
@@ -425,7 +425,7 @@ export function rideFare(
 const ROOM: Id<"place"> = "place.the-room";
 
 /**
- * R-PLACE-012 (decision 0043): the act that buys a country's pass, the country's own now-act at its
+ * R-PLACE-012 (decision 0017): the act that buys a country's pass, the country's own now-act at its
  * station's machine. Only a country whose rides carry a `pass` figure has one; Italy has none.
  */
 const PASS_ACT: Readonly<Partial<Record<Id<"country">, Id<"activity">>>> = {
@@ -451,13 +451,13 @@ function passHeld(read: ReadCtx): boolean {
   return check(read, { type: "activity/played", activity: act }).met;
 }
 
-/** R-PLACE-012 (decision 0043): a way the country's pass covers, in a month it is bought. */
+/** R-PLACE-012 (decision 0017): a way the country's pass covers, in a month it is bought. */
 function passCovers(read: ReadCtx, rides: CountryRides, way: RideWay): boolean {
   return (rides.passWays as readonly RideWay[]).includes(way) && passHeld(read);
 }
 
 /**
- * R-PLACE-013 (decision 0043): a ride by bus to or from a place the employer's shuttle serves (the labour bus to the
+ * R-PLACE-013 (decision 0017): a ride by bus to or from a place the employer's shuttle serves (the labour bus to the
  * site, the gangmaster's van to the fields) asks no fare in any month. Every other way is priced, and no other stop is
  * covered. The ride sheet reads the same from the view's `place.shuttles`.
  */
@@ -521,7 +521,7 @@ function payRide(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>, fa
 }
 
 /**
- * R-PLACE-010 (decision 0042), R-PLACE-012 and R-PLACE-013 (decision 0043): a ride abroad,
+ * R-PLACE-010 (decision 0017), R-PLACE-012 and R-PLACE-013 (decision 0017): a ride abroad,
  * between two places of the character's country, on the country's ways or on foot. The scarcity factor is Lagos's and
  * is not applied; a way the pass covers asks nothing in a month it is bought, and the bus to or from a shuttle's stop
  * asks nothing in any month.
@@ -549,7 +549,7 @@ function rideAbroad(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>,
 }
 
 /**
- * R-PLACE-010 (decision 0011): a ride between two places of the city, at home or in the
+ * R-PLACE-010 (decision 0017): a ride between two places of the city, at home or in the
  * country the character is in. On foot there is no fare, so a character with nothing can always move. The simulation
  * keeps no place of the city, so nothing here moves; the client moves once the ride is accepted.
  */

@@ -179,7 +179,7 @@ export function momentsLeft(bond: BondView): number {
   return Math.max(0, content.tuning.people.partnerMoments - (bond.moments?.length ?? 0));
 }
 
-/** The month a declined question may be asked again, while it is still ahead (R-PEOPLE-016, decision 0009). */
+/** The month a declined question may be asked again, while it is still ahead (R-PEOPLE-016, decision 0002). */
 function coolingUntil(view: PlayerView, bond: BondView): number | null {
   return bond.cooldownUntil !== null && view.month < bond.cooldownUntil ? bond.cooldownUntil : null;
 }

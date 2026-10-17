@@ -1,6 +1,6 @@
 // The command transaction on Postgres (PGlite, the committed migrations): the
 // stores behind one handle and its one-connection lock, as one request has
-// them in production (decision 0004). The memory stores cannot show what
+// them in production (decision 0006). The memory stores cannot show what
 // these show: their world store takes no lock the player store holds.
 import { pgStores } from "@japacity/db";
 import type { PgliteConnection } from "@japacity/db/pglite";

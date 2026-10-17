@@ -1,4 +1,4 @@
-// An act that repeats, at its thing (docs/rules/activity.md R-ACTIVITY-019, R-ACTIVITY-018; decision 0035): time with
+// An act that repeats, at its thing (docs/rules/activity.md R-ACTIVITY-019, R-ACTIVITY-018; decision 0012): time with
 // Mama answers at once each time it is asked for. Her sheet, which holds her shop beside it (R-WORLD-005: a third act goes
 // on a sheet), does it now with its card's button, the card says the time in words, and it never says it counts when the
 // month ends or is ongoing; asked again, it is done again. The place file is the one the game ships; the scene is a

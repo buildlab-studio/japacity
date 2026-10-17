@@ -71,7 +71,7 @@ describe("the mail transport", () => {
     expect(box.sent[0]?.body).toMatchObject({ Subject: text["mail.passkey-added.subject"], Text: expect.stringContaining("Sun, 11 Oct 2026 09:53:00 GMT") as unknown });
   });
 
-  // A deployment sends through its MAIL binding (decision 0031); one without it sends nothing.
+  // A deployment sends through its MAIL binding (decision 0007); one without it sends nothing.
   test("[R-ACCOUNT-014] given no MAIL_TRANSPORT and no MAIL binding, when a code or a notice is sent, then the send is refused and nothing is fetched", async () => {
     const box = inbox();
     const mail = mailFor({ MAILPIT_URL: MAILPIT }, WORDS, box.fetch);
@@ -114,7 +114,7 @@ describe("the mail transport", () => {
   });
 });
 
-describe("Cloudflare Email Service, the MAIL binding (decision 0031)", () => {
+describe("Cloudflare Email Service, the MAIL binding (decision 0007)", () => {
   test("[R-ACCOUNT-014] [R-ACCOUNT-002] given the MAIL binding and no MAIL_TRANSPORT, as on a deployment, when a code is sent, then the binding gets one mail from the game's one sender, replies to the monitored inbox, to the one address, with content's subject and a text part and an HTML part that both say the code, and nothing is fetched", async () => {
     const box = inbox();
     for (const MAIL_TRANSPORT of [undefined, "", "smtp"]) {

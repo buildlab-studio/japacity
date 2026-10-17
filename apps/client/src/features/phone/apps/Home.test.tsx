@@ -19,7 +19,7 @@ import { PhoneApps } from "../PhoneApps";
 import { phoneWords } from "../phone.words";
 
 const RISK = phoneWords("phone.home.risk");
-// Decision 0035 (R-HOME-012): nothing of the living is charged as the month turns at home, so the card says it is bought as you go.
+// Decision 0013 (R-HOME-012): nothing of the living is charged as the month turns at home, so the card says it is bought as you go.
 const BY_HAND = phoneWords("phone.home.charge.by-hand");
 const RENT = content.tuning.home.makokoUpkeep;
 const ADA_UPKEEP = content.scenario["scenario.ada"]!.obligations.find((owed) => owed.obligation === "obligation.upkeep")!.amount;
@@ -51,8 +51,8 @@ describe("the home card", () => {
     const { card, unmount } = await openBills(game);
     const said = card()?.textContent ?? "";
     expect(said).toContain(phoneWords("phone.home.place.place.family-house"));
-    // Decision 0035: the family's living is bought as you go, so its scenario figure is no charge on the card; the family
-    // house says it as your share for the house, with Papa paying the rest (decision 0040).
+    // Decision 0013: the family's living is bought as you go, so its scenario figure is no charge on the card; the family
+    // house says it as your share for the house, with Papa paying the rest (decision 0018).
     expect(said).toContain(phoneWords("phone.home.charge.by-hand.place.family-house"));
     expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
     expect(moveButton("place.makoko")?.disabled).toBe(false);
@@ -76,7 +76,7 @@ describe("the home card", () => {
     expect(game.state.home.place).toBe("place.makoko");
     const said = card()?.textContent ?? "";
     expect(said).toContain(phoneWords("phone.home.place.place.makoko"));
-    // Decision 0035: R-HOME-012 leaves Makoko's upkeep uncharged as the month turns, so the card says the engine's charge,
+    // Decision 0013: R-HOME-012 leaves Makoko's upkeep uncharged as the month turns, so the card says the engine's charge,
     // nothing a month, as living bought as you go; the room's figure was paid on the move.
     expect(game.view().home.rent).toEqual({ currency: "NGN", amount: 0 });
     expect(said).toContain(BY_HAND);
@@ -121,7 +121,7 @@ describe("the home card", () => {
     game.endTurn();
     const opens = content.prologue["home"]?.answers.find((answer) => answer.id === "family-house")?.effects.find((effect) => effect.type === "obligation/open");
     if (opens?.type !== "obligation/open" || typeof opens.amount !== "number") throw new Error("The home card's family house opens no upkeep.");
-    // Decision 0035 (R-HOME-012): the family house's upkeep opens at the page's figure, but the engine charges none of it
+    // Decision 0013 (R-HOME-012): the family house's upkeep opens at the page's figure, but the engine charges none of it
     // as the month turns, so the move back names no figure a month and says the living is bought as you go.
     expect(opens.amount).toBeGreaterThan(0);
     expect(game.view().home.moves.find((move) => move.to === "place.family-house")?.monthly.amount).toBe(0);
@@ -140,7 +140,7 @@ describe("the home card", () => {
     const year = formatMoney(home.compound.rentYear, "NGN");
     const first = await openBills(game);
     expect(document.querySelector("[data-home-rent-year]")?.textContent).toBe(`Rent ${year} a year, next in 11 months`);
-    // Decision 0035: the room's living is bought as you go; its rent a year stays on its own line.
+    // Decision 0013: the room's living is bought as you go; its rent a year stays on its own line.
     expect(document.querySelector("[data-home-charge]")?.textContent).toBe(BY_HAND);
     expect(document.querySelector("[data-home-card]")?.textContent).not.toContain(formatMoney(home.compound.upkeep, "NGN"));
     first.unmount();
@@ -181,7 +181,7 @@ describe("the home card", () => {
     const game = newGame();
     const { unmount } = await openBills(game);
     expect(document.querySelector("[data-home-rent-year]")).toBeNull();
-    // Decision 0035: the family house's living is bought as you go (food, water, fares), with no figure a month.
+    // Decision 0013: the family house's living is bought as you go (food, water, fares), with no figure a month.
     expect(document.querySelector("[data-home-charge]")?.textContent).toBe("Your share for the house is what you buy as you go: foodstuff for the pot, water, fares. Papa pays the rest.");
     unmount();
   });
@@ -195,8 +195,8 @@ describe("the home card", () => {
     fireEvent.click(moveButton("place.family-house")!);
     const said = document.body.textContent ?? "";
     expect(said).toContain("The year's rent stays with the landlord.");
-    // Decision 0035: back home the living is bought as you go, so the move names no figure a month for it; the house says
-    // it as your share, with Papa paying the rest (decision 0040).
+    // Decision 0013: back home the living is bought as you go, so the move names no figure a month for it; the house says
+    // it as your share, with Papa paying the rest (decision 0018).
     expect(said).toContain("Back home: a free roof and Mama's pot. Your share for the house is what you buy as you go, and Papa pays the rest.");
     expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
     unmount();
@@ -224,7 +224,7 @@ describe("the room in a compound on the card (R-HOME-010)", () => {
     expect(button?.textContent).toBe(`${phoneWords("phone.home.move.place.compound-room")}: ${formatMoney(MOVE_IN, "NGN")}`);
     fireEvent.click(button!);
     const asked = document.querySelector("[data-ask]")?.textContent ?? document.body.textContent ?? "";
-    // Decision 0035: the ask says the year and fees taken now, and that the living is bought as you go, with no figure a month.
+    // Decision 0013: the ask says the year and fees taken now, and that the living is bought as you go, with no figure a month.
     expect(asked).toContain(phoneWords("phone.home.move.line.place.compound-room.by-hand", { now: { currency: "NGN", amount: MOVE_IN } }));
     expect(asked).toContain(formatMoney(MOVE_IN, "NGN"));
     expect(asked).not.toContain(formatMoney(LIVING, "NGN"));
@@ -236,7 +236,7 @@ describe("the room in a compound on the card (R-HOME-010)", () => {
     expect(game.state.home.place).toBe("place.compound-room");
     const said = card()?.textContent ?? "";
     expect(said).toContain(phoneWords("phone.home.place.place.compound-room"));
-    // Decision 0035: the room's charge is its rent a year; its living is bought as you go.
+    // Decision 0013: the room's charge is its rent a year; its living is bought as you go.
     expect(said).toContain(formatMoney(content.tuning.home.compound.rentYear, "NGN"));
     expect(said).toContain(BY_HAND);
     expect(said).not.toContain(formatMoney(LIVING, "NGN"));

@@ -1,4 +1,4 @@
-// The deployment's dependencies on Postgres (decision 0004): a new `pg`
+// The deployment's dependencies on Postgres (decision 0006): a new `pg`
 // client for each request through the Hyperdrive configuration with caching
 // off, opened by the first statement a store or the auth library sends
 // (R-SERVER-002), every store over it, the presence and
@@ -41,7 +41,7 @@ export interface Isolate {
 }
 
 export interface IsolateBindings {
-  /** The Hyperdrive configuration with caching off (decision 0004: game state is never read from a cache). */
+  /** The Hyperdrive configuration with caching off (decision 0006: game state is never read from a cache). */
   connectionString: string;
   place: DurableObjectNamespace<Place>;
 }

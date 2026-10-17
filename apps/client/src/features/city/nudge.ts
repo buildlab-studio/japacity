@@ -362,7 +362,7 @@ const STEP_ACTIVITY_ALSO: Record<string, readonly string[]> = {
 
 type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities" | "goals" | "plan" | "rates">>;
 
-/** A result sealed until the world's next morning (R-CLOCK-032, decision 0036): "Comes in the morning". */
+/** A result sealed until the world's next morning (R-CLOCK-032, decision 0011): "Comes in the morning". */
 export const MORNING = "ui.wait.morning";
 
 /** The nudge that sends a waiting life to the board for better pay. */
@@ -897,7 +897,7 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   return { key: "ui.nudge.end", about: "end" };
 }
 
-/** The night's nudge (clock.md R-CLOCK-033; world.md R-WORLD-025; decision 0036). */
+/** The night's nudge (clock.md R-CLOCK-033; world.md R-WORLD-025; decision 0011). */
 export const NIGHT = "ui.nudge.night";
 
 /**

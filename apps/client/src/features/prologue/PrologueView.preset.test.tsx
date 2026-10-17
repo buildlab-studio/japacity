@@ -1,5 +1,5 @@
 // The prologue's preset played by the server in one request (prologue.md R-PROLOGUE-010, server.md
-// R-SERVER-046, decision 0044): online, Begin sends the tile, the age step and the home once, and the page fills from the
+// R-SERVER-046, decision 0008): online, Begin sends the tile, the age step and the home once, and the page fills from the
 // reply's trail, its chips coming on one after another over about two seconds; offline each answer still goes at once,
 // from the same content function.
 import { presetAnswer } from "@japacity/content";

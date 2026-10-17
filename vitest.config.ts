@@ -34,7 +34,7 @@ const unusedPostgres = "postgres://test:test@127.0.0.1:5432/test";
 process.env.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_GAME_DB ??= unusedPostgres;
 // pg's CommonJS requires pg-protocol, which the Workers pool resolves to its ES wrapper (a .js file in a
 // package without "type": "module") and then loads as CommonJS. Its CommonJS build is named instead
-// (decision 0004: node-postgres through Hyperdrive). deps.optimizer.ssr.include does not reach that path.
+// (decision 0006: node-postgres through Hyperdrive). deps.optimizer.ssr.include does not reach that path.
 const fromPg = createRequire(createRequire(new URL("./packages/db/package.json", import.meta.url)).resolve("pg"));
 const pgProtocolCommonJs = fromPg.resolve("pg-protocol");
 process.env.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_CACHED_DB ??= unusedPostgres;
@@ -106,7 +106,7 @@ export default defineConfig({
         },
       },
       {
-        // The Workers runtime, for the place object (decision 0004 section 5). Sockets to a
+        // The Workers runtime, for the place object (decision 0006 section 5). Sockets to a
         // Durable Object need one worker and no isolation: the plugin's known issue, linked there.
         plugins: [
           cloudflareTest({

@@ -27,7 +27,7 @@ const MOVE_IN = home.compound.rentYear + bp(home.compound.rentYear, home.compoun
 const ADA_UPKEEP = content.scenario["scenario.ada"]!.obligations.find((owed) => owed.obligation === FAMILY_UPKEEP)!.amount;
 /** No eviction from Makoko, so a draw on the water never muddies a month. */
 const QUIET: Content = applyOverlay(content, { version: "test-compound-quiet", tuning: { home: { evictionBp: 0 } } });
-/** Decision 0035 lives the living by hand at home; the tests that read the room's upkeep charge itself charge it whole. */
+/** Decision 0013 lives the living by hand at home; the tests that read the room's upkeep charge itself charge it whole. */
 const CHARGED: Content = { ...QUIET, tuning: { ...QUIET.tuning, home: { ...QUIET.tuning.home, livingByHandBp: 0 } } };
 
 function ada(base: Content = QUIET): Game {

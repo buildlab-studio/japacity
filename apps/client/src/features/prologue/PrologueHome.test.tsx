@@ -71,7 +71,7 @@ describe("the page's home", () => {
     await renderWithView(<PageHandover onDone={() => undefined} />, view);
     const home = document.querySelector("[data-starts-in] [data-fact='home']");
     expect(document.querySelector("[data-starts-in]")?.getAttribute("data-starts-in")).toBe("makoko");
-    // Decision 0035 (R-HOME-012): nothing of the room's upkeep is taken as the month turns, so the page names no figure
+    // Decision 0013 (R-HOME-012): nothing of the room's upkeep is taken as the month turns, so the page names no figure
     // for next month and says the living is bought as you go.
     expect(home?.textContent).toBe(`${say("ui.page.home.makoko")}${say("ui.page.home.by-hand")}`);
     expect(home?.textContent).toBe("You start in a room on the water, MakokoFood, water and fares as you go");

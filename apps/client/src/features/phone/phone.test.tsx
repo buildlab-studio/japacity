@@ -107,7 +107,7 @@ describe("the handset", () => {
     expect(phone?.getAttribute("data-grown")).toBe("true");
     // Grown, the handset is laid out at the screen's width, straight, and gets there by one transform from the box it
     // left, never by animating its edges (R-WORLD-023). The width is the screen's up to the centred column's
-    // (decision 0038), so on a phone the whole screen and on a laptop the
+    // (decision 0025), so on a phone the whole screen and on a laptop the
     // column of phone width the band and the thumbs stand in.
     const handset = document.querySelector("[data-handset]");
     expect(handset?.className).toContain("w-[calc(100%-16px)]");
@@ -356,7 +356,7 @@ describe("what the phone carries", () => {
 });
 
 describe("settings", () => {
-  test("[R-WORLD-021] given Settings, when it opens, then it offers no choice of look: the game has one, painted by the world's clock (decision 0038)", async () => {
+  test("[R-WORLD-021] given Settings, when it opens, then it offers no choice of look: the game has one, painted by the world's clock (decision 0025)", async () => {
     await openPhone(engineView());
     openApp("settings");
     expect(screen.queryByRole("radio", { name: "Danfo" })).toBeNull();

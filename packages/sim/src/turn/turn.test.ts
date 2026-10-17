@@ -81,7 +81,7 @@ describe("turns", () => {
     expect(game.state.turn.month).toBe(2);
   });
 
-  test("[R-TURN-003] given no turn banked, when the turn is ended, then the month turns, as the bank gates nothing (decision 0034)", () => {
+  test("[R-TURN-003] given no turn banked, when the turn is ended, then the month turns, as the bank gates nothing (decision 0011)", () => {
     const game = start();
     for (let i = 0; i < tuning.start; i += 1) game.endTurn();
     expect(game.state.turn.banked).toBe(0);

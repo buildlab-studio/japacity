@@ -27,7 +27,7 @@ export function ThumbBar({ onMap, onPhone, phoneWaiting, hidden = false, onTurn,
       aria-hidden={hidden}
       data-thumb-bar
     >
-      {/* On a laptop the thumbs stand at the column's two sides, not the screen's (decision 0038). */}
+      {/* On a laptop the thumbs stand at the column's two sides, not the screen's (decision 0025). */}
       <CentredColumn className="flex items-end justify-between">
         <ThumbButton label={say("ui.world.map")} onClick={onMap} id="map">
           <ThumbPicture emoji="🗺️" />

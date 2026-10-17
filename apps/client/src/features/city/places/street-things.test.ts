@@ -1,4 +1,4 @@
-// The street's things of decision 0037 (docs/rules/streets.md R-STREET-011; world.md R-WORLD-005): the suya spot
+// The street's things of decision 0012 (docs/rules/streets.md R-STREET-011; world.md R-WORLD-005): the suya spot
 // and the mallam's bench on Ojuelegba, the barber, the viewing centre and the joint on Bode Thomas, the clothes stall
 // at Tejuosho. Each stands on the pavement as a model the player taps, opens the act content stages there, and keeps
 // the hours the world's clock gives it (clock.md R-CLOCK-033). Bode Thomas's whole frontage is checked in cargo.test.ts;

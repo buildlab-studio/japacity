@@ -316,7 +316,7 @@ function addMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * R-WALLET-018 (decision 0022): the pocket a naira credit of work, a gig, a prize or the prologue's earnings lands
+ * R-WALLET-018 (decision 0014): the pocket a naira credit of work, a gig, a prize or the prologue's earnings lands
  * in, and the pocket a street debit is taken from first, by its size. Small money changes hands as cash; past
  * the line people ask for a transfer.
  */
@@ -338,7 +338,7 @@ function takeEvents(state: State, content: Content, currency: Currency, from: "a
   const pocket = state.wallet.pockets[currency];
   // The street: cash first at or under the line, the bank first above it (R-WALLET-018, "Pockets" in wallet.md).
   if (from === "any") return takeInOrder(currency, pocketFor(amount, content.tuning.wallet), amount, pocket, reason);
-  // A transfer: the bank first, then cash (decision 0012).
+  // A transfer: the bank first, then cash (decision 0014).
   if (from === "transfer") return takeInOrder(currency, "bank", amount, pocket, reason);
   if (pocket[from] < amount) return null;
   return [debit(currency, from, amount, reason)];
@@ -572,7 +572,7 @@ function settle(ctx: Ctx): BaseEvent[] {
 }
 
 // ---------------------------------------------------------------------------
-// The months kept: decision 0021
+// The months kept: decision 0024
 // ---------------------------------------------------------------------------
 
 /** The money of the place: naira at home and on the road, the country's own abroad, as the results sheet reads it. */
@@ -584,7 +584,7 @@ function placeCurrency(state: State, content: Content): Currency {
 
 /**
  * Money that is not the month's own on the results sheet (R-WORLD-008): a move between pockets is the
- * same money, a change of money is a move between currencies (decision 0021: what is done with
+ * same money, a change of money is a move between currencies (decision 0024: what is done with
  * it afterwards is the spending), and held funds only sit locked from the day they land to the day they go back.
  */
 const NOT_THE_MONTHS: ReadonlySet<Reason> = new Set<Reason>(["move", "convert", "held-funds", "held-funds-return"]);

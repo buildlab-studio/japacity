@@ -8,7 +8,7 @@
   "name": "japacity-server",
   "main": "src/index.ts",
   "compatibility_date": "2026-09-01",
-  // Better Auth and node-postgres need the Node compatibility layer (decision 0004, section 1).
+  // Better Auth and node-postgres need the Node compatibility layer (decision 0006, section 1).
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
   "preview_urls": false,
@@ -59,7 +59,7 @@
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Place"] }],
   // Game state goes through a configuration with caching off; only the world's
   // ticks and the auth library may use the cached one (design 05, section 7).
-  // Decision 0004: every request opens one client through GAME_DB and closes it after the reply.
+  // Decision 0006: every request opens one client through GAME_DB and closes it after the reply.
   // Secrets, set with `wrangler secret put <NAME>` and never written here:
   // WORLD_SEED, BAN_SALT, DRAW_TOKEN_KEY, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
   // TURNSTILE_SECRET_KEY, ADMIN_ACCOUNTS (R-SERVER-012: the admin list, never a var here), and for the bank-full
@@ -73,7 +73,7 @@
     // (R-SERVER-039), because reading a tick may store a missing one, a write a cached configuration must not serve.
     { "binding": "CACHED_DB", "id": "d5b2792f9d3f46fcb79bf6aa79ad5802" }
   ],
-  // R-ACCOUNT-014, decision 0031: the email codes and the notices leave through Cloudflare Email Service, from
+  // R-ACCOUNT-014, decision 0007: the email codes and the notices leave through Cloudflare Email Service, from
   // the sending subdomain onboarded for it. The binding may send from the game's one sender and no other
   // address (SENDER in src/mail/mail.ts, held equal by its test). It needs no secret.
   "send_email": [{ "name": "MAIL", "allowed_sender_addresses": ["game@mail.japacity.app"] }],

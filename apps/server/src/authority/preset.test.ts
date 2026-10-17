@@ -1,4 +1,4 @@
-// The prologue's preset played by the server in one request (server.md R-SERVER-046, decision 0044; R-SERVER-002,
+// The prologue's preset played by the server in one request (server.md R-SERVER-046, decision 0008; R-SERVER-002,
 // R-SERVER-025): Begin sends the tile, the age step and the home, and the server steps `prologue/choose` with content's
 // answer at each card in one transaction, a log row a step, until the prologue closes.
 import { presetAnswer } from "@japacity/content";

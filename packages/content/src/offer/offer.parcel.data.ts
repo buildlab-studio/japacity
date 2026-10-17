@@ -31,7 +31,7 @@ const GIVES: Record<(typeof THINGS)[number], Effect[]> = {
   food: [{ type: "obligation/relief", obligationType: "upkeep", bp: room.cookedBp }],
 };
 
-/** The clerk's charge, cash first then the bank (decision 0012), the same for every thing. */
+/** The clerk's charge, cash first then the bank (decision 0014), the same for every thing. */
 const HANDLING: Effect = { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "handling" }, reason: "upkeep" };
 
 function choice(sender: (typeof SENDERS)[number], thing: (typeof THINGS)[number]): OfferChoice {

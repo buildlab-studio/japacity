@@ -1,4 +1,4 @@
-// The months kept (decision 0021, world.md R-WORLD-008): as each month closes, the wallet counts it as kept
+// The months kept (decision 0024, world.md R-WORLD-008): as each month closes, the wallet counts it as kept
 // when its net in the money of the place was above zero, from the same ledger the results sheet reads.
 // Read on the recorded lives and on months played from them.
 import { content } from "@japacity/content";
@@ -13,7 +13,7 @@ import { finishPrologue, start } from "../testing/play";
 import type { WalletEvent } from "./wallet.events";
 
 type Closed = Extract<WalletEvent, { type: "wallet/month-closed" }>;
-/** A meal bought and eaten at once (R-HOME-012, decision 0035). */
+/** A meal bought and eaten at once (R-HOME-012, decision 0013). */
 // A meal bought is a meal of your own: the family house's pot is free.
 const MEAL: Id<"activity"> = "activity.cook-own";
 
@@ -56,7 +56,7 @@ function upToMonth(name: string, month: number): number {
   return at + 1;
 }
 
-/** What a month's net leaves out: moves between pockets, a change's two sides (decision 0021) and held funds. */
+/** What a month's net leaves out: moves between pockets, a change's two sides (decision 0024) and held funds. */
 const NOT_COUNTED: readonly string[] = ["move", "convert", "held-funds", "held-funds-return"];
 
 /** The net of a step's own money in one currency, moves between pockets, a change's two sides and held funds aside. */
@@ -104,7 +104,7 @@ describe("the months kept", () => {
     expect(game.view().keptMonths).toBe(0);
     expect(game.state.wallet).not.toHaveProperty("keptMonths");
     expect(game.state.wallet).not.toHaveProperty("monthNet");
-    // Resting months at home: the living costs go out and nothing comes in. Since decision 0035 the living is paid by hand
+    // Resting months at home: the living costs go out and nothing comes in. Since decision 0013 the living is paid by hand
     // as it is lived, so each month eats a meal bought then; no living is charged as the month turns.
     for (let month = 0; month < 3; month += 1) {
       game.accept({ type: "activity/now", activity: MEAL, param: null });
@@ -176,7 +176,7 @@ describe("the months kept", () => {
     const earned = Object.entries(game.state.wallet.totals.in).filter(([reason]) => reason !== "opening");
     expect(earned.length).toBeGreaterThan(0);
     expect(game.state.wallet.monthNet ?? {}).toEqual({});
-    // Since decision 0035 nothing is charged as a month at home turns, so the first month moves money by a meal bought then.
+    // Since decision 0013 nothing is charged as a month at home turns, so the first month moves money by a meal bought then.
     game.accept({ type: "activity/now", activity: MEAL, param: null });
     const closed = closedOf(game.endTurn());
     expect(closed).toBeDefined();

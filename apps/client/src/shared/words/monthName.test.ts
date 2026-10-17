@@ -1,4 +1,4 @@
-// The month's name the band carries (docs/rules/world.md R-WORLD-002; decision 0034): month 0 of a life is the month of
+// The month's name the band carries (docs/rules/world.md R-WORLD-002; decision 0011): month 0 of a life is the month of
 // the year it began in, in Lagos. The month's phase by its free time spent, read where it is still needed, and the
 // world's part of the day the band says beside the name (clock.md R-CLOCK-033), in words only.
 import { describe, expect, test } from "vitest";

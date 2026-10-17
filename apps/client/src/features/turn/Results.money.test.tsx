@@ -46,7 +46,7 @@ function scammerGame(): { game: Game; offer: string; fee: number } {
 
 describe("what the results count", () => {
   test("[R-WORLD-008] given a life with no money for its upkeep, when the month ends, then the missed bill is told but what was kept is what really moved", () => {
-    // Decision 0035 (R-HOME-012): at home the living is charged nothing as the month turns, so a bill to miss is made by
+    // Decision 0013 (R-HOME-012): at home the living is charged nothing as the month turns, so a bill to miss is made by
     // charging it whole, as the simulation's relief tests do.
     const game = chargedLivingGame("scenario.ada");
     const pocket = game.state.wallet.pockets.NGN;

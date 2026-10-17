@@ -6,7 +6,7 @@ name: japacity
 
 services:
   postgres:
-    # The same major version as the deployments' Neon branches (decision 0004).
+    # The same major version as the deployments' Neon branches (decision 0006).
     image: postgres:18
     environment:
       POSTGRES_DB: japacity

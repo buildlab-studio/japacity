@@ -1,4 +1,4 @@
-// The sky and the sun by the world's clock (docs/rules/clock.md R-CLOCK-033; decision 0036): a dark view at
+// The sky and the sun by the world's clock (docs/rules/clock.md R-CLOCK-033; decision 0011): a dark view at
 // night, a sunset, a morning and normal brightness by day. Each place keeps its one sun
 // and its one sky light (R-ASSET-006); the part of the world's day and the minute within it only turn the sun, tint both
 // lights and the sky, and light the lamps a place names. The same rule indoors and out, in every place. Pure but for the

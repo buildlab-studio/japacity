@@ -19,7 +19,7 @@ const OTHER = "activity.job-teacher" as Id<"activity">;
 /** Ada in the UK with the shop job offered, and a second offer beside it. */
 function twoOffers() {
   const game = abroadGame();
-  // Decision 0035: in the re-recorded life the hunt misses its first months, and landed with no pounds the unpaid dues
+  // Decision 0013: in the re-recorded life the hunt misses its first months, and landed with no pounds the unpaid dues
   // would take her student status, and the shop job with it, before an offer comes. So each month's pound dues are
   // covered before she hunts, and she stays a student who may work part time.
   for (let month = 0; month < 24 && !game.view().offers.some((offer) => offer.terms.job === SHOP); month += 1) {

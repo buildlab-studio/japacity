@@ -1,5 +1,5 @@
-// The japa type read from the view at the send-off (decision 0018; docs/rules/share.md R-SHARE-001,
-// R-SHARE-004, R-SHARE-005): one of six labels from the way out, the months kept (decision 0021), the
+// The japa type read from the view at the send-off (decision 0024; docs/rules/share.md R-SHARE-001,
+// R-SHARE-004, R-SHARE-005): one of six labels from the way out, the months kept (decision 0024), the
 // risks taken and how home was held. Read from the recorded lives and a trader's tile played into her shop.
 import { content, japaTypes, text } from "@japacity/content";
 import type { FlatSave, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
@@ -44,7 +44,7 @@ function adaDoing(topActivities: Card["topActivities"], change: Partial<PlayerVi
 
 /**
  * Ada at her send-off with her standing brought to the middle and her job alone as the thing done most, so no reading
- * comes before the one each test sets. Decision 0035: study and time with the family are counted each time they are done
+ * comes before the one each test sets. Decision 0012: study and time with the family are counted each time they are done
  * now, so her re-recorded things done most lead with them; left as they are, they would read before the test's change.
  */
 function adaPlain(): PlayerView {
@@ -108,7 +108,7 @@ describe("the japa type, read at the send-off", () => {
         shown.push({ month: view.month, kept: lines.length > 0 && net > 0, counted: view.keptMonths - before });
         month = [];
       }
-      // A month abroad in which only the naira at home moved (a family ask paid from home, decision 0037's arrivals) shows no
+      // A month abroad in which only the naira at home moved (a family ask paid from home, decision 0012's arrivals) shows no
       // pounds figure and is not counted; the sheet's main figure is in the money of the place whenever money moved there.
       expect({ name, countedEarly }).toEqual({ name, countedEarly: [] });
       for (const at of otherMoney) expect(shown.find((entry) => entry.month === at)).toMatchObject({ kept: false, counted: 0 });
@@ -118,20 +118,20 @@ describe("the japa type, read at the send-off", () => {
   });
 
   test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan, Ada and Tunde are family anchors and Zainab the long way round (a return)", () => {
-    // Decisions 0036 and 0037: the card reads a repeat act's taps as months, so study does not
+    // Decisions 0011 and 0012: the card reads a repeat act's taps as months, so study does not
     // lead the things done most. Aniekan's refusals are on the Gulf contract, not the way he took; the junior
     // developer's job leads his things done most, and with no reading before it his standing makes him the family anchor.
     const aniekan = sendOff("aniekan-borrower");
     expect(aniekan.routes.find((route) => route.id === aniekan.card!.route)?.refusals ?? 0).toBe(0);
     expect(aniekan.card!.topActivities[0]).toBe("activity.job-junior-dev");
     expect(japaTypeOf(aniekan)).toBe("family-anchor");
-    // Ada (seed golden-ada-0): her standing ends high, 91 with decision 0037's arrivals, with time with the
+    // Ada (seed golden-ada-0): her standing ends high, 91 with decision 0012's arrivals, with time with the
     // family first among the things done most, so she is the family anchor before the careful saver her kept months would make her.
     const ada = sendOff("ada-careful");
     expect(ada.card).toMatchObject({ months: 28, standing: 91 });
     expect(ada.card!.topActivities[0]).toBe("activity.family-time");
     expect(japaTypeOf(ada)).toBe("family-anchor");
-    // Tunde: time with the family leads his things done most under decision 0037 (gist takes no time, so his
+    // Tunde: time with the family leads his things done most under decision 0012 (gist takes no time, so his
     // lived months hold more of it), the senior bank job behind it; no reading before the family anchor holds.
     const tunde = sendOff("tunde-borrower");
     expect(tunde.card!.topActivities[0]).toBe("activity.family-time");
@@ -170,7 +170,7 @@ describe("the japa type, read at the send-off", () => {
     expect(japaTypeOf({ ...ada, place: { ...ada.place, returns: [{ month: 6, shape: "broke", country: "country.uk" }] } })).toBe("long-way-round");
     // The way taken refused once before it was granted.
     expect(japaTypeOf({ ...ada, routes: ada.routes.map((route) => (route.id === ada.card!.route ? { ...route, refusals: 1 } : route)) })).toBe("long-way-round");
-    // A refusal on another way is not the way taken. Decision 0035: Ada's re-recorded life is never refused, so the
+    // A refusal on another way is not the way taken. Decision 0013: Ada's re-recorded life is never refused, so the
     // refusal is set on another way here.
     expect(ada.card!.route).not.toBe("route.uk-talent");
     expect(japaTypeOf({ ...ada, routes: ada.routes.map((route) => (route.id === "route.uk-talent" ? { ...route, refusals: 1 } : route)) })).not.toBe("long-way-round");
@@ -188,7 +188,7 @@ describe("the japa type, read at the send-off", () => {
     // Study first.
     expect(japaTypeOf(adaDoing(["activity.learn-tech", "activity.job-junior-dev"]))).toBe("night-reader");
     expect(japaTypeOf(adaDoing(["activity.job-junior-dev", "activity.study-english"]))).toBe("night-reader");
-    // Ada as she went, plain: decision 0035's re-recorded life kept two thirds of her months and more, and none of the
+    // Ada as she went, plain: decision 0013's re-recorded life kept two thirds of her months and more, and none of the
     // readings before holds: the careful saver. One month under two thirds is the hustler, below.
     expect(ada.keptMonths * 3).toBeGreaterThanOrEqual(ada.card!.months * 2);
     expect(japaTypeOf(ada)).toBe("careful-saver");

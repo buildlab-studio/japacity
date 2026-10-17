@@ -1,4 +1,4 @@
-// The month lived by hand in a browser test (docs/rules/world.md R-WORLD-025, R-WORLD-030; decision 0036): the bed's
+// The month lived by hand in a browser test (docs/rules/world.md R-WORLD-025, R-WORLD-030; decision 0011): the bed's
 // Sleep turns the month, the results open over the scene, and Back returns to the place. The address's `?sleep=<seconds>`
 // shortens the sleep and `?morning=now` opens every sealed result at once (R-CLOCK-032), both read by a development build
 // only, which the suite's server is. The phone's apps are opened from the Phone thumb.
@@ -36,7 +36,7 @@ export async function passHomeTeach(page: Page, timeout = 4000): Promise<void> {
  */
 async function tapThing(page: Page, thing: string): Promise<void> {
   const mark = page.locator(`[data-mark="${thing}"]`);
-  // A wide home eased in on one room hides the things of the others, or leaves their marks under the band (decision 0040):
+  // A wide home eased in on one room hides the things of the others, or leaves their marks under the band (decision 0018):
   // the whole house first, as a player would, then the thing, which eases in on its own room.
   const whole = page.getByRole("button", { name: "See the whole place" });
   if (await whole.isVisible().catch(() => false)) {
@@ -107,7 +107,7 @@ export async function fanAct(page: Page, thing: string, activity: string): Promi
   await button.click({ timeout: 10_000 });
 }
 
-/** The bed's mark in whichever home the life is in: the family's mattress, the room's bed, the hostel's bunk (decision 0040). */
+/** The bed's mark in whichever home the life is in: the family's mattress, the room's bed, the hostel's bunk (decision 0018). */
 const BED_MARKS = '[data-mark="mattress"], [data-mark="bed"], [data-mark="bunk"]';
 
 /** The bed's thing id in this home, read from its mark; the family's mattress when none is drawn yet. */
@@ -118,7 +118,7 @@ export async function bedThing(page: Page): Promise<string> {
 }
 
 /**
- * To the home's bed: a wide home is seen whole, so the bed stands in view (decision 0040); an older place with a yard and a
+ * To the home's bed: a wide home is seen whole, so the bed stands in view (decision 0018); an older place with a yard and a
  * house door (R-WORLD-013) is entered first. Nothing when the bed already shows.
  */
 export async function intoTheRoom(page: Page): Promise<void> {

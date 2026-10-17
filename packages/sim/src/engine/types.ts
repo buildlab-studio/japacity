@@ -28,7 +28,7 @@ export type KindName =
   | "news"
   | "var"
   | "scenario"
-  // The whole life: docs/decisions/0003-whole-life-contract.md.
+  // The whole life: docs/decisions/0001-the-contract-carries-the-whole-life.md.
   | "place"
   | "status"
   | "credit"
@@ -77,13 +77,13 @@ export type Reason =
   | "fee-visa"
   | "fee-surcharge"
   | "fee-agent"
-  /** A licensed adviser's fee (docs/rules/advice.md R-ADVICE-004, decision 0011), a sink. */
+  /** A licensed adviser's fee (docs/rules/advice.md R-ADVICE-004), a sink. */
   | "fee-advice"
-  /** A meal or the water bought and eaten today (R-HOME-012, decision 0035), a sink. */
+  /** A meal or the water bought and eaten today (R-HOME-012, decision 0013), a sink. */
   | "food"
   /** Foodstuff bought for the family house's pot, the share a child at home gives, a sink. */
   | "foodstuff"
-  /** Enjoyment and spending on the street, paid as it is had (R-STREET-011, decision 0037), a sink. */
+  /** Enjoyment and spending on the street, paid as it is had (R-STREET-011, decision 0012), a sink. */
   | "enjoyment"
   | "bank-charge"
   | "loan-repay"
@@ -111,7 +111,7 @@ export type Reason =
   | "build"
   /** A lottery, bet or draw win (docs/rules/luck.md). Never flagged: a letter explains it. */
   | "win"
-  /** Decision 0010: credited by nothing, its ceiling in the money report zero. Kept so earlier ledger rows and saves still read. */
+  /** Decision 0016: credited by nothing, its ceiling in the money report zero. Kept so earlier ledger rows and saves still read. */
   | "pot-top-up"
   /** A lottery ticket bought (docs/rules/lottery.md), a sink. */
   | "ticket"
@@ -311,7 +311,7 @@ export interface RequirementResult {
 export type Effect =
   // wallet
   | { type: "money/add"; currency: Currency; pocket: Pocket; amount: Amount; reason: Reason; flagged?: boolean; locked?: boolean }
-  /** `any`: the street, cash first at or under `tuning.wallet.cashUpTo` and bank first above it (R-WALLET-018); `transfer`: bank first, then cash (decision 0012: how Lagos pays by transfer, and abroad by tap). */
+  /** `any`: the street, cash first at or under `tuning.wallet.cashUpTo` and bank first above it (R-WALLET-018); `transfer`: bank first, then cash (decision 0014: how Lagos pays by transfer, and abroad by tap). */
   | { type: "money/take"; currency: Currency; pocket: Pocket | "any" | "transfer" | "locked"; amount: Amount; reason: Reason }
   /** Pay a foreign-currency fee from whatever the character holds: see R-WALLET-009. */
   | { type: "money/pay-fee"; currency: ForeignCurrency; amount: Amount; reason: Reason }
@@ -333,7 +333,7 @@ export type Effect =
   | { type: "document/void"; document: Id<"document"> }
   // route
   | { type: "route/hear"; route: Id<"route">; chanceBp?: number; via: string }
-  /** Looks into a route heard of. `route` names it (decision 0025); without it, the slot's param or a string term does. */
+  /** Looks into a route heard of. `route` names it (decision 0001); without it, the slot's param or a string term does. */
   | { type: "route/look-into"; route?: Id<"route"> }
   | { type: "route/apply-school" } // the slot's param names the school
   | { type: "route/apply"; route: Id<"route"> }
@@ -933,7 +933,7 @@ export interface PlaceEntry {
   traditionalBp: number;
   /** The folder under `public/assets/places/`. */
   assets: string;
-  /** R-PLACE-013 (decision 0043): the employer's shuttle serves it, so a ride by bus to or from it asks no fare. */
+  /** R-PLACE-013 (decision 0017): the employer's shuttle serves it, so a ride by bus to or from it asks no fare. */
   shuttle: boolean;
 }
 
@@ -1374,7 +1374,7 @@ export interface Tuning {
     selfContainRentYear: number;
     /** A hostel room's rent a month, in kobo: about half the room in a compound's month of rent. */
     hostelRentKobo: number;
-    /** R-HOME-012 (decision 0035): the share of a naira upkeep that is lived by hand (meals, water, fares, data) and never charged as the month turns. */
+    /** R-HOME-012 (decision 0013): the share of a naira upkeep that is lived by hand (meals, water, fares, data) and never charged as the month turns. */
     livingByHandBp: number;
   };
   /** The market's things: the car's own way on the map, priced by distance as the rides are (R-PLACE-010). */
@@ -1383,7 +1383,7 @@ export interface Tuning {
 
 /**
  * The ways of a ride in the city: the three vehicles, on foot, and the car of your own while the life has one; abroad
- * the ways a country lists (decision 0042): the bus, the train and the taxi.
+ * the ways a country lists (decision 0017): the bus, the train and the taxi.
  */
 export type RideWay = "danfo" | "keke" | "okada" | "walk" | "drive" | AbroadWay;
 
@@ -1398,7 +1398,7 @@ export interface RideFigures {
 }
 
 /**
- * A country's rides (R-PLACE-010, R-PLACE-012, decision 0043): the ways it lists, the step every
+ * A country's rides (R-PLACE-010, R-PLACE-012, decision 0017): the ways it lists, the step every
  * fare is rounded up to, the month's pass, null where there is none, the ways the pass covers, the metres a thousandth
  * of a degree of longitude is worth there, and the pace on foot (the heat of the Gulf slows a walk). A country with no
  * ways listed refuses a ride.
@@ -1626,7 +1626,7 @@ export interface SlotLock {
 export interface TurnSlice {
   month: number;
   banked: number;
-  /** The month's free time spent by now-acts so far, in half-days (R-TURN-010, decision 0034). */
+  /** The month's free time spent by now-acts so far, in half-days (R-TURN-010, decision 0011). */
   spent: number;
   /** True once the character has left. Only `turns/grant` is accepted after that. */
   ended: boolean;
@@ -1690,12 +1690,12 @@ export interface WalletSlice {
   /** Cash moved into the bank in the given month, in kobo at the official rate, for R-WALLET-011's monthly threshold. */
   cashIn: { month: number; kobo: number };
   /**
-   * The month in hand's money in less out, by currency, as the results sheet counts it (decision 0021, R-WORLD-008):
+   * The month in hand's money in less out, by currency, as the results sheet counts it (decision 0024, R-WORLD-008):
    * a change's two sides, a move between pockets and held funds locked and given back count nothing (a change's bank
    * charge and a short count are money out); nothing before the prologue closed counts. Missing until money moves in the month, and cleared as it closes.
    */
   monthNet?: Partial<Record<Currency, number>>;
-  /** Months ended whose net in the money of the place was above zero (decision 0021). Missing until the first, so no state hash moves before one. */
+  /** Months ended whose net in the money of the place was above zero (decision 0024). Missing until the first, so no state hash moves before one. */
   keptMonths?: number;
   /** True once the cash warning was told (R-WALLET-019). Missing until then, so no state hash moves before it. */
   cashWarned?: true;
@@ -1953,7 +1953,7 @@ export interface State {
   /**
    * The shape of the save. Raised when the shape changes. 2 adds the whole-life slices; 3 the people and interview slices;
    * 4 the month's spent half-days (`turn.spent`), the offers rolled this month (`offer.rolled`, `offer.rolledMonth`), the
-   * body's qualities (decisions 0034, 0035) and the things slice.
+   * body's qualities (decision 0011) and the things slice.
    */
   schema: 1 | 2 | 3 | 4;
   content: string;
@@ -2045,7 +2045,7 @@ export type Command = { basedOn: number } & (
   | { type: "prologue/choose"; step: string; answer: string }
   | { type: "status/renew" }
   | { type: "return/home" }
-  /** A ride between two places of the city (docs/rules/place.md R-PLACE-010, world.md R-WORLD-017, decision 0011). */
+  /** A ride between two places of the city (docs/rules/place.md R-PLACE-010, world.md R-WORLD-017, decision 0017). */
   | { type: "place/ride"; from: Id<"place">; to: Id<"place">; way: RideWay }
   // online (docs/rules/lottery.md)
   | { type: "lottery/buy"; tickets: number }
@@ -2068,9 +2068,9 @@ export type Command = { basedOn: number } & (
   | { type: "people/moments"; pair: string; moments: Moment[] }
   | { type: "people/proposal"; pair: string; proposal: Proposal }
   | { type: "people/agreed"; pair: string; step: Proposal["step"]; route?: Id<"route">; lead?: "me" | "them" }
-  /** `restart`: the other player ended their life to start another (R-ACCOUNT-030, decision 0027): no cost, the moments kept. */
+  /** `restart`: the other player ended their life to start another (R-ACCOUNT-030, decision 0020): no cost, the moments kept. */
   | { type: "people/ended"; pair: string; why: "them" | "absence" | "block" | "restart" }
-  /** Decision 0009: the other life's answer to a proposal, carried across lives by the server. */
+  /** Decision 0020: the other life's answer to a proposal, carried across lives by the server. */
   | { type: "people/declined"; pair: string; step: Proposal["step"] }
   | { type: "people/withdrawn"; pair: string; step: Proposal["step"] }
   | { type: "people/gossip"; pair: string }
@@ -2158,7 +2158,7 @@ export interface Ctx {
   state: State;
   world: World;
   content: Content;
-  /** Who sent the command being stepped (decision 0007 point 3: a stand-in's command is judged as a player's, but a kind may mark it). */
+  /** Who sent the command being stepped (decision 0005: a stand-in's command is judged as a player's, but a kind may mark it). */
   sender: Sender;
   random: Random;
   /** A fresh instance id. */
@@ -2208,7 +2208,7 @@ export interface SavedCommand {
 /** Where a segment begins: a new life from its scenario and seeds, or a state carried over (R-SERVER-020). */
 export type SegmentStart = { scenario: Id<"scenario">; seed: string; worldSeed: string } | { base: State };
 
-/** The commands accepted under one content version and one overlay (decision 0006). */
+/** The commands accepted under one content version and one overlay (decision 0004). */
 export interface SaveSegment {
   content: string;
   /** The overlay's version, when the content was loaded with one (R-ENGINE-010). */
@@ -2221,11 +2221,11 @@ export interface SaveSegment {
 export interface Save {
   schema: 3;
   segments: SaveSegment[];
-  /** Decision 0009: a sibling made from an invite takes the inviter's family draw (R-PEOPLE-011). */
+  /** Decision 0020: a sibling made from an invite takes the inviter's family draw (R-PEOPLE-011). */
   family?: { from: string; draw: NonNullable<PrologueSlice["draw"]> };
 }
 
-/** A save of schema 1 or 2, before decision 0006: one segment, flat. `loadSave` reads it; nothing writes it as a save. */
+/** A save of schema 1 or 2, before decision 0004: one segment, flat. `loadSave` reads it; nothing writes it as a save. */
 export interface FlatSave {
   schema: 1 | 2;
   content: string;
@@ -2356,7 +2356,7 @@ export interface PlayerView {
   /** What may still be bought at the bank this month, in US cents. */
   /** Null abroad, where the Lagos allowance does not bind (R-WALLET-005, 006). */
   bankAllowanceLeft: number | null;
-  /** Months ended in which the character kept more than they spent (decision 0021). A count the japa type reads; never shown as a figure. */
+  /** Months ended in which the character kept more than they spent (decision 0024). A count the japa type reads; never shown as a figure. */
   keptMonths: number;
   /**
    * R-WALLET-020: `marked` is the topped-up naira not yet spent, 0 while there is none. The kiosk's sheet and slip read it
@@ -2392,7 +2392,7 @@ export interface PlayerView {
   /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (R-PLACE-006). */
   /** `wayHome` (R-PLACE-011): the way home from where the character is today, as `return/home` would take it; null when not abroad. */
   /** `ways` (R-PLACE-010): the ways a ride may take where the character is, with their figures; empty on the road and in a country with none. Always set by the simulation; optional only so a view written by hand before it stays whole. */
-  /** `shuttles` (R-PLACE-013, decision 0043): the stops of the character's country the employer's shuttle serves, so a bus to or from one asks no fare; empty at home, on the road and in a country with none. Always set by the simulation; optional for the same reason as `ways`. */
+  /** `shuttles` (R-PLACE-013, decision 0017): the stops of the character's country the employer's shuttle serves, so a bus to or from one asks no fare; empty at home, on the road and in a country with none. Always set by the simulation; optional for the same reason as `ways`. */
   place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null; ways?: RideWayView[]; shuttles?: Id<"place">[] };
   status: {
     entry: Id<"status">;

@@ -99,7 +99,7 @@ function spoken(words: string): string {
 }
 
 /**
- * Where an act done at once lands its line (R-WORLD-005; decision 0035: acts that repeat): Mama's gist over her head, as
+ * Where an act done at once lands its line (R-WORLD-005; decision 0012: acts that repeat): Mama's gist over her head, as
  * her words; any other act that repeats in the corner, every time it is done, since a repeat act is never done for the
  * month; null for the rest, which answer in their sheet, and for what the scene shows, which says nothing.
  */

@@ -583,7 +583,7 @@ describe("funds", () => {
       },
     });
     toKnown(game);
-    // Decision 0035 (R-HOME-012): the month on the way charged no living at home, so the naira bank is as it was set; the
+    // Decision 0013 (R-HOME-012): the month on the way charged no living at home, so the naira bank is as it was set; the
     // funds below read the bank as it stands.
     const naira = game.state.wallet.pockets.NGN.bank;
     expect(naira).toBe(3000000 * UNIT);

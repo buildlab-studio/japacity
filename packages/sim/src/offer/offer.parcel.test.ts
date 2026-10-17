@@ -19,7 +19,7 @@ const ADA: Id<"scenario"> = "scenario.ada";
 /** Ada's draw with no sibling abroad, and one with an older sibling settled in the UK (the people kind's draw). */
 const NO_ONE_ABROAD = "seed-1";
 const SIBLING_ABROAD = "seed-3";
-/** Decision 0035 lives the living by hand at home; the foodstuff test reads the charge itself, so it charges it whole. */
+/** Decision 0013 lives the living by hand at home; the foodstuff test reads the charge itself, so it charges it whole. */
 const CHARGED: Content = { ...content, tuning: { ...content.tuning, home: { ...content.tuning.home, livingByHandBp: 0 } } };
 
 function life(seed: string, scenario: Id<"scenario"> = ADA, base: Content = content): Game {

@@ -23,7 +23,7 @@ function centsOf(rates: Record<ForeignCurrency, number>, naira: number): number 
 }
 
 /**
- * Ada, rested until the quick loan opens: under ₦100,000 and nothing on her credit mark. Since decision 0035 nothing of
+ * Ada, rested until the quick loan opens: under ₦100,000 and nothing on her credit mark. Since decision 0013 nothing of
  * her living is charged as a month turns at home, so resting alone never brings her under the line: each month she eats
  * by hand as the month's time allows (R-HOME-012), the meals spending about what the month's living charge took.
  */

@@ -57,7 +57,7 @@ describe("envelopes in the local authority", () => {
     const { authority, turned } = await testSat(storage, at);
     expect(english(turned.view)).toMatchObject({ state: "pending", readyMonth: turned.view.month });
     expect(turned.lines.some((line) => line.key.startsWith("line.document.issued") && line.params.document === ENGLISH)).toBe(false);
-    // Decision 0036: the morning is the world's own, the next six o'clock of the game's day.
+    // Decision 0011: the morning is the world's own, the next six o'clock of the game's day.
     expect(authority.clock().morningAt).toBe(nextGameMorning(at.now));
     expect(authority.morning()).toEqual([]);
 

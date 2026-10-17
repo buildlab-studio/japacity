@@ -18,7 +18,7 @@ function lately(): string[] {
 
 describe("Bank, Lately", () => {
   test("[R-WORLD-019] given a month that paid the living costs and then a danfo fare, when Bank opens, then the living costs show once and the fare shows", async () => {
-    // Decision 0035 (R-HOME-012): at home nothing of the living is charged as the month turns, so a month at the family
+    // Decision 0013 (R-HOME-012): at home nothing of the living is charged as the month turns, so a month at the family
     // house moves no money for it at all.
     const byHand = createGameStore(gameAuthority(newGame("scenario.ada")));
     await byHand.getState().refresh();

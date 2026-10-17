@@ -131,7 +131,7 @@ async function friendFor(deps: ServerDeps, account: string, invite: InviteRow, s
   const existing = await characterOf(deps, account);
   if (invite.looking === "sibling") {
     if (existing !== null) return refused(409, "one-character", "An existing character never becomes anyone's sibling. A sibling link starts a new life.");
-    // R-PEOPLE-011, decision 0009: the new life takes the inviter's family draw.
+    // R-PEOPLE-011, decision 0020: the new life takes the inviter's family draw.
     // An inviter from a fixed scenario, or before its prologue's family step, has no draw; the new life then draws its own and no sibling slot waits for the link.
     const draw = (await stateOf(deps, invite.from))?.state.prologue.draw ?? null;
     const made = await newCharacter(deps, account, PROLOGUE, draw === null ? undefined : { from: invite.from, draw });

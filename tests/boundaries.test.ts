@@ -61,7 +61,7 @@ function packageName(specifier: string): string {
   return specifier.startsWith("@") ? parts.slice(0, 2).join("/") : (parts[0] ?? specifier);
 }
 
-// Decision 0004 section 3: db holds the SQL. Its runtime code imports the store,
+// Decision 0006 section 3: db holds the SQL. Its runtime code imports the store,
 // the simulation's types and the Postgres drivers; the migration tool, PGlite and
 // Vitest only in the files that serve the tests and the migrations.
 const DB_RUNTIME = ["@japacity/store", "@japacity/sim", "drizzle-orm", "pg"];
@@ -128,7 +128,7 @@ function violations(files: readonly string[], packages: ReadonlyMap<string, stri
         }
       }
 
-      // Decision 0004 section 3: the client never reaches the server's side, and the store knows no database.
+      // Decision 0006 section 3: the client never reaches the server's side, and the store knows no database.
       if (inside(file, "apps/client/src") && ["@japacity/store", "@japacity/db", "@japacity/server"].includes(packageName(specifier))) {
         report("the client imports nothing from store, db or server");
       }

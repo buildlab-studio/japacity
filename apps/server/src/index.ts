@@ -1,4 +1,4 @@
-// The Worker (decision 0004). Every request has one `pg` client through the
+// The Worker (decision 0006). Every request has one `pg` client through the
 // Hyperdrive configuration with caching off, opened when a store or the auth
 // library first asks for it, and closed after the reply; nothing holds a
 // client between requests (worker.ts). The scheduled handler runs the jobs by

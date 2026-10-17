@@ -320,7 +320,7 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
     await expect(sheet.locator("[data-lottery-odds]")).toHaveCount(0);
 
     // Two picked: the button says the act and its price, and under it the balance before, struck, and after (R-WORLD-006,
-    // as decision 0036 put the price on the button in place of "paid now").
+    // as decision 0011 put the price on the button in place of "paid now").
     await sheet.getByRole("button", { name: "One more ticket" }).click();
     const buy = page.locator("[data-kiosk-buy]");
     await expect(buy).toContainText("Buy 2 tickets");

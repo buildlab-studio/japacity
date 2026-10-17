@@ -35,7 +35,7 @@ function sent(authority: { sent: Command[] }): unknown[] {
 }
 
 describe("the month's dues abroad", () => {
-  // Decisions 0035 and 0037: the lives were re-recorded; Ada lands holding £1,954.
+  // Decisions 0013 and 0012: the lives were re-recorded; Ada lands holding £1,954.
   test("[R-WORLD-019] given Ada landed in London holding £1,954 with rent, living costs and tuition due, when the dues are read, then the gap is the pounds due against the pounds held, and the naira and dollars are the way", () => {
     const view = landed();
     expect(view.place.where).toBe("abroad");
@@ -71,7 +71,7 @@ describe("the month's dues abroad", () => {
     expect(duesGap(view)).not.toBeNull();
     const band = bandMoney(view);
     expect(band.money).toBe(view.pockets.GBP.bank + view.pockets.GBP.cash);
-    // Decision 0037: the re-recorded life lands with £1,954.
+    // Decision 0012: the re-recorded life lands with £1,954.
     expect(band.formatMoney(band.money)).toBe("£1,954");
   });
 
@@ -88,7 +88,7 @@ describe("the Bank abroad", () => {
     const app = document.querySelector<HTMLElement>('[data-phone-app="bank"]');
     const first = app?.firstElementChild as HTMLElement | null;
     expect(first?.hasAttribute("data-dues-gap")).toBe(true);
-    // Decision 0037: the re-recorded life lands with £1,954.
+    // Decision 0012: the re-recorded life lands with £1,954.
     expect(first?.textContent).toContain(abroadWords("phone.bank.dues", { due: "£4,352", held: "£1,954" }));
     expect(abroadWords("phone.bank.dues", { due: "£4,352", held: "£1,954" })).toBe("Due this month: £4,352. You hold £1,954.");
     // The way names the pair only: Change money is said once on the screen.
@@ -96,7 +96,7 @@ describe("the Bank abroad", () => {
   });
 
   test("[R-WORLD-019] given Ada abroad, when the Bank opens, then the pounds stand first as the balance, and the naira and the dollars follow under Change money, each with its pair", async () => {
-    // Decision 0035: the re-recorded life flies with no naira cash on her, so a little is put in her pocket by the
+    // Decision 0013: the re-recorded life flies with no naira cash on her, so a little is put in her pocket by the
     // wallet's own effect, and the row is still read as bank and cash together.
     const view = viewAfter(recordedGame("ada-careful"), [{ type: "money/add", currency: "NGN", pocket: "cash", amount: 500_000, reason: "gift" }]);
     await renderWithView(<Bank />, view);

@@ -30,7 +30,7 @@ export const shareChapters: readonly Id<"chapter">[] = [
 ];
 
 /**
- * The japa types (decision 0018), in the decision's order: a label read from the life at the send-off,
+ * The japa types (decision 0024), in the decision's order: a label read from the life at the send-off,
  * never a number. The client reads which one (apps/client/src/shared/words/japaType.ts); the words are
  * `share.type.<type>.name` and `share.type.<type>.line`.
  */

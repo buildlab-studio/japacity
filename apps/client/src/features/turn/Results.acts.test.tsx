@@ -44,7 +44,7 @@ async function storeOf(game: Game): Promise<GameStore> {
 
 /**
  * One month through the store as the Month sheet sends it: these acts planned, the rest rest. `now`: acts done at once
- * within the month before it turns (decision 0035, R-ACTIVITY-019), each sent as the act's sheet sends it.
+ * within the month before it turns (decision 0012, R-ACTIVITY-019), each sent as the act's sheet sends it.
  */
 async function month(store: GameStore, game: Game, picks: Id<"activity">[] = [], now: Id<"activity">[] = []): Promise<void> {
   if (game.state.turn.banked < 1) game.grant(1);
@@ -126,7 +126,7 @@ describe("the developer's months on the results", () => {
     const need = piecesAsked();
     expect(game.state.quality[PORTFOLIO]).toBe(need - 1);
     const store = await storeOf(game);
-    // Decision 0035 (R-ACTIVITY-019): the portfolio is built act by act, at once, and the month's results tell the piece
+    // Decision 0012 (R-ACTIVITY-019): the portfolio is built act by act, at once, and the month's results tell the piece
     // with the month's own lines.
     await month(store, game, [], [BUILD]);
     expect(results(store)).toContain(words("line.activity.piece-built", { pieces: countWords(need), need: countWords(need) }));

@@ -602,7 +602,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...streetActivityTable,
   // obligation.md R-OBLIGATION-014: the room's basics, cooking and water.
   ...roomActivityTable,
-  // streets.md R-STREET-011: the street's enjoyment and spending (decision 0037).
+  // streets.md R-STREET-011: the street's enjoyment and spending (decision 0012).
   ...enjoyActivityTable,
   // place.md R-PLACE-012 and streets.md R-STREET-012: London lived by hand.
   ...londonActivityTable,
@@ -832,7 +832,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     hireBp: null,
     // The motor park hears of the Gulf (R-CONTRACT-001) and the pitch finds the curious (R-ROAD-002). A life that heard of the
     // Gulf already (the drivers at the send-off) looks it into here first: the look-into moves only a route heard, so its place
-    // before the hearing is the condition (decision 0025; R-CHAPTER-009's reading).
+    // before the hearing is the condition (decision 0001; R-CHAPTER-009's reading).
     effects: [
       { type: "route/look-into", route: GULF },
       { type: "route/hear", route: GULF, via: "motor-park" },

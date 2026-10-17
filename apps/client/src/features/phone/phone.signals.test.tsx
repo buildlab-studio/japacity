@@ -17,7 +17,7 @@ import { say } from "../../shared/words/text";
 import { PhoneApps, usePhoneWaiting } from "./PhoneApps";
 import { APP_IDS, markSeen, marksOf, reloadSeen } from "./seen";
 
-// Decision 0035 (R-ACTIVITY-019): the coding course now answers at once and is never planned, so the course that carries
+// Decision 0012 (R-ACTIVITY-019): the coding course now answers at once and is never planned, so the course that carries
 // on and tells of itself is a master's at home.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 /** The course's first line, from content. */
@@ -72,7 +72,7 @@ async function courseDue(): Promise<{ store: GameStore; open: () => void; close:
   await act(async () => {
     await store.getState().send({ type: "place/ride", from: "place.family-house", to: other.id, way: "danfo" });
   });
-  // Decision 0035, with R-WORLD-030 for the lived month (decision 0034): the day is the share of the month's
+  // Decision 0011, with R-WORLD-030 for the lived month: the day is the share of the month's
   // free time spent, which a ride does not spend, so a day goes as naps spend it.
   await act(async () => {
     while (dayOfView(store.getState().view!) < 1) await store.getState().send({ type: "activity/now", activity: "activity.nap", param: null });
@@ -153,7 +153,7 @@ describe("the month's lines on the phone", () => {
 
   test("[R-WORLD-030] given the lines told and the phone opened at home and on the street, when the view is read, then it is the very same view and the phone sent nothing", async () => {
     const { store, open, close } = await courseDue();
-    // Decision 0035: the day that went was three naps of the month's free time, sent as acts before the phone opened.
+    // Decision 0012: the day that went was three naps of the month's free time, sent as acts before the phone opened.
     const lived: Command["type"][] = ["place/ride", "activity/now", "activity/now", "activity/now"];
     expect(sent).toEqual(lived);
     const before = store.getState().view;

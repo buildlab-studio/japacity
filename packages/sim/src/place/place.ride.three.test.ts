@@ -1,6 +1,6 @@
 // Rides in Calgary, Dubai and Castel Volturno: docs/rules/place.md R-PLACE-010 (the three countries' ways, design page
 // 15 section 4), R-PLACE-012 (the pass covers the country's ways) and R-PLACE-013 (the employer's shuttle),
-// decision 0043. Each country's ways and figures are content's; the pass is the country's own act; a bus to or from a
+// decision 0017. Each country's ways and figures are content's; the pass is the country's own act; a bus to or from a
 // shuttle's stop asks nothing in any month.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";

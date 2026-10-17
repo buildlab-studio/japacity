@@ -38,7 +38,7 @@ export const uiText: Record<string, string> = {
   "ui.month.planning": "Month {month}",
   "ui.month.plan": "This month",
   "ui.month.slot-empty": "Nothing yet",
-  // The month's name and phase on the band, where the pages were (R-WORLD-002, R-TURN-010; decision 0034): month 0 of a
+  // The month's name and phase on the band, where the pages were (R-WORLD-002, R-TURN-010; decision 0011): month 0 of a
   // life is the month of the year it began in; the phase says the month's free time in words, never a count.
   "ui.month.name.0": "January",
   "ui.month.name.1": "February",
@@ -676,7 +676,7 @@ export const uiText: Record<string, string> = {
   // One line for every home: the family house charges living costs, the others rent (R-PROLOGUE-014).
   "ui.page.home.costs": "Next month: {amount}",
   "ui.page.home.costs.prepaid": "Rent in {count} months",
-  // R-HOME-012 (decision 0035): where nothing of the living is taken as the month turns, it is bought as you go.
+  // R-HOME-012 (decision 0013): where nothing of the living is taken as the month turns, it is bought as you go.
   "ui.page.home.by-hand": "Food, water and fares as you go",
   "ui.page.capital": "A shop's capital",
   "ui.page.lived.degree": "University, as it went",
@@ -699,7 +699,7 @@ export const uiText: Record<string, string> = {
   "ui.page.tone.up": "Up",
   "ui.page.tone.down": "Down",
 
-  // A trade that heard of the Gulf looks it into at the motor park (chapter.md R-CHAPTER-009's reading; decision 0025).
+  // A trade that heard of the Gulf looks it into at the motor park (chapter.md R-CHAPTER-009's reading; decision 0001).
   "chapter.find-your-feet.item.known.nudge.motor-park": "Ask around at the motor park",
   "prologue.handover.step.known.motor-park": "Ask around at the motor park",
 

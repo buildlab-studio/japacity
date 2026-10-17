@@ -118,7 +118,7 @@ export type { JapaType, OfficialAccount, OfficialPlatform, ShareKind } from "./s
  * The content version before this one (docs/rules/server.md R-SERVER-023): the server bundles it beside the current,
  * so a life saved under it replays and is upgraded on its first load. m0.4 differs from m0.3 in Calgary, Dubai and
  * Castel Volturno built on the Lagos mold: each country's ways, its pass on the ways it covers and the employer's shuttle
- * (decision 0043), their places, food bought in their money and each upkeep the prepaid phone alone.
+ * (decision 0017), their places, food bought in their money and each upkeep the prepaid phone alone.
  */
 export const PREVIOUS_CONTENT_VERSION = "m0.3";
 

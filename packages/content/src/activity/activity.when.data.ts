@@ -74,7 +74,7 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.find-sponsor": "once",
   // The job hunt: applied now, the employer answering with the month.
   "activity.job-hunt": "once",
-  // The room and the family, as often as the month's time allows (R-ACTIVITY-019, decision 0035): meals, water, a nap, a bath, the TV,
+  // The room and the family, as often as the month's time allows (R-ACTIVITY-019, decision 0012): meals, water, a nap, a bath, the TV,
   // gist with Mama and her shop, and the study that answers at once.
   "activity.cook-at-home": "repeat",
   "activity.cook-jollof": "repeat",
@@ -90,7 +90,7 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.study-english": "repeat",
   "activity.learn-tech": "repeat",
   "activity.build-portfolio": "repeat",
-  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0037): the barber and the clothes once a
+  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0012): the barber and the clothes once a
   // month, the water a purchase, the rest as often as the month's time allows.
   "activity.buy-suya": "repeat",
   "activity.mallam-tea": "repeat",

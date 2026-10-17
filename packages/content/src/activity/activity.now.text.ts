@@ -108,7 +108,7 @@ export const activityNowText: Record<string, string> = {
   "line.activity.build-portfolio.now": "A piece is up. It has a bug you are proud of.",
   "line.activity.fetch-water.now": "The jerrycans are in. The drum is full.",
   "line.activity.fill-drum.now": "Bucket by bucket from the yard's tap. The drum is full.",
-  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0037): the place answers in its own voice.
+  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0012): the place answers in its own voice.
   "line.activity.buy-suya.now": "The suya man knows your order. Extra pepper, no argument.",
   "line.activity.mallam-tea.now": "He remembers your father's name. You remember his tea.",
   "line.activity.pure-water.now": "Cold, in this sun. A human right with a price.",

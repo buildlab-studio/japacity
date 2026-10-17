@@ -337,12 +337,12 @@ const OFFICIAL_PAGE = "activity.look-into-route";
  * offer carries (R-ADVICE-001), since an offer's choice has no param.
  */
 function lookedRoute(ctx: Ctx, cause: Cause, effect?: Effect): Id<"route"> | null {
-  // Decision 0025: the effect's own route first, then the slot's param or a string term.
+  // Decision 0001: the effect's own route first, then the slot's param or a string term.
   const named = (effect?.type === "route/look-into" ? effect.route : undefined) ?? cause.param ?? cause.terms["route"];
   return typeof named === "string" && ctx.content.route[named as Id<"route">] !== undefined ? (named as Id<"route">) : null;
 }
 
-/** R-ROUTE-004: the effect's route or the slot's param names the route (decision 0025). Only a heard route becomes known. */
+/** R-ROUTE-004: the effect's route or the slot's param names the route (decision 0001). Only a heard route becomes known. */
 function lookInto(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const route = lookedRoute(ctx, cause, effect);
   if (route === null) return [];

@@ -1,4 +1,4 @@
-// The japa type (decision 0018; docs/rules/share.md R-SHARE-001, R-SHARE-004): one of six labels read
+// The japa type (decision 0024; docs/rules/share.md R-SHARE-001, R-SHARE-004): one of six labels read
 // from the view when the send-off card is due, never a number and never money as a sum. It changes
 // nothing in the simulation; it is a label for the stub, the type card and the data page.
 import { content, type JapaType } from "@japacity/content";
@@ -39,13 +39,13 @@ function inTopBand(quality: Id<"quality">, value: number): boolean {
   return Math.floor(((value - entry.min) * 4) / span) >= 3;
 }
 
-/** At least two thirds of the months played were kept (decision 0021): a count of months, never money. */
+/** At least two thirds of the months played were kept (decision 0024): a count of months, never money. */
 function keptMost(kept: number, months: number): boolean {
   return months > 0 && kept * 3 >= months * 2;
 }
 
 /**
- * The risks taken, each counted once (decision 0018: the road's pitch, agents paid, the kiosk). The road
+ * The risks taken, each counted once (decision 0024: the road's pitch, agents paid, the kiosk). The road
  * is never in the routes view (R-ROAD-001), so its pitch shows only as a return from the road.
  */
 function risksTaken(view: PlayerView, most: readonly Id<"activity">[]): number {
@@ -63,7 +63,7 @@ function risksTaken(view: PlayerView, most: readonly Id<"activity">[]): number {
  * 3. The Family Anchor: standing at the top of its range, or in its top band with family among the things done most.
  * 4. The Long Way Round: the way taken was refused before it was granted.
  * 5. The Night Reader: study first, a study act first among the things done most, or the study way with one among them.
- * 6. The Careful Saver: the months kept at least two thirds of the months played (decision 0021), a side job or not.
+ * 6. The Careful Saver: the months kept at least two thirds of the months played (decision 0024), a side job or not.
  * 7. The Hustler: everything else; work beside the job, or a life that worked its way out.
  */
 export function japaTypeOf(view: PlayerView): JapaType | null {

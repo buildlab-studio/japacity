@@ -174,7 +174,7 @@ export interface GameState {
   /**
    * Ends the month with the commitments that carry on (R-WORLD-007), and the results open in the room. `rest`: the bed's
    * Sleep, the month's time left rested (R-TURN-010). The command does not carry it yet: the contract's `turn/end` has
-   * no `rest` field, and the simulation gates nothing on the time spent (decision 0034), so the plain command is sent;
+   * no `rest` field, and the simulation gates nothing on the time spent (decision 0011), so the plain command is sent;
    * the bed's Sleep passes it already so the flag reaches the wire once the contract takes it.
    */
   endMonth: (rest?: true) => Promise<Reply | ServerRejection | null>;
@@ -490,7 +490,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         broke(error);
         return null;
       } finally {
-        // The month turns only when the life sleeps (R-WORLD-025; decision 0036): a spent month falls to night, never to a turn.
+        // The month turns only when the life sleeps (R-WORLD-025; decision 0011): a spent month falls to night, never to a turn.
         set({ busy: false });
       }
     }

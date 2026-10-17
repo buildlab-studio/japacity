@@ -86,7 +86,7 @@ describe("the lotto kiosk", () => {
     expect(game.state.wallet.lots).toEqual([]);
   });
 
-  test("[R-LUCK-005] given naira only in the bank, when tickets are played, then the kiosk is paid from the bank: cash first, the bank for the rest (decision 0012)", () => {
+  test("[R-LUCK-005] given naira only in the bank, when tickets are played, then the kiosk is paid from the bank: cash first, the bank for the rest (decision 0014)", () => {
     const game = ada();
     game.accept({ type: "wallet/move", currency: "NGN", amount: game.state.wallet.pockets.NGN.cash, to: "bank" });
     const result = game.endTurn([slot(LOTTO, "1")]);

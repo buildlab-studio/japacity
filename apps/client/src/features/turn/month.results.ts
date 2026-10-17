@@ -218,7 +218,7 @@ const CHANGE_SIDES: ReadonlySet<string> = new Set([CHANGED, CHANGED_OUT, CHANGED
 
 /**
  * What was kept in each currency the lines moved: in less out, in the order each first appears. A change of money
- * counts for nothing either way (decision 0021, R-WORLD-008): its two sides are left out, and only the
+ * counts for nothing either way (decision 0024, R-WORLD-008): its two sides are left out, and only the
  * bank's charge stays as money out, as the wallet counts the month (R-WALLET-015), counted once: its own line, or the
  * change's line when it is too small to show. An FX man's short count is its own line, money out.
  */
@@ -337,7 +337,7 @@ export interface ChangeInto {
 }
 
 /**
- * Each change of money in the month, in the order made, both sides as they were (R-WORLD-008): a change counts for nothing in the kept figure (decision 0021), so it is said under Kept
+ * Each change of money in the month, in the order made, both sides as they were (R-WORLD-008): a change counts for nothing in the kept figure (decision 0024), so it is said under Kept
  * on its own line, "Changed ₦806,930 into £561", naira into pounds or dollars or back, at the bank or with the FX man.
  * A change whose foreign side waits in the bank's queue is told by its own line when paid in and is not one here, since
  * only one side is on the month's lines.

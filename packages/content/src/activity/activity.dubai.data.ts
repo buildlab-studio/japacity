@@ -1,5 +1,5 @@
 // Dubai lived by hand: docs/rules/place.md R-PLACE-012 (the zone pass) and streets.md R-STREET-014 (design page
-// 15 section 5, decision 0043). Each is a priced now-act in dirhams, paid as it is done; when each answers and the time it
+// 15 section 5, decision 0017). Each is a priced now-act in dirhams, paid as it is done; when each answers and the time it
 // spends are in activity.when.data.ts and activity.days.data.ts. Joined into the activity table in activity.data.ts;
 // place.data.ts stages each at its Dubai place. The souq's shopping, in Naif, is in activity.abroad.data.ts.
 import type { ActivityEntry, Effect, Id, Reason, Requirement } from "@japacity/sim";

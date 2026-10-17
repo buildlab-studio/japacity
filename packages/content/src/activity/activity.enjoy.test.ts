@@ -1,4 +1,4 @@
-// Enjoyment and spending on the street: docs/rules/streets.md R-STREET-011 (decision 0037). Each act is a priced
+// Enjoyment and spending on the street: docs/rules/streets.md R-STREET-011 (decision 0012). Each act is a priced
 // now-act paid under the money reason `enjoyment`, with its time, how often it runs and its small lift, staged at
 // one street.
 import type { Effect, Id } from "@japacity/sim";

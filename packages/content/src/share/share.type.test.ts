@@ -1,4 +1,4 @@
-// The japa type's words and the ticket stub's (decision 0018; docs/rules/share.md R-SHARE-004 to 006):
+// The japa type's words and the ticket stub's (decision 0024; docs/rules/share.md R-SHARE-004 to 006):
 // six labels, each with one line in a person's voice, and the stub's four field names. None carries a
 // figure, a currency, an airline's or an airport's word, or anything a bank or a government would print.
 import { describe, expect, test } from "vitest";
@@ -15,7 +15,7 @@ function stubWords(): string[] {
 }
 
 describe("the japa type's words", () => {
-  test("[R-SHARE-004] given the six types of decision 0018, when their words are looked up, then each has a name and one line", () => {
+  test("[R-SHARE-004] given the six types of decision 0024, when their words are looked up, then each has a name and one line", () => {
     expect([...japaTypes]).toEqual(["careful-saver", "hustler", "night-reader", "family-anchor", "gambler", "long-way-round"]);
     expect(japaTypes.map((type) => text[`share.type.${type}.name`])).toEqual(["The Careful Saver", "The Hustler", "The Night Reader", "The Family Anchor", "The Gambler", "The Long Way Round"]);
     for (const type of japaTypes) {

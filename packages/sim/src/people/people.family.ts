@@ -1,5 +1,5 @@
 // A sibling made from an invite: docs/rules/people.md R-PEOPLE-011, decision
-// 0009. The new life begins inside the inviter's family, so its sibling slots
+// 0020. The new life begins inside the inviter's family, so its sibling slots
 // are that family's: the inviter in the first, the others computer lives drawn
 // as R-PEOPLE-047 draws them once the prologue closes. Pure: `newState` calls
 // it on the slice `initial` built.

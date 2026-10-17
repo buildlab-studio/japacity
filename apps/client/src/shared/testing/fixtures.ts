@@ -336,7 +336,7 @@ export function newGame(scenario: Id<"scenario"> = "scenario.ada", seed?: string
 }
 
 /**
- * The content with the living at home charged whole as the month turns, as it was before decision 0035 (R-HOME-012
+ * The content with the living at home charged whole as the month turns, as it was before decision 0013 (R-HOME-012
  * leaves it all to be lived by hand). For the screens that tell such a charge, its relief or its miss, which still
  * stand for whatever is charged; the simulation's own relief tests charge it the same way.
  */

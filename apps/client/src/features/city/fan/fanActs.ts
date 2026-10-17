@@ -1,6 +1,6 @@
 // What each thing's fan holds, and what each button of the fan says (docs/design/13-the-lively-layer.md section 3; docs/rules/world.md
 // R-WORLD-005, R-WORLD-006, R-WORLD-034). Every thing fans its acts. The room's and the street's acts done at once (decision
-// 0036, R-STREET-011) are the simulation's own buttons: priced, balanced, refused as their sheet would, and sent on arrival.
+// 0012, R-STREET-011) are the simulation's own buttons: priced, balanced, refused as their sheet would, and sent on arrival.
 // Every other act (a pose, the bed's Sleep, a sheet that opens a card, a command, the way out, the papers, a word with
 // someone) is a button with the act's own label and a picture, no price, and on arrival it does what its kind does.
 import { content } from "@japacity/content";
@@ -26,7 +26,7 @@ export const MOST_FANNED = 8;
 
 /**
  * True when an entry is one of the room's or the street's acts: done at once (R-ACTIVITY-015), outside the month's free
- * time (`slot: "none"`, decision 0036), with no choice inside it, and neither a paper slip nor the Bank's.
+ * time (`slot: "none"`, decision 0011), with no choice inside it, and neither a paper slip nor the Bank's.
  */
 export function fanEntry(stages: string): boolean {
   if (!stages.startsWith("activity.") || isPaper(stages) || stages === SEND_MONEY) return false;

@@ -37,7 +37,7 @@ export type DialChange =
   | { dial: "placeTarget"; place: string; value: number | null }
   | { dial: "computerAfterMonths"; value: number | null };
 
-/** The raffle's top-up dial, retired by decision 0010: only a log line written before it went carries one. */
+/** The raffle's top-up dial, retired by decision 0016: only a log line written before it went carries one. */
 export interface RetiredDialChange {
   dial: "topUpTickets";
   value: number | null;

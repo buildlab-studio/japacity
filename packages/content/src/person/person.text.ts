@@ -85,7 +85,7 @@ export const personText: Record<string, string> = {
   "line.people.left": "{who} ended it with you.",
   "line.people.drifted": "You stopped making time. {who} moved on.",
   "line.people.ended-absence": "It is over with {who}. They had gone quiet.",
-  // R-ACCOUNT-030: the other player started a new life; nothing is owed and the moments stay (decision 0027).
+  // R-ACCOUNT-030: the other player started a new life; nothing is owed and the moments stay (decision 0020).
   "line.people.ended-restart": "{who} has started a new life. What you shared stays in your story.",
   "line.people.ended-block": "It is over with {who}.",
   "line.people.gossip": "Somebody told your partner you have been seeing someone. Nobody said who.",

@@ -275,7 +275,7 @@ function choiceProblem(read: ReadCtx, judge: Judge, item: OfferState, choice: Of
 
 /**
  * R-ADVICE-008: an agent's fee never takes the last `floorNaira` of the naira. The naira the choice
- * takes (cash first, then the bank, decision 0012) must leave the floor behind in cash and bank together.
+ * takes (cash first, then the bank, decision 0014) must leave the floor behind in cash and bank together.
  */
 function floorKept(read: ReadCtx, judge: Judge, effects: readonly Effect[], terms: Terms): boolean {
   let taken = 0;
