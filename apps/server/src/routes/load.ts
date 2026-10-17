@@ -3,9 +3,8 @@
 // before the run, read its legal commands without writing, hand over its
 // rows for the verifier, and count what the stores wrote. Each answers 404
 // unless `testing.testLogin` is on, and only the load test's Worker mounts them.
-import { hashState, viewFor } from "@japacity/sim";
-import type { Loose } from "@japacity/sim/testing";
-import { legalCommands } from "@japacity/sim/testing";
+import type { Loose } from "@japacity/sim";
+import { hashState, legalCommands, viewFor } from "@japacity/sim";
 import type { PlayerStore, Work, Writes } from "@japacity/store";
 import { Hono } from "hono";
 

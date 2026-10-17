@@ -1,6 +1,7 @@
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
-import { slot, legalCommands } from "@japacity/sim/testing";
+import { legalCommands } from "@japacity/sim";
+import { slot } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { formatMoney } from "./format";

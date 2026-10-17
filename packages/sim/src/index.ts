@@ -10,6 +10,9 @@ export { checkInvariants } from "./engine/invariants";
 export { FIRST_MEETUP_FITS, offerChanceBp } from "./route/route.logic";
 export { topActivities } from "./chapter/chapter.card";
 export { hashState, stableJson } from "./engine/hash";
+// A bounded sample of the commands a view allows: random play and the load test's Worker read it.
+export { legalCommands } from "./testing/legal";
+export type { Loose } from "./testing/play";
 export { replay, newSave, recordCommand, loadSave, isFlatSave, lifeStart, savedCommands, lastSegment, openSegment } from "./engine/replay";
 export { viewFor, hiddenPaths } from "./engine/view";
 export { nextMorning, sealFrom, sealedAt, withhold, withholdLines, REAL_WAIT_DOCUMENTS } from "./engine/envelope";

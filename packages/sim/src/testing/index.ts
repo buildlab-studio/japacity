@@ -2,8 +2,7 @@
 // game handle, the journeys that build a life to a point, the recorded lives
 // and the simulated players. Nothing in the simulation's own code imports it.
 export { start, finishPrologue } from "./play";
-export type { Game, Loose, StartOptions } from "./play";
-export { legalCommands } from "./legal";
+export type { Game, StartOptions } from "./play";
 export { miniContent } from "./miniContent";
 export {
   answerFirst,

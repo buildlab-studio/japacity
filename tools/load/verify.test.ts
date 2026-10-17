@@ -1,7 +1,6 @@
-import type { Command, Id, State, World } from "@japacity/sim";
-import { hashState } from "@japacity/sim";
-import type { Loose } from "@japacity/sim/testing";
-import { legalCommands, start } from "@japacity/sim/testing";
+import type { Command, Id, Loose, State, World } from "@japacity/sim";
+import { hashState, legalCommands } from "@japacity/sim";
+import { start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { content } from "../../packages/content/src/index";

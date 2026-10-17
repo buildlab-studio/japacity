@@ -1,6 +1,5 @@
-import type { Id, World } from "@japacity/sim";
+import type { Id, Loose, World } from "@japacity/sim";
 import { hashState, newState, step } from "@japacity/sim";
-import type { Loose } from "@japacity/sim/testing";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 

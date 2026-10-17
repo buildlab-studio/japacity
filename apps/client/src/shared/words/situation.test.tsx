@@ -3,7 +3,7 @@
 // game is about leaving. On the real content and the real engine.
 import { content, text } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
-import { legalCommands } from "@japacity/sim/testing";
+import { legalCommands } from "@japacity/sim";
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

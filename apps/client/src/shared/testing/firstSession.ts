@@ -1,8 +1,9 @@
 // The first session (R-GUIDE-014): plays the first three months after the prologue of a
 // starting life as the view's next step suggests, and finds the early win.
 import { content as realContent } from "@japacity/content";
-import type { Content, Id, PlayerView, ReportLine, Requirement, SlotPick } from "@japacity/sim";
-import { legalCommands, start, type Game, type Loose } from "@japacity/sim/testing";
+import type { Content, Id, Loose, PlayerView, ReportLine, Requirement, SlotPick } from "@japacity/sim";
+import { legalCommands } from "@japacity/sim";
+import { start, type Game } from "@japacity/sim/testing";
 
 import { earlyWinIn } from "../../features/guides/earlyWin";
 import { ownRouteOf } from "../words/sixteen";
