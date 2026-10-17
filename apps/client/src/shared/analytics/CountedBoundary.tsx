@@ -27,7 +27,7 @@ interface BoundaryState {
 const RENDER = "render";
 
 /** The screen feedback says it was sent from: the boundary stands above every screen, so it names itself. */
-export const BROKEN_SCREEN = "broken";
+const BROKEN_SCREEN = "broken";
 
 /** An error's name in a form that can only be a name (`TypeError`), never words a player wrote. */
 export function nameOf(error: unknown): string {
@@ -37,12 +37,12 @@ export function nameOf(error: unknown): string {
 }
 
 /** The build the page says it is (`<meta name="japacity-build">`, R-SERVER-038), or "unknown". */
-export function stampOf(): string {
+function stampOf(): string {
   return typeof document === "undefined" ? "unknown" : (buildOf(document) ?? "unknown");
 }
 
 /** The console's first line for a caught error: the build and the error's name. The error itself follows it. */
-export function brokenLine(error: unknown, build: string): string {
+function brokenLine(error: unknown, build: string): string {
   return `Japacity build ${build}: the screen broke (${nameOf(error)}).`;
 }
 

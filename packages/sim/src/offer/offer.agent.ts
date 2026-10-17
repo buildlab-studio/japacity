@@ -4,7 +4,7 @@
 // find the rest. Nothing here reads money to decide who appears or what he is.
 import { beingMade } from "../document/document.logic";
 import { BP_WHOLE, divFloor } from "../engine/int";
-import type { Content, Ctx, Id, OfferEntry, OfferState, ReadCtx, Requirement, RouteEntry, State, Terms, Tuning } from "../engine/types";
+import type { Content, Ctx, Id, OfferEntry, OfferState, Requirement, RouteEntry, State, Terms, Tuning } from "../engine/types";
 
 /** R-ADVICE-005, 013: the four kinds, in the order the draw takes them. */
 export const AGENT_KINDS = ["fixer", "chaser", "overpromiser", "scammer"] as const;
@@ -18,7 +18,7 @@ export type AgentKind = (typeof AGENT_KINDS)[number];
 export type Pitch = "insider" | "chaser";
 
 /** Every entry of the family, the agents and what they open, has an id that starts with this. */
-export const AGENT_PREFIX = "offer.agent-";
+const AGENT_PREFIX = "offer.agent-";
 /** What an overpromiser leaves on the table: his promise, which lapses in the month he named. */
 export const PROMISE: Id<"offer"> = "offer.agent-promise";
 /** What a scammer offers after the fee: fake papers. */
@@ -47,8 +47,6 @@ export const LOOK_FINDS: Record<Look, readonly string[]> = {
   "look-licence": ["no-licence"],
   "look-name": ["cash-only", "guarantee", "holds-passport", "no-passport", "price-low", "pay-today"],
 };
-/** The sign a friend's warning adds: "sounds like the one your friend warned about" (R-ADVICE-011). */
-export const WARNED = "friend-warned";
 
 /** Steps a fee is drawn in: ₦1,000, in kobo. */
 const FEE_STEP = 100000;
@@ -71,7 +69,7 @@ export function isLook(id: string): id is Look {
  * in the agent's office, which only a fixer keeps. Its kind is still drawn so
  * the stream moves the same way.
  */
-export function hasDesk(entry: OfferEntry): boolean {
+function hasDesk(entry: OfferEntry): boolean {
   return entry.fraudBp === 0;
 }
 
@@ -80,7 +78,7 @@ export function hasDesk(entry: OfferEntry): boolean {
  * (R-ADVICE-013) and the desk upstairs (R-ADVICE-010). Null for the stop,
  * where the draw decides.
  */
-export function fixedKind(entry: OfferEntry): AgentKind | null {
+function fixedKind(entry: OfferEntry): AgentKind | null {
   if (entry.id === CHASER) return "chaser";
   return hasDesk(entry) ? "fixer" : null;
 }
@@ -195,56 +193,9 @@ export function lookFinds(entry: OfferEntry, item: OfferState, look: Look, advic
   return carriedTells(entry, kindOf(item), advice).filter((key) => LOOK_FINDS[look].includes(key));
 }
 
-/** The tells the player has seen on this offer: its signs, less the marks of looks done and of a warning. */
+/** The tells the player has seen on this offer: its signs, less the marks of looks done. */
 export function tellsSeen(item: OfferState): string[] {
-  return item.signs.filter((key) => !isLook(key) && key !== WARNED);
-}
-
-// ---------------------------------------------------------------------------
-// The warning: R-ADVICE-011, offline side only
-// ---------------------------------------------------------------------------
-
-/** What a warning carries: facts, never a name. The month is the moment's tick. */
-export interface Warning {
-  place: string;
-  promise: string;
-  tells: string[];
-}
-
-const WARNING_HEAD = "warning";
-
-/** The warning as the `what` a pair's moment carries. */
-export function warningWhat(warning: Warning): string {
-  return [WARNING_HEAD, warning.place, warning.promise, [...warning.tells].sort().join("+")].join("|");
-}
-
-export function readWarning(what: string): Warning | null {
-  const [head, place, promise, tells] = what.split("|");
-  if (head !== WARNING_HEAD || place === undefined || promise === undefined || tells === undefined) return null;
-  return { place, promise, tells: tells === "" ? [] : tells.split("+") };
-}
-
-/** The place that stages an agent entry, or null. */
-export function placeOf(content: Content, entry: Id<"offer">): string | null {
-  return Object.values(content.place).find((place) => place.stages.includes(entry))?.id ?? null;
-}
-
-/**
- * R-ADVICE-011: a warning from a bond matches an agent at the same place
- * carrying the same tells, while it is under `warnMonths` old. Off unless
- * `on`: offline there is no friend to warn.
- */
-export function warned(read: ReadCtx, entry: OfferEntry, carried: readonly string[], on: boolean): boolean {
-  if (!on || carried.length === 0) return false;
-  const place = placeOf(read.content, entry.id);
-  const same = [...carried].sort().join("+");
-  return Object.values(read.state.people.bonds).some((bond) =>
-    bond.moments.some((moment) => {
-      const warning = readWarning(moment.what);
-      if (warning === null || warning.place !== place) return false;
-      return read.world.tick - moment.tick < read.content.tuning.advice.warnMonths && [...warning.tells].sort().join("+") === same;
-    }),
-  );
+  return item.signs.filter((key) => !isLook(key));
 }
 
 // ---------------------------------------------------------------------------
@@ -256,7 +207,7 @@ export function warned(read: ReadCtx, entry: OfferEntry, carried: readonly strin
  * (R-ADVICE-005): a fixer's is true; an overpromiser's or a scammer's leaves
  * out the heaviest item, the first on a tie, so it understates.
  */
-export function agentChecklist(route: RouteEntry | undefined, kind: AgentKind): string {
+function agentChecklist(route: RouteEntry | undefined, kind: AgentKind): string {
   if (route === undefined) return "";
   const items = route.checklist.map((item) => item.id);
   if (kind === "fixer" || kind === "chaser" || route.checklist.length === 0) return items.join(",");
@@ -268,7 +219,7 @@ export function agentChecklist(route: RouteEntry | undefined, kind: AgentKind): 
  * R-ADVICE-010: who stands there this time, as the text key whose `.name`
  * carries his name: `<entry>.who.<n>`, `n` drawn by the entry's term `who`.
  */
-export function agentName(entry: OfferEntry, own: Terms): string {
+function agentName(entry: OfferEntry, own: Terms): string {
   const who = own["who"];
   return typeof who === "number" ? `${entry.id}.who.${String(who)}` : entry.id;
 }
@@ -287,9 +238,8 @@ export function handedTerms(entry: OfferEntry, terms: Terms): Terms {
 /**
  * Opens an agent (R-ADVICE-005, 006, 013): the kind on `offer`, then the fee
  * from the kind's range on `offer` in whole thousands, then the tells. One
- * tell shows at once: the first he carries. A friend's warning uncovers them
- * all. What he says he does comes from the kind's draw, and the paper he
- * names is the one he would move now.
+ * tell shows at once: the first he carries. What he says he does comes from
+ * the kind's draw, and the paper he names is the one he would move now.
  */
 export function openAgent(ctx: Ctx, entry: OfferEntry, own: Terms, extra: Terms): OfferState {
   const advice = ctx.content.tuning.advice;
@@ -301,8 +251,7 @@ export function openAgent(ctx: Ctx, entry: OfferEntry, own: Terms, extra: Terms)
   const fee = min + FEE_STEP * ctx.random.between("offer", 0, divFloor(max - min, FEE_STEP));
   const paper = paperToMove(ctx.state, ctx.content, pitch);
   const carried = carriedTells(entry, kind, advice);
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
-  const signs = warned(read, entry, carried, advice.warnings) ? [...carried, WARNED] : carried.slice(0, 1);
+  const signs = carried.slice(0, 1);
   const route = typeof extra["route"] === "string" ? ctx.content.route[extra["route"] as Id<"route">] : undefined;
   const month = ctx.state.turn.month;
   return {
@@ -359,7 +308,7 @@ export function agentReadsMoney(entry: OfferEntry): boolean {
 export function agentProblems(content: Content): string[] {
   const problems: string[] = [];
   const advice = content.tuning.advice;
-  const findable = new Set<string>([...Object.values(LOOK_FINDS).flat(), WARNED]);
+  const findable = new Set<string>(Object.values(LOOK_FINDS).flat());
   for (const entry of Object.values(content.offer)) {
     if (!inFamily(entry.id)) continue;
     if (agentReadsMoney(entry)) problems.push(`${entry.id}: an agent's when reads money (R-ADVICE-007).`);

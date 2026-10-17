@@ -5,11 +5,13 @@ import { content } from "@japacity/content";
 import { allMet } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
+import type { KeptPerson } from "../../authority/person";
+import { pageOf } from "../datapage/PageSheet";
 import { chargedLivingContent, newGame } from "../testing/fixtures";
 import { start } from "../../../../../packages/sim/src/testing/play";
 import { say } from "../words/text";
 import { earlyStops, nextStepOf, ownWayOf, sixteenPath } from "../words/sixteen";
-import { agePointsCount, ARCHETYPES, type Archetype, archetypeOf, doorAnswer, handoverKind, lowestYear, ownSteps, presetAnswer, withAge } from "./archetypes";
+import { agePointsCount, ARCHETYPES, type Archetype, archetypeOf, doorAnswer, lowestYear, ownSteps, presetAnswer, withAge } from "./archetypes";
 
 const PROLOGUE = "scenario.prologue";
 const FIRST_CHAPTER = "chapter.find-your-feet";
@@ -23,6 +25,17 @@ interface Played {
   /** True when every step the archetype chose was answered as it chose: the draws kept the life on its path. */
   kept: boolean;
   game: ReturnType<typeof newGame>;
+}
+
+/** The person kept beside the save at Begin for a tile: what the handover's page reads the tile from. */
+function personOf(archetype: Archetype): KeptPerson {
+  return { look: "chr_ada", name: "Ada", archetype: archetype.id };
+}
+
+/** The handover page's path and what it was, for a life played on a tile. */
+function handover(archetype: Archetype, game: ReturnType<typeof newGame>): string {
+  const page = pageOf(game.view(), personOf(archetype));
+  return `${page.path}. ${page.was ?? ""}`;
 }
 
 /** `on`: the content the life is played on; the shipped content unless a test needs the living charged (decision 0035). */
@@ -246,23 +259,23 @@ describe("the tiles' words", { timeout: 20_000 }, () => {
 });
 
 describe("the handover reads the life as lived", () => {
-  test("[R-PROLOGUE-011] given lives on one draw each, as online, when the trader's tile is shut by the family and the life goes to university, then the handover says the years went another way and never names the trader; a trader's life kept says the trader", () => {
+  test("[R-PROLOGUE-011] given lives on one draw each, as online, when the trader's tile is shut by the family and the life goes to university, then the handover's page reads the years as lived and never names the trader; a trader's life kept says the trader", () => {
     const trader = archetypeOf("trader")!;
     const said = { kept: 0, off: 0 };
     const wrong: string[] = [];
     for (let at = 0; at < SEEDS; at += 1) {
       const { game, kept } = play(trader, `trader-${String(at)}`);
-      const line = handoverKind(trader, game.view());
+      const line = handover(trader, game);
       if (kept) {
         said.kept += 1;
-        if (line !== "The trader. Six years under a spare parts master.") wrong.push(`${String(at)}: ${line}`);
+        if (line !== "The trader. Six years under a spare parts master") wrong.push(`${String(at)}: ${line}`);
         continue;
       }
       // Shut out of the trade, most go through university. The few who then fail the exam twice end at a counter,
       // which the view cannot tell from a master's thin settlement: those still read as a trade.
       if (sixteenPath(game.view()) !== "degree") continue;
       said.off += 1;
-      if (line !== say("prologue.handover.lived.degree") || line.includes(say("prologue.archetype.trader.name"))) wrong.push(`${String(at)}: ${line}`);
+      if (line !== `${say("ui.page.lived.degree")}. ${say("prologue.page.lived.degree")}` || line.includes(say("prologue.archetype.trader.name"))) wrong.push(`${String(at)}: ${line}`);
     }
     expect(wrong).toEqual([]);
     expect(said.kept).toBeGreaterThan(0);
@@ -277,12 +290,12 @@ describe("the handover reads the life as lived", () => {
         // At its own year no retake is drawn (R-PROLOGUE-004): a second retake needs years of work to spare, so the
         // tile is started at the oldest year the card offers.
         const { game, kept } = play(withAge(archetype, 29 - lowestYear(archetype)), `${archetype.id}-${String(at)}`);
-        const line = handoverKind(archetype, game.view());
+        const line = handover(archetype, game);
         const tile = say(`prologue.archetype.${archetype.id}.name`);
         if (kept && !line.startsWith(`${tile}. `)) wrong.push(`${archetype.id} ${String(at)}: ${line}`);
         if (!kept) {
           off += 1;
-          if (line !== say("prologue.handover.lived.trade")) wrong.push(`${archetype.id} ${String(at)}: ${line}`);
+          if (line !== `${say("ui.page.lived.trade")}. ${say("prologue.page.lived.trade")}`) wrong.push(`${archetype.id} ${String(at)}: ${line}`);
         }
       }
     }
@@ -292,7 +305,7 @@ describe("the handover reads the life as lived", () => {
   }, 20_000);
 
   test("[R-PROLOGUE-011] given the words for one life and for a life as lived, then each is there, plain, with no dash", () => {
-    for (const key of ["prologue.archetype.once", "prologue.handover.lived.degree", "prologue.handover.lived.capital", "prologue.handover.lived.trade"]) {
+    for (const key of ["prologue.archetype.once", "prologue.page.lived.degree", "prologue.page.lived.capital", "prologue.page.lived.trade", "ui.page.lived.degree", "ui.page.lived.capital", "ui.page.lived.trade"]) {
       expect(say(key)).not.toBe(key);
       expect(say(key)).not.toMatch(/[\u2013\u2014]/);
     }
@@ -357,7 +370,7 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
       if (view.obligations.map((owed) => owed.entry).join(",") !== MAKOKO_UPKEEP) wrong.push(`${String(at)}: owes ${view.obligations.map((owed) => owed.entry).join(",")}`);
       if (view.obligations.some((owed) => owed.amount !== content.tuning.home.makokoUpkeep)) wrong.push(`${String(at)}: the room's bill ${JSON.stringify(view.obligations)}`);
       if (sixteenPath(view) !== "trade") wrong.push(`${String(at)}: ${String(sixteenPath(view))}`);
-      if (handoverKind(water, view) !== `${say("prologue.archetype.water.name")}. ${say("prologue.archetype.water.was")}.`) wrong.push(`${String(at)}: ${handoverKind(water, view)}`);
+      if (handover(water, game) !== `${say("prologue.archetype.water.name")}. ${say("prologue.archetype.water.was")}`) wrong.push(`${String(at)}: ${handover(water, game)}`);
     }
     expect(wrong).toEqual([]);
   });

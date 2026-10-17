@@ -6,7 +6,7 @@ import type { Thing } from "../../shared/world/contract";
 import { type OwnedSpot, type PlaceFile, type Spot, stageOf } from "./placeFile";
 
 /** The homes where the player arranges what is theirs: a home of their own, never the family house, a street or an office. */
-export const ARRANGED_HOMES: ReadonlySet<string> = new Set(["place.compound-room", "place.hostel-room", "place.makoko", "place.the-room"]);
+const ARRANGED_HOMES: ReadonlySet<string> = new Set(["place.compound-room", "place.hostel-room", "place.makoko", "place.the-room"]);
 
 /** Buy mode stands in the home lived in when it is a home of the player's own, with something owned standing in it. */
 export function buyModeAt(place: string, home: string | null, standing: readonly string[]): boolean {
@@ -19,7 +19,7 @@ export function ownedThingId(thing: string): string {
 }
 
 /** Where an owned thing stands now: where the player set it down, else its set spot. */
-export function spotOf(spot: OwnedSpot, arranged: Readonly<Record<string, Spot>>): Spot {
+function spotOf(spot: OwnedSpot, arranged: Readonly<Record<string, Spot>>): Spot {
   return arranged[spot.thing] ?? spot.at;
 }
 

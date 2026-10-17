@@ -59,7 +59,7 @@ const APPLIED_LINE = "line.activity.job-hunt.now";
  * The jobs asked for this month and not yet answered: the hunt done this month, and the
  * month's lines that name each job. The answer comes with the month's end, as an offer or a "not this time".
  */
-export function appliedJobs(view: Pick<PlayerView, "activities" | "job">, monthLines: readonly { key: string; params: Record<string, unknown> }[]): Id<"activity">[] {
+function appliedJobs(view: Pick<PlayerView, "activities" | "job">, monthLines: readonly { key: string; params: Record<string, unknown> }[]): Id<"activity">[] {
   if (view.activities.find((option) => option.id === HUNT)?.done !== true) return [];
   const asked = monthLines.filter((line) => line.key === APPLIED_LINE).map((line) => line.params["param"]);
   return [...new Set(asked.filter((job): job is Id<"activity"> => typeof job === "string" && job !== view.job.id && content.activity[job as Id<"activity">] !== undefined))];
@@ -84,7 +84,7 @@ function takeChoice(offer: OfferView): string | null {
 }
 
 /** The place in the city whose board the hunt is done at, or null where none stands. */
-export function boardPlace(): Id<"place"> | null {
+function boardPlace(): Id<"place"> | null {
   return Object.values(content.place).find((entry) => entry.where === "home" && entry.stages.includes(HUNT))?.id ?? null;
 }
 

@@ -78,7 +78,7 @@ export async function startReadyLife(scenario: string, name?: string): Promise<v
 }
 
 /** From the tiles to Where you live: Next on the second screen. */
-export function toWhereYouLive(): void {
+function toWhereYouLive(): void {
   fireEvent.click(screen.getByRole("button", { name: startsWith("ui.door.next") }));
 }
 

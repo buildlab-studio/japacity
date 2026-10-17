@@ -19,7 +19,7 @@ const PAPERS: Id<"offer"> = "offer.agent-papers";
 const CHASER: Id<"offer"> = "offer.agent-chaser";
 
 /** R-ADVICE-013: the papers a chaser follows up. The simulation's CHASED holds the same. */
-export const CHASED_PAPERS: Id<"document">[] = ["document.transcript", "document.police-certificate", "document.tb-certificate"];
+const CHASED_PAPERS: Id<"document">[] = ["document.transcript", "document.police-certificate", "document.tb-certificate"];
 
 const ALL_BOND_STAGES = ["connected", "courting", "partner", "married"] as const;
 const NETWORK: Requirement = { type: "quality/min", quality: "quality.network", value: tuning.advice.networkToAsk };
@@ -93,10 +93,10 @@ const BP_WHOLE = 10000;
  * R-ADVICE-006: every tell, in the order a careful player meets them. A tell
  * a fixer carries has `honestBp` 10000, one a scammer carries `fraudBp`
  * 10000; an overpromiser carries the fixer's and the first of the scammer's
- * after it. A friend's warning is never carried; it is found (R-ADVICE-011).
+ * after it.
  */
 function tells(fixer: readonly string[], scammer: readonly string[]): OfferEntry["signs"] {
-  const order = ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "no-passport", "pay-today", "price-low", "friend-warned"];
+  const order = ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "no-passport", "pay-today", "price-low"];
   return order.map((key) => ({ key, honestBp: fixer.includes(key) ? BP_WHOLE : 0, fraudBp: scammer.includes(key) ? BP_WHOLE : 0 }));
 }
 
@@ -153,7 +153,7 @@ function agent(id: Id<"offer">, who: OfferEntry["terms"][string], fraudBp: numbe
 }
 
 /** The fake papers a scammer sells: papers a route asks for that he can make (R-ADVICE-008). */
-export const FAKEABLE: Id<"document">[] = ["document.transcript", "document.tb-certificate", "document.medical"];
+const FAKEABLE: Id<"document">[] = ["document.transcript", "document.tb-certificate", "document.medical"];
 
 function fake(document: Id<"document">): OfferChoice {
   return {

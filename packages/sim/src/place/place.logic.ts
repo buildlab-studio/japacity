@@ -99,7 +99,7 @@ export function fareHome(read: ReadCtx): MoneyParam | null {
 }
 
 /** R-PLACE-004: no status at all, or only the country's overstayer status, which is no permission to be there. */
-export function holdsNoStatus(read: ReadCtx): boolean {
+function holdsNoStatus(read: ReadCtx): boolean {
   const current = read.state.status.current;
   return current === null || isOverstayer(read.content, current.entry);
 }
@@ -265,7 +265,7 @@ function fromFarShore(read: ReadCtx): boolean {
  * shape by `returnShape` read after the fare is paid as the wallet pays it, and the standing by the shape and the
  * capital. From the far shore the return is assisted with no fare (R-ROAD-009). Null when not abroad.
  */
-export function wayHomeOf(read: ReadCtx): WayHome | null {
+function wayHomeOf(read: ReadCtx): WayHome | null {
   const fare = fareHome(read);
   const country = read.state.place.country;
   if (fare === null || country === null) return null;
@@ -442,7 +442,7 @@ function countryRides(content: Pick<Content, "tuning">, country: Id<"country">):
 }
 
 /** R-PLACE-012: the month's pass is bought in the country the character is in, read from the month's played acts. */
-export function passHeld(read: ReadCtx): boolean {
+function passHeld(read: ReadCtx): boolean {
   const { where, country } = read.state.place;
   if (where !== "abroad" || country === null) return false;
   const act = PASS_ACT[country];
@@ -466,7 +466,7 @@ export function shuttleRide(from: Pick<PlaceEntry, "shuttle">, to: Pick<PlaceEnt
 }
 
 /** R-PLACE-013: the stops of the character's country the employer's shuttle serves, for the view; none at home or on the road. */
-export function shuttlesHere(read: ReadCtx): Id<"place">[] {
+function shuttlesHere(read: ReadCtx): Id<"place">[] {
   const { where, country } = read.state.place;
   if (where !== "abroad" || country === null) return [];
   return Object.values(read.content.place)
@@ -484,7 +484,7 @@ function ofCountry(place: Pick<PlaceEntry, "where" | "country">, country: Id<"co
  * sheet prices with `rideFare` what the command takes. At home the four ways of Lagos, and the car while it stands at
  * home; abroad the country's ways and on foot; nothing on the road or in a country with no ways.
  */
-export function waysHere(read: ReadCtx): RideWayView[] {
+function waysHere(read: ReadCtx): RideWayView[] {
   const { where, country } = read.state.place;
   const walk = homeFigures(read.content, "walk");
   if (walk === null) throw new Error("On foot has no figures.");
@@ -774,7 +774,7 @@ const FUEL_SCARCITY = "offer.fuel-scarcity" as const;
  * (answered or not: `lastOpened` keeps the month), every ride at home costs `tuning.city.ride.scarcityBp` of
  * its fare; any other month, and abroad, the fare as it stands.
  */
-export function fareBpOf(read: Pick<ReadCtx, "state" | "content">): number {
+function fareBpOf(read: Pick<ReadCtx, "state" | "content">): number {
   // The scarcity is Lagos's (R-PLACE-010): abroad, even in the month a flight follows it, fares stand.
   if (read.state.place.where !== "home") return BP_WHOLE;
   return read.state.offer.lastOpened[FUEL_SCARCITY] === read.state.turn.month ? read.content.tuning.city.ride.scarcityBp : BP_WHOLE;

@@ -27,8 +27,6 @@ function streetFind(id: Id<"offer">, country: Id<"country">): OfferEntry {
     group: "life",
     where: "abroad",
     bad: false,
-    // world.md R-WORLD-028: a small ask that needs no answer this month; an Until news run passes it.
-    news: false,
     when: [{ type: "place/is", where: "abroad", country }],
     chanceBp: tuning.street.findBp,
     cooldown: 2,

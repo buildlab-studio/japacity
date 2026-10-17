@@ -12,7 +12,8 @@ import { recordedGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { japaTypeOf, typeWords } from "../../shared/words/japaType";
 import { say } from "../../shared/words/text";
-import { gallery, keptType } from "./gallery";
+import { keptTypeOf } from "../../shared/card/kept";
+import { gallery } from "./gallery";
 import { CardView } from "./ShareCard";
 
 const tuning = content.tuning.share;
@@ -96,7 +97,7 @@ describe("the ticket stub beside the send-off card", () => {
     // R-SHARE-015: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
     fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: say("ui.report.close") }));
-    expect(keptType(gallery.getState().kept)).toBe(japaTypeOf(view));
+    expect(keptTypeOf(view.scenario)).toBe(japaTypeOf(view));
     const stored = JSON.parse(localStorage.getItem("japacity.cards") ?? "[]") as { type?: string }[];
     expect(stored[0]?.type).toBe(japaTypeOf(view));
     act(() => store.setState({ view: { ...view, v: view.v + 1, month: view.month + 1, card: null } }));
@@ -109,9 +110,9 @@ describe("the ticket stub beside the send-off card", () => {
   });
 
   test("[R-SHARE-011] given no send-off closed yet, or only other cards kept, then the data page reads no type", () => {
-    expect(keptType([])).toBeNull();
     const view = adaSendOff();
+    expect(keptTypeOf(view.scenario)).toBeNull();
     gallery.getState().keep(view.scenario, { ...view.card!, kind: "granted" });
-    expect(keptType(gallery.getState().kept)).toBeNull();
+    expect(keptTypeOf(view.scenario)).toBeNull();
   });
 });

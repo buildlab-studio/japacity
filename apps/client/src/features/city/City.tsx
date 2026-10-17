@@ -180,7 +180,7 @@ function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" 
 /** The first chapter by order (R-CHAPTER-001): its opening is a title over the world, never a card (R-CHAPTER-011). */
 const FIRST_CHAPTER = Object.values(content.chapter).reduce<{ id: string; order: number } | null>((first, entry) => (first === null || entry.order < first.order ? { id: entry.id, order: entry.order } : first), null)?.id ?? null;
 /** How long every name shows over its mark on a place's first entry in a life, before the names fade (R-WORLD-005). */
-export const TEACH_MS = 2000;
+const TEACH_MS = 2000;
 /** The beat in the room after the month ends, before the scene goes dark for the results (R-WORLD-025): short, never a wait. */
 export const RESULTS_BEAT_MS = 300;
 
@@ -210,7 +210,7 @@ const PARTY_SET = "offer.send-off-party";
 /** The party's own line, told over the full yard. */
 const PARTY_SAID = `${SEND_OFF}.said.party`;
 /** How long the party's line stands over the yard: long enough to read it, then the yard is the player's again. */
-export const PARTY_BEAT_MS = 6000;
+const PARTY_BEAT_MS = 6000;
 
 /** How long after a person's words what follows is told in the corner. */
 const THEN_MS = 1400;

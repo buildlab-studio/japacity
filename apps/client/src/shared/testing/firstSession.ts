@@ -19,7 +19,7 @@ export interface StartingLife {
   answers: Record<string, string>;
 }
 
-export interface FirstMonth {
+interface FirstMonth {
   slots: SlotPick[];
   lines: ReportLine[];
 }

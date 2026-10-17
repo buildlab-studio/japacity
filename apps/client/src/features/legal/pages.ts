@@ -21,7 +21,7 @@ export interface LegalPage {
 }
 
 /** The folder of the templates, from the client's root (Vite's `root`). */
-export const TEMPLATE_FOLDER = "src/features/legal";
+const TEMPLATE_FOLDER = "src/features/legal";
 
 const FIELD = /\{\{operator\.(\w+)\}\}/g;
 

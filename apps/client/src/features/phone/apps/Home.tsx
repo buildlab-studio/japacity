@@ -37,7 +37,7 @@ function shutWords(shut: HomeMoveShut, now: number, to: HomePlace): string {
 }
 
 /** The moves the card offers, as the view carries them: every home but the one lived in, each with its reason when shut. */
-export function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
+function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
   return view.home.moves.map((move) => ({ to: move.to, monthly: move.monthly.amount, now: move.now, shut: move.shut === null ? null : shutWords(move.shut, move.now, move.to) }));
 }
 
@@ -45,7 +45,7 @@ export function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
  * The month's charge where the character lives, said as what it is: Makoko's is the
  * room's rent; the family house's and the room's are living costs, food and light, never rent.
  */
-export function chargeWords(home: PlayerView["home"]): string {
+function chargeWords(home: PlayerView["home"]): string {
   if (home.rent === null) return phoneWords("phone.home.charge.none");
   // R-HOME-012 (decision 0035): nothing of the living is charged as the month turns, so no figure a month is said for it;
   // the family house says it as your share for the house (decision 0040).
@@ -58,7 +58,7 @@ export function chargeWords(home: PlayerView["home"]): string {
 }
 
 /** R-HOME-010: the room's yearly rent and when it is next taken, or null where none is open. */
-export function roomRentWords(home: PlayerView["home"]): string | null {
+function roomRentWords(home: PlayerView["home"]): string | null {
   if (home.roomRent === null) return null;
   return sayCount("phone.home.rent-year", home.roomRent.dueIn, { amount: formatMoney(home.roomRent.year, "NGN"), count: home.roomRent.dueIn });
 }
@@ -68,7 +68,7 @@ export function roomRentWords(home: PlayerView["home"]): string | null {
  * living there charges nothing a month (R-HOME-012, decision 0035), the line says it is bought as
  * you go and names no figure a month.
  */
-export function moveLineKey(from: HomePlace | null, to: HomePlace, monthly: number): string {
+function moveLineKey(from: HomePlace | null, to: HomePlace, monthly: number): string {
   const tail = monthly === 0 ? ".by-hand" : "";
   const own = from === null ? null : `phone.home.move.line.from.${from}.${to}${tail}`;
   return own !== null && hasWords(own) ? own : `phone.home.move.line.${to}${tail}`;

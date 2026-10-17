@@ -7,7 +7,7 @@ import { mulDiv } from "./int";
 import type { Random, Stream } from "./types";
 
 /** Two to the power 32: the number of possible draws. */
-export const DRAW_RANGE = 4294967296;
+const DRAW_RANGE = 4294967296;
 
 /** The golden-ratio step between consecutive draws of one stream. */
 const STEP = 0x9e3779b9;

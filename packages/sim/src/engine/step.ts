@@ -36,7 +36,7 @@ export const AUTHORITY_COMMANDS = [
 ] as const satisfies readonly CommandType[];
 
 /** Which kind owns each command, by the part before the slash. */
-export const COMMAND_OWNER: Record<PrefixOf<CommandType>, SliceKey> = {
+const COMMAND_OWNER: Record<PrefixOf<CommandType>, SliceKey> = {
   lottery: "lottery",
   people: "people",
   interview: "interview",
@@ -57,7 +57,7 @@ export const COMMAND_OWNER: Record<PrefixOf<CommandType>, SliceKey> = {
   chapter: "chapter",
 };
 
-export function commandOwner(type: CommandType): SliceKey {
+function commandOwner(type: CommandType): SliceKey {
   return COMMAND_OWNER[prefixOf(type) as PrefixOf<CommandType>];
 }
 

@@ -16,7 +16,7 @@ import type { EdgeCache, Made } from "./edge";
 import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge } from "./edge";
 
 /** R-CLOCK-018: the reply for the tick of `at`, and the seconds it may be cached. */
-export async function worldReply(deps: ServerDeps, at: number): Promise<{ reply: WorldReply; maxAge: number }> {
+async function worldReply(deps: ServerDeps, at: number): Promise<{ reply: WorldReply; maxAge: number }> {
   const tick = tickAt(deps.config.clock, at);
   const row = await tickRow(deps, tick);
   const nextTickAt = tickStartsAt(deps.config.clock, tick + 1);

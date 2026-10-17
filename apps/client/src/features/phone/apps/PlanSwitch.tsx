@@ -35,7 +35,7 @@ export function switchOf(view: PlayerView, route: Id<"route">): Switch | null {
 }
 
 /** The switch's line: "Instead of care work: -12 japacity", or the same japacity when nothing moves. */
-export function switchWords(choice: Switch): string {
+function switchWords(choice: Switch): string {
   const plan = say(`${choice.plan}.short`);
   if (choice.change === 0) return say("route.plan.same", { plan });
   return say("route.plan.instead", { plan, change: choice.change > 0 ? `+${String(choice.change)}` : String(choice.change) });

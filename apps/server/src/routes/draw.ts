@@ -44,7 +44,7 @@ const DRAWN_MAX_AGE = 86400;
  * The reply for draw `n`, or null when no such draw is stored. The list is the
  * one the close stored (R-LOTTERY-008), so it never changes once published.
  */
-export async function drawReply(deps: ServerDeps, draw: number): Promise<DrawReply | null> {
+async function drawReply(deps: ServerDeps, draw: number): Promise<DrawReply | null> {
   const row = await deps.stores.world.draw(draw);
   if (row === null) return null;
   const closesTick = closesTickOf(draw);

@@ -10,7 +10,7 @@ import type { LifeOptions } from "../route/route.journey";
 import type { Game } from "../testing/play";
 
 export const UK: Id<"country"> = "country.uk";
-export const SETTLED: Id<"status"> = "status.uk-settled";
+const SETTLED: Id<"status"> = "status.uk-settled";
 export const RENT_ROOM: Id<"obligation"> = "obligation.rent-room-uk";
 export const RENT_FLAT: Id<"obligation"> = "obligation.rent-flat-uk";
 export const PHONE: Id<"obligation"> = "obligation.phone-uk";

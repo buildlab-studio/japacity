@@ -167,7 +167,7 @@ interface Lifted {
 const wholeRig = (turn = 0): Rig => ({ zoom: 1, zoomTo: 1, turn, turnTo: turn, tilt: 0, tiltTo: 0, turning: false, pinching: false, room: null });
 
 /** The room a wide home's view eases in on: the one asked for, else the one the character stands in, else the first. */
-export function roomInView(rooms: readonly Room[], asked: string | null, at: { x: number; z: number }): Room | undefined {
+function roomInView(rooms: readonly Room[], asked: string | null, at: { x: number; z: number }): Room | undefined {
   return rooms.find((room) => room.id === asked) ?? roomAt(rooms, at.x, at.z) ?? rooms[0];
 }
 
@@ -255,7 +255,7 @@ interface WalkState {
 }
 
 /** A walk to a thing takes about this long whatever the distance; a second tap ends it at once (R-WORLD-010). */
-export const WALK_SECONDS = 1;
+const WALK_SECONDS = 1;
 
 interface PlaceProps extends SceneProps {
   /** The DOM box the labels and the acts are laid out in. */

@@ -9,7 +9,7 @@ export const STAGING_URL = "https://staging.japacity.app";
 const LOCAL_HOSTS: ReadonlySet<string> = new Set(["localhost", "127.0.0.1", "[::1]"]);
 
 /** True for an address on this machine. */
-export function isLocalUrl(url: string): boolean {
+function isLocalUrl(url: string): boolean {
   return URL.canParse(url) && LOCAL_HOSTS.has(new URL(url).hostname);
 }
 

@@ -405,7 +405,7 @@ function qualityOf(view: MeanwhileView, id: string): number {
 }
 
 /** The short id of the waiting-month act that fits this life and stands open this month, or null. */
-export function meanwhileOf(view: MeanwhileView, planned: readonly string[]): string | null {
+function meanwhileOf(view: MeanwhileView, planned: readonly string[]): string | null {
   for (const { act, fits } of MEANWHILE) {
     const id = `activity.${act}`;
     const option = view.activities?.find((candidate) => candidate.id === id);

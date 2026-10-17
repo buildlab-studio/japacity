@@ -9,7 +9,7 @@ import type { RgbaImage } from "./png";
 
 export type MaterialRole = "body" | "sign" | "pattern";
 
-export interface BakedPrimitive {
+interface BakedPrimitive {
   material: MaterialRole;
   positions: number[];
   /** Unit normals, three a vertex: only where a model has round parts drawn smooth (R-ASSET-005). */
@@ -22,7 +22,7 @@ export interface BakedPrimitive {
   indices: number[];
 }
 
-export interface BakedPart {
+interface BakedPart {
   node: string;
   primitives: BakedPrimitive[];
   /**

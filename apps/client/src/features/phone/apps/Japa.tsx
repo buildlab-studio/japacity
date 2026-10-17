@@ -146,7 +146,7 @@ function nextStepWords(ahead: NonNullable<ReturnType<typeof chapterAhead>>): str
  * offers it (the plan the chapters follow, R-CHAPTER-009, else the figure's), else the first route
  * the page offers (a route only heard of, before any plan).
  */
-export function officialRoute(view: PlayerView): string | null {
+function officialRoute(view: PlayerView): string | null {
   const official = view.activities.find((option) => option.id === OFFICIAL);
   if (official?.allowed !== true || official.params === null || official.params.length === 0) return null;
   const planned = view.plan.route ?? planRoute(view)?.id;
@@ -157,7 +157,7 @@ export function officialRoute(view: PlayerView): string | null {
  * The way out the Japa header names (R-WORLD-019), read as the nudge reads it: the plan's route,
  * else a route only heard of, since a route heard of is already a way out to look into.
  */
-export function headRoute(view: PlayerView): RouteView | null {
+function headRoute(view: PlayerView): RouteView | null {
   return planRoute(view) ?? view.routes.find((route) => route.state === "heard" && route.gate?.gate !== "road") ?? null;
 }
 

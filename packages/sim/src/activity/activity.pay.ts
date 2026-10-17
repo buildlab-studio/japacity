@@ -11,12 +11,12 @@ const WEEKS_PER_YEAR = 52;
 /** The driving test keeps its attempts where jobs keep their months (R-CAR-006). */
 export const DRIVING_TEST: Id<"activity"> = "activity.driving-test";
 /** The rented courier account: `tuning.ladder.accountRent` a week comes off its pay. */
-export const COURIER: Id<"activity"> = "activity.job-uk-courier-cash";
+const COURIER: Id<"activity"> = "activity.job-uk-courier-cash";
 /**
  * The trader's own shop: its takings grow a little with each month it has stood.
  * Tuning has no key for the shop's growth, so it reads `tuning.activity.raiseBp` as the share a full year adds.
  */
-export const SHOP: Id<"activity"> = "activity.run-shop";
+const SHOP: Id<"activity"> = "activity.run-shop";
 const HOME_LICENCE: Id<"document"> = "document.home-licence";
 const UK_LICENCE: Id<"document"> = "document.uk-licence";
 
@@ -52,7 +52,7 @@ export function hasCar(state: State, content: Content): boolean {
 }
 
 /** R-CAR-006: a home licence within its months, or the UK one. */
-export function licenceInForce(read: ReadCtx): boolean {
+function licenceInForce(read: ReadCtx): boolean {
   return check(read, { type: "document/held", document: HOME_LICENCE }).met || check(read, { type: "document/held", document: UK_LICENCE }).met;
 }
 
@@ -65,7 +65,7 @@ export function carHolds(read: ReadCtx, entry: ActivityEntry): boolean {
  * R-ACTIVITY-014: the best-paying tier whose `min` the character meets, as a figure in the pay's
  * currency, or null when no tier is met. A tier paid in another currency than the job's is a content error.
  */
-export function tierFigure(read: ReadCtx, entry: ActivityEntry): number | null {
+function tierFigure(read: ReadCtx, entry: ActivityEntry): number | null {
   let best: number | null = null;
   for (const tier of entry.tiers ?? []) {
     if (entry.pay !== null && tier.pay.currency !== entry.pay.currency) throw new Error(`${entry.id} has a tier paid in ${tier.pay.currency}, not ${entry.pay.currency}.`);

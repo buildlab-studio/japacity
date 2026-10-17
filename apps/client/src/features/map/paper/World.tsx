@@ -28,7 +28,7 @@ export interface Frame {
 }
 
 /** How much larger than the rest a place's sticker stands, by the city's own sizes (Lagos's unless another is given). */
-export function sizeOf(id: string, sizes: Readonly<Record<string, number>> = LAGOS_SIZES): number {
+function sizeOf(id: string, sizes: Readonly<Record<string, number>> = LAGOS_SIZES): number {
   return sizes[id] ?? 92;
 }
 

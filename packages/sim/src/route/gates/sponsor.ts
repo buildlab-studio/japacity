@@ -35,12 +35,12 @@ function routeOf(read: ReadCtx, id: Id<"route">): RouteState {
   return held;
 }
 
-export function sponsorOf(held: RouteState): Sponsor | null {
+function sponsorOf(held: RouteState): Sponsor | null {
   return held.gate?.gate === "sponsor" ? held.gate.sponsor : null;
 }
 
 /** The salary bar, in pence a year, from the route's world variable (R-SPONSOR-003, 006). */
-export function salaryBar(read: ReadCtx, entry: RouteEntry): number {
+function salaryBar(read: ReadCtx, entry: RouteEntry): number {
   return varOf(read, settings(entry).salaryVar);
 }
 

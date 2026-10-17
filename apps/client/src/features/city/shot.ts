@@ -16,16 +16,16 @@ export const SHOT_NEAR_PLANE = 1;
 /** A little room round the place's width, so its edge is not cut by the screen's. */
 export const FIT_MARGIN = 1.06;
 /** Where the close view looks: about the chest, a little ahead of the character, so a phone held upright shows what is in front. */
-export const CLOSE_LOOK_Y = 1;
+const CLOSE_LOOK_Y = 1;
 export const CLOSE_AHEAD = 2.5;
 
 /**
  * The shot a place file without one is given: the frontage ahead of the start, as the earlier camera
  * looked, widened and pulled back until the start and every thing stand in it with `margin` metres round them.
  */
-export const DEFAULT_SHOT = { ahead: 8, width: 24, near: 10, farPitch: 52, nearPitch: 38, turn: 25, margin: 3 } as const;
+const DEFAULT_SHOT = { ahead: 8, width: 24, near: 10, farPitch: 52, nearPitch: 38, turn: 25, margin: 3 } as const;
 /** The share of the lens's height the whole view keeps its depth inside, clear of the top band and the thumb buttons. */
-export const DEPTH_SHARE = 0.7;
+const DEPTH_SHARE = 0.7;
 
 const radians = (degrees: number): number => (degrees * Math.PI) / 180;
 const mix = (from: number, to: number, share: number): number => from + (to - from) * share;
@@ -136,11 +136,6 @@ export function clampTurn(shot: Pick<Shot, "turn">, turn: number): number {
 /** Where a turn released between quarters comes to rest: the nearest quarter. */
 export function snapTurn(turn: number): number {
   return Math.round(turn / 90) * 90;
-}
-
-/** The quarter the turn button eases to from a view at `turn`: the next one round, a quarter on from where it rests. */
-export function nextQuarter(turn: number): number {
-  return snapTurn(turn) + 90;
 }
 
 /** The turn for `quarter` (0 to 3) nearest a view at `turn`, so the view eases the short way round to it. */
@@ -358,7 +353,7 @@ export function roomDistance(room: Pick<Room, "width" | "pitch" | "floor"> & { c
  * width's fit holds at the point the view looks at; turned, the floor's near corners stand closer than that point and
  * spread wider, and this keeps them on screen too.
  */
-export function cornersDistance(shot: Pick<Shot, "centre">, ground: readonly [number, number], yaw: number, pitch: number, fov: number, aspect: number): number {
+function cornersDistance(shot: Pick<Shot, "centre">, ground: readonly [number, number], yaw: number, pitch: number, fov: number, aspect: number): number {
   const half = (Math.tan(radians(fov / 2)) * Math.max(aspect, 0.01)) / FIT_MARGIN;
   const [y, p] = [radians(yaw), radians(pitch)];
   const right: [number, number] = [-Math.cos(y), Math.sin(y)];

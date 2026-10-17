@@ -43,7 +43,7 @@ export function pairPlan(accounts: readonly string[], pairShareBp: number): [str
 }
 
 /** One seeded account as the manifest keeps it. */
-export interface Seeded extends SeedAccount {
+interface Seeded extends SeedAccount {
   character: string;
   /** Months actually played: under `warm` only when the life ended or a command was refused. */
   played: number;

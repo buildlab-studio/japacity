@@ -4,7 +4,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
-import { bp, convertMinor, divFloor, mulDiv, mulDivCeil } from "../engine/int";
+import { convertMinor, mulDiv } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { ActivityEntry, Content, Currency, Id, ReadCtx, ReportLine, Requirement, RouteStateName, SchoolEntry, ForeignCurrency } from "../engine/types";
 import { lifeStart, savedCommands } from "../engine/replay";
@@ -40,7 +40,7 @@ import {
   watchHear,
 } from "./route.journey";
 import type { LifeOptions, Watch } from "./route.journey";
-import { flyingFundsShown, FRIEND, fundsRequired, fundsShown, offerChanceBp, refusalChanceBp, refusalReasons, routeKind, unexplainedBp } from "./route.logic";
+import { FRIEND, fundsRequired, fundsShown, offerChanceBp, refusalChanceBp, refusalReasons, routeKind, unexplainedBp } from "./route.logic";
 
 const numbers = content.tuning.route;
 /** The UK master's own base chance of refusal (R-ROUTE-016). */
@@ -77,23 +77,6 @@ function toPence(game: Game, amount: number, currency: Currency): number {
   const rates = game.world().rates;
   const official = Object.fromEntries(Object.entries(rates).map(([key, rate]) => [key, rate.official])) as Record<ForeignCurrency, number>;
   return convertMinor(amount, currency, "GBP", official);
-}
-
-/** Naira in pence as a fee paid through the bank would carry it: a search for the most it pays, not the code's own arithmetic. */
-function flying(game: Game, kobo: number): number {
-  const rate = game.world().rates.GBP.official;
-  const cost = (pence: number) => {
-    const naira = mulDivCeil(pence, rate, 100);
-    return naira + bp(naira, content.tuning.wallet.bankChargeBp);
-  };
-  let low = 0;
-  let high = mulDiv(kobo, 100, rate) + 1;
-  while (high - low > 1) {
-    const middle = low + divFloor(high - low, 2);
-    if (cost(middle) <= kobo) low = middle;
-    else high = middle;
-  }
-  return low;
 }
 
 function routeLines(lines: ReportLine[]): ReportLine[] {
@@ -615,48 +598,6 @@ describe("funds", () => {
     expect(fundsShown(readOf(game), UK)).toBe(bankOnly + toPence(game, 1000 * UNIT, "USD") + toPence(game, 9000000 * UNIT, "NGN"));
     game.accept({ type: "wallet/move", currency: "GBP", amount: 5000 * UNIT, to: "cash" });
     expect(fundsShown(readOf(game), UK)).toBe(bankOnly - 5000 * UNIT + toPence(game, 1000 * UNIT, "USD") + toPence(game, 9000000 * UNIT, "NGN"));
-  });
-
-  test("[R-ROUTE-010] given bank, cash and locked money in three currencies and family support, when the study route's money that flies is worked out, then pounds count in full, dollars in the bank at the official rate, the naira bank only as the fee path carries it, and held naira, the support and cash not at all", () => {
-    const game = life({
-      pockets: {
-        NGN: { bank: 3000000 * UNIT, cash: 500000 * UNIT },
-        GBP: { bank: 5000 * UNIT, cash: 900 * UNIT },
-        USD: { bank: 2000 * UNIT, cash: 700 * UNIT },
-      },
-    });
-    toKnown(game);
-    // The month on the way paid the living costs, over the line for cash, from the bank first (wallet.md R-WALLET-018).
-    const naira = game.state.wallet.pockets.NGN.bank;
-    expect(game.state.wallet.pockets.NGN.cash).toBe(500000 * UNIT);
-    const flies = flying(game, naira) + 5000 * UNIT + toPence(game, 2000 * UNIT, "USD");
-    expect(flyingFundsShown(readOf(game), UK)).toBe(flies);
-    expect(flying(game, naira)).toBeLessThan(toPence(game, naira, "NGN"));
-    applyEffects(game, [
-      { type: "money/add", currency: "GBP", pocket: "bank", amount: 1000 * UNIT, reason: "held-funds", locked: true },
-      { type: "money/add", currency: "NGN", pocket: "bank", amount: 4000000 * UNIT, reason: "held-funds", locked: true },
-      { type: "money/add", currency: "USD", pocket: "bank", amount: 1000 * UNIT, reason: "held-funds", locked: true },
-      { type: "route/support", route: UK, currency: "NGN", amount: 9000000 * UNIT },
-    ]);
-    expect(flyingFundsShown(readOf(game), UK)).toBe(flies + 1000 * UNIT);
-    // `fundsShown`, the measure the route reads, still counts them all.
-    expect(fundsShown(readOf(game), UK)).toBeGreaterThan(flyingFundsShown(readOf(game), UK));
-  });
-
-  test("[R-ROUTE-010] given naira that pays a fee of exactly some pounds through the bank, when the study route's money that flies is worked out, then it shows those pounds and not a penny more", () => {
-    const game = life({ pockets: { NGN: { bank: 0, cash: 0 }, GBP: { bank: 0, cash: 0 }, USD: { bank: 0, cash: 0 } } });
-    toKnown(game);
-    expect(flyingFundsShown(readOf(game), UK)).toBe(0);
-    const rate = game.world().rates.GBP.official;
-    const pounds = 1000 * UNIT;
-    const naira = mulDivCeil(pounds, rate, 100);
-    const needed = naira + bp(naira, content.tuning.wallet.bankChargeBp);
-    applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: needed - 1, reason: "gift" }]);
-    expect(flyingFundsShown(readOf(game), UK)).toBe(pounds - 1);
-    applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 1, reason: "gift" }]);
-    expect(check(readOf(game), { type: "money/can-pay", currency: "GBP", amount: pounds }).met).toBe(true);
-    expect(check(readOf(game), { type: "money/can-pay", currency: "GBP", amount: pounds + 1 }).met).toBe(false);
-    expect(flyingFundsShown(readOf(game), UK)).toBe(pounds);
   });
 
   test("[R-ROUTE-010] given the family pledge's support effect, when it is carried out with the pledge's terms, then the support on the route reads the term and is told", () => {

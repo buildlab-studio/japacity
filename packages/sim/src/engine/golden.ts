@@ -4,7 +4,7 @@ import { hashState } from "./hash";
 import { playSave } from "./replay";
 import type { Content, FlatSave, Save, World } from "./types";
 
-export interface GoldenMonth {
+interface GoldenMonth {
   month: number;
   v: number;
   banked: number;

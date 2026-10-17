@@ -45,7 +45,7 @@ function adaTeaching() {
 }
 
 describe("the Calendar's month", () => {
-  test("[R-WORLD-007] [R-TURN-010] given a fresh month and a month with a course carrying on, when the Calendar shows, then it holds no free time rows, no pages, no Next month and no Until news, and never says Free time, pages, Next month or Until news", async () => {
+  test("[R-WORLD-007] [R-TURN-010] [R-WORLD-028] given a fresh month and a month with a course carrying on, when the Calendar shows, then it holds no free time rows, no pages, no Next month and no Until news, and never says Free time, pages, Next month or Until news", async () => {
     const view = { ...richView(), setpiece: null, interview: null };
     const { authority, store } = await renderWithView(<Calendar />, view);
     const shown = (): string => document.querySelector("[data-calendar-app]")?.textContent ?? "";

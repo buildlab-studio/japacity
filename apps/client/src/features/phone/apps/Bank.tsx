@@ -61,7 +61,7 @@ export function latelyMoney(view: Pick<PlayerView, "report">, lastMonth: readonl
  * plan is set, as on the results; this only words a plan with no figure yet: a way only heard of, with nothing to
  * count, is still no plan.
  */
-export function planMade(view: Pick<PlayerView, "plan" | "routes">): boolean {
+function planMade(view: Pick<PlayerView, "plan" | "routes">): boolean {
   const lean = view.plan.route;
   if (lean === null) return false;
   const state = view.routes.find((route) => route.id === lean)?.state ?? "unknown";

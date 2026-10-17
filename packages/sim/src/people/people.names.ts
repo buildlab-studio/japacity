@@ -16,7 +16,7 @@ export interface NameDrawEntry {
 }
 
 /** True when a name suits a person of this sex. */
-export function suits(entry: NameDrawEntry, sex: "f" | "m" | null): boolean {
+function suits(entry: NameDrawEntry, sex: "f" | "m" | null): boolean {
   return sex === null || entry.sex === "either" || entry.sex === sex;
 }
 

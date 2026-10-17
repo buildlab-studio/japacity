@@ -18,9 +18,9 @@ import { phoneWords } from "./phone.words";
 export const PHONE_ACTS: ReadonlySet<string> = new Set(["activity.get-transcript", "activity.get-eca", "activity.request-verification", "activity.renew-licence"]);
 
 /** Where a paper stands: held and in date, on its way (a renewal of one held among them), run out, or not yet asked for. */
-export type PaperState = "held" | "coming" | "expired" | "not-yet";
+type PaperState = "held" | "coming" | "expired" | "not-yet";
 
-export interface PaperAct {
+interface PaperAct {
   activity: string;
   /** `phone`: taken in the app. `visit`: taken at `place`, which the app names and opens the map on. */
   how: "phone" | "visit";

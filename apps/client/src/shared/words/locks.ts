@@ -10,12 +10,12 @@ import { hasWords, say, sayCount } from "./text";
 export const SIDE_JOB_LOCK = "side-job";
 
 /** Months a lock still holds, counting the month in hand. */
-export function lockMonthsLeft(lock: SlotLock, month: number): number {
+function lockMonthsLeft(lock: SlotLock, month: number): number {
   return Math.max(1, lock.untilMonth - month + 1);
 }
 
 /** Content's reason as words, or the plain fallback for a reason the interface has no words for yet. */
-export function lockReason(why: string): string {
+function lockReason(why: string): string {
   return say(hasWords(`ui.locks.why.${why}`) ? `ui.locks.why.${why}` : "ui.locks.why.other");
 }
 

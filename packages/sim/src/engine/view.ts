@@ -64,7 +64,7 @@ export const VIEW_KEYS = [
 export const VIEW_KEYS_COMPLETE: [Exclude<keyof PlayerView, (typeof VIEW_KEYS)[number]>] extends [never] ? true : never = true;
 
 /** Names that must never appear as a key anywhere in a view. */
-export const HIDDEN_KEYS = ["seed", "draws", "secret"] as const;
+const HIDDEN_KEYS = ["seed", "draws", "secret"] as const;
 
 /** Walks any value and returns the paths of keys named in HIDDEN_KEYS. Empty when the view is clean. */
 export function hiddenPaths(value: unknown, path = ""): string[] {

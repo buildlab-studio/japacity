@@ -8,7 +8,7 @@ import type { NewsEvent } from "./news.events";
 const RANK: Record<NewsStage, number> = { rumour: 0, announced: 1, "in-force": 2, ended: 3 };
 
 /** R-NEWS-005: the story touches a route the character has heard of, or got further with. */
-export function isForYou(state: State, content: Content, id: Id<"news">): boolean {
+function isForYou(state: State, content: Content, id: Id<"news">): boolean {
   const entry = content.news[id];
   if (entry === undefined) return false;
   return entry.touches.some((route) => {

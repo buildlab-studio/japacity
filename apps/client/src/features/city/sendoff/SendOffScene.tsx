@@ -21,12 +21,12 @@ import { Counter, Departures, type Dress, Gate, LandingBeat, Plane, Ride, useSta
 import { blindName, castFor, firstPings, flightCost, FRONT_MS, GATE_LINE, landingOf, PLANE_MS, queueLine, speakerName, stopLookFor } from "./plan";
 
 /** The city the plane's sticker names, by the hub's city in content (world.md R-WORLD-037). */
-export function planeCity(city: string): string {
+function planeCity(city: string): string {
   return sendOffWords(`sendoff.plane.city.${city}`);
 }
 
 /** Who the character is, read by the city where the person kept beside the save is read (the scene's chunk stays small). */
-export interface SendOffYou {
+interface SendOffYou {
   /** The name the world's band shows. */
   name: string;
   /** The first name the stub carries. */
@@ -41,7 +41,7 @@ export interface SendOffYou {
  * The game as the city holds it, handed in: the scene's chunk imports nothing of the store, so the first visit's chunks
  * keep their shape (engine.md R-ENGINE-020).
  */
-export interface SendOffGame {
+interface SendOffGame {
   view: PlayerView;
   busy: boolean;
   /** Sends a command; resolves with whether it was accepted. */

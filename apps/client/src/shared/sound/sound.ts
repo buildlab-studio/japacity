@@ -122,7 +122,7 @@ export function endScene(scene: string): void {
 }
 
 /** At most once a scene, never stacked. */
-export function showNotice(which: NoticeCase): void {
+function showNotice(which: NoticeCase): void {
   const { scene, noticed, notice } = soundStore.getState();
   const key = scene ?? "game";
   if (noticed === key || notice !== null) return;

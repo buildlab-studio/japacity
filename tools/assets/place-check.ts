@@ -18,14 +18,14 @@ import { openStage, signText } from "./stage-browser";
 
 export const CHEAP_PHONE = { ...PHONE_SHOT, slowdown: 6 } as const;
 /** The day the check samples each crowd for, so a run gives the same people every time. */
-export const CHECK_DATE = "2026-10-08";
+const CHECK_DATE = "2026-10-08";
 /** The player's own figure in the check: the city's fallback look. */
 export const CHECK_OWN = "shared/chr/chr_tunde.glb";
 /** Frames recorded for each place, mode and state. */
-export const FRAMES = 20;
+const FRAMES = 20;
 /** The script is timed in blocks of this many frames' updates, and the fastest block counts, as other work on the machine only ever slows one. */
-export const SCRIPT_FRAMES = 150;
-export const SCRIPT_BLOCKS = 3;
+const SCRIPT_FRAMES = 150;
+const SCRIPT_BLOCKS = 3;
 /** Taps routed on each place for the cost of routing (city.md R-CITY-030). */
 export const ROUTE_TAPS = 300;
 const MODES: readonly Mode[] = ["low", "high"];
@@ -196,7 +196,7 @@ export function describeMeasure(measure: PlaceMeasure): string {
 }
 
 /** The routing line of the summary (city.md R-CITY-030): the map once, then the taps' middle, average and worst. */
-export function describeRoutes(place: string, routes: RouteCost): string {
+function describeRoutes(place: string, routes: RouteCost): string {
   return `${place} routes: map of ${String(routes.cells)} cells built in ${routes.mapMs.toFixed(2)} ms; ${String(routes.taps)} taps middle ${routes.middleMs.toFixed(2)} ms, average ${routes.averageMs.toFixed(2)} ms, worst ${routes.worstMs.toFixed(2)} ms`;
 }
 

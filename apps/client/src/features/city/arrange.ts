@@ -7,12 +7,12 @@ import { type Footprint, inPolygon, type PlacedBox, placeFootprint } from "@japa
 import type { Spot, Stage } from "./placeFile";
 
 /** How far a thing keeps from the door's spot, a person's spot and the spot a thing is walked to, in metres. */
-export const KEEP_CLEAR = 0.2;
+const KEEP_CLEAR = 0.2;
 /** A quarter turn, the turn a tap gives a lifted thing. */
 export const QUARTER = Math.PI / 2;
 
 /** The four corners of a placed box: its centre, out along its width and its depth (the city's turn about +Y). */
-export function cornersOf(box: PlacedBox): [number, number][] {
+function cornersOf(box: PlacedBox): [number, number][] {
   const ux = box.cos * box.halfWidth;
   const uz = -box.sin * box.halfWidth;
   const vx = box.sin * box.halfDepth;

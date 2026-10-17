@@ -5,7 +5,7 @@ import { fullSides, quarterOf, WALL_SIDES, wallNode, wallOf, wallPairs, type Wal
 import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Vector2, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 
-import { nextQuarter, quarterTurns, snapTilt, snapTurn, turnToward } from "./shot";
+import { quarterTurns, snapTilt, snapTurn, turnToward } from "./shot";
 import { showWalls, WALL_SLACK, wallsOf, wallsQuarter } from "./walls";
 
 /** Each side's outward way in the place's frame (x, z): the back at -z, the left at -x, the front at +z, the right at +x. */
@@ -128,14 +128,12 @@ describe("the walls' pairs", () => {
 });
 
 describe("the turn's snap", () => {
-  test("[R-WORLD-009] given a wide home's turn released anywhere, when it comes to rest, then it is the nearest quarter and nowhere between; the button eases a quarter on, the short way to a kept quarter", () => {
+  test("[R-WORLD-009] given a wide home's turn released anywhere, when it comes to rest, then it is the nearest quarter and nowhere between; the button eases the short way to a kept quarter", () => {
     expect(snapTurn(0)).toBe(0);
     expect(snapTurn(44)).toBe(0);
     expect(snapTurn(46)).toBe(90);
     expect(snapTurn(-46)).toBe(-90);
     expect(snapTurn(400)).toBe(360);
-    expect(nextQuarter(0)).toBe(90);
-    expect(nextQuarter(87)).toBe(180);
     expect(quarterTurns(-90)).toBe(3);
     expect(quarterTurns(450)).toBe(1);
     // From a view at 270 (three quarters), the kept quarter 0 is a quarter on, not three back.

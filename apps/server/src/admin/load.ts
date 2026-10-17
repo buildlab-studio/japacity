@@ -61,7 +61,7 @@ export async function worldsFor(deps: Pick<ServerDeps, "stores">, rows: readonly
  * dropped, and every later command is stepped on the version the replay has
  * reached, so one drop does not reject the rest as stale.
  */
-export function replayRows(start: State, rows: readonly LogRow[], content: Content, worlds: ReadonlyMap<number, World>): Replayed {
+function replayRows(start: State, rows: readonly LogRow[], content: Content, worlds: ReadonlyMap<number, World>): Replayed {
   let state = start;
   let firstDiff: Diff | null = null;
   const dropped: Dropped[] = [];

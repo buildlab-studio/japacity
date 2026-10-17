@@ -62,7 +62,7 @@ export { listHashOf };
  * R-LOTTERY-008: the frozen list's tokens in ticket order.
  * A ticket whose character is gone (an account deleted) has no account id left to hash; its token is made from the character id instead. The first close stores the list (`listOf`), so the published list stays fixed whatever is deleted afterwards.
  */
-export async function tokensOf(deps: Pick<ServerDeps, "stores">, key: string, draw: number, tickets: readonly TicketRow[]): Promise<string[]> {
+async function tokensOf(deps: Pick<ServerDeps, "stores">, key: string, draw: number, tickets: readonly TicketRow[]): Promise<string[]> {
   const byCharacter = new Map<string, string>();
   const tokens: string[] = [];
   for (const ticket of tickets) {
@@ -84,7 +84,7 @@ export type DrawDeps = Pick<ServerDeps, "config" | "stores" | "contents" | "rand
  * on a five-minute job, so a gap is a run or two; past this many draws the
  * world is treated as never having drawn, and the jackpot starts again.
  */
-export const LOOK_BACK_DRAWS = 8;
+const LOOK_BACK_DRAWS = 8;
 
 /** The newest stored draw before `draw`, within `LOOK_BACK_DRAWS`, or null. */
 export async function storedBefore(world: Pick<WorldStore, "draw">, draw: number): Promise<DrawRow | null> {
@@ -163,7 +163,7 @@ export type Prize = { tier: "jackpot" | "mid" | "small"; amount: number };
  * R-LOTTERY-011, R-LOTTERY-013: each winning character's prizes, one entry per
  * winning ticket, in ascending character id order. Zero-kobo prizes are left out.
  */
-export function prizesByCharacter(result: LotteryResult, tickets: readonly TicketRow[]): [string, Prize[]][] {
+function prizesByCharacter(result: LotteryResult, tickets: readonly TicketRow[]): [string, Prize[]][] {
   const owed = new Map<string, Prize[]>();
   for (const tier of result.winners) {
     if (tier.amount < 1) continue;

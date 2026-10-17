@@ -5,7 +5,7 @@
 import type { Effect, Id, ReadCtx, State } from "../engine/types";
 
 /** A sibling, real or computer, whose facts show them living abroad in `country`. */
-export function siblingLivesIn(state: State, country: Id<"country">): boolean {
+function siblingLivesIn(state: State, country: Id<"country">): boolean {
   return Object.values(state.people.bonds).some(
     (bond) => bond.role === "sibling" && bond.stage !== "ended" && bond.facts !== null && bond.facts.where === "abroad" && bond.facts.country === country,
   );

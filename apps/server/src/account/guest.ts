@@ -18,7 +18,7 @@ const SECURE = "Secure this life with Google or an email code";
 export const BOARDS_DETAIL = `${SECURE} to be on the boards.`;
 
 /** R-ACCOUNT-022: the commands only a secured account may send, each with what the refusal says. */
-export const SECURED_COMMANDS: Partial<Record<CommandType, string>> = {
+const SECURED_COMMANDS: Partial<Record<CommandType, string>> = {
   "lottery/buy": `${SECURE} to buy lottery tickets.`,
   "people/invite": `${SECURE} to invite a friend.`,
 };
@@ -39,7 +39,7 @@ export function guestOnly(detail: string): ServerRejection {
 }
 
 /** True when the signed-in account is a guest. An account with no row is not one: the routes answer it themselves. */
-export async function isGuest(deps: ServerDeps, account: string): Promise<boolean> {
+async function isGuest(deps: ServerDeps, account: string): Promise<boolean> {
   return (await deps.stores.account.get(account))?.state === "guest";
 }
 
@@ -112,8 +112,8 @@ export function guestGates(deps: ServerDeps): Hono<SessionEnv> {
 /** The device cookie: a random id, set on the first guest start, that only this count reads. */
 export const DEVICE_COOKIE = "japacity-device";
 
-export const GUEST_DEVICE_PREFIX = "guest-device:";
-export const GUEST_ADDRESS_PREFIX = "guest-address:";
+const GUEST_DEVICE_PREFIX = "guest-device:";
+const GUEST_ADDRESS_PREFIX = "guest-address:";
 
 interface WindowRow {
   key: string;

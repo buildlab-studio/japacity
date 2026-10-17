@@ -6,7 +6,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { Turnstile, type LoadTurnstile } from "./Turnstile";
 
 /** How long the step waits for the unseen check's token before it sends without one. */
-export const BOT_WAIT_MS = 8_000;
+const BOT_WAIT_MS = 8_000;
 
 export interface UnseenCheck {
   /** The widget, unseen unless Cloudflare needs a tap; null without a site key. */

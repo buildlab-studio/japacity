@@ -46,7 +46,7 @@ export function facts(over: Partial<PersonFacts> = {}): PersonFacts {
   };
 }
 
-export function bond(over: Partial<Bond> = {}): Bond {
+function bond(over: Partial<Bond> = {}): Bond {
   return {
     with: { kind: "player", pair: "pair-1" },
     role: "partner",

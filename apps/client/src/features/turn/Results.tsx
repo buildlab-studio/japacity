@@ -21,7 +21,7 @@ import { CHANGED_INTO, changesInto, drawMissed, drawShown, isEvicted, isUnpaid, 
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
-export function useResultsOpen(): boolean {
+function useResultsOpen(): boolean {
   const open = useGame((state) => state.reportOpen && state.moments.length === 0);
   const report = useView().report;
   return open && report !== null;

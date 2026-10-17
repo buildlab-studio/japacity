@@ -25,7 +25,7 @@ const WEIGHT: Record<ReportReason, number> = {
 const APPEAL_WEIGHT = 2;
 
 /** A held message as the admin reads it: the phrase's own words and when it was sent. */
-export interface HeldMessage {
+interface HeldMessage {
   id: string;
   sender: string;
   phrase: string;

@@ -8,10 +8,10 @@ import { useEffect, useRef, useState } from "react";
 import { glowFill, stillWanted } from "./TwoLights";
 
 /** R-ACCOUNT-032: one breath, in or out, about four seconds, as the design's own `breathe` runs. */
-export const BREATH_MS = 4_000;
+const BREATH_MS = 4_000;
 
 /** The breath: from a little under its light to its full light and back; opacity alone. */
-export const BREATH: Keyframe[] = [{ opacity: 0.78 }, { opacity: 1 }];
+const BREATH: Keyframe[] = [{ opacity: 0.78 }, { opacity: 1 }];
 
 /** Where the wire meets a bulb of radius `r` hanging at (x, y): the top of its cap. */
 export function capTop(y: number, r: number): number {

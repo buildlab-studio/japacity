@@ -66,7 +66,7 @@ export interface Shown {
 }
 
 /** What the store needs beyond the contract to start a life, and to end one. */
-export interface LifeControls {
+interface LifeControls {
   newLife(scenario: Id<"scenario">): Promise<PlayerView>;
   /** R-ACCOUNT-030: ends the life for good; false when the authority refused. */
   endLife?(): Promise<boolean>;
@@ -292,7 +292,7 @@ function wonEarly(view: PlayerView, lines: readonly ReportLine[], slots: readonl
 }
 
 /** True when a pick fills one of the month's slots: an activity whose `slot` is `none` fills none (R-TURN-006). */
-export function takesSlot(pick: SlotPick): boolean {
+function takesSlot(pick: SlotPick): boolean {
   return content.activity[pick.activity]?.slot !== "none";
 }
 
@@ -306,7 +306,7 @@ export function plannedShut(plan: readonly (SlotPick | null)[], pick: SlotPick):
 }
 
 /** The picks that fill slots, empty slots among them: the plan's first part. */
-export function slotted(plan: readonly (SlotPick | null)[]): (SlotPick | null)[] {
+function slotted(plan: readonly (SlotPick | null)[]): (SlotPick | null)[] {
   return plan.filter((pick) => pick === null || takesSlot(pick));
 }
 
@@ -358,7 +358,7 @@ function writeMonth(memory: MonthMemory): boolean {
 }
 
 /** Drops what the browser remembers of the month: a new life, or a test's own load. */
-export function forgetMonth(): boolean {
+function forgetMonth(): boolean {
   try {
     localStorage.removeItem(MONTH_KEY);
     return true;

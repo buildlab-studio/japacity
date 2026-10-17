@@ -121,7 +121,7 @@ export function centre(mask: Mask): Mask {
 }
 
 /** Grows a mask by a disc of radius r pixels. */
-export function grow(mask: Mask, r: number): Mask {
+function grow(mask: Mask, r: number): Mask {
   const data = new Uint8Array(mask.width * mask.height);
   const offsets: [number, number][] = [];
   for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (dx * dx + dy * dy <= r * r) offsets.push([dx, dy]);
@@ -139,7 +139,7 @@ export function grow(mask: Mask, r: number): Mask {
 }
 
 /** Overlap over union of two masks of one size. */
-export function iou(a: Mask, b: Mask): number {
+function iou(a: Mask, b: Mask): number {
   let inter = 0;
   let union = 0;
   for (let i = 0; i < a.data.length; i++) {

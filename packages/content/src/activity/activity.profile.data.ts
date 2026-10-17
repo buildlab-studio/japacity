@@ -13,8 +13,8 @@ const STUDY: Id<"route"> = "route.uk-masters";
 
 export const TALK: Id<"setpiece"> = "setpiece.conference-talk";
 export const NURSE_EXAM: Id<"setpiece"> = "setpiece.nurse-exam";
-export const NURSE_CERTIFICATE: Id<"document"> = "document.nurse-certificate";
-export const MASTERS_FEES: Id<"obligation"> = "obligation.masters-at-home";
+const NURSE_CERTIFICATE: Id<"document"> = "document.nurse-certificate";
+const MASTERS_FEES: Id<"obligation"> = "obligation.masters-at-home";
 
 function atLeast(quality: Id<"quality">, value: number): Requirement {
   return { type: "quality/min", quality, value };

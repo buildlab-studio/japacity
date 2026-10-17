@@ -100,8 +100,8 @@ describe("statuses", () => {
     expect(content.status["status.uk-settled"]).toMatchObject({ months: null, citizenAfter: 12, citizen: "status.uk-citizen" });
     // The Gulf worker: 24 months, lapses at once, the employer holds the passport.
     expect(content.status["status.gulf-worker"]).toMatchObject({ months: 24, lapsesAtOnce: true, clockMonths: null, holdsPassport: true, banMonths: 60 });
-    // Bans and detection: 10 years and 12 months in the UK, 20 years in Canada; 3%, 3%, 6%, 4%.
-    expect(content.status["status.uk-overstayer"]).toMatchObject({ banMonths: 120, overstayBanMonths: 12, detectBp: 300 });
+    // Bans and detection: 10 years in the UK, 20 years in Canada; 3%, 3%, 6%, 4%.
+    expect(content.status["status.uk-overstayer"]).toMatchObject({ banMonths: 120, detectBp: 300 });
     expect(content.status["status.ca-overstayer"]).toMatchObject({ banMonths: 240, detectBp: 300 });
     expect(content.status["status.uae-irregular"]?.detectBp).toBe(600);
     expect(content.status["status.eu-irregular"]?.detectBp).toBe(400);

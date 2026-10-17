@@ -16,7 +16,7 @@ import { afterPaint } from "./view";
 export type Portrait = "face" | "figure" | "cheer";
 
 /** The published URL of a file under public/assets, null until the manifest is read or when it is not published. */
-export function usePublished(path: string | null): string | null {
+function usePublished(path: string | null): string | null {
   const [url, setUrl] = useState<{ path: string; url: string | null } | null>(null);
   useEffect(() => {
     if (path === null) return;
@@ -34,7 +34,7 @@ export function usePublished(path: string | null): string | null {
 }
 
 /** A look's portrait as published, or the look's own small picture while it is not. */
-export function useLookPicture(look: string, view: Portrait): string {
+function useLookPicture(look: string, view: Portrait): string {
   const published = usePublished(`tiles/${look}-${view}.png`);
   return published ?? lookOf(look)?.picture ?? "";
 }
@@ -113,7 +113,7 @@ function onScreen(src: string): () => void {
  * as made, or where nothing can draw it: the published figure stands then. The still is an object address, revoked
  * once nothing shows it and it is not among the few kept.
  */
-export function useFigureInColours(look: string, style: LookStyle | undefined, view: Exclude<Portrait, "face">): string | null {
+function useFigureInColours(look: string, style: LookStyle | undefined, view: Exclude<Portrait, "face">): string | null {
   const key = isMade(style) ? null : `${look}|${view}|${styleKey(style)}`;
   const [still, setStill] = useState<{ key: string; src: string } | null>(null);
   useEffect(() => {

@@ -17,7 +17,7 @@ import type { SignedInWith } from "./session";
 export const RATE_LIMIT_MODEL = "rateLimit";
 
 /** Keys of the per-email rows; the address itself is never stored, only its hash. */
-export const EMAIL_LIMIT_PREFIX = "otp-email:";
+const EMAIL_LIMIT_PREFIX = "otp-email:";
 
 /** The window of the per-email count, the same 60 seconds as the per-address one. */
 export const EMAIL_LIMIT_WINDOW_MS = 60_000;
@@ -75,7 +75,7 @@ export async function sha256Hex(text: string): Promise<string> {
  * `lastRequest` holds when its window ends, not when it began, so the prune of
  * rows 60 seconds past their last use keeps it for the whole day.
  */
-export const EMAIL_DAY_PREFIX = "otp-email-day:";
+const EMAIL_DAY_PREFIX = "otp-email-day:";
 
 /** The window of the per-email day count. */
 export const EMAIL_DAY_WINDOW_MS = 24 * 60 * EMAIL_LIMIT_WINDOW_MS;

@@ -90,7 +90,7 @@ export function makeRoom<T extends { kind: "resident" | "player"; part?: number 
 }
 
 /** The bonds courting now, as `people/court` counts them against `tuning.people.maxCourting` (R-PEOPLE-013). */
-export function courtingNow(view: Pick<PlayerView, "people">): number {
+function courtingNow(view: Pick<PlayerView, "people">): number {
   return view.people.bonds.filter((bond) => bond.stage === "courting").length;
 }
 
@@ -148,7 +148,7 @@ export interface TalkWords {
 const TOGETHER: ReadonlySet<string> = new Set(["partner", "married"]);
 
 /** The bond at partner or married, which hears of anyone else courted (R-PEOPLE-041), or null. */
-export function togetherBond(view: Pick<PlayerView, "people">): PlayerView["people"]["bonds"][number] | null {
+function togetherBond(view: Pick<PlayerView, "people">): PlayerView["people"]["bonds"][number] | null {
   return view.people.bonds.find((bond) => bond.role === "partner" && TOGETHER.has(bond.stage)) ?? null;
 }
 

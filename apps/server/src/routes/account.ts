@@ -53,11 +53,6 @@ export interface AccountView {
   ways: { google: string | null; email: string | null; passkeys: number };
 }
 
-/** The body of `PUT /api/account`. */
-export interface AccountChange {
-  sendUsageCounts: boolean;
-}
-
 export type AccountReply = { ok: true; account: AccountView } | AccountRejection;
 
 /** The body of `POST /api/guest`; the Turnstile token goes in the `x-captcha-response` header (R-ACCOUNT-013). */

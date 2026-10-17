@@ -74,9 +74,9 @@ function useClock(now: () => Date): string {
 const realNow = () => new Date();
 
 /** The handset's tilt at rest at the foot, in degrees: `.handset-rest` in index.css says the same. */
-export const REST_TILT_DEG = -2;
+const REST_TILT_DEG = -2;
 /** The grow or shrink, frame and then content (index.css `.motion-handset`, `.motion-screen`): the frame lands, then the screen fades in. */
-export const GROW_MS = 250;
+const GROW_MS = 250;
 
 /**
  * The grow and the shrink as one move (world.md R-WORLD-018, R-WORLD-023). The handset is

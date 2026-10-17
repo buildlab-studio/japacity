@@ -48,7 +48,7 @@ const dialedOf = new WeakMap<Content, Map<number, Content>>();
 const baseOf = new WeakMap<Content, Content>();
 
 /** `base` with the partner dial at `months`, named by its overlay; `base` itself when the value is the same. */
-export function withComputerAfterMonths(base: Content, months: number): Content {
+function withComputerAfterMonths(base: Content, months: number): Content {
   if (base.tuning.people.computerAfterMonths === months) return base;
   const held = dialedOf.get(base) ?? new Map<number, Content>();
   dialedOf.set(base, held);

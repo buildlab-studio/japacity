@@ -237,14 +237,14 @@ function LifeSoFar({ view, draw, open = false, archetype = null }: { view: Playe
 }
 
 /** A tile's preset as the door set it: the tile, the age step and the home, each within what the door offers it (R-PROLOGUE-009, 013). */
-export interface PresetChoice {
+interface PresetChoice {
   base: Archetype;
   age: number;
   home: Home;
 }
 
 /** The tile kept beside the save for this life, with the age step and the home the front door set, unless the setting `prologue.full` asks for every card. */
-export function presetChoice(): PresetChoice | null {
+function presetChoice(): PresetChoice | null {
   if (fullPrologue()) return null;
   const base = archetypeOf(readPerson()?.archetype);
   if (base === null) return null;
@@ -256,7 +256,7 @@ export function presetChoice(): PresetChoice | null {
 }
 
 /** The archetype kept beside the save for this life, with the age and the home the front door set, unless the setting `prologue.full` asks for every card. */
-export function presetArchetype(): Archetype | null {
+function presetArchetype(): Archetype | null {
   const choice = presetChoice();
   return choice === null ? null : withHome(withAge(choice.base, choice.age), choice.home);
 }

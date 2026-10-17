@@ -14,10 +14,10 @@ import { type AbroadVehicle, VEHICLES } from "./rideVehicles";
 export { LONG_WALK_MS, PRE_MS, RIDE_MS } from "./rideScene";
 
 /** How long past its own length the ride may run by the wall clock before it ends anyway (R-WORLD-032): a stall of up to three seconds is forgiven, so a slow device never holds the player much longer than the ride. */
-export const RIDE_SLACK_MS = 3500;
+const RIDE_SLACK_MS = 3500;
 
 /** The look the city falls back to when the life's own person is not shipped (City.tsx). */
-export const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
+const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
 /** The life's own person file as the city names it (City.tsx): the look built at the front door (R-PROLOGUE-009), else the life's person, shipped or not; `shownOwn` settles it. */
 export function ownLook(scenario: string, kept: string | null = keptLookFile()): string {

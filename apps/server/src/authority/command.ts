@@ -119,7 +119,7 @@ export async function sendCommand(deps: ServerDeps, account: string, body: unkno
 }
 
 /** R-SERVER-046: a body that holds the archetype, the age step, the home and the version seen, and nothing else is read. */
-export function readPresetRequest(body: unknown): PresetRequest | null {
+function readPresetRequest(body: unknown): PresetRequest | null {
   if (typeof body !== "object" || body === null) return null;
   const { archetype, age, home, basedOn } = body as Partial<Record<keyof PresetRequest, unknown>>;
   if (typeof archetype !== "string" || typeof home !== "string") return null;

@@ -81,7 +81,7 @@ function realish(held: RouteState): boolean {
 }
 
 /** The chain has begun and not ended: from the night meeting to the sea (R-ROAD-012 keeps the pitches away). */
-export function underway(entry: RouteEntry, held: RouteState): boolean {
+function underway(entry: RouteEntry, held: RouteState): boolean {
   const step = roadOf(held).step;
   return step !== null && orderOf(entry).includes(step);
 }

@@ -12,7 +12,7 @@ import { assetUrl, type PublishManifest } from "./manifest";
 let fontOnce: Promise<unknown> | null = null;
 
 /** The sign font, loaded once, so no sign is lettered in the fallback face. */
-export function loadSignFont(): Promise<unknown> {
+function loadSignFont(): Promise<unknown> {
   fontOnce ??= typeof document === "undefined" || !("fonts" in document) ? Promise.resolve() : document.fonts.load(`64px ${SIGN_FONT}`).catch(() => undefined);
   return fontOnce;
 }

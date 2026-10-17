@@ -9,7 +9,7 @@ import type { Check, RunResult, Verdict } from "./pass";
 import type { Counts, Verification } from "./verify";
 import { verificationLines } from "./verify";
 
-export interface Machine {
+interface Machine {
   cpu: string;
   cores: number;
   memoryBytes: number;

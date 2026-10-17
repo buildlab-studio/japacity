@@ -127,12 +127,12 @@ function AmountPicker({ min, max, value, onChange }: { min: number; max: number;
  * that cost nothing come first, the way to say no before the way to pay (advice.md R-ADVICE-006, world.md R-WORLD-006):
  * a quick hand never pays a deposit from a yellow button.
  */
-export function mayBeScam(offer: Pick<Offer, "entry">): boolean {
+function mayBeScam(offer: Pick<Offer, "entry">): boolean {
   return (content.offer[offer.entry]?.fraudBp ?? 0) > 0;
 }
 
 /** The answers in the order the card shows them: as content gives them, or for a possible scam the free ones first. */
-export function shownChoices(offer: Offer): Offer["choices"] {
+function shownChoices(offer: Offer): Offer["choices"] {
   if (!mayBeScam(offer)) return offer.choices;
   const pays = (choice: Offer["choices"][number]): number => (choice.pick === null && choiceCost(offer, choice.id) === null ? 0 : 1);
   return [...offer.choices].sort((a, b) => pays(a) - pays(b));
@@ -151,7 +151,7 @@ export function askerOf(offer: Pick<Offer, "entry">): string {
 }
 
 /** The ask's title: content's, in the asker's voice; content shortens each to a few words. */
-export function askTitle(offer: Offer): string {
+function askTitle(offer: Offer): string {
   return words(`${offer.entry}.title`, offerParams(offer));
 }
 

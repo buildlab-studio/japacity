@@ -15,22 +15,7 @@ import type { ServerRejection } from "../types";
 /** `GET /api/notify` and every change: the setting, and the days before a dismissed ask comes again. */
 export type NotifyReply = { ok: true; on: boolean; reaskDays: number } | ServerRejection;
 
-/** `POST /api/notify/subscribe`: what `PushSubscription.toJSON()` gives. */
-export interface SubscribeRequest {
-  subscription: unknown;
-}
-
-/** `DELETE /api/notify/subscribe`: the device to forget. */
-export interface UnsubscribeRequest {
-  endpoint: unknown;
-}
-
-/** `PUT /api/notify`: the setting. Off forgets every device (R-ACCOUNT-020). */
-export interface SettingRequest {
-  on: unknown;
-}
-
-export type KeyReply = { ok: true; key: string | null };
+type KeyReply = { ok: true; key: string | null };
 
 const signedOut: ServerRejection = { ok: false, code: "signed-out", detail: "Sign in first." };
 

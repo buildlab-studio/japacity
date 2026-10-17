@@ -27,7 +27,7 @@ const TABLE: readonly { suffix: string; label: string; act: Act }[] = [
 
 // A place whose file declares no `stage.things` gets its things from the tables here.
 /** The things of a place whose file declares none, from the tables: the first copy of each model the tables name. */
-export function tableThings(stage: Pick<Stage, "models">): Thing[] {
+function tableThings(stage: Pick<Stage, "models">): Thing[] {
   const found: Thing[] = [];
   for (const model of stage.models) {
     const row = TABLE.find((entry) => model.file.endsWith(entry.suffix));

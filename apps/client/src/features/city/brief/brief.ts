@@ -30,7 +30,7 @@ export interface BriefItem {
 }
 
 /** A reward as a picture chip: the stand-in picture and its words. */
-export interface BriefReward {
+interface BriefReward {
   emoji: string;
   words: string;
 }

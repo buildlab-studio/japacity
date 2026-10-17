@@ -347,8 +347,8 @@ export interface AccountStore {
   byUsername: (username: string) => Promise<AccountRow | null>;
   /** R-ACCOUNT-024, city.md R-CITY-040: the usernames of these accounts in one read, for the everyone board; an unknown id is left out. */
   usernames: (ids: readonly string[]) => Promise<Map<string, string>>;
-  /** R-ACCOUNT-024: refused with `missing` for an unknown id and `conflict` for a username another account holds. `at` becomes `usernameChangedAt`. */
-  setUsername: (id: string, username: string, at: number) => Promise<StoreResult<AccountRow>>;
+  /** R-ACCOUNT-024: refused with `missing` for an unknown id and `conflict` for a username another account holds. `at` becomes `usernameChangedAt`; null clears it, so the account may choose a name at once (a moderator's reset, R-MODERATION-014). */
+  setUsername: (id: string, username: string, at: number | null) => Promise<StoreResult<AccountRow>>;
   /** R-ACCOUNT-023: the account is secured. Refused with `missing` for an unknown id. */
   secure: (id: string) => Promise<StoreResult<AccountRow>>;
   /** R-ACCOUNT-026: `lastPlayedAt` becomes `at` unless it is later already. A no-op for an unknown id. */

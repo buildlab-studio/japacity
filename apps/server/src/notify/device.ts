@@ -26,7 +26,7 @@ function decoded(text: unknown): Uint8Array | null {
  * The bank-full job posts to the address kept, so no other https address is
  * kept, or a player could aim the job's posts anywhere.
  */
-export const PUSH_HOSTS: readonly string[] = ["fcm.googleapis.com", "push.apple.com", "push.services.mozilla.com", "notify.windows.com"];
+const PUSH_HOSTS: readonly string[] = ["fcm.googleapis.com", "push.apple.com", "push.services.mozilla.com", "notify.windows.com"];
 
 function knownPushHost(host: string): boolean {
   return PUSH_HOSTS.some((known) => host === known || host.endsWith(`.${known}`));

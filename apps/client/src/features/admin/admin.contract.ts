@@ -48,7 +48,7 @@ export interface Dropped {
 }
 
 /** apps/server/src/admin/rollback.ts RollbackReport. */
-export interface RollbackReport {
+interface RollbackReport {
   character: string;
   v: number;
   replayed: number;
@@ -112,7 +112,7 @@ export interface ModerationLogEntry {
 }
 
 /** apps/server/src/moderation/queue.ts HeldMessage. */
-export interface HeldMessage {
+interface HeldMessage {
   id: string;
   sender: string;
   phrase: string;
@@ -243,7 +243,7 @@ export type FeedbackReply = { ok: true; feedback: FeedbackRow[] } | AdminRefusal
 /** apps/server/src/analytics/dashboard.ts Shown: a count, or the floor it is under. */
 export type Shown = number | { fewerThan: number };
 
-export interface ShownTotal {
+interface ShownTotal {
   day: string;
   region: string;
   name: string;
@@ -251,14 +251,14 @@ export interface ShownTotal {
   count: Shown;
 }
 
-export interface DailyRow {
+interface DailyRow {
   day: string;
   players: Shown;
   newPlayers: Shown;
   turnsEnded: Shown;
 }
 
-export interface WeekRow {
+interface WeekRow {
   week: string;
   newPlayers: Shown;
   d1: Shown;
@@ -412,7 +412,7 @@ export type DialChange =
   | { dial: "computerAfterMonths"; value: number | null };
 
 /** packages/store/src/switches.ts RetiredDialChange. */
-export interface RetiredDialChange {
+interface RetiredDialChange {
   dial: "topUpTickets";
   value: number | null;
 }

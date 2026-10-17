@@ -5,7 +5,7 @@
 import { activitySignals } from "@japacity/content";
 import type { PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 
-export const DAYS_IN_WEEK = 7;
+const DAYS_IN_WEEK = 7;
 /** Four weeks: the days never pass the month. */
 export const DAYS_IN_MONTH = 4 * DAYS_IN_WEEK;
 
@@ -57,12 +57,12 @@ export function isMonthAct(activity: string): boolean {
 }
 
 /** The month as the view has it, at its first day. */
-export function freshDays(view: Pick<PlayerView, "scenario" | "month">): MonthDays {
+function freshDays(view: Pick<PlayerView, "scenario" | "month">): MonthDays {
   return { scenario: view.scenario, month: view.month, day: 0, since: {}, told: [] };
 }
 
 /** The days kept when they belong to this month of this life; a new month's otherwise (Next month resets them). */
-export function daysOf(kept: MonthDays | null, view: Pick<PlayerView, "scenario" | "month">): MonthDays {
+function daysOf(kept: MonthDays | null, view: Pick<PlayerView, "scenario" | "month">): MonthDays {
   return kept !== null && kept.scenario === view.scenario && kept.month === view.month ? kept : freshDays(view);
 }
 

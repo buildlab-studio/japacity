@@ -22,7 +22,7 @@ export interface Standing {
 }
 
 /** Read from apps/server/src/routes/feedback.ts: `POST /api/feedback` (R-MODERATION-020). */
-export interface FeedbackRequest {
+interface FeedbackRequest {
   text: string;
   build: string;
   screen: string;
@@ -31,7 +31,7 @@ export interface FeedbackRequest {
 
 export type ReportRequest = PairReportRequest | CiteReportRequest;
 
-export type Done = { ok: true } | ServerRejection;
+type Done = { ok: true } | ServerRejection;
 
 export interface ModerationApi {
   block: (target: BlockRequest) => Promise<BlockReply>;

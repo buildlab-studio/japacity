@@ -6,6 +6,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { bp } from "../engine/int";
+import { checkContent } from "../engine/content";
 import { applyOverlay } from "../engine/overlay";
 import type { BaseEvent, Content, Effect, Id, OfferEntry, OfferState, ReadCtx, Requirement } from "../engine/types";
 import { wealthInNaira } from "../place/place.logic";
@@ -247,6 +248,13 @@ describe("luck never reads money", () => {
     const lucky = Object.values(content.offer).filter((entry) => entry.luck === true);
     expect(lucky.map((entry) => entry.id).sort()).toEqual(["offer.december-bonus", "offer.relative-sends", "offer.scholarship-round", "offer.whip-round"]);
     expect(lucky.filter(luckReadsMoney)).toEqual([]);
+  });
+
+  test("[R-LUCK-001] given a luck offer whose when reads money inside not, when the content is checked, then the check fails on that offer; the shipped content passes", () => {
+    const broke = JSON.parse(JSON.stringify(content)) as Content;
+    broke.offer["offer.relative-sends"] = { ...base, when: [{ type: "not", of: money }] };
+    expect(checkContent(broke).filter((problem) => problem.includes("R-LUCK-001"))).toEqual([expect.stringContaining("offer.relative-sends")]);
+    expect(checkContent(content).filter((problem) => problem.includes("R-LUCK-001"))).toEqual([]);
   });
 });
 

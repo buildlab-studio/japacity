@@ -133,7 +133,7 @@ function dueIn(item: ObligationState, entry: ObligationEntry, month: number): bo
 }
 
 /** One month's charge, split by the sink it is paid under (R-OBLIGATION-001). */
-export interface Charge {
+interface Charge {
   /** The fixed amount plus the principal part, paid under the entry's sink. */
   base: number;
   /** Interest on the opening principal, paid under the entry's interest sink. */
@@ -169,7 +169,7 @@ function carCharge(item: ObligationState, entry: ObligationEntry): Charge {
   return { base: principal, interest: item.amount, principal, relief: [] };
 }
 
-export function chargeOf(read: ReadCtx, item: ObligationState, entry: ObligationEntry): Charge {
+function chargeOf(read: ReadCtx, item: ObligationState, entry: ObligationEntry): Charge {
   return relieve(item, scheduledCharge(read, item, entry));
 }
 
@@ -1003,7 +1003,7 @@ function invariants(state: State, content: Content): string[] {
   return problems;
 }
 
-export function obligationsView(read: ReadCtx): (ObligationState & { due: number; car: CarView | null })[] {
+function obligationsView(read: ReadCtx): (ObligationState & { due: number; car: CarView | null })[] {
   // R-CAR-005: an owned car is kept with no obligation. The contract has no other place for the car, so the item stays in the state for hasCar.
   return openItems(read.state)
     .filter((item) => !isOwned(item, entryOf(read.content, item.entry)))

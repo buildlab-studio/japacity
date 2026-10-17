@@ -15,7 +15,7 @@ type PartnerBlock = NonNullable<RouteEntry["partner"]>;
 
 const SURCHARGE_YEAR: Id<"var"> = "var.uk-surcharge-year";
 /** The stages at which a bond carries a joint application (R-PEOPLE-021). */
-export const JOINED: readonly BondStage[] = ["partner", "married"];
+const JOINED: readonly BondStage[] = ["partner", "married"];
 /** R-PEOPLE-027, R-PEOPLE-023: the route's base and 800 for each earlier refusal, and nothing else. */
 export const REFUSALS_ONLY: DecisionTerms = { strictness: false, unexplained: false, refusals: true, interview: false, goodGrade: false };
 
@@ -50,7 +50,7 @@ function relationshipHolds(read: ReadCtx, block: PartnerBlock, bond: Bond): bool
 }
 
 /** R-PEOPLE-025, 026: the sponsor's facts show them abroad in the route's country holding one of its `sponsorStatuses`. */
-export function sponsorHolds(entry: RouteEntry, facts: PersonFacts | null): boolean {
+function sponsorHolds(entry: RouteEntry, facts: PersonFacts | null): boolean {
   if (facts === null || facts.where !== "abroad" || facts.country !== entry.country || facts.status === null) return false;
   return blockOf(entry).sponsorStatuses.includes(facts.status);
 }

@@ -69,7 +69,7 @@ export type Angle = "outside" | "above" | "window" | "seat" | "ahead";
 /** The most the ride's clock moves on a stalled frame, so a stall never jumps the ride ahead (R-WORLD-032). */
 export const STEP_MS = 100;
 /** A frame longer than this is a stall (the tab hidden, the device busy); a slow but steady device's frames count whole. */
-export const STALL_MS = 1000;
+const STALL_MS = 1000;
 
 /**
  * The ride's clock after a frame `dt` milliseconds long: a frame up to a second counts whole, so a slow device keeps the

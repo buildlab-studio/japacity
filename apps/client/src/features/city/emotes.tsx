@@ -8,7 +8,7 @@ import { say } from "../../shared/words/text";
 import type { Role } from "./roster";
 
 /** How long a pair of emotes stands before the next pair. */
-export const EMOTE_MS = 6000;
+const EMOTE_MS = 6000;
 /** The most emotes over the crowd at once: a crowd raises the pictures, never the words. */
 export const EMOTES_MAX = 2;
 

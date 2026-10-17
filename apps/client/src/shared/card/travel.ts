@@ -16,7 +16,7 @@ export interface Device {
 }
 
 /** Saves a file through a link with `download`, the way every browser allows. */
-export function saveFile(file: File): void {
+function saveFile(file: File): void {
   const url = URL.createObjectURL(file);
   const link = document.createElement("a");
   link.href = url;
@@ -37,7 +37,7 @@ export function browserDevice(): Device {
   };
 }
 
-export function cardFile(blob: Blob, kind: ShareKind): File {
+function cardFile(blob: Blob, kind: ShareKind): File {
   return new File([blob], `japacity-${kind}.jpg`, { type: "image/jpeg" });
 }
 

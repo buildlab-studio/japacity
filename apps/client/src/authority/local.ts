@@ -15,13 +15,13 @@ import { PERSON_KEY, readPerson } from "./person";
 export const SAVE_KEY = "japacity.save";
 
 /** How the authority's life began. A replaced save is shown to the player. */
-export type LifeStart =
+type LifeStart =
   | { kind: "loaded" }
   | { kind: "new" }
   | { kind: "replaced"; why: "other-content" | "unreadable" };
 
 /** What the authority keeps the save in; `removeItem` lets a life end (R-ACCOUNT-030). */
-export type LocalStorage = Pick<Storage, "getItem" | "setItem"> & Partial<Pick<Storage, "removeItem">>;
+type LocalStorage = Pick<Storage, "getItem" | "setItem"> & Partial<Pick<Storage, "removeItem">>;
 
 export interface LocalAuthorityOptions {
   /** Grant turns freely instead of one every two real hours. Set by clockMode(). */

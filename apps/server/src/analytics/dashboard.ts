@@ -9,7 +9,7 @@ import { dayName, dayNumber } from "./day";
 /** A count, or the floor it is under when it is under `minShown`. */
 export type Shown = number | { fewerThan: number };
 
-export interface ShownTotal {
+interface ShownTotal {
   day: string;
   region: string;
   name: string;
@@ -18,7 +18,7 @@ export interface ShownTotal {
 }
 
 /** One day across every region. */
-export interface DailyRow {
+interface DailyRow {
   day: string;
   players: Shown;
   newPlayers: Shown;
@@ -26,7 +26,7 @@ export interface DailyRow {
 }
 
 /** R-ANALYTICS-011: the first session's measures for the accounts created in one week, Monday first. */
-export interface WeekRow {
+interface WeekRow {
   week: string;
   newPlayers: Shown;
   d1: Shown;

@@ -2,7 +2,7 @@
 // https://developers.cloudflare.com/turnstile/get-started/server-side-validation/
 // https://developers.cloudflare.com/turnstile/troubleshooting/testing/
 
-export const SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+const SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 /** Cloudflare's published test secrets: one always passes, one always fails, one answers "already spent". */
 export const TURNSTILE_TEST = {
@@ -27,7 +27,7 @@ export const TURNSTILE_ACTION = "guest";
 export const TOKEN_MAX_LENGTH = 2048;
 
 /** The only hosts where a pass made with Cloudflare's test keys is taken: the local stack's (server.md R-SERVER-038). */
-export const LOCAL_SITE_HOSTS: ReadonlySet<string> = new Set(["localhost", "127.0.0.1"]);
+const LOCAL_SITE_HOSTS: ReadonlySet<string> = new Set(["localhost", "127.0.0.1"]);
 
 export type BotCheck = { ok: true } | { ok: false; reason: string };
 

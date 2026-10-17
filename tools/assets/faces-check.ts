@@ -11,7 +11,7 @@ export const FACE_GAP = 0.01;
 /** How far each layer of strips stands over the one under it: clear of FACE_GAP with room to spare. */
 export const STRIP_STEP = 0.012;
 /** A model's face that looks up and lies lower than this is laid on the ground: a floor, a slab, a rug. */
-export const FLOOR_MAX = 0.1;
+const FLOOR_MAX = 0.1;
 /** Heights closer than this are one surface cut into triangles, not two faces. */
 const SAME = 1e-4;
 /** Overlaps thinner than this are faces that only touch at an edge. */
@@ -33,7 +33,7 @@ export interface ModelFace {
 }
 
 /** A face of a place: its height, its corners in the place's frame, and what it belongs to. */
-export interface PlaceFace {
+interface PlaceFace {
   y: number;
   corners: Corner[];
   source: string;
@@ -55,7 +55,7 @@ function placed(x: number, z: number, turn: number, along: number, across: numbe
 }
 
 /** The four corners of a strip on the ground. */
-export function stripCorners(strip: StripShape): Corner[] {
+function stripCorners(strip: StripShape): Corner[] {
   const [x, z, turn] = strip.at;
   const half = [strip.size[0] / 2, strip.size[1] / 2] as const;
   return [placed(x, z, turn, -half[0], -half[1]), placed(x, z, turn, half[0], -half[1]), placed(x, z, turn, half[0], half[1]), placed(x, z, turn, -half[0], half[1])];
@@ -82,7 +82,7 @@ function spread(polygon: readonly Corner[], axis: Corner): [number, number] {
 }
 
 /** True when two convex polygons share more than an edge (separating axes). */
-export function overlaps(a: readonly Corner[], b: readonly Corner[]): boolean {
+function overlaps(a: readonly Corner[], b: readonly Corner[]): boolean {
   for (const axis of [...axes(a), ...axes(b)]) {
     if (axis[0] === 0 && axis[1] === 0) continue;
     const [aLow, aHigh] = spread(a, axis);
@@ -144,7 +144,7 @@ export function floorFaces(doc: GltfDocument): ModelFace[] {
 }
 
 /** Every floor face of a stage: the ground, each strip at its top, and each copy of each model's floors. */
-export function stageFaces(stage: Pick<FacedStage, "ground" | "roads">, models: FacedStage["models"], facesOf: (file: string) => readonly ModelFace[]): PlaceFace[] {
+function stageFaces(stage: Pick<FacedStage, "ground" | "roads">, models: FacedStage["models"], facesOf: (file: string) => readonly ModelFace[]): PlaceFace[] {
   const [width, depth] = stage.ground.size;
   const faces: PlaceFace[] = [{ y: 0, corners: [[-width / 2, -depth / 2], [width / 2, -depth / 2], [width / 2, depth / 2], [-width / 2, depth / 2]], source: "the ground" }];
   const tops = stripTops(stage.roads);
@@ -159,7 +159,7 @@ export function stageFaces(stage: Pick<FacedStage, "ground" | "roads">, models: 
 }
 
 /** Every pair of faces that overlap within FACE_GAP of the same height, one line per pair of sources. */
-export function fightingFaces(faces: readonly PlaceFace[]): string[] {
+function fightingFaces(faces: readonly PlaceFace[]): string[] {
   const found = new Map<string, string>();
   for (let one = 0; one < faces.length; one += 1) {
     const a = faces[one];

@@ -12,7 +12,7 @@ import type { LoadTurnstile } from "./Turnstile";
 import { useUnseenCheck } from "./unseenCheck";
 
 /** R-ACCOUNT-024's shape, as the server holds it (apps/server/src/account/username.ts); the lists stay the server's. */
-export const USERNAME = /^[A-Za-z0-9_]{3,20}$/;
+const USERNAME = /^[A-Za-z0-9_]{3,20}$/;
 const LONGEST = 20;
 const SHORTEST = 3;
 
@@ -42,7 +42,7 @@ function someDigits(): string {
 }
 
 /** What the player is told when the guest start is refused. */
-export const GUEST_WORDS: Record<GuestFailure, string> = {
+const GUEST_WORDS: Record<GuestFailure, string> = {
   format: "ui.account.name.format",
   reserved: "ui.account.name.reserved",
   blocked: "ui.account.name.blocked",
@@ -57,7 +57,7 @@ export const GUEST_WORDS: Record<GuestFailure, string> = {
 };
 
 /** Why a username cannot be sent as typed: empty, or not R-ACCOUNT-024's shape. */
-export function usernameProblem(username: string): string | null {
+function usernameProblem(username: string): string | null {
   if (username.trim() === "") return say("ui.account.name.empty");
   return USERNAME.test(username.trim()) ? null : say("ui.account.name.format");
 }
@@ -137,7 +137,7 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
 const FIELD = "h-12 w-full min-w-0 rounded-[6px] border-2 border-sheet-line bg-sheet-muted px-3 text-[17px] font-bold text-text outline-none focus:border-action";
 
 /** The username on the page, its rule, and the guest line said once (R-ACCOUNT-024, R-ACCOUNT-027). */
-export function GuestFields({ value, onChange, problem, widget }: { value: string; onChange: (username: string) => void; problem: string | null; widget: ReactNode }) {
+function GuestFields({ value, onChange, problem, widget }: { value: string; onChange: (username: string) => void; problem: string | null; widget: ReactNode }) {
   return (
     <section className="mt-3 flex flex-col" data-guest-fields>
       <label className="label block text-text-2" htmlFor="guest-username">

@@ -59,7 +59,7 @@ export function sendFacts(turn: Turn, lives: readonly Live[], record: PairRecord
 }
 
 /** What a pair step's work is given. */
-export interface PairCtx {
+interface PairCtx {
   key: string;
   lives: Live[];
   turn: Turn;

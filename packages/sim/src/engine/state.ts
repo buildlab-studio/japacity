@@ -7,13 +7,13 @@ import { prefixOf, SLICE_KEYS } from "./kind";
 import type { BaseEvent, Content, Id, Save, State } from "./types";
 
 /** The first instance number a new state hands out. */
-export const FIRST_INSTANCE = 1;
+const FIRST_INSTANCE = 1;
 
 /** The shape of the state this code builds. */
 export const STATE_SCHEMA = 4;
 
 /** A counter-backed IdSource, and a way to read where it got to. */
-export function idSource(start: number): IdSource & { peek(): number } {
+function idSource(start: number): IdSource & { peek(): number } {
   let next = start;
   return {
     next(prefix) {
@@ -31,7 +31,7 @@ export interface NewStateOptions {
 }
 
 /** A new state from a scenario, a seed and the content, built from every kind's `initial` (R-SCENARIO-001). */
-export function newStateWith(kinds: Registry, scenarioId: Id<"scenario">, seed: string, content: Content, options: NewStateOptions = {}): State {
+function newStateWith(kinds: Registry, scenarioId: Id<"scenario">, seed: string, content: Content, options: NewStateOptions = {}): State {
   const scenario = content.scenario[scenarioId];
   if (scenario === undefined) throw new Error(`The content has no scenario ${scenarioId}.`);
   const ids = idSource(FIRST_INSTANCE);
@@ -134,7 +134,7 @@ function grownTo4(kinds: Registry, state: State, scenario: Content["scenario"][I
  * the current shape and the newer content's version recorded. Pure. Between two
  * loads of the same version (a new overlay, R-SERVER-024) nothing is renamed.
  */
-export function upgradeStateWith(kinds: Registry, state: State, from: Content, to: Content): State {
+function upgradeStateWith(kinds: Registry, state: State, from: Content, to: Content): State {
   if (state.content !== from.version) throw new Error(`The state is for content ${state.content}, not ${from.version}.`);
   const renames = from.version === to.version ? {} : (to.renames ?? {});
   const { seed, ...rest } = state;

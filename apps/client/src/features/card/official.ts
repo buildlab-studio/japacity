@@ -14,7 +14,7 @@ function escape(words: string): string {
 }
 
 /** Where an account's address goes when it is followed. */
-export function hrefOf(account: OfficialAccount & { address: string }): string {
+function hrefOf(account: OfficialAccount & { address: string }): string {
   return account.platform === "email" ? `mailto:${account.address}` : `https://${account.address}`;
 }
 

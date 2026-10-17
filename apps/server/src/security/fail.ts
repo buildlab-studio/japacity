@@ -53,7 +53,7 @@ const DETAIL: Record<FailureStatus, string> = {
  * The body of a failure. Not one of the game's refusals (`ServerCode`): nothing the player did is refused, and the
  * client shows its trouble card for it (engine.md R-ENGINE-015).
  */
-export interface ServerFailure {
+interface ServerFailure {
   ok: false;
   code: "unavailable";
   detail: string;
@@ -62,7 +62,7 @@ export interface ServerFailure {
 }
 
 /** The reply's body for a failure of this status. */
-export function unavailable(status: FailureStatus): ServerFailure {
+function unavailable(status: FailureStatus): ServerFailure {
   return { ok: false, code: "unavailable", detail: DETAIL[status], ...(status === 503 ? { retryAfter: RETRY_AFTER_SECONDS } : {}) };
 }
 

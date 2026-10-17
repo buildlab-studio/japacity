@@ -8,7 +8,7 @@ import type { ActivityEntry, Content, Currency, Effect, Reason, State } from "..
 type Totals = State["wallet"]["totals"]["in"];
 
 /** A reason whose money in is more than it can make in the months played. */
-export interface LedgerAlarm {
+interface LedgerAlarm {
   reason: Reason;
   currency: Currency;
   total: number;

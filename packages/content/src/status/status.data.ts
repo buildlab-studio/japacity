@@ -1,8 +1,8 @@
 // From docs/rules/status.md "Entries" and "Numbers".
 //
 // Conventions the page leaves open:
-// - `detectBp` and `overstayBanMonths` are only read on an overstayer
-//   (R-STATUS-005, R-STATUS-008). Every status of a country carries the country's
+// - `detectBp` is only read on an overstayer
+//   (R-STATUS-005). Every status of a country carries the country's
 //   figures, as the student status does, so a status that lapses keeps the same
 //   numbers it had.
 // - A settled or citizen status is never removed, so the page leaves its
@@ -11,8 +11,8 @@
 //   country (a new sponsor, settlement, citizenship), false where it starts a stay.
 import type { Id, StatusEntry } from "@japacity/sim";
 
-type Shared = Omit<StatusEntry, "id" | "country" | "months" | "work" | "banMonths" | "overstayBanMonths" | "detectBp">;
-type ByCountry = Pick<StatusEntry, "country" | "banMonths" | "overstayBanMonths" | "detectBp">;
+type Shared = Omit<StatusEntry, "id" | "country" | "months" | "work" | "banMonths" | "detectBp">;
+type ByCountry = Pick<StatusEntry, "country" | "banMonths" | "detectBp">;
 
 /** The fields every status starts from: nothing renews, nothing settles, nothing follows. */
 const BASE: Shared = {
@@ -36,17 +36,17 @@ const BASE: Shared = {
   holdsPassport: false,
 };
 
-/** UK removal ban 10 years; 12 months for leaving by choice after an overstay; 3% a month detection. */
-const UK: ByCountry = { country: "country.uk", banMonths: 120, overstayBanMonths: 12, detectBp: 300 };
-/** Removal from Canada modelled as 20 years; 3% a month detection. The page gives no ban for leaving by choice. */
-const CANADA: ByCountry = { country: "country.canada", banMonths: 240, overstayBanMonths: 0, detectBp: 300 };
+/** UK removal ban 10 years; 3% a month detection. */
+const UK: ByCountry = { country: "country.uk", banMonths: 120, detectBp: 300 };
+/** Removal from Canada modelled as 20 years; 3% a month detection. */
+const CANADA: ByCountry = { country: "country.canada", banMonths: 240, detectBp: 300 };
 /** The UAE: 5 years; 6% a month detection. */
-const UAE: ByCountry = { country: "country.uae", banMonths: 60, overstayBanMonths: 0, detectBp: 600 };
+const UAE: ByCountry = { country: "country.uae", banMonths: 60, detectBp: 600 };
 /** Italy: 10 years; 4% a month detection. */
-const ITALY: ByCountry = { country: "country.italy", banMonths: 120, overstayBanMonths: 0, detectBp: 400 };
+const ITALY: ByCountry = { country: "country.italy", banMonths: 120, detectBp: 400 };
 
 /** Settled and citizen statuses: never removed, never detected. */
-const KEPT: Omit<ByCountry, "country"> = { banMonths: 0, overstayBanMonths: 0, detectBp: 0 };
+const KEPT: Omit<ByCountry, "country"> = { banMonths: 0, detectBp: 0 };
 
 const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
   // The United Kingdom

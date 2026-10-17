@@ -5,7 +5,7 @@ import type { DayPart } from "@japacity/sim";
 import type { ReactNode } from "react";
 
 /** What a tap on a thing does (R-WORLD-005). */
-export type ActKind =
+type ActKind =
   /** Happens at once with no sheet: sit, turn on, look. */
   | "plain"
   /** Opens the sheet of the entry it stages: an activity, an offer, a set piece. */

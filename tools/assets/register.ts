@@ -8,7 +8,7 @@ import type { RegisterRow } from "@japacity/assets";
 
 import { SOURCE } from "./catalog";
 
-export interface FontRow {
+interface FontRow {
   family: string;
   licence: string;
   source: string;
@@ -21,7 +21,7 @@ export interface Register {
   rows: RegisterRow[];
 }
 
-export const REGISTER_PATH = join(SOURCE, "register.json");
+const REGISTER_PATH = join(SOURCE, "register.json");
 
 const EMPTY: Register = {
   note: "One row per shipped file under apps/client/public/assets (docs/rules/assets.md, the register). The export writes triangles, drawCalls, materials, bytes and paletteCheck; the check proves them against the files.",

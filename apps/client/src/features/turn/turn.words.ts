@@ -3,7 +3,6 @@
 // key can move into content.
 import { text } from "@japacity/content";
 
-import { countWords } from "../../shared/words/count";
 import { hasWords, say } from "../../shared/words/text";
 
 export const turnText: Record<string, string> = {
@@ -13,14 +12,11 @@ export const turnText: Record<string, string> = {
   "turn.month.working": "Working: {job}",
   "turn.month.side": "Side job: {job}",
   "turn.month.hint": "Tap a thing in the world to start something. It carries on each month until you stop it.",
-  "turn.month.no-slots": "No free time this month.",
   "turn.month.end": "Next month",
   // The Calendar app (R-WORLD-002, R-WORLD-007): the month on the phone, in order.
   "turn.calendar.work": "Work",
   // What carries on into next month until it is stopped, and a month held by a burial or a stay in hospital (R-WORLD-007).
   "turn.calendar.carrying": "Carrying on",
-  "turn.calendar.all-used": "Free time: all used",
-  "turn.calendar.left": "Free time: {count} left",
   "turn.calendar.done": "Done this month",
   "turn.calendar.chores.cook": "Cooked: {amount} less this month",
   "turn.calendar.chores.water": "Fetched water: {amount} less this month",
@@ -64,15 +60,4 @@ export function turnWords(key: string, params: Record<string, string | number> =
     const value = params[name];
     return value === undefined ? whole : String(value);
   });
-}
-
-/**
- * The free time in a few words (R-WORLD-007, R-TURN-006), as Next month's second line says it: an empty month rests,
- * a full one says so; never a count of slots.
- */
-export function freeTimeWords(used: number, slots: number): string {
-  if (slots === 0) return turnWords("turn.month.no-slots");
-  if (used === 0) return say("ui.month.rest");
-  if (used >= slots) return turnWords("turn.calendar.all-used");
-  return turnWords("turn.calendar.left", { count: countWords(slots - used) });
 }

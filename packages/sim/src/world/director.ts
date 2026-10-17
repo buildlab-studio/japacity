@@ -63,20 +63,20 @@ export interface DirectorTick {
 }
 
 /** What a variable held before a story in force changed it, for `revert` (R-RATE-006). */
-export interface HeldValue {
+interface HeldValue {
   value: number;
   setBy: Id<"news"> | null;
 }
 
 /** One story in the book: its latest pass, what it changed, and the tick it last fired from the pool. */
-export interface BookStory {
+interface BookStory {
   pass: StoryTicks | null;
   before: Record<Id<"var">, HeldValue> | null;
   lastFired: number | null;
 }
 
 /** The era running, with its place in the world's run of eras for its draw positions. */
-export interface BookEra {
+interface BookEra {
   id: Id<"era">;
   since: number;
   until: number;
@@ -518,7 +518,7 @@ function checkArguments(scale: number): void {
 }
 
 /** One tick of the world, with the book after it and what moved on it. */
-export interface WorldStep {
+interface WorldStep {
   book: DirectorBook;
   world: World;
   tick: DirectorTick;
@@ -529,7 +529,7 @@ export interface WorldStep {
  * after it (R-CLOCK-011). Tick 0 holds every start value, calm and its story;
  * the pool is rolled from tick 1. Never changes the book it is given.
  */
-export function stepWorldTick(book: DirectorBook | null, worldSeed: string, content: Content, calendar: WorldCalendar, scale: number): WorldStep {
+function stepWorldTick(book: DirectorBook | null, worldSeed: string, content: Content, calendar: WorldCalendar, scale: number): WorldStep {
   checkArguments(scale);
   const reading = readingOf(content);
   const next = book === null ? openBook(worldSeed, content, reading, scale) : copyBook(book);

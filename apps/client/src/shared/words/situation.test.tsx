@@ -7,7 +7,6 @@ import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { ScenarioView } from "../../features/scenario/ScenarioView";
-import { freeTimeWords } from "../../features/turn/turn.words";
 import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
 import { newGame } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
@@ -58,14 +57,11 @@ describe("the situation in plain words", () => {
   });
 
   test("[R-WORLD-007] given the month's words, then none says free slots or upkeep, and a quiet month and the job hunt say the time in things to do", () => {
-    const shown = [freeTimeWords(1, 3), freeTimeWords(3, 3), say("ui.month.rest"), say("ui.job.none"), say("ui.month.no-slots"), words("line.activity.rested", { slots: 2 }), text["obligation.upkeep.name"] ?? ""];
+    const shown = [say("ui.job.none"), say("ui.month.no-slots"), words("line.activity.rested", { slots: 2 }), text["obligation.upkeep.name"] ?? ""];
     for (const said of shown) {
       expect(said).not.toMatch(/free slot/i);
       expect(said).not.toMatch(/upkeep/i);
     }
-    // R-WORLD-007: the free time in words, never "1 of 3 things planned".
-    expect(freeTimeWords(1, 3)).toBe("Free time: two left");
-    expect(say("ui.month.rest")).toBe("Free time: you rest");
     expect(say("ui.job.none")).toContain("Time for three things this month");
     // The family house's charge as the house tells it.
     expect(text["obligation.upkeep.name"]).toBe("Your share for the house");

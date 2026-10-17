@@ -10,17 +10,17 @@
 import type { BaseEvent, Ctx, Effect, Id, OfferEntry, ReadCtx, Terms } from "../engine/types";
 import { FORCED_WAIT, runDownSinceWarning } from "../quality/quality.logic";
 
-export const ILLNESS: Id<"offer"> = "offer.illness";
-export const ILLNESS_WORSE: Id<"offer"> = "offer.illness-worse";
+const ILLNESS: Id<"offer"> = "offer.illness";
+const ILLNESS_WORSE: Id<"offer"> = "offer.illness-worse";
 export const COURSE: Id<"quality"> = "quality.illness-course";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
 
 /** Where the last illness stands, as `quality.illness-course` holds it. */
 export const COURSE_STEP = { none: 0, chemist: 1, ignored: 2, worse: 3, answered: 4 } as const;
-export type CourseStep = keyof typeof COURSE_STEP;
+type CourseStep = keyof typeof COURSE_STEP;
 
 /** The source named on what the health roll does by itself. */
-export const HEALTH_SOURCE = "health";
+const HEALTH_SOURCE = "health";
 
 /** Opens an offer with terms that win over the entry's own: the offer kind's `openOffer`. */
 export type OpenOffer = (entry: OfferEntry, terms: Terms) => BaseEvent[];
@@ -44,11 +44,11 @@ function isOpen(read: ReadCtx, entry: Id<"offer">): boolean {
  * (R-ENGINE-017). health.md gives no place for illness, so it is rolled
  * abroad too, at the naira prices; the page gives no prices abroad.
  */
-export function illnessTerms(read: ReadCtx): Terms {
+function illnessTerms(read: ReadCtx): Terms {
   return { hospital: read.content.tuning.health.hospital, chemist: read.content.tuning.health.chemist };
 }
 
-export function worseTerms(read: ReadCtx): Terms {
+function worseTerms(read: ReadCtx): Terms {
   return { hospital: read.content.tuning.health.hospitalWorse };
 }
 
@@ -88,7 +88,7 @@ function lastIllnessClosed(read: ReadCtx): number | null {
  * gap since it closed and no forced month in the last twelve (R-HEALTH-005).
  * Never on the road, where the month is the chain's own (R-ROAD-005).
  */
-export function mayFallIll(read: ReadCtx): boolean {
+function mayFallIll(read: ReadCtx): boolean {
   const { state, content } = read;
   if (state.place.where === "road" || !runDownSinceWarning(read)) return false;
   if (isOpen(read, ILLNESS) || isOpen(read, ILLNESS_WORSE) || courseOf(read) !== "none") return false;

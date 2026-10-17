@@ -7,7 +7,7 @@ import { writeFileSync } from "node:fs";
 import type { Plugin } from "vite";
 
 /** One chunk as the size check reads it. */
-export interface SizeChunk {
+interface SizeChunk {
   file: string;
   isEntry: boolean;
   /** The chunks it imports statically: loaded with it, as the page's modulepreload links say. */

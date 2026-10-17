@@ -41,7 +41,7 @@ export interface FrontSceneProps {
 }
 
 /** What the browser test and the pictures read. */
-export interface FrontProbe {
+interface FrontProbe {
   ready: boolean;
   look: string;
   facing: number;

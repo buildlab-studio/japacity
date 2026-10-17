@@ -17,7 +17,7 @@ import { overLimit } from "../limits/limit";
 import type { EdgeCache, Made } from "./edge";
 import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge } from "./edge";
 
-export const LIGHTS_PATH = "/api/lights";
+const LIGHTS_PATH = "/api/lights";
 
 /** R-ACCOUNT-031: the reply, the same for everyone in the hour. Whole tens. */
 export interface LightsReply {

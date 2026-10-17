@@ -45,11 +45,6 @@ function inCurrencyOf(content: Content, pay: YearlyPay | null, country: Id<"coun
   return pay !== null && pay.currency === currencyOf(content, country) ? pay.amount : 0;
 }
 
-/** R-UNDERTAKING-003: the pay a year from the job held, gross, in the currency of `country`. */
-export function payAYear(read: ReadCtx, country: Id<"country"> | null): number {
-  return inCurrencyOf(read.content, ownPayAYear(read), country);
-}
-
 /** R-UNDERTAKING-003: a partner route's floor met by this yearly pay. A route with no floor is always met. */
 function floorMetBy(read: ReadCtx, entry: RouteEntry & { partner: NonNullable<RouteEntry["partner"]> }, pay: YearlyPay | null): boolean {
   if (entry.partner.floorVar === null) return true;
@@ -72,7 +67,7 @@ export function floorsMet(read: ReadCtx, pay: YearlyPay | null = ownPayAYear(rea
 }
 
 /** R-UNDERTAKING-002: abroad in the route's country, holding one of its `sponsorStatuses`. */
-export function holdsSponsorStatus(read: ReadCtx, route: Id<"route">): boolean {
+function holdsSponsorStatus(read: ReadCtx, route: Id<"route">): boolean {
   const entry = partnerRoute(read.content, route);
   const { place, status } = read.state;
   return place.where === "abroad" && place.country === entry.country && status.current !== null && entry.partner.sponsorStatuses.includes(status.current.entry);
@@ -106,7 +101,7 @@ function barred(read: ReadCtx, route: Id<"route">): boolean {
  * ban as a bar on sponsoring into that country: the month it lifts while it is
  * still to come, else null.
  */
-export function interviewBarUntil(read: ReadCtx): { country: Id<"country">; until: number } | null {
+function interviewBarUntil(read: ReadCtx): { country: Id<"country">; until: number } | null {
   const last = read.state.interview.last;
   if (last === null || last.result !== "caught") return null;
   const country = read.content.route[last.route]?.country ?? null;

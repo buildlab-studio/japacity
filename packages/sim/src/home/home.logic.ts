@@ -36,32 +36,32 @@ import { isDown } from "../offer/offer.luck";
 import type { HomeEvent } from "./home.events";
 
 export const FAMILY_HOUSE: HomePlace = "place.family-house";
-export const MAKOKO: HomePlace = "place.makoko";
-export const COMPOUND: HomePlace = "place.compound-room";
+const MAKOKO: HomePlace = "place.makoko";
+const COMPOUND: HomePlace = "place.compound-room";
 /** A hostel room of your own, rented by the month: the cheap way out of the family house. */
-export const HOSTEL: HomePlace = "place.hostel-room";
+const HOSTEL: HomePlace = "place.hostel-room";
 const HOMES: readonly HomePlace[] = [FAMILY_HOUSE, MAKOKO, COMPOUND, HOSTEL];
-export const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";
+const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";
 /** R-HOME-010: the room in a compound's own upkeep, and its year's rent. */
-export const COMPOUND_UPKEEP: Id<"obligation"> = "obligation.upkeep-compound";
-export const COMPOUND_RENT: Id<"obligation"> = "obligation.rent-compound";
+const COMPOUND_UPKEEP: Id<"obligation"> = "obligation.upkeep-compound";
+const COMPOUND_RENT: Id<"obligation"> = "obligation.rent-compound";
 /** The hostel room's rent by the month, a rent like the room's year, named as the home's own charge. */
-export const HOSTEL_RENT: Id<"obligation"> = "obligation.upkeep-hostel";
+const HOSTEL_RENT: Id<"obligation"> = "obligation.upkeep-hostel";
 /** The rent each rented room is held by: gone, the room is lost (R-HOME-011). */
 const ROOM_RENT: Readonly<Partial<Record<HomePlace, Id<"obligation">>>> = { [COMPOUND]: COMPOUND_RENT, [HOSTEL]: HOSTEL_RENT };
 /** The upkeep a room of one's own charges in place of the family's. */
 const ROOM_UPKEEP: Readonly<Partial<Record<HomePlace, Id<"obligation">>>> = { [MAKOKO]: MAKOKO_UPKEEP, [COMPOUND]: COMPOUND_UPKEEP };
 const ROOM_UPKEEPS: readonly Id<"obligation">[] = [MAKOKO_UPKEEP, COMPOUND_UPKEEP];
-export const TAKEN_IN: Id<"offer"> = "offer.taken-in";
-export const WHERE_NEXT: Id<"offer"> = "offer.where-next";
+const TAKEN_IN: Id<"offer"> = "offer.taken-in";
+const WHERE_NEXT: Id<"offer"> = "offer.where-next";
 const STANDING: Id<"quality"> = "quality.standing";
 /** The cause of a move made by the command, and of the first month's rent it paid. */
-export const MOVE_SOURCE = "home.move";
+const MOVE_SOURCE = "home.move";
 /** The whole of a charge, in basis points. */
 const FULL = 10_000;
 /** The words keys a line names a real player by: the other life's own name is never in this state. */
-export const HOME_FRIEND = "home.friend";
-export const HOME_GUEST = "home.guest";
+const HOME_FRIEND = "home.friend";
+const HOME_GUEST = "home.guest";
 /** The bond stages a moment can be added at (R-PEOPLE-014): a friend only connected has no moments yet. */
 const MOMENT_STAGES: readonly string[] = ["courting", "partner", "married"];
 
@@ -123,7 +123,7 @@ export function homeOf(state: State, content: Content): HomeSlice {
 }
 
 /** R-HOME-003: the eviction chance a month in Makoko now, halved while the character is down as a `bad` offer is (R-LUCK-003). */
-export function evictionChanceBp(read: ReadCtx): number {
+function evictionChanceBp(read: ReadCtx): number {
   const chance = read.content.tuning.home.evictionBp;
   return isDown(read) ? divFloor(chance, 2) : chance;
 }
@@ -217,7 +217,7 @@ function nairaHeld(state: State): number {
  * role sibling (the content has no friend role) with a home in Lagos (in the city, not abroad)
  * whose `when` holds.
  */
-export function hostFor(read: ReadCtx, host: HomeHost): string | null {
+function hostFor(read: ReadCtx, host: HomeHost): string | null {
   switch (host) {
     case "friend": {
       const found = Object.entries(read.state.people.bonds)
@@ -499,7 +499,7 @@ function roomRent(read: ReadCtx): PlayerView["home"]["roomRent"] {
  * R-HOME-007, R-HOME-008: where the character lives, the monthly charge there as the bill takes it, the eviction
  * chance a month in Makoko now, and at home the moves the card offers, each with its charge a month and why it is shut.
  */
-export function homeView(read: ReadCtx): PlayerView["home"] {
+function homeView(read: ReadCtx): PlayerView["home"] {
   const lives = homeOf(read.state, read.content);
   const charge = lives.place === null ? undefined : upkeepWhereLiving(read.state, read.content, lives.place);
   // The hostel's charge a month is its rent.

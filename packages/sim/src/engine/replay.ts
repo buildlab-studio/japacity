@@ -10,7 +10,7 @@ import { step } from "./step";
 import type { Command, Content, FlatSave, Id, Save, SaveSegment, SavedCommand, Sender, State, World } from "./types";
 
 /** The shape of the save this code writes. */
-export const SAVE_SCHEMA = 3;
+const SAVE_SCHEMA = 3;
 
 export interface Replayed {
   state: State;

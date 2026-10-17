@@ -19,7 +19,7 @@ export interface Beacon {
 /** quicknet's `genesis_time` (1692803367 seconds) and `period` (3 seconds). */
 export const QUICKNET_GENESIS_MS = 1692803367000;
 export const QUICKNET_PERIOD_MS = 3000;
-export const DRAND_URL = "https://api.drand.sh";
+const DRAND_URL = "https://api.drand.sh";
 
 /**
  * R-LOTTERY-007: the first round that falls after `at`. Round `r` falls at

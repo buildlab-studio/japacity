@@ -35,7 +35,7 @@ export function payNow(owed: Owed): { amount: number; line: string; button: stri
  * taken: "Next instalment in 2 months." Null for a bill due now,
  * one behind, or one taken every month.
  */
-export function nextTaken(owed: Owed, month: number): string | null {
+function nextTaken(owed: Owed, month: number): string | null {
   const ahead = nextTakenAhead(owed, month);
   if (ahead === null) return null;
   const own = `ui.obligation.next.${owed.entry}`;
@@ -81,7 +81,7 @@ function haveFor(pocket: PlayerView["pockets"][Currency], pay: NonNullable<Retur
  * R-HOME-012 (decision 0035): the naira living at home is bought as you go and charged nothing as the month turns, so
  * its notice would say a bill is taken at the month's end when none is. The home card above says how it is lived.
  */
-export function livedByHand(owed: Owed): boolean {
+function livedByHand(owed: Owed): boolean {
   const entry = content.obligation[owed.entry];
   return entry?.type === "upkeep" && entry.currency === "NGN" && owed.due === 0 && owed.missed === 0 && owed.outstanding <= 0;
 }

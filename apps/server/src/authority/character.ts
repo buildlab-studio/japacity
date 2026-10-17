@@ -21,7 +21,7 @@ function hex(bytes: Uint8Array): string {
 }
 
 /** R-SERVER-016: the seed of a new character, `server.seedBits` of secure random bytes as hex. */
-export function newSeed(deps: Pick<ServerDeps, "config" | "randomBytes">): string {
+function newSeed(deps: Pick<ServerDeps, "config" | "randomBytes">): string {
   return hex(deps.randomBytes(int.divFloor(deps.config.server.seedBits, BYTE_BITS)));
 }
 

@@ -112,7 +112,7 @@ export function openScene(view: Pick<PlayerView, "setpiece" | "place">, places: 
 }
 
 /** The activity a report line is about, when it names one. */
-export function activityOf(line: ReportLine): string | null {
+function activityOf(line: ReportLine): string | null {
   const named = Object.values(line.params).find((value): value is string => typeof value === "string" && value.startsWith("activity."));
   return named ?? null;
 }

@@ -79,7 +79,7 @@ function text(value: unknown): value is string {
 }
 
 /** R-MODERATION-004: the cite a report carries, or null when it cites nothing the page lists. */
-export function readCite(value: unknown): ReportCite | null {
+function readCite(value: unknown): ReportCite | null {
   if (typeof value !== "object" || value === null) return null;
   const cite = value as Record<string, unknown>;
   const keys = Object.keys(cite).sort().join(",");

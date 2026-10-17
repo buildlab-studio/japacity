@@ -24,7 +24,7 @@ export function stripFrame(width: number, height = STRIP_H, rows: { top: number;
 }
 
 /** A paper point on the strip, in the strip's own pixels. */
-export function onStrip(frame: Frame, [x, y]: Point): Point {
+function onStrip(frame: Frame, [x, y]: Point): Point {
   return [frame.x + x * frame.sx, frame.y + y * frame.sy];
 }
 

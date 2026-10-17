@@ -23,7 +23,7 @@ export const GATED_COMMANDS: Partial<Record<CommandType, SwitchName>> = {
  * player also passes on a new browser; the server cannot tell the two apart
  * before sign-in, so both see the full screen while `signups` is off.
  */
-export const GATED_PATHS: readonly { path: string; name: SwitchName; reads: boolean }[] = [
+const GATED_PATHS: readonly { path: string; name: SwitchName; reads: boolean }[] = [
   { path: "/api/age", name: "signups", reads: true },
   { path: "/api/adverts", name: "adverts", reads: true },
   { path: "/api/adverts/*", name: "adverts", reads: true },
@@ -42,7 +42,7 @@ function refuse(c: Context, deps: ServerDeps, name: SwitchName): Response {
 }
 
 /** Closes a route while `name` is off. `reads` false lets GET and HEAD through. */
-export function switchGate(deps: ServerDeps, name: SwitchName, reads = true): MiddlewareHandler {
+function switchGate(deps: ServerDeps, name: SwitchName, reads = true): MiddlewareHandler {
   return async (c, next) => {
     const read = c.req.method === "GET" || c.req.method === "HEAD";
     if ((reads || !read) && !(await isOn(deps, name))) return refuse(c, deps, name);
@@ -61,7 +61,7 @@ function commandTypeOf(body: unknown): string | null {
 }
 
 /** R-SERVER-031: refuses a gated command; the route reads the same body again from Hono's cache. */
-export function commandGate(deps: ServerDeps): MiddlewareHandler {
+function commandGate(deps: ServerDeps): MiddlewareHandler {
   return async (c, next) => {
     if (c.req.method !== "POST") {
       await next();

@@ -9,14 +9,14 @@ import { findRoute, nearestFree } from "./route";
 
 /** Seconds a person idles at a spot before strolling on, at the least and at the most. */
 export const IDLE_MIN = 20;
-export const IDLE_MAX = 55;
+const IDLE_MAX = 55;
 /** Seconds before anyone's first stroll, so a place opens with everyone at their spots and they leave one by one. */
-export const FIRST_MIN = 5;
+const FIRST_MIN = 5;
 export const FIRST_MAX = 40;
 /** Radians a second a person turns, on arriving, to look the way their spot looks. */
-export const TURN_SPEED = 3;
+const TURN_SPEED = 3;
 
-export interface Stroller {
+interface Stroller {
   slot: number;
   /** The spot held: stood at, or walked to. */
   spot: number;

@@ -47,7 +47,7 @@ const SCHOOLING = "quality.edu-level";
  * A job of a trade: a main job that asks for something the life learned or earned
  * beyond schooling, a skill (code, care), a good degree's grade, a paper of its own, or months in a job before it.
  */
-export function ofATrade(id: string): boolean {
+function ofATrade(id: string): boolean {
   const entry = content.activity[id as Id<"activity">];
   if (entry === undefined || entry.slot !== "main") return false;
   return entry.requires.some((requirement) => (requirement.type === "quality/min" && requirement.quality !== SCHOOLING) || requirement.type === "document/held" || (requirement.type === "activity/tenure" && requirement.activities.length > 0));

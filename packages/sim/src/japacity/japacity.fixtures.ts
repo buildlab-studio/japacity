@@ -25,7 +25,7 @@ function effectsOffer(kind: AnyKind, effects: Effect[]): AnyKind {
 }
 
 /** The real registry with `offer/choose` carrying out `effects`. */
-export function testKinds(effects: Effect[] = []): Registry {
+function testKinds(effects: Effect[] = []): Registry {
   return registry().map((kind): AnyKind => (kind.kind === "offer" ? effectsOffer(kind, effects) : kind));
 }
 
@@ -35,7 +35,7 @@ export function judgeWith(read: ReadCtx, kinds: Registry = testKinds(), terms: T
 }
 
 /** Sends a command through a registry and moves the game on. Throws if it is rejected. */
-export function sendWith(kinds: Registry, game: Game, loose: Loose): Accepted {
+function sendWith(kinds: Registry, game: Game, loose: Loose): Accepted {
   const command: Command = { ...loose, basedOn: game.state.v };
   const result = stepWith(kinds, game.state, command, game.world(), game.content);
   if (!result.ok) throw new Error(`${loose.type} was rejected with ${result.code}: ${result.detail}`);

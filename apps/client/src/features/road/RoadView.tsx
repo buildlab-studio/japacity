@@ -29,13 +29,13 @@ function isRoadOffer(offer: OfferView): boolean {
  * The exit as a control: the road's exit offer when it is open, or, until the
  * simulation opens one, any road offer that can be answered by asking.
  */
-export function exitOffer(offers: readonly OfferView[]): OfferView | null {
+function exitOffer(offers: readonly OfferView[]): OfferView | null {
   const asking = (offer: OfferView) => offer.choices.some((choice) => choice.id === ASK);
   return offers.find((offer) => offer.entry === EXIT_OFFER && asking(offer)) ?? offers.find((offer) => isRoadOffer(offer) && asking(offer)) ?? null;
 }
 
 /** The road's own offers, the exit aside: a ransom call is part of the chain, a family request is not. */
-export function roadOffers(offers: readonly OfferView[]): OfferView[] {
+function roadOffers(offers: readonly OfferView[]): OfferView[] {
   const exit = exitOffer(offers);
   return offers.filter((offer) => offer !== exit && isRoadOffer(offer));
 }
@@ -47,7 +47,7 @@ function fromHome(line: ReportLine): boolean {
   return line.key.startsWith("line.offer.") && typeof offer === "string" && offer !== EXIT_OFFER && content.offer[offer as OfferView["entry"]]?.group !== "road";
 }
 
-export function roadLines(lines: readonly ReportLine[]): ReportLine[] {
+function roadLines(lines: readonly ReportLine[]): ReportLine[] {
   return lines.filter((line) => !fromHome(line));
 }
 

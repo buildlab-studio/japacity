@@ -6,7 +6,7 @@
 // what he was is told after, in the report line. The promise and the papers he leaves behind are
 // the same card with their own choices.
 import type { OfferView as Offer, ReportLine, ReportParam } from "@japacity/sim";
-import { Banknote, BookUser, BookX, Building2, Check, Eye, IdCard, MessageSquareWarning, ShieldCheck, Timer, TrendingDown, type LucideIcon } from "lucide-react";
+import { Banknote, BookUser, BookX, Building2, Check, Eye, IdCard, ShieldCheck, Timer, TrendingDown, type LucideIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -28,7 +28,7 @@ const DECLINE = "decline";
 /** A look's choice id starts with this; the same id in `signs` marks the look as done (R-ADVICE-006). */
 const LOOK = "look-";
 
-export function inAgentFamily(entry: string): boolean {
+function inAgentFamily(entry: string): boolean {
   return entry.startsWith(FAMILY);
 }
 
@@ -275,7 +275,6 @@ const TELL_ICONS: Readonly<Record<string, LucideIcon>> = {
   "no-passport": BookX,
   "pay-today": Timer,
   "price-low": TrendingDown,
-  "friend-warned": MessageSquareWarning,
 };
 
 /**
@@ -336,7 +335,7 @@ export function AgentSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines
 }
 
 /** The scammer's papers (R-ADVICE-005, 008): what he offers, in the entry's words, and nothing more. */
-export function PapersSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines: ReportLine[]) => void }) {
+function PapersSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines: ReportLine[]) => void }) {
   const fee = feeOf(offer);
   return (
     <article className="flex flex-col gap-3" data-agent-sheet={offer.entry}>
@@ -352,7 +351,7 @@ export function PapersSheet({ offer, onChosen }: { offer: Offer; onChosen: (line
  * choice, `wait`, would take the offer and close it, so the month he named would pass with no line
  * saying nothing moved. The card sends nothing; the sheet's close leaves it waiting.
  */
-export function PromiseSheet({ offer }: { offer: Offer }) {
+function PromiseSheet({ offer }: { offer: Offer }) {
   const view = useView();
   return (
     <article className="flex flex-col gap-3" data-agent-sheet={offer.entry}>

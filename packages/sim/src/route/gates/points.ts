@@ -122,7 +122,7 @@ function spouseTableOf(content: Content, block: PointsBlock): PointsEntry & { sp
  * R-PEOPLE-030: the facts of the partner a joint on this route names as the
  * dependant, while the character leads it. Null: the character applies alone.
  */
-export function spouseOnJoint(read: ReadCtx, route: Id<"route">): PersonFacts | null {
+function spouseOnJoint(read: ReadCtx, route: Id<"route">): PersonFacts | null {
   const joint = read.state.people.joint;
   if (joint === null || joint.route !== route || joint.lead !== "me") return null;
   const bond = read.state.people.bonds[joint.bond];
@@ -251,7 +251,7 @@ function updated(ctx: Ctx, route: Id<"route">, gate: PointsState, note: string |
  * the Canadian funds among them, were judged when the turn was accepted; the
  * route kind's funds check reads this gate's line in Canadian cents.
  */
-export function enterPool(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
+function enterPool(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const held = ctx.state.route[entry.id];
   if (held === undefined || held.state !== "known" || gateOf(held).poolMonth !== null) return [];
   if (windowClosed(readOf(ctx), entry)) return [];

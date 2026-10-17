@@ -86,7 +86,7 @@ function waysOf(view: AccountView): AccountView["ways"] {
  * The way the life is kept, in one line (R-ACCOUNT-023, 027): Google by its address where Google is linked, else the
  * email. `full`: the email's address too, as the sheet says it; the row says it short. A guest's life is on this phone.
  */
-export function keptLine(view: AccountView, full: boolean): string {
+function keptLine(view: AccountView, full: boolean): string {
   if (view.state === "guest") return say("ui.account.ways.guest");
   const { google, email } = waysOf(view);
   if (google !== null) return say("ui.account.ways.google", { email: google });
@@ -111,7 +111,7 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 }
 
 /** R-ACCOUNT-024: the username, and its change: the first free, then one after each wait the server sets. */
-export function Username({ account }: { account: AccountApi }) {
+function Username({ account }: { account: AccountApi }) {
   const me = useAccountView();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");

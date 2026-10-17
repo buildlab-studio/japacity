@@ -28,7 +28,7 @@ function lookup(key: string): string {
  * any line names the town of the life on screen, so one line serves every hometown. A line that is handed its own
  * `hometown` says that one. With no life on screen, or its family not drawn yet, "your hometown".
  */
-export const HOMETOWN = HOMETOWN_FILL;
+const HOMETOWN = HOMETOWN_FILL;
 
 /** The name of where the life on screen is from, or "your hometown" where none is known. */
 export function hometownWords(id: string | null = nowHometown()): string {
@@ -90,7 +90,7 @@ const QUALITY_LINE_PARAMS = ["quality", "points", "band"];
 const POUND_LINES = "line.route.";
 
 /** True when a bare number in this line is money, guessed from the param's name. */
-export function isBareMoney(name: string, params: Params): boolean {
+function isBareMoney(name: string, params: Params): boolean {
   if (!MONEY_PARAMS.has(name)) return false;
   return !QUALITY_LINE_PARAMS.some((param) => param in params);
 }
@@ -264,7 +264,7 @@ const QUALITY_MOVES: Record<string, "gain" | "loss" | "worn" | "drift"> = {
  * now", never "Network up". Wear from work says the work; the month's drift says where wellbeing settles against its
  * resting point (R-QUALITY-004). Null when content has no words for that move.
  */
-export function movedWords(quality: string, way: "gain" | "loss" | "worn" | "drift", value: number | null): string | null {
+function movedWords(quality: string, way: "gain" | "loss" | "worn" | "drift", value: number | null): string | null {
   const told = `line.quality.told.${quality}`;
   const rest = content.tuning.quality.wellbeingDriftTo;
   const key = way === "drift" ? `${told}.drift.${value === null || value === rest ? "rest" : value < rest ? "below" : "above"}` : way === "worn" && !hasWords(`${told}.worn`) ? `${told}.loss` : `${told}.${way}`;

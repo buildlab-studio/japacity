@@ -41,7 +41,7 @@ function siblingWhere(bond: BondView): string | null {
  * as a computer sibling's does (R-PEOPLE-010); a sibling who plays keeps block and report on their record, and their
  * conversation is their Chats thread.
  */
-export function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotView; bond: BondView | null; api: PairApi | null }) {
+function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotView; bond: BondView | null; api: PairApi | null }) {
   const view = useView();
   const [inviting, setInviting] = useState(false);
   const kind = slotKind(slotKey);
@@ -94,7 +94,7 @@ export function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: 
 }
 
 /** Who the player sponsors, and a bar on sponsoring with how long it holds, never a month number (undertaking.md R-UNDERTAKING-004; world.md R-WORLD-002). */
-export function Sponsoring() {
+function Sponsoring() {
   const { people, month } = useView();
   if (people.sponsoring === null && people.barUntilMonth === null) return null;
   return (

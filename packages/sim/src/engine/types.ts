@@ -724,8 +724,6 @@ export interface OfferEntry {
   bad?: boolean;
   /** What the choice that takes the slot will lock, said a month ahead; the choice's own `turn/lock` effect does the locking (docs/rules/health.md R-HEALTH-006). */
   lockNext?: { slots: number; months: number; why: string };
-  /** False for a small ask abroad that needs no answer this month: an Until news run passes it and it lapses by `onExpire` (docs/rules/world.md R-WORLD-028). Absent means true. The simulation never reads it. */
-  news?: boolean;
   /** Rolled each month while these hold. */
   when: Requirement[];
   /** Zero: never rolled. It opens only when an effect opens it. */
@@ -897,7 +895,6 @@ export interface StatusEntry {
   citizenFeeVar: Id<"var"> | null;
   citizen: Id<"status"> | null;
   banMonths: number;
-  overstayBanMonths: number;
   detectBp: number;
   holdsPassport: boolean;
 }
@@ -1298,8 +1295,7 @@ export interface Tuning {
   };
   /** `downUnder`: wellbeing or standing under this is "down" (R-LUCK-003); `rescueAfterMonths`: months played before the whip-round (R-LUCK-002). */
   /** advice.md: the four ways to look into a route, and the agents. */
-  /** `warnings`: the friend's warning in the shared world, switched off offline (R-ADVICE-011). */
-  advice: { warnings: boolean; networkToAsk: number; adviserFee: number; agentKindsBp: { fixer: number; chaser: number; overpromiser: number; scammer: number }; fees: { fixer: [number, number]; overpromiser: [number, number]; scammer: [number, number] }; chaserFee: [number, number]; fixerMonths: number; chaserMonths: number; fakePapersFee: number; scamTells: number; overpromiseTells: number; floorNaira: number; warnMonths: number };
+  advice: { networkToAsk: number; adviserFee: number; agentKindsBp: { fixer: number; chaser: number; overpromiser: number; scammer: number }; fees: { fixer: [number, number]; overpromiser: [number, number]; scammer: [number, number] }; chaserFee: [number, number]; fixerMonths: number; chaserMonths: number; fakePapersFee: number; scamTells: number; overpromiseTells: number; floorNaira: number };
   luck: {
     downUnder: number;
     rescueAfterMonths: number;
@@ -1355,7 +1351,7 @@ export interface Tuning {
   /** docs/rules/analytics.md Numbers. */
   analytics: { batchSeconds: number; maxBatchBytes: number; maxCount: number; batchesPerHour: number; minShown: number; refD1Bp: number; refD7Bp: number };
   /** The city's crowd bands, the graphics modes' switches and the screen split (docs/rules/city.md). The simulation never reads it. */
-  city: { crowdLow: number; crowdHigh: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; idleAfterMs: number; idleFps: number; walkMmPerS: number; stopShortMm: number; tagNearMm: number; roam: boolean; flyover: boolean; indoorLow: number; indoorHigh: number; outdoorLow: number; outdoorHigh: number; motionSheets: number; ride: { fareKobo: { danfo: number; keke: number; okada: number; walk: number }; farePerKmKobo: { danfo: number; keke: number; okada: number; walk: number }; metresPerMinute: { danfo: number; keke: number; okada: number; walk: number }; waitMinutes: number; scarcityBp: number; walkMetres: number; lonMetresPerE3: number; abroad: Record<Id<"country">, CountryRides> } };
+  city: { crowdLow: number; crowdHigh: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; walkMmPerS: number; stopShortMm: number; roam: boolean; flyover: boolean; ride: { fareKobo: { danfo: number; keke: number; okada: number; walk: number }; farePerKmKobo: { danfo: number; keke: number; okada: number; walk: number }; metresPerMinute: { danfo: number; keke: number; okada: number; walk: number }; waitMinutes: number; scarcityBp: number; walkMetres: number; lonMetresPerE3: number; abroad: Record<Id<"country">, CountryRides> } };
   /** The people around the character (docs/rules/people.md Numbers). */
   people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; weddingStanding: number; gossipStanding: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number; computerAfterMonths: number };
   /** Invites and phrases (docs/rules/pair.md Numbers). */

@@ -9,7 +9,7 @@ import { plannable } from "../../shared/words/acts";
 const HUNT = "activity.job-hunt";
 
 /** A hunt for a job the character already holds: last month's search, done now that it paid off. */
-export function huntsHeldJob(pick: SlotPick | null, job: PlayerView["job"]): boolean {
+function huntsHeldJob(pick: SlotPick | null, job: PlayerView["job"]): boolean {
   return pick !== null && pick.activity === HUNT && pick.param !== null && (pick.param === job.id || pick.param === job.side);
 }
 

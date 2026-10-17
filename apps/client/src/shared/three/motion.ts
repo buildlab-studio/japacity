@@ -34,7 +34,7 @@ import { motionUniforms } from "./clock";
 import { PUFF_INDEX, PUFF_POSITIONS } from "./puff.data";
 
 export type SheetKind = "flag" | "hang" | "frond";
-export type MotionShader = SheetKind | "water" | "smoke" | "leaf" | "drop";
+type MotionShader = SheetKind | "water" | "smoke" | "leaf" | "drop";
 export type MeshLevel = "fine" | "coarse";
 
 const HEAD = /* glsl */ `
@@ -143,7 +143,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.90, 0.96, 0.93), smoothstep(0.08
 `;
 
 /** A flat-shaded material whose vertices move by the shared clock. */
-export function motionMaterial(kind: MotionShader, color: Color | number = 0xffffff, vertexColors = false): MeshLambertMaterial {
+function motionMaterial(kind: MotionShader, color: Color | number = 0xffffff, vertexColors = false): MeshLambertMaterial {
   const material = new MeshLambertMaterial({ color, flatShading: true, side: DoubleSide, vertexColors });
   material.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, motionUniforms);
@@ -303,8 +303,8 @@ const BOB = /* glsl */ `{
 }`;
 
 /** A travelling boat's pace along its lane in metres a second, and the seconds it takes to turn at each end. */
-export const LANE_SPEED = 0.9;
-export const LANE_TURN = 4;
+const LANE_SPEED = 0.9;
+const LANE_TURN = 4;
 
 // A boat that travels (a canoe paddled along the channel): out along its own length, a slow turn at
 // the far end, back, and a turn at home, on the shared clock and phased by where it set off. Its

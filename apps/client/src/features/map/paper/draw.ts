@@ -53,7 +53,7 @@ function wave([x, y]: Point): string {
   return `M${n(x - 6)},${n(y)}q3,-3 6,0t6,0`;
 }
 
-export interface Grain {
+interface Grain {
   walls: string;
   windows: string;
   roofs: string[];
@@ -85,7 +85,7 @@ function palm(x: number, y: number, size: number, facing: 1 | -1): [string, stri
 }
 
 /** The grain of one square of the paper: drawn as paths of their own, so a view draws only the squares it shows. */
-export interface Cell {
+interface Cell {
   box: readonly [number, number, number, number];
   wide: Grain;
   close: Grain;

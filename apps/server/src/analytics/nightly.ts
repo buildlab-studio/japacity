@@ -72,7 +72,7 @@ function onDay(played: Played, start: number, end: number): boolean {
 }
 
 /** R-ANALYTICS-011: the turn of the first early win before the end of the first day, as its key. */
-export function earlyWinKey(life: Life | null, end: number): string {
+function earlyWinKey(life: Life | null, end: number): string {
   const first = life?.played.find((played) => played.row.at < end && played.afterPrologue && played.lines.some(isEarlyWin));
   if (first === undefined) return "none";
   return first.turn <= 3 ? String(first.turn) : "later";

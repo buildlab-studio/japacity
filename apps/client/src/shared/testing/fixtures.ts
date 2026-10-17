@@ -13,7 +13,7 @@ import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
 import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 
-export const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
+const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
 
 /** A new life's view, straight from the engine. */
 export function engineView(scenario: Id<"scenario"> = SCENARIOS[0]!): PlayerView {

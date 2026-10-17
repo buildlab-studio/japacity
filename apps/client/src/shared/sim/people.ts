@@ -12,7 +12,7 @@ export type SlotView = PlayerView["people"]["slots"][string];
 
 export const SEE: Id<"activity"> = "activity.see-someone";
 export const CALL: Id<"activity"> = "activity.call-someone";
-export const COURTED: readonly BondStage[] = ["courting", "partner", "married"];
+const COURTED: readonly BondStage[] = ["courting", "partner", "married"];
 export const TOGETHER: readonly BondStage[] = ["partner", "married"];
 
 /** The slots in the order a family is told: partner, the siblings by number, then the parents. */
@@ -57,7 +57,7 @@ export function bondName(bond: Pick<BondView, "id" | "role" | "label" | "person"
 }
 
 /** A spot, a what or a call as words, from the people's lists in content. */
-export function listWords(kind: "spot" | "what" | "call" | "wedding-spot", value: string): string {
+function listWords(kind: "spot" | "what" | "call" | "wedding-spot", value: string): string {
   return text[`people.${kind}.${value}`] ?? value;
 }
 
@@ -87,7 +87,7 @@ export function momentWords(moment: Moment): string {
 }
 
 /** True when the other side is where the character is: home, or the same country abroad (R-PEOPLE-014). */
-export function samePlace(view: PlayerView, facts: PersonFacts): boolean {
+function samePlace(view: PlayerView, facts: PersonFacts): boolean {
   if (facts.where !== view.place.where) return false;
   return facts.where !== "abroad" || facts.country === view.place.country;
 }
@@ -114,7 +114,7 @@ export function timeWith(view: PlayerView, activity: Id<"activity">): BondView |
 }
 
 /** The route a joint holds in this life: the lead route when leading, else the one followed on. */
-export function jointRoute(view: PlayerView): Id<"route"> | null {
+function jointRoute(view: PlayerView): Id<"route"> | null {
   const joint = view.people.joint;
   if (joint === null) return null;
   if (joint.lead === "me") return joint.route;
@@ -145,7 +145,7 @@ export function endCost(view: PlayerView, bond: BondView): EndCost {
  * The player's month a moment's tick fell in, through the era's own reading of
  * ticks as months (R-DIRECTOR-002), or null before the director runs.
  */
-export function monthOfTick(view: PlayerView, tick: number): number | null {
+function monthOfTick(view: PlayerView, tick: number): number | null {
   const era = view.era;
   if (era === null) return null;
   return tick + era.sinceMonth - era.since;
@@ -163,7 +163,7 @@ export function monthsWithout(view: PlayerView, bond: BondView): number | null {
  * The month a bond ended, read back from its cooldown (R-PEOPLE-039 sets it to the end's month plus
  * `tuning.people.recourtMonths`), or null for a bond not ended. The view carries no end of its own (R-PEOPLE-051).
  */
-export function endedMonth(bond: Pick<BondView, "stage" | "cooldownUntil">): number | null {
+function endedMonth(bond: Pick<BondView, "stage" | "cooldownUntil">): number | null {
   if (bond.stage !== "ended" || bond.cooldownUntil === null) return null;
   return bond.cooldownUntil - content.tuning.people.recourtMonths;
 }
@@ -252,7 +252,7 @@ export function conversationPhrases(): PhraseEntry[] {
   return Object.values(content.phrase).filter((phrase) => phrase.where !== "place");
 }
 
-export const INTERVIEW = "interview.genuineness";
+const INTERVIEW = "interview.genuineness";
 
 /** The interview's name from content, as it reads mid-sentence: "the relationship interview". */
 export function interviewName(): string {

@@ -35,7 +35,7 @@ function countryCurrency(route: RouteView): Currency {
  * The ways with a file to show: looked into or further, never the road (R-ROAD-001, whatever the engine sends), and,
  * abroad, never the way already flown on, whose file is history.
  */
-export function waysOnFile(view: PlayerView): RouteView[] {
+function waysOnFile(view: PlayerView): RouteView[] {
   const abroad = view.place.where === "abroad";
   return view.routes.filter(
     (route) => route.state !== "unknown" && route.state !== "heard" && !(abroad && route.state === "departed") && route.gate?.gate !== "road" && content.route[route.id]?.gate !== "road",

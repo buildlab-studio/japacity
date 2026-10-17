@@ -84,7 +84,7 @@ export function forgetDedication(): void {
 }
 
 /** The water as it stands now. */
-export function waterNow(): Water {
+function waterNow(): Water {
   return water;
 }
 

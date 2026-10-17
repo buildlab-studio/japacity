@@ -14,7 +14,7 @@ import { personOf, type Role } from "./roster";
 export type Spot = [number, number, number];
 export type Vec3 = [number, number, number];
 
-export type MotionKind = "flag" | "hang" | "frond" | "water" | "smoke" | "leaves" | "bunting" | "drops" | "flicker" | "glow";
+type MotionKind = "flag" | "hang" | "frond" | "water" | "smoke" | "leaves" | "bunting" | "drops" | "flicker" | "glow";
 
 /**
  * One moving thing. Sheets (`flag` pinned on the left edge, `hang` pinned along the top, `frond`
@@ -157,7 +157,7 @@ export interface Lamp {
  * Someone standing still at a thing: the thing's id in `things`, the person model from the place's kit, and where they
  * stand. `person`, when two people share the thing, names whose model it is.
  */
-export interface Stander {
+interface Stander {
   thing: string;
   person?: string;
   file: string;
@@ -168,7 +168,7 @@ export interface Stander {
 export type DanceName = "twoStep" | "shuffle";
 
 /** Someone a dressing puts on the floor: who, where, and which loop. */
-export interface Dancer {
+interface Dancer {
   file: string;
   at: Spot;
   dance: DanceName;

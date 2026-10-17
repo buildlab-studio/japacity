@@ -7,7 +7,7 @@ import type { ActivityEntry, Id } from "@japacity/sim";
 
 import { naira } from "../units";
 
-export const SHOP: Id<"activity"> = "activity.run-shop";
+const SHOP: Id<"activity"> = "activity.run-shop";
 const OPEN: Id<"activity"> = "activity.open-shop";
 const EDU_LEVEL: Id<"quality"> = "quality.edu-level";
 /** A bachelor's degree is edu-level 3 (quality.md): the shop is a trade's way, never a graduate's. */

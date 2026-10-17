@@ -9,10 +9,10 @@ import type { Id, OfferChoice, OfferEntry, OfferState, Random, ReadCtx, State, T
 
 export const PARCEL: Id<"offer"> = "offer.parcel-shipped";
 /** The term naming who shipped it: a computer sibling's person entry, or the aunty's words key. */
-export const FROM = "from";
+const FROM = "from";
 /** The term naming the one choice the parcel holds. */
-export const HOLDS = "holds";
-export const AUNTY = `${PARCEL}.from.aunty`;
+const HOLDS = "holds";
+const AUNTY = `${PARCEL}.from.aunty`;
 
 const MONTHS_A_YEAR = 12;
 

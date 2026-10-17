@@ -39,7 +39,7 @@ export interface LightsCounts {
 export const LIGHTS_COUNTERS = { started: "lives/started", departed: "japa/departed", returned: "place/returned" } as const;
 
 /** The step the public figures are rounded to. */
-export const LIGHTS_ROUNDING = 10;
+const LIGHTS_ROUNDING = 10;
 
 /** `count` to the nearest ten, a half rounded up; never below zero. */
 export function roundToTen(count: number): number {

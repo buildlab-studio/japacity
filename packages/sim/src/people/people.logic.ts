@@ -134,7 +134,7 @@ function withPerson(person: Id<"person">): (bond: Bond) => boolean {
  * character has no bond and no ended one still cooling. A papers partner is
  * never a candidate (R-PEOPLE-050).
  */
-export function candidatesOf(read: ReadCtx): PersonEntry[] {
+function candidatesOf(read: ReadCtx): PersonEntry[] {
   const { bonds } = read.state.people;
   const month = read.state.turn.month;
   return Object.values(read.content.person)

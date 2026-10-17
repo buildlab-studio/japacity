@@ -21,12 +21,12 @@ import type { QualityEvent } from "./quality.events";
 const AGE: Id<"quality"> = "quality.age-months";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
 /** Months in a row under the run-down line at the `month` phase (R-HEALTH-001). Hidden. */
-export const RUN_DOWN: Id<"quality"> = "quality.run-down-months";
+const RUN_DOWN: Id<"quality"> = "quality.run-down-months";
 /** Months before another forced month may come (R-HEALTH-005). Hidden. */
 export const FORCED_WAIT: Id<"quality"> = "quality.forced-wait";
 
 /** The source named on the events of the `month` phase. */
-export const MONTH_SOURCE = "month";
+const MONTH_SOURCE = "month";
 
 /**
  * What a change of `amount` really applies to a quality at `current`: a skill
@@ -77,7 +77,7 @@ function runDownMarks(content: ReadCtx["content"]): { warning: number; after: nu
 }
 
 /** True while the run-down warning stands: two months or more in a row under the line (R-HEALTH-001, R-HEALTH-007). */
-export function runDownWarned(read: ReadCtx): boolean {
+function runDownWarned(read: ReadCtx): boolean {
   const marks = runDownMarks(read.content);
   return marks !== null && valueOf(read.state, RUN_DOWN) >= marks.warning;
 }
