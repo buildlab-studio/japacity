@@ -173,14 +173,6 @@
   box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--fan-edge), 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.fan-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-[data-fan-side="left"] .fan-row { flex-direction: row-reverse; }
-
 .fan-price {
   border: 2px solid var(--fan-edge);
   border-radius: 10px;
