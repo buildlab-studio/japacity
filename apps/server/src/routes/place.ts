@@ -2,6 +2,7 @@
 // (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session and answer
 // every signed-in account: presence is not contact (region.md R-REGION-002),
 // and the socket carries only nudges, never words between players.
+import type { HomePlace } from "@japacity/sim";
 import { Hono } from "hono";
 import type { Context } from "hono";
 
@@ -33,6 +34,12 @@ function refuse(c: Context, status: Status, code: ServerCode, detail: string): R
   return c.json(body, status);
 }
 
+/** Every home a life may live in (`home.md`): each is someone's, so no player is sampled in it. */
+const LIVED_IN: Record<HomePlace, true> = { "place.family-house": true, "place.makoko": true, "place.compound-room": true, "place.hostel-room": true };
+
+/** R-CITY-015: the places that are someone's home, whose sample is always empty: the homes, the room abroad and their room. */
+export const HOMES: ReadonlySet<string> = new Set([...Object.keys(LIVED_IN), "place.the-room", "place.their-room"]);
+
 /** R-ACCOUNT-008: Cloudflare's country for the request, from `request.cf` or the header it sets. */
 export function countryOf(request: Request): string | null {
   const cf = (request as Request & { cf?: { country?: unknown } }).cf;
@@ -63,6 +70,8 @@ export function placeRoutes(deps: ServerDeps): Hono<SessionEnv> {
     const place = c.req.param("place");
     if (!Object.hasOwn(deps.contents.current.place, place)) return refuse(c, 404, "unknown-id", `no place ${place}`);
     const reply: PresenceReply = { place, others: [], today: [] };
+    // R-CITY-015: a stranger is never shown in someone's home, so a home's sample is never drawn.
+    if (HOMES.has(place)) return c.json(reply);
     const seed = seedFrom(deps.randomBytes(4));
     const store = deps.stores.presence;
     // R-CITY-032, R-SERVER-030: never more players than the place's target headcount, dial applied.

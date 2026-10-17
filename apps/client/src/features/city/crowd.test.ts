@@ -7,7 +7,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import testCentreFile from "../../../public/assets/places/english-test-centre/place.json";
 import hubFile from "../../../public/assets/places/ojuelegba/place.json";
-import { actPose, bandOf, crowdSize, hash, localDate, partSpots, placeCrowd, poolOf, resident, residents, sampleCrowd, type Shown, traditionalCount, walkPose, weekday } from "./crowd";
+import { actPose, bandOf, crowdSize, hash, HOMES, localDate, partSpots, placeCrowd, poolOf, resident, residents, sampleCrowd, type Shown, traditionalCount, walkPose, weekday } from "./crowd";
 import { crowdTuning } from "./limits";
 import type { PlaceFile } from "./placeFile";
 import { type Person, ROSTER } from "./roster";
@@ -93,6 +93,19 @@ describe("players in the sample", () => {
 
   test("[R-CITY-015] given no presence, when the sample is drawn, then everyone in it is a computer person", () => {
     expect(sampleCrowd(hub, pool, THURSDAY, "high", city).people.every((shown) => shown.kind === "resident")).toBe(true);
+  });
+
+  test("[R-CITY-015] given players here now and seen today, when a home's sample is drawn (each home a life lives in, the room abroad, their room), then no player is in it", () => {
+    expect([...HOMES].sort()).toEqual(["place.compound-room", "place.family-house", "place.hostel-room", "place.makoko", "place.the-room", "place.their-room"]);
+    for (const id of HOMES) {
+      const home = content.place[id as PlaceEntry["id"]];
+      if (home === undefined) throw new Error(`${id} is not in content`);
+      for (const mode of ["low", "high"] as const) {
+        const sample = sampleCrowd(home, pool, THURSDAY, mode, city, others, others);
+        expect(sample.people.length).toBeGreaterThan(0);
+        expect(sample.people.filter((shown) => shown.kind === "player")).toEqual([]);
+      }
+    }
   });
 });
 
@@ -200,7 +213,7 @@ describe("the target headcount", () => {
     }
   });
 
-  test("[R-CITY-032] given every shipped place and more players present than its residents' slots, when the crowd stands, then every part spot, each staff seat among them, keeps the resident it has with no one online and players take every other slot", () => {
+  test("[R-CITY-032] [R-CITY-015] given every shipped place and more players present than its residents' slots, when the crowd stands, then every part spot, each staff seat among them, keeps the resident it has with no one online and players take every other slot but in a home, where residents keep them all", () => {
     let parts = 0;
     let staff = 0;
     for (const { file, stage } of shippedStages()) {
@@ -220,7 +233,8 @@ describe("the target headcount", () => {
         const shownAt = (people: ReadonlyMap<number, Shown>, part: boolean) => [...people].filter(([index]) => spots.has(index) === part).map(([index, shown]) => [index, shown.kind, shown.kind === "player" ? "" : shown.person.file]);
         expect(shownAt(after, true)).toEqual(shownAt(before, true));
         expect(shownAt(after, true).every(([, kind]) => kind === "resident")).toBe(true);
-        expect(shownAt(after, false).every(([, kind]) => kind === "player")).toBe(true);
+        const visitor = HOMES.has(file.place) ? "resident" : "player";
+        expect(shownAt(after, false).every(([, kind]) => kind === visitor)).toBe(true);
         const seats = (stage.acts ?? []).filter((act) => act.staff === true && act.spot < after.size).map((act) => act.spot);
         expect(seats.filter((spot) => !spots.has(spot) || after.get(spot)?.kind !== "resident")).toEqual([]);
         parts += shownAt(before, true).length;
