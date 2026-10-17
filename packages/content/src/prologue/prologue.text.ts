@@ -216,15 +216,12 @@ const words: Record<string, string> = {
   "prologue.door.step": "{n}/{count}",
   "prologue.door.drag": "Drag to turn",
   "prologue.door.pick": "Pick",
-  "prologue.door.print": "Print my page",
   "prologue.door.age": "Your age",
   "prologue.door.age.hint": "Older has worked longer and saved more. Younger has more years before the age limits.",
   "prologue.door.age.years": "{years}",
   "prologue.door.age.younger": "Younger",
   "prologue.door.age.older": "Older",
-  "prologue.door.print.then": "Your page",
   "prologue.door.page.title": "Your page",
-  "prologue.door.page.hint": "It goes with you. Tap your name at the top of the game to open it. It changes as you go.",
   // The front door's typed name (R-PROLOGUE-009): what the box says, and why a name is refused.
   "prologue.door.name.title": "Your name",
   "prologue.door.name.hint": "Type it, or take one of these.",
@@ -280,15 +277,11 @@ const words: Record<string, string> = {
   // The prologue's screen, in the situation's words.
   "prologue.not-for-you": "Not for you:",
   "prologue.handover.first": "Your first step: {step}.",
-  // The handover keeps the story the prologue built: what the money is and can do now,
-  // and a first step in the handover's own words where the nudge's do not fit.
-  "prologue.handover.capital": "{amount} in hand, the shop's capital. It is the move's money now, if you want it to be.",
+  // The handover keeps the story the prologue built: a first step in the handover's own words where the nudge's do not fit.
   "prologue.handover.step.heard": "Go to the meetup in Yaba and hear of a way out",
   // A life's own first step where its archetype has a place for it: `step.<step>.<way>`.
   "prologue.handover.step.job.clinic": "Apply for the staff nurse job at the clinic",
   "prologue.handover.step.heard.motor-park": "Ask around at the motor park",
-  // A degree under the master's and the bank's bar on the grade.
-  "prologue.handover.grade-short": "Your grade keeps the master's and the bank shut. The talent route reads your work, not your grade.",
   // The master's settlement, said as itself and not as side work.
   "prologue.line.settlement": "The settlement: {amount}.",
   "prologue.line.level": "{quality} now: {level}.",
