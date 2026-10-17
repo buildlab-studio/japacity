@@ -27,9 +27,9 @@ describe("the admin tools' reach", () => {
     expect(rollback).toMatch(/transact\(\[character\]/);
   });
 
-  test("[R-SERVER-029] given the server's readme, when the maintainer's steps are read, then the spending alerts at $50 and $200 a month are there", () => {
+  test("[R-SERVER-029] given the server's readme, when the steps in the accounts are read, then the spending alerts at $50 and $200 a month are there", () => {
     const readme = readFileSync(join(root, "apps/server/README.md"), "utf8");
-    const steps = readme.slice(readme.indexOf("## Steps only the maintainer can do"));
+    const steps = readme.slice(readme.indexOf("## Steps in the accounts"));
     expect(steps).toMatch(/R-SERVER-029.*\$50.*\$200 a month/);
   });
 });
