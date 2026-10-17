@@ -1,6 +1,6 @@
 // R-SERVER-012: the admin accounts come from the deployment's Worker secret ADMIN_ACCOUNTS, never from a committed
 // file: a secret set with `wrangler secret put`, never a variable in wrangler.jsonc
-// filled by a deploy's --var.
+// filled by a deploy's --var, which the dashboard shows as plain text.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
