@@ -14,7 +14,7 @@ import { hashInName, type Manifest, sha256 } from "./manifest";
 import { checkPalette } from "./palette-check";
 import { describeMeasure, renderPlaces } from "./place-check";
 import type { Register } from "./register";
-import { checkLimits, checkThings, isWorldFile, type LimitedFile } from "./world-check";
+import { checkLimits, checkParts, checkThings, isWorldFile, type LimitedFile } from "./world-check";
 
 /** R-ASSET-008, as the page writes it. */
 export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
@@ -568,7 +568,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
   for (const file of files.filter((path) => path.endsWith("place.json"))) {
     const place = readJson<PlaceFile>(join(paths.public, file));
     if (place.hub) hub = file.replace(/\/place\.json$/, "");
-    problems.push(...checkPlace(place, byFile, budgets), ...checkWalkable(place.place, place.stage, footprints));
+    problems.push(...checkPlace(place, byFile, budgets), ...checkWalkable(place.place, place.stage, footprints), ...checkParts(place));
     problems.push(...worldChecks(place, byFile, notes));
   }
   const code = codeBytes(paths);

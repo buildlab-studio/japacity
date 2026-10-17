@@ -34,7 +34,36 @@ export interface LimitedFile {
     dancers?: unknown[];
     dressings?: { offer?: string; person?: string; motion: { kind: string }[]; dancers: unknown[]; crowd: { low: number; high: number } }[];
     things?: { id: string; acts: unknown[] }[];
+    people?: unknown[];
+    acts?: StagedAct[];
   };
+}
+
+/** What a place file's act says of the person at one of its crowd's spots, as the check reads it. */
+export interface StagedAct {
+  spot: number;
+  pose?: string;
+  sex?: string;
+  /** `true` on a seat someone works or speaks for the place from (city.md R-CITY-032); any other value is refused. */
+  staff?: unknown;
+  to?: unknown;
+}
+
+/**
+ * 15. R-CITY-032 for one file: every act names one of the crowd's spots, `staff` is `true` where it is set, and a staff
+ * seat is one the high mode shows and someone stays at, never a crossing.
+ */
+export function checkParts(file: Pick<LimitedFile, "place" | "people" | "stage">): string[] {
+  const spots = file.stage?.people?.length ?? 0;
+  return (file.stage?.acts ?? []).flatMap((act) => {
+    const at = `R-CITY-032: ${file.place} has an act at spot ${String(act.spot)}`;
+    if (!Number.isInteger(act.spot) || act.spot < 0 || act.spot >= spots) return [`${at}, which is not one of its ${String(spots)} spots`];
+    if (act.staff === undefined) return [];
+    if (act.staff !== true) return [`${at} whose staff is ${JSON.stringify(act.staff)}, not true`];
+    if (act.to !== undefined) return [`${at} marked staff that walks away`];
+    if (act.spot >= file.people.high) return [`${at} marked staff past the ${String(file.people.high)} people its high mode shows`];
+    return [];
+  });
 }
 
 /** No thing offers more than two acts (R-WORLD-005); a third goes on a sheet. */
