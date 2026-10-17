@@ -125,6 +125,8 @@ export interface DoorGuest {
   /** Null once the guest life is made; otherwise what to say by the username. */
   start: (username: string, filled: boolean) => Promise<string | null>;
   started: () => Promise<void>;
+  /** After a failed character start: what to say when the guest must be made again by the next Begin, or null. */
+  lost: (error: unknown) => string | null;
 }
 
 /**
@@ -239,7 +241,12 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
           keepDoor({ ...fitted, stage: "begun" });
           return guest?.started();
         })
-        .catch(() => setPressed(false));
+        .catch((error: unknown) => {
+          setPressed(false);
+          // R-ACCOUNT-021: a guest whose session was gone by the character's start is made again by the next Begin, and the page says so.
+          const said = guest?.lost(error) ?? null;
+          if (said !== null) setUsernameSaid(said);
+        });
     };
     if (guest === null) {
       setPressed(true);

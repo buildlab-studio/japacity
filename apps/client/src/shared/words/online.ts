@@ -193,6 +193,7 @@ export const onlineText: Record<string, string> = {
   "ui.account.guest.too-many": "Too many new lives from here today. Come back tomorrow.",
   "ui.account.guest.expired": "Your age answer has run out. Answer it again to start.",
   "ui.account.guest.full": "Japacity is full right now. Try again shortly.",
+  "ui.account.guest.lost": "Your life did not start. Tap Begin to try again.",
   "ui.account.fail.taken": "That sign-in already has a life. This one stays as it is, on this phone.",
   "ui.account.fail.guest-only": "Keep this life with Google or your email first. Then you can add a passkey.",
 

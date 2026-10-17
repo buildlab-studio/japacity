@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 
 import type { AccountApi, GuestFailure } from "../../shared/net/auth";
+import { isReported } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
 import { say } from "../../shared/words/text";
 import type { LoadTurnstile } from "./Turnstile";
@@ -79,6 +80,11 @@ export interface GuestDoor {
   widget: ReactNode;
   /** After Begin started the character: the game opens onto it. */
   started: () => Promise<void>;
+  /**
+   * After Begin made the guest, the character's start failed. When the server said the session is gone, the next
+   * Begin makes the guest again and this resolves to what to say; any other failure keeps the guest made, and null.
+   */
+  lost: (error: unknown) => string | null;
 }
 
 export interface GuestDoorOptions {
@@ -99,7 +105,7 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
   useEffect(() => {
     if (sitekey !== null) load().catch(() => undefined);
   }, [sitekey, load]);
-  // Made once: a Begin pressed again after the character failed to start goes straight on.
+  // Made once: a Begin pressed again after the character failed to start goes straight on, unless the session went with it.
   const made = useRef(false);
 
   async function once(username: string): Promise<GuestFailure | null> {
@@ -131,6 +137,11 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
     start,
     widget: check.widget,
     started: onStarted,
+    lost: (error) => {
+      if (!made.current || !isReported(error) || (error as { reported?: unknown }).reported !== "signed-out") return null;
+      made.current = false;
+      return say("ui.account.guest.lost");
+    },
   };
 }
 
