@@ -725,7 +725,7 @@ function offeredPay(read: ReadCtx, item: OfferState): Pick<OfferView, "pay"> {
   return pay === null ? {} : { pay };
 }
 
-export function offerView(read: ReadCtx, item: OfferState): OfferView {
+function offerView(read: ReadCtx, item: OfferState): OfferView {
   const judge: Judge = (requirement, terms) => check(read, requirement, terms);
   return {
     ...offeredPay(read, item),

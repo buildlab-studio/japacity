@@ -64,7 +64,7 @@ export function beingMade(doc: DocumentState): number | null {
  * Held and in date (R-DOCUMENT-003). A copy whose expiry month has come no
  * longer counts, even in the phases of that month before `papers` marks it.
  */
-export function inForce(doc: DocumentState | undefined, month: number): doc is DocumentState {
+function inForce(doc: DocumentState | undefined, month: number): doc is DocumentState {
   return doc !== undefined && doc.state === "held" && (doc.expiresMonth === null || doc.expiresMonth > month);
 }
 
@@ -106,7 +106,7 @@ const SENT: readonly string[] = ["applying", "granted", "departed"];
  * for the agent's papers. the record keeps no month of use, so a
  * route's state and its last refusal are what show the use.
  */
-export function usedInApplication(read: ReadCtx, id: Id<"document">): boolean {
+function usedInApplication(read: ReadCtx, id: Id<"document">): boolean {
   return Object.values(read.content.route).some((route) => {
     if (!route.checklist.some((item) => item.requirement.type === "document/held" && item.requirement.document === id)) return false;
     const held = read.state.route[route.id];
@@ -132,7 +132,7 @@ function issue(ctx: Ctx, id: Id<"document">): DocumentEvent {
 /** The term a fixer's request carries: months to bring the copy being made forward (R-ADVICE-005). */
 export const HASTEN_TERM = "hasten";
 /** The term fake papers carry on their grant (R-ADVICE-008). */
-export const FAKE_TERM = "fake";
+const FAKE_TERM = "fake";
 
 /**
  * R-ADVICE-005: a fixer brings the copy being made forward. the

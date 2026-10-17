@@ -10,7 +10,7 @@ const STANDING: Id<"quality"> = "quality.standing";
 /** R-LUCK-002: the one rescue a life. */
 export const WHIP_ROUND: Id<"offer"> = "offer.whip-round";
 /** R-LUCK-007: the promo that pays when it is honest. */
-export const TELCO_PROMO: Id<"offer"> = "offer.telco-promo";
+const TELCO_PROMO: Id<"offer"> = "offer.telco-promo";
 
 /** R-LUCK-002: the loans whose default rules the rescue out. held funds are a loan too. */
 const LOAN_TYPES: readonly ObligationType[] = ["loan", "group-loan", "held-funds"];

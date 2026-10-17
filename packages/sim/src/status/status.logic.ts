@@ -53,7 +53,7 @@ export function countryEntry(content: Content, id: Id<"country">): CountryEntry 
 }
 
 /** The country's own currency, which every fee abroad is charged in. */
-export function foreignCurrencyOf(content: Content, country: Id<"country">): ForeignCurrency {
+function foreignCurrencyOf(content: Content, country: Id<"country">): ForeignCurrency {
   const { currency } = countryEntry(content, country);
   if (currency === "NGN") throw new Error(`${country} charges in naira, which is no foreign currency.`);
   return currency;

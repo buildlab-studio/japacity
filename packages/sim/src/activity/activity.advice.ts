@@ -94,7 +94,7 @@ const AT_LEAST = 1;
  * the window's next opening is not known ahead (the director opens
  * it), so a closed window adds no months.
  */
-export function monthsAway(read: ReadCtx, entry: RouteEntry, item: ChecklistItem): number {
+function monthsAway(read: ReadCtx, entry: RouteEntry, item: ChecklistItem): number {
   const { state, content } = read;
   const month = state.turn.month;
   const requirement = item.requirement;
@@ -115,7 +115,7 @@ export function monthsAway(read: ReadCtx, entry: RouteEntry, item: ChecklistItem
 }
 
 /** R-ADVICE-004: every route heard or known, in content order, the road never (R-ROAD-001). */
-export function adviserRoutes(read: ReadCtx): Id<"route">[] {
+function adviserRoutes(read: ReadCtx): Id<"route">[] {
   return (Object.keys(read.content.route) as Id<"route">[]).filter((route) => {
     const state = read.state.route[route]?.state;
     return routeEntry(read, route).gate !== "road" && (state === "heard" || state === "known");

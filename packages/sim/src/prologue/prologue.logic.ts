@@ -34,7 +34,7 @@ export const PROLOGUE_SOURCE = "prologue";
  * step 0 is the `draw` card. Its one
  * answer makes the draw, since `initial` has no seed to draw with.
  */
-export const FIRST_STEP = "draw";
+const FIRST_STEP = "draw";
 
 const AFTER_SCHOOL = "after-school";
 const GRADUATION = "graduation";

@@ -124,7 +124,7 @@ function boughtThisMonth(state: State): number {
 }
 
 /** What may still be bought at the bank this month, in US cents. */
-export function allowanceLeft(read: ReadCtx): number {
+function allowanceLeft(read: ReadCtx): number {
   return Math.max(0, worldVarOr(read.world, ALLOWANCE) - boughtThisMonth(read.state));
 }
 
@@ -143,7 +143,7 @@ function atHome(state: State): boolean {
 // ---------------------------------------------------------------------------
 
 /** The topped-up naira not yet spent (R-WALLET-020); 0 while there is none. */
-export function markedOf(wallet: Pick<WalletSlice, "marked">): number {
+function markedOf(wallet: Pick<WalletSlice, "marked">): number {
   return wallet.marked ?? 0;
 }
 

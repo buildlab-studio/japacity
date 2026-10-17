@@ -73,7 +73,7 @@ function towards(view: PlayerView, content: Content, requirement: Requirement): 
 }
 
 /** The month's picks: one for each unmet item of the current chapter an activity can serve, in order, then rest. */
-export function nextStep(view: PlayerView, content: Content): SlotPick[] {
+function nextStep(view: PlayerView, content: Content): SlotPick[] {
   const chapter = view.chapter.current === null ? undefined : content.chapter[view.chapter.current];
   const picks: SlotPick[] = [];
   for (const item of chapter?.items ?? []) {

@@ -18,7 +18,7 @@ export type AgentKind = (typeof AGENT_KINDS)[number];
 export type Pitch = "insider" | "chaser";
 
 /** Every entry of the family, the agents and what they open, has an id that starts with this. */
-export const AGENT_PREFIX = "offer.agent-";
+const AGENT_PREFIX = "offer.agent-";
 /** What an overpromiser leaves on the table: his promise, which lapses in the month he named. */
 export const PROMISE: Id<"offer"> = "offer.agent-promise";
 /** What a scammer offers after the fee: fake papers. */
@@ -71,7 +71,7 @@ export function isLook(id: string): id is Look {
  * in the agent's office, which only a fixer keeps. Its kind is still drawn so
  * the stream moves the same way.
  */
-export function hasDesk(entry: OfferEntry): boolean {
+function hasDesk(entry: OfferEntry): boolean {
   return entry.fraudBp === 0;
 }
 
@@ -80,7 +80,7 @@ export function hasDesk(entry: OfferEntry): boolean {
  * (R-ADVICE-013) and the desk upstairs (R-ADVICE-010). Null for the stop,
  * where the draw decides.
  */
-export function fixedKind(entry: OfferEntry): AgentKind | null {
+function fixedKind(entry: OfferEntry): AgentKind | null {
   if (entry.id === CHASER) return "chaser";
   return hasDesk(entry) ? "fixer" : null;
 }
@@ -256,7 +256,7 @@ export function warned(read: ReadCtx, entry: OfferEntry, carried: readonly strin
  * (R-ADVICE-005): a fixer's is true; an overpromiser's or a scammer's leaves
  * out the heaviest item, the first on a tie, so it understates.
  */
-export function agentChecklist(route: RouteEntry | undefined, kind: AgentKind): string {
+function agentChecklist(route: RouteEntry | undefined, kind: AgentKind): string {
   if (route === undefined) return "";
   const items = route.checklist.map((item) => item.id);
   if (kind === "fixer" || kind === "chaser" || route.checklist.length === 0) return items.join(",");
@@ -268,7 +268,7 @@ export function agentChecklist(route: RouteEntry | undefined, kind: AgentKind): 
  * R-ADVICE-010: who stands there this time, as the text key whose `.name`
  * carries his name: `<entry>.who.<n>`, `n` drawn by the entry's term `who`.
  */
-export function agentName(entry: OfferEntry, own: Terms): string {
+function agentName(entry: OfferEntry, own: Terms): string {
   const who = own["who"];
   return typeof who === "number" ? `${entry.id}.who.${String(who)}` : entry.id;
 }

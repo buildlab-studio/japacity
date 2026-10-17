@@ -26,7 +26,7 @@ function numbered(commands: SavedCommand[]): SavedCommand[] {
 }
 
 /** The scripts on the mini content. */
-export const miniScripts: GoldenScript[] = [
+const miniScripts: GoldenScript[] = [
   {
     name: "mini-plain-resting",
     save: {

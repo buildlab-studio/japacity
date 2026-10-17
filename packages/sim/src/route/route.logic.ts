@@ -134,7 +134,7 @@ function grade(state: State): number {
 
 
 /** R-ROUTE-005: the route's window, from its world variable. 0 closed, 1 narrowing, 2 open. */
-export function windowOf(read: ReadCtx, route: Id<"route">): RouteView["window"] {
+function windowOf(read: ReadCtx, route: Id<"route">): RouteView["window"] {
   const window = entryOf(read.content, route).window;
   // A route with no window var (the road) is never closed by the world.
   if (window === null) return "open";
@@ -409,7 +409,7 @@ function studyFigures(read: ReadCtx): ApplicationFigures {
  * the interview where the entry has one. A gate that sends on its own clock
  * (the points gate's invitation) calls this with its conditions already judged.
  */
-export function sendApplication(ctx: Ctx, entry: RouteEntry, cause: Cause): BaseEvent[] {
+function sendApplication(ctx: Ctx, entry: RouteEntry, cause: Cause): BaseEvent[] {
   const route = entry.id;
   const read = readOf(ctx);
   const month = ctx.state.turn.month;
@@ -969,7 +969,7 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
  * slow item earns weight * have / need rounded down as it fills; any other
  * unmet item earns nothing. Only slow items carry `have` and `need`.
  */
-export function checklistItemView(read: ReadCtx, item: ChecklistItem): ChecklistItemView {
+function checklistItemView(read: ReadCtx, item: ChecklistItem): ChecklistItemView {
   const result = check(read, item.requirement);
   const have = item.partial && result.have !== undefined ? Math.max(0, result.have) : null;
   const need = item.partial && result.need !== undefined ? result.need : null;

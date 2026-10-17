@@ -17,7 +17,7 @@ const GULF: Id<"route"> = "route.gulf-contract";
 const ROAD: Id<"route"> = "route.road";
 
 /** Naira, bank and cash together, under which offer.md calls a character broke. */
-export const BROKE_BELOW = 15000000;
+const BROKE_BELOW = 15000000;
 
 /** Pence of pounds a careful player buys ahead for the deposit and the visa fees. */
 const POUND_TARGET = 600000;
@@ -339,7 +339,7 @@ function documentState(view: PlayerView, id: string) {
 }
 
 /** A job's monthly pay in kobo, valued at the official rate. */
-export function payOf(view: PlayerView, content: Content, job: string | null): number {
+function payOf(view: PlayerView, content: Content, job: string | null): number {
   if (job === null) return 0;
   const pay = content.activity[job as Id<"activity">]?.pay;
   if (pay === null || pay === undefined || typeof pay.amount !== "number") return 0;
@@ -1039,7 +1039,7 @@ function abroadCommands(view: PlayerView, content: Content, habits: Habits): Loo
 }
 
 /** A strategy from a set of habits: answer, settle offers, handle money, then end the month. */
-export function strategyOf(name: StrategyName): Strategy {
+function strategyOf(name: StrategyName): Strategy {
   const habits = HABITS[name];
   return (view, content) => {
     if (view.ended) return [];
@@ -1092,7 +1092,7 @@ export type Ending = "settled" | "citizen" | "returned-by-choice" | "returned-br
 
 export const ENDINGS: Ending[] = ["settled", "citizen", "returned-by-choice", "returned-broke", "assisted-return", "removed", "road-lost", "still-playing"];
 
-export type CarFate = "none" | "owned" | "paying" | "repossessed" | "handed-back" | "left-behind";
+type CarFate = "none" | "owned" | "paying" | "repossessed" | "handed-back" | "left-behind";
 
 export interface RunRecord {
   strategy: StrategyName;
@@ -1155,7 +1155,7 @@ export interface RunRecord {
 }
 
 /** Good lines that come with every ordinary month: pay, gig money and practice. */
-export const ROUTINE_LINES = ["line.wallet.salary", "line.activity.salary", "line.quality.gain", "line.activity.gig", "line.wallet.gig"];
+const ROUTINE_LINES = ["line.wallet.salary", "line.activity.salary", "line.quality.gain", "line.activity.gig", "line.wallet.gig"];
 
 export interface RunOptions {
   months?: number;
@@ -1195,7 +1195,7 @@ function fileOf(state: State, content: Content): FileOnDay {
 }
 
 /** The ending a run has reached, read from its state. */
-export function endingOf(state: State): Ending {
+function endingOf(state: State): Ending {
   if (state.turn.ended) return "road-lost";
   const held = state.place.where === "abroad" ? (state.status.current?.entry ?? null) : (state.place.heldAbroad?.status ?? null);
   if (held !== null && CITIZEN_STATUSES.includes(held)) return "citizen";

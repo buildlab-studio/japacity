@@ -34,7 +34,7 @@ function entryOf(content: Content, id: Id<"chapter">): ChapterEntry {
 }
 
 /** R-CHAPTER-009: the base chapter a chapter stands in for, or itself when it is a base. */
-export function baseChapterOf(content: Content, id: Id<"chapter">): Id<"chapter"> {
+function baseChapterOf(content: Content, id: Id<"chapter">): Id<"chapter"> {
   return content.chapter[id]?.variantOf ?? id;
 }
 

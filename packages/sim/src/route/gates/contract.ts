@@ -25,7 +25,7 @@ function settings(entry: RouteEntry): NonNullable<RouteEntry["contract"]> {
   return entry.contract;
 }
 
-export function agentOf(held: RouteState): Agent | null {
+function agentOf(held: RouteState): Agent | null {
   return held.gate?.gate === "contract" ? held.gate.agent : null;
 }
 

@@ -50,7 +50,7 @@ type Open = NonNullable<InterviewSlice["open"]>;
 type Asked = Open["questions"][number];
 type Numbers = Tuning["interview"];
 
-export function entryOf(content: Content): InterviewEntry {
+function entryOf(content: Content): InterviewEntry {
   const entry = content.interview[GENUINENESS];
   if (entry === undefined) throw new Error(`The content has no ${GENUINENESS}.`);
   return entry;
@@ -67,7 +67,7 @@ function questionOf(entry: InterviewEntry, id: string): Question {
 // ---------------------------------------------------------------------------
 
 /** The bond an interview is about. A computer's pair is its bond id; a real player's is the pair record's id. */
-export function bondFor(state: State, pair: string): { id: string; bond: Bond } | null {
+function bondFor(state: State, pair: string): { id: string; bond: Bond } | null {
   const direct = state.people.bonds[pair];
   if (direct !== undefined) return { id: pair, bond: direct };
   for (const [id, bond] of Object.entries(state.people.bonds)) {
@@ -76,7 +76,7 @@ export function bondFor(state: State, pair: string): { id: string; bond: Bond } 
   return null;
 }
 
-export function pairOf(id: string, bond: Bond): string {
+function pairOf(id: string, bond: Bond): string {
   return bond.with.kind === "player" ? bond.with.pair : id;
 }
 
@@ -238,7 +238,7 @@ export function resultOf(matched: number, asked: number, thin: boolean, numbers:
  * this life's own state and its facts of the other, which the authority makes
  * fresh before it (R-PEOPLE-003), so both lives read the same truths.
  */
-export function matchedCount(read: ReadCtx, open: Open, bond: Bond, theirs: readonly string[]): number {
+function matchedCount(read: ReadCtx, open: Open, bond: Bond, theirs: readonly string[]): number {
   const entry = entryOf(read.content);
   let matched = 0;
   open.questions.forEach((asked, index) => {

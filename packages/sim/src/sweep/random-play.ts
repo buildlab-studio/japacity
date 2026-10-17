@@ -18,7 +18,7 @@ export const COMMANDS = 300;
 export const SEEDS_PER_LIFE = 40;
 
 /** R-WALLET-002: per currency, what the pockets hold less what the ledger says came in and went out. Zero when the books balance. */
-export function ledgerGaps(state: State): Partial<Record<Currency, number>> {
+function ledgerGaps(state: State): Partial<Record<Currency, number>> {
   const gaps: Partial<Record<Currency, number>> = {};
   for (const [currency, pocket] of Object.entries(state.wallet.pockets) as [Currency, State["wallet"]["pockets"][Currency]][]) {
     let net = 0;
@@ -31,7 +31,7 @@ export function ledgerGaps(state: State): Partial<Record<Currency, number>> {
 }
 
 /** R-QUALITY-001: every quality held sits inside its entry's range. */
-export function qualitiesOutOfRange(state: State, content: Content): string[] {
+function qualitiesOutOfRange(state: State, content: Content): string[] {
   const out: string[] = [];
   for (const [id, value] of Object.entries(state.quality)) {
     const entry = content.quality[id as Id<"quality">];
@@ -42,7 +42,7 @@ export function qualitiesOutOfRange(state: State, content: Content): string[] {
 }
 
 /** Every always-true rule the random play checks after one accepted command, as one list of what failed. */
-export function problems(game: Game, view: PlayerView): string[] {
+function problems(game: Game, view: PlayerView): string[] {
   const found = [...checkInvariants(game.state, game.content)];
   for (const key of VIEW_KEYS) if (!(key in view)) found.push(`the view has no ${key}`);
   for (const path of hiddenPaths(view)) found.push(`the view shows ${path}`);
@@ -53,7 +53,7 @@ export function problems(game: Game, view: PlayerView): string[] {
 }
 
 /** R-ENGINE-010: what in a value would not come back the same from JSON: undefined, a number that is not finite, or anything but plain objects and arrays. */
-export function notPlain(value: unknown, path: string): string[] {
+function notPlain(value: unknown, path: string): string[] {
   if (value === null || typeof value === "string" || typeof value === "boolean") return [];
   if (typeof value === "number") return Number.isFinite(value) ? [] : [`${path} is ${String(value)}`];
   if (typeof value !== "object") return [`${path} is ${typeof value}`];
@@ -63,7 +63,7 @@ export function notPlain(value: unknown, path: string): string[] {
 }
 
 /** R-ENGINE-011, read from the view: a legal command while a turn is banked, and an answer while a set piece is open. */
-export function stuck(view: PlayerView, legal: Loose[]): string | null {
+function stuck(view: PlayerView, legal: Loose[]): string | null {
   if (view.ended) return null;
   if (view.prologue !== null) return legal.length > 0 ? null : "the prologue is open with no legal answer";
   if (view.turns.banked > 0 && view.setpiece === null && !legal.some((command) => command.type === "turn/end")) return "a turn is banked and no turn can be ended";
@@ -72,7 +72,7 @@ export function stuck(view: PlayerView, legal: Loose[]): string | null {
 }
 
 /** R-ENGINE-010: the save replays to the same state. */
-export function replays(game: Game): boolean {
+function replays(game: Game): boolean {
   // The stand-in world is a walk from tick 0, so it is built once for the whole replay.
   const worldSeed = lifeStart(game.save)?.worldSeed ?? "";
   const worlds = standInWorlds(worldSeed, game.tick + 1, game.content);
@@ -110,7 +110,7 @@ const FLOWN = new Map<string, { state: State; save: Save; tick: number }>();
  * each with the seed it was found on. A random life
  * that meets one stops there and is counted; any other break fails the test.
  */
-export const KNOWN_FINDINGS: { pattern: string; finding: string }[] = [];
+const KNOWN_FINDINGS: { pattern: string; finding: string }[] = [];
 
 /** The result of a random life with the known findings let through: null when it held or stopped on one of them. */
 export function unexplained(result: string | null): string | null {

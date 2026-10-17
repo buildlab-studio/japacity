@@ -15,7 +15,7 @@ const ENGINE_REQUIREMENTS = ["not", "any", "month/min", "var/min", "var/max", "e
 type KindRequirementPrefix = Exclude<PrefixOf<RequirementType>, "month" | "var" | "era">;
 
 /** Which kind judges each requirement type, by the part before the slash. */
-export const REQUIREMENT_OWNER: Record<KindRequirementPrefix, SliceKey> = {
+const REQUIREMENT_OWNER: Record<KindRequirementPrefix, SliceKey> = {
   world: "lottery",
   people: "people",
   quality: "quality",

@@ -66,7 +66,7 @@ export function answerScore(answer: SetpieceAnswer, judge: Judge): number {
 }
 
 /** R-SETPIECE-003: an answer may be given only while every one of its `requires` holds. */
-export function answerAllowed(answer: SetpieceAnswer, judge: Judge): boolean {
+function answerAllowed(answer: SetpieceAnswer, judge: Judge): boolean {
   return (answer.requires ?? []).every((requirement) => judge(requirement).met);
 }
 

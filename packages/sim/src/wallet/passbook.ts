@@ -59,7 +59,7 @@ export function passbookOpen(state: State): boolean {
 }
 
 /** The plan's way once looked into or further on, else null: the passbook counts a cost only once its page is read. */
-export function passbookRoute(read: ReadCtx): Id<"route"> | null {
+function passbookRoute(read: ReadCtx): Id<"route"> | null {
   if (!passbookOpen(read.state)) return null;
   const route = planOf(read.state.route, read.content, read.state.chapter.chosen ?? null);
   if (route === null) return null;
@@ -142,7 +142,7 @@ export function roadTarget(read: ReadCtx): PassbookView["target"] {
 }
 
 /** What the last closed months kept for the road, a month, rounded down; null before any closed. */
-export function paceOf(state: State): number | null {
+function paceOf(state: State): number | null {
   const nets = state.wallet.nets ?? [];
   if (nets.length === 0) return null;
   return divFloor(

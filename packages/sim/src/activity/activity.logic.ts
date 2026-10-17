@@ -75,7 +75,7 @@ const SURE_HUNT_MONTHS = 3;
 /** A side gig pays naira cash (R-ACTIVITY-008). */
 const GIG_CURRENCY: Currency = "NGN";
 /** The source named on the rest an empty slot gives. */
-export const REST_SOURCE = "rest";
+const REST_SOURCE = "rest";
 
 // The activities whose figures are tuning rather than entry fields: the kind runs them by id.
 const OVERTIME: Id<"activity"> = "activity.overtime";
@@ -97,7 +97,7 @@ const LATER_EFFECTS: readonly Effect["type"][] = ["activity/hunt"];
 
 /** The lock reasons this kind reads and writes (R-TURN-009, R-HEALTH-004). */
 export const SIDE_JOB_LOCK = "side-job";
-export const ILLNESS_LOCK = "illness";
+const ILLNESS_LOCK = "illness";
 const UNLOCKED_LINE = "line.turn.unlocked";
 /** The staged line of the first pay abroad (R-LUCK-008), which the first-pay card reads (R-SHARE-001). */
 const FIRST_PAY_ABROAD = "line.activity.salary-first-abroad";
@@ -125,7 +125,7 @@ export function answersNow(entry: Pick<ActivityEntry, "when">): boolean {
 }
 
 /** R-ACTIVITY-015: the now-acts sent in the month in hand, in order. */
-export function nowThisMonth(state: State): SlotPick[] {
+function nowThisMonth(state: State): SlotPick[] {
   return state.activity.now ?? [];
 }
 
@@ -133,13 +133,13 @@ export function nowThisMonth(state: State): SlotPick[] {
  * R-ACTIVITY-020 (decision 0036): the body is spent for an act that takes effort (any time at all) when energy is under
  * `tuning.turn.body.spentBelow`; a purchase, and an act that takes no time, never waits.
  */
-export function bodySpent(state: State, content: Content, entry: Pick<ActivityEntry, "purchase" | "halfDays">): boolean {
+function bodySpent(state: State, content: Content, entry: Pick<ActivityEntry, "purchase" | "halfDays">): boolean {
   if (entry.purchase === true || (entry.halfDays ?? 1) <= 0 || content.quality["quality.energy"] === undefined) return false;
   return (state.quality["quality.energy"] ?? 0) < content.tuning.turn.body.spentBelow;
 }
 
 /** R-ACTIVITY-015: a now-act that is not a purchase and does not repeat (R-ACTIVITY-019), already done this month, so shut until the next. */
-export function doneThisMonth(state: State, entry: Pick<ActivityEntry, "id" | "purchase" | "repeat">): boolean {
+function doneThisMonth(state: State, entry: Pick<ActivityEntry, "id" | "purchase" | "repeat">): boolean {
   return entry.purchase !== true && entry.repeat !== true && nowThisMonth(state).some((pick) => pick.activity === entry.id);
 }
 
@@ -242,7 +242,7 @@ function knownRoutes(read: ReadCtx): string[] {
  * (R-ROUTE-006): its answer's month plus `reapplyMonths`. Null when there is
  * no refusal there.
  */
-export function reapplyFrom(application: SchoolApplication | undefined, numbers: Tuning["route"]): number | null {
+function reapplyFrom(application: SchoolApplication | undefined, numbers: Tuning["route"]): number | null {
   return application?.state === "rejected" ? application.readyMonth + numbers.reapplyMonths : null;
 }
 
@@ -1092,7 +1092,7 @@ export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, 
 }
 
 /** True while this life's next hunt is its sure first one (R-GUIDE-014): the first three months, no hunt before, none earlier this month. */
-export function firstHuntSure(read: ReadCtx): boolean {
+function firstHuntSure(read: ReadCtx): boolean {
   const named = Object.values(read.content.activity).find((entry) => isJob(entry) && entry.hireBp !== null);
   return named !== undefined && sureHuntJob(read, named, read.state.turn.month + 1, huntedThisMonth(read.state)) !== null;
 }
@@ -1241,7 +1241,7 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
  * the place (R-LADDER-001). `allowed` needs the place, the requirements and,
  * where it takes one, a param to pick. The cost shown is the first param's.
  */
-export function activityOptions(read: ReadCtx): ActivityOption[] {
+function activityOptions(read: ReadCtx): ActivityOption[] {
   const judge: Judge = (requirement) => check(read, requirement);
   const abroad = read.state.place.where === "abroad";
   return Object.values(read.content.activity)
@@ -1411,7 +1411,7 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
 }
 
 /** R-ACTIVITY-015: the place's answer to a now-act, `line.activity.<slug>.now`. */
-export function nowLineKey(activity: Id<"activity">): string {
+function nowLineKey(activity: Id<"activity">): string {
   return `line.activity.${activity.slice("activity.".length)}.now`;
 }
 

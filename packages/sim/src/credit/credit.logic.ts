@@ -36,7 +36,7 @@ const EMPTY: CreditFile = { mark: 0, onTime: 0, missed: 0, lastMissMonth: null, 
  * after a return the last one left, so a debt that follows you home still
  * reports to the file it was opened under. Null before any time abroad.
  */
-export function fileCountry(read: ReadCtx): Id<"country"> | null {
+function fileCountry(read: ReadCtx): Id<"country"> | null {
   const { place } = read.state;
   if (place.where === "abroad") return place.country;
   return place.returns.at(-1)?.country ?? null;
@@ -57,26 +57,26 @@ function penaltyPending(read: ReadCtx, country: Id<"country">): boolean {
 }
 
 /** A country's file as it reads now: empty on a first arrival, less the return penalty until it is taken. */
-export function fileOf(read: ReadCtx, country: Id<"country">): CreditFile {
+function fileOf(read: ReadCtx, country: Id<"country">): CreditFile {
   const file = read.state.credit.byCountry[country] ?? EMPTY;
   if (!penaltyPending(read, country)) return file;
   return { ...file, mark: Math.max(MARK_MIN, file.mark - read.content.tuning.credit.returnPenalty) };
 }
 
 /** The file of the country the character is in, or null anywhere else. */
-export function currentFile(read: ReadCtx): CreditFile | null {
+function currentFile(read: ReadCtx): CreditFile | null {
   const { place } = read.state;
   if (place.where !== "abroad" || place.country === null) return null;
   return fileOf(read, place.country);
 }
 
 /** The credit mark where the character is. Zero at home and on the road. */
-export function creditMark(read: ReadCtx): number {
+function creditMark(read: ReadCtx): number {
   return currentFile(read)?.mark ?? 0;
 }
 
 /** R-CREDIT-006: a judgment stands until the month it clears. */
-export function judgmentStands(read: ReadCtx, file: CreditFile): boolean {
+function judgmentStands(read: ReadCtx, file: CreditFile): boolean {
   return file.judgmentUntil !== null && read.state.turn.month < file.judgmentUntil;
 }
 
@@ -223,7 +223,7 @@ function countryOwned(content: Content): Map<Id<"obligation">, Id<"country">> {
 }
 
 /** R-CREDIT-007: what each abroad entry that needs credit asks for, where the character is. */
-export function creditNeeds(read: ReadCtx): { id: Id<"obligation">; creditMin: number }[] {
+function creditNeeds(read: ReadCtx): { id: Id<"obligation">; creditMin: number }[] {
   const owned = countryOwned(read.content);
   const here = read.state.place.country;
   return Object.values(read.content.obligation)

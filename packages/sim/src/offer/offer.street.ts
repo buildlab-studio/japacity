@@ -23,7 +23,7 @@ function flatten(requirements: readonly Requirement[]): Requirement[] {
 }
 
 /** The words key the night is told by: R-STREET-009 reads the scenario's sex, and a life that does not say takes the neutral line. */
-export function nightLine(content: Content, scenario: Id<"scenario">): string {
+function nightLine(content: Content, scenario: Id<"scenario">): string {
   const sex = content.scenario[scenario]?.sex;
   if (sex === "f") return `${BRIDGE_NIGHT}.woman`;
   if (sex === "m") return `${BRIDGE_NIGHT}.man`;

@@ -49,18 +49,18 @@ function nairaHeld(state: State): number {
   return cash + bank;
 }
 
-export function owns(state: State, thing: Id<"thing">): boolean {
+function owns(state: State, thing: Id<"thing">): boolean {
   return state.things.owned.some((owned) => owned.thing === thing);
 }
 
 /** The home the things stand in: where the character lives at home in Lagos, or null abroad, on the road, evicted or a guest. */
-export function livesAt(state: State, content: Content): HomePlace | null {
+function livesAt(state: State, content: Content): HomePlace | null {
   if (state.place.where !== "home") return null;
   return homeOf(state, content).place;
 }
 
 /** Whether a thing may stand in a home (the family house holds only the small things, in your corner, and the car). */
-export function standsIn(entry: ThingEntry, home: HomePlace | null): boolean {
+function standsIn(entry: ThingEntry, home: HomePlace | null): boolean {
   return home !== null && entry.homes.includes(home);
 }
 
@@ -82,7 +82,7 @@ export function working(read: Pick<ReadCtx, "state" | "content">): ThingEntry[] 
 }
 
 /** What a thing takes to run a month as the close takes it: its running cost, cut by a thing that eases it (the phone and the data). */
-export function runningOf(read: Pick<ReadCtx, "state" | "content">, entry: ThingEntry, works: readonly ThingEntry[] = working(read)): number {
+function runningOf(read: Pick<ReadCtx, "state" | "content">, entry: ThingEntry, works: readonly ThingEntry[] = working(read)): number {
   if (entry.running === 0) return 0;
   return works.reduce((cost, other) => (other.eases?.thing === entry.id ? bp(cost, other.eases.bp) : cost), entry.running);
 }
@@ -93,7 +93,7 @@ function resaleOf(entry: ThingEntry, paid: number): number {
 }
 
 /** Why the market would refuse a thing now, or null when it would sell it. The command and the view read one answer. */
-export function buyShut(read: Pick<ReadCtx, "state" | "content">, entry: ThingEntry): ThingShut | null {
+function buyShut(read: Pick<ReadCtx, "state" | "content">, entry: ThingEntry): ThingShut | null {
   const { state, content } = read;
   const home = livesAt(state, content);
   if (home === null) return "away";
@@ -243,7 +243,7 @@ function invariants(state: State, content: Content): string[] {
 }
 
 /** The things owned, the market with each thing's price, resale, running and why it is shut, whether Drive is offered, and the month's running. */
-export function thingsView(read: ReadCtx): PlayerView["things"] {
+function thingsView(read: ReadCtx): PlayerView["things"] {
   const works = working(read);
   const home = livesAt(read.state, read.content);
   const owned = read.state.things.owned.map((one) => {

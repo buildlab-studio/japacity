@@ -67,7 +67,7 @@ export function floorsMet(read: ReadCtx, pay: YearlyPay | null = ownPayAYear(rea
 }
 
 /** R-UNDERTAKING-002: abroad in the route's country, holding one of its `sponsorStatuses`. */
-export function holdsSponsorStatus(read: ReadCtx, route: Id<"route">): boolean {
+function holdsSponsorStatus(read: ReadCtx, route: Id<"route">): boolean {
   const entry = partnerRoute(read.content, route);
   const { place, status } = read.state;
   return place.where === "abroad" && place.country === entry.country && status.current !== null && entry.partner.sponsorStatuses.includes(status.current.entry);
@@ -101,7 +101,7 @@ function barred(read: ReadCtx, route: Id<"route">): boolean {
  * ban as a bar on sponsoring into that country: the month it lifts while it is
  * still to come, else null.
  */
-export function interviewBarUntil(read: ReadCtx): { country: Id<"country">; until: number } | null {
+function interviewBarUntil(read: ReadCtx): { country: Id<"country">; until: number } | null {
   const last = read.state.interview.last;
   if (last === null || last.result !== "caught") return null;
   const country = read.content.route[last.route]?.country ?? null;
