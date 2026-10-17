@@ -138,11 +138,6 @@ export function snapTurn(turn: number): number {
   return Math.round(turn / 90) * 90;
 }
 
-/** The quarter the turn button eases to from a view at `turn`: the next one round, a quarter on from where it rests. */
-export function nextQuarter(turn: number): number {
-  return snapTurn(turn) + 90;
-}
-
 /** The turn for `quarter` (0 to 3) nearest a view at `turn`, so the view eases the short way round to it. */
 export function turnToward(turn: number, quarter: number): number {
   const base = quarter * 90;
