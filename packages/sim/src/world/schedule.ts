@@ -132,14 +132,3 @@ export function stageAt(ticks: StoryTicks, tick: number): Omit<WorldNews, "id"> 
   }
   return null;
 }
-
-/** Every story that has reached any stage by the tick, in id order. */
-export function newsAt(schedule: NewsSchedule, tick: number): WorldNews[] {
-  const news: WorldNews[] = [];
-  for (const id of (Object.keys(schedule) as Id<"news">[]).sort()) {
-    const ticks = schedule[id];
-    const reached = ticks === undefined ? null : stageAt(ticks, tick);
-    if (reached !== null) news.push({ id, ...reached });
-  }
-  return news;
-}

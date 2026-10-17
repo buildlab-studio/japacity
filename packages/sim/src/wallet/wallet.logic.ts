@@ -41,8 +41,6 @@ import { CURRENCIES, officialRates, streetRates } from "./wallet.rates";
 const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
 const QUEUE: Id<"var"> = "var.fx-bank-queue";
 
-/** Reasons money comes in under. Every other reason except the two transfers is money going out. */
-export const SOURCES: readonly Reason[] = ["opening", "salary", "gig", "gift", "sale", "loan", "held-funds", "refund", "deposit-return", "cash-work", "win", "remit", "top-up"];
 /** A bank remit waits in the queue under an id with this prefix and arrives under `remit` (R-ABROAD-006). */
 const REMIT_PREFIX = "remit";
 

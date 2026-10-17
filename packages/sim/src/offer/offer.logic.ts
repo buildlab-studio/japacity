@@ -757,6 +757,3 @@ export const offerKind: RegisteredKind<OfferSlice, OfferEvent> = {
   // R-ROAD-012: the road's pitches sit under every other offer.
   view: (read) => ({ offers: [...openItems(read.state)].sort((a, b) => Number(roadGroup(read, a)) - Number(roadGroup(read, b))).map((item) => offerView(read, item)) }),
 };
-
-/** R-LUCK-001: for the content check. */
-export { luckReadsMoney } from "./offer.luck";
