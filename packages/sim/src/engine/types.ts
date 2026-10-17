@@ -895,7 +895,6 @@ export interface StatusEntry {
   citizenFeeVar: Id<"var"> | null;
   citizen: Id<"status"> | null;
   banMonths: number;
-  overstayBanMonths: number;
   detectBp: number;
   holdsPassport: boolean;
 }

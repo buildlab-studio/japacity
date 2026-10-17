@@ -27,7 +27,6 @@ export const StatusEntrySchema = z.strictObject({
   citizenFeeVar: idOf("var").nullable(),
   citizen: idOf("status").nullable(),
   banMonths: CountSchema,
-  overstayBanMonths: CountSchema,
   detectBp: BpSchema,
   holdsPassport: z.boolean(),
 });

@@ -248,7 +248,6 @@ export const miniContent: Content = {
       citizenFeeVar: null,
       citizen: null,
       banMonths: 120,
-      overstayBanMonths: 12,
       detectBp: 300,
       holdsPassport: false,
     },
