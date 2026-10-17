@@ -13,7 +13,7 @@ export interface Manifest {
   patterns: Record<string, string>;
 }
 
-export const MANIFEST_PATH = join(SOURCE, "manifest.json");
+const MANIFEST_PATH = join(SOURCE, "manifest.json");
 
 export function sha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");

@@ -19,10 +19,10 @@ export const WORKER_KEYS = [
 ] as const;
 
 /** What the Worker is given only when it has a value: the admin accounts (R-SERVER-012), empty in .env.example. */
-export const OPTIONAL_WORKER_KEYS = ["ADMIN_ACCOUNTS"] as const;
+const OPTIONAL_WORKER_KEYS = ["ADMIN_ACCOUNTS"] as const;
 
 /** The Worker's name in wrangler.jsonc, which wrangler's local explorer dispatches a cron to. */
-export const WORKER_NAME = "japacity-server";
+const WORKER_NAME = "japacity-server";
 
 /** The client built for the local Worker, kept with wrangler's own local files (git and the lint skip .wrangler), never in the deployable dist. */
 export const LOCAL_DIST = "apps/server/.wrangler/local/client";

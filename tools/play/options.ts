@@ -30,7 +30,7 @@ export interface PlayOptions {
 export type Parsed = { readonly ok: true; readonly options: PlayOptions } | { readonly ok: false; readonly help: boolean; readonly problem: string };
 
 export const DEFAULT_PORT = 5190;
-export const MAX_MONTHS = 60;
+const MAX_MONTHS = 60;
 
 const FLAGS = new Set(["--ready", "--played", "--headed", "--help"]);
 const VALUED = new Set(["--life", "--months", "--out", "--url", "--port"]);
@@ -118,7 +118,7 @@ export interface Lives {
 }
 
 /** Short name for a ready life's kind: "The shop worker" is shop-worker. */
-export function shortName(kind: string): string {
+function shortName(kind: string): string {
   return kind
     .toLowerCase()
     .replace(/^the\s+/, "")

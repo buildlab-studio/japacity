@@ -8,9 +8,9 @@ import { ROOT } from "./catalog";
 import { type Server, startServer } from "./serve";
 
 /** A place's sign key: `place.<slug>.sign.<n>`. */
-export const SIGN_KEY = /^place\.[a-z0-9-]+\.sign\.[a-z0-9-]+$/;
+const SIGN_KEY = /^place\.[a-z0-9-]+\.sign\.[a-z0-9-]+$/;
 
-export const CHROMIUM_ARGS = ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"];
+const CHROMIUM_ARGS = ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"];
 
 export interface Stage {
   server: Server;

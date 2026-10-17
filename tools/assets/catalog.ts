@@ -85,7 +85,7 @@ export const SOURCE = join(ROOT, "assets-src");
 export const PUBLIC = join(ROOT, "apps", "client", "public", "assets");
 
 /** The way every dish in the hub faces, in the frame of its unturned buildings (R-ASSET-019). */
-export const HUB_DISH_YAW = DEFAULT_DISH_YAW;
+const HUB_DISH_YAW = DEFAULT_DISH_YAW;
 
 export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile" | "face" | "figure" | "cheer";
 
@@ -153,7 +153,7 @@ function staticModel(name: string, group: Group, shipSigns = false): BakedModel 
 }
 
 /** A person's arrays as a baked model: the flat colours on the vertices, the one pattern as the second material. */
-export function personModel(mesh: PersonMesh): BakedModel {
+function personModel(mesh: PersonMesh): BakedModel {
   const colours = mesh.colours.flatMap((name) => linearColour(name));
   const [flat, patterned] = mesh.groups;
   const shared = { positions: mesh.positions, normals: mesh.normals, colours, joints: mesh.joints, weights: mesh.weights };
