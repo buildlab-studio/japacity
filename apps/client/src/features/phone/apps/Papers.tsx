@@ -110,7 +110,7 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
               data-act-place={act.place ?? ""}
             >
               <MapPin size={18} className="shrink-0" aria-hidden />
-              {/* The place's words wrap and the button grows, never cut short: "At the English test ce...". */}
+              {/* The place's words wrap and the button grows, never cut short as "At the English test ce...". */}
               <span className="min-w-0 flex-1 py-2.5 leading-snug" data-paper-act-words>{phoneWords("phone.papers.at", { place: act.place === null ? "" : say(`${act.place}.name`) })}</span>
               <ChevronRight size={18} className="shrink-0" aria-hidden />
             </GhostButton>

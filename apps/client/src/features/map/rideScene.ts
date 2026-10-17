@@ -161,7 +161,7 @@ function onTheLeft(way: Way): boolean {
  * train-carriage, BUS_TOP_SEAT and CARRIAGE_SEAT): the eye, where the window beside it looks, and where the seat looks
  * ahead. The bus's window looks a little ahead and level out of its side glass, over the panel under it, so the shopfronts run
  * past. The bus's doors and the seat are on its +x side, the kerb side in the UK; the ride keeps it in the left lane,
- * so that side faces the pavement and the shops (the hand-on from the scenes wave). The carriage's eye stands at x 0.55,
+ * so that side faces the pavement and the shops. The carriage's eye stands at x 0.55,
  * in from the model's 1.05, so the window's posts frame the view rather than fill it.
  */
 export const LONDON_SEAT: Readonly<Record<"bus" | "train", { eye: [number, number, number]; window: [number, number, number]; ahead: [number, number, number] }>> = {
@@ -393,7 +393,7 @@ function turnBone(figure: Figure, name: string, x: number, y: number, z: number)
   bone.rotation.z += z;
 }
 
-/** Each country's street abroad (R-WORLD-039 as amended): its sky, its ground, its two walls and its trees. */
+/** Each country's street abroad (R-WORLD-039): its sky, its ground, its two walls and its trees. */
 const LANDS: Readonly<Record<RideLand, { air: number; ground: number; walls: readonly [number, number]; trees: number }>> = {
   // Calgary in winter: a grey-blue sky, grey concrete, cream and grey blocks, the trees white with snow.
   cold: { air: palette.wallSky, ground: palette.concrete, walls: [palette.wallCream, palette.concreteWorn], trees: palette.white },

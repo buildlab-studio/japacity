@@ -1,5 +1,5 @@
-// Bills, Pay now on the held funds (docs/rules/world.md R-WORLD-006, R-WORLD-019; the fourth
-// review's N10), played on the real engine: the funds go back from the locked pocket, so the slip's
+// Bills, Pay now on the held funds (docs/rules/world.md R-WORLD-006, R-WORLD-019), played on the
+// real engine: the funds go back from the locked pocket, so the slip's
 // "after" is the naira the character keeps, never "₦0 left", and once paid the view (and the band
 // that reads it) counts after the payment.
 import { fireEvent, render, waitFor } from "@testing-library/react";

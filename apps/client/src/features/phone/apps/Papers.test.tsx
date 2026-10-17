@@ -1,5 +1,5 @@
-// The Papers app (docs/rules/world.md R-WORLD-018, R-WORLD-019, R-WORLD-030; document.md R-DOCUMENT-008; the maintainer,
-// 10 Oct 2026, 23:00 and 23:32): every paper with its state and what it counts toward; the calls and messages taken on
+// The Papers app (docs/rules/world.md R-WORLD-018, R-WORLD-019, R-WORLD-030; document.md R-DOCUMENT-008): every paper
+// with its state and what it counts toward; the calls and messages taken on
 // the phone through the act's own card, the passport a visit that opens the map on the passport office; and a paper
 // that landed or moved told on the wallpaper, tappable into Papers, opening nothing by itself.
 import type { PlayerView, ReportLine } from "@japacity/sim";

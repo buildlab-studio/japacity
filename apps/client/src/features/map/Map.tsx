@@ -2,7 +2,7 @@
 // the country and its neighbours, whether WebGL draws (for the ride's scene), a ride already chosen in a
 // place, the step's place, and what to do on arriving and on closing; `onRide` carries the fare of the way
 // chosen. Lagos, London, Calgary, Dubai and Castel Volturno are painted maps, folding between the strip and the cards
-// (paper/PaperMap.tsx), the same on every device (R-WORLD-038 as amended); the stops stay as a list for a screen reader.
+// (paper/PaperMap.tsx), the same on every device (R-WORLD-038); the stops stay as a list for a screen reader.
 import { X } from "lucide-react";
 import "./map.css";
 
@@ -23,7 +23,7 @@ import { type AbroadVehicle, vehicleFor, wayModelFor } from "./rideVehicles";
 /** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
 const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
 /**
- * The painted maps abroad (R-WORLD-038 as amended): the same folding map handed London, Calgary, Dubai or Castel
+ * The painted maps abroad (R-WORLD-038): the same folding map handed London, Calgary, Dubai or Castel
  * Volturno, each drawing a chunk of its own, loaded only when the map shows that country.
  */
 const PAINTED_ABROAD: Readonly<Record<string, typeof PaperMap>> = {
@@ -57,7 +57,7 @@ export interface MapProps {
   by?: RideChoice["id"];
   /** A stop to open picked, with its ride sheet up: the nudge's step elsewhere (R-WORLD-003). */
   pickFirst?: string | null;
-  /** The place the live step points to: the map opens on its neighbourhood, its sticker ringed and named (the plan 16). */
+  /** The place the live step points to: the map opens on its neighbourhood, its sticker ringed and named. */
   step?: string | null;
   /** The dedication page and its glow, handed in by the shell: the lantern canoe on the open map opens it (world.md R-WORLD-036). */
   dedication?: MapDedication | null;
@@ -80,8 +80,8 @@ function keyOf(pins: readonly MapPin[]): string {
 
 export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onTurnBack, onCountry, home = null, by, pickFirst = null, step = null, dedication = null }: MapProps) {
   const view = useView();
-  // The ways where the character is (R-PLACE-010 as amended 16 Oct 2026): abroad, the country's from the view; none listed
-  // (Canada, the UAE and Italy until their waves), the single way at no fare as before.
+  // The ways where the character is (R-PLACE-010): abroad, the country's from the view; with none listed, the single way
+  // at no fare.
   const abroadWays = view.place.where === "abroad" ? (view.place.ways ?? []) : [];
   // The country the life is in and the stops its employer's shuttle serves, for the pills and the vehicles (R-PLACE-013).
   const placeCountry = view.place.where === "abroad" ? view.place.country : null;
@@ -104,7 +104,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const pin = stable.find((candidate) => candidate.id === picked) ?? null;
   const abroad = country.id === "lagos" ? null : country.id;
   // Home stays walkable however far (R-WORLD-017).
-  // : while the life's car stands at home the sheet offers Drive.
+  // While the life's car stands at home the sheet offers Drive.
   const drive = view.things.drive;
   const choicesTo = (to: MapPin, at: MapPin): RideChoice[] =>
     abroadWays.length > 0
@@ -136,7 +136,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
     const long = choice?.long === true;
     // Abroad the ride carries its fare as a pill, in the country's money (R-WORLD-039); on foot nothing is paid.
     const fare = abroadWays.length === 0 || choice === undefined || choice.id === "walk" ? {} : { fare: fareOf(choice) };
-    // The country's own vehicle (R-WORLD-039 as amended): the labour bus or the van on the shuttle's bus, else the way's.
+    // The country's own vehicle (R-WORLD-039): the labour bus or the van on the shuttle's bus, else the way's.
     const shuttle = choice?.shuttle === true || (way === "bus" && here !== null && (shuttles.includes(here.id) || shuttles.includes(to)));
     const ridden = { vehicle: vehicleFor(placeCountry, way, shuttle), ...(choice === undefined || placeCountry === null ? {} : { label: choice.label }) };
     if (answer instanceof Promise) {
@@ -182,7 +182,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
 
   return (
     <div className="fixed inset-0 z-[40] bg-sheet text-text" data-map data-picked={picked ?? ""}>
-      {/* The stops as a list: for a screen reader, beside the painted map of every country (R-WORLD-038 as amended). */}
+      {/* The stops as a list: for a screen reader, beside the painted map of every country (R-WORLD-038). */}
       <ul aria-label={mapWords("map.stops")} className={painted ? "sr-only" : "absolute inset-x-3 top-20 flex flex-col gap-1.5"}>
         {stable.map((stop) => (
           <li key={stop.id}>

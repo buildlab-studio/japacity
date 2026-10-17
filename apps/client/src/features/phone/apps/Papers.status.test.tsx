@@ -1,4 +1,4 @@
-// The status held abroad in Papers (docs/rules/status.md R-STATUS-010, R-STATUS-006), moved from the old status panel:
+// The status held abroad in Papers (docs/rules/status.md R-STATUS-010, R-STATUS-006):
 // its name, the work it allows, the months left, the lawful months toward settling, the way up and the renewal.
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";

@@ -1,4 +1,4 @@
-// The car of your own on the map (R-PLACE-010 and R-WORLD-017 to be amended): while the life's car stands
+// The car of your own on the map (R-PLACE-010, R-WORLD-017): while the life's car stands
 // at home the ride sheet offers Drive, its fuel the fare by distance as the simulation takes it, dearer than the danfo and
 // cheaper than the okada, with no wait at a stop; the button says Drive there; the ride is in the car, alone at the wheel.
 import { content } from "@japacity/content";

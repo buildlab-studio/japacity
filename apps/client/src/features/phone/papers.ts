@@ -1,5 +1,5 @@
-// The papers as the phone's Papers app holds them (docs/rules/world.md R-WORLD-019; document.md R-DOCUMENT-008; the
-// owner): every paper the life has or is waiting on, each with its state, what it counts toward,
+// The papers as the phone's Papers app holds them (docs/rules/world.md R-WORLD-019; document.md R-DOCUMENT-008):
+// every paper the life has or is waiting on, each with its state, what it counts toward,
 // and the act that moves it. An act that is a call or a message in real life (the registry, the council, the assessment
 // body) is taken on the phone; one that is a visit (the passport office, the test centre, the clinic) says where and
 // opens the map on it. Pure: read from the view and content only.

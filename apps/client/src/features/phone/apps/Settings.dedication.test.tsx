@@ -1,6 +1,5 @@
-// The version line at the foot of Settings and the dedication page its five taps open (docs/rules/city.md R-CITY-021,
-// added 11 Oct 2026, the decision of 14:47, item 1; amended 15 Oct 2026: the taps open the page of account.md
-// R-ACCOUNT-032 instead of showing the line under the row). The line says the build the page carries (R-SERVER-038), or
+// The version line at the foot of Settings and the dedication page its five taps open (docs/rules/city.md R-CITY-021;
+// account.md R-ACCOUNT-032). The line says the build the page carries (R-SERVER-038), or
 // "local" with none. Five taps within about five seconds open the page; four do not, a sixth changes nothing, a tap
 // elsewhere or closing the page starts the count again, leaving Settings closes it, and nothing of it is counted or
 // sent. The shell hands the page in (the phone imports no other feature), so here a stand-in with the owner's line is

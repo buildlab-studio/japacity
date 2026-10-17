@@ -1,4 +1,4 @@
-// The passbook's own words (the Bank's first page; the design), first drafts in the voice of
+// The passbook's own words (the Bank's first page; docs/rules/wallet.md R-WALLET-021), first drafts in the voice of
 // docs/rules/text.md: a title of a few words, one line in a person's voice, money in naira, months as a count of months.
 // Never a day count, a percentage, slots, turns or pages. Content's table wins over these, so each key can move there.
 import { text } from "@japacity/content";

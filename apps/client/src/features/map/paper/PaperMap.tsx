@@ -345,7 +345,7 @@ function CardTrack({ current, width, height, stops, names, marks, tiles, route, 
     settling.current = true;
     // The first card is there at once; a neighbour slides round, unless the track is out of sight or motion is reduced. A
     // card further off (a stop picked across the city) is there at once too: a slide past cards not drawn shows them blank
-    // under the sheet (the catalog's picture of London), and drawing every card passed costs a phone too much.
+    // under the sheet, and drawing every card passed costs a phone too much.
     const from = Math.round(element.scrollLeft / Math.max(1, width));
     const smooth = mounted.current && !still && !hidden && Math.abs(from - index) <= 1;
     mounted.current = true;

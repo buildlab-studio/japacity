@@ -1,4 +1,4 @@
-// The ride abroad (docs/rules/world.md R-WORLD-039; place.md R-PLACE-010 as amended 16 Oct 2026 and R-PLACE-012): the
+// The ride abroad (docs/rules/world.md R-WORLD-039; place.md R-PLACE-010 and R-PLACE-012): the
 // ride sheet in London reads the view's ways and prices them with the simulation's own fare, the bus asks nothing in a
 // month the pass is bought and says so, and the ride plays in London's red bus and its train.
 import { content } from "@japacity/content";

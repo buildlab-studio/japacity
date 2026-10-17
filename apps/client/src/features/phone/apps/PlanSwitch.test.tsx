@@ -86,7 +86,7 @@ describe("the switch on another way's page", () => {
       // The command's reply, then the page planned after it.
       await new Promise((settle) => setTimeout(settle, 0));
     });
-    // the official page is read now, never planned, so its command follows the lean.
+    // R-ACTIVITY-015: the official page is read now, never planned, so its command follows the lean.
     expect(sent.map((command) => command.type)).toEqual(["chapter/lean", "activity/now"]);
     expect(sent.at(-1)).toMatchObject({ activity: LOOK, param: UK });
     expect(game.state.chapter.chosen).toBe(UK);

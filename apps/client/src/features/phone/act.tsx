@@ -1,6 +1,6 @@
 // How an app acts (docs/rules/world.md R-WORLD-006, R-WORLD-018): every act that costs or decides
-// opens the shared sheet with its own card; the main button sends the same command the old screens
-// sent, and the corner tells it is done. A refusal shows in the app, in content's words.
+// opens the shared sheet with its own card; the main button sends the act's command, and the corner
+// tells it is done. A refusal shows in the app, in content's words.
 import type { Currency } from "@japacity/sim";
 import { CircleAlert, X } from "lucide-react";
 import { createContext, use, useEffect, useRef, useState, type ReactNode } from "react";
@@ -19,8 +19,7 @@ export const PhoneSaid = createContext<(words: string) => void>(() => undefined)
 /**
  * The app's one way back (R-WORLD-018): an app on an inner screen of its own (a Chats thread, the People slots) hands the
  * handset its way back to its first screen, and the head's Back takes it; on its first screen Back returns to the grid.
- * Two ways back stacked, the head's arrow and a link of the app's own under it, read as the same thing twice (the catalog,
- * 1b952f4b, pictures 115 and 130).
+ * Two ways back stacked, the head's arrow and a link of the app's own under it, read as the same thing twice.
  */
 export const PhoneBack = createContext<(back: (() => void) | null) => void>(() => undefined);
 

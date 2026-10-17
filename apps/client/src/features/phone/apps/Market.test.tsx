@@ -1,5 +1,5 @@
-// The Market on the phone (the after set's phone-market; the new rule R-HOME-013 to come, cited meanwhile
-// by the rules it touches), on the real engine: a grid of the things as sticker tiles of their models with the price on
+// The Market on the phone (docs/rules/home.md R-HOME-013), on the real engine: a grid of
+// the things as sticker tiles of their models with the price on
 // the yellow pill, what is owned says so, a pick shows the balance before and after and one Buy, the delivery's toast;
 // only at home, and abroad a Lagos thing.
 import { content } from "@japacity/content";
@@ -51,7 +51,7 @@ describe("the Market", () => {
   });
 
   test("[R-HOME-013] [R-HOME-006] given a thing with a running cost beside things with none, when the Market opens, then every tile ends on its price, the running cost over it, so the prices of a row line up", async () => {
-    // The catalog's picture 120 (1b952f4b): the data router's running chip under its price lifted the price off its neighbour's.
+    // The trap: the data router's running chip under its price lifting the price off its neighbour's.
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     const { unmount } = await openMarket(game, FAMILY);

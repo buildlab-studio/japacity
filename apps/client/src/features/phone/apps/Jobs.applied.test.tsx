@@ -1,6 +1,6 @@
-// An application out, in the Jobs app (docs/rules/world.md R-WORLD-019): right after applying
-// at the clinic the app said "No job yet ... No job offers right now" while the place had said the matron would answer
-// by the month's end. The app says the application waits. Real content, the tile's nurse played through `step`.
+// An application out, in the Jobs app (docs/rules/world.md R-WORLD-019): right after applying at the clinic, where the
+// place says the matron will answer by the month's end, the app says the application waits, never "No job yet ... No
+// job offers right now". Real content, the tile's nurse played through `step`.
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

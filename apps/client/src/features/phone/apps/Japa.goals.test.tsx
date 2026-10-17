@@ -1,7 +1,6 @@
 // The goals and the figure in Japa (docs/rules/world.md R-WORLD-019; goal.md, the view rule): each open goal as a card
 // with its steps met or not, the done ones with their month, and how ready the life is as a bar that fills, never a
-// number with a percent sign. Moved from the old month page's Goals panel (features/goal/GoalView) and its Japacity
-// figure (features/japacity/JapacityView), each assertion kept against the phone's own element.
+// number with a percent sign, each assertion against the phone's own element.
 import { content } from "@japacity/content";
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";

@@ -1,5 +1,5 @@
 // The team's two rows in the phone's Settings, the game's menu in the world (docs/rules/moderation.md R-MODERATION-016,
-// R-MODERATION-020), moved from the old menu's moderation corner (features/moderation/moderation.test.tsx).
+// R-MODERATION-020).
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

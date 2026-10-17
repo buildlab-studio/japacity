@@ -1,6 +1,6 @@
-// Bank, Lately in the application month (docs/rules/world.md R-WORLD-019), played on
-// the recorded life ada-careful: the results listed the fare and the salary in dollars, and Lately left both
-// out. Lately is the month's money whole, from the results' own money lines, in their order.
+// Bank, Lately in the application month (docs/rules/world.md R-WORLD-019), played on the recorded life
+// ada-careful, whose results list the fare and the salary in dollars. Lately is the month's money whole,
+// from the results' own money lines, in their order, so it leaves neither out.
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

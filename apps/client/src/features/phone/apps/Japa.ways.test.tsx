@@ -1,7 +1,7 @@
 // The ways out in Japa (docs/rules/world.md R-WORLD-019; route.md): the plan's steps in content's words, a step done
 // struck through and a slow one with a bar; each way looked into as a card with its window, its universities with what
-// they ask and cost, its funds against what is needed and its record with the refusals in words. Moved from the old
-// month page's Ways out panel (features/route/RouteView), each assertion kept against the phone's own element.
+// they ask and cost, its funds against what is needed and its record with the refusals in words, each assertion against
+// the phone's own element.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { screen } from "@testing-library/react";

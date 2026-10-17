@@ -115,7 +115,7 @@ export type Name = "here" | "home" | "picked" | "step" | "been" | "new";
 
 /**
  * A sticker's name, by the one rule. `onCard` is a neighbourhood's card, where a place already visited carries its name
- * as well (16 Oct 2026: one sticker on a card had none while the rest had theirs).
+ * as well, so no sticker on a card stands nameless beside named ones.
  */
 export function nameOf(stop: Pick<Placed, "id" | "state">, marks: Marks, onCard = false): Name | null {
   if (stop.state === "here") return "here";

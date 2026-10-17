@@ -104,7 +104,7 @@ describe("Send money home", () => {
 
 describe("the Bank's foot and an open chooser", () => {
   test("[R-WORLD-019] given Send money home opened abroad, when its ways stand, then the foot's buttons come after the last way and never stand over it; closed, the foot stands at the screen's foot again", async () => {
-    // The catalog's picture 146 (1b952f4b): Through someone cut under the foot's two buttons, with no sign it scrolled.
+    // The trap: Through someone cut under the foot's two buttons, with no sign it scrolls.
     const game = recordedGame("ada-careful");
     await renderWithView(<Bank opening="send" />, game.view());
     const foot = document.querySelector<HTMLElement>("[data-bank-foot]")!;

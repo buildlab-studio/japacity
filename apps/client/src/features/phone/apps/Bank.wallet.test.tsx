@@ -1,7 +1,6 @@
-// The wallet in the Bank (docs/rules/abroad.md R-ABROAD-001, 006, 008; wallet.md R-WALLET-005): moved from the old money
-// panel (WalletView), its send-home sheet (RemitSheet) and the family panel abroad (FamilyView), which nothing mounted once
-// the world became the month's page. The pockets, the two rates, a change, a move, what is on its way, sending money home
-// and the naira the family's requests are paid from are the Bank's, each assertion kept against the Bank's own element.
+// The wallet in the Bank (docs/rules/abroad.md R-ABROAD-001, 006, 008; wallet.md R-WALLET-005). The pockets, the two
+// rates, a change, a move, what is on its way, sending money home
+// and the naira the family's requests are paid from are the Bank's, each assertion against the Bank's own element.
 import { content, text } from "@japacity/content";
 import type { ForeignCurrency, PlayerView } from "@japacity/sim";
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";

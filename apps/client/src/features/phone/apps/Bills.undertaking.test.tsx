@@ -1,5 +1,5 @@
-// The sponsor's undertaking in Bills (docs/rules/undertaking.md R-UNDERTAKING-012, R-UNDERTAKING-008), moved from the old
-// obligation list (features/obligation/UndertakingCard.test.tsx) with its assertions against the bill's card.
+// The sponsor's undertaking in Bills (docs/rules/undertaking.md R-UNDERTAKING-012, R-UNDERTAKING-008), each assertion
+// against the bill's card.
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, waitFor, within } from "@testing-library/react";

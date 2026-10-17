@@ -1,4 +1,4 @@
-// Calgary as a painted city (docs/rules/world.md R-WORLD-038 as amended; design page 15 sections 2 and 6): the north-east
+// Calgary as a painted city (docs/rules/world.md R-WORLD-038; design page 15 sections 2 and 6): the north-east
 // on paper, the wide grid of its avenues and trails, the CTrain line from the north-east down to downtown, the airport to
 // the north, the Bow along the south with downtown across it, three neighbourhood cards, every built place of Canada as
 // its sticker and the home sticker at the country's home spot from content. Its own chunk, loaded only when the map shows
@@ -24,7 +24,7 @@ export const CANADA = "country.canada";
 /**
  * Calgary's fit: north up, a thousandth of a degree eight paper units south and five east, so the paper keeps the
  * city's true shape (a thousandth of a degree of longitude is about 71 m at 51 degrees north against 111 m of latitude,
- * R-PLACE-010 as amended). The paper runs from 114.078 to 113.904 west and from 51.140 down to 51.028 north.
+ * R-PLACE-010). The paper runs from 114.078 to 113.904 west and from 51.140 down to 51.028 north.
  */
 export const CALGARY_FIT: Fit = { xLon: 5, xLat: 0, x0: 570390, yLon: 0, yLat: -8, y0: 409120 };
 export const CALGARY_PAPER = { width: 680, height: 900 } as const;

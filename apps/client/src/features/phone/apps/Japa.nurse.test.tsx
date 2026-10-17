@@ -1,4 +1,5 @@
-// The nurse's years in Japa (docs/rules/world.md R-WORLD-019, chapter.md R-CHAPTER-009): the months on the ward counted while they run, the council's months said while it works, and a step not yet
+// The nurse's years in Japa (docs/rules/world.md R-WORLD-019, chapter.md R-CHAPTER-009): the months on the ward
+// counted while they run, the council's months said while it works, and a step not yet
 // ticked says where it is taken (the lapsed licence's renewal at the clinic). Real content, nurses played through `step`.
 import type { PlayerView, SlotPick } from "@japacity/sim";
 import { cleanup } from "@testing-library/react";
@@ -64,7 +65,7 @@ describe("the nurse's months in Japa", () => {
     const lapsed = until(game, (view) => view.documents.some((held) => held.id === "document.nursing-licence" && held.state === "expired"), 60, (view) => (view.activities.find((option) => option.id === VERIFY.activity)?.allowed === true ? [VERIFY] : []));
     await renderWithView(<Japa />, lapsed);
     const steps = routeSteps();
-    // the renewal is a message to the council from the phone.
+    // The renewal is a message to the council from the phone, in the Papers app.
     expect(steps[0]).toEqual({ words: "Nursing licence held", way: "Renew it with the council on your phone", met: "false" });
     expect(steps.filter((step) => step.met === "true").every((step) => step.way === null)).toBe(true);
   });

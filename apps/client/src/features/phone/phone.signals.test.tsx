@@ -72,7 +72,7 @@ async function courseDue(): Promise<{ store: GameStore; open: () => void; close:
   await act(async () => {
     await store.getState().send({ type: "place/ride", from: "place.family-house", to: other.id, way: "danfo" });
   });
-  // Decision 0035, with R-WORLD-030 as amended for the lived month (decision 0034): the day is the share of the month's
+  // Decision 0035, with R-WORLD-030 for the lived month (decision 0034): the day is the share of the month's
   // free time spent, which a ride does not spend, so a day goes as naps spend it.
   await act(async () => {
     while (dayOfView(store.getState().view!) < 1) await store.getState().send({ type: "activity/now", activity: "activity.nap", param: null });

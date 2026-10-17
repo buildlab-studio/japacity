@@ -1,7 +1,6 @@
 // The gate on each way, in Japa's way files (docs/rules/route-gates.md, world.md R-WORLD-019): the points against the
 // cut-off and the pool, the sponsor and the salary bar, the endorsement and its wait, the agent and the job, the partner
-// a way rests on, and the road never shown. Moved from the old month page's route cards (features/route/GatePanel),
-// each assertion kept against the phone's own element.
+// a way rests on, and the road never shown, each assertion against the phone's own element.
 import type { PlayerView, RouteGateView, RouteView } from "@japacity/sim";
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";

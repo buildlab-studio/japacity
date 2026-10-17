@@ -48,7 +48,7 @@ export function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
 export function chargeWords(home: PlayerView["home"]): string {
   if (home.rent === null) return phoneWords("phone.home.charge.none");
   // R-HOME-012 (decision 0035): nothing of the living is charged as the month turns, so no figure a month is said for it;
-  // the family house says it as your share for the house.
+  // the family house says it as your share for the house (decision 0040).
   if (home.rent.amount === 0) {
     const byHand = home.place === null ? null : `phone.home.charge.by-hand.${home.place}`;
     return phoneWords(byHand !== null && hasWords(byHand) ? byHand : "phone.home.charge.by-hand");
@@ -64,8 +64,8 @@ export function roomRentWords(home: PlayerView["home"]): string | null {
 }
 
 /**
- * The move's line: from the room, the move back says the year paid stays with the landlord (R-HOME-010, the twelfth
- * review). Where living there charges nothing a month (R-HOME-012, decision 0035), the line says it is bought as
+ * The move's line: from the room, the move back says the year paid stays with the landlord (R-HOME-010). Where
+ * living there charges nothing a month (R-HOME-012, decision 0035), the line says it is bought as
  * you go and names no figure a month.
  */
 export function moveLineKey(from: HomePlace | null, to: HomePlace, monthly: number): string {
@@ -140,8 +140,8 @@ export function HomeCard() {
       </div>
       {moves.length === 0 ? null : (
         // One move a row, its picture beside a button as wide as the row: in a two-column grid the ghost button's own size
-        // and padding broke "Take a hostel room in Yaba" over four short lines, and an odd move stood alone in a wide row
-        // (). A row keeps the words to one or two lines and every row the same width.
+        // and padding break "Take a hostel room in Yaba" over four short lines, and an odd move stands alone in a wide
+        // row. A row keeps the words to one or two lines and every row the same width.
         <ul className="mt-3 flex flex-col gap-2" data-home-moves>
           {moves.map((move) => (
             <li key={move.to} className="flex items-center gap-2.5 rounded-[16px] bg-tint-plain p-2" data-home-move-row={move.to}>

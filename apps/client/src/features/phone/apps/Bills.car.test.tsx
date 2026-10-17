@@ -1,6 +1,5 @@
-// The car on finance in Bills (docs/rules/car.md R-CAR-007, R-CAR-003, R-CAR-004), moved from the old obligation list
-// (features/obligation/CarCard.test.tsx) with its assertions against the bill's card. The rate is said as the interest
-// a month in money, never a percentage (the shared words rule; an amendment of R-CAR-007 is asked).
+// The car on finance in Bills (docs/rules/car.md R-CAR-007, R-CAR-003, R-CAR-004), each assertion against the bill's
+// card. The rate is said as the interest a month in money, never a percentage (R-CAR-007).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";

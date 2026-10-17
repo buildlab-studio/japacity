@@ -66,7 +66,7 @@ export function unfolded(state: FoldState): boolean {
 
 /**
  * The card the map opens on: the stop picked first (the nudge's step elsewhere), else the step's place while a step is
- * live, else where the player stands (the plan 16).
+ * live, else where the player stands.
  */
 export function openingCard({ picked, step, here, fallback }: { picked: CardId | null; step: CardId | null; here: CardId | null; fallback: CardId }): CardId {
   return picked ?? step ?? here ?? fallback;

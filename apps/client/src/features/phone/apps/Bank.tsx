@@ -1,11 +1,11 @@
-// Bank (docs/rules/world.md R-WORLD-018, 019): at home it opens on the passbook (the design; the
-// lively after set's phone-bank): the money held for the road against the plan's whole cost, the stamps as stickers, last
+// Bank (docs/rules/world.md R-WORLD-018, 019): at home it opens on the passbook: the money held for the road against
+// the plan's whole cost, the stamps as stickers, last
 // month in and out as chips, the roads as cards with one tap each and the pace line, every figure the simulation's. Behind
 // it, in the same dress, the rest of the bank: what is saved toward the move in the way's own money, the last money lines,
 // and the two acts the wallet offers, Change money and Move money, each chosen with a few chips and confirmed on its own
 // card. Abroad the country's money stands first, the naira and the dollars after it each with Change money, and a month
-// whose dues pass the country's money held leads with the gap and the way. Once flown, the
-// move's target is gone.
+// whose dues pass the country's money held leads with the gap and the way. Once flown, the move has no target to save
+// toward.
 import { content } from "@japacity/content";
 import { int, type Currency, type ForeignCurrency, type Id, type OfferView, type ReportParam, type PassbookRoad, type PassbookView, type PlayerView, type Pocket, type ReportLine } from "@japacity/sim";
 import { ArrowLeftRight, CircleAlert, MoveVertical, Send } from "lucide-react";
@@ -47,8 +47,8 @@ export { savedFor, savingsOf };
 /**
  * The money that moved lately, newest last: the month just ended whole, as its results list it (its
  * mid-month moves and its end, in the results' order), then this month's moves so far. One source with
- * the results (shared/words/money.ts, `moneyLines`), so the two never differ (R-WORLD-019; the
- * : a payment split across pockets is one line, a bill's "paid this month" is the same
+ * the results (shared/words/money.ts, `moneyLines`), so the two never differ (R-WORLD-019): a payment
+ * split across pockets is one line, a bill's "paid this month" is the same
  * money, a fare paid on the way is a move, a change at the bank is told as the results tell it.
  */
 export function latelyMoney(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[]): MoneyLine[] {
@@ -57,9 +57,9 @@ export function latelyMoney(view: Pick<PlayerView, "report">, lastMonth: readonl
 }
 
 /**
- * A plan is made once the way the chapters follow is looked into or further on. Since the
- * the figure shows from the month the plan is set, as on the results; this only words a plan
- * with no figure yet: a way only heard of, with nothing to count, is still no plan.
+ * A plan is made once the way the chapters follow is looked into or further on. The figure shows from the month the
+ * plan is set, as on the results; this only words a plan with no figure yet: a way only heard of, with nothing to
+ * count, is still no plan.
  */
 export function planMade(view: Pick<PlayerView, "plan" | "routes">): boolean {
   const lean = view.plan.route;
@@ -77,7 +77,7 @@ function noFigureKey(view: PlayerView): string {
 
 /**
  * How the savings are said: what is held of the figure, or once it is met, that it is enough and what the figure is
- * for, the fees alone or the funds to show and the fees (R-WORLD-019).
+ * for, the fees alone or the funds to show and the fees (R-WORLD-019), never a held sum "of" a smaller one.
  */
 function savingsKey(view: PlayerView, savings: { shown: number; required: number }): string {
   if (savings.shown < savings.required) return "phone.bank.savings.line";
@@ -108,7 +108,7 @@ function shareOf(pocket: number, share: Share): number {
  * the month's limit (R-WALLET-005): the bank's charge comes off first and what is left is counted
  * in US cents at the official rate, as the wallet counts it. Null where no limit binds: a sale for
  * naira, the FX man, or abroad, where the view shows no limit. A remainder too small to buy one whole
- * unit of the money bought counts as nothing: twelve cents left came to ₦191 for nine pence, a change
+ * unit of the money bought counts as nothing: twelve cents left come to ₦191 for nine pence, a change
  * the screen can only say as "£0".
  */
 export function bankLimit(view: Pick<PlayerView, "rates" | "bankAllowanceLeft">, from: Currency, to: Currency): number | null {
@@ -148,14 +148,15 @@ function currencyWords(currency: Currency): string {
  * What a change says before it is confirmed: what goes in, what comes out
  * in the other money, and what that money comes to after, worked as the wallet works it. It reads the
  * pocket the change is paid from and lands in, as the button does: the bank at the bank, the cash with
- * the FX man. What is left of the money paid is the button's to say, once.
+ * the FX man. What is left of the money paid is the button's to say, once, so the two never contradict
+ * each other.
  */
 export function changeLine(view: Pick<PlayerView, "rates" | "pockets">, from: Currency, to: Currency, amount: number, via: "bank" | "aboki"): string {
   const { got, charge } = changeQuote(view, from, to, amount, via);
   const held = via === "bank" ? view.pockets[to].bank : view.pockets[to].cash;
   return [
     say("ui.wallet.change.line", { amount: formatMoney(amount, from), currency: lowerFirst(currencyWords(to)) }),
-    // A charge that rounds to nothing is not said: "The bank's charge is £0".
+    // A charge that rounds to nothing is not said, never "The bank's charge is £0".
     via === "aboki"
       ? say("ui.wallet.change.get.aboki", { got: formatMoney(got.amount, to) })
       : say(chargeShown(charge.amount, from) ? "ui.wallet.change.get.bank" : "ui.wallet.change.get.bank-small", { got: formatMoney(got.amount, to), charge: formatMoney(charge.amount, from) }),
@@ -301,7 +302,7 @@ function MoveChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
               cost: null,
               button: phoneWords("phone.bank.move.button"),
               have: source,
-              // A move between pockets is done at once: the cash is in hand now.
+              // A move between pockets is done at once: the cash is in hand straight away.
               when: "now",
               command: { type: "wallet/move", currency, amount, to },
               done: phoneWords("phone.bank.moved"),
@@ -534,8 +535,9 @@ function HeldBar({ book }: { book: PassbookView }) {
 }
 
 /**
- * The other money held, one chip a money, each saying where it is held, the bank or cash. One long chip for them all ran past the card and the phone's glass: a chip a money
- * lets the row wrap between monies, and a chip may wrap inside itself where one money is held in both pockets.
+ * The other money held, one chip a money, each saying where it is held, the bank or cash, never a bare "Also held: £81".
+ * One long chip for them all runs past the card and the phone's glass: a chip a money lets the row wrap between monies,
+ * and a chip may wrap inside itself where one money is held in both pockets.
  */
 function AlsoHeld({ view, others }: { view: PlayerView; others: Currency[] }) {
   const held = others
@@ -960,9 +962,8 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
   const local = localCurrency(view);
   const abroad = local !== null && local !== "NGN";
   const shown: Currency = abroad ? local : "NGN";
-  // Once flown, the move is made: its target goes.
-  // the figure is the results' own, from the month the plan is set (its lean, as the chapters
-  // follow it); before it, one line says there is no plan yet.
+  // Once flown, the move is made and has no target. The figure is the results' own, from the month the plan is set (its
+  // lean, as the chapters follow it); before it, one line says there is no plan yet.
   const savings = abroad || view.plan.route === null ? null : savingsOf(view);
   const lastMonth = useGame((state) => state.lastMonthLines);
   const thisMonth = useGame((state) => state.monthLines);
@@ -1045,8 +1046,8 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
 
       {view.ended ? null : (
         // The acts stand at the foot of the screen, over the page as it scrolls, as the after set draws them. While a chooser
-        // is open the foot comes after it instead, so its last way is never under the foot's buttons (
-        // picture 146: Through someone cut under them); the chooser's own button does the act, the foot only opens and closes.
+        // is open the foot comes after it instead, so its last way (Through someone) is never under the foot's buttons;
+        // the chooser's own button does the act, the foot only opens and closes.
         <div className={`${choosing === null ? "sticky -bottom-3" : ""} -mx-3 -mb-3 border-t border-sheet-line bg-sheet px-3 pt-3 pb-3`} data-bank-foot>
           <div className="flex gap-2">
             {/* Abroad with other monies held, Change money heads their pairs above; it is not said again here. */}

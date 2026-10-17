@@ -30,8 +30,8 @@ function payWords(job: Id<"activity">, pay: OfferView["pay"] | PlayerView["job"]
 }
 
 /**
- * The held job's pay with the raise from being noticed, and when it landed: "Raised last month" (R-ACTIVITY-013;
- * the maintainer). Null words when the job has no raise.
+ * The held job's pay with the raise from being noticed, and when it came: "Raised last month" (R-ACTIVITY-013).
+ * Null words when the job has no raise.
  */
 function raiseWords(view: Pick<PlayerView, "job" | "month">): string | null {
   const raise = view.job.raise;

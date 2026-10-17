@@ -1,6 +1,6 @@
 // The map's own words and the ride's working numbers (docs/rules/world.md R-WORLD-015 to 017), first
 // drafts in the voice of docs/rules/text.md. Content's table wins over these, so each key can move
-// into content to be rewritten.
+// into content to be rewritten there.
 import { text } from "@japacity/content";
 
 import { hasWords, words } from "../../shared/words/text";
@@ -34,12 +34,12 @@ export const mapText: Record<string, string> = {
   "map.drive-home": "Drive home",
   "map.walk-home": "Walk home",
   "map.way.minutes": "{minutes} min",
-  // London's ways (R-PLACE-010 as amended 16 Oct 2026, R-WORLD-039): the bus at one flat fare, the train by distance.
+  // London's ways (R-PLACE-010, R-WORLD-039): the bus at one flat fare, the train by distance.
   "map.way.bus": "Bus",
   "map.way.train": "Train",
   // The bus in a month the pass is bought (R-PLACE-012): the fare pill says it asks nothing, and why.
   "map.way.passed": "{amount}, bus pass",
-  // The other countries' ways and pills (R-PLACE-012 and R-PLACE-013 as amended, R-WORLD-039): the taxi, the train by its
+  // The other countries' ways and pills (R-PLACE-012, R-PLACE-013, R-WORLD-039): the taxi, the train by its
   // country's name, the pass that covers the bus and the train, and the employer's shuttle that asks nothing.
   "map.way.taxi": "Taxi",
   "map.way.train.country.canada": "CTrain",
@@ -63,11 +63,11 @@ export const mapText: Record<string, string> = {
   "map.not-now": "Not now",
   "map.ride.to": "{way} to {place}",
   "map.ride.skip": "Skip",
-  // Turn back: you get down at the next stop and walk back; the fare is gone (R-WORLD-017, the design).
+  // Turn back: you get down at the next stop and walk back; the fare is not returned (R-WORLD-017).
   "map.ride.turn-back": "Turn back",
   // Where you are as the ride goes, in the card: pulling out, the road, the stop.
   "map.ride.along.start": "Pulling out of {from}.",
-  // On foot nothing pulls out: the walk sets off.
+  // On foot nothing pulls out: the walk sets off (R-WORLD-017).
   "map.ride.along.start.walk": "Setting off from {from} on foot.",
   "map.ride.along.road.1": "The traffic moves, for once.",
   "map.ride.along.road.2": "A hold-up at the junction, horns going.",

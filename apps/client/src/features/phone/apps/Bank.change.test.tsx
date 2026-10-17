@@ -1,8 +1,7 @@
 // The Bank's change of money at home (docs/rules/wallet.md R-WALLET-005, R-WALLET-012; world.md R-WORLD-006,
-// R-WORLD-019). "₦1,055,225 into pounds, you get £572" then Change it, refused with "That amount
-// will not work" shown at the top of the phone, scrolled away; a quarter refused the same way. The bank sells foreign
-// money only up to the month's limit, so the chips offer only what it will take, the limit's remainder first, the
-// limit is said before the button, and any refusal shows beside the button. Played on the real engine.
+// R-WORLD-019). The bank sells foreign money only up to the month's limit, so the chips offer only what it will take,
+// the limit's remainder first, the limit is said before the button, and any refusal shows beside the button, never
+// "That amount will not work" at the top of the phone, scrolled away. Played on the real engine.
 import { content, text } from "@japacity/content";
 import { int, type Command, type PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -18,7 +17,7 @@ import { phoneWords } from "../phone.words";
 import { PhoneApps } from "../PhoneApps";
 import { Bank, bankLimit, latelyMoney } from "./Bank";
 
-/** Tunde at home with ₦2,110,450 in the bank, as the developer held it in the review. */
+/** Tunde at home with ₦2,110,450 in the bank. */
 function heldAtHome() {
   const game = newGame("scenario.tunde");
   setPockets(game, { NGN: 211_045_000 });
@@ -59,7 +58,7 @@ describe("the Bank's change at home, within the month's limit", () => {
   });
 
   test("[R-WALLET-005] [R-WORLD-019] given ₦2,110,450 in the bank, when naira into pounds at the bank is chosen, then the limit is the first chip and the one picked, a quarter and a half the bank would refuse are not offered, and the limit is said in plain words before the button", async () => {
-    // The month the review played: the dollar squeeze had cut the bank's limit (the news's own figure).
+    // A month the dollar squeeze has cut the bank's limit (the news's own figure).
     const squeeze = Math.min(
       ...Object.values(content.news)
         .flatMap((entry) => [...(entry.director?.adds ?? []), ...entry.standIn.sets])
@@ -68,7 +67,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     );
     const view = { ...heldAtHome().view(), bankAllowanceLeft: squeeze };
     const limit = bankLimit(view, "NGN", "GBP")!;
-    // The review's figures: a quarter and a half are both past what the bank will sell this month.
+    // A quarter and a half are both past what the bank will sell this month.
     expect(Math.floor(view.pockets.NGN.bank / 4 / 100) * 100).toBeGreaterThan(limit);
     await renderWithView(<Bank opening="change" />, view);
     expect(chips()).toEqual([phoneWords("phone.bank.limit")]);
@@ -102,7 +101,7 @@ describe("the Bank's change at home, within the month's limit", () => {
   });
 
   test("[R-WALLET-005] [R-WORLD-019] given a month whose limit has only cents left, too few to buy one whole pound, when the change opens at the bank, then the limit counts as spent: no chip, the FX man's way said, never a change for nothing", async () => {
-    // The catalog's month: twelve US cents of the allowance left, ₦191 that bought nine pence.
+    // Twelve US cents of the allowance left: ₦191 that would buy nine pence.
     const view = { ...heldAtHome().view(), bankAllowanceLeft: 12 };
     expect(bankLimit(view, "NGN", "GBP")).toBe(0);
     await renderWithView(<Bank opening="change" />, view);

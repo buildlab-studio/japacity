@@ -1,5 +1,5 @@
-// The rides of Calgary, Dubai and Castel Volturno (docs/rules/world.md R-WORLD-039 as amended; place.md R-PLACE-010,
-// R-PLACE-012 as amended and R-PLACE-013; design page 15 sections 4 and 6): the ride sheet lists each country's ways from
+// The rides of Calgary, Dubai and Castel Volturno (docs/rules/world.md R-WORLD-039; place.md R-PLACE-010,
+// R-PLACE-012 and R-PLACE-013; design page 15 sections 4 and 6): the ride sheet lists each country's ways from
 // the view, the pass's pill names the country's pass on every way it covers, the shuttle's pill says the employer's bus
 // asks nothing, and the ride plays inside the country's own vehicle from the seat the models give, in the right-hand lane.
 import { content } from "@japacity/content";

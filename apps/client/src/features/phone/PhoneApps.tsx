@@ -73,7 +73,7 @@ export type CalendarScreen = (opening: string | null) => ReactNode;
 interface Handed {
   calendar: CalendarScreen | null;
   cards: PaperCards | null;
-  /** The road's log for Japa (the plan 16): the briefs handed so far, from the shell. */
+  /** The road's log for Japa (R-WORLD-019): the briefs handed so far, from the shell. */
   briefs: ReactNode;
   /** The place the world shows, for the Market: it sells only at home. */
   here: string | null;
@@ -131,7 +131,7 @@ export function usePhoneApps({ account = null, about = null, opening = null, cal
       </>
     ),
     waiting: waiting[id],
-    // the notes item 19: Jobs, Lotto, Bills and Bank say what is there now beside their name.
+    // Jobs, Lotto, Bills and Bank say what is there now beside their name (R-WORLD-018).
     context: appContext(id, view),
   }));
 }
@@ -169,7 +169,7 @@ export interface PhoneAppsProps {
   cards?: PaperCards | null;
   /** Puts the phone away onto the map at a stop, from the shell: a paper's visit (R-WORLD-019). */
   onMap?: (stop: string) => void;
-  /** The road's log for Japa, from the shell (the plan 16). */
+  /** The road's log for Japa, from the shell (R-WORLD-019). */
   briefs?: ReactNode;
   /**
    * The warnings that stand, from the shell: the status clock abroad (status.md R-STATUS-003) and being run down

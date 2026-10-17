@@ -1,6 +1,6 @@
-// The Bank's "Saved for the move" for the plan's own way (docs/rules/world.md R-WORLD-019):
-// a developer whose plan was the UK talent visa read "No figure to save toward yet" all year, while the master's
-// plan showed its funds. The figure comes from the plan's route whatever its gate: the funds its decision day asks
+// The Bank's "Saved for the move" for the plan's own way (docs/rules/world.md R-WORLD-019): a developer whose plan is
+// the UK talent visa sees a figure, as the master's plan does, never "No figure to save toward yet" all year. The
+// figure comes from the plan's route whatever its gate: the funds its decision day asks
 // for and the fees still ahead on it, as the engine prices them now. Played on the real engine and content.
 import { content } from "@japacity/content";
 import type { Effect } from "@japacity/sim";
@@ -97,8 +97,8 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(document.body.textContent).toContain(phoneWords("phone.bank.savings.paid"));
   });
 
-  // Restated 11 Oct 2026 for R-WORLD-019 as amended: the figure shows from the month the plan
-  // is set, as the results show it, where it waited for the official page before.
+  // R-WORLD-019: the figure shows from the month the plan is set, as the results show it, without waiting for the
+  // official page.
   test("[R-WORLD-019] given a way only heard of as the plan's lean, when the Bank opens, then its figure shows at once, the shared figure the results read, and still once the way is looked into", async () => {
     const game = newGame("scenario.ngozi");
     viewAfter(game, [{ type: "route/hear", route: "route.uk-care", via: "meetup" }]);

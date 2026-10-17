@@ -1,5 +1,5 @@
-// The lantern canoe (docs/rules/world.md R-WORLD-036; the decision of 15 Oct 2026, pictures `preview/dedication-2/01`,
-// `02` and `07`): on the open map of Lagos, one canoe moored on the open lagoon north-east of the bridge with a lantern
+// The lantern canoe (docs/rules/world.md R-WORLD-036): on the open map of Lagos, one canoe moored on the open lagoon
+// north-east of the bridge with a lantern
 // at its prow. By day one more canoe of the water with a warm dot; at night the one light on that water, its glow drawn
 // over the night's paint so it never goes out. Once the account's own light is lit (account.md R-ACCOUNT-033) a second
 // lantern hangs at its stern. A tap opens the dedication page and folds nothing; a screen reader hears "A canoe with a

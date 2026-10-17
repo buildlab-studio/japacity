@@ -26,13 +26,13 @@ export interface RideSheetProps {
   formatFare?: (amount: number) => string;
   onChoose: (way: RideChoice) => void;
   onClose: () => void;
-  /** "Stay here" on the stop the character stands at: closes the map as well, back to the place. */
+  /** "Stay here" on the stop the character stands at: closes the map as well, back to the place (R-WORLD-017). */
   onStay?: () => void;
   /** The way chosen first, when a vehicle in the place was tapped (R-WORLD-017). */
   by?: RideChoice["id"];
-  /** Hears the way picked, from the first, so the route on the map carries its sticker. */
+  /** Hears the way picked, from the first, so the route on the map carries its sticker (the car of your own among them). */
   onWay?: (way: RideChoice["id"]) => void;
-  /** A way's picture where the country's own vehicle stands for it (Calgary's bus, Dubai's metro car, the van); `WAY_MODEL`'s else (R-WORLD-039 as amended). */
+  /** A way's picture where the country's own vehicle stands for it (Calgary's bus, Dubai's metro car, the van); `WAY_MODEL`'s else (R-WORLD-039). */
   wayModel?: (choice: RideChoice) => string | null;
 }
 
@@ -86,7 +86,7 @@ export function firstWay(ways: readonly RideChoice[], have: number, by?: RideCho
  * R-WORLD-039); the single way of a country with no fares yet "Bus pass", as before.
  */
 export function fareTile(choice: RideChoice, formatMoney: (amount: number) => string, formatFare: (amount: number) => string = formatMoney): string {
-  // The country's pass or its shuttle, named in the country's money (R-PLACE-012 and R-PLACE-013 as amended).
+  // The country's pass or its shuttle, named in the country's money (R-PLACE-012, R-PLACE-013).
   if (choice.pill !== undefined) return choice.pill;
   if (choice.passed === true) return mapWords("map.way.passed", { amount: formatMoney(0) });
   if (choice.fare !== 0) return formatFare(choice.fare);

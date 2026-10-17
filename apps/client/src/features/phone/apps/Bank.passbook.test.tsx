@@ -1,8 +1,8 @@
-// The Bank as the passbook (the design; the lively after set's phone-bank): its first page is the
+// The Bank as the passbook (docs/rules/wallet.md R-WALLET-021 to R-WALLET-024): its first page is the
 // money held for the road against the plan's whole cost, the stamps as stickers, last month in and out as chips, the roads
-// as cards with one tap each and the pace line under the figure, every figure the view's own (PlayerView.passbook). The
-// passbook's own rules are the lead's to write (asked for as R-WALLET-021 to R-WALLET-024); these cite the Bank's rule,
-// R-WORLD-019, and the moments' rules for the stamp's card. Played on the real engine and content.
+// as cards with one tap each and the pace line under the figure, every figure the view's own (PlayerView.passbook).
+// These tests cite the Bank's rule, R-WORLD-019, and the moments' rules for the stamp's card. Played on the real
+// engine and content.
 import { content } from "@japacity/content";
 import type { Effect, PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, waitFor } from "@testing-library/react";

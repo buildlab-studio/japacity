@@ -39,7 +39,7 @@ describe("the offers in Jobs", () => {
     expect(rows()).toHaveLength(2);
     expect(document.querySelector("[data-job-offers] input")).toBeNull();
     expect(rows().map((row) => row.getAttribute("aria-checked"))).toEqual(["true", "false"]);
-    // a card each, the picked one ringed, never a hairline row filled with the pick colour.
+    // A card each, the picked one ringed, never a hairline row filled with the pick colour.
     const card = (row: HTMLElement): HTMLElement | null => row.querySelector("[data-lively-card]");
     expect(rows().map((row) => card(row)?.getAttribute("data-picked") ?? null)).toEqual(["true", null]);
     expect(card(rows()[0]!)?.className).toContain("phone-picked");
