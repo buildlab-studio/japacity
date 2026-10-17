@@ -1,10 +1,9 @@
-// The GitHub workflows: the check runs with no secrets,
-// staging deploys on a push to main, production on a release tag or by hand, each only in this repository and
-// through its own environment, and every action is pinned to a commit. Restated 11 Oct 2026 (the Cloudflare audit's
-// finding 13): staging deploys only once the check has passed on that push, the commit it passed; both deploys run the
-// wrangler apps/server pins; the admin list is a Worker secret (server.md R-SERVER-012), so no deploy passes it.
-// each deploy migrates its database before
-// the build and the Worker, with the migrator role's string, and deploys nothing when that fails.
+// The GitHub workflows: the check runs with no secrets, staging deploys on a push to main, production on a release tag
+// or by hand, each only in this repository and through its own environment, and every action is pinned to a commit.
+// Staging deploys only once the check has passed on that push, the commit it passed; both deploys run the wrangler
+// apps/server pins; the admin list is a Worker secret (server.md R-SERVER-012), so no deploy passes it. Each deploy
+// migrates its database before the build and the Worker, with the migrator role's string, and deploys nothing when
+// that fails (server.md R-SERVER-044).
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";

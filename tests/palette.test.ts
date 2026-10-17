@@ -90,8 +90,7 @@ const DOOR_ROUNDS: Readonly<Record<string, number>> = {
 };
 
 /**
- * The two lights over the start screen (account.md R-ACCOUNT-031; R-WORLD-021's exception of 11 Oct 2026, the maintainer at
- * 14:34 and 14:41): a picture of everyone, not the interface, drawn as designed, with the dusk across
+ * The two lights over the start screen (account.md R-ACCOUNT-031; R-WORLD-021's exception): a picture of everyone, not the interface, drawn as designed, with the dusk across
  * the top and a glow for each bulb, in its own colours as the 3D world keeps its own. Its soft gradients are counted
  * apart from the rule, so the picture gains none, and nothing else in the client may draw one.
  */

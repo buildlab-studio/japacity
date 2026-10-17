@@ -1,5 +1,5 @@
-# The files that keep the game honest and the deployment safe need the maintainer's review (CONTRIBUTING.md,
-# "Branches and releases"). GitHub asks for it once the maintainer turns on "Require review from Code Owners" for main.
+# The files that keep the game sound and the deployment safe need the maintainer's review (CONTRIBUTING.md,
+# "Branches and releases"). GitHub asks for it while "Require review from Code Owners" is on for main.
 
 # The lint config, with the simulation's purity rules.
 /eslint.config.js @Alameen688
