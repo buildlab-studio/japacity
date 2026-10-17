@@ -5,13 +5,6 @@ import { describe, expect, test } from "vitest";
 
 import { uiText } from "../../shared/words/ui";
 
-declare global {
-  interface ImportMeta {
-    /** Vite's static import of many files at once. Vitest runs on Vite, so it is there in tests. */
-    glob<T>(pattern: string | string[], options: { query: "?raw"; import: "default"; eager: true }): Record<string, T>;
-  }
-}
-
 /** The client's source, tests left out, as raw text: its word tables are the `"key": "words"` rows. */
 const sources = import.meta.glob<string>(["../../**/*.ts", "../../**/*.tsx", "!../../**/*.test.ts", "!../../**/*.test.tsx"], { query: "?raw", import: "default", eager: true });
 
