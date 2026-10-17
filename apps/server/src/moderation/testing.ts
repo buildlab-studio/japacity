@@ -38,12 +38,12 @@ export function message(id: string, sentAt: number, sender = "account.reported")
   return { id, conversation: "conversation.1", sender, phrase: "phrase.hello", fill: null, sentAt, readAt: null };
 }
 
-export interface FakeIdentities extends Identities {
+interface FakeIdentities extends Identities {
   ended: string[];
   known: Map<string, string[]>;
 }
 
-export function fakeIdentities(known: Record<string, string[]> = {}): FakeIdentities {
+function fakeIdentities(known: Record<string, string[]> = {}): FakeIdentities {
   const ended: string[] = [];
   const map = new Map(Object.entries(known));
   return {

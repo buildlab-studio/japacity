@@ -25,7 +25,7 @@ function decoded(text: unknown): Uint8Array | null {
  * Firefox, Microsoft's for Edge. Each is the host itself or any host under it.
  * The bank-full job posts to the address kept, so nothing else is kept.
  */
-export const PUSH_HOSTS: readonly string[] = ["fcm.googleapis.com", "push.apple.com", "push.services.mozilla.com", "notify.windows.com"];
+const PUSH_HOSTS: readonly string[] = ["fcm.googleapis.com", "push.apple.com", "push.services.mozilla.com", "notify.windows.com"];
 
 function knownPushHost(host: string): boolean {
   return PUSH_HOSTS.some((known) => host === known || host.endsWith(`.${known}`));

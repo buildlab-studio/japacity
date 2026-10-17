@@ -8,7 +8,7 @@
 // email, an address or a token.
 
 /** What failed. */
-export type FailureWhat = "request" | "job" | "auth" | "close";
+type FailureWhat = "request" | "job" | "auth" | "close";
 
 export interface Failure {
   what: FailureWhat;

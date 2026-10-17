@@ -11,7 +11,7 @@ import { replaySegments, worldsFor } from "./load";
 type AdminDeps = Pick<ServerDeps, "contents" | "stores" | "now">;
 
 /** What the check found for one character. */
-export interface RollbackReport {
+interface RollbackReport {
   character: string;
   /** The stored version when the check ran. */
   v: number;

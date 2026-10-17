@@ -22,13 +22,13 @@ import { sessionReader } from "./session";
 
 export const SITE = "https://japacity.test";
 export const SECRET = "test-secret-that-is-long-enough-for-the-library-0123456789";
-export const STUB_SITEVERIFY = "https://turnstile.stub/siteverify";
+const STUB_SITEVERIFY = "https://turnstile.stub/siteverify";
 
 /**
  * Cloudflare's three test secrets, answered as Cloudflare documents them, a pass naming `hostname` as where the
  * token was solved and `action` as the widget's action (R-ACCOUNT-013: the guest start's, unless a test names another).
  */
-export function turnstileStub(hostname: string, action: string = TURNSTILE_ACTION): typeof fetch {
+function turnstileStub(hostname: string, action: string = TURNSTILE_ACTION): typeof fetch {
   return async (_input, init) => {
     const body = JSON.parse(typeof init?.body === "string" ? init.body : "{}") as { secret?: string; response?: string };
     const answer = (success: boolean, codes: string[]) => new Response(JSON.stringify({ success, "error-codes": codes, ...(success ? { hostname, action } : {}) }), { headers: { "content-type": "application/json" } });

@@ -37,7 +37,7 @@ export function hourOf(at: number): number {
   return int.divFloor(at, time.HOUR_MS);
 }
 
-export function imagePath(creative: Creative): string {
+function imagePath(creative: Creative): string {
   return `/api/adverts/image/${encodeURIComponent(creative.id)}/${String(creative.version)}`;
 }
 
@@ -61,7 +61,7 @@ interface Candidate {
 }
 
 /** The live campaigns for a region at a moment, each with its approved creatives, by campaign id. */
-export async function liveCandidates(deps: AdvertsDeps, region: string, at: number): Promise<Candidate[]> {
+async function liveCandidates(deps: AdvertsDeps, region: string, at: number): Promise<Candidate[]> {
   const live = (await deps.stores.adverts.campaigns()).filter((campaign) => statusAt(campaign, at) === "live" && campaign.regions.includes(region));
   const candidates: Candidate[] = [];
   for (const campaign of live) candidates.push({ campaign, creatives: approvedCreatives(await deps.stores.adverts.creatives(campaign.id)) });

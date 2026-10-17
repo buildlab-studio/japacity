@@ -35,7 +35,7 @@ function alreadyBased(held: Held): boolean {
 }
 
 /** R-SERVER-047: one character in one transaction under its lock. */
-export async function snapshotCharacter(deps: SnapshotDeps, contents: Contents, id: string): Promise<Snapshotted> {
+async function snapshotCharacter(deps: SnapshotDeps, contents: Contents, id: string): Promise<Snapshotted> {
   let before: number | null = null;
   try {
     const done = await deps.stores.player.transact([id], async (rows, stores): Promise<{ writes: Writes; result: Snapshotted }> => {
@@ -67,7 +67,7 @@ export async function snapshotCharacter(deps: SnapshotDeps, contents: Contents, 
 }
 
 /** How many character rows are read at a time; each is then snapshotted in its own transaction. */
-export const SNAPSHOT_PAGE = 100;
+const SNAPSHOT_PAGE = 100;
 
 /**
  * R-SERVER-047: every character, in id order, each in its own transaction, so
@@ -98,7 +98,7 @@ export interface SnapshotCliResult {
 const USAGE = `Usage: pnpm snapshot:all (on the database at ${DATABASE_ENV})`;
 
 /** One line for one character: its id, its versions before and after, and the outcome. */
-export function snapshotLine(done: Snapshotted): string {
+function snapshotLine(done: Snapshotted): string {
   const versions = `v ${String(done.before ?? "unknown")} to v ${String(done.after ?? "unknown")}`;
   return "detail" in done ? `${done.id} ${versions} ${done.outcome}: ${done.detail}` : `${done.id} ${versions} ${done.outcome}`;
 }

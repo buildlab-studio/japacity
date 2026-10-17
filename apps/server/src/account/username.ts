@@ -9,7 +9,7 @@ import type { AccountRow } from "@japacity/store";
 
 import type { ServerConfig } from "../config";
 
-export const USERNAME = /^[A-Za-z0-9_]{3,20}$/;
+const USERNAME = /^[A-Za-z0-9_]{3,20}$/;
 
 /** Why a username was refused; `taken` and `wait` come from the store and the clock. */
 export type NameProblem = "format" | "reserved" | "blocked" | "taken" | "wait";
@@ -23,7 +23,7 @@ function once(text: string): string {
 }
 
 /** The forms a name is compared in: lower case, no underscores, stand-in digits read as letters; a 1 read as both i and l. */
-export function foldings(name: string): string[] {
+function foldings(name: string): string[] {
   const plain = [...name.toLowerCase().replaceAll("_", "")].map((each) => STAND_INS[each] ?? each).join("");
   return [...new Set([plain.replaceAll("1", "i"), plain.replaceAll("1", "l")].map(once))];
 }

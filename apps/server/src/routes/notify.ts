@@ -30,7 +30,7 @@ export interface SettingRequest {
   on: unknown;
 }
 
-export type KeyReply = { ok: true; key: string | null };
+type KeyReply = { ok: true; key: string | null };
 
 const signedOut: ServerRejection = { ok: false, code: "signed-out", detail: "Sign in first." };
 

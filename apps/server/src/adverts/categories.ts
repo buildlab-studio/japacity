@@ -41,7 +41,7 @@ export const RESTRICTED: readonly RestrictedCategory[] = [
 ];
 
 /** A category that is neither banned nor restricted. */
-export const GENERAL = "general";
+const GENERAL = "general";
 
 export type CategoryKind = "banned" | "restricted" | "general" | "unknown";
 

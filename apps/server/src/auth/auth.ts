@@ -63,10 +63,10 @@ export interface AuthKeys {
 }
 
 /** R-ACCOUNT-021: the longest a browser keeps a cookie. */
-export const SESSION_DAYS = 400;
+const SESSION_DAYS = 400;
 
 /** R-ACCOUNT-006: the session cookie's attributes, whatever the library's defaults become. */
-export const COOKIE_ATTRIBUTES = { httpOnly: true, secure: true, sameSite: "lax" } as const;
+const COOKIE_ATTRIBUTES = { httpOnly: true, secure: true, sameSite: "lax" } as const;
 
 /**
  * R-ACCOUNT-003: the passkeys' relying party id, exactly the host of SITE_URL: `japacity.app` in

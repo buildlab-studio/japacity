@@ -52,7 +52,7 @@ export async function sendFeedback(deps: ServerDeps, account: string, region: st
 }
 
 /** R-MODERATION-020: a row is kept for `keepDays` days counting its own, and goes on the day after. */
-export function keptFrom(deps: Pick<ServerDeps, "config" | "now">): string {
+function keptFrom(deps: Pick<ServerDeps, "config" | "now">): string {
   return dayOf(deps.now() - (deps.config.feedback.keepDays - 1) * time.DAY_MS);
 }
 

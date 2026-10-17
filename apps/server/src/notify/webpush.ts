@@ -22,7 +22,7 @@ export interface PushKeys {
 }
 
 /** The time to live a push request carries, in seconds. */
-export function ttlSeconds(keys: Pick<PushKeys, "numbers">): number {
+function ttlSeconds(keys: Pick<PushKeys, "numbers">): number {
   return keys.numbers.pushTtlDays * int.divFloor(time.DAY_MS, time.SECOND_MS);
 }
 
@@ -63,7 +63,7 @@ export function label(words: string): Uint8Array<ArrayBuffer> {
   return concat(encoder.encode(words), Uint8Array.of(0));
 }
 
-export async function hkdf(salt: Uint8Array<ArrayBuffer>, secret: Uint8Array<ArrayBuffer>, info: Uint8Array<ArrayBuffer>, bytes: number): Promise<Uint8Array<ArrayBuffer>> {
+async function hkdf(salt: Uint8Array<ArrayBuffer>, secret: Uint8Array<ArrayBuffer>, info: Uint8Array<ArrayBuffer>, bytes: number): Promise<Uint8Array<ArrayBuffer>> {
   const key = await crypto.subtle.importKey("raw", secret, "HKDF", false, ["deriveBits"]);
   return new Uint8Array(await crypto.subtle.deriveBits({ name: "HKDF", hash: "SHA-256", salt, info }, key, bytes * 8));
 }
@@ -82,7 +82,7 @@ export async function recordKeys(shared: Uint8Array<ArrayBuffer>, auth: Uint8Arr
  * fresh sender key and the 16-byte `salt`. The header carries the salt, the
  * record size and the sender's public point.
  */
-export async function encrypt(device: PushSubscriptionJson, plain: Uint8Array, salt: Uint8Array<ArrayBuffer>): Promise<Uint8Array<ArrayBuffer>> {
+async function encrypt(device: PushSubscriptionJson, plain: Uint8Array, salt: Uint8Array<ArrayBuffer>): Promise<Uint8Array<ArrayBuffer>> {
   const receiver = fromBase64Url(device.keys.p256dh);
   const auth = fromBase64Url(device.keys.auth);
   const local = (await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"])) as CryptoKeyPair;
@@ -107,7 +107,7 @@ function signingJwk(keys: PushKeys): JsonWebKey {
 }
 
 /** RFC 8292 section 2: an ES256 token for the push service at `audience`, good for `config.notify.tokenHours` from `now`. */
-export async function vapidToken(keys: PushKeys, audience: string, now: number): Promise<string> {
+async function vapidToken(keys: PushKeys, audience: string, now: number): Promise<string> {
   const part = (value: object) => toBase64Url(encoder.encode(JSON.stringify(value)));
   const unsigned = `${part({ typ: "JWT", alg: "ES256" })}.${part({ aud: audience, exp: int.divFloor(now, time.SECOND_MS) + tokenSeconds(keys), sub: keys.subject })}`;
   const signing = await crypto.subtle.importKey("jwk", signingJwk(keys), { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);

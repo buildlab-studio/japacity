@@ -133,7 +133,7 @@ export interface ServerDeps {
 }
 
 /** A limiter that never refuses, for tests that are not about limits. */
-export const openLimiter: Limiter = { limit: () => Promise.resolve({ success: true }) };
+const openLimiter: Limiter = { limit: () => Promise.resolve({ success: true }) };
 
 export const openLimiters: Limiters = {
   commands10s: openLimiter,

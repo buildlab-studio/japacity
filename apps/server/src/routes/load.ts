@@ -34,7 +34,7 @@ export function emptyCounts(): WriteCounts {
 const sizeOf = (value: unknown) => JSON.stringify(value).length;
 
 /** Adds one accepted transaction's writes to the counts. */
-export function countWrites(counts: WriteCounts, writes: Writes): void {
+function countWrites(counts: WriteCounts, writes: Writes): void {
   for (const write of writes.characters ?? []) {
     for (const row of write.append ?? []) {
       counts.rows += 1;

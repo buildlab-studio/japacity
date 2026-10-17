@@ -38,7 +38,7 @@ export const CSP_COUNTER = "client/csp";
 /** The directives a report may name, from the content's counter list (analytics.md R-ANALYTICS-008); any other is `other`. */
 export { CSP_DIRECTIVES };
 
-export type CspDirective = (typeof CSP_DIRECTIVES)[number];
+type CspDirective = (typeof CSP_DIRECTIVES)[number];
 
 /** The words a browser writes for a blocked thing that has no address of its own. */
 const BLOCKED_WORDS: ReadonlySet<string> = new Set(["inline", "eval", "wasm-eval", "trusted-types-policy", "trusted-types-sink", "self", "data", "blob", "about"]);
@@ -55,8 +55,8 @@ export interface CspViolation {
 /** The most characters a logged field may hold. */
 const FIELD_CHARS = 120;
 
-export const UNSUPPORTED_DETAIL = "Only a content policy report is accepted here.";
-export const MALFORMED_DETAIL = "The report could not be read.";
+const UNSUPPORTED_DETAIL = "Only a content policy report is accepted here.";
+const MALFORMED_DETAIL = "The report could not be read.";
 
 function directiveOf(raw: unknown): CspDirective {
   if (typeof raw !== "string") return "other";

@@ -11,14 +11,14 @@ import type { ServerDeps } from "../deps";
 import { runDeletions } from "../jobs/deletion";
 import { requestDeletion } from "./deletion";
 
-export interface CleanResult {
+interface CleanResult {
   idle: AccountRow[];
   /** How many deletions completed; 0 without `apply`. */
   removed: number;
 }
 
 /** The guests with no play for `idleDays` days, and with `apply` their removal. */
-export async function cleanGuests(deps: ServerDeps, auth: Auth, { idleDays, apply }: { idleDays: number; apply: boolean }): Promise<CleanResult> {
+async function cleanGuests(deps: ServerDeps, auth: Auth, { idleDays, apply }: { idleDays: number; apply: boolean }): Promise<CleanResult> {
   const now = deps.now();
   const idle = await deps.stores.account.idleGuests(now - idleDays * time.DAY_MS);
   if (!apply) return { idle, removed: 0 };

@@ -78,7 +78,7 @@ function shared(light: DedicationLight): SharedLight {
   return light.from === null && light.to === null ? { id: light.id, name: light.name } : { id: light.id, name: light.name, years: { from: light.from, to: light.to } };
 }
 
-export function myLight(light: DedicationLight): MyLight {
+function myLight(light: DedicationLight): MyLight {
   return { id: light.id, name: light.name, years: { from: light.from, to: light.to }, approved: light.approvedAt !== null };
 }
 

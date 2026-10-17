@@ -9,7 +9,7 @@ import type { Rooms } from "./place.rooms";
 import type { Seen } from "./place.today";
 
 /** R-CLOCK-028, R-CITY-036: who is here now, and some who were here today and are not now. */
-export interface PlaceLook {
+interface PlaceLook {
   others: PresenceMember[];
   today: Seen[];
 }

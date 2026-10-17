@@ -18,7 +18,7 @@ export interface Decision {
 export type Decided<T> = StoreResult<T> | { ok: false; code: "unchecked"; detail: string; missing: string[] } | { ok: false; code: "not-pending"; detail: string };
 
 /** The campaign's own review is recorded as version 0 of the campaign's id. */
-export const CAMPAIGN_VERSION = 0;
+const CAMPAIGN_VERSION = 0;
 
 function record(deps: ReviewDeps, creative: string, version: number, decision: Decision, outcome: AdvertReview["outcome"]): Promise<void> {
   return deps.stores.adverts.addReview({ creative, version, reviewer: decision.reviewer, at: deps.now(), checks: [...decision.checks], bannedListVersion: BANNED_LIST_VERSION, outcome, note: decision.note });
@@ -57,7 +57,7 @@ export async function pullCampaign(deps: Pick<ServerDeps, "stores">, id: string)
 }
 
 /** The reason an advert decision is logged under, from the report reasons the admin log uses (R-MODERATION-015). */
-export const ADVERT_LOG_REASON = "advert";
+const ADVERT_LOG_REASON = "advert";
 
 /** R-MODERATION-014, R-MODERATION-015: an advert decision in the admin log, with the admin, the time, the item and its parameters. */
 export async function logAdvertAction(

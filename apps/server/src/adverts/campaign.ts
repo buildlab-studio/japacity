@@ -33,7 +33,7 @@ export interface CampaignDraft {
 const LINE = /^[^\r\n]+$/;
 
 /** R-ADVERT-017 to 019: why a real name may not go on this place, or nothing. */
-export function namingRefusals(content: Content, named: NamedPlace): string[] {
+function namingRefusals(content: Content, named: NamedPlace): string[] {
   const place: PlaceEntry | undefined = content.place[named.place];
   if (place === undefined) return [`${named.place} is not a place (R-ADVERT-017).`];
   const refusals: string[] = [];

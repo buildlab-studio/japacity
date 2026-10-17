@@ -10,7 +10,7 @@ function sameSite(host: string, other: string): boolean {
 }
 
 /** Whether the link still answers, on its own domain, after any redirects. */
-export async function linkHolds(fetcher: Fetcher, link: string): Promise<boolean> {
+async function linkHolds(fetcher: Fetcher, link: string): Promise<boolean> {
   try {
     const reply = await fetcher(link, { method: "GET", redirect: "follow" });
     const landed = new URL(reply.url === "" ? link : reply.url);

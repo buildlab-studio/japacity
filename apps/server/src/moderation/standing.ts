@@ -10,9 +10,9 @@ import type { ReportQueueStore } from "./reports";
 /** R-MODERATION-016: the actions a player is told of. */
 export const TOLD = ["warn", "mute", "suspend", "ban"] as const;
 
-export type ToldAction = (typeof TOLD)[number];
+type ToldAction = (typeof TOLD)[number];
 
-export interface ActionOnMe {
+interface ActionOnMe {
   /** The log entry: what an appeal names. */
   entry: string;
   action: ToldAction;
