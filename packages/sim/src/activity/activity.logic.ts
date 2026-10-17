@@ -300,7 +300,7 @@ function schoolWait(read: ReadCtx): Requirement[] {
  * The params a free activity may take now (R-ACTIVITY-002). Null when it
  * takes none. Pure: the turn check, each slot as it resolves, the view and
  * the route kind all read the same list. Pass a judge to run inside a step.
- * the contract's `param` has no `tickets`, so the kiosk's ticket counts are read by its id.
+ * The contract's `param` has no `tickets`, so the kiosk's ticket counts are read by its id (an open question in luck.md).
  */
 export function paramsFor(read: ReadCtx, entry: ActivityEntry, judge: Judge = (requirement) => check(read, requirement)): string[] | null {
   if (entry.id === LOTTO) return ticketsLeft(read);
@@ -374,8 +374,8 @@ function ticketsOf(param: string | null, luck: Tuning["luck"]): number {
 
 /**
  * What an activity costs now: its entry's costs, and the ones the kind sets for
- * the activities it runs by id. the lessons are paid under `study` and
- * each attempt under `fee-test`, in the currency of the country the test is in.
+ * the activities it runs by id. The lessons are paid under `study` and each
+ * attempt under `fee-test`, in the currency of the country the test is in.
  */
 function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Price[] {
   const prices: Price[] = entry.cost.map((cost) => ({ currency: cost.currency, amount: resolveAmount(read, cost.amount), reason: cost.reason, cash: false, earned: false }));
@@ -436,8 +436,8 @@ function jobEntry(content: Content, id: string): ActivityEntry {
 /**
  * R-HEALTH-004 reads the lock's reason. A lock for this turn either still holds
  * or was dropped by this turn's `spend`, which the turn kind reports in a line.
- * the turn in progress carries no locks, so the dropped ones are read
- * from that line.
+ * The turn in progress carries no locks, so the dropped ones are read from
+ * that line.
  */
 function lockedThisTurn(ctx: Ctx, why: string): boolean {
   if (activeLocks(ctx.state.turn.locks, ctx.state.turn.month).some((lock) => lock.why === why)) return true;
@@ -519,8 +519,8 @@ function startJobEffect(ctx: Ctx, effect: { job: Id<"activity"> | { term: string
 // ---------------------------------------------------------------------------
 
 /**
- * R-CAR-006: a driver holds the home licence from arrival. it is granted
- * in the first month abroad, so its 12 months run from that month.
+ * R-CAR-006: a driver holds the home licence from arrival. It is granted in
+ * the first month abroad, so its 12 months run from that month.
  */
 function licenceOnArrival(ctx: Ctx): void {
   const { place, turn, quality } = ctx.state;
@@ -541,7 +541,7 @@ function followStatus(ctx: Ctx): BaseEvent[] {
 /**
  * R-PLACE-003 and R-STATUS-002 for the jobs held: a job of another place ends,
  * unless it is the job the status names, and so does one the status does not let
- * the character work. they end before the month is paid.
+ * the character work. They end before the month is paid.
  */
 function dropUnfit(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
@@ -613,7 +613,7 @@ function workJob(ctx: Ctx): BaseEvent[] {
 
 /**
  * R-ACTIVITY-011: at home with a side job, the bus home may be a robbery, unless
- * a slot this month is a counter-move. the slots sent for the month are read.
+ * a slot this month is a counter-move. The slots sent for the month are read.
  */
 function oneChance(ctx: Ctx, side: Id<"activity">): BaseEvent[] {
   if (ctx.state.place.where !== "home") return [];
@@ -638,9 +638,9 @@ function oneChance(ctx: Ctx, side: Id<"activity">): BaseEvent[] {
 
 /**
  * The side job's month (R-ACTIVITY-010): its pay, its toll, the slot locked for
- * the month to come, and at home the one chance. the contract's pay
- * names no pocket, so naira goes as `gig` to the pocket its size takes
- * (R-WALLET-018) and a foreign currency to the bank as `salary`.
+ * the month to come, and at home the one chance. The contract's pay names no
+ * pocket, so naira goes as `gig` to the pocket its size takes (R-WALLET-018)
+ * and a foreign currency to the bank as `salary` (an open question in activity.md).
  */
 function workSide(ctx: Ctx): BaseEvent[] {
   const side = ctx.state.activity.side;
@@ -679,7 +679,7 @@ function requirementsHold(read: ReadCtx, entry: ActivityEntry, judge: Judge): bo
 }
 
 /**
- * R-ACTIVITY-013: an act sat as a set piece (the talk, the exam) needs the stage to itself. with a
+ * R-ACTIVITY-013: an act sat as a set piece (the talk, the exam) needs the stage to itself. With a
  * set piece already open from an earlier slot this month, it fails before it is paid, since its set piece
  * could not open and what it gives would come without it.
  */
@@ -730,7 +730,7 @@ function validateSlots(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return [];
 }
 
-/** Overtime: a quarter more of the month's pay, to cash for cash work and the bank otherwise. untaxed. */
+/** Overtime: a quarter more of the month's pay, to cash for cash work and the bank otherwise, untaxed (an open question in ladders.md). */
 function overtime(ctx: Ctx, cause: Cause): BaseEvent[] {
   const job = ctx.state.activity.job;
   if (job === null) return [];
@@ -824,7 +824,7 @@ function runById(ctx: Ctx, entry: ActivityEntry, pick: SlotPick, cause: Cause): 
 
 /**
  * R-ACTIVITY-013: one draw on `job` at `tuning.activity.raiseChanceBp`; a landed draw raises the held
- * job's pay by `raiseBp`, once for each job. the page names no stream, and the raise is the
+ * job's pay by `raiseBp`, once for each job. The page names no stream, and the raise is the
  * job's, so it is drawn on `job`; a job already raised, or one with no pay of its own, draws nothing.
  */
 function beNoticed(ctx: Ctx): BaseEvent[] {
@@ -1030,8 +1030,8 @@ function slots(ctx: Ctx): BaseEvent[] {
   const picks = turnSlots(ctx);
   const events: BaseEvent[] = answerNowActs(ctx);
   picks.forEach((pick, index) => events.push(...resolveSlot(ctx, pick, index)));
-  // the count is the one the player saw at the turn check, carried by
-  // the engine, not the count after the job's toll in `main`.
+  // The count is the one the player saw at the turn check, carried by the
+  // engine, not the count after the job's toll in `main`.
   const turn = turnInProgress(ctx);
   const allowed = turn === null ? freeSlots(ctx.state, ctx.content) : turn.freeSlots;
   const counted = picks.filter((pick) => fillsSlot(ctx.content, pick.activity)).length;
@@ -1118,7 +1118,7 @@ function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   // pick is never lost from the month's telling.
   const instead = landed !== null && landed.id !== entry.id ? record(ctx, { type: "activity/hunted", job: entry.id, hired: false }) : [];
   const events = [...instead, ...record(ctx, { type: "activity/hunted", job: landed?.id ?? entry.id, hired: landed !== null })];
-  // content without the job offer has nothing to open, so the landed hunt opens nothing.
+  // Content without the job offer has nothing to open, so the landed hunt opens nothing.
   if (landed !== null && ctx.content.offer[JOB_OFFER] !== undefined) {
     ctx.apply([{ type: "offer/open", offer: JOB_OFFER }], { source: cause.source, param: landed.id, terms: { ...cause.terms, job: landed.id } });
   }
@@ -1159,7 +1159,7 @@ export function tenureAcross(state: State, activities: readonly Id<"activity">[]
 /**
  * R-STREET-004: what filled a slot in the month just played, the way R-ACTIVITY-012 counts it: the
  * job and the side job held, and every free slot sent. At the `come-up` phase the slots sent are this
- * month's, recorded at `slots`. a slot that failed still counts, as it does for R-ACTIVITY-012.
+ * month's, recorded at `slots`. A slot that failed still counts, as it does for R-ACTIVITY-012.
  */
 function playedThisMonth(state: State, content: Content): Set<Id<"activity">> {
   const { job, side, lastSlots } = state.activity;

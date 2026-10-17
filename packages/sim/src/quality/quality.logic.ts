@@ -64,12 +64,12 @@ function change(ctx: Ctx, quality: Id<"quality">, amount: number, source: string
 }
 
 /**
- * The run-down counter's two marks, read from its range. the counter
+ * The run-down counter's two marks, read from its range. The counter
  * stops one past the warning, so its top is the month after the warning and
  * the month before it is the warning itself: with the range 0 to 3 the warning
  * comes at two months in a row (R-HEALTH-001) and illness may roll from three
- * (R-HEALTH-002). "two months in a row" has no tuning field, so the
- * range in content carries it; `tuning.health.runDownMonths` would say it plainly.
+ * (R-HEALTH-002). "Two months in a row" has no tuning field, so the range in
+ * content carries it (an open question in health.md).
  */
 function runDownMarks(content: ReadCtx["content"]): { warning: number; after: number } | null {
   const entry = content.quality[RUN_DOWN];

@@ -39,7 +39,7 @@ function sponsorOf(read: ReadCtx, entry: RouteEntry): { id: string; bond: Bond }
 /**
  * R-PEOPLE-026: married, or for a route with `livingTogetherMonths` the bond at
  * `partner` for that many of the applicant's months.
- * the people slice keeps no record of where each side lived month by
+ * The people slice keeps no record of where each side lived month by
  * month, so "while both lived in the same place" is not read; the months since
  * the bond reached `partner` are.
  */

@@ -89,13 +89,13 @@ function collect(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseE
   if (amount === 0) return [];
   ctx.apply([{ type: "money/take", currency: entry.currency, pocket: "bank", amount, reason: entry.sink }], causeOf(item));
   const events = record(ctx, [{ type: "obligation/seized", id: item.id, entry: item.entry, amount }]);
-  // what is owed taken in full lifts the default, as paying it all does (R-UNDERTAKING-008).
+  // What is owed taken in full lifts the default, as paying it all does (R-UNDERTAKING-008).
   return item.outstanding === amount ? [...events, ...record(ctx, [{ type: "obligation/cleared", id: item.id, entry: item.entry }])] : events;
 }
 
 /**
  * R-UNDERTAKING-007, 008: everything owed is asked for at once, paid in full or
- * missed. a missed charge is asked for again each month with what is
+ * missed. A missed charge is asked for again each month with what is
  * new, and each month it cannot be paid is one more miss in a row.
  */
 function charge(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEvent[] {

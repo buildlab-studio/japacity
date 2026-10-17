@@ -73,7 +73,7 @@ function keys(result: Accepted): string[] {
 function leftOnSponsor(game: Game, salary: number): void {
   const route = game.state.route["route.uk-care"];
   if (route === undefined) throw new Error("The content has no care route.");
-  // the sponsor gate is not built on this branch, so its record is written here.
+  // The sponsor gate's record is written directly, so the test reaches the job without playing the gate.
   game.state = { ...game.state, route: { ...game.state.route, "route.uk-care": { ...route, state: "departed", gate: { gate: "sponsor", sponsor: { employer: "A care home", salary } } } } };
 }
 
@@ -492,7 +492,7 @@ describe("sick pay", () => {
 });
 
 describe("buying the car and the driving test", () => {
-  /** The real registry with the credit file at 30 or more: the credit kind is built on another branch. */
+  /** The real registry with the credit file taken as 30 or more, so the test needs no credit history. */
   function creditMet(): Registry {
     return registry().map((kind) => (kind.kind !== "credit" ? kind : { ...kind, requirements: { ...kind.requirements, "credit/min": () => ({ met: true }) } }));
   }

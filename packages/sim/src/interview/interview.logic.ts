@@ -35,7 +35,7 @@ const STANDING: Id<"quality"> = "quality.standing";
 
 /**
  * `times-met`: the count of `met` moments each band starts at, highest first.
- * the bands are in the option names on the rule page; content has no field for their edges.
+ * The bands are in the option names on the rule page; content has no field for their edges.
  */
 const MET_BANDS: readonly { option: string; from: number }[] = [
   { option: "sixteen-or-more", from: 16 },
@@ -117,7 +117,7 @@ function theirHome(content: Content, bond: Bond): string | null {
   return bond.with.kind === "computer" ? (content.person[bond.with.entry]?.profile.home ?? null) : null;
 }
 
-/** a fixed life has no home in its state; the prologue's town is used, else the city. */
+/** A fixed life has no home in its state; the prologue's town stands for it, else the city. */
 function myHome(state: State): string {
   return state.prologue.draw?.town ?? "city";
 }
@@ -174,8 +174,8 @@ function sharedList(content: Content, list: "whats" | "calls"): string[] {
 /**
  * The list a question's options are drawn from. A computer's lists are its
  * entry's; a real pair's spots are the shared spots (R-PEOPLE-014).
- * content holds no shared list of whats or calls for a real pair, so
- * a real pair draws from every computer partner's lists.
+ * Content holds no shared list of whats or calls for a real pair, so a real
+ * pair draws from every computer partner's lists.
  */
 export function listOf(content: Content, bond: Bond, question: Question): string[] {
   const { options } = question;
@@ -189,7 +189,7 @@ export function listOf(content: Content, bond: Bond, question: Question): string
     case "calls":
       return person === undefined ? sharedList(content, "calls") : [...person.calls];
     case "wedding-spots":
-      // content has no list of wedding spots; the entry lists them itself, so this offers only the truth.
+      // Content has no list of wedding spots; the entry lists them itself, so this offers only the truth.
       return [];
     case "jobs":
       return [
@@ -234,7 +234,7 @@ export function resultOf(matched: number, asked: number, thin: boolean, numbers:
 /**
  * R-INTERVIEW-006: a question about the couple matches when both answers are
  * the same; one about the other person when each answer is the truth about the
- * other. the truths about each person are read at the comparison, from
+ * other. The truths about each person are read at the comparison, from
  * this life's own state and its facts of the other, which the authority makes
  * fresh before it (R-PEOPLE-003), so both lives read the same truths.
  */
@@ -280,7 +280,7 @@ function drawSome(ctx: Ctx, pool: readonly string[], count: number): string[] {
  * R-INTERVIEW-003: the questions whose needs the record meets, `ask` of them
  * drawn on `visa`; each with its truth and its options: the truth and
  * `decoys` others in an order drawn on `visa`, or a `plans` question's whole list.
- * a question about the other person has two truths, one for each
+ * A question about the other person has two truths, one for each
  * side to give, and both sides see the same options; the options hold both.
  */
 function drawQuestions(ctx: Ctx, bond: Bond): { questions: Asked[]; truths: (string | null)[] } {
@@ -398,7 +398,7 @@ function decoyOf(ctx: Ctx, options: readonly string[], truth: string | null): st
  * R-INTERVIEW-008: the stand-in gives the truth at `standInRecallBp` on
  * `people`, otherwise a decoy. On a `plans` question it gives the waiting
  * side's answer at the same chance, otherwise the first option.
- * on `plans` the authority sends the waiting side's answer as the
+ * On `plans` the authority sends the waiting side's answer as the
  * option when it is in, and the first option when it is not.
  */
 function standInOption(ctx: Ctx, asked: Asked, truth: string | null, sent: string): string {
@@ -412,7 +412,7 @@ function standInOption(ctx: Ctx, asked: Asked, truth: string | null, sent: strin
 /**
  * R-INTERVIEW-007: a computer's answers: the truth at its `recallBp` on
  * `people`, otherwise a decoy; its `plan` on `plans`.
- * the interview slice has no field to keep them from the opening and
+ * The interview slice has no field to keep them from the opening and
  * nothing writes `people.secret.computerAnswers`, so they are drawn at the
  * comparison, in the same step as the player's last answer, and never kept.
  */
@@ -436,7 +436,7 @@ function computerAnswers(ctx: Ctx, open: Open, bond: Bond): string[] {
  * R-INTERVIEW-008: whose answers were a stand-in's. This side's from its own
  * answers; the other side's when the stand-in is on for it as the result comes,
  * since a command from the absent player turns it off (R-PEOPLE-043).
- * the life does not know its side of the pair record and
+ * The life does not know its side of the pair record and
  * `interview/scored` carries no marks, so `a` holds this life's mark and `b`
  * the other side's; the record's `standIn` on the command would make both exact.
  */

@@ -1,7 +1,7 @@
 // Real-time lengths the design gives, in milliseconds, in one place.
 // The simulation never reads a clock (R-ENGINE-012), so nothing in the sim
-// uses these. The authority does: the local one in the tab now, the server
-// later. They are plain numbers so either can read them without a clock.
+// uses these. The authorities do: the local one in the tab and the server.
+// They are plain numbers so either can read them without a clock.
 
 export const SECOND_MS = 1000;
 export const MINUTE_MS = 60 * SECOND_MS;
@@ -47,8 +47,8 @@ export const TURNS_PER_REAL_DAY = 12;
  */
 export const BANK_REFILLS_IN_MS = 2 * DAY_MS;
 
-// Placeholders for the server. The first milestone's clock is one tick per
-// month played (docs/rules/engine.md section 7), so these are not used yet.
+// Real-time lengths for the online world. The in-browser authority passes one
+// tick for each month played instead (docs/rules/engine.md section 7).
 
 /** Online, a world tick is half a real day: the rates "tick twice a real day". docs/design/01-concept.md section 13. */
 export const WORLD_TICK_MS = 12 * HOUR_MS;

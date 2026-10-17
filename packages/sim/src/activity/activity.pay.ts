@@ -14,7 +14,7 @@ export const DRIVING_TEST: Id<"activity"> = "activity.driving-test";
 export const COURIER: Id<"activity"> = "activity.job-uk-courier-cash";
 /**
  * The trader's own shop: its takings grow a little with each month it has stood.
- * tuning has no key for the shop's growth; it reads `tuning.activity.raiseBp` as the share a full year adds.
+ * Tuning has no key for the shop's growth, so it reads `tuning.activity.raiseBp` as the share a full year adds.
  */
 export const SHOP: Id<"activity"> = "activity.run-shop";
 const HOME_LICENCE: Id<"document"> = "document.home-licence";
@@ -95,7 +95,7 @@ function shopGrowth(read: ReadCtx, entry: ActivityEntry, written: number): numbe
 function payFigure(read: ReadCtx, entry: ActivityEntry, terms: Terms): number | null {
   if (entry.pay === null) return null;
   const { amount } = entry.pay;
-  // a sponsor's job started without a salary recorded on the route has nothing to pay from, so it pays nothing.
+  // A sponsor's job started without a salary recorded on the route has nothing to pay from, so it pays nothing (an open question in route-gates.md).
   if (typeof amount === "object" && "term" in amount && typeof terms[amount.term] !== "number") return null;
   const written = resolveAmount(read, amount, terms);
   const figure = Math.max(written, tierFigure(read, entry) ?? written) + shopGrowth(read, entry, written);
@@ -154,7 +154,7 @@ export function overtimePay(read: ReadCtx, entry: ActivityEntry): MoneyParam | n
 
 /**
  * R-LADDER-002: months in any job of the country the character is in. At home,
- * the home jobs. months from an earlier stay in the same country count.
+ * the home jobs. Months from an earlier stay in the same country count.
  */
 export function localTenure(read: ReadCtx): number {
   const { where, country } = read.state.place;

@@ -45,7 +45,7 @@ function leanCandidates(content: Content): Id<"route">[] {
 }
 
 /**
- * R-CHAPTER-009: the way out the life leans to. "the first own-effort route the life has heard
+ * R-CHAPTER-009: the way out the life leans to. "The first own-effort route the life has heard
  * of or looked into" is read in time, not by the page's list. The route looked into first wins, else the
  * route heard of first; the page's order (care, talent, points, the Gulf, the master's) only breaks a tie
  * in the same month. Every graduate hears of Canada's points by month 5, so a list read first would turn a
@@ -340,7 +340,7 @@ function sendOffDue(read: ReadCtx): boolean {
 
 /**
  * R-CHAPTER-006: the card of the flight month, read from the state and never
- * stored. it shows from the flight until the month after it is played,
+ * stored. It shows from the flight until the month after it is played,
  * when the send-off closes, so its standing and its lines are the flight
  * month's. The route is the one flown; the figure is its japacity figure,
  * whole once departed.

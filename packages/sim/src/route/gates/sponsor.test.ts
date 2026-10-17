@@ -101,9 +101,8 @@ function offerEffects(offer: Id<"offer">, fraud: boolean): Effect[] {
 }
 
 /**
- * no route event writes `secret.sponsorFraud`, so a fraud recorded
- * through `route/record-sponsor` is not kept. The decision's override is
- * tested with the secret set on the state, as the event would set it.
+ * Sets `secret.sponsorFraud` on the state as the gate's `route/gate-updated`
+ * event would, so the decision's override is tested on its own.
  */
 function hideFraud(game: Game, route: Id<"route">): void {
   game.state = { ...game.state, route: { ...game.state.route, [route]: { ...routeOf(game, route), secret: { sponsorFraud: true } } } };

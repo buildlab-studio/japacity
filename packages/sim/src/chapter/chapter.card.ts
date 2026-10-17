@@ -46,8 +46,8 @@ export function cardsAllowed(read: ReadCtx): boolean {
  * R-SHARE-004: the card for a moment. `route` is the moment's own route where
  * it has one, else the route of the character's japacity figure; `chapter` is
  * the chapter a chapter card closes, else the chapter current.
- * `name` is the player's own choice (R-SHARE-008) and nothing in the
- * state holds one; the first name is words (`share.first-name.<scenario>`),
+ * `name` is the player's own choice (R-SHARE-008) and nothing in the state
+ * holds one; the first name is words (`share.first-name.<scenario>`),
  * which the simulation does not read, so it stays null and the client names
  * the character, as `apps/client/src/shared/card/face.ts` does.
  */

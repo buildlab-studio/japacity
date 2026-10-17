@@ -143,7 +143,7 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
  * leads to no other, and one already asked is not asked again, so a question
  * has at most one.
  */
-// follow-ups sit in the entry's own `followUps`, so the draw never sees them; one is asked
+// Follow-ups sit in the entry's own `followUps`, so the draw never sees them; one is asked
 // only while its own `when` holds, and an answer marked `closes` asks none.
 function followUp(ctx: Ctx, entry: SetpieceEntry, after: string, chosen: SetpieceAnswer): BaseEvent[] {
   const open = ctx.state.setpiece.open;

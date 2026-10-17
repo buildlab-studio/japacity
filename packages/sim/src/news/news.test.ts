@@ -17,9 +17,8 @@ const RECRUIT: Id<"news"> = "news.uk-unis-recruit";
 const RANK: Record<NewsStage, number> = { rumour: 0, announced: 1, "in-force": 2, ended: 3 };
 
 /**
- * The five stories of the first milestone. The timing tests below read the
- * stand-in schedule, which the whole-life stories move about, so they run on
- * these alone.
+ * Five stories whose stand-in schedule the timing tests below read. The
+ * other stories move that schedule about, so the tests run on these alone.
  */
 const FIRST_STORIES: Id<"news">[] = ["news.uk-unis-recruit", "news.uk-living-rise", "news.uk-refusals-up", "news.dollar-scarcity", "news.naira-float"];
 const firstContent: Content = { ...content, news: Object.fromEntries(FIRST_STORIES.map((id) => [id, content.news[id]!])) };

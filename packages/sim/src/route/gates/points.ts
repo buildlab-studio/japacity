@@ -131,8 +131,8 @@ export function spouseOnJoint(read: ReadCtx, route: Id<"route">): PersonFacts | 
 
 /**
  * R-PEOPLE-030: the spouse's own factors from the facts, capped: education by
- * `eduLevel`, the band for each of four abilities, and Canadian work. 
- * a spouse has Canadian work only while working in the route's country, a
+ * `eduLevel`, the band for each of four abilities, and Canadian work. A
+ * spouse has Canadian work only while working in the route's country, a
  * year for each twelve months there.
  */
 export function spouseFactors(read: ReadCtx, route: Id<"route">, spouse: PersonFacts): number {
@@ -271,7 +271,7 @@ function canPayFee(ctx: Ctx, block: PointsBlock): boolean {
  * and send the application, decided `decisionVar` months later. The caller has
  * judged that the fee can be paid.
  *
- * the gate writes the application itself rather than through the
+ * The gate writes the application itself rather than through the
  * shared `sendApplication`, which dates the decision by the tuning's
  * `decisionMonths` (1) and records the study route's surcharge and funds line.
  * The points route pays no surcharge, so a refusal refunds nothing, and its
@@ -298,7 +298,7 @@ function payAndSend(ctx: Ctx, entry: RouteEntry, block: PointsBlock): BaseEvent[
  * refusal, a pick of the pool slot is judged, an unpaid invitation is paid or
  * lapses, a profile lapses at `profileMonths`, and a live profile is invited.
  *
- * a profile entered in month m is live in months m to m + 11 and
+ * A profile entered in month m is live in months m to m + 11 and
  * lapses in m + 12 (R-POINTS-005). An invitation that cannot be paid stands
  * through the next month's clocks, which try the fee once more, and lapses
  * there if it still cannot be paid; the profile goes on and is looked at again

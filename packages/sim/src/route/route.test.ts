@@ -639,7 +639,7 @@ describe("funds", () => {
       { type: "route/support", route: UK, currency: "NGN", amount: 9000000 * UNIT },
     ]);
     expect(flyingFundsShown(readOf(game), UK)).toBe(flies + 1000 * UNIT);
-    // The page's measure before the amendment still counts them all.
+    // `fundsShown`, the measure the route reads, still counts them all.
     expect(fundsShown(readOf(game), UK)).toBeGreaterThan(flyingFundsShown(readOf(game), UK));
   });
 

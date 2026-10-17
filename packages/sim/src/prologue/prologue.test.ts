@@ -26,16 +26,15 @@ const FIRST = "draw";
 /**
  * The prologue's starting life as a fixture, the same as `prologueScenario` in
  * the content's prologue folder: every quality at its minimum, which for age is
- * sixteen. The real content does not list it among its lives yet.
+ * sixteen. The content's own entry is used where it lists one.
  */
 const fixture: ScenarioEntry = { id: PROLOGUE, prologue: true, qualities: {}, job: null, tenure: {}, siblings: 0, pockets: {}, documents: [], obligations: [] };
 const withPrologue: Content = { ...content, scenario: { ...content.scenario, [PROLOGUE]: content.scenario[PROLOGUE] ?? fixture } };
 
 /**
- * R-QUALITY-003 lets only the month move age, so the real quality kind
- * drops the prologue's `quality/add` on age and R-PROLOGUE-004 cannot hold. The
- * age rules are tested with the quality kind given the one exception the
- * prologue needs: age moves when the prologue is the cause.
+ * The quality kind with the prologue's exception to R-QUALITY-003 written out:
+ * age moves when the prologue is the cause (R-PROLOGUE-004). The real kind
+ * holds the same exception.
  */
 function ageMoves(kinds: Registry): Registry {
   return kinds.map((kind) => {

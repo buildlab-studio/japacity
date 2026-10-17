@@ -20,7 +20,7 @@ export function isForYou(state: State, content: Content, id: Id<"news">): boolea
 /**
  * R-PEOPLE-033: a sibling's facts show them living in the route's country, on
  * any status there, as the people kind judges `people/sibling-abroad`.
- * the page puts no age on it, so a sibling of any age passes it on.
+ * The page puts no age on it, so a sibling of any age passes it on.
  */
 function siblingIn(ctx: Ctx, route: Id<"route">): boolean {
   const country = ctx.content.route[route]?.country ?? null;

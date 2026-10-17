@@ -17,9 +17,9 @@ export interface AdviserRoute {
 }
 
 /**
- * R-ADVICE-003: the tick the person who went left. nothing records
- * when a friend, a partner abroad or a recurring person left, so they are read
- * as having left before this life's world began, at tick 0. Ticks, not
+ * R-ADVICE-003: the tick the person who went left. Nothing records when a
+ * friend, a partner abroad or a recurring person left, so they are read as
+ * having left before this life's world began, at tick 0. Ticks, not
  * months, since inside a step the month and the tick move apart.
  */
 export const LEFT_TICK = 0;
@@ -42,8 +42,8 @@ function changesTo(read: ReadCtx, route: Id<"route">): { story: NewsEntry; since
  * R-ADVICE-003: a route's `changedMonth`, read as the world's tick: the last
  * tick a story that touches it and moves the era's variables came into force
  * or ended (one tick is one month, R-DIRECTOR-002). Null when none has.
- * an ended story counts from when it ended, since a story that
- * reverts changes the rules again then.
+ * An ended story counts from when it ended, since a story that reverts
+ * changes the rules again then.
  */
 export function changedTick(read: ReadCtx, route: Id<"route">): number | null {
   const changes = changesTo(read, route);
@@ -91,8 +91,8 @@ const AT_LEAST = 1;
  * anything takes a month. A paper: its ready month if it is being made, else
  * its shortest wait. A school's offer: the answer due, else the shortest
  * answer wait among the route's schools. Funds held: the months still to hold.
- * the window's next opening is not known ahead (the director opens
- * it), so a closed window adds no months.
+ * The window's next opening is not known ahead (the director opens it), so a
+ * closed window adds no months.
  */
 export function monthsAway(read: ReadCtx, entry: RouteEntry, item: ChecklistItem): number {
   const { state, content } = read;

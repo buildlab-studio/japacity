@@ -17,7 +17,7 @@ export const STAND_IN_COMMANDS = ["interview/answer", "people/answer"] as const 
 export const AUTHORITY_COMMANDS = [
   "turns/grant",
   "lottery/pay",
-  // R-WALLET-020: naira bought with real money, marked. No server route sends it yet.
+  // R-WALLET-020: naira bought with real money, marked. No server route sends it.
   "wallet/top-up",
   "people/link",
   "people/facts",

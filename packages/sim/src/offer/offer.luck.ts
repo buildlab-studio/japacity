@@ -12,7 +12,7 @@ export const WHIP_ROUND: Id<"offer"> = "offer.whip-round";
 /** R-LUCK-007: the promo that pays when it is honest. */
 export const TELCO_PROMO: Id<"offer"> = "offer.telco-promo";
 
-/** R-LUCK-002: the loans whose default rules the rescue out. held funds are a loan too. */
+/** R-LUCK-002: the loans whose default rules the rescue out. Held funds are a loan too. */
 const LOAN_TYPES: readonly ObligationType[] = ["loan", "group-loan", "held-funds"];
 
 /** Every requirement in a list, the ones under `not` and `any` included. */
@@ -63,7 +63,7 @@ export function drySpellBp(read: ReadCtx): number {
 }
 
 /**
- * R-LUCK-003 and 004: an entry's chance after the marks. the marks
+ * R-LUCK-003 and 004: an entry's chance after the marks. The marks
  * scale the chance the entry would otherwise roll at (its own, or the road's
  * pressure), and the dry spell is added after, so it is never doubled.
  */

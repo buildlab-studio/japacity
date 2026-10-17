@@ -1,7 +1,7 @@
 // Layer 5 of docs/design/02-quality-and-testing.md, small enough for every
 // run: the simulated players from each life to the flight, asserting only
 // what the design promises. The whole life and its endings are in
-// endings.test.ts; the full 300-seed run is a playtest outside the suite.
+// endings.test.ts; a full 300-seed run is too long for the suite.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

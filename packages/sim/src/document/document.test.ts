@@ -51,7 +51,7 @@ const SEED_DRAW_UP = "seed-1";
 
 const cause = { source: "test", param: null, terms: {} };
 
-/** The real registry with `offer/choose` carrying out the given effects. The offer kind has no command handler yet, so nothing real is replaced. */
+/** The real registry with `offer/choose` carrying out the given effects. It takes the place of the offer kind's own `offer/choose`. */
 function withCommandEffects(effects: Effect[]): Registry {
   return registry().map((kind) =>
     kind.kind !== "offer"

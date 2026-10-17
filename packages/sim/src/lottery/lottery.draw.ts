@@ -123,7 +123,7 @@ function drawBytes(draw: number): Uint8Array {
 
 /**
  * R-LOTTERY-007: the SHA-256 of the secret followed by the draw number, in hex.
- * the secret is read as the bytes its hex spells and the number as eight bytes, big end first.
+ * The secret is read as the bytes its hex spells and the number as eight bytes, big end first.
  */
 export function fingerprintOf(secret: string, draw: number): string {
   return toHex(sha256(concat([fromHex(secret), drawBytes(draw)])));
@@ -131,7 +131,7 @@ export function fingerprintOf(secret: string, draw: number): string {
 
 /**
  * R-LOTTERY-008: the frozen list's SHA-256 in hex.
- * the hash of the tokens' bytes in ticket order, eight bytes each, so the client's draw page recomputes it the way the server made it.
+ * The hash is of the tokens' bytes in ticket order, eight bytes each, so the client's draw page recomputes it the way the server made it.
  */
 export function listHashOf(tokens: readonly string[]): string {
   return toHex(sha256(fromHex(tokens.join(""))));
@@ -140,7 +140,7 @@ export function listHashOf(tokens: readonly string[]): string {
 /**
  * R-LOTTERY-009: the seed is the SHA-256 of the secret, the list's hash and the
  * beacon round's randomness, joined in that order.
- * each is given in hex and joined as the bytes the hex spells.
+ * Each is given in hex and joined as the bytes the hex spells.
  */
 export function drawSeed(secret: string, listHash: string, beaconRandomness: string): Uint8Array {
   return sha256(concat([fromHex(secret), fromHex(listHash), fromHex(beaconRandomness)]));
@@ -158,7 +158,7 @@ const MILLION = BigInt(PER_MILLION);
 
 /**
  * R-LOTTERY-010: the ticket's draw of one in a million, from 0 to 999,999.
- * the block's first eight bytes, big end first, modulo a million; the
+ * The block's first eight bytes, big end first, modulo a million; the
  * lowest numbers are favoured by under one part in ten trillion, which no odds
  * in whole draws per million can feel.
  */
@@ -251,7 +251,7 @@ export function rollJackpot(jackpot: number, sales: number, hit: boolean, odds: 
  * R-LOTTERY-012, R-LOTTERY-021: the jackpot a draw opens with under the odds
  * it opens with, from the last draw's result: the start for the first draw or
  * after a hit, else the rolled-over amount.
- * when the settings changed between the two draws, the start is the
+ * When the settings changed between the two draws, the start is the
  * new one and the rolled-over amount is held under the new cap, so a draw never
  * stands above the cap its odds were checked at (R-LOTTERY-022).
  */
@@ -358,7 +358,7 @@ function uniform(next: () => bigint, below: number): number {
 
 /**
  * The raffle (R-LOTTERY-010 before decision 0010): the winning ticket numbers of each tier, in the tiers' order.
- * "without replacement by rejection sampling" is read as: draw a
+ * "Without replacement by rejection sampling" means: draw a
  * ticket number uniformly, and draw again if it has already won. A tier takes
  * tickets until it is full or none is left; the tiers after an empty pool
  * get none.
@@ -384,9 +384,9 @@ export function drawWinners(seed: Uint8Array, count: number, tiers: TierSpec[]):
 
 /**
  * The raffle (R-LOTTERY-012 before decision 0010): one jackpot, `midCount` mid prizes, and one small prize in every `smallEvery` tickets sold.
- * the page says at least one small place; with few tickets sold, and above all with the house top-up
- * filling the pot, one in fifty sold made a small prize pay more than a mid one (₦41,250 against ₦16,500 in a
- * review). never fewer small places than keep a small share under a mid share.
+ * The page says at least one small place. With few tickets sold, and above all with the house top-up filling the
+ * pot, one in fifty sold can make a small prize pay more than a mid one (₦41,250 against ₦16,500), so there are
+ * never fewer small places than keep a small share under a mid share.
  */
 export function tiersFor(count: number, tuning: RaffleSettings): TierSpec[] {
   return [
@@ -418,7 +418,7 @@ function shareBp(tier: Tier, tuning: RaffleSettings): number {
 
 /**
  * The raffle (R-LOTTERY-011 before decision 0010): the prize fund and what each winning ticket is paid.
- * the fund is the pot times what is not burnt, rounded down; a tier's
+ * The fund is the pot times what is not burnt, rounded down; a tier's
  * share is split over the tickets its spec names, so the shares of places
  * left unfilled are destroyed with the rest.
  */

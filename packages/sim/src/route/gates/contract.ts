@@ -75,7 +75,7 @@ export function recordAgent(ctx: Ctx, entry: RouteEntry, effect: RecordSponsor, 
 
 export const contractGate: Gate = {
   gate: "contract",
-  // the agent's step is named `sponsor`, as the content's checklist and apply activity ask for it.
+  // The agent's step is named `sponsor`, as the content's checklist and apply activity ask for it.
   steps: ["sponsor"],
   initial: () => ({ gate: "contract", agent: null }),
   reached: (_read, _entry, held, step) => step === "sponsor" && agentOf(held) !== null,

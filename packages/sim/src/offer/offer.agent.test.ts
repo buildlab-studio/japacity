@@ -57,7 +57,7 @@ function pastChapterOne(seed: string, network = advice.networkToAsk, siblings?: 
 
 /**
  * R-ACTIVITY-015: going to the stop or up to the office is an act done at once, so the agent is at the
- * table now, in the month it is sent; it was a slot whose agent opened as the month ended.
+ * table in the month it is sent, not as the month ends.
  */
 function openAt(game: Game, activity: Id<"activity"> = TO_STOP): OfferState {
   game.accept({ type: "activity/now", activity, param: GULF });

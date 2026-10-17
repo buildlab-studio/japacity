@@ -14,7 +14,7 @@ const SIBLING_PREFIX = "sibling-";
  * inviter has siblings (this life is one of them, the inviter takes its
  * place), at least the inviter's own. The inviter's slot waits as a card for
  * the authority's `people/link`, which names the pair once both lives exist.
- * the new character's id, and so the pair's, is not known when the
+ * The new character's id, and so the pair's, is not known when the
  * state is built, so the link fills the slot as it fills any card.
  */
 export function familySlots(slice: PeopleSlice, family: NonNullable<Save["family"]>): PeopleSlice {

@@ -480,7 +480,7 @@ function rollStories(book: DirectorBook, worldSeed: string, content: Content, re
     const chance = Math.min(BP_WHOLE, entry.standIn.chanceBp * (weights?.[rules.group] ?? 1));
     // The same draw `chance` makes, read at this story's own position for the tick.
     if (scaleDraw(drawAt(worldSeed, SHOCK, reading.base + tick * reading.pool.length + place), BP_WHOLE) >= chance) continue;
-    // the roll starts the story at its first stage. With a rumour lead the rumour runs from now
+    // The roll starts the story at its first stage. With a rumour lead the rumour runs from now
     // and the announcement follows the lead later; R-DIRECTOR-004 counts the lead back from the announcement.
     const { rumourLead, forceLag, endsAfter } = entry.standIn;
     const announced = tick + rumourLead * scale;

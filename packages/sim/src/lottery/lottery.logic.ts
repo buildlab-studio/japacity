@@ -45,7 +45,7 @@ function buy(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     return reject("bad-amount", `Tickets are a whole number from 1, and ${String(held)} are held of the ${String(maxTickets)} allowed.`);
   }
   const cost = tickets * ticket;
-  // the first plan says naira cash; R-LOTTERY-003 says the naira bank pocket, which is followed here.
+  // R-LOTTERY-003: tickets are paid from the naira bank pocket.
   if (ctx.state.wallet.pockets.NGN.bank < cost) return reject("cannot-afford", "The naira bank holds less than the tickets cost.");
   // R-LOTTERY-018, R-WALLET-020: a ticket is bought only with earned naira, the balance less the marked, topped-up share.
   if (earnedNaira(ctx.state.wallet) < cost) return reject("cannot-afford", EARNED_ONLY);
@@ -60,7 +60,7 @@ function pay(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const { draw, prizes } = command;
   if (!Number.isSafeInteger(draw) || draw < 0) return reject("not-legal", `There is no draw ${String(draw)}.`);
   const { paid } = ctx.state.lottery;
-  // the slice keeps only the last draw paid, and draws are paid in order, so an earlier draw counts as paid too.
+  // The slice keeps only the last draw paid, and draws are paid in order, so an earlier draw counts as paid too.
   if (paid !== null && draw <= paid) return reject("not-legal", `Draw ${String(draw)} is already paid: the last draw paid is ${String(paid)}.`);
   if (prizes.length === 0) return reject("bad-amount", "A payout names at least one prize.");
   for (const prize of prizes) {

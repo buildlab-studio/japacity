@@ -385,7 +385,7 @@ function move(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (amount > ctx.state.wallet.pockets[currency][from]) return reject("cannot-afford", `The ${from} pocket holds less than that.`);
   const events = [debit(currency, from, amount, "move"), credit(currency, to, amount, "move")];
   if (to !== "bank") return events;
-  // R-WALLET-011. every move that leaves the month's cash paid in over the line is a lot of its own amount.
+  // R-WALLET-011. Every move that leaves the month's cash paid in over the line is a lot of its own amount.
   const month = ctx.state.turn.month;
   const { cashIn } = ctx.state.wallet;
   const kobo = (cashIn.month === month ? cashIn.kobo : 0) + valueInKobo(amount, currency, officialRates(ctx.world));
@@ -474,9 +474,9 @@ export interface RemitTerms {
  * view's rates and the content's tuning (R-ABROAD-008), so the interface quotes the
  * same figures the command pays. The app pays the official rate less its margin;
  * the bank the official rate, here today's, though the money arrives next month at
- * that month's; the informal channel the street rate with no fee. the fee
+ * that month's; the informal channel the street rate with no fee. The fee
  * comes out of the amount sent, so the amount is what leaves the pocket.
- * the contract's PlayerView has no `remit` field, so the quote is this pure function over the view's rates.
+ * The contract's PlayerView has no `remit` field, so the quote is this pure function over the view's rates.
  */
 export function remitQuote(
   rates: World["rates"],
@@ -502,7 +502,7 @@ function isForeign(value: unknown): value is ForeignCurrency {
  * `wallet/remit` (R-ABROAD-006): the amount leaves the currency's bank pocket as
  * `remit` and the fee as `remit-fee`; the naira arrives as `remit`, documented, in
  * the home bank pocket by app at once or by bank next month, or as cash by the
- * informal channel, which may not arrive at all (stream `street`). only
+ * informal channel, which may not arrive at all (stream `street`). Only
  * from abroad, since it sends money home.
  */
 function remit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {

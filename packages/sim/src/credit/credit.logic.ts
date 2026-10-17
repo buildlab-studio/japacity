@@ -142,7 +142,7 @@ function spend(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-CREDIT-003. a clean year is counted from the later of the arrival
+ * R-CREDIT-003. A clean year is counted from the later of the arrival
  * and the last miss, so a new file earns nothing but its payments in its first
  * year, which is the page's pace of 6 a month for rent and phone.
  */

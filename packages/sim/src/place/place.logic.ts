@@ -116,7 +116,7 @@ export function wealthInNaira(read: ReadCtx): number {
 }
 
 /**
- * R-PLACE-005, first match wins. a removal "followed" is one recorded
+ * R-PLACE-005, first match wins. A removal "followed" is one recorded
  * this month for the country being left, and the broke line is read after the
  * fare is paid.
  */
@@ -138,7 +138,7 @@ export function capitalBonus(read: ReadCtx): number {
 
 /**
  * R-PLACE-008, for the route kind: the last month of the ban on a country's
- * routes, or null when there is none. the contract has no route
+ * routes, or null when there is none. The contract has no route
  * effect for a ban, so nothing is applied; the route kind reads this, which
  * reads `status.removals` and `place.returns`.
  */
@@ -289,9 +289,9 @@ export function wayHomeOf(read: ReadCtx): WayHome | null {
 }
 
 /**
- * R-PLACE-004. R-STATUS-009 adds an exit fee to a Gulf worker's fare
- * while the contract runs, and the content has no figure for it, so the fare
- * alone is charged.
+ * R-PLACE-004. R-STATUS-009 adds an exit fee to a Gulf worker's fare while
+ * the contract runs, and the content has no figure for it, so the fare alone
+ * is charged (an open question in status.md).
  */
 function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "return/home") throw new Error(`return/home cannot handle ${command.type}.`);
@@ -631,7 +631,7 @@ function tokenLapse(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-RETURN-005. in a tick the director makes December, a character
+ * R-RETURN-005. In a tick the director makes December, a character
  * abroad gets the December set piece, opened with no route so that nothing is
  * scored (R-SETPIECE-006). At most once in twelve months of
  * the character's own time, read from `decemberMonth` (R-PLACE-009), so a

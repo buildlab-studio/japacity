@@ -62,8 +62,8 @@ function variant(changes: Partial<Record<Id<"offer">, Partial<OfferEntry>>>, onl
 const rolled = Object.values(content.offer).filter((entry) => entry.chanceBp > 0);
 
 // ---------------------------------------------------------------------------
-// A game on a test registry: the route kind is still a stub, so its
-// requirements can be set to hold, and `route/depart` carries out effects.
+// A game on a test registry whose route kind is a stand-in: its requirements
+// can be set to hold, and `route/depart` carries out effects.
 // ---------------------------------------------------------------------------
 
 interface Lab {

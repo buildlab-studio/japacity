@@ -60,7 +60,7 @@ export const miniScripts: GoldenScript[] = [
 ];
 
 /**
- * The three first-milestone lives, played through the real content by the
+ * The three recorded lives, played through the real content by the
  * simulated players and recorded by tools/record-lives.ts (`pnpm record:lives`).
  * sweep/lives.test.ts replays them as well. Recorded flat, read as one segment.
  */

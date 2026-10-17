@@ -78,7 +78,7 @@ function ready(options: LifeOptions = {}): Game {
   return game;
 }
 
-/** no route event writes `secret.sponsorFraud`; the override is tested with it set as the event would set it. */
+/** Sets `secret.sponsorFraud` as the agent's `route/gate-updated` event would, so the override is tested on its own. */
 function hideFraud(game: Game): void {
   game.state = { ...game.state, route: { ...game.state.route, [GULF]: { ...routeOf(game), secret: { sponsorFraud: true } } } };
 }

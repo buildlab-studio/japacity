@@ -170,7 +170,7 @@ function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms, rolled = false): B
     entry: entry.id,
     openedMonth: month,
     expiresMonth: month + entry.expiresAfter,
-    // a term handed over by the effect wins over one of the same name. None clash in content.
+    // A term handed over by the effect wins over one of the same name. None clash in content.
     // A luck offer's payment is read from the tuning as a term (R-LUCK-002, 007).
     terms: { ...own, ...luckTerms(readOf(ctx), entry.id), ...bridge, ...parcel, ...extra },
     signs,
@@ -210,11 +210,10 @@ function add(totals: Map<string, number>, key: string, amount: number): void {
 
 /**
  * True when every debit among the effects could be paid now.
- * the first plan says to judge with `money/can-pay`, which counts cash and
- * bank together. That is used for `any` debits and foreign fees; a debit that
- * names one pocket is judged with `money/min` on that pocket, or the agent's
- * cash-only fee could pass with the money in the bank and then not be taken. Debits from one
- * pocket are added up, so two that could each be paid alone but not together
+ * `money/can-pay`, which counts cash and bank together, judges `any` debits
+ * and foreign fees. A debit that names one pocket is judged with `money/min`
+ * on that pocket, or the agent's cash-only fee could pass with the money in
+ * the bank and then not be taken. Debits from one pocket are added up, so two that could each be paid alone but not together
  * do not pass. A debit named for cash or the bank is judged against that
  * pocket alone, since the wallet takes it from nowhere else.
  */
@@ -248,7 +247,7 @@ function debitsPayable(read: ReadCtx, judge: Judge, effects: readonly Effect[], 
 
 /**
  * Why a choice may not be taken with this amount, or null when it may. The
- * amount comes first because the conditions and debits read it. 
+ * amount comes first because the conditions and debits read it. The
  * debits are judged on the ordinary effects, never the fraud ones, so whether
  * a choice is allowed never gives a fraud away (R-OFFER-006).
  */
@@ -318,8 +317,8 @@ function honestWork(kind: AgentKind): Pitch | null {
  * R-ADVICE-005, 013, after the fee: a fixer brings the next paper forward by
  * his months, a chaser the next paper she follows up by hers, an overpromiser
  * leaves his promise on the table, a scammer's fake papers come from the
- * content's fraud effects. the next appointment (a school's answer,
- * a visa decision) has no effect to move it, so only a paper moves.
+ * content's fraud effects. The next appointment (a school's answer, a visa
+ * decision) has no effect to move it, so only a paper moves.
  */
 function agentPaid(ctx: Ctx, item: OfferState): BaseEvent[] {
   const kind: AgentKind = kindOf(item);
@@ -403,7 +402,7 @@ function expire(ctx: Ctx): BaseEvent[] {
       const agent = typeof item.terms["agent"] === "string" ? item.terms["agent"] : item.entry;
       events.push(...record(ctx, { type: "offer/promise-broken", id: item.id, agent, month: item.expiresMonth }));
     }
-    // "can be taken" means what offer/choose would accept: its conditions hold and its debits can be paid.
+    // "Can be taken" means what offer/choose would accept: its conditions hold and its debits can be paid.
     if (choice !== undefined && choice.pick === null && choiceProblem(readOf(ctx), judgeIn(ctx), item, choice, undefined) === null) {
       takeChoice(ctx, item, choice, null);
       applied = choice.id;
@@ -453,7 +452,7 @@ export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requi
 /**
  * R-RETURN-003: the returnee group is in the pool for the tuning's months
  * after the last return, and its entries' `when` is judged against that
- * return alone. the record is narrowed to the last return for the
+ * return alone. The record is narrowed to the last return for the
  * judging, so `place/returned` in such a `when` reads the shape of the last
  * return, not of any earlier one. Null: outside the window.
  */
@@ -582,8 +581,8 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
  * The effect `offer/close` (R-PEOPLE-034): the open offer of the named entry
  * closes unanswered, with no choice recorded and nothing paid. R-OFFER-007
  * keeps one open offer to an entry, so there is at most one.
- * the page does not say what an offer not open does; read as nothing,
- * since the other life's handling may arrive after this copy lapsed or was answered.
+ * An offer that is not open does nothing, since the other life's handling may
+ * arrive after this copy lapsed or was answered.
  */
 function closeEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "offer/close") throw new Error(`offer/close cannot carry out ${effect.type}.`);

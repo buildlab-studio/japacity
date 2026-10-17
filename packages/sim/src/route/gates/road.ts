@@ -1,5 +1,5 @@
-// The road: docs/rules/road.md R-ROAD-001 to 012, under the fifteen rules of
-// docs/brainstorm/02 section 6. The chain runs in `clocks`.
+// The road: docs/rules/road.md R-ROAD-001 to 012, under the dangerous route's
+// rules in prose on the same page. The chain runs in `clocks`.
 //
 // The gate's state carries the step, the months at it and, before the chain
 // starts, the money the men will ask for. Its notes name lines `line.route.<note>`.
@@ -75,8 +75,8 @@ function heldOf(read: ReadCtx, entry: RouteEntry): RouteState {
 
 /** R-ROAD-003: a real-ish connection, kept hidden on the route's secret. */
 function realish(held: RouteState): boolean {
-  // the route's only hidden field is `secret.sponsorFraud`, so the road keeps "the connection is real-ish"
-  // there; R-ROAD-003 wants a hidden kind of its own on the route (`secret.roadKind`, or a hidden field on the gate state).
+  // The route's only hidden field is `secret.sponsorFraud`, so the road keeps "the connection is real-ish" there,
+  // where R-ROAD-003 wants a hidden kind of its own on the route (an open question in road.md).
   return held.secret.sponsorFraud === true;
 }
 
@@ -164,7 +164,7 @@ function arrive(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
  * R-ROAD-006: whether a step's time is up after `months` there. A step lasts a
  * whole number of months drawn evenly from its range: before the least it is
  * not up, at the most it is, and between them it is up with one chance in the
- * months left to the most, a draw on `road`. drawn month by month so
+ * months left to the most, a draw on `road`. It is drawn month by month so
  * the length needs no field of its own, and a range of 0 is up on arrival.
  */
 function timeUp(ctx: Ctx, step: RoadStep, months: number): boolean {
@@ -175,7 +175,7 @@ function timeUp(ctx: Ctx, step: RoadStep, months: number): boolean {
 }
 
 /**
- * Enters the step at `index`, or arrives past the last. a step whose
+ * Enters the step at `index`, or arrives past the last. A step whose
  * drawn length is 0 months (the compound may be) is passed by with no outcome
  * draw, and the chain goes straight to the step after it.
  */
@@ -192,7 +192,7 @@ function enter(ctx: Ctx, entry: RouteEntry, index: number): BaseEvent[] {
  * the compound's also opens the agent's debt for the call's sum, so the debt
  * is what the men say is owed whether or not the family pays, and an unpaid
  * call adds the sum again (`cannot` in content opens the same debt, which
- * grows it). the call is opened first so its drawn sum is the debt's.
+ * grows it). The call is opened first so its drawn sum is the debt's.
  */
 function hold(ctx: Ctx, entry: RouteEntry, step: RoadStep, months: number): BaseEvent[] {
   const events = update(ctx, entry, { gate: "road", step: step.id, monthsHere: months, debt: 0 }, "road-held");
@@ -206,7 +206,7 @@ function hold(ctx: Ctx, entry: RouteEntry, step: RoadStep, months: number): Base
 
 /**
  * R-ROAD-006: the outcome draw on `road` from the step's row. A real-ish
- * connection halves `held` (road.md, "Entries"). the half taken off
+ * connection halves `held` (road.md, "Entries"). The half taken off
  * `held` goes to `on`, so the row still adds up to 10000.
  */
 export function outcomeOf(step: RoadStep, halved: boolean, roll: number): "on" | "held" | "turned" | "lost" {
@@ -220,7 +220,7 @@ export function outcomeOf(step: RoadStep, halved: boolean, roll: number): "on" |
 
 /**
  * Whether the last month was a held one at this step: the ransom call every
- * `held` opens was opened last month. read from the offer record so
+ * `held` opens was opened last month. It is read from the offer record so
  * the gate needs no flag of its own; a held month is followed by an outcome
  * draw, never by more waiting out the step's time.
  */
@@ -298,7 +298,7 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 /**
  * R-ROAD-003: a pitch taken that is not a fraud. The offer kind's draw on
  * `road` hands over the kind as the term `kind`; the deposit is the term
- * `deposit`. the `more` the truth asks for (R-ROAD-005) is the deposit
+ * `deposit`. The `more` the truth asks for (R-ROAD-005) is the deposit
  * again, kept as the gate's `debt` until the truth: the page names no figure
  * for it, and a term on the pitch would show it in the offer's view.
  */
@@ -312,7 +312,7 @@ function night(ctx: Ctx, entry: RouteEntry, cause: Cause): BaseEvent[] {
 
 /**
  * R-ROAD-005: paying or calling home sets the character on the road. Paying
- * takes the money asked from cash. what cash cannot cover is not
+ * takes the money asked from cash. What cash cannot cover is not
  * waved through; it opens as the agent's debt, the money the men say you owe.
  * Calling home takes family means, one point for each ₦100,000; the stake and
  * the standing are the answer's own effects in content. Then the home
@@ -339,7 +339,7 @@ function setOff(ctx: Ctx, entry: RouteEntry, gate: RoadState, how: "pay" | "call
     { type: "obligation/close", obligationType: "upkeep" },
     { type: "obligation/close", obligationType: "support" },
     { type: "obligation/close", obligationType: "rent" },
-    // a job at home cannot be held from the road.
+    // A job at home cannot be held from the road.
     { type: "activity/end-job", why: "road" },
   );
   ctx.apply(effects, cause);
@@ -390,7 +390,7 @@ function roadStep(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
  * quietly, as a fraud does: the deposit is the only loss, and an answer to a
  * scene still open moves nothing.
  */
-// the page is silent on a flight between the pitch and the truth; the kinder reading lets the visa win.
+// The page is silent on a flight between the pitch and the truth; the kinder reading lets the visa win.
 // The open scene closes unscored (the effect setpiece/close).
 export function endBeforeSettingOff(ctx: Ctx): BaseEvent[] {
   const entry = Object.values(ctx.content.route).find((candidate) => candidate.gate === "road");
@@ -410,7 +410,7 @@ export function endBeforeSettingOff(ctx: Ctx): BaseEvent[] {
 
 /**
  * R-ROAD-008 and 011: once the chain ends, the card is the real-story card, or
- * on the ending the ending card, which carries it too. the card holds
+ * on the ending the ending card, which carries it too. The card holds
  * for the month the chain ended in and settles at the next month's clocks; the
  * ending never settles. A fraud never began the chain and shows none. The
  * credits are the content's `road.real-story.*` keys.
@@ -454,7 +454,7 @@ export const roadGate: Gate = {
   effects: { "route/road-step": roadStep },
   funds: () => null,
   // R-ROAD-001 keeps the road out of the routes view, so this part is never shown; the chain is seen
-  // through `place.where`, the report lines and the card. A card for the chain under way needs a place in the view.
+  // through `place.where`, the report lines and the card (an open question in road.md).
   view: (_read, _entry, held) => {
     const gate = roadOf(held);
     return { gate: "road", step: gate.step, monthsHere: gate.monthsHere };

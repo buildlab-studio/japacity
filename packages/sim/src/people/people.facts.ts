@@ -45,7 +45,7 @@ export function factsOf(state: State, content: Content, world: World): PersonFac
     meetsFloor: floorsMet(read),
     eduLevel: state.quality[EDUCATION] ?? 0,
     englishBand: english?.state === "held" ? english.value : null,
-    // a fixed life has no family draw, and the fixed lives all start in the city.
+    // A fixed life has no family draw, and the fixed lives all start in the city.
     home: state.prologue.draw?.town ?? "city",
     joint: jointRoute === null || jointState === null ? null : { route: jointRoute, state: jointState },
     funds,
@@ -63,7 +63,7 @@ function abroadAt(entry: PersonEntry, month: number): boolean {
 /**
  * R-PEOPLE-046 to 048: a computer character's facts, built from its entry at
  * the character's month. Its age is kept on the bond and moves with the months.
- * a computer's status never runs out, so `statusMonthsLeft` is null.
+ * A computer's status never runs out, so `statusMonthsLeft` is null.
  */
 export function computerFacts(read: ReadCtx, entry: PersonEntry, ageMonths: number, month: number): PersonFacts {
   const { profile } = entry;

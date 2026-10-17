@@ -1,6 +1,6 @@
 // A small game handle for rule tests: start a life, send commands, end turns,
-// read the view. The tick advances by one for each turn played, as the first
-// milestone's clock does (engine.md section 7).
+// read the view. The tick advances by one for each turn played, as the
+// in-browser authority's clock does (engine.md section 7).
 import type { Registry } from "../engine/kind";
 import { newSave, recordCommand } from "../engine/replay";
 import { newState } from "../engine/state";

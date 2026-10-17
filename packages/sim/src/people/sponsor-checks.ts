@@ -123,7 +123,7 @@ export function sponsorBarUntil(read: ReadCtx): number | null {
 
 /**
  * R-UNDERTAKING-005: an undertaking in default bars every sponsorship; one
- * still running bars a new one into its own country. an undertaking
+ * still running bars a new one into its own country. An undertaking
  * names no country, so it is the country whose currency it is owed in.
  */
 function undertakingBars(read: ReadCtx, route: Id<"route">): SponsorCheck | null {

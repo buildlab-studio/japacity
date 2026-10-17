@@ -18,7 +18,7 @@ const abroad = lifeScripts.filter((script) => script.name.endsWith("-abroad"));
 
 describe("the three real lives as golden scripts", () => {
   test("[R-ENGINE-010] given the scripts, when listed, then there is one to the flight and one abroad for each starting life", () => {
-    // The three first-milestone lives. Ngozi's route needs the gates of the whole-life milestone before she can be scripted.
+    // The three recorded lives. Ngozi, a scenario as well, has none.
     expect(flights.map((script) => lifeStart(script.save)?.scenario).sort()).toEqual(["scenario.ada", "scenario.tunde", "scenario.zainab"]);
     expect(abroad.map((script) => lifeStart(script.save)?.scenario).sort()).toEqual(["scenario.ada", "scenario.tunde", "scenario.zainab"]);
     for (const script of lifeScripts) expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();
@@ -39,7 +39,7 @@ describe("the three real lives as golden scripts", () => {
       expect(state.route["route.uk-masters"]?.state).toBe("departed");
       expect(state.turn.month).toBeGreaterThanOrEqual(FLIGHT_WINDOW.first);
       expect(state.turn.month).toBeLessThanOrEqual(FLIGHT_WINDOW.last);
-      // Chapter 3 is left out on purpose: a borrower whose held funds lapse while the visa is decided flies with it open (see the playtest report).
+      // Chapter 3 is left out on purpose: a borrower whose held funds lapse while the visa is decided flies with it open.
       expect(state.chapter.done).toEqual(expect.arrayContaining(["chapter.find-your-feet", "chapter.build-the-file"]));
 
       const saved = savedCommands(script.save);

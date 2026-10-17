@@ -170,7 +170,7 @@ function listsOf(content: Content, bond: Bond): { spots: readonly string[]; what
     const [first, ...rest] = lists;
     return first === undefined ? [] : first.filter((item) => rest.every((list) => list.includes(item)));
   };
-  // a real pair draws from the spots in content and the whats and calls every computer partner shares.
+  // A real pair draws from the spots in content and the whats and calls every computer partner shares.
   return { spots: content.people.spots, whats: shared((entry) => entry.whats), calls: shared((entry) => entry.calls) };
 }
 
@@ -445,7 +445,7 @@ function agree(ctx: Ctx, id: string, proposal: Proposal): BaseEvent[] | Rejectio
       const route = ctx.content.route[proposal.route];
       if (route === undefined) return reject("unknown-id", `There is no route ${proposal.route}.`);
       const events = record(ctx, [agreed]);
-      // no effect moves a route straight to known (R-PEOPLE-021), so the dependant route is heard of and the gate reads the joint.
+      // No effect moves a route straight to known (R-PEOPLE-021), so the dependant route is heard of and the gate reads the joint.
       if (proposal.lead === "them" && route.dependants !== null) events.push(...ctx.apply([{ type: "route/hear", route: route.dependants, via: "partner" }], cause));
       return events;
     }
@@ -732,7 +732,7 @@ function authority(ctx: Ctx, sent: Command): BaseEvent[] | Rejection {
 /**
  * R-PEOPLE-050: taking the papers offer opens a bond at `married` with no
  * moments and a joint on the partner route into the person's country, with
- * the person as sponsor. the offer's `take` choice carries this as a
+ * the person as sponsor. The offer's `take` choice carries this as a
  * `people/moment` of kind `wedding`, since no effect opens a bond.
  */
 function papersMarriage(ctx: Ctx): BaseEvent[] {
@@ -757,7 +757,7 @@ function papersMarriage(ctx: Ctx): BaseEvent[] {
 /**
  * The bond a slot's time goes to (R-PEOPLE-014): the one the param names, or
  * else the bond at courting or later that has waited longest for a moment.
- * an activity's `param` has no `bond` kind, so a slot cannot name one.
+ * An activity's `param` has no `bond` kind, so a slot cannot name one.
  */
 function bondFor(ctx: Ctx, kind: Moment["kind"], param: string | null): string | null {
   const together = kind === "met";
@@ -883,7 +883,7 @@ function newBond(withWhom: Bond["with"], role: Bond["role"], stage: BondStage, m
     firstMonth: null,
     partnerMonth: null,
     marriedMonth: null,
-    // courting starts the patience clock (R-PEOPLE-042), so a bond with no moment yet can drift too.
+    // Courting starts the patience clock (R-PEOPLE-042), so a bond with no moment yet can drift too.
     lastMomentMonth: month,
     moments: [],
     facts,

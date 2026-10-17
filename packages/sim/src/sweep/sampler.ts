@@ -6,7 +6,7 @@ import { legalCommands } from "../testing/legal";
 import type { Loose } from "../testing/play";
 
 /**
- * R-STATUS-006. The view's `renew` carries the fee and the surcharge. 
+ * R-STATUS-006. The view's `renew` carries the fee and the surcharge. It is
  * offered when the status's own currency's bank pocket alone covers both and,
  * on a one-employer status, a job is held.
  */

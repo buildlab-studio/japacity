@@ -38,7 +38,7 @@ describe("the step function", () => {
     a.endTurn();
     b.endTurn();
     const strip = (state: State) => ({ ...state, seed: "" });
-    // The stubs draw nothing yet, so the lives are the same apart from the seed itself.
+    // One turn of this life draws nothing, so the lives are the same apart from the seed itself.
     expect(strip(a.state)).toEqual(strip(b.state));
     expect(a.state.seed).not.toBe(b.state.seed);
   });

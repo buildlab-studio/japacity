@@ -56,7 +56,7 @@ function play(options: { scenario?: Id<"scenario">; content?: Content; vars?: Li
   return { game, live };
 }
 
-/** Carries out effects through the engine, as an offer choice would. The offer stub has no command, so nothing real is replaced. */
+/** Carries out effects through the engine, as an offer choice would, in place of the offer kind's own `offer/choose`. */
 function apply(game: Game, effects: Effect[]): Extract<StepResult, { ok: true }> {
   const kinds = registry().map((kind) =>
     kind.kind !== "offer"

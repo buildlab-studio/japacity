@@ -12,8 +12,8 @@ const DAY = 86_400_000;
 const pair = content.tuning.pair;
 
 /**
- * Ada with an invite open on her partner slot. The people kind's commands are
- * not built yet, so the slot is set as `people/invite` would leave it.
+ * Ada with an invite open on her partner slot, set straight to what
+ * `people/invite` leaves, so the card is tested on its own.
  */
 function adaInviting(looking: string, fill: string | null, slot = "partner"): ReadCtx {
   const game = start({ scenario: "scenario.ada", content });

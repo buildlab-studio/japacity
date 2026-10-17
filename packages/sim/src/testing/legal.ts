@@ -67,7 +67,7 @@ const TOGETHER: readonly string[] = ["partner", "married"];
 /**
  * R-PEOPLE-016: partners asked of a courting bond with the moments for it,
  * while nothing else is waiting on it, no other bond is together and the
- * cooldown after a no has passed. marriage is not sampled, because
+ * cooldown after a no has passed. Marriage is not sampled, because
  * the view carries no `partnerMonth` to tell the months as partners.
  */
 function proposals(view: PlayerView): Loose[] {
@@ -160,7 +160,7 @@ const SMALL_REPAY = 100000;
 
 /**
  * The loans in the shipped content and their currencies. The view carries
- * neither an entry's type nor its currency. the sampler names them;
+ * neither an entry's type nor its currency, so the sampler names them;
  * a loan it does not know is merely not sampled.
  */
 const LOANS: Record<string, Currency> = {
@@ -201,7 +201,7 @@ function fromObligations(view: PlayerView): Loose[] {
 
 /**
  * The view carries neither a school's deposit nor the flight's price, nor
- * which obligations hold funds. the sampler offers the deposit only
+ * which obligations hold funds. The sampler offers the deposit only
  * when the pound pockets alone hold the dearest deposit in the shipped
  * content, the flight only when naira cash and bank hold the shipped flight,
  * and never while an obligation whose entry names held funds is open. A
@@ -228,7 +228,7 @@ function fromRoute(view: PlayerView): Loose[] {
 }
 
 /**
- * Coming home (R-PLACE-004). The view carries no fare. the sampler
+ * Coming home (R-PLACE-004). The view carries no fare. The sampler
  * offers the return when the character holds no lawful status (none, or a
  * cash-only one, which in content is always the overstayer's), since that is
  * accepted whether or not the fare can be paid; otherwise only when the
@@ -275,7 +275,7 @@ function fromActivity(view: PlayerView): Loose[] {
 
 /**
  * R-LOTTERY-003: one ticket while the cap and the naira bank allow it.
- * the server's world shows a closed draw from its close until the
+ * The server's world shows a closed draw from its close until the
  * next draw opens with its result (`lotteryFor`), and the view carries no tick
  * to tell it from a draw on sale, so in that window this offers a ticket the
  * kind refuses. `PlayerView.lottery.onSale` would let it offer none.
@@ -291,7 +291,7 @@ function fromLottery(view: PlayerView): Loose[] {
 
 /**
  * Every legal command the sample knows how to build from this view. Commands
- * whose kind has no handler yet are left out, so the list grows as kinds are built.
+ * it cannot build from the view are left out.
  */
 export function legalCommands(view: PlayerView): Loose[] {
   if (view.ended) return [];

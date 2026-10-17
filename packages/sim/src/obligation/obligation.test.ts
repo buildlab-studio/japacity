@@ -37,8 +37,8 @@ function entryOf(id: Id<"obligation">): ObligationEntry {
 const ADA_UPKEEP = content.scenario[ADA]!.obligations[0]!.amount;
 
 /**
- * Carries out effects through the engine. The route kind does not handle
- * `route/depart` yet, so a test registry gives it a handler that applies them.
+ * Carries out effects through the engine: a test registry swaps the route
+ * kind's own `route/depart` for a handler that applies them.
  */
 function apply(game: Game, effects: Effect[], terms: Terms = {}): Accepted {
   const kinds = registry().map((kind) =>

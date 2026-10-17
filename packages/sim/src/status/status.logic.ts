@@ -34,7 +34,6 @@ import { leadStatusMonths } from "../route/gates/dependant";
 import type { GrantWhy, LapseWhy, StatusEvent } from "./status.events";
 
 const MONTHS_PER_YEAR = 12;
-/** R-STATUS-011: months held before a course counts as passed. no tuning field holds it. */
 
 // ---------------------------------------------------------------------------
 // Reading
@@ -66,7 +65,7 @@ export function isOverstayer(content: Content, id: Id<"status">): boolean {
 
 /**
  * A settled, citizen or permanent resident status (R-PLACE-005, R-RETURN-004).
- * the contract has no field for it, so it is a status that never
+ * The contract has no field for it, so it is a status that never
  * expires and is not its country's overstayer.
  */
 export function isKept(content: Content, id: Id<"status">): boolean {
@@ -75,7 +74,7 @@ export function isKept(content: Content, id: Id<"status">): boolean {
 
 /**
  * R-STATUS-002, for the activity kind: whether the current status lets the
- * character hold this job. At home, with no status, it says yes. a
+ * character hold this job. At home, with no status, it says yes. A
  * `one-employer` status allows the job it names and, by R-LADDER-005, any job
  * marked `sponsor`, which carries a certificate of its own.
  */
@@ -202,7 +201,7 @@ function grantEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
 
 /**
  * Abroad a lost status lapses (R-ABROAD-005 withdraws a student this way).
- * at home the same effect closes the status with nothing after it,
+ * At home the same effect closes the status with nothing after it,
  * which is how a return closes every status (R-PLACE-004).
  */
 function lose(ctx: Ctx): BaseEvent[] {
@@ -223,7 +222,7 @@ function clockStart(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-STATUS-008. the ban on the country's routes is not applied as an
+ * R-STATUS-008. The ban on the country's routes is not applied as an
  * effect, since the contract has none; the route kind reads `status.removals`
  * with `removalBanMonths` and `place.returns` (R-PLACE-008).
  */
@@ -327,7 +326,7 @@ function runClock(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-STATUS-004 and 011. the course rule is read for any status that
+ * R-STATUS-004 and 011. The course rule is read for any status that
  * moves on to a `next` by its clock, which in content is only the student's.
  */
 function expire(ctx: Ctx): BaseEvent[] {

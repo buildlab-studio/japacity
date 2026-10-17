@@ -231,7 +231,7 @@ export function writeEvent(record: PairRecord, from: Side, write: PairWrite): Pa
     case "pair/deleted": {
       if (record[from] === "") return record;
       const ended = live ? endWith(record, "deleted", write.tick) : record;
-      // the record's id still carries both character ids, as the server's key and the moderator's lookup while held.
+      // The record's id still carries both character ids, as the server's key and the moderator's lookup while held.
       const consent = bySide(ended.consent, from, { countFunds: false, standInMay: false });
       return from === "a" ? { ...ended, a: "", consent } : { ...ended, b: "", consent };
     }
@@ -321,7 +321,7 @@ function interviewFor(record: PairRecord, mine: Side): PairView["interview"] {
  * The record as one of its two sides may read it, or null for anyone else
  * (R-PAIR-006). Never the other side's consents, its interview answers before
  * scoring, its block, or whether a report holds the record.
- * the page hides only the answers and the report; the brief hides the other's consents too, and this follows the brief.
+ * R-PAIR-006 names only the answers and the report; the other side's consents and block are hidden as well.
  */
 export function pairView(record: PairRecord, me: string): PairView | null {
   if (me === "" || (record.a !== me && record.b !== me)) return null;

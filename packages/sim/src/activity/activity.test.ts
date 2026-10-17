@@ -42,8 +42,8 @@ const UK: Id<"route"> = "route.uk-masters";
 const hireTuning = content.tuning.quality;
 
 // ---------------------------------------------------------------------------
-// Stand-ins for kinds that are not built yet, so these tests can see the
-// effects the activity kind sends. They live here, not in the registry.
+// Stand-ins for the kinds the activity kind sends effects to, so these tests
+// can see those effects. They live here, not in the registry.
 // ---------------------------------------------------------------------------
 
 /** What the stand-in wallet records: which effect asked, and what moved. */

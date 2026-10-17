@@ -119,10 +119,11 @@ function schoolOf(content: Content, id: Id<"school">): SchoolEntry {
 }
 
 /**
- * A world variable the route reads by name. a route entry names only
- * its window, so the living line, living months, strictness and surcharge are
+ * A world variable the route reads by name. A route entry names only its
+ * window, so the living line, living months, strictness and surcharge are
  * the UK's variables for every route. The engine's mini content has none of
- * them, so a missing one reads as 0 there; the real content has all four.
+ * them, so a missing one reads as 0 there; the real content has all four
+ * (an open question in route-gates.md).
  */
 function ukVar(read: ReadCtx, id: Id<"var">): number {
   return worldVarOr(read.world, id);
@@ -233,10 +234,10 @@ export function nairaThroughFee(kobo: number, rate: number, chargeBp: number): n
  * route's own currency, bank and locked, in full; other foreign bank pockets at
  * the official rate; the naira bank through the fee path (`nairaThroughFee`).
  * Held funds in naira and the family's support stay behind, so they do not count.
- * the amendment does not name the support or locked naira; they are read as money that does not fly.
- * `fundsShown` does not call this yet. With it, all three recorded lives on the study route (ada-careful,
- * tunde-borrower, ada-abroad) stop replaying at their visa application or a later payment; it waits on the lives
- * being recorded again.
+ * The rule does not name the support or locked naira; they are read as money that does not fly.
+ * `fundsShown` does not call this: with it, all three recorded lives on the study route (ada-careful,
+ * tunde-borrower, ada-abroad) stop replaying at their visa application or a later payment, so the switch
+ * needs the lives recorded again.
  */
 export function flyingFundsShown(read: ReadCtx, route: Id<"route">): number {
   const rates = officialRates(read.world);
@@ -545,7 +546,7 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const held = ownOf(ctx.state.route, command.route);
   if (entry === undefined || held === undefined) return reject("unknown-id", `There is no route ${String(command.route)}.`);
   if (held.state !== "granted") return reject("not-legal", "Only a granted route can be flown.");
-  // the page is silent on a flight from the road; R-ROAD-005 makes the chain the month's only business there.
+  // The page is silent on a flight from the road; R-ROAD-005 makes the chain the month's only business there.
   if (ctx.state.place.where === "road") return reject("not-legal", "No flight leaves from the road.");
   const holding = Object.values(ctx.state.obligation.items).some((item) => ctx.content.obligation[item.entry]?.type === "held-funds");
   if (holding) return reject("not-legal", "Held funds are still open. They must be returned before you fly.");
@@ -569,7 +570,7 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
   if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
   // R-LADDER-005: the sponsor's job is the job held on arrival. R-PLACE-003: a home job does not fly.
-  // activity.md is silent on when; read as the moment of the flight, so no job is held that cannot be worked.
+  // activity.md is silent on when; it is the moment of the flight, so no job is held that cannot be worked.
   ctx.apply([job === null ? { type: "activity/end-job", why: "moved" } : { type: "activity/start-job", job }, { type: "activity/end-job", why: "moved", side: true }], cause);
   // R-PEOPLE-027: an arrival through a partner is recorded for the bar and the assistance count (R-UNDERTAKING-004, 010).
   if (entry.gate === "partner") ctx.apply([{ type: "people/arrived", route: entry.id }], cause);
@@ -629,8 +630,8 @@ function schoolsAnswer(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 }
 
 /**
- * R-ROUTE-011. "no visa application pending" is read as the route
- * being `known`: a route applying has one pending, and a granted or departed
+ * R-ROUTE-011. "No visa application pending" is read as the route being
+ * `known`: a route applying has one pending, and a granted or departed
  * route has nothing left to show funds for.
  */
 function fundsCheck(ctx: Ctx, route: Id<"route">): BaseEvent[] {
@@ -656,9 +657,9 @@ export function papersOf(entry: RouteEntry): Id<"document">[] {
  * R-ADVICE-008: a route refuses an application that rests on fake papers,
  * before any draw, with the reason `agent` (the agent's papers did not hold
  * up). Every route's checklist asks for its papers to be genuine, judged by
- * `document/genuine` on each paper held. no ban, since nothing here
- * takes a status or ends a life; whether a fake knowingly used
- * should carry R-GATE-005's deception ban.
+ * `document/genuine` on each paper held. No ban, since nothing here takes a
+ * status or ends a life, so a fake knowingly used carries no R-GATE-005
+ * deception ban.
  */
 function withPapers(read: ReadCtx, entry: RouteEntry, decision: Decision): Decision {
   if (decision.wait === true || decision.override !== null) return decision;

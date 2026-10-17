@@ -105,7 +105,7 @@ const AUTHORITY_SAMPLES: Record<AuthorityCommand, Loose[]> = {
     { type: "wallet/top-up", amount: 0 },
     { type: "wallet/top-up", amount: -500000 },
   ],
-  // The people milestone's commands from the authority: refused by the stubs until the people agents build them, and then still no money.
+  // The people commands from the authority: none of them moves money.
   "people/link": [{ type: "people/link", slot: "partner", pair: "pair-1", facts: FACTS }],
   "people/facts": [{ type: "people/facts", pair: "pair-1", facts: FACTS }],
   "people/moments": [{ type: "people/moments", pair: "pair-1", moments: [{ n: 1, by: "them", kind: "met", spot: "spot.bar", what: "what.jollof", tick: 1 }] }],
@@ -215,7 +215,7 @@ function send(state: State, loose: Loose, sender: Sender) {
 const LIVES = lives();
 
 describe("the authority's reach", () => {
-  test("[R-SERVER-013] given the simulation, when its authority commands are listed, then they are the closed list: the turn grant, the draw's payout, and the people milestone's messages from another life (decision 0007)", () => {
+  test("[R-SERVER-013] given the simulation, when its authority commands are listed, then they are the closed list: the turn grant, the draw's payout, and the people messages from another life (decision 0007)", () => {
     expect([...AUTHORITY_COMMANDS].sort()).toEqual(
       [
         "turns/grant",
@@ -261,7 +261,7 @@ describe("the authority's reach", () => {
         const result = send(state, sample, "authority");
         const after = result.ok ? result.state : state;
         const prizes = sample.type === "lottery/pay" ? sample.prizes.reduce((sum, prize) => sum + prize.amount, 0) : 0;
-        // Until the lottery kind pays, its stub refuses with not-legal; a life in its prologue refuses every command but the prologue's.
+        // A payout the lottery kind refuses comes back not-legal; a life in its prologue refuses every command but the prologue's.
         expect(["accepted", "not-legal", "prologue-open"]).toContain(result.ok ? "accepted" : result.code);
         expect(ledgerProblems(state, after, (reason, currency) => reason === "win" && currency === "NGN")).toEqual([]);
         expect(after.wallet.pockets.NGN.bank - state.wallet.pockets.NGN.bank).toBeLessThanOrEqual(prizes);

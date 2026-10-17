@@ -50,9 +50,10 @@ export function carryOut(game: Game, effects: Effect[]): Accepted {
 }
 
 /**
- * Writes a route's state straight into the game's state. Only for states no
- * rule reaches: nothing in this milestone sets `refused` (route.md), and no
- * event takes a route back along an arrow (R-ROUTE-001).
+ * Writes a route's state straight into the game's state, for states a test
+ * cannot reach in a few commands: `refused` comes only from a ban after a
+ * refusal (R-GATE-005), and no event takes a route back along an arrow
+ * (R-ROUTE-001).
  */
 export function writeRoute(game: Game, route: Id<"route">, to: "refused" | "heard"): void {
   const held = game.state.route[route];

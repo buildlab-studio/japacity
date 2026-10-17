@@ -2,7 +2,7 @@
 // section 2, item 4): the money held for the road against the plan's whole cost, the stamps, the pace and the roads,
 // worked by the simulation. The tests also cite the rules it rests on: the Bank's figure (R-WORLD-019), the months kept
 // (R-WALLET-015), the side job (R-ACTIVITY-010), the circle (R-LUCK-009), the scholarship (R-LUCK-010), moments for the
-// systems built after launch (R-MOMENT-008), determinism and the saves (R-ENGINE-001, 009, 010, R-SERVER-022).
+// systems built on top (R-MOMENT-008), determinism and the saves (R-ENGINE-001, 009, 010, R-SERVER-022).
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

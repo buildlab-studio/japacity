@@ -41,8 +41,8 @@ function isOpen(read: ReadCtx, entry: Id<"offer">): boolean {
 
 /**
  * The prices come from `tuning.health`, so an overlay of the tuning moves them
- * (R-ENGINE-017). health.md gives no place for illness, so it is
- * rolled abroad too, at the naira prices; the page gives no prices abroad.
+ * (R-ENGINE-017). health.md gives no place for illness, so it is rolled
+ * abroad too, at the naira prices; the page gives no prices abroad.
  */
 export function illnessTerms(read: ReadCtx): Terms {
   return { hospital: read.content.tuning.health.hospital, chemist: read.content.tuning.health.chemist };
@@ -66,8 +66,8 @@ function setCourse(ctx: Ctx, step: CourseStep): BaseEvent[] {
 
 /**
  * The last month an illness could have closed: the month it opened and its
- * time to lapse. the offer kind keeps when an offer opened, not when
- * it was answered, so the gap is counted from the latest the illness could
+ * time to lapse. The offer kind keeps when an offer opened, not when it was
+ * answered, so the gap is counted from the latest the illness could
  * have closed, which is never earlier than it really did.
  */
 function lastIllnessClosed(read: ReadCtx): number | null {
@@ -86,7 +86,7 @@ function lastIllnessClosed(read: ReadCtx): number | null {
  * Whether illness may be rolled this month: run down since a month before
  * (R-HEALTH-001, R-HEALTH-002), nothing of the last illness pending, past the
  * gap since it closed and no forced month in the last twelve (R-HEALTH-005).
- * never on the road, where the month is the chain's own (R-ROAD-005).
+ * Never on the road, where the month is the chain's own (R-ROAD-005).
  */
 export function mayFallIll(read: ReadCtx): boolean {
   const { state, content } = read;
@@ -107,8 +107,8 @@ function relapse(ctx: Ctx, worse: OfferEntry, step: "chemist" | "ignored", open:
 
 /**
  * R-HEALTH-003: either way wellbeing returns to the entry's `wellbeing` term,
- * once the worse turn is over. this lands at the first come-up after
- * it closes, a month of rest or nursing later. Left unanswered when the
+ * once the worse turn is over. This happens at the first come-up after it
+ * closes, a month of rest or nursing later. Left unanswered when the
  * hospital could have been paid, its lapse choice (`cannot`) fails its
  * condition and the offer kind applies nothing; it is applied here all the
  * same, since the family nursed you whether or not there was money.
@@ -147,12 +147,13 @@ function afterIllness(ctx: Ctx, worse: OfferEntry, open: OpenOffer): BaseEvent[]
  * The health roll in the `come-up` phase, every draw on the stream `health`
  * (R-HEALTH-002): first what the last illness leaves (a relapse, or the
  * recovery from the worse turn), then a new illness at
- * `tuning.health.illnessBp` when it may come. the illness is not
- * counted against the month's limits on new and open offers (R-OFFER-001),
+ * `tuning.health.illnessBp` when it may come. The illness is not counted
+ * against the month's limits on new and open offers (R-OFFER-001),
  * since it is no offer the character could have avoided by having others open.
- * the illness is marked `bad`, and R-LUCK-003 halves a bad entry's
- * chance while wellbeing is under 30, which is always so when illness rolls.
- * It is rolled here at the full `illnessBp`, as R-HEALTH-002 and its numbers say.
+ * The illness is marked `bad`, and R-LUCK-003 halves a bad entry's chance
+ * while wellbeing is under 30, which is always so when illness rolls. It is
+ * rolled here at the full `illnessBp`, as R-HEALTH-002 and its numbers say
+ * (an open question in luck.md).
  */
 export function healthComeUp(ctx: Ctx, open: OpenOffer): BaseEvent[] {
   const illness = ctx.content.offer[ILLNESS];

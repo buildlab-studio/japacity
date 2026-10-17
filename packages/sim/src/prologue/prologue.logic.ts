@@ -60,7 +60,7 @@ const START = /^start-(\d+)$/;
 
 /**
  * R-PROLOGUE-005: the headlines pass as these steps are answered, one each. Every path passes both.
- * the page names no steps; the school certificate and the send-off are the two every path shares.
+ * The page names no steps; the school certificate and the send-off are the two every path shares.
  */
 const HEADLINE_STEPS: readonly string[] = [AFTER_SCHOOL, "friend"];
 
@@ -324,7 +324,7 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     type: "prologue/chosen",
     step: step.id,
     answer: answer.id,
-    // the outcome is kept as its words key, so the next card can say it without knowing the step it came from.
+    // The outcome is kept as its words key, so the next card can say it without knowing the step it came from.
     outcome: outcome === null ? null : `prologue.${step.id}.outcome.${outcome.id}`,
     next,
     flags: answer.flags,

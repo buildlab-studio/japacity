@@ -71,7 +71,7 @@ export function sponsorJob(entry: RouteEntry): Id<"activity"> {
 
 /**
  * R-SPONSOR-001: the route's find figure plus 20 for each point of network,
- * capped at 9500. the 20 and the cap are the job hunt's network
+ * capped at 9500. The 20 and the cap are the job hunt's network
  * figures in tuning, which are the same two numbers.
  */
 export function findChanceBp(entry: RouteEntry, network: number, tuning: Tuning["quality"]): number {
@@ -90,7 +90,7 @@ function sponsorOffers(content: Content, route: Id<"route">): OfferEntry[] {
 }
 
 /**
- * R-SPONSOR-001: one draw on `job` at the route's find chance. a hit
+ * R-SPONSOR-001: one draw on `job` at the route's find chance. A hit
  * opens one of the route's sponsor offers whose own conditions hold, picked
  * with one more draw on `job` when more than one does, so the offer's own
  * fraud draw and terms decide the rest as for any offer.
@@ -109,12 +109,9 @@ export function findSponsor(ctx: Ctx, route: Id<"route">): BaseEvent[] {
 }
 
 /**
- * The finds sent with this turn's slots for this route. the content's
+ * The finds sent with this turn's slots for this route. The content's
  * `activity.find-sponsor` carries no effect, so the gate's `clocks` reads the
  * turn's slots and rolls each find there, after the slots and in the same month.
- * the activity's `route` param offers only routes that are heard,
- * and a sponsor route must be known, so no find reaches here through `step`
- * until the param offers known routes for this activity.
  */
 function findsThisTurn(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   // R-ACTIVITY-015: the find is sent now and answered with the month, so the month's now-acts are read with its slots.
@@ -128,7 +125,7 @@ function findsThisTurn(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 
 /**
  * R-SPONSOR-003 for a route with a maintenance line: R-ROUTE-011's month-end
- * check with the line in place of the study figure. it runs while the
+ * check with the line in place of the study figure. It runs while the
  * route is known with a sponsor recorded, as the study check runs with a
  * deposit paid. The funds shown are R-ROUTE-010's, read through the route
  * kind's own requirement. The checklist's `funds` item and the apply

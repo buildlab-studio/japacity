@@ -65,7 +65,7 @@ export function stepRates(before: RateBook, draws: Partial<Record<WorldStream, n
   for (const currency of FOREIGN) {
     if (floats) {
       // R-RATE-004: the street rate stays where it was and the official rate jumps to meet it.
-      // "where it was" is read as the street rate of the tick before, so the street
+      // "Where it was" is the street rate of the tick before, so the street
       // rate skips that tick's drift and noise; the official rate is that over 1.03, rounded down.
       official[currency] = Math.max(1, mulDiv(street[currency], BP_WHOLE, BP_WHOLE + rate.floatPremiumBp));
     } else {

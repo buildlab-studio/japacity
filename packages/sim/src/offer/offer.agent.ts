@@ -28,7 +28,7 @@ export const CHASER: Id<"offer"> = "offer.agent-chaser";
 /** R-ADVICE-013: the papers a chaser follows up. The fixer moves any paper. */
 export const CHASED: readonly Id<"document">[] = ["document.transcript", "document.police-certificate", "document.tb-certificate"];
 /**
- * The term that keeps the kind. the contract's `secret` holds only
+ * The term that keeps the kind. The contract's `secret` holds only
  * `fraud`, so the kind rides as a term the view leaves out (R-ENGINE-007).
  */
 export const KIND_TERM = "kind";

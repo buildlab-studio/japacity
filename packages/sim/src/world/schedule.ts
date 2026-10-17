@@ -94,8 +94,8 @@ export function newsSchedule(worldSeed: string, content: Content): NewsSchedule 
   // a story with no count of ticks that
   // reverts ends on the tick the first story following it comes into force. A
   // follower that waits for this story to end cannot end it, so it is skipped.
-  // the content says only that the scarcity ends when the float comes into
-  // force; this is that ruling made general, since NewsEntry has no field for it.
+  // The content says only that the scarcity ends when the float comes into force;
+  // this is that ruling made general, since NewsEntry has no field for it.
   const endedOf = (id: Id<"news">, ticks: StoryTicks): number | null => {
     const entry = content.news[id];
     if (entry === undefined) return null;

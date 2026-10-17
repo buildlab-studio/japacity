@@ -1513,7 +1513,7 @@ export interface Content {
   guide: Record<Id<"guide">, GuideEntry>;
   analytics: { counters: CounterDef[] };
   points: Record<Id<"points">, PointsEntry>;
-  /** The prologue's steps by id. Empty until the prologue is built. */
+  /** The prologue's steps by id. Empty in content with no prologue. */
   prologue: Record<string, PrologueStep>;
   tuning: Tuning;
 }
@@ -1765,7 +1765,7 @@ export interface RouteState {
   refusals: number;
   lastRefusal: { month: number; reasons: string[] } | null;
   depositRefund: { amount: number; readyMonth: number } | null;
-  /** The gate's own state. Null before the whole-life kinds land. */
+  /** The gate's own state (route-gates.md). A route the route kind makes always has one. */
   gate: RouteGateState | null;
   /** Never in the view. */
   secret: { sponsorFraud: boolean | null };
@@ -2055,7 +2055,7 @@ export type Command = { basedOn: number } & (
   | { type: "lottery/buy"; tickets: number }
   /** Sent by the authority alone, after the draw. */
   | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number }[] }
-  /** Sent by the authority alone (R-WALLET-020, R-SERVER-013): naira bought with real money, marked. No server route sends it yet. */
+  /** Sent by the authority alone (R-WALLET-020, R-SERVER-013): naira bought with real money, marked. No server route sends it. */
   | { type: "wallet/top-up"; amount: number }
   // people (docs/rules/people.md R-PEOPLE-012 to 020, 034 to 040)
   | { type: "people/invite"; slot: string; looking?: string; fill?: string }
@@ -2243,8 +2243,8 @@ export interface FlatSave {
 export type Reply = { ok: true; view: PlayerView; lines: ReportLine[] } | Rejection;
 
 /**
- * Whoever holds the full state. In the first milestone it runs in the tab.
- * Online it is the server, which is why every method is a promise.
+ * Whoever holds the full state: the tab when played offline, the server
+ * online, which is why every method is a promise.
  */
 export interface Authority {
   view(): Promise<PlayerView>;

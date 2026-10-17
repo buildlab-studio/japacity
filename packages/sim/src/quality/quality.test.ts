@@ -19,8 +19,8 @@ const UK: Id<"route"> = "route.uk-masters";
 
 /**
  * A registry where `offer/choose` carries out the given effects, so a test can
- * reach `quality/add` through the engine's own routing. Nothing real handles
- * `offer/choose` yet, so nothing real is replaced.
+ * reach `quality/add` through the engine's own routing. It takes the place of
+ * the offer kind's own `offer/choose`.
  */
 function withEffects(effects: Effect[], source: string): Registry {
   return registry().map((kind) =>

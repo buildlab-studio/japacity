@@ -38,7 +38,7 @@ export function inviteCard(read: ReadCtx, slot: string): InviteCard | null {
   const fills: readonly string[] = INVITE_FILLS[invite.looking];
   if (invite.fill !== null && !fills.includes(invite.fill)) return null;
   return {
-    // a state holds no name of its own, so the card names the scenario's character.
+    // A state holds no name of its own, so the card names the scenario's character.
     name: `${read.state.scenario}.name`,
     japacity: japacity(read),
     looking: {

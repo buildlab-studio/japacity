@@ -15,8 +15,8 @@ const tuning = miniContent.tuning.turn;
 
 /**
  * A registry where `offer/choose` carries out a turn effect, so tests can
- * reach `turn/refill` and `turn/finish` through the engine's own routing. The
- * offer stub has no command handler, so nothing real is replaced.
+ * reach `turn/refill` and `turn/finish` through the engine's own routing. It
+ * takes the place of the offer kind's own `offer/choose`.
  */
 function registryWithEffectCommand(effect: Extract<Effect, { type: `turn/${string}` }>) {
   return registry().map((kind) =>

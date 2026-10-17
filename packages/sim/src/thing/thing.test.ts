@@ -25,7 +25,7 @@ const STANDING: Id<"quality"> = "quality.standing";
 const TECH: Id<"quality"> = "quality.tech";
 const NAP: Id<"activity"> = "activity.nap";
 
-/** The catalogue the first plan names, in its order. */
+/** The catalogue of things, in its order. */
 const CATALOGUE = [
   "thing.fan",
   "thing.radio",

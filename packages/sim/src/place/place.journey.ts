@@ -21,7 +21,7 @@ export function offeredSeed(content: Content): string {
 
 /**
  * The real registry with `obligation/close` carried out by recording what was
- * asked for. The obligation kind does not carry the effect out yet.
+ * asked for, in place of the obligation kind's own handler.
  */
 export function recordingCloses(closed: ObligationType[]): Registry {
   return registry().map((kind) =>

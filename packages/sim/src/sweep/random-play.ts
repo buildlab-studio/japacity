@@ -106,9 +106,8 @@ export function atFlight(name: string, content: Content): Game {
 const FLOWN = new Map<string, { state: State; save: Save; tick: number }>();
 
 /**
- * breaks of the always-true rules this sweep found in the kinds,
- * each with the seed it was found on. A random life
- * that meets one stops there and is counted; any other break fails the test.
+ * Known breaks of the always-true rules in the kinds, each with the seed it
+ * was found on. A random life that meets one stops there and is counted; any other break fails the test.
  */
 export const KNOWN_FINDINGS: { pattern: string; finding: string }[] = [];
 

@@ -60,9 +60,8 @@ export type RouteKindEvent =
   | { type: "route/unbanned"; route: Id<"route"> };
 
 /**
- * news.test.ts stands in for the route kind with the stub's
- * `route/moved` event and reads `to` from any `RouteEvent`, and another kind's
- * test is not this agent's to edit. So the stub's name keeps meaning that one
- * event until the test moves to `RouteKindEvent`.
+ * news.test.ts stands in for the route kind with the stub's `route/moved`
+ * event and reads `to` from any `RouteEvent`, so the name keeps meaning that
+ * one event; the route kind's own events are `RouteKindEvent`.
  */
 export type RouteEvent = Extract<RouteKindEvent, { type: "route/moved" }>;

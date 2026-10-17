@@ -1,7 +1,7 @@
 // Documents: docs/rules/document.md. A document waits in an office, is issued,
 // and usually runs out.
 //
-// the contract keeps one DocumentState per document, so a new copy
+// The contract keeps one DocumentState per document, so a new copy
 // being made while an old one is held (R-DOCUMENT-004) is written as
 // `state: "held"` with the held copy's `expiresMonth` and `value`, and
 // `readyMonth` set to the month the new copy is due. A held document with no
@@ -103,7 +103,7 @@ const SENT: readonly string[] = ["applying", "granted", "departed"];
 /**
  * R-ADVICE-008: a fake paper counts as used once an application rests on it:
  * a route whose checklist asks for the paper has been sent, or was refused
- * for the agent's papers. the record keeps no month of use, so a
+ * for the agent's papers. The record keeps no month of use, so a
  * route's state and its last refusal are what show the use.
  */
 export function usedInApplication(read: ReadCtx, id: Id<"document">): boolean {
@@ -135,7 +135,7 @@ export const HASTEN_TERM = "hasten";
 export const FAKE_TERM = "fake";
 
 /**
- * R-ADVICE-005: a fixer brings the copy being made forward. the
+ * R-ADVICE-005: a fixer brings the copy being made forward. The
  * contract has no effect for this, so it is read as a request for a paper
  * already being made that carries the term `hasten`. Never earlier than the
  * earliest a request at this moment could be issued.
@@ -156,9 +156,9 @@ function request(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const months = cause.terms[HASTEN_TERM];
   if (due !== null && typeof months === "number") return [hasten(ctx, id, due, months)];
   if (due !== null) {
-    // the first plan says a second request returns no events, and also
-    // that the report says nothing happened. A line comes only from an event,
-    // so this one event changes nothing and carries the line. The activity's
+    // A second request changes nothing, yet the report says so, and a line
+    // comes only from an event: this one event changes nothing and carries the
+    // line (an open question in document.md). The activity's
     // fee is already paid by then; that is the activity kind's business.
     const event: DocumentEvent = { type: "document/already-pending", document: id, readyMonth: due };
     return [event];
@@ -177,12 +177,12 @@ function request(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * R-DOCUMENT-006. a grant replaces whatever is there, so a copy being
+ * R-DOCUMENT-006. A grant replaces whatever is there, so a copy being
  * made is the one issued, and the English test draws its band as on any issue.
  */
 function grant(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "document/grant") throw new Error(`The document kind cannot grant from ${effect.type}.`);
-  // R-ADVICE-008. the contract has no effect for fake papers, so a grant whose cause carries the term `fake` makes one.
+  // R-ADVICE-008. The contract has no effect for fake papers, so a grant whose cause carries the term `fake` makes one.
   if (cause.terms[FAKE_TERM] === 1) {
     const entry = entryOf(ctx.content, effect.document);
     const event: DocumentEvent = { type: "document/faked", document: effect.document, expiresMonth: entry.validMonths === null ? null : ctx.state.turn.month + entry.validMonths };

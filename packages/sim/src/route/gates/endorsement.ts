@@ -26,7 +26,7 @@ function gateOf(held: RouteState): EndorsementState {
 
 /**
  * The figure R-ENDORSE-001 asks of a quality, read from the route's own
- * checklist. the points above 3 and above 50 in R-ENDORSE-002 are the
+ * checklist. The points above 3 and above 50 in R-ENDORSE-002 are the
  * bars of R-ENDORSE-001, which the checklist holds, so the chance reads them
  * there rather than keeping a copy in code or in the endorsement block.
  */

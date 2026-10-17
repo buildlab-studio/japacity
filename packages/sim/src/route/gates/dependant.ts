@@ -52,8 +52,8 @@ function leadStanding(read: ReadCtx, entry: RouteEntry, facts: PersonFacts | nul
 
 /**
  * The lead's route: the one the lead's facts or the joint name, else the route
- * that grants the status the lead holds and brings this one. a lead
- * already abroad is taken to have come on that route, for the fee.
+ * that grants the status the lead holds and brings this one. A lead already
+ * abroad is taken to have come on that route, for the fee.
  */
 function leadRoute(read: ReadCtx, entry: RouteEntry, facts: PersonFacts | null): Id<"route"> | null {
   const named = [facts?.joint?.route, read.state.people.joint?.route];

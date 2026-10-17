@@ -111,7 +111,7 @@ function sponsorProblems(content: Content, places: PlaceEntry[]): string[] {
 
 /**
  * R-CITY-023: the road's offers and set pieces are staged only at a stylised place.
- * a set piece carries no group, so a road set piece is one whose slug starts `road-`.
+ * A set piece carries no group, so a road set piece is one whose slug starts `road-`.
  */
 function roadProblems(content: Content, places: PlaceEntry[]): string[] {
   const problems: string[] = [];
