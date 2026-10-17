@@ -787,7 +787,7 @@ export interface CounterDef {
   source: "server" | "client";
 }
 
-/** docs/rules/city.md R-CITY-031: the fixed emote set. */
+/** The fixed emote set of a player's own figure (design page 13, section 5); no screen uses it. */
 export type Emote = "wave" | "clap" | "sit" | "dance";
 
 export interface VarEntry {
