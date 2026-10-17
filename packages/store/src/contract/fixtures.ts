@@ -61,7 +61,7 @@ export function world(tick: number, mark = 0): World {
   };
 }
 
-/** The launch odds of docs/rules/lottery.md, as a draw stores them. */
+/** The odds of docs/rules/lottery.md, as a draw stores them. */
 export const DRAW_ODDS: LotteryOdds = {
   smallPerMillion: 100_000,
   small: 50_000,

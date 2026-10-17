@@ -60,8 +60,8 @@ export const snapshots = pgTable(
 
 /**
  * R-SERVER-003: one row per accepted command, never rewritten. A plain table
- * keyed on (character, v) for now; the split by month waits for the retention
- * rule, since a partitioned table must carry the month in its primary key.
+ * keyed on (character, v), not split by month, since a partitioned table must
+ * carry the month in its primary key.
  */
 export const commandLog = pgTable(
   "command_log",

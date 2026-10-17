@@ -36,7 +36,7 @@ export interface Campaign {
   starts: number;
   ends: number;
   status: CampaignStatus;
-  // the page's Campaign has no category or named place; R-ADVERT-015 to 017 need both on record.
+  // The page's Campaign has no category or named place; R-ADVERT-015 to 017 need both on record.
   category: string;
   place: NamedPlace | null;
 }

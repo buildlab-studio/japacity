@@ -1,4 +1,4 @@
-// The people milestone's in-memory stores, held to the contract every store keeps.
+// The pair side's in-memory stores, held to the contract every store keeps.
 import { suiteForConversationStore, suiteForInviteStore, suiteForModerationStore } from "../contract";
 import { memoryConversationStore, memoryInviteStore, memoryModerationStore } from ".";
 

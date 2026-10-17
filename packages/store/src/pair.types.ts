@@ -1,4 +1,4 @@
-// The stores of the people milestone's server side (pair.md R-PAIR-007 to 016,
+// The stores of the server's pair side (pair.md R-PAIR-007 to 016,
 // moderation.md R-MODERATION-001 to 009): invite links and their rewards,
 // the conversations in preset phrases, and blocks, reports and holds. Times
 // are milliseconds since 1970, passed in by the caller.
@@ -147,7 +147,7 @@ export interface HoldRow {
 
 export type NewReport = Omit<ReportRow, "status" | "outcome" | "decidedAt">;
 
-/** The pair side stores; the moderation work's queue and admin view read and close through `list`, `close` and `lift`. */
+/** The pair side stores; the moderation queue and admin view read and close through `list`, `close` and `lift`. */
 export interface ModerationStore {
   /** R-MODERATION-001: a block already held keeps its first time. */
   block: (row: BlockRow) => Promise<BlockRow>;

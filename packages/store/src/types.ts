@@ -1,4 +1,4 @@
-// The storage interfaces of the online milestone, as plain types. Every store
+// The storage interfaces, as plain types. Every store
 // method is a promise, so the same interface fits a map in memory and a
 // Postgres table. Times are milliseconds since 1970, always passed in by the
 // caller: no store reads a clock.
@@ -210,7 +210,7 @@ export interface PairStore {
 // The world: ticks and draws (clock.md, lottery.md)
 // ---------------------------------------------------------------------------
 
-/** The director's book (clock.md contract item 1). Typed `unknown` until `DirectorBook` lands in packages/sim/src/world/. */
+/** The director's book (clock.md, Contract): the simulation's `DirectorBook`, typed `unknown` here. */
 export type DirectorBookRow = unknown;
 
 /** R-CLOCK-010: one stored world tick, never rewritten. */

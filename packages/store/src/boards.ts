@@ -103,7 +103,7 @@ export function riseOf(row: Pick<FigureRow, "figure" | "week" | "weekStart">, we
 
 /**
  * R-CITY-040: the row's score on a board, or null when the row is not on it.
- * a character with no route yet is on no board (the screen says so on
+ * A character with no route yet is on no board (the screen says so on
  * its own line), and a figure that fell this week ranks as a rise below 0.
  */
 export function scoreOf(row: FigureRow, query: BoardQuery): number | null {
