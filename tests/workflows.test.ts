@@ -52,7 +52,6 @@ describe("the workflows", () => {
     expect(triggers(read("check.yml"))).toContain("pull_request:");
   });
 
-  // it ran on the push itself, beside the check; now it runs after the check, on its success.
   test("[R-SERVER-012] given the staging deploy, when it is read, then it runs only once the check has passed on a push to this repository's main, only in this repository, in the staging environment, one at a time, deploys the commit the check passed with --env staging, and passes no admin list", () => {
     const text = read("deploy-staging.yml");
     expect(CHECK_NAME).toBe("check");
@@ -68,7 +67,7 @@ describe("the workflows", () => {
     expect(text).not.toMatch(/secrets\.ADMIN_ACCOUNTS/);
   });
 
-  // the deploy passes no admin list; the Worker keeps its ADMIN_ACCOUNTS secret.
+  // The Worker keeps its ADMIN_ACCOUNTS secret, so the deploy passes no admin list.
   test("[R-SERVER-012] given the production deploy, when it is read, then it runs on a v tag or by hand from main or a v tag, never on a branch push, only in this repository, in the production environment, deploys with no --env, and passes no admin list", () => {
     const text = read("deploy-production.yml");
     expect(triggers(text).trim()).toBe('push:\n    tags: ["v*"]\n  workflow_dispatch:');

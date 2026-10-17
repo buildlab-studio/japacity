@@ -53,8 +53,8 @@ function findAll(files: readonly string[], pattern: RegExp): Finding[] {
 
 const show = (findings: readonly Finding[]) => findings.map((finding) => `${finding.file}:${String(finding.line)} ${finding.found}`);
 
-// A colour utility on one of the retired names. Only the five are named by the brief; the other utilities on the
-// same names (text-paper, ring-paper, decoration-line) would draw nothing once the names are gone, so they go too.
+// A colour utility on one of the five retired names, whatever the utility: one on a gone name (text-paper,
+// ring-paper, decoration-line) would draw nothing, so it is caught too.
 const UTILITY = String.raw`(?:bg|text|border(?:-[xytrbl])?|ring(?:-offset)?|divide|outline|decoration|fill|stroke|from|via|to|shadow|accent|caret|placeholder)`;
 const RETIRED = String.raw`(?:paper|surface|sunk|muted|line)`;
 const OLD_CLASS = new RegExp(String.raw`(?<![\w-])${UTILITY}-${RETIRED}(?![\w-])`);
@@ -78,9 +78,8 @@ const PILL = /(?<![\w-])rounded-full(?![\w-])/;
 /** A pill only where it means something: a dot, a person's avatar, the month's glyph. */
 const PILLS_ALLOWED = 8;
 /**
- * The front door drawn as designed (R-WORLD-021's exception): its header's round
- * buttons, its colour swatches and the page's round stamp, one round each, apart from the budget. Moved 13 Oct 2026
- * (the door's second design): the header is DoorFrame, whose round buttons are the lively layer's own class
+ * The front door's rounds apart from the budget (R-WORLD-021's exception): its colour swatches and the page's round
+ * stamp, one round each. The header is DoorFrame, whose round buttons are the lively layer's own class
  * (`.round-button`, as the band's thumbs are `.thumb-round`), so it draws no round of its own here.
  */
 const DOOR_ROUNDS: Readonly<Record<string, number>> = {
@@ -90,7 +89,7 @@ const DOOR_ROUNDS: Readonly<Record<string, number>> = {
 };
 
 /**
- * The two lights over the start screen (account.md R-ACCOUNT-031; R-WORLD-021's exception): a picture of everyone, not the interface, drawn as designed, with the dusk across
+ * The two lights over the start screen (account.md R-ACCOUNT-031; R-WORLD-021's exception): a picture of everyone, not the interface, with the dusk across
  * the top and a glow for each bulb, in its own colours as the 3D world keeps its own. Its soft gradients are counted
  * apart from the rule, so the picture gains none, and nothing else in the client may draw one.
  */
@@ -123,7 +122,7 @@ describe("the palette", () => {
     expect(show([...findAll(clientFiles, GRADIENT_CLASS), ...findAll(clientFiles, GRADIENT_STOP), ...findAll(interfaceFiles, GRADIENT_CSS), ...findAll(clientFiles, BLUR), ...findAll(clientFiles, GLOW)])).toEqual([]);
   });
 
-  test("[R-WORLD-021] given the drawn map's water, then it is the design's lagoon tone in the game's one look, by day and by night, never the bands' navy (decision 0038)", () => {
+  test("[R-WORLD-021] given the drawn map's water, then it is the lagoon tone in the game's one look, by day and by night, never the bands' navy (decision 0038)", () => {
     const css = readFileSync(join(root, CLIENT, "index.css"), "utf8");
     expect([...css.matchAll(/--water:\s*([^;]+);/g)].map((found) => found[1])).toEqual(["#5f9fc0"]);
     // The night paint keeps the day's water: it sets no water of its own.

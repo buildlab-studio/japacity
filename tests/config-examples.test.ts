@@ -37,7 +37,7 @@ function stringKeys(path: string, opening: string): string[] {
 }
 
 /**
- * The keys of a Worker's `Env` whose type is a string: its variables and secrets, not its bindings. Since 11 Oct 2026
+ * The keys of a Worker's `Env` whose type is a string: its variables and secrets, not its bindings.
  * `Env` is what `wrangler types` generates from wrangler.jsonc (worker-configuration.d.ts) with src/env.d.ts merged in.
  */
 function envStrings(folder: string): string[] {
@@ -57,8 +57,7 @@ describe("the example settings", () => {
     expect(server).toContain("ADMIN_ACCOUNTS");
     expect(server).toContain("BETTER_AUTH_SECRET");
     expect([...named(read("apps/server/.dev.vars.example"))].sort()).toEqual([...server].sort());
-    // the admin list is a Worker secret, so the example
-    // names it among the secrets, after the variables.
+    // The admin list is a Worker secret, so the example names it among the secrets, after the variables.
     const example = read("apps/server/.dev.vars.example");
     const secrets = example.indexOf("\n# Secrets");
     expect(secrets).toBeGreaterThan(0);
