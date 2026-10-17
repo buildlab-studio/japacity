@@ -3,7 +3,6 @@
 import type { Id, ReadCtx, Tuning } from "../engine/types";
 import { japacity } from "../japacity/japacity.logic";
 import { SAFETY_CONTROLS } from "./pair.logic";
-import type { Interaction } from "./phrase.logic";
 
 const DAY_MS = 86_400_000;
 
@@ -101,15 +100,11 @@ export function rewardFor(progress: InviteProgress, tuning: Tuning["pair"]): Inv
   return { frame: `card.frame.${progress.reached}`, line: `line.pair.reward.${progress.reached}` };
 }
 
-const MATCHED: readonly Interaction[] = ["matched", "free-text"];
-
 /**
  * Whether a record may be made between two accounts (R-PAIR-017, R-PAIR-018):
- * both regions at `invited` or above, and two who did not invite each other
- * only once the matchmaker is open and both regions allow it.
+ * any two connected by an invite, and two who did not invite each other only
+ * once the matchmaker is open.
  */
-export function mayPair(how: "invited" | "matched", regions: { a: Interaction; b: Interaction }, tuning: Tuning): boolean {
-  if (regions.a === "none" || regions.b === "none") return false;
-  if (how === "invited") return true;
-  return tuning.people.matchmaker && MATCHED.includes(regions.a) && MATCHED.includes(regions.b);
+export function mayPair(how: "invited" | "matched", tuning: Tuning): boolean {
+  return how === "invited" || tuning.people.matchmaker;
 }

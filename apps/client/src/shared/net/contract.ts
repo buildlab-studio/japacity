@@ -12,13 +12,10 @@ export type ServerCode =
   | "rate-limited"
   | "signed-out"
   | "diverged"
-  | "region-closed"
   | "one-character"
   | "no-character"
   /** R-SERVER-031: the feature's switch is off. */
   | "switched-off"
-  /** R-REGION: the two players' regions do not allow the pair (R-PAIR-018). */
-  | "region"
   /** account.md: the age screen and the bot check. */
   | "under-age"
   | "bad-date"
@@ -134,7 +131,7 @@ export interface AgeRequest {
   dateOfBirth: string;
 }
 
-/** Read from apps/server/src/routes/age.ts: a pass, or `region-closed`, `under-age`, `bad-date`, and `switched-off` while sign-ups are off. */
+/** Read from apps/server/src/routes/age.ts: a pass, or `under-age`, `bad-date`, and `switched-off` while sign-ups are off. */
 export type AgeReply = { ok: true } | ServerRejection;
 
 /** Copied from apps/server/src/routes/age.ts: `GET /api/age`, whether this browser was refused at the age screen and must not be asked again (R-ACCOUNT-012). */

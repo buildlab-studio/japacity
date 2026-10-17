@@ -44,11 +44,11 @@ function connected(): PairRecord {
 }
 
 function policy(change: Partial<SayPolicy> = {}): SayPolicy {
-  return { regions: { a: "invited", b: "invited" }, sent: [], now: NOW, tuning: pair, fills: [], ...change };
+  return { sent: [], now: NOW, tuning: pair, fills: [], ...change };
 }
 
 function placePolicy(change: Partial<PlacePolicy> = {}): PlacePolicy {
-  return { here: true, region: "invited", sent: [], now: NOW, tuning: pair, fills: [], ...change };
+  return { here: true, sent: [], now: NOW, tuning: pair, fills: [], ...change };
 }
 
 /** `count` sends spread inside the last `span` milliseconds. */
@@ -166,16 +166,10 @@ describe("a phrase said in a place", () => {
     expect(canSay(connected(), "a", EVENING, null, policy())).toEqual({ ok: false, failed: "wrong-place" });
   });
 
-  test("[R-PAIR-012] given players in a place, when a phrase is said, then everyone there but the speaker hears it, except a block either way or a region with no contact", () => {
-    const present = [
-      { id: ADA, region: "invited" as const },
-      { id: TUNDE, region: "invited" as const },
-      { id: "life-zainab", region: "invited" as const },
-      { id: "life-ngozi", region: "none" as const },
-      { id: "life-chidi", region: "invited" as const },
-    ];
+  test("[R-PAIR-012] given players in a place, when a phrase is said, then everyone there but the speaker hears it, except a block either way", () => {
+    const present = [{ id: ADA }, { id: TUNDE }, { id: "life-zainab" }, { id: "life-ngozi" }, { id: "life-chidi" }];
     const blocks = [{ from: "life-zainab", to: ADA }, { from: ADA, to: "life-chidi" }];
-    expect(heardBy(ADA, present, blocks)).toEqual([TUNDE]);
+    expect(heardBy(ADA, present, blocks)).toEqual([TUNDE, "life-ngozi"]);
   });
 });
 
@@ -197,19 +191,13 @@ describe("the checks before a phrase goes", () => {
     expect(canSayInPlace(HELLO, null, placePolicy({ sent: sentWithin(pair.placePhrasesPerMinute - 1, MINUTE) }))).toEqual({ ok: true });
     expect(canSayInPlace(HELLO, null, placePolicy({ sent: sentWithin(pair.placePhrasesPerMinute, MINUTE) }))).toEqual({ ok: false, failed: "too-many" });
     expect(canSayInPlace(HELLO, null, placePolicy({ here: false }))).toEqual({ ok: false, failed: "not-here" });
-    expect(canSayInPlace(HELLO, null, placePolicy({ region: "none" }))).toEqual({ ok: false, failed: "region" });
-  });
-
-  test("[R-PAIR-013] given the sender's region with no contact, and the other's, when sending, then the sender learns its own region and only that the other is not possible", () => {
-    expect(canSay(connected(), "a", HELLO, null, policy({ regions: { a: "none", b: "invited" } }))).toEqual({ ok: false, failed: "region" });
-    expect(canSay(connected(), "a", HELLO, null, policy({ regions: { a: "invited", b: "none" } }))).toEqual({ ok: false, failed: "not-possible" });
   });
 
   test("[R-PAIR-013] given several checks failing at once, when sending, then the first in the page's order is the one reported", () => {
     const ended = writeEvent(connected(), "a", { type: "pair/ended", absence: false, tick: 3 });
     const many = sentWithin(pair.phrasesPerHour, HOUR);
-    expect(canSay(ended, "a", HELLO, null, policy({ sent: many, regions: { a: "none", b: "none" } }))).toEqual({ ok: false, failed: "not-possible" });
-    expect(canSay(connected(), "a", HELLO, null, policy({ sent: many, regions: { a: "none", b: "none" } }))).toEqual({ ok: false, failed: "too-many" });
+    expect(canSay(ended, "a", HELLO, null, policy({ sent: many }))).toEqual({ ok: false, failed: "not-possible" });
+    expect(canSay(connected(), "a", MEET_AT, "my-house", policy({ sent: many }))).toEqual({ ok: false, failed: "too-many" });
   });
 
   test.prop([fc.array(fc.integer({ min: NOW - 2 * HOUR, max: NOW }), { maxLength: 60 })])(
@@ -233,8 +221,10 @@ describe("a block and the phrases", () => {
   });
 });
 
-describe("the region table", () => {
-  test.each(["invited", "matched", "free-text"] as const)("[R-PAIR-018] given both regions at %s, when sending, then phrases go", (setting) => {
-    expect(canSay(connected(), "b", HELLO, null, policy({ regions: { a: setting, b: setting } }))).toEqual({ ok: true });
+describe("one way to meet for everyone", () => {
+  test("[R-PAIR-018] given two players connected by an invite, when either side sends, then the phrase goes, with nothing about where either plays", () => {
+    expect(canSay(connected(), "a", HELLO, null, policy())).toEqual({ ok: true });
+    expect(canSay(connected(), "b", HELLO, null, policy())).toEqual({ ok: true });
+    expect(Object.keys(policy()).sort()).toEqual(["fills", "now", "sent", "tuning"]);
   });
 });

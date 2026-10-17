@@ -1,7 +1,7 @@
 // The place routes: the presence fetch (R-CLOCK-028, R-CITY-036) and the nudge socket
-// (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session and answer in
-// every region: presence is not contact (region.md R-REGION-002), and the
-// socket carries only nudges, never words between players.
+// (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session and answer
+// every signed-in account: presence is not contact (region.md R-REGION-002),
+// and the socket carries only nudges, never words between players.
 import { Hono } from "hono";
 import type { Context } from "hono";
 

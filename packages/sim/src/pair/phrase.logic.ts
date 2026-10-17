@@ -4,24 +4,19 @@ import type { ConversationRow, Content, PairRecord, PhraseEntry, PlayerView, Tun
 import type { PairWrite, Side } from "./pair.events";
 import { flip } from "./pair.logic";
 
-/** A region's `interaction` setting (R-PAIR-018). */
-export type Interaction = "none" | "invited" | "matched" | "free-text";
-
 const MINUTE_MS = 60_000;
 const HOUR_MS = 3_600_000;
 
 /**
  * Why a phrase cannot go. Anything that turns on the other side (their block,
- * their region, a bond that has ended) is `not-possible` and nothing more.
+ * a bond that has ended) is `not-possible` and nothing more.
  */
-export type SayRefusal = "not-possible" | "blocked" | "too-many" | "region" | "not-here" | "wrong-place" | "bad-fill";
+export type SayRefusal = "not-possible" | "blocked" | "too-many" | "not-here" | "wrong-place" | "bad-fill";
 
 export type SayResult = { ok: true } | { ok: false; failed: SayRefusal };
 
 /** What the server knows when a phrase is sent in a pair's conversation. */
 export interface SayPolicy {
-  /** Each side's region setting. */
-  regions: { a: Interaction; b: Interaction };
   /** When the sender sent each earlier phrase in this conversation, on the caller's clock in milliseconds. */
   sent: number[];
   now: number;
@@ -34,7 +29,6 @@ export interface SayPolicy {
 export interface PlacePolicy {
   /** The sender is in the place. */
   here: boolean;
-  region: Interaction;
   /** When the sender said each earlier phrase in this place, on the caller's clock in milliseconds. */
   sent: number[];
   now: number;
@@ -55,8 +49,8 @@ const refuse = (failed: SayRefusal): SayResult => ({ ok: false, failed });
 
 /**
  * Whether `from` may send `phrase` in the pair's conversation (R-PAIR-013):
- * connected, not blocked, within the hourly count, and both regions allow
- * phrases, in that order; then the phrase itself (R-PAIR-010, R-PAIR-012).
+ * connected, not blocked and within the hourly count, in that order; then the
+ * phrase itself (R-PAIR-010, R-PAIR-012).
  */
 export function canSay(record: PairRecord, from: Side, phrase: PhraseEntry, fill: string | null, policy: SayPolicy): SayResult {
   const them = flip(from);
@@ -64,8 +58,6 @@ export function canSay(record: PairRecord, from: Side, phrase: PhraseEntry, fill
   if (record.blocked[them]) return refuse("not-possible");
   if (record.blocked[from]) return refuse("blocked");
   if (sentWithin(policy.sent, policy.now, HOUR_MS) >= policy.tuning.phrasesPerHour) return refuse("too-many");
-  if (policy.regions[from] === "none") return refuse("region");
-  if (policy.regions[them] === "none") return refuse("not-possible");
   if (phrase.where === "place") return refuse("wrong-place");
   if (!fillFits(phrase, fill, policy.fills)) return refuse("bad-fill");
   return { ok: true };
@@ -75,7 +67,6 @@ export function canSay(record: PairRecord, from: Side, phrase: PhraseEntry, fill
 export function canSayInPlace(phrase: PhraseEntry, fill: string | null, policy: PlacePolicy): SayResult {
   if (!policy.here) return refuse("not-here");
   if (sentWithin(policy.sent, policy.now, MINUTE_MS) >= policy.tuning.placePhrasesPerMinute) return refuse("too-many");
-  if (policy.region === "none") return refuse("region");
   if (phrase.where === "conversation") return refuse("wrong-place");
   if (!fillFits(phrase, fill, policy.fills)) return refuse("bad-fill");
   return { ok: true };
@@ -83,13 +74,12 @@ export function canSayInPlace(phrase: PhraseEntry, fill: string | null, policy: 
 
 /**
  * Who hears a phrase said in a place: everyone there but the speaker, except
- * a region that shows no other players and anyone with a block either way
- * (R-PAIR-013, R-PAIR-015).
+ * anyone with a block either way (R-PAIR-013, R-PAIR-015).
  */
-export function heardBy(speaker: string, present: { id: string; region: Interaction }[], blocks: { from: string; to: string }[]): string[] {
+export function heardBy(speaker: string, present: { id: string }[], blocks: { from: string; to: string }[]): string[] {
   const blockedWith = (listener: string): boolean =>
     blocks.some((block) => (block.from === speaker && block.to === listener) || (block.from === listener && block.to === speaker));
-  return present.filter((listener) => listener.id !== speaker && listener.region !== "none" && !blockedWith(listener.id)).map((listener) => listener.id);
+  return present.filter((listener) => listener.id !== speaker && !blockedWith(listener.id)).map((listener) => listener.id);
 }
 
 /**

@@ -212,12 +212,12 @@ describe("the invite link's page", () => {
     expect(screen.queryByText(say("ui.account.fail.unreachable"))).toBeNull();
   });
 
-  test("[R-PAIR-018] given a card shown, when taking it is refused as region with 403, then the page reads the refusal from the body and says it in words", async () => {
+  test("[R-PAIR-008] given a card shown, when taking it is refused as expired with 403, then the page reads the refusal from the body and says it in words", async () => {
     const server = cardServer("sibling", NO_CHARACTER);
-    server.answer(`POST /api/invite/${CODE}/accept`, { status: 403, body: { ok: false, code: "region", detail: "Players here may not be paired." } });
+    server.answer(`POST /api/invite/${CODE}/accept`, { status: 403, body: { ok: false, code: "expired", detail: "The link cannot be used: expired." } });
     openLink(server, account());
     fireEvent.click(await screen.findByRole("button", { name: say("ui.invite.take") }));
-    expect(await screen.findByText(words("reject.region"))).toBeDefined();
+    expect(await screen.findByText(words("reject.expired"))).toBeDefined();
     expect(server.sent.some((request) => request.path.endsWith("/accept"))).toBe(true);
   });
 });

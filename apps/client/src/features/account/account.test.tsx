@@ -480,13 +480,6 @@ describe("the age screen", () => {
     expect(await screen.findByText(say("server.full"))).toBeDefined();
     expect(screen.queryByLabelText(say("ui.account.name.label"))).toBeNull();
   });
-
-  test("[R-ACCOUNT-011] given a region that is not open, then it is refused before the age screen", async () => {
-    gate(fakeAccount({ ageStatus: () => Promise.resolve("region-closed") }));
-    expect(await screen.findByText(say("ui.account.region-closed"))).toBeDefined();
-    expect(ageFields()).toEqual([null, null, null]);
-    expect(screen.queryByRole("button", { name: say("ui.account.start.play") })).toBeNull();
-  });
 });
 
 describe("the guest start inside the invite page", () => {

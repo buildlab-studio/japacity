@@ -103,7 +103,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     const place = namedPlace(body?.place);
     if (body === null || !isText(body.advertiser) || slots === null || regions === null || typeof body.starts !== "number" || typeof body.ends !== "number" || !isText(body.category) || place === undefined) return c.json(BAD_BODY, 400);
     const draft: CampaignDraft = { advertiser: body.advertiser, slots, regions, starts: body.starts, ends: body.ends, category: body.category, place };
-    const refusals = campaignRefusals(deps.contents.current, deps.config.regions, draft);
+    const refusals = campaignRefusals(deps.contents.current, deps.config.advert.regions, draft);
     if (refusals.length > 0) return c.json({ ok: false, code: "refused", detail: refusals.join(" "), refusals }, 422);
     const campaign: Campaign = { id: newId("campaign"), ...draft, slots: slots as Id<"advert">[], status: "pending" };
     const added = await deps.stores.adverts.addCampaign(campaign);

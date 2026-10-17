@@ -1,22 +1,16 @@
 // What a campaign and a creative must be before a person reviews them, and what
 // a review must record (R-ADVERT-004, 005, 010 to 012, 015 to 019). Plain
-// functions over the content and the region table; the routes store the result.
+// functions over the content and the advert regions; the routes store the result.
 import type { Content, Id, PlaceEntry } from "@japacity/sim";
 import type { Campaign, CampaignStatus, Creative, CreativeFile, NamedPlace } from "@japacity/store";
 
-import type { Regions } from "../region";
 import { bannedHits, categoryKind, conditionsOf } from "./categories";
 import { imageFacts } from "./image";
 
-/** The region the table names for a code, the row `default` for any other (R-REGION-005). */
-export function advertRegion(regions: Regions, asked: string | null | undefined): string {
+/** The advert region for a country's code: the code when it is listed, `default` for any other (R-ADVERT-008). */
+export function advertRegion(regions: readonly string[], asked: string | null | undefined): string {
   const code = (asked ?? "").toUpperCase();
-  return code !== "" && code !== "UNKNOWN" && code !== "DEFAULT" && code in regions ? code : "default";
-}
-
-/** The codes a campaign may name: every row of the table but `unknown`. */
-export function regionCodes(regions: Regions): string[] {
-  return Object.keys(regions).filter((code) => code !== "unknown");
+  return code !== "" && code !== "DEFAULT" && regions.includes(code) ? code : "default";
 }
 
 /** The status at a moment: an approved campaign is live between its dates and ended after them. */
@@ -53,14 +47,13 @@ export function namingRefusals(content: Content, named: NamedPlace): string[] {
 }
 
 /** Why a campaign cannot be taken for review, or nothing. */
-export function campaignRefusals(content: Content, regions: Regions, draft: CampaignDraft): string[] {
+export function campaignRefusals(content: Content, regions: readonly string[], draft: CampaignDraft): string[] {
   const refusals: string[] = [];
   if (draft.slots.length === 0) refusals.push("A campaign names at least one slot (R-ADVERT-001).");
   for (const slot of draft.slots) if (content.advert[slot as Id<"advert">] === undefined) refusals.push(`${slot} is not an advert slot (R-ADVERT-001).`);
   if (new Set(draft.slots).size !== draft.slots.length) refusals.push("A slot is named twice (R-ADVERT-001).");
-  const codes = regionCodes(regions);
   if (draft.regions.length === 0) refusals.push("A campaign names at least one region (R-ADVERT-008).");
-  for (const region of draft.regions) if (!codes.includes(region)) refusals.push(`${region} is not a region of the table (R-ADVERT-021).`);
+  for (const region of draft.regions) if (!regions.includes(region)) refusals.push(`${region} is not a region of the table (R-ADVERT-021).`);
   if (!Number.isSafeInteger(draft.starts) || !Number.isSafeInteger(draft.ends) || draft.starts >= draft.ends) refusals.push("A campaign starts before it ends, in whole milliseconds (R-ADVERT-020).");
   const kind = categoryKind(draft.category);
   switch (kind) {

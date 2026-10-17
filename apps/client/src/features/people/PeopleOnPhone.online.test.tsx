@@ -40,10 +40,7 @@ describe("the invite link", () => {
     expect(screen.getByText(say("ui.people.invite.link-days", { days: content.tuning.pair.inviteDays }))).toBeDefined();
   });
 
-  test.each([
-    ["too-many", 429],
-    ["region", 403],
-  ])("[R-PAIR-008] [R-PAIR-018] given the server refusing the link as %s with %i, then the client reads the refusal from the body and says it in words", async (code, status) => {
+  test.each([["too-many", 429]])("[R-PAIR-008] given the server refusing the link as %s with %i, then the client reads the refusal from the body and says it in words", async (code, status) => {
     const game = peopleGame();
     game.accept({ type: "people/invite", slot: "partner", looking: "partner", fill: "who-codes" });
     const server = fakeServer();

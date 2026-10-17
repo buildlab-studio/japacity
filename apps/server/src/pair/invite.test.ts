@@ -146,42 +146,26 @@ describe("invite links", () => {
     expect(await server.deps.stores.invite.get(code)).toMatchObject({ used: false });
   });
 
-  test("[R-PAIR-018] [R-REGION-002] given a region at none, when its player asks for a link or takes one, then each is refused with region and 403 and no record is made", async () => {
+  test("[R-PAIR-018] [R-REGION-002] given two players who signed up in France and Germany, when one asks for a link and the other takes it, then the pair is made as anywhere else", async () => {
+    const server = pairServer();
+    await accountIn(server, "account-fr", "FR");
+    await call(server, "POST", "/api/character", "account-fr", { scenario: "scenario.ada" });
+    const code = await cardOut(server, "account-fr");
+    await accountIn(server, "account-de", "DE");
+
+    expect(await accept(server, "account-de", code, { slot: "partner", scenario: "scenario.tunde" })).toMatchObject({ ok: true, view: { stage: "connected" } });
+    expect(await server.deps.stores.invite.pairs()).toHaveLength(1);
+  });
+
+  test("[R-PAIR-008] given an inviter whose account is gone, when the link is taken, then it is not possible and no record is made", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
     const code = await cardOut(server);
-    await accountIn(server, FRIEND, "FR");
-    await accountIn(server, "account-eu", "DE");
-    await call(server, "POST", "/api/character", "account-eu", { scenario: "scenario.tunde" });
-    await must(server, "account-eu", { type: "people/invite", slot: "partner", looking: "partner" });
-
-    // A region that allows no pair is 403, as a region closed to sign-up is.
-    const taken = await call<Reply<InviteAccepted>>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "partner", scenario: "scenario.tunde" });
-    expect(taken.status).toBe(403);
-    expect(taken.body).toMatchObject({ ok: false, code: "region" });
-    const asked = await call<Reply<InviteMade>>(server, "POST", "/api/invite", "account-eu", { slot: "partner" });
-    expect(asked.status).toBe(403);
-    expect(asked.body).toMatchObject({ ok: false, code: "region" });
-    expect(await server.deps.stores.invite.pairs()).toEqual([]);
-  });
-
-  test("[R-REGION-006] [R-ACCOUNT-009] given an invited region and a matched one, when the link is taken, then the stricter row still allows the pair", async () => {
-    const server = pairServer(content, { regions: { NG: { open: true, interaction: "matched", ageCheck: "declared" } } });
-    await accountIn(server, INVITER, "GB");
-    await call(server, "POST", "/api/character", INVITER, { scenario: "scenario.ada" });
-    const code = await cardOut(server);
     await signUp(server, FRIEND);
+    await server.deps.stores.account.remove(INVITER);
 
-    expect(await accept(server, FRIEND, code, { slot: "partner", scenario: "scenario.tunde" })).toMatchObject({ ok: true });
-  });
-
-  test("[R-ACCOUNT-010] given a row whose age check is verified, when an account there that has only declared its age takes a link, then it counts as none and is refused with region", async () => {
-    const server = pairServer(content, { regions: { KE: { open: true, interaction: "matched", ageCheck: "verified" } } });
-    await newLife(server, INVITER);
-    const code = await cardOut(server);
-    await accountIn(server, FRIEND, "KE");
-
-    expect(await accept(server, FRIEND, code, { slot: "partner", scenario: "scenario.tunde" })).toMatchObject({ ok: false, code: "region" });
+    expect(await accept(server, FRIEND, code, { slot: "partner", scenario: "scenario.tunde" })).toMatchObject({ ok: false, code: "not-possible" });
+    expect(await server.deps.stores.invite.pairs()).toEqual([]);
   });
 
   test("[R-PAIR-008] given a friend with no character, when a partner link is taken naming a scenario, then a character is made in it and linked", async () => {

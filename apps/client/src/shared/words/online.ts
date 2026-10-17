@@ -7,11 +7,9 @@ export const onlineText: Record<string, string> = {
   "reject.rate-limited": "Too much at once. Try again now.",
   "reject.signed-out": "You are signed out. Sign in to carry on.",
   "reject.diverged": "Your life needs checking on our side. Try again in a while.",
-  "reject.region-closed": "Japacity is not open where you are yet.",
   "reject.one-character": "This account already has its life.",
   "reject.no-character": "This account has no life yet. Pick one.",
   "reject.switched-off": "That is closed for now. Try again shortly.",
-  "reject.region": "Players where you are cannot do that together.",
   "reject.under-age": "You cannot play Japacity.",
   "reject.bad-date": "That date does not look right.",
   "reject.bot-check": "The quick check did not go through. Try it again.",
@@ -124,7 +122,6 @@ export const onlineText: Record<string, string> = {
   "ui.account.age.empty": "Pick the day, the month and the year.",
   "ui.account.age.refused": "You cannot play Japacity.",
   "ui.account.age.bad-date": "That date does not look right. Check it and try again.",
-  "ui.account.region-closed": "Japacity is not open where you are yet.",
 
   // The invite link's page (R-PAIR-007, R-PAIR-008)
   "ui.invite.title": "A friend sent you a card",

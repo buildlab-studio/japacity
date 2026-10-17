@@ -51,7 +51,6 @@ export const GUEST_WORDS: Record<GuestFailure, string> = {
   "bot-check": "ui.account.bot.failed",
   "too-many": "ui.account.guest.too-many",
   expired: "ui.account.guest.expired",
-  "region-closed": "ui.account.region-closed",
   full: "ui.account.guest.full",
   unreachable: "ui.account.fail.unreachable",
   refused: "ui.account.fail.refused",

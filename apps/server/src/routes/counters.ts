@@ -66,7 +66,7 @@ export function countersRoute(deps: ServerDeps): Hono {
     // R-ADVERT-020: the advert rows also reach the campaign's daily totals, by the slot and the hour's campaign there,
     // up to one account's allowance for the day.
     const allowed = await withinAccountDay(deps, session.account, deps.now(), checked.rows);
-    await addAdvertCounters(deps, advertRegion(deps.config.regions, account.country), deps.now(), allowed);
+    await addAdvertCounters(deps, advertRegion(deps.config.advert.regions, account.country), deps.now(), allowed);
     return done();
   });
 

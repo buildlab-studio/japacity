@@ -169,8 +169,6 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
         return <p className="text-text-2">{say("ui.account.loading")}</p>;
       case "failed":
         return <p role="alert">{say("ui.account.fail.unreachable")}</p>;
-      case "region-closed":
-        return <p role="alert">{say("ui.account.region-closed")}</p>;
       case "refused":
         return <p role="alert">{say("ui.account.age.refused")}</p>;
       case "unasked":

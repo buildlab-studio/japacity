@@ -47,7 +47,7 @@ export type GoogleDone = "kept" | "signed-in";
 
 export type AuthResult = { ok: true } | { ok: false; why: AuthFailure };
 
-export type AgeStanding = "unasked" | "passed" | "refused" | "region-closed";
+export type AgeStanding = "unasked" | "passed" | "refused";
 
 /** R-SERVER-032: sign-ups are switched off; ask again after `retryAfter` seconds. */
 export interface Full {
@@ -59,7 +59,7 @@ export interface Full {
 export type AgeAnswer = AgeStanding | Full | "bad-date" | "bot-check";
 
 /** Why a guest life was not started (R-ACCOUNT-013, 021, 024, 025): a username problem, the bot check, the flood limits, an age pass that ran out, or the server's own state. */
-export type GuestFailure = NameProblem | "bot-check" | "too-many" | "expired" | "region-closed" | "full" | "unreachable" | "refused";
+export type GuestFailure = NameProblem | "bot-check" | "too-many" | "expired" | "full" | "unreachable" | "refused";
 
 export type GuestAnswer = { ok: true } | { ok: false; why: GuestFailure };
 
@@ -164,7 +164,6 @@ function full(rejection: ServerRejection): Full {
 /** The age screen's answer from `POST /api/age` (apps/server/src/routes/age.ts). */
 export function standing(reply: AgeReply): AgeAnswer {
   if (reply.ok) return "passed";
-  if (reply.code === "region-closed") return "region-closed";
   if (reply.code === "under-age") return "refused";
   if (reply.code === "switched-off") return full(reply);
   if (reply.code === "bad-date" || reply.code === "bot-check") return reply.code;
@@ -176,7 +175,7 @@ export function standing(reply: AgeReply): AgeAnswer {
 export function guestAnswer(reply: NameReply): GuestAnswer {
   if (reply.ok) return { ok: true };
   if (reply.name !== undefined) return { ok: false, why: reply.name };
-  const said: Partial<Record<ServerCode, GuestFailure>> = { "bot-check": "bot-check", "too-many": "too-many", "rate-limited": "too-many", expired: "expired", "region-closed": "region-closed", "switched-off": "full" };
+  const said: Partial<Record<ServerCode, GuestFailure>> = { "bot-check": "bot-check", "too-many": "too-many", "rate-limited": "too-many", expired: "expired", "switched-off": "full" };
   return { ok: false, why: said[reply.code] ?? "refused" };
 }
 
@@ -188,7 +187,7 @@ export function deleted(reply: DeleteReply): AuthResult {
   return { ok: false, why: reply.code === "rate-limited" ? "too-many" : "refused" };
 }
 
-/** A refusal from `GET /api/age`: the server's 503 while sign-ups are off (R-SERVER-032), or the region's. */
+/** A refusal from `GET /api/age`: the server's 503 while sign-ups are off (R-SERVER-032). */
 function isRejection(reply: AgeStatus | ServerRejection): reply is ServerRejection {
   return "ok" in reply && reply.ok === false;
 }
@@ -220,7 +219,6 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
         const reply = await server.get<AgeStatus | ServerRejection>("/api/age");
         if (!isRejection(reply)) return reply.refused === true ? "refused" : "unasked";
         if (reply.code === "switched-off") return full(reply);
-        if (reply.code === "region-closed") return "region-closed";
         return "unasked";
       } catch {
         // Unreachable now (a wall has already reloaded the page): the age screen says so when it sends.

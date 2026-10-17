@@ -15,7 +15,6 @@ import { deleteCookie, setCookie } from "hono/cookie";
 import { PASS_COOKIE, readCookie } from "../account/age";
 import { deletionStatus, requestDeletion } from "../account/deletion";
 import { DEVICE_COOKIE, countGuest, guestGates, tooManyGuests } from "../account/guest";
-import { regionOf } from "../account/region";
 import { rejection } from "../account/reply";
 import type { AccountRejection } from "../account/reply";
 import { GUEST_NAME_HEADER } from "../account/signup";
@@ -151,7 +150,6 @@ function usernameOf(body: unknown): unknown {
 function guestRefusal(error: unknown): { status: 400 | 403 | 409; body: NameReply } {
   const code = isAPIError(error) ? (error.body as { code?: unknown } | undefined)?.code : undefined;
   if (code === "name-taken") return { status: 409, body: nameRefused("taken") };
-  if (code === "region-closed") return { status: 403, body: rejection("region-closed", "Sign-up is not open in this region.") };
   if (code === "no-age-pass") return { status: 403, body: rejection("expired", "Answer the age question again first.") };
   if (code === "not-legal") return { status: 400, body: nameRefused("format") };
   throw error;
@@ -165,7 +163,6 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
   app.post("/api/guest", limit(deps, "commands"), async (c) => {
     if (sessionOf(c) !== null) return c.json<NameReply>(rejection("not-possible", "This browser already has a life."), 409);
     const request = c.req.raw;
-    if (!regionOf(deps.config.regions, request).policy.open) return c.json<NameReply>(rejection("region-closed", "Sign-up is not open in this region."), 403);
     const username = usernameOf(await c.req.json().catch(() => null));
     const problem = nameProblem(username);
     if (problem !== null || typeof username !== "string") return c.json<NameReply>(nameRefused(problem ?? "format"), 400);

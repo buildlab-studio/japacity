@@ -93,7 +93,7 @@ function Bubble({ from, mine = false, courted = false, row, read, children }: { 
   );
 }
 
-const SAY_REFUSALS: readonly string[] = ["not-possible", "blocked", "too-many", "region", "not-here", "wrong-place", "bad-fill"] satisfies readonly SayRefusal[];
+const SAY_REFUSALS: readonly string[] = ["not-possible", "blocked", "too-many", "not-here", "wrong-place", "bad-fill"] satisfies readonly SayRefusal[];
 
 /** Why a phrase did not go, from the check the code names, and never about the other side's settings (pair.md R-PAIR-013). */
 function refusalWords(reply: ServerRejection): string {
