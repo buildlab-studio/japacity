@@ -43,7 +43,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
   // R-SERVER-043: a route that throws is logged once and answered in JSON, never the platform's error page.
   app.onError(onAppError);
-  // outermost, so every reply carries the headers, a refusal below included.
+  // Outermost, so every reply carries the headers, a refusal below included.
   app.use(securityHeaders());
   // A write from another site, or a body too large, is refused before anything reads or counts it.
   if (accounts !== undefined) app.use(sameOriginWrites(accounts.keys.siteUrl));

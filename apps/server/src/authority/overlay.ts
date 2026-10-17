@@ -19,7 +19,7 @@ export function contentsFor(base: Content, overlayJson: string | undefined): Con
   const overlay = JSON.parse(overlayJson) as Overlay;
   const problems = checkOverlay(base, overlay);
   if (problems.length > 0) throw new Error(`The overlay is refused: ${problems.join(" ")}`);
-  // a segment run under an earlier overlay cannot be replayed here; the deployment would need that overlay as the content before.
+  // A segment run under an earlier overlay cannot be replayed here; the deployment would need that overlay as the content before.
   return { current: applyOverlay(base, overlay), previous: base };
 }
 

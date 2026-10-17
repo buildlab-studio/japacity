@@ -14,7 +14,7 @@ export interface PlaceLook {
   today: Seen[];
 }
 
-// PresenceStore in packages/store has no read of the day's list; this is that read until the contract gains one.
+// PresenceStore in packages/store has no read of the day's list, so this interface is that read.
 /** R-CITY-036: the read of the day's list beside the sample. `now` names the Lagos day. */
 export interface TodayReader {
   lookWithToday: (place: string, n: number, asker: string | null, seed: number, now: number) => Promise<PlaceLook>;

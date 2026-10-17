@@ -29,7 +29,7 @@ async function onPostgres(): Promise<TestServer> {
   return testServer({ stores: { ...memoryStores(), ...pgStores(connection.handle), counters: pgCounterStore(connection.handle) } });
 }
 
-/** An account in `country`, as the accounts work makes it at sign-in. */
+/** An account in `country`, as sign-up makes it. */
 async function account(server: TestServer, id: string, country: string): Promise<void> {
   const now = server.deps.now();
   const made = await server.deps.stores.account.create({

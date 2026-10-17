@@ -1,6 +1,6 @@
-// The server's reply and clock types (docs/rules/server.md contract item 5,
+// The server's reply and clock types (the Contract sections of docs/rules/server.md
 import type { WorldClock } from "@japacity/sim";
-// docs/rules/clock.md contract items 3 and 4). This file is kept by hand.
+// and docs/rules/clock.md).
 import type { Command, Id, PlayerView, PrologueSlice, Rejection, RejectionCode, Reply, ReportLine, World } from "@japacity/sim";
 import type { Nudge } from "@japacity/store";
 

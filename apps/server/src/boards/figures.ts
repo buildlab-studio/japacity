@@ -19,8 +19,8 @@ export const figureOf: FigureOf = (read) => japacity(read).percent;
 
 /**
  * R-CITY-039: for each character that logged a row, writes its figure when it
- * moved, and always on its first commit so a new life has its row. a
- * figure that moves only with the world (a window closing) is written at the
+ * moved, and always on its first commit so a new life has its row. A figure
+ * that moves only with the world (a window closing) is written at the
  * character's next commit, since a board read never loads a life.
  */
 export async function noteFigures(deps: ServerDeps, lives: readonly Live[], ports: BoardPorts = accountPorts(deps), figure: FigureOf = figureOf): Promise<void> {

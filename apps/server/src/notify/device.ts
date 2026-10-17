@@ -23,7 +23,8 @@ function decoded(text: unknown): Uint8Array | null {
  * The push services the browsers use: Google's
  * for Chrome and the browsers built on it, Apple's for Safari, Mozilla's for
  * Firefox, Microsoft's for Edge. Each is the host itself or any host under it.
- * The bank-full job posts to the address kept, so nothing else is kept.
+ * The bank-full job posts to the address kept, so no other https address is
+ * kept, or a player could aim the job's posts anywhere.
  */
 export const PUSH_HOSTS: readonly string[] = ["fcm.googleapis.com", "push.apple.com", "push.services.mozilla.com", "notify.windows.com"];
 

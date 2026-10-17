@@ -132,7 +132,7 @@ async function friendFor(deps: ServerDeps, account: string, invite: InviteRow, s
   if (invite.looking === "sibling") {
     if (existing !== null) return refused(409, "one-character", "An existing character never becomes anyone's sibling. A sibling link starts a new life.");
     // R-PEOPLE-011, decision 0009: the new life takes the inviter's family draw.
-    // an inviter from a fixed scenario, or before its prologue's family step, has no draw; the new life then draws its own and no sibling slot waits for the link.
+    // An inviter from a fixed scenario, or before its prologue's family step, has no draw; the new life then draws its own and no sibling slot waits for the link.
     const draw = (await stateOf(deps, invite.from))?.state.prologue.draw ?? null;
     const made = await newCharacter(deps, account, PROLOGUE, draw === null ? undefined : { from: invite.from, draw });
     if (!made.body.ok) return asRefusal(made);
@@ -198,7 +198,7 @@ export async function acceptInvite(deps: ServerDeps, account: string, code: stri
       else if (book.write(key, stored.a === invite.from ? "a" : "b", { type: "pair/linked", tick }).ended !== null) return { ok: false, code: "not-possible", detail: NOT_POSSIBLE };
       const before = milestonesOf(joining.state, joining.content);
       if (invite.looking === "partner") {
-        // no command opens a slot in the friend's life for a link they took, so the friend's acceptance is sent as their own people/invite.
+        // No command opens a slot in the friend's life for a link they took, so the friend's acceptance is sent as their own people/invite.
         const opened = sendTo(turn, joining, { type: "people/invite", slot: "partner", looking: "partner" }, "player");
         if (!opened.ok) return opened;
         const linked = sendTo(turn, joining, { type: "people/link", slot: "partner", pair: key, facts: factsOf(inviter.state, inviter.content, turn.world) });

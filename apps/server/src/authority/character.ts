@@ -33,7 +33,7 @@ export function newSeed(deps: Pick<ServerDeps, "config" | "randomBytes">): strin
  */
 export async function newCharacter(deps: ServerDeps, account: string, scenario: Id<"scenario">, family?: Save["family"]): Promise<Answer<ViewReply>> {
   const row = await deps.stores.account.get(account);
-  // a session without an account row has no code of its own; the accounts work makes the row at sign-in.
+  // A session without an account row has no code of its own; sign-up makes the row (account/signup.ts).
   if (row === null) return refusal(401, "signed-out", "Sign in again to make a character.");
   if (row.character !== null) return refusal(409, "one-character", "This account already has a character.");
   const content = deps.contents.current;

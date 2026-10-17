@@ -8,8 +8,8 @@ import type { ServerDeps } from "../deps";
 import { pairStep, sendTo, sideLive, sideOf } from "./step";
 
 /**
- * R-PEOPLE-040, R-ACCOUNT-016: the hook the accounts work calls when a
- * deletion is asked for. The other player is told only that the bond ended.
+ * R-PEOPLE-040, R-ACCOUNT-016: called when a deletion is asked for
+ * (account/deletion.ts) and when a life ends for another (authority/character.ts). The other player is told only that the bond ended.
  */
 /** `why`: `absence` for a deletion (R-PEOPLE-040), `restart` when the player ended the life to start another (R-ACCOUNT-030). */
 export async function leavePairs(deps: ServerDeps, _account: string, character: string | null, why: "absence" | "restart" = "absence"): Promise<void> {

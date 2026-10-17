@@ -81,7 +81,7 @@ export async function sendCommand(deps: ServerDeps, account: string, body: unkno
   const character = await characterOf(deps, account);
   if (character === null) return refusal(404, "no-character", "This account has no character yet.");
 
-  // the stale check reads the stored version after the load, so a stale reply carries a true clock; nothing is written either way.
+  // The stale check reads the stored version after the load, so a stale reply carries a true clock; nothing is written either way.
   const act: Act<ReportLine[]> = (lives, turn) => {
     const live = liveOf(lives, character);
     if (request.basedOn !== live.storedV) {
@@ -202,8 +202,8 @@ export async function playPreset(deps: ServerDeps, account: string, body: unknow
  * grant, with the clock. R-LOTTERY-013, R-LOTTERY-017: with `since`, the
  * lines of every row after that version its player did not send (a draw's
  * payment, a grant, the stand-in's answers), so a player who was away sees
- * them. rows older than the latest snapshot are not replayed, so
- * their lines are not in the reply.
+ * them. Rows older than the latest snapshot are not replayed, so their lines
+ * are not in the reply.
  */
 export async function readView(deps: ServerDeps, account: string, since: number | null = null): Promise<Answer<ViewReply>> {
   const character = await characterOf(deps, account);

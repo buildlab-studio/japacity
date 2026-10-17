@@ -19,7 +19,7 @@ export const GATED_COMMANDS: Partial<Record<CommandType, SwitchName>> = {
 
 /**
  * R-SERVER-031: the routes a switch closes, by path pattern, every method.
- * the sign-up path is the age screen, which a signed-out returning
+ * The sign-up path is the age screen, which a signed-out returning
  * player also passes on a new browser; the server cannot tell the two apart
  * before sign-in, so both see the full screen while `signups` is off.
  */

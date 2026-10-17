@@ -1,5 +1,5 @@
-// R-ANALYTICS-004: batches a session has sent this hour. the
-// analytics store may not hold a session (R-ANALYTICS-007) and the limiters
+// R-ANALYTICS-004: batches a session has sent this hour. The analytics store
+// may not hold a session (R-ANALYTICS-007) and the limiters
 // in deps count only fixed periods, so the count is kept in the isolate's
 // memory by account and UTC hour, as the money job keeps its active list;
 // like the rate limits it is per isolate and not exact (R-SERVER-028).

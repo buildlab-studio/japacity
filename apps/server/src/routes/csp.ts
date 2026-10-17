@@ -1,5 +1,5 @@
-// `POST /api/csp-report` (server.md R-SERVER-041): where the page's content policy
-// sends what it would have blocked, so "watch a week of play, then enforce" has something to watch. Browsers send
+// `POST /api/csp-report` (server.md R-SERVER-041): where the page's content policy, which reports and blocks
+// nothing, sends what it would have blocked, so the violations real play makes can be seen. Browsers send
 // one of two shapes: the older `report-uri` one (`application/csp-report`, one report) and the Reporting API's
 // (`application/reports+json`, a list that may hold other kinds of report too). Each violation becomes one log line
 // and one count. A report carries far more than is kept: the line holds the directive, the blocked address's origin

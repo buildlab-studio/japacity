@@ -11,7 +11,7 @@ export const PASS_COOKIE = "japacity-age-pass";
 /** The verification-row prefix of a pass. */
 export const PASS_PREFIX = "japacity-age-pass-";
 
-// no config field holds how long a pass lasts before sign-up; an hour covers an email code's round trip.
+// No config field holds how long a pass lasts before sign-up; an hour covers an email code's round trip.
 export const PASS_TTL_MS = time.HOUR_MS;
 
 export interface BirthDate {

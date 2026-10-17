@@ -46,7 +46,7 @@ export function newId(deps: Pick<ServerDeps, "randomBytes">, prefix: string): st
 }
 
 interface Common {
-  /** the page asks for "a reason chosen from a list" and names none; the report reasons serve until it does. */
+  /** The page asks for "a reason chosen from a list" and names none, so the report reasons serve. */
   reason: ReportReason;
   note?: string;
 }

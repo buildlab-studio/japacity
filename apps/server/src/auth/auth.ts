@@ -99,7 +99,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       otpLength: config.auth.otp.length,
       expiresIn: config.auth.otp.expiresIn,
       allowedAttempts: config.auth.otp.attempts,
-      // R-ACCOUNT-002, the database keeps only a code's hash.
+      // R-ACCOUNT-002: the database keeps only a code's hash, so whoever reads it sees no live code.
       storeOTP: "hashed",
       resendStrategy: "rotate",
       // The library hands this promise to `advanced.backgroundTasks` without awaiting it.
@@ -145,7 +145,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
     },
     session: {
       // R-ACCOUNT-021: a guest's session is its only way back, so it lasts as long as a browser keeps a cookie (400 days), renewed each day it is used.
-      // no config field holds the session's life; the library's default of 7 days would lose a guest that rests a week.
+      // No config field holds the session's life; the library's default of 7 days would lose a guest that rests a week.
       expiresIn: SESSION_DAYS * 86_400,
       updateAge: 86_400,
       // R-ACCOUNT-016: deletion needs a session signed in within this many seconds.

@@ -1,6 +1,5 @@
 // What every route and job is given: the stores, the config, the clock and
-// the random bytes, all passed in so a test can replace each. Kept by hand:
-// this file; a kind that needs a field says so in its report.
+// the random bytes, all passed in so a test can replace each.
 import type { Content } from "@japacity/sim";
 import type {
   AccountStore,

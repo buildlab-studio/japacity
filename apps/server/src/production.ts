@@ -128,8 +128,8 @@ export function placeOfIn(deps: ServerDeps): PlaceOf {
 
 /**
  * R-CITY-036: the name and look other players see.
- * the state holds neither; the scenario's share-card first name and
- * the scenario id stand in until the contract gives a display name and a look.
+ * The state holds neither, so the scenario's share-card first name and the
+ * scenario id stand in for them.
  */
 export function profileOfIn(deps: ServerDeps, text: Record<string, string>): ProfileOf {
   return async (account) => {

@@ -62,7 +62,7 @@ function pickers(board: BoardName): { when: BoardWhen; who: BoardWho } {
     case "all-time.friends":
       return { when: "all-time", who: "friends" };
     case "joined-week":
-      // the joined-week board ranks the japacity figure among the accounts made in the player's week, named as everyone is (usernames, R-CITY-040).
+      // The joined-week board ranks the japacity figure among the accounts made in the player's week, named as everyone is (usernames, R-CITY-040).
       return { when: "all-time", who: "everyone" };
     default: {
       const never: never = board;

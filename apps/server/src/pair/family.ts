@@ -31,7 +31,7 @@ function pays(live: Live, entry: OfferState["entry"], choice: string): boolean {
 
 /**
  * Sends the copies and the handled notices for the offer events of one
- * accepted command. a sibling whose life refuses the copy (its
+ * accepted command. A sibling whose life refuses the copy (its
  * prologue open, the same request open already) is left out and the command
  * still goes, since the request was the opener's own.
  */

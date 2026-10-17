@@ -1,8 +1,7 @@
 // The server's config: every number the rule pages put "in config as" and
 // the test switches. The production values are the pages'
 // defaults; a test proves the production config holds no test switch
-// (R-ACCOUNT-005, R-CLOCK-009). This file is kept by hand.; a kind that needs
-// a field says so in its report.
+// (R-ACCOUNT-005, R-CLOCK-009).
 import { time } from "@japacity/sim";
 
 export interface ServerConfig {

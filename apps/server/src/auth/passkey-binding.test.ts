@@ -1,5 +1,6 @@
-// R-ACCOUNT-003 and R-MODERATION-012: who may add a
-// passkey, and what every addition leaves behind.
+// R-ACCOUNT-003 and R-MODERATION-012: who may add a passkey, and what every
+// addition leaves behind, so whoever gets into an admin's email cannot add the
+// passkey the admin pages need.
 // Through the real auth library with a software passkey.
 import { describe, expect, test } from "vitest";
 

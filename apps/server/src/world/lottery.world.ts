@@ -29,14 +29,14 @@ async function lastResult(world: WorldStore, tick: number, draw: number): Promis
  * with the odds and the jackpot it opened with and whether that jackpot rolled
  * over from the last result. The sales so far are the tickets sold before the
  * row is made, at the current content's price.
- * a draw opens only once the draw before it is drawn (`openDraw`), a
+ * A draw opens only once the draw before it is drawn (`openDraw`), a
  * few minutes after the Friday close, and the close's own tick row is made at
  * the close. That row, and any made before the draw opens, carries the draw
  * before, closed, so its tickets show as being drawn and a purchase is refused
  * as closed; sales of the new draw start with the next row, Saturday 07:00 in
  * Lagos, with the result and the new jackpot. R-LOTTERY-002 says sales start
- * with tick 14n.
- * with no draw stored at or before the tick's draw the world runs no draw.
+ * with tick 14n, so the code and the page differ here.
+ * With no draw stored at or before the tick's draw the world runs no draw.
  */
 export async function lotteryFor(tick: number, deps: Pick<ServerDeps, "stores" | "contents">): Promise<World["lottery"]> {
   const world = deps.stores.world;

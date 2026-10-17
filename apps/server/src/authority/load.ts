@@ -49,7 +49,7 @@ export type Loaded = { ok: true; live: Live } | { ok: false; diverged: Diverged 
 /** R-SERVER-023: the bundled content a segment names, by version and overlay. */
 export function contentNamed(contents: Contents, version: string, overlay: string | undefined): Content {
   const found = namedContent(contents, version, overlay);
-  // a segment under a content the server no longer bundles cannot be replayed; R-SERVER-023's sweep is meant to leave none.
+  // A segment under a content the server no longer bundles cannot be replayed; R-SERVER-023's sweep is meant to leave none.
   if (found === null) throw new Error(`The server bundles no content ${version} under overlay ${overlay ?? "none"}.`);
   return found;
 }
@@ -130,7 +130,7 @@ export function load(held: Held, contents: Contents, worlds: ReadonlyMap<number,
 
   const upgraded = upgradeState(state, content, current);
   const problems = [...checkInvariants(upgraded, current), ...contentProblems(current)];
-  // an upgrade that fails its checks has no reply code of its own; it is refused as an error and nothing is written.
+  // An upgrade that fails its checks has no reply code of its own; it is refused as an error and nothing is written.
   if (problems.length > 0) throw new Error(`Character ${row.id} does not upgrade from ${content.version} to ${current.version}: ${problems.join(" ")}`);
   const next = row.segment + 1;
   live.opened = {

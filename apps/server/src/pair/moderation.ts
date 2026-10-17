@@ -192,7 +192,7 @@ async function subjectOf(deps: ServerDeps, account: string, input: ReportInput, 
   const phrase = Object.hasOwn(current.phrase, cite.phrase) ? current.phrase[cite.phrase as Id<"phrase">] : undefined;
   if (!Object.hasOwn(current.place, cite.place) || phrase === undefined || phrase.where === "conversation") return { ok: false, answer: refused(404, "unknown-id", "There is no such phrase said in that place.") };
   if (cite.at > deps.now()) return { ok: false, answer: refused(400, "not-legal", "A phrase cannot be heard after the report.") };
-  // presence carries no account (R-CITY-036), so a phrase heard in a place names its speaker only when the body does; otherwise the subject is blank for the moderator to find.
+  // Presence carries no account (R-CITY-036), so a phrase heard in a place names its speaker only when the body does; otherwise the subject is blank for the moderator to find.
   return { ok: true, subject: input.subject ?? { account: "" } };
 }
 
@@ -242,7 +242,7 @@ export async function report(deps: ServerDeps, account: string, body: unknown): 
 }
 
 /**
- * R-MODERATION-007, R-MODERATION-008: for the moderation work's admin view.
+ * R-MODERATION-007, R-MODERATION-008: for the moderation admin view.
  * Decides the report, lifts its hold, and releases the record once no other
  * open report holds it.
  */

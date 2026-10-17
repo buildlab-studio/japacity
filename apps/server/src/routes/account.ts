@@ -236,7 +236,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     const session = await auth.api.getSession({ headers: c.req.raw.headers });
     if (session === null) return c.json<DeleteReply>(rejection("signed-out", "Sign in first."), 401);
 
-    // a guest has no email and no other way in, so its own session is the whole of its confirmation.
+    // A guest has no email and no other way in, so its own session is the whole of its confirmation.
     if ((session.user as { isAnonymous?: unknown }).isAnonymous === true) {
       const out = await auth.api.signOut({ headers: c.req.raw.headers, returnHeaders: true });
       await requestDeletion(deps, session.user.id);

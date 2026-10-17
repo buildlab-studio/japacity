@@ -1,8 +1,8 @@
 // R-SERVER-011: the characters that logged a command on each UTC day, as the
-// money job needs them. no store can list the characters that logged
-// on a day, so the list is kept in the isolate's memory from markAfterCommit
-// and is lost when the isolate restarts. the decision: a store query, such
-// as `LedgerStore.active(day)` or the log rows by `at`, replaces it.
+// money job needs them. No store can list the characters that logged on a
+// day, so the list is kept in the isolate's memory from markAfterCommit and is
+// lost when the isolate restarts. A store query, such as
+// `LedgerStore.active(day)` or the log rows by `at`, would replace it.
 import type { LedgerStore } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";

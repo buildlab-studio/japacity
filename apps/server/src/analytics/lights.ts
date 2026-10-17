@@ -50,7 +50,7 @@ export function roundToTen(count: number): number {
 /**
  * R-ACCOUNT-031: the lives being played, from the last
  * day the nightly count wrote (its whole-game rows); null before its first run.
- * a life on the road counts at home, as the place rule has two places
+ * A life on the road counts at home, as the place rule has two places
  * (place.md R-PLACE-001) and the road is no departure (road.md R-ROAD-001); its
  * own key keeps it apart in the store.
  */

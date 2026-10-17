@@ -48,9 +48,9 @@ export interface Hold {
 }
 
 /**
- * The part of the pair side's `ModerationStore` the queue uses. the
- * queue keeps this narrow port, and `storeQueue` in ports.ts reads it over the
- * landed `ModerationStore` (packages/store/src/pair.types.ts), so the admin
+ * The part of the pair side's `ModerationStore` the queue uses. The queue
+ * keeps this narrow port, and `storeQueue` in ports.ts reads it over the
+ * `ModerationStore` (packages/store/src/pair.types.ts), so the admin
  * view never learns the store's row shapes.
  */
 export interface ReportQueueStore {

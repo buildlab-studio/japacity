@@ -406,7 +406,7 @@ describe("telling", () => {
     server.setNow(during(14));
     await drawJob(server.deps, keys, TICKS_CRON);
     const result = (await server.deps.stores.world.draw(0))!.result!;
-    // the close's own row still shows draw 0, closed and being drawn, and a purchase in it is refused.
+    // The close's own row still shows draw 0, closed and being drawn, and a purchase in it is refused.
     expect((await server.deps.stores.world.tick(14))!.world.lottery).toMatchObject({ draw: 0, closesTick: 14, last: null });
     expect(await buy(server, lives[0]!.account, lives[0]!.character, 1)).toMatchObject({ ok: false, code: "not-legal" });
     server.setNow(during(15));

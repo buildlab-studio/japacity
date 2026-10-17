@@ -1,5 +1,5 @@
 // R-ANALYTICS-008: the day's log while the server runs on the memory stores.
-// the memory stores cannot list characters or accounts, so the
+// The memory stores cannot list characters or accounts, so the
 // active characters are the ones the money job's isolate list holds
 // (admin/active.ts, filled by markAfterCommit), and the accounts created on
 // the day are found among their accounts. The Worker's jobs read the

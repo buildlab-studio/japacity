@@ -38,7 +38,7 @@ export function roundFallsAt(beacon: Pick<Beacon, "genesis" | "period">, round: 
  * quicknet over HTTP: `GET /v2/beacons/quicknet/rounds/{round}` answers the
  * round and its BLS signature; the randomness is the SHA-256 of the signature,
  * as drand's v1 API publishes it beside the signature.
- * the signature is not checked against quicknet's public key; that needs a BLS12-381 library.
+ * The signature is not checked against quicknet's public key; that needs a BLS12-381 library.
  */
 export function quicknet(fetcher: typeof fetch = fetch, base: string = DRAND_URL): Beacon {
   return {

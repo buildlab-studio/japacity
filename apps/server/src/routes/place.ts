@@ -94,7 +94,7 @@ export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Ho
 
     const [where, profile] = await Promise.all([bindings.placeOf(session.account), bindings.profileOf(session.account)]);
     if (where === null || profile === null) return refuse(c, 404, "no-character", "the account has no character");
-    // no ServerCode names "the character is not in that place"; not-legal is the nearest.
+    // No ServerCode names "the character is not in that place"; not-legal is the nearest.
     if (where !== place) return refuse(c, 409, "not-legal", `the character is in ${where}`);
 
     const member = { account: session.account, name: profile.name, look: profile.look, place, joinedAt: deps.now() };

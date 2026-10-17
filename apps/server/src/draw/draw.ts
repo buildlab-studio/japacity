@@ -18,7 +18,7 @@ import { roundAfter } from "./beacon";
 /** R-LOTTERY-002, R-CLOCK-002: draw `n` sells from tick `14n` and closes when tick `14(n + 1)` begins. */
 export const TICKS_PER_DRAW = 14;
 
-/** R-LOTTERY-007: 256 bits. lottery.md puts this in config as `server.lottery.secretBits`, which config.ts does not hold yet. */
+/** R-LOTTERY-007: 256 bits, the figure config's `lottery.secretBits` also holds; this constant is the one read. */
 export const SECRET_BYTES = 32;
 
 /** A token is the first 16 hex digits of the HMAC (R-LOTTERY-008). */
@@ -45,7 +45,7 @@ export { fingerprintOf };
 /**
  * R-LOTTERY-008: the first 16 hex digits of the HMAC-SHA-256 of the account id
  * and the draw number under the server's key.
- * the message is the account id, a colon and the draw number in decimal, as UTF-8.
+ * The message is the account id, a colon and the draw number in decimal, as UTF-8.
  */
 export async function tokenOf(key: string, account: string, draw: number): Promise<string> {
   if (key.length === 0) throw new Error("The draw's token key is not set, so a token would name its account to anyone.");
@@ -60,7 +60,7 @@ export { listHashOf };
 
 /**
  * R-LOTTERY-008: the frozen list's tokens in ticket order.
- * a ticket whose character is gone (an account deleted) has no account id left to hash; its token is made from the character id instead. A stored list (`DrawRow.list`) would keep the published list fixed whatever is deleted later.
+ * A ticket whose character is gone (an account deleted) has no account id left to hash; its token is made from the character id instead. The first close stores the list (`listOf`), so the published list stays fixed whatever is deleted afterwards.
  */
 export async function tokensOf(deps: Pick<ServerDeps, "stores">, key: string, draw: number, tickets: readonly TicketRow[]): Promise<string[]> {
   const byCharacter = new Map<string, string>();
@@ -101,7 +101,7 @@ export async function storedBefore(world: Pick<WorldStore, "draw">, draw: number
  * the odds the private settings hold now, and the jackpot standing, all fixed
  * for the draw. A draw already stored is returned as it is, so opening twice
  * is a no-op.
- * a draw opens only once the draw before it is drawn, because its
+ * A draw opens only once the draw before it is drawn, because its
  * jackpot is that draw's result; until then it is not stored and null is
  * returned, and the world shows the draw before as closed (`lotteryFor`).
  */
@@ -143,7 +143,7 @@ export function resultOf(row: DrawRow, tokens: readonly string[], beaconRandomne
  * R-LOTTERY-012: whether draw `row` is a forced win: its odds name
  * `forcedWinWeeks`, and that many draws, this one counted, have passed since
  * the last hit, read from the stored results before it.
- * with no hit stored, the draws are counted from the first stored one.
+ * With no hit stored, the draws are counted from the first stored one.
  */
 export async function forcedWin(world: Pick<WorldStore, "draw">, row: DrawRow): Promise<boolean> {
   const weeks = row.odds.forcedWinWeeks;
@@ -223,11 +223,11 @@ export async function closeDraw(deps: ServerDeps, keys: DrawKeys, draw: number):
         if (outcome.rejection.code !== "not-legal") throw new Error(`Paying ${character} for draw ${String(draw)} was rejected with ${outcome.rejection.code}: ${outcome.rejection.detail}`);
         break;
       case "diverged":
-        // a diverged winner holds the draw's result back until the rollback tool mends it; the draw is tried again on every run.
+        // A diverged winner holds the draw's result back until the rollback tool mends it; the draw is tried again on every run.
         unpaid.push(character);
         break;
       case "refused":
-        // a winner whose character is gone is paid nothing; the prize is destroyed with the rest of the fund.
+        // A winner whose character is gone is paid nothing; the prize is destroyed with the rest of the fund.
         break;
       default: {
         const never: never = outcome;

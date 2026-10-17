@@ -70,7 +70,8 @@ export async function sha256Hex(text: string): Promise<string> {
 }
 
 /**
- * Keys of the per-email day rows. A day row's
+ * Keys of the per-email day rows, which cap the codes sent to one address in a
+ * day so it cannot be sent codes without end. A day row's
  * `lastRequest` holds when its window ends, not when it began, so the prune of
  * rows 60 seconds past their last use keeps it for the whole day.
  */

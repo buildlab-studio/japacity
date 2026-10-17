@@ -38,7 +38,7 @@
     "run_worker_first": ["/api/*"]
   },
   "vars": {
-    // The game's address. The auth library, the passkeys' relying
+    // The game's address, the one it is served from. The auth library, the passkeys' relying
     // party (its host, R-ACCOUNT-003), the bot check's host and the origin check on writes trust only this.
     "SITE_URL": "https://japacity.app"
     // Production's database is on a paid plan that need not sleep, so production sets no TICK_CRON and ticks
@@ -68,7 +68,7 @@
   // configuration with caching off, the cached one for the ticks and the auth library.
   "hyperdrive": [
     { "binding": "GAME_DB", "id": "dfa35042f0eb48d9beefaeae053a5408" },
-    // CACHED_DB is read by nothing yet. It stays bound for the reads design 05 section 7 allows
+    // CACHED_DB is read by nothing. It stays bound for the reads design 05 section 7 allows
     // from a cache: the world's ticks and the auth library. The world's reply is kept by the Cache API instead
     // (R-SERVER-039), because reading a tick may store a missing one, a write a cached configuration must not serve.
     { "binding": "CACHED_DB", "id": "d5b2792f9d3f46fcb79bf6aa79ad5802" }

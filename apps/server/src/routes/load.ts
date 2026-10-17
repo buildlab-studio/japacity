@@ -108,7 +108,7 @@ export function warmCommand(legal: readonly Loose[], pick: number): Loose | null
 const EXTRA_STEPS = 40;
 
 /**
- * R-LOAD-002: plays up to `months` months for one character. in one
+ * R-LOAD-002: plays up to `months` months for one character, in one
  * transaction, so 100,000 accounts seed in minutes rather than hours; it
  * writes the rows a player's commands would (each command's row and hash, a
  * snapshot at every multiple of `snapshotEvery`), and the fast clock's

@@ -25,8 +25,8 @@ export async function restrictedUntil(deps: Pick<ServerDeps, "stores" | "now">, 
 
 /**
  * R-MODERATION-014: the refusal for a phrase or an invite from a muted or
- * suspended account, or null. ServerCode has no code of its own for
- * a mute; `not-possible` is used, with the end in the detail.
+ * suspended account, or null. ServerCode has no code of its own for a mute,
+ * so `not-possible` is used, with the end in the detail.
  */
 export async function silenced(deps: Pick<ServerDeps, "stores" | "now">, account: string): Promise<{ status: 200; body: PairRejection } | null> {
   const until = Math.max((await restrictedUntil(deps, account, "mute")) ?? 0, (await restrictedUntil(deps, account, "suspend")) ?? 0);

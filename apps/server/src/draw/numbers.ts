@@ -9,7 +9,7 @@ import type { ServerDeps } from "../deps";
  * character's tickets in the draw it last bought in, once that draw is frozen
  * and is the newest drawn or the one being drawn, which the world shows closed
  * until the next draw opens. Null otherwise.
- * the view names no draw for the numbers; they belong to the draw
+ * The view names no draw for the numbers; they belong to the draw
  * of `lottery.last` or the one closed after it, never to a draw on sale.
  */
 export async function withNumbers(deps: Pick<ServerDeps, "stores">, character: string, state: State, view: PlayerView): Promise<PlayerView> {

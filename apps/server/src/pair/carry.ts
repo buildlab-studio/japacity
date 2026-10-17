@@ -102,7 +102,7 @@ function agreeBoth(scope: Scope, pair: string): Rejection | null {
     wedding ??= staged?.moment.kind === "wedding" ? staged.moment : null;
   }
   scope.book.write(pair, "a", { type: "pair/agreed", tick: scope.turn.world.tick });
-  // each life draws its own wedding spot; the record keeps side a's.
+  // Each life draws its own wedding spot; the record keeps side a's.
   if (wedding !== null) scope.book.write(pair, "a", { type: "pair/moment-added", kind: "wedding", spot: wedding.spot, what: wedding.what, tick: wedding.tick });
   return null;
 }
@@ -204,7 +204,6 @@ const INVITER_SLOT = "sibling-1";
  * with its first sibling slot as an invited card. The simulation refuses
  * `people/link` while the prologue is open, so the link is sent the moment
  * the prologue closes, with the inviter's facts.
- * the first plan asked for the link at the accept; the kind refuses it there with prologue-open.
  */
 function siblingLink(scope: Scope, live: Live, before: State): Rejection | null {
   if (!before.prologue.open || live.state.prologue.open || live.state.people.slots[INVITER_SLOT]?.state !== "invited") return null;
