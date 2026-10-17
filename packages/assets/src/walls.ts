@@ -1,4 +1,4 @@
-// A wide home's outer walls in pairs (turning the house): each side of the house and its yard is
+// A wide home's outer walls in pairs, so the house can turn: each side of the house and its yard is
 // built twice, full height with the wall things and knee-high, as named parts of the one shell, so the view can turn a
 // quarter at a time and always look over the near walls at the far ones standing full. The builder, the stage, the
 // build check and the city read the same names from here.

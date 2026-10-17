@@ -940,8 +940,8 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (doneThisMonth(ctx.state, entry)) return reject("not-legal", `${entry.id} was done this month already. It runs once a month.`);
   // R-ACTIVITY-020 (decision 0036): an act that takes effort waits for sleep once the body is spent; what takes none is always open.
   if (bodySpent(ctx.state, ctx.content, entry)) return reject("not-legal", `${entry.id} takes effort, and you are spent. Sleep.`);
-  // R-LUCK-005: the kiosk sells at most `maxTickets` a month across visits; past it the
-  // sixth is refused, and the kiosk says so in its own voice on the screen.
+  // R-LUCK-005: the kiosk sells at most `maxTickets` a month across visits; a ticket past it
+  // is refused, and the kiosk says so in its own voice on the screen.
   if (entry.id === LOTTO) {
     const bought = nowThisMonth(ctx.state).filter((done) => done.activity === LOTTO).reduce((sum, done) => sum + Number(done.param ?? 0), 0);
     const cap = ctx.content.tuning.luck.maxTickets;

@@ -110,7 +110,7 @@ describe("the metres of a degree of longitude", () => {
     expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: HEATHROW, way: "train" }))).toMatchObject({ fare: 550, currency: "GBP" });
   });
 
-  test("[R-PLACE-010] given Lagos at 111, when a fare is read from content, then it is the fare as before, the figure passed or not", () => {
+  test("[R-PLACE-010] given Lagos at 111, when a fare is read from content, then it is the same fare, the figure passed or not", () => {
     const from = positionOf("place.ojuelegba");
     const to = positionOf("place.computer-village");
     const { fareKobo, farePerKmKobo } = content.tuning.city.ride;
@@ -198,7 +198,7 @@ describe("a ride abroad", () => {
     expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "bus" }))).toMatchObject({ fare: 175 });
   });
 
-  test("[R-PLACE-010] given a country that lists no ways, when any ride is sent there, then it is refused as before, and the view lists no way", () => {
+  test("[R-PLACE-010] given a country that lists no ways, when any ride is sent there, then it is refused, and the view lists no way", () => {
     // Every country lists its ways (design page 15), so Canada's are taken away for this edge.
     const canada = content.tuning.city.ride.abroad["country.canada"]!;
     const none = { ...content, tuning: { ...content.tuning, city: { ...content.tuning.city, ride: { ...content.tuning.city.ride, abroad: { ...content.tuning.city.ride.abroad, "country.canada": { ...canada, ways: {} } } } } } };

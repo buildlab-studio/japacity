@@ -143,7 +143,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.freeze(9, 70_000)).toMatchObject({ ok: false, code: "missing" });
     });
 
-    test("[R-LOTTERY-021] given a draw put, when it is read, then it carries no house top-up: the raffle's was retired by decision 0010", async () => {
+    test("[R-LOTTERY-021] given a draw put, when it is read, then it carries no house top-up, as decision 0010 has none", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
       expect(Object.keys((await store.draw(4)) ?? {})).not.toContain("topUpTickets");

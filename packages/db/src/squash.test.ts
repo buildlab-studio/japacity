@@ -1,10 +1,9 @@
-// R-SERVER-044: the migrations were squashed with no real player on either database. Three files (a clean set of two
-// and 0002_dedication-lights) became this one file, 0000_japacity, the hand-written function and trigger carried in at
-// its end. This proves the one file builds the very structure the three built: one fresh PGlite migrated with the
+// R-SERVER-044: one migration file, 0000_japacity, holds what three files built (a clean set of two and
+// 0002_dedication-lights), the hand-written function and trigger at its end. This proves the one file builds the very structure the three built: one fresh PGlite migrated with the
 // three, another with the one, and a walk of each catalog compared.
 //
-// The three are kept for this test in __fixtures__/migrations-before-squash-2 (their SQL and journal exactly as at
-// 6560ceca; the snapshots are not needed to migrate). They are read from the tree and not from git because the check
+// The three are kept for this test in __fixtures__/migrations-before-squash-2 (their SQL and journal unedited; the
+// snapshots are not needed to migrate). They are read from the tree and not from git because the check
 // in CI checks out one commit with no history, and a test that needs history would fail or skip there.
 //
 // Only the clean file itself is compared, never a migration added after it, so the test keeps proving the squash after
@@ -128,7 +127,7 @@ async function walk(client: PGlite): Promise<Catalog> {
   };
 }
 
-describe("the clean set of 15 Oct 2026", () => {
+describe("the squashed clean set", () => {
   test("[R-SERVER-044] given the three migrations kept as a fixture, when they are read, then they are the three as they stood before the squash, unedited", () => {
     expect(journalOf(BEFORE).entries.map((entry) => entry.tag)).toEqual(OLD_TAGS);
     expect(readdirSync(BEFORE).filter((name) => name.endsWith(".sql")).sort()).toEqual(OLD_TAGS.map((tag) => `${tag}.sql`));

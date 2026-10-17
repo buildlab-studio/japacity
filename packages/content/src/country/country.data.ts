@@ -38,9 +38,8 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     rentFlat: "obligation.rent-flat-ca",
     phone: "obligation.phone-ca",
     overstayer: "status.ca-overstayer",
-    // no Canadian gate refuses for deception (R-GATE-005 names the sponsor
-    // and contract gates only), so the page gives no ban and there is none.
-    // R-INTERVIEW: five years after misrepresentation (IRPA s. 40); R-UNDERTAKING-004: five years after arriving through a partner (IRPR s. 130(3)).
+    // No Canadian gate refuses for deception (R-GATE-005 names the sponsor and contract gates only), so the
+    // deception ban here is the one a caught interview brings (R-INTERVIEW-010): five years after misrepresentation (IRPA s. 40); R-UNDERTAKING-004: five years after arriving through a partner (IRPR s. 130(3)).
     deceptionBanMonths: 60,
     partnerBarMonths: 60,
     // The room abroad's made-up spot on the painted map, in the north-east (design page 15 section 3).

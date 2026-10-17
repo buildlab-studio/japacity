@@ -503,7 +503,7 @@ describe("resolving the slots", () => {
     expect(own(result, "activity/hunted")).toEqual([]);
   });
 
-  test("[R-ACTIVITY-004] given a naira cost, when it is paid, then it is paid by transfer, the bank first and cash for the rest, under its own reason (decision 0012 as amended)", () => {
+  test("[R-ACTIVITY-004] given a naira cost, when it is paid, then it is paid by transfer, the bank first and cash for the rest, under its own reason (decision 0012)", () => {
     const plain = lab("scenario.plain", labContent);
     const bank = plain.game.state.wallet.pockets.NGN.bank;
     const result = plain.end([pick("activity.split")]);

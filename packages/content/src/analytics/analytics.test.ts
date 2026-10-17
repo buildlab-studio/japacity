@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { content, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "../index";
 
-/** R-ANALYTICS-008: the numbers before launch. */
+/** R-ANALYTICS-008: the admin's numbers. */
 const LAUNCH = [
   "players/weekly",
   "players/monthly",
@@ -44,7 +44,7 @@ describe("the counter list", () => {
     expect(byId.map((name) => named(name)?.keys)).toEqual(byId.map(() => "id"));
   });
 
-  test("[R-ANALYTICS-008] given the numbers before launch, when the list is read, then each is keyed as the page gives it", () => {
+  test("[R-ANALYTICS-008] given the admin's numbers, when the list is read, then each is keyed as the page gives it", () => {
     const byRegion = ["players/weekly", "players/monthly", "players/guest", "players/secured", "players/secured-by-signup", "players/total", "sessions/count", "lives/started", "lives/secured", "japa/departed", "feedback/sent"];
     expect(byRegion.map((name) => named(name)?.keys)).toEqual(byRegion.map(() => "region"));
     expect(named("players/online-peak")?.keys).toEqual(["peak"]);

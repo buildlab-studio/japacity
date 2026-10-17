@@ -1074,7 +1074,7 @@ export interface PairInterview {
   result: InterviewResult | null;
 }
 
-/** A preset phrase (docs/rules/pair.md R-PAIR-011 to 014). */
+/** A preset phrase (docs/rules/pair.md R-PAIR-010 to 013). */
 export interface PhraseEntry {
   id: Id<"phrase">;
   fill: "spot" | "route" | "news" | "event" | "thing" | null;
@@ -1111,7 +1111,7 @@ export interface PairRecord {
   held: boolean;
 }
 
-/** A stored phrase between two players (R-PAIR-012). Times are the server's and never enter a state. */
+/** A stored phrase between two players (R-PAIR-011). Times are the server's and never enter a state. */
 export interface ConversationRow {
   id: string;
   conversation: string;

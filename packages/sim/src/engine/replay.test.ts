@@ -68,7 +68,7 @@ function twoSegments() {
   return { ...held, base, before: game.state };
 }
 
-describe("the flat save of the first milestone", () => {
+describe("the flat save", () => {
   test("[R-SERVER-020] [R-ENGINE-010] given every committed golden and recorded life, when loaded, then each is one segment starting from its scenario and replays to its blessed months and final hash", () => {
     const flat = Object.entries(lifeSaves);
     // Three flights and three recorded lives abroad.

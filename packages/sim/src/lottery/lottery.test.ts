@@ -289,7 +289,7 @@ function creditedReasons(events: readonly { type: string }[]): unknown[] {
   return events.flatMap((event) => (event.type === "wallet/credited" && "reason" in event ? [event.reason] : []));
 }
 
-describe("pot-top-up is retired", () => {
+describe("pot-top-up is refused", () => {
   test("[R-LOTTERY-013] given a payout that still carries a house part, when it is paid, then it is refused with not-legal and nothing is paid; a part of 0 credits only win", () => {
     const { game } = play();
     const bank = game.state.wallet.pockets.NGN.bank;

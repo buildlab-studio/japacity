@@ -409,7 +409,7 @@ describe("schools", () => {
     game.expectRejected({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE }, "not-legal");
   });
 
-  test("[R-ROUTE-006] given Tunde refused by Northgate on seed-0, as the sweep found, when months pass, then the view names the month it will take him again, and six months after its answer it is offered and takes a new application", () => {
+  test("[R-ROUTE-006] given Tunde refused by Northgate on seed-0, when months pass, then the view names the month it will take him again, and six months after its answer it is offered and takes a new application", () => {
     const game = life({ from: "scenario.tunde", seed: "seed-0" });
     expect(game.state.quality[GRADE]).toBe(school(NORTHGATE).minGrade);
     toAnswer(game, NORTHGATE);

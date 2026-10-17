@@ -118,7 +118,7 @@ function napGives(game: Game): number {
 }
 
 describe("the market's catalogue", () => {
-  test("[R-HOME-013] [R-HOME-001] given the content, when the market's things are read, then the catalogue is the one the maintainer asked for, each priced in whole kobo with a resale under its price and a running cost where real", () => {
+  test("[R-HOME-013] [R-HOME-001] given the content, when the market's things are read, then the catalogue is the listed one, each priced in whole kobo with a resale under its price and a running cost where real", () => {
     expect(Object.keys(content.thing)).toEqual(CATALOGUE);
     for (const entry of Object.values(content.thing)) {
       expect(Number.isSafeInteger(entry.price)).toBe(true);
@@ -312,7 +312,7 @@ describe("what a thing does in life", () => {
     expect(quality(game, TECH)).toBe(53);
   });
 
-  test("[R-HOME-013] [R-HOME-001] given a life that owns nothing, when the month closes, then the things kind tells and moves nothing, so a life with no things plays as before the market", () => {
+  test("[R-HOME-013] [R-HOME-001] given a life that owns nothing, when the month closes, then the things kind tells and moves nothing, so a life with no things plays as if there were no market", () => {
     const game = ada();
     const result = month(game);
     expect(result.events.filter((event) => event.type.startsWith("things/"))).toEqual([]);
@@ -320,7 +320,7 @@ describe("what a thing does in life", () => {
   });
 });
 
-describe("the car on the map (R-PLACE-010 and R-WORLD-017 to be amended)", () => {
+describe("the car on the map (R-PLACE-010 and R-WORLD-017)", () => {
   const FROM: Id<"place"> = "place.ojuelegba";
   const TO: Id<"place"> = "place.yaba";
 

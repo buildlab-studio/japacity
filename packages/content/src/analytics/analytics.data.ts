@@ -204,7 +204,7 @@ export const counterTable: CounterDef[] = [
   { name: "first/early-win", keys: ["1", "2", "3", "later", "none"], source: "server" },
   // R-ANALYTICS-004.
   { name: "analytics/dropped", keys: DROP_REASONS, source: "server" },
-  // R-ANALYTICS-008, 012, 013: the numbers before launch.
+  // R-ANALYTICS-008, 012, 013: the admin's numbers.
   { name: "players/weekly", keys: "region", source: "server" },
   { name: "players/monthly", keys: "region", source: "server" },
   { name: "players/online-peak", keys: ["peak"], source: "server" },

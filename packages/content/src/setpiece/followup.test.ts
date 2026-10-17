@@ -12,7 +12,7 @@ function followUpNamedBy(question: string, answer: string): string | undefined {
 }
 
 describe("the follow-up questions", () => {
-  test("[R-SETPIECE-008] given the credibility interview, when a sponsor or the agent is the answer, then who the sponsor is and what the agent said follow, in the decision", () => {
+  test("[R-SETPIECE-008] given the credibility interview, when a sponsor or the agent is the answer, then who the sponsor is and what the agent said follow, in content's words", () => {
     expect(followUpNamedBy("who-pays", "sponsor")).toBe("sponsor-who");
     expect(followUpNamedBy("why-uk", "agent")).toBe("agent-said");
     expect(text[`${INTERVIEW}.q.sponsor-who`]).toBe("Who is the sponsor, and what do they do?");

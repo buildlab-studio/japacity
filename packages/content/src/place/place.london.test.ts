@@ -66,7 +66,7 @@ describe("the places of London", () => {
     expect(content.activity["activity.cook-own-uk"]?.country).toBe("country.uk");
   });
 
-  test("[R-CITY-010] given every job in the UK, when the places are read, then each is staged at one London place, and the workplace abroad is gone", () => {
+  test("[R-CITY-010] given every job in the UK, when the places are read, then each is staged at one London place, and there is no workplace abroad", () => {
     expect(UK_JOBS.length).toBeGreaterThan(8);
     for (const job of UK_JOBS) {
       const at = places.filter((place) => place.country === "country.uk" && (place.stages as readonly string[]).includes(job)).map((place) => place.id);

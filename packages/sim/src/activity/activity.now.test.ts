@@ -244,7 +244,7 @@ describe("a now-act", () => {
 });
 
 describe("a month-act", () => {
-  test("[R-ACTIVITY-015] given a month-act, when it is sent now, then it is refused with not-legal, and in a slot it fills the month as before", () => {
+  test("[R-ACTIVITY-015] given a month-act, when it is sent now, then it is refused with not-legal, and in a slot it fills the month", () => {
     const game = ada();
     const PREP: Id<"activity"> = "activity.morning-run";
     game.expectRejected({ type: "activity/now", activity: PREP, param: null }, "not-legal");

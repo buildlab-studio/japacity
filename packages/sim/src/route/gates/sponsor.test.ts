@@ -475,7 +475,7 @@ describe("R-SPONSOR-005: the care route's papers and window", () => {
     expect(care.sponsor!.documents).toEqual(["document.nursing-licence", "document.nmcn-verification"]);
   });
 
-  test("[R-SPONSOR-005] [R-JAPACITY-001] [R-JAPACITY-004] given the care checklist as amended 11 Oct 2026, when it is read, then the clinic's certificate is an item held or not with the checklist's smallest weight, the application's weight gave it up, and the weights still add up to 100", () => {
+  test("[R-SPONSOR-005] [R-JAPACITY-001] [R-JAPACITY-004] given the care checklist, when it is read, then the clinic's certificate is an item held or not with the checklist's smallest weight, the application's weight gave it up, and the weights still add up to 100", () => {
     const weights = care.checklist.map((item) => item.weight);
     const certificate = care.checklist.find((item) => item.id === "certificate");
     expect(certificate).toEqual({ id: "certificate", weight: Math.min(...care.checklist.filter((item) => item.id !== "certificate").map((item) => item.weight)), requirement: { type: "document/held", document: "document.nurse-certificate" }, partial: false });
