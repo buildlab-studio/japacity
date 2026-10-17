@@ -38,8 +38,6 @@ export const uiText: Record<string, string> = {
   "ui.month.planning": "Month {month}",
   "ui.month.plan": "This month",
   "ui.month.slot-empty": "Nothing yet",
-  // An empty free slot rests (R-TURN-006): never planned, never "nothing".
-  "ui.month.rest": "Free time: you rest",
   // The month's name and phase on the band, where the pages were (R-WORLD-002, R-TURN-010; decision 0034): month 0 of a
   // life is the month of the year it began in; the phase says the month's free time in words, never a count.
   "ui.month.name.0": "January",
