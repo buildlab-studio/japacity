@@ -26,52 +26,6 @@ const raceProject = raceAsked
       },
     ]
   : [];
-const gateWrangler = fileURLToPath(new URL("./apps/gate/wrangler.jsonc", import.meta.url));
-// The game behind the friends' gate, in the gate's tests: every request the gate hands on reaches this.
-const gameBehindGate = `export default {
-  async fetch(request, env, ctx) {
-    const path = new URL(request.url).pathname;
-    if (request.headers.get("upgrade") === "websocket") {
-      const [client, server] = Object.values(new WebSocketPair());
-      server.accept();
-      server.addEventListener("message", (event) => server.send("echo " + event.data));
-      return new Response(null, { status: 101, webSocket: client });
-    }
-    if (request.method === "POST") {
-      return Response.json({ body: await request.text(), cookie: request.headers.get("cookie"), authorization: request.headers.get("authorization") });
-    }
-    if (path === "/api/stream") {
-      // Two parts with a pause between: a gate that buffered would hand them on as one.
-      const { readable, writable } = new TransformStream();
-      const writer = writable.getWriter();
-      const encode = (text) => new TextEncoder().encode(text);
-      ctx.waitUntil((async () => {
-        await writer.write(encode("first "));
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        await writer.write(encode("second"));
-        await writer.close();
-      })().catch(() => undefined));
-      return new Response(readable);
-    }
-    return new Response("game " + path);
-  },
-};`;
-// The game's GateCounters entrypoint, in the gate's tests (apps/gate/src/counts.ts): it keeps what the gate
-// counted, and `seen()` hands it to a test and starts again.
-const countersBehindGate = `import { WorkerEntrypoint } from "cloudflare:workers";
-let counted = [];
-export class GateCounters extends WorkerEntrypoint {
-  count(rows, country) {
-    counted.push({ rows, country });
-    return rows.length;
-  }
-  seen() {
-    const held = counted;
-    counted = [];
-    return held;
-  }
-}
-export default { fetch: () => new Response("") };`;
 const serverWrangler = fileURLToPath(new URL("./apps/server/wrangler.jsonc", import.meta.url));
 // The place object's tests open real sockets, which the Workers plugin runs only with shared storage.
 const workersTests = "apps/server/src/**/*.workers.test.ts";
@@ -169,34 +123,6 @@ export default defineConfig({
           maxWorkers: 1,
           // One worker cannot share a group with the projects that run many, so this group runs after them.
           sequence: { groupOrder: 1 },
-        },
-      },
-      {
-        // The gate that owns the game's root while the game is closed, with the invite links (apps/gate/README.md).
-        plugins: [
-          cloudflareTest({
-            wrangler: { configPath: gateWrangler },
-            miniflare: {
-              bindings: { GATE_SECRET: "a-test-secret-only", GATE_X_HANDLE: "japacityapp" },
-              outboundService: "game",
-              workers: [
-                { name: "game", modules: true, script: gameBehindGate },
-                { name: "japacity-server", modules: true, compatibilityDate: "2026-09-01", script: countersBehindGate },
-              ],
-            },
-          }),
-        ],
-        test: {
-          name: "gate",
-          include: ["apps/gate/src/**/*.test.ts"],
-        },
-      },
-      {
-        // The holding page, kept switched off and not deployed (apps/landing/README.md).
-        test: {
-          name: "landing",
-          environment: "node",
-          include: ["apps/landing/src/**/*.test.ts"],
         },
       },
       {

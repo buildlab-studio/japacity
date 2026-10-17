@@ -6,7 +6,7 @@
 // else. Runs in Node, from vite.config.ts.
 import type { Plugin } from "vite";
 
-/** Where the beacon comes from, and where it reports, as the gate names them (apps/gate/src/screen.ts). */
+/** Where the beacon comes from, and where it reports. */
 export const BEACON_SCRIPT = "https://static.cloudflareinsights.com";
 export const BEACON_REPORTS = "https://cloudflareinsights.com";
 

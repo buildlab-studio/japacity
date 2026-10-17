@@ -122,8 +122,6 @@ const GENERATED_TYPES = "the hash of the Worker's configuration that `wrangler t
 const WRANGLER_IDS = new Map([
   ["apps/server/wrangler.jsonc", "the staging Hyperdrive ids (research: not secret, listed on the your-own-copy page)"],
   ["apps/server/worker-configuration.d.ts", GENERATED_TYPES],
-  ["apps/gate/worker-configuration.d.ts", GENERATED_TYPES],
-  ["apps/landing/worker-configuration.d.ts", GENERATED_TYPES],
 ]);
 
 // The examples are assembled from parts, so this file's own text carries none of them whole.

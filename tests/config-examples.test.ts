@@ -13,7 +13,7 @@ import { DEPLOYMENT_VALUES, findDeploymentValues } from "../tools/scrub-check";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const read = (path: string): string => readFileSync(join(root, path), "utf8");
 
-const EXAMPLES = [".env.example", "apps/server/.dev.vars.example", "apps/gate/.dev.vars.example"] as const;
+const EXAMPLES = [".env.example", "apps/server/.dev.vars.example"] as const;
 
 /** The names an example gives, set (`NAME=`) or shown commented out (`# NAME=`). */
 function named(text: string): Set<string> {
@@ -63,9 +63,6 @@ describe("the example settings", () => {
     const secrets = example.indexOf("\n# Secrets");
     expect(secrets).toBeGreaterThan(0);
     expect(example.indexOf("\nADMIN_ACCOUNTS=")).toBeGreaterThan(secrets);
-    const gate = envStrings("apps/gate");
-    expect(gate).toContain("GATE_SECRET");
-    expect([...named(read("apps/gate/.dev.vars.example"))].sort()).toEqual([...gate].sort());
   });
 
   test("given every Worker secret the local stack hands over, when .env.example is read, then each has a value that works only on this machine", () => {

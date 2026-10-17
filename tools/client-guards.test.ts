@@ -34,12 +34,12 @@ function rawHtmlLines(folders: readonly string[]): string[] {
 }
 
 describe("what the site serves", () => {
-  test("[R-ENGINE-015] given the client's and the gate's sources, then no file sets raw HTML (dangerouslySetInnerHTML, innerHTML, insertAdjacentHTML and the like)", () => {
+  test("[R-ENGINE-015] given the client's sources, then no file sets raw HTML (dangerouslySetInnerHTML, innerHTML, insertAdjacentHTML and the like)", () => {
     expect(RAW_HTML.test('<div dangerouslySetInnerHTML={{ __html: words }} />')).toBe(true);
     expect(RAW_HTML.test("node.innerHTML = words;")).toBe(true);
     expect(RAW_HTML.test('node.insertAdjacentHTML("beforeend", words);')).toBe(true);
     expect(RAW_HTML.test("node.textContent = words;")).toBe(false);
-    expect(rawHtmlLines(["apps/client/src", "apps/gate/src"])).toEqual([]);
+    expect(rawHtmlLines(["apps/client/src"])).toEqual([]);
   });
 
   test("[R-ENGINE-020] given the client's served folder, then it holds no markdown: notes live beside it, never where the site serves them", () => {

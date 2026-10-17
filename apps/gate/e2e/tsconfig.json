@@ -1,9 +1,0 @@
-{
-  // The gate's browser test and its config, apart from the Worker's own source.
-  "extends": "../../../tsconfig.base.json",
-  "compilerOptions": {
-    "lib": ["ES2023", "DOM"],
-    "types": ["node"]
-  },
-  "include": ["."]
-}

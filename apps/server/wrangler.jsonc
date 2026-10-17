@@ -27,8 +27,7 @@
     "traces": { "enabled": true, "head_sampling_rate": 0.05 },
     "issues": { "enabled": true }
   },
-  // The game's one address. While the game is closed the gate's route on the same host runs first
-  // (apps/gate/README.md); deleting that route makes this Worker the root.
+  // The game's one address, answered by this Worker as its Custom Domain.
   "routes": [{ "pattern": "japacity.app", "custom_domain": true }],
   // One Worker is the whole game: the client's build is served as static assets, and only
   // /api/* reaches the code, so the page and the API share one origin (no CORS, first party cookies).

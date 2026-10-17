@@ -6,9 +6,7 @@
 // failure escapes to the platform's error page (R-SERVER-043), and each is
 // logged once (R-SERVER-042). The place object is exported here (R-CLOCK-025).
 import { pgDayLog } from "@japacity/db";
-import { WorkerEntrypoint } from "cloudflare:workers";
 
-import { countFromGate } from "./analytics/gate";
 import { productionConfig } from "./config";
 import { quicknet } from "./draw/beacon";
 import { advertLinksJob } from "./adverts/job";
@@ -24,7 +22,6 @@ import { runJobs } from "./jobs/run";
 import type { NamedJob } from "./jobs/run";
 import { standInJob } from "./jobs/stand-in";
 import { jobCron, tickPeriodMs, ticksJob, TICKS_CRON } from "./jobs/ticks";
-import { logFailure } from "./log";
 import { dropOldFeedback } from "./moderation/feedback";
 import { answered } from "./security/fail";
 import { served } from "./security/noindex";
@@ -38,26 +35,6 @@ export { Place } from "./place/place.object";
  * stack's values merged in by src/env.d.ts.
  */
 export type Env = Cloudflare.Env;
-
-/**
- * R-ANALYTICS-008: the gate's counts (apps/gate): the holding
- * screen served, the invite link used, a page opened from a shared card. Only
- * a Worker bound to this entrypoint by a service binding can call it; it is
- * not on the internet, and no cookie or header is involved. The gate sends a
- * counter's name and key and the visitor's country, and nothing else. A
- * failure is logged here (R-SERVER-042) and handed back to the gate, which
- * carries on without it.
- */
-export class GateCounters extends WorkerEntrypoint<Env> {
-  async count(rows: unknown, country: unknown): Promise<number> {
-    try {
-      return await within(this.env, (promise) => this.ctx.waitUntil(promise), ({ deps }) => countFromGate(deps, rows, country));
-    } catch (error) {
-      logFailure({ what: "gate-count", error });
-      throw error;
-    }
-  }
-}
 
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {

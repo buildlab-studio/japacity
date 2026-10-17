@@ -1,7 +1,7 @@
 // japacity.app is the game's one address.
 // The address the server trusts (SITE_URL, which the auth library, the passkeys' relying party,
 // the Turnstile host check and the origin check all read) is the address the game is served
-// from, on the same host as its API, and the one the gate's route covers while the game is closed.
+// from, on the same host as its API, and the Worker's Custom Domain.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
@@ -15,7 +15,6 @@ const STAGING = "https://staging.japacity.app";
 interface Route {
   pattern: string;
   custom_domain?: boolean;
-  zone_name?: string;
 }
 
 interface Worker {
@@ -97,22 +96,11 @@ describe("the game's address", () => {
     expect(staging?.observability ?? server.observability).toEqual(OBSERVED);
   });
 
-  test("[R-SERVER-042] given the gate and the landing page, when their observability is read, then each has the game's block", () => {
-    expect(wrangler("../../gate/wrangler.jsonc").observability).toEqual(OBSERVED);
-    expect(wrangler("../../landing/wrangler.jsonc").observability).toEqual(OBSERVED);
-  });
-
   test("[R-SERVER-040] given both environments, when their placement is read, then each runs its fetch handler near Neon's London region, and both keep the cached Hyperdrive configuration bound", () => {
     expect(server.placement).toEqual({ region: "aws:eu-west-2" });
     expect(staging?.placement).toEqual({ region: "aws:eu-west-2" });
     expect(server.hyperdrive?.map((each) => each.binding)).toEqual(["GAME_DB", "CACHED_DB"]);
     expect(staging?.hyperdrive?.map((each) => each.binding)).toEqual(["GAME_DB", "CACHED_DB"]);
-  });
-
-  test("given the gate's shipped settings, when they are read, then it owns the root of the game's host and its card picture is on that host", () => {
-    const gate = wrangler("../../gate/wrangler.jsonc");
-    expect(gate.routes).toEqual([{ pattern: `${new URL(PRODUCTION).host}/*`, zone_name: new URL(PRODUCTION).host }]);
-    expect(gate.vars["SITE_URL"]).toBe(PRODUCTION);
   });
 
   test("[R-ACCOUNT-003] given the shipped SITE_URLs, when the relying party is taken from each, then production's is the apex japacity.app and staging's is staging.japacity.app, never the same", () => {
