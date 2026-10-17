@@ -319,6 +319,9 @@ importers:
       '@japacity/content':
         specifier: workspace:*
         version: link:../packages/content
+      '@japacity/sim':
+        specifier: workspace:*
+        version: link:../packages/sim
       eslint:
         specifier: ^10.12.0
         version: 10.12.0(jiti@2.7.0)(supports-color@10.2.2)

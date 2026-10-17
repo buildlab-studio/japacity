@@ -5,11 +5,11 @@
 // the pair routes.
 //
 // Usage: pnpm tsx tools/load/seed.ts [--scale 10] [--base http://127.0.0.1:8787] [--concurrency 32]
+import { int } from "@japacity/sim";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { content } from "../../packages/content/src/index";
-import { divFloor } from "../../packages/sim/src/engine/int";
 import { argument, patient, pool, request, wholeArgument } from "./http";
 import type { Target } from "./http";
 import { config, scaled } from "./load.config";
@@ -36,7 +36,7 @@ export function seedPlan(load: LoadConfig, scenarios: readonly string[]): SeedAc
 
 /** R-LOAD-002: `pairShareBp` of the accounts, two by two in plan order; an odd one left over stays single. */
 export function pairPlan(accounts: readonly string[], pairShareBp: number): [string, string][] {
-  const paired = divFloor(accounts.length * pairShareBp, 10000);
+  const paired = int.divFloor(accounts.length * pairShareBp, 10000);
   const pairs: [string, string][] = [];
   for (let at = 0; at + 1 < paired; at += 2) pairs.push([accounts[at] ?? "", accounts[at + 1] ?? ""]);
   return pairs;
@@ -125,7 +125,7 @@ async function main(args: readonly string[]): Promise<void> {
   writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 1)}\n`);
   const played = manifest.accounts.reduce((sum, each) => sum + each.played, 0);
   const short = manifest.accounts.filter((each) => each.played < each.warm).length;
-  console.log(`Seeded ${String(manifest.accounts.length)} accounts, ${String(played)} months played, ${String(short)} short of their plan, in ${String(divFloor(Date.now() - started, 1000))} s.`);
+  console.log(`Seeded ${String(manifest.accounts.length)} accounts, ${String(played)} months played, ${String(short)} short of their plan, in ${String(int.divFloor(Date.now() - started, 1000))} s.`);
   if (manifest.pairsSkipped !== null) console.log(manifest.pairsSkipped);
   console.log(`Manifest: ${MANIFEST}`);
 }

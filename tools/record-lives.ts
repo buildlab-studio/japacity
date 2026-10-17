@@ -12,20 +12,14 @@
 // A life added after the goldens were blessed is recorded into
 // packages/sim/src/sweep/lives.data.ts instead, and replayed by its own test
 // there until it is blessed into the goldens.
+import type { FlatSave, Id } from "@japacity/sim";
+import { lastSegment, lifeStart, savedCommands } from "@japacity/sim";
+import type { StrategyName } from "@japacity/sim/testing";
+import { lifeSaves, countryLifeSaves, newLifeSaves, FLIGHT_WINDOW, MONTHS_ABROAD, runLife, start } from "@japacity/sim/testing";
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { content } from "../packages/content/src/index";
-
-import { lastSegment, lifeStart, savedCommands } from "../packages/sim/src/engine/replay";
-import type { FlatSave, Id } from "../packages/sim/src/engine/types";
-import { lifeSaves } from "../packages/sim/src/goldens/lives.data";
-import { countryLifeSaves } from "../packages/sim/src/sweep/lives.countries.data";
-import { newLifeSaves } from "../packages/sim/src/sweep/lives.data";
-import { FLIGHT_WINDOW, MONTHS_ABROAD } from "../packages/sim/src/sweep/lives.window";
-import { runLife } from "../packages/sim/src/sweep/players";
-import type { StrategyName } from "../packages/sim/src/sweep/players";
-import { start } from "../packages/sim/src/testing/play";
 
 const WORLD = "golden-world";
 const WANTED: { name: string; life: Id<"scenario">; strategy: StrategyName; refusedFirst: boolean }[] = [

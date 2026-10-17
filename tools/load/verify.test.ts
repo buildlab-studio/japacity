@@ -1,11 +1,10 @@
+import type { Command, Id, State, World } from "@japacity/sim";
+import { hashState } from "@japacity/sim";
+import type { Loose } from "@japacity/sim/testing";
+import { legalCommands, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { content } from "../../packages/content/src/index";
-import { hashState } from "../../packages/sim/src/engine/hash";
-import type { Command, Id, State, World } from "../../packages/sim/src/engine/types";
-import { legalCommands } from "../../packages/sim/src/testing/legal";
-import { start } from "../../packages/sim/src/testing/play";
-import type { Loose } from "../../packages/sim/src/testing/play";
 import { latestSnapshotV, ledgerProblems, snapshotShare, verifyCharacter, versionProblems } from "./verify";
 import type { CharacterRows, Counts } from "./verify";
 
