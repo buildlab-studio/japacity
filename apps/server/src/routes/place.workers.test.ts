@@ -98,27 +98,33 @@ describe("the place routes", () => {
     expect(await setupped.deps.stores.presence.sample(PLACE, 20, null, 0)).toEqual([{ ...member("account-1", PLACE), joinedAt: NOW }]);
   });
 
-  test("[R-CLOCK-030] [R-ACCOUNT-007] given a region whose policy is none, when the socket is asked for, then it is refused and the presence shows no other player", async () => {
+  test("[R-CLOCK-030] [R-REGION-002] given a region whose policy is none, when the socket and the presence are asked for, then it joins the place and the presence shows the other players by name and look", async () => {
     const setupped = setup({ "account-1": PLACE, "account-2": PLACE });
     listenTo(await opened(await socket(setupped, "account-2", "NG")));
 
-    const opening = await socket(setupped, "account-1", "FR");
-    const fetched = await presence(setupped, "account-1", "FR");
+    listenTo(await opened(await socket(setupped, "account-1", "FR")));
+    const reply = await (await presence(setupped, "account-1", "FR")).json<PresenceReply>();
 
-    expect(opening.status).toBe(403);
-    expect((await refusal(opening)).code).toBe("region-closed");
-    expect(await fetched.json()).toEqual({ place: PLACE, others: [], today: [] } satisfies PresenceReply);
-    expect(await roomCounts(setupped.rooms, PLACE)).toEqual([1, 0]);
+    expect(reply).toEqual({ place: PLACE, others: [{ name: "Name account-2", look: "look-account-2" }], today: [] } satisfies PresenceReply);
+    expect(await roomCounts(setupped.rooms, PLACE)).toEqual([2, 0]);
   });
 
-  test("[R-ACCOUNT-010] given a row that needs a strong age check, which no account has passed, when the socket is asked for, then the row counts as none", async () => {
+  test("[R-CLOCK-030] [R-ACCOUNT-010] given a row that needs a strong age check, which no account has passed, when the socket is asked for, then it joins the place, as presence is not contact", async () => {
     const config = testConfig({ testing: { testLogin: true }, regions: { NG: { open: true, interaction: "matched", ageCheck: "verified" } } });
     const setupped = setup({ "account-1": PLACE }, config);
 
-    const opening = await socket(setupped, "account-1", "NG");
+    listenTo(await opened(await socket(setupped, "account-1", "NG")));
 
-    expect(opening.status).toBe(403);
-    await opening.text();
+    expect(await setupped.deps.stores.presence.sample(PLACE, 20, null, 0)).toEqual([{ ...member("account-1", PLACE), joinedAt: NOW }]);
+  });
+
+  test("[R-CITY-015] given another player the asker never joined through, when the presence is fetched, then that player is in the sample with its display name", async () => {
+    const setupped = setup({ "account-1": PLACE, "account-2": PLACE });
+    listenTo(await opened(await socket(setupped, "account-2", "GB")));
+
+    const reply = await (await presence(setupped, "account-1", "GB")).json<PresenceReply>();
+
+    expect(reply.others).toEqual([{ name: "Name account-2", look: "look-account-2" }]);
   });
 
   test("[R-CLOCK-027] given a character in another place, when it asks for this place's socket, then it is refused", async () => {
@@ -240,12 +246,12 @@ describe("the presence fetch's players seen today", () => {
     expect(drawn.size).toBeGreaterThan(1);
   });
 
-  test("[R-CITY-036] [R-CLOCK-030] given a region whose policy is none, when the presence is fetched, then today is empty too", async () => {
+  test("[R-CITY-036] [R-CLOCK-030] given a region whose policy is none, when the presence is fetched, then today holds those seen there today, as anywhere", async () => {
     const setupped = setup({ "account-0": PLACE, "account-1": PLACE });
     await visit(setupped, "account-1");
 
     const reply = await (await presence(setupped, "account-0", "FR")).json<PresenceReply>();
 
-    expect(reply).toEqual({ place: PLACE, others: [], today: [] } satisfies PresenceReply);
+    expect(reply).toEqual({ place: PLACE, others: [], today: [{ name: "Name account-1", look: "look-account-1" }] } satisfies PresenceReply);
   });
 });

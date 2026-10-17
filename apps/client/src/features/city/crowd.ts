@@ -13,8 +13,8 @@ export type Band = "quiet" | "busy" | "packed";
 /** Another player in the place, as the authority's presence sample gives them. */
 export interface Other {
   look: string;
-  /** Null or empty for a stranger: shown by look alone (R-CITY-015). */
-  name: string | null;
+  /** The display name the server sent, which every player in a sample carries (R-CITY-015). */
+  name: string;
 }
 
 export interface Shown {
@@ -147,7 +147,7 @@ export function playersRoom(size: number, city: CityTuning): number {
 
 /**
  * The sample: residents from the dress mix, then, when online, up to `playersRoom` of the slots at
- * the end taken by other players from the presence sample, each named only as the server named them.
+ * the end taken by other players from the presence sample, each tagged with the name the server sent.
  * Players seen today (R-CITY-036) take the slots after the live ones and stand at their spots like them.
  * `worn` names outfits already on show outside the sample, which no resident is given.
  */
@@ -159,7 +159,7 @@ export function sampleCrowd(place: PlaceFacts, pool: readonly Person[], date: st
   players.forEach((other, index) => {
     const slot = size - 1 - index;
     const person = personOfLook(other.look) ?? resident(place, pool, date, slot, city);
-    const tag = other.name === null || other.name.trim() === "" ? null : other.name;
+    const tag = other.name.trim() === "" ? null : other.name;
     people[slot] = { slot, person, kind: "player", tag };
   });
   return { band: bandOf(size, place.crowd.target), people };

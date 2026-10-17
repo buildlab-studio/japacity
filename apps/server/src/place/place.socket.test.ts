@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "../config";
 import { readNudge } from "../nudge/place.nudge";
-import { allowsInteraction, countryOf } from "../routes/place";
+import { countryOf } from "../routes/place";
 import { pickRoom, roomName } from "./place.rooms";
 import { NUDGE_EVERY_MS, nudgeText, parseAttachment, parseLimits, tagsFor } from "./place.socket";
 import type { Attachment } from "./place.socket";
@@ -74,13 +74,6 @@ describe("the place object's plain parts", () => {
 
   test("[R-CLOCK-028] given the production config, when the object's window is read, then it is the configured presence window", () => {
     expect(NUDGE_EVERY_MS).toBe(productionConfig.presence.nudgeEveryMs);
-  });
-
-  test("[R-CLOCK-030] [R-ACCOUNT-010] given each policy row, when it is asked whether players meet, then only an open interaction without a strong age check allows it", () => {
-    expect(allowsInteraction({ open: true, interaction: "none", ageCheck: "declared" })).toBe(false);
-    expect(allowsInteraction({ open: true, interaction: "invited", ageCheck: "declared" })).toBe(true);
-    expect(allowsInteraction({ open: true, interaction: "matched", ageCheck: "declared" })).toBe(true);
-    expect(allowsInteraction({ open: true, interaction: "free-text", ageCheck: "verified" })).toBe(false);
   });
 
   test("[R-ACCOUNT-008] given a request, when its country is read, then Cloudflare's own property wins over the header", () => {

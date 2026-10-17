@@ -328,8 +328,8 @@ function lastPlace(here: ViewPlace, home: string | null, day: number | null): st
 /** The presence sample the online store keeps (R-CITY-015), with those seen today (R-CITY-036) once the store has them; absent offline. */
 interface PresenceSample {
   place: string;
-  others: { name: string | null; look: string }[];
-  today?: { name: string | null; look: string }[];
+  others: { name: string; look: string }[];
+  today?: { name: string; look: string }[];
 }
 
 function canDraw(): boolean {
