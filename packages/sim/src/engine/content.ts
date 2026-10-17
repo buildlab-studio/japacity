@@ -6,6 +6,7 @@ import type { Content, KindName } from "./types";
 import { placeChecks } from "../place/place.check";
 import { checkLotteryContent } from "../lottery/lottery.draw";
 import { agentProblems } from "../offer/offer.agent";
+import { luckReadsMoney } from "../offer/offer.luck";
 import { bridgeProblems } from "../offer/offer.street";
 import { phraseChecks } from "../pair/phrase.check";
 
@@ -78,6 +79,8 @@ export function checkContent(content: Content): string[] {
   problems.push(...directorFairness(content));
   problems.push(...placeChecks(content));
   problems.push(...checkLotteryContent(content));
+  // R-LUCK-001: luck never reads money, so it cannot be farmed by looking broke.
+  for (const offer of Object.values(content.offer)) if (luckReadsMoney(offer)) problems.push(`${offer.id}: a luck offer whose when reads money (R-LUCK-001).`);
   // R-ADVICE-007: no agent entry reads money, and the tells follow the kind.
   problems.push(...agentProblems(content));
   // R-STREET-004: the bridge's price opens only after a night there, and never reads money.
