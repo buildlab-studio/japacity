@@ -229,15 +229,28 @@ const tag = (label: string, pattern: RegExp, example: string, enforced: boolean)
 export const PROCESS_TAGS: readonly ProcessTag[] = [
   tag("a handoff note", /\bHANDOFF-/, "Read the notes first.", true),
   tag("the build notes", /\bjapacity-build-notes\b|(?<![\w-])docs\/build\b/, "See the notes", true),
-  tag("the standing orders", /\bthe notes\b/, "As the notes says.", false),
-  tag("the decision", /\bthe notes\b/, "Logged in the notes.", false),
-  tag("a review code", /\bREVIEW-\d/, "For the review", false),
-  tag("the logic review", /\bthe review\b/, "Found by the the review.", false),
-  tag("the whole-life review", /\bwhole-life review\b/i, "Raised by the whole-life review.", false),
-  tag("a reading taken", /\bReading taken\b/, "the bank pocket.", false),
+  tag("the standing orders", /\bthe notes\b/, "As the notes says.", true),
+  tag("the decision", /\bthe notes\b/, "Logged in the notes.", true),
+  tag("a review code", /\bREVIEW-\d/, "For the review", true),
+  tag("the logic review", /\bthe review\b/, "Found by the the review.", true),
+  tag("the whole-life review", /\bwhole-life review\b/i, "Raised by the whole-life review.", true),
+  tag("a reading taken", /\bReading taken\b/, "the bank pocket.", true),
+  // Off while the asset register's provenance notes still name the pass a piece was reworked in.
   tag("a wave's name", /\bwave [A-Z]{1,4}\d?[a-z]?\b/, "Built in.", false),
-  tag("a builder's branch", /(?<![\w./-])(?:m\d{2,3}\/[a-z0-9]|fun\/wave-)/, "On the branch a branch.", false),
-  tag("a comment tag", /(?:\/\/|\/\*|^\s*\*\s|^\s*#\s|<!--).*\b(?:QUESTION|Decided):/, "const rate = 20; // no page gives the rate.", false),
+  tag("a builder's branch", /(?<![\w./-])(?:m\d{2,3}\/[a-z0-9]|fun\/wave-)/, "On the branch a branch.", true),
+  tag("a comment tag", /(?:\/\/|\/\*|^\s*\*\s|^\s*#\s|<!--).*\b(?:QUESTION|Decided):/, "const rate = 20; // no page gives the rate.", true),
+  tag("a plan file", /\b[A-Z]+-PLAN\b/, "The family house.", true),
+  tag(
+    "a numbered review",
+    /\bthe (?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|fifteenth) review(?:'s note|, [A-Z]\d)/i,
+    "The desk is still there to ask.",
+    true,
+  ),
+  tag("an audit's finding", /\b(?:audit|review)(?:'s)? finding\b/i, "A secret, never a variable.", true),
+  tag("a launch lesson", /\blaunch lesson \d/i, "Every other account plays on. Launch lesson 5.", true),
+  tag("a catalog run", /\bcatalog [0-9a-f]{7,}\b/, "Never cut with an ellipsis.", true),
+  tag("a dated call", /\(the (?:lead|owner|maintainer)(?:'s call)?,? (?:of )?\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/, "Nobody is met here.", true),
+  tag("a milestone's name", /\bM[0-7] (?:pages?|tables?|stage|milestone|examples)\b/, "The tables (adverts.md, guides.md, analytics.md).", true),
 ];
 
 /** Paths where no process tag is looked for: this list itself, which holds the patterns. */

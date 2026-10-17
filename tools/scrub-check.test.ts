@@ -83,6 +83,7 @@ describe("the scrub check's process tags", () => {
       '<path d="m12 5 7 7-7 7" />',
       `log(\`${["QUESTION", " pairs are planned."].join(":")}\`);`,
       "The content version m0.4 is stored with every saved life.",
+      "The officer's second review of the file. The market's catalogue. Measured on an Apple M3 Max. the decision to the officer.",
     ].join("\n");
     expect(findProcessTags("packages/content/src/news/news.text.ts", words, PROCESS_TAGS)).toEqual([]);
   });
