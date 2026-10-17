@@ -38,7 +38,7 @@ describe("the page's photo", () => {
     expect(document.querySelector("[data-photo-made]")).not.toBeNull();
   });
 
-  test("[R-PROLOGUE-015] given WebGL missing, as made or in a style, then the photo is the look's own picture (amended 11 Oct 2026: only there)", () => {
+  test("[R-PROLOGUE-015] given WebGL missing, as made or in a style, then the photo is the look's own picture, and only there", () => {
     const picture = lookOf("chr_tunde")!.picture;
     const fields = { name: "Kola", age: "", path: "", ready: "", photo: picture };
     const { unmount } = render(<DataPage page={{ ...fields, wear: { look: "chr_tunde" } }} />);

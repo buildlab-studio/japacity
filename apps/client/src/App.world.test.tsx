@@ -57,7 +57,7 @@ describe("the world is the game", () => {
     expect(await screen.findByRole("dialog", { name: "Credits" })).toBeTruthy();
   });
 
-  test("[R-WORLD-024] given ?classic, when a life starts, then the world opens as at any address: the old month page is gone", async () => {
+  test("[R-WORLD-024] given ?classic, when a life starts, then the world opens as at any address, with no month page", async () => {
     history.replaceState(null, "", "/?classic");
     await startLife();
     await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull(), { timeout: 10_000 });
@@ -65,7 +65,7 @@ describe("the world is the game", () => {
     expect(screen.queryByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeNull();
   });
 
-  test("[R-WORLD-024] given the shell's code, then nothing asks for the old month page, its module and its bar and head are gone", () => {
+  test("[R-WORLD-024] given the shell's code, then nothing asks for a month page, and no month page module, bar or head exists", () => {
     const app = readFileSync(join(import.meta.dirname, "App.tsx"), "utf8");
     expect(app).not.toMatch(/classic/i);
     expect(app).not.toContain("./Classic");

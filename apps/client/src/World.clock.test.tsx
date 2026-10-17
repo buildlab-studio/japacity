@@ -23,7 +23,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("the months held, retired", () => {
+describe("the months held, never shown", () => {
   test("[R-CLOCK-007] given the server's clock with a month due soon, then neither the phone's home, its Calendar nor any app shows the months held or a countdown to the next", async () => {
     const view = engineView();
     const store = createGameStore({ view: () => Promise.resolve(view), send: () => Promise.reject(new Error("unused")) });

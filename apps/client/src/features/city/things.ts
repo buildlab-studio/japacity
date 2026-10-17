@@ -13,7 +13,7 @@ export { MAX_ACTS };
 export const STOP_SHORT = 1.8;
 
 /**
- * The tables of the first world mode, by the end of a model's file: what a thing is called
+ * The fallback tables, by the end of a model's file: what a thing is called
  * and what its one act does. Read only for a place whose file has no `stage.things`.
  */
 const TABLE: readonly { suffix: string; label: string; act: Act }[] = [

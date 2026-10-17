@@ -43,7 +43,7 @@ export const LOOKS: Record<DayPart, { from: Look; to: Look }> = {
     from: { sun: 0xffa860, sunStrength: 2.6, height: 16, turn: -65, tint: 0xeef1ef, tintShare: 0.7, lightTint: 0xf2eee6, skyStrength: 0.8, groundShare: 0.8, softness: 3, lamps: 0 },
     to: { sun: 0xfff1d8, sunStrength: 2.1, height: 48, turn: -20, tint: 0xf3f0e6, tintShare: 0.3, lightTint: 0xfff0d8, skyStrength: 1.05, groundShare: 1, softness: 1.5, lamps: 0 },
   },
-  // Full white light, the place as it was always lit, the sun moving over toward the evening's side.
+  // Full white light, the place's plain daytime look, the sun moving over toward the evening's side.
   afternoon: {
     from: NOON,
     to: { ...NOON, sun: 0xffe4b8, sunStrength: 1.95, height: 34, turn: 45, softness: 1.5 },

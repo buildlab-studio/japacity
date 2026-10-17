@@ -46,7 +46,7 @@ describe("Tejuosho Market", () => {
   });
 });
 
-describe("Mummy at her stall", () => {
+describe("Mummy at her stall at Tejuosho", () => {
   test("[R-WORLD-005] given the market's front with no ask open at the stall, when its things are read, then Mummy stands at the stall with one act to greet her, and it goes while her ask can open", () => {
     const front = staged(frontRaw, "place.tejuosho-market").stage;
     const things = front.things ?? [];

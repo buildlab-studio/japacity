@@ -51,7 +51,7 @@ function pick(group: string, option: string): void {
 }
 
 describe("the boards screen", () => {
-  test("[R-CITY-039] given the boards as launched, when the screen opens, then this week for everyone shows, and each picker asks the server for its own board", async () => {
+  test("[R-CITY-039] given the boards as shipped, when the screen opens, then this week for everyone shows, and each picker asks the server for its own board", async () => {
     const server = launched();
     show(server);
     await waitFor(() => expect(lines()).toEqual(["1zainab_b+12", "2ada_lagosYou+5"]));

@@ -52,7 +52,7 @@ describe("lines from home", () => {
     expect(nameOf("person.sib-home")).toBe("Your sibling in your hometown");
   });
 
-  test("[R-PROLOGUE-002] given every line that names where the life is from, when it is said for every hometown in content, then no brace is left and the town's own name stands in it; the lines are the ones decided on 11 Oct 2026", () => {
+  test("[R-PROLOGUE-002] given every line that names where the life is from, when it is said for every hometown in content, then no brace is left and the town's own name stands in it, in the lines content holds", () => {
     const keys = hometownKeys();
     expect(keys).toEqual(
       [
@@ -79,7 +79,7 @@ describe("lines from home", () => {
     }
   });
 
-  test("[R-PROLOGUE-002] given Ada's life, from Enugu, on the People screen, then her mother and father are at home in Lagos, as P19 has it, and no brace shows", async () => {
+  test("[R-PROLOGUE-002] given Ada's life, from Enugu, on the People screen, then her mother and father are at home in Lagos, and no brace shows", async () => {
     const view = engineView("scenario.ada");
     expect(view.hometown).toBe("hometown.enugu");
     // Chats' People row, the slots.

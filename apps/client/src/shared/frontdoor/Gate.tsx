@@ -1,7 +1,7 @@
 // The scene under the account's screens (account.md R-ACCOUNT-029): the live city behind the start screen, or the
 // family compound with the character on a plinth at the gate, never a bare page. The front door, the prologue and the
 // handover do not stand on it: they stand on the door's sky (prologue.md R-PROLOGUE-013). The figure turns slowly and a
-// finger drags it round (the design's onboarding). The sheet rises over the bottom of the screen and the top
+// finger drags it round. The sheet rises over the bottom of the screen and the top
 // keeps the character in view, in the player's own colours (R-PROLOGUE-015). Where WebGL is missing the compound's
 // colours and the look's own picture stand in.
 import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef, useState } from "react";
@@ -60,8 +60,8 @@ export interface GateProps {
   /** The colours the figure wears; with no look given, the kept person's own. */
   style?: LookStyle | undefined;
   /**
-   * Another scene in the figure's place: the live city behind the start screen and the ways in (account.md R-ACCOUNT-029),
-   * as designed; the compound and the figure come back at the door. Not dragged.
+   * Another scene in the figure's place: the live city behind the start screen and the ways in (account.md R-ACCOUNT-029).
+   * Not dragged. With none given, the compound and the figure stand.
    */
   scene?: ReactNode;
 }

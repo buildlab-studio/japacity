@@ -46,7 +46,7 @@ describe("[R-ENGINE-015] the authority a build may run", () => {
     expect(authorityMode()).toEqual({ authority: "remote", baseUrl: "https://play.test" });
   });
 
-  test("[R-ENGINE-015] given an empty server address in a dev build, then the local authority runs as before", () => {
+  test("[R-ENGINE-015] given an empty server address in a dev build, then the local authority runs", () => {
     vi.stubEnv("PROD", false);
     vi.stubEnv("DEV", true);
     vi.stubEnv("VITE_SERVER_URL", "");

@@ -181,7 +181,7 @@ describe("the journey, not the wait", () => {
     }
   });
 
-  test("[R-TEXT-007] given the lines reworded on 11 Oct 2026, then each reads as it was reworded", () => {
+  test("[R-TEXT-007] given the reworded lines, then each reads as listed", () => {
     expect(Object.keys(REWORDED).length).toBeGreaterThan(100);
     expect(Object.entries(REWORDED).filter(([key, line]) => all.get(key) !== line).map(([key]) => key)).toEqual([]);
     expect(text["activity.get-passport.blurb"]).toBe(REWORDED["activity.get-passport.blurb"]);

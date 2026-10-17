@@ -144,7 +144,7 @@ describe("the kiosk", () => {
 });
 
 describe("the jackpot and the odds on the kiosk", () => {
-  test("[R-LOTTERY-023] given the launch odds, when the kiosk is shown, then the odds read in plain words with the jackpot standing, and nothing about a pot or a top-up", async () => {
+  test("[R-LOTTERY-023] given the rule page's odds, when the kiosk is shown, then the odds read in plain words with the jackpot standing, and nothing about a pot or a top-up", async () => {
     await kiosk(drawOf());
     const odds = document.querySelector<HTMLElement>("[data-lottery-odds]")!;
     expect(within(odds).getAllByRole("listitem").map((item) => item.textContent)).toEqual([

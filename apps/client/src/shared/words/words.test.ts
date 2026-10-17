@@ -122,7 +122,7 @@ describe("a job's gates in words", () => {
     for (const gate of gates) expect(requirementSentence(gate)).not.toMatch(/\d/);
   });
 
-  test("[R-TEXT-005] given the gates the review read, when they are said, then they read as a person would say them", () => {
+  test("[R-TEXT-005] given a job's gates, when they are said, then they read as a person would say them", () => {
     expect(requirementSentence({ type: "quality/min", quality: "quality.english", value: 50 })).toBe("More than basic English");
     expect(requirementSentence({ type: "quality/min", quality: "quality.tech", value: 60 })).toBe("Good tech");
     expect(requirementSentence({ type: "quality/min", quality: "quality.portfolio", value: 3 })).toBe("A portfolio with a few pieces");

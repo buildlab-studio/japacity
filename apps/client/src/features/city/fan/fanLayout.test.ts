@@ -91,7 +91,7 @@ describe("the fan's side and its curve", () => {
 
 // These tests cite R-WORLD-034, the fan's own rule, beside R-WORLD-005, and the rule id rides in the describe's name.
 describe("R-WORLD-034 the fan's sizes", () => {
-  test("[R-WORLD-034] [R-WORLD-005] given the screen's width, when the sizes are read, then a phone gets 64 pixel buttons on a 170 radius and a laptop 72 on a 200 radius (the hand's wave)", () => {
+  test("[R-WORLD-034] [R-WORLD-005] given the screen's width, when the sizes are read, then a phone gets 64 pixel buttons on a 170 radius and a laptop 72 on a 200 radius", () => {
     expect(fanSizes(390)).toEqual(PHONE);
     expect(fanSizes(1200)).toEqual(LAPTOP);
     expect(PHONE.radius).toBe(170);

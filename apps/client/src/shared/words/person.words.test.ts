@@ -12,7 +12,7 @@ import { uiText } from "./ui";
 const GONE = ["The lift wore off.", "Every free thing is planned", "Funds covered for a month, and now", "Next page on its way", "Next page any minute now"];
 
 describe("a person's words, never the system's", () => {
-  test("[R-TEXT-005] [R-TEXT-007] given the lines that read as the system talking, when they are said, then each is a person's words, and none of the old ones is left in any table", () => {
+  test("[R-TEXT-005] [R-TEXT-007] given lines that could read as the system talking, when they are said, then each is a person's words, and none of the system's phrasings is left in any table", () => {
     expect(say("line.quality.told.quality.wellbeing.drift.above")).toBe("The good mood from last month passed.");
     expect(say("ui.activity.full")).toBe("Your free time is full this month");
     expect(say("route.uk-masters.item.held")).toBe("Funds held a full month, and still there");

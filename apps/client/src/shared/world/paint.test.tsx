@@ -41,7 +41,7 @@ describe("the paint", () => {
     expect(root.dataset.paint).toBe("day");
   });
 
-  test("[R-CLOCK-033] [R-WORLD-021] given the world's clock at night, when the hook runs, then the root takes the night paint, live for players since the hand's wave, and it goes back to the day's when the hook is gone; held back, the clock's night paints the day", () => {
+  test("[R-CLOCK-033] [R-WORLD-021] given the world's clock at night, when the hook runs, then the root takes the night paint, and it goes back to the day's when the hook is gone; held back, the clock's night paints the day", () => {
     history.replaceState(null, "", "/?clock=night");
     expect(NIGHT_PAINT_LIVE).toBe(true);
     const byDefault = render(<Painted />);

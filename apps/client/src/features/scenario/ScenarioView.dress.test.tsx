@@ -83,7 +83,7 @@ describe("the door in both paints", () => {
 });
 
 describe("nothing behind the door", () => {
-  test("[R-PROLOGUE-016] given each screen of the door, the ready lives among them, then no scene stands behind it: no tailor's corner, no compound and no scrim, only the sky (amended by the door's second design, 13 Oct 2026: the sticker figure is ours)", () => {
+  test("[R-PROLOGUE-016] given each screen of the door, the ready lives among them, then no scene stands behind it: no tailor's corner, no compound and no scrim, only the sky (the door's second design)", () => {
     door();
     for (const stage of ["you", "life", "page"]) {
       expect(document.querySelector("[data-door-frame]")?.getAttribute("data-gate")).toBe(stage);

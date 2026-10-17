@@ -102,7 +102,7 @@ describe("a change of money on the results", () => {
     expect(-charge - (change?.paid.amount ?? 0)).toBe(changed - before);
   });
 
-  test("[R-WORLD-008] [R-WALLET-015] given the reviewer's month (the band down ₦952,722, ₦1,037,389 paid in at the bank for £561 with a charge of ₦15,331, the month's other lines adding to +₦84,667), when what was kept and the change are read, then Kept is +₦69,336, the change says ₦1,022,058 into £561, the charge is one line, and Kept plus the change is the band's move", () => {
+  test("[R-WORLD-008] [R-WALLET-015] given a month with the band down ₦952,722, ₦1,037,389 paid in at the bank for £561 with a charge of ₦15,331, the month's other lines adding to +₦84,667, when what was kept and the change are read, then Kept is +₦69,336, the change says ₦1,022,058 into £561, the charge is one line, and Kept plus the change is the band's move", () => {
     const naira = (amount: number) => ({ currency: "NGN" as const, amount: amount * 100 });
     const pounds = (amount: number) => ({ currency: "GBP" as const, amount: amount * 100 });
     const line = (key: string, amount: { currency: "NGN" | "GBP"; amount: number }, tone: ReportLine["tone"]): ReportLine => ({ key, params: { amount }, tone, attention: false, counts: [] });

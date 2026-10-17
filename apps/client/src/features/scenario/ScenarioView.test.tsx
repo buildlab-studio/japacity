@@ -40,7 +40,7 @@ describe("the tiles' words on one life", () => {
 });
 
 describe("the door's first screen", () => {
-  test("[R-PROLOGUE-013] given the door's first screen by day and by night, then the lockup heads it once, in the light ground's file on the day's pale sky and the dark ground's on the night's navy, and the screen's own question is still its heading (the door's second design)", async () => {
+  test("[R-PROLOGUE-013] given the door's first screen by day and by night, then the lockup heads it once, in the light ground's file on the day's pale sky and the dark ground's on the night's navy, and the screen's own question is its heading (the door's second design)", async () => {
     for (const [paint, ground] of [["day", "light"], ["night", "dark"]] as const) {
       // A run kept from the tests above would open past the first screen.
       localStorage.clear();

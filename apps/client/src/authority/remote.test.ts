@@ -137,7 +137,7 @@ describe("the remote authority", () => {
     expect(events).toEqual([{ kind: "diverged" }, { kind: "diverged" }]);
   });
 
-  test("[R-SERVER-001] [R-ACCOUNT-006] given a 401 with no body, then it is no refusal of the game's but a wall (restated 11 Oct 2026: the game's own 401 always says signed-out in its body)", async () => {
+  test("[R-SERVER-001] [R-ACCOUNT-006] given a 401 with no body, then it is no refusal of the game's but a wall (the game's own 401 always says signed-out in its body)", async () => {
     const { server, remote, events } = setUp();
     server.answer("POST /api/command", { status: 401, body: undefined });
     const error: unknown = await remote.send({ type: "turn/end", slots: [], basedOn: 1 }).catch((caught: unknown) => caught);

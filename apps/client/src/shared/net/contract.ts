@@ -167,7 +167,7 @@ export interface AccountView {
   username: string;
   /** R-ACCOUNT-024: from when the username may change; 0 while the free change is unused. */
   renameFrom: number;
-  /** R-ACCOUNT-027 (to be amended): the address Google gave where Google is linked, the address a code goes to, the passkeys held; none for a guest. */
+  /** R-ACCOUNT-027: the address Google gave where Google is linked, the address a code goes to, the passkeys held; none for a guest. */
   ways: { google: string | null; email: string | null; passkeys: number };
 }
 

@@ -20,7 +20,7 @@ test.use({ baseURL: ONLINE });
 
 const PREVIEW = process.env.PREVIEW_DIR;
 
-/** The pictures are phone pictures at 390 by 844, the size the build notes keep. */
+/** The pictures are phone pictures at 390 by 844. */
 async function shoot(page: Page, name: string, project: string): Promise<void> {
   if (PREVIEW === undefined || PREVIEW === "" || !project.startsWith("Pixel")) return;
   await page.waitForTimeout(300);

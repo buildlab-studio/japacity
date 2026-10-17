@@ -29,7 +29,7 @@ describe("the nudge on the month's dues abroad", () => {
     expect(say(nudge.key, nudge.params)).toBe("Find £4,352 this month: £1,954 held");
   });
 
-  test("[R-WORLD-003] given the pounds held cover the month's dues, when the nudge is chosen, then it is the month's news as before", () => {
+  test("[R-WORLD-003] given the pounds held cover the month's dues, when the nudge is chosen, then it is the month's news", () => {
     const game = landed();
     const due = game.view().obligations.reduce((sum, owed) => sum + owed.due, 0);
     setPockets(game, { GBP: due });

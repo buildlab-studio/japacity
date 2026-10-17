@@ -5,7 +5,7 @@ import { expect, test, type Page, type Route } from "@playwright/test";
 // The admin routes are answered in the browser from the page's own fixtures: the dev server has no server behind it.
 import { ADMIN_GETS, ROLLBACK, SWITCHES } from "../src/features/admin/admin.fixtures";
 
-/** Where the pictures for the build notes go, when asked for. */
+/** Where the pictures go, when asked for. */
 const PREVIEW = process.env.PREVIEW_DIR;
 
 const TABS = ["Money", "Rejections", "Rollback", "Moderation", "Analytics", "Numbers", "Adverts", "Switches"] as const;

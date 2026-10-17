@@ -16,7 +16,7 @@ test.use({ baseURL: ONLINE });
 
 const PREVIEW = process.env.PREVIEW_DIR;
 
-/** R-ACCOUNT pictures are phone pictures, at the size the build notes keep. */
+/** R-ACCOUNT pictures are phone pictures, taken on the Pixel projects only. */
 async function shoot(page: Page, name: string, project: string): Promise<void> {
   if (PREVIEW === undefined || PREVIEW === "" || !project.startsWith("Pixel")) return;
   await page.setViewportSize({ width: 390, height: 844 });

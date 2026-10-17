@@ -45,7 +45,7 @@ describe("the city reads the view and never changes it", () => {
     expect(text["place.ojuelegba.name"]).toBe(content.place["place.ojuelegba"]?.realName);
   });
 
-  test("[R-CITY-011] given a set piece open, when the old page's city is looked at, then it shows the place that stages it with the question, and the answers stay in the month", async () => {
+  test("[R-CITY-011] given a set piece open, when the city is looked at, then it shows the place that stages it with the question, and the answers stay in the month", async () => {
     await renderWithView(<City />, richView());
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
     expect(screen.getByRole("heading", { name: said("place.visa-centre.name") })).toBeDefined();

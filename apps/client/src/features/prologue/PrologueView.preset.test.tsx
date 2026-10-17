@@ -200,7 +200,7 @@ describe("the page filled from the reply", () => {
     expect(readTrail().fresh).toBeUndefined();
   });
 
-  test("[R-PROLOGUE-014] given a trail with nothing fresh (offline, or the page shown before), when the handover opens, then every chip is there at once and the family turns as before", async () => {
+  test("[R-PROLOGUE-014] given a trail with nothing fresh (offline, or the page shown before), when the handover opens, then every chip is there at once and the family turns", async () => {
     keepPerson({ look: "chr_ada", name: "Ada", archetype: "developer" });
     const game = newGame(PROLOGUE, "preset-plain");
     const reply = playPresetOn(game, { archetype: "developer", age: 0, home: "family-house", basedOn: 0 }, CLOCK);

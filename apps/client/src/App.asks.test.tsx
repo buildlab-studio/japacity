@@ -90,7 +90,7 @@ describe("the share card waits for the early win", () => {
     await waitFor(() => expect(shareButtons()).toHaveLength(1));
   });
 
-  test("[R-GUIDE-015] given the early win already shown, when a card is due, then it opens on its own with its share button, as before", async () => {
+  test("[R-GUIDE-015] given the early win already shown, when a card is due, then it opens on its own with its share button", async () => {
     await playing(withCard(), true);
     await waitFor(() => expect(shareButtons()).toHaveLength(1));
   });

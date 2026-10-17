@@ -324,7 +324,7 @@ describe("the hours a thing keeps", () => {
     expect(thingsNow([late], all, "night")[0]).toBe(late);
   });
 
-  test("[R-CLOCK-033] [R-WORLD-005] given acts with no hours and a thing open by the hour but not offered, when the things are read, then the first stand at every part and the second goes as before", () => {
+  test("[R-CLOCK-033] [R-WORLD-005] given acts with no hours and a thing open by the hour but not offered, when the things are read, then the first stand at every part and the second goes", () => {
     for (const part of ["morning", "afternoon", "evening", "night"] as const) expect(thingsNow([kiosk], all, part)[0]).toBe(kiosk);
     expect(thingsNow([viewing], () => false, "evening")).toEqual([]);
     // Read with no part (a test of the acts alone), the hours are not read.
