@@ -78,7 +78,7 @@ describe("the play driver's options", () => {
 
   test("given a path, when asked whether it is inside a folder, then a sibling with a shared prefix is not", () => {
     expect(inside("/work/japacity/tools", ROOT)).toBe(true);
-    expect(inside("/work/japacity-wt/m36", ROOT)).toBe(false);
+    expect(inside("/work/japacity-other/tools", ROOT)).toBe(false);
     expect(inside("/work", ROOT)).toBe(false);
   });
 });
