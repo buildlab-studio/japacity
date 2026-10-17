@@ -40,7 +40,6 @@ export const ObligationEntrySchema = z.strictObject({
   amount: CountSchema,
   rateBp: BpSchema,
   term: z.int().positive().nullable(),
-  locksPrincipal: z.boolean(),
   sink: ReasonSchema,
   interestSink: ReasonSchema,
   grace: CountSchema,

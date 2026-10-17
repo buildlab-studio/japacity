@@ -686,8 +686,6 @@ export interface ObligationEntry {
   rateBp: number;
   /** Months over which the principal is repaid in equal parts. Null: no schedule. */
   term: number | null;
-  /** True: the principal sits locked in the bank and is returned, never spent. */
-  locksPrincipal: boolean;
   sink: Reason;
   interestSink: Reason;
   /** Months a charge may be missed before `onDefault`. */

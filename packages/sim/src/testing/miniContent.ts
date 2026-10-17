@@ -131,7 +131,6 @@ export const miniContent: Content = {
       amount: 0,
       rateBp: 0,
       term: null,
-      locksPrincipal: false,
       sink: "upkeep",
       interestSink: "upkeep",
       grace: 0,
