@@ -23,7 +23,6 @@ import {
 } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
-import { sixteenPath } from "../words/sixteen";
 import { say } from "../words/text";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
@@ -153,19 +152,6 @@ export function answersInOrder<A extends { id: string }>(archetype: Archetype | 
 /** True when the tile's years go through university: its preset sits the entrance exam after school. */
 export function throughUniversity(archetype: Archetype): boolean {
   return (archetype.preset["after-school"] ?? []).includes("jamb");
-}
-
-/**
- * The handover's line of who the person is (R-PROLOGUE-010, 011): the tile's kind and what it was when the life
- * went the tile's way, else the life as lived (`sixteenPath`), never the tile. Online the family's draw is made
- * once, and a trader's tile can hand over a graduate.
- */
-export function handoverKind(archetype: Archetype, life: Pick<PlayerView, "scenario" | "qualities" | "pockets">): string {
-  const lived = sixteenPath(life);
-  if (lived === null || (lived === "degree") === throughUniversity(archetype)) {
-    return say("prologue.handover.archetype", { kind: say(`prologue.archetype.${archetype.id}.name`), was: say(`prologue.archetype.${archetype.id}.was`) });
-  }
-  return say(`prologue.handover.lived.${lived}`);
 }
 
 /** The setting `prologue.full`: every card of the prologue, one answer each, no preset. No screen offers it. */

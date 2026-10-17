@@ -200,17 +200,13 @@ const words: Record<string, string> = {
   // and means, so a life that grew up in Makoko never opens in a small town.
   "prologue.archetype.water.begin.where": "You grow up on the lagoon, in a house on stilts in Makoko.",
   "prologue.archetype.water.begin.home": "A canoe takes you to school. The fish racks feed the house.",
-  "prologue.handover.archetype": "{kind}. {was}.",
   // R-PROLOGUE-011: where a life cannot be started over (online, one life an account), the tiles say the draw may
-  // turn the years, and a handover whose life left its tile's path reads the life as lived, never the tile.
+  // turn the years, and a handover whose life left its tile's path reads the life as lived on its page, never the tile.
   "prologue.archetype.once": "One life. The family you are born to may send the years another way.",
   // The page's "So far" for a life that went another way than its tile (R-PROLOGUE-014): short, as the tile's `was` is.
   "prologue.page.lived.degree": "School, then university",
   "prologue.page.lived.capital": "Six years under a master, a shop's capital",
   "prologue.page.lived.trade": "Work from school on",
-  "prologue.handover.lived.degree": "The years went another way: school, then university.",
-  "prologue.handover.lived.capital": "The years went another way: six years under a master, and a shop's capital.",
-  "prologue.handover.lived.trade": "The years went another way: no university, work from school on.",
 
   // The front door's run (R-PROLOGUE-009): one question a screen, then the page printed and stamped.
   "prologue.door.step": "{n}/{count}",
