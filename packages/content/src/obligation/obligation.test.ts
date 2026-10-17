@@ -14,13 +14,13 @@ describe("obligations abroad", () => {
   });
 
   test("[R-ENGINE-014] given the abroad obligations, when figures from abroad-money.md are read back, then each matches the page", () => {
-    // UK: upkeep £15, the phone's pay as you go alone (R-ABROAD-003 as amended 16 Oct 2026), a room £670, a flat £950 at credit 20, a phone £25 at credit 10.
+    // UK: upkeep £15, the phone's pay as you go alone (R-ABROAD-003), a room £670, a flat £950 at credit 20, a phone £25 at credit 10.
     expect(content.obligation["obligation.upkeep-uk"]).toMatchObject({ type: "upkeep", currency: "GBP", amount: 1500 });
     expect(content.obligation["obligation.rent-room-uk"]).toMatchObject({ type: "rent", amount: 67000 });
     expect(content.obligation["obligation.rent-room-uk"]?.creditMin).toBeUndefined();
     expect(content.obligation["obligation.rent-flat-uk"]).toMatchObject({ type: "rent", amount: 95000, creditMin: 20 });
     expect(content.obligation["obligation.phone-uk"]).toMatchObject({ type: "phone", amount: 2500, creditMin: 10 });
-    // Canada: C$30 (the prepaid phone alone, R-ABROAD-003 as amended again 16 Oct 2026), C$900, C$1,700, C$45. The UAE: AED 50 and AED 1,200. Italy: €10 and €350.
+    // Canada: C$30 (the prepaid phone alone, R-ABROAD-003), C$900, C$1,700, C$45. The UAE: AED 50 and AED 1,200. Italy: €10 and €350.
     expect(content.obligation["obligation.upkeep-ca"]?.amount).toBe(3000);
     expect(content.obligation["obligation.rent-room-ca"]?.amount).toBe(90000);
     expect(content.obligation["obligation.rent-flat-ca"]?.amount).toBe(170000);

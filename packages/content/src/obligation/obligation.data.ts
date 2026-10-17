@@ -12,7 +12,7 @@ const MISSED_MONTH: Effect[] = [
   { type: "quality/add", quality: "quality.wellbeing", amount: -5 },
 ];
 
-/** The phone's pay as you go in one country, food and fares lived by hand (R-ABROAD-003 as amended twice on 16 Oct 2026). */
+/** The phone's pay as you go in one country, food and fares lived by hand (R-ABROAD-003). */
 function upkeepAbroad(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
   return {
     id,
@@ -169,7 +169,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onMiss: MISSED_MONTH,
     onDefault: [{ type: "obligation/close", obligationType: "rent" }],
   },
-  // A hostel room's rent: by the month, no year's lump, which is why it is the cheap way out of the
+  // A hostel room's rent (decision 0040): by the month, no year's lump, which is why it is the cheap way out of the
   // family house. Its first month is paid on the move; from then each month's end pays the month to come, as the room
   // in a compound's year is paid ahead. A missed month is asked for again; the third miss in a row closes it and the
   // home kind sends the character back to the family house (R-HOME-011).
@@ -327,9 +327,9 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
 
   // Abroad: abroad-money.md "Entries".
 
-  // R-ABROAD-003 as amended 16 Oct 2026: in the UK food and fares are lived by hand, so the upkeep is the phone's pay as you go alone.
+  // R-ABROAD-003: in the UK food and fares are lived by hand, so the upkeep is the phone's pay as you go alone.
   "obligation.upkeep-uk": upkeepAbroad("obligation.upkeep-uk", "GBP", pounds(15)),
-  // R-ABROAD-003 as amended again 16 Oct 2026 (design page 15 section 5): in Canada, the UAE and Italy too the upkeep is the prepaid phone alone.
+  // R-ABROAD-003 (design page 15 section 5): in Canada, the UAE and Italy too the upkeep is the prepaid phone alone.
   "obligation.upkeep-ca": upkeepAbroad("obligation.upkeep-ca", "CAD", cad(30)),
   "obligation.upkeep-uae": upkeepAbroad("obligation.upkeep-uae", "AED", aed(50)),
   "obligation.upkeep-it": upkeepAbroad("obligation.upkeep-it", "EUR", euros(10)),

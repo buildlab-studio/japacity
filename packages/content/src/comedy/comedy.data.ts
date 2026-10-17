@@ -1,6 +1,5 @@
-// Joke versions of common, neutral report lines (idea file 11, comedy row 1 cut
-// down, and the decision P12). The plain line keeps its own key and is
-// version 1; the jokes are `<key>.v2` up to `<key>.v5` in comedy.text.ts. A line
+// Joke versions of common, neutral report lines. The plain line keeps its own key
+// and is version 1; the jokes are `<key>.v2` up to `<key>.v5` in comedy.text.ts. A line
 // not listed here has only its plain version.
 
 /** How many versions each line has, the plain one included: three to five. */

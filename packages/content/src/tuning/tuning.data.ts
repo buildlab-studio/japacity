@@ -58,7 +58,7 @@ export const tuning: Tuning = {
     cashUpTo: naira(10000),
     // R-WALLET-019: cash on you past this is cash a one-chance bus can take.
     cashWarnAt: naira(100000),
-    // The passbook's stamps (the design): a million, two and a half, five, then the road's own figure.
+    // The passbook's stamps: a million, two and a half, five, then the road's own figure.
     stamps: [naira(1000000), naira(2500000), naira(5000000)],
   },
 
@@ -228,8 +228,8 @@ export const tuning: Tuning = {
 
   // obligation.md, the group loan
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
-  // obligation.md R-OBLIGATION-014: cooking takes 15% off the upkeep's next charge and fetching water 4%, the maintainer's
-  // starting figures. the page gives no figure for the weekend cooking takes; 2 wellbeing, as a month of study costs.
+  // obligation.md R-OBLIGATION-014: cooking takes 15% off the upkeep's next charge and fetching water 4%, starting
+  // figures. the page gives no figure for the weekend cooking takes; 2 wellbeing, as a month of study costs.
   // activity.md R-ACTIVITY-013: being noticed raises the job's pay 10%, once, on a 30% draw.
   activity: { raiseBp: pct(10), raiseChanceBp: pct(30) },
   room: { cookedBp: pct(15), waterBp: pct(4), cookWellbeing: 2 },
@@ -259,15 +259,15 @@ export const tuning: Tuning = {
 
   // city.md "Numbers": the crowd bands and the graphics switches. Working values.
   city: { crowdLow: 8, crowdHigh: 16, playersMax: 4, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024, idleAfterMs: 20000, idleFps: 10, walkMmPerS: 1400, stopShortMm: 300, tagNearMm: 3000, residentFloor: 4,
-    // world.md: nothing roams and the fly-over is retired (R-WORLD-010, 015); the crowd and sheet caps (R-WORLD-011); the rides' fares in kobo and pace, and how far a walk goes (R-WORLD-017, R-PLACE-010: beyond it a fare is the only way).
+    // world.md: nothing roams and there is no fly-over (R-WORLD-010, 015); the crowd and sheet caps (R-WORLD-011); the rides' fares in kobo and pace, and how far a walk goes (R-WORLD-017, R-PLACE-010: beyond it a fare is the only way).
     roam: false, flyover: false, indoorLow: 4, indoorHigh: 6, outdoorLow: 6, outdoorHigh: 10, motionSheets: 1,
     ride: { fareKobo: { danfo: 20000, keke: 30000, okada: 50000, walk: 0 }, farePerKmKobo: { danfo: 5000, keke: 10000, okada: 15000, walk: 0 }, metresPerMinute: { danfo: 250, keke: 300, okada: 450, walk: 80 }, waitMinutes: 6, scarcityBp: 20000, walkMetres: 2000,
-      // R-PLACE-010 as amended 16 Oct 2026: the metres a thousandth of a degree of longitude is worth, 111 times the cosine
+      // R-PLACE-010: the metres a thousandth of a degree of longitude is worth, 111 times the cosine
       // of the latitude, rounded: Lagos 111 here, and each country's below; latitude is 111 everywhere.
       lonMetresPerE3: 111,
-      // place.md R-PLACE-010 as amended 16 Oct 2026 and R-PLACE-012 (decision 0042, design page 14 section 5): each
+      // place.md R-PLACE-010 and R-PLACE-012 (decision 0042, design page 14 section 5): each
       // country's ways in its smallest unit, the step a fare is rounded up to, the month's pass and the ways it covers
-      // (R-PLACE-012 as amended, decision 0043), and the pace on foot. London's are 2025 fares, rounded: the hopper bus
+      // (R-PLACE-012, decision 0043), and the pace on foot. London's are 2025 fares, rounded: the hopper bus
       // fare, an off-peak train single by distance, a monthly bus and tram pass. Calgary, Dubai and Castel Volturno's are
       // design page 15 section 4's 2025 figures, rounded: Calgary's one flat fare on the bus and the CTrain and the month's
       // transit pass on both; Dubai's zone fare read as distance on the bus and the metro, the Nol zone pass on both, and a
@@ -300,7 +300,7 @@ export const tuning: Tuning = {
   undertaking: { months: 36, assistanceUnder: 100000 },
   // home.md Numbers: a room on the lagoon in Makoko, and the months it is cleared; a room in a compound, its year's
   // rent paid upfront with the agent's and the agreement's fees (R-HOME-010); the self-contain the door shows as a goal.
-  // The compound's rent, its upkeep and the self-contain's rent are working figures for the research pass.
+  // The compound's rent, its upkeep and the self-contain's rent are working figures, to be tuned by research.
   home: {
     makokoUpkeep: naira(25000),
     evictionBp: pct(5),
@@ -310,7 +310,7 @@ export const tuning: Tuning = {
     returnStanding: -5,
     compound: { rentYear: naira(350000), feesBp: pct(20), upkeep: naira(50000) },
     selfContainRentYear: naira(700000),
-    // A hostel room of your own, rented by the month: about half the room in a compound's month of
+    // A hostel room of your own, rented by the month (decision 0040): about half the room in a compound's month of
     // rent (350,000 naira a year, about 29,200 a month); a working figure, to be tuned by play.
     hostelRentKobo: naira(15000),
     // R-HOME-012 (decision 0035): at home the whole of living is lived by hand, meals, water, fares and data as acts; nothing of it is charged as the month turns.

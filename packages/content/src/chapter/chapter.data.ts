@@ -56,7 +56,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
       { id: "job", requirement: { type: "job/any" } },
       // One month in any job: an empty list counts every job.
       { id: "pay", requirement: { type: "activity/tenure", activities: [], months: 1 } },
-      // A route of your own effort (chapter.md: "have heard of a route").
+      // A route of your own effort (chapter.md: "have heard of a route"; a trade hears of the Gulf, never the master's).
       { id: "heard", requirement: { type: "any", of: OWN_ROUTES.map((route) => ({ type: "route/state" as const, route, in: ["heard", "known", "applying", "granted", "departed"] })) } },
       { id: "known", requirement: { type: "any", of: OWN_ROUTES.map((route) => ({ type: "route/state" as const, route, in: ["known", "applying", "granted", "departed"] })) } },
     ],

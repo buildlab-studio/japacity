@@ -1,4 +1,4 @@
-// Calgary lived by hand: docs/rules/place.md R-PLACE-012 as amended (the transit pass) and streets.md R-STREET-013 (design
+// Calgary lived by hand: docs/rules/place.md R-PLACE-012 (the transit pass) and streets.md R-STREET-013 (design
 // page 15 section 5, decision 0043). Each is a priced now-act in Canadian dollars, paid as it is done; when each answers
 // and the time it spends are in activity.when.data.ts and activity.days.data.ts. Joined into the activity table in
 // activity.data.ts; place.data.ts stages each at its Calgary place.
@@ -10,7 +10,7 @@ import { cad } from "../units";
 const CANADA: Id<"country"> = "country.canada";
 const IN_CANADA: Requirement = { type: "place/is", where: "abroad", country: CANADA };
 
-/** R-PLACE-012 as amended: the transit pass's figure, from Canada's rides in the tuning. */
+/** R-PLACE-012: the transit pass's figure, from Canada's rides in the tuning. */
 function transitPass(): number {
   const pass = tuning.city.ride.abroad[CANADA]?.pass;
   if (pass === undefined || pass === null) throw new Error("Canada's rides carry no transit pass.");
@@ -39,7 +39,7 @@ function byHand(id: Id<"activity">, cents: number, reason: Extract<Reason, "food
 }
 
 export const calgaryActivityTable: Record<Id<"activity">, ActivityEntry> = {
-  // R-PLACE-012 as amended: one ticket for the month at the CTrain station's machine, good on the bus and the train.
+  // R-PLACE-012: one ticket for the month at the CTrain station's machine, good on the bus and the train.
   "activity.transit-pass-ca": byHand("activity.transit-pass-ca", transitPass(), "fare", []),
 
   // streets.md R-STREET-013. At the superstore: the weekly shop, and the coat the winter asks for.

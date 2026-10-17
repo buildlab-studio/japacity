@@ -1,4 +1,4 @@
-// Who says a line overheard (docs/rules/world.md R-WORLD-026, as the small items wave amends it): a line one person
+// Who says a line overheard (docs/rules/world.md R-WORLD-026): a line one person
 // plainly says carries their name beside it, `<place>.overheard.<n>.by`, and the bubble over them says that name instead
 // of "Someone nearby". A name is a person a player would call them, in a few words, never the engine's counting.
 import { describe, expect, test } from "vitest";

@@ -1,6 +1,5 @@
-// The Gulf file in content: docs/rules/chapter.md R-CHAPTER-009, with the maintainer's ruling of 10 Oct 2026
-// (the review): there is no honest way to the Gulf without a passport, so its file asks for one
-// before the medical. The only way out without papers is the road.
+// The Gulf file in content: docs/rules/chapter.md R-CHAPTER-009: there is no honest way to the Gulf
+// without a passport, so its file asks for one before the medical. The only way out without papers is the road.
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -17,7 +16,7 @@ describe("the Gulf file", () => {
 
   test("[R-CHAPTER-009] given the Gulf file's passport step, when its words are read, then it says what to do, where, and how the wait goes, and the file's opening names the passport", () => {
     expect(text[`${GULF_FILE}.item.passport`]).toBe("Get your passport");
-    // the passport office in Ikoyi, not the box at home.
+    // The passport at Immigration: the passport office in Ikoyi, not the box at home.
     expect(text[`${GULF_FILE}.item.passport.nudge`]).toBe("Apply for your passport in Ikoyi");
     expect(text[`${GULF_FILE}.item.passport.started`]).toContain("{when}");
     expect(text[`${GULF_FILE}.item.passport.planned`]).toBeDefined();
@@ -32,7 +31,7 @@ describe("the Gulf file", () => {
 });
 
 describe("the first chapter's closing line", () => {
-  // the line says it plainly.
+  // The line says it plainly, with no figure of speech to decode.
   test("[R-CHAPTER-002] [R-MOMENT-005] given the first chapter, when it closes, then its closing line says the salary and the wish to leave plainly, with no dash and no shout", () => {
     expect(text["chapter.find-your-feet.close"]).toBe("You have a salary. Now you know what you want: to leave.");
     expect(text["chapter.find-your-feet.close"]).not.toMatch(/[!\u2013\u2014]/);

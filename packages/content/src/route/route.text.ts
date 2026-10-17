@@ -16,8 +16,7 @@ export const routeText: Record<string, string> = {
   "route.uk-masters.item.applied": "Visa application sent",
 
   // Report lines. First drafts.
-  // A route heard of, said by where the word came from and never as what the player heard (R-TEXT-007; the maintainer's
-  // the review: never tell them what they heard). The interface picks `line.route.heard.<via>` by the line's `via`;
+  // A route heard of, said by where the word came from and never as what the player heard (R-TEXT-007). The interface picks `line.route.heard.<via>` by the line's `via`;
   // the bare line is for a source it has no words for.
   "line.route.heard": "Word came round of {route}.",
   "line.route.heard.meetup": "At the meetup: {route}.",
@@ -190,7 +189,7 @@ export const routeText: Record<string, string> = {
   "road.real-story.title": "This happened to real people",
   "road.real-story.line":
     "The road in this game follows reporting on the journey north through the desert and across the sea. Read their work.",
-  // credited by outlet, work and year. The reporters' names are left to the maintainer (AGENTS.md: no real person in content).
+  // credited by outlet, work and year. The reporters' names are left out (AGENTS.md: no real person in content).
   "road.real-story.credit.1": "Foundation for Investigative Journalism, an undercover journey north, 2026",
   "road.real-story.credit.2": "The Sun, an undercover Sahara trek, 2009",
   "road.real-story.credit.3": "CNN, migrants auctioned in Libya, 2017",

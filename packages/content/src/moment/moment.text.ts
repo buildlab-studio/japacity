@@ -89,7 +89,7 @@ export const momentText: Record<string, string> = {
   "moment.chapter.caption": "months played",
   "moment.chapter.caption.one": "month played",
 
-  // A stamp in the passbook (the design): a milestone held for the road, and the road's own figure.
+  // A stamp in the passbook: a milestone held for the road, and the road's own figure.
   "moment.held.kicker": "Held for the road",
   "moment.held.kicker.ready": "Money ready",
   "moment.held.title": "Mama heard",

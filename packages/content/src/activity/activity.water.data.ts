@@ -8,8 +8,8 @@ import { naira } from "../units";
 
 export const RACKS: Id<"activity"> = "activity.job-fish-racks";
 /**
- * Work at hand: the bar every hunt stops at (R-ACTIVITY-005, `tuning.quality.hireMaxBp`), so "not
- * this time" is rare. A certain hire would need the bar lifted for the racks alone, which is the decision.
+ * Work at hand: the bar every hunt stops at (R-ACTIVITY-005, `tuning.quality.hireMaxBp`), so "not this time" is rare.
+ * A certain hire would need the bar lifted for the racks alone.
  */
 const RACKS_HIRE_BP = 9500;
 

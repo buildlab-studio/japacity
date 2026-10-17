@@ -1,5 +1,5 @@
 // The words of the phone's Chats (story.chats.data.ts). People talk the way they talk on their
-// phones; the narrator stays out. First drafts for the maintainer. Bad news is written straight
+// phones; the narrator stays out. First drafts. Bad news is written straight
 // (text.md R-TEXT-002).
 export const storyText: Record<string, string> = {
   "chats.app.name": "Chats",

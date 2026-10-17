@@ -46,7 +46,7 @@ export const qualityText: Record<string, string> = {
   "line.quality.drift": "{quality} settles by {points}, to {value}.",
   "line.quality.run-down": "You are run down, and it has gone on for months. Rest, or you will fall ill.",
 
-  // A quality's move told as what a person would notice, never the quality's name or which way it went (R-TEXT-005;
+  // A quality's move told as what a person would notice, never the quality's name or which way it went (R-TEXT-005).
   // First, an act's own line for all it moved; else each move by its quality.
   "line.quality.from.activity.meetup": "You know more people at the hub now.",
   "line.quality.from.activity.build-portfolio": "Late nights on the project.",

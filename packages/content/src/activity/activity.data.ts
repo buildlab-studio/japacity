@@ -162,7 +162,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
 
   // Ngozi's job (route-gates.md, the last table): a staff nurse at ₦180,000 a month.
   // a nurse starts at care 60, so that is what it needs, and its month is a care job's:
-  // wellbeing -4, care +1. The nurse from sixteen hunts it at the clinic (prologue.md R-PROLOGUE-010,
+  // wellbeing -4, care +1. The nurse from sixteen hunts it at the clinic (prologue.md R-PROLOGUE-010).
   // no page gives its hiring chance; 50% is taken, between the
   // teacher's 70% and the junior developer's 35%: the wards are short of nurses.
   "activity.job-nurse": {
@@ -405,7 +405,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     counts: [UK],
   },
-  // The family's loan (the passbook's family road; the design): a call to Papa from home, once
+  // The family's loan (the passbook's family road): a call to Papa from home, once
   // the life stands well with the house and the house has something to give. No deadline, so nothing is charged; the
   // house's stake in the move is its price, and a life whose family already pledged has asked once.
   "activity.ask-family-loan": {
@@ -606,7 +606,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...enjoyActivityTable,
   // place.md R-PLACE-012 and streets.md R-STREET-012: London lived by hand.
   ...londonActivityTable,
-  // place.md R-PLACE-012 as amended and streets.md R-STREET-013 to R-STREET-015: Calgary, Dubai and Castel Volturno lived by hand.
+  // place.md R-PLACE-012 and streets.md R-STREET-013 to R-STREET-015: Calgary, Dubai and Castel Volturno lived by hand.
   ...calgaryActivityTable,
   ...dubaiActivityTable,
   ...castelActivityTable,

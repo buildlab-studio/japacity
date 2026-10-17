@@ -42,13 +42,13 @@ export type OfficialPlatform = "web" | "email" | "whatsapp" | "instagram" | "tik
 
 /**
  * One row per account in the page's entries table (R-SHARE-012). An address
- * is filled once the maintainer has claimed it; the page lists only those.
+ * is filled once the game holds it; the page lists only those.
  */
 export interface OfficialAccount {
   platform: OfficialPlatform;
   /** Shown as written, and linked: a domain, an email address or a profile address. */
   address: string | null;
-  /** For the web domain: the misspellings the maintainer holds that point to it. */
+  /** For the web domain: the misspellings the game holds that point to it. */
   aliases: readonly string[];
 }
 
@@ -63,6 +63,6 @@ export const officialAccounts: readonly OfficialAccount[] = [
   { platform: "x", address: null, aliases: [] },
   { platform: "youtube", address: null, aliases: [] },
   { platform: "facebook", address: null, aliases: [] },
-  // the repository is the current remote; the maintainer confirms it is the public home before launch.
+  // the repository is the current remote; is it the public home?
   { platform: "repository", address: "github.com/buildlab-studio/japacity", aliases: [] },
 ];

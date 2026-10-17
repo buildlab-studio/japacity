@@ -24,9 +24,9 @@ const LAUNCH = [
   "moderation/open",
   "feedback/sent",
 ];
-/** R-ANALYTICS-008 (11 Oct 2026, server.md R-SERVER-041): the page policy's reports, counted by the server. */
+/** R-ANALYTICS-008 (server.md R-SERVER-041): the page policy's reports, counted by the server. */
 const REPORTS = ["client/csp"];
-/** R-ANALYTICS-008 (11 Oct 2026, account.md R-ACCOUNT-031): the lives being played, for the two lights. */
+/** R-ANALYTICS-008 (account.md R-ACCOUNT-031): the lives being played, for the two lights. */
 const LIVES = ["lives/playing"];
 const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped", ...LAUNCH, ...REPORTS, ...LIVES];
 const CLIENT = ["screen/opened", "share/pressed", "share/completed", "advert/impression", "advert/tap", "settings/sound", "settings/graphics", "load/time", "client/error", "ask/shown", "ask/accepted"];
@@ -53,7 +53,7 @@ describe("the counter list", () => {
     expect(named("share/arrival")?.keys).toEqual(named("share/pressed")?.keys);
     expect(named("wallet/topped-up")?.keys).toEqual(["count", "kobo"]);
     expect(named("advert/revenue")?.keys).toEqual(["kobo"]);
-    // Added 11 Oct 2026: the page policy's reports, keyed by directive, `other` for any directive off the list.
+    // The page policy's reports, keyed by directive, `other` for any directive off the list.
     expect(named("client/csp")?.source).toBe("server");
     expect(named("client/csp")?.keys).toContain("script-src-elem");
     expect(named("client/csp")?.keys).toContain("other");

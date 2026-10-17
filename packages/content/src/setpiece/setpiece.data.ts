@@ -95,7 +95,7 @@ function answer(id: string, effects: Effect[]): SetpieceAnswer {
 
 /**
  * R-SETPIECE-003: an answer that pays is given only while the money is there.
- * the brief and route.md say `money/can-pay`, which for a foreign
+ * route.md says `money/can-pay`, which for a foreign
  * currency also counts the naira bank (R-WALLET-009), while `money/take` from
  * `any` takes only that currency's cash and bank. Judged with `money/can-pay`,
  * an answer could pass with the money in naira and then take nothing, so it is

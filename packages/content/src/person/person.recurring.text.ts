@@ -1,5 +1,5 @@
 // The recurring people's words (person.recurring.data.ts). They speak the way
-// they speak; the narrator stays out of it. First drafts for the maintainer.
+// they speak; the narrator stays out of it. First drafts.
 export const personRecurringText: Record<string, string> = {
   "recurring.fx.name": "Ochai",
   "recurring.fx.blurb": "Changes money at the junction, from a bag that never leaves his hand. His rate is always just for you.",

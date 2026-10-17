@@ -40,7 +40,7 @@ interface Shape {
   stages?: Staged;
   crowd: PlaceEntry["crowd"];
   traditionalBp: number;
-  /** A made-up spot for a place with no address of its own, in thousandths of a degree (R-CITY-008 as amended 12 Oct 2026): the map and the fares read it. */
+  /** A made-up spot for a place with no address of its own, in thousandths of a degree (R-CITY-008): the map and the fares read it. */
   spot?: [number, number];
   /** R-PLACE-013: the employer's shuttle serves it, so the bus to or from it asks no fare. */
   shuttle?: boolean;
@@ -287,7 +287,7 @@ const entries: PlaceEntry[] = [
   lagos("place.ikorodu", "Ikorodu", "ikorodu", 6619, 3504, { crowd: BUSY, traditionalBp: STREET }),
   // OpenStreetMap spells it "Mohammed"; the sign uses the official spelling. Exterior, with departures and arrivals inside.
   lagos("place.airport-lagos", "Murtala Muhammed International Airport", "ikeja", 6574, 3321, {
-    // the arrivals hall is an interior scene; the entry keeps "exterior" while the old terminal front's test reads its scope against the entry.
+    // the arrivals hall is an interior scene; the entry keeps "exterior" while the terminal front's test reads its scope against the entry.
     assets: "arrivals-hall",
     stages: ["chapter.send-off", "setpiece.december", "activity.december-home-uk", "activity.december-home-ca", "activity.december-home-uae"],
     crowd: BUSY,
@@ -319,10 +319,10 @@ const entries: PlaceEntry[] = [
 
   // Homes and stylised places: no real name, no area, no position, no sponsor.
   // Home opens in the compound; the house door cuts to the parlour (docs/rules/world.md R-WORLD-014).
-  // home.md R-HOME-006: the settlement on the lagoon the character may live in; its scene lands with the place builder.
+  // home.md R-HOME-006: the settlement on the lagoon the character may live in.
   lagos("place.makoko", "Makoko", "makoko", 6495, 3390, { scope: "exterior", crowd: BUSY, traditionalBp: OFFICE, stages: ["activity.job-fish-racks"] }),
-  // On a made-up street in Surulere near the hub: the spot the map and the fares read (R-CITY-008 as amended). The house
-  // is one wide floor seen whole, its yard and carport inside its walls, so it stays an exterior.
+  // On a made-up street in Surulere near the hub: the spot the map and the fares read (R-CITY-008). The house
+  // is one wide floor seen whole, its yard and carport inside its walls (decision 0040), so it stays an exterior.
   unnamed("place.family-house", "stylised", "home", "lagos", null, {
     spot: [6507, 3359],
     scope: "exterior",
@@ -359,7 +359,7 @@ const entries: PlaceEntry[] = [
     crowd: NEIGHBOURS,
     traditionalBp: STREET,
   }),
-  // A hostel room of your own: one small room off a shared corridor, rented by the month, the cheap
+  // A hostel room of your own (decision 0040): one small room off a shared corridor, rented by the month, the cheap
   // way out of the family house. Like the room in a compound it stages nothing of its own; its made-up spot is in Yaba,
   // where the hostels by the colleges are, and the map shows it only as home.
   unnamed("place.hostel-room", "stylised", "home", "lagos", null, {
@@ -392,7 +392,7 @@ const entries: PlaceEntry[] = [
     crowd: BUSY,
     traditionalBp: HUB,
   }),
-  // The shopping street (streets.md R-STREET-005 as amended, R-STREET-012): the transfer shop, the stalls, the chicken
+  // The shopping street (streets.md R-STREET-005, R-STREET-012): the transfer shop, the stalls, the chicken
   // shop and its kitchen, the Nigerian shop, the barber, the clothes shop and the pub.
   abroad("place.rye-lane", "country.uk", "london", "peckham", "Rye Lane", 51468, -69, {
     stages: ["activity.send-money", "activity.street-shopping-uk", "activity.chicken-shop", "activity.job-uk-kitchen-cash", "activity.naija-shop-uk", "activity.barber-uk", "activity.buy-clothes-uk", "activity.pub-pint"],
@@ -401,7 +401,7 @@ const entries: PlaceEntry[] = [
   }),
   // The station (place.md R-PLACE-012): the ticket machine's bus pass, the courier's bike; the train's platform.
   abroad("place.peckham-rye-station", "country.uk", "london", "peckham", "Peckham Rye", 51470, -69, { stages: ["activity.bus-pass-uk", "activity.job-uk-courier-cash"], crowd: BUSY, traditionalBp: HUB }),
-  // The rota board's overtime stands at every workplace (R-CITY-010 as amended 16 Oct 2026: the one id at several places).
+  // The rota board's overtime stands at every workplace (R-CITY-010: the one id at several places).
   // The big shop on Peckham High Street: the weekly shop, the part-time job at the tills and the staff notice's overtime.
   london("place.big-shop-uk", "business", "peckham", 51474, -68, { stages: ["activity.weekly-shop-uk", "activity.job-uk-retail-part", "activity.overtime"], crowd: BUSY, traditionalBp: HUB }),
   // The care home in Nunhead: the door, the rota board's overtime and the manager's door.
@@ -420,20 +420,20 @@ const entries: PlaceEntry[] = [
   // Calgary on the mold (city.md "Entries: abroad", design page 15 section 3). Made-up spots in the
   // north-east, placed against the airport, the CTrain's north-east line and downtown so the paper reads right.
   abroad("place.calgary-airport", "country.canada", "calgary", "north-east", "Calgary International Airport", 51122, -114014, { scope: "interior", crowd: QUIET, traditionalBp: AIRPORT }),
-  // The hub, redressed as a strip mall at a made-up spot (was the city's position): the jobs notice, the coffee shop, the
+  // The hub, dressed as a strip mall at a made-up spot: the jobs notice, the coffee shop, the
   // African store, the barber, the bus stop and the find. A row of shops shown by description, so a business.
   calgary("place.calgary-north-east", "business", "north-east", 51090, -113960, {
     scope: "exterior",
     hub: true,
-    // Money home goes from the transfer counter at the African store (city.md, 16 Oct 2026: the room stages it no more).
+    // Money home goes from the transfer counter at the African store, not the room (city.md).
     stages: ["activity.job-hunt", "activity.coffee-ca", "activity.naija-shop-ca", "activity.barber-ca", "activity.send-money", "offer.street-find-ca"],
     crowd: QUIET,
     traditionalBp: HUB,
   }),
-  // The station (place.md R-PLACE-012 as amended): the ticket machine's transit pass; the train's platform. Which station
+  // The station (place.md R-PLACE-012): the ticket machine's transit pass; the train's platform. Which station
   // is not said, so it is shown by plain description.
   calgary("place.ctrain-station-ca", "institution", "north-east", 51073, -113977, { scope: "exterior", stages: ["activity.transit-pass-ca"], crowd: QUIET, traditionalBp: HUB }),
-  // The rooms Calgary shares with London are London's scenes under Calgary's own entries (R-WORLD-039 as amended).
+  // The rooms Calgary shares with London are London's scenes under Calgary's own entries (R-WORLD-039).
   calgary("place.big-shop-ca", "business", "north-east", 51095, -113980, { assets: "big-shop-uk", stages: ["activity.weekly-shop-ca", "activity.buy-clothes-ca"], crowd: BUSY, traditionalBp: HUB }),
   calgary("place.warehouse-ca", "business", "north-east", 51110, -113990, { assets: "warehouse-uk", stages: ["activity.job-ca-warehouse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
   calgary("place.care-home-ca", "business", "north-east", 51080, -113995, { assets: "care-home-uk", stages: ["activity.job-ca-care-aide", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
@@ -457,7 +457,7 @@ const entries: PlaceEntry[] = [
   }),
   // The souq streets (streets.md R-STREET-014): the souq, the laundry and the tailor.
   abroad("place.naif", "country.uae", "dubai", "deira", "Naif", 25272, 55310, { stages: ["activity.street-shopping-uae", "activity.laundry-uae", "activity.buy-clothes-uae"], crowd: PACKED, traditionalBp: HUB }),
-  // The metro station (place.md R-PLACE-012 as amended): the Nol machine's zone pass; the metro's platform. Looked up in
+  // The metro station (place.md R-PLACE-012): the Nol machine's zone pass; the metro's platform. Looked up in
   // OpenStreetMap's search on 16 Oct 2026 (the station's gates on Al Maktoum Street, 25.2665, 55.3122).
   { ...abroad("place.metro-station-uae", "country.uae", "dubai", "deira", "Union station", 25266, 55312, { stages: ["activity.transit-pass-uae"], crowd: BUSY, traditionalBp: HUB }), data: { ...OSM, checked: ABROAD_SPOTS_PLACED } },
   dubai("place.big-shop-uae", "business", "al-rigga", 25265, 55320, { assets: "big-shop-uk", stages: ["activity.weekly-shop-uae"], crowd: BUSY, traditionalBp: HUB }),
@@ -489,9 +489,9 @@ const entries: PlaceEntry[] = [
   unnamed("place.their-room", "stylised", "home", "lagos", null, { stages: ["activity.see-someone"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.the-room", "stylised", "abroad", null, null, {
     // The bed, the window and the laptop in the room abroad (R-WORLD-025; R-CITY-010 lets the country-less room stage what a country's own place also stages).
-    // The cooking corner cooks in each country's money (streets.md R-STREET-012 to R-STREET-015, home.md R-HOME-012 as
-    // amended): each country's meal shows only there. The hunt, the community and money home are at each country's own
-    // places (city.md "Entries: abroad" as amended 16 Oct 2026).
+    // The cooking corner cooks in each country's money (streets.md R-STREET-012 to R-STREET-015, home.md R-HOME-012):
+    // each country's meal shows only there. The hunt, the community and money home are at each country's own places
+    // (city.md "Entries: abroad").
     stages: ["activity.rest", "activity.call-home", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own-uk", "activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-it"],
     crowd: FEW,
     traditionalBp: OFFICE,

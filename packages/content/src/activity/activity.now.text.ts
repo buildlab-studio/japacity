@@ -1,11 +1,11 @@
 // What the place says when a now-act is done there (docs/rules/activity.md R-ACTIVITY-015), in the
-// voice of whoever is there. First drafts, rewritten for voice. {param} is the job or
+// voice of whoever is there. First drafts, plain. {param} is the job or
 // the route picked, {month} the month a paper is due, which the screen says as months away.
 export const activityNowText: Record<string, string> = {
   // The act itself among the month's lines, as "This month: ..." tells a slot.
   "line.activity.played-now": "Done this month: {activity}.",
   "line.activity.play-lotto.now": "Ticket bought. The draw is on the radio, Friday.",
-  // luck.md R-LUCK-005, the kiosk says the month's ceiling in its own voice once the buyer reaches it.
+  // luck.md R-LUCK-005: the kiosk says the month's ceiling in its own voice once the buyer reaches it.
   "line.activity.play-lotto.cap": "The kiosk man says: that is five this month, my friend. Keep the rest for transport.",
   "line.activity.bet-slip.now": "Slip stamped. The matches play at the weekend.",
   "line.activity.ask-around.now": "The driver says: Dubai, if you have the papers.",

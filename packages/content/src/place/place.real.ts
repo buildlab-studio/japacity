@@ -1,5 +1,5 @@
-// Real names shown as neutral scenery on a place's signs: docs/rules/city.md R-CITY-022 as
-// amended and R-CITY-041 (the decision P17). One entry per real name, so removing one
+// Real names shown as neutral scenery on a place's signs: docs/rules/city.md R-CITY-022
+// and R-CITY-041. One entry per real name, so removing one
 // on request is one change: set its `realName` to null and the sign shows its plain words.
 
 /** What a real name stands for. Only `public`, `market`, `mall` and `food` may carry one (R-CITY-041). */

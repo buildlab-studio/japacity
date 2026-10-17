@@ -1,7 +1,7 @@
 // The generated names (docs/rules/people.md R-PEOPLE-053), shared with the
 // residents of city.md R-CITY-033: given names only, no one in particular.
-// Grouped by people as person.names.data.ts gives them. First drafts for the
-// owner to check.
+// Grouped by people as person.names.data.ts gives them. First drafts (names
+// rule 8).
 export const personNamesText: Record<string, string> = {
   // yoruba
   "person.name.1": "Kemi",

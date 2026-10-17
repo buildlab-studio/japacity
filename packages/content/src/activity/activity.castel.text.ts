@@ -1,5 +1,5 @@
 // Names and blurbs for Castel Volturno lived by hand (docs/rules/streets.md R-STREET-015). The place's answer to each is
-// in activity.now.text.ts with the other now-lines. First drafts, rewritten for voice.
+// in activity.now.text.ts with the other now-lines. First drafts, plain.
 export const activityCastelText: Record<string, string> = {
   "activity.weekly-shop-it.name": "The weekly shop",
   "activity.weekly-shop-it.blurb": "A trolley round the discount supermarket: rice, pasta, eggs, chicken and the rest of the week's food.",

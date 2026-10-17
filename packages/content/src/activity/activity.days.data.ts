@@ -35,7 +35,7 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.pub-pint": 1,
   "activity.barber-uk": 1,
   "activity.buy-clothes-uk": 2,
-  // Calgary, Dubai and Castel Volturno lived by hand (place.md R-PLACE-012 as amended, streets.md R-STREET-013 to 015):
+  // Calgary, Dubai and Castel Volturno lived by hand (place.md R-PLACE-012, streets.md R-STREET-013 to 015):
   // each pass a tap at the machine and no time, a coffee no time (a purchase), a morning each, the clothes a day.
   "activity.transit-pass-ca": 0,
   "activity.weekly-shop-ca": 1,

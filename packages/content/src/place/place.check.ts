@@ -1,4 +1,4 @@
-// The real-name check: docs/rules/city.md R-CITY-022 as amended, R-CITY-023 and R-CITY-041.
+// The real-name check: docs/rules/city.md R-CITY-022, R-CITY-023 and R-CITY-041.
 // It reads the place table and the register of real names on signs (place.real.ts).
 import type { Content, Id, PlaceEntry } from "@japacity/sim";
 
@@ -41,7 +41,7 @@ function placeProblems(content: Content, places: PlaceEntry[]): string[] {
   for (const place of places) {
     if (place.realName === null) continue;
     if (place.where === "road") problems.push(`${place.id}: the road's place carries the real name ${place.realName} (R-CITY-023).`);
-    // public names stay as they were before P17 ("public places as today"); the rest binds the names it added.
+    // public places (R-CITY-005) keep their own names whatever they stage; the rest binds the names R-CITY-022 allows.
     if (place.nameKind === "public") continue;
     const frauds = place.stages.filter((id) => harmful(content, id));
     if (frauds.length > 0) problems.push(`${place.id}: carries the real name ${place.realName} and stages ${frauds.join(", ")}, which can be a fraud, a mishap or bad news (R-CITY-022).`);

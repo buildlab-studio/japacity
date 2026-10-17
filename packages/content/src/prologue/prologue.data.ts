@@ -292,7 +292,7 @@ const steps: Record<string, PrologueStep> = {
       answer("tech", [{ type: "route/hear", route: "route.uk-talent", via: "friend" }], {
         requires: [{ type: "quality/min", quality: TECH, value: 40 }],
       }),
-      // The nurses' crowd: a life with care behind it hears of care work abroad at its own send-off, so its chapters lean that way.
+      // The nurses' crowd: a life with care behind it hears of care work abroad at its own send-off, so its chapters lean that way (R-PROLOGUE-011).
       answer("care", [{ type: "route/hear", route: "route.uk-care", via: "friend" }], {
         requires: [{ type: "quality/min", quality: CARE, value: 30 }],
       }),
@@ -339,7 +339,7 @@ const steps: Record<string, PrologueStep> = {
         ],
         { requires: [{ type: "money/can-pay", currency: "NGN", amount: COMPOUND_MOVE_IN + tuning.home.compound.upkeep }] },
       ),
-      // A hostel room of your own: the rent by the month opened and the move. As the room on the
+      // A hostel room of your own (decision 0040): the rent by the month opened and the move. As the room on the
       // water's, the prologue's room takes nothing on the move: its first month is charged at the month's end, no year's lump.
       answer("hostel-room", [
         { type: "obligation/open", obligation: "obligation.upkeep-hostel", amount: tuning.home.hostelRentKobo },
@@ -443,7 +443,7 @@ export const prologueTable: Record<string, PrologueStep> = {
 /**
  * R-PROLOGUE-001: the life the prologue builds from. Every quality at its
  * minimum but age, at sixteen; no money, job, documents or obligations.
- * Joined to the scenario table in index.ts by the maintainer.
+ * Joined to the scenario table in index.ts.
  */
 export const prologueScenario: ScenarioEntry = {
   id: "scenario.prologue",

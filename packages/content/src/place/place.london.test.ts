@@ -1,4 +1,4 @@
-// The places of London (docs/rules/city.md "Entries: abroad", the London rows of 16 Oct 2026; design page 14 section 4):
+// The places of London (docs/rules/city.md "Entries: abroad", the London rows; design page 14 section 4):
 // each with its position, scope, kind of name, scene folder and what it stages, the UK's jobs at their own workplaces,
 // and every staged id staged once for each country (R-CITY-010).
 import type { Id, PlaceEntry } from "@japacity/sim";
@@ -58,7 +58,7 @@ describe("the places of London", () => {
   });
 
   test("[R-CITY-010] given the room abroad, when its stages are read, then it cooks in each country's money and keeps the country-less acts, the hunt, the community and money home being at each country's own places", () => {
-    // the room keeps rest, the call home, the flats,
+    // City.md's room row: the room keeps rest, the call home, the flats,
     // the phone contracts and the four meals.
     const room = content.place["place.the-room"];
     expect(room?.stages).toEqual(expect.arrayContaining(["activity.cook-own-uk", "activity.rest", "activity.call-home"]));
@@ -72,7 +72,7 @@ describe("the places of London", () => {
       const at = places.filter((place) => place.country === "country.uk" && (place.stages as readonly string[]).includes(job)).map((place) => place.id);
       expect({ job, at: at.length }).toEqual({ job, at: 1 });
     }
-    // every country's jobs are at its own places, so the country-less workplace is removed.
+    // Every country's jobs are at its own places (design page 15), so there is no country-less workplace.
     expect(content.place["place.workplace-abroad"]).toBeUndefined();
   });
 

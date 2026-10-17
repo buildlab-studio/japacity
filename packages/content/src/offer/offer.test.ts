@@ -1,4 +1,4 @@
-// The asks that came too often or at the wrong time, read from content:
+// The asks that could come too often or at the wrong time, read from content:
 // how often they may come, and when they may not.
 import { describe, expect, test } from "vitest";
 

@@ -158,7 +158,7 @@ export const activityText: Record<string, string> = {
   ...activityEnjoyText,
   // place.md R-PLACE-012 and streets.md R-STREET-012: London lived by hand.
   ...activityLondonText,
-  // place.md R-PLACE-012 as amended and streets.md R-STREET-013 to R-STREET-015: Calgary, Dubai and Castel Volturno lived by hand.
+  // place.md R-PLACE-012 and streets.md R-STREET-013 to R-STREET-015: Calgary, Dubai and Castel Volturno lived by hand.
   ...activityCalgaryText,
   ...activityDubaiText,
   ...activityCastelText,

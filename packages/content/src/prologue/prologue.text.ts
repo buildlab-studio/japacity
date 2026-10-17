@@ -3,8 +3,8 @@
 // `prologue.<step>.answer.<answer>`, `prologue.<step>.outcome.<outcome>`,
 // `prologue.<step>.answer.<answer>.hint` for the one line under an answer, and
 // `prologue.<step>.answer.<answer>.why` for why an answer is not open: the situation,
-// never the threshold. A card is at most
-// ten words and an answer at most four.
+// never the threshold (text.md R-TEXT-005). A card is at most ten words and an answer
+// at most four.
 const words: Record<string, string> = {
   "prologue.draw.card": "Where you start: your family, your town, your siblings.",
   "prologue.draw.answer.begin": "Begin",
@@ -155,7 +155,7 @@ const words: Record<string, string> = {
   // (the age its path reaches with no setback, the lowest its age card opens: R-PROLOGUE-004; the archetypes' test reads it); the naira its life holds at
   // the close, in whole naira, the door's "what it leaves in the pocket" (R-PROLOGUE-013: the savings test keeps it within a
   // quarter of its lives' median); the handover's line; and the life in a few words under the name on the door's card
-  // (`life`, the door's second design).
+  // (`life`).
   "prologue.archetype.developer.name": "The developer",
   "prologue.archetype.developer.was": "Science, then computer science",
   "prologue.archetype.developer.opens": "Opens: tech work in the UK, a master's. Starts at 23, or older",

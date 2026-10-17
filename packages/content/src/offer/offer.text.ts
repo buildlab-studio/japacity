@@ -351,7 +351,7 @@ export const offerText: Record<string, string> = {
   ...offerHomeText,
   ...offerParcelText,
 
-  // Luck: luck.md. First drafts, rewritten for voice.
+  // Luck: luck.md. First drafts.
   "offer.whip-round.name": "A whip-round",
   "offer.whip-round.title": "From us all",
   "offer.whip-round.body":
@@ -407,8 +407,7 @@ export const offerText: Record<string, string> = {
   "offer.papers-marriage.sign.no-meeting": "You will not meet him before the day.",
   "offer.papers-marriage.sign.friend": "Your friend's cousin went this way. She is in London now.",
 
-  // Who asks each ask, shown in the ask's name pill, so the title and the line are theirs (INVENTORY B.4; the plan 8;
-  // the words pass). An ask with none here takes its group's stand-in; the scam text stays an unknown number.
+  // Who asks each ask, shown in the ask's name pill, so the title and the line are theirs. An ask with none here takes its group's stand-in; the scam text stays an unknown number.
   "offer.brother-fees.who": "Your brother",
   "offer.agent-chaser.who": "Terna",
   "offer.agent-stop.who": "A man at the stop",

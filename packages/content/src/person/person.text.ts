@@ -1,5 +1,5 @@
 // The words of the people around the character: docs/rules/people.md and text.md.
-// First drafts, rewritten for voice. A computer character's name is drawn
+// First drafts. A computer character's name is drawn
 // from the name pool (person.names.data.ts); the ids keep their working names.
 export const personText: Record<string, string> = {
   "person.tobi-bank.name": "Tobi",

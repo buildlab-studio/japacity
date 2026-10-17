@@ -1,5 +1,5 @@
-// Names and blurbs for Calgary lived by hand (docs/rules/place.md R-PLACE-012 as amended, streets.md R-STREET-013). The
-// place's answer to each is in activity.now.text.ts with the other now-lines. First drafts, rewritten for voice.
+// Names and blurbs for Calgary lived by hand (docs/rules/place.md R-PLACE-012, streets.md R-STREET-013). The
+// place's answer to each is in activity.now.text.ts with the other now-lines. First drafts, plain.
 export const activityCalgaryText: Record<string, string> = {
   "activity.transit-pass-ca.name": "The transit pass",
   "activity.transit-pass-ca.blurb": "One ticket at the machine and the buses and the CTrain are yours for the month.",

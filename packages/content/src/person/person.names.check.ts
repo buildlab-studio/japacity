@@ -1,5 +1,5 @@
-// The checks on the name pool and on who is named in the game's words (idea
-// file 11, names rules 2, 4, 5 and 7). Each returns a list of problems, empty
+// The checks on the name pool and on who is named in the game's words (names
+// rules 2, 4, 5 and 7). Each returns a list of problems, empty
 // when the content holds; the tests run them on the real content and on
 // copies made to fail.
 import type { NamedPerson, NamePeople, PoolName } from "./person.names.data";

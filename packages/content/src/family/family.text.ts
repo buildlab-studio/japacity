@@ -1,5 +1,5 @@
 // The family group's words (family.data.ts). The family talks the way families
-// talk on their phones; the narrator stays out. First drafts for the maintainer.
+// talk on their phones; the narrator stays out. First drafts.
 export const familyText: Record<string, string> = {
   "family.group.name": "Family Group (Main)",
   "family.from.aunt": "Aunty {name}",

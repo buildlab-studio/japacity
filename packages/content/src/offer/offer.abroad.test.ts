@@ -11,7 +11,7 @@ const small = entries.filter((entry) => entry.news === false);
 
 describe("the small asks abroad", () => {
   test("[R-WORLD-028] given the offers in content, then the market finds on the street abroad are the small asks, and nothing else is", () => {
-    // Calgary's and Castel Volturno's finds joined the UK's and the UAE's on their pattern (16 Oct 2026, design page 15).
+    // Calgary's and Castel Volturno's finds follow the UK's and the UAE's pattern (design page 15).
     expect(small.map((entry) => entry.id).sort()).toEqual(["offer.street-find-ca", "offer.street-find-it", "offer.street-find-uae", "offer.street-find-uk"]);
   });
 

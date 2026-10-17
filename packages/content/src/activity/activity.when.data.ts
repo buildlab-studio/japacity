@@ -109,7 +109,7 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.pub-pint": "repeat",
   "activity.barber-uk": "once",
   "activity.buy-clothes-uk": "once",
-  // Calgary, Dubai and Castel Volturno lived by hand (place.md R-PLACE-012 as amended, streets.md R-STREET-013 to 015):
+  // Calgary, Dubai and Castel Volturno lived by hand (place.md R-PLACE-012, streets.md R-STREET-013 to 015):
   // each pass once a month at its machine, the coffees a purchase, the food and the evenings as often as the month's
   // time allows, the barbers and the clothes once a month, the church's community once as the other countries' are.
   "activity.transit-pass-ca": "once",

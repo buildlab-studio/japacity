@@ -1,4 +1,4 @@
-// The name pool (docs/rules/people.md
+// The name pool (names rules 1, 2, 4 and 5; docs/rules/people.md
 // R-PEOPLE-053): one pool grouped by people, the mix it is drawn with, and every
 // named person the game's own words carry, so a check can hold the mix.
 // The given names are text keys `person.name.<n>` in person.names.text.ts.
@@ -50,7 +50,7 @@ export const peopleRegion: Record<NamePeople, "north" | "south"> = {
 
 /**
  * The mix, in basis points of every name drawn (names rule 2): the three largest
- * peoples first, then a real share for the others. Proposed; the maintainer sets it.
+ * peoples first, then a real share for the others. A proposed mix.
  */
 export const nameMix: Record<NamePeople, number> = {
   "hausa-fulani": 2200,
@@ -234,6 +234,6 @@ export const namedPeople: NamedPerson[] = [
   { name: "Hadiza", people: "hausa-fulani", role: "chaser", keys: ["offer.agent-chaser.who.1.name"] },
   // The person News names as the source of a story she tells.
   { name: "Tolu", people: "yoruba", role: "friend", keys: ["news.uk-unis-recruit.in-force.source", "chapter.landing.brief.giver", "chapter.secure.brief.giver"] },
-  // The friend at the hub who hands the first briefs (the briefs' words, chapter.text.ts; the plan 7).
+  // The friend at the hub who hands the first briefs (the briefs' words, chapter.text.ts).
   { name: "Femi", people: "yoruba", role: "friend", keys: ["chapter.brief.giver", "chapter.find-your-feet.brief.giver", "chapter.build-the-file.brief.giver"] },
 ];

@@ -44,7 +44,7 @@ export const peopleOfferTable: Record<Id<"offer">, OfferEntry> = {
     group: "money",
     where: "home",
     when: [{ type: "place/is", where: "home" }, AGE_21, NO_PARTNER],
-    // the page rolls it at 1%, but a new roll moves every later draw on `offer`, and the recorded lives replay offer ids; it opens only by effect until someone adds the lives again.
+    // the page rolls it at 1%, but a new roll moves every later draw on `offer`, and the recorded lives replay offer ids; it opens only by effect until the lives are recorded again.
     chanceBp: 0,
     cooldown: 12,
     maxTimes: null,

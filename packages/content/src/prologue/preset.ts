@@ -50,8 +50,8 @@ export interface Preset {
 
 /**
  * Steps every life passes the same way, never a card of its own: the opening draw, the university (federal is
- * open to everyone), the strike's drag, the results and the settlement; and the steps that were cards before the
- * short door (R-PROLOGUE-010): the exam studied for, a retake taken again, a strike waited
+ * open to everyone), the strike's drag, the results and the settlement; and the steps the short door passes
+ * without a card (R-PROLOGUE-010): the exam studied for, a retake taken again, a strike waited
  * out, and the family house to sleep in.
  */
 export const PRESET_THROUGH: PresetAnswers = {
@@ -191,7 +191,7 @@ export function agedAnswers(answers: PresetAnswers, years: number): PresetAnswer
 
 /**
  * The homes the door can start a life in (R-PROLOGUE-013): the home step's answers, the four homes of R-HOME-001, in the
- * order the door offers them (the home's wave): your own room first, the hostel second, the family house last, as the
+ * order the door offers them (decision 0040): your own room first, the hostel second, the family house last, as the
  * one more reason to leave; Makoko for the child of the water alone.
  */
 export const HOMES = ["compound-room", "hostel-room", "family-house", "makoko"] as const;

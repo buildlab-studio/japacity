@@ -193,7 +193,7 @@ describe("the prologue's steps", () => {
     expect(draw("settlement", "settle")?.[0]?.effects).toContainEqual({ type: "money/add", currency: "NGN", pocket: "bank", amount: 600000000, reason: "gig" });
     expect(effects("home", "family-house")).toContainEqual({ type: "obligation/open", obligation: "obligation.upkeep", amount: 9500000 });
     // The home step offers only the homes play backs (R-HOME-001): the family house, the room in a compound, the hostel
-    // room (the home's wave) and Makoko, chosen on the door (R-PROLOGUE-013).
+    // room and Makoko, chosen on the door (R-PROLOGUE-013).
     expect(content.prologue["home"]?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "hostel-room", "makoko"]);
     expect(effects("friend", "drivers")).toEqual([{ type: "route/hear", route: "route.gulf-contract", via: "friend" }]);
     expect(content.tuning.prologue.startAgeMonths).toBe(192);
@@ -291,7 +291,7 @@ describe("lines that fit the life from sixteen", () => {
     const card = text["prologue.friend.card"] ?? "";
     expect(card).toMatch(/Terna, your friend from school,/);
     expect(card).not.toMatch(/Terna's send-off/);
-    // The ask's title is his own words now; the results still name it Terna's send-off.
+    // The ask's title is his own words; the results still name it Terna's send-off.
     expect(text["offer.send-off-party.title"]).toBe("My send-off party");
     expect(text["offer.send-off-party.name"]).toBe("Terna's send-off");
   });

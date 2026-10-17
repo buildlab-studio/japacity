@@ -20,7 +20,7 @@ const BELOW_DEGREE = 2;
 const CAPITAL = naira(1000000);
 
 export const shopActivityTable: Record<Id<"activity">, ActivityEntry> = {
-  // the brief has the capital become the stock; no ledger reason says "stock" (a new reason needs a decision
+  // should the capital become the stock? No ledger reason says "stock" (a new reason needs a decision
   // record), so opening costs nothing and the takings are what the shop clears after it restocks.
   [OPEN]: {
     id: OPEN,

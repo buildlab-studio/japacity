@@ -160,8 +160,7 @@ function toldStages(entry: NewsEntry): ("announced" | "in-force" | "ended")[] {
 }
 
 describe("where a story comes from", () => {
-  // the maintainer's voice: every piece of news names where it was heard, a small icon and a
-  // word, and a rumour is marked as a rumour, so it never reads like a changed rule.
+  // Every piece of news names where it was heard, a small icon and a word, and a rumour is marked as a rumour, so it never reads like a changed rule.
   test("[R-NEWS-004] given every story in content, when a stage past the rumour is shown, then it names where it is heard: the radio, the paper, the official page, the street or a person", () => {
     const stories = Object.values(content.news);
     expect(stories).toHaveLength(STORY_COUNT);

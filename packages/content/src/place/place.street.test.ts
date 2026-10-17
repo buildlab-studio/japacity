@@ -26,9 +26,9 @@ function overheard(place: string): string[] {
 }
 
 const SHOPPING = [
-  // the UK's stalls stand on Rye Lane and are paid as enjoyment.
+  // The UK's stalls stand on Rye Lane and are paid as enjoyment.
   { id: "activity.street-shopping-uk" as Id<"activity">, country: "country.uk", currency: "GBP", amount: street.shoppingGbp, reason: "enjoyment", place: "place.rye-lane" },
-  // the souq stands in Naif and is paid as enjoyment.
+  // R-STREET-014: the souq stands in Naif and is paid as enjoyment.
   { id: "activity.street-shopping-uae" as Id<"activity">, country: "country.uae", currency: "AED", amount: street.shoppingAed, reason: "enjoyment", place: "place.naif" },
 ] as const;
 

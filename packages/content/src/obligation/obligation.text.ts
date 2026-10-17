@@ -1,7 +1,7 @@
 // First drafts: the page gives types, not names.
 export const obligationText: Record<string, string> = {
   "obligation.upkeep.name": "Your share for the house",
-  // The family house's charge as the house tells it: your share, and Papa pays the rest.
+  // The family house's charge as the house tells it (decision 0040): your share, and Papa pays the rest.
   "obligation.upkeep.notice": "Your share for the house: {amount}. Papa pays the rest.",
   "obligation.upkeep-makoko.name": "Room in Makoko",
   "obligation.upkeep-compound.name": "Living costs in your room",

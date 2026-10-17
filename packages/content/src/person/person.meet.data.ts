@@ -3,8 +3,7 @@
 // The words are `<person id>.met` (the line when you meet) and `<person id>.home` (their home's name)
 // in person.text.ts.
 // The view's `candidates` is only what the world reads to know who stands where (people.md R-PEOPLE-009 and
-// R-PEOPLE-013 as amended on 9 Oct 2026; the world's side built 11 Oct 2026): the city stands each row's person at
-// its thing while the list holds them, a `decemberOnly` one only while `var.season-december` is 1, and the thing's
+// R-PEOPLE-013): the city stands each row's person at its thing while the list holds them, a `decemberOnly` one only while `var.season-december` is 1, and the thing's
 // sheet sends `people/court` (apps/client/src/features/city/meetings.ts).
 // until the church is a built place, the people met after the service are met at
 // the family house (after the service the family comes home with a guest), and a friend's guest is a friend of the
@@ -23,10 +22,9 @@ export interface PartnerMeeting {
 }
 
 /**
- * The places the meetings need that content does not have yet, for the maintainer to add as entries.
+ * The places the meetings need that content does not have yet, to be added as entries.
  * `place.their-room` is one stylised interior with no position, dressed per person as the room
- * abroad is dressed per country: a partner's home, where nobody is met. Dressed 11 Oct 2026: its
- * place file has one dressing for each person here whose home it is, a prop or two and the partner standing
+ * abroad is dressed per country: a partner's home, where nobody is met. Its place file has one dressing for each person here whose home it is, a prop or two and the partner standing
  * in it alone, in the model they are met in (apps/client/public/assets/places/their-room/place.json).
  */
 export const placesWanted: Id<"place">[] = [];

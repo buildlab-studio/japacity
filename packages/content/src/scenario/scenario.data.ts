@@ -39,8 +39,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
     siblings: 2,
     hometown: "hometown.enugu",
     tenure: {},
-    // four months of living in hand, so a graduate who follows the nudge to the board is hired
-    // before the money runs out (scenario.md's table still says ₦180,000 in the bank; it is added).
+    // Four months of living in hand, so a graduate who follows the nudge to the board is hired before the money runs
+    // out (scenario.md's table).
     pockets: { NGN: { bank: naira(355000), cash: naira(25000) } },
     documents: [],
     obligations: [{ obligation: "obligation.upkeep", amount: naira(95000) }],
@@ -179,7 +179,7 @@ export const ngoziScenario: ScenarioEntry = {
 };
 
 /**
- * Aniekan, the fifth life (the decision P10): a maths teacher four years
+ * Aniekan, the fifth life: a maths teacher four years
  * in, who codes after marking. Picked by the name pool's rules (person.names.data.ts):
  * the starting lives cover the three largest peoples and at least one other.
  *

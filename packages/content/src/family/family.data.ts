@@ -3,7 +3,7 @@
 // the day people hear you are travelling. Each post's words are
 // `family.<slug>.text`; who sent it is `family.from.<sender>`, named from the
 // life's own family below, or plainly by relation when the life has none.
-// the news kind reads this as `news/feed` once the lead adds its view field.
+// the news kind reads this as `news/feed` once its view field is added.
 import type { Id } from "@japacity/sim";
 
 export type FamilySender = "aunt" | "cousin" | "uncle" | "mum" | "group";

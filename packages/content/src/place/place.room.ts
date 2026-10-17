@@ -1,5 +1,5 @@
-// The room abroad's name for the country it is in (docs/rules/city.md "Entries: abroad", world.md R-WORLD-038 as amended
-// 16 Oct 2026; design pages 14 and 15): the room is one country-less entry, so its name per country is a words key of
+// The room abroad's name for the country it is in (docs/rules/city.md "Entries: abroad", world.md R-WORLD-038;
+// design pages 14 and 15): the room is one country-less entry, so its name per country is a words key of
 // its own beside the plain one, and the client reads it here for the band, the map and the home card.
 import type { Id } from "@japacity/sim";
 

@@ -1,6 +1,5 @@
-// Each goal says its first thing to do (docs/rules/goal.md R-GOAL-003, "what you could do next"; the
-// "A new goal: A clean file." and "A new goal: Your own door." said nothing a
-// player could act on.
+// Each goal says its first thing to do (docs/rules/goal.md R-GOAL-003, "what you could do next"): a goal
+// named alone, such as "A new goal: A clean file.", says nothing a player can act on.
 import { describe, expect, test } from "vitest";
 
 import { content, text } from "../index";

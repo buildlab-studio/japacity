@@ -1,7 +1,7 @@
 // Castel Volturno lived by hand: docs/rules/streets.md R-STREET-015 (design page 15 section 5). Each is a priced now-act
 // in euros, paid as it is done, and the church's community is free; when each answers and the time it spends are in
 // activity.when.data.ts and activity.days.data.ts. Joined into the activity table in activity.data.ts; place.data.ts
-// stages each at its Castel Volturno place. There is no pass here (R-PLACE-012 as amended): the bus is paid each time.
+// stages each at its Castel Volturno place. There is no pass here (R-PLACE-012): the bus is paid each time.
 import type { ActivityEntry, Effect, Id, Reason, Requirement } from "@japacity/sim";
 
 import { euros } from "../units";

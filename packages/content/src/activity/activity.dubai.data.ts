@@ -1,7 +1,7 @@
-// Dubai lived by hand: docs/rules/place.md R-PLACE-012 as amended (the zone pass) and streets.md R-STREET-014 (design page
+// Dubai lived by hand: docs/rules/place.md R-PLACE-012 (the zone pass) and streets.md R-STREET-014 (design page
 // 15 section 5, decision 0043). Each is a priced now-act in dirhams, paid as it is done; when each answers and the time it
 // spends are in activity.when.data.ts and activity.days.data.ts. Joined into the activity table in activity.data.ts;
-// place.data.ts stages each at its Dubai place. The souq's shopping stays in activity.abroad.data.ts, moved to Naif.
+// place.data.ts stages each at its Dubai place. The souq's shopping, in Naif, is in activity.abroad.data.ts.
 import type { ActivityEntry, Effect, Id, Reason, Requirement } from "@japacity/sim";
 
 import { tuning } from "../tuning/tuning.data";
@@ -10,7 +10,7 @@ import { aed } from "../units";
 const UAE: Id<"country"> = "country.uae";
 const IN_UAE: Requirement = { type: "place/is", where: "abroad", country: UAE };
 
-/** R-PLACE-012 as amended: the zone pass's figure, from the UAE's rides in the tuning. */
+/** R-PLACE-012: the zone pass's figure, from the UAE's rides in the tuning. */
 function zonePass(): number {
   const pass = tuning.city.ride.abroad[UAE]?.pass;
   if (pass === undefined || pass === null) throw new Error("The UAE's rides carry no zone pass.");
@@ -39,7 +39,7 @@ function byHand(id: Id<"activity">, fils: number, reason: Extract<Reason, "food"
 }
 
 export const dubaiActivityTable: Record<Id<"activity">, ActivityEntry> = {
-  // R-PLACE-012 as amended: the month's Nol zone pass at Union station's machine, good on the bus and the metro.
+  // R-PLACE-012: the month's Nol zone pass at Union station's machine, good on the bus and the metro.
   "activity.transit-pass-uae": byHand("activity.transit-pass-uae", zonePass(), "fare", []),
 
   // streets.md R-STREET-014. At the hypermarket: the weekly shop.

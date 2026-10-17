@@ -665,8 +665,8 @@ const told = (announced: NewsSource, inForce?: NewsSource, ended?: NewsSource): 
 });
 
 /**
- * Where each story is heard, beside it on News: the announcement's
- * source, then a later stage's where it differs. A rumour is marked as a rumour on screen, so it has none here.
+ * Where each story is heard, beside it on News: the announcement's source, then a later stage's where it differs.
+ * A rumour is marked as a rumour on screen, so it has none here.
  * A person is named in the words, `<id>.<stage>.source`.
  */
 const SOURCES: Record<Id<"news">, Sources> = {

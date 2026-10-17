@@ -158,7 +158,7 @@ describe("Chats", () => {
   test("[R-WORLD-019] given a life that starts the passport, when the month ends, then the reminder of the passport's month shows, and Papa's line on the passport that has come waits until it comes", () => {
     const life = begin(ADA);
     expect(remindersDue(viewOf(life), content).some((reminder) => reminder.key === "document.passport.reminder.due")).toBe(false);
-    // the passport is asked for at once, then the month ends.
+    // R-ACTIVITY-015: the passport is asked for at once, then the month ends.
     const after = endMonth(actNow(life, "activity.get-passport"), []);
     const view = viewOf(after);
     const paper = view.documents.find((held) => held.id === "document.passport");
@@ -168,7 +168,7 @@ describe("Chats", () => {
   });
 
   test("[R-WORLD-019] given a passport on the way, when the month it is issued ends, then Papa's line on keeping it in the box shows that month only", () => {
-    // the passport is asked for at once, then the month ends.
+    // R-ACTIVITY-015: the passport is asked for at once, then the month ends.
     let life = endMonth(actNow(begin(ADA), "activity.get-passport"), []);
     const shown: boolean[] = [];
     for (let month = 0; month < 4 && viewOf(life).documents.find((held) => held.id === "document.passport")?.state !== "held"; month += 1) {

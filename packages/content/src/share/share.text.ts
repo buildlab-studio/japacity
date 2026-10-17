@@ -80,7 +80,7 @@ export const shareText: Record<string, string> = {
   "share.first-name.scenario.aniekan": "Aniekan",
 
   // The japa type (decision 0018): a name and one line in the character's own voice. Flattering, never mocking;
-  // the long way round says the hard part straight. First drafts, rewritten for voice.
+  // the long way round says the hard part straight. First drafts.
   "share.type.careful-saver.name": "The Careful Saver",
   "share.type.careful-saver.line": "I spent less than I made. Most months, anyway.",
   "share.type.hustler.name": "The Hustler",

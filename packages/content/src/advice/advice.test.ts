@@ -1,6 +1,5 @@
-// The agents' fees and tells in content: docs/rules/advice.md R-ADVICE-005, 006 and 013, as the maintainer
-// ruled on 10 Oct 2026 (the review): a fee never tells the kind, and "No passport needed"
-// is a scammer's line.
+// The agents' fees and tells in content: docs/rules/advice.md R-ADVICE-005, 006 and 013: a fee never
+// tells the kind, and "No passport needed" is a scammer's line.
 import type { Id, OfferEntry } from "@japacity/sim";
 import { checkContent } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

@@ -1,7 +1,7 @@
-// The places of Calgary, Dubai and Castel Volturno (docs/rules/city.md "Entries: abroad", the rows of 16 Oct 2026; design
-// page 15 section 3): each with its position, scope, kind of name, scene folder, shuttle and what it stages; every job
-// and test of every country staged at a place of that country once the country-less workplace and test centre are gone
-// (R-CITY-010); the room named per country and its spot on each country's map.
+// The places of Calgary, Dubai and Castel Volturno (docs/rules/city.md "Entries: abroad"; design page 15 section 3):
+// each with its position, scope, kind of name, scene folder, shuttle and what it stages; every job and test of every
+// country staged at a place of that country, with no country-less workplace or test centre (R-CITY-010); the room
+// named per country and its spot on each country's map.
 import type { Id, PlaceEntry } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 

@@ -638,7 +638,7 @@ export const placeText: Record<string, string> = {
   "place.peckham-rye-station.overheard.2": "My next drop is in Brixton. Twenty minutes.",
   "place.peckham-rye-station.overheard.3": "The train is cancelled. Of course it is.",
   // London on the Lagos mold (city.md "Entries: abroad"). Businesses by made-up name on their signs, checked
-  // under R-CITY-007 and recorded in place.names.json on 16 Oct 2026; the ward, the church and the test centre by plain description.
+  // under R-CITY-007 and recorded in place.names.json; the ward, the church and the test centre by plain description.
   "place.big-shop-uk.name": "the big shop",
   "place.big-shop-uk.blurb": "A supermarket on the high street: trolleys by the door, long aisles, and a part-time job at the tills.",
   "place.big-shop-uk.sign.1": "Fairbasket",
@@ -821,8 +821,8 @@ export const placeText: Record<string, string> = {
   "place.their-room.name": "their room",
   "place.their-room.blurb": "Somebody else's room, as they keep it. You are a guest here.",
   "place.the-room.name": "the room",
-  // The room abroad named for the country it is in (city.md "Entries: abroad", world.md R-WORLD-038 as amended 16 Oct
-  // 2026), read through `roomName`; the plain name stays for a room with no country.
+  // The room abroad named for the country it is in (city.md "Entries: abroad", world.md R-WORLD-038), read
+  // through `roomName`; the plain name stays for a room with no country.
   "place.the-room.name.uk": "the shared room in Peckham",
   "place.the-room.name.canada": "the basement room in north-east Calgary",
   "place.the-room.name.uae": "the bed space at the camp",

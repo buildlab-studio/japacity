@@ -33,7 +33,7 @@ const REJECTION_CODES = [
   "bot-check",
   "not-fresh",
   "bad-code",
-  // The people routes' refusals (pair.md), in ServerCode from 8 Oct 2026.
+  // The people routes' refusals (pair.md), in ServerCode.
   "not-possible",
   "blocked",
   "too-many",
@@ -46,7 +46,7 @@ const REJECTION_CODES = [
   "not-adult",
   "moved-on",
   "guest-only",
-  // The dedication's light refused by the shared check (server.md R-SERVER-045), from 15 Oct 2026.
+  // The dedication's light refused by the shared check (server.md R-SERVER-045).
   "bad-light",
 ];
 

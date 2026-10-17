@@ -34,7 +34,7 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.item.heard.nudge.motor-park": "Ask around at the motor park",
   "chapter.find-your-feet.item.heard.planned.ask-around": "Park visit planned. Live the month.",
   "chapter.find-your-feet.item.heard.planned": "Meetup planned. Live the month.",
-  // A step the naira held cannot pay names the gap, never the act.
+  // A step the naira held cannot pay names the gap, never the act (R-WORLD-003).
   "chapter.find-your-feet.item.heard.short": "Find {amount} more for the meetup",
   "chapter.find-your-feet.item.heard.saving": "Payday first, then the meetup",
   "chapter.find-your-feet.item.known": "Look into it",
@@ -335,12 +335,12 @@ export const chapterText: Record<string, string> = {
   "chapter.secure.item.secure": "Settle where you are, come home on your own terms, or win a second visa",
   "chapter.secure.item.secure.nudge": "Settle here, or go home your way",
 
-  // The briefs (docs/design/13-the-lively-layer.md section 4; the plan 7): each chapter handed over as a mission card
+  // The briefs (docs/design/13-the-lively-layer.md section 4): each chapter handed over as a mission card
   // by its person, in their voice. `.brief.title` is the title with a wink, at most three words; `.brief.giver` and
   // `.giver.where` who hands it and where; `.brief.reward.<n>` the rewards as picture chips; `.brief.at.<item>` the
   // two-word place under a thing where the stop's own name would not say it. `chapter.brief.*` serves every chapter:
   // the giver when a chapter names none, the place under a thing by its stop, and the giver's toast as a thing comes in
-  // (Femi and Mama speak as themselves, the plan 8). Never "chapter", "step", "item" or "task" to the player.
+  // (Femi and Mama speak as themselves). Never "chapter", "step", "item" or "task" to the player.
   "chapter.brief.giver": "Femi",
   "chapter.brief.giver.where": "the hub",
   "chapter.brief.at.month": "In time",

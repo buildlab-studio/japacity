@@ -1,6 +1,5 @@
-// Where a life is from (prologue.md R-PROLOGUE-002, amended 11 Oct 2026; the decision of 14:47, the review item
-// 34): Lagos is the city the game is played in, but most lives come to it from somewhere else. The family drawn in the
-// city is from one of the cities, the family drawn in a town from one of the towns, spread across the six zones and
+// Where a life is from (prologue.md R-PROLOGUE-002): Lagos is the city the game is played in, but most lives come to
+// it from somewhere else. The family drawn in the city is from one of the cities, the family drawn in a town from one of the towns, spread across the six zones and
 // across the north and the south as the names are (person.names.data.ts). Real towns are named as where people are
 // from, never as a place the game shows. The words are `hometown.<slug>.name` in prologue.hometown.text.ts.
 

@@ -90,10 +90,9 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: "ignore",
   },
 
-  // R-LUCK-010: a relative abroad sends $500 to the dollar bank pocket, a gift, flagged. The sixth review
-  // gives the risk a way round, said before it is taken: asked for through her bank with a note, the
-  // gift is documented and not flagged. the brief has it land a month later; no effect credits
-  // money a month on, so it lands now.
+  // R-LUCK-010: a relative abroad sends $500 to the dollar bank pocket, a gift, flagged. The risk has a way
+  // round, said before it is taken: asked for through her bank with a note, the gift is documented and not
+  // flagged. should it arrive a month later? No effect credits money a month on, so it arrives now.
   "offer.relative-sends": {
     id: "offer.relative-sends",
     group: "life",
