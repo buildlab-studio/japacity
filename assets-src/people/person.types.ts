@@ -1,5 +1,5 @@
 // The contract between the people builder and the export: a person is a skinned mesh as
-// plain arrays, so the export writes it with gltf-transform and needs no browser (decision 0005).
+// plain arrays, so the export writes it with gltf-transform and needs no browser (decision 0009).
 import type { PaletteName } from "@japacity/assets";
 import type { PatternSpec } from "@japacity/assets/pattern";
 
