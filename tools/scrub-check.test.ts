@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, test } from "vitest";
 
-import { ALLOWED, findProcessTags, findTellTales, PROCESS_ALLOWED, PROCESS_TAGS, scrubTree, TELL_TALES } from "./scrub-check";
+import { ALLOWED, enforcedTags, findProcessTags, findTellTales, PROCESS_ALLOWED, PROCESS_TAGS, type ProcessTag, scrubTree, TELL_TALES } from "./scrub-check";
 
 const made: string[] = [];
 
@@ -88,10 +88,13 @@ describe("the scrub check's process tags", () => {
     expect(findProcessTags("packages/content/src/news/news.text.ts", words, PROCESS_TAGS)).toEqual([]);
   });
 
-  test("given a tag that is not enforced, when a file is checked by default, then it is not looked for", () => {
-    const held = PROCESS_TAGS.filter((each) => !each.enforced);
-    expect(held.length).toBeGreaterThan(0);
-    expect(findProcessTags("docs/rules/somewhere.md", held.map((each) => each.example).join("\n"))).toEqual([]);
+  test("given a tag that is not enforced, when the enforced tags are taken, then it is left out and a file is not checked for it", () => {
+    const [first] = PROCESS_TAGS;
+    if (first === undefined) throw new Error("No process tags.");
+    const held: ProcessTag = { ...first, enforced: false };
+    expect(enforcedTags([held, ...PROCESS_TAGS.slice(1)])).toEqual(PROCESS_TAGS.slice(1));
+    expect(findProcessTags("docs/rules/somewhere.md", held.example, enforcedTags([held]))).toEqual([]);
+    expect(findProcessTags("docs/rules/somewhere.md", held.example)).toHaveLength(1);
   });
 
   test("given the list itself, when it carries every tag, then it is allowed", () => {

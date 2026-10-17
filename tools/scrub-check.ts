@@ -235,8 +235,7 @@ export const PROCESS_TAGS: readonly ProcessTag[] = [
   tag("the logic review", /\bthe review\b/, "Found by the the review.", true),
   tag("the whole-life review", /\bwhole-life review\b/i, "Raised by the whole-life review.", true),
   tag("a reading taken", /\bReading taken\b/, "the bank pocket.", true),
-  // Off while the asset register's provenance notes still name the pass a piece was reworked in.
-  tag("a wave's name", /\bwave [A-Z]{1,4}\d?[a-z]?\b/, "Built in.", false),
+  tag("a wave's name", /\bwave [A-Z]{1,4}\d?[a-z]?\b/, "Built in.", true),
   tag("a builder's branch", /(?<![\w./-])(?:m\d{2,3}\/[a-z0-9]|fun\/wave-)/, "On the branch a branch.", true),
   tag("a comment tag", /(?:\/\/|\/\*|^\s*\*\s|^\s*#\s|<!--).*\b(?:QUESTION|Decided):/, "const rate = 20; // no page gives the rate.", true),
   tag("a plan file", /\b[A-Z]+-PLAN\b/, "The family house.", true),
@@ -256,8 +255,13 @@ export const PROCESS_TAGS: readonly ProcessTag[] = [
 /** Paths where no process tag is looked for: this list itself, which holds the patterns. */
 export const PROCESS_ALLOWED: ReadonlySet<string> = new Set(["tools/scrub-check.ts"]);
 
+/** The tags the tree is looked through for: a new tag may be held off until the tree passes it. */
+export function enforcedTags(tags: readonly ProcessTag[]): ProcessTag[] {
+  return tags.filter((each) => each.enforced);
+}
+
 /** Every tag of the build's process in one file's text, by the tags given. A binary file is passed over. */
-export function findProcessTags(file: string, text: string, tags: readonly ProcessTag[] = PROCESS_TAGS.filter((each) => each.enforced)): Hit[] {
+export function findProcessTags(file: string, text: string, tags: readonly ProcessTag[] = enforcedTags(PROCESS_TAGS)): Hit[] {
   if (PROCESS_ALLOWED.has(file) || text.includes("\u0000")) return [];
   const hits: Hit[] = [];
   text.split("\n").forEach((line, index) => {
