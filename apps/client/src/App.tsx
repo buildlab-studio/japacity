@@ -182,7 +182,7 @@ function WorldPlaying() {
       {/* R-MOMENT-006: a moment an act or the draw's letter brings stands over the world. */}
       <MomentCard over="world" />
       <SecureAsk />
-      {/* R-GUIDE-015: the notice is asked once, after the early win's good moment, as the old page asked it. */}
+      {/* R-GUIDE-015: the notice is asked once, after the early win's good moment. */}
       <NotifyAsk />
     </div>
   );
@@ -192,12 +192,10 @@ function WorldPlaying() {
 export const SLOW_MS = 5_000;
 
 /**
- * The splash (R-ENGINE-015) with "Opening your life..." under the game's name and the bar under it, a
- * second line under the bar once it takes long,
- * and the card under the mark in the words' place when the view could not be read.
+ * The splash (R-ENGINE-015) with "Opening your life..." under the game's name and the bar under it, a second line under
+ * the bar once it takes long, and the card under the mark in the words' place when the view could not be read.
  * Online, for a visitor this device has no life for, the start screen's frame instead: never "Opening your life" for
- * someone with no life, and with the server down the card stands in its sheet, naming the game (R-ENGINE-015, amended
- * 11 Oct 2026).
+ * someone with no life, and with the server down the card stands in its sheet, naming the game (R-ENGINE-015).
  */
 function Opening() {
   const trouble = useGame((state) => state.trouble);
@@ -249,7 +247,7 @@ function Screen() {
   // The version the prologue's handover was passed at, so it shows once.
   const [handedOver, setHandedOver] = useState<number | null>(null);
   useScreenCount(choosingLife ? "scenario" : view !== null && view.prologue !== null ? "prologue" : view?.place.where === "road" ? "road" : null);
-  // The game's own fault: the same card on the splash, with Reload.
+  // The game's own fault: the same card on the splash, with Reload, never red text.
   if (failed !== null)
     return (
       <Splash>

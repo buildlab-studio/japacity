@@ -154,7 +154,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
     return archetype === null ? drawn : tileSeed(archetype, drawn, worldAt(0), content);
   }
 
-  // A life not yet chosen is never written: the front door comes back after a reload instead of the first scenario's life.
+  // A life not yet chosen is never written: the front door comes back after a reload instead of the first scenario's life (R-PROLOGUE-009).
   let chosen = false;
 
   /** False when the save was not written: a full or blocked storage loses it on reload, but play goes on. */

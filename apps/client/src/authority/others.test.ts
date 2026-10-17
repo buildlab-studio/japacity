@@ -1,5 +1,5 @@
-// A computer person never carries the player's name (prologue.md R-PROLOGUE-009, people.md R-PEOPLE-061, amended
-// 11 Oct 2026).
+// A computer person never carries the player's name (prologue.md R-PROLOGUE-009, people.md R-PEOPLE-061),
+// so "Hauwa, Not a player" never stands beside the player Hauwa in the family house.
 import { lifePeople, namedPeople, namePool, text } from "@japacity/content";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -41,7 +41,7 @@ describe("a computer person never carries the player's name", () => {
     const terna = namedPeople.find((person) => person.name === "Terna")!;
     setNow(4, null, swapsFor("Terna"));
     for (const key of terna.keys) expect(say(key)).not.toMatch(/\bTerna\b/);
-    // The send-off's ask is in his voice now: its name and the ask's name pill carry him.
+    // The send-off's ask is in his voice: its name and the ask's name pill carry him.
     expect(say("offer.send-off-party.name")).toContain(otherName("Terna", "Terna"));
     expect(say("offer.send-off-party.who")).toBe(otherName("Terna", "Terna"));
     // The fixed lives' own names are the player's own words, never swapped.

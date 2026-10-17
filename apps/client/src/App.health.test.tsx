@@ -17,7 +17,7 @@ const health = content.tuning.health;
 /**
  * Ada with wellbeing pushed under the run-down line, played until the warning stands. Resting lifts her over the
  * line until her four months of living run out and the unpaid upkeep pulls her under. Decision
- * 0035 (R-HOME-012): at home the living is no longer charged as the month turns, so her months are played with it
+ * 0035 (R-HOME-012): at home the living is not charged as the month turns, so her months are played with it
  * charged whole, as the simulation's relief tests charge it, for the unpaid months to pull her under.
  */
 function runDownView(): PlayerView {
@@ -51,7 +51,7 @@ describe("the run-down warning", () => {
     const store = createGameStore(fakeAuthority(runDownView()));
     await store.getState().refresh();
     render(<App store={store} />);
-    // The world is the game (R-WORLD-001): the old page's tabs are the phone's apps (R-WORLD-018).
+    // The world is the game (R-WORLD-001): the life's screens are the phone's apps (R-WORLD-018).
     fireEvent.click(await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 }));
     await waitFor(() => expect(document.querySelector("[data-phone-warnings] [data-run-down]")).not.toBeNull());
     for (const app of ["calendar", "bank", "japa", "chats", "news"]) {

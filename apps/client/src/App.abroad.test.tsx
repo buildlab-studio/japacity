@@ -105,7 +105,7 @@ describe("the shell by where the character is", () => {
 
   test("[R-STATUS-003] given the clock running abroad, then it shows on the phone's home and above every app, whichever app is open", async () => {
     await showing(richAbroadView());
-    // The world is the game (R-WORLD-001): the old page's tabs are the phone's apps (R-WORLD-018).
+    // The world is the game (R-WORLD-001): the life's screens are the phone's apps (R-WORLD-018).
     fireEvent.click(await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 }));
     const banner = await waitFor(() => screen.getAllByRole("alert").find((element) => element.hasAttribute("data-clock") && element.closest("[data-phone-warnings]") !== null)!);
     expect(banner).toBeDefined();
