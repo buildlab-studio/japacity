@@ -222,23 +222,31 @@ export function walkPose(person: Pick<Person, "pose">): PoseName {
 }
 
 /**
- * Who stands at which of the place's spots. The first `people.length` spots are used, in order. A resident
- * holding a part keeps its spot (`sampleCrowd`); then a spot the place names for a role goes to a resident of
- * that role, and a spot an act keeps for a man or a woman to a resident in a plain stand, the first in slot order
- * each time; everyone else fills the rest in slot order. A player never takes a part.
+ * Who stands at which of the place's spots. The mode's count of spots is used: every part first (`partSpots`), those a
+ * resident already holds before the rest, then the place's other spots in order, so a part past the first few spots
+ * (the invigilator's desk, the ward's second nurse) is drawn in the low mode too, and never more spots than the count
+ * (R-CITY-032). A resident holding a part keeps its spot (`sampleCrowd`); then a spot the place names for a role goes to
+ * a resident of that role, and a spot an act keeps for a man or a woman to a resident in a plain stand, the first in
+ * slot order each time; everyone else fills the rest in spot order. A player never takes a part.
  */
 export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[], prefer: Partial<Record<Role, readonly number[]>> = {}, acts: readonly Act[] = []): { shown: Shown; spot: Spot; index: number }[] {
   const count = Math.min(people.length, spots.length);
+  const parts = partSpots({ prefer, acts });
+  const held = new Set(people.flatMap((shown) => (shown.part === undefined ? [] : [shown.part])));
+  const order = (first: (index: number) => boolean): number[] => spots.flatMap((_, index) => (first(index) ? [index] : []));
+  const ranked = [...order((index) => parts.has(index) && held.has(index)), ...order((index) => parts.has(index) && !held.has(index)), ...order((index) => !parts.has(index))];
+  const used = ranked.slice(0, count).sort((one, two) => one - two);
+  const usable = new Set(used);
   const at = new Map<number, Shown>();
   const placed = new Set<number>();
   for (const shown of people) {
-    if (shown.part === undefined || shown.part >= count || at.has(shown.part)) continue;
+    if (shown.part === undefined || !usable.has(shown.part) || at.has(shown.part)) continue;
     at.set(shown.part, shown);
     placed.add(shown.slot);
   }
   for (const [role, indices] of Object.entries(prefer) as [Role, readonly number[]][]) {
     for (const index of indices) {
-      if (index >= count || at.has(index)) continue;
+      if (!usable.has(index) || at.has(index)) continue;
       const shown = people.find((candidate) => !placed.has(candidate.slot) && candidate.kind === "resident" && candidate.person.role === role);
       if (shown === undefined) break;
       at.set(index, shown);
@@ -246,7 +254,7 @@ export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[
     }
   }
   for (const act of acts) {
-    if (act.sex === undefined || act.spot >= count || at.has(act.spot)) continue;
+    if (act.sex === undefined || !usable.has(act.spot) || at.has(act.spot)) continue;
     const shown = people.find((candidate) => !placed.has(candidate.slot) && candidate.kind === "resident" && candidate.person.sex === act.sex && PLAIN.has(candidate.person.pose));
     if (shown === undefined) continue;
     at.set(act.spot, shown);
@@ -254,7 +262,7 @@ export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[
   }
   const rest = people.filter((shown) => !placed.has(shown.slot));
   const out: { shown: Shown; spot: Spot; index: number }[] = [];
-  for (let index = 0; index < count; index += 1) {
+  for (const index of used) {
     const spot = spots[index];
     const shown = at.get(index) ?? rest.shift();
     if (spot !== undefined && shown !== undefined) out.push({ shown, spot, index });
