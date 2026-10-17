@@ -2,13 +2,13 @@
 // the server's shapes. Made-up accounts and businesses only.
 import type { AlarmsReply, CampaignsReply, DashboardReply, FeedbackReply, LogReply, PendingLightsReply, QueueReply, RejectionsReply, ReportReply, RollbackCheck, StatsPeriod, StatsReply, Switches, SwitchesReply, SwitchLogReply } from "./admin.contract";
 
-export const NOW = Date.parse("2026-10-08T12:00:00Z");
+const NOW = Date.parse("2026-10-08T12:00:00Z");
 const HOUR = 3_600_000;
 const DAY = 86_400_000;
 /** 7 October 2026 as whole UTC days since 1970. */
 export const YESTERDAY = 20_733;
 
-export const REPORT: ReportReply = {
+const REPORT: ReportReply = {
   ok: true,
   report: {
     day: YESTERDAY,
@@ -17,7 +17,7 @@ export const REPORT: ReportReply = {
   },
 };
 
-export const ALARMS: AlarmsReply = {
+const ALARMS: AlarmsReply = {
   ok: true,
   alarms: [
     { kind: "suspect", day: YESTERDAY, character: "character.c-7f2a", reason: "salary", currency: "NGN", total: 900_000_000, ceiling: 300_000_000 },
@@ -26,7 +26,7 @@ export const ALARMS: AlarmsReply = {
   ],
 };
 
-export const REJECTIONS: RejectionsReply = { ok: true, counts: { stale: 41, "no-turns": 17, "rate-limited": 3 } };
+const REJECTIONS: RejectionsReply = { ok: true, counts: { stale: 41, "no-turns": 17, "rate-limited": 3 } };
 
 export const ROLLBACK: RollbackCheck = {
   ok: true,
@@ -101,7 +101,7 @@ export const QUEUE: QueueReply = {
   },
 };
 
-export const LOG: LogReply = {
+const LOG: LogReply = {
   ok: true,
   entries: [{ id: "log.1", admin: "account.owner", at: NOW - 19 * DAY, item: "report.old", action: "warn", params: { account: "account.ada" }, reason: "harassment", note: "First time." }],
 };
@@ -115,14 +115,14 @@ export const PENDING_LIGHTS: PendingLightsReply = {
   ],
 };
 
-export const FEEDBACK: FeedbackReply = {
+const FEEDBACK: FeedbackReply = {
   ok: true,
   feedback: [{ id: "feedback.1", text: "The rent screen is hard to read at night.", build: "a1b2c3d", screen: "wallet", mode: "high", day: "2026-10-07", region: "NG" }],
 };
 
 const DAYS = ["2026-10-06", "2026-10-07", "2026-10-08"];
 
-export const DASHBOARD: DashboardReply = {
+const DASHBOARD: DashboardReply = {
   ok: true,
   dashboard: {
     day: "2026-10-08",
@@ -194,7 +194,7 @@ export const SWITCHES: SwitchesReply = {
   dials: { placeTargets: { "place.ojuelegba": 40 }, computerAfterMonths: 25 },
 };
 
-export const SWITCH_LOG: SwitchLogReply = {
+const SWITCH_LOG: SwitchLogReply = {
   ok: true,
   log: [
     { n: 1, at: NOW - 3 * HOUR, admin: "account.owner", reason: "Draw audit", change: { switch: "lottery", on: false } },

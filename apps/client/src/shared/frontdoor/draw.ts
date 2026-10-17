@@ -25,7 +25,7 @@ export function seedNamed(base: string, n: number): string {
  * answer while it is allowed, and where a draw has shut them, the open answer the tile leans to, else the first
  * open one (`doorAnswer`). Null when the life stops on a card with no open answer.
  */
-export function presetSent(archetype: Archetype, seed: string, world: World, content: Content): Set<string> | null {
+function presetSent(archetype: Archetype, seed: string, world: World, content: Content): Set<string> | null {
   let state: State = newState(FROM_SIXTEEN, seed, content);
   const sent = new Set<string>();
   for (let guard = 0; guard < MOST_STEPS && state.prologue.open; guard += 1) {

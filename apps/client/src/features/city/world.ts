@@ -68,10 +68,10 @@ function flat(colour: string): MeshLambertMaterial {
 }
 
 /** Where the indicator floats over the player's own head. */
-export const INDICATOR_Y = 1.98;
+const INDICATOR_Y = 1.98;
 
 /** The pieces of a strip along its length: every other `every` metres in the dash colour when it has one. */
-export function stripPieces(strip: Strip): { from: number; to: number; colour: string }[] {
+function stripPieces(strip: Strip): { from: number; to: number; colour: string }[] {
   const length = strip.size[0];
   const every = strip.dash?.every ?? 0;
   if (strip.dash === undefined || every <= 0) return [{ from: -length / 2, to: length / 2, colour: strip.colour }];
@@ -266,7 +266,7 @@ const OWN_PHASE = 99;
 const STANDER_PHASE = 60;
 
 /** A building's sign anchors with each key replaced by this copy's own, in the anchors' order. */
-export function copySigns(anchors: readonly SignAnchor[], keys: readonly string[] | undefined): SignAnchor[] {
+function copySigns(anchors: readonly SignAnchor[], keys: readonly string[] | undefined): SignAnchor[] {
   return anchors.map((anchor, index) => ({ ...anchor, key: keys?.[index] ?? anchor.key }));
 }
 
@@ -451,7 +451,7 @@ export function animateWorld(world: World, time: number, seconds: number): void 
 }
 
 /** The warm colour of a lamp's glow: a bulb or a lantern's flame at night. */
-export const LAMP_COLOUR = 0xffb46a;
+const LAMP_COLOUR = 0xffb46a;
 
 /** The place's lamps as warm points of light, out until the day's light sets how bright they stand (R-CLOCK-033). */
 export function lampsOf(lamps: readonly Lamp[]): Object3D[] {

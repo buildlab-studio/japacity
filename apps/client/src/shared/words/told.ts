@@ -40,7 +40,7 @@ export function asPiece(line: ReportLine): ReportLine {
 /** An offer answered, told plainly when the offer has no words of its own for that answer (lines.ts, `isSaid`). */
 const TAKEN = "line.offer.taken";
 /** The answer with the choice in its own words: "Answered: A hospital trust offers a nursing post. You chose: Decline." */
-export const ANSWERED = "ui.results.answered";
+const ANSWERED = "ui.results.answered";
 
 /**
  * An answer says what was chosen, in the choice's own words, where those words

@@ -12,7 +12,7 @@ import type { BuildEnvironmentOptions, Plugin } from "vite";
  * screen that broke (analytics.md R-ANALYTICS-002, CountedBoundary.tsx) and the libraries report a real fault, and
  * `console.info`, the one line that says the build (server.md R-SERVER-038, stamp.ts).
  */
-export const DROPPED_CONSOLE = [
+const DROPPED_CONSOLE = [
   "console.log",
   "console.debug",
   "console.warn",
@@ -60,10 +60,10 @@ export function shippedBuild(): BuildEnvironmentOptions {
  * The packages the page's styles bring in (index.css imports them): the fonts and Tailwind. Vite's licence file
  * covers what the scripts bundle; these go in through the styles, so their licences are added to it here.
  */
-export const STYLE_PACKAGES = ["@fontsource/danfo", "@fontsource/rubik", "tailwindcss"] as const;
+const STYLE_PACKAGES = ["@fontsource/danfo", "@fontsource/rubik", "tailwindcss"] as const;
 
 /** One package's entry in the licences file, in the form Vite writes the others: name, version, licence, its text. */
-export function licenceEntry(packageFolder: string): string {
+function licenceEntry(packageFolder: string): string {
   const own = JSON.parse(readFileSync(join(packageFolder, "package.json"), "utf8")) as { name: string; version?: string; license?: string };
   const file = readdirSync(packageFolder).find((name) => /^(?:license|licence|copying)(?:\.\w+)?$/i.test(name));
   const text = file === undefined ? "" : `\n${readFileSync(join(packageFolder, file), "utf8").trim()}\n`;

@@ -26,7 +26,7 @@ import { LastDraw } from "./LastDraw";
 const SECOND_MS = 1000;
 
 /** The time on the device, once a second, while there is a close to count to. */
-export function useNow(running: boolean): number {
+function useNow(running: boolean): number {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!running) return;

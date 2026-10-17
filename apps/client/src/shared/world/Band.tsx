@@ -139,7 +139,7 @@ function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void
 }
 
 /** The picture for each part of the world's day, a stand-in until the sky has a tile of its own. */
-export const SKY_PICTURES: Readonly<Record<DayPart, string>> = { morning: "🌤️", afternoon: "☀️", evening: "🌇", night: "🌙" };
+const SKY_PICTURES: Readonly<Record<DayPart, string>> = { morning: "🌤️", afternoon: "☀️", evening: "🌇", night: "🌙" };
 
 /**
  * The band (R-WORLD-002) as the lively layer draws it: a white pill by day and a navy one at night, the sky's picture,

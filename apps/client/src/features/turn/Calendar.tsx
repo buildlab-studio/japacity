@@ -48,7 +48,7 @@ function jobRows(job: PlayerView["job"]): string[] {
  * R-HOME-010: one line when the room's year of rent is taken at this month's end and the naira
  * held, cash and bank, falls short of it. Null otherwise.
  */
-export function rentShortWords(view: Pick<PlayerView, "home" | "pockets">): string | null {
+function rentShortWords(view: Pick<PlayerView, "home" | "pockets">): string | null {
   const rent = view.home.roomRent;
   if (rent === null || rent.dueIn > 0) return null;
   const held = view.pockets.NGN.cash + view.pockets.NGN.bank;

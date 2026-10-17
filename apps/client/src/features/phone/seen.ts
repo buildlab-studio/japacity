@@ -25,7 +25,7 @@ export function jobOffers(view: Pick<PlayerView, "offers">): PlayerView["offers"
 }
 
 /** The bills with something to pay this month. */
-export function billsDue(view: Pick<PlayerView, "obligations">): PlayerView["obligations"] {
+function billsDue(view: Pick<PlayerView, "obligations">): PlayerView["obligations"] {
   return view.obligations.filter((owed) => owed.due > 0);
 }
 

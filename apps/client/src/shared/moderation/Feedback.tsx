@@ -14,7 +14,7 @@ import { useModeration } from "./ModerationProvider";
 import { anyReasonWords, words } from "./moderation.words";
 
 /** The screen feedback is sent from, as the game's own state names it. */
-export function useScreenName(): string {
+function useScreenName(): string {
   return useGame((state) => {
     const view = state.view;
     if (state.signedOut) return "account";

@@ -8,7 +8,7 @@ import { familyFeed, familyNames, familyPosts, text, type FamilyPost } from "@ja
 import type { PlayerView } from "@japacity/sim";
 
 /** How many months back the group's thread reaches. */
-export const FEED_MONTHS = 6;
+const FEED_MONTHS = 6;
 
 export interface FeedLine {
   id: FamilyPost["id"];
@@ -30,7 +30,7 @@ function hash(value: string): number {
 }
 
 /** True when the view shows the event a keyed post waits for has happened. */
-export function happened(view: PlayerView, line: string): boolean {
+function happened(view: PlayerView, line: string): boolean {
   if ((view.report?.lines ?? []).some((shown) => shown.key === line)) return true;
   const states = view.routes.map((route) => route.state);
   const abroad = view.place.where === "abroad";

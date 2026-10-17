@@ -13,7 +13,7 @@ import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import { gameAuthority } from "./fixtures";
 import "./render";
 
-export const TUNDE: Id<"scenario"> = "scenario.tunde";
+const TUNDE: Id<"scenario"> = "scenario.tunde";
 export const TOBI: Id<"person"> = "person.tobi-bank";
 export const SEE: SlotPick = { activity: "activity.see-someone", param: null };
 export const PAIR = "pair-1";
@@ -41,7 +41,7 @@ export function playMonth(game: Game, slots: SlotPick[] = []): void {
 }
 
 /** The id of the open bond with this computer. */
-export function bondWith(game: Game, person: Id<"person">): string {
+function bondWith(game: Game, person: Id<"person">): string {
   const found = Object.entries(game.state.people.bonds).find(([, bond]) => bond.with.kind === "computer" && bond.with.entry === person && bond.stage !== "ended");
   if (found === undefined) throw new Error(`No open bond with ${person}.`);
   return found[0];

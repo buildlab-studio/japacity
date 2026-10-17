@@ -8,10 +8,10 @@ import { LAGOS } from "./lagos";
 import type { Frame } from "./World";
 
 /** The open map's zoom on a phone, and how far a pinch may take it. */
-export const OPEN_ZOOM = 0.92;
-export const WIDE_ZOOM = 1.3;
-export const ZOOM_MIN = 0.55;
-export const ZOOM_MAX = 2.6;
+const OPEN_ZOOM = 0.92;
+const WIDE_ZOOM = 1.3;
+const ZOOM_MIN = 0.55;
+const ZOOM_MAX = 2.6;
 
 /** The open map's view: the paper point in the middle and the zoom. */
 export interface OpenView {
@@ -44,7 +44,7 @@ export function onScreen(view: OpenView, size: Size, [x, y]: Point): Point {
 const CANOE_HALF = 22;
 const CANOE_ROOM = 8;
 /** The open map's head row (the country pill and the close button): the canoe opens below it. */
-export const OPEN_HEAD = 64;
+const OPEN_HEAD = 64;
 
 /**
  * Where the canoe may stand on the screen as the open map opens: whole, clear of the screen's edges by a little, and

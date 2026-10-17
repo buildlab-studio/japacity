@@ -23,7 +23,7 @@ export interface Device {
 }
 
 /** How much memory a phone needs to start in high; below it, or with a coarse screen, a phone starts in low and rises when its frames allow. */
-export const PHONE_HIGH_MEMORY_GB = 4;
+const PHONE_HIGH_MEMORY_GB = 4;
 
 /**
  * A desktop (a fine pointer and a wide window) starts in high. A phone with a sharp screen and enough memory, or a memory the
@@ -56,17 +56,17 @@ export function enterPlace(watch: FrameWatch): FrameWatch {
   return { ...watch, elapsedMs: 0, frames: [] };
 }
 
-export function countAtMost(frames: readonly number[], limitMs: number): number {
+function countAtMost(frames: readonly number[], limitMs: number): number {
   return frames.filter((frame) => frame <= limitMs).length;
 }
 
 /** True when a full window has at least AGREE_FRAMES frames at most `raiseFrameMs`. */
-export function fastEnough(frames: readonly number[], city: CityTuning): boolean {
+function fastEnough(frames: readonly number[], city: CityTuning): boolean {
   return frames.length >= WINDOW_FRAMES && countAtMost(frames, city.raiseFrameMs) >= AGREE_FRAMES;
 }
 
 /** True when a full window has at least AGREE_FRAMES frames over `dropFrameMs`. */
-export function tooSlow(frames: readonly number[], city: CityTuning): boolean {
+function tooSlow(frames: readonly number[], city: CityTuning): boolean {
   return frames.length >= WINDOW_FRAMES && frames.length - countAtMost(frames, city.dropFrameMs) >= AGREE_FRAMES;
 }
 
@@ -103,8 +103,8 @@ export interface ModeSettings {
   mesh: "fine" | "coarse";
 }
 
-export const FOG = { near: { near: 18, far: 45 }, far: { near: 40, far: 110 } } as const;
-export const HAZE = { near: { fog: 0.5, sky: 0 }, far: { fog: 0.18, sky: 0.18 } } as const;
+const FOG = { near: { near: 18, far: 45 }, far: { near: 40, far: 110 } } as const;
+const HAZE = { near: { fog: 0.5, sky: 0 }, far: { fog: 0.18, sky: 0.18 } } as const;
 
 export function modeSettings(mode: Mode, device: Device, city: CityTuning): ModeSettings {
   switch (mode) {

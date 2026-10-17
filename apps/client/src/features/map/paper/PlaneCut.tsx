@@ -58,7 +58,7 @@ function planeTransform(path: ReturnType<typeof planePath>, t: number): string {
 }
 
 /** The plane sticker: a small cream plane, the same drawing the gate's window shows. */
-export function PlaneSticker({ className = "", style }: { className?: string; style?: CSSProperties }) {
+function PlaneSticker({ className = "", style }: { className?: string; style?: CSSProperties }) {
   return (
     <svg className={className} style={style} viewBox="0 0 100 60" width={120} height={72} aria-hidden data-plane>
       <g fill="#f3efe6" stroke="#1c2a5e" strokeWidth="1.2">

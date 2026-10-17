@@ -24,7 +24,7 @@ const BEHIND: readonly RouteStateName[] = ["granted", "departed"];
  * about a route they have heard of, so once landed, "Refusals climb" would
  * still say for you.
  */
-export function storyForYou(story: { id: string; forYou: boolean }, routes: readonly { id: string; state: RouteStateName }[]): boolean {
+function storyForYou(story: { id: string; forYou: boolean }, routes: readonly { id: string; state: RouteStateName }[]): boolean {
   if (!story.forYou) return false;
   const touches = content.news[story.id as keyof typeof content.news]?.touches ?? [];
   return touches.some((route) => {
@@ -48,7 +48,7 @@ function storyPicture(id: string): string {
  * When the era began and when it is due to end (director.md R-DIRECTOR-002), as months ago and months from now, never a
  * month's number (world.md R-WORLD-002): the view's `sinceMonth` and `untilMonth` are the months the simulation stamps.
  */
-export function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): string {
+function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): string {
   const began = era.sinceMonth < 0 ? say("ui.news.era-before") : phoneWords("phone.news.era.since", { when: monthsAgo(era.sinceMonth, month).toLowerCase() });
   return `${began} ${phoneWords("phone.news.era.until", { when: inMonths(era.untilMonth, month) })}`;
 }

@@ -13,7 +13,7 @@ export function homeOf(view: Pick<PlayerView, "place" | "home">): string {
 }
 
 /** The place the city last stood in, or null when it has kept none. */
-export function standingPlace(): string | null {
+function standingPlace(): string | null {
   try {
     const kept = localStorage.getItem(CITY_LAST_KEY);
     const parsed: unknown = kept === null ? null : JSON.parse(kept);

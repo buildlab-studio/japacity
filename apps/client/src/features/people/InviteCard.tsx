@@ -30,7 +30,7 @@ function lookingFor(slot: string): Looking {
 }
 
 /** "Looking for: a partner who codes", from content's card words. */
-export function lookingWords(looking: Looking, fill: string | null): string {
+function lookingWords(looking: Looking, fill: string | null): string {
   const slot = text[`card.invite.slot.${looking}`] ?? looking;
   const filled = fill === null ? "" : (text[`card.invite.fill.${fill}`] ?? fill);
   return words("card.invite.looking", { slot, fill: filled }).trim();

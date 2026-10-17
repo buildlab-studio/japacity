@@ -5,7 +5,7 @@ import type { PlaceFile } from "../../features/city/placeFile";
 import { loadJson, loadManifest } from "../three/manifest";
 
 /** The compound's file under places/: the family house's own (place.family-house). */
-export const COMPOUND = "family-house-compound";
+const COMPOUND = "family-house-compound";
 export const PLACE = "place.family-house";
 /**
  * Where the character stands: on the street just outside the gate, which the house's model puts at
@@ -15,7 +15,7 @@ export const GATE: readonly [number, number] = [2.4, 18.1];
 /** The camera: this far back along the street and this high, looking down at this pitch, so the figure on its plinth stands large in the top part of a tall screen. */
 export const BACK = 6.2;
 export const HIGH = 2.9;
-export const LOOK_DOWN = (24 * Math.PI) / 180;
+const LOOK_DOWN = (24 * Math.PI) / 180;
 export const FOV = 50;
 
 /** Where the compound's camera stands and the point it looks at. */

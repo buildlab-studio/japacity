@@ -7,7 +7,7 @@ import type { Currency, Id } from "@japacity/sim";
 
 import { nameOf } from "../../../shared/words/text";
 
-export const AIRPORT: Id<"place"> = "place.airport-lagos";
+const AIRPORT: Id<"place"> = "place.airport-lagos";
 
 /** Who speaks in the hall: the family behind the rope, and the character last. */
 export type Speaker = "mum" | "dad" | "cousin" | "you";
@@ -23,7 +23,7 @@ export interface QueueLine {
  * The hall's talk (beat 1): Mama's line as the hall opens, then one line a tap from the family, the character's own (the
  * airport's fifth) on the third. Every line is the airport's own (`place.airport-lagos.overheard.*`), none new.
  */
-export const QUEUE_LINES: readonly QueueLine[] = [
+const QUEUE_LINES: readonly QueueLine[] = [
   { at: 0, key: `${AIRPORT}.overheard.1`, who: "mum" },
   { at: 1, key: `${AIRPORT}.overheard.2`, who: "cousin" },
   { at: 2, key: `${AIRPORT}.overheard.4`, who: "dad" },
@@ -122,7 +122,7 @@ const FRIEND_LANDED = "chats.friend.landed.text";
  * line for the taxi or the truck (`chats.friend.landed.text.<staple>`), so the ping fits the ride it pings in and the
  * words have one home.
  */
-export const FRIEND_BY_STAPLE: Readonly<Record<Staple, string>> = {
+const FRIEND_BY_STAPLE: Readonly<Record<Staple, string>> = {
   "double-decker": FRIEND_LANDED,
   "domitiana-bus": FRIEND_LANDED,
   taxi: `${FRIEND_LANDED}.taxi`,

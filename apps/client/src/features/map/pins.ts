@@ -15,7 +15,7 @@ import type { Position } from "./paper/fit";
 export type MapPin = Omit<Pin, "line"> & { line?: string };
 
 /** A place as the map reads it from content. */
-export interface MapPlace {
+interface MapPlace {
   id: string;
   position: Position | null;
   stages: readonly string[];
@@ -57,7 +57,7 @@ export function mapPins({ places, here, home, homeSpot, been, built, open, name 
 const ABROAD_MINUTES = 25;
 
 /** Metres in a straight line between two positions. */
-export function metresBetween(from: Position, to: Position): number {
+function metresBetween(from: Position, to: Position): number {
   const cos = Math.cos((from.latE3 / 1000) * (Math.PI / 180));
   return Math.hypot((to.lonE3 - from.lonE3) * 111.32 * cos, (to.latE3 - from.latE3) * 111.32);
 }

@@ -62,7 +62,7 @@ function Figure({ face }: { face: MomentFace }) {
 }
 
 /** The card's face: what a screenshot of the moment shows. */
-export function MomentFaceView({ face }: { face: MomentFace }) {
+function MomentFaceView({ face }: { face: MomentFace }) {
   const Icon = ICONS[face.icon];
   const dark = face.tone === "bad";
   return (

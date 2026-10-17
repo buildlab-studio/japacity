@@ -21,7 +21,7 @@ import { groundGeometry } from "../world";
 import { allPalette, city, instancesOf, measured, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
 
 /** The crowd a frontage shows in each mode: the entry's figures under the world's outdoor caps. */
-export function cappedCrowd(id: Id<"place">, mode: "low" | "high"): number {
+function cappedCrowd(id: Id<"place">, mode: "low" | "high"): number {
   const entry = content.place[id];
   if (entry === undefined) throw new Error(`${id} is missing from content`);
   return crowdSize(entry, mode, crowdTuning(city, "exterior", false));

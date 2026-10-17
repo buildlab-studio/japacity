@@ -4,7 +4,7 @@
 import { useSyncExternalStore } from "react";
 
 /** The one localStorage key the handed brief is kept under. */
-export const BRIEF_KEY = "japacity.brief";
+const BRIEF_KEY = "japacity.brief";
 
 interface Kept {
   scenario: string;
@@ -37,7 +37,7 @@ function read(): Kept | null {
 }
 
 /** The chapters whose brief this life has been handed. */
-export function briefsHanded(scenario: string): readonly string[] {
+function briefsHanded(scenario: string): readonly string[] {
   const kept = read();
   return kept?.scenario === scenario ? kept.handed : [];
 }

@@ -8,7 +8,7 @@ const DIAGONAL = Math.SQRT2;
 const TIE = 1.001;
 
 /** Whether every point along a line, every half cell, stands on a free cell. */
-export function clearLine(map: RouteMap, from: Point, to: Point): boolean {
+function clearLine(map: RouteMap, from: Point, to: Point): boolean {
   const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.z - from.z) / (CELL / 2)));
   for (let step = 0; step <= steps; step += 1) {
     const share = step / steps;

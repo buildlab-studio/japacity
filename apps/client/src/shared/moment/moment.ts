@@ -9,7 +9,7 @@ import { formatMoney, formatNumber } from "../words/format";
 import { formatParam, hasWords, nameOf, say, sayCount } from "../words/text";
 
 /** The kinds of moment, each with its words under `moment.<kind>` in content. */
-export type MomentKind = "granted" | "refused" | "agent" | "deposit" | "robbed" | "won" | "landed" | "chapter" | "held";
+type MomentKind = "granted" | "refused" | "agent" | "deposit" | "robbed" | "won" | "landed" | "chapter" | "held";
 
 /** A card's icon, by name; the card maps each to its drawing. */
 export type MomentIcon = "luggage" | "file-x" | "phone-off" | "banknote-x" | "bus" | "ticket" | "plane-landing" | "book" | "piggy-bank";
@@ -87,7 +87,7 @@ function isPitch(offer: unknown): offer is Id<"offer"> {
  * The deposit the last road pitch taken was paid, and the pitch: the wallet's lines told just before its answer (the
  * deposit leaves the naira by its size, so from one pocket or two, R-ROAD-003). Null when the lines hold none.
  */
-export function depositPaid(lines: readonly ReportLine[]): { offer: Id<"offer">; amount: { currency: Currency; amount: number } } | null {
+function depositPaid(lines: readonly ReportLine[]): { offer: Id<"offer">; amount: { currency: Currency; amount: number } } | null {
   for (let at = lines.length - 1; at >= 0; at -= 1) {
     const line = lines[at]!;
     const offer = line.params["offer"];

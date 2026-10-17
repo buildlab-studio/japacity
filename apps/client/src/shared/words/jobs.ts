@@ -75,7 +75,7 @@ export function huntBand(bp: number): ChanceBand {
 }
 
 /** R-GUIDE-014: the life's next hunt is its sure first one: it lands the job named when the draw hits, else the lowest paid it may hunt. Each row keeps its own odds. */
-export function sureHunt(view: Pick<PlayerView, "activities">): boolean {
+function sureHunt(view: Pick<PlayerView, "activities">): boolean {
   return view.activities.find((option) => option.id === HUNT)?.sure === true;
 }
 

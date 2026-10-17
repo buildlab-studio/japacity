@@ -19,7 +19,7 @@ export type Point = readonly [number, number];
  * so the close streets of Surulere and Yaba have room for their places and the open map takes in the mainland, the
  * lagoon and the island at one look.
  */
-export const FIT = { xLon: 4, xLat: 0, x0: -13160, yLon: 0, yLat: -7, y0: 46375 } as const;
+const FIT = { xLon: 4, xLat: 0, x0: -13160, yLon: 0, yLat: -7, y0: 46375 } as const;
 
 /** The paper's own extent: from 3.290 to 3.480 east and from 6.625 down to 6.395 north. */
 export const PAPER = { width: 760, height: 1610 } as const;

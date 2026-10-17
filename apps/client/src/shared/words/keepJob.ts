@@ -4,7 +4,7 @@
 import type { Id, PlayerView } from "@japacity/sim";
 
 /** The jobs a route counts the months of, by the route that needs them. */
-export const KEEP_JOB: Readonly<Record<string, Id<"route">>> = { "activity.job-nurse": "route.uk-care" };
+const KEEP_JOB: Readonly<Record<string, Id<"route">>> = { "activity.job-nurse": "route.uk-care" };
 
 /** The route that counts the months in the job held, when it is in play; null otherwise. */
 export function routeKeptBy(view: Pick<PlayerView, "job"> & Partial<Pick<PlayerView, "routes">>): Id<"route"> | null {

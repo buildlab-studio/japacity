@@ -14,7 +14,7 @@ export const CELL = 0.25;
 export const CLEARANCE = 0.3;
 
 export const FREE = 0;
-export const NEAR = 1;
+const NEAR = 1;
 export const HARD = 2;
 
 export interface Point {
@@ -43,11 +43,11 @@ export function walkableOf(stage: Pick<Stage, "ground" | "walkable">): WalkableP
   return [[[-width / 2, -depth / 2], [width / 2, -depth / 2], [width / 2, depth / 2], [-width / 2, depth / 2]]];
 }
 
-export function cellX(map: RouteMap, x: number): number {
+function cellX(map: RouteMap, x: number): number {
   return Math.floor((x - map.x0) / CELL);
 }
 
-export function cellZ(map: RouteMap, z: number): number {
+function cellZ(map: RouteMap, z: number): number {
   return Math.floor((z - map.z0) / CELL);
 }
 

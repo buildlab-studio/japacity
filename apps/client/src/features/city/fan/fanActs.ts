@@ -39,7 +39,7 @@ export function fanEntry(stages: string): boolean {
  * `act`, any other act of the thing, handed to the walk and done on arrival as its kind does (a pose, Sleep, a card, a
  * command, the map, the phone); `stop`, an act carrying on in the plan taken out of it (R-WORLD-007).
  */
-export type FanKind = "now" | "act" | "stop";
+type FanKind = "now" | "act" | "stop";
 
 /** One button's entry and the thing's act that lists it. */
 export interface FanEntryOf {
@@ -155,7 +155,7 @@ export function tintOf(activity: string): FanTint {
 }
 
 /** Why a button cannot be had, in the words the sheet would use (R-WORLD-006, R-ACTIVITY-020). */
-export interface FanRefusal {
+interface FanRefusal {
   /** `planned`: the act carries on in the plan, so its button is shut and the stop beside it takes it out (R-WORLD-007). */
   kind: "spent" | "short" | "locked" | "planned";
   words: string;

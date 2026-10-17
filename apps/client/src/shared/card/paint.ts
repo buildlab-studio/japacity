@@ -8,7 +8,7 @@ const FAMILIES: Record<Family, string> = {
   sans: 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif',
 };
 
-export function fontOf(size: number, family: Family, weight: number): string {
+function fontOf(size: number, family: Family, weight: number): string {
   return `${String(weight)} ${String(size)}px ${FAMILIES[family]}`;
 }
 

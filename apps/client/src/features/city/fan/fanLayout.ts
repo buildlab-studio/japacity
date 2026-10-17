@@ -25,16 +25,16 @@ export const PHONE: FanSizes = { radius: 170, button: 64, pitch: 88, label: 132,
 export const LAPTOP: FanSizes = { radius: 200, button: 72, pitch: 100, label: 200, gap: 10 };
 
 /** From this width up the screen is a laptop's: larger buttons on a wider curve (section 2, "The laptop"). */
-export const LAPTOP_WIDTH = 768;
+const LAPTOP_WIDTH = 768;
 
 export function fanSizes(width: number): FanSizes {
   return width >= LAPTOP_WIDTH ? LAPTOP : PHONE;
 }
 
 /** Up to six acts stand before the fold; a seventh peeks below it (section 3). */
-export const MAX_SHOWN = 6;
+const MAX_SHOWN = 6;
 /** The free side must hold this many buttons, or every act when there are fewer, or the sheet opens instead. */
-export const LEAST_SHOWN = 3;
+const LEAST_SHOWN = 3;
 /** The space kept between a label and the screen's edge. */
 const EDGE = 12;
 /** The height at which the last act before the fold stands on the curve, as an angle: the curve's ends bow back toward the thing. */

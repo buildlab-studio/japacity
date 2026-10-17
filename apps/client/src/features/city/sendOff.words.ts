@@ -6,7 +6,7 @@ import { text } from "@japacity/content";
 
 import { hasWords, words } from "../../shared/words/text";
 
-export const sendOffText: Record<string, string> = {
+const sendOffText: Record<string, string> = {
   // Beat 1: Departures.
   "sendoff.band.departures": "Departures, Ikeja",
   "sendoff.queue.ahead": "Departures · {count} ahead",

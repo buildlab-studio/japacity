@@ -42,7 +42,7 @@ export function buildGraph(roads: readonly Road[] = ROADS): Graph {
 }
 
 /** The node nearest a point, by whole-unit squared distance; the first of equals. */
-export function nearestNode(graph: Graph, [x, y]: Point): number {
+function nearestNode(graph: Graph, [x, y]: Point): number {
   let best = -1;
   let bestGap = Number.POSITIVE_INFINITY;
   graph.nodes.forEach(([nx, ny], id) => {

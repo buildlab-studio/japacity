@@ -11,7 +11,7 @@ import { bandChanceBp, bandNeeded, type BandView, englishOf, STUDY_ENGLISH, test
 const ENGLISH = "quality.english";
 const BP_WHOLE = 10_000;
 /** The furthest the card counts: past a year it says so instead of a figure. */
-export const STUDY_MONTHS_MAX = 12;
+const STUDY_MONTHS_MAX = 12;
 
 /** The English one month of study adds on top of `english`, as the simulation applies a skill's gain (R-QUALITY-005, R-ACTIVITY-010). */
 function gainFrom(english: number, sideJob: boolean): number {

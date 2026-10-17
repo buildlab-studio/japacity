@@ -9,7 +9,7 @@ import { standInWorlds } from "../../../../../packages/sim/src/world/standIn";
 import { answersInOrder, archetypeOf, presetAnswer } from "../frontdoor/archetypes";
 
 export const CARE: Id<"route"> = "route.uk-care";
-export const NURSE_JOB = "activity.job-nurse";
+const NURSE_JOB = "activity.job-nurse";
 const HUNT: Id<"activity"> = "activity.job-hunt";
 const PAGE: Id<"activity"> = "activity.look-into-route";
 /** Choices that take a job or a sponsor's post: the way the nurse is played. */

@@ -34,7 +34,7 @@ export interface DoorFrameProps {
 }
 
 /** The three screens' dots: done ones navy, the one now a yellow dash. */
-export function DoorDots({ at, count, label }: { at: number; count: number; label: string }) {
+function DoorDots({ at, count, label }: { at: number; count: number; label: string }) {
   return (
     <span className="door-dots" role="img" aria-label={label} data-door-dots={at}>
       {Array.from({ length: count }, (_, index) => (

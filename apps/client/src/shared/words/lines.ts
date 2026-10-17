@@ -436,7 +436,7 @@ function movedWithRent(lines: readonly ReportLine[]): ReportLine[] {
 const DEPARTED = "line.route.departed";
 const JOB_ENDED = "line.activity.job-ended";
 /** The job at home that ends with the flight, told beside the plane. */
-export const JOB_ENDS_WITH_FLIGHT = "line.route.departed-job-ended";
+const JOB_ENDS_WITH_FLIGHT = "line.route.departed-job-ended";
 
 /** A job held at home ends the month the plane leaves: told right after the flight, as part of it, not only in News. */
 function jobEndsWithFlight(lines: readonly ReportLine[]): ReportLine[] {

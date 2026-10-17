@@ -20,7 +20,7 @@ export type AuthorityEvent =
   /** The authority's lines since the view the client held, from a fetched view (R-LOTTERY-013): an away winner's letter. */
   | { kind: "lines"; lines: ReportLine[] };
 
-export type AuthorityListener = (event: AuthorityEvent) => void;
+type AuthorityListener = (event: AuthorityEvent) => void;
 
 export interface RemoteAuthorityOptions {
   baseUrl: string;

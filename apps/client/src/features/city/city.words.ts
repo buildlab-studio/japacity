@@ -313,13 +313,13 @@ export const cityText: Record<string, string> = {
 };
 
 /** First names for the people who live in the city. Common names, no one in particular. */
-export const RESIDENT_NAMES: Record<"f" | "m", readonly string[]> = {
+const RESIDENT_NAMES: Record<"f" | "m", readonly string[]> = {
   f: ["Bisi", "Nkechi", "Aisha", "Funke", "Ngozi", "Halima", "Yetunde", "Chioma", "Kemi", "Amina", "Titi", "Ifeoma"],
   m: ["Tunde", "Emeka", "Musa", "Segun", "Chinedu", "Sani", "Kunle", "Obinna", "Femi", "Ibrahim", "Dapo", "Uche"],
 };
 
 /** How a name is said in the street, by age and sex: Iya Bisi, Baba Tunde, or the name alone. */
-export const RESIDENT_TITLES: Record<"f" | "m", readonly string[]> = {
+const RESIDENT_TITLES: Record<"f" | "m", readonly string[]> = {
   f: ["Iya", "Mama", "Aunty", ""],
   m: ["Baba", "Oga", "Brother", ""],
 };

@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from "react";
 
 /** How long the rise holds still after popping in, before it flies. */
-export const RISE_HOLD_MS = 900;
+const RISE_HOLD_MS = 900;
 /** The flight up toward the band, fading as it goes. */
 export const RISE_FLY_MS = 450;
 /** The whole of a rise, from popping in to gone. */

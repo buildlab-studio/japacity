@@ -10,7 +10,7 @@ import type { Decor, Label } from "./geometry";
 import type { Placer } from "./stops";
 
 /** A small picture that stays standing on the folded paper. */
-export interface Mini {
+interface Mini {
   model: string;
   at: Point;
   size: number;

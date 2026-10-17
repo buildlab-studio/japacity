@@ -37,13 +37,13 @@ import { pageWall, type WallGuard } from "./wall";
  * `not-linked`: Google on an address whose life was kept by a code, where the library would not join the two
  * (its `account_not_linked`); the player is pointed to the code (R-ACCOUNT-023).
  */
-export type AuthFailure = "not-fresh" | "bad-code" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused" | "no-life" | "taken" | "guest-only" | "passkey-first" | "not-linked";
+type AuthFailure = "not-fresh" | "bad-code" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused" | "no-life" | "taken" | "guest-only" | "passkey-first" | "not-linked";
 
 /** Why the page leaves for Google: to keep a guest's life (R-ACCOUNT-023), or to sign back in to a kept one. */
-export type GoogleTrip = "keep" | "sign-in";
+type GoogleTrip = "keep" | "sign-in";
 
 /** A trip to Google that went through: the guest's life kept, or a kept life signed back in to. */
-export type GoogleDone = "kept" | "signed-in";
+type GoogleDone = "kept" | "signed-in";
 
 export type AuthResult = { ok: true } | { ok: false; why: AuthFailure };
 
@@ -64,7 +64,7 @@ export type GuestFailure = NameProblem | "bot-check" | "too-many" | "expired" | 
 export type GuestAnswer = { ok: true } | { ok: false; why: GuestFailure };
 
 /** Why a username change was refused (R-ACCOUNT-024). */
-export type NameAnswer = { ok: true } | { ok: false; why: NameProblem | "unreachable" | "refused" };
+type NameAnswer = { ok: true } | { ok: false; why: NameProblem | "unreachable" | "refused" };
 
 export interface AccountApi {
   /** R-ACCOUNT-011, R-ACCOUNT-012, R-SERVER-032: where this browser stands before any sign-in method. */
@@ -134,7 +134,7 @@ const FAILURES: Record<string, AuthFailure> = {
  * The mark Google's callback carries back on a success: the library sends the page to the `callbackURL` it was given,
  * so the trip's own answer rides in that address, and a refusal goes to `errorCallbackURL` with `?error=` instead.
  */
-export const GOOGLE_BACK = "google";
+const GOOGLE_BACK = "google";
 const GOOGLE_DONE: Record<GoogleTrip, string> = { keep: "kept", "sign-in": "in" };
 
 function failure(error: LibraryError, byStatus: Partial<Record<number, AuthFailure>>): AuthFailure {
@@ -172,7 +172,7 @@ export function standing(reply: AgeReply): AgeAnswer {
 }
 
 /** The server's answer to `POST /api/guest` as the username screen tells it. */
-export function guestAnswer(reply: NameReply): GuestAnswer {
+function guestAnswer(reply: NameReply): GuestAnswer {
   if (reply.ok) return { ok: true };
   if (reply.name !== undefined) return { ok: false, why: reply.name };
   const said: Partial<Record<ServerCode, GuestFailure>> = { "bot-check": "bot-check", "too-many": "too-many", "rate-limited": "too-many", expired: "expired", "switched-off": "full" };
@@ -180,7 +180,7 @@ export function guestAnswer(reply: NameReply): GuestAnswer {
 }
 
 /** The server's answer to `DELETE /api/account` as the settings tell it. */
-export function deleted(reply: DeleteReply): AuthResult {
+function deleted(reply: DeleteReply): AuthResult {
   if (reply.ok) return { ok: true };
   if (reply.code === "not-fresh" || reply.code === "bad-code") return { ok: false, why: reply.code };
   // Every other refusal, `signed-out` among them, is said as a plain one.

@@ -19,7 +19,7 @@ import { phoneWords } from "../phone.words";
 import { GhostButton, PicTile, WordChip } from "../ui";
 
 /** How long the delivery's toast stands, in ms. */
-export const DELIVERY_MS = 3000;
+const DELIVERY_MS = 3000;
 
 type Offer = PlayerView["things"]["market"][number];
 type Owned = PlayerView["things"]["owned"][number];

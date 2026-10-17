@@ -47,7 +47,7 @@ export function thumbsTapped(): Set<FirstThumb> {
 }
 
 /** Keeps that a thumb was tapped; once both were, that the device has played. */
-export function markThumbTapped(thumb: FirstThumb): Set<FirstThumb> {
+function markThumbTapped(thumb: FirstThumb): Set<FirstThumb> {
   const tapped = thumbsTapped();
   tapped.add(thumb);
   const all = FIRST_THUMBS.every((one) => tapped.has(one.id));
@@ -60,7 +60,7 @@ export function markThumbTapped(thumb: FirstThumb): Set<FirstThumb> {
 }
 
 /** Keeps that this device has played, so no label shows on it again. */
-export function markPlayed(): void {
+function markPlayed(): void {
   try {
     storage()?.setItem(WALK_KEY, PLAYED);
   } catch {

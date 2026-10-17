@@ -58,7 +58,7 @@ function wordsFrom(text: Record<string, string>): Words {
 const LINK = "underline underline-offset-4 hover:text-ink";
 
 /** A numbers page as a player knows that part of the game, never by its rule page's own title. */
-export function pageName(say: Words, text: Record<string, string>, page: RulePage): string {
+function pageName(say: Words, text: Record<string, string>, page: RulePage): string {
   const key = `guide.page.numbers.name.${page.name}`;
   return text[key] === undefined ? page.title : say(key);
 }

@@ -27,7 +27,7 @@ export const CORNER_MAX = 1;
 export const NEAR_SPEAKER = "crowd:near";
 
 /** "told": the player's own act's answer, in the corner. */
-export interface Line {
+interface Line {
   id: number;
   text: string;
   kind: "told";
@@ -39,7 +39,7 @@ export interface Line {
  * Someone in the scene speaking: `who` is the thing they stand at (or the resident nearest, `NEAR_SPEAKER`), `name` is
  * said small over their words. A long line shows clipped to two lines until tapped open.
  */
-export interface Speech {
+interface Speech {
   id: number;
   who: string;
   name: string;
@@ -156,7 +156,7 @@ export function hush(id?: number): void {
 }
 
 /** Opens a long line in its sheet, with the speaker's name; the bubble goes. */
-export function listen(speech: Speech): void {
+function listen(speech: Speech): void {
   change({ open: speech, speech: null });
 }
 

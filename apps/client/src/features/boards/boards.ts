@@ -39,7 +39,7 @@ export function boardOf(when: When, who: Who): BoardName {
   return `${when}.${who}`;
 }
 
-export function pathOf(board: BoardName): string {
+function pathOf(board: BoardName): string {
   return board === "joined-week" ? "/api/boards/joined-week" : `/api/boards/${board.replace(".", "/")}`;
 }
 
@@ -47,7 +47,7 @@ export interface BoardsApi {
   board(board: BoardName): Promise<BoardAnswer>;
 }
 
-export function boardsApi(server: Api): BoardsApi {
+function boardsApi(server: Api): BoardsApi {
   return { board: (board) => server.get(pathOf(board)) };
 }
 

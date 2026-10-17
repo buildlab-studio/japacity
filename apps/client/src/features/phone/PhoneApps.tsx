@@ -45,7 +45,7 @@ const ICON: Record<AppId, string> = {
 };
 
 /** R-ANALYTICS-002: each opening of an app counts its screen once, keyed by the feature that leads it. */
-export const APP_SCREEN: Record<AppId, string> = {
+const APP_SCREEN: Record<AppId, string> = {
   calendar: "turn",
   bank: "wallet",
   chats: "people",
@@ -67,7 +67,7 @@ export const APP_SCREEN: Record<AppId, string> = {
 type Opening = string | null;
 
 /** The Calendar's screen, handed in by the shell with what it opens on (R-WORLD-002), so the phone knows nothing of the month. */
-export type CalendarScreen = (opening: string | null) => ReactNode;
+type CalendarScreen = (opening: string | null) => ReactNode;
 
 /** What the shell hands the phone: the Calendar's screen and the acts' cards, so the phone imports no other feature. */
 interface Handed {
@@ -113,7 +113,7 @@ function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Open
 }
 
 /** The apps, each with its dot from what the player has not seen. */
-export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null, briefs = null, warnings = null, here = null, dedication = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null; briefs?: ReactNode; warnings?: ReactNode; here?: string | null; dedication?: DedicationScreen | null } = {}): PhoneApp[] {
+function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null, briefs = null, warnings = null, here = null, dedication = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null; briefs?: ReactNode; warnings?: ReactNode; here?: string | null; dedication?: DedicationScreen | null } = {}): PhoneApp[] {
   const view = useView();
   // A brief handed changes no view, so its mark is read as it is kept.
   useJapaMark(view.scenario);

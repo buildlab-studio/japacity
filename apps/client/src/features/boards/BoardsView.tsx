@@ -104,7 +104,7 @@ function JoinedWeek({ api }: { api: BoardsApi }) {
   );
 }
 
-export function Boards({ api }: { api: BoardsApi }) {
+function Boards({ api }: { api: BoardsApi }) {
   const [when, setWhen] = useState<When>("this-week");
   const [who, setWho] = useState<Who>("everyone");
   return (

@@ -22,7 +22,7 @@ import { phoneWords } from "./phone.words";
 import { markSeen, useSeen } from "./seen";
 
 /** The lines due and those still waiting, from the days kept, the view and the plan. */
-export function useSignals(): { due: ReturnType<typeof dueSignals>; waiting: ReturnType<typeof waitingSignals> } {
+function useSignals(): { due: ReturnType<typeof dueSignals>; waiting: ReturnType<typeof waitingSignals> } {
   const view = useView();
   const plan = useGame((state) => state.plan);
   const days = useMonthDays();
@@ -36,7 +36,7 @@ export function useSignalsWaiting(): boolean {
 }
 
 /** An opened result's office and what it says (R-CLOCK-032): the test centre's band, the endorsing body, the visa centre's decision, told straight. */
-export function envelopeWords(envelope: Envelope, view: Pick<PlayerView, "routes">): { from: string | null; words: string } {
+function envelopeWords(envelope: Envelope, view: Pick<PlayerView, "routes">): { from: string | null; words: string } {
   if (envelope.kind === "route") {
     const refused = envelope.held.some((line) => line.key.startsWith("line.route.refused")) || view.routes.find((route) => route.id === envelope.id)?.state === "refused";
     return { from: phoneWords("phone.morning.from.route"), words: phoneWords(refused ? "phone.morning.route.refused" : "phone.morning.route.granted") };
@@ -56,7 +56,7 @@ const ENVELOPE_PICTURE: Readonly<Record<string, string>> = {
 };
 
 /** The id whose tile is an envelope's picture. */
-export function envelopePicture(envelope: Envelope): string {
+function envelopePicture(envelope: Envelope): string {
   return envelope.kind === "route" ? "place.visa-centre" : (ENVELOPE_PICTURE[envelope.id] ?? "place.passport-office");
 }
 

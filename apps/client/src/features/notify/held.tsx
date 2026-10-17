@@ -7,7 +7,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { cardKey } from "../../shared/ui/stage";
 
 /** True once the early win has been shown in this tab. */
-export function useEarlyWin(): boolean {
+function useEarlyWin(): boolean {
   return useGame((state) => state.earlyWin);
 }
 

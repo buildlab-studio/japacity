@@ -30,7 +30,7 @@ export interface AdvertsReply {
 /** The interface counters an advert sends (analytics.md R-ANALYTICS-002), keyed by the slot's id. */
 export const ADVERT_COUNTERS = { impression: "advert/impression", tap: "advert/tap" } as const;
 
-export type AdvertCounter = (typeof ADVERT_COUNTERS)[keyof typeof ADVERT_COUNTERS];
+type AdvertCounter = (typeof ADVERT_COUNTERS)[keyof typeof ADVERT_COUNTERS];
 
 /** Adds one to an interface counter. The analytics batch sends it. */
 export type CountAdvert = (name: AdvertCounter, key: Id<"advert">) => void;

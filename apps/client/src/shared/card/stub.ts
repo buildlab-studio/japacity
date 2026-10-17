@@ -44,7 +44,7 @@ function countryOf(route: Id<"route"> | null): Id<"country"> | null {
 }
 
 /** The seat's words on the stub (R-SHARE-015). */
-export function seatWords(seat: Seat): string {
+function seatWords(seat: Seat): string {
   return say(`share.stub.seat.${seat}`);
 }
 

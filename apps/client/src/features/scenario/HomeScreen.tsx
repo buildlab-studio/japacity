@@ -17,7 +17,7 @@ import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 
 /** What a home shows on the door at an age: the figure, and whether it is what the life starts with, short of, or still needs. */
-export function homeMoney(archetype: Archetype, years: number, home: Home): { figure: string; kind: "start" | "short" | "needed" } {
+function homeMoney(archetype: Archetype, years: number, home: Home): { figure: string; kind: "start" | "short" | "needed" } {
   const pocket = pocketIn(archetype, years, home);
   if (pocket < 0) return { figure: formatMoney(-pocket, "NGN"), kind: home === "compound-room" ? "needed" : "short" };
   const start = formatMoney(startIn(archetype, years, home), "NGN");
@@ -25,7 +25,7 @@ export function homeMoney(archetype: Archetype, years: number, home: Home): { fi
 }
 
 /** A home's cost line, whole, as content says it. */
-export function homeCosts(home: Home | "self-contain"): string {
+function homeCosts(home: Home | "self-contain"): string {
   if (home === "self-contain") return say("ui.door.home.costs.self-contain", { amount: formatMoney(selfContainYear(), "NGN") });
   const { now, monthly, rentYear } = homeFigures(home);
   return say(`ui.door.home.costs.${home}`, { amount: formatMoney(monthly, "NGN"), rent: formatMoney(rentYear ?? 0, "NGN"), movein: formatMoney(now, "NGN") });

@@ -3,7 +3,7 @@
 // apps/server; this holds the client to the contract in shared/net/contract.ts.
 import type { Fetch } from "../net/http";
 
-export interface Sent {
+interface Sent {
   method: string;
   path: string;
   /** The query string, with its `?`, or "". */

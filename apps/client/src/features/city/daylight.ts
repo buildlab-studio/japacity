@@ -81,7 +81,7 @@ export function progressIn(part: DayPart, minute: number): number {
  * Two colours mixed as they are written and seen (sRGB), not in light's own linear terms, where a little of a bright sky
  * would grey a whole night: the share of navy is the share seen.
  */
-export function mixSeen(from: Color, to: Color, share: number): Color {
+function mixSeen(from: Color, to: Color, share: number): Color {
   const a = from.getRGB({ r: 0, g: 0, b: 0 }, SRGBColorSpace);
   const b = to.getRGB({ r: 0, g: 0, b: 0 }, SRGBColorSpace);
   return new Color().setRGB(a.r + (b.r - a.r) * share, a.g + (b.g - a.g) * share, a.b + (b.b - a.b) * share, SRGBColorSpace);

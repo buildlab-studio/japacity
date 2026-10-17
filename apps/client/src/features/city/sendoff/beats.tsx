@@ -11,10 +11,10 @@ import { sendOffWords } from "../sendOff.words";
 import type { Cast, Landing } from "./plan";
 
 /** The stage the pages are drawn at; the scene scales it to the screen, whole, centred. */
-export const STAGE = { width: 390, height: 844 } as const;
+const STAGE = { width: 390, height: 844 } as const;
 
 /** The stage's scale for a screen of `width` by `height`: the whole page in view, never cropped. */
-export function stageScale(width: number, height: number): number {
+function stageScale(width: number, height: number): number {
   return Math.min(width / STAGE.width, height / STAGE.height);
 }
 

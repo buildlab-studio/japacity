@@ -21,7 +21,7 @@ export interface LabelBox {
 }
 
 /** The space kept between two labels that would touch. */
-export const LABEL_GAP = 4;
+const LABEL_GAP = 4;
 
 function covers(a: LabelBox, b: LabelBox, gap: number): boolean {
   return Math.abs(a.x - b.x) < (a.width + b.width) / 2 + gap && a.y - a.height < b.y + gap && b.y - b.height < a.y + gap;

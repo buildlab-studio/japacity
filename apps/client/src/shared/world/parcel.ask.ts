@@ -19,7 +19,7 @@ export interface WaybillDeps {
 }
 
 /** The parcel waiting at the office, or undefined. */
-export function waitingParcel(view: Pick<PlayerView, "offers">): OfferView | undefined {
+function waitingParcel(view: Pick<PlayerView, "offers">): OfferView | undefined {
   return view.offers.find((offer) => offer.entry === PARCEL);
 }
 

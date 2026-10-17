@@ -6,7 +6,7 @@ import type { PoseName } from "@japacity/assets-src/people/poses";
 
 export type Dress = "traditional" | "modern";
 /** A special dress: the Friday jalamia and cap, or aso ebi, gele and agbada on a Saturday. */
-export type Wear = "jalamia" | "occasion" | null;
+type Wear = "jalamia" | "occasion" | null;
 export type Role = "passer-by" | "hawker" | "rider" | "corper" | "trader" | "elder";
 
 export interface Person {

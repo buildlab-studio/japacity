@@ -15,7 +15,7 @@ const MONTHS = 12;
 const DAYS = 31;
 
 /** The three fields as the server reads them, `YYYY-MM-DD`; empty until all three are picked. */
-export function birthOf(day: string, month: string, year: string): string {
+function birthOf(day: string, month: string, year: string): string {
   if (day === "" || month === "" || year === "") return "";
   return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 }

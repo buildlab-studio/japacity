@@ -156,7 +156,7 @@ function StubField({ label, children }: { label: string; children: ReactNode }) 
 }
 
 /** The send-off's ticket stub on screen (R-SHARE-004): the same words the drawn stub carries, laid out as a ticket. */
-export function StubCardFace({ face }: { face: StubFace }) {
+function StubCardFace({ face }: { face: StubFace }) {
   return (
     <article data-share-card="stub" className="flex w-[min(calc(100vw-2rem),36rem)] flex-col gap-3 rounded-md bg-accent p-3 text-accent-ink shadow-2xl">
       <div className="flex flex-wrap rounded-md bg-sheet text-ink">
@@ -254,7 +254,7 @@ export function ShareButton({ card, scenario, stub = null, device = browserDevic
  * The card named as the band names the character (share.md R-SHARE-004), read from the card's face (`bandName`), the
  * one source the send-off scene reads too, so the band and the card never name her two ways ("Adaeze" and "Ada").
  */
-export function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard {
+function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard {
   if ((card.name ?? "").trim() !== "") return card;
   const name = bandName(scenario);
   return name === null ? card : { ...card, name };

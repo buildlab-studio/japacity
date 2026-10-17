@@ -54,7 +54,7 @@ export function effectWordsOf(activity: string): string | null {
 }
 
 /** Rest, which an empty slot already is (R-TURN-006): never planned, never a thing's act, never in a picker. */
-export const REST = "activity.rest";
+const REST = "activity.rest";
 
 /**
  * True when the entry may be planned into the month's free time (R-TURN-006, R-ACTIVITY-015): a month-act

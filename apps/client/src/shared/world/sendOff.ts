@@ -9,13 +9,13 @@ import { createStore } from "zustand/vanilla";
 
 /** The six beats, in order (R-CHAPTER-012). */
 export const BEATS = ["departures", "counter", "gate", "plane", "landing", "ride"] as const;
-export type Beat = (typeof BEATS)[number];
+type Beat = (typeof BEATS)[number];
 
 /** Window or aisle: the counter's two chips change nothing but the stub's seat letter (R-CHAPTER-012 beat 2). */
 export type Seat = "window" | "aisle";
 
 /** The route the scene flies, read when it opens, so the beats after the plane never depend on the view's route state. */
-export interface SendOffFlight {
+interface SendOffFlight {
   route: Id<"route">;
   country: Id<"country">;
 }
@@ -40,7 +40,7 @@ interface SendOffStore {
 }
 
 /** Where the seat is kept on this device. */
-export const SEAT_KEY = "japacity.send-off.seat";
+const SEAT_KEY = "japacity.send-off.seat";
 
 function keptSeat(): Seat {
   try {
@@ -59,7 +59,7 @@ function keepSeat(seat: Seat): void {
 }
 
 /** The three taps of Step forward (R-CHAPTER-012 beat 1). */
-export const QUEUE_TAPS = 3;
+const QUEUE_TAPS = 3;
 
 export const sendOff = createStore<SendOffStore>()((set, get) => ({
   scene: null,
