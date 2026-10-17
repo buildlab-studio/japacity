@@ -1628,7 +1628,7 @@ export interface TurnSlice {
   banked: number;
   /** The month's free time spent by now-acts so far, in half-days (R-TURN-010, decision 0034). */
   spent: number;
-  /** True once the character has left. Only `turns/grant` is accepted after that. */
+  /** True once the life is over (`turn/finish`, R-TURN-007; only the road's `lost` applies it). Only `turns/grant` is accepted after that. */
   ended: boolean;
   report: TurnReport | null;
   locks: SlotLock[];
