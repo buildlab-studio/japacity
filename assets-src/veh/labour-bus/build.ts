@@ -1,8 +1,8 @@
 // A labour bus of the kind that carries workers between the camps and the sites (city.md
 // place.deira; design page 15: the employer's shuttle to the site, R-PLACE-013): a long white coach
 // body with a row of small windows, a roof hatch, the door at the front kerb side, a plain blue band;
-// no operator's name or colours (R-ASSET-010). Built to be sat in for the ride (world.md R-WORLD-039
-// as amended 16 Oct 2026), as London's bus is: the walls, the floor and the roof are thin slabs, each
+// no operator's name or colours (R-ASSET-010). Built to be sat in for the ride (world.md R-WORLD-039),
+// as London's bus is: the walls, the floor and the roof are thin slabs, each
 // small window a pane of glass facing out, so from outside the row is dark glass in a white body and
 // from a seat the road shows through it. Rows of two and two face ahead; the ride sits by a window on
 // the right of the facing, the kerb side. Built along +X as the design built its vehicles, then turned to

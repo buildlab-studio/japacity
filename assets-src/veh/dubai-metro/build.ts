@@ -1,4 +1,4 @@
-// A Dubai metro car for the ride abroad (docs/rules/world.md R-WORLD-039 as amended 16 Oct 2026; design page 15
+// A Dubai metro car for the ride abroad (docs/rules/world.md R-WORLD-039; design page 15
 // section 6): the leading car of a driverless train, silver with a red band, its nose one raked sweep of dark glass;
 // no operator's mark, line name or words (R-ASSET-010). With no driver, the front is the passengers': two pairs of
 // seats face the windscreen, and the ride sits there, on the right, the line ahead and the city out of the side

@@ -4,7 +4,7 @@
 // view looks from, the far pair stands full and the near pair is cut to the knee. The partitions, and the wall between
 // the house and its yard, stay at the knee with a door frame standing where a door is. Each home is a set of numbers for
 // the one home builder (R-ASSET-014), centred on its own floor; at rest the camera stands at +z (the back and the left
-// full), as the home wave built it.
+// full).
 import type { HomeSpec, WallSpec } from "./build";
 
 /** A wall cut to the knee: a partition, or the wall between the house and its yard, which the view always looks over. */

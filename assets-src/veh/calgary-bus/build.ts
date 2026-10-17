@@ -1,4 +1,4 @@
-// Calgary's city bus for the ride abroad (docs/rules/world.md R-WORLD-039 as amended 16 Oct 2026; design page 15
+// Calgary's city bus for the ride abroad (docs/rules/world.md R-WORLD-039; design page 15
 // section 6): a low-floor single-decker, white with a red skirt and a red nose, its window band one sweep of dark
 // glass, a grey pod on the roof; no operator's mark, route number or words (R-ASSET-010). Built to be sat in as
 // London's bus is: the walls, the floor and the roof are thin slabs, the glass a pane facing out, so from outside the

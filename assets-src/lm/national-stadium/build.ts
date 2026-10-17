@@ -1,6 +1,6 @@
 // The National Stadium, Surulere (city.md place.national-stadium), built only to its outline and
 // the review sheet (city.md R-CITY-020): the footprint is the OpenStreetMap way, the heights are
-// the second review's measurements. An oval bowl of two continuous raked tiers in maroon seats,
+// the review's measurements. An oval bowl of two continuous raked tiers in maroon seats,
 // one long side's upper tier blue, an open concrete frame on columns, the main stand's light
 // roof on the west long side, four floodlight masts outside the bowl, eight radial ramps down
 // to round landings. In 2026 the bowl is decayed and unused (city.md), so seats are missing in
@@ -9,7 +9,7 @@ import { type FootprintBox, HEAD_HEIGHT, type PaletteName, setFootprint } from "
 import { beam, box, cylinder, floorQuad, paletteMaterial, part, seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group, Mesh, type Object3D, Shape, ShapeGeometry, Vector2 } from "three";
 
-/** Heights in metres, from the second review of the examples (estimates from photographs, the 400 m track as ruler). */
+/** Heights in metres, from the examples' review (estimates from photographs, the 400 m track as ruler). */
 export const STADIUM = {
   segments: 64,
   lowerTier: { from: 0.62, to: 0.74, low: 1.0, high: 9.5 },

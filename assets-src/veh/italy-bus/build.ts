@@ -1,4 +1,4 @@
-// The coast road's bus at Castel Volturno for the ride abroad (docs/rules/world.md R-WORLD-039 as amended; design
+// The coast road's bus at Castel Volturno for the ride abroad (docs/rules/world.md R-WORLD-039; design
 // page 15 section 6): a low-floor single-decker, white with a blue skirt and a blue band under the windows, plain,
 // with no operator's colours, mark, route number or words (R-ASSET-010). Built to be sat in as London's bus is: the
 // walls, floor and roof are thin slabs with an inner face, the seats stand in pairs facing the front, and the glass

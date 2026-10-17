@@ -1,4 +1,4 @@
-// What the ride abroad needs of a vehicle built to be sat in (docs/rules/world.md R-WORLD-039 as amended 16 Oct 2026):
+// What the ride abroad needs of a vehicle built to be sat in (docs/rules/world.md R-WORLD-039):
 // a seat's eye and where it looks, carried from the frame the vehicle is built in (its length along +x, the design's
 // way) into the turned model's own frame (facing +z, R-ASSET-003), through facePlusZ's quarter turn and centring.
 import { type Group, Vector3 } from "three";

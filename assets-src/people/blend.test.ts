@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { field, project, type Shape, signedVolume, surface, type Surface } from "./blend";
 import { thin } from "./thin";
 
-// Nine balls, as the maintainer's afro experiment blended them.
+// Nine balls, blended as the afro is.
 const BALLS = [[0, 0.004, 0, 0.124], [-0.028, 0.012, 0, 0.084], [0.028, 0.012, 0, 0.084], [0, 0.036, -0.004, 0.092], [-0.016, 0.026, -0.024, 0.068], [0.016, 0.026, -0.024, 0.068], [0, 0.016, 0.026, 0.08], [-0.02, -0.008, 0.012, 0.06], [0.02, -0.008, 0.012, 0.06]];
 const shapes: Shape[] = BALLS.map(([x = 0, y = 0, z = 0, r = 0]) => ({ kind: "ball", c: [x, y, z], r }));
 
