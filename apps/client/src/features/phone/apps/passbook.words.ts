@@ -56,9 +56,7 @@ export const passbookText: Record<string, string> = {
   "passbook.road.family-meeting.go": "Call the meeting",
   "passbook.road.scholarship.line": "{amount} off what you need to show",
   "passbook.road.scholarship.wait": "Comes in the scholarship round, if it comes",
-  "passbook.road.scholarship.go": "Accept the scholarship",
   "passbook.road.needs": "Needs: {needs}",
-  "passbook.rest": "The rest of the bank",
 };
 
 /** Words for a passbook key: content's first, then the interface's, then these drafts. */

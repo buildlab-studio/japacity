@@ -7,7 +7,6 @@ import { hasWords, words } from "../../shared/words/text";
 import type { RideChoice } from "../../shared/world/contract";
 
 export const mapText: Record<string, string> = {
-  "map.title": "Map",
   "map.close": "Close the map",
   "map.loading": "Getting the map ready",
   "map.country": "Country",
@@ -78,7 +77,6 @@ export const mapText: Record<string, string> = {
   "map.ride.along.road.3.walk": "You cut through a side street.",
   "map.ride.along.road.3.drive": "You cut through a side street.",
   "map.ride.along.near": "Your stop: {to}",
-  "map.ride.arrived": "{place}",
 
   // The pre-roll's one line (R-WORLD-017): the okada's rider, the keke's driver, the danfo's
   // conductor, each in his own voice. The ride's seed picks one of six.

@@ -38,15 +38,12 @@ export const turnText: Record<string, string> = {
   // R-HOME-010: the room's year falls due at this month's end and is not held.
   "turn.month.rent-short": "Rent {amount} due this month. You hold {held}.",
 
-  "turn.results.label": "The month is done",
   "turn.results.title": "The month is done",
   "turn.results.birthday": "You turned {years} this month.",
   "turn.results.kept": "Kept this month",
   "turn.results.lost": "Down this month",
   "turn.results.nothing-moved": "Nothing moved",
   "turn.results.story": "This month",
-  "turn.results.money": "In and out",
-  "turn.results.no-money": "No money came in or went out.",
   "turn.results.draw": "Draw {draw}",
   "turn.results.draw-matched": "One of yours came in",
   // The month the Friday draw's result comes, a player who held tickets in it and won nothing is told so (lottery.md

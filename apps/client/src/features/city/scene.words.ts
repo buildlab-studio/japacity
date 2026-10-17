@@ -13,7 +13,6 @@ export const sceneText: Record<string, string> = {
   "scene.act.bet-slip": "Place a bet",
   "scene.act.enter": "Go in",
   "scene.act.out": "Step outside",
-  "scene.chip.close": "Close",
 };
 
 /** Words for a scene key: content's first, then the interface's, then the scene's own drafts, then the city's. */

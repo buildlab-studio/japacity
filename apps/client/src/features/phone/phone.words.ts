@@ -14,7 +14,6 @@ export const phoneText: Record<string, string> = {
   "phone.grow": "Make the phone bigger",
   "phone.shrink": "Make the phone smaller",
   "phone.new": "Something new",
-  "phone.wall.month": "Month {month}",
 
   "phone.app.calendar": "Calendar",
   "phone.app.bank": "Bank",
@@ -93,7 +92,6 @@ export const phoneText: Record<string, string> = {
   // The morning (the after set): the first result leads; any others stand under this.
   "phone.morning.also": "Also this morning",
 
-  "phone.chats.family": "The family group",
   // The People row (world.md R-WORLD-020): the slots of this life, never a list of strangers.
   "phone.chats.slots": "People",
   "phone.chats.slots.line": "Partner, brothers and sisters, parents",
@@ -104,7 +102,6 @@ export const phoneText: Record<string, string> = {
   "phone.chats.say": "Say it",
   "phone.chats.pick": "Pick what to say",
   "phone.chats.computer": "Your talk with {name} happens when you meet. Their news reaches you here.",
-  "phone.chats.moment": "{words}",
 
   // The way files' dates, as months ago or away, never a month's number (R-WORLD-002).
   "phone.japa.invited": "Invited to apply {when}.",
@@ -243,7 +240,6 @@ export const phoneText: Record<string, string> = {
   "phone.settings.graphics.low": "Low",
   "phone.settings.graphics.high": "High",
   "phone.settings.graphics.when": "The city takes it the next time it opens.",
-  "phone.settings.account": "Account",
   "phone.settings.about": "About the game",
 };
 

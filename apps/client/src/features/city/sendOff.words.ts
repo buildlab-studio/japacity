@@ -16,7 +16,6 @@ export const sendOffText: Record<string, string> = {
   "sendoff.counter.desk": "CHECK-IN {n}",
   "sendoff.step": "Step forward",
   "sendoff.not-yet": "Not yet",
-  "sendoff.you": "You",
 
   // Beat 2: the counter.
   "sendoff.counter.by": "The counter",
