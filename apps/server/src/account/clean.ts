@@ -1,5 +1,5 @@
 // R-ACCOUNT-026: the guest clean-up, run by hand and never by a schedule.
-// `pnpm tsx tools/guests/clean.ts --idle-days <n> [--apply]` lists the guest
+// `pnpm guests:clean --idle-days <n> [--apply]` lists the guest
 // accounts with no play for that many days and, with `--apply`, removes them
 // through the deletion of R-ACCOUNT-017, due at once. Secured accounts are
 // never listed. Without `--idle-days` the working number `account.guestIdleDays`.
@@ -31,7 +31,7 @@ export interface CleanCli {
   lines: string[];
 }
 
-const USAGE = "Usage: pnpm tsx tools/guests/clean.ts [--idle-days <whole days>] [--apply]";
+const USAGE = "Usage: pnpm guests:clean [--idle-days <whole days>] [--apply]";
 
 /** The command line's arguments, or null when they make no sense. */
 export function cleanArgs(args: readonly string[], fallbackDays: number): { idleDays: number; apply: boolean } | null {
