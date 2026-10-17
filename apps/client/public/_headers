@@ -1,5 +1,5 @@
 # The page's own headers, against injected scripts, framing, content sniffing and referrer leaks. The content security
-# policy is report-only: it reports what it would block and blocks nothing; named Content-Security-Policy, it enforces.
+# policy is report-only: it reports what it would block and blocks nothing; without the Report-Only suffix, it enforces.
 # Reports go to the server's /api/csp-report (docs/rules/server.md R-SERVER-041): report-to names the Reporting API's
 # endpoint, which Reporting-Endpoints defines on this origin, and report-uri is the older form for browsers without it.
 # Both are paths on the page's own origin, so the same file serves every deployment.
