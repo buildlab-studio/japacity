@@ -115,15 +115,14 @@ export type { PlainOnly } from "./comedy/comedy";
 export type { JapaType, OfficialAccount, OfficialPlatform, ShareKind } from "./share/share.data";
 
 /**
- * The content version before this one (docs/rules/server.md R-SERVER-023): the server bundles it beside the current,
- * so a life saved under it replays and is upgraded on its first load. m0.4 differs from m0.3 in Calgary, Dubai and
- * Castel Volturno built on the Lagos mold: each country's ways, its pass on the ways it covers and the employer's shuttle
- * (decision 0043), their places, food bought in their money and each upkeep the prepaid phone alone.
+ * The older content versions the server still bundles (docs/rules/server.md R-SERVER-023), each exactly as it shipped,
+ * so a life whose last segment names one replays under it and is upgraded on its first load. Version 1 is the first,
+ * so there is none.
  */
-export const PREVIOUS_CONTENT_VERSION = "m0.3";
+export const olderContents: readonly Content[] = [];
 
 export const content: Content = {
-  version: "m0.4",
+  version: "1",
   quality: qualityTable,
   // advice.md: the friend, the adviser and the agents.
   activity: withWhen({ ...activityTable, ...adviceActivityTable }),

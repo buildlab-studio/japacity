@@ -1,5 +1,5 @@
 // Carrying a state to newer content: docs/rules/server.md R-SERVER-021 and 022, decision 0006.
-import { content as realContent, PREVIOUS_CONTENT_VERSION } from "@japacity/content";
+import { content as realContent } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { lifeSaves } from "../goldens/lives.data";
@@ -98,10 +98,10 @@ describe("upgradeState", () => {
 
   const renames = { "route.uk-study": "route.uk-masters", "activity.hustle": "activity.job-hunt", "chapter.first-steps": "chapter.find-your-feet" };
   const current: Content = { ...realContent, renames };
-  const previous: Content = { ...(renamedDeep(realContent, reversed(renames)) as Content), version: "m0.0" };
+  const previous: Content = { ...(renamedDeep(realContent, reversed(renames)) as Content), version: "0" };
 
   test.each(Object.entries(lifeSaves))(
-    "[R-SERVER-021] [R-SERVER-022] given the end state of the golden life %s under a previous content with older ids and no lottery, when upgraded to the current content, then it is the life's own end state, the invariants hold and the content passes its check",
+    "[R-SERVER-021] [R-SERVER-022] given the end state of the golden life %s under an older content with older ids and no lottery, when upgraded to the current content, then it is the life's own end state, the invariants hold and the content passes its check",
     (_name, save) => {
       expect(checkContent(current)).toEqual([]);
       const { state } = replay(save, realContent, (tick) => standInWorld(save.worldSeed, tick, realContent));
@@ -124,10 +124,10 @@ describe("upgradeState", () => {
     return { ...state, schema: 3, content: version, turn, offer, quality } as unknown as State;
   }
 
-  const before: Content = { ...realContent, version: PREVIOUS_CONTENT_VERSION };
+  const before: Content = { ...realContent, version: "0" };
 
   test.each(Object.entries(lifeSaves))(
-    "[R-SERVER-021] [R-SERVER-022] given the end state of the golden life %s in the schema 3 shape under the previous content, when upgraded to the current content, then the month's spent half-days, the offers rolled and the body's qualities are filled as a new life starts them, everything else is kept, the schema is raised and the invariants hold",
+    "[R-SERVER-021] [R-SERVER-022] given the end state of the golden life %s in the schema 3 shape under an older content, when upgraded to the current content, then the month's spent half-days, the offers rolled and the body's qualities are filled as a new life starts them, everything else is kept, the schema is raised and the invariants hold",
     (_name, save) => {
       const { state } = replay(save, realContent, (tick) => standInWorld(save.worldSeed, tick, realContent));
       const older = schemaThree(state, before.version);

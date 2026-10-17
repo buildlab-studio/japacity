@@ -25,7 +25,7 @@ export type OpenDatabase = (() => Promise<Database>) | null;
 
 /** R-SERVER-023, R-SERVER-024: the Worker's contents, its overlay applied when the deployment has one. */
 export function workerContents(overlayJson: string | undefined): Contents {
-  return withContentBefore(contentsFor(content, overlayJson), content);
+  return withContentBefore(contentsFor(content, overlayJson), overlayJson);
 }
 
 /**

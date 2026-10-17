@@ -1,7 +1,7 @@
 // Every character snapshotted before a deploy (server.md R-SERVER-047), on
 // Postgres (PGlite, the committed migrations), through the same tool the
 // deploy runs, with the stores a command uses.
-import { content, PREVIOUS_CONTENT_VERSION } from "@japacity/content";
+import { content } from "@japacity/content";
 import { pgStores } from "@japacity/db";
 import type { PgliteConnection } from "@japacity/db/pglite";
 import { connectPglite } from "@japacity/db/pglite";
@@ -9,7 +9,7 @@ import type { Content } from "@japacity/sim";
 import { upgradeState } from "@japacity/sim";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { contentNamed } from "../authority/load";
+import { withContentBefore } from "../authority/overlay";
 import type { TestServer } from "../authority/testing";
 import { held, newLife, restMonth, send, testServer, view } from "../authority/testing";
 import { memoryStores } from "../deps";
@@ -17,9 +17,9 @@ import type { OpenDatabase } from "./database";
 import { databaseFrom, workerContents } from "./database";
 import { snapshotAll, snapshotCli } from "./snapshot";
 
-/** The contents the worker bundles (R-SERVER-023): the current content and the version before it. */
-const bundled = workerContents(undefined);
-const previous: Content = contentNamed(bundled, PREVIOUS_CONTENT_VERSION, undefined);
+/** A stand-in older version, the current data under the name "0", and the worker's contents with it bundled (R-SERVER-023). */
+const previous: Content = { ...content, version: "0" };
+const bundled = withContentBefore(workerContents(undefined), undefined, [previous]);
 /** The tables a snapshot writes; every other table must come out as it went in. */
 const CHARACTER_TABLES = new Set(["characters", "segments", "snapshots"]);
 
@@ -135,7 +135,7 @@ describe("the snapshot of every character before a deploy", () => {
     expect(await otherTables(connection)).toEqual(others);
   });
 
-  test("[R-SERVER-047] [R-SERVER-021] given characters snapshotted under the content before, when the current content is deployed and a view is fetched, then the snapshot's segment is upgraded into a new one as any load does, and the next command is accepted", async () => {
+  test("[R-SERVER-047] [R-SERVER-021] given characters snapshotted under an older content, when the current content is deployed and a view is fetched, then the snapshot's segment is upgraded into a new one as any load does, and the next command is accepted", async () => {
     const { server, open } = await onPostgres();
     server.deps.contents = { current: previous, previous: null };
     const ada = await lived(server, "acc-1", 2);

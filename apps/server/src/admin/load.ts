@@ -38,7 +38,7 @@ export interface Replayed {
   dropped: Dropped[];
 }
 
-/** R-SERVER-023: the bundled content a segment or snapshot names, the current or the one before, under the same overlay. */
+/** R-SERVER-023: the bundled content a segment or snapshot names, the current or an older one, under the same overlay. */
 export function contentNamed(deps: Pick<ServerDeps, "contents">, version: string, overlay: string | undefined): Content | null {
   return namedContent(deps.contents, version, overlay);
 }

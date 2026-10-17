@@ -31,7 +31,7 @@ function appFor(env: LoadEnv): ReturnType<typeof makeApp> {
   const deps: ServerDeps = {
     config,
     stores: { ...stores, player: countingPlayerStore(stores.player, counts) },
-    contents: withContentBefore(contentsFor(content, undefined), content),
+    contents: withContentBefore(contentsFor(content, undefined), undefined),
     secrets: { worldSeed: env.WORLD_SEED ?? "load-world-seed", banSalt: "load-ban-salt", drawTokenKey: "load-draw-token-key" },
     limits: { commands10s: env.COMMANDS_10S, commands60s: env.COMMANDS_60S, reads60s: env.READS_60S, anon60s: env.ANON_60S, socket10s: env.SOCKET_10S },
     session: testSession(config),

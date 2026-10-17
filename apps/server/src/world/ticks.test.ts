@@ -108,7 +108,7 @@ describe("the world's stored ticks", () => {
   });
 
   test("[R-CLOCK-016] given ticks stored under one content, when a new content is deployed, then the stored ticks stay and the next tick names the new content and steps on from the stored book", async () => {
-    const older: Content = { ...content, version: "m0.0" };
+    const older: Content = { ...content, version: "0" };
     const server = testServer({ contents: { current: older, previous: null } });
     await catchUp(server.deps, 2);
     const kept = await server.deps.stores.world.tick(2);

@@ -68,8 +68,9 @@ export async function dialedContents(deps: Reads): Promise<Contents> {
 
 /**
  * R-SERVER-023, R-SERVER-024: the content a segment or snapshot names: the
- * current or the one before, or one of them under a partner dial rebuilt from
- * the name. Null when the server bundles none of them.
+ * current, the public one under an overlay or an older version, or one of them
+ * under a partner dial rebuilt from the name. Null when the server bundles none
+ * of them.
  */
 export function namedContent(contents: Contents, version: string, overlay: string | undefined): Content | null {
   const bundled = [contents.current, contents.previous, ...(contents.older ?? [])].flatMap((content) => (content === null ? [] : [content, baseOf.get(content) ?? content]));

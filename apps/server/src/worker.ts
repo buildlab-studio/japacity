@@ -37,7 +37,7 @@ export function isolateOf(env: Env): Isolate {
     { connectionString: env.GAME_DB.connectionString, place: env.PLACE },
     {
       config: deployedConfig(env.ADMIN_ACCOUNTS),
-      contents: withContentBefore(contentsFor(content, env.OVERLAY), content),
+      contents: withContentBefore(contentsFor(content, env.OVERLAY), env.OVERLAY),
       secrets: { worldSeed: env.WORLD_SEED, banSalt: env.BAN_SALT, drawTokenKey: env.DRAW_TOKEN_KEY },
       limits: { commands10s: env.COMMANDS_10S, commands60s: env.COMMANDS_60S, reads60s: env.READS_60S, anon60s: env.ANON_60S, socket10s: env.SOCKET_10S },
       text,

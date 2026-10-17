@@ -78,13 +78,14 @@ export interface Stores {
   dedication: DedicationStore;
 }
 
-/** R-SERVER-023: the current content and the one before, with any overlay already applied (R-SERVER-016). */
+/** R-SERVER-023, R-SERVER-024: the contents a segment may name, with any overlay already applied (R-SERVER-016). */
 export interface Contents {
   current: Content;
+  /** A second content a segment may name: the public one under an overlay (`contentsFor`), so a segment run without it replays; null with none. */
   previous: Content | null;
   /**
-   * R-SERVER-023: the content version before the current one, still bundled so a life saved under it replays and is
-   * upgraded on its first load (`withContentBefore`). Missing: none.
+   * R-SERVER-023: the older content versions, still bundled so a life saved under one replays and is upgraded on its
+   * first load (`withContentBefore`). Missing: none.
    */
   older?: readonly Content[];
 }
