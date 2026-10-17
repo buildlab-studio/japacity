@@ -1,5 +1,5 @@
-// The admin's statement timeout on a real Postgres, which PGlite does not enforce (R-SERVER-012, amended 11 Oct
-// 2026). Run with `DATABASE_URL=postgres://... pnpm vitest run --project db-race` against a database kept for
+// The admin's statement timeout on a real Postgres, which PGlite does not enforce (R-SERVER-012). Run
+// with `DATABASE_URL=postgres://... pnpm vitest run --project db-race` against a database kept for
 // these tests; nothing here writes.
 import { sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";

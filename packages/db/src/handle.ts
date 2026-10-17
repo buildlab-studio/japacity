@@ -51,7 +51,7 @@ export const STATEMENT_TIMED_OUT = "57014";
 /**
  * Every call through `handle`, a read included, as its own transaction that begins with
  * `SET LOCAL statement_timeout`, so no statement in it runs longer than `ms` (docs/rules/server.md R-SERVER-012,
- * amended 11 Oct 2026: the admin's reads). `SET LOCAL` lasts until that transaction's commit or rollback and no
+ * the admin's reads). `SET LOCAL` lasts until that transaction's commit or rollback and no
  * longer. Through Hyperdrive, which pools in transaction mode, that is the safe form: a transaction keeps one
  * connection of the pool to its end, and a connection goes back to the pool reset, so the setting can never stay
  * on a connection a player's request takes next; a plain session `SET` would be lost after one statement, or left

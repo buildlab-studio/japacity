@@ -1,9 +1,6 @@
-// R-SERVER-044: the migrations have been squashed twice, each time before launch with no real player on either
-// database. On 11 Oct 2026 the fifteen of 8 to 11 Oct became a clean set of two, and the
-// test of that day proved the two built the very structure the fifteen had (kept in git up to 6560ceca). On 15 Oct 2026
-// ("one migration script, clean sheet") the three files as they then stood (the clean set's
-// two and 0002_dedication-lights) became this one file, 0000_japacity, the hand-written function and trigger carried in
-// at its end. This proves the one file builds the very structure the three built: one fresh PGlite migrated with the
+// R-SERVER-044: the migrations were squashed with no real player on either database. Three files (a clean set of two
+// and 0002_dedication-lights) became this one file, 0000_japacity, the hand-written function and trigger carried in at
+// its end. This proves the one file builds the very structure the three built: one fresh PGlite migrated with the
 // three, another with the one, and a walk of each catalog compared.
 //
 // The three are kept for this test in __fixtures__/migrations-before-squash-2 (their SQL and journal exactly as at

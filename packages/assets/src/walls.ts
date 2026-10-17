@@ -43,7 +43,7 @@ const FACING: readonly WallSide[] = ["front", "right", "back", "left"];
 /**
  * The two sides that stand full for a view at rest on a quarter: the one it looks at and the one on its left hand, the far
  * pair; the other two, the one behind the camera and the one on its right, are knee-high. A view looking along the
- * home's length (180 degrees, the whole house as the home wave built it) has the back and the left full.
+ * home's length (180 degrees, the whole house) has the back and the left full.
  */
 export function fullSides(quarter: number): readonly [WallSide, WallSide] {
   const q = quarterOf(quarter * 90);
