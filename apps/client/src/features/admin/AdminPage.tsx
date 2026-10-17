@@ -12,8 +12,6 @@ import { NumbersTab } from "./NumbersTab";
 import { MoneyTab, RejectionsTab, RollbackTab } from "./ServerTabs";
 import { SwitchesTab } from "./SwitchesTab";
 
-export { ADMIN_PATH } from "./adminPath";
-
 export const ADMIN_TABS = ["money", "rejections", "rollback", "moderation", "analytics", "numbers", "adverts", "switches"] as const;
 
 export type AdminTab = (typeof ADMIN_TABS)[number];

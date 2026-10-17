@@ -16,7 +16,6 @@ import "./render";
 export const TUNDE: Id<"scenario"> = "scenario.tunde";
 export const TOBI: Id<"person"> = "person.tobi-bank";
 export const SEE: SlotPick = { activity: "activity.see-someone", param: null };
-export const CALL: SlotPick = { activity: "activity.call-someone", param: null };
 export const PAIR = "pair-1";
 
 /** A copy of the real content where every computer partner agrees at once and waits on nothing. */

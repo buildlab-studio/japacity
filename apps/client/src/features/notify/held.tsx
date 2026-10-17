@@ -11,11 +11,6 @@ export function useEarlyWin(): boolean {
   return useGame((state) => state.earlyWin);
 }
 
-/** Its children only after the early win; nothing before it. */
-export function AfterEarlyWin({ children }: { children: ReactNode }) {
-  return useEarlyWin() ? children : null;
-}
-
 /**
  * The share card and its button, held back until the early win. A card due
  * before it is put aside as closed, so a scene staged after the card does not

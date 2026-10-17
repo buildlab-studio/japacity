@@ -10,8 +10,6 @@ export function localCurrency(view: Pick<PlayerView, "place">): Currency | null 
   return content.country[country]?.currency ?? null;
 }
 
-export type { WayHome } from "@japacity/sim";
-
 /** The way home from where the character is today, as the engine forecasts it (R-PLACE-011), or null when not abroad. */
 export function wayHome(view: Pick<PlayerView, "place">): PlayerView["place"]["wayHome"] {
   return view.place.wayHome;

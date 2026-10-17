@@ -9,8 +9,6 @@ import { memo } from "react";
 import { drawingOf } from "./draw";
 import { usePaperCity } from "./lagos";
 
-export { Theatre, Tower, Towers } from "./landmarks";
-
 export type Variant = "folded" | "open" | "card";
 
 /** The paper runs on past its own edges by this much, so a view panned or zoomed out never sees where it stops. */

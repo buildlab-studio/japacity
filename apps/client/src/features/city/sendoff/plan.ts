@@ -38,11 +38,6 @@ export function queueLine(step: number): QueueLine {
   return QUEUE_LINES.find((line) => line.at === step) ?? QUEUE_LINES[0]!;
 }
 
-/** The people still ahead after `step` taps: two as the hall opens, none at the third. */
-export function aheadAfter(step: number): number {
-  return Math.max(0, 2 - step);
-}
-
 /** How long the character's line stands before the counter comes, after the third tap. */
 export const FRONT_MS = 1400;
 /** How long the plane's cut lasts (R-WORLD-037: about three seconds), moving or still. */

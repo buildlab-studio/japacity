@@ -9,7 +9,7 @@ import { startReadyLife } from "./door";
 import { passCards } from "./live";
 
 const PREVIEW = process.env.PREVIEW_DIR;
-/** Every 40 ms over the grow and the screen's fade after it, the longest of the three (Phone.tsx GROW_MS + SCREEN_FADE_MS). */
+/** Every 40 ms over the grow and the screen's fade after it, the longest of the three (Phone.tsx GROW_MS, then index.css `.motion-screen`). */
 const FRAMES_MS = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400];
 const AWAY_FRAMES_MS = [0, 40, 80, 120, 160, 200];
 /** The frame's flight on the real clock (Phone.tsx GROW_MS). */

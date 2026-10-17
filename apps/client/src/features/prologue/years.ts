@@ -16,7 +16,7 @@ import { hasWords, say, sayCount, words } from "../../shared/words/text";
 import { TRAIL_KEY } from "../../shared/datapage/family";
 
 // The family card and the trail's key live beside the page, which prints the family too (R-PROLOGUE-009).
-export { type FamilyCard, familyCard, TRAIL_KEY } from "../../shared/datapage/family";
+export { familyCard, TRAIL_KEY } from "../../shared/datapage/family";
 
 type Draw = NonNullable<NonNullable<PlayerView["prologue"]>["draw"]>;
 

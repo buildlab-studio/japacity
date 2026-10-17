@@ -77,9 +77,6 @@ const realNow = () => new Date();
 export const REST_TILT_DEG = -2;
 /** The grow or shrink, frame and then content (index.css `.motion-handset`, `.motion-screen`): the frame lands, then the screen fades in. */
 export const GROW_MS = 250;
-export const SCREEN_FADE_MS = 150;
-/** Putting the phone away (index.css `.motion-away`): it drops back the way it rose, then it is gone. */
-export const AWAY_MS = 200;
 
 /**
  * The grow and the shrink as one move (world.md R-WORLD-018, R-WORLD-023). The handset is

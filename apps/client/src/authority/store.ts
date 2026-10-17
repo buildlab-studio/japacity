@@ -310,11 +310,6 @@ export function slotted(plan: readonly (SlotPick | null)[]): (SlotPick | null)[]
   return plan.filter((pick) => pick === null || takesSlot(pick));
 }
 
-/** The picks planned that fill a slot, for "1 of 2 free slots planned". */
-export function slotsUsed(plan: readonly (SlotPick | null)[]): number {
-  return plan.filter((pick) => pick !== null && takesSlot(pick)).length;
-}
-
 /**
  * Keeps the month-acts that still fit, and pads with empty slots up to the count. A now-act or rest kept from before
  * is dropped: neither is ever planned (R-TURN-006, R-ACTIVITY-015).

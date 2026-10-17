@@ -71,11 +71,6 @@ export function cardById(id: string): Card<CardId> {
   return CARDS.find((candidate) => candidate.id === id) ?? (CARDS[0] as Card<CardId>);
 }
 
-/** Where a card stands in the swipe, from 0. */
-export function cardIndex(id: string): number {
-  return (CARD_IDS as readonly string[]).indexOf(id);
-}
-
 /** Whether a paper point shows on a card of the given size in pixels, with a margin kept clear at its edges. */
 export function onCard(card: Card, [x, y]: Point, width: number, height: number, margin = 0): boolean {
   const dx = Math.abs(x - card.centre[0]) * card.zoom;
