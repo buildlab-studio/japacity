@@ -172,7 +172,7 @@ export default defineConfig({
         },
       },
       {
-        // The gate that owns the game's root before launch, with the invite links (apps/gate/README.md).
+        // The gate that owns the game's root while the game is closed, with the invite links (apps/gate/README.md).
         plugins: [
           cloudflareTest({
             wrangler: { configPath: gateWrangler },

@@ -3,7 +3,7 @@
 // the client's own card code (`previewSteps` through `renderPreview`) in Chromium, served by the
 // client's dev server, at `tuning.share.previewWidth` by `previewHeight` and under `previewMaxBytes`;
 // the register's bytes follow. The gate's card is one plain page at 1200 by 630, shot as a PNG. The
-// pictures wait on the maintainer's approval before they count as approved. Nothing here runs in the check.
+// pictures wait on a person's approval before they count as approved. Nothing here runs in the check.
 import { type ChildProcess, spawn } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";

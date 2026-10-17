@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { accessHeaders, accessRoutePattern, realRun, realTarget, STAGING_URL, withAccess } from "./access";
 
-// Stand-ins: the real values live only in the maintainer's keychain.
+// Stand-ins: the real values live only in a keychain.
 const TOKEN = { CF_ACCESS_CLIENT_ID: "id-standin.access", CF_ACCESS_CLIENT_SECRET: "secret-standin" };
 const LOCAL = "https://localhost:8787";
 

@@ -1,6 +1,6 @@
 // Faces at one height (docs/rules/world.md R-WORLD-012). Two horizontal faces that overlap within a
-// centimetre of the same height fight for the same pixels and show as flickering stripes (the maintainer
-// saw it on the design's slab laid on the ground). A place's floor is its ground at 0, its strips of road
+// centimetre of the same height fight for the same pixels and show as flickering stripes (a slab laid
+// on the ground shows them). A place's floor is its ground at 0, its strips of road
 // and pavement laid over it, and the floors of its models: every face of a model that looks up and
 // lies lower than FLOOR_MAX, a slab, a step, a rug. The client lays the strips with `stripTops` and
 // the check reads the same heights, so what is checked is what is drawn. Pure: no file, no browser.

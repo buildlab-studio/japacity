@@ -427,7 +427,7 @@ export function checkPlace(place: PlaceFile, measured: ReadonlyMap<string, Measu
 export function worldChecks(place: PlaceFile, measured: ReadonlyMap<string, Pick<Measured, "floors">>, notes: string[]): string[] {
   const found = [...checkFaces(place.place, place.stage, (file) => measured.get(file)?.floors ?? []), ...checkLimits(place), ...checkThings(place)];
   if (isWorldFile(place)) return found;
-  // the ten places shipped first carry no shot; the maintainer decides when they must pass, which their rebuild should make true.
+  // the ten places built before the world-first checks carry no shot; when must they pass? Their rebuild should make it true.
   if (found.length > 0) notes.push(`${place.place} has no stage.shot yet, so the world-first checks only note: ${String(found.length)} problem(s), the first: ${found[0] ?? ""}`);
   return [];
 }

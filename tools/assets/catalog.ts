@@ -500,7 +500,7 @@ const ENTRIES: CatalogEntry[] = [
   ),
   { name: "veh_abra", file: "places/deira/veh_abra.glb", place: "place.deira", source: "assets-src/veh/abra", author: PLACES_A, views: [...ELEVATIONS, "phone"], ground: "lagoon", build: () => staticModel("veh_abra", buildAbra()) },
   { name: "veh_labour-bus", file: "places/deira/veh_labour-bus.glb", place: "place.deira", source: "assets-src/veh/labour-bus", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_labour-bus", buildLabourBus()) },
-  // The pieces the three old places needed when they were rebuilt as frontages (docs/rules/world.md R-WORLD-011).
+  // The pieces the three places rebuilt as frontages need (docs/rules/world.md R-WORLD-011).
   { name: "veh_taxi-dubai", file: "places/deira/veh_taxi-dubai.glb", place: "place.deira", source: "assets-src/veh/taxi/dubai", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_taxi-dubai", buildTaxi(DUBAI_TAXI)) },
   placePiece("prop_street-bench", "peckham", buildStreetBench),
   { name: "prop_flag-mast", file: "shared/prop/prop_flag-mast.glb", place: "shared", source: "assets-src/prop/flag-mast", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_flag-mast", buildFlagMast()) },

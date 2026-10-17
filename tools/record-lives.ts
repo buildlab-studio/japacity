@@ -11,7 +11,7 @@
 //
 // A life added after the goldens were blessed is recorded into
 // packages/sim/src/sweep/lives.data.ts instead, and replayed by its own test
-// there until the lead blesses it into the goldens.
+// there until it is blessed into the goldens.
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -33,7 +33,7 @@ const WANTED: { name: string; life: Id<"scenario">; strategy: StrategyName; refu
   { name: "tunde-borrower", life: "scenario.tunde", strategy: "borrower", refusedFirst: true },
   { name: "zainab-remote", life: "scenario.zainab", strategy: "risky", refusedFirst: false },
 ];
-/** Lives added after the goldens were blessed (the decision P10 for the fifth). */
+/** Lives added after the goldens were blessed. */
 const NEW: (typeof WANTED)[number][] = [{ name: "aniekan-borrower", life: "scenario.aniekan", strategy: "borrower", refusedFirst: false }];
 const ABROAD: { name: string; life: Id<"scenario"> }[] = [
   { name: "ada-abroad", life: "scenario.ada" },

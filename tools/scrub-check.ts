@@ -3,7 +3,7 @@
 // planning fail the check in every file git would publish, except the two
 // pages players read, the test that reads them, LICENSES.md and this list itself.
 //
-// A second list holds the values that belong to
+// A second list, for the public repository, holds the values that belong to
 // one deployment and are never committed: an email address, a 32-hex id, a Turnstile key, a Google OAuth
 // client, a Cloudflare account id, an admin account list. Each names the places it may stand in, and a
 // placeholder (an example domain, a made-up run) never fails. docs/site/built/your-own-copy.md lists them.

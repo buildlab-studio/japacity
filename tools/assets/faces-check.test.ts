@@ -8,7 +8,7 @@ import { checkFaces, FACE_GAP, type FacedStage, floorFaces, type ModelFace, STRI
 import { readGlb, toDocument, writeGlb } from "./glb";
 
 const ROOT = join(import.meta.dirname, "..", "..");
-/** The stripes the maintainer saw: the design's slab laid on the ground, its top a few millimetres over it. */
+/** The stripes: the design's slab laid on the ground, its top a few millimetres over it. */
 const planted = JSON.parse(readFileSync(join(ROOT, "tools", "__fixtures__", "stripes", "place.json"), "utf8")) as { place: string; stage: FacedStage };
 const SLAB = "places/stripes/prop_slab.glb";
 
