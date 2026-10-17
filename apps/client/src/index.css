@@ -62,7 +62,7 @@
   --out: #c23a2a;
   --scrim: rgba(12, 16, 34, 0.5);
   --device: #0d1124;
-  /* The drawn map's water takes the design's lagoon tone (R-WORLD-021). */
+  /* The drawn map's water takes the lagoon tone (R-WORLD-021). */
   --water: #5f9fc0;
   --land: #ece5d5;
   --land-2: #e1d8c4;
@@ -378,10 +378,10 @@ body {
 /* A lively sheet rises from the foot and sinks back the same way, on a phone and in the laptop's column alike. */
 .motion-rise { transition-property: transform, opacity; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
 .motion-rise[data-starting-style], .motion-rise[data-ending-style] { transform: translateY(100%); }
-/* A world sheet rises as the design's does (.rise); closing, it sinks back the same way. */
+/* A world sheet rises (.rise); closing, it sinks back the same way. */
 .motion-sink { transition-property: transform, opacity; transition-duration: 200ms; transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
 .motion-sink[data-ending-style] { transform: translateY(100%); }
-/* A card over the scene comes in with the design's .pop; dismissed, it shrinks a little away as it fades. */
+/* A card over the scene comes in with .pop; dismissed, it shrinks a little away as it fades. */
 .motion-card { transition-property: transform, opacity; transition-duration: 180ms; transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
 .motion-card[data-ending-style] { transform: scale(0.96); opacity: 0; }
 /* What a tap reveals in place (a chooser, a folded row): it settles in from just above while the room for it opens at once. */
@@ -391,7 +391,7 @@ body {
 details > :not(summary) { transition-property: transform, opacity; transition-duration: 180ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
 details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 @starting-style { details[open] > :not(summary) { transform: translateY(-6px); opacity: 0; } }
-/* An app opening inside the phone comes in from the right, as the design's does; back on the home screen, the grid fades in. */
+/* An app opening inside the phone comes in from the right; back on the home screen, the grid fades in. */
 .motion-in-right { transition-property: transform; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
 @starting-style { .motion-in-right { transform: translateX(100%); } }
 .motion-in-fade { transition-property: opacity; transition-duration: 180ms; transition-timing-function: ease; }
@@ -403,7 +403,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 .motion-screen { transition-property: opacity; transition-duration: 150ms; transition-delay: 250ms; transition-timing-function: ease-out; }
 .motion-away { transition-property: transform, opacity; transition-duration: 200ms; transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
 /* The handset's three resting transforms, each the same list of functions so one eases into another piece by piece:
-   at rest at the foot, tilted as the design's is; grown, straight; put away, dropped below the screen, tilting back. */
+   at rest at the foot, tilted; grown, straight; put away, dropped below the screen, tilting back. */
 .handset-rest { transform: translate(0px, 0px) rotate(-2deg) scale(1, 1); }
 .handset-grown { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); }
 .handset-away { transform: translate(0px, 110%) rotate(4deg) scale(1, 1); }
@@ -713,7 +713,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 /* A chip whose words run long (a pay with its next step, a home's month) wraps rather than run past its card. */
 .sticker-chip.chip-wrap { white-space: normal; }
 
-/* The front door (prologue.md R-PROLOGUE-013; the door's second design, A as drawn with B's stacked homes): the pale sky from
+/* The front door (prologue.md R-PROLOGUE-013): the pale sky from
    edge to edge by day and the navy by night, round white buttons with the edge's underside, round face stickers with
    the cut's white rim and a yellow ring on the one picked, cards with a firmer edge than the world's, and the stacked
    postcards of the homes. Transitions are short and on transform and opacity only. */
