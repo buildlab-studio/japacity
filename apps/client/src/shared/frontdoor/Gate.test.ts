@@ -1,7 +1,7 @@
 // Whether the door can draw (prologue.md R-PROLOGUE-015): the figure in the player's own colours and the page's photo are
 // drawn only where WebGL 2 can. Asking makes a context, and the door asks on every look, every colour and at Begin, so
-// it is asked once a visit and the context made to ask is let go at once (a run through the door made about 25
-// contexts, three of them at Begin, where one would do).
+// it is asked once a visit and the context made to ask is let go at once (asked each time, a run through the door
+// makes about 25 contexts, three of them at Begin, where one does).
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 describe("whether the door can draw", () => {

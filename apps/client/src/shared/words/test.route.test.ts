@@ -1,4 +1,4 @@
-// One band for the route (docs/rules/world.md R-WORLD-006 as amended 11 Oct 2026): the care
+// One band for the route (docs/rules/world.md R-WORLD-006): the care
 // file said "English result at band 4.0 or better", the centre's sheet "Band 6.0 this sitting: likely" and the result
 // "That meets the route's 6.0." The band is the plan's route's own, from its content, on the file, the sheet and the result.
 import { content, text } from "@japacity/content";

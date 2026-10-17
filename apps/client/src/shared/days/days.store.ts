@@ -50,7 +50,7 @@ export function forgetDays(): void {
   held = undefined;
 }
 
-/** Marks lines as told on the phone, so they no longer wait. */
+/** Marks lines as told on the phone, so they stop waiting. */
 export function tellSignals(keys: readonly string[]): void {
   const days = currentDays();
   if (days === null) return;

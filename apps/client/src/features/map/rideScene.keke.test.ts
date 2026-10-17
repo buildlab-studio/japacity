@@ -1,5 +1,5 @@
-// The keke's window (docs/rules/world.md R-WORLD-032): the cut was half the canopy's underside,
-// with a head through the camera. The camera now sits on the bench, clear of everyone the ride seats, and looks out of
+// The keke's window (docs/rules/world.md R-WORLD-032): the camera sits on the bench, clear of everyone the ride seats, so
+// no head comes through it and the canopy's underside never fills the cut. It looks out of
 // the keke's open side on the road's side, between its pillars and under its canopy, as the danfo's window looks out
 // from the aisle. Positions are the ride scene's own: its seats and the keke's frame as the model builds it.
 import { Group, Vector3 } from "three";

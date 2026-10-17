@@ -1,5 +1,5 @@
-// Labels on tap and a quiet mark for what is interactive (docs/rules/world.md R-WORLD-005, R-WORLD-021, R-WORLD-003;
-// the maintainer): each thing shows a small still dot and no name; a tap on the dot is a tap on the thing;
+// Labels on tap and a quiet mark for what is interactive (docs/rules/world.md R-WORLD-005, R-WORLD-021, R-WORLD-003):
+// each thing shows a small still dot and no name; a tap on the dot is a tap on the thing;
 // the nudge's thing pulses; a person shows their name only while they hold an ask or are the nudge's target; a place's
 // first entry in a life shows every name, then they fade.
 import { act, cleanup, render } from "@testing-library/react";
@@ -87,7 +87,7 @@ describe("a person met in a place", () => {
     expect(name?.hidden).toBe(false);
     expect(name?.textContent).toContain("Tobi");
     expect(name?.querySelector("[data-person-mark]")?.textContent).toBe(sceneWords("ui.people.mark.computer"));
-    // His fan, which a tap opens since the chip went (R-WORLD-034), carries the same tag beside his name.
+    // His fan, which a tap opens (R-WORLD-034), carries the same tag beside his name.
     render(<Fan thing={tobi!.id} title={sceneWords(tobi!.label)} mark={tobi!.mark} entries={fanModel(fanEntriesOf(tobi!), engineView("scenario.ada"), [])} onAct={vi.fn()} onFallback={vi.fn()} />);
     act(() => anchorFan(tobi!.id, { x: 90, y: 420 }));
     const title = document.querySelector(`[data-fan="${tobi!.id}"] [data-fan-title]`);

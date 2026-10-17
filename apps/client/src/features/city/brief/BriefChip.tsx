@@ -1,4 +1,4 @@
-// The road in the world, only in the moment (the plan 16; the road set's pictures 01 to 05): the chip under the band
+// The road in the world, only in the moment (the road set's pictures 01 to 05): the chip under the band
 // with the brief's picture, its title and a dot for each thing; the toast in the giver's voice under it when a thing comes
 // in; and the marker on the thing to do, a white pill with its words and an arrow over a breathing yellow ring. The chip
 // says which brief; the marker says what to do.

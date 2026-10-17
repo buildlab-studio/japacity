@@ -1,6 +1,6 @@
-// The phone's apps in the lively dress (docs/design/13-the-lively-layer.md section 2; the wave
-// of 13 Oct 2026): the same apps with the same jobs, the document headers and the paragraphs replaced by cards, tiles and
-// chips; and the words a player reads on the phone never say slots, a turn, banked, pages, days left or a percentage.
+// The phone's apps in the lively dress (docs/design/13-the-lively-layer.md section 2): the same apps with the same jobs,
+// told in cards, tiles and chips rather than document headers and paragraphs; and the words a player reads on the phone
+// never say slots, a turn, banked, pages, days left or a percentage.
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
@@ -71,7 +71,7 @@ describe("the phone in the lively dress", () => {
     test(`[R-WORLD-018] [R-TEXT-005] given ${name}, when every app opens, then nothing a player reads says slots, a turn, banked, pages, days left or a percentage`, async () => {
       await openPhone(fixture());
       for (const id of APP_IDS) {
-        if (id === "bank") continue; // The Bank is's passbook; its words are checked there.
+        if (id === "bank") continue; // The Bank opens on the passbook; its words are checked there.
         const screen = openApp(id);
         expect({ id, said: NEVER.exec(screen.textContent ?? "")?.[0] ?? null }).toEqual({ id, said: null });
         back();

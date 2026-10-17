@@ -16,7 +16,7 @@ test.use({ baseURL: ONLINE, viewport: { width: 390, height: 844 }, deviceScaleFa
 
 const PREVIEW = process.env.PREVIEW_DIR;
 const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
-// R-CITY-040 as amended 11 Oct 2026: every board names each line by the account's username, friends too.
+// R-CITY-040: every board names each line by the account's username, friends too.
 const USERNAMES = ["zainab_b", "tunde_k", "ngozi_o", "ada_ikeja", "tunde_99", "zee_lagos", "ngozi_writes", "ada_o", "tk_surulere", "ngo_yaba"];
 
 type Row = { rank: number; username: string | null; figure: number; me: boolean };
@@ -75,7 +75,7 @@ test("[R-CITY-039] the four boards behind the two pickers, each with the player'
   await placeReady(page);
   await passCards(page);
   await passHomeTeach(page);
-  // The boards stand with the people in the phone's Chats, where the old month page's People tab held them.
+  // The boards stand with the people in the phone's Chats.
   const chats = await openApp(page, "chats");
   await chats.locator('[data-chat-row="people"]').click();
   const boards = page.locator("[data-boards]");

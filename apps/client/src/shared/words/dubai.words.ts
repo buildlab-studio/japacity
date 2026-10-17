@@ -15,7 +15,7 @@ export const dubaiWords: Readonly<Record<string, string>> = {
   "city.act.tailor": "Get measured",
   "city.thing.laundry": "Laundry",
   "city.act.laundry": "Wash and iron",
-  // Union station: the Nol machine that sells the month's zone pass (place.md R-PLACE-012 as amended), the gates.
+  // Union station: the Nol machine that sells the month's zone pass (place.md R-PLACE-012), the gates.
   "city.thing.nol-machine": "Nol machine",
   "city.act.transit-pass": "Zone pass",
   "city.thing.platform": "Gates",
@@ -36,7 +36,7 @@ export const dubaiWords: Readonly<Record<string, string>> = {
   "city.thing.on-shift": "On shift",
   "city.act.on-shift": "Your shift",
   "city.act.on-shift.done": "On the rota here. Your shifts run as the month goes.",
-  // The hypermarket on London's big shop (world.md R-WORLD-039 as amended): the trolley, the tills looked at.
+  // The hypermarket on London's big shop (world.md R-WORLD-039): the trolley, the tills looked at.
   "city.act.weekly-shop": "The weekly shop",
   "city.thing.tills": "Tills",
   "city.act.look-tills": "Look",
@@ -55,7 +55,7 @@ export const dubaiWords: Readonly<Record<string, string>> = {
   "city.overheard.big-shop-uae.2": "Indian, Filipino, Nigerian, all in one queue.",
   "city.overheard.big-shop-uae.3": "Card or cash, sir?",
   "city.overheard.big-shop-uae.4": "Have you seen yam anywhere in this place?",
-  // Dubai's metro: the voice in the ceiling and the people in the car, as the doors close (R-WORLD-039 as amended).
+  // Dubai's metro: the voice in the ceiling and the people in the car, as the doors close (R-WORLD-039).
   "map.ride.line.dubai-metro.1": "Doors closing. Please stand clear.",
   "map.ride.line.dubai-metro.2": "Next station, Union. Change for the green line.",
   "map.ride.line.dubai-metro.3": "Gold class is the front car. Please move back.",

@@ -34,7 +34,7 @@ function kept(): string | null {
   }
 }
 
-/** True once this device has played: both thumbs tapped, or the old walkthrough seen. */
+/** True once this device has played: both thumbs tapped, or the walkthrough of an earlier version seen. */
 export function walkSeen(): boolean {
   return kept() === PLAYED;
 }

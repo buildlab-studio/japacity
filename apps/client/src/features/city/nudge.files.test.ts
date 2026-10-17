@@ -1,8 +1,6 @@
 // The nudge respects money and the file (docs/rules/world.md R-WORLD-003).
-// Z9: "Sit the nursing certification at the clinic" stood four months while she could not pay it, and the care file
-// lists no certification. Z10: the TB certificate was taken first and ran out before the application. Z7: "The
-// endorsement needs more. See Japa." for five months with no act named. Z18: the meetup's nudge was two taps. Real
-// content, lives played through `step`.
+// A step the player cannot pay names its gap; the TB certificate, which runs out, comes after the file's other steps; a
+// shut step names the act that opens it; the meetup's nudge is one tap. Real content, lives played through `step`.
 import { content, text } from "@japacity/content";
 import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -96,8 +94,8 @@ describe("a step the naira cannot pay names the gap", () => {
     expect(nudgeOf(broke)).toEqual({ key: `${FILE}.item.verification.short`, params: { amount: formatMoney(1_730_000, "NGN") }, about: "step" });
   });
 
-  // the care checklist counts the certificate (R-SPONSOR-005), so the waiting
-  // months name it again while she can pay it, as before m75, and its gap while she cannot.
+  // The care checklist counts the certificate (R-SPONSOR-005), so the waiting months name it while she can pay it,
+  // and its gap while she cannot.
   test("[R-WORLD-003] [R-ACTIVITY-013] [R-SPONSOR-005] given the ready nurse on the ward while the council works, with the certification open to her and paid for, when the nudge is read each month and followed, then it names the certification, its tap opens the certification's card at the clinic, and once she has sat it it is never named again", () => {
     const care = content.route["route.uk-care"]!;
     expect(care.checklist.some((item) => item.requirement.type === "document/held" && item.requirement.document === "document.nurse-certificate")).toBe(true);

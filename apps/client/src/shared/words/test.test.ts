@@ -1,5 +1,5 @@
-// The English test's chance and result in words (docs/rules/world.md R-WORLD-006, R-WORLD-008; the fifth
-// review), checked against the engine's own sittings on the real content.
+// The English test's chance and result in words (docs/rules/world.md R-WORLD-006, R-WORLD-008),
+// checked against the engine's own sittings on the real content.
 import { content, text } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -86,7 +86,7 @@ describe("the English result", () => {
     expect(words(line.key, line.params)).toBe("Band 5.0. The route needs 6.0: study and sit again.");
   });
 
-  // a pass says it meets the route's band, where the plain line said only the band.
+  // A pass says it meets the route's band, not only the band.
   test("[R-WORLD-008] given a band of 6.0 or more, when the result is told, then it says the band and that it meets the route's 6.0, in the plain line's tone", () => {
     expect(bandResultLine(issued(60))).toEqual({ ...issued(60), key: ISSUED_BAND_MET, params: { ...issued(60).params, needed: formatBand(bandNeeded()) } });
     expect(words(ISSUED_BAND_MET, bandResultLine(issued(65)).params)).toMatch(/Band 6\.5\. That meets the route's 6\.0\.$/);

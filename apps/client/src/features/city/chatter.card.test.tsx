@@ -1,4 +1,5 @@
-// No street talk over a share card (docs/rules/world.md R-WORLD-026, R-WORLD-001): "Take a screenshot to share it." ran into the chatter's bubble on a chapter's card.
+// No street talk over a share card (docs/rules/world.md R-WORLD-026, R-WORLD-001): the chatter's
+// bubble stays off a chapter's card, whose "Take a screenshot to share it." it would run into.
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 

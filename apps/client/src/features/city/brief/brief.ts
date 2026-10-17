@@ -1,4 +1,4 @@
-// The brief and the marker (docs/design/13-the-lively-layer.md section 4; the design16): a
+// The brief and the marker (docs/design/13-the-lively-layer.md section 4): a
 // chapter is handed over as a mission card by the person who sets it, in their voice, with its things as sticker tiles,
 // the place of each under it, the reward as picture chips and the next brief faint. In the world the road shows only in
 // the moment: the chip under the band for a moment after the card is handed, and while the player stands at the step's
@@ -11,11 +11,11 @@ import { hasWords, nameOf, say } from "../../../shared/words/text";
 import { placeName } from "../city.words";
 import { itemWayOf, STEP_ACTIVITY } from "../nudge";
 
-/** How long the chip stands under the band after Let's go, before it slides into the Phone thumb (the plan 16). */
+/** How long the chip stands under the band after Let's go, before it slides into the Phone thumb. */
 export const TUCK_MS = 2000;
 /** How long the slide into the Phone thumb takes: under half a second (R-WORLD-023). */
 export const TUCK_SLIDE_MS = 420;
-/** How long a done thing's toast rides under the chip (the plan 16). */
+/** How long a done thing's toast rides under the chip. */
 export const DONE_TOAST_MS = 3000;
 
 /** One thing of a brief: its words, the two-word place under it, whether it is in, and whether it is the one to do now. */
@@ -39,7 +39,7 @@ export interface Brief {
   chapter: string;
   /** The base chapter a route's variant stands in for, whose words the brief takes. */
   base: string;
-  /** The title with a wink, at most three words (the plan 7.8). */
+  /** The title with a wink, at most three words. */
   title: string;
   giver: { name: string; where: string };
   /** The giver's words, first person. */
@@ -85,7 +85,7 @@ function rewardsOf(base: string): BriefReward[] {
   });
 }
 
-/** The two-word place under a thing (the plan 7.3): the stop it is done at, the phone, or the month itself. */
+/** The two-word place under a thing: the stop it is done at, the phone, or the month itself. */
 export function itemPlace(chapter: string, item: string): string {
   const own = `${baseOf(chapter)}.brief.at.${item}`;
   if (hasWords(own)) return say(own);
@@ -156,7 +156,7 @@ function countWords(count: number): string {
   return hasWords(`chapter.brief.count.${String(count)}`) ? say(`chapter.brief.count.${String(count)}`) : String(count);
 }
 
-/** The giver's toast when a thing comes in (the plan 7.6): how many are left, in their voice; the last says so. */
+/** The giver's toast when a thing comes in: how many are left, in their voice; the last says so. */
 export function doneToast(left: number): string {
   if (left <= 0) return say("chapter.brief.toast.all");
   if (left === 1) return say("chapter.brief.toast.last");

@@ -57,7 +57,7 @@ async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void
 }
 
 /**
- * The page after Begin while the server plays the years (R-PROLOGUE-014, R-SERVER-046;): a kept life still at
+ * The page after Begin while the server plays the years (R-PROLOGUE-014, R-SERVER-046): a kept life still at
  * its first card, the view answered and the preset's reply held back, so the page stays on its wait.
  */
 async function pageWaiting(page: Page): Promise<void> {
@@ -650,7 +650,7 @@ async function openAbroad(page: Page, want: AbroadLife, search: string): Promise
   await clearAbroad(page);
 }
 
-/** A ride abroad in the country's own vehicle (R-WORLD-039 as amended), its four angles shot as they come. */
+/** A ride abroad in the country's own vehicle (R-WORLD-039), its four angles shot as they come. */
 async function countryRide(page: Page, vehicle: string, way: string, stop: string): Promise<void> {
   const angles = ["outside", "above", "window", "seat"];
   const rode = await attempt(page, `ride-${vehicle}-outside`, async () => {

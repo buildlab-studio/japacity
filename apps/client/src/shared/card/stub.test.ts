@@ -74,7 +74,7 @@ describe("the ticket stub's face", () => {
     expect(role(steps, "type-label")).toEqual([text["share.stub.badge"]!.toUpperCase()]);
     expect(role(steps, "type-name").join(" ")).toBe(text[`share.type.${type}.name`]);
     expect(role(steps, "type-line").join(" ")).toBe(text[`share.type.${type}.line`]);
-    // R-SHARE-004 as amended 16 Oct 2026: the name the band says, the first word of the life's own name.
+    // R-SHARE-004: the name the band says, the first word of the life's own name.
     expect(role(steps, "name")).toEqual([(text["scenario.ada.name"] ?? "").split(/\s+/)[0]]);
     expect(role(steps, "sender")).toEqual(["Japacity"]);
     expect(role(steps, "official")).toEqual(["Official accounts: japacity.app/official"]);

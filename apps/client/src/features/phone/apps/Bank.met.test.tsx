@@ -1,6 +1,6 @@
-// Saved for the move, met (docs/rules/world.md R-WORLD-019): the nurse's Bank read
-// "SAVED FOR THE MOVE £429 of £324" and nothing said the figure was met or what it was for. Once what is held covers it,
-// the Bank says so, and says the figure is the move's fees. Played on the real engine and content.
+// Saved for the move, met (docs/rules/world.md R-WORLD-019): once what is held covers the figure, the Bank says so, and
+// says the figure is the move's fees, never a bare "SAVED FOR THE MOVE £429 of £324". Played on the real engine and
+// content.
 import { content } from "@japacity/content";
 import type { Effect } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

@@ -104,7 +104,7 @@ export interface Shot {
   yaw?: number;
   /** Metres across that the whole view must show, whatever the screen's shape. */
   width?: number;
-  /** The whole view's lens in degrees, when it is not the scene's own: a wide home is seen whole on a longer lens, so the people at its back stand as tall as those at its front (world.md R-WORLD-029 as the home's wave asks it amended). */
+  /** The whole view's lens in degrees, when it is not the scene's own: a wide home is seen whole on a longer lens, so the people at its back stand as tall as those at its front (world.md R-WORLD-029). */
   fov?: number;
 }
 
@@ -185,7 +185,7 @@ export interface CountryChoice {
 
 /** A way to travel (R-WORLD-017), with its fare in the wallet's smallest unit and the minutes. */
 export interface RideChoice {
-  /** `drive`: the life's own car, offered while it stands at home. `bus`, `train` and `taxi`: the ways abroad (R-PLACE-010 as amended 16 Oct 2026). */
+  /** `drive`: the life's own car, offered while it stands at home. `bus`, `train` and `taxi`: the ways abroad (R-PLACE-010). */
   id: "danfo" | "keke" | "okada" | "walk" | "drive" | "bus" | "train" | "taxi";
   label: string;
   /** In the smallest unit of the money the ride is paid in: naira at home, the country's money abroad. */

@@ -72,7 +72,7 @@ function providers(server: FakeServer, children: ReactNode) {
   );
 }
 
-/** Chats with the people feature's screens as App hands them to the phone, on the pair routes the shell gives it (moved from the old people tab). */
+/** Chats with the people feature's screens as App hands them to the phone, on the pair routes the shell gives it. */
 function PeopleChats() {
   const pairs = usePairApi();
   return (
@@ -174,7 +174,7 @@ describe("where no advert shows", () => {
   });
 
   test("[R-ADVERT-003] given every slot filled, when a share card is due, then the card holds no advert", async () => {
-    // A card that opens on its own when due: the send-off no longer does (share.md R-SHARE-015), the granted card still does.
+    // A card that opens on its own when due: the send-off does not (share.md R-SHARE-015), the granted card does.
     const card = { kind: "granted" as const, route: "route.uk-masters" as const, percent: 82, months: 35, standing: 61, topActivities: [], chapter: null, name: null };
     const store = await storeOf({ ...advertsOn(), card });
     // A grant comes long after the early win, which the share card waits for (R-GUIDE-015).

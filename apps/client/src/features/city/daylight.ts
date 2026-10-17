@@ -1,4 +1,5 @@
-// The sky and the sun by the world's clock (docs/rules/clock.md R-CLOCK-033; decision 0036). Each place keeps its one sun
+// The sky and the sun by the world's clock (docs/rules/clock.md R-CLOCK-033; decision 0036): a dark view at
+// night, a sunset, a morning and normal brightness by day. Each place keeps its one sun
 // and its one sky light (R-ASSET-006); the part of the world's day and the minute within it only turn the sun, tint both
 // lights and the sky, and light the lamps a place names. The same rule indoors and out, in every place. Pure but for the
 // hook at the foot, which reads the clock the last reply carried (handed in by the city, which holds the store, so the
@@ -32,7 +33,7 @@ export interface Look {
   lamps: number;
 }
 
-/** The afternoon's sun and sky as every place was lit before the clock: its own sun, a white light, its own sky. */
+/** The afternoon's sun and sky: each place's own sun, a white light, its own sky, untinted. */
 const NOON: Look = { sun: 0xfff0d0, sunStrength: 2, height: null, turn: 0, tint: 0xffffff, tintShare: 0, lightTint: 0xffffff, skyStrength: 1.1, groundShare: 1, softness: 1, lamps: 0 };
 
 /** Each part's look at its start and at its end; within a part the look moves from one to the other with the minute. */
@@ -148,18 +149,18 @@ export function skyLightOf(own: Color, look: Pick<Look, "lightTint" | "tintShare
 }
 
 /**
- * The rooms' light (the design, as the home builder set it): by day a paler, cooler sky light over a warm
+ * The rooms' light: by day a paler, cooler sky light over a warm
  * floor, a warm sun a little stronger and a pale sky behind; by night the bulb and the lantern as real lights. A place
  * whose light says `room` takes these for its own sky, ground and backdrop, and the clock turns and tints them as any.
  */
 export const ROOM_LIGHT = { sky: 0xdfe8f4, ground: 0xcdb48c, backdrop: 0xeef1f8, sun: 0xffdcaa, skyStrength: 1.35, sunStrength: 2.3, lamp: 0xffb46a } as const;
 
-/** Which of the layer's lights a place takes: a home's rooms, an office or another room, or a street (the design). */
+/** Which of the layer's lights a place takes: a home's rooms, an office or another room, or a street. */
 export type LightKind = "room" | "office" | "street";
 
 /**
- * The layer's light for every place (the design): the paler, cooler sky light with the warm sun, the
- * pale sky behind in place of the old sand haze. `ground` is the floor's bounce, null where the place's own ground
+ * The layer's light for every place: the paler, cooler sky light with the warm sun, the
+ * pale sky behind. `ground` is the floor's bounce, null where the place's own ground
  * colour bounces (a street's road and laterite); `warm` is how far the sun leans toward the warm one by day; `haze`
  * whether the fog still fades the far end, into the pale sky. An office takes the rooms' numbers: a warmer, lighter floor.
  */

@@ -168,8 +168,8 @@ describe("the month kept through a reload", () => {
     const line = { key: "line.wallet.social", params: { amount: { currency: "NGN" as const, amount: 100 } }, tone: "bad" as const, attention: false, counts: [] };
     const first = createGameStore({ view: () => Promise.resolve(at(7)), send: () => Promise.resolve({ ok: true, view: at(7), lines: [line] }) }, { rememberMonth: true });
     await first.getState().refresh();
-    // rest is never planned, so the plan kept is a month-act. Decision 0035
-    // (R-ACTIVITY-019): the coding course now answers at once, so the month-act kept is a master's at home.
+    // R-TURN-006: rest is never planned, so the plan kept is a month-act. Decision 0035
+    // (R-ACTIVITY-019): the coding course answers at once, so the month-act kept is a master's at home.
     first.getState().setSlot(0, { activity: "activity.masters-at-home", param: null });
     await first.getState().send({ type: "wallet/move", currency: "NGN", amount: 1, to: "cash" });
     first.getState().closeCard("card-1");

@@ -54,7 +54,7 @@ export function Settings({ account = null, about = null, dedication = null }: { 
   const muted = useSound((state) => state.muted);
   return (
     <div data-phone-app="settings">
-      {/* The account first, as one full row (R-ACCOUNT-027): the maintainer read the small icon as a heading. */}
+      {/* The account first, as one full row (R-ACCOUNT-027): a small icon there reads as a heading. */}
       {account === null ? null : <div data-account>{account}</div>}
       {/* The sound and the city's graphics in one card: each a name with its icon and one
           segmented pill. */}
@@ -119,8 +119,8 @@ export function versionOf(stamp: string | null): string | null {
 }
 
 /**
- * The version line, last in Settings, in the design's form: "Version" and the build, quiet. Five taps within about five
- * seconds open the dedication page (R-CITY-021 as amended 15 Oct 2026, account.md R-ACCOUNT-032); nothing else happens:
+ * The version line, last in Settings: "Version" and the build, quiet. Five taps within about five
+ * seconds open the dedication page (R-CITY-021, account.md R-ACCOUNT-032); nothing else happens:
  * no sound, no line, no link, and a sixth tap changes nothing. A tap anywhere else starts the count again, and so does
  * closing the page. Nothing of it is counted or sent.
  */

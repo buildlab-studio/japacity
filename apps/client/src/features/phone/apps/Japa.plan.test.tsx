@@ -89,7 +89,7 @@ describe("the other ways in Japa", () => {
     const items = content.chapter["chapter.build-the-file-care"]!.items.map((item) => ({ id: item.id, met: true }));
     const view = store.getState().view;
     expect(view?.plan.route).toBe(UK);
-    // the chapter that follows is the view's, read with the lean as it stands.
+    // R-CHAPTER-010: the chapter that follows is the view's, read with the lean as it stands.
     const chapter = view?.chapter;
     if (chapter === undefined) throw new Error("No view");
     expect(chapter.next).toBe("chapter.decision-day");
@@ -105,7 +105,7 @@ describe("the official page follows the plan", () => {
     const card = document.querySelector<HTMLElement>("[data-official-page]");
     expect(card?.getAttribute("data-official-page")).toBe(UK);
     expect(card?.getAttribute("data-official-other")).toBeNull();
-    // the page is read now, never planned for the month.
+    // R-ACTIVITY-015: the page is read now, never planned for the month.
     await act(async () => {
       card?.click();
       await new Promise((settle) => setTimeout(settle, 0));

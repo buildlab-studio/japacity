@@ -1,7 +1,6 @@
-// The months held and their countdown are retired from the client (docs/rules/clock.md R-CLOCK-007, to be amended by the
-// lead): the month turns when it is lived (decision 0034), so the old card that showed "3 of 4 months to play" and the
-// time to the next one went with the old month page's last pieces. The server's clock stays; nothing a player
-// reads counts the months held or the time to the next, online or off. Replaces the card's own tests (TurnClock.test).
+// The client shows neither the months held nor a countdown to the next (docs/rules/clock.md R-CLOCK-007): the month
+// turns when it is lived (decision 0034). The server's clock runs; nothing a player reads counts the months held or the
+// time to the next, online or off.
 import { worldClockAt } from "@japacity/sim";
 import { act, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -35,7 +34,7 @@ describe("the months held, retired", () => {
         <PhoneApps onClose={() => undefined} area="Ojuelegba" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} calendar={() => <Calendar />} />
       </GameProvider>,
     );
-    // The retired card's words: "3 of 4 months to play", "Next month to play in 1 h 30 min", "A month is on its way."
+    // Words that would count the months held: "3 of 4 months to play", "Next month to play in 1 h 30 min", "A month is on its way."
     const unheld = (where: string) => {
       expect({ where, held: /months? to play|a month is on its way/i.test(document.body.textContent) }).toEqual({ where, held: false });
       expect({ where, card: document.querySelector("[data-months-held], [data-turn-clock]") }).toEqual({ where, card: null });

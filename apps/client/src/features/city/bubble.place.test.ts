@@ -1,4 +1,4 @@
-// No line over a face (docs/rules/world.md R-WORLD-026, R-WORLD-005, its three faults): a
+// No line over a face (docs/rules/world.md R-WORLD-026, R-WORLD-005): a
 // person's words stand clear of every head, every thing's name and every mark in the scene, not placed from the speaker
 // alone, with the tail still ending over the speaker; and a thing's dot stays on its thing while only its name is lifted
 // clear, never far. Proved over every place the game draws, seen whole as the scene first shows it on a phone.

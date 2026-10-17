@@ -87,7 +87,7 @@ describe("the front door", () => {
     // Never a bare page: you stand whole on a photo card as a sticker (the door's second design), never on a turntable.
     expect(document.querySelector("[data-gate] [data-door-photo] [data-figure]")).not.toBeNull();
     expect(document.querySelector("[data-gate] [data-turntable], canvas")).toBeNull();
-    // One strip of face stickers: every passer-by, both bodies (the body row is gone with A's 01).
+    // One strip of face stickers: every passer-by, both bodies, with no row of bodies.
     const shown = (): string[] => within(screen.getByRole("radiogroup", { name: say("ui.door.look") })).getAllByRole("radio").map((one) => one.getAttribute("data-look") ?? "");
     expect(shown()).toEqual(LOOKS.map((one) => one.id));
     expect(screen.queryByRole("button", { name: say("ui.door.body.f") })).toBeNull();
@@ -230,7 +230,7 @@ describe("a life from sixteen built from an archetype", () => {
     const person = readPerson()!;
     // The name prints on the data page itself, as the design's page screen has it, not as a heading in the sheet.
     expect((await screen.findAllByText(person.name)).length).toBeGreaterThan(0);
-    // The page prints the path where the sheet's line used to say it (the design's page: PATH and SO FAR).
+    // The page prints the path, not the sheet (the design's page: PATH and SO FAR).
     expect(screen.getAllByText(say("prologue.archetype.nurse.name")).length).toBeGreaterThan(0);
     const at = (selector: string): number => {
       const found = document.querySelector(selector);

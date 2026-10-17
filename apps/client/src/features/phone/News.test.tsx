@@ -26,7 +26,7 @@ function scammerGame(): { game: Game; offer: string } {
     toKnown(game);
     for (let month = 0; month < 6 && !game.state.chapter.done.includes("chapter.find-your-feet"); month += 1) game.endTurn();
     applyEffects(game, [{ type: "route/hear", route: "route.gulf-contract", via: "test" }]);
-    // going to the stop is an act done at once, so the agent is at the table this month.
+    // R-ACTIVITY-015: going to the stop is an act done at once, so the agent is at the table this month.
     game.accept({ type: "activity/now", activity: "activity.see-agent-stop", param: "route.gulf-contract" });
     const item = Object.values(game.state.offer.items).find((candidate) => candidate.entry === "offer.agent-stop");
     if (item === undefined || !item.secret.fraud) continue;
@@ -77,7 +77,7 @@ describe("a bill missed, as News tells it", () => {
   });
 });
 
-// after landing, a story about getting the visa is not for the character.
+// After landing, a story about getting the visa is not for the character.
 describe("for you in News", () => {
   async function storiesShown(view: ReturnType<typeof abroadView>) {
     await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={() => new Date(2026, 9, 9, 12, 5)} talk={null} />, view);

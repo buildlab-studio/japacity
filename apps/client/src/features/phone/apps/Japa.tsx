@@ -1,5 +1,5 @@
 // Japa (docs/rules/world.md R-WORLD-018, 019): the plan as steps with how ready you are, the japacity
-// figure as a bar that fills (never a percentage on screen), the road's log of briefs handed by the shell (the plan 16),
+// figure as a bar that fills (never a percentage on screen), the road's log of briefs handed by the shell,
 // the route's steps, the papers as a step with their state, and what is coming up (the visa
 // decision, a paper's ready month). The Papers screen inside shows what is in the box under the
 // bed; the papers themselves are a thing at home. Once a visa is granted it names the next step;
@@ -102,7 +102,8 @@ function ChapterSteps({ view }: { view: PlayerView }) {
 
 /**
  * The papers a way's file needs that are not steps of its chapter, each listed before the step it must come before, in
- * the order they are got: the passport first, the TB test last, just before the application.
+ * the order they are got, so the talent file lists the passport and the TB test and the nudge never sends a developer to
+ * the endorsement before either: the passport first, the TB test last, just before the application.
  */
 const FILE_PAPERS: Readonly<Record<string, readonly { item: string; before: string }[]>> = {
   "chapter.build-the-file-talent": [
@@ -267,9 +268,9 @@ function Step({ met, children, way, bar }: { met: boolean; children: string; way
 }
 
 /**
- * Where an unticked step of the route is taken, from the route's words: the licence renewed at the clinic (the eleventh
- * review), each need of the endorsement's own act and place. A paper that runs out says
- * for how long it holds, from its entry (`{months}`: the TB certificate's six).
+ * Where an unticked step of the route is taken, from the route's words: the licence renewed at the clinic, each need of
+ * the endorsement's own act and place. A paper that runs out says for how long it holds, from its entry (`{months}`:
+ * the TB certificate's six).
  */
 export function stepWay(route: Id<"route">, item: { id: string; met: boolean }): { way: string } | Record<string, never> {
   const key = `${route}.item.${item.id}.way`;

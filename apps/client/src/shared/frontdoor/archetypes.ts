@@ -168,7 +168,7 @@ export function handoverKind(archetype: Archetype, life: Pick<PlayerView, "scena
   return say(`prologue.handover.lived.${lived}`);
 }
 
-/** The setting `prologue.full`: every card of the prologue, one answer each, no preset. No screen offers it yet. */
+/** The setting `prologue.full`: every card of the prologue, one answer each, no preset. No screen offers it. */
 export const FULL_PROLOGUE_KEY = "japacity.prologue.full";
 
 export function fullPrologue(storage: Pick<Storage, "getItem"> | null = safeStorage()): boolean {

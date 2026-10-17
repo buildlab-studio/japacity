@@ -1,5 +1,5 @@
-// The card's main button fits its words at 390 px (docs/rules/world.md R-WORLD-006, the fourth
-// review's N11): "Board the plane" with a reason from the world wrapped onto three lines and spilled
+// The card's main button fits its words at 390 px (docs/rules/world.md R-WORLD-006):
+// "Board the plane" with a reason from the world, in one row, would wrap onto three lines and spill
 // out of the 58 px button. A long label and second line stack, the button as tall as they need.
 import type { Currency } from "@japacity/sim";
 import { render } from "@testing-library/react";

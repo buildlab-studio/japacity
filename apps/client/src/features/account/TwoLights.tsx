@@ -1,4 +1,4 @@
-// The two lights (docs/rules/account.md R-ACCOUNT-031), as the design draws them:
+// The two lights (docs/rules/account.md R-ACCOUNT-031):
 // one bulb for the lives at home, one for the lives abroad, on one wire hanging from the top edge over the scene. Each
 // glows with its share; sparks run along the wire toward abroad, and now and then one comes back. Home never goes
 // dark. It is a picture of everyone, never a task: nothing to tap, nothing to switch, no reward, so a line about the

@@ -1,7 +1,7 @@
 // Japa's BUILD THE FILE in the file's order, and a way closed by the news said plainly (docs/rules/world.md R-WORLD-019,
-// route-gates.md R-ENDORSE-003). X1: the talent file listed the portfolio, the endorsement and the
-// application, and neither the passport nor the TB test the application needs. X2: Japa marked every need done while
-// the pandemic had closed every route, and nothing said so. Real content, a developer played through `step`.
+// route-gates.md R-ENDORSE-003): the talent file lists the passport and the TB test the application needs beside the
+// portfolio, the endorsement and the application; and while the pandemic has closed every route, Japa says so rather
+// than mark every need done in silence. Real content, a developer played through `step`.
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

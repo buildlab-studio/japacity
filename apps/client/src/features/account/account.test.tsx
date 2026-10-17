@@ -145,8 +145,8 @@ const START_HOOKS = [
 const ageFields = () => [say("ui.account.age.day"), say("ui.account.age.month"), say("ui.account.age.year")].map((name) => screen.queryByRole("combobox", { name }));
 
 describe("the start screen online", () => {
-  // the hook in two rows, the three steps, Play with
-  // its second line, and the two lights over the scene, where the sentence was.
+  // The hook in two rows, the three steps, Play with its second line, and the two lights over the scene, in place of a
+  // sentence about the game.
   test("[R-ACCOUNT-029] [R-TEXT-006] given a new browser, then the first screen is the start screen over the compound: no title over the figure and the lockup at the head of the sheet, the hook in two rows and the three steps where the sentence was, Play with its second line and I already have a life here, the two lights over the top, and nothing else asked", async () => {
     const account = fakeAccount();
     gate(account);

@@ -1,5 +1,5 @@
 // Calgary's, Dubai's and Castel Volturno's words ride a chunk each (engine.md R-ENGINE-020; world.md R-WORLD-038,
-// R-WORLD-039 as amended): no module of the game imports their tables but the loader, by a dynamic import, and once a
+// R-WORLD-039): no module of the game imports their tables but the loader, by a dynamic import, and once a
 // country's table is added every lookup finds its words.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";

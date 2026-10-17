@@ -1,7 +1,6 @@
-// What is owed, in Bills (docs/rules/world.md R-WORLD-019), moved from the old obligation list
-// (features/obligation/ObligationView.test.tsx): the upkeep's name and this month's charge, and a loan's still owed
-// with its misses counted. The loan's typed amount went with the old form (decision 0038: the phone shows no form);
-// the slip paying this month's part in kobo is phone.test.tsx's "given Bills with a loan due".
+// What is owed, in Bills (docs/rules/world.md R-WORLD-019): the upkeep's name and this month's charge, and a loan's
+// still owed with its misses counted. No amount is typed (decision 0038: the phone shows no form); the slip paying
+// this month's part in kobo is phone.test.tsx's "given Bills with a loan due".
 import { text } from "@japacity/content";
 import { screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";

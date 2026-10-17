@@ -281,7 +281,7 @@ function saysFigureOf(said: string, quality: string): boolean {
 
 /**
  * A route's checklist item as the Japa app says it: content's words, unless they give a quality's figure,
- * which no screen ever shows (R-TEXT-005). Then the
+ * which no screen ever shows (R-TEXT-005; "Tech skill at 75 or more"). Then the
  * item is said by the band its gate opens at, "Strong tech": anyone in that band meets it.
  */
 export function checklistWords(route: Id<"route">, item: string): string {

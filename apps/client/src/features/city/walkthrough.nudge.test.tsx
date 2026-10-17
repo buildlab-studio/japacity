@@ -1,5 +1,5 @@
 // The first chapter's opening as the hand draws it (docs/rules/chapter.md R-CHAPTER-011; world.md R-WORLD-001; design page 13
-// section 4; the plan 13.3 and 16): the first brief is a mission card handed by a person at the hub, in their voice,
+// section 4): the first brief is a mission card handed by a person at the hub, in their voice,
 // with its things, the place of each and one button, Let's go; once carried, its chip stands under the band for a moment,
 // then slides into the Phone thumb, whose Japa app takes a dot. A later chapter's card is the same mission card.
 import { act, fireEvent, screen } from "@testing-library/react";
@@ -23,7 +23,7 @@ describe("the first brief", () => {
       await renderWithView(world(), view);
       const card = document.querySelector<HTMLElement>("[data-brief]");
       expect(card?.dataset["opening"]).toBe(view.chapter.current);
-      // The person handing it, in their voice, and never the chapter's name as a heading (the plan 13.3).
+      // The person handing it, in their voice, and never the chapter's name as a heading.
       expect(card?.querySelector("[data-pill], [data-face]")?.textContent).toContain(say("chapter.find-your-feet.brief.giver"));
       expect(card?.querySelector("[data-brief-title]")?.textContent).toBe(say("chapter.find-your-feet.brief.title"));
       expect(card?.querySelector("[data-brief-title]")?.textContent).not.toBe("Find your feet");

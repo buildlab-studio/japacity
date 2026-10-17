@@ -1,6 +1,6 @@
 // Words for the Friday draw: the kiosk, the draw page and the front page's
 // line (docs/rules/lottery.md). First drafts in the voice of
-// docs/rules/text.md, to be rewritten. ui.ts takes them in whole.
+// docs/rules/text.md. ui.ts takes them in whole.
 export const lotteryWords: Record<string, string> = {
   // The kiosk (R-LOTTERY-006, R-LOTTERY-023)
   "ui.lottery.title": "The Friday draw",

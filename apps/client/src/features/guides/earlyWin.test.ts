@@ -43,7 +43,7 @@ describe("asks wait for the early win", () => {
     let raisedAt: number | null = null;
     for (let month = 1; month <= 3 && raisedAt === null; month += 1) {
       const view = store.getState().view!;
-      // a step that answers now (the hunt, the official page) is sent at once, and its win
+      // R-ACTIVITY-015: a step that answers now (the hunt, the official page) is sent at once, and its win
       // can come with it, before the month ends; the rest fill slots.
       expect(store.getState().earlyWin).toBe(false);
       for (const pick of chapterNextStep(view, content)) await actOnCard(pick, store.getState());

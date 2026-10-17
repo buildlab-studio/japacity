@@ -64,7 +64,7 @@ export function metresBetween(from: Position, to: Position): number {
 
 /**
  * The three ways to a place, each with its fare in kobo and its minutes. The fare is the simulation's own figure for
- * `place/ride` (R-PLACE-010 as amended 12 Oct 2026: the way's flag-down figure plus its figure a kilometre over the
+ * `place/ride` (R-PLACE-010: the way's flag-down figure plus its figure a kilometre over the
  * straight-line distance, in fifties of naira, times the month's factor), read from content's positions of the two
  * places when their ids are given, so what the sheet says is what the ride takes to the kobo; the minutes are the wait
  * plus the straight-line distance at the way's pace.
@@ -75,7 +75,7 @@ export function rideChoices(from: Position, to: Position, country: string | null
   if (country !== null) return [{ id: "danfo", label: mapWords(`map.way.abroad.${country}`), fare: 0, minutes: waitMinutes + ABROAD_MINUTES }];
   const metres = metresBetween(from, to);
   // The month's fares (the fuel scarcity doubles them, R-PLACE-010): the same figure the simulation takes. On foot only within walking distance; past it the walk is shut, so a fare is a real cost.
-  // Home is the exception: a life may always walk home, however far, and the long walk is the cost.
+  // Home is the exception: a life may always walk home, however far, and the long walk is the cost (R-WORLD-017).
   const far = metres > walkMetres;
   const priced = (where: "from" | "to"): Position | null => (ids === null ? (where === "from" ? from : to) : (content.place[ids[where] as keyof typeof content.place]?.position ?? null));
   const ways: RideChoice[] = WAYS.map((id) => ({
@@ -85,7 +85,7 @@ export function rideChoices(from: Position, to: Position, country: string | null
     minutes: waitMinutes + Math.max(1, Math.round(metres / metresPerMinute[id])),
     ...(id === "walk" && far ? (home ? { long: true as const } : { shut: "far" as const }) : {}),
   }));
-  // : while the life's car stands at home, Drive is a way of its own, its fuel the fare by distance as
+  // While the life's car stands at home, Drive is a way of its own, its fuel the fare by distance as
   // the simulation takes it (`place/ride` with `drive`), no wait at a stop, at the pace of the city's traffic.
   if (!drive) return ways;
   const drove: RideChoice = {
@@ -110,7 +110,7 @@ function minutesMetres(at: { from: Position; to: Position }, lonMetresPerE3: num
   return metres > CITY_REACH_METRES ? 0 : metres;
 }
 
-/** The ways abroad the ride sheet can draw and the ride can play (R-WORLD-039 as amended): the bus, the train, the taxi, and on foot. */
+/** The ways abroad the ride sheet can draw and the ride can play (R-WORLD-039): the bus, the train, the taxi, and on foot. */
 const DRAWN_ABROAD: ReadonlySet<RideChoice["id"]> = new Set(["bus", "train", "taxi", "walk"]);
 
 /** The country a ride abroad is in and the stops its employer's shuttle serves (the view's `place.shuttles`, R-PLACE-013). */
@@ -136,7 +136,7 @@ function pillOf(way: RideWayView, country: string | null, shuttle: boolean): str
 }
 
 /**
- * The ways to a place abroad, from the view's `place.ways` (R-PLACE-010 as amended 16 Oct 2026, R-WORLD-039): each priced
+ * The ways to a place abroad, from the view's `place.ways` (R-PLACE-010, R-WORLD-039): each priced
  * by the simulation's own `rideFare` from content's positions of the two places, so the sheet says what the ride takes to
  * the penny; the bus asks nothing in a month the pass is bought (R-PLACE-012). Minutes are the wait plus the straight-line
  * metres at the way's pace as at home, the metres a thousandth of a degree of longitude is worth there read from the way. On foot is

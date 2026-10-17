@@ -1,5 +1,5 @@
-// A bill's slip is dated in the game's own time (docs/rules/world.md R-WORLD-019, R-WORLD-002; the sixth
-// review): the character's age in years and months, as the band shows it, never the real calendar.
+// A bill's slip is dated in the game's own time (docs/rules/world.md R-WORLD-019, R-WORLD-002): the
+// character's age in years and months, as the band shows it, never the real calendar.
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

@@ -1,5 +1,4 @@
-// Where the life is from, on the page and the family card (prologue.md R-PROLOGUE-009, R-PROLOGUE-014, amended 11 Oct
-// 2026): the page prints FROM beside FAMILY as its card turns over, the card's title says
+// Where the life is from, on the page and the family card (prologue.md R-PROLOGUE-009, R-PROLOGUE-014): the page prints FROM beside FAMILY as its card turns over, the card's title says
 // "Family from" the town with its means a tag, and the child of the water is from Lagos. Real content, real draws.
 import { act } from "@testing-library/react";
 import { content } from "@japacity/content";

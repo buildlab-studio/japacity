@@ -78,7 +78,7 @@ describe("the page from the band", () => {
     const sheet = screen.getByRole("dialog", { name: say("prologue.door.page.title") });
     const page = sheet.querySelector<HTMLElement>("[data-page]")!;
     expect(page.querySelector("[data-field='name']")?.textContent).toContain("Morenike");
-    // the page's age is the years with their word; the band keeps years and months.
+    // The page's age is the years with their word; the band keeps years and months.
     expect(page.querySelector("[data-field='age']")?.textContent).toBe(`${say("prologue.page.age")}${say("prologue.page.age.years", { years: yearsOf(ageOf(view)) })}`);
     expect(page.querySelector("[data-field='age']")?.textContent).not.toContain(clockWords(view.qualities));
     expect(page.querySelector("[data-field='path']")?.textContent).toContain(say("scenario.ada.kind"));
@@ -132,7 +132,7 @@ describe("the page from the band", () => {
     fireEvent.click(opener());
     const view = store.getState().view!;
     const page = screen.getByRole("dialog").querySelector<HTMLElement>("[data-page]")!;
-    // the card's title says where the family is; the FAMILY line keeps its means.
+    // R-PROLOGUE-009: the card's title says where the family is; the FAMILY line keeps its means.
     expect(page.querySelector("[data-field='family']")?.textContent).toContain(familyCard({ familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, false).means);
     const months = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
     const lines = stripLines("Morenike", { district: say("ui.door.home.where.family-house"), years: yearsOf(months), percent: view.japacity.percent ?? 0 });

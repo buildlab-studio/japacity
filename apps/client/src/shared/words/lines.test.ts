@@ -108,7 +108,7 @@ describe("a quality's move in words", () => {
   test("[R-TEXT-005] given a quality moved up while its band is low, or down while it is high, when the line is told, then it says the move alone, never a band that reads the other way, and no figure", () => {
     const up = words("line.quality.gain", { quality: "quality.network", points: 2, value: 5 });
     const down = words("line.quality.loss", { quality: "quality.wellbeing", points: 3, value: 95 });
-    // the move as a person notices it, never the quality's name or "up" and "down".
+    // The move as a person notices it, never the quality's name or "up" and "down".
     expect(up).toBe(say("line.quality.told.quality.network.gain"));
     expect(down).toBe(say("line.quality.told.quality.wellbeing.loss"));
     for (const said of [up, down]) expect(said).not.toMatch(new RegExp(`\\b(?:up|down)\\b|${nameOf("quality.network")}|${nameOf("quality.wellbeing")}`, "i"));

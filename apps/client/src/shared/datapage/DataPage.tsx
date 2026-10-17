@@ -7,7 +7,7 @@
 // ink of its own: like the danfo yellow on things in the world, these colours belong to the page and never change with
 // the theme. Never a real number, a coat of arms or an issuing authority, and the country code is the game's own
 // made-up "JPC", never a real one. A faint JAPACITY mark runs across the paper, so a picture of it reads as the game's.
-// Dressed as the door's second design draws it: a card with the navy edge and its underside, the green band over the
+// Dressed as the door draws it: a card with the navy edge and its underside, the green band over the
 // paper, the photo as a white-rimmed sticker set a little crooked, the labels in small spaced capitals of the
 // interface's face and the values larger; the same fields in the same order.
 import type { CSSProperties } from "react";

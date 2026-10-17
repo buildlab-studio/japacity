@@ -49,8 +49,8 @@ describe("an offer out of reach", () => {
 });
 
 describe("the free step", () => {
-  // a life may always walk home, however far, so far from
-  // home the free step is the walk home; "end the month" stays only for a life already at home.
+  // A life may always walk home, however far, so far from
+  // home the free step is the walk home; "end the month" stays only for a life already at home (R-WORLD-017).
   test("[R-WORLD-003] [R-WORLD-017] given Ada with no naira somewhere far from home with nothing on foot, when the nudge is read, then it says to walk home, however far, never a ride she cannot pay; at home with nothing near it says to end the month", () => {
     const view = atTheClinicStep(ada(0));
     const reach: Reach = { here: "place.passport-office", home: "place.family-house", stops: [{ id: "place.passport-office", position: FAR }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }, { id: "place.bode-thomas", position: BODE_THOMAS }] };
@@ -97,7 +97,7 @@ describe("the free step", () => {
     expect(freeStep(view, { here: "place.akoka", home: null, stops: [{ id: "place.akoka", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }] })).toBeNull();
   });
 
-  // away from home the walk home comes first, so the board is named from home.
+  // Away from home the walk home comes first, so the board is named from home.
   test("[R-WORLD-003] given Ada with no naira and no job at home near the hub's board, the step's stop a ride away, when the nudge is read, then it names work nearby and its way is the board", () => {
     const view = atTheClinicStep(ada(0));
     const reach: Reach = { here: "place.family-house", home: "place.family-house", stops: [{ id: "place.family-house", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }, { id: "place.tb-clinic", position: FAR }] };

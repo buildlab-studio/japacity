@@ -1,8 +1,8 @@
 // The money that changes hands, on the results and the Bank's Lately (docs/rules/world.md R-WORLD-008,
-// R-WORLD-019; wallet.md R-WALLET-004, 006, 007, 015). "Kept this month +₦91,000 / +£54"
-// while the band fell by ₦1,228,031, because the FX man's change showed only the pounds that came in. Every
-// change shows both sides, each in its own money, and the figure kept is the simulation's own count: since decision 0021
-// as amended, a change counts for nothing in it either way, and only a bank's charge stays money out.
+// R-WORLD-019; wallet.md R-WALLET-004, 006, 007, 015). Kept must move
+// with the band, so the FX man's change cannot show only the pounds that came in. Every change shows both sides, each
+// in its own money, and the figure kept is the simulation's own count: under decision 0021 a change counts for nothing
+// in it either way, and only a bank's charge stays money out.
 import { content } from "@japacity/content";
 import type { Currency, FlatSave, ReportLine, World } from "@japacity/sim";
 import { int, standInWorld } from "@japacity/sim";

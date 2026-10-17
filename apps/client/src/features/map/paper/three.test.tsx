@@ -1,4 +1,4 @@
-// The painted maps of Calgary, Dubai and Castel Volturno (docs/rules/world.md R-WORLD-038 as amended): each its own fit
+// The painted maps of Calgary, Dubai and Castel Volturno (docs/rules/world.md R-WORLD-038): each its own fit
 // at the country's true shape, its land and water, its cards, every built place of the country as its sticker on its own
 // card, the home sticker at the country's home spot from content, Naples on an inset in Castel Volturno's paper, each
 // its own chunk, and each drawn by the map with the stops kept for a screen reader alone.

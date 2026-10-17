@@ -50,8 +50,8 @@ test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and come
 
   await page.locator('[data-thumb="phone"]').click();
   await expect(page.locator("[data-phone]")).toBeVisible();
-  // The Calendar sits first among the apps since the month lives on the phone (R-WORLD-018), and the Market joined
-  // them with the things a life owns (decision 0041), so eleven.
+  // The Calendar sits first among the apps since the month lives on the phone (R-WORLD-018), and the Market stands with
+  // them for the things a life owns (decision 0041), so eleven.
   await expect(page.locator("[data-app]")).toHaveCount(11);
   await expect(page.locator('[data-app="market"]')).toHaveCount(1);
   await expect(page.locator("[data-app]").first()).toHaveAttribute("data-app", "calendar");
@@ -93,7 +93,7 @@ test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and come
   await page.locator('[data-app="japa"]').click();
   await expect(page.locator('[data-phone-app="japa"]')).toBeVisible();
   await shot(page, "phone-06-japa");
-  // Japa's papers step opens Papers, the box under the bed on the phone.
+  // The Papers app (R-WORLD-019): Japa's papers step opens Papers, the box under the bed on the phone.
   await page.locator("[data-open-papers]").click();
   await expect(page.locator('[data-app-screen="papers"]')).toBeVisible();
   await expect(page.getByText("The box under the bed", { exact: true })).toBeVisible();

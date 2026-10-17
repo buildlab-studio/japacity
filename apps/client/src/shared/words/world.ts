@@ -1,5 +1,5 @@
 // The world's own words (docs/rules/world.md), first drafts in the voice of docs/rules/text.md.
-// Content's table wins over these, so each key can move into content to be rewritten.
+// Content's table wins over these, so each key can move into content and be rewritten there.
 export const worldText: Record<string, string> = {
   "ui.world.end-month": "Sleep",
   "ui.world.map": "Map",
@@ -105,7 +105,7 @@ export const worldText: Record<string, string> = {
   "ui.nudge.broke.racks": "No fare: work the racks",
   "ui.nudge.broke.job": "No fare: find work nearby",
   "ui.nudge.broke.wait": "No fare: end the month",
-  // The care file counts the certificate (R-SPONSOR-005 as amended 11 Oct 2026): named while she can pay it, else the gap.
+  // The care file counts the certificate (R-SPONSOR-005): named while she can pay it, else the gap.
   "ui.nudge.meanwhile.nurse-certification": "Sit the nursing certification at the clinic",
   "ui.nudge.meanwhile.nurse-certification.short": "Find {amount} more for the certification",
   "ui.nudge.meanwhile.nurse-certification.saving": "Payday first, then the certification",
@@ -117,7 +117,7 @@ export const worldText: Record<string, string> = {
   "ui.nudge.hunt-planned": "Applied for better pay. Live the month.",
   // A chapter with every item met closes when the page turns.
   "ui.nudge.chapter-done": "That brief is done. Live the month.",
-  // A set piece staged elsewhere waits there; the player goes to it.
+  // A set piece staged elsewhere waits there; the player goes to it (R-WORLD-006).
   "ui.nudge.setpiece-away": "{what} is at {place}.",
   "ui.nudge.end": "Live the month, or sleep",
   // The world's night (clock.md R-CLOCK-033; decision 0036): the bed's Sleep turns the month.

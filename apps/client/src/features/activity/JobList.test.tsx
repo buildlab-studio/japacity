@@ -75,8 +75,7 @@ describe("the jobs list on the hunt's card", () => {
     }
   });
 
-  // Restated 11 Oct 2026 for R-ACTIVITY-005 as amended: the list keeps its order, and the row
-  // chosen is the life's own trade, Ada's code, where it was the first row.
+  // R-ACTIVITY-005: the list keeps its order, and the row chosen is the life's own trade, Ada's code, not the first row.
   test("[R-WORLD-006] [R-ACTIVITY-005] given the teacher's pay under Ada's living costs, when the list is ordered, then the likely jobs come first, the best paid of them on top, and the row chosen is her own trade's, the junior developer's", async () => {
     const view = engineView();
     const ordered = huntOrder(view, huntOf(view));
@@ -99,7 +98,7 @@ describe("the jobs list on the hunt's card", () => {
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }));
     expect(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }).getAttribute("aria-checked")).toBe("true");
     fireEvent.click(screen.getByRole("button", { name: `${text[`${HUNT}.name`] ?? HUNT}` }));
-    // the hunt is applied for at once, so the job tapped goes with the command sent now and
+    // R-ACTIVITY-015: the hunt is applied for at once, so the job tapped goes with the command sent now and
     // no slot is planned.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: HUNT, param: last }));
     expect(store.getState().plan.some((pick) => pick?.activity === HUNT)).toBe(false);
@@ -153,8 +152,8 @@ describe("the jobs list as picture cards", () => {
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     const rows = within(screen.getByRole("radiogroup", { name: jobsWords("jobs.pick") })).getAllByRole("radio");
     for (const row of rows) {
-      // No radio circle: the drawn marks in a card are the job's picture and the chance gauge (restated 13 Oct 2026:
-      // a card each, ringed when chosen, as the after set's phone-jobs draws the list).
+      // No radio circle: the drawn marks in a card are the job's picture and the chance gauge (a card each, ringed when
+      // chosen, as the after set's phone-jobs draws the list).
       expect(row.querySelector("input")).toBeNull();
       expect(row.querySelector("[data-tile]")?.getAttribute("data-tile")).toBe(row.getAttribute("data-job"));
       const card = row.querySelector("[data-picked], .lively-card");
@@ -189,7 +188,7 @@ describe("the jobs list as picture cards", () => {
     const view = engineView();
     const ordered = huntOrder(view, huntOf(view));
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
-    // the pick the card opens on is the life's own trade.
+    // R-ACTIVITY-005: the pick the card opens on is the life's own trade.
     expect(applyButton().textContent).toBe(`${jobsWords("jobs.apply")}${nameOfJob(firstJob(view, ordered) ?? "")}`);
     const last = ordered.at(-1) ?? "";
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${nameOfJob(last)}`) }));

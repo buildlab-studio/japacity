@@ -1,5 +1,5 @@
-// What came of an answer, on the results (docs/rules/world.md R-WORLD-008): the
-// recruiter's take-home task was taken and no line ever said what came of it. An answer whose choice moves a quality
+// What came of an answer, on the results (docs/rules/world.md R-WORLD-008), so a recruiter's take-home task taken is
+// never left without a line of what came of it. An answer whose choice moves a quality
 // is told in its offer's own words among the month's story. Real content, the offer opened and answered through step.
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";

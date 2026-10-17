@@ -1,4 +1,4 @@
-// The road's log on the phone (the plan 16, "On the phone"): the brief carried now first, as
+// The road's log on the phone: the brief carried first, as
 // it was handed, its things ticked as the world ticks them; behind it the briefs already done, each stamped and told in
 // its giver's closing words; and the next brief faint at the foot. Nothing here is a checklist to work through: each card
 // is a thing a person handed you, with their name on it. The shell hands it to the Japa app, so the phone imports no

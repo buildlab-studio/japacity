@@ -3,7 +3,7 @@
 // its labels outside the curve. Pure: the thing's point, the screen and the count in; the side, the places and the fold out.
 //
 // The curve is half an ellipse about the thing, `rx` across and `ry` tall: a circle of the given radius for a few acts,
-// drawn taller for more, as the mockups of 12 Oct found a true circle cannot hold six buttons with labels beside them on a
+// drawn taller for more, since a true circle cannot hold six buttons with labels beside them on a
 // phone. The buttons stand one pitch apart in height along it, so no label row covers the next, and a drag slides them
 // along the same curve.
 

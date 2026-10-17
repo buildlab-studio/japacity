@@ -1,6 +1,6 @@
 // A workplace with a door (docs/rules/world.md R-WORLD-039): the thing where a job abroad is got (the reception desk, the
 // nurses' station, the clock-in, the desks, the tills, the kitchen door, the courier's bike) is also where it is held.
-// Once the job is the life's, the hunt no longer lists it, so its act would leave the thing; instead the act becomes the
+// Once the job is the life's, the hunt does not list it, so its act would leave the thing; instead the act becomes the
 // shift's own plain act and the thing's label says "On shift". Pure: it reads the things and the job held, nothing else.
 import type { Act, Thing } from "../../shared/world/contract";
 

@@ -1,4 +1,4 @@
-// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018): the month on the phone, in order. The job held; what carries on, each thing started carrying on until it is
+// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018; decision 0034): the month on the phone, in order. The job held; what carries on, each thing started carrying on until it is
 // stopped (R-WORLD-007), a held month's reason among them; the chores done this month and what they saved; what is coming
 // with its months away and where, each row opening where it is dealt with (a paper in Papers, R-WORLD-019). The month
 // turns when it is lived (R-TURN-010), so there is no plan to fill and nothing here ends it. Handed to the phone by the
@@ -80,7 +80,7 @@ export function choresWords(view: Pick<PlayerView, "obligations" | "activities">
 }
 
 /**
- * The month's pass in the country the life is in (place.md R-PLACE-012 as amended): the act that buys it and the line
+ * The month's pass in the country the life is in (place.md R-PLACE-012): the act that buys it and the line
  * that says what it covers, by country: London's bus pass, Calgary's transit pass, Dubai's zone pass. Italy has none.
  */
 const PASSES: Readonly<Record<string, { act: string; line: string }>> = {

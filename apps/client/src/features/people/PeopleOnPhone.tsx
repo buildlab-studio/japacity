@@ -22,7 +22,7 @@ import type { PairApi } from "./pairApi";
 
 /**
  * Who the slot is to the character: "Partner", "Sibling", "Mother", "Father". A sibling's slot carries no number ("Sibling
- * 2" read as a placeholder, ); the name under it tells two siblings apart, as bondName does.
+ * 2" reads as a placeholder); the name under it tells two siblings apart, as bondName does.
  */
 function slotTitle(key: string): string {
   return say(`ui.people.slot.${slotKind(key)}`);

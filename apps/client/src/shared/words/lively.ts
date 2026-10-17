@@ -1,6 +1,6 @@
-// The hand's words (docs/design/13-the-lively-layer.md sections 4, 5 and 7; the design8 and 16):
+// The hand's words (docs/design/13-the-lively-layer.md sections 4, 5 and 7):
 // the brief handed by its person, the chip and the marker, the talk, the toasts. First drafts in the voice of
-// docs/rules/text.md, each speaker in their own register (the plan 8); content's table wins over these.
+// docs/rules/text.md, each speaker in their own register; content's table wins over these.
 export const livelyText: Record<string, string> = {
   // The brief: a title with a wink, the giver, the rewards as picture chips. Never "chapter", "step", "item" or "task".
   "ui.brief.who": "{name}, {where}",
@@ -11,7 +11,7 @@ export const livelyText: Record<string, string> = {
   "ui.brief.next-road": "Next on the road",
   "ui.brief.done": "Done",
   "ui.brief.label": "{title}, from {name}",
-  // The road's log in the Japa app (the plan 16): the briefs handed so far, the one carried now, and the next.
+  // The road's log in the Japa app: the briefs handed so far, the one carried now, and the next.
   "ui.brief.log": "Your briefs",
   "ui.brief.carrying": "Carrying",
   "ui.brief.next": "Next",

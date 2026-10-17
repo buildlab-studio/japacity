@@ -1,5 +1,5 @@
 // The second screen as a first-time player meets it (prologue.md R-PROLOGUE-010, 013), as the
-// door's round 2 draws it: the lives as big sticker cards with the first chosen, each with its tag as a tilted
+// door draws it: the lives as big sticker cards with the first chosen, each with its tag as a tilted
 // chip, its thing and your face, its name, the life in a few words, the one line of what it was and its savings, and
 // under the cards the chosen life's routes as picture chips; the full line of what it opens and the age it starts at
 // is read out with the card; the age under them, and no ready life.
@@ -36,7 +36,7 @@ describe("Your life so far", () => {
       const field = (mark: string): string | null => tile.querySelector(`[${mark}]`)?.textContent ?? null;
       expect(field("data-tile-tag")).toBe(say(`ui.door.tag.${archetype.id}`));
       expect(field("data-tile-name")).toBe(say(`prologue.archetype.${archetype.id}.name`));
-      // The life in a few words, from content (the door's second design).
+      // The life in a few words, from content.
       expect(field("data-tile-life")).toBe(say(`prologue.archetype.${archetype.id}.life`));
       expect(say(`prologue.archetype.${archetype.id}.life`).split(" ").length).toBeLessThanOrEqual(4);
       expect(field("data-tile-was")).toBe(say(`prologue.archetype.${archetype.id}.was`));

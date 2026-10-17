@@ -106,7 +106,7 @@ describe("the fan", () => {
   });
 });
 
-// The fan's own rule, R-WORLD-034, is to be written into docs/rules/world.md; until then these cite R-WORLD-005.
+// The fan's own rule is R-WORLD-034; these tests cite it beside R-WORLD-005.
 describe("R-WORLD-034 the fan's pictures", () => {
   test("[R-WORLD-034] [R-WORLD-005] given a thing fanned, when its buttons show, then each picture is the act's tile cut as the lively sticker", () => {
     fanOf([entry("activity.cook-at-home", { picture: "activity.cook-at-home" })], "cooking-tile");

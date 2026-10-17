@@ -1,4 +1,4 @@
-// The person in Papers, as content names them, moved from the old profile panel: every quality marked shown is named
+// The person in Papers, as content names them: every quality marked shown is named
 // from content and the hidden ones are not, a level content names reads as its name, and at home the qualities that
 // count abroad wait folded while they sit at nothing.
 import { content, text } from "@japacity/content";

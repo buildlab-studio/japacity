@@ -1,5 +1,4 @@
-// The one clock and the one wind every moving thing in the city reads (the decision,
-// 8 Oct 2026). Shaders read them as uniforms; the scene moves them once a frame and nothing else
+// The one clock and the one wind every moving thing in the city reads. Shaders read them as uniforms; the scene moves them once a frame and nothing else
 // runs a loop of its own for a flag, the water or the smoke.
 import { Vector2 } from "three";
 

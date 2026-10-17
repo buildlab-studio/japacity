@@ -66,7 +66,7 @@ declare global {
 
 export interface RideProps {
   way: Way;
-  /** The country's own vehicle the ride plays in (R-WORLD-039 as amended), its lines its own; null for Lagos's ways and London's. */
+  /** The country's own vehicle the ride plays in (R-WORLD-039), its lines its own; null for Lagos's ways and London's. */
   vehicle?: AbroadVehicle | null;
   /** The way's name as the sheet said it ("CTrain", "Metro"); the way's own words when left out. */
   wayName?: string;
@@ -103,9 +103,10 @@ function seatFrom(way: Way): number | null {
 }
 
 /**
- * Where you are as the ride goes (the design): pulling out of the place left for the
+ * Where you are as the ride goes (R-WORLD-017): pulling out of the place left for the
  * first third, a road line through the middle, the stop named near the end. `u` is the ride's progress
- * after the pre-roll, 0 to 1. A road line that names a person is the way's own. Once the danfo's ride cuts from the window to
+ * after the pre-roll, 0 to 1. A road line that names a person is the way's own, so "The driver cuts through a side
+ * street" never plays on an okada, where the driver is the rider. Once the danfo's ride cuts from the window to
  * the seat, the road line moves on to the next, so the two angles never carry the same caption (R-WORLD-032).
  */
 export function alongOf(u: number, seed: number, way: Way, vehicle: AbroadVehicle | null = null): { key: string; needs: "from" | "to" | null } {
@@ -113,7 +114,7 @@ export function alongOf(u: number, seed: number, way: Way, vehicle: AbroadVehicl
   const seat = seatFrom(way);
   const onward = seat !== null && u >= seat ? 1 : 0;
   const road = ((Math.abs(Math.trunc(seed)) + onward) % ROAD_LINES) + 1;
-  // Each vehicle abroad says its own road, every line of it (R-WORLD-039 as amended), as London's bus and train do.
+  // Each vehicle abroad says its own road, every line of it (R-WORLD-039), as London's bus and train do.
   if (u < 0.78 && vehicle !== null) return { key: `map.ride.along.road.${String(road)}.${vehicle}`, needs: null };
   const own = way === "bus" || way === "train" || PERSON_LINES.has(road);
   if (u < 0.78) return { key: own ? `map.ride.along.road.${String(road)}.${way}` : `map.ride.along.road.${String(road)}`, needs: null };
@@ -334,7 +335,7 @@ export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLB
     };
   }, [drawing, way, vehicle, own, ride, pre]);
 
-  // The shuttle's vehicle names itself (the site bus, the van); elsewhere the way as the sheet named it (R-WORLD-039 as amended).
+  // The shuttle's vehicle names itself (the site bus, the van); elsewhere the way as the sheet named it (R-WORLD-039).
   const vehicleName = vehicle === null ? null : `map.vehicle.${vehicle}`;
   const named = vehicleName !== null && mapWords(vehicleName) !== vehicleName ? mapWords(vehicleName) : (wayName ?? mapWords(`map.way.${way}`));
   const title = mapWords("map.ride.to", { way: named, place });

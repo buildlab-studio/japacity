@@ -1,6 +1,6 @@
 // The staged wins in the world (docs/rules/luck.md R-LUCK-008; world.md R-WORLD-008): a month whose lines carry a big one
 // tells it first, in the corner, and the results open once it has passed; a month with none opens its results at once.
-// Moved from the old month page's full-screen moment. The scene is a stand-in that hands the city the taps a player makes.
+// The scene is a stand-in that hands the city the taps a player makes.
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { act, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";

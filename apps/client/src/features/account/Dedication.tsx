@@ -1,5 +1,4 @@
-// The dedication page (docs/rules/account.md R-ACCOUNT-032, rewritten 15 Oct 2026 on the maintainer's calls of 19:5x to 21:0x;
-// pictures `preview/dedication-2/08-the-strings-over-water` and `09-the-strings-with-yours`): a full screen of night over
+// The dedication page (docs/rules/account.md R-ACCOUNT-032; pictures `preview/dedication-2/08-the-strings-over-water` and `09-the-strings-with-yours`): a full screen of night over
 // the lagoon, strings of small lights held up by canoes, the owner's light large on the top string with "soksonjr"
 // under it, and every light anyone has lit along the strings, the approved ones carrying their names. At the top the
 // true count and "on the water tonight"; at the foot content's short line and "Sun re o.", then "Light one for yours"

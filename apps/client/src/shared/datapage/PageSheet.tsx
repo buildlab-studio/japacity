@@ -32,8 +32,8 @@ function nameOf(person: KeptPerson | null, view: Pick<PlayerView, "scenario">): 
 
 /**
  * The years as lived where they went another way than the tile's (R-PROLOGUE-011, 014), else null: the tile's own.
- * While the years still go by the life has lived none of its path, so the page names the tile until they close: a
- * nurse at sixteen read as lived is a trade.
+ * While the years still go by the life has lived none of its path, so the page names the tile until they close: read as
+ * lived, a nurse at sixteen would be a trade.
  */
 function livedOtherwise(archetype: Archetype, view: PlayerView): ReturnType<typeof sixteenPath> {
   if (view.prologue !== null) return null;

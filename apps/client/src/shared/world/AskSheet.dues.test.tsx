@@ -1,6 +1,6 @@
 // The card warns when the month's dues are more than what is left after (docs/rules/world.md
-// R-WORLD-006), played on the real engine: Ada with ₦99,700 and ₦95,000 of
-// living costs due took a ₦15,000 course and the card said only "₦84,700 left". The button stays
+// R-WORLD-006), played on the real engine: Ada with ₦99,700 and ₦95,000 of living costs due takes a
+// ₦15,000 course, and the card says more than "₦84,700 left". The button stays
 // open; only a cost that cannot be paid at all shuts it.
 import type { Currency } from "@japacity/sim";
 import { cleanup } from "@testing-library/react";
@@ -79,7 +79,7 @@ describe("the month's dues on the card", () => {
   });
 
   test("[R-WORLD-006] given a job whose pay arrives before the dues are taken, when what is left after is counted, then the pay counts toward the dues", () => {
-    // the job is started through the engine, so its month's pay is the view's.
+    // R-WALLET-016: the job is started through the engine, so its month's pay is the view's.
     const view = viewAfter(adaGame(9_970_000), [{ type: "activity/start-job", job: "activity.job-teacher" }]);
     const dues = monthDues(view);
     const paying = afterPaying(view, [], [{ currency: "NGN", amount: COURSE }], dues);

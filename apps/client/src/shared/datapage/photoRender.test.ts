@@ -1,7 +1,7 @@
 // The stills drawn of the figure (prologue.md R-PROLOGUE-015): the door's figure in your colours comes back as an object
 // address from an encoding that runs off the main thread, and every still is drawn on one renderer made once, so the
-// figure's shaders compile once a visit, not on every colour (a new colour held the main thread about 110 ms
-// under 4x CPU throttling, the encoding and the compile most of it). The page's photo is kept with the person, so it
+// figure's shaders compile once a visit, not on every colour (a renderer per colour held the main thread about
+// 110 ms under 4x CPU throttling, the encoding and the compile most of it). The page's photo is kept with the person, so it
 // stays an image's data address. The test DOM has no WebGL: the renderer and the canvas's encoders stand in.
 import { BoxGeometry, Group, Mesh, MeshBasicMaterial } from "three";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";

@@ -1,4 +1,4 @@
-// The door's answer is content's (prologue.md R-PROLOGUE-010 as amended 16 Oct 2026, server.md R-SERVER-046): the tile
+// The door's answer is content's (prologue.md R-PROLOGUE-010, server.md R-SERVER-046): the tile
 // with the door's age and home answers every card as content's `presetAnswer` does, the function the server plays; what
 // the door offers is what the server takes; and the longest preset fits in one request.
 import { presetAges, presetAnswer, presetHomes, presetOffered } from "@japacity/content";

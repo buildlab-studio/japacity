@@ -29,10 +29,10 @@ export interface StepWay {
   at: readonly string[];
   /** The step's own card, opened straight from its thing here instead of the thing's list. */
   opens?: string;
-  /** The choice that card opens with: the life's own route on the official page (first). */
+  /** The choice that card opens with: the life's own route on the official page. */
   param?: string;
   /**
-   * The phone app the step is taken in, with `opens` its card there: Papers, for a paper asked for by a call or a message
+   * The phone app the step is taken in, with `opens` its card there: Papers, for a paper asked for by a call or a message.
    * No ride: `go` is null and `at` empty.
    */
   app?: string;
@@ -125,7 +125,7 @@ const STEP_WAYS: Record<string, StepWay> = {
       "place.warehouse-uk:clock-in",
       "place.office-uk:desk",
       // Calgary's jobs notice and its workplaces' doors, Dubai's typing centre and the site's post and trolley, the vans at
-      // Castel Volturno's roundabout and the gangmaster's table in the fields (world.md R-WORLD-039 as amended).
+      // Castel Volturno's roundabout and the gangmaster's table in the fields (world.md R-WORLD-039).
       "place.calgary-north-east:jobs-notice",
       "place.warehouse-ca:clock-in",
       "place.care-home-ca:reception",
@@ -157,7 +157,7 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   if (racksAtHand(view)) return RACKS_WAY;
   // The first chapter's "Look into it" reads the page of the life's own way out, so a nurse leans to care work and not to the master's she read of first (R-CHAPTER-009).
   // It comes before the life's own way to its first steps: that way names the hub's desk with no act, and a tap on the
-  // nudge then offered the desk's chips (the course, the adviser's fee) in place of the free page (the forty-month driver runs, 10 Oct).
+  // nudge then offered the desk's chips (the course, the adviser's fee) in place of the free page.
   const route = ownRoute(view);
   // With no own route heard yet, the page still opens: its picker offers the routes heard (the developer's master's, Canada).
   if (view.chapter.current === FIRST_CHAPTER && step === "known") return { ...HUB_DESK, opens: OFFICIAL_PAGE, ...(route === null ? {} : { param: route }) };
@@ -198,7 +198,7 @@ type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario
 
 /**
  * Where the landing chapter's steps are taken in each country abroad, so the nudge's way goes to the country's own stop
- * and not London's (world.md R-WORLD-039 as amended): the job at Peckham's notice, Calgary's strip mall, Dubai's site (the
+ * and not London's (world.md R-WORLD-039): the job at Peckham's notice, Calgary's strip mall, Dubai's site (the
  * contract's job is held there from the first morning) or the roundabout at Castel Volturno where the vans come; money
  * home at Rye Lane, the strip mall, Deira or the roundabout's call shop.
  */
@@ -295,7 +295,7 @@ const NEED_WAYS: Readonly<Record<string, StepWay>> = {
 /**
  * The first need a shut step's act is missing that has its own words and way (`<own>.needs.<quality>`), or null. A need
  * whose act is already in the month's plan, or carries on in it ("Ongoing", R-WORLD-007), is passed over for the next
- *; with every need's act
+ * (so "Take the coding course at the hub" never stands while the course runs); with every need's act
  * planned, the plan is set and the step says to end the month (`<own>.needs.planned`).
  */
 function needOf(missing: NonNullable<NudgeView["activities"]>[number]["missing"], own: string, has: (key: string) => boolean, planned: readonly string[] = []): { key: string; way?: StepWay } | null {
@@ -377,7 +377,7 @@ const CERTIFICATION = "nurse-certification";
 /**
  * The waiting months' acts by profile (R-ACTIVITY-013): the act a life with nothing else to do is pointed at, where it is
  * offered and not yet planned. The nurse's certification is one again: the care file counts the certificate (R-SPONSOR-005
- * as amended 11 Oct 2026), so the waiting months name it while she can pay it, and its gap while she cannot (R-WORLD-003).
+ *), so the waiting months name it while she can pay it, and its gap while she cannot (R-WORLD-003).
  */
 /** What a waiting-month act reads of the view. */
 type MeanwhileView = Partial<Pick<PlayerView, "activities" | "qualities" | "documents" | "job">>;
@@ -391,7 +391,7 @@ const MEANWHILE: readonly { act: string; fits: (view: MeanwhileView) => boolean 
   { act: "be-noticed", fits: (view) => (view.job?.months ?? 0) >= 6 && view.job?.id !== NURSE_JOB },
 ];
 
-/** Where each waiting-month act is taken (the m18 builders' stagings). */
+/** Where each waiting-month act is taken. */
 export const MEANWHILE_WAYS: Readonly<Record<string, StepWay>> = {
   // The certification's own card on the clinic's notice, one tap (as the meetup's).
   [CERTIFICATION]: { go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"], opens: "activity.nurse-certification" },
@@ -418,7 +418,7 @@ type Said = { key: string; params?: Record<string, string | number>; way?: StepW
 
 /**
  * The waiting-month act's nudge: its own words while the naira held pays it, else its gap and a way to the money, never the
- * act (R-WORLD-003 as decided in m75: a step the player cannot pay says the shortfall). Null: no act fits, or no words.
+ * act (R-WORLD-003: a step the player cannot pay says the shortfall). Null: no act fits, or no words.
  */
 function meanwhileSaid(view: NudgeView, planned: readonly string[], has: (key: string) => boolean): Said | null {
   const act = meanwhileOf(view, planned);
@@ -479,8 +479,8 @@ function wordsOf(stepKey: string): string {
 
 /**
  * The step the nudge names in place of the chapter's own, as the tables' step key, or null for the chapter's own: the
- * care file's (`careDetour`), and the talent file's passport before its TB test, which the test needs (the thirteenth
- * review, Z10: the TB test is never pointed at before the file's other steps are met).
+ * care file's (`careDetour`), and the talent file's passport before its TB test, which the test needs (the TB test is
+ * never pointed at before the file's other steps are met).
  */
 function fileDetour(view: CareView, step: string): string | null {
   if (view.chapter.current === TALENT_DAY && step === "tb") {
@@ -607,7 +607,7 @@ const FILE_PAPERS: readonly { item: string; step: string }[] = [
   { item: "passport", step: PASSPORT_STEP },
   { item: "english", step: ENGLISH_STEP },
 ];
-/** The sponsor step's words while the care window is shut (R-WORLD-003 as amended 11 Oct 2026). */
+/** The sponsor step's words while the care window is shut (R-WORLD-003). */
 const SPONSOR_SHUT = "chapter.build-the-file-care.item.sponsor.shut";
 
 /**
@@ -745,7 +745,7 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
   if (stepKey === "chapter.send-off.departed" && heldFundsOpen(view) && has(`${own}.blocked`)) return { key: `${own}.blocked` };
   if (stepKey === "chapter.build-the-file.english" && planned.includes("activity.sit-english-test") && has(`${own}.started`)) return { key: `${own}.started` };
   // A long shot at the band: the nudge says to study first, as the test's sheet does, instead of sending the player to pay
-  // for a sitting they will most likely fail (the forty-eight-month driver runs, 10 Oct: ten sittings at the fee).
+  // for a sitting they will most likely fail, sitting after sitting at the fee.
   if ((stepKey === "chapter.build-the-file.english" || stepKey === "chapter.build-the-file-points.english") && view.qualities !== undefined && !planned.includes("activity.sit-english-test")) {
     const study = view.activities?.find((candidate) => candidate.id === "activity.study-english");
     if (study?.allowed === true && testChance({ qualities: view.qualities, plan: view.plan }).band === "long") {
@@ -808,7 +808,7 @@ function cheapestFare(view: NudgeView): number {
 /**
  * When nothing can be paid, a free step: the step's stop needs a fare the naira held cannot
  * pay and is too far to walk, so the nudge names what can be done on foot instead: walking home whenever home is not
- * here, however far, then the racks for a
+ * here, however far (a life may always walk home, R-WORLD-017), then the racks for a
  * life in Makoko with no job, a job on a board within reach, and at home the month's end. Null when the step can be
  * reached.
  */
@@ -823,8 +823,8 @@ export function freeStep(view: NudgeView & StepView, reach: Reach, has: (key: st
   if (reach.home !== null && reach.home !== reach.here && has("ui.nudge.broke.home")) return { key: "ui.nudge.broke.home", about: "step", way: { go: reach.home, at: [] } };
   if (jobless && board.includes(RACKS) && onFoot(reach, MAKOKO) && has("ui.nudge.broke.racks")) return { key: "ui.nudge.broke.racks", about: "step", way: RACKS_WAY };
   if (jobless && board.length > 0 && BOARD_STOPS.some((stop) => onFoot(reach, stop)) && has("ui.nudge.broke.job")) return { key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY };
-  // At home with nothing free near (11 Oct 2026, the teacher's ready life stuck with no fare): the month's end is the
-  // step, never a ride that cannot be paid (R-WORLD-003). Away from home the walk home came first.
+  // At home with nothing free near: the month's end is the step, never a ride that cannot be paid (R-WORLD-003). Away
+  // from home the walk home comes first, above.
   if (has("ui.nudge.broke.wait")) return { key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } };
   return null;
 }
@@ -855,8 +855,8 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   const step = stepOf(view);
   if (view.chapter.current !== null && step !== null) {
     const care = CARE_CHAPTERS.has(view.chapter.current);
-    // In the months on the ward, the certification comes first while she can sit it: the care file counts it (the eleventh
-    // review; R-SPONSOR-005 as amended 11 Oct 2026). Short of its fee, the gap.
+    // In the months on the ward, the certification comes first while she can sit it: the care file counts it
+    // (R-SPONSOR-005). Short of its fee, the gap.
     if (care && step === TENURE && meanwhileOf(view, planned) === CERTIFICATION) {
       const said = meanwhileSaid(view, planned, has);
       if (said !== null) return { ...said, about: "step" };
@@ -903,7 +903,7 @@ export const NIGHT = "ui.nudge.night";
 /**
  * The nudge as the world's part of the day reads it: at night, when the body is tired, "Night. Go to bed", unless something
  * more pressing waits on the player (a question asked, a person asking), which the night never covers. A night the body can
- * still take is the player's (the decision 41: nobody is forced to bed; the night has its own things open), so the
+ * still take is the player's (nobody is forced to bed; the night has its own things open), so the
  * nudge stands as it was. By day nothing changes.
  */
 export function atNight<N extends Nudge & { about: NudgeAbout }>(nudge: N | null, part: DayPart, tired: boolean): N | (Nudge & { about: NudgeAbout }) | null {

@@ -1,5 +1,5 @@
 // The screen catalog (pnpm catalog): every screen of the game shot as a player sees it on a phone, laid out on one page
-// for a look against CHECKLIST.md. A tool run by hand after a wave, never part of `pnpm test:browser` (that suite's
+// for a look against CHECKLIST.md. A tool run by hand, never part of `pnpm test:browser` (that suite's
 // config leaves this folder out) nor of `pnpm check`. Pixel 7 at three device pixels to each, WebGL drawn in software as
 // world.spec.ts draws it, against the suite's two dev servers on their own ports. The pictures go outside the
 // repository (where.ts); so does Playwright's own output.

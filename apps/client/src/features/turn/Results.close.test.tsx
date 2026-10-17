@@ -1,4 +1,4 @@
-// The month's close, shrunk (docs/rules/world.md R-WORLD-008; decisions 0035, 0036): the
+// The month's close (docs/rules/world.md R-WORLD-008; decisions 0035, 0036): the
 // results sheet after Sleep leads with payday when there is one, then the rent when it was due, then the moments, then
 // Kept, in up to six lines. What was bought by hand during the month was paid as it was done and is not listed again:
 // no "Done this month", no living line, no relief line at home, no "you rested". The sheet keeps its look.

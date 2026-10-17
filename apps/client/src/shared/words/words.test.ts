@@ -174,7 +174,7 @@ describe("the words the world's sheets borrow", () => {
     expect(say("ui.world.depart-line", { country: say("ui.country.place.country.uk") })).toBe("The visa is in your passport. Board, and the next place is the UK.");
   });
 
-  // the asks say who is asking, never who waits.
+  // The journey, not the wait (text.md R-TEXT-007): the asks say who is asking, never who waits.
   test("[R-WORLD-006] [R-CHAPTER-008] given the send-off asked at the family house, when the asks say who is asking, then Mama is named and home is the place", () => {
     expect(say("ui.world.ask-away.place.family-house")).toBe("Mama is asking for you at home.");
     expect(say("ui.world.ask-away.place.family-house")).toContain(text["family.from.mum"] ?? "-");

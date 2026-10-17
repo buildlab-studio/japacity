@@ -1,4 +1,5 @@
-// How the month's lines are told, on the results and in News alike (docs/rules/world.md R-WORLD-008): a piece for the portfolio counted as a piece, a score or a count said in words, a bill missed with what it
+// How the month's lines are told, on the results and in News alike (docs/rules/world.md R-WORLD-008):
+// a piece for the portfolio counted as a piece, a score or a count said in words, a bill missed with what it
 // cost, a hunt's answer with the job and its pay. In shared/ so the results and the phone's News read one telling.
 import { content, text } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
@@ -90,8 +91,7 @@ function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
 
 /**
  * The month's lines as News tells them: those of what was done mid-month (an agent paid, an ask answered) first, money
- * unpaid leading, each in the results' own words, so News never tells the month another way (R-WORLD-008; the tenth
- * review, W11: a piece for the portfolio was "one of three" on the results and "little work to show" in News). Money is
+ * unpaid leading, each in the results' own words, so News never tells the month another way (R-WORLD-008). Money is
  * told by the results' money lines (`moneyTold`), in or out by its sign: a change at the bank says both sides and the
  * charge, never the wallet's "Changed money". `pays` is the view a hunt's job is paid from.
  */

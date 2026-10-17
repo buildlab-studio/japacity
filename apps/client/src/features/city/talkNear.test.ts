@@ -1,4 +1,4 @@
-// A named speaker who stands as a thing (world.md R-WORLD-026 as the small items wave amends it; the talk budget, design
+// A named speaker who stands as a thing (world.md R-WORLD-026; the talk budget, design
 // page 13 section 5): a line overheard floats over Mama only while she stands near the player's figure, as every voice
 // does; her own words when spoken to, and any act's, are not held by it.
 import { describe, expect, test } from "vitest";

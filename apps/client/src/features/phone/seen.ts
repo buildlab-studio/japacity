@@ -12,8 +12,8 @@ import { papersMarkOf } from "./papers";
 
 export { SEEN_KEY };
 
-// The Calendar sits first among the apps: the month lives on the phone (R-WORLD-002). Papers
-// sits beside Japa: the plan's papers, held and on their way (R-WORLD-019).
+// The Calendar sits first among the apps: the month lives on the phone (R-WORLD-002). Papers sits beside Japa: the
+// plan's papers, held and on their way (R-WORLD-019).
 export const APP_IDS = ["calendar", "bank", "chats", "japa", "papers", "jobs", "market", "lotto", "bills", "news", "settings"] as const;
 export type AppId = (typeof APP_IDS)[number];
 

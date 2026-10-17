@@ -25,7 +25,7 @@ const TABLE: readonly { suffix: string; label: string; act: Act }[] = [
   { suffix: "bld_family-house.glb", label: "scene.thing.house", act: { id: "enter", label: "scene.act.enter", kind: "enter" } },
 ];
 
-// until the places work ships files with `stage.things`, the ten built places get their things from the tables here; this adapter goes when the files land.
+// a place whose file declares no `stage.things` gets its things from the tables here; this adapter goes once every file declares its own.
 /** The things of a place whose file declares none, from the tables: the first copy of each model the tables name. */
 export function tableThings(stage: Pick<Stage, "models">): Thing[] {
   const found: Thing[] = [];
@@ -56,7 +56,8 @@ const MORE_AT: Record<string, readonly string[]> = {
 /**
  * A thing as it stands in a place that borrows another place's room (city.md R-CITY-010, the hub's room in Yaba's
  * way), by `<place>:<thing>`: its own name and acts there, or none to stand empty. The passport office stands in the
- * visa centre's hall until its own is built: its desk takes the passport and nothing of the visa's.
+ * visa centre's hall until its own is built: its desk takes the passport and nothing of the visa's (the passport is a
+ * visit).
  */
 const BORROWED_AT: Record<string, Pick<Thing, "label" | "acts"> | null> = {
   "place.passport-office:desk": { label: "city.thing.passport-desk", acts: [{ id: "passport", label: "activity.get-passport.name", kind: "sheet", stages: "activity.get-passport" }] },
@@ -135,8 +136,7 @@ const AT_THING = 0.05;
 
 /**
  * Where the character walks before an act on a thing lands (R-WORLD-010, R-WORLD-005): the act and its
- * words start at the thing, also when its acts were opened by the nudge with no walk yet (the seventh
- * review). Null when the character already stands there, or the thing has no spot.
+ * words start at the thing, also when its acts were opened by the nudge with no walk yet. Null when the character already stands there, or the thing has no spot.
  */
 export function walkBeforeAct(stage: Pick<Stage, "models">, thing: Pick<Thing, "file" | "copy" | "at">, from: { x: number; z: number }): [number, number] | null {
   const to = walkSpot(stage, thing, from);

@@ -1,6 +1,6 @@
 // The phone's own words (docs/rules/world.md R-WORLD-018, 019), first drafts in the voice of
 // docs/rules/text.md. Content's table wins over these, then the interface's, so each key can move
-// into content to be rewritten.
+// into content to be rewritten there.
 import { text } from "@japacity/content";
 
 import { formatMoney, formatNumber } from "../../shared/words/format";
@@ -189,7 +189,7 @@ export const phoneText: Record<string, string> = {
   "phone.jobs.left": "You quit",
 
   "phone.lotto.next": "Next draw",
-  // The context pill beside an app's name in its head (the notes item 19): a few words of what is there now, never days.
+  // The context pill beside an app's name in its head: a few words of what is there now, never days.
   "phone.context.jobs.open": "{count} open",
   "phone.context.jobs.offer": "1 offer",
   "phone.context.jobs.offers": "{count} offers",

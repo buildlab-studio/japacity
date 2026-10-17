@@ -1,6 +1,6 @@
-// Bank, Lately (docs/rules/world.md R-WORLD-019), played on the real
-// engine: every move of money once, each with one line. The living costs were listed twice (the
-// wallet's line and the bill's "paid this month") and a fare paid mid-month was missing.
+// Bank, Lately (docs/rules/world.md R-WORLD-019), played on the real engine: every move of money
+// once, each with one line. The living costs are listed once, never as both the wallet's line and
+// the bill's "paid this month", and a fare paid mid-month is listed.
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

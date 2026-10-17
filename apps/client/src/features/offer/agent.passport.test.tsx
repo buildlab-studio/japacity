@@ -1,5 +1,5 @@
-// The Dubai agent asks for the passport (docs/rules/advice.md R-ADVICE-006, route-gates.md): he said "Bring ₦1,300,000 and your passport" to a trader who held none, took the fee, and Japa
-// ticked "An agent with a real contract". Paying him needs the passport in hand; until then the ask says it is still
+// The Dubai agent asks for the passport (docs/rules/advice.md R-ADVICE-006, route-gates.md): he never takes "₦1,300,000
+// and your passport" from a trader who holds none while Japa ticks "An agent with a real contract". Paying him needs the passport in hand; until then the ask says it is still
 // needed and the route's agent step stays unticked. Real content.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";

@@ -44,8 +44,8 @@ function play(archetype: Archetype, seed: string, on: typeof content = content):
   return { unnamed, shut, kept, game };
 }
 
-// Plays every archetype over many seeds; under a busy machine (several checks at once) it has passed its five seconds
-// and failed three builders on 11 Oct 2026, so it carries its own longer limit.
+// Plays every archetype over many seeds; on a busy machine (several checks at once) it can pass five seconds,
+// so it carries its own longer limit.
 describe("the archetypes", { timeout: 20_000 }, () => {
   test("[R-PROLOGUE-010] [R-PROLOGUE-012] given every archetype, then there are seven, the child of the water last, and every step and answer it names exists on its step", () => {
     expect(ARCHETYPES.map((archetype) => archetype.id)).toEqual(["developer", "nurse", "accountant", "writer", "trader", "shop-worker", "water"]);

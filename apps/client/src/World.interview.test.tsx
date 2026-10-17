@@ -1,7 +1,6 @@
 // An interview holds the month in the world (docs/rules/interview.md R-INTERVIEW-004; world.md R-WORLD-025, R-WORLD-006): while
 // a question waits, the nudge says something waits and opens the asks with the interview, and the bed's sleep turns no month
-// (the corner says why); once the last answer is in, the sleep ends the month as ever. Moved from the old month page's End
-// month button and its marked month tab. The scene is a stand-in that hands the city the taps a player makes.
+// (the corner says why); once the last answer is in, the sleep ends the month as ever. The scene is a stand-in that hands the city the taps a player makes.
 import { act, cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -106,7 +105,7 @@ describe("the interview holds the month in the world", () => {
     expect(authority.sent.filter((command) => command.type === "turn/end")).toHaveLength(1);
   });
 
-  // Moved from the old month bar (shared/words/plain.test.tsx): a set piece open holds the month in the engine's words.
+  // A set piece open holds the month in the engine's words.
   test("[R-SETPIECE-002] given the December visit or the road's night open, when the bed's sleep is tapped, then the corner says the engine's words and no month turns", async () => {
     for (const entry of [DECEMBER, "setpiece.road-night"] as const) {
       window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));

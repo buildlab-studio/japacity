@@ -124,10 +124,9 @@ export function withPlanned(thing: Thing, plan: readonly (SlotPick | null)[], vi
 
 /**
  * The asks sheet's header (R-WORLD-006): with several asks waiting, which one this is of those still waiting, so the
- * count is what is left. Over a set piece (the exam,
- * the visa interview) nothing: the set piece counts its own questions ("Question 1 of 3") and one counter is enough (the
- * catalog of 16 Oct: "1 of 3" stood over "Question 1 of 3"), never "3 of 3" over its first question once the other asks
- * are answered. Null with one ask left and nothing to count.
+ * count is what is left, never "4 OF 4" over the one ask left. Over a set piece (the exam, the visa interview) nothing:
+ * the set piece counts its own questions ("Question 1 of 3") and one counter is enough, never "1 of 3" over "Question 1
+ * of 3" nor "3 of 3" over its first question once the other asks are answered. Null with one ask left and nothing to count.
  */
 export function askHeader(at: { left: number; index: number; setpiece: Pick<NonNullable<PlayerView["setpiece"]>, "asked" | "total"> | null }): { n: number; count: number } | null {
   if (at.setpiece !== null) return null;

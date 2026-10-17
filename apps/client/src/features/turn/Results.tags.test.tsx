@@ -1,7 +1,6 @@
 // The tags under what was kept (docs/rules/text.md R-TEXT-008, world.md R-WORLD-008): the month's lotto is one down
-// tag and one money row, however many visits the tickets were bought on. Restated 11 Oct 2026 (R-WORLD-008, the
-// a change of money is no longer a tag; it is said by its own line under Kept, both sides as
-// they were (Results.changed.test.tsx), and never again as a tag.
+// tag and one money row, however many visits the tickets were bought on. A change of money is
+// never a tag: it is said by its own line under Kept, both sides as they were (R-WORLD-008, Results.changed.test.tsx).
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { act } from "@testing-library/react";
@@ -27,7 +26,7 @@ describe("the tags under what was kept", () => {
     expect(monthTags(lines)).toEqual([{ id: "lotto", tone: "down", key: "ui.results.tag.lotto", amount: { currency: "NGN", amount: TICKET * 3 } }]);
     const { store } = await renderWithView(<Results place="Home" />, game.view());
     act(() => store.setState({ reportOpen: true, lastMonthLines: now }));
-    // The shrunk close lists no row of money bought by hand: the tickets are said once, by the tag.
+    // The close lists no row of money bought by hand: the tickets are said once, by the tag.
     const lotto = words(LOTTO_TICKETS, { amount: { currency: "NGN", amount: TICKET * 3 } });
     expect(document.querySelector("[data-world-sheet='results']")?.textContent ?? "").not.toContain(lotto);
     const tag = document.querySelector("[data-results-tag='lotto'] [data-tone]");

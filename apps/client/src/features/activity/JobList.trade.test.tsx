@@ -1,7 +1,6 @@
-// The board's pick and the hunt's answer (docs/rules/activity.md R-ACTIVITY-005 as amended 11 Oct 2026; world.md
-// R-WORLD-008): the developer's board opened on customer service every month, and
-// the developer who applied for the junior developer's job with the month full was offered customer service and told
-// nothing of the job asked for. The board opens on the life's own trade, and a sure first hunt that lands another job
+// The board's pick and the hunt's answer (docs/rules/activity.md R-ACTIVITY-005; world.md R-WORLD-008): a developer's
+// board never opens on customer service, and a developer who applies for the junior developer's job is never offered
+// another with nothing said of the job asked for. The board opens on the life's own trade, and a sure first hunt that lands another job
 // says first that the one asked for came to nothing (told on the results: App.oneFigure.test.tsx). Played on the real engine from the tiles' own years.
 import { describe, expect, test } from "vitest";
 

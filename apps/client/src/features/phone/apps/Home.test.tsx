@@ -52,7 +52,7 @@ describe("the home card", () => {
     const said = card()?.textContent ?? "";
     expect(said).toContain(phoneWords("phone.home.place.place.family-house"));
     // Decision 0035: the family's living is bought as you go, so its scenario figure is no charge on the card; the family
-    // house says it as your share for the house, with Papa paying the rest.
+    // house says it as your share for the house, with Papa paying the rest (decision 0040).
     expect(said).toContain(phoneWords("phone.home.charge.by-hand.place.family-house"));
     expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
     expect(moveButton("place.makoko")?.disabled).toBe(false);
@@ -196,7 +196,7 @@ describe("the home card", () => {
     const said = document.body.textContent ?? "";
     expect(said).toContain("The year's rent stays with the landlord.");
     // Decision 0035: back home the living is bought as you go, so the move names no figure a month for it; the house says
-    // it as your share, with Papa paying the rest.
+    // it as your share, with Papa paying the rest (decision 0040).
     expect(said).toContain("Back home: a free roof and Mama's pot. Your share for the house is what you buy as you go, and Papa pays the rest.");
     expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
     unmount();
@@ -271,7 +271,7 @@ describe("the home says what it is", () => {
   });
 
   test("[R-HOME-007] given Ada at the family house with money and three moves open, when Bills opens, then each move is its own row with its picture beside a button as wide as the row, never a narrow pill in a two-column grid", async () => {
-    // The catalog's picture 122 (1b952f4b): the moves' words broken over three or four short lines, the hostel alone in a wide row.
+    // The trap: the moves' words broken over three or four short lines, the hostel alone in a wide row.
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     const { unmount } = await openBills(game);

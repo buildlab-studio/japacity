@@ -1,4 +1,4 @@
-// The month's end in the world, moved from the old month page's head and bar (TurnView, TurnBar): an empty month rests in
+// The month's end in the world: an empty month rests in
 // words; the month ends as the bed's sleep runs out (R-WORLD-025), sending the plan's
 // commitments as they stand on the view's version; a refusal is said in content's words where the month is kept, the
 // Calendar; and the results tell a split payment and a doubled salary once each. The interview's hold on the month is in
@@ -15,10 +15,10 @@ import { Results } from "./Results";
 import { freeTimeWords } from "./turn.words";
 
 describe("the month's end in the world", () => {
-  // The months held are no longer shown (R-CLOCK-007 retired with the months-held card, decision 0034; World.clock.test.tsx).
+  // The months held are not shown (decision 0034; World.clock.test.tsx).
   test("given a new life, then an empty month rests in words", () => {
     const view = engineView();
-    // the free time in words, never a count of slots.
+    // R-WORLD-007: the free time in words, never a count of slots.
     expect(freeTimeWords(0, view.freeSlots)).toBe(say("ui.month.rest"));
   });
 

@@ -18,7 +18,7 @@ export function hrefOf(account: OfficialAccount & { address: string }): string {
   return account.platform === "email" ? `mailto:${account.address}` : `https://${account.address}`;
 }
 
-/** The accounts the maintainer has claimed: only these are listed. */
+/** The accounts the game has claimed: only these are listed. */
 export function listedAccounts(): (OfficialAccount & { address: string })[] {
   return officialAccounts.filter((account): account is OfficialAccount & { address: string } => account.address !== null);
 }

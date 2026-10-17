@@ -121,7 +121,7 @@ export interface GameState {
    * lines, each with the view it came with, so its figure is read from the life as it stood.
    */
   momentCards: MomentShot[];
-  /** How many moment card screens are up: none on the old month page, where no moment is kept. */
+  /** How many moment card screens are up. */
   momentScreens: number;
   /** The share card the player has closed, by `cardKey`, so the scenes after it know it has had its turn. */
   cardClosed: string | null;

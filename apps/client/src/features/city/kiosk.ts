@@ -3,7 +3,7 @@
 // `lottery/buy`. Offline (`view.lottery` null) the act is the luck kiosk's now-act and its slip, as before. Pure.
 import type { PlayerView } from "@japacity/sim";
 
-/** The entry the kiosk's act stages in the place files and the table. */
+/** The entry the kiosk's act stages in the place files and the things' table. */
 export const KIOSK = "activity.play-lotto";
 
 /** True while the world runs the Friday draw, so the kiosk sells its tickets (R-LOTTERY-001). */

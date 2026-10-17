@@ -100,7 +100,7 @@ describe("what an answer moved", () => {
     const land = situationLine(line("line.quality.gain", { quality: "quality.land", points: 1, value: 1 }))!;
     expect(words(land.key, land.params)).not.toMatch(/\d/);
     const portfolio = situationLine(line("line.quality.gain", { quality: "quality.portfolio", points: 1, value: 1 }))!;
-    // The portfolio has band words now, so from nothing it is said by its band (R-TEXT-005).
+    // The portfolio has band words, so from nothing it is said by its band (R-TEXT-005).
     expect(words(portfolio.key, portfolio.params)).toBe(`${say("ui.band.quality.portfolio.0")}.`);
   });
 
@@ -150,7 +150,7 @@ describe("the life from sixteen keeps the story its prologue built", () => {
     expect(storyChip("capital")).toBe("A shop's capital₦6,000,000");
     // Decision 0035 (R-HOME-012): the family's living is bought as you go, so the page names no figure for next month.
     expect(storyChip("home")).toBe("You start in the family house, SurulereFood, water and fares as you go");
-    // the Gulf is heard at the motor park, so a trade's first step is there, not at the meetup.
+    // The Gulf is heard at the motor park, so a trade's first step is there, not at the meetup.
     expect(document.querySelector("[data-first-step]")?.textContent).toBe("Your first step: Ask around at the motor park.");
   });
 

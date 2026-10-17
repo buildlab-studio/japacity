@@ -1,6 +1,6 @@
 // The month's own words in the world (docs/rules/world.md R-WORLD-007, 008): the Calendar app and the
 // results. First drafts in the voice of docs/rules/text.md. Content's table wins over these, so each
-// key can move into content to be rewritten.
+// key can move into content to be rewritten there.
 import { text } from "@japacity/content";
 
 import { countWords } from "../../shared/words/count";
@@ -29,7 +29,7 @@ export const turnText: Record<string, string> = {
   "turn.calendar.chores.drum": "The drum is full",
   // The month's bus pass (place.md R-PLACE-012): the bus asks nothing until the month ends.
   "turn.calendar.pass": "Bus pass bought: the bus is free till the month ends",
-  // Calgary's transit pass and Dubai's zone pass (R-PLACE-012 as amended): each covers the bus and the train.
+  // Calgary's transit pass and Dubai's zone pass (R-PLACE-012): each covers the bus and the train.
   "turn.calendar.pass.country.canada": "Transit pass bought: the bus and the CTrain are free till the month ends",
   "turn.calendar.pass.country.uae": "Zone pass bought: the bus and the metro are free till the month ends",
   "turn.calendar.at": "At {place}",

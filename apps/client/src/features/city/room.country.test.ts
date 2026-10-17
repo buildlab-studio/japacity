@@ -1,4 +1,4 @@
-// The room abroad named per country (world.md R-WORLD-038 as amended, design page 15 section 3): content keeps its full
+// The room abroad named per country (world.md R-WORLD-038, design page 15 section 3): content keeps its full
 // name for each country, and the band says it short enough to stand beside the age (R-WORLD-002).
 import { roomName } from "@japacity/content";
 import { describe, expect, test } from "vitest";

@@ -23,7 +23,7 @@ type LatLon = readonly [number, number];
 /**
  * London's fit: north up, a thousandth of a degree sixteen paper units south and ten east, so the paper keeps
  * London's true shape (a thousandth of a degree of longitude is about 69 m at 51.5 degrees north against 111 m of
- * latitude, R-PLACE-010 as amended). The paper runs from 0.108 to 0.040 west and from 51.520 down to 51.458 north.
+ * latitude, R-PLACE-010). The paper runs from 0.108 to 0.040 west and from 51.520 down to 51.458 north.
  */
 export const LONDON_FIT: Fit = { xLon: 10, xLat: 0, x0: 1080, yLon: 0, yLat: -16, y0: 824320 };
 export const LONDON_PAPER = { width: 680, height: 992 } as const;

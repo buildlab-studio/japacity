@@ -1,4 +1,4 @@
-// The ways a life opens, as picture chips (prologue.md R-PROLOGUE-010, 013; the door's second design): under the lives' deck and
+// The ways a life opens, as picture chips (prologue.md R-PROLOGUE-010, 013): under the lives' deck and
 // on the page after Begin, the picture the table holds for each way and its words.
 import { Tile } from "../tiles/Tile";
 import { StickerChip } from "../ui/lively/StickerChip";

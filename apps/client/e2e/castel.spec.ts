@@ -1,4 +1,4 @@
-// Castel Volturno on the mold in a real browser at phone size (docs/rules/world.md R-WORLD-038, R-WORLD-039 as amended;
+// Castel Volturno on the mold in a real browser at phone size (docs/rules/world.md R-WORLD-038, R-WORLD-039;
 // place.md R-PLACE-010, R-PLACE-013; streets.md R-STREET-015): a life that took the road, played by the sweep's own
 // player, lands on the coast holding the farm's cash job. Italy has no pass, so the bus is paid each time: the van to the
 // fields asks nothing and the gangmaster's table says On shift, the van back to the roundabout asks nothing, the coast
@@ -24,7 +24,7 @@ test("[R-WORLD-039] [R-PLACE-013] [R-STREET-015] given a road life landed at Cas
   await placeReady(page);
   await clear(page);
 
-  // R-WORLD-038 as amended: the coast is a painted map of its own, Naples on its inset; the stops list for a screen reader.
+  // R-WORLD-038: the coast is a painted map of its own, Naples on its inset; the stops list for a screen reader.
   // R-PLACE-013: the van to the fields says €0, the van, plays in the van, and the gangmaster's table says On shift.
   await pickStop(page, "place.farm-it");
   await expect(page.locator("[data-paper-map]").first()).toBeAttached();

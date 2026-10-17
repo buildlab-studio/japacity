@@ -64,7 +64,7 @@ describe("the picker's cards and money", () => {
     const view = engineView("scenario.ada");
     const first = 2_500_000;
     const second = naira(view) - first;
-    // only month-acts are planned, each once, so the plan
+    // Only month-acts are planned, each once (R-ACTIVITY-015, R-WORLD-007), so the plan
     // that pays is a course and then a second month-act beside it (decision 0035: two that still take the month).
     expect([CERTIFICATE, MASTERS].every((id) => plannable(id))).toBe(true);
     const { store } = await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(CERTIFICATE, first), offered(MASTERS, first), offered(TB, second)] });
@@ -97,7 +97,7 @@ describe("the picker and a pick that fills no slot", () => {
     const UK = "route.uk-masters";
     const view = viewAfter(newGame("scenario.tunde"), [{ type: "route/hear", route: UK, via: "test" }]);
     const { store, authority } = await renderWithView(<ActivityPicker only={[FRIEND]} />, view);
-    // rest is never planned, so the free time is filled with month-acts.
+    // Rest is never planned (R-TURN-006), so the free time is filled with month-acts.
     const month = view.activities.filter((option) => option.allowed && option.params === null && plannable(option.id)).map((option) => option.id);
     act(() => {
       for (const activity of month.slice(0, view.freeSlots)) store.getState().addToPlan({ activity, param: null });
@@ -106,7 +106,7 @@ describe("the picker and a pick that fills no slot", () => {
     const button = addButton(FRIEND);
     expect(button.disabled).toBe(false);
     fireEvent.click(button);
-    // the word of someone who went is asked at once, so a full month never shuts it and it
+    // R-ACTIVITY-015: the word of someone who went is asked at once, so a full month never shuts it and it
     // is sent now rather than planned.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: FRIEND, param: UK }));
   });

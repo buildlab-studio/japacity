@@ -16,7 +16,7 @@ import { type Point, toPaper } from "./fit";
 import { useTiles } from "./useTiles";
 import { World } from "./World";
 
-/** The cut's stage, the phone the maintainer's page is drawn for; the scene scales it to the screen. */
+/** The cut's stage, the phone size the design is drawn for; the scene scales it to the screen. */
 const STAGE = { width: 390, height: 844 } as const;
 /** How many screen pixels a paper unit takes: the paper fills the screen above the airport, Ikeja's streets under it. */
 const ZOOM = 1.5;

@@ -50,7 +50,7 @@ describe("the chapter's checklist in Japa", () => {
 });
 
 describe("the chapter ahead", () => {
-  // which chapter follows is the engine's answer (chapter.plan.test.ts); Japa reads the view's.
+  // R-CHAPTER-010: which chapter follows is the engine's answer (chapter.plan.test.ts); Japa reads the view's.
   test("[R-CHAPTER-010] given the care file closing at the month's end, when the chapter ahead is read, then it is the chapter the view names next, its steps not yet marked", () => {
     const items = content.chapter["chapter.build-the-file-care"]!.items.map((item) => ({ id: item.id, met: true }));
     const ahead = chapterAhead({ current: "chapter.build-the-file-care", items, done: ["chapter.find-your-feet"], closes: true, next: "chapter.decision-day-care" });

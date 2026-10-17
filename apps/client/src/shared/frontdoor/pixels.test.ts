@@ -13,7 +13,7 @@ describe("the door's pixels", () => {
     expect(doorPixels(1)).toBe(1);
     expect(doorPixels(undefined)).toBe(1);
     expect(doorPixels(Number.NaN)).toBe(1);
-    // The account's scene keeps its canvas; the door's turntable is gone (the door's second design): its figure in
+    // The account's scene keeps its canvas; the door has no turntable: its figure in
     // the player's colours is a still drawn once, antialiased, at the published figure's own pixels.
     for (const file of ["FrontScene.tsx"]) {
       const source = readFileSync(join(import.meta.dirname, file), "utf8");

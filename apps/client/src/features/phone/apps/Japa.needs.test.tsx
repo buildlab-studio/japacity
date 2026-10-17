@@ -1,7 +1,7 @@
 // Each step of the file not yet met names its act and its place in Japa (docs/rules/world.md R-WORLD-019,
-// route-gates.md R-ENDORSE-001). Z7: "Strong tech" and "People who will write for
-// you" stood unticked with no act named. Z10: the TB line said "At the clinic, once the passport is held" and nothing
-// of the six months it lasts. Real content, a developer played through `step`.
+// route-gates.md R-ENDORSE-001): "Strong tech" and "People who will write for you" never stand unticked with no act
+// named, and the TB line says the six months it lasts, not only "At the clinic, once the passport is held". Real
+// content, a developer played through `step`.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

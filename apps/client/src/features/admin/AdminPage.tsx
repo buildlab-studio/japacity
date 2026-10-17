@@ -62,8 +62,8 @@ export function AdminPage({ api, tab: first = "money" }: { api: AdminApi; tab?: 
             {words("admin.back")}
           </a>
         </div>
-        {/* The tabs wrap to a second row on a phone: in one scrolling row the last ones ran off the edge with no sign
-            ("An..."). */}
+        {/* The tabs wrap to a second row on a phone: in one scrolling row the last ones would run off the edge with no
+            sign. */}
         <div role="tablist" aria-label={words("admin.tabs")} className="mx-auto flex max-w-[90rem] flex-wrap gap-x-1 px-4">
           {ADMIN_TABS.map((id) => (
             <button

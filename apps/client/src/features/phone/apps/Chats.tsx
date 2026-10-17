@@ -45,8 +45,7 @@ const PHRASES = conversationPhrases();
 
 /**
  * The people a chat is open with: a player on the other side of a pair, or a computer partner. A bond that ended keeps
- * its thread through the month it ended in, its head saying so, and then it goes (people.md R-PEOPLE-042, decided 11 Oct
- * 
+ * its thread through the month it ended in, its head saying so, and then it goes (people.md R-PEOPLE-042).
  */
 export function chatPeople(view: ReturnType<typeof useView>): BondView[] {
   return view.people.bonds.filter((bond) => (bond.stage !== "ended" || endStillTold(view, bond)) && (bond.pair !== null || (bond.role === "partner" && bond.person !== null)));

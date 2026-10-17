@@ -1,9 +1,9 @@
 // Peckham rebuilt as one frontage on Rye Lane (city.md place.peckham, world.md R-WORLD-011): the
 // shops across the road with the grocer's produce out front and the hair shop beside it, and on the
 // near pavement the bus stop and a bench. It is the hub abroad in London; the community act is staged
-// in the room abroad, not here. Restated 16 Oct 2026 for London on the Lagos mold (design page 14,
-// world.md R-WORLD-039, streets.md R-STREET-005 as amended): the stalls went to Rye Lane and each job
-// went to its own workplace's door, so the notice and the agency start the hunt and the grocer is looked at.
+// in the room abroad, not here. London is on the Lagos mold (design page 14, world.md R-WORLD-039, streets.md
+// R-STREET-005): the stalls are on Rye Lane and each job is at its own workplace's door, so the notice and the agency
+// start the hunt and the grocer is looked at.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -98,7 +98,7 @@ describe("Peckham", () => {
   });
 });
 
-// Work at Peckham (restated 16 Oct 2026 for R-WORLD-039): the jobs notice by the grocer and the
+// Work at Peckham (R-WORLD-039): the jobs notice by the grocer and the
 // job agency's stand start the hunt, whose card names every job open to the player; each UK job is got and held at its
 // own workplace (the tills, the kitchen door, the courier's bike, the reception, the nurses' station, the clock-in, the desks).
 describe("Peckham's jobs", () => {
@@ -147,7 +147,7 @@ describe("Peckham's jobs", () => {
   });
 
   test("[R-WORLD-005] given Ada in London on a graduate visa, when the hunt's jobs are read, then the warehouse job is among them, a tap at the warehouse's clock-in names it on the hunt's card, and the agency still opens the hunt", () => {
-    // a student's hunt asks for none of its jobs. Open work brings them.
+    // A student's hunt asks for none of the agency's jobs; open work brings them.
     const view = viewAfter(recordedGame("ada-careful"), [{ type: "status/grant", status: "status.uk-graduate" }]);
     const jobs = view.activities.find((option) => option.id === "activity.job-hunt")?.params ?? [];
     expect(jobs).toContain("activity.job-uk-warehouse");

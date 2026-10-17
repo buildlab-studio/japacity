@@ -1,4 +1,4 @@
-// The asks, on the real engine and the real content: each answer says what it
+// Asks on the real engine and the real content: each answer says what it
 // paid for and what happened (docs/rules/world.md R-WORLD-008), the burial's slot is held the month
 // its ask says (R-WORLD-007), the aunty's gift shows its risk before it is taken, and the savings
 // circle is never offered to a life on its way out (R-WORLD-003).
@@ -125,7 +125,7 @@ describe("the aunty's $500", () => {
     const lines = answer(game, AUNTY, "thank");
     expect(game.state.wallet.lots).toContainEqual(expect.objectContaining({ currency: "USD", amount: 50_000, reason: "gift" }));
     expect(told(lines)).toContain(text[`${AUNTY}.said.thank`]);
-    // the money sits; the player does not wait.
+    // The journey, not the wait (text.md R-TEXT-007): the money sits; the player does not wait.
     expect(text[`${AUNTY}.said.thank`]).toContain("Ask her for a note saying it was a gift, or let it sit three months before you apply.");
   });
 

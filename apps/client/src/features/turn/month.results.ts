@@ -157,7 +157,7 @@ const PAYDAY: ReadonlySet<string> = new Set(["line.activity.salary", "line.walle
 /** Rent paid as the month turns: a room's, a flat's, a bed space's. */
 const RENT = "line.wallet.rent";
 
-/** The most lines the month's close holds, Kept among them (12 Oct 2026: up to six lines). */
+/** The most lines the month's close holds, Kept among them. */
 export const CLOSE_MAX = 6;
 /** The fewest moments it keeps room for, however much pay and rent lead. */
 const MOMENTS_MIN = 2;
@@ -191,12 +191,12 @@ function alwaysTold(line: ReportLine): boolean {
   return CHORES.has(line.key) || line.key === CASH_WARNING || KIOSK_DRAW.has(line.key);
 }
 
-/** A route whose application has gone in: its papers no longer need warning of. */
+/** A route whose application has gone in: its papers need no warning. */
 const SENT: ReadonlySet<string> = new Set(["applying", "granted", "departed"]);
 
 /**
- * The papers the plan's way out reads that run out within two months while its application is not sent (the thirteenth
- * review, Z10: the TB certificate ran out unseen, ₦120,000 gone): one line each on the results, the soonest first.
+ * The papers the plan's way out reads that run out within two months while its application is not sent, so none runs
+ * out unseen: one line each on the results, the soonest first.
  */
 export function runningOut(view: Pick<PlayerView, "documents" | "month" | "routes" | "plan" | "japacity" | "place">): { document: string; expiresMonth: number }[] {
   if (view.place.where !== "home") return [];
@@ -219,7 +219,7 @@ const CHANGE_SIDES: ReadonlySet<string> = new Set([CHANGED, CHANGED_OUT, CHANGED
 
 /**
  * What was kept in each currency the lines moved: in less out, in the order each first appears. A change of money
- * counts for nothing either way (decision 0021 as amended, R-WORLD-008): its two sides are left out, and only the
+ * counts for nothing either way (decision 0021, R-WORLD-008): its two sides are left out, and only the
  * bank's charge stays as money out, as the wallet counts the month (R-WALLET-015), counted once: its own line, or the
  * change's line when it is too small to show. An FX man's short count is its own line, money out.
  */
@@ -369,7 +369,7 @@ export function foldLotto(lines: readonly MoneyLine[]): MoneyLine[] {
   return lines.flatMap((entry) => (entry === first ? [folded] : isLotto(entry) ? [] : [entry]));
 }
 
-/** The line under Kept for each change of money in the month (R-WORLD-008 as amended 11 Oct 2026). */
+/** The line under Kept for each change of money in the month (R-WORLD-008). */
 export const CHANGED_INTO = "ui.results.changed-into";
 
 /** One change of money, both sides as they were: what was paid in (the bank's charge with it) and what came in. */
@@ -379,8 +379,7 @@ export interface ChangeInto {
 }
 
 /**
- * Each change of money in the month, in the order made, both sides as they were (R-WORLD-008, amended 11 Oct 2026;
- * a change counts for nothing in the kept figure (decision 0021), so it is said under Kept
+ * Each change of money in the month, in the order made, both sides as they were (R-WORLD-008): a change counts for nothing in the kept figure (decision 0021), so it is said under Kept
  * on its own line, "Changed ₦806,930 into £561", naira into pounds or dollars or back, at the bank or with the FX man.
  * A change whose foreign side waits in the bank's queue is told by its own line when paid in and is not one here, since
  * only one side is on the month's lines.

@@ -54,14 +54,14 @@ async function playing(view: PlayerView = engineView("scenario.tunde")) {
 describe("the interface counters", () => {
   test("[R-ANALYTICS-002] given the world, when the phone's apps are opened, then each opening counts its screen once, keyed by the feature that leads it", async () => {
     await playing();
-    // The world is the game (R-WORLD-001): the old page's tabs are the phone's apps (R-WORLD-018).
+    // The world is the game (R-WORLD-001): the life's screens are the phone's apps (R-WORLD-018).
     const phoneThumb = await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 });
     const openApp = async (id: string) => {
       fireEvent.click(await waitFor(() => found(`[data-app="${id}"]`)));
       fireEvent.click(await screen.findByRole("button", { name: phoneWords("phone.back") }));
     };
     fireEvent.click(phoneThumb);
-    // The month plan the old page opened on is the Calendar app (R-WORLD-018).
+    // The month's plan is the Calendar app (R-WORLD-018).
     await openApp("calendar");
     await openApp("chats");
     await openApp("bank");

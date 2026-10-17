@@ -132,7 +132,7 @@ describe("Settings names the ways in (R-ACCOUNT-027, R-ACCOUNT-024)", () => {
       await mount(account, <AccountSettings account={account} />);
       for (const line of shown) expect(await screen.findByText(line)).toBeDefined();
       for (const line of hidden) expect(screen.queryByText(line)).toBeNull();
-      // the maintainer, 16 Oct 2026: a code to that address simply works, so nothing says it does.
+      // A code to that address simply works, so nothing says it does.
       expect(screen.queryByText(/also opens/)).toBeNull();
       cleanup();
     }

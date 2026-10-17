@@ -70,8 +70,8 @@ describe("staging", () => {
     expect(reportHere(view, "place.rye-lane", places)).toEqual([]);
   });
 
-  // Restated 16 Oct 2026 to R-CITY-010 and design page 15 (the three countries' wave): the country-less test centre and
-  // workplace are gone from content, since every job and test abroad is staged at a place of its own country.
+  // No country-less test centre or workplace is in content: every job and test abroad is staged at a place of its own
+  // country (R-CITY-010, design page 15).
   test("[R-CITY-010] [R-WORLD-038] given the places serving every country, when each country's map is read, then the country-less test centre and workplace are no longer places, the room stands everywhere, and each country's own places stand on its map", () => {
     const of = (id: Id<"place">) => {
       const place = content.place[id];

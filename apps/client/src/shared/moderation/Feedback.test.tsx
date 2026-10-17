@@ -1,5 +1,4 @@
-// The team's corner (docs/rules/moderation.md R-MODERATION-007, 016, 020), moved from the old menu's moderation corner
-// (features/moderation/moderation.test.tsx): the feedback box and the notice. Their two rows in the phone's Settings
+// The team's corner (docs/rules/moderation.md R-MODERATION-007, 016, 020): the feedback box and the notice. Their two rows in the phone's Settings
 // are features/phone/apps/Settings.moderation.test.tsx.
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";

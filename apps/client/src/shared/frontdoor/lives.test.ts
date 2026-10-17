@@ -1,4 +1,4 @@
-// The door's pictures (prologue.md R-PROLOGUE-009, 013; the door's second design): every look the door offers has its face, its
+// The door's pictures (prologue.md R-PROLOGUE-009, 013): every look the door offers has its face, its
 // whole figure and its cheer published from the shooter; every life's thing is a model's published tile; every way a
 // tile opens has a picture; every home has its picture, the room as the game draws it or a model's tile.
 import { readFileSync } from "node:fs";

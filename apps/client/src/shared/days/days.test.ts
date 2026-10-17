@@ -1,4 +1,4 @@
-// The month passes as the player moves (docs/rules/world.md R-WORLD-030, amended for the lived month): the day is
+// The month passes as the player moves (docs/rules/world.md R-WORLD-030, for the lived month): the day is
 // read from the view's halfDays, the share of the month's free time the acts have spent, never past the month, and
 // the lines each month-act says of itself, on the real content and the real engine through the real store.
 import { activitySignals, content } from "@japacity/content";
@@ -34,7 +34,7 @@ const MONTH_ACTS_FREE = [
   "activity.overtime",
 ];
 
-// Decision 0035 (R-ACTIVITY-019): the coding course now answers at once and repeats, so it is never planned; the course
+// Decision 0035 (R-ACTIVITY-019): the coding course answers at once and repeats, so it is never planned; the course
 // that carries on as a commitment is a master's at home, whose lines come in its first and third weeks as the course's did.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 /** A nap: an act that spends a morning of the month's free time and costs nothing. */
@@ -112,7 +112,7 @@ describe("the lines each month-act says of itself", () => {
 
 describe("the days of the month", () => {
   test("[R-WORLD-030] given a new month, when a ride is accepted or a course planned, then the days do not move; when acts spend the month's free time, the day is the share of it spent", async () => {
-    // Decision 0035, with R-WORLD-030 as amended for the lived month (decision 0034): the day is read from the view's
+    // Decision 0035, with R-WORLD-030 for the lived month (decision 0034): the day is read from the view's
     // halfDays; a ride and a plan spend none of it, the acts that answer at once do.
     const store = await adaStore();
     const stop = watchDays(store);
@@ -134,7 +134,7 @@ describe("the days of the month", () => {
   });
 
   test("[R-WORLD-030] given acts that spend the whole month's free time and more, when the days are counted, then they stop at four weeks and never pass the month", async () => {
-    // Decision 0035, with R-WORLD-030 as amended (decision 0034): the days are the view's time spent, so it is acts, not
+    // Decision 0035, with R-WORLD-030 (decision 0034): the days are the view's time spent, so it is acts, not
     // rides, that fill them; once the free time is spent the night falls and the month waits for Sleep (decision 0036).
     const free = (await adaStore()).getState().view!.halfDays.free;
     expect(dayOfView({ halfDays: { spent: free, free } })).toBe(DAYS_IN_MONTH);
@@ -161,7 +161,7 @@ describe("the days of the month", () => {
   test("[R-WORLD-030] given days gone this month, when the page is turned, then the next month starts at its first day", async () => {
     const store = await adaStore();
     const stop = watchDays(store);
-    // Decision 0035, with R-WORLD-030 as amended (decision 0034): the days go as the acts spend the month's time.
+    // Decision 0035, with R-WORLD-030 (decision 0034): the days go as the acts spend the month's time.
     await liveUntil(store, 2);
     expect(day()).toBe(2);
     const month = store.getState().view!.month;
@@ -173,7 +173,7 @@ describe("the days of the month", () => {
   });
 
   test("[R-WORLD-030] given the days counted, when the store is watched twice, then each move still counts once", async () => {
-    // Decision 0035, with R-WORLD-030 as amended (decision 0034): the day is the view's share of the time spent, so two
+    // Decision 0035, with R-WORLD-030 (decision 0034): the day is the view's share of the time spent, so two
     // watches read the same day, and with no watch left nothing is kept.
     const store = await adaStore();
     const first = watchDays(store);
@@ -192,7 +192,7 @@ describe("the days of the month", () => {
 describe("a planned course tells of itself on its day, at home", () => {
   test("[R-WORLD-030] given a master's course planned, when the days pass, then its first line comes the day after and its second in its third week", async () => {
     // Decision 0035: the course that carries on is the master's at home; the days pass as the acts spend the month's
-    // time (R-WORLD-030 as amended, decision 0034), so planning takes no day and a ride passes none.
+    // time (R-WORLD-030, decision 0034), so planning takes no day and a ride passes none.
     const store = await adaStore();
     const stop = watchDays(store);
     const [house, other] = twoStops();
@@ -236,7 +236,7 @@ describe("a planned course tells of itself on its day, at home", () => {
     const stop = watchDays(store);
     const [house, other] = twoStops();
     store.getState().addToPlan({ activity: COURSE, param: null });
-    // Decision 0035, with R-WORLD-030 as amended (decision 0034): a day passes as the acts spend the month's time.
+    // Decision 0035, with R-WORLD-030 (decision 0034): a day passes as the acts spend the month's time.
     await liveUntil(store, 1);
     const view = store.getState().view!;
     const waiting = waitingSignals(currentDays()!, view, store.getState().plan);

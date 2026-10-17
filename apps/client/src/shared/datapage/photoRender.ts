@@ -22,7 +22,7 @@ const QUALITIES = [0.9, 0.8, 0.7] as const;
 
 /**
  * The one renderer every still is drawn on, made on first use and kept for the visit, so the figure's shaders compile
- * once and not on every colour. One context
+ * once and not on every colour (a renderer of its own each draw would compile them again each time). One context
  * of the few a phone holds, and its buffer at the largest still's size, kept beside the world's own.
  */
 let shared: { canvas: HTMLCanvasElement; renderer: WebGLRenderer } | null = null;

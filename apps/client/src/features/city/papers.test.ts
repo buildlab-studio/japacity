@@ -1,5 +1,5 @@
 // The papers box opens the phone's Papers app (docs/rules/world.md R-WORLD-019): one
-// source for what is in the box, and no sheet of its own. Restated from the box's look line and its sheet of papers.
+// source for what is in the box, and no sheet of its own.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

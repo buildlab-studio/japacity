@@ -38,8 +38,8 @@ export function StartHook({ heading = true }: { heading?: boolean }) {
           {rows}
         </p>
       )}
-      {/* The whole game in three steps, an icon and a word each: a label strip to read, nothing a hand would press
-         , so no chip, no fill and no press. */}
+      {/* The whole game in three steps, an icon and a word each: a label strip to read, nothing a hand would press,
+          so no chip, no fill and no press. */}
       <ol className={`${heading ? "mt-3" : "mt-1.5"} label flex items-center gap-2 text-text-2`} aria-label={say("ui.account.start.steps")} data-start-steps>
         {STEPS.map((step, i) => (
           <li key={step.word} className="flex items-center gap-2">

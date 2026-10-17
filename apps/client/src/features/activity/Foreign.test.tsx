@@ -1,7 +1,6 @@
-// A cost in another money (docs/rules/world.md R-WORLD-006; wallet.md R-WALLET-009). the
-// endorsement costs £561 and its card said "You cannot pay for this now" and "Cannot be paid now" with ₦2,110,450
-// in the bank, never that it needs pounds or where to get them. The bank's queue was up, so the naira leg of a
-// foreign fee was refused (R-WALLET-009). The card says the money and the way. Played on the real engine.
+// A cost in another money (docs/rules/world.md R-WORLD-006; wallet.md R-WALLET-009): the endorsement costs £561, and
+// while the bank's queue is up the naira leg of a foreign fee is refused (R-WALLET-009), so with ₦2,110,450 in the bank
+// the card must not say only "You cannot pay for this now". It says the money and the way. Played on the real engine.
 import { content } from "@japacity/content";
 import type { ActivityOption, PlayerView, World } from "@japacity/sim";
 import { standInWorld } from "@japacity/sim";
@@ -30,7 +29,7 @@ function endorsement(pounds: number): { view: PlayerView; option: ActivityOption
   const view = game.view();
   const option = view.activities.find((entry) => entry.id === ENDORSE);
   if (option === undefined) throw new Error("The view has no endorsement.");
-  // Its needs met, as at 23 years 10 months in the review: only the money stands in the way.
+  // Its needs met, as at 23 years 10 months: only the money stands in the way.
   return { view, option: { ...option, allowed: true, missing: [] } };
 }
 

@@ -1,6 +1,6 @@
-// The move to Makoko told once, with its rent (docs/rules/home.md R-HOME-002, world.md R-WORLD-008; the eleventh
-// review): the results and the Bank said "Living costs: ₦25,000." for the move and again at the month's end,
-// after a sheet that said "The first month is paid now", and News only "Home is Makoko now."
+// The move to Makoko told once, with its rent (docs/rules/home.md R-HOME-002, world.md R-WORLD-008): never
+// "Living costs: ₦25,000." for the move and again at the month's end on the results and the Bank, and never News
+// with only "Home is Makoko now."
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

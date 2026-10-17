@@ -1,4 +1,5 @@
-// Home's send-off answered with the party (docs/rules/chapter.md R-CHAPTER-008): the sheet closes, the scene cuts to the yard dressed for the party, and the party's own line
+// Home's send-off answered with the party (docs/rules/chapter.md R-CHAPTER-008): the sheet
+// closes, the scene cuts to the yard dressed for the party, and the party's own line
 // stands over it for a beat. The scene itself needs WebGL and is not drawn here; its dressing is.
 import { text } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";

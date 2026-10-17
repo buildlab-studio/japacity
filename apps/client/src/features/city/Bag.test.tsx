@@ -118,7 +118,7 @@ describe("what is packed on top", () => {
 
 describe("the tag and the probe", () => {
   test("[R-WORLD-031] [R-WORLD-029] [R-JAPACITY-003] given the figure, when the tag is drawn, then it carries the figure as the band would, and with no route yet it carries none", () => {
-    // The words pass: the figure alone, as the rise's "+N" says it, never a percentage.
+    // The figure alone, as the rise's "+N" says it, never a percentage.
     expect(tagWords(0)).toBe("0");
     expect(tagWords(41)).toBe("41");
     expect(tagWords(100)).toBe("100");

@@ -1,5 +1,5 @@
 // Calgary, Dubai and Castel Volturno on the mold (docs/design/15-the-three-countries-on-the-mold.md; world.md R-WORLD-039
-// as amended, streets.md R-STREET-013 to R-STREET-015, place.md R-PLACE-012 as amended): each country's frontages with
+//, streets.md R-STREET-013 to R-STREET-015, place.md R-PLACE-012): each country's frontages with
 // their things, its workplaces with a door, the interiors it shares with London under its own entry and its own stage
 // file, its colleagues' lines in turn and the talk overheard in every place.
 import { readFileSync } from "node:fs";

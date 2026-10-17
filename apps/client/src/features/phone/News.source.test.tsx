@@ -1,4 +1,5 @@
-// News on the phone names where each story was heard, and marks a rumour as a rumour.
+// News on the phone names where each story was heard, and marks a rumour as a rumour (docs/rules/news.md R-NEWS-001,
+// R-NEWS-004).
 import { content } from "@japacity/content";
 import type { NewsStage } from "@japacity/sim";
 import { fireEvent } from "@testing-library/react";

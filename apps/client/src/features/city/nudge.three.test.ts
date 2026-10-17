@@ -1,4 +1,4 @@
-// The landing chapter's steps in each country abroad (world.md R-WORLD-003, R-WORLD-039 as amended): the nudge's way goes
+// The landing chapter's steps in each country abroad (world.md R-WORLD-003, R-WORLD-039): the nudge's way goes
 // to the country's own doors, the strip mall's notice and Calgary's workplaces, the site's post and trolley, the vans at
 // the roundabout and the gangmaster's table, and money home to each country's counter.
 import { describe, expect, test } from "vitest";

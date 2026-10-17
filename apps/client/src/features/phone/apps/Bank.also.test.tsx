@@ -1,5 +1,5 @@
-// The Bank's other money says where it is held (docs/rules/world.md R-WORLD-019):
-// "Also held: £81" did not say whether the pounds were cash or in the bank, and the band shows only the naira.
+// The Bank's other money says where it is held (docs/rules/world.md R-WORLD-019): a bare "Also held: £81" would not say
+// whether the pounds are cash or in the bank, and the band shows only the naira.
 import { describe, expect, test } from "vitest";
 
 import { newGame, viewAfter } from "../../../shared/testing/fixtures";

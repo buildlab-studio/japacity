@@ -50,7 +50,7 @@ describe("the official page in Japa", () => {
     expect(button?.querySelector("[data-official-free]")?.textContent).toBe("Free");
     expect(phoneWords("phone.japa.official", { route: runningName(UK) })).not.toMatch(/\./);
     fireEvent.click(button!);
-    // the official page is read at once: the command goes now, nothing is planned, and
+    // R-ACTIVITY-015: the official page is read at once: the command goes now, nothing is planned, and
     // the phone says the page's line.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: OFFICIAL, param: UK }));
     expect(store.getState().plan).not.toContainEqual({ activity: OFFICIAL, param: UK });
@@ -63,7 +63,7 @@ describe("the official page in Japa", () => {
   });
 
   test("[R-ADVICE-002] [R-ACTIVITY-015] given every slot already planned, when the official page is tapped, then it is read all the same, since it fills no slot, and nothing is planned", async () => {
-    // the page was a slot pick, refused with "the month is full"; it is an act done at once now.
+    // R-ACTIVITY-015: the page is an act done at once, never a slot pick refused with "the month is full".
     const view = adaHeard();
     const { store, authority } = await openJapa(view);
     act(() => {
@@ -76,7 +76,7 @@ describe("the official page in Japa", () => {
   });
 
   test("[R-WORLD-002] given a held paper that runs out, when the Papers app opens, then it says how long it is valid, with no month number", async () => {
-    // the papers moved from a screen inside Japa to their own app.
+    // The papers are an app of their own, not a screen inside Japa.
     const view = richView();
     const held = view.documents.find((paper) => paper.state === "held" && paper.expiresMonth !== null);
     if (held === undefined || held.expiresMonth === null) throw new Error("No held paper that runs out.");
@@ -123,8 +123,8 @@ describe("a paper being renewed in Japa", () => {
   });
 });
 
-// Japa after the grant and after the flight (docs/rules/world.md R-WORLD-019, the review's finding
-// 28): once granted it names the next step; once flown it shows the visa held, what it lets you do,
+// Japa after the grant and after the flight (docs/rules/world.md R-WORLD-019): once granted it names
+// the next step; once flown it shows the visa held, what it lets you do,
 // and the landing chapter's steps, never "Ready to go".
 describe("Japa after the grant and the flight", () => {
   const LANDING = "chapter.landing";
@@ -175,7 +175,7 @@ describe("Japa after the grant and the flight", () => {
   });
 });
 
-// one name for the readiness figure, Japacity, glossed where the figure shows.
+// One name for the readiness figure, Japacity, glossed where the figure shows.
 describe("the figure's one name", () => {
   test("[R-WORLD-019] [R-TEXT-005] given a life with no way out yet, when Japa opens, then its head names the figure Japacity and never says ready to go", async () => {
     const view = newGame("scenario.ada").view();

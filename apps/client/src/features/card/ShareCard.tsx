@@ -251,9 +251,8 @@ export function ShareButton({ card, scenario, stub = null, device = browserDevic
 }
 
 /**
- * The card named as the band names the character (share.md R-SHARE-004 as amended 16 Oct 2026), read from the card's face
- * (`bandName`), the one source the send-off scene reads too: the band said "Adaeze" while the card said "Ada" (catalog
- * 1b952f4b, pictures 141, 168, 169).
+ * The card named as the band names the character (share.md R-SHARE-004), read from the card's face (`bandName`), the
+ * one source the send-off scene reads too, so the band and the card never name her two ways ("Adaeze" and "Ada").
  */
 export function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard {
   if ((card.name ?? "").trim() !== "") return card;
@@ -265,7 +264,7 @@ export function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard 
  * A card with its share button; at the send-off, the card and the ticket stub side by side to pick from
  * (R-SHARE-001: the stub is due beside the send-off card, and the player picks which to share). Given a `foot` (the
  * screenshot's hint and Close over the dimmed world), the share button stands with it on a ground of its own, never
- * printed over what lies under the dim (over the phone's icons).
+ * printed over what lies under the dim, such as the phone's icons.
  */
 function CardToShare({ card: due, scenario, type, seat = null, foot = null, note = null }: { card: ShareCard; scenario: Id<"scenario">; type: JapaType | null; seat?: Seat | null; foot?: ReactNode; note?: ReactNode }) {
   const [picked, setPicked] = useState<"card" | "stub">("card");
@@ -424,7 +423,7 @@ function CardScreen({ open, onClose, card, scenario, type, seat }: { open: boole
       {/* R-WORLD-001: one tap on the dimmed world dismisses the moment; the face and its buttons keep their taps. */}
       <button type="button" aria-label={say("ui.card.dismiss")} onClick={onClose} className="absolute inset-0 cursor-default" data-card-scrim />
       {/* The face, its picker and its foot scroll inside the screen's height, so on a short screen nothing stands above the
-          top edge out of reach (the picker above the screen), the foot held at the bottom. */}
+          top edge out of reach, the foot held at the bottom. */}
       <div className="relative flex max-h-full w-full flex-col items-center gap-3 overflow-y-auto overscroll-contain" onClick={(event) => event.stopPropagation()} data-card-screen>
         <InDialog value>
           <CardToShare

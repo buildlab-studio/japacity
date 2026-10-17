@@ -31,8 +31,8 @@ export async function passHomeTeach(page: Page, timeout = 4000): Promise<void> {
 }
 
 /**
- * A tap on a thing: on its quiet mark, or, where the step's marker stands on it in the mark's place (R-WORLD-003, amended
- * 13 Oct 2026), on the thing itself where the scene draws it.
+ * A tap on a thing: on its quiet mark, or, where the step's marker stands on it in the mark's place (R-WORLD-003),
+ * on the thing itself where the scene draws it.
  */
 async function tapThing(page: Page, thing: string): Promise<void> {
   const mark = page.locator(`[data-mark="${thing}"]`);
@@ -49,7 +49,7 @@ async function tapThing(page: Page, thing: string): Promise<void> {
     await mark.click({ timeout: 10_000, force: true });
     return;
   }
-  // The step's marker over the thing takes the tap (R-WORLD-003 as amended 13 Oct 2026), so nobody standing in front of it does.
+  // The step's marker over the thing takes the tap (R-WORLD-003), so nobody standing in front of it does.
   const markerTap = page.locator(`[data-marker-tap="${thing}"]`);
   if (await markerTap.isVisible().catch(() => false)) {
     await markerTap.click({ force: true });
@@ -153,7 +153,7 @@ export async function passMomentCard(page: Page, seen?: () => Promise<void>): Pr
 
 /** Every card standing over the world passed, until none is left. */
 export async function passCards(page: Page, seen?: () => Promise<void>): Promise<void> {
-  // The first brief's card may still be coming (R-CHAPTER-011 as amended 16 Oct 2026): wait for it before looking.
+  // The first brief's card may still be coming (R-CHAPTER-011): wait for it before looking.
   await cardsSettled(page);
   for (let passed = 0; passed < 6 && (await passMomentCard(page, seen)); passed += 1) await page.waitForTimeout(300);
 }

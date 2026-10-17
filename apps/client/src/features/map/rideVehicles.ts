@@ -1,6 +1,6 @@
-// The vehicles a ride abroad plays in, beyond London's (world.md R-WORLD-039 as amended 16 Oct 2026; design page 15 section
-// 6): Calgary's bus, the CTrain car and the taxi; Dubai's metro car, its city bus, the labour bus to the site and the taxi;
-// Castel Volturno's coast road bus and the gangmaster's van to the fields. Each with its model, the seat the models wave
+// The vehicles a ride abroad plays in, beyond London's (world.md R-WORLD-039; design page 15 section 6): Calgary's bus,
+// the CTrain car and the taxi; Dubai's metro car, its city bus, the labour bus to the site and the taxi; Castel
+// Volturno's coast road bus and the gangmaster's van to the fields. Each with its model, the seat its model's build
 // gives in the turned model's own frame (facing +z, the kerb and the window on -x: these countries drive on the right, so
 // the ride keeps the right-hand lane), its size until the model arrives, and the land its street runs through.
 import type { RideChoice } from "../../shared/world/contract";
@@ -30,7 +30,7 @@ export interface VehicleSpec {
   land: RideLand;
 }
 
-// The seats as the models wave exported them (assets-src/veh/<vehicle>/build.ts): CALGARY_BUS_SEAT, CTRAIN_SEAT,
+// The seats as the models' builds export them (assets-src/veh/<vehicle>/build.ts): CALGARY_BUS_SEAT, CTRAIN_SEAT,
 // METRO_SEAT, LABOUR_BUS_SEAT, TAXI_SEAT, ITALY_BUS_SEAT and VAN_SEAT. A test holds them equal.
 const CALGARY_BUS_SEAT: RideSeat = { eye: [-0.86, 1.6, -2.61], window: [-6, 1.2, 0.49], ahead: [-0.4, 1.4, 11.99] };
 const CTRAIN_SEAT: RideSeat = { eye: [-1.04, 2.2, -7.72], window: [-8, 1.9, -4.5], ahead: [-0.6, 2, 6] };
@@ -62,7 +62,7 @@ export const VEHICLES: Readonly<Record<AbroadVehicle, VehicleSpec>> = {
 };
 
 /**
- * The vehicle a way rides in, in the country the life is in (R-WORLD-039 as amended): the bus to or from a stop the
+ * The vehicle a way rides in, in the country the life is in (R-WORLD-039): the bus to or from a stop the
  * employer's shuttle serves is the labour bus in the UAE and the van in Italy (place.md R-PLACE-013); null for Lagos's
  * ways and London's, which keep their own.
  */

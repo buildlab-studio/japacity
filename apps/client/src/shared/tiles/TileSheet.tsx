@@ -1,5 +1,5 @@
 // `?tiles` in development: every tile of the table on one page, by kind, the stand-ins marked, for checking the
-// pictures by eye and for the build notes' contact sheet. Never in a player's build (main.tsx asks only in development).
+// pictures by eye and for a contact sheet. Never in a player's build (main.tsx asks only in development).
 import { standIns, TILE_TABLE } from "./tiles.data";
 import { Tile } from "./Tile";
 

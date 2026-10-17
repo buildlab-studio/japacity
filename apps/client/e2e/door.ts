@@ -23,7 +23,7 @@ export async function passOpeningWords(page: Page, timeout = 4_000): Promise<voi
 }
 
 /**
- * The first brief's card waits for the place's first frame (R-CHAPTER-011 as amended 16 Oct 2026) and the city marks the
+ * The first brief's card waits for the place's first frame (R-CHAPTER-011) and the city marks the
  * wait with `[data-brief-pending]` from the moment the band stands: a card is looked for only once that mark is gone, so
  * a card still coming never stands over the next tap. Where no world comes the waits end on their own.
  */

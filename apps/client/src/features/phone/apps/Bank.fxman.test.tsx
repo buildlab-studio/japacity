@@ -1,7 +1,7 @@
-// The FX man's sheet (docs/rules/world.md R-WORLD-006): it said "After, you hold
-// ₦791,419 and £615" over a button "₦0 left", because its line counted the bank and the cash while the FX man is paid
-// in cash. The line and the button read the same money, what is held to pay with where the act is paid, and what is
-// left of it is said once, on the button. Real content, a real life at home.
+// The FX man's sheet (docs/rules/world.md R-WORLD-006): the FX man is paid in cash, so a line that counts the bank and
+// the cash would say "After, you hold ₦791,419 and £615" over a button "₦0 left". The line and the button read the same
+// money, what is held to pay with where the act is paid, and what is left of it is said once, on the button. Real
+// content, a real life at home.
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";

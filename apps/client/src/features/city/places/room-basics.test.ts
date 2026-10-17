@@ -29,14 +29,14 @@ const ROOMS = [
   { name: "the room in a compound", file: compound, place: "place.compound-room" },
 ] as const;
 /**
- * The rooms seen down their length. The homes at home are wide floors seen whole straight down their length (R-WORLD-029 as
- * the home's wave asks it amended), tested in homes.test.ts.
+ * The rooms seen down their length. The homes at home are wide floors seen whole straight down their length (R-WORLD-029),
+ * tested in homes.test.ts.
  */
 const DOWN_ITS_LENGTH = ROOMS.filter((one) => one.place === "place.the-room");
 const COOK = "activity.cook-at-home";
 /** A meal of your own in a room you rent. */
 const OWN = "activity.cook-own";
-/** The room abroad's meal in pounds (home.md R-HOME-012 as amended 16 Oct 2026; streets.md R-STREET-012). */
+/** The room abroad's meal in pounds (home.md R-HOME-012; streets.md R-STREET-012). */
 const OWN_UK = "activity.cook-own-uk";
 const HOME = { where: "home", country: null } as const;
 const WATER = "activity.fetch-water";

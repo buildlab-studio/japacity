@@ -1,5 +1,5 @@
 // A card's title in the plain face (docs/rules/share.md R-SHARE-004):
-// in the display caps "A CHAPTER CLOSES" and "THE SEND-OFF" read hard on a phone, as the word mark did.
+// in the display caps "A CHAPTER CLOSES" and "THE SEND-OFF" read hard on a phone, as the word mark would.
 import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen } from "@testing-library/react";

@@ -1,6 +1,6 @@
-// The credit file abroad in the Bank (docs/rules/credit.md R-CREDIT-006, R-CREDIT-007): moved from the old credit panel
-// (CreditView), which nothing mounted once the world became the month's page. The mark, the counts, a judgment and when it
-// clears, and what the next ten points buy are the Bank's card abroad; the month it clears is said as months away (R-WORLD-002).
+// The credit file abroad in the Bank (docs/rules/credit.md R-CREDIT-006, R-CREDIT-007): the mark, the counts, a
+// judgment and when it clears, and what the next ten points buy are the Bank's card abroad; the month it clears is said
+// as months away (R-WORLD-002).
 import type { PlayerView } from "@japacity/sim";
 import { screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";

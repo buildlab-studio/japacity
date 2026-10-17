@@ -55,7 +55,7 @@ describe("the moment card over the results", () => {
   });
 
 
-  // Review 14, X9: the results line, the moment card and the old chapter card told one close three times.
+  // A chapter's close is told once: by the results line and the moment card, never again by its share card.
   test("[R-MOMENT-006] [R-SHARE-001] given Ada's month that closes a chapter (her recorded life), when the moment card has told it over the results, then the chapter's share card never opens after it, and it is kept in the gallery", async () => {
     const save = recordedSave("ada-careful");
     const game = recordedGame("ada-careful", save.commands.length - CLOSE);

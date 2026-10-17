@@ -1,6 +1,5 @@
-// Bills in a month no instalment is taken (docs/rules/world.md R-WORLD-019, R-WORLD-002; the seventh
-// review's note): tuition said "Taken at the month's end." in months when none was taken. It now says
-// when the next one comes, as months away.
+// Bills in a month no instalment is taken (docs/rules/world.md R-WORLD-019, R-WORLD-002): tuition says
+// when the next one comes, as months away, never "Taken at the month's end." in a month none is taken.
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

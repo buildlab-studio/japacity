@@ -29,7 +29,7 @@ function cost(option: ActivityOption | undefined): number {
 
 describe("a shut button's reason", () => {
   test("[R-WORLD-006] given the passport and the transcript on one sheet and the transcript asked for this month, when the passport is short, then its line and its button say the same short figure", async () => {
-    // the transcript is asked for at once and paid then, so the passport is short by what is left after it.
+    // R-ACTIVITY-015: the transcript is asked for at once and paid then, so the passport is short by what is left after it.
     const game = newGame("scenario.ada");
     setPockets(game, { NGN: 8_940_000 });
     const transcript = cost(game.view().activities.find((option) => option.id === TRANSCRIPT));
@@ -56,7 +56,7 @@ describe("a shut button's reason", () => {
     expect(sitting?.missing).toEqual([{ type: "document/held", document: "document.passport" }]);
     await renderWithView(<ActivityPicker only={[ENGLISH_TEST]} />, view);
     expect(addButton(ENGLISH_TEST).disabled).toBe(true);
-    // Restated for the card's "Not yet:" list says the passport once; the shut button says only "Not yet".
+    // The card's "Not yet:" list says the passport once; the shut button says only "Not yet".
     expect(buttonLine(ENGLISH_TEST)).toBe(say("ui.needs.not-yet"));
     expect(addButton(ENGLISH_TEST).querySelector("[data-after]")?.getAttribute("data-after")).toBe("needs");
     const card = addButton(ENGLISH_TEST).closest("li")?.textContent ?? "";
@@ -69,7 +69,7 @@ describe("a shut button's reason", () => {
     await renderWithView(<ActivityPicker only={[ADVISER, OFFICIAL]} />, view);
     for (const id of [ADVISER, OFFICIAL]) {
       expect(addButton(id).disabled).toBe(true);
-      // Restated for the card says once, above, that it needs a route; the button says only "Not yet".
+      // The card says once, above, that it needs a route; the button says only "Not yet".
       expect(buttonLine(id)).toBe(say("ui.needs.not-yet"));
       const card = addButton(id).closest("li")?.textContent ?? "";
       const missing = view.activities.find((option) => option.id === id)?.missing ?? [];

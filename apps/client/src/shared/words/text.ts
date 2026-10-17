@@ -89,7 +89,7 @@ const QUALITY_LINE_PARAMS = ["quality", "points", "band"];
 /** Lines about a route's school or funds count in pounds. */
 const POUND_LINES = "line.route.";
 
-/** True when a bare number in this line is money, by the old name guess. */
+/** True when a bare number in this line is money, guessed from the param's name. */
 export function isBareMoney(name: string, params: Params): boolean {
   if (!MONEY_PARAMS.has(name)) return false;
   return !QUALITY_LINE_PARAMS.some((param) => param in params);

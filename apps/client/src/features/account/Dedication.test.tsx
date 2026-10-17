@@ -1,4 +1,4 @@
-// The dedication page (docs/rules/account.md R-ACCOUNT-032, rewritten 15 Oct 2026) and naming a light of the player's
+// The dedication page (docs/rules/account.md R-ACCOUNT-032) and naming a light of the player's
 // own in place (R-ACCOUNT-033); world.md R-WORLD-023 for the stillness. The server is a stand-in handed to the shared
 // lights module, as the shell's would be.
 import { DEDICATION_NICKNAME, DEDICATION_SHORT } from "@japacity/content";

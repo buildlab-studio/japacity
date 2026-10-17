@@ -124,8 +124,8 @@ function AmountPicker({ min, max, value, onChange }: { min: number; max: number;
 /**
  * An ask that may be a scam (an entry with a fraud share: the road's pitch, the message that says you have won, a sponsor
  * that may not be one) has no main button: every answer is plain, so the player reads before choosing, and the answers
- * that cost nothing come first, the way to say no before the way to pay (advice.md R-ADVICE-006, world.md R-WORLD-006,
- * amended 11 Oct 2026).
+ * that cost nothing come first, the way to say no before the way to pay (advice.md R-ADVICE-006, world.md R-WORLD-006):
+ * a quick hand never pays a deposit from a yellow button.
  */
 export function mayBeScam(offer: Pick<Offer, "entry">): boolean {
   return (content.offer[offer.entry]?.fraudBp ?? 0) > 0;
@@ -150,7 +150,7 @@ export function askerOf(offer: Pick<Offer, "entry">): string {
   return ASKER_BY_GROUP[content.offer[offer.entry]?.group ?? ""] ?? say("ui.ask.someone");
 }
 
-/** The ask's title: content's, in the asker's voice; content shortens each to a few words (to be rewritten). */
+/** The ask's title: content's, in the asker's voice; content shortens each to a few words. */
 export function askTitle(offer: Offer): string {
   return words(`${offer.entry}.title`, offerParams(offer));
 }

@@ -1,4 +1,4 @@
-// The context pill in the app heads (the notes item 19; docs/rules/world.md R-WORLD-018):
+// The context pill in the app heads (docs/rules/world.md R-WORLD-018):
 // the phone's contract carries a few words of what is there now, drawn as a pill beside the app's name; Jobs, Lotto, Bills
 // and Bank fill it from the view, and nothing counts days.
 import type { PlayerView } from "@japacity/sim";
@@ -43,7 +43,7 @@ describe("the context pill's words", () => {
   });
 
   test("[R-WORLD-018] given jobs open on the board and no offer, when Jobs opens, then its screen counts the same jobs the pill counts and never says there is nothing", async () => {
-    // The catalog's picture 119 (1b952f4b): the pill said "8 open" over "No job offers right now."
+    // The trap: the pill saying "8 open" over "No job offers right now."
     const base = engineView();
     const hunt = { id: "activity.job-hunt", allowed: true, params: ["activity.job-a", "activity.job-b", "activity.job-c"] } as unknown as PlayerView["activities"][number];
     const view: PlayerView = { ...base, activities: [hunt], offers: [] };

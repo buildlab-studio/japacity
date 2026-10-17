@@ -1,4 +1,4 @@
-// The one short line a way in leaves over the world (R-ACCOUNT-023, amended as the AL wave proposes): "Kept with
+// The one short line a way in leaves over the world (R-ACCOUNT-023): "Kept with
 // Google" once a guest's life is kept, "Signed in with your email" once a kept life is signed back in to. The sign-in
 // sheet closes as the life opens, so its welcome is handed here and told once the world is up; the keeping sheet hands
 // its line here as it closes. One store for each account seam, as standing.ts keeps the account.

@@ -35,8 +35,7 @@ const MEANS_TONE: Record<"low" | "middle" | "high", Tone> = { low: "down", middl
 
 /**
  * The family the game drew (R-PROLOGUE-002) as a two-line card: where it is from as the title, "Family from Enugu"
- * (amended 11 Oct 2026, the decision of 14:47; the decision of 16:22 and review 14, X5: the place of origin, never
- * where the parents live), with its means and its ups and downs as small tags.
+ * (the place of origin, never where the parents live), with its means and its ups and downs as small tags.
  * `hometown` is the view's (`hometown.<slug>`); where none is known yet the means stand as the title. The child of the
  * water grew up on the lagoon (R-PROLOGUE-012): its own title in place of the town and the means.
  */

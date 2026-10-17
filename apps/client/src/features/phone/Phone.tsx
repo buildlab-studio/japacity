@@ -41,8 +41,8 @@ export const TOLD_LANE = "h-[calc(100dvh-max(8px,env(safe-area-inset-top))-max(8
 
 /**
  * What an app's act did, told over the handset in the corner's own look (R-WORLD-026), in a lane of its own just above the
- * handset: never inside the glass, where it sat on the Jobs and Market icons and on Send money home (
- * pictures 149 and 150). Above the handset at rest is the dimmed world under the band; grown, the room it leaves.
+ * handset: never inside the glass, where it would sit on the app icons or on Send money home. Above the handset at rest
+ * is the dimmed world under the band; grown, the room it leaves.
  */
 function Told() {
   const { lines } = useLines();
@@ -278,7 +278,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                     {/* The pill stands beside the name, and drops under it where the phone at rest has no room for both. */}
                     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5">
                       <h2 className="shrink-0 text-[24px] leading-tight font-bold">{app.name}</h2>
-                      {/* What is there now (the notes item 19). */}
+                      {/* What is there now (R-WORLD-018). */}
                       {app.context === undefined || app.context === null ? null : (
                         <span className="pill max-w-full px-2.5 py-0.5 text-[13px] font-bold whitespace-nowrap" data-app-context>
                           <span className="truncate">{app.context}</span>

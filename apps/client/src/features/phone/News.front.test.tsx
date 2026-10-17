@@ -1,6 +1,5 @@
 // The front of News on the phone (docs/rules/news.md R-NEWS-001, R-NEWS-004; director.md R-DIRECTOR-002; lottery.md
-// R-LOTTERY-016), moved from the old news list (features/news: NewsView, Era, EraMonths, Drawn and Source tests) with
-// each assertion against the News app: the era with its months, the last Friday draw, the empty line, the stories and
+// R-LOTTERY-016), each assertion against the News app: the era with its months, the last Friday draw, the empty line, the stories and
 // where each was heard. The era's months are said as months ago and from now, never a month's number (world.md R-WORLD-002).
 import { content, text } from "@japacity/content";
 import type { LotteryResult, PlayerView } from "@japacity/sim";

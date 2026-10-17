@@ -1,4 +1,4 @@
-// The Market (the design): the things for the home as a grid of
+// The Market (docs/rules/home.md R-HOME-013): the things for the home as a grid of
 // sticker tiles of the very models that land in the room, each with one line of what it does and its price on the
 // yellow pill. A card picked is ringed; the foot says the balance before struck through and after, and one yellow button
 // buys it: "Delivered at once: a rider at the gate, a slip", the coin, and the thing stands in the room when the phone
@@ -145,7 +145,7 @@ export function Market({ here = null }: { here?: string | null }) {
                 <span className="text-[16px] leading-tight font-bold">{nameOf(offer.thing)}</span>
                 <span className="text-[13px] leading-snug text-text-2">{phoneWords(`${offer.thing}.line`)}</span>
                 {/* The price stands last in every tile, the running cost over it, so the tiles of a row end at one height
-                    with their prices in line (a running chip under one price lifted it). */}
+                    with their prices in line, never one lifted by a running chip under it. */}
                 <span className="mt-auto flex flex-col items-start gap-1.5 pt-1" data-market-foot-of={offer.thing}>
                   {offer.running > 0 && one === undefined && shut === null ? <WordChip tone="plain" data-market-running>{phoneWords("phone.market.running", { amount: naira(offer.running) })}</WordChip> : null}
                   {one !== undefined ? (

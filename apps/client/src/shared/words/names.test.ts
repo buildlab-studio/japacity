@@ -10,7 +10,7 @@ import { say, words } from "./text";
 describe("one name for one thing", () => {
   test("[R-TEXT-005] given the savings circle, when its ask, its results and its bill name it, then each says the savings circle, and the ask says ajo once beside it", () => {
     expect(text["offer.join-ajo.name"]).toBe("The savings circle");
-    // The ask's title is the neighbour's own words now: it says ajo, and the line beside it the savings circle.
+    // The ask's title is the neighbour's own words: it says ajo, and the line beside it the savings circle.
     expect(text["offer.join-ajo.title"]).toBe("Join our ajo");
     expect(text["offer.join-ajo.body"]).toMatch(/savings circle/);
     expect(text["obligation.ajo.name"]).toBe("Savings circle");
@@ -33,7 +33,7 @@ describe("one name for one thing", () => {
     expect(sceneWords("city.thing.mum-stall")).toBe("Mama's stall");
     expect(sceneWords("city.act.greet-mum")).toBe("Greet Mama");
     expect(sceneWords("city.act.mum-shop")).toBe("Help Mama");
-    // Her ask is in her own voice now: the title is hers, and the pill names her Mama.
+    // Her ask is in her own voice: the title is hers, and the pill names her Mama.
     expect(words("offer.mum-shop.title")).toBe("Help my shop");
     expect(say("offer.family-send-off.who")).toBe("Mama");
     expect(words("offer.mum-shop.name")).toBe("Mama's shop");

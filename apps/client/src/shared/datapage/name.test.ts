@@ -1,4 +1,4 @@
-// The typed name (prologue.md R-PROLOGUE-009; the review): a first name the player types, checked as the
+// The typed name (prologue.md R-PROLOGUE-009): a first name the player types, checked as the
 // username is (account.md R-ACCOUNT-024): letters, a length, and never a reserved or a blocked word in any spelling.
 import { blockedWords, reservedNames } from "@japacity/content";
 import { describe, expect, test } from "vitest";

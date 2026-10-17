@@ -229,7 +229,7 @@ function paidFor(lines: readonly ReportLine[]): ReportLine[] {
     const { offer } = next.params;
     if (typeof offer !== "string") return line;
     // The answer's own words for this payment by its reason, where content has them, before its words for any payment
-    //.
+    // (the prize message's fee is not money "paid to the agent").
     const keys = line.key === FAMILY ? [`${FAMILY_PAID}${offer}`] : [`${OFFER_PAID}${offer}.${reason}`, `${OFFER_PAID}${offer}`];
     const key = keys.find(hasWords);
     return key === undefined ? line : { ...line, key };
@@ -388,8 +388,8 @@ function inflationMove(story: string): "up" | "down" | null {
 }
 
 /**
- * The month the living costs at home are first charged at a new figure says so, with the reason
- *: the story that moved prices comes into force in the same month's lines,
+ * The month the living costs at home are first charged at a new figure says so, with the reason:
+ * the story that moved prices comes into force in the same month's lines,
  * and the charge it moved is that month's living costs. Told on the living costs' own line, so the
  * figure stays in the money.
  */
@@ -452,7 +452,8 @@ const ISSUED = "line.document.issued";
 
 /**
  * A paper asked for and issued in the same month is told once, as ready: never "on the way, ready this month" beside
- * "ready", a test's band out among them.
+ * "ready", a test's band out among them (never "It should be ready this month." beside "Your
+ * English test result is out.").
  */
 function readyNotOnTheWay(lines: readonly ReportLine[]): ReportLine[] {
   const ready = new Set(lines.filter((line) => line.key === ISSUED || line.key.startsWith(`${ISSUED}-band`)).map((line) => line.params["document"]));

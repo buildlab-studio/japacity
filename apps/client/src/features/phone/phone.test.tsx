@@ -95,7 +95,7 @@ describe("the handset", () => {
     expect([...grid.querySelectorAll("[data-app]")].map((app) => app.getAttribute("data-app"))).toEqual([...APP_IDS]);
     expect(APP_IDS[0]).toBe("calendar");
     expect([...grid.querySelectorAll("[data-app]")].map((app) => (app as HTMLElement).style.background)).toEqual(APP_IDS.map((id) => `var(--app-${id})`));
-    // the tilt at rest is a transform, so the grow can carry it away on the compositor (R-WORLD-023).
+    // The tilt at rest is a transform, so the grow can carry it away on the compositor (R-WORLD-023).
     expect(document.querySelector("[data-handset]")?.className).toContain("handset-rest");
   });
 
@@ -105,9 +105,9 @@ describe("the handset", () => {
     expect(phone?.getAttribute("data-grown")).toBe("false");
     fireEvent.click(screen.getByRole("button", { name: "Make the phone bigger" }));
     expect(phone?.getAttribute("data-grown")).toBe("true");
-    // grown, the handset is laid out at the screen's width, straight, and gets
-    // there by one transform from the box it left, never by animating its edges (R-WORLD-023). Restated 12 Oct 2026
-    // (decision 0038): the screen's width up to the centred column's, so on a phone the whole screen and on a laptop the
+    // Grown, the handset is laid out at the screen's width, straight, and gets there by one transform from the box it
+    // left, never by animating its edges (R-WORLD-023). The width is the screen's up to the centred column's
+    // (decision 0038), so on a phone the whole screen and on a laptop the
     // column of phone width the band and the thumbs stand in.
     const handset = document.querySelector("[data-handset]");
     expect(handset?.className).toContain("w-[calc(100%-16px)]");
@@ -122,7 +122,7 @@ describe("the handset", () => {
   });
 
   test("[R-WORLD-026] [R-WORLD-018] given a line told over the phone, at rest or grown, when it shows, then it stands in a lane of its own above the handset, never inside the glass on an icon or a button", async () => {
-    // The catalog's pictures 149 and 150 (1b952f4b): "You quit" sat on the Jobs and Market icons, then on Send money home.
+    // The trap: "You quit" sitting on the Jobs and Market icons, or on Send money home.
     await openPhone(engineView());
     act(() => tell("You quit"));
     const told = document.querySelector<HTMLElement>("[data-phone] [data-told]")!;
@@ -137,7 +137,7 @@ describe("the handset", () => {
   });
 
   test("[R-STATUS-003] [R-WORLD-018] given what the wallpaper tells is taller than its room, when the phone's home shows, then the notices stand whole and the grid scrolls under them above the home bar, never out of reach", async () => {
-    // The catalog's picture 149 (1b952f4b): the status clock's banner pushed the last row of apps under the home bar.
+    // The trap: the status clock's banner pushing the last row of apps under the home bar.
     await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={NOON} talk={null} warnings={<div style={{ height: 2000 }} data-tall-notice />} />, engineView());
     const notices = document.querySelector<HTMLElement>("[data-wallpaper-room]")!;
     expect(notices.contains(document.querySelector("[data-tall-notice]"))).toBe(true);
@@ -238,7 +238,7 @@ describe("the acts", () => {
     expect(main().textContent).toContain("Yes, quit");
     fireEvent.click(main());
     await waitFor(() => expect(sent(authority)).toEqual([{ type: "activity/quit" }]));
-    // One main button at the foot repeats the offer picked (the design's list): "Take it" and the job.
+    // One main button at the foot repeats the offer picked: "Take it" and the job.
     fireEvent.click(screen.getByRole("button", { name: /^Take it/ }));
     fireEvent.click(main());
     await waitFor(() => expect(sent(authority).at(-1)).toEqual({ type: "offer/choose", offer: "offer-20", choice: "accept" }));
@@ -280,7 +280,7 @@ describe("what the phone carries", () => {
   });
 
   test("[R-WORLD-018] given the family group's thread open in Chats, when the way back is looked for, then there is one, the app's Back: it returns to the chats, and once more to the grid", async () => {
-    // The catalog's pictures 115 and 130 (1b952f4b): the app's back arrow and a "Chats" link under it, two ways back stacked.
+    // The trap: the app's back arrow and a "Chats" link under it, two ways back stacked.
     await openPhone({ ...engineView(), month: 3 });
     openApp("chats");
     fireEvent.click(document.querySelector<HTMLElement>('[data-chat-row="family"]')!);
@@ -329,7 +329,7 @@ describe("what the phone carries", () => {
     // The reminder says the paper and when, each once (R-TEXT-008).
     const reminder = document.querySelector("[data-reminder='paper']");
     expect(reminder?.textContent).toBe(`${phoneWords("phone.japa.paper-ready", { paper: nameOf("document.transcript") })}${inMonths(12, view.month)}`);
-    // the step opens the app, one source for the papers.
+    // The step opens the Papers app, one source for the papers.
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
     expect(document.querySelector("[data-app-screen]")?.getAttribute("data-app-screen")).toBe("papers");
     expect(screen.getByText("The box under the bed")).toBeTruthy();

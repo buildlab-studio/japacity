@@ -12,7 +12,7 @@ import "../testing/render";
 /** Tailwind's whole round, which the palette's own test counts as a pill (R-WORLD-021). */
 const ROUND = ["rounded", "full"].join("-");
 
-// the page's age is in whole years with its word, "23 yrs", never the months.
+// The page's age is in whole years with its word, "23 yrs", never the months.
 const PAGE = { name: "Ifẹ́", age: "23 yrs", path: "The developer", was: "Science, then computer science", ready: "12%", photo: "", family: "A family that gets by", strip: { district: "Surulere", years: 23, percent: 12 } };
 
 describe("the data page", () => {
@@ -51,7 +51,7 @@ describe("the data page", () => {
   });
 
   test("[R-PROLOGUE-009] given the game's own data, then the strip carries the name, the home's district, the age and how ready, in capitals with fillers; a part not known yet is fillers; never a real number", () => {
-    // the strip's age is the years alone, "23Y", never "23Y1M".
+    // The strip's age is the years alone, "23Y", never "23Y1M".
     expect(stripLines("Ifẹ́", PAGE.strip)).toEqual(["P<JPCIFE<<<<<<<<<<<<<<<<<<<<<<", "SURULERE<<23Y<<12<<<<<<<<<<<<<"]);
     expect(stripLines("Ada", { district: "Ojuelegba", years: 24, percent: null })[1]).toBe("OJUELEGBA<<24Y<<<<<<<<<<<<<<<<");
     expect(mrz("Mary-Jane", 12)).toBe("MARY<JANE<<<");

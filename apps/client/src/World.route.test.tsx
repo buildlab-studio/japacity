@@ -1,8 +1,7 @@
 // The deposit and the plane in the world (docs/rules/world.md R-WORLD-005, R-WORLD-006; route.md; chapter.md R-CHAPTER-006):
 // the bank's counter carries Pay the deposit for the university that made an offer, and the airport's gate Board the plane
 // once a visa is granted; the counter opens its card and its one button sends the command, and the gate opens the
-// send-off scene, whose third beat sends the flight (chapter.md R-CHAPTER-012). Moved from the old month page's route
-// card (features/route/RouteView), whose buttons sent the same commands. The scene is a stand-in that hands the city the
+// send-off scene, whose third beat sends the flight (chapter.md R-CHAPTER-012). The scene is a stand-in that hands the city the
 // taps a player makes; the place files are the ones the game ships.
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import type { PlayerView } from "@japacity/sim";

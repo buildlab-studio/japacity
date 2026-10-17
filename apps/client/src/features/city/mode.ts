@@ -27,7 +27,7 @@ export const PHONE_HIGH_MEMORY_GB = 4;
 
 /**
  * A desktop (a fine pointer and a wide window) starts in high. A phone with a sharp screen and enough memory, or a memory the
- * browser keeps to itself, starts in high too and drops if its frames are slow (R-CITY-019 as amended 13 Oct 2026: the rise
+ * browser keeps to itself, starts in high too and drops if its frames are slow (R-CITY-019: the rise
  * from low read as a jump in quality a moment into the first place); a coarse or small phone starts in low and rises.
  */
 export function startingMode(device: Device, city: CityTuning, choice: ModeChoice = "auto"): Mode {
@@ -99,7 +99,7 @@ export interface ModeSettings {
    */
   haze: { fog: number; sky: number };
   antialias: boolean;
-  /** Fine or coarse sheets and water: the dial that costs, not the motion (the decision). */
+  /** Fine or coarse sheets and water: the dial that costs, not the motion. */
   mesh: "fine" | "coarse";
 }
 

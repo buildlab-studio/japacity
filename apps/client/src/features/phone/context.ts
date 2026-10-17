@@ -1,4 +1,4 @@
-// The context pill beside an app's name in its head (the notes item 19): a few words
+// The context pill beside an app's name in its head (docs/rules/world.md R-WORLD-018): a few words
 // of what is there now, read from the view, "5 open", "Draw on Friday", "Rent in 3 months", "Next stamp ₦1m". Jobs, Lotto,
 // Bills and Bank fill it; every other app has none. Nothing counts days: a bill is months away, the draw is a weekday.
 import { content } from "@japacity/content";

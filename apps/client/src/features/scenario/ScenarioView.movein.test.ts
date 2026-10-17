@@ -1,6 +1,5 @@
-// One rent for the room (docs/rules/prologue.md R-PROLOGUE-013 as amended 11 Oct 2026, home.md R-HOME-010; the
-// : the door said "rent ₦350,000 a year" and Bills "Rent a room in Ojuelegba: ₦420,000". The door
-// says the move-in with its fees, the figure Bills asks, and the year's rent after it, from the same tuning.
+// One rent for the room (docs/rules/prologue.md R-PROLOGUE-013, home.md R-HOME-010): the door and Bills never name two
+// figures for the same room. The door says the move-in with its fees, the figure Bills asks, and the year's rent after it, from the same tuning.
 import { content } from "@japacity/content";
 import { int } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

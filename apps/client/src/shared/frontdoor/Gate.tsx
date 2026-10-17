@@ -1,6 +1,6 @@
 // The scene under the account's screens (account.md R-ACCOUNT-029): the live city behind the start screen, or the
 // family compound with the character on a plinth at the gate, never a bare page. The front door, the prologue and the
-// handover no longer stand on it (the door's second design: they stand on the door's sky, prologue.md R-PROLOGUE-013). The figure turns slowly and a
+// handover do not stand on it: they stand on the door's sky (prologue.md R-PROLOGUE-013). The figure turns slowly and a
 // finger drags it round (the design's onboarding). The sheet rises over the bottom of the screen and the top
 // keeps the character in view, in the player's own colours (R-PROLOGUE-015). Where WebGL is missing the compound's
 // colours and the look's own picture stand in.
@@ -60,15 +60,15 @@ export interface GateProps {
   /** The colours the figure wears; with no look given, the kept person's own. */
   style?: LookStyle | undefined;
   /**
-   * Another scene in the figure's place: the live city behind the start screen and the ways in (account.md R-ACCOUNT-029,
-   * amended 11 Oct 2026), as designed; the compound and the figure come back at the door. Not dragged.
+   * Another scene in the figure's place: the live city behind the start screen and the ways in (account.md R-ACCOUNT-029),
+   * as designed; the compound and the figure come back at the door. Not dragged.
    */
   scene?: ReactNode;
 }
 
 export function Gate({ look, children, mark, over, style, scene }: GateProps) {
   const drawing = useMemo(canDraw, []);
-  // The look's picture stands in until the figure is in the scene.
+  // The look's picture stands in until the figure is in the scene, so the first screen never reads empty while the compound loads.
   const [drawn, setDrawn] = useState(false);
   const shown = lookOf(gateLook(look));
   const kept = look === undefined || look === null ? readPerson() : null;
@@ -105,8 +105,8 @@ export function Gate({ look, children, mark, over, style, scene }: GateProps) {
         // The figure is dragged round, so the page under the finger never scrolls.
         style={{ background: "var(--strong-2)", touchAction: "none" }}
       >
-        {/* The theme's own band behind the figure, as the design's door has it (R-WORLD-021: an interface colour is a role token). The compound keeps its own colours and shows through a clear sky. */}
-        {/* The look's own picture stands in until the scene has loaded, and where WebGL is missing. */}
+        {/* The theme's own band behind the figure, as the design's door has it (R-WORLD-021: an interface colour is a role token, never sand or cream). The compound keeps its own colours and shows through a clear sky. */}
+        {/* The look's own picture stands in until the scene has loaded, so the first screen never reads empty on a slow phone, and where WebGL is missing. */}
         {scene !== undefined ? (
           <div className="pointer-events-none absolute inset-0" data-gate-scene>
             {scene}

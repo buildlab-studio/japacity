@@ -92,7 +92,7 @@ describe("the run through the front door", () => {
     const sexOf = (): "f" | "m" => lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))!.sex;
     const mine = sexOf();
     const other = LOOKS.find((one) => one.sex !== mine)!;
-    // no body row; the strip holds every look, both bodies, as face stickers, and a look of the other body is tapped in it.
+    // No body row; the strip holds every look, both bodies, as face stickers, and a look of the other body is tapped in it.
     expect([...document.querySelectorAll<HTMLElement>("[data-looks] [data-look]")].map((one) => one.dataset["look"])).toEqual(LOOKS.map((one) => one.id));
     expect(new Set(LOOKS.map((one) => one.sex))).toEqual(new Set(["f", "m"]));
     expect(document.querySelectorAll("[data-looks] [data-face-sticker]")).toHaveLength(LOOKS.length);
@@ -207,15 +207,15 @@ describe("the run through the front door", () => {
     expect(board()).toContain(say("prologue.page.age.years", { years: yearsOf(readyMonths("scenario.tunde")) }));
     expect(yearsOf(readyMonths("scenario.tunde"))).toBe(28);
     fireEvent.click(next(say("ui.door.begin")));
-    // Begin stamps nothing: the page takes no stamp before a visa (R-PROLOGUE-014, amended).
+    // Begin stamps nothing: the page takes no stamp before a visa (R-PROLOGUE-014).
     expect(document.querySelector("[data-stamp]")).toBeNull();
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.tunde"), { timeout: 4000 });
     expect(readPerson()?.name).toBe("Bayo");
     expect(readPerson()?.archetype).toBeNull();
   });
 
-  // Review 14: "Funmi, The developer · 23 years old" stood over the ready lives before any pick (the smaller note), and a
-  // ready life's page strip read "<<28Y<<<" with no district.
+  // Nothing such as "Funmi, The developer · 23 years old" stands over the ready lives before a pick, and a ready life's
+  // page strip names its district, never "<<28Y<<<" alone.
   test("[R-PROLOGUE-013] [R-PROLOGUE-009] given a run Settings asked for, then the ready lives name nothing beside the name before a pick, and a ready life's Where you live names its home and district, as a tile's does", () => {
     askReadyLives();
     door();
@@ -304,8 +304,8 @@ describe("the run through the front door", () => {
     expect(document.querySelector("[data-door-name-chip]")?.textContent).toBe(name);
     for (const gone of ["canvas", "[data-turntable]", "[data-front-scene]", "[data-backdrop]", "[data-scrim]", "[data-stand-drag]"]) expect({ gone, there: document.querySelector(gone) !== null }).toEqual({ gone, there: false });
     expect(screen.queryByText(say("prologue.door.drag"))).toBeNull();
-    // The question is the screen's one heading. offline the screen opens with the start
-    // screen's hook and three steps under it, a line and not a second heading, where the sentence about the game stood.
+    // The question is the screen's one heading. Offline the screen opens with the start screen's hook and three steps
+    // under it, a line and not a second heading, and no sentence about the game (R-TEXT-006).
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(say("ui.life.title"));
     expect(document.querySelector("[data-door-intro] p[data-start-hook]")).not.toBeNull();
     expect(document.querySelector("[data-door-intro] [data-start-steps]")).not.toBeNull();
@@ -368,8 +368,8 @@ describe("the run through the front door", () => {
         // a shut home's line and costs show once it can be picked.
         expect(home.getAttribute("aria-description")).toBe(say(open ? "ui.door.home.said.start" : "ui.door.home.said.needed", { amount: open ? figure : formatMoney(-left, "NGN"), monthly: formatMoney(monthly[id], "NGN") }));
         if (!open) continue;
-        // Picked, it stands in front: its name and place on the postcard, its line in its own words (the home's wave) and its
-        // costs, restated 11 Oct 2026 (R-PROLOGUE-013 as amended) with the room's move-in, as chips.
+        // Picked, it stands in front: its name and place on the postcard, its line in its own words and its costs with
+        // the room's move-in, as chips (R-PROLOGUE-013).
         fireEvent.click(home);
         expect(row.querySelector("[data-home-stack] [data-front] [data-home-name]")?.textContent).toBe(`${say(`ui.door.home.${id}`)} · ${say(`ui.door.home.where.${id}`)}`);
         expect(row.querySelector(`[data-home-detail='${id}'] [data-home-line]`)?.textContent).toBe(say(`ui.door.home.line.${id}`));
@@ -393,8 +393,7 @@ describe("the run through the front door", () => {
     fireEvent.click(next(say("ui.door.next")));
     expect(say("ui.door.home.costs.family-house", { amount: "₦95,000" })).toBe("Your share about ₦95,000 a month, as you go · family around");
     expect(ARCHETYPES.filter((tile) => selfContainReached(tile, 0)).map((tile) => tile.id)).toEqual(["accountant", "trader"]);
-    // The room's ₦50,000 is living costs, its rent a year's apart (the review builder's report). Restated 11 Oct 2026 (the
-    // : the door says what moving in takes with the agent's and the agreement's fees, as Bills does,
+    // The room's ₦50,000 is living costs, its rent a year's apart. The door says what moving in takes with the agent's and the agreement's fees, as Bills does,
     // then the year's rent after it.
     const { rentYear, feesBp, upkeep } = content.tuning.home.compound;
     expect(costsOf("compound-room")).toBe(`${formatMoney(rentYear + Math.floor((rentYear * feesBp) / 10000), "NGN")} to move in, then ${formatMoney(rentYear, "NGN")} a year · living ${formatMoney(upkeep, "NGN")} a month`);

@@ -6,9 +6,8 @@
 // minutes; when the server says it is older, the player signs in again or
 // sends the code the server's email carries along with the deletion. A guest
 // has no other way in, so its own session confirms it. The account opens from its own row at the head of the phone's
-// Settings: the name's initial, the name, the username and the way the life is kept, the whole row one tap (the maintainer,
-// 16 Oct 2026); its sheet names the username and the name as two plain rows, then the way in and the passkeys
-// (R-ACCOUNT-024, R-ACCOUNT-027 as the AL wave proposes to amend it).
+// Settings: the name's initial, the name, the username and the way the life is kept, the whole row one tap; its sheet names the username and the name as two plain rows, then the way in and the passkeys
+// (R-ACCOUNT-024, R-ACCOUNT-027).
 import { ChevronRight } from "lucide-react";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 
@@ -195,7 +194,7 @@ function LifeName() {
   );
 }
 
-/** The ways in of a kept life (R-ACCOUNT-027 as to be amended): the way it is kept with its address, and the passkeys held. */
+/** The ways in of a kept life (R-ACCOUNT-027): the way it is kept with its address, and the passkeys held. */
 function WaysIn({ view }: { view: AccountView }) {
   if (view.state === "guest") return null;
   const { passkeys } = waysOf(view);

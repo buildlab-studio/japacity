@@ -34,7 +34,7 @@ const OWN_SET: Readonly<Record<string, readonly string[]>> = {
   "place.the-room": ["city.overheard.room.1", "city.overheard.room.2", "city.overheard.room.3", "city.overheard.room.4"],
   // London's places on the Lagos mold (world.md R-WORLD-039; streets.md R-STREET-007's spirit): content's three lines each and these.
   ...londonSets(["rye-lane", "peckham-rye-station", "big-shop-uk", "care-home-uk", "ward-uk", "office-uk", "warehouse-uk", "church-uk", "test-centre-uk"]),
-  // Calgary's, Dubai's and Castel Volturno's places (world.md R-WORLD-039 as amended): a line beside content's three where
+  // Calgary's, Dubai's and Castel Volturno's places (world.md R-WORLD-039): a line beside content's three where
   // content has them, four of the city's own where it has none, so every place says at least four.
   ...ownSets([
     ["place.calgary-north-east", 1],

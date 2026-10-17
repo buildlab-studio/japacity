@@ -1,5 +1,6 @@
-// The page's READY is Japa's figure (docs/rules/world.md R-WORLD-019 as amended 11 Oct 2026): the nurse's page said READY 0% while Japa said "How ready you are to go 40%". Care work counts no japacity
-// figure from Nigeria, so Japa reads the plan's own, and the page read only the japacity figure. Played on the real engine.
+// The page's READY is Japa's figure (docs/rules/world.md R-WORLD-019): the nurse's page and Japa
+// say one figure, never READY 0% beside "How ready you are to go 40%". Care work counts no japacity figure from
+// Nigeria, so Japa reads the plan's own, and the page reads the same. Played on the real engine.
 import { describe, expect, test } from "vitest";
 
 import { Japa } from "../../features/phone/apps/Japa";

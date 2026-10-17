@@ -41,7 +41,7 @@ describe("the app", () => {
     await act(() => store.getState().endMonth());
     expect(await screen.findByRole("dialog", { name: turnWords("turn.results.title") }, { timeout: 10_000 })).toBeDefined();
     expect(document.querySelector("[data-world-sheet='results']")).not.toBeNull();
-    // The report is month 1's, as the old page titled it "Month 1".
+    // The report is month 1's.
     expect(monthEnding(store.getState().view?.report?.month ?? -1)).toBe(1);
   });
 

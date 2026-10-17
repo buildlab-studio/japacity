@@ -70,7 +70,7 @@ function nameWords(kind: Name, name: string): string {
   return headingOf(name);
 }
 
-/** The most never-visited names a card shows at once (the notes item 12: a few at a time). */
+/** The most never-visited names a card shows at once: a few at a time. */
 export const NEWEST = 3;
 /** The paper drawn round a card's own view, in paper units (CardView's `within`). */
 const MARGIN = 20;

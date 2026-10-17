@@ -1,8 +1,7 @@
 // The room behind a door (docs/rules/world.md R-WORLD-013): entering is a cut to the room as a scene
 // of its own. A place whose file names `stage.inside` opens that place, an interior file like any
-// other with its own things and shot. Until the places work ships interiors, the room is cut from
-// the place's own file around the building, as the first example did; `roomOf` goes when
-// every door names its room.
+// other with its own things and shot. Until every door names its interior, the room is cut from
+// the place's own file around the building; `roomOf` goes when every door names its room.
 import type { Thing } from "../../shared/world/contract";
 import { type PlaceFile, stageOf } from "./placeFile";
 import { depthDistance } from "./shot";

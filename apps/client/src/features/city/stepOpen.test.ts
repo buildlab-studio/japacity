@@ -55,12 +55,12 @@ describe("the nudge's Go on the application", () => {
   });
 });
 
-// The smaller notes of the nudge names the place only while the player is elsewhere.
+// The nudge names the place only while the player is elsewhere.
 
 describe("the nudge where the player stands", () => {
   const cases = [
     { chapter: "chapter.find-your-feet", step: "job", file: raw, place: "place.yaba", names: /hub|Yaba/ },
-    // the passport office stands in the visa centre's hall.
+    // The passport is a visit to Immigration (R-WORLD-019): the passport office stands in the visa centre's hall.
     { chapter: "chapter.build-the-file", step: "passport", file: visaCentre, place: "place.passport-office", names: /Ikoyi/ },
     { chapter: "chapter.build-the-file", step: "english", file: testCentre, place: "place.english-test-centre", names: /centre/ },
     { chapter: "chapter.build-the-file", step: "offer", file: raw, place: "place.yaba", names: /hub/ },

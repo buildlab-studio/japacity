@@ -1,5 +1,5 @@
-// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018; turn.md R-TURN-006, R-TURN-010; the maintainer,
-// 10 Oct 2026; decision 0034): the month on the phone, in order, with the job, the things started carrying on until they
+// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018; turn.md R-TURN-006, R-TURN-010;
+// decision 0034): the month on the phone, in order, with the job, the things started carrying on until they
 // are stopped, the chores done and what they saved, and what is coming opening where it is dealt with. The month turns
 // when it is lived, so the Calendar holds no plan to fill, no pages, no Next month and no Until news.
 import { content } from "@japacity/content";
@@ -239,7 +239,7 @@ describe("the Calendar's other sections", () => {
     for (const row of rows) fireEvent.click(row);
     const kinds = rows.map((row) => row.getAttribute("data-coming-open"));
     expect(kinds).toEqual(expect.arrayContaining(["paper", "rent"]));
-    // a paper on its way opens Papers, the plan's waits Japa.
+    // A paper on its way opens Papers, the plan's waits Japa.
     expect(openApp.mock.calls.map(([id]) => id as string)).toEqual(kinds.map((kind) => (kind === "rent" ? "bills" : kind === "paper" ? "papers" : "japa")));
     expect(document.querySelector("[data-calendar='coming']")).not.toBeNull();
   });

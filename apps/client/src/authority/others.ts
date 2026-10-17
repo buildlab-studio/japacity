@@ -1,5 +1,5 @@
-// A computer person never carries the player's name (prologue.md R-PROLOGUE-009, people.md R-PEOPLE-061, amended
-// 11 Oct 2026). The player names the character at the
+// A computer person never carries the player's name (prologue.md R-PROLOGUE-009, people.md R-PEOPLE-061):
+// the friend Hauwa never stands beside the player Hauwa. The player names the character at the
 // door from the same pool the game's people are named from, so a name can meet itself. Where it does, the person in the
 // game's words takes another name of their own people and sex from the pool, the first in the pool's order that is
 // nobody else's: deterministic, whole numbers only, and nothing of it reaches the simulation. Worked out here, once for a

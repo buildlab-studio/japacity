@@ -1,7 +1,7 @@
-// The Bank abroad (docs/rules/world.md R-WORLD-002, R-WORLD-019): on
-// Ada's recorded life, landed in London with £1,954 (the figure follows the recording as it is re-cut; re-recorded for decision 0022, then for decision 0035) while rent, living costs and a tuition instalment
-// of £4,352 fall due (the UK upkeep the phone's £15 since R-ABROAD-003 as amended 16 Oct 2026), the app leads with the gap and the way to close it, then the pounds, then the
-// naira and the dollars each with Change money. Once flown, the move's target is gone.
+// The Bank abroad (docs/rules/world.md R-WORLD-002, R-WORLD-019): on Ada's recorded life, landed in London with £1,954
+// (the figure follows the recording) while rent, living costs and a tuition instalment of £4,352 fall due (the UK
+// upkeep includes the phone's £15, R-ABROAD-003), the app leads with the gap and the way to close it, then the pounds,
+// then the naira and the dollars each with Change money. Once flown, there is no move to save toward.
 import type { Command, PlayerView } from "@japacity/sim";
 import { fireEvent, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -155,7 +155,7 @@ describe("the Bank abroad", () => {
     expect(document.querySelector("[data-dues-gap]")).toBeNull();
   });
 
-  // the room's phone says Send money home, so it opens the chooser itself.
+  // The room's phone says Send money home, so it opens the chooser itself.
   test("[R-WORLD-019] given the phone opened on sending money home, when the handset shows, then the Bank opens with the send chooser out, not its front page", async () => {
     await renderWithView(<PhoneApps onClose={() => undefined} area="The room" now={() => new Date(2026, 9, 9, 12, 5)} talk={null} start="bank:send" />, landed());
     expect(document.querySelector('[data-phone-app="bank"]')).not.toBeNull();

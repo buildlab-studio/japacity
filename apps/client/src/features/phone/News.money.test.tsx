@@ -1,6 +1,6 @@
-// News tells the month's money in the results' own words (docs/rules/world.md R-WORLD-008):
-// News said "Changed at the bank: ₦163,682." where the results said ₦166,175 with the charge apart, "Changed money.
-// £92 in hand." for pounds that went into the bank, and "Changed at the bank" for the FX man's changes.
+// News tells the month's money in the results' own words (docs/rules/world.md R-WORLD-008): never the wallet's raw
+// lines, which give a change at the bank as the naira left after its charge instead of the sum with the charge apart,
+// call pounds that went into the bank money in hand, and tell the FX man's changes as the bank's.
 import type { ReportLine } from "@japacity/sim";
 import { act, fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
@@ -21,7 +21,7 @@ beforeEach(() => {
   reloadSeen();
 });
 
-/** Tunde's month of changes both ways, at the bank and with the FX man, as the eleventh review made them; then the month ends. */
+/** Tunde's month of changes both ways, at the bank and with the FX man; then the month ends. */
 function moneyMonth(): { game: Game; mid: ReportLine[]; end: ReportLine[] } {
   const game = newGame("scenario.tunde");
   const mid: ReportLine[] = [];
@@ -52,7 +52,7 @@ describe("News tells the month's money as the results do", () => {
     // Every money line the results tell, in their order, in News.
     expect(told.filter((said) => results.includes(said))).toEqual(results);
     expect(news.filter((line) => RAW.includes(line.key))).toEqual([]);
-    // What the review saw: the bank's change as the naira left after its charge, "Changed money" for pounds banked, the FX man as the bank.
+    // The raw words: the bank's change as the naira left after its charge, "Changed money" for pounds banked, the FX man as the bank.
     const raw = mid.filter((line) => RAW.includes(line.key)).map((line) => words(line.key, line.params));
     const unsaid = raw.filter((said) => !results.includes(said));
     expect(unsaid.length).toBeGreaterThanOrEqual(5);

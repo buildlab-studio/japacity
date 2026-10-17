@@ -16,11 +16,12 @@ import { PicCard, WordChip } from "../ui";
 /** What is happening now first, talk next, the past last. */
 const STAGE_ORDER: readonly NewsStage[] = ["in-force", "announced", "rumour", "ended"];
 
-/** A route the character has flown on, or holds a visa for, is behind them: its news no longer asks for them. */
+/** A route the character has flown on, or holds a visa for, is behind them: its news does not ask for them. */
 const BEHIND: readonly RouteStateName[] = ["granted", "departed"];
 
 /**
- * A story is for the character only while it names a route still in play for them: the engine marks any story about a route they have heard of, so once landed, "Refusals climb" would
+ * A story is for the character only while it names a route still in play for them: the engine marks any story
+ * about a route they have heard of, so once landed, "Refusals climb" would
  * still say for you.
  */
 export function storyForYou(story: { id: string; forYou: boolean }, routes: readonly { id: string; state: RouteStateName }[]): boolean {
@@ -99,8 +100,8 @@ export function News() {
       {report === null ? null : (
         <div data-report={report.month}>
           <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
-          {/* The month's lines are told as the results tell them, money too (shared/words/told.ts, R-WORLD-008; the eleventh
-              review), each as a chip: good news in green, a loss plain, never louder than the good. */}
+          {/* The month's lines are told as the results tell them, money too (shared/words/told.ts, R-WORLD-008), each
+              as a chip: good news in green, a loss plain, never louder than the good. */}
           <ul className="flex flex-wrap gap-2">
             {newsLines(midMonth, report.lines, view).map((line, index) => (
               <li

@@ -1,4 +1,4 @@
-// What the door's pictures stand for (prologue.md R-PROLOGUE-013; the door's second design, A's sticker board): each life's own
+// What the door's pictures stand for (prologue.md R-PROLOGUE-013): each life's own
 // thing on its card, from the game's own models, in the soft tint of its kind; each way a tile opens as a picture chip;
 // and each home's picture, the room as the game draws it, or a model's tile where the home has no room to show.
 import type { Tint } from "../ui/lively/tint";

@@ -1,4 +1,4 @@
-// The walls follow the view (turning the house): each outer side of a wide home stands twice, full
+// The walls follow the view: each outer side of a wide home stands twice, full
 // and knee-high, and the view shows the far pair full and the near pair low for the way it looks, the swap never raising
 // a wall in front of the rooms.
 import { fullSides, quarterOf, WALL_SIDES, wallNode, wallOf, wallPairs, type WallSide } from "@japacity/assets";
@@ -61,7 +61,7 @@ describe("the walls' pairs", () => {
       expect(away(left, yaw)).toBeCloseTo(0, 9);
       for (const side of WALL_SIDES.filter((one) => one !== ahead && one !== left)) expect(away(side, yaw)).toBeLessThanOrEqual(1e-9);
     }
-    // The view down the house's length, as the home wave built it, stands with the back and the left full.
+    // The view down the house's length stands with the back and the left full.
     expect(quarterOf(180)).toBe(2);
     expect(fullSides(quarterOf(180 + 360))).toEqual(["back", "left"]);
   });

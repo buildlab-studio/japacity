@@ -25,14 +25,14 @@ function found(selector: string): HTMLElement {
   return one;
 }
 
-// The interview's hold on the month moved to the world's bed with the old page (features/city/City.interview.test.tsx).
+// The interview's hold on the month is the world bed's (features/city/City.interview.test.tsx).
 
 describe("people in the shell", () => {
   test("[R-PEOPLE-051] given a life at home, when the phone's Chats opens its People row, then the people panel shows", async () => {
     const game = peopleGame();
     playMonth(game);
     await playing(game);
-    // The world is the game (R-WORLD-001): the people live in the phone's Chats (R-WORLD-020), where the old page had a tab.
+    // The world is the game (R-WORLD-001): the people live in the phone's Chats (R-WORLD-020).
     fireEvent.click(await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 }));
     fireEvent.click(await waitFor(() => found('[data-app="chats"]')));
     fireEvent.click(await waitFor(() => found('[data-chat-row="people"]')));
@@ -45,7 +45,7 @@ describe("people in the shell", () => {
     courted(game, TOBI);
     // The visit is the chair's act in their room; its card is the one the shell hands the world for it (App.tsx `actions`).
     const { store } = await renderWithGame(<ActivityPicker only={[SEE.activity]} />, game);
-    // seeing someone is an act done at once, so the tap sends it and the moment is made now,
+    // R-ACTIVITY-015: seeing someone is an act done at once, so the tap sends it and the moment is made now,
     // in the month in hand, with nothing planned; the moment is told in words among the act's own lines, which the
     // world's results show with the month's.
     fireEvent.click(await screen.findByRole("button", { name: `${nameOf(SEE.activity)}` }));
