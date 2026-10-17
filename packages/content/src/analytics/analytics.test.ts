@@ -49,7 +49,7 @@ describe("the counter list", () => {
     expect(byRegion.map((name) => named(name)?.keys)).toEqual(byRegion.map(() => "region"));
     expect(named("players/online-peak")?.keys).toEqual(["peak"]);
     expect(named("sessions/length")?.keys).toEqual(["under-2", "2-5", "5-15", "15-30", "over-30"]);
-    expect(named("funnel/step")?.keys).toEqual(["holding", "invited", "begin", "world", "month-1", "chapter-1", "secured"]);
+    expect(named("funnel/step")?.keys).toEqual(["begin", "world", "month-1", "chapter-1", "secured"]);
     expect(named("share/arrival")?.keys).toEqual(named("share/pressed")?.keys);
     expect(named("wallet/topped-up")?.keys).toEqual(["count", "kobo"]);
     expect(named("advert/revenue")?.keys).toEqual(["kobo"]);
@@ -69,7 +69,7 @@ describe("the counter list", () => {
   });
 
   test("[R-ANALYTICS-008] [R-ANALYTICS-002] given the onboarding funnel, when its steps are read, then they run in the page's order and the door's three are client screens", () => {
-    expect(FUNNEL_STEPS.map((each) => each.step)).toEqual(["holding", "invited", "door-1", "door-2", "page", "begin", "world", "month-1", "chapter-1", "secured"]);
+    expect(FUNNEL_STEPS.map((each) => each.step)).toEqual(["door-1", "door-2", "page", "begin", "world", "month-1", "chapter-1", "secured"]);
     const keysOf = (name: string) => named(name)?.keys ?? [];
     expect(FUNNEL_STEPS.filter((each) => !(keysOf(each.from) as string[]).includes(each.step))).toEqual([]);
     expect(FUNNEL_STEPS.filter((each) => each.from === "screen/opened").map((each) => each.step)).toEqual(["door-1", "door-2", "page"]);

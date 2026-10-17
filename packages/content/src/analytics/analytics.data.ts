@@ -103,8 +103,6 @@ export const ASK_KEYS = ["sign-in:before", "sign-in:after", "notify:before", "no
  * `funnel/step` keys the server counts.
  */
 export const FUNNEL_STEPS = [
-  { step: "holding", from: "funnel/step" },
-  { step: "invited", from: "funnel/step" },
   { step: "door-1", from: "screen/opened" },
   { step: "door-2", from: "screen/opened" },
   { step: "page", from: "screen/opened" },

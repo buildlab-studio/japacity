@@ -55,7 +55,7 @@ function everything(): CounterTotal[] {
     rows.push(row(day, "wallet/topped-up", "count", minShown), row(day, "wallet/topped-up", "kobo", 1000), row(day, "advert/revenue", "kobo", 5000));
     for (const key of ["under-2", "2-5", "5-15", "15-30", "over-30"]) rows.push(row(day, "sessions/length", key, minShown));
     for (const name of ["share/pressed", "share/completed", "share/arrival"]) rows.push(row(day, name, "chapter", minShown));
-    for (const step of ["holding", "invited", "begin", "world", "month-1", "chapter-1", "secured"]) rows.push(row(day, "funnel/step", step, minShown));
+    for (const step of ["begin", "world", "month-1", "chapter-1", "secured"]) rows.push(row(day, "funnel/step", step, minShown));
     for (const step of ["door-1", "door-2", "page"]) rows.push(row(day, "screen/opened", step, minShown));
     rows.push(row(day, "advert/impression", "advert.billboard-ikorodu", minShown), row(day, "advert/tap", "advert.billboard-ikorodu", minShown), row(day, "economy/held", "1-3:0", minShown));
   }
@@ -83,7 +83,7 @@ describe("the admin's numbers", () => {
       adverts: { from: "string", to: "string", impressions: "number", taps: "number", revenueKobo: "number", revenuePerPlayerKobo: "number" },
       economy: { day: "string", cells: [{ months: "string", held: "string", lives: "number" }] },
     });
-    expect(stats.funnel.steps.map((step) => step.step)).toEqual(["holding", "invited", "door-1", "door-2", "page", "begin", "world", "month-1", "chapter-1", "secured"]);
+    expect(stats.funnel.steps.map((step) => step.step)).toEqual(["door-1", "door-2", "page", "begin", "world", "month-1", "chapter-1", "secured"]);
     expect(stats.economy.cells).toHaveLength(12);
   });
 
@@ -126,9 +126,9 @@ describe("the admin's numbers", () => {
       row(YESTERDAY, "players/secured", "NG", 9),
       row(YESTERDAY, "share/completed", "send-off", 40),
       row(YESTERDAY, "share/arrival", "send-off", 30),
-      row(YESTERDAY, "funnel/step", "holding", 400),
-      row(YESTERDAY, "funnel/step", "invited", 100),
-      row(YESTERDAY, "screen/opened", "door-1", 80),
+      row(YESTERDAY, "screen/opened", "door-1", 400),
+      row(YESTERDAY, "screen/opened", "door-2", 100),
+      row(YESTERDAY, "screen/opened", "page", 80),
       row(YESTERDAY, "advert/revenue", "kobo", 1_200_000),
       row(YESTERDAY, "wallet/topped-up", "count", 3),
       row(YESTERDAY, "wallet/topped-up", "kobo", 7_500_000),
@@ -138,9 +138,9 @@ describe("the admin's numbers", () => {
     expect(stats.sessions.perPlayerBp).toBe(15000);
     expect(stats.shares.kinds.find((kind) => kind.kind === "send-off")).toMatchObject({ completed: 40, arrived: 30, arrivedPerShareBp: 7500 });
     expect(stats.funnel.steps.slice(0, 3).map((step) => [step.step, step.count, step.ofFirstBp])).toEqual([
-      ["holding", 400, 10000],
-      ["invited", 100, 2500],
-      ["door-1", 80, 2000],
+      ["door-1", 400, 10000],
+      ["door-2", 100, 2500],
+      ["page", 80, 2000],
     ]);
     expect(stats.adverts).toMatchObject({ revenueKobo: 1_200_000, revenuePerPlayerKobo: 2000 });
     // R-ANALYTICS-007: three top-ups are too few to show their sum.
