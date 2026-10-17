@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import type { TestServer } from "../authority/testing";
 import { view } from "../authority/testing";
-import { standInJob } from "../jobs/stand-in";
+import { standInJob } from "../jobs/standIn";
 import type { Linked } from "./pair.testing";
 import { bondIn, call, cardOut, FRIEND, INVITER, married, must, newLife, pairServer, quickWeddings, recordOf, signUp, stateOf } from "./pair.testing";
 

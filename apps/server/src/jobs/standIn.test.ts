@@ -3,7 +3,7 @@ import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { bondIn, FRIEND, INVITER, linkedPair, must, partners, recordOf, stateOf } from "../pair/pair.testing";
-import { lastPlayerAt, stageFor, standInJob } from "./stand-in";
+import { lastPlayerAt, stageFor, standInJob } from "./standIn";
 
 const numbers = content.tuning.people;
 

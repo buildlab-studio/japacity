@@ -20,7 +20,7 @@ import { notifyJob } from "./jobs/notify";
 import { onlineJob } from "./jobs/online";
 import { runJobs } from "./jobs/run";
 import type { NamedJob } from "./jobs/run";
-import { standInJob } from "./jobs/stand-in";
+import { standInJob } from "./jobs/standIn";
 import { jobCron, tickPeriodMs, ticksJob, TICKS_CRON } from "./jobs/ticks";
 import { dropOldFeedback } from "./moderation/feedback";
 import { answered } from "./security/fail";
