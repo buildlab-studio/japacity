@@ -6,15 +6,15 @@ import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { abroadView, newGame, recordedGame, richView, viewAfter } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
-import { nowSaid } from "../../shared/words/acts";
-import { blurbOf, forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../shared/words/text";
-import { comingOf } from "../../shared/words/coming";
-import { remindersOf } from "./apps/Japa";
-import { PhoneApps } from "./PhoneApps";
-import { phoneWords } from "./phone.words";
-import { reloadSeen } from "./seen";
+import { abroadView, newGame, recordedGame, richView, viewAfter } from "../../../shared/testing/fixtures";
+import { renderWithView } from "../../../shared/testing/render";
+import { nowSaid } from "../../../shared/words/acts";
+import { blurbOf, forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
+import { comingOf } from "../../../shared/words/coming";
+import { remindersOf } from "./Japa";
+import { PhoneApps } from "../PhoneApps";
+import { phoneWords } from "../phone.words";
+import { reloadSeen } from "../seen";
 
 const OFFICIAL = "activity.look-into-route";
 const UK = "route.uk-masters";
