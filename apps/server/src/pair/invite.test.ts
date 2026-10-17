@@ -166,7 +166,7 @@ describe("invite links", () => {
   });
 
   test("[R-REGION-006] [R-ACCOUNT-009] given an invited region and a matched one, when the link is taken, then the stricter row still allows the pair", async () => {
-    const server = pairServer();
+    const server = pairServer(content, { regions: { NG: { open: true, interaction: "matched", ageCheck: "declared" } } });
     await accountIn(server, INVITER, "GB");
     await call(server, "POST", "/api/character", INVITER, { scenario: "scenario.ada" });
     const code = await cardOut(server);

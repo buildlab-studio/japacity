@@ -80,13 +80,13 @@ const DECLARED = "declared" as const;
 /** A kibibyte, so the sizes read as they are meant. */
 const KIB = 1024;
 
-/** The policy table of account.md, row for row. */
+/** The policy table of region.md and account.md, row for row. */
 export const launchRegions: Regions = {
-  default: { open: true, interaction: "matched", ageCheck: DECLARED },
+  default: { open: true, interaction: "invited", ageCheck: DECLARED },
   unknown: { open: true, interaction: "invited", ageCheck: DECLARED },
-  NG: { open: true, interaction: "matched", ageCheck: DECLARED },
-  US: { open: true, interaction: "matched", ageCheck: DECLARED },
-  CA: { open: true, interaction: "matched", ageCheck: DECLARED },
+  NG: { open: true, interaction: "invited", ageCheck: DECLARED },
+  US: { open: true, interaction: "invited", ageCheck: DECLARED },
+  CA: { open: true, interaction: "invited", ageCheck: DECLARED },
   GB: { open: true, interaction: "invited", ageCheck: DECLARED },
   AU: { open: false, interaction: "none", ageCheck: DECLARED },
   ...Object.fromEntries(EU.map((code) => [code, { open: true, interaction: "none", ageCheck: DECLARED }])),
