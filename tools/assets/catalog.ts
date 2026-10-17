@@ -423,7 +423,7 @@ const ENTRIES: CatalogEntry[] = [
       return staticModel("prop_pole", setFootprint(g, [lowBox(g)]));
     },
   },
-  // The street's and the office's dressing (the design), shared by every place that stands them.
+  // The street's and the office's dressing, shared by every place that stands them.
   ...([
     ["prop_poster-board", street.buildPosterBoard],
     ["prop_cooler-stand", street.buildCoolerStand],

@@ -1,4 +1,4 @@
-// The small things of a lived-in street and office that the kit did not have as models (the design):
+// The small things of a lived-in street and office that the kit did not have as models:
 // a board of posters, a drinks seller's cooler on its bench, a woven mat with a seller's few goods, and an office's
 // filing cabinet with the calendar pinned on the board above it. Each stands on its base at y = 0 and faces +Z
 // (R-ASSET-003); a thing laid on the ground keeps its top faces two centimetres clear of the ground and of each other

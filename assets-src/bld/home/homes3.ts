@@ -1,4 +1,4 @@
-// The home as one wide floor plan (the home redesign): every room walled, one open roof.
+// The home as one wide floor plan: every room walled, one open roof.
 // Turning the house: the house's and the yard's outer walls are given by side, each as it stands
 // full with the home's wall things, and the builder makes every side twice, full and knee-high, so whichever quarter the
 // view looks from, the far pair stands full and the near pair is cut to the knee. The partitions, and the wall between
