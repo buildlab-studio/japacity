@@ -19,8 +19,6 @@ import type { ServerDeps } from "../deps";
 import { overLimit } from "../limits/limit";
 import { countryOf } from "./place";
 
-export type { CounterBatch, CounterRow } from "../analytics/batch";
-
 const DROPPED = "analytics/dropped";
 
 function droppedRows(day: string, region: string, dropped: Partial<Record<DropReason, number>>): CounterTotal[] {
