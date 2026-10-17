@@ -608,3 +608,34 @@ describe("the stored list", () => {
     expect((await server.deps.stores.world.draw(0))!.result?.listHash).toBe(stored.listHash);
   });
 });
+
+describe("one lottery for everyone", () => {
+  test("[R-SERVER-033] given players signed up from Nigeria, Britain, Canada, the Emirates and nowhere known, when each buys a ticket, then all five are in the one draw on sale, numbered in the order bought", async () => {
+    const { server } = await soldDraw(0, 0);
+    const characters: string[] = [];
+    for (const country of ["NG", "GB", "CA", "AE", "XX"]) {
+      const account = `acct-${country}`;
+      const made = await server.deps.stores.account.create({
+        id: account,
+        country,
+        age: { passed: true, at: server.deps.now(), method: "declared" },
+        createdAt: server.deps.now(),
+        character: null,
+        notifyBankFull: false,
+        sendUsageCounts: true,
+        state: "secured",
+        username: account,
+        usernameChangedAt: null,
+        lastPlayedAt: server.deps.now(),
+      });
+      expect(made.ok).toBe(true);
+      expect((await call<ViewReply>(server, "POST", "/api/character", account, { scenario: "scenario.ada" })).body.ok).toBe(true);
+      const character = (await server.deps.stores.account.get(account))?.character;
+      if (character === null || character === undefined) throw new Error(`${account} names no character.`);
+      accepted(await buy(server, account, character, 1));
+      characters.push(character);
+    }
+    const tickets = await server.deps.stores.world.tickets(drawOn(0));
+    expect(tickets.map((ticket) => [ticket.n, ticket.character])).toEqual(characters.map((character, n) => [n, character]));
+  });
+});
