@@ -1172,14 +1172,12 @@ export interface ScenarioEntry {
 
 /** Numbers that are rules more than entries. Each is named in a rule page. */
 export interface Tuning {
-  /** `quietAskCap`: in pence; an ask that may cost more than this stays news on an Until news run (docs/rules/world.md R-WORLD-028). */
   turn: {
     cap: number;
     start: number;
     freeSlots: number;
     freeSlotsNoJob: number;
     maxLocked: number;
-    quietAskCap: number;
     /** The month's free time in half-days (R-TURN-010): the whole month lived by hand with no job; a job takes its own days and leaves the rest. */
     halfDays: { noJob: number; withJob: number };
     /** An act that repeats, kept as a commitment in a slot, runs this many times as the month turns (R-ACTIVITY-019). */
@@ -1346,8 +1344,8 @@ export interface Tuning {
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
   /** The waiting months' acts (R-ACTIVITY-013): a raise's size and its chance each month the player tries to be noticed. */
   activity: { raiseBp: number; raiseChanceBp: number };
-  /** The room's basics (R-OBLIGATION-014): the share of the upkeep's next charge that cooking and fetching water take off, and the wellbeing cooking costs. */
-  room: { cookedBp: number; waterBp: number; cookWellbeing: number };
+  /** The room's basics (R-OBLIGATION-014): the share of the upkeep's next charge that cooking and fetching water take off. */
+  room: { cookedBp: number; waterBp: number };
   /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, and the odds a draw takes when it opens (R-LOTTERY-021). */
   lottery: { ticket: number; maxTickets: number; odds: LotteryOdds };
   /** docs/rules/adverts.md Numbers. */

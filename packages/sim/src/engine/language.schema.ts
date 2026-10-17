@@ -416,7 +416,6 @@ export const TuningSchema = z.strictObject({
     freeSlots: CountSchema,
     freeSlotsNoJob: CountSchema,
     maxLocked: CountSchema,
-    quietAskCap: CountSchema,
     halfDays: z.strictObject({ noJob: CountSchema, withJob: CountSchema }),
     repeatPerSlot: z.int().positive(),
     arrivalsBp: z.array(CountSchema),
@@ -573,7 +572,7 @@ export const TuningSchema = z.strictObject({
   chapter: z.strictObject({ cardLines: z.int().positive(), sendOffNaira: CountSchema }),
   groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }) }),
   activity: z.strictObject({ raiseBp: BpSchema, raiseChanceBp: BpSchema }),
-  room: z.strictObject({ cookedBp: BpSchema, waterBp: BpSchema, cookWellbeing: CountSchema }),
+  room: z.strictObject({ cookedBp: BpSchema, waterBp: BpSchema }),
   lottery: z.strictObject({
     ticket: CountSchema,
     maxTickets: CountSchema,

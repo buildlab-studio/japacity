@@ -14,8 +14,6 @@ export const tuning: Tuning = {
     freeSlotsNoJob: 3,
     // R-TURN-009
     maxLocked: 2,
-    // world.md R-WORLD-028: an ask abroad that may cost more than £50 stops an Until news run.
-    quietAskCap: pounds(50),
     // R-TURN-010 (decision 0034): a life with no job lives the whole month by hand; a job takes its days and leaves ten.
     halfDays: { noJob: 60, withJob: 20 },
     // R-OFFER-008: an ask may land as the day is lived, at a third and two thirds of the month's free time.
@@ -228,11 +226,10 @@ export const tuning: Tuning = {
 
   // obligation.md, the group loan
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
-  // obligation.md R-OBLIGATION-014: cooking takes 15% off the upkeep's next charge and fetching water 4%, starting
-  // figures. the page gives no figure for the weekend cooking takes; 2 wellbeing, as a month of study costs.
+  // obligation.md R-OBLIGATION-014: cooking takes 15% off the upkeep's next charge and fetching water 4%, starting figures.
   // activity.md R-ACTIVITY-013: being noticed raises the job's pay 10%, once, on a 30% draw.
   activity: { raiseBp: pct(10), raiseChanceBp: pct(30) },
-  room: { cookedBp: pct(15), waterBp: pct(4), cookWellbeing: 2 },
+  room: { cookedBp: pct(15), waterBp: pct(4) },
 
   // lottery.md Numbers, the Friday draw at fixed odds: 1 in 10 wins ₦500, 1 in 2,000 wins ₦50,000, 1 in 5,000 the jackpot from ₦200,000, growing by 10% of the sales of a week nobody hits it.
   // the page's cap of ₦2,000,000 returns ₦475 on a ₦200 ticket and fails R-LOTTERY-022; ₦380,000 gives the page's own "about ₦151 at the cap".
