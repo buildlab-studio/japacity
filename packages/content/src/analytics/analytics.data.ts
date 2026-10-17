@@ -91,10 +91,10 @@ const SCREENS = [
 ];
 
 /** R-ANALYTICS-002: a load's time in bands, never in milliseconds. the page names no bands. */
-export const LOAD_BANDS = ["under-1s", "1s-3s", "3s-10s", "over-10s"];
+const LOAD_BANDS = ["under-1s", "1s-3s", "3s-10s", "over-10s"];
 
 /** R-ANALYTICS-011: an ask, by what was asked and whether the early win had been shown. */
-export const ASK_KEYS = ["sign-in:before", "sign-in:after", "notify:before", "notify:after"];
+const ASK_KEYS = ["sign-in:before", "sign-in:after", "notify:before", "notify:after"];
 
 /**
  * R-ANALYTICS-008: the onboarding funnel's steps, in order, and
@@ -114,7 +114,7 @@ export const FUNNEL_STEPS = [
 ] as const;
 
 /** R-ANALYTICS-008: the funnel steps the server counts. */
-export const SERVER_FUNNEL_STEPS: string[] = FUNNEL_STEPS.filter((each) => each.from === "funnel/step").map((each) => each.step);
+const SERVER_FUNNEL_STEPS: string[] = FUNNEL_STEPS.filter((each) => each.from === "funnel/step").map((each) => each.step);
 
 /** R-ANALYTICS-013: a gap longer than this between one account's commands ends a session. */
 export const SESSION_GAP_MINUTES = 30;
@@ -182,7 +182,7 @@ export const CSP_DIRECTIVES = [
 ] as const;
 
 /** R-ANALYTICS-004: why a row or a batch was dropped. */
-export const DROP_REASONS = ["signed-out", "size", "shape", "rate", "name", "key", "count"];
+const DROP_REASONS = ["signed-out", "size", "shape", "rate", "name", "key", "count"];
 
 export const counterTable: CounterDef[] = [
   // R-ANALYTICS-008: made nightly from the command log.

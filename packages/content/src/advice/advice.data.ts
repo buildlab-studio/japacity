@@ -19,7 +19,7 @@ const PAPERS: Id<"offer"> = "offer.agent-papers";
 const CHASER: Id<"offer"> = "offer.agent-chaser";
 
 /** R-ADVICE-013: the papers a chaser follows up. The simulation's CHASED holds the same. */
-export const CHASED_PAPERS: Id<"document">[] = ["document.transcript", "document.police-certificate", "document.tb-certificate"];
+const CHASED_PAPERS: Id<"document">[] = ["document.transcript", "document.police-certificate", "document.tb-certificate"];
 
 const ALL_BOND_STAGES = ["connected", "courting", "partner", "married"] as const;
 const NETWORK: Requirement = { type: "quality/min", quality: "quality.network", value: tuning.advice.networkToAsk };
@@ -153,7 +153,7 @@ function agent(id: Id<"offer">, who: OfferEntry["terms"][string], fraudBp: numbe
 }
 
 /** The fake papers a scammer sells: papers a route asks for that he can make (R-ADVICE-008). */
-export const FAKEABLE: Id<"document">[] = ["document.transcript", "document.tb-certificate", "document.medical"];
+const FAKEABLE: Id<"document">[] = ["document.transcript", "document.tb-certificate", "document.medical"];
 
 function fake(document: Id<"document">): OfferChoice {
   return {

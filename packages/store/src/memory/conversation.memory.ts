@@ -2,7 +2,7 @@ import type { ConversationRow, ConversationStore } from "../pair.types";
 import { accept, copy, refuse } from "./copy.memory";
 
 /** R-PAIR-011: the order rows are read in. */
-export function byTime(x: ConversationRow, y: ConversationRow): number {
+function byTime(x: ConversationRow, y: ConversationRow): number {
   if (x.sentAt !== y.sentAt) return x.sentAt - y.sentAt;
   if (x.id === y.id) return 0;
   return x.id < y.id ? -1 : 1;

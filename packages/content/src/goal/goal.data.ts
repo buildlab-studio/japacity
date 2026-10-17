@@ -23,7 +23,7 @@ function wellbeing(amount: number): Effect {
 }
 
 /** The settled and citizen statuses: R-RETURN-004's list of statuses kept on a return with papers. */
-export const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.uk-citizen", "status.ca-resident", "status.ca-citizen"];
+const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.uk-citizen", "status.ca-resident", "status.ca-citizen"];
 
 export const goalTable: Record<Id<"goal">, GoalEntry> = {
   "goal.first-car": {

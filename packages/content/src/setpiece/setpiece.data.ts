@@ -113,7 +113,7 @@ function paying(id: string, price: { currency: Currency; amount: number }, effec
  * page gives. Staying home closes the scene (R-SETPIECE-004), and every answer
  * that pays needs the money for it (R-SETPIECE-003).
  */
-export function decemberQuestions({ country, suffix }: { country: Id<"country">; suffix: string }, index: number): SetpieceQuestion[] {
+function decemberQuestions({ country, suffix }: { country: Id<"country">; suffix: string }, index: number): SetpieceQuestion[] {
   const here: Requirement[] =
     index === 0
       ? // the first country's questions are asked wherever the character is in none of the
