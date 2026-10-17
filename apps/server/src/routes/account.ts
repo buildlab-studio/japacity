@@ -22,6 +22,7 @@ import { checkTurnstile } from "../account/turnstile";
 import { nameProblem, renameFrom } from "../account/username";
 import type { NameProblem } from "../account/username";
 import type { Accounts, Auth } from "../auth/auth";
+import { headersWithoutSession } from "../auth/stale";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
@@ -174,7 +175,8 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     const check = await checkTurnstile(keys.turnstile, request.headers.get("x-captcha-response"), address, new URL(keys.siteUrl).hostname);
     if (!check.ok) return c.json<NameReply>(rejection("bot-check", check.reason), 403);
 
-    const headers = new Headers(request.headers);
+    // No session was found above, so any session cookie the browser sent is dead; the library must not see it (R-ACCOUNT-021).
+    const headers = await headersWithoutSession(auth, request.headers);
     headers.set(GUEST_NAME_HEADER, username);
     const signed = await auth.api.signInAnonymous({ headers, returnHeaders: true }).catch((error: unknown) => ({ error }));
     if ("error" in signed) {

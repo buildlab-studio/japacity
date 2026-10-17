@@ -3,11 +3,14 @@
 import { Hono } from "hono";
 
 import type { Accounts } from "../auth/auth";
+import { SIGN_IN_PATHS, dropDeadSession } from "../auth/stale";
 
 export function authRoutes({ auth }: Accounts): Hono {
   const app = new Hono();
   // R-ACCOUNT-013, R-ACCOUNT-025: a guest starts only through `POST /api/guest`, with its bot check and limits.
   app.post("/api/auth/sign-in/anonymous", (c) => c.json({ ok: false, code: "unknown-id", detail: "Start a life through the guest start." }, 404));
+  // R-ACCOUNT-021: a dead session cookie never stops a new sign-in.
+  for (const path of SIGN_IN_PATHS) app.use(path, dropDeadSession(auth));
   app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
   return app;
 }
