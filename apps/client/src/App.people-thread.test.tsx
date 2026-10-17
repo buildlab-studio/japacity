@@ -1,8 +1,8 @@
 // A bond's Chats thread (docs/rules/people.md, pair.md; world.md R-WORLD-020): the computer partner's thread with its
 // moments under the head, the quiet marks over it, and a friend's conversation online, its rows read and new, its
 // phrases from chips, its refusals said plainly, block and report on the record and on the conversation. Chats as the
-// shell hands it the people feature's screens. Moved from the old people tab (PeopleView, retired 13 Oct 2026 by the rest
-// wave), each assertion kept against the element the phone shows. Here beside the shell, since it joins two features.
+// shell hands it the people feature's screens, each assertion against the element the phone shows. Here beside the
+// shell, since it joins two features.
 import { content } from "@japacity/content";
 import type { ConversationRow } from "@japacity/sim";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";

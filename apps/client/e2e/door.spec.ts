@@ -1,8 +1,7 @@
-// The front door in a real browser (prologue.md R-PROLOGUE-013): "Make it yours" kept in sight. the maintainer on staging,
-// 16 Oct 2026: "when i click make it yours, and it expands user might not know so if its out of view, you can scroll to
-// the appearance section so they see it". Opened, the section comes whole into the door's body once the figure is read
-// and its rows stand; a colour picked brings the next part to choose whole into view the same way. Both sizes; and
-// under reduced motion the same, at once.
+// The front door in a real browser (prologue.md R-PROLOGUE-013): "Make it yours" kept in sight, since an expanded
+// section can open below the fold. Opened, the section comes whole into the door's body once the figure is read and its
+// rows stand; a colour picked brings the next part to choose whole into view the same way. Both sizes; and under
+// reduced motion the same, at once.
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 // The rows follow what the figure reads of its look, so the figure must be drawn: WebGL in software, as the smoke spec has it.
