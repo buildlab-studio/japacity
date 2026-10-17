@@ -107,9 +107,9 @@ export async function seed(target: Target, load: LoadConfig, scale: number, widt
   });
 
   const probe = await request(target, "GET", PAIR_ROUTE, accounts[0]?.account ?? null);
-  const pairsSkipped = probe.status === 404 ? `${PAIR_ROUTE} answers 404: the pair routes have not landed, so no account is paired.` : null;
+  const pairsSkipped = probe.status === 404 ? `${PAIR_ROUTE} answers 404: the server has no pair routes, so no account is paired.` : null;
   const pairs = pairsSkipped === null ? pairPlan(accounts.map((each) => each.account), load.pairShareBp) : [];
-  if (pairsSkipped === null) log(`${String(pairs.length)} pairs are planned but joining them waits for the pair routes' contract.`);
+  if (pairsSkipped === null) log(`note: ${String(pairs.length)} pairs are planned; the load test does not join them.`);
   return { seed: load.seed, scale, base: target.base, madeAt: new Date().toISOString(), accounts, pairs, pairsSkipped };
 }
 
