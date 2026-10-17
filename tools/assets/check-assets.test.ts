@@ -43,7 +43,7 @@ const config = { outlineMin: 85, dimTolerancePct: 5, minEach: 3, minPhone: 4, mi
 
 const measured = (file: string, over: Partial<Measured> = {}): Measured => ({ file, triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, minY: 0, maxY: 6, palette: [], signs: 0, size: [1, 6, 1], extras: {}, ...over });
 const row = (file: string, over: Partial<RegisterRow> = {}): RegisterRow => ({
-  file, place: "shared", source: "code", author: "the makers", licence: "CC BY-SA 4.0", attribution: null, generated: true, tool: "an agent", approvedBy: null, date: "2026-10-08", modified: false,
+  file, place: "shared", source: "code", author: "the makers", licence: "CC BY-SA 4.0", attribution: null, generated: true, tool: "an image tool", approvedBy: null, date: "2026-10-08", modified: false,
   triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, paletteCheck: { passed: true, date: "2026-10-08" }, reference: [], outline: null, review: null, nameCheck: null, status: "draft", ...over,
 });
 const review = (scores: Partial<Review["scores"]>): Review => ({
@@ -85,7 +85,7 @@ describe("the register", () => {
   test("[R-ASSET-015] given an AI-made row, when it is accepted with no approver, then it fails, and with an approver or still a draft it passes", () => {
     expect(checkMadeWith([row("a/bld_a.glb", { status: "accepted", approvedBy: null })])[0]).toMatch(/is accepted with no one named as approving it/);
     expect(checkMadeWith([row("a/bld_a.glb", { status: "accepted", approvedBy: "" })])).toHaveLength(1);
-    expect(checkMadeWith([row("a/bld_a.glb", { status: "accepted", approvedBy: "the maintainer" })])).toEqual([]);
+    expect(checkMadeWith([row("a/bld_a.glb", { status: "accepted", approvedBy: "the makers" })])).toEqual([]);
     expect(checkMadeWith([row("a/bld_a.glb", { status: "draft", approvedBy: null }), row("a/bld_b.glb", { status: "rejected", approvedBy: null })])).toEqual([]);
     expect(checkMadeWith([row("a/bld_a.glb", { generated: false, tool: null, status: "accepted", approvedBy: null })])).toEqual([]);
   });
