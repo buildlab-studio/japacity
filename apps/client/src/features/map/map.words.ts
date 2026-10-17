@@ -1,6 +1,5 @@
-// The map's own words and the ride's working numbers (docs/rules/world.md R-WORLD-015 to 017), first
-// drafts in the voice of docs/rules/text.md. Content's table wins over these, so each key can move
-// into content to be rewritten there.
+// The map's own words and the ride's working numbers (docs/rules/world.md R-WORLD-015 to 017), in the
+// voice of docs/rules/text.md. Content's table wins over these, so each key can move into content.
 import { text } from "@japacity/content";
 
 import { hasWords, words } from "../../shared/words/text";

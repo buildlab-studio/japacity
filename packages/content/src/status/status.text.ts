@@ -1,4 +1,4 @@
-// First drafts from docs/rules/status.md. Each blurb says what the status lets you do.
+// From docs/rules/status.md. Each blurb says what the status lets you do.
 export const statusText: Record<string, string> = {
   "status.uk-student.name": "Student visa",
   "status.uk-student.blurb": "You may study and work up to 20 hours a week in term. It ends with the course.",

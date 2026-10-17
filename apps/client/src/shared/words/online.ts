@@ -1,5 +1,5 @@
 // Words for playing online: the server's own refusals, the clock, the age
-// screen, signing in and the account settings. First drafts in the voice of
+// screen, signing in and the account settings. In the voice of
 // docs/rules/text.md. Kept apart from ui.ts so the
 // online screens can be read in one place; ui.ts takes them in whole.
 export const onlineText: Record<string, string> = {

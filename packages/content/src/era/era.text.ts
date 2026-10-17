@@ -1,4 +1,4 @@
-// Names are first drafts; each blurb is the page's theme, in a line.
+// Each blurb is the page's theme, in a line.
 export const eraText: Record<string, string> = {
   "era.calm.name": "Calm",
   "era.calm.blurb": "Nothing in particular is happening.",

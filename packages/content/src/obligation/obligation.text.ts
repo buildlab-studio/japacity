@@ -1,4 +1,4 @@
-// First drafts: the page gives types, not names.
+// The page gives types, not names.
 export const obligationText: Record<string, string> = {
   "obligation.upkeep.name": "Your share for the house",
   // The family house's charge as the house tells it (decision 0040): your share, and Papa pays the rest.

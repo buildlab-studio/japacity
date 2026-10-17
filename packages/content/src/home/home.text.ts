@@ -1,5 +1,5 @@
 // Words for where the character lives (docs/rules/home.md). The eviction is told straight, never
-// as a joke (text.md R-TEXT-002). First drafts.
+// as a joke (text.md R-TEXT-002).
 export const homeText: Record<string, string> = {
   "line.home.moved": "Home is {place} now.",
   // R-HOME-011: the room's rent went bad. Told straight.

@@ -1,4 +1,4 @@
-// First drafts. The world's variables show up in news, in the funds check and on the routes.
+// The world's variables show up in news, in the funds check and on the routes.
 export const varText: Record<string, string> = {
   "var.fx-supply.name": "Foreign currency supply",
   "var.fx-bank-queue.name": "Bank queue for foreign currency",

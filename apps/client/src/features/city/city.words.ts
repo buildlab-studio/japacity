@@ -1,5 +1,5 @@
-// The city's own words, first drafts in the voice of docs/rules/text.md. Content's table wins over
-// these, so each key can move into content and be rewritten there. Place names, blurbs, signs and
+// The city's own words, in the voice of docs/rules/text.md. Content's table wins over
+// these, so each key can move into content. Place names, blurbs, signs and
 // talk overheard are content's already (city.md R-CITY-024).
 import { text } from "@japacity/content";
 
@@ -47,7 +47,7 @@ export const cityText: Record<string, string> = {
   "city.thing.keke": "Keke",
   "city.thing.okada": "Okada",
   "city.thing.out": "Out",
-  // The thirteen world-first places' things and acts (docs/rules/world.md R-WORLD-005), first drafts in the voice of text.md.
+  // The thirteen world-first places' things and acts (docs/rules/world.md R-WORLD-005), in the voice of text.md.
   "city.thing.sofa": "Sofa",
   "city.thing.mama": "Mama",
   "city.thing.papa": "Papa",

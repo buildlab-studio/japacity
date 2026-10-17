@@ -170,7 +170,7 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       // Someone abroad or the network, as the word of someone who went asks: one plain line, never "One of: With a partner or ...".
       if (abroadOrCircle(requirement.of)) return say("ui.req.any-abroad-or-circle");
       return say("ui.req.any", { inner: list(requirement.of.map((inner) => requirementSentence(inner, context))) });
-    // Whole-life requirements (docs/rules/place.md and after). Plain first drafts.
+    // Whole-life requirements (docs/rules/place.md and after).
     case "place/is":
       return say("ui.req.place-is", { where: say(`ui.place.${requirement.where}`) });
     case "status/is":

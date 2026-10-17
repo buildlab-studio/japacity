@@ -31,7 +31,7 @@ import { RoutePage } from "./PlanSwitch";
 
 const OFFICIAL = "activity.look-into-route";
 
-/** Japa's words after the grant and the flight, first drafts in the voice of docs/rules/text.md; content's and the phone's tables win. */
+/** Japa's words after the grant and the flight, in the voice of docs/rules/text.md; content's and the phone's tables win. */
 const AFTER_TEXT: Record<string, string> = {
   "phone.japa.next": "Next: {step}",
   "phone.japa.visa.label": "Your visa",

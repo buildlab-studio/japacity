@@ -1,4 +1,4 @@
-// First drafts: the page gives meanings, not names.
+// The page gives meanings, not names.
 export const qualityText: Record<string, string> = {
   "quality.age-months.name": "Age",
   "quality.edu-level.name": "Education",

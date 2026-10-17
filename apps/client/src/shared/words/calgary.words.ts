@@ -1,6 +1,6 @@
 // Calgary's words (world.md R-WORLD-038, R-WORLD-039; streets.md R-STREET-013; design page 15): the names of the things
 // and acts of its places, the colleagues' lines, the talk overheard there and the ride's lines on the bus, the CTrain and
-// the taxi. First drafts in the voice of docs/rules/text.md; content's table wins over these. Kept in a chunk of their own
+// the taxi. In the voice of docs/rules/text.md; content's table wins over these. Kept in a chunk of their own
 // and added once the life is in Canada (late.ts), so a first visit at home carries none of them (engine.md R-ENGINE-020).
 export const calgaryWords: Readonly<Record<string, string>> = {
   // The strip mall (design page 15 section 3): the coffee shop, the African store with its transfer counter, the barber.

@@ -6,7 +6,7 @@ import type { Currency } from "@japacity/sim";
 import { lowerFirst, say } from "../../../shared/words/text";
 import { phoneWords } from "../phone.words";
 
-/** The Bank's words abroad, first drafts in the voice of docs/rules/text.md; content's and the phone's tables win. */
+/** The Bank's words abroad, in the voice of docs/rules/text.md; content's and the phone's tables win. */
 const ABROAD_TEXT: Record<string, string> = {
   "phone.bank.dues": "Due this month: {due}. You hold {held}.",
   "phone.bank.dues.way": "{from} to {to}",

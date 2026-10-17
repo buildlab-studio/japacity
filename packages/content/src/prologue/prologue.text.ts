@@ -1,5 +1,4 @@
-// Cards are from docs/rules/prologue.md, "The steps". Answer labels and the words for
-// each draw's outcome are first drafts. Keys: `prologue.<step>.card`,
+// Cards are from docs/rules/prologue.md, "The steps". Keys: `prologue.<step>.card`,
 // `prologue.<step>.answer.<answer>`, `prologue.<step>.outcome.<outcome>`,
 // `prologue.<step>.answer.<answer>.hint` for the one line under an answer, and
 // `prologue.<step>.answer.<answer>.why` for why an answer is not open: the situation,

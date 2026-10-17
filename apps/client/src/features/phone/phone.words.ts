@@ -1,6 +1,6 @@
-// The phone's own words (docs/rules/world.md R-WORLD-018, 019), first drafts in the voice of
+// The phone's own words (docs/rules/world.md R-WORLD-018, 019), in the voice of
 // docs/rules/text.md. Content's table wins over these, then the interface's, so each key can move
-// into content to be rewritten there.
+// into content.
 import { text } from "@japacity/content";
 
 import { formatMoney, formatNumber } from "../../shared/words/format";

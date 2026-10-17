@@ -39,7 +39,7 @@ function raiseWords(view: Pick<PlayerView, "job" | "month">): string | null {
   return raise.month === null ? phoneWords("phone.jobs.raised.unknown") : phoneWords("phone.jobs.raised", { when: lowerFirst(monthsAgo(raise.month, view.month)) });
 }
 
-/** Jobs' words for an application out, first drafts in the voice of docs/rules/text.md; the phone's table wins. */
+/** Jobs' words for an application out, in the voice of docs/rules/text.md; the phone's table wins. */
 const APPLIED_TEXT: Record<string, string> = {
   "phone.jobs.applied": "Applied: {job}. They answer at the month's end.",
   "phone.jobs.applied-at": "Applied: {job} at {place}. They answer at the month's end.",

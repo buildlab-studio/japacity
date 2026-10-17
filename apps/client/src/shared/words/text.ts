@@ -1,5 +1,5 @@
 // Every word on screen comes through here: content's table first, then the
-// interface's own first drafts. A missing key shows as itself, so a gap in
+// interface's own words. A missing key shows as itself, so a gap in
 // content is visible in play instead of hidden behind a guess.
 import { content, HOMETOWN_FILL, text } from "@japacity/content";
 import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";

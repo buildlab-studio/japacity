@@ -1,6 +1,6 @@
-// The agent's sheet's own words (docs/rules/advice.md R-ADVICE-005, 006), first drafts in the voice
-// of docs/rules/text.md. Content's table wins over these, so each key can move into content for the
-// lead to rewrite. The agent's line, his tells, his looks and his choices are content's already.
+// The agent's sheet's own words (docs/rules/advice.md R-ADVICE-005, 006), in the voice
+// of docs/rules/text.md. Content's table wins over these, so each key can move into content.
+// The agent's line, his tells, his looks and his choices are content's already.
 import { text } from "@japacity/content";
 
 import { hasWords, say } from "../../shared/words/text";

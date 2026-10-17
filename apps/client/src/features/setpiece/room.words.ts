@@ -1,4 +1,4 @@
-// The interview room's own words, first drafts in the voice of docs/rules/text.md. Content's
+// The interview room's own words, in the voice of docs/rules/text.md. Content's
 // table wins over these. The officer's lines are content's (setpiece.text.ts).
 import { text } from "@japacity/content";
 

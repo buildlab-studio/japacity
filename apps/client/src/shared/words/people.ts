@@ -1,6 +1,6 @@
 // Words for the people around the character: the slots, the bonds, courting,
 // proposals, the invite card, the stand-in, the interview, the undertaking and
-// the conversation in preset phrases. First drafts in the voice of
+// the conversation in preset phrases. In the voice of
 // docs/rules/text.md. Kept apart from ui.ts so the
 // people screens can be read in one place; ui.ts takes them in whole.
 import { text } from "@japacity/content";

@@ -1,4 +1,4 @@
-// Names are from docs/rules/activity.md. Blurbs are first drafts.
+// Names are from docs/rules/activity.md.
 import { activityEnjoyText } from "./activity.enjoy.text";
 import { activityCalgaryText } from "./activity.calgary.text";
 import { activityCastelText } from "./activity.castel.text";

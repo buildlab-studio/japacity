@@ -1,6 +1,6 @@
 // Dubai's words (world.md R-WORLD-038, R-WORLD-039; streets.md R-STREET-014; design page 15): the names of the things and
 // acts of its places, the colleague's lines at the site, the talk overheard there and the ride's lines on the metro, the
-// city bus, the labour bus and the taxi. First drafts in the voice of docs/rules/text.md; content's table wins over these.
+// city bus, the labour bus and the taxi. In the voice of docs/rules/text.md; content's table wins over these.
 // Kept in a chunk of their own and added once the life is in the UAE (late.ts), so a first visit at home carries none of
 // them (engine.md R-ENGINE-020).
 export const dubaiWords: Readonly<Record<string, string>> = {

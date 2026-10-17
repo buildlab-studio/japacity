@@ -1,6 +1,6 @@
 // Titles, opening and closing lines are from docs/rules/chapter.md. The page's
-// double quotes mark the lines and are not part of the words. Item labels are
-// first drafts. Each item's `.nudge` is the nudge line that points at the thing
+// double quotes mark the lines and are not part of the words. Each
+// item's `.nudge` is the nudge line that points at the thing
 // in the world that moves it (world.md R-WORLD-003, story/story.data.ts): one
 // sentence of at most eight words. A `.nudge.here` reads in the step's own place,
 // where naming the place again would be odd.
@@ -108,7 +108,7 @@ export const chapterText: Record<string, string> = {
   "chapter.decision-day.item.granted": "Get the visa",
   "chapter.decision-day.item.granted.nudge": "Back to your life: the embassy emails",
 
-  // R-CHAPTER-009: the file and decision day for each way out of the player's own effort. First drafts; each
+  // R-CHAPTER-009: the file and decision day for each way out of the player's own effort. Each
   // item says what it takes in a person's words, and each `.nudge` is at most eight words.
   "chapter.build-the-file-care.name": "Build the file",
   "chapter.build-the-file-care.title": "Build the file",

@@ -1,4 +1,4 @@
-// First drafts of the wallet's report lines. Each line carries `amount` and
+// The wallet's report lines. Each line carries `amount` and
 // `currency`; the interface formats the money. Keys follow docs/rules/text.md.
 export const walletText: Record<string, string> = {
   // Money in.

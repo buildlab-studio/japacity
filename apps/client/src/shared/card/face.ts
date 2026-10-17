@@ -69,7 +69,7 @@ const ABROAD_KINDS: ReadonlySet<ShareKind> = new Set(["first-pay-abroad", "secur
 /** The chapter the plane opens: it and every chapter after it are lived abroad. */
 const LANDING = "chapter.landing";
 
-/** The cards' words for the moments abroad, first drafts in the voice of docs/rules/text.md; content's table wins. */
+/** The cards' words for the moments abroad, in the voice of docs/rules/text.md; content's table wins. */
 const CARD_TEXT: Record<string, string> = {
   "share.first-pay-abroad.body": "A room with a lock, a job, and the first month's pay in.",
 };

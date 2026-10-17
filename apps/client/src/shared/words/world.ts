@@ -1,5 +1,5 @@
-// The world's own words (docs/rules/world.md), first drafts in the voice of docs/rules/text.md.
-// Content's table wins over these, so each key can move into content and be rewritten there.
+// The world's own words (docs/rules/world.md), in the voice of docs/rules/text.md.
+// Content's table wins over these, so each key can move into content.
 export const worldText: Record<string, string> = {
   "ui.world.end-month": "Sleep",
   "ui.world.map": "Map",

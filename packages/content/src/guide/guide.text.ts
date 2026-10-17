@@ -1,4 +1,4 @@
-// First drafts of the guides (docs/rules/guides.md). General information with its date and
+// The guides (docs/rules/guides.md). General information with its date and
 // sources, never about one person's case. A blank line inside a section starts a new paragraph.
 export const guideText: Record<string, string> = {
   // The words every guide page shares.

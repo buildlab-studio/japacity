@@ -1,5 +1,4 @@
 // Words for the preset phrases, the invite card and the invite rewards: docs/rules/pair.md.
-// First drafts.
 export const phraseText: Record<string, string> = {
   "phrase.hello.name": "How far?",
   "phrase.evening.name": "Good evening, everybody.",

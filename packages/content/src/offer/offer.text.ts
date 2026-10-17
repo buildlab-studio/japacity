@@ -1,6 +1,6 @@
 // Titles, bodies and signs are from docs/rules/offer.md. The page's outer double
 // quotes mark the body and are not part of the words; single quotes inside are
-// speech and stay. Names and choice labels are first drafts.
+// speech and stay.
 import { offerHealthText } from "./offer.health.text";
 import { offerHomeText } from "./offer.home.text";
 import { offerParcelText } from "./offer.parcel.text";
@@ -239,7 +239,7 @@ export const offerText: Record<string, string> = {
   "line.offer.lapsed": "{offer}: you let it pass. The time to answer is gone.",
   "line.offer.replaced": "The earlier one is off the table. A newer one took its place.",
   "line.offer.closed": "{offer}: someone else in the family has seen to it.",
-  // Sponsors: route-gates.md. Sign words are the page's. Bodies are first drafts.
+  // Sponsors: route-gates.md. Sign words are the page's.
 
   "offer.sponsor-care-home.name": "A care home will sponsor you",
   "offer.sponsor-care-home.title": "We can sponsor",

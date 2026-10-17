@@ -1,6 +1,6 @@
 // The month's own words in the world (docs/rules/world.md R-WORLD-007, 008): the Calendar app and the
-// results. First drafts in the voice of docs/rules/text.md. Content's table wins over these, so each
-// key can move into content to be rewritten there.
+// results, in the voice of docs/rules/text.md. Content's table wins over these, so each
+// key can move into content.
 import { text } from "@japacity/content";
 
 import { countWords } from "../../shared/words/count";

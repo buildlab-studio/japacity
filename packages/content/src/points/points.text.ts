@@ -1,4 +1,3 @@
-// First drafts.
 export const pointsText: Record<string, string> = {
   "points.canada.name": "Canada's points score",
   "points.canada.blurb": "Points for age, education, English and work. The world's cut-off decides who is invited.",

@@ -1,4 +1,4 @@
-// One line for each rejection code in the contract. First drafts.
+// One line for each rejection code in the contract.
 export const rejectText: Record<string, string> = {
   "reject.stale": "Something changed while you were deciding. Look again and try once more.",
   "reject.clock-went-back": "The clock went back. Try again.",

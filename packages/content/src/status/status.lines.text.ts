@@ -1,4 +1,4 @@
-// First drafts: the report lines of the status kind (docs/rules/status.md). Kept apart from
+// The report lines of the status kind (docs/rules/status.md). Kept apart from
 // the entries' words, which the content check keeps free of report lines.
 export const statusLinesText: Record<string, string> = {
   "line.status.granted": "Your papers now read: {status}.",

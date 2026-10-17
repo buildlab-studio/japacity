@@ -1,5 +1,5 @@
 // The joke versions of report lines (comedy.data.ts says which lines and how
-// many), and officialdom written straight. First drafts. Jokes aim at situations, systems and luck;
+// many), and officialdom written straight. Jokes aim at situations, systems and luck;
 // bad news never has a version.
 export const comedyText: Record<string, string> = {
   "line.activity.salary.v2": "Salary from {job}: {amount}. Three people you had not heard from since March sent \"How far?\" the same afternoon.",

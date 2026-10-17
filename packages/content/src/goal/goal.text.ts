@@ -1,4 +1,4 @@
-// First drafts from docs/rules/goal.md. `goal.<id>.first` names the
+// From docs/rules/goal.md. `goal.<id>.first` names the
 // first thing to do for it, said where the goal opens.
 export const goalText: Record<string, string> = {
   "goal.first-car.name": "Your first car",

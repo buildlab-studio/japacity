@@ -1,6 +1,6 @@
 // Castel Volturno's words (world.md R-WORLD-038, R-WORLD-039; streets.md R-STREET-015; design page 15): the names of the
 // things and acts of its places, the colleague's lines at the fields, the talk overheard there and the ride's lines on the
-// coast road's bus and the gangmaster's van. First drafts in the voice of docs/rules/text.md; content's table wins over
+// coast road's bus and the gangmaster's van. In the voice of docs/rules/text.md; content's table wins over
 // these. Kept in a chunk of their own and added once the life is in Italy (late.ts), so a first visit at home carries none
 // of them (engine.md R-ENGINE-020).
 export const castelWords: Readonly<Record<string, string>> = {

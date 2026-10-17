@@ -1,4 +1,4 @@
-// Names and blurbs for the activities abroad: first drafts from docs/rules/ladders.md
+// Names and blurbs for the activities abroad, from docs/rules/ladders.md
 // and car.md. A name that differs by country carries the country, because every
 // free-slot activity can show in one list.
 export const activityAbroadText: Record<string, string> = {

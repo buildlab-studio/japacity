@@ -1,4 +1,4 @@
-// Names and one-line blurbs are from docs/rules/scenario.md; Aniekan's are first drafts.
+// Names and one-line blurbs are from docs/rules/scenario.md, and Aniekan's are written here.
 // `.kind` names a ready life without its person's name, for the front door's quick starts (prologue.md
 // R-PROLOGUE-009): the player builds their own person and never picks a named one, so a blurb says
 // no he or she: the look the player picks carries that.

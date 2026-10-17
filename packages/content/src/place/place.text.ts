@@ -1,4 +1,4 @@
-// First drafts from docs/rules/place.md and return.md: the report lines of the place kind.
+// From docs/rules/place.md and return.md: the report lines of the place kind.
 import { realNames, realNameSigns } from "./place.real";
 
 export const placeText: Record<string, string> = {
@@ -12,7 +12,7 @@ export const placeText: Record<string, string> = {
   "line.place.returned-removed": "You were sent home from {country}. There is no way back in for years.",
   "line.place.token-used": "You flew back on {status}. No new visa, only the ticket.",
   "line.place.token-lapsed": "{months} months away and {status} has lapsed. You would have to start again.",
-  // The places' names, blurbs, signs and talk overheard: docs/rules/city.md R-CITY-024. First drafts. A line one person
+  // The places' names, blurbs, signs and talk overheard: docs/rules/city.md R-CITY-024. A line one person
   // plainly says carries who says it beside it, `<line>.by`, as the bubble names them (world.md R-WORLD-026).
 
   // Lagos: public places. A public place's name is its real name, as on the sign.

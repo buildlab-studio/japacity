@@ -1,6 +1,6 @@
-// The scene's own words (docs/rules/world.md R-WORLD-005): the names of things and their acts, first
-// drafts in the voice of docs/rules/text.md. Content's table wins over these, then the interface's
-// and the city's, so each key can move into content and be rewritten there.
+// The scene's own words (docs/rules/world.md R-WORLD-005): the names of things and their acts, in the
+// voice of docs/rules/text.md. Content's table wins over these, then the interface's
+// and the city's, so each key can move into content.
 import { text } from "@japacity/content";
 
 import { hasWords } from "../../shared/words/text";

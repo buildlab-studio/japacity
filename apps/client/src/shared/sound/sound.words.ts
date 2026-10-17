@@ -1,5 +1,5 @@
-// The sound layer's words, first drafts in the voice of docs/rules/text.md. Content's table wins
-// over these, so each key can move into content and be rewritten there.
+// The sound layer's words, in the voice of docs/rules/text.md. Content's table wins
+// over these, so each key can move into content.
 import { text } from "@japacity/content";
 
 export const soundText: Record<string, string> = {

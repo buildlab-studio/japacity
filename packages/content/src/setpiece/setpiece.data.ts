@@ -241,8 +241,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
         ],
       },
     ],
-    // R-SETPIECE-008: asked only after the answer that names one, never drawn. First drafts, for the
-    // lead to put on the rule page's entry.
+    // R-SETPIECE-008: asked only after the answer that names one, never drawn.
     followUps: [
       {
         id: "sponsor-who",
