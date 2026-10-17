@@ -461,7 +461,7 @@ function convert(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // Sending money home: R-ABROAD-006 and 008
 // ---------------------------------------------------------------------------
 
-const CHANNELS: readonly RemitChannel[] = ["app", "bank", "informal"];
+export const REMIT_CHANNELS: readonly RemitChannel[] = ["app", "bank", "informal"];
 
 /** One channel's terms for an amount: the fee kept, and the naira that arrives. */
 export interface RemitTerms {
@@ -510,7 +510,7 @@ function remit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const { currency, amount, channel } = command;
   if (ctx.state.place.where !== "abroad") return reject("not-legal", "Money is sent home from abroad.");
   if (!isForeign(currency)) return reject("unknown-id", `There is no foreign currency ${String(currency)}.`);
-  if (!CHANNELS.includes(channel)) return reject("not-legal", "Send money by app, by bank or through someone.");
+  if (!REMIT_CHANNELS.includes(channel)) return reject("not-legal", "Send money by app, by bank or through someone.");
   if (!isGoodAmount(amount)) return reject("bad-amount", "An amount is a whole number above zero.");
   if (amount > ctx.state.wallet.pockets[currency].bank) return reject("cannot-afford", `The ${currency} bank pocket holds less than that.`);
   const terms = remitQuote(ctx.world.rates, ctx.content.tuning.remit, currency, amount)[channel];

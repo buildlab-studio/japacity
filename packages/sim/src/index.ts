@@ -22,7 +22,7 @@ export { standInWorld, standInWorlds } from "./world/standIn";
 export { stepWorld, offlineCalendar } from "./world/director";
 export type { DirectorBook, WorldCalendar } from "./world/director";
 export { japacity, routePercent } from "./japacity/japacity.logic";
-export { remitQuote } from "./wallet/wallet.logic";
+export { remitQuote, REMIT_CHANNELS } from "./wallet/wallet.logic";
 export type { RemitChannel } from "./wallet/wallet.events";
 export { ledgerReport } from "./wallet/report";
 // Where a naira credit lands by its size (wallet.md R-WALLET-018): content's prologue earnings read it too.

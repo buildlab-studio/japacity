@@ -5,12 +5,12 @@
 // button says the amount, sends at once and says what is left in pounds.
 import { content } from "@japacity/content";
 import type { Command } from "@japacity/sim";
+import { remitQuote } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { recordedGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
-import { remitQuote } from "../../../shared/sim/remit";
 import { formatBp, formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import { phoneWords } from "../phone.words";
