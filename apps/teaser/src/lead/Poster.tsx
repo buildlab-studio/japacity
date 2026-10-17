@@ -6,7 +6,7 @@ import { PressButton } from "../parts/dress";
 import { FONT, NAVY } from "../parts/tokens";
 import { Lead } from "./Lead";
 
-export const POSTER_FRAME = 262;
+export const POSTER_FRAME = 282;
 
 export function Poster({ frame = POSTER_FRAME }: { frame?: number }) {
   return (
