@@ -155,7 +155,6 @@ export const onlineText: Record<string, string> = {
   "ui.account.code.again": "Send a new code",
   "ui.account.code.short": "The code is 6 digits.",
   "ui.account.bot.failed": "The quick check did not go through. Let it finish, then try again.",
-  "ui.account.working": "One moment...",
   "ui.account.loading": "Checking where you stand...",
   "ui.account.fail.not-fresh": "Sign in again to show it is you.",
   "ui.account.fail.bad-code": "That code did not work. Check it, or send a new one.",

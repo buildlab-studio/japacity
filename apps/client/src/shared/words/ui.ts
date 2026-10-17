@@ -32,24 +32,14 @@ export const uiText: Record<string, string> = {
   "ui.broken.feedback": "The screen broke ({error}, build {build}). What I was doing: ",
 
   // Tabs
-  "ui.tab.month": "Month",
-  "ui.tab.you": "You",
-  "ui.tab.money": "Money",
-  "ui.tab.japa": "Japa",
-  "ui.tab.news": "News",
-  "ui.tab.status": "Status",
-  "ui.tab.home": "Home",
   "ui.tabs": "Sections",
 
   // The month
   "ui.month.planning": "Month {month}",
-  "ui.month.end": "Next month",
-  "ui.month.clear": "Clear plan",
   "ui.month.plan": "This month",
   "ui.month.slot-empty": "Nothing yet",
   // An empty free slot rests (R-TURN-006): never planned, never "nothing".
   "ui.month.rest": "Free time: you rest",
-  "ui.opening.go": "Go",
   // The month's name and phase on the band, where the pages were (R-WORLD-002, R-TURN-010; decision 0034): month 0 of a
   // life is the month of the year it began in; the phase says the month's free time in words, never a count.
   "ui.month.name.0": "January",
@@ -100,9 +90,6 @@ export const uiText: Record<string, string> = {
   "ui.world.side-job-title": "A side job: {job}",
   "ui.month.slot-remove": "Take out",
   "ui.month.no-slots": "No free time this month.",
-  "ui.month.over": "This life is over.",
-  "ui.month.expiring": "Running out",
-  "ui.month.expiring.item": "{document} runs out in {months} months. Renew it before then if you still need it.",
   "ui.month.expiring.item.one": "{document} runs out at the end of this month. Renew it now if you still need it.",
 
   // The report
@@ -455,7 +442,6 @@ export const uiText: Record<string, string> = {
   "ui.months-ago": "{count} months ago",
   "ui.months-ago.one": "Last month",
   "ui.months-ago.zero": "This month",
-  "ui.offer.signs": "What you notice",
   "ui.offer.amount": "How much",
   "ui.offer.bounds": "From {min} up to {max}",
   "ui.offer.job": "{job}, paying {amount} a month",
@@ -507,7 +493,6 @@ export const uiText: Record<string, string> = {
   // The prologue (prologue.md R-PROLOGUE-008)
   "ui.prologue.title": "How you got here",
   "ui.prologue.then": "What happened",
-  "ui.prologue.not-open": "Not open to you:",
   "ui.prologue.so-far": "Your life so far",
   "ui.prologue.not-drawn": "Nothing is decided yet.",
   "ui.prologue.town.city": "Your family is from {hometown}, a city.",
@@ -527,7 +512,6 @@ export const uiText: Record<string, string> = {
   // A new life
   "ui.life.title": "Who are you?",
   "ui.life.start": "Live this life",
-  "ui.life.again": "Start a new life",
   "ui.life.notice.other-content": "Your saved life was made for an older version of the game, so it could not come along. A new life has started.",
   "ui.life.notice.unreadable": "Your saved life could not be read. A new life has started.",
   // Ending this life from Settings (account.md R-ACCOUNT-030): one sheet, Cancel the easy way, the end held to confirm.
@@ -548,8 +532,6 @@ export const uiText: Record<string, string> = {
   // The front door (prologue.md R-PROLOGUE-009, 013): three screens over the compound with everything chosen.
   "ui.door.look": "Your look",
   "ui.door.look.one": "Look {n}",
-  "ui.door.name": "Your name",
-  "ui.door.name.hint": "Type your own, or roll for another.",
   "ui.door.reroll": "Another name",
   "ui.door.next": "Next",
   "ui.door.next.then": "Your life so far",
@@ -568,7 +550,6 @@ export const uiText: Record<string, string> = {
   "ui.door.page.lead": "Where this life can lead",
   "ui.door.back": "Back",
   "ui.door.skip": "Skip",
-  "ui.door.shuffle": "Shuffle",
   "ui.door.shuffle.all": "Shuffle the look, the name and the life",
   "ui.door.tag.developer": "Balanced",
   "ui.door.tag.nurse": "Head start",
@@ -619,10 +600,7 @@ export const uiText: Record<string, string> = {
   "ui.door.begin": "Begin",
   // The door's own words (R-PROLOGUE-013).
   "ui.door.caption": "{path} · {age}",
-  "ui.door.body": "Body",
   "ui.door.body.f": "Woman",
-  "ui.door.body.m": "Man",
-  "ui.door.print.then": "See it all",
   "ui.door.tile.savings": "Savings {amount}",
   "ui.door.edit.you": "Look and name",
   "ui.door.edit.life": "Path and age",
@@ -864,7 +842,6 @@ export const uiText: Record<string, string> = {
   "ui.obligation.type.undertaking": "an undertaking",
   "ui.req.or": " or ",
   "ui.req.some-amount": "the amount needed",
-  "ui.req.any-job": "any job",
   "ui.pocket.bank": "the bank",
   "ui.pocket.cash": "cash",
 
@@ -892,11 +869,6 @@ export const uiText: Record<string, string> = {
   "ui.side.holds": "It pays, and it takes one of your things to do every month you keep it.",
   "ui.side.quit": "Quit the side job",
   "ui.side.quit-yes": "Yes, quit it",
-
-  // The staged wins
-  "ui.moment.kicker": "This month",
-  "ui.moment.next": "Next",
-  "ui.moment.done": "Carry on",
 
   // Where you are and the way home (R-PLACE-009, R-RETURN-001)
   "ui.place.title": "Where you are",
@@ -1042,13 +1014,9 @@ export const uiText: Record<string, string> = {
   "ui.gate.points.over-care": "At or over the cut-off for care workers.",
   "ui.gate.points.care": "For care workers the cut-off is {cutoff}.",
   "ui.gate.points.no-pool": "Not in the pool.",
-  "ui.gate.points.pool": "In the pool since month {month}. The profile ends in month {ends}, {left} months from now.",
-  "ui.gate.points.invited": "Invited to apply in month {month}.",
   "ui.gate.points.clock": "Age points fall with each birthday after 29.",
   "ui.gate.endorsement.title": "Endorsement",
   "ui.gate.endorsement.none": "No endorsement asked for yet.",
-  "ui.gate.endorsement.refused": "Endorsement refused in month {month}.",
-  "ui.gate.endorsement.again": "You can ask again from month {month}.",
   "ui.gate.endorsement.again-now": "You can ask again now.",
   "ui.gate.contract.title": "Agent and contract",
   "ui.gate.contract.none": "No agent yet. They find you at the motor park and the salon.",
@@ -1080,19 +1048,8 @@ export const uiText: Record<string, string> = {
   "ui.card.is-a-game": "Japacity is a game.",
   "ui.card.open": "Open the card",
   "ui.card.how": "Take a screenshot to share it.",
-  "ui.card.send-off.ready": "Your send-off card is ready",
-  "ui.card.send-off.kicker": "Sent off from Lagos",
   "ui.card.japacity": "Japacity on the day you flew",
-  "ui.card.months": "Months to get here",
-  "ui.card.standing": "Standing at home",
-  "ui.card.most": "What you did most",
-  "ui.card.real-story.ready": "The real story behind the road",
-  "ui.card.real-story.kicker": "The real story",
-  "ui.card.real-story.title": "People really take this road",
   "ui.card.real-story.body": "The road in this game follows reporting on people who set out from Nigeria by land and sea. Their stories are theirs. Read them where they were published.",
-  "ui.card.real-story.credits-later": "The credits for that reporting are on the game's site.",
-  "ui.card.lost.ready": "This life has ended",
-  "ui.card.lost.kicker": "The end",
   "ui.card.lost.title": "This life ends on the road",
   "ui.card.lost.body": "{months} months after the first meeting, the family stops getting calls.",
   "ui.card.lost.body.one": "A month after the first meeting, the family stops getting calls.",

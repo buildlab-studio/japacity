@@ -54,7 +54,6 @@ export const worldText: Record<string, string> = {
   "ui.world.ask-next": "Next",
   "ui.world.ask-back": "Back",
 
-  "ui.world.added": "Added to the month",
   "ui.world.planned": "{what}: planned.",
   // R-ACTIVITY-015: the button that closes the place's answer to an act done at once.
   "ui.world.done": "Done",
@@ -73,7 +72,6 @@ export const worldText: Record<string, string> = {
   "ui.world.thing.planned": "Ongoing",
   "ui.world.stop": "Stop",
   "ui.world.stop-act": "Stop {what}",
-  "ui.world.step-outside": "Step outside",
   // The bag's Go home in the room abroad (return.md R-RETURN-002, R-RETURN-006; place.md R-PLACE-011): the shape the return
   // would take today in one line, what ends and what waits as chips, the fare on the one button.
   "ui.world.go-home": "Go home",

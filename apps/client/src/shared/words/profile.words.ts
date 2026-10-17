@@ -23,6 +23,5 @@ export const profileText: Record<string, string> = {
   "city.thing.laptops": "Laptops",
   "city.act.post": "Post about your work",
   "city.act.talk": "Give the talk",
-  "city.act.certify": "Certification",
   "city.act.exam": "Sit the exam",
 };

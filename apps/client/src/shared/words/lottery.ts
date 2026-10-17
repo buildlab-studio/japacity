@@ -57,7 +57,6 @@ export const lotteryWords: Record<string, string> = {
   // and the rest folded behind a tap on a row.
   "ui.lottery.kiosk.buy": "Buy {count} tickets",
   "ui.lottery.kiosk.buy.one": "Buy 1 ticket",
-  "ui.lottery.kiosk.now": "{cost}, paid now",
   "ui.lottery.kiosk.row.odds": "The odds",
   "ui.lottery.kiosk.row.odds-figure": "Jackpot 1 in {every}",
   "ui.lottery.kiosk.row.odds-figure-about": "Jackpot about 1 in {every}",
@@ -102,9 +101,6 @@ export const lotteryWords: Record<string, string> = {
   "ui.lottery.page.ticket.small": "small prize",
   "ui.lottery.page.show-list": "Show the list",
   "ui.lottery.page.hide-list": "Hide the list",
-
-  // The win letter staged as a moment: its heading in the display face, the letter itself in the text face.
-  "ui.moment.head.line.lottery.letter": "A letter from the draw",
 
   // The front page (R-LOTTERY-016)
   "ui.news.drawn": "Draw {draw} is in: the jackpot of {jackpot} was hit. Tickets that won a prize: {winners}.",

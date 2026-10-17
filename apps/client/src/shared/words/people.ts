@@ -8,7 +8,6 @@ import { text } from "@japacity/content";
 import { swapped } from "./now";
 
 export const peopleText: Record<string, string> = {
-  "ui.tab.people": "People",
   "ui.people.intro": "Partner, siblings, parents. A friend who plays can take a place. The game plays anyone a friend has not taken.",
 
   // The slots (R-PEOPLE-007)
@@ -191,31 +190,6 @@ export const peopleText: Record<string, string> = {
   "ui.people.stand-in.warned": "Your partner has gone quiet for a week. If they stay quiet for two weeks, a stand-in answers for them.",
   "ui.people.stand-in.on": "Your partner has been away two weeks. A stand-in answers {piece} for them, and says yes only where they allowed it.",
 
-  // Block and report (R-PAIR-014 to 016, R-MODERATION-003, 006)
-  "ui.pair.block": "Block",
-  "ui.pair.report": "Report",
-  "ui.pair.block.title": "Block this player",
-  "ui.pair.block.help": "They can no longer reach you. Anything between you ends, and it costs you nothing. They are told only that it ended.",
-  "ui.pair.block.confirm": "Block",
-  "ui.pair.blocked": "Blocked. It is over between you.",
-  "ui.pair.report.title": "Report this player",
-  "ui.pair.report.help": "Tell the team what happened. Nothing is deleted while they look.",
-  "ui.pair.report.reason": "What happened",
-  "ui.pair.report.also-block": "Block them too",
-  "ui.pair.report.send": "Send the report",
-  "ui.pair.reported": "Report received. You will hear when it is decided.",
-  "ui.pair.failed": "That did not go through: {why}",
-  "ui.pair.reason.scam": "Asked for money or a scam",
-  "ui.pair.reason.harassment": "Harassment",
-  "ui.pair.reason.impersonation": "Pretending to be someone",
-  "ui.pair.reason.underage": "Seems under age",
-  "ui.pair.reason.sexual": "Sexual",
-  "ui.pair.reason.hate": "Hate",
-  "ui.pair.reason.self-harm": "Self-harm",
-  "ui.pair.reason.illegal": "Something illegal",
-  "ui.pair.reason.cheating": "Cheating",
-  "ui.pair.reason.other": "Something else",
-
   // The conversation (R-PAIR-010, R-PAIR-011, R-PAIR-013)
   "ui.talk.title": "Talk",
   "ui.talk.empty": "Nothing said yet.",
@@ -247,7 +221,6 @@ export const peopleText: Record<string, string> = {
   "ui.interview.result.fail": "Not believed",
   "ui.interview.result.caught": "Caught",
   "ui.interview.matched": "Your answers agreed on {matched} of {asked}.",
-  "ui.interview.not-sure": "Something else",
 
   // The undertaking (R-UNDERTAKING-006 to 012)
   "ui.undertaking.months-left": "{months} months left of the promise",
