@@ -67,7 +67,7 @@ async function liveOf(server: TestServer, character: string, loaded: State, stat
 
 /**
  * Writes a figure straight into the store, for boards with many lines. A stranger's account is made the first time,
- * with the username `player_<character>`, so the everyone board has a name to show (R-CITY-040 as amended 11 Oct 2026).
+ * with the username `player_<character>`, so the everyone board has a name to show (R-CITY-040).
  */
 async function figure(server: TestServer, character: string, value: number | null, over: { before?: number | null; joinedAt?: number; account?: string; scenario?: string } = {}): Promise<void> {
   const joinedAt = over.joinedAt ?? EPOCH;
@@ -149,7 +149,7 @@ describe("the figures a commit writes", () => {
     expect(row?.figure).toBeGreaterThan(0);
     expect(row).toMatchObject({ weekStart: null, v: 1 });
 
-    // the everyone board names the account's username.
+    // The everyone board names the account's username (R-CITY-040).
     const line = reply((await board(server, "account.ada", "this-week.everyone")).body).own;
     expect(line).toEqual({ rank: 1, username: "account.ada", figure: row?.figure, me: true });
   });
@@ -162,7 +162,7 @@ describe("the figures a commit writes", () => {
     expect(await server.deps.stores.boards.get(character)).toBeNull();
   });
 
-  // the guest is read from the account's own state, as production reads it, not from a stand-in.
+  // The guest is read from the account's own state, as production reads it, not from a stand-in (R-ACCOUNT-022).
   test("[R-ACCOUNT-022] given a guest's commit, when its figure is written, then the row is on no board", async () => {
     const server = testServer();
     const character = await guestLife(server, "account.guest", "guest_ada");
@@ -228,7 +228,7 @@ describe("the boards", () => {
 
     await turnOff(server, "boards.joined-week", true);
     const cohort = reply((await board(server, "account.ada", "joined-week")).body);
-    // strangers in the same week are named by username, as on everyone (R-CITY-040).
+    // Strangers in the same week are named by username, as on everyone (R-CITY-040).
     expect(cohort.rows.map((row) => [row.rank, row.username, row.figure, row.me])).toEqual([
       [1, "account.ada", 30, true],
       [2, "player_same", 20, false],
@@ -244,7 +244,7 @@ describe("the boards", () => {
     const read = reply((await board(server, "account.ada", "all-time.everyone")).body);
     expect(read.size).toBe(3);
     expect(read.rows.map((row) => row.figure)).toEqual([90, 80, 70]);
-    // the lines name usernames, and no first name or display name travels on a board (R-CITY-040).
+    // The lines name usernames, and no first name or display name travels on a board (R-CITY-040).
     expect(read.rows.map((row) => row.username)).toEqual(["player_c0", "player_c1", "player_c2"]);
     expect(read.rows.every((row) => !row.me)).toBe(true);
     expect(read.own).toEqual({ rank: 5, username: "account.ada", figure: 10, me: true });
@@ -305,7 +305,7 @@ describe("the boards", () => {
     expect((await server.deps.stores.account.setUsername("account.tunde", "tunde_k", EPOCH)).ok).toBe(true);
 
     const read = reply((await board(server, "account.ada", "all-time.friends")).body);
-    // one name a player chose serves both boards, so friends see the username too.
+    // One name a player chose serves both boards, so friends see the username too.
     expect(read.rows).toEqual([
       { rank: 1, username: "tunde_k", figure: 40, me: false },
       { rank: 2, username: "account.ada", figure: 30, me: true },
@@ -350,7 +350,7 @@ describe("the boards", () => {
     expect(read.rows).toHaveLength(3);
   });
 
-  // the guest is the account's own state, and the refusal is `guest-only` with the way to secure.
+  // The guest is the account's own state, and the refusal is `guest-only` with the way to secure (R-ACCOUNT-022).
   test.each([...FOUR, "joined-week" as const])("[R-ACCOUNT-022] given a guest account, when it asks for the %s board, then it is refused guest-only and sees no board", async (name) => {
     const server = testServer();
     await turnOff(server, "boards.joined-week", true);

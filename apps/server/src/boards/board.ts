@@ -1,8 +1,8 @@
 // A board as a player reads it (city.md R-CITY-039, R-CITY-040): the top
 // `board.size` lines and the player's own line, each naming the account's
-// username and nothing else about the player, on every board, friends too
-// Computer characters have no row, so they are on no
-// board (people.md R-PEOPLE-056).
+// username and nothing else about the player, on every board, friends too.
+// Computer characters have no row, so they are on no board (people.md
+// R-PEOPLE-056).
 import type { BoardQuery, BoardWhen, BoardWho, RankedRow, SwitchName } from "@japacity/store";
 import { pairIds } from "@japacity/store";
 
@@ -26,7 +26,7 @@ export const BOARD_SWITCH: Record<BoardName, SwitchName> = {
 /**
  * R-CITY-040: one line. `figure` is the japacity figure on all time and the rise since Monday on this week. On
  * every board, friends as everyone, the line names the account's username (account.md R-ACCOUNT-024) and carries
- * no first name and no display name (amended 11 Oct 2026: one name a player chose serves both boards). A username
+ * no first name and no display name (one name a player chose serves both boards). A username
  * is null only for an account no longer there.
  */
 export interface BoardRow {
@@ -62,7 +62,7 @@ function pickers(board: BoardName): { when: BoardWhen; who: BoardWho } {
     case "all-time.friends":
       return { when: "all-time", who: "friends" };
     case "joined-week":
-      // the joined-week board ranks the japacity figure among the accounts made in the player's week, named as everyone is (usernames, R-CITY-040 as amended 11 Oct 2026).
+      // the joined-week board ranks the japacity figure among the accounts made in the player's week, named as everyone is (usernames, R-CITY-040).
       return { when: "all-time", who: "everyone" };
     default: {
       const never: never = board;

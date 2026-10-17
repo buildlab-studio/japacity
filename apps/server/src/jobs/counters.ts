@@ -1,7 +1,7 @@
 // R-ANALYTICS-008, R-ANALYTICS-011: the nightly job at 00:00 UTC, for the day
 // that has just ended. It reads the command log and adds the day's game
-// counters once: a second run for the same day adds nothing. R-ANALYTICS-013
-//: with the counts by region it adds the numbers before launch too.
+// counters once: a second run for the same day adds nothing. R-ANALYTICS-013:
+// with the counts by region it adds the numbers of numbers.ts too.
 import type { DayLog, NumbersLog, RegionCount } from "@japacity/store";
 
 import { dayStart, utcDay } from "../admin/day";

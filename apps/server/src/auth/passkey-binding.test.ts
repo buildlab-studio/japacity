@@ -1,5 +1,5 @@
-// R-ACCOUNT-003 and R-MODERATION-012 (amended 10 Oct 2026, the security
-// review's M1): who may add a passkey, and what every addition leaves behind.
+// R-ACCOUNT-003 and R-MODERATION-012: who may add a
+// passkey, and what every addition leaves behind.
 // Through the real auth library with a software passkey.
 import { describe, expect, test } from "vitest";
 

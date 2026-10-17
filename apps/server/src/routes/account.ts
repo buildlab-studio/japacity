@@ -47,7 +47,7 @@ export interface AccountView {
   /** R-ACCOUNT-024: from when the username may change; 0 while the free change is unused. */
   renameFrom: number;
   /**
-   * R-ACCOUNT-027 (to be amended), R-ACCOUNT-020: the ways back in, read from the auth library's rows and never written
+   * R-ACCOUNT-027, R-ACCOUNT-020: the ways back in, read from the auth library's rows and never written
    * here. `google`: the address Google gave where Google is linked; `email`: the address a code goes to; `passkeys`: how
    * many are held. A guest has none. No token, no Google subject.
    */

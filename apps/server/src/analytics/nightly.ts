@@ -33,7 +33,7 @@ type Counted =
   | { type: "place/returned"; shape: string }
   | { type: "lottery/bought"; tickets: number };
 
-/** R-ANALYTICS-008: d3 and d14 were added on 11 Oct 2026, so the returns make a curve. */
+/** R-ANALYTICS-008: the days after sign-up a return is counted on, close enough that the returns make a curve. */
 const RETURNED: Partial<Record<number, string>> = { 1: "d1", 3: "d3", 7: "d7", 14: "d14", 30: "d30" };
 
 /**

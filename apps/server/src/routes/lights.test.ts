@@ -1,8 +1,7 @@
 // The two lights' counts (docs/rules/account.md R-ACCOUNT-031): made from the
 // stored totals, public, rounded, kept in the server's cache by the hour. Home
 // and abroad are the lives being played as the nightly count last found them,
-// and before its first run the lives started and the departures (amended 11
-// Oct 2026).
+// and before its first run the lives started and the departures.
 import { newState, time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import { afterEach, describe, expect, test, vi } from "vitest";

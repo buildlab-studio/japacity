@@ -13,14 +13,14 @@ declare namespace Cloudflare {
     DRAW_TOKEN_KEY: string;
     /** R-SERVER-018: the private overlay; unset, the public defaults run the game. */
     OVERLAY?: string;
-    /** Secrets the maintainer sets with `wrangler secret put` (R-ACCOUNT-001, 013). */
+    /** Secrets set with `wrangler secret put` (R-ACCOUNT-001, 013). */
     BETTER_AUTH_SECRET: string;
     GOOGLE_CLIENT_ID: string;
     GOOGLE_CLIENT_SECRET: string;
     TURNSTILE_SECRET_KEY: string;
     /** R-SERVER-012: the admin accounts, comma-separated account ids, a Worker secret set once per environment; unset, the admin page does not exist. */
     ADMIN_ACCOUNTS?: string;
-    /** R-CLOCK-031: the VAPID pair, base64url, and the address the push services can reach the maintainer at. No notice is sent without all three. */
+    /** R-CLOCK-031: the VAPID pair, base64url, and the address the push services can reach the game's operator at. No notice is sent without all three. */
     VAPID_PUBLIC_KEY?: string;
     VAPID_PRIVATE_KEY?: string;
     VAPID_SUBJECT?: string;

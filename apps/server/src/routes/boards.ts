@@ -3,7 +3,7 @@
 // `switched-off` with Retry-After before anything is read.
 //
 // GET /api/boards/:when/:who   when this-week|all-time, who everyone|friends
-// GET /api/boards/joined-week  the joined-the-same-week board, switched off at launch
+// GET /api/boards/joined-week  the joined-the-same-week board, its switch off by default
 import { Hono } from "hono";
 import type { Context } from "hono";
 

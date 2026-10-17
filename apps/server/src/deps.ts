@@ -93,7 +93,7 @@ export interface Contents {
 /** R-SERVER-015, R-SERVER-016: the secrets of the deployment. Never in a reply. */
 export interface Secrets {
   worldSeed: string;
-  /** the salt of the banned identities' hashes (R-MODERATION-012) and the HMAC key of the draw tokens (R-SERVER-015, 016). */
+  /** The salt of the banned identities' hashes (R-MODERATION-012) and the HMAC key of the draw tokens (R-SERVER-015, 016). */
   banSalt: string;
   drawTokenKey: string;
 }

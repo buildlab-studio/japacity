@@ -280,7 +280,7 @@ describe("the review", () => {
   });
 
   test("[R-ADVERT-014] given approved campaigns, when the five-minute job runs, then only one starting before the next run has its links rechecked and is pulled when they fail", async () => {
-    // the job is handed the deployment's tick period; five minutes here, as before.
+    // The job is handed the deployment's tick period; five minutes here.
     const FIVE = tickPeriodMs(TICKS_CRON);
     const clock = { at: EPOCH };
     const deps = world(clock);
@@ -315,7 +315,7 @@ describe("the review", () => {
     const clock = { at: EPOCH };
     const deps = world(clock);
     const app = makeApp(deps);
-    // On the old fixed window of five minutes from the run, the campaigns at five and at 29 minutes in were never rechecked.
+    // A fixed window of five minutes from the run would never recheck the campaigns at five and at 29 minutes in.
     const justAfter = await live(app, { starts: EPOCH + 30 * time.SECOND_MS });
     const fiveIn = await live(app, { starts: EPOCH + 5 * time.MINUTE_MS });
     const lastMs = await live(app, { starts: EPOCH + THIRTY - 1 });

@@ -57,7 +57,7 @@ describe("invite links", () => {
     const again = await call<Reply<InviteAccepted>>(server, "POST", `/api/invite/${code}/accept`, "account-c", { slot: "partner" });
     const shown = await call<Reply<InviteShown>>(server, "GET", `/api/invite/${code}`, null);
 
-    // a link taken is a conflict, 409, as a name taken or an action appealed already.
+    // A link taken is a conflict, 409, as a name taken or an action appealed already.
     expect(again.status).toBe(409);
     expect(again.body).toMatchObject({ ok: false, code: "used" });
     expect(shown.status).toBe(409);
@@ -76,7 +76,7 @@ describe("invite links", () => {
     expect(made.expires - made.madeAt).toBe(content.tuning.pair.inviteDays * time.DAY_MS);
 
     server.setNow(made.expires);
-    // a link run out is 403, as the age pass that ran out is on the account routes.
+    // A link run out is 403, as the age pass that ran out is on the account routes.
     const late = await call<Reply<InviteAccepted>>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "partner" });
     expect(late.status).toBe(403);
     expect(late.body).toMatchObject({ ok: false, code: "expired" });
@@ -119,7 +119,7 @@ describe("invite links", () => {
     const more = await call<Reply<InviteMade>>(server, "POST", "/api/invite", INVITER, { slot: "sibling-1" });
     const again = await call<Reply<InviteMade>>(server, "POST", "/api/invite", INVITER, { slot: "partner" });
 
-    // too many is 429, as the guest sign-up's too-many and the reports' limit are.
+    // Too many is 429, as the guest sign-up's too-many and the reports' limit are.
     expect(more.status).toBe(429);
     expect(more.body).toMatchObject({ ok: false, code: "too-many" });
     expect(again.body).toMatchObject({ ok: true, code });
@@ -155,7 +155,7 @@ describe("invite links", () => {
     await call(server, "POST", "/api/character", "account-eu", { scenario: "scenario.tunde" });
     await must(server, "account-eu", { type: "people/invite", slot: "partner", looking: "partner" });
 
-    // a region that allows no pair is 403, as a region closed to sign-up is.
+    // A region that allows no pair is 403, as a region closed to sign-up is.
     const taken = await call<Reply<InviteAccepted>>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "partner", scenario: "scenario.tunde" });
     expect(taken.status).toBe(403);
     expect(taken.body).toMatchObject({ ok: false, code: "region" });

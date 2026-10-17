@@ -25,7 +25,7 @@ export type ServerCode =
   | "bot-check"
   | "not-fresh"
   | "bad-code"
-  // the people routes' refusals (pair.md R-PAIR-008, 013; moderation.md R-MODERATION-001).
+  // The people routes' refusals (pair.md R-PAIR-008, 013; moderation.md R-MODERATION-001).
   | "not-possible"
   | "blocked"
   | "too-many"

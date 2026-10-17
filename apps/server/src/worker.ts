@@ -1,8 +1,8 @@
 // The Worker's request and job plumbing (decision 0004), kept apart from
 // `index.ts` so the tests run it on Node. One request or one job has one `pg`
 // client through the Hyperdrive configuration with caching off, opened when a
-// store or the auth library first asks for it (R-SERVER-002, amended 11 Oct
-// 2026) and closed once the reply and every background task have settled;
+// store or the auth library first asks for it (R-SERVER-002) and closed once
+// the reply and every background task have settled;
 // nothing holds a client between requests.
 import { content, text } from "@japacity/content";
 import { connectOnFirstUse, pgDayLog } from "@japacity/db";
@@ -49,8 +49,8 @@ export function isolateOf(env: Env): Isolate {
 }
 
 /**
- * Owner: the email provider (account.md R-ACCOUNT-014); until one is chosen no code leaves the server.
- * R-ACCOUNT-003: the notices go by the same way as the codes. Only the local stack sends, to Mailpit.
+ * The mail transport (account.md R-ACCOUNT-014, decision 0031): the MAIL binding on a deployment, Mailpit on the
+ * local stack (mail.ts). R-ACCOUNT-003: the notices go by the same way as the codes.
  */
 function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): AuthKeys {
   const { sendOtp, sendNotice } = mailFor(env, { text, codeSeconds: productionConfig.auth.otp.expiresIn }, (input, init) => fetch(input, init));

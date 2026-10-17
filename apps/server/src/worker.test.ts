@@ -100,7 +100,7 @@ function testEnv(): Env {
     GOOGLE_CLIENT_ID: "test-google-client",
     GOOGLE_CLIENT_SECRET: "test-google-secret",
     TURNSTILE_SECRET_KEY: "test-turnstile-secret",
-    // Both environments set the tick cron and bind the mail; neither is reached by these tests.
+    // A deployment may set the tick cron and binds the mail; neither is reached by these tests.
     TICK_CRON: "*/30 * * * *",
     MAIL: { send: () => Promise.reject(new Error("no mail in this test")) },
   };

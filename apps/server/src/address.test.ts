@@ -1,7 +1,7 @@
 // japacity.app is the game's one address.
 // The address the server trusts (SITE_URL, which the auth library, the passkeys' relying party,
 // the Turnstile host check and the origin check all read) is the address the game is served
-// from, on the same host as its API, and the one the gate owns before launch.
+// from, on the same host as its API, and the one the gate's route covers while the game is closed.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
@@ -70,7 +70,7 @@ describe("the game's address", () => {
   });
 
   test("[R-SERVER-038] [R-CLOCK-012] given both environments, when their crons are read, then production ticks every five minutes with no TICK_CRON since Neon moved to a paid plan, staging on its own TICK_CRON of thirty minutes, both with the daily cron", () => {
-    // Production ticked like staging until launch; since Neon moved to a paid plan its TICK_CRON is gone and the first cron is TICKS_CRON.
+    // Production's database is on a paid plan that need not sleep, so production sets no TICK_CRON and its first cron is TICKS_CRON.
     expect(server.vars["TICK_CRON"]).toBeUndefined();
     expect(server.triggers?.crons).toEqual([TICKS_CRON, "0 0 * * *"]);
     expect(staging?.vars["TICK_CRON"]).toBe("*/30 * * * *");
@@ -91,7 +91,6 @@ describe("the game's address", () => {
   });
 
   test("[R-SERVER-038] [R-SERVER-042] given both environments, when their observability is read, then production keeps every request's logs and invocation log, a twentieth of traces and Issues, and staging has no block of its own, so it inherits the same", () => {
-    // production had none, staging logs only.
     expect(server.observability).toEqual(OBSERVED);
     // `observability` is an inheritable key (wrangler's configuration page), so staging without one runs on the top level's.
     expect(staging?.observability).toBeUndefined();

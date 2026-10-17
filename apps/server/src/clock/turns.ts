@@ -1,6 +1,6 @@
 // Turns on real time (docs/rules/clock.md R-CLOCK-004 to 006, R-CLOCK-009):
-// the local authority's `earnTurns` moved to the server unchanged, as a pure
-// function of the state, the character's `refilledAt` and the server's time.
+// `earnTurns` is a pure function of the state, the character's `refilledAt`
+// and the server's time.
 import type { State } from "@japacity/sim";
 import { int } from "@japacity/sim";
 

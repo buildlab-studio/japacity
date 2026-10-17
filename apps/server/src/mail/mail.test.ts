@@ -71,7 +71,7 @@ describe("the mail transport", () => {
     expect(box.sent[0]?.body).toMatchObject({ Subject: text["mail.passkey-added.subject"], Text: expect.stringContaining("Sun, 11 Oct 2026 09:53:00 GMT") as unknown });
   });
 
-  // a deployment now sends through its MAIL binding; one without it still sends nothing.
+  // A deployment sends through its MAIL binding (decision 0031); one without it sends nothing.
   test("[R-ACCOUNT-014] given no MAIL_TRANSPORT and no MAIL binding, when a code or a notice is sent, then the send is refused and nothing is fetched", async () => {
     const box = inbox();
     const mail = mailFor({ MAILPIT_URL: MAILPIT }, WORDS, box.fetch);

@@ -23,7 +23,7 @@ export interface ServerConfig {
     /** R-SERVER-046: the most prologue steps one preset request plays. */
     presetSteps: number;
   };
-  /** R-CLOCK-001 to 006, 019. `epoch` is a Friday at 18:00 UTC (R-CLOCK-002); the maintainer picks which. */
+  /** R-CLOCK-001 to 006, 019. `epoch` is a Friday at 18:00 UTC (R-CLOCK-002). */
   clock: { epoch: number; worldTickMs: number; turnRefillMs: number; worldFetchSpreadMs: number };
   /** R-CLOCK-026, 028, 029. */
   presence: { maxPerObject: number; sample: number; nudgeEveryMs: number; attachmentBytes: number; todayMax: number };
@@ -92,7 +92,7 @@ export const launchRegions: Regions = {
   ...Object.fromEntries(EU.map((code) => [code, { open: true, interaction: "none", ageCheck: DECLARED }])),
 };
 
-/** Friday 9 October 2026 at 18:00 UTC, the default epoch until the maintainer picks the Friday after the first deploy (R-CLOCK-002). */
+/** Friday 9 October 2026 at 18:00 UTC, the epoch every deployment runs on (R-CLOCK-002). */
 export const DEFAULT_EPOCH = Date.UTC(2026, 9, 9, 18, 0, 0);
 
 export const productionConfig: ServerConfig = {
@@ -109,7 +109,7 @@ export const productionConfig: ServerConfig = {
     adminBodyBytes: KIB * KIB,
     // R-SERVER-037: the largest command, a month's slots, is a few hundred bytes of JSON.
     commandBytes: 4 * KIB,
-    // R-SERVER-046: the longest preset is seventeen answers (counted 11 Oct 2026 over every tile, home and age).
+    // R-SERVER-046: the longest preset is seventeen answers (counted over every tile, home and age).
     presetSteps: 20,
   },
   clock: { epoch: DEFAULT_EPOCH, worldTickMs: time.WORLD_TICK_MS, turnRefillMs: time.TURN_REFILL_MS, worldFetchSpreadMs: 60 * time.SECOND_MS },

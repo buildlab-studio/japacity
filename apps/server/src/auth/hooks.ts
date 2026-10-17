@@ -57,8 +57,8 @@ interface LimitRow {
 }
 
 /**
- * R-ACCOUNT-003, R-ACCOUNT-018: the SHA-256 of an account id, as hex, the same hash the deletion audit keeps (the lead,
- * 10 Oct 2026): an id is random, so a plain hash names nobody, and a rotated secret never breaks the tie to older rows.
+ * R-ACCOUNT-003, R-ACCOUNT-018: the SHA-256 of an account id, as hex, the same hash the deletion audit keeps:
+ * an id is random, so a plain hash names nobody, and a rotated secret never breaks the tie to older rows.
  */
 export async function accountHash(account: string): Promise<string> {
   return sha256Hex(account);

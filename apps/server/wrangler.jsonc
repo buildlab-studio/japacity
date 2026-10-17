@@ -1,6 +1,6 @@
 // The game's server: the authority for every character (docs/rules/server.md),
 // the clock and the world on a schedule (docs/rules/clock.md), accounts
-// (docs/rules/account.md). Nothing here is deployed until the maintainer says so.
+// (docs/rules/account.md).
 // The values that belong to this deployment (the routes, the Hyperdrive ids) are listed for anyone
 // running their own copy in docs/site/built/your-own-copy.md.
 {
@@ -27,7 +27,7 @@
     "traces": { "enabled": true, "head_sampling_rate": 0.05 },
     "issues": { "enabled": true }
   },
-  // The game's one address. Before launch the gate's route on the same host runs first
+  // The game's one address. While the game is closed the gate's route on the same host runs first
   // (apps/gate/README.md); deleting that route makes this Worker the root.
   "routes": [{ "pattern": "japacity.app", "custom_domain": true }],
   // One Worker is the whole game: the client's build is served as static assets, and only
@@ -42,8 +42,8 @@
     // The game's address. The auth library, the passkeys' relying
     // party (its host, R-ACCOUNT-003), the bot check's host and the origin check on writes trust only this.
     "SITE_URL": "https://japacity.app"
-    // Production ticked every thirty minutes until launch (, so the free plan's
-    // database could sleep); since Neon moved to a paid plan it ticks every five minutes, with no TICK_CRON.
+    // Production's database is on a paid plan that need not sleep, so production sets no TICK_CRON and ticks
+    // every five minutes.
   },
   // R-CLOCK-012: the world's ticks every five minutes. R-SERVER-011: the money report at 00:00 UTC.
   "triggers": { "crons": ["*/5 * * * *", "0 0 * * *"] },
@@ -85,7 +85,7 @@
     "staging": {
       "name": "japacity-server-staging",
       // Inherited from the top level already; written again so staging's own block says it has no
-      // workers.dev address and no preview URLs, by choice.
+      // workers.dev address and no preview URLs.
       "workers_dev": false,
       "preview_urls": false,
       // R-SERVER-040: near staging's database, also in Neon's London region, written again so the block says it.

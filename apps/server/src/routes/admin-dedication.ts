@@ -1,4 +1,4 @@
-// The lights list (docs/rules/moderation.md R-MODERATION-021, "approved first"): the
+// The lights list (docs/rules/moderation.md R-MODERATION-021, a name shows once approved): the
 // dedication lights whose names await a look, for the admin page's moderation tab, and the two decisions on each.
 // Behind the admin gate (R-SERVER-012, R-MODERATION-012), like every admin route.
 //

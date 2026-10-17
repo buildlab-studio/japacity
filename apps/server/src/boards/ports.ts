@@ -1,7 +1,7 @@
 // What the boards need from the accounts: who is a guest (account.md
 // R-ACCOUNT-022, read from the account's own state, so a guest is on no board
 // and reads none). Every board names a line by the account's username, read
-// from the account store (city.md R-CITY-040 as amended 11 Oct 2026).
+// from the account store (city.md R-CITY-040).
 import type { ServerDeps } from "../deps";
 
 export interface BoardPorts {

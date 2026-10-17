@@ -1,5 +1,4 @@
-// The command route never takes an outcome from the client (server.md R-SERVER-001; the maintainer's audit of 11 Oct
-// 2026 asked it be shown). The route reads two fields of the body, `command` and `basedOn` (`readRequest`); a field
+// The command route never takes an outcome from the client (server.md R-SERVER-001). The route reads two fields of the body, `command` and `basedOn` (`readRequest`); a field
 // the command's kind does not know is never read by the simulation. So a body that also carries a state, a wallet,
 // a result or events is not refused: what it carries is ignored, and the stored state is the one the plain command
 // makes.

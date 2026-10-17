@@ -1,5 +1,5 @@
 // `pnpm rollback check <character>` and `pnpm rollback apply <character>`
-// (R-SERVER-008, R-SERVER-009, amended by R-SERVER-047). With no flag it runs
+// (R-SERVER-008, R-SERVER-009, R-SERVER-047). With no flag it runs
 // on the game's database through packages/db, on the string in
 // `DATABASE_URL_UNPOOLED`, one character per run (R-SERVER-010);
 // `--memory <save.json>` stores the save as that character in the memory

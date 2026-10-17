@@ -1,5 +1,5 @@
 // The rollback tool against the database (server.md R-SERVER-008, R-SERVER-009,
-// R-SERVER-010 as amended by R-SERVER-047): the command line's form with no
+// R-SERVER-010, R-SERVER-047): the command line's form with no
 // flag, on Postgres (PGlite, the committed migrations), one character per run.
 import { content } from "@japacity/content";
 import { pgStores } from "@japacity/db";

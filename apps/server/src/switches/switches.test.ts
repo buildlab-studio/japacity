@@ -280,7 +280,7 @@ describe("the admin routes for switches and dials", () => {
       ["/api/admin/dials", { dial: "computerAfterMonths", value: -1, reason: "x" }],
       ["/api/admin/dials", { dial: "computerAfterMonths", value: 2.5, reason: "x" }],
       ["/api/admin/dials", { dial: "computerAfterMonths", value: "5", reason: "x" }],
-      // The raffle's top-up dial, retired by decision 0010, is no dial now.
+      // Decision 0010 has no raffle top-up, so it is no dial.
       ["/api/admin/dials", { dial: "topUpTickets", value: 5, reason: "x" }],
       ["/api/admin/dials", { dial: "surge", value: 1, reason: "x" }],
     ];

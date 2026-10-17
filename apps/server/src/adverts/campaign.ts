@@ -140,7 +140,7 @@ export function creativeFile(content: Content, campaign: Campaign, draft: Creati
 /** R-ADVERT-012, R-ADVERT-016, R-ADVERT-017: what a reviewer records before a campaign is approved. */
 export function campaignChecks(campaign: Campaign): string[] {
   const checks = ["registered-business", "category", ...conditionsOf(campaign.category)];
-  // Owner: whether every advertiser shown in Nigeria brings the regulator's approval; default, required.
+  // whether every advertiser shown in Nigeria brings the regulator's approval; default, required.
   if (campaign.regions.includes("NG")) checks.push("regulator-approval");
   return checks;
 }

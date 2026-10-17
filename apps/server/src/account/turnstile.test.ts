@@ -31,7 +31,7 @@ describe("the bot check's host", () => {
   });
 
   test("[R-ACCOUNT-013] given a pass on SITE_URL's own host for the guest start's action, when it is checked, then it is accepted as before", async () => {
-    // a pass that is not a test key's must also name the action the widget was rendered with.
+    // A pass that is not a test key's must also name the action the widget was rendered with.
     expect(await checkTurnstile(keys({ success: true, hostname: "japacity.app", action: "guest" }), TURNSTILE_TEST.dummyToken, null, "japacity.app")).toEqual({ ok: true });
   });
 });

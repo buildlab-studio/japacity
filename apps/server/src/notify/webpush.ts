@@ -14,7 +14,7 @@ export type Fetch = (input: string, init: RequestInit) => Promise<Response>;
 export interface PushKeys {
   publicKey: string;
   privateKey: string;
-  /** A `mailto:` or `https:` address the push services can reach the maintainer at. */
+  /** A `mailto:` or `https:` address the push services can reach the game's operator at. */
   subject: string;
   fetch: Fetch;
   /** `config.notify`: how long a push service keeps the notice for an offline device, and a token's life. */

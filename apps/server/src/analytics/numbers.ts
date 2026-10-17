@@ -1,4 +1,4 @@
-// R-ANALYTICS-008, R-ANALYTICS-013: the numbers before launch
+// R-ANALYTICS-008, R-ANALYTICS-013: the numbers
 // that the nightly job adds beside the game counters (nightly.ts): sessions,
 // the funnel's server steps, lives started, secured and departed, the economy
 // in bands, top-ups, the players of the last week and month, every account so

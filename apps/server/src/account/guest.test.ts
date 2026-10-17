@@ -259,7 +259,7 @@ describe("rule B: what only a secured account may do", () => {
     expect((await outcome(await h.call("/api/command", { method: "POST", jar: secured.jar, json: command("lottery/buy") }))).code).not.toBe("guest-only");
   });
 
-  // the gate guards the boards the client reads, `/api/boards/...`; it guarded `/api/board`, which nothing serves.
+  // The gate guards the boards the client reads, `/api/boards/...`.
   test("[R-ACCOUNT-022] given a guest, when it reads any board, then it is refused guest-only at the gate; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);

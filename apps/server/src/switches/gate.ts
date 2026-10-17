@@ -27,7 +27,7 @@ export const GATED_PATHS: readonly { path: string; name: SwitchName; reads: bool
   { path: "/api/age", name: "signups", reads: true },
   { path: "/api/adverts", name: "adverts", reads: true },
   { path: "/api/adverts/*", name: "adverts", reads: true },
-  // no pair, people or invite route exists yet; when they land, a route that only serves a pair that exists must stay open (R-SERVER-031), so these close writes only.
+  // A route that only serves a pair that exists must stay open (R-SERVER-031), so these close writes only.
   { path: "/api/pair", name: "partnerPlay", reads: false },
   { path: "/api/pair/*", name: "partnerPlay", reads: false },
   { path: "/api/people", name: "partnerPlay", reads: false },
