@@ -1,9 +1,9 @@
 // How the world talks (docs/rules/world.md R-WORLD-005, R-WORLD-026; the talk budget, docs/design/13-the-lively-layer.md
-// section 5; the plan 6). Two channels and nothing more: pictures over the crowd cost no reading, and words over a
+// section 5). Two channels and nothing more: pictures over the crowd cost no reading, and words over a
 // person come one bubble at a time, at most eight words, for about four seconds, an ambient line then at least twenty of
-// quiet. A longer line never floats: the person shows "…" and a tap opens it in a sheet with their name. The bottom corner
+// quiet. A longer line never floats whole: its bubble clips it to two lines and a tap opens it in a sheet with their name. The bottom corner
 // is for the player's own act's answer alone ("Mama presses a bag of oranges on you."), one line at a time; the street's
-// talk tied to nobody no longer stands there.
+// talk tied to nobody never stands there.
 import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
 
 import { CentredColumn } from "../ui/lively/CentredColumn";
@@ -19,7 +19,7 @@ export const SPEECH_MS = 4000;
 export const QUIET_MS = 30000;
 /** The street's turn comes this often while nothing covers the world; the quiet still holds it back. */
 export const TALK_EVERY_MS = 9000;
-/** The most words a bubble holds; a longer line shows "…" and opens in a sheet. */
+/** The most words a bubble holds whole; a longer line is clipped to two lines and opens in a sheet. */
 export const WORDS_MAX = 8;
 /** The corner shows one line at a time; the others wait their turn. */
 export const CORNER_MAX = 1;
@@ -37,7 +37,7 @@ export interface Line {
 
 /**
  * Someone in the scene speaking: `who` is the thing they stand at (or the resident nearest, `NEAR_SPEAKER`), `name` is
- * said small over their words. A long line shows "…" until tapped open.
+ * said small over their words. A long line shows clipped to two lines until tapped open.
  */
 export interface Speech {
   id: number;
@@ -73,7 +73,7 @@ export function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter((word) => word !== "").length;
 }
 
-/** True when a line is too long to float: it shows "…" and opens in a sheet (the talk budget). */
+/** True when a line is too long to float whole: it is clipped to two lines and opens in a sheet (the talk budget). */
 export function isLong(text: string): boolean {
   return wordCount(text) > WORDS_MAX;
 }
@@ -210,7 +210,8 @@ export function useStreetTalk(next: () => string | TalkLine | null, free: boolea
       const line = nextRef.current();
       if (line === null) return;
       const heard = typeof line === "string" ? { text: line } : line;
-      // A line's own speaker is named over it; else at home the voice is the house's, not a stranger's, and in the street someone nearby.
+      // A line's own speaker is named over it; else at home the voice is the house's, not a stranger's
+      // (never "Someone nearby" at the family house), and in the street someone nearby.
       murmur(heard.text, Date.now(), heard.name ?? nameRef.current, heard.who);
     };
     talk();
@@ -230,7 +231,7 @@ export function Corner({ hidden = false, told = false }: { hidden?: boolean; tol
   if (hidden || line === undefined) return null;
   return (
     // On a laptop the corner is the centred column's (decision 0038). It keeps out of the thumbs' columns, so the round turn
-    // button over Phone never stands on its end (040).
+    // button over Phone never stands on its end.
     <CentredColumn className={`pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+84px)] flex justify-center px-[72px] ${told ? "z-[45]" : "z-[36]"}`}>
       <p key={line.id} className="talk-corner rise max-w-full px-4 py-1.5 text-center text-[14px] leading-snug font-bold" role="status" data-corner data-told>
         {line.text}
@@ -364,7 +365,7 @@ export function bubbleSpot(at: { x: number; y: number; z: number }, size: { widt
 
 /**
  * Draws the bubble's tail as `bubbleSpot` placed it: a point in the bubble's own fill with its edge round it and the
- * underside under it, leaving the box between its corners and ending over the speaker (the three of 16 Oct, item 1).
+ * underside under it, leaving the box between its corners and ending over the speaker.
  */
 export function drawTail(bubble: HTMLElement, tail: BubbleSpot["tail"]): void {
   const svg = bubble.querySelector<SVGSVGElement>("[data-speech-tail]");
@@ -397,8 +398,8 @@ export function tailPaths(width: number, tail: BubbleSpot["tail"]): { under: str
  * The bubble over whoever is speaking: the lively bubble with the speaker's name pill over their words, in one pair of
  * curly quotes whatever line it is (the quotes are the bubble's, never the line's). With a scene drawn (`anchored`) the
  * scene moves it each frame clear of every head and name, its tail over the speaker (`bubbleSpot`, `drawTail`), and it
- * stays hidden until then; with none it stands over the corner. A tap takes a short line down; a long one shows "…" and
- * a tap opens it in a sheet.
+ * stays hidden until then; with none it stands over the corner. A tap takes a short line down; a long one shows clipped to two
+ * lines and a tap opens it in a sheet.
  */
 export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; anchored: boolean }) {
   const { speech, open } = useLines();
@@ -439,7 +440,7 @@ export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; a
                 </span>
                 <span data-speech-name>{speech.name}</span>
               </span>
-              {/* A long line shows its words too, clipped to two lines; the tap opens it whole. */}
+              {/* A long line shows its words too, clipped to two lines; the tap opens it whole, since a bubble of three dots says nothing. */}
               <span className={`talk-said block text-[15px] leading-snug ${speech.long ? "talk-clip" : ""}`} data-speech-words>
                 {speech.text}
               </span>

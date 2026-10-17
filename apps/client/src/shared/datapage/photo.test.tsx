@@ -68,7 +68,7 @@ describe("the photo's size", () => {
     expect(sharpEnough(196, 3)).toBe(false);
     expect(sharpEnough(196, 2)).toBe(true);
     expect(sharpEnough(294, 3)).toBe(true);
-    // A photo kept at the old, larger width is sharp enough already.
+    // A photo saved at a larger width is sharp enough already.
     expect(sharpEnough(480, 3)).toBe(true);
   });
 

@@ -1,5 +1,5 @@
-// "Make it yours" on the door's first screen (prologue.md R-PROLOGUE-015): under the look strip, opened on a tap (the
-// door's round 2), swatches for the skin, the hair and the top, and a printed top's fabric, each starting as the look
+// "Make it yours" on the door's first screen (prologue.md R-PROLOGUE-015): under the look strip, opened on a tap,
+// swatches for the skin, the hair and the top, and a printed top's fabric, each starting as the look
 // was made, with the way back to as made. The style is kept with the person beside the save, the page prints the look in it, and none of it reaches the
 // simulation.
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";

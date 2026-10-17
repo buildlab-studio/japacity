@@ -1,4 +1,4 @@
-// The door's pictures (prologue.md R-PROLOGUE-009, 013; the door's second design): a look's face for the look strip and the
+// The door's pictures (prologue.md R-PROLOGUE-009, 013): a look's face for the look strip and the
 // life cards, its whole figure standing with a hand on the hip on the first screen and cheering on the page after
 // Begin, each shot by the asset shooter from the shipped model and published as a tile (`tiles/<look>-face.png`,
 // `-figure.png`, `-cheer.png`), and a model's own tile for a life's thing or a home. No three.js turntable and no drag:
@@ -120,7 +120,7 @@ export function useFigureInColours(look: string, style: LookStyle | undefined, v
     if (key === null || drawn.has(key) || !canDraw()) return;
     let alive = true;
     // Drawing holds the main thread, so the swatch's tick paints first, and of colours tapped faster than a frame only
-    // the last is drawn.
+    // the last is drawn (110 to 440 ms a colour under 4x CPU throttling).
     const wait = afterPaint(() => {
       void import("../datapage/photoRender")
         .then(({ renderFigure }) => renderFigure(`shared/chr/${look}.glb`, style, view))

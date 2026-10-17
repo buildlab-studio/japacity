@@ -7,9 +7,9 @@
 export const COMMANDS_PER_WINDOW = 8;
 export const WINDOW_MS = 10_000;
 /**
- * The pace the prologue's presets kept online while they left one at a time (prologue.md R-PROLOGUE-010 as amended 11 Oct
- * 2026): eight in ten seconds. Since 16 Oct 2026 the preset leaves as one request (server.md R-SERVER-046) and the page
- * paces its own chips, so nothing in the game reads this or `presetWait`; pace.test.ts still holds them to the limit.
+ * The pace for the prologue's presets sent one at a time online (prologue.md R-PROLOGUE-010): eight in ten seconds. The
+ * preset leaves as one request (server.md R-SERVER-046) and the page paces its own chips, so nothing in the game reads
+ * this or `presetWait`; pace.test.ts holds them to the limit.
  */
 export const PRESET_STEP_MS = WINDOW_MS / COMMANDS_PER_WINDOW;
 

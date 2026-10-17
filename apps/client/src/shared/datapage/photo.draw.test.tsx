@@ -1,6 +1,6 @@
 // The page's photo where WebGL can draw (prologue.md R-PROLOGUE-015): as made too, at the size
 // the box shows it times the screen's pixel ratio. The render itself needs WebGL, so it stands in here and reports the
-// size it was asked for; the picture on a Pixel 7 is in the build notes.
+// size it was asked for.
 import { render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 

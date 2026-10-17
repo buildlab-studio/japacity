@@ -1,4 +1,4 @@
-// The three marks on every share picture (docs/rules/share.md R-SHARE-006, the review): a
+// The three marks on every share picture (docs/rules/share.md R-SHARE-006): a
 // faint watermark of the game's name across the background, a diagonal badge at a top corner with the
 // game's name, and the branding with the address at the foot. Drawn under the words, never over them.
 import { content, shareChapters, shareKinds, text, type ShareKind } from "@japacity/content";

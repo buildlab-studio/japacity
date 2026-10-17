@@ -1,5 +1,5 @@
-// The first-use labels (docs/rules/world.md R-WORLD-033): "Go places" stood at the Map's
-// thumb after twelve months when the map was only ever opened by the nudge. The map open, however it was opened, counts.
+// The first-use labels (docs/rules/world.md R-WORLD-033): a map only ever opened by the nudge
+// never leaves "Go places" standing at the Map's thumb. The map open, however it was opened, counts.
 import { renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 

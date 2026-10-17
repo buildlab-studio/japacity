@@ -48,7 +48,7 @@ export async function begin(): Promise<void> {
   );
 }
 
-/** Past the page as the handover: its Go, once the years are in, and on until the world (or the old month page) is up. */
+/** Past the page as the handover: its Go, once the years are in, and on until the gate has left the screen. */
 export async function passThePage(): Promise<void> {
   await waitFor(
     () => {

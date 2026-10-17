@@ -97,7 +97,7 @@ function artOf(card: ShareCard): string {
 }
 
 /**
- * The character's name as the band says it (share.md R-SHARE-004 as amended 16 Oct 2026), the one source for the card, the
+ * The character's name as the band says it (share.md R-SHARE-004), the one source for the card, the
  * stub, the image that travels and the send-off scene: the name given at the door, else the first
  * word of the life's own name ("Adaeze"), else the scenario's `share.first-name`. Null with no life.
  */

@@ -1,4 +1,4 @@
-// The one look for every wait (R-ENGINE-015): a thin rounded bar in the band's ink on the sheet's ground, under the waiting words. Without a
+// The one look for every wait (R-ENGINE-015), centred words with a horizontal loader: a thin rounded bar in the band's ink on the sheet's ground, under the waiting words. Without a
 // known share a short segment eases across by transform alone; with one the bar fills to it. Under reduced motion the
 // moving segment stands still as a full quiet bar (index.css, `.loader`). Never a spinner.
 import type { ReactNode } from "react";

@@ -43,7 +43,7 @@ function useMomentStanding(): boolean {
 }
 
 export function WorldSheet({ open, onClose, label, title, children, foot, mark }: WorldSheetProps) {
-  // Under a moment card the sheet's head steps back, its title and its close, so one close is in view (139).
+  // Under a moment card the sheet's head steps back, its title and its close, so one close is in view.
   const covered = useMomentStanding();
   return (
     <Dialog.Root

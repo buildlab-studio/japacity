@@ -1,7 +1,7 @@
 // R-ENGINE-015: the card for a request that brought no answer the game can read. It says what happened in a person's
 // words, by the failure's kind, over whatever sent it: the loading screen, the door's Begin, or the sheet whose choice
 // is kept. Retry sends the same again; a login wall or an ended session also offers Reload, which opens the game anew.
-// the game's card dress, never red text: the line in the game's voice, a plain
+// The game's card dress, never red text: the line in the game's voice, a plain
 // detail under it, Retry as the yellow pressed button and Reload as the quiet one, as the door's buttons are. The kind
 // and what failed stay on the card (`data-trouble`, `data-trouble-during`) for whoever reports it; no status, code or
 // stack is ever shown.

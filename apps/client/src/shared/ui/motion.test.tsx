@@ -1,4 +1,4 @@
-// the maintainer's standard for state changes (docs/rules/world.md R-WORLD-023): what opens, closes,
+// The standard for state changes (docs/rules/world.md R-WORLD-023): what opens, closes,
 // appears or expands moves by a plain CSS transition on transform and opacity only, 150 to 250 ms, never on a layout
 // property; the shared sheets and cards carry it, so every screen built on them does.
 import { readFileSync } from "node:fs";

@@ -35,8 +35,8 @@ function search(): string {
 }
 
 /**
- * Whether the night paint follows the clock for players: live since the hand's wave (design page 13, section 8), which
- * dressed the surfaces over the world to read in both paints. `?paint=` still stands either paint in, in development.
+ * Whether the night paint follows the clock for players (design page 13, section 8): the
+ * surfaces over the world read in both paints. `?paint=` still stands either paint in, in development.
  */
 export const NIGHT_PAINT_LIVE = true;
 

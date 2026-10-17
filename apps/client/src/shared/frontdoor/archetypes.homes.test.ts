@@ -1,4 +1,4 @@
-// The homes the door offers (prologue.md R-PROLOGUE-013 as the home's wave asks it amended): your own room first, the
+// The homes the door offers (prologue.md R-PROLOGUE-013): your own room first, the
 // hostel room second, the family house last as one more reason to leave, each with a line; Makoko for the child of the
 // water alone. The tile's preset still picks when the player does not, and a life with no choice starts at the family house.
 import { describe, expect, test } from "vitest";

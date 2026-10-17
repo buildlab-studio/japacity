@@ -65,8 +65,8 @@ describe("which outcomes are moments", () => {
     const refused = line("line.route.refused", { route: "route.uk-masters", reason: "interview" }, { tone: "bad" });
     expect(momentLine([robbed, refused], AT_HOME)).toBe(refused);
     expect(momentLine([line("line.activity.played", { activity: "activity.rest" })], AT_HOME)).toBeNull();
-    // the endorsement's own refusal is a refusal, and the deposit lost follows the agent.
-    // the stamps follow the chapter, the road's own figure first.
+    // The endorsement's own refusal is a refusal, and the deposit lost follows the agent.
+    // The passbook's stamps follow the chapter, the road's own figure first.
     expect(MOMENTS.map((entry) => entry.kind)).toEqual(["refused", "refused", "granted", "robbed", "agent", "deposit", "won", "won", "landed", "chapter", "held", "held"]);
   });
 
@@ -97,7 +97,7 @@ function depositTaken(): { answer: ReportLine[]; month: ReportLine[]; view: Play
   throw new Error("No seed made the cousin's pitch a fraud.");
 }
 
-// Review 14, X8: the endorsement refused and the cousin's ₦300,000 deposit gave no card.
+// The endorsement refused and the cousin's ₦300,000 deposit each make a card.
 describe("the biggest losses get their card", () => {
   // Decision 0037: in the re-recorded lives only Zainab, abroad-bound, is refused an endorsement.
   test("[R-MOMENT-001] given the endorsement refused by the body (Zainab's recorded life), when the month's lines come, then the refusal is the card, told by the body's own line", () => {

@@ -1,6 +1,6 @@
-// The client keeps under the server's command limit (docs/rules/server.md R-SERVER-025, prologue.md R-PROLOGUE-010,
-// both amended 11 Oct 2026). Found on the local full stack that day: a new life online sent its prologue's presets as
-// fast as the replies came, the eleventh in ten seconds was refused 429, and the band never came.
+// The client keeps under the server's command limit (docs/rules/server.md R-SERVER-025, prologue.md R-PROLOGUE-010):
+// a new life online that sent its prologue's presets as fast as the replies came would have the eleventh in ten
+// seconds refused 429, and the band would never come.
 import { describe, expect, test } from "vitest";
 
 import { remoteAuthority } from "../../authority/remote";
@@ -127,7 +127,7 @@ describe("the client keeps under the command limit", () => {
         }
       }
     }
-    // Counted on 11 Oct 2026: seven for the shop worker and the child of the water, fourteen to seventeen for the tiles through school and university.
+    // Seven for the shop worker and the child of the water, fourteen to seventeen for the tiles through school and university.
     expect(longest).toBeGreaterThanOrEqual(14);
     expect(longest).toBeLessThanOrEqual(20);
     const times = await begunTimes(longest);

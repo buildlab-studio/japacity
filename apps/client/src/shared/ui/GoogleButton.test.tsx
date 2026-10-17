@@ -1,5 +1,5 @@
-// Google's sign-in button to Google's branding guidelines (docs/rules/account.md R-ACCOUNT-023, amended 11 Oct 2026;
-// developers.google.com/identity/branding-guidelines, read that day): the G as Google gives it, the light and dark
+// Google's sign-in button to Google's branding guidelines (docs/rules/account.md R-ACCOUNT-023;
+// developers.google.com/identity/branding-guidelines, read 11 Oct 2026): the G as Google gives it, the light and dark
 // themes' colours, the sizes and the face, and only Google's own texts on it.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";

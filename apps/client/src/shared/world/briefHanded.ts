@@ -1,4 +1,4 @@
-// The brief last handed (docs/design/13-the-lively-layer.md section 4; the plan 16): once the mission card's Let's go
+// The brief last handed (docs/design/13-the-lively-layer.md section 4): once the mission card's Let's go
 // is pressed, the brief is carried, and the phone's Japa app takes a dot until it is next opened (the app's seen mark,
 // features/phone/seen.ts). Kept on the device with the life's scenario, so another life's brief is never read as this one's.
 import { useSyncExternalStore } from "react";

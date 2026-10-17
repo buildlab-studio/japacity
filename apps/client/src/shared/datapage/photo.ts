@@ -1,7 +1,7 @@
 // The page's photo in the player's own colours (prologue.md R-PROLOGUE-015): the figure rendered once to a small
 // image when the page prints, and kept with the person, so the page in the world shows the same face. As made it is
-// drawn too (amended 11 Oct 2026: the look's own picture is a small whole-figure render, and cropped to the face it
-// was blurry on a phone); only where WebGL is missing does the picture stand. The drawing is loaded only when needed.
+// drawn too, since the look's own picture is a small whole-figure render and blurs on a phone cropped to the face;
+// only where WebGL is missing does the picture stand. The drawing is loaded only when needed.
 import { useEffect, useState } from "react";
 
 import { keepPerson, readPerson } from "../../authority/person";
@@ -38,7 +38,7 @@ function draw(look: string, style: LookStyle | undefined): Promise<Drawn | null>
   const key = keyOf(look, style);
   const held = drawing.get(key);
   if (held !== undefined) return held;
-  // Drawn at the screen's own pixels, so the photo is sharp in its box.
+  // Drawn at the screen's own pixels, so the photo is sharp in its box, never drawn small and stretched.
   const px = photoWidth(ratio());
   const started = import("./photoRender")
     .then(({ renderPhoto }) => renderPhoto(`shared/chr/${look}.glb`, style, px))

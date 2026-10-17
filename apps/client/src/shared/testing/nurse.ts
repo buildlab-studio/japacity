@@ -1,5 +1,5 @@
-// A nurse's life played through `step` on the real content, for the nudge's, the stops' and Japa's tests (the
-// the tile's nurse from school, or the ready nurse; the asks answered the
+// A nurse's life played through `step` on the real content, for the nudge's, the stops' and Japa's tests: the
+// tile's nurse from school, or the ready nurse; the asks answered the
 // quiet way, the staff nurse's job taken, the care page read, the council asked, a sponsor looked for.
 import { content } from "@japacity/content";
 import type { Id, PlayerView, SlotPick, World } from "@japacity/sim";
