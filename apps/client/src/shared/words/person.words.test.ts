@@ -16,7 +16,6 @@ describe("a person's words, never the system's", () => {
     expect(say("line.quality.told.quality.wellbeing.drift.above")).toBe("The good mood from last month passed.");
     expect(say("ui.activity.full")).toBe("Your free time is full this month");
     expect(say("route.uk-masters.item.held")).toBe("Funds held a full month, and still there");
-    expect(say("ui.months.fact.arriving")).toBe("Next month any minute now");
     const all = Object.values({ ...text, ...uiText });
     for (const old of GONE) expect(all.filter((line) => line.includes(old))).toEqual([]);
   });

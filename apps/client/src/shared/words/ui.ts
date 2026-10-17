@@ -71,13 +71,7 @@ export const uiText: Record<string, string> = {
   "ui.day.part.night": "Night",
   // The band's month chip, read aloud: it opens the phone's Calendar.
   "ui.month.chip": "{name}, {part}. Open the calendar",
-  // A quiet month's one line after Until news (R-WORLD-028): "Kept £340. Credit up."
-  "ui.month.quiet.credit-up": "Credit up.",
-  "ui.month.quiet.credit-down": "Credit down.",
-  "ui.month.quiet.passed": "Passed by: {offer}.",
 
-  // Nothing on screen says it, as the band names the month (decision 0034); kept while the voice test reads it.
-  "ui.months.fact.arriving": "Next month any minute now",
   "ui.notify.ask.title": "Know when your months are full",
   "ui.notify.ask.body": "Months to play build up while you are away. We can tell you on this device when you hold all the months you can, and nothing else.",
   "ui.notify.setting": "Tell me when my months are full",

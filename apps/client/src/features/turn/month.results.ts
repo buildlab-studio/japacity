@@ -7,7 +7,6 @@ import type { Currency, MoneyParam, PlayerView, ReportLine } from "@japacity/sim
 import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines } from "../../shared/words/lines";
 import { BANK_CHARGE, CHANGED, CHANGED_OUT, CHANGED_QUEUED, CHANGED_SMALL, CHANGED_STREET, CHANGED_STREET_OUT, CONVERT_PAID, CONVERTED, LOTTO_PAID, LOTTO_TICKETS, type MoneyLine, moneyLines } from "../../shared/words/money";
 import { moneyParam } from "../../shared/words/text";
-import type { PayView } from "../../shared/words/cost";
 import { expiringSoon } from "../../shared/words/expiry";
 import { savingsOf } from "../../shared/words/savings";
 import { EXAM_MARKED, PIECE, PIECE_MORE, asPiece, toldOnResults } from "../../shared/words/told";
@@ -318,33 +317,6 @@ export function untoldLines(lines: readonly ReportLine[]): ReportLine[] {
     story.splice(at, 1);
     return false;
   });
-}
-
-/** A small ask a run passed (R-WORLD-028), told in the quiet line as passed by, not as asking for an answer. */
-export const QUIET_PASSED = "ui.month.quiet.passed";
-
-/** The credit file's move over a quiet month, as the store adds it to the month's lines. */
-export const CREDIT_UP = "ui.month.quiet.credit-up";
-export const CREDIT_DOWN = "ui.month.quiet.credit-down";
-const CREDIT_MOVED: ReadonlySet<string> = new Set([CREDIT_UP, CREDIT_DOWN]);
-
-function toldQuiet(line: ReportLine, pays: PayView): ReportLine {
-  const offer = line.params["offer"];
-  if (line.key === OPENED && typeof offer === "string" && content.offer[offer as keyof typeof content.offer]?.news === false) return { ...line, key: QUIET_PASSED };
-  return toldOnResults(line, pays);
-}
-
-/**
- * A quiet month of an Until news run as its one line (R-WORLD-028): what was kept in the money the
- * character lives on, and the one thing that moved: the month's first story line (a small ask passed
- * by told as such), else the credit file going up or down ("Kept £340. Credit up."), else nothing.
- */
-export function quietLine(lines: readonly ReportLine[], local: Currency, pays: PayView): { kept: number | null; moved: ReportLine | null } {
-  const money = moneyLines(lines);
-  const net = kept(money).find((entry) => entry.currency === local);
-  const [first] = storyLines(lines);
-  const credit = lines.find((line) => CREDIT_MOVED.has(line.key));
-  return { kept: money.length === 0 || net === undefined ? null : net.amount, moved: first !== undefined ? toldQuiet(first, pays) : (credit ?? null) };
 }
 
 /** A row the kiosk's tickets were told on: one ticket, or several bought at once. */
