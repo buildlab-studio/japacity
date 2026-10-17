@@ -10,7 +10,7 @@ import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { LOTTO_TICKETS } from "../../shared/words/money";
 import { say, words } from "../../shared/words/text";
-import { changesInto, foldLotto, kept, moneyLines, monthTags } from "./month.results";
+import { changesInto, kept, moneyLines, monthTags } from "./month.results";
 import { Results } from "./Results";
 
 const TICKET = content.tuning.luck.ticket;
@@ -22,7 +22,6 @@ describe("the tags under what was kept", () => {
     for (let visit = 0; visit < 3; visit += 1) now.push(...game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" }).lines);
     game.endTurn();
     const lines = moneyLines([...now, ...(game.view().report?.lines ?? [])]);
-    expect(foldLotto(lines).filter((entry) => entry.line.key === LOTTO_TICKETS)).toHaveLength(1);
     expect(monthTags(lines)).toEqual([{ id: "lotto", tone: "down", key: "ui.results.tag.lotto", amount: { currency: "NGN", amount: TICKET * 3 } }]);
     const { store } = await renderWithView(<Results place="Home" />, game.view());
     act(() => store.setState({ reportOpen: true, lastMonthLines: now }));

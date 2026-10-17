@@ -327,20 +327,6 @@ function isLotto(entry: MoneyLine): boolean {
 /** What came in from a change, at the bank or with the FX man: the side the results tell as the change. */
 const CHANGE_IN: ReadonlySet<string> = new Set([CHANGED, CHANGED_SMALL, CHANGED_STREET]);
 
-/**
- * The month's tickets in one row (R-TEXT-008: said once): every ticket bought at the kiosk this month, at whatever
- * visit, folded into the first row they were told on, with their money added. Only the telling folds; what was kept
- * still counts each line.
- */
-export function foldLotto(lines: readonly MoneyLine[]): MoneyLine[] {
-  const tickets = lines.filter(isLotto);
-  if (tickets.length < 2) return [...lines];
-  const amount = tickets.reduce((sum, entry) => sum + entry.amount, 0);
-  const first = tickets[0]!;
-  const folded: MoneyLine = { ...first, amount, line: { ...first.line, key: LOTTO_TICKETS, params: { ...first.line.params, amount: { currency: first.currency, amount } } } };
-  return lines.flatMap((entry) => (entry === first ? [folded] : isLotto(entry) ? [] : [entry]));
-}
-
 /** The line under Kept for each change of money in the month (R-WORLD-008). */
 export const CHANGED_INTO = "ui.results.changed-into";
 
