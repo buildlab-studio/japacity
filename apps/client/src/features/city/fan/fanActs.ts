@@ -243,14 +243,12 @@ export function fanModel(entries: readonly FanEntryOf[], view: PlayerView, plan:
             before: { amount: paying.before.amount, words: formatMoney(paying.before.amount, paying.before.currency) },
             after: { amount: paying.left.amount, words: formatMoney(paying.left.amount, paying.left.currency) },
           };
-    const narrowed: Act = { ...act, stages };
-    delete narrowed.more;
     return [
       {
         id: stages,
         from: act.id,
         kind: "now",
-        act: narrowed,
+        act: fanActOf({ acts: [act] }, stages) ?? act,
         name: nameOf(stages),
         picture: stages,
         tint: tintOf(stages),
