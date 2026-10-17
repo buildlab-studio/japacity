@@ -38,21 +38,3 @@ export function sampleCommands(view: PlayerView): Loose[] {
   if (view.ended || view.prologue !== null) return legal;
   return [...legal, ...fromStatus(view), ...fromCar(view), ...fromSide(view)];
 }
-
-/** Every command type a player may send. The sweep reports the ones its sampler never produced. */
-export const PLAYER_COMMANDS: Loose["type"][] = [
-  "turn/end",
-  "activity/quit",
-  "activity/now",
-  "offer/choose",
-  "wallet/convert",
-  "wallet/move",
-  "obligation/pay",
-  "route/pay-deposit",
-  "route/depart",
-  "setpiece/answer",
-  "wallet/remit",
-  "prologue/choose",
-  "status/renew",
-  "return/home",
-];
