@@ -1,4 +1,4 @@
-// The front page's hero: one frame of the decision with a play button over it, so the README shows the teaser itself
+// The front page's hero: one frame of the lead cut with a play button over it, so the README shows the teaser itself
 // and a tap opens the video. `frame` picks the moment; `npx remotion still src/index.ts Poster out.png` renders it.
 import { AbsoluteFill, Sequence } from "remotion";
 
