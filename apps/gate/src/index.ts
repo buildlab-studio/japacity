@@ -1,8 +1,7 @@
-// The gate: a Worker on the route japacity.app/* that owns the game's root
-// before launch. `/invite/<the code>` sets the cookie and sends the phone to `/`; a request with
-// that cookie passes to the game untouched, and so does anyone's request for the public pages
-//; anyone else sees one screen. At launch the maintainer
-// deletes the route and the game's Worker is the root. Nothing about a visitor is stored. This
+// The gate: a Worker on the route japacity.app/* that owns the game's root while the game is closed.
+// `/invite/<the code>` sets the cookie and sends the phone to `/`; a request with that cookie passes to
+// the game untouched, and so does anyone's request for the public pages; anyone else sees one screen.
+// To open the game the route is deleted and the game's Worker is the root. Nothing about a visitor is stored. This
 // module exports only the handler and its Env: the runtime refuses other exports here. The gate
 // counts the holding screen, the invite link and a card's arrival for the game (counts.ts).
 import { countryOf, countsFor, gameOf, report } from "./counts";
@@ -33,7 +32,7 @@ const CARD = "/card.png";
 const INVITE = /^\/invite\/([^/]+)\/?$/;
 
 /**
- * The pages anyone may read before launch: the terms, the privacy notice
+ * The pages anyone may read while the gate stands: the terms, the privacy notice
  * (and their .html forms, which the game sends on to the clean path) and the official accounts.
  * Each is a plain page; the game's code and routes stay shut. The credits are a screen inside the
  * game, not a page, and the terms name the repository for the full list of licences. The game's

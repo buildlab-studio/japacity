@@ -1,7 +1,7 @@
-// The holding page's Worker. GET / serves the page. Before launch it says the game opens soon;
-// on launch day LANDING_LIVE shows the play link (the decision P9). The waitlist is switched off:
-// POST /join is not found unless LANDING_WAITLIST is on and its bindings exist.
-// Nothing reads the list: the only way out of the table is the maintainer's export command.
+// The holding page's Worker. GET / serves the page. With LANDING_LIVE off it says the game opens soon;
+// on, it shows the play link. The waitlist is switched off: POST /join is not found unless
+// LANDING_WAITLIST is on and its bindings exist.
+// Nothing reads the list: the only way out of the table is the export command.
 // This module exports only the handler and its Env: the runtime refuses other exports here.
 import { cleanEmail, INSERT } from "./join";
 import { renderPage } from "./page";

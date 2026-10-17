@@ -1,6 +1,5 @@
-// The one page. Plain HTML so it works with no script. Before launch it says the game opens
-// soon; live, it shows the play link. The waitlist's form is sent only while the waitlist is on.
-// Words are first drafts for the maintainer to retype in his own voice.
+// The one page. Plain HTML so it works with no script. It says the game opens soon, or, live,
+// shows the play link. The waitlist's form is sent only while the waitlist is on.
 
 export type PageState = "fresh" | "joined" | "invalid" | "slow";
 

@@ -1,7 +1,7 @@
 // The one screen anyone without the invite sees. Plain HTML, no form, no picture of its own, and
-// one script only: Cloudflare Web Analytics' beacon, while the maintainer has set its token (the maintainer,
-// 11 Oct 2026). Words are first drafts for the maintainer to retype in his own voice. The terms and the
-// privacy notice are linked from it; the gate lets both through to anyone (index.ts, PUBLIC).
+// one script only: Cloudflare Web Analytics' beacon, when its token is set. The terms and the
+// privacy notice are linked from it, since Google's branding review asks for both linked visibly
+// from the home page; the gate lets both through to anyone (index.ts, PUBLIC).
 
 const TITLE = "Japacity";
 const LINE = "The game opens soon.";

@@ -1,8 +1,7 @@
-// The holding page, kept switched off and not deployed (the decision P9): it has no route and
-// no workers.dev address, and the gate owns japacity.app before launch (apps/gate). One Worker and its
-// card picture. Before launch it says the game opens soon; on launch day LANDING_LIVE shows the play link.
-// The waitlist is switched off: its code and tests stay, its two bindings are commented out below.
-// Steps that need the maintainer are in apps/landing/README.md.
+// The holding page, kept switched off and not deployed: it has no route and no workers.dev address,
+// and japacity.app belongs to the gate or the game (apps/gate). One Worker and its card picture. With
+// LANDING_LIVE off it says the game opens soon; on, it shows the play link. The waitlist is switched
+// off: its code and tests stay, its two bindings are commented out below. Steps are in apps/landing/README.md.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "japacity-landing",
@@ -22,13 +21,13 @@
     // The Web Analytics site token from the Cloudflare dashboard. Empty: no analytics script is served.
     "ANALYTICS_TOKEN": "",
     "SITE_URL": "https://japacity.app",
-    // "true" on launch day: the page shows the play link instead of "opens soon".
+    // "true": the page shows the play link instead of "opens soon".
     "LANDING_LIVE": "false",
     // The game's address the play link opens: the server's SITE_URL.
     "LANDING_PLAY_URL": "https://japacity.app",
-    // The game's X handle without the @, once the maintainer has claimed it. Empty: no X link.
+    // The game's X handle without the @, once it is claimed. Empty: no X link.
     "LANDING_X_HANDLE": "",
-    // "true" turns the waitlist back on, with the two bindings below uncommented. Off for launch.
+    // "true" turns the waitlist on, with the two bindings below uncommented.
     "LANDING_WAITLIST": "false"
   }
   // The waitlist's bindings, kept for the day it is switched on (README, "The waitlist, switched off"):

@@ -1,8 +1,7 @@
-// The gate: a Worker on the route japacity.app/* that owns the game's root before launch.
+// The gate: a Worker on the route japacity.app/* that owns the game's root while the game is closed.
 // Without its cookie a visitor sees the holding screen; /invite/<the code> admits a phone, and an admitted
 // request is handed on with fetch(request) to the game's Worker, which stays on the host as its Custom Domain.
-// At launch the maintainer deletes this route and the game's Worker is the root. Nothing here is deployed
-// until the maintainer says so. Steps are in apps/gate/README.md.
+// To open the game this route is deleted and the game's Worker is the root. Steps are in apps/gate/README.md.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "japacity-gate",
@@ -27,13 +26,13 @@
   // internet; no cookie or secret is involved.
   "services": [{ "binding": "GAME", "service": "japacity-server", "entrypoint": "GateCounters" }],
   "vars": {
-    // The game's X handle without the @, once the maintainer has claimed it. Empty: the screen shows no X link.
+    // The game's X handle without the @, once it is claimed. Empty: the screen shows no X link.
     "GATE_X_HANDLE": "",
     // The game's address, where the screen's card picture is.
     "SITE_URL": "https://japacity.app",
     // The Cloudflare Web Analytics site token (apps/gate/README.md says where it comes from). Empty: the screen carries no script.
     "ANALYTICS_TOKEN": ""
   }
-  // The secret, set by the maintainer with `wrangler secret put GATE_SECRET` and never written here.
+  // The secret, set with `wrangler secret put GATE_SECRET` and never written here.
   // It is also the code in the invite link. Unset or empty, the gate admits nobody.
 }

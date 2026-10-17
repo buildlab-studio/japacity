@@ -32,7 +32,6 @@ async function shown(response: Response) {
     cookie: response.headers.get("set-cookie"),
     screen: html.includes("<h1>Japacity</h1>") && html.includes("The game opens soon."),
     xLink: html.includes('href="https://x.com/japacityapp"'),
-    // the screen links the terms and the privacy notice, with or without the X link.
     pages: html.includes('<a href="/terms">Terms of play</a>') && html.includes('<a href="/privacy">Privacy notice</a>'),
     game: html.includes("game /"),
   };
@@ -126,7 +125,6 @@ describe("the cookie", () => {
 });
 
 describe("without the cookie", () => {
-  // the two links to the terms and the privacy notice are part of the screen.
   test("given a visit to the root, when it is served, then the holding screen shows: the name, opens soon, the invite line, the X link, the links to the terms and the privacy notice, and the card on japacity.app, with no script and no form", async () => {
     const response = await visit("/");
     expect(response.headers.get("cache-control")).toBe("no-store");
@@ -179,7 +177,6 @@ describe("without the cookie", () => {
     expect(await shown(await visit("/", { headers: { cookie: `${COOKIE}=1800000000.forged` } }))).toEqual(SCREEN);
   });
 
-  // the game's security.txt is public as well.
   test("given the terms, the privacy notice, the official accounts, the credits page or the security.txt, when they are opened with no cookie, then the game answers each, for anyone", async () => {
     for (const path of ["/terms", "/terms.html", "/privacy", "/privacy.html", "/official", "/official/", "/official/index.html", "/.well-known/security.txt"]) {
       const response = await visit(path);
@@ -204,7 +201,6 @@ describe("without the cookie", () => {
     }
   });
 
-  // with no X link the two page links stand alone.
   test("given no handle yet, or one that is not a handle, when the screen is served, then there is no X link, the terms and the privacy notice are still linked, and the rest is the same", async () => {
     for (const handle of ["", "@japacityapp", "japacity app", "a".repeat(16), '"><script>']) {
       const response = await worker.fetch(new Request(`${HOST}/`), { ...env, GATE_X_HANDLE: handle });
