@@ -8,8 +8,8 @@ const moneyFormats = new Map<Currency, Intl.NumberFormat>();
 
 const rateFormats = new Map<Currency, Intl.NumberFormat>();
 
-// One formatter per currency, made once (docs/research/23-interface-stack.md
-// section 8). narrowSymbol keeps the naira sign even where en-NG data is missing.
+// One formatter per currency, made once. narrowSymbol keeps the naira sign even
+// where en-NG data is missing.
 // The Canadian dollar's narrow sign is the US dollar's, so it keeps "CA$".
 function makeFormat(currency: Currency, fractionDigits: number): Intl.NumberFormat {
   return new Intl.NumberFormat("en-NG", {

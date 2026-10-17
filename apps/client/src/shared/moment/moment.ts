@@ -46,7 +46,7 @@ export const MOMENTS: readonly MomentEntry[] = [
   { kind: "won", key: "line.activity.lotto-won", icon: "ticket", tone: "good", is: bigWin },
   { kind: "landed", key: "line.route.departed", icon: "plane-landing", tone: "good" },
   { kind: "chapter", key: "line.chapter.closed", icon: "book", tone: "good" },
-  // The passbook's stamps (the design): the road's own figure held before a milestone on the way.
+  // The passbook's stamps: the road's own figure held before a milestone on the way.
   { kind: "held", key: "line.passbook.ready", icon: "piggy-bank", tone: "good" },
   { kind: "held", key: "line.passbook.stamped", icon: "piggy-bank", tone: "good" },
 ];

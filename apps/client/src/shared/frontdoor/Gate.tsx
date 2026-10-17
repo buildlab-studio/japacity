@@ -130,7 +130,7 @@ export function Gate({ look, children, mark, over, style, scene }: GateProps) {
 
 /**
  * The sheet over the compound, or under the figure on its turntable: one panel rising from the bottom, at most half the
- * screen, its body scrolling inside it, and the one main button at its foot (the design's panel). `low` holds it to
+ * screen, its body scrolling inside it, and the one main button at its foot. `low` holds it to
  * about a third, where the page docks over it and the figure's head must stay in view (R-PROLOGUE-014).
  */
 export function GateSheet({ children, foot, mark, label, low = false }: { children: ReactNode; foot?: ReactNode; mark?: string; label?: string; low?: boolean }) {

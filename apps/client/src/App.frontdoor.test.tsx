@@ -1,5 +1,5 @@
 // The front door in the app, on the real content (prologue.md R-PROLOGUE-009, 010, 013, 014): a person built on the
-// door's sky (the door's second design) from a look, a name filled from the pool (a dice, or typed) and an archetype, never a
+// door's sky from a look, a name filled from the pool (a dice, or typed) and an archetype, never a
 // named life picked; the preset played for the archetype with no card; the page as the handover saying who the person is; the
 // look kept beside the save and drawn by the city and the rides.
 import { content, namePool, text } from "@japacity/content";
@@ -50,7 +50,7 @@ function door(): { store: GameStore; storage: ReturnType<typeof memoryStorage> }
   return { store, storage };
 }
 
-/** What the door's screen says under its head, the sheet's words before the door's second design. */
+/** What the door's screen says under its head. */
 function sheet(): HTMLElement {
   const found = document.querySelector<HTMLElement>("[data-door-body]");
   if (found === null) throw new Error("No door screen.");
@@ -84,7 +84,7 @@ describe("the front door", () => {
   test("[R-PROLOGUE-009] [R-PROLOGUE-013] given no save, when the game opens, then you stand whole on a photo card under the question who you are, with a name already filled from the pool and the look strip of every one of the city's passers-by on the same screen, and no named life anywhere", async () => {
     door();
     expect(await screen.findByRole("heading", { name: say("ui.life.title") }, { timeout: 10_000 })).toBeDefined();
-    // Never a bare page: you stand whole on a photo card as a sticker (the door's second design), never on a turntable.
+    // Never a bare page: you stand whole on a photo card as a sticker, never on a turntable.
     expect(document.querySelector("[data-gate] [data-door-photo] [data-figure]")).not.toBeNull();
     expect(document.querySelector("[data-gate] [data-turntable], canvas")).toBeNull();
     // One strip of face stickers: every passer-by, both bodies, with no row of bodies.
@@ -218,7 +218,7 @@ describe("a life from sixteen built from an archetype", () => {
       { timeout: 10_000, interval: 5 },
     );
     expect(card).toBe(false);
-    // The page stands on the door's sky, no compound drawn behind it (the door's second design).
+    // The page stands on the door's sky, no compound drawn behind it.
     expect(document.querySelector("[data-gate='handover'][data-door-frame]")).not.toBeNull();
     expect(document.querySelector("[data-gate] [data-front-scene]")).toBeNull();
     // Every step was sent with one of her answers, the exam, the strike, the send-off and the home included.
@@ -228,9 +228,9 @@ describe("a life from sixteen built from an archetype", () => {
     expect(chosen.map((command) => command.step)).toEqual(expect.arrayContaining(["subjects", "after-school", "exam", "course", "strike", "side-skill", "hustle", "service", "friend", "home"]));
 
     const person = readPerson()!;
-    // The name prints on the data page itself, as the design's page screen has it, not as a heading in the sheet.
+    // The name prints on the data page itself, not as a heading in the sheet.
     expect((await screen.findAllByText(person.name)).length).toBeGreaterThan(0);
-    // The page prints the path, not the sheet (the design's page: PATH and SO FAR).
+    // The page prints the path under PATH and SO FAR, not the sheet.
     expect(screen.getAllByText(say("prologue.archetype.nurse.name")).length).toBeGreaterThan(0);
     const at = (selector: string): number => {
       const found = document.querySelector(selector);

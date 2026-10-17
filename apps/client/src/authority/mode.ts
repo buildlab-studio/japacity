@@ -1,6 +1,6 @@
 // Which authority the build runs (R-ENGINE-015). With VITE_SERVER_URL set the
 // server is the authority. Without it the in-browser authority runs, which
-// exists for development, tests and the offline playtests; a production
+// exists for development, tests and offline play; a production
 // build runs it only when told to in so many words.
 export type AuthorityMode = { authority: "local" } | { authority: "remote"; baseUrl: string } | { authority: "refused"; why: string };
 

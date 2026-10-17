@@ -44,7 +44,7 @@ describe("the player's words never count the engine", () => {
     expect(found).toEqual([]);
   });
 
-  test("[R-TEXT-005] given the reworded lines, when they are said, then each says the life's words: the brief, not the chapter; months, not pages or turns; a figure in words", () => {
+  test("[R-TEXT-005] given these lines, when they are said, then each says the life's words: the brief, not the chapter; months, not pages or turns; a figure in words", () => {
     expect(text["line.chapter.closed"]).toBe("Done: {chapter}.");
     expect(text["moment.chapter.kicker"]).toBe("Brief done");
     expect(text["share.chapter.kicker"]).toBe("Brief done");

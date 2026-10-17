@@ -28,7 +28,7 @@ export function forgetAccount(server: Api): void {
 
 /**
  * R-ANALYTICS-006: changes "Send usage counts" on the account.
- * `PUT /api/account { sendUsageCounts }` is the production wiring's; it answers the row.
+ * The server's `PUT /api/account { sendUsageCounts }` answers with the account's row.
  */
 export async function putUsageCounts(server: Api, on: boolean): Promise<AccountReply> {
   const request: AccountSettingsRequest = { sendUsageCounts: on };

@@ -71,9 +71,9 @@ function towards(view: PlayerView, content: Content, requirement: Requirement): 
 }
 
 /**
- * the view has no `nextStep` for a life at home (only the status abroad carries one),
- * so the next step is read from the current chapter: one pick for each unmet item an activity can
- * serve, in the chapter's order, then rest. This may be replaced with the view's own field.
+ * The view has no `nextStep` for a life at home (only the status abroad carries one), so the
+ * next step is read from the current chapter: one pick for each unmet item an activity can serve,
+ * in the chapter's order, then rest.
  */
 export const chapterNextStep: NextStep = (view, content) => {
   const chapter = view.chapter.current === null ? undefined : content.chapter[view.chapter.current];
@@ -134,8 +134,8 @@ export function playFirstSession(life: StartingLife, options: { content?: Conten
 /**
  * Every starting life: each fixed scenario, and for the prologue one life for each answer of
  * each step, the rest of its path by first allowed answers. Two that would take the same path
- * are kept once. the prologue's paths multiply past ten thousand; covering every
- * answer once is what can be played in a test.
+ * are kept once. The prologue's paths multiply past ten thousand, so each answer is covered once,
+ * which a test can play.
  */
 export function startingLives(content: Content = realContent): StartingLife[] {
   const lives: StartingLife[] = [];

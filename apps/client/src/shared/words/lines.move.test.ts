@@ -15,7 +15,7 @@ import { nameOf } from "./text";
 
 const MAKOKO = "place.makoko" as const;
 const rent = content.tuning.home.makokoUpkeep;
-/** What the move says, as the first plan gives it: where home is now and what it costs a month. */
+/** What the move says: where home is now and what it costs a month. */
 const MOVED = `Home is ${nameOf(MAKOKO)} now: ${formatMoney(rent, "NGN")} a month.`;
 
 function told(lines: readonly ReportLine[]): string[] {

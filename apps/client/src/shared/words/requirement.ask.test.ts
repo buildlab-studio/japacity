@@ -1,5 +1,5 @@
-// "Ask someone who went", shut in the first month (docs/rules/world.md R-WORLD-006, advice.md R-ADVICE-003; M30's
-// picture 10): its reason read "One of: With a partner or A few people who can help". The way to the word of someone who
+// "Ask someone who went", shut in the first month (docs/rules/world.md R-WORLD-006, advice.md R-ADVICE-003): its
+// reason never reads "One of: With a partner or A few people who can help". The way to the word of someone who
 // went is a person abroad or a wide enough circle, said in one plain line, the band never a figure (R-TEXT-005). Real
 // content, a developer's first month from sixteen.
 import { content } from "@japacity/content";

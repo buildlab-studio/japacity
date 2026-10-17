@@ -14,7 +14,7 @@ export function payAMonth(job: string): MoneyParam | null {
   const entry = content.activity[job as Id<"activity">];
   const pay = entry?.pay;
   if (entry === undefined || pay === null || pay === undefined || typeof pay.amount !== "number") return null;
-  // a job abroad holds its pay a year.
+  // Content holds a job abroad's pay a year (activity.pay.ts paidYearly).
   const amount = entry.where === "abroad" ? int.divFloor(pay.amount, MONTHS_A_YEAR) : pay.amount;
   return { currency: pay.currency, amount };
 }

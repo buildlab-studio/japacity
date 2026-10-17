@@ -1,4 +1,4 @@
-// The rise (japacity.md R-JAPACITY-003, world.md R-WORLD-023; the design): every
+// The rise (japacity.md R-JAPACITY-003, world.md R-WORLD-023): every
 // rise of the figure flies up as "+9" in the band's colours toward the band and fades, one at a time and
 // never a queue; a fall shows nothing; while a sheet covers the world the figure waits, so the rise and
 // the bag's growth are seen together once it closes. Each motion is under half a second.

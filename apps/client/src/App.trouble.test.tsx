@@ -88,8 +88,8 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     noBrowserWords();
   });
 
-  // Review 14, X7: a new visitor with the server down saw a blank page with the card, and Retry said "Opening your
-  // life... Still opening..." to someone with no life.
+  // A new visitor with the server down sees the start screen's frame, never a blank page, and Retry never says "Opening
+  // your life" to someone with no life.
   test("[R-ENGINE-015] [R-SERVER-043] given a new visitor online (no life on this device) and a stand-in server answering 503, then the start screen's frame stands with the hook and the card naming the game; Retry keeps the frame, never Opening your life, and once the server answers the start screen takes its place", async () => {
     const server = fakeServer();
     const down = { status: 503, headers: { "Retry-After": "5" }, body: { ok: false, code: "unavailable", detail: "The game's server could not reach its database. Try again shortly.", retryAfter: 5 } };

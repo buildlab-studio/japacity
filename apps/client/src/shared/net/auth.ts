@@ -202,7 +202,7 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
   const send: Fetch = fetch ?? ((input, init) => globalThis.fetch(input, init));
   const server = api({ baseUrl: base, fetch: send, wall });
   const classified = requestFetch(send, wall);
-  // the server mounts Better Auth at /api/auth, its default base path.
+  // The server mounts Better Auth at /api/auth, its default base path.
   const client = createAuthClient({
     baseURL: `${base}/api/auth`,
     // The seam's own fetch, so a test's stand-in server answers the library's routes too.

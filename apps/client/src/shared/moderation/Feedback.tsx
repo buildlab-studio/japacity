@@ -72,7 +72,7 @@ export function FeedbackForm({ moderation, screen, max, initial = "" }: { modera
   );
 }
 
-/** `config.feedback.maxChars` lives on the server; the box mirrors its 500 until the server sends it. */
+/** `config.feedback.maxChars` lives on the server, which does not send it, so the box mirrors its 500. */
 export const FEEDBACK_MAX_CHARS = 500;
 
 const DAY_FORMAT = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });

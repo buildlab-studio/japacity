@@ -141,9 +141,9 @@ function bodyOf(card: ShareCard): string | null {
 }
 
 /**
- * R-ROAD-011 puts the credits on the real-story card, and R-SHARE-006
- * bars a real institution's name from any card. the card on
- * screen lists the credits; the image that travels leaves them off.
+ * R-ROAD-011 puts the credits on the real-story card, and R-SHARE-006 bars a
+ * real institution's name from any card, so the card on screen lists the
+ * credits and the image that travels leaves them off.
  */
 function creditsOf(card: ShareCard): string[] {
   if (card.kind !== "real-story") return [];

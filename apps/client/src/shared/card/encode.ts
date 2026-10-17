@@ -7,7 +7,7 @@ export const QUALITIES = [62, 56, 50, 46, 40] as const;
 
 export type Encoded = { ok: true; blob: Blob; quality: number } | { ok: false; reason: "too-big" | "no-image"; bytes: number };
 
-/** "under" the limit is strictly under, so a file of exactly `maxBytes` is refused. */
+/** "Under" the limit is strictly under, so a file of exactly `maxBytes` is refused. */
 export function underLimit(bytes: number, maxBytes: number): boolean {
   return bytes < maxBytes;
 }
