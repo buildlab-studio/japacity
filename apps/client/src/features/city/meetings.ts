@@ -76,15 +76,17 @@ export function roomFor(crowd: number, standing: number, cap: number): number {
   return Math.max(0, Math.min(crowd, crowd + standing - cap));
 }
 
-/** The crowd with `count` residents fewer, the last first, so those standing at a thing take their places (R-WORLD-011). */
-export function makeRoom<T extends { kind: "resident" | "player" }>(people: readonly T[], count: number): T[] {
-  let left = count;
-  const kept = [...people].reverse().filter((shown) => {
-    if (left <= 0 || shown.kind !== "resident") return true;
-    left -= 1;
-    return false;
-  });
-  return kept.reverse();
+/**
+ * The crowd with `count` people fewer, so those standing at a thing take their places (R-WORLD-011): residents
+ * with no part first, then players, the last first each time. A resident at a part goes only once no one else is
+ * left to go, the highest spot first, so the scope's cap always holds (R-CITY-032).
+ */
+export function makeRoom<T extends { kind: "resident" | "player"; part?: number }>(people: readonly T[], count: number): T[] {
+  const filler = people.filter((shown) => shown.kind === "resident" && shown.part === undefined);
+  const players = people.filter((shown) => shown.kind === "player");
+  const parts = people.filter((shown) => shown.kind === "resident" && shown.part !== undefined).sort((one, two) => (two.part ?? 0) - (one.part ?? 0));
+  const gone = new Set([...filler.reverse(), ...players.reverse(), ...parts].slice(0, Math.max(0, count)));
+  return people.filter((shown) => !gone.has(shown));
 }
 
 /** The bonds courting now, as `people/court` counts them against `tuning.people.maxCourting` (R-PEOPLE-013). */

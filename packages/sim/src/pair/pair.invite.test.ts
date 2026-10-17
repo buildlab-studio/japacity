@@ -107,18 +107,15 @@ describe("invite rewards", () => {
 });
 
 describe("who may be paired", () => {
-  test("[R-PAIR-017] given the matchmaker shut, when two who did not invite each other would pair, then no record is made, whatever their regions", () => {
+  test("[R-PAIR-017] [R-REGION-004] given the matchmaker shut, when two who did not invite each other would pair, then no record is made", () => {
     expect(content.tuning.people.matchmaker).toBe(false);
-    expect(mayPair("matched", { a: "free-text", b: "free-text" }, content.tuning)).toBe(false);
+    expect(mayPair("matched", content.tuning)).toBe(false);
     const open = { ...content.tuning, people: { ...content.tuning.people, matchmaker: true } };
-    expect(mayPair("matched", { a: "matched", b: "free-text" }, open)).toBe(true);
-    expect(mayPair("matched", { a: "matched", b: "invited" }, open)).toBe(false);
+    expect(mayPair("matched", open)).toBe(true);
   });
 
-  test("[R-PAIR-018] given each region setting on either side, when an invited pair would be made, then it needs both at invited or above", () => {
-    expect(mayPair("invited", { a: "invited", b: "invited" }, content.tuning)).toBe(true);
-    expect(mayPair("invited", { a: "free-text", b: "matched" }, content.tuning)).toBe(true);
-    expect(mayPair("invited", { a: "none", b: "invited" }, content.tuning)).toBe(false);
-    expect(mayPair("invited", { a: "invited", b: "none" }, content.tuning)).toBe(false);
+  test("[R-PAIR-018] given two accounts connected by an invite, when the pair would be made, then it is, whatever the matchmaker", () => {
+    expect(mayPair("invited", content.tuning)).toBe(true);
+    expect(mayPair("invited", { ...content.tuning, people: { ...content.tuning.people, matchmaker: true } })).toBe(true);
   });
 });

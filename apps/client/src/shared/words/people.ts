@@ -200,7 +200,6 @@ export const peopleText: Record<string, string> = {
   "ui.talk.failed.not-possible": "That is not possible right now.",
   "ui.talk.failed.blocked": "You blocked them. Lift the block to talk again.",
   "ui.talk.failed.too-many": "That is a lot of talking for one hour. Say more in a while.",
-  "ui.talk.failed.region": "Talking is not open where you are.",
   "ui.talk.failed.not-here": "You are not there any more.",
   "ui.talk.failed.wrong-place": "That one is for saying in a place.",
   "ui.talk.failed.bad-fill": "Pick something to fill it in.",

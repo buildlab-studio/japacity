@@ -44,18 +44,6 @@ describe("the age screen's routes, as the server built them", () => {
     expect(server.sent[0]?.credentials).toBe("same-origin");
   });
 
-  test("[R-ACCOUNT-011] given a region that is not open, when the browser asks where it stands, then GET /api/age's refusal is region-closed", async () => {
-    const { server, api } = account();
-    server.answer("GET /api/age", { status: 403, body: { ok: false, code: "region-closed", detail: "Sign-up is not open in this region." } });
-    expect(await api.ageStatus()).toBe("region-closed");
-  });
-
-  test("[R-ACCOUNT-011] given a region that is not open, then the age screen's answer is region-closed", async () => {
-    const { server, api } = account();
-    server.answer("POST /api/age", { status: 403, body: { ok: false, code: "region-closed", detail: "Sign-up is not open in this region." } });
-    expect(await api.declareAge("2000-01-01")).toBe("region-closed");
-  });
-
   test("[R-SERVER-032] given sign-ups switched off, when the browser asks where it stands or declares an age, then the 503 is the full screen with the server's wait", async () => {
     const { server, api } = account();
     const off = { status: 503, body: { ok: false, code: "switched-off", detail: "Sign-ups are closed for now.", retryAfter: 30 }, headers: { "Retry-After": "30" } };
@@ -153,11 +141,10 @@ describe("the guest start and the username, as the server built them", () => {
       refusal(429, "too-many"),
       refusal(403, "expired"),
       refusal(503, "switched-off"),
-      refusal(403, "region-closed"),
     );
     const heard = [];
-    for (let at = 0; at < 7; at += 1) heard.push(await api.startGuest("ada_lagos", null));
-    expect(heard.map((answer) => (answer.ok ? "ok" : answer.why))).toEqual(["taken", "reserved", "bot-check", "too-many", "expired", "full", "region-closed"]);
+    for (let at = 0; at < 6; at += 1) heard.push(await api.startGuest("ada_lagos", null));
+    expect(heard.map((answer) => (answer.ok ? "ok" : answer.why))).toEqual(["taken", "reserved", "bot-check", "too-many", "expired", "full"]);
   });
 
   test("[R-ACCOUNT-024] given a new username, when it is changed, then PUT /api/account/username carries it and a refusal says why", async () => {

@@ -10,8 +10,8 @@ import type { ServerDeps } from "../deps";
 import type { PairAnswer } from "./codes";
 import { NOT_POSSIBLE, refused, widen } from "./codes";
 import { momentInto } from "./carry";
+import { accountOfCharacter } from "./account";
 import { field } from "./invite";
-import { accountOfCharacter, interactionOf } from "./region";
 import { silenced } from "./restricted";
 import { pairStep, sideLive, sideOf, unusual } from "./step";
 
@@ -53,10 +53,10 @@ export async function readable(deps: ServerDeps, account: string, key: string): 
 
 /**
  * R-PAIR-011, R-PAIR-013: a phrase in the pair's conversation. Connected,
- * neither blocked, within `phrasesPerHour`, both regions allowing it, then
- * the phrase and its fill from the sender's own lists; a report the other side
- * filed on this pair pauses their way in too (R-MODERATION-009). A refusal
- * stores nothing and names only the check that failed.
+ * neither blocked, within `phrasesPerHour`, then the phrase and its fill from
+ * the sender's own lists; a report the other side filed on this pair pauses
+ * their way in too (R-MODERATION-009), and an account that is gone takes no
+ * phrase. A refusal stores nothing and names only the check that failed.
  */
 export async function say(deps: ServerDeps, account: string, key: string, body: unknown): Promise<PairAnswer<Said>> {
   const phraseId = field(body, "phrase");
@@ -72,13 +72,11 @@ export async function say(deps: ServerDeps, account: string, key: string, body: 
   const { character, record } = found;
   const them = record[found.side === "a" ? "b" : "a"];
   const theirAccount = await accountOfCharacter(deps, them);
-  const mine = await deps.stores.account.get(account);
   if (theirAccount !== null && (await deps.stores.moderation.openOn(key)).some((report) => report.reporter === theirAccount.id)) {
     return refused(200, "not-possible", NOT_POSSIBLE);
   }
   const now = deps.now();
   const sent = await deps.stores.conversation.sentSince(key, character, now - time.HOUR_MS);
-  const regions = found.side === "a" ? { a: interactionOf(deps, mine), b: interactionOf(deps, theirAccount) } : { a: interactionOf(deps, theirAccount), b: interactionOf(deps, mine) };
   const message: ConversationRow = { id: `message-${hex(deps.randomBytes(MESSAGE_BYTES))}`, conversation: key, sender: character, phrase: phrase.id, fill, sentAt: now, readAt: null };
 
   const outcome = await pairStep(deps, key, ({ book, turn, lives, live }) => {
@@ -87,8 +85,9 @@ export async function say(deps: ServerDeps, account: string, key: string, body: 
     const at = held === null ? null : sideOf(held, character);
     if (speaker === null || held === null || at === null) return { ok: false, code: "not-possible", detail: NOT_POSSIBLE };
     const fills = fillOptions(phrase, speaker.content, viewFor({ state: speaker.state, world: turn.world, content: speaker.content }));
-    const allowed = canSay(held, at, phrase, fill, { regions, sent, now, tuning: speaker.content.tuning.pair, fills });
+    const allowed = canSay(held, at, phrase, fill, { sent, now, tuning: speaker.content.tuning.pair, fills });
     if (!allowed.ok) return { ok: false, code: allowed.failed, detail: allowed.failed === "not-possible" ? NOT_POSSIBLE : `The phrase cannot be sent: ${allowed.failed}.` };
+    if (theirAccount === null) return { ok: false, code: "not-possible", detail: NOT_POSSIBLE };
     const tick = turn.world.tick;
     book.write(key, at, saidMoment(message, phrase, tick));
     // R-PEOPLE-015: talking counts, in both lives.

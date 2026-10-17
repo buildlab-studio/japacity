@@ -1,11 +1,11 @@
 import { content } from "@japacity/content";
-import { time } from "@japacity/sim";
+import { pairId, time } from "@japacity/sim";
 import type { Nudge } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
 import type { ConversationRead, PairRead } from "./conversation";
 import type { PairRejection } from "./codes";
-import { bondIn, call, FRIEND, INVITER, linkedPair, must, newLife, recordOf, sayFrom, stateOf } from "./pair.testing";
+import { bondIn, call, cardOut, FRIEND, INVITER, linkedPair, must, newLife, pairServer, recordOf, sayFrom, stateOf } from "./pair.testing";
 
 describe("conversations in preset phrases", () => {
   test("[R-PAIR-011] [R-PEOPLE-015] given a linked pair, when one side says a phrase, then the row is stored, the record gains a said moment, both lives hold it as me and them, and the other side is nudged to fetch", async () => {
@@ -77,12 +77,32 @@ describe("conversations in preset phrases", () => {
     expect(await sayFrom(server, INVITER, key)).toMatchObject({ ok: false, code: "not-possible" });
   });
 
-  test("[R-REGION-007] [R-PAIR-018] given a linked pair, when one side's region is lowered to none, then that side's phrases are refused with region and the other's as not possible, and the record stays", async () => {
-    const { server, key } = await linkedPair();
-    server.deps.config.regions.NG = { open: true, interaction: "none", ageCheck: "declared" };
+  test("[R-PAIR-018] [R-REGION-002] given a pair linked by an invite between accounts that signed up in France and Australia, when either says a phrase, then it is stored", async () => {
+    const server = pairServer();
+    const characters: string[] = [];
+    for (const [id, country, scenario] of [[INVITER, "FR", "scenario.ada"], [FRIEND, "AU", "scenario.tunde"]] as const) {
+      const made = await server.deps.stores.account.create({ id, country, age: { passed: true, at: server.deps.now(), method: "declared" }, createdAt: server.deps.now(), character: null, notifyBankFull: false, sendUsageCounts: true, state: "secured", username: id.replaceAll(/\W/g, "_"), usernameChangedAt: null, lastPlayedAt: server.deps.now() });
+      if (!made.ok) throw new Error(made.detail);
+      await call(server, "POST", "/api/character", id, { scenario });
+      characters.push((await server.deps.stores.account.get(id))?.character ?? "");
+    }
+    const code = await cardOut(server);
+    expect((await call<{ ok: boolean }>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "partner" })).body.ok).toBe(true);
+    const key = pairId(characters[0] ?? "", characters[1] ?? "");
 
-    expect(await sayFrom(server, INVITER, key)).toMatchObject({ ok: false, code: "region" });
-    expect((await recordOf(server.deps, key))?.record.ended).toBeNull();
+    expect(await sayFrom(server, INVITER, key)).toMatchObject({ ok: true });
+    expect(await sayFrom(server, FRIEND, key, "phrase.thanks")).toMatchObject({ ok: true });
+    expect(await server.deps.stores.conversation.list(key, null)).toHaveLength(2);
+  });
+
+  test("[R-PAIR-013] [R-REGION-002] given two players never connected by an invite, when one says a phrase to a pair key of the two, then it is refused and nothing is stored", async () => {
+    const server = pairServer();
+    const a = await newLife(server, INVITER, "scenario.ada");
+    const b = await newLife(server, FRIEND, "scenario.tunde");
+    const key = pairId(a, b);
+
+    expect(await sayFrom(server, INVITER, key)).toMatchObject({ ok: false, code: "unknown-id" });
+    expect(await server.deps.stores.conversation.list(key, null)).toEqual([]);
   });
 
   test("[R-PAIR-006] given a record, when each side reads it, then each sees it in its own terms, and a third account finds no such pair", async () => {

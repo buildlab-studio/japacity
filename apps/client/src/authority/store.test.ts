@@ -79,7 +79,7 @@ describe("the store online", () => {
   });
 
   test("given every server refusal, then each has words of its own", () => {
-    for (const code of ["rate-limited", "signed-out", "diverged", "region-closed", "one-character", "no-character"] as const) {
+    for (const code of ["rate-limited", "signed-out", "diverged", "one-character", "no-character"] as const) {
       expect(rejectionWords(code)).not.toBe(code);
     }
   });

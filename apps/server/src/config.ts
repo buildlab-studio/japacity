@@ -1,11 +1,9 @@
-// The server's config: every number the rule pages put "in config as", the
-// region table and the test switches. The production values are the pages'
+// The server's config: every number the rule pages put "in config as" and
+// the test switches. The production values are the pages'
 // defaults; a test proves the production config holds no test switch
 // (R-ACCOUNT-005, R-CLOCK-009). This file is kept by hand.; a kind that needs
 // a field says so in its report.
 import { time } from "@japacity/sim";
-
-import type { Regions } from "./region";
 
 export interface ServerConfig {
   /** server.md Numbers. */
@@ -45,8 +43,6 @@ export interface ServerConfig {
   };
   /** R-ACCOUNT-002, R-ACCOUNT-014. */
   auth: { otp: { length: number; expiresIn: number; attempts: number }; limits: { otpSendPer60s: number; otpSendPerDay: number } };
-  /** R-ACCOUNT-007: the policy table. */
-  regions: Regions;
   /**
    * R-SERVER-012: the accounts that may read the admin page. Empty here; a deployment fills it from its
    * Worker secret ADMIN_ACCOUNTS (`deployedConfig`), so no account id is ever written in a committed file.
@@ -64,8 +60,11 @@ export interface ServerConfig {
   notify: { reaskDays: number; pushTtlDays: number; maxDevices: number; tokenHours: number };
   /** moderation.md Numbers: reports a player may file a day, the longest hold, the decision target, how long decisions are kept. */
   moderation: { reportsPerDay: number; holdDays: number; decideHours: number; logYears: number };
-  /** R-ADVERT-020: impressions and taps one account may add to a slot's totals in a UTC day. */
-  advert: { countsPerAccountDay: { impressions: number; taps: number } };
+  /**
+   * R-ADVERT-020: impressions and taps one account may add to a slot's totals in a UTC day. R-ADVERT-008, R-ADVERT-021:
+   * the regions a campaign may name, each a country's code, and `default` for any country not listed.
+   */
+  advert: { countsPerAccountDay: { impressions: number; taps: number }; regions: string[] };
   /**
    * R-ACCOUNT-005, R-CLOCK-009: the stand-ins that exist only in the test
    * server's config. Every one is false in production.
@@ -75,22 +74,8 @@ export interface ServerConfig {
 
 const EU = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"];
 
-const DECLARED = "declared" as const;
-
 /** A kibibyte, so the sizes read as they are meant. */
 const KIB = 1024;
-
-/** The policy table of region.md and account.md, row for row. */
-export const launchRegions: Regions = {
-  default: { open: true, interaction: "invited", ageCheck: DECLARED },
-  unknown: { open: true, interaction: "invited", ageCheck: DECLARED },
-  NG: { open: true, interaction: "invited", ageCheck: DECLARED },
-  US: { open: true, interaction: "invited", ageCheck: DECLARED },
-  CA: { open: true, interaction: "invited", ageCheck: DECLARED },
-  GB: { open: true, interaction: "invited", ageCheck: DECLARED },
-  AU: { open: false, interaction: "none", ageCheck: DECLARED },
-  ...Object.fromEntries(EU.map((code) => [code, { open: true, interaction: "none", ageCheck: DECLARED }])),
-};
 
 /** Friday 9 October 2026 at 18:00 UTC, the epoch every deployment runs on (R-CLOCK-002). */
 export const DEFAULT_EPOCH = Date.UTC(2026, 9, 9, 18, 0, 0);
@@ -117,7 +102,6 @@ export const productionConfig: ServerConfig = {
   // renameDays, guestsPerDevice, guestsPerConnection and guestWindowHours are working values; account.md names the settings without numbers.
   account: { minAge: 18, refusedCookieDays: 30, deleteFreshMs: 10 * time.MINUTE_MS, deleteWithinDays: 30, maxCharacters: 1, renameDays: 30, guestsPerDevice: 3, guestsPerConnection: 30, guestWindowHours: 24, guestIdleDays: 90 },
   auth: { otp: { length: 6, expiresIn: 300, attempts: 3 }, limits: { otpSendPer60s: 3, otpSendPerDay: 10 } },
-  regions: launchRegions,
   admin: { accounts: [] },
   lottery: { secretBits: 256, beacon: { genesis: 1692803367, period: 3, url: "https://api.drand.sh" } },
   switches: { cacheMs: 30 * time.SECOND_MS, retryMs: 30 * time.SECOND_MS },
@@ -125,7 +109,7 @@ export const productionConfig: ServerConfig = {
   board: { size: 50 },
   notify: { reaskDays: 14, pushTtlDays: 1, maxDevices: 10, tokenHours: 12 },
   moderation: { reportsPerDay: 20, holdDays: 90, decideHours: 24, logYears: 3 },
-  advert: { countsPerAccountDay: { impressions: 200, taps: 20 } },
+  advert: { countsPerAccountDay: { impressions: 200, taps: 20 }, regions: ["default", "NG", "US", "CA", "GB", "AU", ...EU] },
   testing: { fastClock: false, captureOtp: false, stubGoogle: false, virtualPasskeys: false, testLogin: false },
 };
 
@@ -157,7 +141,6 @@ export function testConfig(over: Deep<ServerConfig> = {}): ServerConfig {
       otp: { ...productionConfig.auth.otp, ...over.auth?.otp },
       limits: { ...productionConfig.auth.limits, ...over.auth?.limits },
     },
-    regions: { ...productionConfig.regions, ...(over.regions as Partial<Regions>) } as Regions,
     admin: { accounts: [...(over.admin?.accounts ?? productionConfig.admin.accounts)] },
     lottery: { secretBits: over.lottery?.secretBits ?? productionConfig.lottery.secretBits, beacon: { ...productionConfig.lottery.beacon, ...over.lottery?.beacon } },
     switches: { ...productionConfig.switches, ...over.switches },
@@ -165,7 +148,7 @@ export function testConfig(over: Deep<ServerConfig> = {}): ServerConfig {
     board: { ...productionConfig.board, ...over.board },
     notify: { ...productionConfig.notify, ...over.notify },
     moderation: { ...productionConfig.moderation, ...over.moderation },
-    advert: { countsPerAccountDay: { ...productionConfig.advert.countsPerAccountDay, ...over.advert?.countsPerAccountDay } },
+    advert: { countsPerAccountDay: { ...productionConfig.advert.countsPerAccountDay, ...over.advert?.countsPerAccountDay }, regions: [...(over.advert?.regions ?? productionConfig.advert.regions)] },
     testing: { ...productionConfig.testing, ...over.testing },
   };
 }

@@ -1,9 +1,13 @@
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { content } from "@japacity/content";
 import type { PlaceEntry } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import hubFile from "../../../public/assets/places/ojuelegba/place.json";
-import { actPose, bandOf, crowdSize, hash, localDate, placeCrowd, playersRoom, poolOf, resident, residents, sampleCrowd, type Shown, traditionalCount, walkPose, weekday } from "./crowd";
+import { actPose, bandOf, crowdSize, hash, localDate, partSpots, placeCrowd, poolOf, resident, residents, sampleCrowd, type Shown, traditionalCount, walkPose, weekday } from "./crowd";
+import type { PlaceFile } from "./placeFile";
 import { type Person, ROSTER } from "./roster";
 
 const city = content.tuning.city;
@@ -58,18 +62,19 @@ describe("the sample's size and band", () => {
 });
 
 describe("players in the sample", () => {
-  const others = Array.from({ length: city.playersMax + 2 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+  const size = crowdSize(hub, "high", city);
+  const others = Array.from({ length: size + 2 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
 
-  test("[R-CITY-015] given more players present than playersMax, when the sample is drawn, then at most playersMax of it are players and the rest live in the city", () => {
+  test("[R-CITY-015] [R-CITY-032] given more players present than the sample has slots and no part to keep, when the sample is drawn, then every slot is a player and its size stays the place's", () => {
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, others);
-    expect(sample.people.filter((shown) => shown.kind === "player")).toHaveLength(city.playersMax);
-    expect(sample.people).toHaveLength(crowdSize(hub, "high", city));
+    expect(sample.people.filter((shown) => shown.kind === "player")).toHaveLength(size);
+    expect(sample.people).toHaveLength(size);
   });
 
   test("[R-CITY-015] given players in the presence sample, when the sample is drawn, then every player carries the display name the server sent, and no resident has a tag", () => {
-    const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, others);
+    const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, others.slice(0, 3));
     const players = sample.people.filter((shown) => shown.kind === "player");
-    expect(players.map((shown) => shown.tag).reverse()).toEqual(others.map((other) => other.name).slice(0, city.playersMax));
+    expect(players.map((shown) => shown.tag).reverse()).toEqual(others.slice(0, 3).map((other) => other.name));
     expect(sample.people.filter((shown) => shown.kind === "resident" && shown.tag !== null)).toEqual([]);
   });
 
@@ -79,19 +84,20 @@ describe("players in the sample", () => {
 });
 
 describe("players seen today", () => {
+  const size = crowdSize(hub, "high", city);
   const live = [{ look: "chr_tunde", name: "here1" }];
-  const today = Array.from({ length: city.playersMax + 1 }, (_, index) => ({ look: "chr_tunde", name: `today${String(index)}` }));
+  const today = Array.from({ length: size + 1 }, (_, index) => ({ look: "chr_tunde", name: `today${String(index)}` }));
 
   test("[R-CITY-036] given a player here now and players seen today, when the sample is drawn, then those seen today stand in the slots after the live one, tagged with the server's names", () => {
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, live, today);
     const players = sample.people.filter((shown) => shown.kind === "player");
 
-    expect(players.map((shown) => shown.tag).reverse()).toEqual(["here1", ...today.map((other) => other.name)].slice(0, city.playersMax));
-    expect(sample.people).toHaveLength(crowdSize(hub, "high", city));
+    expect(players.map((shown) => shown.tag).reverse()).toEqual(["here1", ...today.map((other) => other.name)].slice(0, size));
+    expect(sample.people).toHaveLength(size);
   });
 
-  test("[R-CITY-036] [R-CITY-015] given live players filling playersMax, when the sample is drawn, then no one seen today is shown", () => {
-    const full = Array.from({ length: city.playersMax }, (_, index) => ({ look: "chr_tunde", name: `here${String(index)}` }));
+  test("[R-CITY-036] [R-CITY-015] given live players filling every slot, when the sample is drawn, then no one seen today is shown", () => {
+    const full = Array.from({ length: size }, (_, index) => ({ look: "chr_tunde", name: `here${String(index)}` }));
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, full, today);
 
     expect(sample.people.filter((shown) => shown.tag?.startsWith("today") === true)).toEqual([]);
@@ -181,21 +187,56 @@ describe("the target headcount", () => {
     }
   });
 
-  test("[R-CITY-032] given more players than room, when the sample is drawn, then residents never fall under residentFloor, and a sample at the floor shows no player", () => {
-    const others = Array.from({ length: city.playersMax + 4 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
-    for (const target of [city.residentFloor, city.residentFloor + 1, city.residentFloor + city.playersMax, city.crowdHigh]) {
-      const place = { ...hub, crowd: { low: city.crowdLow, high: city.crowdHigh, target } };
-      const sample = sampleCrowd(place, pool, THURSDAY, "high", city, others);
-      const residentsShown = sample.people.filter((shown) => shown.kind === "resident").length;
-      expect(residentsShown).toBeGreaterThanOrEqual(city.residentFloor);
-      expect(sample.people.length - residentsShown).toBe(playersRoom(target, city));
+  test("[R-CITY-032] given every shipped place and more players present than its residents' slots, when the crowd stands, then every part spot keeps the resident it has with no one online and players take every other slot", () => {
+    const folder = join(import.meta.dirname, "..", "..", "..", "public", "assets", "places");
+    let parts = 0;
+    for (const name of readdirSync(folder)) {
+      const path = join(folder, name, "place.json");
+      if (!existsSync(path)) continue;
+      const file = JSON.parse(readFileSync(path, "utf8")) as PlaceFile;
+      const stage = file.stage;
+      if (stage === undefined) continue;
+      const kept = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
+      const figure = Math.min(stage.people.length, city.crowdHigh);
+      const place = { ...hub, id: file.place as PlaceEntry["id"], crowd: { low: figure, high: figure, target: figure } };
+      const local = poolOf(file.people.sample);
+      const many = Array.from({ length: figure + 3 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+      const spots = partSpots(stage);
+      for (const date of [THURSDAY, FRIDAY, SATURDAY]) {
+        const alone = sampleCrowd(place, local, date, "high", city, [], [], [], kept).people;
+        const crowded = sampleCrowd(place, local, date, "high", city, many, [], [], kept).people;
+        const placed = (people: readonly Shown[]) => new Map(placeCrowd(people, stage.people, stage.prefer, stage.acts).map(({ index, shown }) => [index, shown]));
+        const before = placed(alone);
+        const after = placed(crowded);
+        expect(placed(sampleCrowd(place, local, date, "high", city).people).size).toBe(before.size);
+        const shownAt = (people: ReadonlyMap<number, Shown>, part: boolean) => [...people].filter(([index]) => spots.has(index) === part).map(([index, shown]) => [index, shown.kind, shown.kind === "player" ? "" : shown.person.file]);
+        expect(shownAt(after, true)).toEqual(shownAt(before, true));
+        expect(shownAt(after, true).every(([, kind]) => kind === "resident")).toBe(true);
+        expect(shownAt(after, false).every(([, kind]) => kind === "player")).toBe(true);
+        parts += shownAt(before, true).length;
+        expect(crowded).toHaveLength(alone.length);
+      }
     }
-    expect(playersRoom(city.residentFloor, city)).toBe(0);
-    expect(playersRoom(city.residentFloor + 1, city)).toBe(1);
+    expect(parts).toBeGreaterThan(0);
+  });
+
+  test("[R-CITY-032] given a place and no one online, when its crowd stands with its parts marked, then everyone stands where they stood unmarked", () => {
+    const stage = (hubFile as unknown as PlaceFile).stage;
+    if (stage === undefined) throw new Error("The hub has no stage");
+    const kept = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
+    for (const date of HUNDRED.slice(0, 14)) {
+      const where = (people: readonly Shown[]) => placeCrowd(people, stage.people, stage.prefer, stage.acts).map(({ index, shown }) => [index, shown.slot, shown.person.file]);
+      expect(where(sampleCrowd(hub, pool, date, "high", city, [], [], [], kept).people)).toEqual(where(sampleCrowd(hub, pool, date, "high", city).people));
+    }
+  });
+
+  test("[R-CITY-032] given a place's spots, when the parts are read, then a spot named for a role or given a pose or a sex is one and a crossing alone is not", () => {
+    expect([...partSpots({ prefer: { trader: [0], hawker: [4] }, acts: [{ spot: 1, pose: "sit" }, { spot: 2, to: [0, 1] }, { spot: 3, sex: "f" }] })].sort()).toEqual([0, 1, 3, 4]);
+    expect(partSpots({}).size).toBe(0);
   });
 
   test("[R-CITY-014] given players taking slots of the sample, when the band is read, then it follows the sample's whole count against the target, players included", () => {
-    const others = Array.from({ length: city.playersMax }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+    const others = Array.from({ length: 4 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
     expect(sampleCrowd(hub, pool, THURSDAY, "high", city, others).band).toBe(bandOf(crowdSize(hub, "high", city), hub.crowd.target));
     expect(sampleCrowd(hub, pool, THURSDAY, "low", city, others).band).toBe(bandOf(crowdSize(hub, "low", city), hub.crowd.target));
   });
@@ -299,6 +340,13 @@ describe("where the crowd stands", () => {
     const placed = placeCrowd(people, ["a", "b"], {}, [{ spot: 0, sex: "m", pose: "cheer" }]);
     expect(placed[0]?.shown.kind).toBe("resident");
     expect(placed[1]?.shown.kind).toBe("player");
+  });
+
+  test("[R-CITY-032] given another player whose look is a hawker, when a spot is kept for a hawker, then a resident hawker takes it and the player never does", () => {
+    const people = shown(["chr_hawker_a", "chr_tunde", "chr_hawker_b"]).map((one, slot): Shown => (slot === 0 ? { ...one, kind: "player", tag: "Femi" } : one));
+    const placed = placeCrowd(people, ["a", "b", "c"], { hawker: [1] });
+    expect(placed.find(({ index }) => index === 1)?.shown.person.file).toBe("shared/chr/chr_hawker_b.glb");
+    expect(placed.find(({ index }) => index === 1)?.shown.kind).toBe("resident");
   });
 
   test("[R-CITY-038] given an act's pose, when a person idles at its spot, then one in a plain stand takes it and a hawker keeps her tray, a trader his sale", () => {

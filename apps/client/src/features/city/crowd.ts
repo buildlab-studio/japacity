@@ -24,6 +24,19 @@ export interface Shown {
   kind: "resident" | "player";
   /** A player's name exactly as the server gave it, or null: residents carry no tag. */
   tag: string | null;
+  /**
+   * The spot a resident stands at in a part of the place (R-CITY-032): the trader at her stall, the clerk at the
+   * counter. Never taken by a player; someone standing at a thing takes it only past the scope's cap, once no one else is left.
+   */
+  part?: number;
+}
+
+/** A place's spots and what keeps some of them for a part: `prefer` names spots for a role, an act a spot's pose or sex. */
+export interface Parts {
+  /** How many spots the place has. */
+  spots: number;
+  prefer?: Partial<Record<Role, readonly number[]>> | undefined;
+  acts?: readonly Act[] | undefined;
 }
 
 export interface Sample {
@@ -140,29 +153,53 @@ export function residents(place: PlaceFacts, pool: readonly Person[], date: stri
   });
 }
 
-/** How many other players a sample of `size` may show: playersMax, leaving residentFloor residents (R-CITY-032). */
-export function playersRoom(size: number, city: CityTuning): number {
-  return Math.max(0, Math.min(city.playersMax, size - city.residentFloor));
-}
-
 /**
- * The sample: residents from the dress mix, then, when online, up to `playersRoom` of the slots at
- * the end taken by other players from the presence sample, each tagged with the name the server sent.
+ * The sample: residents from the dress mix, then, when online, other players from the presence sample in
+ * every slot no part holds, from the last slot back, each tagged with the name the server sent. Given the
+ * place's `parts`, the residents who stand at a part spot (`partSpots`) with no one else online are marked
+ * with it and keep it.
  * Players seen today (R-CITY-036) take the slots after the live ones and stand at their spots like them.
  * `worn` names outfits already on show outside the sample, which no resident is given.
  */
-export function sampleCrowd(place: PlaceFacts, pool: readonly Person[], date: string, mode: Mode, city: CityTuning, others: readonly Other[] = [], today: readonly Other[] = [], worn: readonly string[] = []): Sample {
+export function sampleCrowd(
+  place: PlaceFacts,
+  pool: readonly Person[],
+  date: string,
+  mode: Mode,
+  city: CityTuning,
+  others: readonly Other[] = [],
+  today: readonly Other[] = [],
+  worn: readonly string[] = [],
+  parts: Parts | null = null,
+): Sample {
   const size = crowdSize(place, mode, city);
   const people: Shown[] = residents(place, pool, date, size, city, worn).map((person, slot) => ({ slot, person, kind: "resident", tag: null }));
-  // R-CITY-036: those seen today take the slots after the live players, inside the room left for players.
-  const players = [...others, ...today].slice(0, playersRoom(size, city));
-  players.forEach((other, index) => {
-    const slot = size - 1 - index;
+  if (parts !== null) {
+    // The residents who stand at the parts with no one else online keep those spots whoever comes.
+    const kept = partSpots(parts);
+    const spots = Array.from({ length: parts.spots }, (_, index) => index);
+    for (const { shown, index } of placeCrowd(people, spots, parts.prefer, parts.acts)) if (kept.has(index)) people[shown.slot] = { ...shown, part: index };
+  }
+  // R-CITY-015, R-CITY-032: players before residents in every slot no part holds; R-CITY-036: those seen today after the live ones.
+  const open = people.filter((shown) => shown.part === undefined).map((shown) => shown.slot).reverse();
+  [...others, ...today].slice(0, open.length).forEach((other, index) => {
+    const slot = open[index] ?? 0;
     const person = personOfLook(other.look) ?? resident(place, pool, date, slot, city);
     const tag = other.name.trim() === "" ? null : other.name;
     people[slot] = { slot, person, kind: "player", tag };
   });
   return { band: bandOf(size, place.crowd.target), people };
+}
+
+/**
+ * The spots kept for a part: each spot `prefer` names for a role (a hawker among the vehicles, a trader at the stall)
+ * and each spot an act gives a pose or a sex (the clerk seated at the counter, the rider on his machine). A crossing
+ * alone is no part. The place files do not say which seat is staff and which is a visitor's, so every posed spot is kept.
+ */
+export function partSpots(parts: Pick<Parts, "prefer" | "acts">): Set<number> {
+  const roles = Object.values(parts.prefer ?? {}).flatMap((indices) => [...(indices ?? [])]);
+  const acts = (parts.acts ?? []).filter((act) => act.pose !== undefined || act.sex !== undefined).map((act) => act.spot);
+  return new Set([...roles, ...acts]);
 }
 
 /** A place's pool: the people its file lists, as roster rows. */
@@ -184,19 +221,24 @@ export function walkPose(person: Pick<Person, "pose">): PoseName {
 }
 
 /**
- * Who stands at which of the place's spots. The first `people.length` spots are used, in order; a
- * spot the place names for a role (a hawker among the vehicles, a trader at the stall) goes to
- * someone of that role in the sample when there is one, a spot an act keeps for a man or a woman
- * goes to one in a plain stand, and everyone else fills the rest in slot order.
+ * Who stands at which of the place's spots. The first `people.length` spots are used, in order. A resident
+ * holding a part keeps its spot (`sampleCrowd`); then a spot the place names for a role goes to a resident of
+ * that role, and a spot an act keeps for a man or a woman to a resident in a plain stand, the first in slot order
+ * each time; everyone else fills the rest in slot order. A player never takes a part.
  */
 export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[], prefer: Partial<Record<Role, readonly number[]>> = {}, acts: readonly Act[] = []): { shown: Shown; spot: Spot; index: number }[] {
   const count = Math.min(people.length, spots.length);
   const at = new Map<number, Shown>();
   const placed = new Set<number>();
+  for (const shown of people) {
+    if (shown.part === undefined || shown.part >= count || at.has(shown.part)) continue;
+    at.set(shown.part, shown);
+    placed.add(shown.slot);
+  }
   for (const [role, indices] of Object.entries(prefer) as [Role, readonly number[]][]) {
     for (const index of indices) {
       if (index >= count || at.has(index)) continue;
-      const shown = people.find((candidate) => !placed.has(candidate.slot) && candidate.person.role === role);
+      const shown = people.find((candidate) => !placed.has(candidate.slot) && candidate.kind === "resident" && candidate.person.role === role);
       if (shown === undefined) break;
       at.set(index, shown);
       placed.add(shown.slot);

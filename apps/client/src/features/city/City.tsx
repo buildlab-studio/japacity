@@ -841,8 +841,11 @@ export function City({
   const dressedCrowd = inside ? null : (dressed?.crowd ?? null);
   const sample = useMemo(() => {
     if (crowdEntry === null || file === null) return null;
-    const standers = (stageOf(file).standing ?? []).map((stander) => stander.file);
-    const drawn = sampleCrowd({ ...crowdEntry, crowd: dressedCrowd ?? crowdEntry.crowd }, poolOf(file.people.sample), date, mode, world ? crowdTuning(city, file.scope, dressedCrowd !== null) : city, others, today, [own, ...(stageOf(file).dancers ?? []).map((dancer) => dancer.file), ...standers]);
+    const stage = stageOf(file);
+    const standers = (stage.standing ?? []).map((stander) => stander.file);
+    // The spots kept for a part keep their residents: the trader at her stall, the secretary at her desk (R-CITY-032).
+    const parts = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
+    const drawn = sampleCrowd({ ...crowdEntry, crowd: dressedCrowd ?? crowdEntry.crowd }, poolOf(file.people.sample), date, mode, world ? crowdTuning(city, file.scope, dressedCrowd !== null) : city, others, today, [own, ...(stage.dancers ?? []).map((dancer) => dancer.file), ...standers], parts);
     // Someone standing at a thing of their own takes a resident's place where the room would hold more than its scope allows (R-WORLD-011).
     return { ...drawn, people: makeRoom(drawn.people, roomFor(drawn.people.length, standers.length, WORLD_LIMITS.people[file.scope][mode])) };
   }, [crowdEntry, file, dressedCrowd, date, mode, others, today, own, world]);

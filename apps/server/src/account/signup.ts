@@ -15,9 +15,9 @@ import { emailIdentity, isBanned } from "../moderation/identities";
 import { restrictedUntil } from "../pair/restricted";
 import { isOn } from "../switches/switches";
 import { PASS_COOKIE, PASS_PREFIX, readCookie } from "./age";
+import { signUpCountry } from "./country";
 import { guestOf, refuseTaken } from "./link";
 import type { Linking } from "./link";
-import { regionOf } from "./region";
 import { nameProblem } from "./username";
 
 function refuse(code: string, message: string): never {
@@ -42,8 +42,7 @@ export const GUEST_NAME_HEADER = "x-japacity-guest-name";
 async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): Promise<{ data: { id: string; name?: string } }> {
   if (!(await isOn(deps, "signups"))) return refuse("switched-off", "Japacity is full right now. Try again shortly.");
   const headers = endpoint.headers ?? endpoint.request?.headers ?? null;
-  const { country, policy } = regionOf(deps.config.regions, endpoint.request, headers);
-  if (!policy.open) return refuse("region-closed", "Sign-up is not open in this region.");
+  const country = signUpCountry(endpoint.request, headers);
   const username = headers?.get(GUEST_NAME_HEADER) ?? null;
   if (username === null || nameProblem(username) !== null) return refuse("not-legal", "Choose a username first.");
 

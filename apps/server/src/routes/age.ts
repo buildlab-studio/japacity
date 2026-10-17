@@ -1,14 +1,13 @@
 // R-ACCOUNT-011, 012: `POST /api/age`, the age screen, and `GET /api/age`, its
-// standing, before the username and the guest life. The region is judged first
-// and nothing is kept from a closed one; the date of birth is judged and
-// dropped; a pass is a single-use row that the guest start consumes, where the
-// bot check runs (R-ACCOUNT-013, routes/account.ts).
+// standing, before the username and the guest life, the same from every
+// country. The date of birth is judged and dropped; a pass is a single-use
+// row that the guest start consumes, where the bot check runs (R-ACCOUNT-013,
+// routes/account.ts).
 // https://hono.dev/docs/helpers/cookie
 import { Hono } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 
 import { PASS_COOKIE, PASS_PREFIX, PASS_TTL_MS, REFUSED_COOKIE, ageOn, parseBirthDate, plausible, readCookie } from "../account/age";
-import { regionOf } from "../account/region";
 import { rejection } from "../account/reply";
 import type { Accounts } from "../auth/auth";
 import type { ServerDeps } from "../deps";
@@ -40,15 +39,11 @@ export function ageRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv
 
   // R-ACCOUNT-011, R-ACCOUNT-012: the screen's standing read before it is shown; the switch gate answers it first while sign-ups are off (R-SERVER-031).
   app.get("/api/age", limit(deps, "reads"), (c) => {
-    if (!regionOf(deps.config.regions, c.req.raw).policy.open) return c.json<AgeReply>(rejection("region-closed", "Sign-up is not open in this region."), 403);
     return c.json<AgeStatus>({ refused: readCookie(c.req.header("cookie"), REFUSED_COOKIE) !== null });
   });
 
   app.post("/api/age", limit(deps, "commands"), async (c) => {
     const request = c.req.raw;
-    if (!regionOf(deps.config.regions, request).policy.open) {
-      return c.json<AgeReply>(rejection("region-closed", "Sign-up is not open in this region."), 403);
-    }
     if (readCookie(request.headers.get("cookie"), REFUSED_COOKIE) !== null) {
       return c.json<AgeReply>(rejection("under-age", "This browser cannot sign up."), 403);
     }

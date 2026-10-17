@@ -6,19 +6,16 @@ import type { Nudge } from "@japacity/store";
 
 export type { Nudge };
 
-/** R-SERVER-025, R-ACCOUNT-011, R-ACCOUNT-015: the server's own refusals beside the simulation's. */
+/** R-SERVER-025, R-ACCOUNT-015: the server's own refusals beside the simulation's. */
 export type ServerCode =
   | RejectionCode
   | "rate-limited"
   | "signed-out"
   | "diverged"
-  | "region-closed"
   | "one-character"
   | "no-character"
   /** R-SERVER-031: the feature's switch is off. */
   | "switched-off"
-  /** R-REGION: the two players' regions do not allow the pair (R-PAIR-018). */
-  | "region"
   /** account.md: the age screen and the bot check. */
   | "under-age"
   | "bad-date"

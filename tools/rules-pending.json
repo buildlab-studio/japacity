@@ -1,4 +1,6 @@
 [
+  "R-ACCOUNT-009",
+  "R-ACCOUNT-010",
   "R-ASSET-010",
   "R-CITY-006",
   "R-CITY-009",
@@ -18,6 +20,8 @@
   "R-PEOPLE-063",
   "R-REGION-001",
   "R-REGION-005",
+  "R-REGION-006",
+  "R-REGION-007",
   "R-REGION-008",
   "R-REGION-009",
   "R-SERVER-033",

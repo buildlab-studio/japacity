@@ -14,7 +14,7 @@ import type { ReportCite, ReportInput, ReportSubject } from "../moderation/repor
 import { readReport } from "../moderation/reports";
 import { readable } from "./conversation";
 import { field } from "./invite";
-import { accountOfCharacter } from "./region";
+import { accountOfCharacter } from "./account";
 import { pairStep, sendTo, sideLive, sideOf, unusual } from "./step";
 
 const REPORT_BYTES = 12;

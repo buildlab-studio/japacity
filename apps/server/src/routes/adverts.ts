@@ -48,7 +48,7 @@ export function advertRoutes(deps: ServerDeps, on: AdvertsOn = advertsOnByDefaul
 
   route.get("/api/adverts", limit(deps, "reads"), async (c) => {
     const now = deps.now();
-    const region = advertRegion(deps.config.regions, c.req.query("region"));
+    const region = advertRegion(deps.config.advert.regions, c.req.query("region"));
     if (!(await on())) {
       const empty: AdvertsReply = emptyReply(region, now);
       c.header("cache-control", `public, max-age=${String(secondsTo(empty.until, now))}`);

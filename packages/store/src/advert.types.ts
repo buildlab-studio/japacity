@@ -5,7 +5,7 @@ import type { Id } from "@japacity/sim";
 
 import type { StoreResult } from "./types";
 
-/** A region code of the policy table (region.md): a country's code, or `default`. */
+/** An advert region (adverts.md R-ADVERT-008): a country's code, or `default`. */
 export type RegionCode = string;
 
 /** R-ADVERT-020: the advertiser as a business, with one contact. */

@@ -66,27 +66,24 @@ describe("POST /api/age", () => {
     expect(everything).not.toContain("1990-05-17");
   });
 
-  test("[R-ACCOUNT-011] given a closed region, when the screen is sent, then it is refused with region-closed before the date is read and nothing is kept", async () => {
+  test("[R-ACCOUNT-011] [R-ACCOUNT-007] given players in Australia and in France, when each passes the age screen and starts a guest life, then each account is made and keeps its country", async () => {
     const h = harness();
-    const jar = makeJar();
-    const reply = await h.call("/api/age", { method: "POST", jar, country: "AU", json: { dateOfBirth: "not even a date" } });
-    expect(reply.status).toBe(403);
-    expect(await reply.json()).toMatchObject({ ok: false, code: "region-closed" });
-    expect(reply.headers.get("set-cookie")).toBeNull();
-    expect(h.tables.verification).toHaveLength(0);
+    for (const [country, email] of [["AU", "au@example.com"], ["FR", "fr@example.com"]] as const) {
+      const { account } = await h.signUp(email, makeJar(), country);
+      expect((await h.deps.stores.account.get(account))?.country).toBe(country);
+    }
   });
 
-  test("[R-ACCOUNT-011] given a pass from an open region, when the guest life is started from a closed one, then it is refused with region-closed and no account exists", async () => {
+  test("[R-ACCOUNT-011] given a pass from Nigeria, when the guest life is started from Australia, then the account is made", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar, { country: "NG" });
     const reply = await h.startGuest(jar, { country: "AU" });
-    expect(reply.status).toBe(403);
-    expect(await reply.json()).toMatchObject({ code: "region-closed" });
-    expect(h.tables.user).toHaveLength(0);
+    expect(reply.status).toBe(200);
+    expect(h.tables.user).toHaveLength(1);
   });
 
-  test("[R-ACCOUNT-008] given the codes XX and T1, when a player signs up, then the unknown row lets them in and the code is stored", async () => {
+  test("[R-ACCOUNT-008] given the codes XX and T1, when a player signs up, then the code is stored", async () => {
     const h = harness();
     for (const [country, email] of [["XX", "x@example.com"], ["T1", "t@example.com"]] as const) {
       const { account } = await h.signUp(email, makeJar(), country);
@@ -112,11 +109,11 @@ describe("GET /api/age", () => {
     expect(await (await h.call("/api/age", { headers: { cookie: `${REFUSED_COOKIE}=1` } })).json()).toEqual({ refused: true });
   });
 
-  test("[R-ACCOUNT-011] given a closed region, when the standing is read, then it is refused with region-closed", async () => {
+  test("[R-ACCOUNT-011] given a request from Australia, when the standing is read, then it answers as it does anywhere", async () => {
     const h = harness();
     const reply = await h.call("/api/age", { country: "AU" });
-    expect(reply.status).toBe(403);
-    expect(await reply.json()).toMatchObject({ ok: false, code: "region-closed" });
+    expect(reply.status).toBe(200);
+    expect(await reply.json()).toEqual({ refused: false });
   });
 
   test("[R-ACCOUNT-011] [R-SERVER-031] given sign-ups switched off, when the standing is read, then the gate answers 503 switched-off with the wait, refused cookie or not", async () => {

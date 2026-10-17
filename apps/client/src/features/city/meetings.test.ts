@@ -3,6 +3,9 @@
 // only while the view lists them, one met only in December only in December; the thing's one act opens a card whose
 // button sends `people/court`. Where each is met: the meetup's two at the hub's meetup, after the service
 // and a friend of the family at the family house, nobody met in their room. Real content, a real life through the engine.
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { content, meetingThings, partnerMeetings, text } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -12,7 +15,10 @@ import theirRoom from "../../../public/assets/places/their-room/place.json";
 import yabaHub from "../../../public/assets/places/yaba-hub/place.json";
 import { courted, eagerContent, partnered, peopleGame, TOBI } from "../../shared/testing/people";
 import { nameOf, say } from "../../shared/words/text";
+import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { actsOffered } from "./acts";
+import { poolOf, sampleCrowd } from "./crowd";
+import { crowdTuning } from "./limits";
 import { COURT, courtedTold, makeRoom, meetingThingsAt, roomFor, roomNear, roomOpen, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding, type TalkWords } from "./meetings";
 import { type PlaceFile, stageOf } from "./placeFile";
 import { stagedNow, thingSpot, thingsNow, thingsOf } from "./things";
@@ -128,7 +134,7 @@ describe("a person standing where content meets them", () => {
     }
   });
 
-  test("[R-WORLD-011] given people standing at their things, when the crowd is drawn, then residents give up their places only past the scope's cap, and a player keeps theirs", () => {
+  test("[R-WORLD-011] given people standing at their things, when the crowd is drawn, then residents give up their places only past the scope's cap, then players, and the residents at parts last", () => {
     const crowd = [
       { slot: 0, kind: "resident" as const },
       { slot: 1, kind: "resident" as const },
@@ -137,10 +143,48 @@ describe("a person standing where content meets them", () => {
     ];
     expect(makeRoom(crowd, 2).map((one) => one.slot)).toEqual([0, 3]);
     expect(makeRoom(crowd, 0)).toEqual(crowd);
+    // R-CITY-032: once the other residents are gone, players give way; a resident at a part goes only after them, the highest spot first.
+    const parts = [
+      { slot: 0, kind: "resident" as const, part: 0 },
+      { slot: 1, kind: "resident" as const },
+      { slot: 2, kind: "player" as const },
+      { slot: 3, kind: "resident" as const, part: 2 },
+    ];
+    expect(makeRoom(parts, 2).map((one) => one.slot)).toEqual([0, 3]);
+    expect(makeRoom(parts, 3).map((one) => one.slot)).toEqual([0]);
+    expect(makeRoom(parts, 4)).toEqual([]);
     // The parlour's Mama and Papa stay with two guests in a room of six; the hub's six make room for two.
     expect(roomFor(2, 2, 6)).toBe(0);
     expect(roomFor(6, 2, 6)).toBe(2);
     expect(roomFor(4, 0, 4)).toBe(0);
+  });
+
+  test("[R-WORLD-011] [R-CITY-032] given every shipped place with people standing at its things and more players present than slots, when the crowd is drawn in each mode, then the crowd and those standing stay within the scope's cap, and a part's resident gives way only once no player is left", () => {
+    const folder = join(import.meta.dirname, "..", "..", "..", "public", "assets", "places");
+    const many = Array.from({ length: 12 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+    let checked = 0;
+    for (const name of readdirSync(folder)) {
+      const path = join(folder, name, "place.json");
+      if (!existsSync(path)) continue;
+      const file = JSON.parse(readFileSync(path, "utf8")) as PlaceFile;
+      const stage = stageOf(file);
+      const standers = stage.standing?.length ?? 0;
+      if (standers === 0) continue;
+      const parts = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
+      for (const mode of ["low", "high"] as const) {
+        const cap = WORLD_LIMITS.people[file.scope][mode];
+        const figure = Math.min(stage.people.length, cap);
+        const place = { id: file.place as Id<"place">, crowd: { low: figure, high: figure, target: figure }, traditionalBp: 0, occasion: false };
+        const drawn = sampleCrowd(place, poolOf(file.people.sample), "2026-10-08", mode, crowdTuning(content.tuning.city, file.scope, false), many, [], [], parts).people;
+        const shown = makeRoom(drawn, roomFor(drawn.length, standers, cap));
+        expect(shown.length + standers, `${name} in ${mode}`).toBeLessThanOrEqual(cap);
+        const partGone = shown.filter((one) => one.part !== undefined).length < drawn.filter((one) => one.part !== undefined).length;
+        const others = shown.filter((one) => one.kind !== "resident" || one.part === undefined);
+        expect(partGone ? others : [], `${name} in ${mode}`).toEqual([]);
+        checked += 1;
+      }
+    }
+    expect(checked).toBeGreaterThan(0);
   });
 });
 
