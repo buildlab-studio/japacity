@@ -255,9 +255,9 @@ export const tuning: Tuning = {
   analytics: { batchSeconds: 60, maxBatchBytes: 16384, maxCount: 500, batchesPerHour: 90, minShown: 10, refD1Bp: 3000, refD7Bp: 900 },
 
   // city.md "Numbers": the crowd bands and the graphics switches. Working values.
-  city: { crowdLow: 8, crowdHigh: 16, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024, idleAfterMs: 20000, idleFps: 10, walkMmPerS: 1400, stopShortMm: 300, tagNearMm: 3000,
-    // world.md: nothing roams and there is no fly-over (R-WORLD-010, 015); the crowd and sheet caps (R-WORLD-011); the rides' fares in kobo and pace, and how far a walk goes (R-WORLD-017, R-PLACE-010: beyond it a fare is the only way).
-    roam: false, flyover: false, indoorLow: 4, indoorHigh: 6, outdoorLow: 6, outdoorHigh: 10, motionSheets: 1,
+  city: { crowdLow: 8, crowdHigh: 16, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024, walkMmPerS: 1400, stopShortMm: 300,
+    // world.md: nothing roams and there is no fly-over (R-WORLD-010, 015); the rides' fares in kobo and pace, and how far a walk goes (R-WORLD-017, R-PLACE-010: beyond it a fare is the only way).
+    roam: false, flyover: false,
     ride: { fareKobo: { danfo: 20000, keke: 30000, okada: 50000, walk: 0 }, farePerKmKobo: { danfo: 5000, keke: 10000, okada: 15000, walk: 0 }, metresPerMinute: { danfo: 250, keke: 300, okada: 450, walk: 80 }, waitMinutes: 6, scarcityBp: 20000, walkMetres: 2000,
       // R-PLACE-010: the metres a thousandth of a degree of longitude is worth, 111 times the cosine
       // of the latitude, rounded: Lagos 111 here, and each country's below; latitude is 111 everywhere.
