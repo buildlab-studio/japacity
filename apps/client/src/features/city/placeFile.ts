@@ -218,7 +218,7 @@ export interface PlaceFile {
   stage?: Stage;
 }
 
-/** Open ground, for a place whose models are not built yet. */
+/** Open ground, for a place with no models. */
 export function openGround(place: string): PlaceFile {
   return { place, scope: "exterior", hub: false, instances: [], people: { low: 0, high: 0, sample: [] }, stage: OPEN_STAGE };
 }
