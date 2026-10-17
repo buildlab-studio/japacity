@@ -27,23 +27,6 @@ function covers(a: LabelBox, b: LabelBox, gap: number): boolean {
   return Math.abs(a.x - b.x) < (a.width + b.width) / 2 + gap && a.y - a.height < b.y + gap && b.y - b.height < a.y + gap;
 }
 
-/**
- * Where each label's foot stands so that none covers another: the lowest on the screen keeps its place, and each above
- * it is lifted over any it would cover. Labels keep their order and their `x`; only `y` moves, and only up.
- */
-export function spreadLabels(boxes: readonly LabelBox[], gap = LABEL_GAP): number[] {
-  const feet = boxes.map((box) => box.y);
-  const placed: LabelBox[] = [];
-  for (const index of lowestFirst(boxes)) {
-    const box = boxes[index];
-    if (box === undefined) continue;
-    const at = liftedClear(box, placed, gap);
-    feet[index] = at.y;
-    placed.push(at);
-  }
-  return feet;
-}
-
 /** The boxes' places, the lowest on the screen first. */
 function lowestFirst(boxes: readonly LabelBox[]): number[] {
   return boxes.map((_, index) => index).sort((a, b) => (boxes[b]?.y ?? 0) - (boxes[a]?.y ?? 0));
