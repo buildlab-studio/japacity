@@ -385,7 +385,7 @@ export const miniContent: Content = {
       homeSupport: 4000000,
       hometowns: { city: ["hometown.ibadan", "hometown.enugu"], town: ["hometown.nsukka"], byHome: {} },
     },
-    advice: { warnings: false, networkToAsk: 40, adviserFee: 4000000, agentKindsBp: { fixer: 5000, chaser: 0, overpromiser: 3000, scammer: 2000 }, fees: { fixer: [1000000, 3000000], overpromiser: [800000, 2500000], scammer: [800000, 3500000] }, chaserFee: [500000, 1200000], fixerMonths: 1, chaserMonths: 1, fakePapersFee: 2000000, scamTells: 2, overpromiseTells: 1, floorNaira: 200000, warnMonths: 6 },
+    advice: { networkToAsk: 40, adviserFee: 4000000, agentKindsBp: { fixer: 5000, chaser: 0, overpromiser: 3000, scammer: 2000 }, fees: { fixer: [1000000, 3000000], overpromiser: [800000, 2500000], scammer: [800000, 3500000] }, chaserFee: [500000, 1200000], fixerMonths: 1, chaserMonths: 1, fakePapersFee: 2000000, scamTells: 2, overpromiseTells: 1, floorNaira: 200000 },
     luck: {
       downUnder: 30,
       rescueAfterMonths: 12,

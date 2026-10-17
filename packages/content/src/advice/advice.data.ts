@@ -93,10 +93,10 @@ const BP_WHOLE = 10000;
  * R-ADVICE-006: every tell, in the order a careful player meets them. A tell
  * a fixer carries has `honestBp` 10000, one a scammer carries `fraudBp`
  * 10000; an overpromiser carries the fixer's and the first of the scammer's
- * after it. A friend's warning is never carried; it is found (R-ADVICE-011).
+ * after it.
  */
 function tells(fixer: readonly string[], scammer: readonly string[]): OfferEntry["signs"] {
-  const order = ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "no-passport", "pay-today", "price-low", "friend-warned"];
+  const order = ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "no-passport", "pay-today", "price-low"];
   return order.map((key) => ({ key, honestBp: fixer.includes(key) ? BP_WHOLE : 0, fraudBp: scammer.includes(key) ? BP_WHOLE : 0 }));
 }
 

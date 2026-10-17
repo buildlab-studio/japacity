@@ -534,7 +534,7 @@ export const TuningSchema = z.strictObject({
     homeSupport: CountSchema,
     hometowns: z.strictObject({ city: z.array(HometownSchema).min(1), town: z.array(HometownSchema).min(1), byHome: z.record(z.string().min(1), HometownSchema) }),
   }),
-  advice: z.strictObject({ warnings: z.boolean(), networkToAsk: CountSchema, adviserFee: CountSchema, agentKindsBp: z.strictObject({ fixer: BpSchema, chaser: BpSchema, overpromiser: BpSchema, scammer: BpSchema }), fees: z.strictObject({ fixer: z.tuple([CountSchema, CountSchema]), overpromiser: z.tuple([CountSchema, CountSchema]), scammer: z.tuple([CountSchema, CountSchema]) }), chaserFee: z.tuple([CountSchema, CountSchema]), fixerMonths: CountSchema, chaserMonths: CountSchema, fakePapersFee: CountSchema, scamTells: CountSchema, overpromiseTells: CountSchema, floorNaira: CountSchema, warnMonths: CountSchema }),
+  advice: z.strictObject({ networkToAsk: CountSchema, adviserFee: CountSchema, agentKindsBp: z.strictObject({ fixer: BpSchema, chaser: BpSchema, overpromiser: BpSchema, scammer: BpSchema }), fees: z.strictObject({ fixer: z.tuple([CountSchema, CountSchema]), overpromiser: z.tuple([CountSchema, CountSchema]), scammer: z.tuple([CountSchema, CountSchema]) }), chaserFee: z.tuple([CountSchema, CountSchema]), fixerMonths: CountSchema, chaserMonths: CountSchema, fakePapersFee: CountSchema, scamTells: CountSchema, overpromiseTells: CountSchema, floorNaira: CountSchema }),
   luck: z.strictObject({
     downUnder: CountSchema,
     rescueAfterMonths: CountSchema,

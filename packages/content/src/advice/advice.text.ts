@@ -44,7 +44,6 @@ export const adviceText: Record<string, string> = {
   "offer.agent-stop.sign.no-passport": "He says: \"No passport needed, we will arrange everything.\"",
   "offer.agent-stop.sign.pay-today": "He says pay today or someone else takes it.",
   "offer.agent-stop.sign.price-low": "His price is far below the official fees.",
-  "offer.agent-stop.sign.friend-warned": "Sounds like the one your friend warned about.",
   "offer.agent-stop.sign.look-office": "You asked where his office is.",
   "offer.agent-stop.sign.look-licence": "You asked for his licence number.",
   "offer.agent-stop.sign.look-name": "You checked his name with someone you know.",
@@ -70,7 +69,6 @@ export const adviceText: Record<string, string> = {
   "offer.agent-office.sign.no-passport": "He says: \"No passport needed, we will arrange everything.\"",
   "offer.agent-office.sign.pay-today": "He says pay today or someone else takes it.",
   "offer.agent-office.sign.price-low": "His price is far below the official fees.",
-  "offer.agent-office.sign.friend-warned": "Sounds like the one your friend warned about.",
   "offer.agent-office.sign.look-office": "You saw his office. His name is on the door.",
   "offer.agent-office.sign.look-licence": "You asked for his licence number.",
   "offer.agent-office.sign.look-name": "You checked his name with someone you know.",
@@ -95,7 +93,6 @@ export const adviceText: Record<string, string> = {
   "offer.agent-chaser.sign.no-passport": "She says: \"No passport needed, we will arrange everything.\"",
   "offer.agent-chaser.sign.pay-today": "She says pay today or someone else takes it.",
   "offer.agent-chaser.sign.price-low": "Her price is far below the official fees.",
-  "offer.agent-chaser.sign.friend-warned": "Sounds like the one your friend warned about.",
   "offer.agent-chaser.sign.look-office": "She works from a desk by the gate. People know her there.",
   "offer.agent-chaser.sign.look-licence": "She gives a business registration number.",
   "offer.agent-chaser.sign.look-name": "You checked her name with someone you know.",
@@ -134,7 +131,6 @@ export const adviceText: Record<string, string> = {
   "advice.tell.no-passport.name": "he said no passport was needed",
   "advice.tell.pay-today.name": "he said pay today or lose it",
   "advice.tell.price-low.name": "his price was far below the official fees",
-  "advice.tell.friend-warned.name": "a friend had warned about one like him",
 
   // The four ways in the report (R-ADVICE-001).
   "line.route.looked-into-told": "Someone who went told you about {route}. Now you know what it takes, as far as they know.",

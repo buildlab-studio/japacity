@@ -7,7 +7,7 @@ import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
 
 import { check } from "../engine/check";
-import type { Accepted, BaseEvent, Content, Id, Moment, OfferEntry, OfferState, ReportLine, Requirement } from "../engine/types";
+import type { Accepted, BaseEvent, Content, Id, OfferEntry, OfferState, ReportLine, Requirement } from "../engine/types";
 import { hiddenPaths } from "../engine/view";
 import { applyEffects, answerFirst, READY, readyLife, toApplied, toKnown, UK } from "../route/route.journey";
 import type { Game } from "../testing/play";
@@ -24,10 +24,6 @@ import {
   LOOKS,
   PAPERS,
   PROMISE,
-  readWarning,
-  warned,
-  WARNED,
-  warningWhat,
 } from "./offer.agent";
 import type { OfferEvent } from "./offer.events";
 import { answerScore } from "../setpiece/setpiece.logic";
@@ -157,7 +153,7 @@ describe("the tells", () => {
     expect(carriedTells(stop, "scammer", advice).length).toBeGreaterThanOrEqual(advice.scamTells);
     expect(carriedTells(stop, "overpromiser", advice).length).toBeGreaterThanOrEqual(advice.overpromiseTells);
     expect(carriedTells(stop, "fixer", advice).length).toBeLessThanOrEqual(1);
-    expect(stop.signs.map((sign) => sign.key).sort()).toEqual(["cash-only", "friend-warned", "guarantee", "holds-passport", "no-licence", "no-office", "no-passport", "pay-today", "price-low"]);
+    expect(stop.signs.map((sign) => sign.key).sort()).toEqual(["cash-only", "guarantee", "holds-passport", "no-licence", "no-office", "no-passport", "pay-today", "price-low"]);
     expect(agentProblems(content)).toEqual([]);
   });
 
@@ -336,37 +332,5 @@ describe("fake papers", () => {
     applyEffects(used, [{ type: "document/request", document: "document.transcript" }]);
     for (let month = 0; month < 6 && used.state.document["document.transcript"]!.readyMonth !== null; month += 1) used.endTurn();
     expect(used.state.document["document.transcript"]).toMatchObject({ state: "held", genuine: false });
-  });
-});
-
-describe("a friend's warning", () => {
-  function moment(what: string, tick: number): Moment {
-    return { n: 1, by: "them", kind: "said", spot: null, what, tick };
-  }
-
-  test("[R-ADVICE-011] given a warning built from facts, when it is read, then it carries the place, the promise and the tells and never a name, and it is switched off offline", () => {
-    const tells = carriedTells(stop, "scammer", advice);
-    const what = warningWhat({ place: "place.ojuelegba", promise: GULF, tells });
-    expect(readWarning(what)).toEqual({ place: "place.ojuelegba", promise: GULF, tells: [...tells].sort() });
-    for (const name of ["Efosa", "Timi", "Nsikak", "Ameh"]) expect(what).not.toContain(name);
-    expect(content.tuning.advice.warnings).toBe(false);
-  });
-
-  test("[R-ADVICE-011] given a bond who warned of a man with the same tells at the stop, when the switch is on, then he is uncovered inside the warning's months and not after, nor for other tells, nor with the switch off", () => {
-    const game = pastChapterOne("warn-1");
-    const tells = carriedTells(stop, "scammer", advice);
-    const read = (what: string, tick: number) => {
-      const bond = { with: { kind: "player" as const, pair: "p" }, role: "partner" as const, stage: "courting" as const, firstMonth: 0, partnerMonth: null, marriedMonth: null, lastMomentMonth: null, moments: [moment(what, tick)], facts: null, pending: { mine: null, theirs: null } };
-      return { state: { ...game.state, people: { ...game.state.people, bonds: { b: bond as never } } }, world: game.world(), content };
-    };
-    const now = game.world().tick;
-    const what = warningWhat({ place: "place.ojuelegba", promise: GULF, tells });
-    expect(warned(read(what, now), stop, tells, true)).toBe(true);
-    expect(warned(read(what, now - advice.warnMonths + 1), stop, tells, true)).toBe(true);
-    expect(warned(read(what, now - advice.warnMonths), stop, tells, true)).toBe(false);
-    expect(warned(read(warningWhat({ place: "place.ojuelegba", promise: GULF, tells: tells.slice(1) }), now), stop, tells, true)).toBe(false);
-    expect(warned(read(what, now), stop, tells, false)).toBe(false);
-    expect(text[`${STOP}.sign.${WARNED}`]).toBe("Sounds like the one your friend warned about.");
-    expect(text[`${STOP}.sign.${WARNED}`]).not.toMatch(/scam/i);
   });
 });

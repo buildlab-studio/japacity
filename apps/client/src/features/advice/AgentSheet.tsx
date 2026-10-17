@@ -6,7 +6,7 @@
 // what he was is told after, in the report line. The promise and the papers he leaves behind are
 // the same card with their own choices.
 import type { OfferView as Offer, ReportLine, ReportParam } from "@japacity/sim";
-import { Banknote, BookUser, BookX, Building2, Check, Eye, IdCard, MessageSquareWarning, ShieldCheck, Timer, TrendingDown, type LucideIcon } from "lucide-react";
+import { Banknote, BookUser, BookX, Building2, Check, Eye, IdCard, ShieldCheck, Timer, TrendingDown, type LucideIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -275,7 +275,6 @@ const TELL_ICONS: Readonly<Record<string, LucideIcon>> = {
   "no-passport": BookX,
   "pay-today": Timer,
   "price-low": TrendingDown,
-  "friend-warned": MessageSquareWarning,
 };
 
 /**

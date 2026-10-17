@@ -103,7 +103,7 @@ describe("the agent's sheet", () => {
   });
 
   test("[R-TEXT-008] given every tell an agent can carry, when each shows, then it is an icon, two to four words with no full stop and the warning mark with its word, never his sentence", async () => {
-    const all = ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "no-passport", "pay-today", "price-low", "friend-warned"];
+    const all = ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "no-passport", "pay-today", "price-low"];
     await renderWithView(sheet(), withOffers(stopOffer(all)));
     const tells = [...document.querySelectorAll<HTMLElement>("[data-tell]")];
     expect(tells.map((node) => node.getAttribute("data-tell"))).toEqual(all);

@@ -26,7 +26,6 @@ export const adviceUiText: Record<string, string> = {
   "advice.tell.no-passport.short": "\"No passport needed\"",
   "advice.tell.pay-today.short": "\"Pay today\"",
   "advice.tell.price-low.short": "Far below official fees",
-  "advice.tell.friend-warned.short": "Matches a friend's warning",
 };
 
 /** Words for an advice key: content's first, then the interface's, then the sheet's own drafts. */
