@@ -117,7 +117,7 @@ export function wholeDistance(shot: Shot, aspect: number, fov = SHOT_FOV): numbe
 }
 
 /**
- * A shot that turns the full circle (turning the house): a wide home's file sets its turn limit to
+ * A shot that turns the full circle: a wide home's file sets its turn limit to
  * 360, and its view turns any way round, coming to rest on a quarter.
  */
 export const FULL_TURN = 360;
@@ -155,7 +155,7 @@ export function quarterTurns(turn: number): 0 | 1 | 2 | 3 {
 }
 
 /**
- * The view from above (the tilt): a vertical drag lifts a wide home's view from its own pitch to
+ * The view from above: a vertical drag lifts a wide home's view from its own pitch to
  * this one, about 65 degrees, raised and never straight down (R-WORLD-009), and it comes to rest on one of the two.
  */
 export const TOP_PITCH = 65;
@@ -191,7 +191,7 @@ export const EASE = 7;
 /** How close to its end an easing view comes before it stands there. */
 export const SETTLE = 0.002;
 /**
- * The same easing for a wide home's rooms (world.md R-WORLD-029 as the home's wave asks it amended), quick enough that a
+ * The same easing for a wide home's rooms (world.md R-WORLD-029), quick enough that a
  * tap or a pinch has the camera in on the room, or back on the whole house, in under 400 ms.
  */
 export const ROOM_EASE = 12;
@@ -243,7 +243,7 @@ export function roomAt(rooms: readonly Room[], x: number, z: number): Room | nul
 export type HomeTap = { kind: "in"; room: Room } | { kind: "out" } | { kind: "walk" };
 
 /**
- * A tap on a wide home's floor or walls (R-WORLD-029 as the home's wave asks it amended): from the whole house (`whole`)
+ * A tap on a wide home's floor or walls (R-WORLD-029): from the whole house (`whole`)
  * it eases in on the room tapped; eased in on `current`, a tap outside it eases back out to the whole house, and a tap
  * inside it walks there as anywhere.
  */
@@ -274,8 +274,8 @@ export interface HomeView {
 }
 
 /**
- * Where the camera stands and looks, and its lens, for a wide home (world.md R-WORLD-029 as the home's wave asks it
- * amended): at `zoom` 1 the whole house seen down its length on the shot's long lens, fitted
+ * Where the camera stands and looks, and its lens, for a wide home (world.md R-WORLD-029): at
+ * `zoom` 1 the whole house seen down its length on the shot's long lens, fitted
  * to its width; at 0 eased in on `room` at the rooms' distance on the scene's own lens, the rest of the house running off
  * the screen's edges; between, the two mixed. The view looks from the file's facing turned by `view.turn`, the house
  * fitted as it lies turned, and from its own pitch lifted toward the view from above by `view.tilt`.
@@ -338,7 +338,7 @@ export function roomAcross(room: Pick<Room, "width" | "floor"> & { centre?: Room
 
 /**
  * How far back the eased-in view of a room stands. A phone held upright fits the room's width across the screen, its
- * length running off the top and bottom by design (R-WORLD-029 as amended). A screen wider than tall would come far too
+ * length running off the top and bottom by design (R-WORLD-029). A screen wider than tall would come far too
  * close on the width alone, so there the room's floor along the view must stand inside the lens's height too, and a
  * thing at the room's near edge (the bed in the corner) stays on screen on a laptop as it does on a phone. Turned
  *, the width is the room's floor as it lies across the turned view (`roomAcross`) and the depth as

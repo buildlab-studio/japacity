@@ -1,7 +1,7 @@
 // The computer partners met in a place (docs/rules/world.md R-WORLD-020; people.md R-PEOPLE-009, R-PEOPLE-013,
-// R-PEOPLE-014, built in the world 11 Oct 2026): each stands as a thing only in the place content meets them in,
+// R-PEOPLE-014): each stands as a thing only in the place content meets them in,
 // only while the view lists them, one met only in December only in December; the thing's one act opens a card whose
-// button sends `people/court`. The lead's rulings of 11 Oct 2026: the meetup's two at the hub's meetup, after the service
+// button sends `people/court`. Where each is met: the meetup's two at the hub's meetup, after the service
 // and a friend of the family at the family house, nobody met in their room. Real content, a real life through the engine.
 import { content, meetingThings, partnerMeetings, text } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
@@ -176,7 +176,7 @@ describe("the talk sheet", () => {
 });
 
 describe("seeing someone beside someone else", () => {
-  // Review 13, Z3: Hauwa was still offered while Tobi was courted. The rules allow it (R-PEOPLE-013, up to
+  // Hauwa is still offered while Tobi is courted. The rules allow it (R-PEOPLE-013, up to
   // maxCourting), and courting beside courting costs nothing, so then the card says nothing more; beside a partner, gossip
   // follows (R-PEOPLE-018, R-PEOPLE-041), and the card says what it costs before the tap.
   test("[R-PEOPLE-041] [R-PEOPLE-013] given Tobi only courted, when Hauwa is talked to, then her card adds nothing, since the rules ask nothing of courting two", () => {

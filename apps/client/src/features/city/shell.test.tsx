@@ -80,7 +80,7 @@ describe("the world fills the screen", () => {
     expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt, worldClockAt(Date.now())) }), say("chapter.find-your-feet.brief.title"), say("ui.world.map"), say("ui.world.phone"), cityWords("city.home.teach.close")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
-    // The road shows in the world only in the moment (the plan 16): away from the step's place nothing stays.
+    // The road shows in the world only in the moment: away from the step's place nothing stays.
     act(() => {
       vi.advanceTimersByTime(TUCK_MS + TUCK_SLIDE_MS + 50);
     });
@@ -345,7 +345,7 @@ describe("the trader from sixteen with a shop's capital", () => {
     expect(view.chapter.current).toBe("chapter.find-your-feet");
     const nudge = nudgeOf({ ...view, setpiece: null, interview: null, offers: [], report: null });
     expect(nudge.about).toBe("step");
-    // a trade hears of its way out at the motor park, not the meetup.
+    // A trade hears of its way out at the motor park, not the meetup.
     expect(nudge.key).toBe("chapter.find-your-feet.item.heard.nudge.motor-park");
     expect(stepWayOf(view)?.go).toBe("place.ojuelegba");
     expect(words("chapter.find-your-feet.open.prologue.capital")).toContain("settlement");
@@ -450,7 +450,7 @@ describe("the archetypes' own ways", () => {
     expect(nudgeOf(nurse)).toEqual({ key: "chapter.find-your-feet.item.known.own.needs", params: { route: "care work" }, about: "step" });
     expect(say("chapter.find-your-feet.item.known.own.needs", { route: "care work" })).toBe("Read about care work in Japa");
     expect(stepWayOf(nurse)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"], opens: "activity.look-into-route", param: "route.uk-care" });
-    // A graduate with no way of her own keeps the table's words, and her way still opens the page, with no route chosen, so its picker offers the routes heard (the forty-month driver runs, 10 Oct).
+    // A graduate with no way of her own keeps the table's words, and her way still opens the page, with no route chosen, so its picker offers the routes heard.
     const graduate = { ...nurse, qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality)), documents: [] };
     expect(nudgeOf(graduate).key).toBe("chapter.find-your-feet.item.known.nudge");
     expect(stepWayOf(graduate)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"], opens: "activity.look-into-route" });
@@ -659,7 +659,7 @@ describe("the band says what the home is", () => {
     expect(homeLine("place.makoko", base)).toBeNull();
     expect(homeLine("place.the-room", { ...base, place: { ...base.place, where: "abroad", country: "country.uk" } })).toBe("The shared room, Peckham");
     expect(homeLine("place.yaba", base)).toBeNull();
-    // The catalog of 16 Oct cut "Your room, a compound in Oj..." at 27 letters beside the age: every home's line is shorter.
+    // Beside the age a line is cut at 27 letters ("Your room, a compound in Oj..."), so every home's line is shorter.
     const abroad = { ...base, place: { ...base.place, where: "abroad" as const } };
     const lines = [
       ...(["place.compound-room", "place.family-house", "place.hostel-room"] as const).map((home) => homeLine(home, base)),

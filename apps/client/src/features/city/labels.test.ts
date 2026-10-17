@@ -1,4 +1,5 @@
-// The things' labels never cover each other (docs/rules/world.md R-WORLD-005, R-WORLD-002).
+// The things' labels never cover each other (docs/rules/world.md R-WORLD-005, R-WORLD-002): Makoko
+// has five labels within 110 pixels.
 import { describe, expect, test } from "vitest";
 
 import { LABEL_GAP, type LabelBox, spreadLabels } from "./labels";

@@ -1,4 +1,4 @@
-// The six beats as pictures (docs/rules/chapter.md R-CHAPTER-012): each one screen, drawn as the maintainer's page with the
+// The six beats as pictures (docs/rules/chapter.md R-CHAPTER-012): each one screen, drawn with the
 // game's own stickers (the published tiles), its words handed in, and one yellow button. Nothing here reads the game:
 // the scene (SendOffScene.tsx) hands each beat its words and its acts, and the development preview hands it a fixture.
 import type { CSSProperties, ReactNode } from "react";

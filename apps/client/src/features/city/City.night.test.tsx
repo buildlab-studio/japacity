@@ -107,8 +107,8 @@ describe("sleep, the way the month turns", () => {
     expect(card.closest("[data-centred-column]")).not.toBeNull();
     expect(turns(authority.sent)).toBe(0);
     fireEvent.click(found("[data-night-teach-ok]"));
-    // The card's Sleep starts the bed's timed sleep: the month turns once it runs out, not at the tap (R-WORLD-025 as
-    // amended on 12 Oct 2026), so the wait below runs the sleep before the turn is counted.
+    // The card's Sleep starts the bed's timed sleep: the month turns once it runs out, not at the tap (R-WORLD-025), so
+    // the wait below runs the sleep before the turn is counted.
     expect(found("[data-asleep]")).toBeTruthy();
     expect(turns(authority.sent)).toBe(0);
     await sleepThrough();
@@ -131,7 +131,7 @@ describe("sleep, the way the month turns", () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
     setPart(store, "morning");
     pressFanActNow("mattress", "end-month");
-    // The sleep runs its length before the month turns (R-WORLD-025 as amended on 12 Oct 2026).
+    // The sleep runs its length before the month turns (R-WORLD-025).
     await sleepThrough();
     expect(turns(authority.sent)).toBe(1);
     expect(store.getState().reportOpen).toBe(true);
@@ -143,7 +143,7 @@ describe("sleep, the way the month turns", () => {
   });
 });
 
-/** The body worn down to under thirty energy, so the night asks for bed (R-CLOCK-033 as amended). */
+/** The body worn down to under thirty energy, so the night asks for bed (R-CLOCK-033). */
 const worn = (game: ReturnType<typeof newGame>): void => applyEffects(game, [{ type: "quality/add", quality: "quality.energy", amount: -50 }]);
 
 describe("the night's nudge", () => {

@@ -1,6 +1,6 @@
-// The nudge after the endorsement is refused (docs/rules/world.md R-WORLD-003, route-gates R-ENDORSE-002; the tenth
-// review): it said "Apply for the endorsement" over a sheet saying the endorsement can be asked for again in six
-// months. A step waiting out a refusal names the wait, read from the route's refusal in the view. Real content, a real
+// The nudge after the endorsement is refused (docs/rules/world.md R-WORLD-003, route-gates R-ENDORSE-002): a step
+// waiting out a refusal names the wait, read from the route's refusal in the view, never "Apply for the endorsement"
+// over a sheet that says it can be asked for again in six months. Real content, a real
 // refusal: the talent route known, the endorsement asked for, the body sure to say no.
 import { content, text } from "@japacity/content";
 import type { Content, Id, PlayerView } from "@japacity/sim";

@@ -1,6 +1,6 @@
 // The family house staged (city.md place.family-house, R-CITY-037): one wide floor seen whole,
 // Mama and Papa in the parlour, your corner, the kitchen and the yard; the same house dressed for offer.send-off-party,
-// its guests idling and its dancers on the two dance loops in the yard while the offer is open; the family's asks,
+// its guests idling and its dancers on their two loops in the yard while the offer is open; the family's asks,
 // the pledge and home's own send-off (R-CHAPTER-008), answered round the parlour's centre table; and the street front
 // behind the door, which keeps the house's notice on the gate.
 import { content } from "@japacity/content";

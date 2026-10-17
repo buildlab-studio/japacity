@@ -1,4 +1,4 @@
-// The road in the world, only in the moment (docs/design/13-the-lively-layer.md section 4; the plan 16; the road set's
+// The road in the world, only in the moment (docs/design/13-the-lively-layer.md section 4; the road set's
 // pictures 01 to 05): nothing under the band by default; at the step's place the brief's chip with its dots and the marker
 // on the thing to do; a thing done ticks its dot and the giver says so under the chip for three seconds; walking out takes
 // the chip away; a chapter closed brings the brief back with its stamp and the next brief as a picture card.
@@ -76,12 +76,12 @@ describe("the first brief's card", () => {
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
     await renderWithView(world(), view);
     await waitFor(() => found("[data-stand-in-scene] [data-stand-in-draw]"), { timeout: 3000 });
-    // The catalog of 16 Oct: the card stood over a blank world before the place had drawn behind it.
+    // The card never stands over a blank world: the place draws behind it first.
     expect(document.querySelector("[data-opening]")).toBeNull();
     fireEvent.click(found("[data-stand-in-draw]"));
     await waitFor(() => found("[data-opening]"));
     expect(document.querySelector("[data-brief-scrim]")).not.toBeNull();
-    // The card says the brief: no chip and no nudge under the band say it again (032).
+    // The card says the brief: no chip and no nudge under the band say it again.
     expect(document.querySelector("[data-band] [data-nudge]")).toBeNull();
     fireEvent.click(found("[data-opening-go]"));
     await waitFor(() => expect(document.querySelector("[data-opening]")).toBeNull());

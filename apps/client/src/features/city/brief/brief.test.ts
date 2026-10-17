@@ -1,5 +1,5 @@
-// The brief, its chip and its marker, read from the view (docs/design/13-the-lively-layer.md section 4; the plan 7 and
-// 16): the giver and the things with their places, the dots, the toast, and the fun the road never touches.
+// The brief, its chip and its marker, read from the view (docs/design/13-the-lively-layer.md section 4): the giver
+// and the things with their places, the dots, the toast, and the fun the road never touches.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -16,7 +16,7 @@ describe("the brief", () => {
     expect(brief.giver).toEqual({ name: say("chapter.find-your-feet.brief.giver"), where: say("chapter.find-your-feet.brief.giver.where") });
     expect(brief.line).toBe("Service year is over.");
     expect(brief.title).toBe(say("chapter.find-your-feet.brief.title"));
-    // Never the chapter's name as a heading, at most three words (the plan 7.8, 13.3).
+    // Never the chapter's name as a heading, at most three words.
     expect(brief.title).not.toBe("Find your feet");
     expect(brief.title.split(/\s+/).length).toBeLessThanOrEqual(3);
     expect(brief.items.map((item) => item.id)).toEqual(view.chapter.items.map((item) => item.id));

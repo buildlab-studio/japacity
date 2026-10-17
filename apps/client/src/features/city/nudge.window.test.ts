@@ -1,6 +1,6 @@
-// The sponsor step reads the care window (docs/rules/world.md R-WORLD-003 as amended 11 Oct 2026; route-gates.md
-// R-SPONSOR-005): the ready nurse read "Find a sponsor with a licence" for about nineteen
-// months while no sponsor could take a nurse from abroad. Real content, the ready nurse played through `step`.
+// The sponsor step reads the care window (docs/rules/world.md R-WORLD-003; route-gates.md
+// R-SPONSOR-005): while no sponsor can take a nurse from abroad, the nudge never says "Find a sponsor with a licence".
+// Real content, the ready nurse played through `step`.
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

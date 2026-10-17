@@ -145,7 +145,7 @@ interface Rig {
   /** A finger is turning or tilting a wide home's view live: it follows the finger and eases nowhere until it lifts. */
   turning: boolean;
   pinching: boolean;
-  /** A wide home's room the view eases in on (R-WORLD-029 as the home's wave asks it amended); null for the room the character stands in. */
+  /** A wide home's room the view eases in on (R-WORLD-029); null for the room the character stands in. */
   room: string | null;
 }
 
@@ -315,14 +315,14 @@ function Place(props: PlaceProps) {
   const peopleKey = people.map((shown) => `${shown.person.file}:${String(shown.tag)}`).join("|");
   // The day's look by the world's clock, and the look the lights stand at now, easing toward it (R-CLOCK-033).
   const { part, minute } = props.day;
-  // The layer's light (the design): a home's rooms, an office or a street, each warmed by day under a pale, cool sky.
+  // The layer's light: a home's rooms, an office or a street, each warmed by day under a pale, cool sky.
   const kind = lightKindOf({ scope: file.scope, stage });
   const placeLight = PLACE_LIGHT[kind];
   const target = useMemo(() => placeLook(lookAt(part, minute, stage.light.sun), kind), [part, minute, stage.light.sun, kind]);
   const look = useRef<Look | null>(null);
   const daylit = useRef<{ look: Look | null; sun: [number, number, number]; sky: Color; light: Color; ground: Color; background: Color; fog: Color }>({ look: null, sun: [0, 0, 0], sky: new Color(), light: new Color(), ground: new Color(), background: new Color(), fog: new Color() });
   const lamps = useRef<Object3D[]>([]);
-  /** The rooms' real lights at their lamps, each with its strength at full night (the design). */
+  /** The rooms' real lights at their lamps, each with its strength at full night. */
   const lights = useRef<{ point: PointLight; strength: number }[]>([]);
   const fx = useRef<{ objects: Object3D[]; from: number; to: number }[]>([]);
   /** The models the place was last built from, for buy mode's copy of a lifted thing and its footprint. */
@@ -352,7 +352,7 @@ function Place(props: PlaceProps) {
     walk.current.lying = false;
     pick.current({ kind: "thing", thing });
   };
-  // A wide home's rooms (R-WORLD-029 as the home's wave asks it amended): a thing chosen from the whole house, or in
+  // A wide home's rooms (R-WORLD-029): a thing chosen from the whole house, or in
   // another room, eases the camera in on its room first, and its fan opens once the camera is there.
   const rooms = useMemo(() => (raised ? (stage.rooms ?? []) : []), [raised, stage.rooms]);
   const deferred = useRef<Thing | null>(null);
@@ -799,7 +799,7 @@ function Place(props: PlaceProps) {
         if (seat !== undefined) walk.current.walker = standAt(seat[0], seat[1], seat[2]);
         walk.current.sitting = pose === "sit";
         walk.current.lying = pose === "lie";
-        // The figure's back rests on the top the act names (the mattress), else the old fixed height.
+        // The figure's back rests on the top the act names (the mattress), else a fixed height.
         walk.current.lieY = posed.top === undefined ? LIE_Y : posed.top + backDepth(world.own.root);
       }
       pick.current({ kind: "act", thing: waiting.thing, act: waiting.act });
@@ -861,7 +861,7 @@ function Place(props: PlaceProps) {
       lit.look = day;
       lit.sun = sunAt(stage.light.sun, day);
       // Every place's sky is the layer's pale one and its sky light cool; a room's and an office's floor bounce warm, a
-      // street's its own ground (the design). The pale sky stands behind in place of the old sand haze,
+      // street's its own ground. The pale sky stands behind,
       // and a street's fog fades its far end into that sky; the clock tints it, so the night stays blue.
       lit.sky.copy(skyOf(new Color(placeLight.backdrop), day));
       lit.light.copy(skyLightOf(new Color(placeLight.sky), day));
@@ -961,7 +961,8 @@ function Place(props: PlaceProps) {
       const name = node.querySelector<HTMLElement>("[data-mark-name]");
       if (name !== null && !name.hidden) names.push({ name, x: at.x, box: { x: within(at.x, name), y: at.y - MARK_HIT, width: name.offsetWidth, height: name.offsetHeight } });
     }
-    // Names that would cover each other or a dot are lifted clear, two rows at most, else they wait.
+    // Names that would cover each other or a dot are lifted clear, two rows at most, else they wait,
+    // so the family house's names never climb into the sky with their dots.
     const dotBoxes = dots.map((dot) => ({ x: dot.x, y: dot.y - MARK_HIT / 2 + 6, width: 12, height: 12 }));
     const laidNames = layNames(names.map((one) => one.box), dotBoxes);
     const soft: Rect[] = dots.map(dotRect);
@@ -973,7 +974,7 @@ function Place(props: PlaceProps) {
       if (laid.shown) clear.push({ left: box.x - box.width / 2, right: box.x + box.width / 2, top: laid.foot - box.height, bottom: laid.foot });
     });
     // A person's words stand over them as the camera moves (R-WORLD-005), clear of every head, name, mark and the marker in
-    // the scene (R-WORLD-026), the tail leaning down to the speaker.
+    // the scene (R-WORLD-026: no line over a face), the tail leaning down to the speaker.
     if (bubble !== null) {
       if (voice === null) bubble.style.visibility = "hidden";
       else {
@@ -1059,7 +1060,7 @@ function Place(props: PlaceProps) {
   });
 
   /**
-   * A tap on a wide home's floor or walls (R-WORLD-029 as the home's wave asks it amended): from the whole house it eases
+   * A tap on a wide home's floor or walls (R-WORLD-029): from the whole house it eases
    * in on the room tapped; eased in, a tap outside the room eases back out to the whole house. True when the tap was
    * the camera's; a tap inside the room eased in on walks as anywhere.
    */
@@ -1176,7 +1177,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
   const day = useDayClock(props.worldClock ?? null);
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => roomShot(shotOf(stageOf(file)), stageOf(file), file.scope), [file]);
-  // A wide home's rooms, which the pinch and the wheel ease in on (R-WORLD-029 as the home's wave asks it amended).
+  // A wide home's rooms, which the pinch and the wheel ease in on (R-WORLD-029).
   const rooms = useMemo(() => (raised ? (stageOf(file).rooms ?? []) : []), [raised, file]);
   // A wide home turns the full circle and opens on the quarter it was left on.
   const round = raised && turnsRound(shot);

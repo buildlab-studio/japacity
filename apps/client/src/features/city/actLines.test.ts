@@ -1,5 +1,5 @@
-// What an act says once it lands, in every built place (docs/rules/world.md R-WORLD-005; text.md R-TEXT-008; the
-// owner): a person at the thing speaks over their head in their own voice; a thing tells one short line
+// What an act says once it lands, in every built place (docs/rules/world.md R-WORLD-005; text.md R-TEXT-008): a
+// person at the thing speaks over their head in their own voice; a thing tells one short line
 // in the corner, about the world and never the player's own act; an act the scene shows says nothing at all.
 import { describe, expect, test } from "vitest";
 
@@ -59,7 +59,6 @@ describe("an act's line as it lands", () => {
   });
 
   test("[R-WORLD-019] [R-WORLD-005] given the papers box, when it is looked in, then nothing is told in the corner: the box opens the phone's Papers, which tells every paper", () => {
-    // the box's line in the corner gave way to the app.
     const boxes = ACTS.filter(({ act }) => act.label === "city.act.papers");
     expect(boxes.length).toBeGreaterThanOrEqual(3);
     for (const { act } of boxes) expect([act.kind, act.app]).toEqual(["app", "papers"]);

@@ -1,7 +1,7 @@
 // The bed's month end, the player's own figure and a thing's fan over the world (docs/rules/world.md R-WORLD-025,
 // R-WORLD-008, R-WORLD-005, R-WORLD-003, R-WORLD-014). The bed's Sleep
-// ends the month once its timed sleep runs out, and the results open in the room; the phone's lock screen no longer comes
-// first (R-WORLD-025 as amended on 12 Oct 2026). A tap on your own figure opens nothing. A fan hides the nudge only while it is open: a tap anywhere
+// ends the month once its timed sleep runs out, and the results open in the room; the phone's lock screen does not come
+// first (R-WORLD-025). A tap on your own figure opens nothing. A fan hides the nudge only while it is open: a tap anywhere
 // outside it, Escape or its sheet's close puts it away and the nudge comes back by itself; a person's or a shopfront's
 // card does the same and sits at the foot of the screen. A reload opens inside the house when the player last stopped
 // there. The place file is the one
@@ -80,9 +80,8 @@ async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn =
 const nudge = (): Element | null => document.querySelector("[data-nudge]");
 
 describe("the bed's month end", () => {
-  // Was: the month's lines waiting opened the lock screen as a preview, and putting it away ended the month. The bed no
-  // longer opens the phone before the turn (R-WORLD-025 as amended on 12 Oct 2026); the same checks stand on the timed
-  // sleep: nothing is sent at the tap, then turn/end goes once with the plan as it stands, and the results open in the room.
+  // The bed never opens the phone before the turn (R-WORLD-025). On the timed sleep nothing is sent at the tap, then
+  // turn/end goes once with the plan as it stands, and the results open in the room.
   test("[R-WORLD-025] [R-WORLD-008] given something planned at home, when the bed's Sleep is tapped, then the phone stays shut and nothing is sent until the sleep runs out; then the month ends with the plan's commitments and the results sheet opens over the place", async () => {
     const bed = await adaAtHome();
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
@@ -192,8 +191,8 @@ describe("a person's or a shopfront's card", () => {
 });
 
 describe("where the game opens", () => {
-  // the family house has no yard and parlour apart any more, so the room
-  // behind a door is the hub's at Ojuelegba, and the family house opens whole.
+  // The family house is one wide floor with no yard and parlour apart, so the room behind a door is the hub's at
+  // Ojuelegba, and the family house opens whole.
   test("[R-WORLD-014] given the player last stopped inside the hub's room at Ojuelegba, when the world opens again, then it opens inside, at the desks, not on the street", async () => {
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.ojuelegba", "inside"]));
     const game = newGame("scenario.ada");

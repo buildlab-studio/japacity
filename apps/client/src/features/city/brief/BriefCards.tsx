@@ -1,5 +1,5 @@
 // The mission card and the chapter close (docs/design/13-the-lively-layer.md section 4; the after set's
-// world-chapter-title and world-chapter-close; the plan 7): a brief handed by its person in their voice, the things as
+// world-chapter-title and world-chapter-close): a brief handed by its person in their voice, the things as
 // sticker tiles with the place under each, the reward as picture chips, the next brief faint, one button "Let's go"; and
 // at the close the same card with every tick, the stamp landing with a thud, confetti, and the next briefs as picture cards.
 import { useEffect } from "react";

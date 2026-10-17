@@ -51,8 +51,8 @@ describe("the agent's ask stands in for the desk", () => {
   });
 });
 
-// with nothing on, the agent still says what he does and when to come back,
-// and the chip under his name says Agent, not "Ask what is on". he says it himself.
+// With nothing on, the agent still says himself what he does and when to come back, and the chip under his name
+// says Agent, not "Ask what is on".
 describe("the agent with nothing on", () => {
   test("[R-WORLD-005] given the desk with no offer open, when the agent's act is read, then its chip says Agent and the man at the desk says not today, what he does and when to come back", () => {
     const view = heldFundsOpen();

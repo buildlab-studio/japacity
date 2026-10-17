@@ -129,7 +129,7 @@ describe("the rooms' light (the design)", () => {
       const light = PLACE_LIGHT[kind];
       expect(light.sky).toBe(ROOM_LIGHT.sky);
       expect(light.backdrop).toBe(ROOM_LIGHT.backdrop);
-      // Paler and cooler than the old sand sky the places took: lighter, and its blue above its red.
+      // Paler and cooler than a sand sky (0xf3d9a4): lighter, and its blue above its red.
       expect(lum(light.backdrop)).toBeGreaterThan(lum(0xf3d9a4));
       expect(warmth(light.sky)).toBeLessThan(0);
       expect(warmth(light.sun)).toBeGreaterThan(0);

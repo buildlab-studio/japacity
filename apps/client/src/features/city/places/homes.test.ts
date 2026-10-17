@@ -1,6 +1,6 @@
 // The homes as wide floors: the family house, the room in a
 // compound and the hostel room, each one house of walled rooms seen whole straight down its length, the near walls cut
-// low (world.md R-WORLD-029 as the home's wave asks it amended), and turned a quarter at a time with its walls following
+// low (world.md R-WORLD-029), and turned a quarter at a time with its walls following
 // the view. Each is passed through the checks every staged place
 // owes: its file measured as the build check measures it, its limits, its floors, its walkable ground with every spot,
 // the start and each dressing's spots clear of the footprints, its things and their words, its light by the clock.
@@ -158,7 +158,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
       }
     }
     expect(hung).toBeGreaterThan(0);
-    // At rest the view looks down the length from +z, as the home wave built it: the back and the left full.
+    // At rest the view looks down the length from +z: the back and the left full.
     expect(fullSides(2)).toEqual(["back", "left"]);
     for (const wall of home.shell.walls) expect({ from: wall.from, to: wall.to, low: wall.height <= 1.2, hung: (wall.fittings ?? []).length }).toEqual({ from: wall.from, to: wall.to, low: true, hung: 0 });
   });
@@ -480,9 +480,8 @@ describe("each home's cooking corner", () => {
     };
     expect(corner(familyRaw)).toEqual(["activity.cook-at-home", ["activity.cook-jollof"]]);
     for (const raw of [roomRaw, hostelRaw]) expect(corner(raw)).toEqual(["activity.cook-own", ["activity.cook-own-pot"]]);
-    // the room abroad cooks in the country's money, in the UK a meal in pounds;
-    // restated to R-HOME-012 as amended again that day (the three countries' wave): in Canada, the UAE and Italy a meal in
-    // dollars, dirhams or euros, listed on the same sheet, each open only in its country.
+    // The room abroad cooks in the country's money (streets.md R-STREET-012, R-HOME-012): in the UK a meal in pounds; in
+    // Canada, the UAE and Italy a meal in dollars, dirhams or euros, listed on the same sheet, each open only in its country.
     expect(corner(abroadRaw)).toEqual(["activity.cook-own-uk", ["activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-it"]]);
     expect(content.activity["activity.cook-at-home"]?.cost).toEqual([]);
     expect(content.activity["activity.cook-jollof"]?.cost).toEqual([{ currency: "NGN", amount: 7_500_00, reason: "foodstuff" }]);

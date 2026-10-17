@@ -1,6 +1,5 @@
-// The room at its new length (docs/rules/world.md R-WORLD-011 as amended on 10 Oct 2026, the review item
-// 15): the room abroad is about 16 by 9 metres, so seen down its length it fills a phone held upright. The homes at
-// home are wide floors since the home's wave (homes.test.ts). Refurnished so nothing floats: every piece
+// The room abroad at its length (docs/rules/world.md R-WORLD-011): the room abroad is about 16 by 9 metres, so seen down its length it fills a phone held upright. The homes at
+// home are wide floors (homes.test.ts). Refurnished so nothing floats: every piece
 // stands on the floor between the walls, what stood against a wall still does, and both modes stay inside the
 // indoor row's budget. Read from the shipped files, measured as the build check measures them, and passed through
 // the place check itself.
@@ -15,7 +14,7 @@ import { measured, rowOf, totalsOf } from "./placeTesting";
 
 const room = roomRaw as unknown as PlaceFile;
 const LONG: readonly [number, number] = [16, 9];
-// The homes at home are wide floors now, their sizes and pieces tested in homes.test.ts; the room
+// The homes at home are wide floors, their sizes and pieces tested in homes.test.ts; the room
 // abroad keeps its length.
 const ROOMS_HERE = [{ name: "the room abroad", file: room, shell: ROOMS.abroad, size: LONG, side: 1, against: ["prop_bed.glb", "prop_window-frame.glb", "prop_side-table.glb"] }] as const;
 

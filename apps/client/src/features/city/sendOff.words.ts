@@ -1,6 +1,5 @@
 // The send-off scene's own words (docs/rules/chapter.md R-CHAPTER-012, world.md R-WORLD-037), first drafts in the voice
-// of docs/rules/text.md, from the maintainer's six pages in the design. Content's table wins over these,
-// so each key can move into content to be rewritten. The talk is content's own: the airport's overheard lines,
+// of docs/rules/text.md. Content's table wins over these, so each key can move into content and be rewritten there. The talk is content's own: the airport's overheard lines,
 // Papa's at the gate, each hub's first line and the family's first messages. No figure is written here: the flight's
 // amount comes from the tuning, and the money on the band from the view.
 import { text } from "@japacity/content";

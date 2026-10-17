@@ -1,5 +1,5 @@
 // The city's own words, first drafts in the voice of docs/rules/text.md. Content's table wins over
-// these, so each key can move into content to be rewritten. Place names, blurbs, signs and
+// these, so each key can move into content and be rewritten there. Place names, blurbs, signs and
 // talk overheard are content's already (city.md R-CITY-024).
 import { text } from "@japacity/content";
 
@@ -47,7 +47,7 @@ export const cityText: Record<string, string> = {
   "city.home.family-house": "The family house",
   "city.home.makoko": "The room on the water",
   "city.home.the-room": "The shared room, {area}",
-  // The room per country on the band (world.md R-WORLD-038 as amended): content's full names, said short.
+  // The room per country on the band (world.md R-WORLD-038): content's full names, said short.
   "city.home.the-room.country.canada": "The basement, Calgary",
   "city.home.the-room.country.uae": "The bed space, Dubai",
   "city.home.the-room.country.italy": "The shared flat, Castel",
@@ -89,7 +89,7 @@ export const cityText: Record<string, string> = {
   "city.thing.test-desk": "Test desk",
   "city.thing.nurse": "Nurse",
   "city.thing.counter": "Counter",
-  // the clerk at the bank's counter takes back held funds still open.
+  // The clerk at the bank's counter takes back held funds still open.
   "city.thing.clerk": "Clerk",
   "city.thing.long-desk": "Desks",
   "city.thing.jobs-board": "Jobs board",
@@ -99,7 +99,7 @@ export const cityText: Record<string, string> = {
   "city.thing.laptop": "Laptop",
   "city.thing.post": "Post",
   "city.thing.arrivals-gate": "Arrivals",
-  // the gate that boards the plane reads as the way out.
+  // The gate that boards the plane reads as the way out.
   "city.thing.departures": "Departures",
   "city.thing.flight-board": "Flights",
   "city.thing.trolley": "Trolley",
@@ -174,10 +174,10 @@ export const cityText: Record<string, string> = {
   "city.act.routes": "Ask about routes",
   "city.act.jobs": "Jobs",
   "city.act.agents": "The agents",
-  // the agent at his desk when nothing is on; the fifth, P21: he says what he deals in and when to come back.
+  // The agent at his desk when nothing is on: he says what he deals in and when to come back.
   "city.act.ask-desk": "Agent",
   "city.act.ask-desk.says": "Not today. Papers, proof of funds, Dubai jobs: come back next month.",
-  // the visa desk once the interview is over.
+  // The visa desk once the interview is over.
   "city.act.ask-visa-desk": "Ask at the desk",
   "city.act.ask-visa-desk.says": "Nothing for you today.",
   "city.act.ask-visa-desk.who": "The officer",
@@ -259,7 +259,7 @@ export const cityText: Record<string, string> = {
   "city.act.job-warehouse": "Warehouse",
   "city.act.job-guard": "Guard work",
   "city.act.job-cleaner": "Cleaning work",
-  // the notice once none of its jobs is open (one held, or none on these papers).
+  // The notice once none of its jobs is open (one held, or none on these papers).
   "city.act.read-jobs-notice": "Read",
   "city.act.read-jobs-notice.done": "Shops, kitchens, care homes, warehouses. Nothing new on it is open to you this month.",
   "city.act.look-typing": "Look",

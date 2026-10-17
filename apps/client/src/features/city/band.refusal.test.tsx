@@ -58,7 +58,7 @@ describe("the band after a refusal", () => {
     if (go !== null) fireEvent.click(go);
     const mapClose = screen.queryByRole("button", { name: cityWords("city.close") });
     if (mapClose !== null) fireEvent.click(mapClose);
-    // At the step's place the road's chip comes back (the plan 16); the wait itself is the Japa app's to tell.
+    // At the step's place the road's chip comes back; the wait itself is the Japa app's to tell.
     expect(document.querySelector("[data-brief-chip]")?.getAttribute("data-brief-chip")).toBe("here");
     expect(document.querySelector("[data-coming]")).toBeNull();
     const handle = document.querySelector<HTMLElement>("[data-band-handle]");

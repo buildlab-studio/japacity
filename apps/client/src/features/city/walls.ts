@@ -1,4 +1,4 @@
-// The walls follow the view (turning the house): a wide home's shell carries each outer side twice,
+// The walls follow the view: a wide home's shell carries each outer side twice,
 // full and knee-high (`wall_<side>_full`, `wall_<side>_low`, packages/assets walls.ts). The scene shows the far pair full
 // and the near pair low for the way the view looks: at rest on a quarter, the side it looks at and the one on its left;
 // on the way round, the two sides that face away from the camera, so a wall that rises always rises behind the rooms and

@@ -1,4 +1,5 @@
-// An ask answered at its place lists what still waits (docs/rules/world.md R-WORLD-006): once the send-off is answered at the house, the sheet names the ask still open
+// An ask answered at its place lists what still waits (docs/rules/world.md R-WORLD-006): once
+// the send-off is answered at the house, the sheet names the ask still open
 // and one button opens it, so it never says nobody is asking while the nudge says someone is.
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";

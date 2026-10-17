@@ -1,4 +1,4 @@
-// The market's things in the homes (the new rule R-WORLD-035 to come, cited meanwhile by R-WORLD-005 and
+// The market's things in the homes (world.md R-WORLD-035, R-WORLD-005,
 // R-WORLD-029): each home's place file gives every thing it may hold a set spot (your corner at the family house; the
 // room, the kitchenette and the yard in a home of your own), each spot fitting the floor rule buy mode uses with every
 // other thing owned standing too, and the room's budgets held with everything owned in view.

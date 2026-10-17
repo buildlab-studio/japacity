@@ -1,4 +1,4 @@
-// The layer's light and dressing in the Lagos streets and offices (the design): the night
+// The layer's light and dressing in the Lagos streets and offices: the night
 // keeps its bulbs and lanterns as the home's real point lights where a place has a lamp, a few to a place so the
 // phone's frame holds, and each place stands more of life from the kit (assets.md R-ASSET-006; city.md R-CITY-019).
 import { describe, expect, test } from "vitest";

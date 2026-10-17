@@ -1,9 +1,7 @@
 // The talent route's nudges follow the file's order (docs/rules/world.md R-WORLD-003; route-gates.md R-ENDORSE-001,
-// R-ENDORSE-003). X1: the ready developer who followed every nudge bought the endorsement before
-// any passport, it ran out while the application sheet said "Needs your passport first", and the loop went round three
-// times (₦3.25m) in 36 months with no passport. X2: "The endorsement needs more. See Japa." stood for months while the
-// pandemic had closed every route and Japa marked every need done. X4: "Take the coding course at the hub" stood three
-// months while the course ran. Real content, lives played through `step`.
+// R-ENDORSE-003): the passport comes before the endorsement, so a life following every nudge never buys an endorsement
+// that runs out waiting on it; a route the news has closed says so instead of "needs more"; a need whose act is
+// already running is passed over. Real content, lives played through `step`.
 import { content } from "@japacity/content";
 import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

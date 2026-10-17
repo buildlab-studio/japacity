@@ -1,5 +1,4 @@
-// The way home from the bag's Go home on the engine's own forecast (docs/rules/place.md R-PLACE-004, R-PLACE-005), moved
-// from the old place panel: the fare bought from naira, the return a life would make today read before it happens, the
+// The way home from the bag's Go home on the engine's own forecast (docs/rules/place.md R-PLACE-004, R-PLACE-005): the fare bought from naira, the return a life would make today read before it happens, the
 // assisted ticket, and no way home with a status held and nothing to pay. The card and its one button are drawn and
 // sent in goHome.test.tsx; the fare and the times home are read in Papers (features/phone/apps/Papers.place.test.tsx).
 import { content } from "@japacity/content";

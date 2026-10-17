@@ -1,5 +1,5 @@
-// The market's things in the room and buy mode's floor rule (the new rule R-WORLD-035 to
-// come, cited meanwhile by R-WORLD-005 and R-WORLD-029): what is owned stands at its set spot or where it was set down,
+// The market's things in the room and buy mode's floor rule (world.md R-WORLD-035,
+// R-WORLD-005, R-WORLD-029): what is owned stands at its set spot or where it was set down,
 // taking the place of the model it replaces; buy mode only in a home of your own; a thing set down fits only on the floor,
 // clear of every other footprint and of the ways; the arrangement is kept beside the save by life.
 import { type Footprint, type FootprintBox } from "@japacity/assets";

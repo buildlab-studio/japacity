@@ -1,5 +1,5 @@
 // The words of each country abroad fetched in a chunk of its own (engine.md R-ENGINE-020; world.md R-WORLD-038,
-// R-WORLD-039 as amended 16 Oct 2026) and added to the late table once the life is in that country: London's through its
+// R-WORLD-039) and added to the late table once the life is in that country: London's through its
 // own loader, Calgary's, Dubai's and Castel Volturno's here. The imports sit with the city's other chunks, so the first
 // visit's shared words carry only the late table's few lines (shared/words/late.ts).
 import { addLateWords } from "../../shared/words/late";

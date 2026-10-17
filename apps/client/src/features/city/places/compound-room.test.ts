@@ -1,5 +1,5 @@
-// The room in a compound in Ojuelegba (docs/rules/home.md R-HOME-010, R-HOME-006; world.md R-WORLD-029; the plan
-// section 8): your room in a wide floor with its bathroom and nook behind it and the compound's yard through your door,
+// The room in a compound in Ojuelegba (docs/rules/home.md R-HOME-010, R-HOME-006; world.md R-WORLD-029): your
+// room in a wide floor with its bathroom and nook behind it and the compound's yard through your door,
 // the home's five things, the mattress, the stove, the drum by the door, the papers box and the bag, each with the act
 // the family house's has. It stages nothing of its own (R-CITY-010): while the character lives there the city opens the
 // family house's acts on its things.
@@ -52,8 +52,8 @@ describe("the room in a compound", () => {
     // Your room ends at its door's wall (x 0.475); everyone else stands in the yard beyond it.
     expect(stage.people.filter(([x]) => x < 0.475)).toEqual([]);
     const acts = (id: string) => thingOf(id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null]);
-    // the mattress naps on its sheet and sleeps; while no nap can be had its act is
-    // Lie down, done at once with the lying pose, as R-TURN-006 had it; an empty slot rests.
+    // The mattress naps on its sheet and sleeps (decision 0035, R-ACTIVITY-019); while no nap can be had its act is Lie
+    // down, done at once with the lying pose; an empty slot rests (R-TURN-006).
     expect(acts("bed")).toEqual([
       ["sheet", "activity.nap"],
       ["end", null],
@@ -65,7 +65,7 @@ describe("the room in a compound", () => {
     // The drum is filled free from the yard's tap: its own act, not the water seller's; the bath on its sheet.
     expect(acts("drum")).toEqual([["sheet", "activity.fill-drum"]]);
     expect(thingOf("drum").acts[0]?.more).toEqual(["activity.bucket-bath"]);
-    // the box opens the phone's Papers, where the papers' acts are.
+    // The box opens the phone's Papers (R-WORLD-019), where the papers' acts are.
     expect(acts("papers-box")).toEqual([["app", null]]);
     expect(thingOf("papers-box").acts[0]?.app).toBe("papers");
     expect(acts("bag")).toEqual([["command", "route/depart"]]);

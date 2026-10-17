@@ -67,7 +67,7 @@ export function sleepMarkNode(): HTMLDivElement {
 }
 
 /**
- * Eyes closed (R-WORLD-025): while the sleep runs, the others in the place, the crowd, the dancers and those standing at a thing of their
+ * Eyes closed (R-WORLD-025), since the family standing round the bed while you sleep looks wrong: while the sleep runs, the others in the place, the crowd, the dancers and those standing at a thing of their
  * own, are not seen, under the wash; the sleeper alone stays. Waking, or the sleep running out, brings them back.
  */
 export function othersSeen(world: Pick<World, "crowd" | "dancers" | "standers">, seen: boolean): void {

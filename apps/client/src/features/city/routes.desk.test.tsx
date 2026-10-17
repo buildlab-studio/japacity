@@ -1,7 +1,6 @@
-// "Ask about routes" at the hub's desk (docs/rules/world.md R-WORLD-005, R-WORLD-006, advice.md R-ADVICE-001; the
-// : a developer's first month opened a sheet whose only card was "A master's at home". The act's name
-// holds: the adviser's card leads when the adviser can be seen, and a card shut for now (the word of someone who went,
-// which needs the network) stands with its reason instead of going. Real content, a real life from sixteen.
+// "Ask about routes" at the hub's desk (docs/rules/world.md R-WORLD-005, R-WORLD-006, advice.md R-ADVICE-001): the
+// sheet is about routes, never only "A master's at home", so the act's name holds: the adviser's card leads when the
+// adviser can be seen, and a card shut for now (the word of someone who went, which needs the network) stands with its reason instead of going. Real content, a real life from sixteen.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

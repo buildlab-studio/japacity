@@ -1,8 +1,7 @@
-// The answer once courted, in the world (docs/rules/people.md R-PEOPLE-013, R-PEOPLE-054; world.md R-WORLD-020). Review
-// 13, Z3: "Start seeing Tobi" closed the sheet, Tobi left the parlour, and nothing was said; the corner had
-// told its line while the home's card hid it. the corner tells the person's own line,
-// and it waits for the corner to show. The place files are the ones the game ships; the scene is a stand-in that hands
-// the city a tap on a thing's act.
+// The answer once courted, in the world (docs/rules/people.md R-PEOPLE-013, R-PEOPLE-054; world.md R-WORLD-020): once
+// "Start seeing Tobi" closes the sheet and Tobi leaves the parlour, the corner tells the person's own line, and it waits
+// for the corner to show, so the home's card never hides it. The place files are the ones the game ships; the scene is
+// a stand-in that hands the city a tap on a thing's act.
 import { text } from "@japacity/content";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -58,7 +57,7 @@ describe("the answer once courted", () => {
       if (found === null) throw new Error(`Tobi is not standing in the parlour. ${document.querySelector("[data-city]")?.getAttribute("data-city") ?? "no city"} ${[...document.querySelectorAll<HTMLElement>("[data-stand-in-thing]")].map((one) => one.dataset.standInThing).join(",")}`);
       return found;
     });
-    // The home's card, once in a life (R-HOME-008), is still up: the player went straight to Tobi, as in the review.
+    // The home's card, once in a life (R-HOME-008), is still up: the player goes straight to Tobi.
     expect(document.querySelector("[data-home-teach-ok]")).not.toBeNull();
     // His fan's Talk (R-WORLD-034).
     fireEvent.click(tobi);

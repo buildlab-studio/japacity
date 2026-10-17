@@ -130,7 +130,7 @@ export interface OwnedSpot {
 }
 
 /**
- * One room of a wide home (world.md R-WORLD-029 as the home's wave asks it amended): the floor it covers, as the corners
+ * One room of a wide home (world.md R-WORLD-029): the floor it covers, as the corners
  * x0, z0, x1, z1 in metres, and the view eased in on it: where it looks, how many metres across it shows and how steeply
  * it looks down, in degrees, at the rooms' distance.
  */
@@ -149,7 +149,7 @@ export interface Lamp {
   size: number;
   /** A bulb seen hanging there; a lantern or a window shows only its glow. */
   bulb?: boolean;
-  /** A real light there as the lamps come on, its strength at full night and how far it reaches in metres: the rooms' light (the design). */
+  /** A real light there as the lamps come on, its strength at full night and how far it reaches in metres: the rooms' light. */
   light?: { strength: number; reach: number };
 }
 
@@ -177,7 +177,7 @@ export interface Dancer {
 /**
  * A place dressed while an offer it stages is open (R-CITY-011), or for the person whose room it is (world.md
  * R-WORLD-020): its models and motion join the stage's, the files in `hide` leave it, its spots and crowd figures replace the
- * place's own (a person's room shows no crowd, only the partner: the lead), its dancers take the floor and
+ * place's own (a person's room shows no crowd, only the partner), its dancers take the floor and
  * who it stands at a thing joins those the stage stands. A dressing names an offer or a person, never both.
  */
 export interface Dressing {
@@ -245,7 +245,7 @@ export const OPEN_STAGE: Stage = {
 };
 
 /**
- * Where a place's stage file is read (R-CITY-018; world.md R-WORLD-039 as amended 16 Oct 2026): a country's entry abroad
+ * Where a place's stage file is read (R-CITY-018; world.md R-WORLD-039): a country's entry abroad
  * on a scene London keeps (the superstore, the hypermarket and the discount supermarket on the big shop, Calgary's
  * warehouse, care home and office, the church hall and Castel Volturno's church) reads its own file, named for its id
  * beside the shared models (`places/<id's slug>/place.json`), where one is shipped, so its acts, its looks and its

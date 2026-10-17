@@ -1,4 +1,5 @@
-// The place's name on the band (docs/rules/world.md R-WORLD-002): the band starts the name with a capital, "The clinic", while a sentence keeps content's casing.
+// The place's name on the band (docs/rules/world.md R-WORLD-002): the band
+// starts the name with a capital, "The clinic", while a sentence keeps content's casing.
 import { content } from "@japacity/content";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -34,7 +35,7 @@ describe("the place's name on the band", () => {
     await standingAt(CLINIC, { asks: [<p key="a">the send-off</p>], asksAt: ["place.visa-centre"] });
     fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.offer") }));
     const sheet = screen.getByRole("dialog");
-    // someone asks for you there.
+    // The journey, not the wait (text.md R-TEXT-007): someone asks for you there.
     expect(within(sheet).getByText("Someone is asking for you at the visa centre.")).toBeTruthy();
   });
 });

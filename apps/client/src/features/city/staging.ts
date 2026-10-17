@@ -35,7 +35,7 @@ export function openingPlace(where: ViewPlace, places: readonly PlaceEntry[]): I
 /**
  * The place that stages an id for where the character is (R-CITY-010): a place of the character's
  * own country first, then one serving every country, then the default place. One id may stand at
- * several places of a country (R-CITY-010 as amended 16 Oct 2026: overtime on every workplace's rota
+ * several places of a country (R-CITY-010: overtime on every workplace's rota
  * board), so given the place in hand, an id staged there is shown there.
  */
 export function stagedAt(id: string, where: ViewPlace, places: readonly PlaceEntry[], here: string | null = null): Id<"place"> {

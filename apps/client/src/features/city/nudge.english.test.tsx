@@ -32,7 +32,7 @@ describe("the English result on its way", () => {
     const view = waitingOnResult();
     const nudge = nudgeOf(view);
     expect(nudge).toMatchObject({ key: "chapter.build-the-file.item.english.started", params: { when: inMonths(11, 10) }, about: "step" });
-    // the result comes; the player is not told to wait.
+    // The journey, not the wait (text.md R-TEXT-007): the result comes; the player is not told to wait.
     expect(say(nudge.key, nudge.params)).toBe("Your result comes next month");
     expect(say(nudge.key, nudge.params)).not.toMatch(/Score|test centre/);
     // Planned this month, it says to end the month.
@@ -44,7 +44,7 @@ describe("the English result on its way", () => {
     await renderWithView(<City world results={() => <p />} />, waitingOnResult());
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
-    // The wait is the Japa app's to tell (the plan 16): in the world only the chip of the brief just handed stands.
+    // The wait is the Japa app's to tell: in the world only the chip of the brief just handed stands.
     expect(document.querySelector("[data-nudge]")?.getAttribute("data-brief-chip")).toBe("handed");
     expect(document.querySelector("[data-nudge]")?.textContent).not.toContain("Your result comes next month");
     expect(document.querySelector("[data-nudge-open]")).toBeNull();
@@ -61,7 +61,7 @@ describe("the English result sealed until the morning", () => {
     await renderWithView(<City world results={() => <p />} />, sealed);
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
-    // The wait is the Japa app's to tell (the plan 16): in the world nothing says it under the band.
+    // The wait is the Japa app's to tell: in the world nothing says it under the band.
     expect(document.querySelector("[data-nudge]")?.textContent ?? "").not.toContain("Comes in the morning");
     expect(document.querySelector("[data-nudge-open]")).toBeNull();
   });

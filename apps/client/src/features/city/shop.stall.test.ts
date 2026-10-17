@@ -1,5 +1,6 @@
-// The trader's shop at her stall (docs/rules/activity.md R-ACTIVITY-016, world.md R-WORLD-005): "Open the shop" said neither what it costs nor what it pays, and once the shop was open the stall's
-// label was gone from the market. The sheet says both; the stall stands while the shop runs. Real content, real draws.
+// The trader's shop at her stall (docs/rules/activity.md R-ACTIVITY-016, world.md R-WORLD-005): "Open the
+// shop" says what it costs and what it pays, and the stall keeps its label in the market while the shop runs. Real
+// content, real draws.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

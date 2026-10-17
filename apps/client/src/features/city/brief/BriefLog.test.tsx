@@ -1,4 +1,4 @@
-// The road's log on the phone (the plan 16): the brief carried first with its things ticked
+// The road's log on the phone: the brief carried first with its things ticked
 // as the world ticks them, the briefs done stamped behind it in their givers' closing words, the next faint at the foot.
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";

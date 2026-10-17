@@ -1,7 +1,6 @@
-// The room abroad (docs/rules/world.md R-WORLD-003, R-WORLD-005): the phone by the bed calls home. Restated 16 Oct 2026 to
-// R-CITY-010 and design page 15 (the three countries' wave): money home is no longer the room's, since every country now
-// stages it at a counter of its own (Rye Lane's transfer shop, the strip mall's transfer counter, Deira's exchange house,
-// Castel Volturno's call shop), so the landing's first request from home has a thing to do it at in each country.
+// The room abroad (docs/rules/world.md R-WORLD-003, R-WORLD-005): the phone by the bed calls home. Money home is not
+// the room's (R-CITY-010, design page 15), since every country stages it at a counter of its own (Rye Lane's transfer
+// shop, the strip mall's transfer counter, Deira's exchange house, Castel Volturno's call shop), so the landing's first request from home has a thing to do it at in each country.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

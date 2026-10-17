@@ -41,8 +41,7 @@ describe("Deira", () => {
     expect(stagedAt("activity.community-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe(ID);
   });
 
-  // Restated 16 Oct 2026 to R-STREET-005 as amended (the three countries' wave): the souq's shopping moved to Naif, so
-  // Deira's spice stall is looked at only.
+  // The souq's shopping is at Naif (R-STREET-005), so Deira's spice stall is looked at only.
   test("[R-WORLD-005] [R-STREET-005] given the souk's other things, when they are read, then the gold shop and the spice stall are looked at, the cafe's chairs sat on with the find beside them, and the taxi opens the ride sheet", () => {
     expect(thing("gold-shop").acts.map((act) => act.kind)).toEqual(["plain"]);
     expect(thing("spice-stall").acts.map((act) => act.kind)).toEqual(["plain"]);
@@ -54,8 +53,8 @@ describe("Deira", () => {
     expect(thing("taxi").file).toBe("places/deira/veh_taxi-dubai.glb");
   });
 
-  // Restated 16 Oct 2026 to R-STREET-005 as amended and R-STREET-014: the souq stands at Naif, so the stall here no longer
-  // opens the street shopping, which Deira no longer stages.
+  // The souq stands at Naif (R-STREET-005, R-STREET-014), so the stall here does not open the street shopping, which
+  // Deira does not stage.
   test("[R-STREET-005] [R-STREET-014] given the spice stall, when its acts are read, then it is looked at with words of its own, and the street shopping is staged at Naif for Dubai, not here", () => {
     expect(thing("spice-stall").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([["plain", null]]);
     expect(sceneWords(thing("spice-stall").acts[0]?.label ?? "")).not.toBe(thing("spice-stall").acts[0]?.label);
@@ -88,8 +87,7 @@ describe("Deira", () => {
   });
 });
 
-// Work in Dubai (the review's finding 28; restated 16 Oct 2026 to R-CITY-010 and design page 15 section 3, the three
-// countries' wave): the typing centre that does the labour papers opens the hunt, and the UAE's two jobs are staged at
+// Work in Dubai (R-CITY-010, design page 15 section 3): the typing centre that does the labour papers opens the hunt, and the UAE's two jobs are staged at
 // the site across the creek, at the guard's post and the cleaner's trolley. Both come by the agent's contract and the
 // hunt never asks for them (activity.abroad.data.ts: no hire chance), so each thing there is looked at, and its job act
 // opens only for a job the hunt can ask for. Deira's labour bus is looked at; the ride to the site is the site's own.

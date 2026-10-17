@@ -167,7 +167,7 @@ describe("a seat", () => {
 
 describe("lying on a thing", () => {
   // The bed's mattress is 0.40 to 0.60 m with the wrapper over its foot to 0.64 and the pillow to 0.72; the couch's
-  // cushions are at 0.48 (assets-src/prop/furniture.ts). The figure lay at a fixed 0.5, inside the mattress.
+  // cushions are at 0.48 (assets-src/prop/furniture.ts). A fixed 0.5 would put the figure inside the mattress.
   test("[R-WORLD-005] given every bed and the couch, when its rest act is read, then it names the top it is lain on, the bed's on its mattress and under its pillow's top, and the bed's head toward its pillow", () => {
     const lain = builtPlaces().flatMap(({ folder, file }) => (stageOf(file).things ?? []).flatMap((thing) => thing.acts.filter((act) => act.pose === "lie").map((act) => ({ folder, thing, act }))));
     const beds = lain.filter(({ thing }) => thing.file.endsWith("prop_bed.glb"));
@@ -277,7 +277,7 @@ describe("the things of the built places", () => {
     const bed = copyOf((stage.things ?? []).find((thing) => thing.acts.some((act) => act.kind === "end"))?.file ?? "");
     if (tin === undefined || bed === undefined) throw new Error("The box or the bed stands nowhere");
     expect(Math.hypot(tin[0] - bed[0], tin[1] - bed[1])).toBeLessThan(1.5);
-    // the box's sheet of papers went to the phone.
+    // The box has no sheet of papers: they are on the phone.
     expect(box.acts.map((act) => [act.id, act.kind, act.app])).toEqual([["papers", "app", "papers"]]);
     expect(sceneWords(box.label)).toBe("Papers box");
     expect(box.acts.map((act) => sceneWords(act.label))).toEqual(["Look in the box"]);

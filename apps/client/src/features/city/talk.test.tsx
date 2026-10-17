@@ -1,4 +1,4 @@
-// The talk budget (docs/design/13-the-lively-layer.md section 5; the plan 6): at most three callouts over the scene, the
+// The talk budget (docs/design/13-the-lively-layer.md section 5): at most three callouts over the scene, the
 // bubble waiting behind the fan, the chip and the marker; and the emotes, pictures over two residents at a time.
 import { describe, expect, test } from "vitest";
 

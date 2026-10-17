@@ -1,7 +1,7 @@
 // The send-off as a scene (docs/rules/chapter.md R-CHAPTER-012): six beats, seen once per life, from the airport's gate
-// to the first ride abroad, in place of the card the flight used to be. Its own chunk, fetched when the gate's act is
+// to the first ride abroad. Its own chunk, fetched when the gate's act is
 // picked, never on a first visit (engine.md R-ENGINE-020). Beats 1 and 2 change nothing in the life; "Board the plane"
-// at beat 3 sends `route/depart` once, exactly as the card did; beats 4 to 6 run on the client over the view after the
+// at beat 3 sends `route/depart` once; beats 4 to 6 run on the client over the view after the
 // reply, and the simulation knows nothing of them. The scene counts nothing of its own (R-ANALYTICS-002).
 import "./sendoff.css";
 

@@ -100,7 +100,7 @@ import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, ro
 /** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (R-CLOCK-032). */
 const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started", MORNING]);
 /**
- * The nudges that stand under the band whatever the place (the plan 16): someone waiting on the player (a question, an
+ * The nudges that stand under the band whatever the place: someone waiting on the player (a question, an
  * offer) and the dues abroad; the night's bed comes as its own moment. The road's step shows only in the moment, as the
  * brief's chip; the news and the month's end wait on the phone.
  */
@@ -118,7 +118,7 @@ const SendOffScene = lazy(() => import("./sendoff/SendOffScene"));
 function sendOffYou(view: { scenario: string }) {
   const kept = readPerson();
   const look = lookOf(kept?.look)?.id ?? lookOf(`chr_${view.scenario.slice("scenario.".length)}`)?.id ?? "chr_ada";
-  // One name everywhere, the band's (share.md R-SHARE-004 as amended 16 Oct 2026), read from the card's own source.
+  // One name everywhere, the band's (share.md R-SHARE-004), read from the card's own source.
   const name = characterName(view.scenario) ?? "";
   return { name, first: name, look, figure: <FigurePicture look={look} style={kept?.look === look ? kept.style : undefined} view="figure" className="so-fig" /> };
 }
@@ -132,7 +132,7 @@ const PLACES = Object.values(content.place);
 const HEARD_MS = 9000;
 const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
-// The world mode (docs/design/11-the-world-first.md), a prototype the maintainer judges before it becomes rules.
+// The world mode (docs/design/11-the-world-first.md, docs/rules/world.md).
 const LAST_KEY = "japacity.city.last";
 const BEEN_KEY = "japacity.city.been";
 /** Sending money home: an act whose sheet is the Bank's, where the money is. */
@@ -143,7 +143,7 @@ function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: num
   const metres = Math.hypot((to.lonE3 - from.lonE3) * 111.32 * cos, (to.latE3 - from.latE3) * 111.32);
   return 8 + Math.round(metres / 120);
 }
-// tuning.city.roam is the maintainer's to add; until it is there, nothing roams.
+// tuning.city.roam is false, so nothing roams.
 /** The street camera, the hold-to-plan view, routed walks and strolling people, switched off (world.md R-WORLD-010). */
 const ROAM = (city as Partial<Record<"roam", boolean>>).roam ?? false;
 /** The home of each where when the view names none: the family house, then the room abroad. */
@@ -154,8 +154,8 @@ function homeOf(view: PlayerView): string | null {
   return lived ?? HOMES[view.place.where] ?? null;
 }
 /**
- * The places whose files are the old page's, kept switched off (R-WORLD-024) until each is rebuilt
- * as a world-first place: the map shows only built places, and nothing with nothing to do (PENDING P25).
+ * Places whose files are kept switched off (R-WORLD-024) until each is rebuilt as a world-first place: the map shows
+ * only built places, and nothing with nothing to do. Empty while every place is built.
  */
 const OLD_FILES = new Set<string>();
 
@@ -293,7 +293,7 @@ export function homeLine(shown: string, view: Pick<PlayerView, "place" | "home">
       return view.place.where === "home" && view.home.place === "place.makoko" ? cityWords("city.home.makoko") : null;
     case "place.the-room": {
       // Calgary's basement room, the bed space at the camp, the shared flat on the Domitiana: the room per country (world.md
-      // R-WORLD-038 as amended), said short enough for the band beside the age; London keeps its line by the hub's name.
+      // R-WORLD-038), said short enough for the band beside the age; London keeps its line by the hub's name.
       const own = `city.home.the-room.${view.place.country ?? ""}`;
       if (view.place.where === "abroad" && cityWords(own) !== own) return cityWords(own);
       const hub = PLACES.find((place) => place.hub === true && place.country === view.place.country);
@@ -312,8 +312,8 @@ function bandName(name: string): string {
 
 /**
  * Where the player last stopped, when it is a place they can still enter (rule 7) and the world's day is still the one
- * they stopped on; once the sky has turned since, they start at home (R-CLOCK-033 as amended; the decision 41:
- * "coming back, you resume at whatever time the world is at; if the sky has turned since you left, you start at home").
+ * they stopped on; once the sky has turned since, they start at home (R-CLOCK-033): coming back resumes at
+ * whatever time the world is at.
  * With no home that can be entered, the hub.
  */
 function lastPlace(here: ViewPlace, home: string | null, day: number | null): string {
@@ -438,7 +438,7 @@ export interface CityMapSlot {
   by?: RideChoice["id"];
   /** A stop to open picked: the nudge's step elsewhere (R-WORLD-003). */
   pickFirst?: string | null;
-  /** The place the live step points to: the map opens on its neighbourhood with its sticker ringed and named (the plan 16). */
+  /** The place the live step points to: the map opens on its neighbourhood with its sticker ringed and named. */
   step?: string | null;
 }
 
@@ -575,7 +575,8 @@ export function City({
     setPhone(true);
   };
   /**
-   * Sleep is a timed act from the bed, at any hour of the world's day (R-WORLD-025): the figure lies on the bed under a soft dark wash with a chip under the band,
+   * Sleep is a timed act from the bed, at any hour of the world's day (R-WORLD-025), with a fixed
+   * time the player can wake out of: the figure lies on the bed under a soft dark wash with a chip under the band,
    * and the month turns only when the sleep runs out (`due`). Held while a question waits, with the reason told in the
    * corner. `bed` is the thing slept on, for the scene's pose and its sleep mark.
    */
@@ -699,7 +700,7 @@ export function City({
     // The home changes only with the where or a move; a move is the player's own and keeps the place they stand in.
   }, [here, world]);
   // A move made while standing in the home just left: the character goes to the new home, as the
-  // ride home would take them, since the old room is no longer theirs and no ride starts from it.
+  // ride home would take them, since the room left is not theirs and no ride starts from it.
   const homeBefore = useRef(home);
   useEffect(() => {
     const left = homeBefore.current;
@@ -721,7 +722,7 @@ export function City({
       alive = false;
     };
   }, [world, drawing]);
-  // An open set piece is shown where it is staged (R-CITY-011); staged elsewhere, it waits there and the nudge says so, since the city never moves the player without a ride.
+  // An open set piece is shown where it is staged (R-CITY-011); staged elsewhere, it waits there and the nudge says so, since the city never moves the player without a ride (R-WORLD-006).
   const scene = openScene(view, PLACES);
   const sceneAt = scene?.place ?? null;
   // The city off the world (the road's) still shows the set piece where it is staged (it has no rides to get there).
@@ -764,7 +765,7 @@ export function City({
   // home lived in, or a car on finance abroad.
   const livedIn = home !== null && placeId === home;
   const ownsCar = view.obligations.some((owed) => owed.car !== null) || (livedIn && view.things.drive);
-  // : what is owned stands in the home lived in, at its set spot or where the player set it down.
+  // What is owned stands in the home lived in, at its set spot or where the player set it down.
   const standingKey = livedIn ? view.things.owned.flatMap((one) => (one.stored ? [] : [one.thing])).join("|") : "";
   const [arranged, setArranged] = useState<Arranged>(() => arrangedIn(placeId, view.scenario));
   useEffect(() => setArranged(arrangedIn(placeId, view.scenario)), [placeId, view.scenario]);
@@ -990,7 +991,7 @@ export function City({
     }
     switch (act.kind) {
       case "sheet":
-        // Money is sent home from the Bank's send chooser, which shows the channels, the rate and what lands.
+        // Money is sent home from the Bank's send chooser, which shows the channels, the rate and what arrives.
         if (act.stages === SEND_MONEY) {
           setPicked(null);
           setPhoneApp("bank:send");
@@ -1180,7 +1181,7 @@ export function City({
       .map((place) => {
         const reached = stopReached(view.chapter, where, place.id, early);
         const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : !reached ? "not" : shipped === null || shipped.has(place.id) ? "can" : "not";
-        // The room abroad by its country's name on the map and its sheet (R-WORLD-038 as amended), said short as the band says it,
+        // The room abroad by its country's name on the map and its sheet (R-WORLD-038), said short as the band says it,
         // since content's whole name ("the room in a shared flat on the Domitiana") runs off a sticker's label on a phone.
         const roomShort = `city.home.the-room.${country ?? ""}`;
         const name = place.id === "place.yaba" ? say("ui.inside.hub") : place.id === home && where === "abroad" && cityWords(roomShort) !== roomShort ? cityWords(roomShort) : placeName(place.id);
@@ -1514,7 +1515,7 @@ export function City({
     if (reportOpen) setPicked(null);
   }, [reportOpen]);
   // A thing's fan, and a person's or a shopfront's card, close on a tap anywhere outside them, or on Escape (Back), so
-  // the nudge they hide comes back by itself, never waiting on a tap on the floor (R-WORLD-003, R-WORLD-005; the
+  // the nudge they hide comes back by itself, never waiting on a tap on the floor (R-WORLD-003, R-WORLD-005).
   // The scene reads taps on itself: another thing chooses that thing, open ground puts it away.
   const personCard = world && (picked?.kind === "person" || picked?.kind === "model");
   const chipOpen = (world && picked?.kind === "thing") || personCard;
@@ -1615,7 +1616,7 @@ export function City({
     const act = said === null ? "" : nowActOf(said);
     setMoneyIn({ at: Date.now(), title: act === "" ? say("ui.toast.money-in") : nameOf(act), amount: `+${bandMoney(view).formatMoney(money - before)}`, picture: act === "" ? "activity.side-gig" : act });
   }, [money]);
-  // The road in the world, only in the moment (the plan 16; design page 13 section 4). The brief of the chapter the life
+  // The road in the world, only in the moment (design page 13 section 4). The brief of the chapter the life
   // is in; the chip for a moment after its card is handed; a done thing's toast; the close's card once a chapter closes.
   const brief = useMemo(() => (world ? briefOf(view, briefLine(view)) : null), [world, view]);
   const [handed, setHanded] = useState<string | null>(null);
@@ -1683,7 +1684,7 @@ export function City({
   const rowShown = !(phone || asksOpen || menu || credits || picked !== null || asleep !== null);
   const markerShown = atStep && stepThing !== null && markable && nowItem !== null && worldFree && fanned === null && picked === null;
   const callouts = calloutsShown({ fan: fanned !== null, chip: rowShown && chipMoment !== null, marker: markerShown, bubble: true });
-  // A fan opened hushes whoever was speaking: its title and buttons would stand on their words (092).
+  // A fan opened hushes whoever was speaking: its title and buttons would stand on their words.
   const fannedId = fanned?.id ?? null;
   useEffect(() => {
     if (fannedId !== null) hush();
@@ -1704,7 +1705,7 @@ export function City({
     // A line one person plainly says names them, over their own figure where they stand in the place (R-WORLD-026).
     return heardNow === null ? null : { text: heardWords(heardNow.key, heardNow.params), ...speakerOf(heardNow, thingsHere.current ?? [], (key) => cityWords(key)) };
     // The street waits while a place's names are taught on its first entry, and while the brief's card stands: names and words
-    // never share the scene (024).
+    // never share the scene.
   }, worldFree && settled && callouts.bubble && !homeTeachShown && !teaching && !teachDue && !briefUp, home !== null && placeId === home ? say("ui.talk.home") : undefined);
   // A person speaks only in the place they stand in: going elsewhere takes their words down.
   useEffect(() => hush(), [placeId, inside]);
@@ -1827,7 +1828,7 @@ export function City({
               setMapPick(null);
             },
             // R-PLACE-010: the fare leaves cash through the command, and the ride plays only once it is
-            // accepted, at home and, since 16 Oct 2026, in a country that lists its ways; a country with none asks no fare.
+            // accepted, at home and in a country that lists its ways; a country with none asks no fare.
             onRide: async (choice, to) => {
               if (view.place.where === "road" || (view.place.where === "abroad" && (view.place.ways ?? []).length === 0)) return true;
               const reply = await send({ type: "place/ride", from: placeId as Id<"place">, to: to as Id<"place">, way: choice.id });

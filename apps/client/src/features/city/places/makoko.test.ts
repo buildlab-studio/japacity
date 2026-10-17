@@ -65,7 +65,7 @@ describe("Makoko", () => {
       ["sheet", "activity.fetch-water", ["activity.bucket-bath"]],
     ]);
     const papers = thing("room-papers").acts;
-    // the passport is a visit to Immigration, the transcript a call from the phone.
+    // The passport is a visit to Immigration (R-WORLD-019), the transcript a call from the phone.
     expect(papers.map((act) => [act.id, act.kind, act.app])).toEqual([["papers", "app", "papers"]]);
     for (const id of ["room", "room-chores", "room-papers"]) expect(thing(id).acts.length).toBeLessThanOrEqual(2);
     // The parlour's own words for the same acts.

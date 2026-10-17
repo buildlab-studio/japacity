@@ -1,8 +1,6 @@
-// The asks sheet's header over the exam (docs/rules/world.md R-WORLD-006): with
-// the exam, the fuel ask and an offer waiting, the header read "1 OF 3", and once the other two were answered it read
-// "3 OF 3" over the exam's first question. Over a set piece the header counts nothing: the set piece counts its own
-// questions, and a screen once showed "1 of 3" over "Question 1 of 3" at the visa interview.
-// Review 14's smaller notes: "4 OF 4" stood over the one ask left; the count is what is left.
+// The asks sheet's header over the exam (docs/rules/world.md R-WORLD-006): over a set
+// piece the header counts nothing, since the set piece counts its own questions ("Question 1 of 3"), so the exam never
+// sits under "1 OF 3" or "3 OF 3". Elsewhere the count is what is left, and one ask left says no count.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
