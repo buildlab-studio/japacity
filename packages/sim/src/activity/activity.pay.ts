@@ -95,7 +95,7 @@ function shopGrowth(read: ReadCtx, entry: ActivityEntry, written: number): numbe
 function payFigure(read: ReadCtx, entry: ActivityEntry, terms: Terms): number | null {
   if (entry.pay === null) return null;
   const { amount } = entry.pay;
-  // A sponsor's job started without a salary recorded on the route has nothing to pay from, so it pays nothing (an open question in route-gates.md).
+  // A sponsor's job started without a salary recorded on the route has nothing to pay from, so it pays nothing.
   if (typeof amount === "object" && "term" in amount && typeof terms[amount.term] !== "number") return null;
   const written = resolveAmount(read, amount, terms);
   const figure = Math.max(written, tierFigure(read, entry) ?? written) + shopGrowth(read, entry, written);

@@ -428,9 +428,8 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
   // R-RETURN-005: in the December tick, the fare both ways times the December factor:
   // £620 x 2 x 2.5, C$1,350 x 2 x 2.2, AED 1,900 x 2 x 1.8 (place.md).
   // An overstayer cannot fly out and back, so not on the overstayer status; and
-  // none from Italy, where the only status is irregular. The December set piece is not
-  // opened: `setpiece/open` needs a route and the set piece's answers cannot carry the
-  // page's money and quality effects (an open question in return.md).
+  // none from Italy, where the only status is irregular. These slots open no set piece:
+  // the place kind opens the December set piece in the same tick.
   "activity.december-home-uk": free(
     "activity.december-home-uk",
     "country.uk",

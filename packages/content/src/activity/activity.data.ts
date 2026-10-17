@@ -163,8 +163,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   // Ngozi's job (route-gates.md, the last table): a staff nurse at ₦180,000 a month.
   // A nurse starts at care 60, so that is what it needs, and its month is a care job's:
   // wellbeing -4, care +1. The nurse from sixteen hunts it at the clinic (prologue.md R-PROLOGUE-010).
-  // No page gives its hiring chance; it is 50%, between the teacher's 70% and the
-  // junior developer's 35%: the wards are short of nurses (an open question in route-gates.md).
+  // Its hiring chance is 50%, between the teacher's 70% and the junior developer's 35%:
+  // the wards are short of nurses.
   "activity.job-nurse": {
     id: "activity.job-nurse",
     slot: "main",

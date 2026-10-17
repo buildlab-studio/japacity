@@ -69,9 +69,8 @@ function rentFlat(id: Id<"obligation">, currency: Currency, amount: number, room
 
 /**
  * A phone contract: credit 10 to open, the cheapest way to build the file (R-ABROAD-004).
- * The page's 24 months has no field on a fixed charge; the contract rolls on
- * monthly after it, as UK contracts do (an open question in abroad-money.md). A
- * default cuts the line, the page giving nothing for a miss beyond the credit file.
+ * It has no fixed term and rolls on month by month. A default cuts the line; a
+ * miss costs nothing beyond the credit file.
  */
 function phone(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
   return {

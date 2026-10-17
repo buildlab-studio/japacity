@@ -69,7 +69,7 @@ function change(ctx: Ctx, quality: Id<"quality">, amount: number, source: string
  * the month before it is the warning itself: with the range 0 to 3 the warning
  * comes at two months in a row (R-HEALTH-001) and illness may roll from three
  * (R-HEALTH-002). "Two months in a row" has no tuning field, so the range in
- * content carries it (an open question in health.md).
+ * content carries it.
  */
 function runDownMarks(content: ReadCtx["content"]): { warning: number; after: number } | null {
   const entry = content.quality[RUN_DOWN];

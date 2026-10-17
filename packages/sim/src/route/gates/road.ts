@@ -75,8 +75,7 @@ function heldOf(read: ReadCtx, entry: RouteEntry): RouteState {
 
 /** R-ROAD-003: a real-ish connection, kept hidden on the route's secret. */
 function realish(held: RouteState): boolean {
-  // The route's only hidden field is `secret.sponsorFraud`, so the road keeps "the connection is real-ish" there,
-  // where R-ROAD-003 wants a hidden kind of its own on the route (an open question in road.md).
+  // The route's only hidden field is `secret.sponsorFraud`, so the road keeps "the connection is real-ish" there.
   return held.secret.sponsorFraud === true;
 }
 

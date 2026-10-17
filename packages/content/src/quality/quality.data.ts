@@ -23,8 +23,7 @@ export const qualityTable:Record<Id<"quality">, QualityEntry> = {
   "quality.credit-mark": { id: "quality.credit-mark", group: "self", min: 0, max: 3, shown: true, counts: [] },
 
   // route-gates.md "New qualities": nursing and care skill. A nurse starts at 60, a care assistant at 30.
-  // `counts` is empty, though the page names route.uk-care and route.canada-points and both
-  // are in content (an open question in route-gates.md).
+  // It counts toward no route (R-QUALITY-006).
   "quality.care": { id: "quality.care", group: "skills", min: 0, max: 100, shown: true, counts: [] },
   // car.md: 1 for the lives that can drive. Hidden.
   "quality.driving": { id: "quality.driving", group: "self", min: 0, max: 1, shown: false, counts: [] },

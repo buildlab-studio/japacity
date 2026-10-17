@@ -173,7 +173,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
   // R-HEALTH-006: abroad, a court date over what is still owed. A day lost: one slot next month.
   // "A car shortfall or a defaulted loan abroad" is a loan held abroad. The car shortfall is a
   // loan; `obligation/has` does not count a loan already in default, so a defaulted loan alone does
-  // not bring it. No requirement reads a judgment on the file (an open question in health.md).
+  // not bring it.
   "offer.court-date": {
     id: "offer.court-date",
     group: "abroad",

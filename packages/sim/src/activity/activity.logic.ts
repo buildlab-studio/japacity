@@ -300,7 +300,7 @@ function schoolWait(read: ReadCtx): Requirement[] {
  * The params a free activity may take now (R-ACTIVITY-002). Null when it
  * takes none. Pure: the turn check, each slot as it resolves, the view and
  * the route kind all read the same list. Pass a judge to run inside a step.
- * The contract's `param` has no `tickets`, so the kiosk's ticket counts are read by its id (an open question in luck.md).
+ * The contract's `param` has no `tickets`, so the kiosk's ticket counts are read by its id.
  */
 export function paramsFor(read: ReadCtx, entry: ActivityEntry, judge: Judge = (requirement) => check(read, requirement)): string[] | null {
   if (entry.id === LOTTO) return ticketsLeft(read);
@@ -638,9 +638,8 @@ function oneChance(ctx: Ctx, side: Id<"activity">): BaseEvent[] {
 
 /**
  * The side job's month (R-ACTIVITY-010): its pay, its toll, the slot locked for
- * the month to come, and at home the one chance. The contract's pay names no
- * pocket, so naira goes as `gig` to the pocket its size takes (R-WALLET-018)
- * and a foreign currency to the bank as `salary` (an open question in activity.md).
+ * the month to come, and at home the one chance. Naira pay goes as `gig` to the
+ * pocket its size takes (R-WALLET-018), and a foreign currency to the bank as `salary`.
  */
 function workSide(ctx: Ctx): BaseEvent[] {
   const side = ctx.state.activity.side;
@@ -730,7 +729,7 @@ function validateSlots(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return [];
 }
 
-/** Overtime: a quarter more of the month's pay, to cash for cash work and the bank otherwise, untaxed (an open question in ladders.md). */
+/** Overtime: a quarter more of the month's pay, to cash for cash work and the bank otherwise, untaxed (ladders.md). */
 function overtime(ctx: Ctx, cause: Cause): BaseEvent[] {
   const job = ctx.state.activity.job;
   if (job === null) return [];
