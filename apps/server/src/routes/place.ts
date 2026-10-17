@@ -1,5 +1,7 @@
 // The place routes: the presence fetch (R-CLOCK-028, R-CITY-036) and the nudge socket
-// (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session.
+// (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session and answer in
+// every region: presence is not contact (region.md R-REGION-002), and the
+// socket carries only nudges, never words between players.
 import { Hono } from "hono";
 import type { Context } from "hono";
 
@@ -11,9 +13,7 @@ import { readsToday } from "../place/place.presence";
 import { openSocket } from "../place/place.rooms";
 import { STATUS_TOO_LARGE } from "../place/place.socket";
 import type { Rooms } from "../place/place.rooms";
-import { policyFor } from "../region";
 import { placeTarget } from "../switches/dials";
-import type { RegionPolicy } from "../region";
 import type { PresenceReply, ServerCode, ServerRejection } from "../types";
 
 /** The character's display name and look, or null when the account has none. The core provides it. */
@@ -26,7 +26,7 @@ export interface PlaceBindings {
   profileOf: ProfileOf;
 }
 
-type Status = 401 | 403 | 404 | 409 | 413 | 426 | 503;
+type Status = 401 | 404 | 409 | 413 | 426 | 503;
 
 function refuse(c: Context, status: Status, code: ServerCode, detail: string): Response {
   const body: ServerRejection = { ok: false, code, detail };
@@ -38,14 +38,6 @@ export function countryOf(request: Request): string | null {
   const cf = (request as Request & { cf?: { country?: unknown } }).cf;
   if (typeof cf?.country === "string") return cf.country;
   return request.headers.get("cf-ipcountry");
-}
-
-/**
- * R-ACCOUNT-007, R-ACCOUNT-010, R-CLOCK-030: whether players may meet at all.
- * No strong age check exists in this milestone, so a `verified` row counts as `none`.
- */
-export function allowsInteraction(policy: RegionPolicy): boolean {
-  return policy.interaction !== "none" && policy.ageCheck !== "verified";
 }
 
 function seedFrom(bytes: Uint8Array): number {
@@ -71,8 +63,6 @@ export function placeRoutes(deps: ServerDeps): Hono<SessionEnv> {
     const place = c.req.param("place");
     if (!Object.hasOwn(deps.contents.current.place, place)) return refuse(c, 404, "unknown-id", `no place ${place}`);
     const reply: PresenceReply = { place, others: [], today: [] };
-    // R-CLOCK-030: where players may not meet, the place shows only computer people.
-    if (!allowsInteraction(policyFor(deps.config.regions, countryOf(c.req.raw)))) return c.json(reply);
     const seed = seedFrom(deps.randomBytes(4));
     const store = deps.stores.presence;
     // R-CITY-032, R-SERVER-030: never more players than the place's target headcount, dial applied.
@@ -100,8 +90,6 @@ export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Ho
     if (session === null) return refuse(c, 401, "signed-out", "sign in first");
     const place = c.req.param("place");
     if (!Object.hasOwn(deps.contents.current.place, place)) return refuse(c, 404, "unknown-id", `no place ${place}`);
-    // no ServerCode names "players do not meet in this region"; region-closed is the nearest.
-    if (!allowsInteraction(policyFor(deps.config.regions, countryOf(c.req.raw)))) return refuse(c, 403, "region-closed", "players do not meet in this region");
     if (c.req.header("upgrade")?.toLowerCase() !== "websocket") return refuse(c, 426, "not-legal", "expected a socket upgrade");
 
     const [where, profile] = await Promise.all([bindings.placeOf(session.account), bindings.profileOf(session.account)]);

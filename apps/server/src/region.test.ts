@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { productionConfig } from "./config";
+import { launchRegions, productionConfig } from "./config";
 import { policyFor, stricter } from "./region";
 import type { RegionPolicy } from "./region";
 
@@ -40,6 +40,12 @@ describe("regions", () => {
     expect(rows.filter(([, policy]) => policy.open && policy.ageCheck !== "declared").map(([name]) => name)).toEqual([]);
     expect(productionConfig.regions["AU"]?.open).toBe(false);
     expect(productionConfig.regions["GB"]?.interaction).toBe("invited");
-    expect(productionConfig.regions["NG"]?.interaction).toBe("matched");
+    expect(productionConfig.regions["NG"]?.interaction).toBe("invited");
+  });
+
+  test("[R-REGION-004] given the launch table, when every row is read, then no row pairs matched or free-text with a declared age check", () => {
+    const rows = Object.entries(launchRegions);
+    expect(rows.filter(([, policy]) => policy.ageCheck === "declared" && (policy.interaction === "matched" || policy.interaction === "free-text")).map(([name]) => name)).toEqual([]);
+    expect(productionConfig.regions).toBe(launchRegions);
   });
 });

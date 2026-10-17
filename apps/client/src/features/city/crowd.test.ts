@@ -58,7 +58,7 @@ describe("the sample's size and band", () => {
 });
 
 describe("players in the sample", () => {
-  const others = Array.from({ length: city.playersMax + 2 }, (_, index) => ({ look: "chr_tunde", name: index === 0 ? null : `player${String(index)}` }));
+  const others = Array.from({ length: city.playersMax + 2 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
 
   test("[R-CITY-015] given more players present than playersMax, when the sample is drawn, then at most playersMax of it are players and the rest live in the city", () => {
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, others);
@@ -66,10 +66,10 @@ describe("players in the sample", () => {
     expect(sample.people).toHaveLength(crowdSize(hub, "high", city));
   });
 
-  test("[R-CITY-015] given a stranger and a named player, when the sample is drawn, then the stranger has no tag and the name is the server's, and no resident has a tag", () => {
+  test("[R-CITY-015] given players in the presence sample, when the sample is drawn, then every player carries the display name the server sent, and no resident has a tag", () => {
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, others);
     const players = sample.people.filter((shown) => shown.kind === "player");
-    expect(players.map((shown) => shown.tag).reverse()).toEqual([null, "player1", "player2", "player3"].slice(0, city.playersMax));
+    expect(players.map((shown) => shown.tag).reverse()).toEqual(others.map((other) => other.name).slice(0, city.playersMax));
     expect(sample.people.filter((shown) => shown.kind === "resident" && shown.tag !== null)).toEqual([]);
   });
 
@@ -195,7 +195,7 @@ describe("the target headcount", () => {
   });
 
   test("[R-CITY-014] given players taking slots of the sample, when the band is read, then it follows the sample's whole count against the target, players included", () => {
-    const others = Array.from({ length: city.playersMax }, () => ({ look: "chr_tunde", name: null }));
+    const others = Array.from({ length: city.playersMax }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
     expect(sampleCrowd(hub, pool, THURSDAY, "high", city, others).band).toBe(bandOf(crowdSize(hub, "high", city), hub.crowd.target));
     expect(sampleCrowd(hub, pool, THURSDAY, "low", city, others).band).toBe(bandOf(crowdSize(hub, "low", city), hub.crowd.target));
   });
