@@ -1,5 +1,5 @@
-// pnpm exec tsx apps/client/src/shared/tiles/missing.ts: the ids whose picture is still an emoji standing in for a
-// model (tiles.data.ts), by kind, to show which models to commission. It lives beside the table because
+// pnpm exec tsx apps/client/src/shared/tiles/missing.ts: the ids whose picture is an emoji standing in for a
+// model (tiles.data.ts), by kind, to show which models are missing. It lives beside the table because
 // nothing outside apps/client may import from it (tests/boundaries.test.ts).
 import { standIns, TILE_TABLE } from "./tiles.data";
 

@@ -1,8 +1,8 @@
 // The picture on every choice (design page 13, the pictures): each id the interface shows a picture for, mapped to
 // the model whose tile it shows (tools/assets/shoot.ts, the tile view, published under public/assets/tiles) or to an
-// emoji standing in until a model exists. Each is decided by what the thing is: a meal shows the cooking corner until
-// a dish is modelled, an act at a thing in the world shows that thing when the thing is what the act is about. The
-// stand-ins are the list of models to commission (`pnpm exec tsx apps/client/src/shared/tiles/missing.ts`).
+// emoji standing in where no model exists. Each is decided by what the thing is: a meal shows the cooking corner, since
+// no dish is modelled, and an act at a thing in the world shows that thing when the thing is what the act is about. The
+// stand-ins are listed by `pnpm exec tsx apps/client/src/shared/tiles/missing.ts`.
 
 /**
  * The acts that are no activity of the simulation (R-WORLD-034): a pose, the bed's Sleep, a bill, the papers, the bag, the
@@ -12,7 +12,7 @@
 export const ACT_GLYPHS = ["sit", "lie", "sleep", "pay", "papers", "pack", "out", "in", "talk", "look", "ride", "home", "stop", "shut"] as const;
 export type ActGlyph = (typeof ACT_GLYPHS)[number];
 
-/** A model's tile, by the model's name, an emoji standing in for a model not yet made, or an act's drawn glyph. */
+/** A model's tile, by the model's name, an emoji standing in where no model exists, or an act's drawn glyph. */
 export type TileRow = string | { emoji: string; standIn: true } | { glyph: ActGlyph };
 
 /** What a tile draws: a model's published picture, a stand-in or an act's glyph. */

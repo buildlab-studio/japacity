@@ -16,7 +16,7 @@ import type { Point } from "./fit";
 /** R-WORLD-036: the hit area, in screen pixels: at least 44 each way. */
 export const CANOE_HIT = 44;
 
-/** The canoe as the design draws it, in its own units (56 by 34), shown at 38 by 23 screen pixels, a little low in the hit area. */
+/** The canoe's drawing, in its own units (56 by 34), shown at 38 by 23 screen pixels, a little low in the hit area. */
 const DRAWN = { width: 38, height: 23, left: (CANOE_HIT - 38) / 2, top: (CANOE_HIT - 23) / 2 + 3 } as const;
 /** A point of the drawing's own units on the hit area. */
 function shown(x: number, y: number): { x: number; y: number } {
