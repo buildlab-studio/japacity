@@ -14,8 +14,8 @@ import { dayName } from "../analytics/day";
 import { lightsOf } from "../analytics/lights";
 import type { ServerDeps } from "../deps";
 import { overLimit } from "../limits/limit";
-import type { EdgeCache, Made } from "./edge";
-import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge } from "./edge";
+import type { EdgeCache, Made } from "./cache";
+import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge } from "./cache";
 
 const LIGHTS_PATH = "/api/lights";
 

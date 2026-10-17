@@ -9,7 +9,7 @@ import { productionConfig, testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
 import type { ServerRejection } from "../types";
 import { type BadLight, DEDICATION_KEPT_MS, DEDICATION_LIGHT_PATH, DEDICATION_LIGHTS_PATH, DEDICATION_MOST, type DedicationReply, dedicationRoutes, serverYear } from "./dedication";
-import { fakeEdge } from "./edge.testing";
+import { fakeEdge } from "./cache.testing";
 
 const { epoch } = productionConfig.clock;
 

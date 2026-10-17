@@ -12,8 +12,8 @@ import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";
 import type { WorldReply } from "../types";
 import { tickRow } from "../world/ticks";
-import type { EdgeCache, Made } from "./edge";
-import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge } from "./edge";
+import type { EdgeCache, Made } from "./cache";
+import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge } from "./cache";
 
 /** R-CLOCK-018: the reply for the tick of `at`, and the seconds it may be cached. */
 async function worldReply(deps: ServerDeps, at: number): Promise<{ reply: WorldReply; maxAge: number }> {

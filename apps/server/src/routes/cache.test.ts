@@ -12,9 +12,9 @@ import type { WorldReply } from "../types";
 import { catchUp } from "../world/ticks";
 import { drawRoute } from "./draw";
 import type { DrawReply } from "./draw";
-import { edgeKey, throughEdge } from "./edge";
-import { brokenEdge, fakeEdge } from "./edge.testing";
-import type { FakeEdge } from "./edge.testing";
+import { edgeKey, throughEdge } from "./cache";
+import { brokenEdge, fakeEdge } from "./cache.testing";
+import type { FakeEdge } from "./cache.testing";
 
 const { epoch, worldTickMs } = productionConfig.clock;
 

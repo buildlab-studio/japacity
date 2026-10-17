@@ -5,7 +5,7 @@
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { edgeCache, edgeKey, throughEdge, throughEdgeIfAny } from "./edge";
+import { edgeCache, edgeKey, throughEdge, throughEdgeIfAny } from "./cache";
 
 describe("the runtime's cache", () => {
   test("[R-SERVER-039] given the Workers runtime, when a public reply is asked for twice, then caches.default keeps it: made once, the same body and type back, for the seconds left; a missing reply is never kept", async () => {
