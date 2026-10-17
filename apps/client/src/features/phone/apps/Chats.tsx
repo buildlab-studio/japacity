@@ -69,7 +69,7 @@ function NamePill({ name }: { name: string }) {
 }
 
 /**
- * A message as the after set's phone-chats draws it: who said it as a name pill with their mark, the words in a white
+ * A message: who said it as a name pill with their mark, the words in a white
  * bubble; yours in navy. A pair's row carries its read state (pair.md R-PAIR-011): yours says read once read, theirs
  * is marked new while unread.
  */

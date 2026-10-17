@@ -1,4 +1,4 @@
-// The door in its round 2 dress (prologue.md R-PROLOGUE-013; the door's second design, A's sticker board): a life's card
+// The door in its sticker board dress (prologue.md R-PROLOGUE-013): a life's card
 // swiped to the middle of the deck is the life picked, as a tap on it is, and the pager follows; the door's sky and its
 // cards read in both paints, the night's navy from the world's clock as every surface over the world.
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -83,7 +83,7 @@ describe("the door in both paints", () => {
 });
 
 describe("nothing behind the door", () => {
-  test("[R-PROLOGUE-016] given each screen of the door, the ready lives among them, then no scene stands behind it: no tailor's corner, no compound and no scrim, only the sky (the door's second design)", () => {
+  test("[R-PROLOGUE-016] given each screen of the door, the ready lives among them, then no scene stands behind it: no tailor's corner, no compound and no scrim, only the sky", () => {
     door();
     for (const stage of ["you", "life", "page"]) {
       expect(document.querySelector("[data-door-frame]")?.getAttribute("data-gate")).toBe(stage);

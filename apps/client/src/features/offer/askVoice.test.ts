@@ -20,7 +20,7 @@ describe("the ask in the person's voice", () => {
   test("[R-TEXT-007] given every ask in content, when its title is read, then it is at most three words and never one of the bare labels", () => {
     const long = offers.filter((id) => (text[`${id}.title`] ?? "").split(/\s+/).length > 3);
     expect(long).toEqual([]);
-    // The labels and rule words the pass replaced must not come back.
+    // The bare labels and rule words are never an ask's title.
     const labels = ["Salary loan", "Fuel scarcity", "Social assistance", "A job offer", "Harvest pledge", "Join the savings circle (ajo)", "Olokun Microfinance: proof of funds", "The family meeting"];
     expect(offers.map((id) => text[`${id}.title`]).filter((title) => labels.includes(title ?? ""))).toEqual([]);
   });

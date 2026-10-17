@@ -33,7 +33,7 @@ describe("the page as the handover", () => {
 });
 
 describe("the page while the years go by", () => {
-  test("[R-PROLOGUE-014] given a tile's life whose years are going by, then the page stands at the top of the door's sky under its heading, with you cheering beside it and nothing over it, the years the tile will pass listed not yet lived, and no money or japacity figure printed before the handover (the door's second design)", async () => {
+  test("[R-PROLOGUE-014] given a tile's life whose years are going by, then the page stands at the top of the door's sky under its heading, with you cheering beside it and nothing over it, the years the tile will pass listed not yet lived, and no money or japacity figure printed before the handover", async () => {
     keepPerson({ look: "chr_ada", name: "Ada", archetype: "developer" });
     await renderWithView(<PrologueView />, newGame("scenario.prologue").view());
     expect(document.querySelector("[data-page-running]")).not.toBeNull();
@@ -68,7 +68,7 @@ describe("the page while the years go by", () => {
     expect([...document.querySelectorAll("[data-stat]")].map((stat) => stat.getAttribute("data-stat"))).toEqual(["money", "ready"]);
   });
 
-  test("[R-PROLOGUE-014] given a tile's life handed over, then the page is headed \"Your page, printed\" with the name, the life's thing is slapped on it, you cheer beside where you start, and where the life can lead stands as picture chips (the door's second design)", async () => {
+  test("[R-PROLOGUE-014] given a tile's life handed over, then the page is headed \"Your page, printed\" with the name, the life's thing is slapped on it, you cheer beside where you start, and where the life can lead stands as picture chips", async () => {
     keepPerson({ look: "chr_tunde", name: "Bayo", archetype: "nurse" });
     await renderWithView(<PageHandover onDone={() => undefined} />, engineView());
     expect(document.querySelector("[data-gate='handover'] h1")?.textContent).toBe(say("ui.door.page.printed"));

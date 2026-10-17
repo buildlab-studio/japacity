@@ -64,8 +64,8 @@ describe("the share cards", () => {
   });
 
   test("[R-SHARE-004] [R-SHARE-003] given a card opened over the world, then it names the character as the band does, and its share, the screenshot's hint and Close stand together on a ground of their own at the foot of a sheet that scrolls within the screen", async () => {
-    // The catalog's pictures 141, 168 and 169 (1b952f4b): the card said "Ada" under a band that said "Adaeze"; the picker
-    // stood above the screen's top and the hint and Close were printed over the phone's icons with nothing behind them.
+    // The card says the name the band says, it scrolls within the screen, and the hint and Close stand on a ground of
+    // their own, never printed bare over the phone's icons.
     const view = withCard({ ...SEND_OFF, kind: "granted" });
     await renderWithView(<CardView />, view);
     const sheet = await screen.findByRole("dialog");

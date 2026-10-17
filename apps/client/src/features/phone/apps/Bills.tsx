@@ -58,8 +58,7 @@ export function nextTakenAhead(owed: Owed, month: number): number | null {
   return null;
 }
 
-// the story work writes the notice words; `<obligation id>.notice` with `{amount}` is
-// the key read here until its shape is settled.
+// The notice words are content's: `<obligation id>.notice` with `{amount}` is the key read here.
 /** The notice as the phone shows it: the story's words for the bill when content has them. */
 function noticeWords(owed: Owed, currency: Currency): string {
   const amount = formatMoney(owed.due, currency);

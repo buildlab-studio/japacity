@@ -248,7 +248,7 @@ export function Joint({ bond }: { bond: BondView }) {
   const { people } = useView();
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
-  // the view carries the other side's consent (funds in the facts) but not this side's, so the last choice made here is shown.
+  // The view carries the other side's consent (funds in the facts) but not this side's, so the last choice made here is shown.
   const [funds, setFunds] = useState<boolean | null>(null);
   const [standIn, setStandIn] = useState<boolean | null>(null);
   const joint = people.joint;

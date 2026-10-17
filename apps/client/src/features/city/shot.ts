@@ -82,7 +82,7 @@ export function defaultShot(stage: Pick<Stage, "start" | "models" | "things">): 
   };
 }
 
-// until the places work's files carry `stage.shot`, every place is given the default shot from its start and its things.
+// A place whose file carries no `stage.shot` is given the default shot from its start and its things.
 /** The place's own shot, or the default one from its start and its things. */
 export function shotOf(stage: Pick<Stage, "start" | "models" | "things" | "shot">): Shot {
   return stage.shot ?? defaultShot(stage);

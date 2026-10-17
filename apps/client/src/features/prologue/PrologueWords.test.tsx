@@ -18,7 +18,7 @@ import "../../shared/testing/render";
 const PROLOGUE = "scenario.prologue";
 
 /** The text of a story chip on the page, or "" when the page has none of that kind. */
-/** The story's own chips on the page: the grid's, and where the life starts beside the cheering figure (the door's second design). */
+/** The story's own chips on the page: the grid's, and where the life starts beside the cheering figure. */
 const STORY = ["[data-handover-story]", "[data-starts-in]"];
 
 function storyChip(id: string): string {

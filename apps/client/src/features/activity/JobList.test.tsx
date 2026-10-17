@@ -153,7 +153,7 @@ describe("the jobs list as picture cards", () => {
     const rows = within(screen.getByRole("radiogroup", { name: jobsWords("jobs.pick") })).getAllByRole("radio");
     for (const row of rows) {
       // No radio circle: the drawn marks in a card are the job's picture and the chance gauge (a card each, ringed when
-      // chosen, as the after set's phone-jobs draws the list).
+      // chosen).
       expect(row.querySelector("input")).toBeNull();
       expect(row.querySelector("[data-tile]")?.getAttribute("data-tile")).toBe(row.getAttribute("data-job"));
       const card = row.querySelector("[data-picked], .lively-card");

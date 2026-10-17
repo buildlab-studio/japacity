@@ -152,7 +152,7 @@ export function Papers({ opening = null, cards = null }: { opening?: string | nu
   }
   return (
     <div data-phone-app="papers" data-papers>
-      {/* The box under the bed as the after set's phone-papers draws it: the box, its title and the line under it; then
+      {/* The box under the bed: the box, its title and the line under it; then
           each paper a card with its picture, its state as a chip, what it counts toward, and its act beneath. */}
       <div className="mb-3 flex items-center gap-3 px-0.5">
         <PicTile of="thing.papers-box" size={56} tint="plain" tilt={-8} />

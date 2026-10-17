@@ -138,9 +138,9 @@ export function shownChoices(offer: Offer): Offer["choices"] {
   return [...offer.choices].sort((a, b) => pays(a) - pays(b));
 }
 
-/** Who asks, by the offer's group, until content names each ask's speaker (the ask). */
+/** Who asks, by the offer's group: content names no speaker for each ask. */
 const ASKER_BY_GROUP: Readonly<Record<string, string>> = { family: "Mama", job: "The board", money: "A friend", life: "Someone you know", road: "The agent", abroad: "A friend", return: "Mama" };
-/** The picture in the corner of the asker's mark, by the offer's group: a stand-in until the asks have tiles. */
+/** The picture in the corner of the asker's mark, by the offer's group, since the asks have no tiles of their own. */
 const ASK_PICTURE: Readonly<Record<string, string>> = { family: "💡", job: "💼", money: "💸", life: "📱", road: "🧳", abroad: "✈️", return: "🏠" };
 
 /** The asker's name: the ask's own where content names one, an unknown number for a scam, else by the group. */
@@ -172,7 +172,7 @@ function choiceMoney(offer: Offer, choice: string): { currency: Currency; amount
 }
 
 /**
- * One reply as a row (the ask): its words, then the balance before struck and after and
+ * One reply as a row: its words, then the balance before struck and after and
  * the price as a yellow pill, or "Free" alone when it costs nothing, never beside a "No cost" that says the same
  * (design page 13 section 2). Its name is the reply with its cost, so it never hides its price.
  */

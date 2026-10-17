@@ -1,5 +1,5 @@
-// The road in the world, only in the moment (docs/design/13-the-lively-layer.md section 4; the road set's
-// pictures 01 to 05): nothing under the band by default; at the step's place the brief's chip with its dots and the marker
+// The road in the world, only in the moment (docs/design/13-the-lively-layer.md section 4):
+// nothing under the band by default; at the step's place the brief's chip with its dots and the marker
 // on the thing to do; a thing done ticks its dot and the giver says so under the chip for three seconds; walking out takes
 // the chip away; a chapter closed brings the brief back with its stamp and the next brief as a picture card.
 import { act, fireEvent, waitFor } from "@testing-library/react";

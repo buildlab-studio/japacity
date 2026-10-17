@@ -1,5 +1,5 @@
-// The bag by the door read as japacity (world.md R-WORLD-029, japacity.md R-JAPACITY-003; the design
-// lab's brief, section 6): the room's one bag model, scaled about its own spot from the figure and eased
+// The bag by the door read as japacity (world.md R-WORLD-029, japacity.md
+// R-JAPACITY-003): the room's one bag model, scaled about its own spot from the figure and eased
 // toward a new size, so a rise is seen and not only counted. What is held sits on top (the passport, the
 // papers, the flyer of a way out), a few pieces from the kit, and a small tag on the handle carries the
 // figure. Nothing else: no particles, no glow. Loaded with the scene, inside its canvas.

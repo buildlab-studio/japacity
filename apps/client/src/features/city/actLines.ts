@@ -1,5 +1,5 @@
-// What an act says once it lands (docs/rules/world.md R-WORLD-005; text.md R-TEXT-008; the design's brief,
-// section 10a). A person at the thing speaks in their own voice over their head (`<act>.says`, named by `<act>.who`
+// What an act says once it lands (docs/rules/world.md R-WORLD-005; text.md R-TEXT-008).
+// A person at the thing speaks in their own voice over their head (`<act>.says`, named by `<act>.who`
 // or the thing's own name), and what that does to the world may follow in the corner (`<act>.done`). A thing that
 // is not a person tells one short line in the corner (`<act>.done`). An act the scene shows (sit, lie down, cook,
 // fetch water) says nothing: the figure does it, or the pot steams and the drum fills. Pure.
@@ -75,7 +75,7 @@ export function plannedMarks(things: readonly Pick<Thing, "id" | "acts">[], plan
 }
 
 /**
- * The light bill paid where Mama sits (R-WORLD-005; the design): she says "God bless you. Light
+ * The light bill paid where Mama sits (R-WORLD-005): she says "God bless you. Light
  * is back." over her head, the corner tells the bill paid, and a moment later the next compound is heard. Null when the
  * lines hold no bill paid or Mama is not in the place.
  */

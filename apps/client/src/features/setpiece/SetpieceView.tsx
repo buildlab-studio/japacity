@@ -14,7 +14,7 @@ import { ClosingLine, InterviewRoom } from "./InterviewRoom";
 import { leaveRoomView, roomStore, VOICED } from "./room.store";
 
 // Section 7, limit 1 of docs/design/06-audio.md: the first tap anywhere in the game wakes sound.
-// installed here, where the game first loads a scene that speaks, rather than in main.tsx.
+// Installed here, where the game first loads a scene that speaks, rather than in main.tsx.
 
 function Plain() {
   const { setpiece, ended } = useView();
@@ -85,7 +85,7 @@ export function SetpieceView() {
   return (
     <>
       <Scene />
-      {/* the game's one notice belongs at the root of the app; it is mounted here. */}
+      {/* The game's one notice is mounted here, not at the root of the app. */}
     </>
   );
 }

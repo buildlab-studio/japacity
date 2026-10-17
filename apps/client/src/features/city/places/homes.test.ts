@@ -140,7 +140,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     }
   });
 
-  test(`[R-WORLD-029] [R-ASSET-007] given ${home.id}'s shell, when its walls are read, then each outer side lies on its own edge of the house and stands twice, full height carrying the home's wall things and knee-high on the same line with none, the pair seen at rest the back and the left as the home wave built it, and every partition and the wall to the yard cut low with nothing hung on it`, () => {
+  test(`[R-WORLD-029] [R-ASSET-007] given ${home.id}'s shell, when its walls are read, then each outer side lies on its own edge of the house and stands twice, full height carrying the home's wall things and knee-high on the same line with none, the pair seen at rest the back and the left, and every partition and the wall to the yard cut low with nothing hung on it`, () => {
     const walls = outer(home);
     const edge = { back: (x: number, z: number) => Math.abs(z - walls.z0) < 0.01, left: (x: number) => Math.abs(x - walls.x0) < 0.01, front: (x: number, z: number) => Math.abs(z - walls.z1) < 0.01, right: (x: number) => Math.abs(x - walls.x1) < 0.01 } as const;
     let hung = 0;

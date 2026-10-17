@@ -213,7 +213,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
               <div ref={screen} className="motion-screen flex min-h-0 flex-1 flex-col" data-phone-screen>
               {app === null ? (
                 <div className="motion-in-fade flex min-h-0 flex-1 flex-col" data-phone-home>
-                  {/* The lock screen as the after set draws it (phone-home): the big clock, the day in words, the place as a pill
+                  {/* The lock screen: the big clock, the day in words, the place as a pill
                       with its picture; no pattern on the wallpaper, which keeps to the data page (design page 13, section 2). */}
                   <div className="flex items-start justify-between px-5 pt-5">
                     <div className="min-w-0">

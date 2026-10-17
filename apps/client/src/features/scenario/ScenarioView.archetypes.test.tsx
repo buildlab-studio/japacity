@@ -49,7 +49,7 @@ describe("every tile's run", () => {
     const chosen = savedCommands(raw.save).flatMap(({ command }) => (command.type === "prologue/choose" ? [command] : []));
     // Every step the tile names was answered with one of its answers.
     expect(chosen.filter(({ step, answer }) => archetype.preset[step] !== undefined && !(archetype.preset[step] ?? []).includes(answer))).toEqual([]);
-    // The name prints on the data page itself (the design's page screen), not as a heading in the sheet.
+    // The name prints on the data page itself, not as a heading in the sheet.
     expect((await screen.findAllByText(name)).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
     await waitFor(() => expect(document.querySelector("[data-gate]")).toBeNull());

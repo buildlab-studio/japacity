@@ -1045,7 +1045,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
       )}
 
       {view.ended ? null : (
-        // The acts stand at the foot of the screen, over the page as it scrolls, as the after set draws them. While a chooser
+        // The acts stand at the foot of the screen, over the page as it scrolls. While a chooser
         // is open the foot comes after it instead, so its last way (Through someone) is never under the foot's buttons;
         // the chooser's own button does the act, the foot only opens and closes.
         <div className={`${choosing === null ? "sticky -bottom-3" : ""} -mx-3 -mb-3 border-t border-sheet-line bg-sheet px-3 pt-3 pb-3`} data-bank-foot>

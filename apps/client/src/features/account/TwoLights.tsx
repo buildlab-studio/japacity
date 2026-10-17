@@ -7,42 +7,42 @@
 // Drawn to stay light on a phone: the wire, the bulbs and the words are one still SVG; the glows and the sparks are
 // small layers moved only by transform and opacity, which the browser's compositor runs off the page's own thread.
 // The glows breathe slowly, and each flickers as a spark reaches it; there is no render loop. Reduced motion holds
-// everything still and draws no sparks (world.md R-WORLD-023). The caption under the counts is 12 px where the design has
-// 11, as text.md R-TEXT-008 asks of a line that is not a label over a value.
+// everything still and draws no sparks (world.md R-WORLD-023). The caption under the counts is 12 px,
+// as text.md R-TEXT-008 asks of a line that is not a label over a value.
 import { useEffect, useRef, useState } from "react";
 
 import { formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { type LightsShown, sharesOf } from "./lights";
 
-/** The stage, in the design's own units: one pixel each, never scaled; a phone narrower than it trims the empty sides. */
+/** The stage in its own units: one pixel each, never scaled; a phone narrower than it trims the empty sides. */
 const W = 380;
 const H = 230;
 
-/** The wire between the two bulbs, a quadratic curve as designed. */
+/** The wire between the two bulbs, a quadratic curve. */
 const FROM = { x: 118, y: 108 };
 const BEND = { x: 190, y: 168 };
 const TO = { x: 262, y: 128 };
 const WIRE = `M${String(FROM.x)} ${String(FROM.y)} Q${String(BEND.x)} ${String(BEND.y)} ${String(TO.x)} ${String(TO.y)}`;
 
 const HOME = { x: 110, y: 112 };
-/** The caption under the counts, where the design has it. */
+/** Where the caption under the counts stands. */
 const CAPTION_Y = 214;
 const ABROAD = { x: 270, y: 132 };
 
-/** The design's timing: three sparks out, 3.6 s each, 1.2 s apart; one back, 7 s, from 0.6 s. */
+/** The timing: three sparks out, 3.6 s each, 1.2 s apart; one back, 7 s, from 0.6 s. */
 const OUT_MS = 3_600;
 const OUT_EVERY_MS = 1_200;
 const BACK_MS = 7_000;
 const BACK_FROM_MS = 600;
 const BREATH_MS = 5_200;
 
-/** The widest glow: the design's 34 plus 40 at a full share. */
+/** The widest glow: 34 plus 40 at a full share. */
 const GLOW_MAX = 74;
 
 const BP = 10_000;
 
-/** Points along the wire at equal lengths, so a spark keeps one speed as the design's paced motion does. */
+/** Points along the wire at equal lengths, so a spark keeps one speed. */
 function alongWire(steps: number): { x: number; y: number }[] {
   const fine = 240;
   const at = (t: number) => ({
@@ -92,14 +92,14 @@ export function stillWanted(): boolean {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** The design's glow for a share: brighter and wider as the share grows, never out. */
+/** The glow for a share: brighter and wider as the share grows, never out. */
 function glowOf(shareBp: number): { alpha: number; radius: number; glass: number } {
   const share = shareBp / BP;
   return { alpha: 0.3 + 0.7 * share, radius: 34 + 40 * share, glass: 0.55 + 0.45 * share };
 }
 
 /**
- * The glow's light, as designed: a warm radial fall-off from the bulb, `alpha` at its heart. The one fill every
+ * The glow's light: a warm radial fall-off from the bulb, `alpha` at its heart. The one fill every
  * light glows with: the two lights here and the dedication's lights (R-ACCOUNT-032, R-ACCOUNT-033), so the game keeps
  * its one glow.
  */
@@ -111,7 +111,7 @@ export function glowFill(alpha: number): string {
 function Glow({ at, shareBp, name, refs }: { at: { x: number; y: number }; shareBp: number; name: string; refs: { breathe: (node: HTMLDivElement | null) => void; flicker: (node: HTMLDivElement | null) => void } }) {
   const { radius } = glowOf(shareBp);
   // The layers rest at about REST of their light between flickers, so the gradient is that much brighter: at rest the
-  // glow is the design's, and a flicker lifts it above.
+  // glow is glowOf's, and a flicker lifts it above.
   const alpha = Math.min(1, glowOf(shareBp).alpha / REST);
   const size = 2 * GLOW_MAX;
   const fill = glowFill(alpha);
@@ -126,7 +126,7 @@ function Glow({ at, shareBp, name, refs }: { at: { x: number; y: number }; share
   );
 }
 
-/** A spark, drawn as designed: a small circle of the picture, carried along the wire by its layer. */
+/** A spark: a small circle of the picture, carried along the wire by its layer. */
 function Spark({ r, fill }: { r: number; fill: string }) {
   return (
     <svg width={2 * r} height={2 * r} className="block">
@@ -163,10 +163,10 @@ export function TwoLights({ shown }: { shown: LightsShown }) {
       if (node === null || node === undefined || typeof node.animate !== "function") return;
       running.push(node.animate(frames, { iterations: Infinity, easing: "linear", ...options }));
     };
-    // The design's sparks: three out, 1.2 s apart, and one back. Each waits at its start, under the home bulb's glass.
+    // The sparks: three out, 1.2 s apart, and one back. Each waits at its start, under the home bulb's glass.
     for (let i = 0; i < 3; i += 1) run(sparks.current[i], sparkFrames(false, 2.6), { duration: OUT_MS, delay: i * OUT_EVERY_MS, fill: "backwards" });
     run(sparks.current[3], sparkFrames(true, 2.4), { duration: BACK_MS, delay: BACK_FROM_MS, fill: "backwards" });
-    // Better than the design: the glows breathe out of step, and each flickers as a spark reaches it, on the same clock.
+    // The glows breathe out of step, and each flickers as a spark reaches it, on the same clock.
     run(layers.current["home-breathe"], BREATHE, { duration: BREATH_MS, direction: "alternate", easing: "ease-in-out" });
     run(layers.current["abroad-breathe"], BREATHE, { duration: BREATH_MS, direction: "alternate", easing: "ease-in-out", delay: -BREATH_MS / 2 });
     run(layers.current["abroad-flicker"], FLICKER, { duration: OUT_EVERY_MS, delay: OUT_MS, easing: "ease-out" });

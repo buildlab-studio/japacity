@@ -91,7 +91,7 @@ export interface ModeSettings {
   crowd: number;
   /** Where the fog starts and is full, in metres. */
   fog: { near: number; far: number };
-  // atmosphere is haze only; a rim light would be a third light against R-ASSET-006, and rain has no rule for when it falls.
+  // Atmosphere is haze only: a rim light would be a third light against R-ASSET-006, and rain has no rule for when it falls.
   atmosphere: boolean;
   /**
    * How far the fog and the sky lean from the sky's colour toward the ground's, from 0 to 1. The

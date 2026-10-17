@@ -103,7 +103,7 @@ export function Refused() {
   );
 }
 
-/** A small heading inside an app, in sentence case as the after set's phone pages head their lists ("Your briefs"). */
+/** A small heading inside an app, in sentence case ("Your briefs"). */
 export function Head({ children }: { children: ReactNode }) {
   return <h3 className="mt-5 mb-2 px-0.5 text-[15px] font-semibold text-text-2 first:mt-1">{children}</h3>;
 }

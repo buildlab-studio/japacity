@@ -1,4 +1,4 @@
-// The strip (docs/rules/world.md R-WORLD-015, R-WORLD-038; the second design): the whole painted map folded flat into
+// The strip (docs/rules/world.md R-WORLD-015, R-WORLD-038): the whole painted map folded flat into
 // a white card with a navy edge and a pull handle, under the band's place at the top. A filled dot where the player
 // stands with the neighbourhood's name, a tiny house for home, a yellow dot for the step's place; the route across the
 // city when the stop picked is in another neighbourhood. The city's landmarks stand upright on it and its folds show, so

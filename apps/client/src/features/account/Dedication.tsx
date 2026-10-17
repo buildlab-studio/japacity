@@ -1,11 +1,11 @@
-// The dedication page (docs/rules/account.md R-ACCOUNT-032; pictures `preview/dedication-2/08-the-strings-over-water` and `09-the-strings-with-yours`): a full screen of night over
+// The dedication page (docs/rules/account.md R-ACCOUNT-032): a full screen of night over
 // the lagoon, strings of small lights held up by canoes, the owner's light large on the top string with "soksonjr"
 // under it, and every light anyone has lit along the strings, the approved ones carrying their names. At the top the
 // true count and "on the water tonight"; at the foot content's short line and "Sun re o.", then "Light one for yours"
 // or the account's own light named with its line. Reached from the lantern canoe on the map (world.md R-WORLD-036) and
 // from the five taps on Settings' version line (city.md R-CITY-021), handed in by the shell, and from nowhere else.
 //
-// "Light one for yours" (R-ACCOUNT-033, pictures `05-name-it` and `06-lit`) names the unlit light beside the owner's in
+// "Light one for yours" (R-ACCOUNT-033) names the unlit light beside the owner's in
 // place: two boxes drawn alike with the label inside, and "Light it", which sends `PUT /api/dedication/light`; the
 // reply's light shows at once. "Put it out" sends `DELETE`. Offline, or when the read fails, the owner's light, the
 // strings bare, no count, and the button closed with its line.
@@ -192,7 +192,7 @@ function BulbMark() {
   );
 }
 
-/** The unlit light beside the maintainer's while it is being named (picture 05): dark glass, a quiet filament. */
+/** The unlit light beside the maintainer's while it is being named: dark glass, a quiet filament. */
 function UnlitBulb({ x, y, r }: { x: number; y: number; r: number }) {
   const f = (n: number) => String(Math.round(n * 100) / 100);
   return (
@@ -275,7 +275,7 @@ function thisYear(): number {
   return new Date().getFullYear();
 }
 
-/** One box with its label inside, above its value (picture 05): drawn alike, no fieldset or legend. */
+/** One box with its label inside, above its value: drawn alike, no fieldset or legend. */
 const BOX = "flex flex-col gap-[3px] rounded-[12px] border-[1.5px] border-[#3b4c77] bg-[#24345a] px-4 py-2.5";
 const BOX_LABEL = "text-[13px] text-[#c8c3b4]";
 const FIELD = "bg-transparent text-[18px] font-semibold text-text outline-hidden placeholder:font-medium placeholder:text-[#8e97ab]";
@@ -354,7 +354,7 @@ function NameIt({ year, onLit }: { year: number; onLit: (mine: MyLight) => void 
   );
 }
 
-/** The account's own light beside the maintainer's: its name and years under it, for this account alone (picture 09). */
+/** The account's own light beside the maintainer's: its name and years under it, for this account alone. */
 function OwnName({ mine }: { mine: MyLight }) {
   const years = lightYears(mine.years, say("ui.dedication.between"));
   const top = ropeAt(TOP, OWN_X) + hangOf(7) + 7 + 8;

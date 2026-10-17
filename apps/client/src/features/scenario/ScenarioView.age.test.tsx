@@ -63,7 +63,7 @@ describe("the door's age and the page's", () => {
     expect(document.querySelector("[data-age-give]")).toBeNull();
     expect(document.querySelector("[data-door-age]")?.textContent).not.toMatch(/about|give or take/i);
     fireEvent.click(next(say("ui.door.next")));
-    // Where you live heads itself with the age as the page will print it, after Begin (the door's second design).
+    // Where you live heads itself with the age as the page will print it, after Begin.
     expect(document.querySelector("[data-door-board]")?.textContent).toContain(say("prologue.page.age.years", { years: year }));
     expect(document.querySelector("[data-door-board]")?.textContent).not.toMatch(/about/i);
   });

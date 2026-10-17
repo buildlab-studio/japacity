@@ -23,9 +23,8 @@ import { Chips, Head } from "../act";
 import { phoneWords } from "../phone.words";
 import { PicTile } from "../ui";
 
-// the city keeps its graphics choice under this key (features/city/mode.ts) and reads it
-// when it opens; a shared home for the key, and a way for the city to hear a change, would let the
-// phone's choice apply at once.
+// The city keeps its graphics choice under this key (features/city/mode.ts) and reads it
+// when it opens, so a choice made here applies when the city next opens, not at once.
 export const GRAPHICS_KEY = "japacity.city.graphics";
 const GRAPHICS: readonly GraphicsChoice[] = ["auto", "low", "high"];
 

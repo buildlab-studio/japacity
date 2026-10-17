@@ -61,8 +61,8 @@ export function envelopePicture(envelope: Envelope): string {
 }
 
 /**
- * The results whose morning has come, first on the wallpaper, each a notice from its office (R-CLOCK-032), as the after
- * set's morning draws it: the first a white card with its picture, its office and what it says, large; any others under
+ * The results whose morning has come, first on the wallpaper, each a notice from its office (R-CLOCK-032):
+ * the first a white card with its picture, its office and what it says, large; any others under
  * "Also this morning", smaller. The best thing leads; nothing is louder than it.
  */
 function MorningNotices({ told }: { told: readonly Envelope[] }) {

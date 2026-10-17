@@ -1,4 +1,4 @@
-// The front door in three screens with everything chosen (prologue.md R-PROLOGUE-009, 013), in the door's second design dress:
+// The front door in three screens with everything chosen (prologue.md R-PROLOGUE-009, 013), in its lively dress:
 // You (a name filled from the pool for the look's sex, a dice, the look strip as face stickers), Your life so far (the
 // lives as cards, the first chosen, with the age under them) and Where you live (the homes as postcards, with the strip
 // of who you are so far at the top, the look as its face), then Begin; the page prints after Begin. Next, Next, Begin
@@ -294,7 +294,7 @@ describe("the run through the front door", () => {
     expect(board()).toContain(say("prologue.page.age.years", { years: lowest + Math.max(...open) }));
   });
 
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the door's screens, then you stand whole on a photo card as a sticker with your name stuck on it, never on a turntable, the lives carry your face, Where you live heads itself with it, and no scene is drawn behind any of them (the door's second design)", () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the door's screens, then you stand whole on a photo card as a sticker with your name stuck on it, never on a turntable, the lives carry your face, Where you live heads itself with it, and no scene is drawn behind any of them", () => {
     door();
     const name = nameBox().value;
     const look = document.querySelector("[data-gate]")?.getAttribute("data-look") ?? "";

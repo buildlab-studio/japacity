@@ -1,4 +1,4 @@
-// The door's third screen, Where you live, and the page after Begin (prologue.md R-PROLOGUE-013, 014; the door's second design):
+// The door's third screen, Where you live, and the page after Begin (prologue.md R-PROLOGUE-013, 014):
 // before Begin nothing is drawn or lived yet, so nothing is printed: no data page, no family, no money or japacity
 // figure; the strip at the top goes back to the look and name and to the path and age. The page prints after Begin,
 // where the years the tile will pass stand not yet lived until they are, and it says where the life starts and when its

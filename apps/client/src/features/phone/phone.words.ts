@@ -89,7 +89,7 @@ export const phoneText: Record<string, string> = {
   "phone.bank.queued.item": "{paid} into {to}, ready {when}",
   // The credit file abroad (credit.md R-CREDIT-006, R-CREDIT-007), the month it clears said as months away.
   "phone.bank.credit.judgment": "A court judgment is on the file. It clears {when}; until then nothing that needs more than {cap} can be had.",
-  // The morning (the after set): the first result leads; any others stand under this.
+  // The morning: the first result leads; any others stand under this.
   "phone.morning.also": "Also this morning",
 
   // The People row (world.md R-WORLD-020): the slots of this life, never a list of strangers.

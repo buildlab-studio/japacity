@@ -1,4 +1,4 @@
-// The door's first screen, You (prologue.md R-PROLOGUE-013, 015; the door's second design): you as a big photo card,
+// The door's first screen, You (prologue.md R-PROLOGUE-013, 015): you as a big photo card,
 // the whole figure standing with a hand on the hip on a sticker with your name stuck on it, a danfo and a travel bag
 // slapped on; the name with its dice; the look strip as round face stickers, every look in one strip; and "Make it
 // yours" under it, opened on a tap, the figure then drawn in your colours.

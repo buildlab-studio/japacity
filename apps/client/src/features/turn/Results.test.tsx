@@ -152,7 +152,7 @@ function kioskMonth(won: boolean, tickets: number): ReportLine[] {
   throw new Error(`No seed made the kiosk's draw ${won ? "win" : "lose"}.`);
 }
 
-// Review 14, X15: a ticket bought showed only the tag "Lotto: ₦200"; nothing said the ticket lost.
+// A ticket bought and lost is said in words, never only as the tag "Lotto: ₦200".
 describe("the draw's outcome said", () => {
   test("[R-WORLD-008] [R-LUCK-005] given a ticket bought at the kiosk and lost, when the month's results show, then the story says the ticket did not win, in words, whatever else the month held", async () => {
     const lines = kioskMonth(false, 1);

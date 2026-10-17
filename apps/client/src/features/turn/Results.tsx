@@ -169,7 +169,7 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
             <span className="text-[16px] leading-none font-semibold text-text-2">{turnWords("turn.results.nothing-moved")}</span>
           </div>
         ) : (
-          // Losses are never the loudest (the after set): a month down is said quietly, a month up in green.
+          // Losses are never the loudest: a month down is said quietly, a month up in green.
           <div className="flex items-baseline justify-between gap-3" data-results-kept={main.amount}>
             <span className="text-[14px] font-semibold text-text-2">{turnWords(main.amount < 0 ? "turn.results.lost" : "turn.results.kept")}</span>
             <Counter value={counted} format={(value) => signed(value, value, main.currency)} className={main.amount < 0 ? "text-[16px] leading-none text-text-2" : "text-[24px] leading-none text-in"} />
@@ -241,10 +241,10 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   );
 }
 
-/** How many of the month's moments stand before "See the whole month" (the after set). */
+/** How many of the month's moments stand before "See the whole month". */
 const SHOWN_MOMENTS = 3;
 
-/** A moment's picture by what it is: a stand-in until each kind of line has a tile. */
+/** A moment's picture by what it is, since the kinds of line have no tiles of their own. */
 function momentPicture(key: string): string {
   if (key.startsWith("line.route.granted") || key.includes("granted")) return "🛂";
   if (key.startsWith("line.offer")) return "📨";
