@@ -1,7 +1,6 @@
-// A paper on its way and the same paper ready are never told in one list (docs/rules/world.md R-WORLD-008; the
-// the results said "Your passport is on the way. It should be ready this month."
-// and, on the next line, "Your passport is ready." Review 14: the English test said "It should be ready this
-// month." and "Your English test result is out." on the same results. Real content, real draws.
+// A paper on its way and the same paper ready are never told in one list (docs/rules/world.md R-WORLD-008):
+// never "Your passport is on the way. It should be ready this month." beside "Your passport is ready.", nor the
+// English test's "It should be ready this month." beside "Your English test result is out.". Real content, real draws.
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 

@@ -28,7 +28,7 @@ export const castelWords: Readonly<Record<string, string>> = {
   "city.thing.on-shift": "On shift",
   "city.act.on-shift": "Your shift",
   "city.act.on-shift.done": "On the list here. Your days run as the month goes.",
-  // The discount supermarket and the church on London's scenes (world.md R-WORLD-039 as amended).
+  // The discount supermarket and the church on London's scenes (world.md R-WORLD-039).
   "city.act.weekly-shop": "The weekly shop",
   "city.thing.tills": "Tills",
   "city.act.look-tills": "Look",
@@ -56,7 +56,7 @@ export const castelWords: Readonly<Record<string, string>> = {
   "city.overheard.church-it.2": "After service, we share food in the hall.",
   "city.overheard.church-it.3": "Pray for your papers, my sister.",
   "city.overheard.church-it.4": "Choir practice is on Thursday night.",
-  // The coast road's bus: the driver and a fellow passenger, as you board (R-WORLD-039 as amended).
+  // The coast road's bus: the driver and a fellow passenger, as you board (R-WORLD-039).
   "map.ride.line.italy-bus.1": "Ticket? Stamp it in the machine.",
   "map.ride.line.italy-bus.2": "Buongiorno. Sit anywhere, the bus is empty.",
   "map.ride.line.italy-bus.3": "Stamp the ticket. Controllers come sometimes.",

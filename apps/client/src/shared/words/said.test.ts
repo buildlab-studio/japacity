@@ -1,4 +1,4 @@
-// Words that read wrong in play, checked on the lines the real engine tells: a status with its article, the landing with
+// Words that can read wrong in play, checked on the lines the real engine tells: a status with its article, the landing with
 // the country's own name, a chapter closed with no turns, the phone's line for an act planned, and the
 // market's aunty saying a thing that fits a woman or a man.
 import { text } from "@japacity/content";

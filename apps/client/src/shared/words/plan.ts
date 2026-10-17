@@ -1,4 +1,4 @@
-// The plan's dated waits (docs/rules/chapter.md R-CHAPTER-009; the design): a school's
+// The plan's dated waits (docs/rules/chapter.md R-CHAPTER-009): a school's
 // answer due, the points profile running out, the endorsement's wait ending. In shared/ so the Japa app and
 // the city's Coming up both read them without one feature importing another.
 import type { PlayerView } from "@japacity/sim";

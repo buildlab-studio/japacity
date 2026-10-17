@@ -118,20 +118,20 @@ describe("the japa type, read at the send-off", () => {
   });
 
   test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan, Ada and Tunde are family anchors and Zainab the long way round (a return)", () => {
-    // Decisions 0036 and 0037: the lives were re-recorded on 12 Oct 2026 and the card reads a repeat act's taps as months, so
-    // study no longer leads the things done most. Aniekan's refusals are on the Gulf contract, not the way he took; the junior
+    // Decisions 0036 and 0037: the card reads a repeat act's taps as months, so study does not
+    // lead the things done most. Aniekan's refusals are on the Gulf contract, not the way he took; the junior
     // developer's job leads his things done most, and with no reading before it his standing makes him the family anchor.
     const aniekan = sendOff("aniekan-borrower");
     expect(aniekan.routes.find((route) => route.id === aniekan.card!.route)?.refusals ?? 0).toBe(0);
     expect(aniekan.card!.topActivities[0]).toBe("activity.job-junior-dev");
     expect(japaTypeOf(aniekan)).toBe("family-anchor");
-    // Ada (seed golden-ada-0): her standing ends high, 91 since decision 0037's arrivals re-cut her life, with time with the
+    // Ada (seed golden-ada-0): her standing ends high, 91 with decision 0037's arrivals, with time with the
     // family first among the things done most, so she is the family anchor before the careful saver her kept months would make her.
     const ada = sendOff("ada-careful");
     expect(ada.card).toMatchObject({ months: 28, standing: 91 });
     expect(ada.card!.topActivities[0]).toBe("activity.family-time");
     expect(japaTypeOf(ada)).toBe("family-anchor");
-    // Tunde: time with the family leads his things done most since the re-cut of decision 0037 (gist takes no time, so his
+    // Tunde: time with the family leads his things done most under decision 0037 (gist takes no time, so his
     // lived months hold more of it), the senior bank job behind it; no reading before the family anchor holds.
     const tunde = sendOff("tunde-borrower");
     expect(tunde.card!.topActivities[0]).toBe("activity.family-time");

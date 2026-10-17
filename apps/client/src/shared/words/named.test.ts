@@ -43,7 +43,7 @@ describe("money named for the blow that took it", () => {
     expect(said.some((line) => line.startsWith("Something went wrong"))).toBe(false);
   });
 
-  // Review 14, X6: "Send N2,000 to claim your prize" was told as "Paid to the agent: ₦2,000." though there was no agent.
+  // "Send N2,000 to claim your prize" has no agent, so its fee is never "Paid to the agent: ₦2,000."
   test("[R-LUCK-007] [R-WORLD-008] given the prize message claimed and a fraud, when the month's money is read for the results, the Bank and News, then the fee is said as sent for a prize that never came, never paid to an agent", () => {
     const lines = promoClaimed(true);
     const fee = moneyLines(lines).filter((entry) => entry.amount === 200_000 && entry.sign === -1);

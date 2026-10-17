@@ -1,5 +1,5 @@
-// The situation in plain words, as a person would say it (the third play review, findings 19, 21 and
-// 24): no raw key, no "free slots", no quality as a bare figure, and a first screen that says the
+// The situation in plain words, as a person would say it: no raw
+// key, no "free slots", no quality as a bare figure, and a first screen that says the
 // game is about leaving. On the real content and the real engine.
 import { content, text } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
@@ -63,7 +63,7 @@ describe("the situation in plain words", () => {
       expect(said).not.toMatch(/free slot/i);
       expect(said).not.toMatch(/upkeep/i);
     }
-    // the free time in words, never "1 of 3 things planned".
+    // R-WORLD-007: the free time in words, never "1 of 3 things planned".
     expect(freeTimeWords(1, 3)).toBe("Free time: two left");
     expect(say("ui.month.rest")).toBe("Free time: you rest");
     expect(say("ui.job.none")).toContain("Time for three things this month");
@@ -79,9 +79,9 @@ describe("the situation in plain words", () => {
     expect(Object.values(uiText).some((said) => /Japacity so far/.test(said))).toBe(false);
   });
 
-  // the sentence about the game is gone everywhere. Offline,
+  // No sentence about the game anywhere. Offline,
   // where the door is the first screen, it opens with the start screen's hook in two rows and the three steps.
-  // no lights hang on the door, so it carries the one hook that
+  // No lights hang on the door, so it carries the one hook that
   // stands without them, smaller than the start screen's so the looks stay in view; the steps are a label strip, not chips.
   test("[R-TEXT-006] given the first screen offline, then under Who are you? the door opens with the hook that needs no lights, in two smaller rows, and the three steps as a label strip, and no sentence about the game", async () => {
     await renderWithView(<ScenarioView />, newGame("scenario.ada").view());

@@ -56,14 +56,15 @@ export const CHANGE_CHARGE = "ui.results.change-charge";
  * R-WORLD-008). The side that came in counts as money in, in
  * its own money; the side paid in counts as money out, in its own money, so Kept shows every currency
  * that moved and each matches its band. The bank's charge is told once, on its own line as money out, and the change's
- * paid side is what went at the rate, the charge not in it. A charge too small to show as a figure gets no line of its own ("£0"): it rides on the
+ * paid side is what went at the rate, the charge not in it (with the charge
+ * inside it while Kept took the charge off again, Kept plus the change would miss the band by the charge). A charge too small to show as a figure gets no line of its own ("£0"): it rides on the
  * change's line and Kept still counts it, as the wallet does (R-WALLET-015).
  */
 function bankChange(line: ReportLine, chargeLine: ReportLine, charge: MoneyParam, paidLine: ReportLine | undefined): MoneyLine[] {
   const gained = moneyParam("amount", line.params, line.key);
   if (gained === null || gained.amount === 0) return [];
   // What went at the rate: the wallet's own figure for the side changed, after the charge was taken off it; the charge
-  // alone places what was paid in only to within a unit (the papers builder's finding), the fallback for an older recording.
+  // alone places what was paid in only to within a unit, the fallback for an older recording.
   const paidPart = paidLine === undefined ? null : moneyParam("amount", paidLine.params, paidLine.key);
   const paid = paidPart === null ? paidIn(charge.amount) - charge.amount : paidPart.amount;
   const shown = chargeShown(charge.amount, charge.currency);
@@ -87,7 +88,8 @@ const QUEUED = "line.wallet.queued";
 
 /**
  * A change with the FX man (R-WALLET-007): no charge, the side paid in just before what came in. Both
- * count, each in its own money, as the wallet counts them (R-WORLD-008, R-WALLET-015).
+ * count, each in its own money, as the wallet counts them (R-WORLD-008, R-WALLET-015), so the naira
+ * that left for pounds is on a line too.
  */
 function streetChange(line: ReportLine, paidLine: ReportLine): MoneyLine[] {
   const gained = moneyParam("amount", line.params, line.key);
@@ -154,8 +156,7 @@ export const LOTTO_TICKETS = "ui.results.lotto-tickets";
  * each in its own money (R-WORLD-008), at the bank or with the FX man, and a side paid in while the bank's queue
  * holds the other back counts the month it leaves. Any other plain line (a move between pockets) moves nothing the
  * player keeps or loses. Only a line that tells money moving counts: a bill that could not be paid, or a scam told
- * after its fee, is not money gone twice. News reads this to tell the month in the results' words (the eleventh
- * review).
+ * after its fee, is not money gone twice. News reads this to tell the month in the results' words.
  */
 export function moneyTold(tidy: readonly ReportLine[]): (MoneyLine[] | null)[] {
   const { found, taken } = changesOf(tidy);

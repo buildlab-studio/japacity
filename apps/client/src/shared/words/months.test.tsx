@@ -19,7 +19,7 @@ import { byMonths, forMonths, inMonths, nameOf, say, words } from "./text";
 
 const PASSPORT = "document.passport";
 
-/** The papers as the phone shows them (moved from the old papers panel): the Papers app opened on the view. */
+/** The papers as the phone shows them: the Papers app opened on the view. */
 async function openPapers(view: PlayerView) {
   await renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" now={() => new Date(2026, 9, 11, 12, 0)} talk={null} />, view);
   fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
@@ -95,7 +95,7 @@ describe("one count for months", () => {
     const done = view.goals.done[0];
     if (done === undefined) throw new Error("No goal done in the view.");
     const report = { month: done.month, lines: [], japacityBefore: null, japacityAfter: null, attention: false };
-    // Moved from the old goals panel to Japa's goals. The world shows no month number (R-WORLD-002), so the date
+    // Japa's goals. The world shows no month number (R-WORLD-002), so the date
     // is said as months ago, counted from the report's own month: a goal done as the report's month ended reads as its
     // report does, "this month" when the report is this month's, and so on back.
     await renderWithView(<Japa />, { ...view, report });

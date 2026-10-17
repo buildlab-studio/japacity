@@ -25,7 +25,7 @@ const SHOP = "activity.run-shop";
 const FIRST_CHAPTER = "chapter.find-your-feet";
 /** A trader with capital has money to move with, so hearing of a way out and reading up on it come before the jobs board. */
 const CAPITAL_FIRST = ["heard", "known"];
-/** A trade without a degree hears of a way out first and looks it into next, both at the motor park. */
+/** A trade without a degree hears of a way out first and looks it into next, both at the motor park (decision 0025). */
 const TRADE_FIRST = ["heard", "known"];
 /** A nurse is care 30 or more with the licence (prologue.md, the graduation step), as the prologue's own results say. */
 const NURSE_CARE = 30;
@@ -153,7 +153,7 @@ const TENURE = "tenure";
 
 /**
  * The months on the ward a chapter counts, and how many it needs (the care file's council rule, R-SPONSOR-005), from the
- * chapter's own item; null for a chapter that counts none.
+ * chapter's own item; null for a chapter that counts none (Japa and the nudge count them).
  */
 export function wardMonths(view: Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "job">>): { done: number; need: number } | null {
   const requirement = view.chapter.current === null ? undefined : content.chapter[view.chapter.current]?.items.find((item) => item.id === TENURE)?.requirement;

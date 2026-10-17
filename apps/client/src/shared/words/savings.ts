@@ -1,5 +1,4 @@
-// The savings toward the move, one figure for the Bank and the results sheet (R-WORLD-019; the tenth
-// review): the plan's route read as the Japa app reads it, what its decision day asks for plus the
+// The savings toward the move, one figure for the Bank and the results sheet (R-WORLD-019): the plan's route read as the Japa app reads it, what its decision day asks for plus the
 // fees still ahead, against every money held at the official rate.
 import { content } from "@japacity/content";
 import { int, type Currency, type ForeignCurrency, type PlayerView, type RouteView } from "@japacity/sim";
@@ -37,7 +36,7 @@ export function savedFor(view: Pick<PlayerView, "pockets" | "rates">, currency: 
 /**
  * The fees still ahead on a gated way, in its money, as the engine prices them now: each act that counts
  * toward the route and costs that money (the endorsement, the visa and its surcharge), less those done (a
- * paper held or on its way, an application sent). the talent visa had no figure.
+ * paper held or on its way, an application sent), so the talent visa has a figure too.
  */
 function feesAhead(view: Pick<PlayerView, "activities" | "documents">, route: RouteView, currency: Currency): number {
   const sent = route.state === "applying" || route.state === "granted" || route.state === "departed";

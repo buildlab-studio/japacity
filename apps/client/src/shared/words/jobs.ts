@@ -99,7 +99,7 @@ export function payLiftWords(id: string, view: Pick<PlayerView, "qualities">): s
 
 /**
  * A job's pay a month and its chance in words, as its row on the list says them, for the hunt's card when a
- * board or a notice names the job.
+ * board or a notice names the job (Peckham's notice shows pay and chance like the hub's board).
  */
 export function jobCardWords(view: PlayerView, id: string): string {
   const chance = jobsWords(`jobs.chance.${huntBand(chanceOf(view, id))}`);

@@ -1,5 +1,6 @@
-// What is left after a fee in another money (docs/rules/world.md R-WORLD-006; wallet.md R-WALLET-009): the endorsement's card said "₦10,122,500 left" and the band then read ₦10,159,800, the naira cash
-// held, which the bank cannot spend on pounds but the band still counts. Real content, the fee paid through `step`.
+// What is left after a fee in another money (docs/rules/world.md R-WORLD-006; wallet.md R-WALLET-009): the
+// card's figure left must match the band's after, which counts the naira cash held even though the bank cannot spend
+// it on pounds. Real content, the fee paid through `step`.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

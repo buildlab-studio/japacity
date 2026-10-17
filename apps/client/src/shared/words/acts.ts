@@ -21,7 +21,7 @@ export function answersNow(activity: string): boolean {
 export function timeWordsOf(activity: string, halfDays?: number): string | null {
   const entry = content.activity[activity as keyof typeof content.activity];
   if (entry === undefined || entry.when !== "now" || entry.purchase === true) return null;
-  // The view's own time when a thing owned changes it, else the entry's.
+  // The view's own time when a thing owned changes it (the gas cooker's pot), else the entry's.
   const half = halfDays ?? entry.halfDays ?? 1;
   // An act that takes no time (gist, a look) says none (R-ACTIVITY-020).
   if (half <= 0) return null;

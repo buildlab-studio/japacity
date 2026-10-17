@@ -1,7 +1,7 @@
-// The journey, not the wait (docs/rules/text.md R-TEXT-007; the design's guideline 9): a line
+// The journey, not the wait (docs/rules/text.md R-TEXT-007): a line
 // never narrates the player as idle, in dead time or waited on; it says what they do or what moves. A plain "wait for X"
 // where X is truly on its way is allowed, so the scan looks only for the dead-time shapes, and the
-// lines reworded on 11 Oct 2026 are pinned so they do not come back.
+// reworded lines are pinned so they do not come back.
 import { text, textTables } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -52,7 +52,7 @@ const THEIRS: { pattern: RegExp; reason: string }[] = [
 ];
 const theirs = (key: string) => THEIRS.some(({ pattern }) => pattern.test(key));
 
-/** The lines reworded on 11 Oct 2026, as they now read: none may slide back into waiting. */
+/** The reworded lines, as they read: none may slide back into waiting. */
 const REWORDED: Record<string, string> = {
   "city.act.look-barber.done": "Three on the bench for a cut, and the football on.",
   "city.act.look-typing.done": "Visa, ID and labour papers, typed on the spot.",

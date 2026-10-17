@@ -1,6 +1,6 @@
 // Words for playing online: the server's own refusals, the clock, the age
 // screen, signing in and the account settings. First drafts in the voice of
-// docs/rules/text.md, to be rewritten. Kept apart from ui.ts so the
+// docs/rules/text.md. Kept apart from ui.ts so the
 // online screens can be read in one place; ui.ts takes them in whole.
 export const onlineText: Record<string, string> = {
   // The server's refusals (R-SERVER-025, R-ACCOUNT-011, R-ACCOUNT-015)
@@ -58,7 +58,7 @@ export const onlineText: Record<string, string> = {
   "ui.account.start.step.papers": "Papers",
   "ui.account.start.step.fly": "Fly",
   // The start screen's hook (R-TEXT-006, R-ACCOUNT-031): one of three lines, two rows each, picked once per visit.
-  // The first is the owner's pick; the second answers it for those who stay.
+  // The second answers the first for those who stay.
   "ui.wink.start.1.a": "Last one out,",
   "ui.wink.start.1.b": "off the light.",
   "ui.wink.start.2.a": "Not going?",
@@ -72,7 +72,7 @@ export const onlineText: Record<string, string> = {
   "ui.lights.said": "{home} lives at home, {abroad} abroad",
   "ui.lights.unsaid": "The two lights, home and abroad",
   // The dedication page (R-ACCOUNT-032), reached from the lantern canoe on the map (R-WORLD-036) and Settings' five taps,
-  // and naming a light of the player's own (R-ACCOUNT-033). the owner's lines and the nickname under the big light are
+  // and naming a light of the player's own (R-ACCOUNT-033). The dedication's lines and the nickname under the big light are
   // content's (about.data.ts), never here.
   "ui.dedication.canoe": "A canoe with a lantern",
   "ui.dedication.page": "Dedication",
@@ -236,7 +236,7 @@ export const onlineText: Record<string, string> = {
   "ui.account.settings": "Account",
   "ui.account.passkey.add": "Add a passkey",
   "ui.account.passkey.added": "Passkey added. Use it next time you sign in.",
-  // The account's row at the top of Settings and the rows on its sheet (R-ACCOUNT-024, R-ACCOUNT-027 as to be amended).
+  // The account's row at the top of Settings and the rows on its sheet (R-ACCOUNT-024, R-ACCOUNT-027).
   "ui.account.person.label": "Name",
   "ui.account.ways.google": "Kept with Google as {email}",
   "ui.account.ways.email": "Kept with your email as {email}",

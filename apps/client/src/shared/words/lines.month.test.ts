@@ -1,4 +1,4 @@
-// The month's lines that read wrong (docs/rules/world.md R-WORLD-008, R-WORLD-016;
+// The month's lines that can read wrong (docs/rules/world.md R-WORLD-008, R-WORLD-016;
 // text.md R-TEXT-005): each payment named for what it paid, one line where two said one thing, and
 // the living costs' rise told with its reason. Played on the real engine where a few commands get there.
 import { content } from "@japacity/content";
@@ -47,7 +47,7 @@ describe("an answer's money, named for it", () => {
 
   test("[R-WORLD-008] [R-TEXT-005] given a meetup played, when the month's lines are read, then its spending is named the meetup, not going out", () => {
     const game = newGame("scenario.ada");
-    // the meetup is an act done at once, so its spending is in its own lines, which the
+    // R-ACTIVITY-015: the meetup is an act done at once, so its spending is in its own lines, which the
     // month's results show with the month's (R-WORLD-008).
     const shown = read(game.accept({ type: "activity/now", activity: "activity.meetup", param: null }).lines);
     const cost = content.activity["activity.meetup"]?.cost.find((each) => each.currency === "NGN")?.amount;

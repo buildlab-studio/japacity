@@ -1,4 +1,4 @@
-// Words that misled players in the whole-life review, each held to what it should say.
+// Words that could mislead a player, each held to what it should say.
 import { content, text } from "@japacity/content";
 import type { ActivityOption, PlayerView, ReportLine } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
@@ -37,7 +37,7 @@ describe("words that mislead", () => {
     expect(document.body.textContent).not.toMatch(/\d\.name/);
     fireEvent.change(picker, { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: `${text[`${LOTTO}.name`] ?? LOTTO}` }));
-    // the kiosk sells at once, so the count picked goes with the command sent now and the
+    // R-ACTIVITY-015: the kiosk sells at once, so the count picked goes with the command sent now and the
     // month's plan holds no ticket; the count is said in words where it is picked.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: LOTTO, param: "3" }));
     expect(store.getState().plan.some((pick) => pick?.activity === LOTTO)).toBe(false);
@@ -48,7 +48,7 @@ describe("words that mislead", () => {
     const base = richView();
     const reasons = ["sponsor", "agent", "endorsement"];
     const routes = base.routes.map((route) => (route.lastRefusal === null ? route : { ...route, lastRefusal: { ...route.lastRefusal, reasons } }));
-    // Moved from the old month page's route cards to Japa's way files: the reasons under the last refusal.
+    // Japa's way files: the reasons under the last refusal.
     await renderWithView(<Japa />, { ...base, routes });
     for (const reason of reasons) {
       expect(uiText[`ui.refusal.${reason}`]).toBeDefined();
@@ -59,11 +59,11 @@ describe("words that mislead", () => {
   });
 
   test("[R-OBLIGATION-003] given a count of one in a line or a panel, then it reads 1 month, 1 question and 1 payment, never 1 months", async () => {
-    // the questions are to answer, never waiting.
+    // The journey, not the wait (text.md R-TEXT-007): the questions are to answer, never waiting.
     expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 1 })).toContain("1 question to answer");
     expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 2 })).toContain("2 questions to answer");
     expect(words("line.status.clock-ran", { months: 1 })).toBe("1 month left on the clock.");
-    // the kiosk's draw is said as the outcome, the ticket's price told on its own line.
+    // The kiosk's draw is said as the outcome, the ticket's price told on its own line.
     expect(words("line.activity.lotto-lost", { tickets: 1, stake: { currency: "NGN", amount: 20_000 } })).toBe("Your ticket did not win.");
     expect(words("line.activity.lotto-lost", { tickets: 3, stake: { currency: "NGN", amount: 60_000 } })).toBe("Your 3 tickets did not win.");
 
@@ -71,7 +71,7 @@ describe("words that mislead", () => {
     const loan = base.obligations.find((owed) => owed.missed > 0);
     if (loan === undefined) throw new Error("The rich view has no missed payment.");
     const obligations = base.obligations.map((owed) => (owed === loan ? { ...owed, monthsLeft: 1, missed: 1 } : owed));
-    // Moved from the old obligations panel to the phone's Bills.
+    // The phone's Bills.
     await renderWithView(<Bills />, { ...base, obligations } satisfies PlayerView);
     expect(screen.getByText("1 month left")).toBeDefined();
     expect(screen.getByText("Missed 1 payment in a row")).toBeDefined();
@@ -107,7 +107,7 @@ describe("words that mislead", () => {
     expect(nudgeOf({ ...base, report, chapter: { ...base.chapter, current: null }, offers: [], setpiece: null }).key).toBe("ui.nudge.report");
   });
 
-  // The month bar went with the old page; the world says the engine's words where the month would turn, at the bed
+  // There is no month bar; the world says the engine's words where the month would turn, at the bed
   // (features/city/City.interview.test.tsx holds the December visit and the road's night there).
   test("[R-SETPIECE-002] given the interface's own words, then it says interview only of a refusal", () => {
     const own = Object.entries(uiText).filter(([key, value]) => /interview/i.test(value) && !key.startsWith("ui.refusal."));

@@ -1,4 +1,4 @@
-// Chips earn their place (docs/design/13-the-lively-layer.md section 2, the amendment of 12 Oct 2026): a chip says only
+// Chips earn their place (docs/design/13-the-lively-layer.md section 2): a chip says only
 // what is not obvious. A price shows only where there is one; "Free" only on an act a player would expect to pay for (a
 // meal, a ride), never on sleep, a bath or water; the time only when it is more than a morning; at most two effect chips.
 import { content } from "@japacity/content";

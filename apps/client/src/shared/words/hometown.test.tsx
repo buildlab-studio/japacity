@@ -1,5 +1,4 @@
-// Lines from home name where the life is from (prologue.md R-PROLOGUE-002, amended 11 Oct 2026; the decision of
-// 14:47): content's `{hometown}` is filled from the view of the life on screen, so one line serves every hometown, and
+// Lines from home name where the life is from (prologue.md R-PROLOGUE-002): content's `{hometown}` is filled from the view of the life on screen, so one line serves every hometown, and
 // no line ever shows its brace.
 import { content, HOMETOWN_FILL, text } from "@japacity/content";
 import { afterEach, describe, expect, test } from "vitest";
@@ -28,7 +27,7 @@ describe("lines from home", () => {
   test("[R-PROLOGUE-002] given a life from Enugu on screen, when the wider family's asks, the sibling who stayed and the opening card are said, then each names Enugu, while Mama's own asks and the parents stay at home in Lagos; an explicit town wins; with no life on screen they say your hometown", () => {
     setNow(4, "hometown.enugu");
     expect(hometownWords()).toBe("Enugu");
-    // Who asks stands in the ask's name pill now, and the line is theirs alone.
+    // Who asks stands in the ask's name pill, and the line is theirs alone.
     expect([say("offer.roof.who"), words("offer.roof.body", { cost: 4500000 })]).toEqual(["Papa", "“Rain entered the roof of the house in Enugu, and the carpenter wants ₦45,000 for zinc and labour.”"]);
     expect(say("offer.harvest.who")).toBe("Your uncle");
     expect(words("offer.harvest.body", { cost: 1500000 })).toMatch(/^“They are calling families by name at the harvest in Enugu,/);
@@ -43,7 +42,7 @@ describe("lines from home", () => {
     for (const key of ["offer.nepa-bill.body", "offer.mum-shop.body"]) expect(words(key, { cost: 1800000 })).not.toContain("Enugu");
     expect(say("ui.people.parent.blurb.mother")).toBe("At home, as she has always been. She calls when there is news.");
     expect(blurbOf("activity.call-home")).toBe("You call your mother and listen to all of it.");
-    // The card's title is where the family is from, its place of origin: "Family in" is superseded.
+    // The card's title is where the family is from, its place of origin, never "Family in".
     expect(say("ui.page.family.from", { hometown: "Kano" })).toBe("Family from Kano");
     // The family there is the wider family: the hometown's events never put Mama in the town.
     expect(words("offer.harvest.said.give", {})).toBe("You gave to the harvest. The family's name was called, and your uncle stood up for all of you.");
@@ -83,7 +82,7 @@ describe("lines from home", () => {
   test("[R-PROLOGUE-002] given Ada's life, from Enugu, on the People screen, then her mother and father are at home in Lagos, as P19 has it, and no brace shows", async () => {
     const view = engineView("scenario.ada");
     expect(view.hometown).toBe("hometown.enugu");
-    // Moved from the old people tab to Chats' People row, the slots.
+    // Chats' People row, the slots.
     await renderWithView(
       <PairApiProvider value={null}>
         <PeopleSlots api={null} />

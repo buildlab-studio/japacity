@@ -36,7 +36,7 @@ export function routeBand(route: string): number | null {
 }
 
 /**
- * The band the route asks for, held as the band times ten:
+ * The band the route asks for, held as the band times ten (one figure from one place):
  * the plan's route's own, from its content, so the file, the centre's sheet and the result say one band. With no plan,
  * or a plan that asks no band, the least the chapter's English item takes (the nudge's "Score 6.0"), else the lowest
  * band any university asks for.

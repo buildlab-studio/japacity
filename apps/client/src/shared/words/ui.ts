@@ -76,7 +76,7 @@ export const uiText: Record<string, string> = {
   "ui.month.quiet.credit-down": "Credit down.",
   "ui.month.quiet.passed": "Passed by: {offer}.",
 
-  // Nothing on screen says it since the band names the month (decision 0034); kept while the voice test reads it.
+  // Nothing on screen says it, as the band names the month (decision 0034); kept while the voice test reads it.
   "ui.months.fact.arriving": "Next month any minute now",
   "ui.notify.ask.title": "Know when your months are full",
   "ui.notify.ask.body": "Months to play build up while you are away. We can tell you on this device when you hold all the months you can, and nothing else.",
@@ -216,7 +216,7 @@ export const uiText: Record<string, string> = {
   "ui.line.document-fee": "The {document}'s fee: {amount}.",
   // A quality's move told by the band it lands in, never its figure (shared/words/text.ts, bandWords).
   "ui.line.quality.start-band": "{band}.",
-  // A quality with named levels and no bands: "Education: Bachelor's degree.".
+  // A quality with named levels and no bands, as "Education: Bachelor's degree."
   "ui.line.quality.label": "{quality}: {value}.",
   "ui.band.quality.portfolio.0": "You have little work to show",
   "ui.band.quality.portfolio.1": "You have a few pieces to show",
@@ -291,7 +291,7 @@ export const uiText: Record<string, string> = {
   "ui.job.quit-yes": "Yes, quit",
   "ui.job.quit-no": "Keep the job",
   "ui.activity.title": "What to do with your free time",
-  // A card's button says the act, never "Add to month" (the review); the line under it says what it uses.
+  // A card's button says the act, never "Add to month"; the line under it says what it uses.
   "ui.activity.uses-free": "Uses this month's free time",
   "ui.activity.full": "Your free time is full this month",
   // A thing started carries on each month until it is stopped (R-WORLD-007).
@@ -599,7 +599,7 @@ export const uiText: Record<string, string> = {
   // The move-in with the agent's and the agreement's fees, as Bills says it (R-HOME-010).
   "ui.door.home.costs.compound-room": "{movein} to move in, then {rent} a year · living {amount} a month",
   "ui.door.home.costs.hostel-room": "Then {rent} a month · no year's rent",
-  // Each home's line on the door, in the order offered (the home's wave).
+  // Each home's line on the door, in the order offered.
   "ui.door.home.line.compound-room": "Rent by the year, your things, your spot by the gate",
   "ui.door.home.line.hostel-room": "Cheap, by the month, the corridor never sleeps",
   "ui.door.home.line.family-house": "A free roof, your share for the house, Mama's parlour; one more reason to leave",
@@ -623,7 +623,7 @@ export const uiText: Record<string, string> = {
   "ui.door.ready.hint": "Skip the years before. Start at work.",
   "ui.door.ready.title": "A ready life",
   "ui.door.begin": "Begin",
-  // The door as designed (R-PROLOGUE-013): the words its screens carry that ours lacked.
+  // The door's own words (R-PROLOGUE-013).
   "ui.door.caption": "{path} · {age}",
   "ui.door.body": "Body",
   "ui.door.body.f": "Woman",
@@ -636,7 +636,7 @@ export const uiText: Record<string, string> = {
   // Where the life is from, as a passport names a place of birth (R-PROLOGUE-009).
   "ui.page.field.from": "From",
   "ui.hometown.unknown": "your hometown",
-  // The page as designed (R-PROLOGUE-009): its type line and the fields it had and we lacked.
+  // The data page (R-PROLOGUE-009): its type line and its fields.
   "ui.page.type-line": "Type P · JPC",
   "ui.page.field.nationality": "Nationality",
   "ui.page.nationality": "Nigerian",
@@ -655,8 +655,8 @@ export const uiText: Record<string, string> = {
   // The page as the handover (prologue.md R-PROLOGUE-014): the family drawn, the years before as chips, the money, the stamp.
   "ui.page.family": "Your family",
   "ui.page.family.drawing": "Drawing your family",
-  // The card's title names where the family is from, its place of origin (
-  // Mama and Papa live in the Surulere house; the design's "Family in Enugu" is superseded). Its means are a tag beside the others.
+  // The card's title names where the family is from, its place of origin, never
+  // "Family in": Mama and Papa live in the Surulere house. Its means are a tag beside the others.
   "ui.page.family.from": "Family from {hometown}",
   "ui.page.family.low": "Money is short at home",
   "ui.page.family.middle": "A family that gets by",

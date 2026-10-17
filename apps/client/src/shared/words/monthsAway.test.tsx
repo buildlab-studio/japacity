@@ -52,7 +52,7 @@ describe("months away in the words", () => {
     localStorage.clear();
     reloadSeen();
     const game = newGame("scenario.ada");
-    // the passport is asked for at once; its lines are the month's mid-month lines, which
+    // R-ACTIVITY-015: the passport is asked for at once; its lines are the month's mid-month lines, which
     // the store hands News with the month's report once the month ends.
     const asked = game.accept({ type: "activity/now", activity: "activity.get-passport", param: null }).lines;
     game.endTurn();

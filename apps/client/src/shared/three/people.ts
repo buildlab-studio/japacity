@@ -1,6 +1,6 @@
 // People in the city: a copy of a shipped person, posed by bone name with the pipeline's poses, then
 // idling by a few small rotations driven by the shared clock. One update runs for the whole crowd;
-// no person has a loop of its own (the decision).
+// no person has a loop of its own.
 import { type PoseName, poseRotations } from "@japacity/assets-src/people/poses";
 import { type Bone, type Object3D, type SkinnedMesh } from "three";
 import { clone } from "three/addons/utils/SkeletonUtils.js";

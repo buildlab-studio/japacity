@@ -8,7 +8,7 @@ import { markTag } from "../../features/city/mark";
 import { say } from "./text";
 import { uiText } from "./ui";
 
-/** The lines that read as the system talking, each gone from every table. */
+/** Lines that read as the system talking, kept out of every table. */
 const GONE = ["The lift wore off.", "Every free thing is planned", "Funds covered for a month, and now", "Next page on its way", "Next page any minute now"];
 
 describe("a person's words, never the system's", () => {

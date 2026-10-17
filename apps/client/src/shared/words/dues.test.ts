@@ -6,7 +6,7 @@ import { duesGap } from "./dues";
 
 describe("the dues gap and the month's pay", () => {
   test("[R-WORLD-003] [R-WALLET-016] given pounds short of the dues but a job whose month's pay, as the wallet will book it, covers the rest, when the gap is read, then there is none; without the job, there is", () => {
-    // the pay is the view's, so the job is started through the engine.
+    // R-WALLET-016: the pay is the view's, so the job is started through the engine.
     const game = abroadGame();
     const due = game.view().obligations.reduce((sum, owed) => (owed.due > 0 ? sum + owed.due : sum), 0);
     if (due === 0) throw new Error("No dues abroad.");

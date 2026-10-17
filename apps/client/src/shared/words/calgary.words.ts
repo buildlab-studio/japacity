@@ -9,7 +9,7 @@ export const calgaryWords: Readonly<Record<string, string>> = {
   "city.thing.african-store": "African store",
   "city.act.naija-shop": "A taste of home",
   "city.thing.transfer-counter": "Money transfer",
-  // The CTrain station: the machine that sells the month's transit pass (place.md R-PLACE-012 as amended), the platform.
+  // The CTrain station: the machine that sells the month's transit pass (place.md R-PLACE-012), the platform.
   "city.thing.ticket-machine": "Ticket machine",
   "city.act.transit-pass": "Transit pass",
   "city.thing.platform": "Platform",
@@ -23,7 +23,7 @@ export const calgaryWords: Readonly<Record<string, string>> = {
   "city.act.look-shelves": "Look",
   "city.act.look-shelves.done": "Job guides, English readers, and one shelf of Nigerian novels.",
   "city.thing.reading-table": "Reading table",
-  // The superstore on London's big shop (world.md R-WORLD-039 as amended): the cart, the winter clothes, the tills looked at.
+  // The superstore on London's big shop (world.md R-WORLD-039): the cart, the winter clothes, the tills looked at.
   "city.act.weekly-shop": "The weekly shop",
   "city.thing.clothes-aisle": "Winter clothes",
   "city.thing.tills": "Tills",
@@ -92,7 +92,7 @@ export const calgaryWords: Readonly<Record<string, string>> = {
   "city.overheard.church-ca.2": "The newcomers' group meets after service.",
   "city.overheard.church-ca.3": "Who has a car going north-east?",
   "city.overheard.church-ca.4": "Pray for work, then send your resume.",
-  // Calgary's bus: the driver, a fellow passenger and the voice in the ceiling, as you board (R-WORLD-039 as amended).
+  // Calgary's bus: the driver, a fellow passenger and the voice in the ceiling, as you board (R-WORLD-039).
   "map.ride.line.calgary-bus.1": "Tap your card on the reader. Morning.",
   "map.ride.line.calgary-bus.2": "Move to the back, please. Mind the boots.",
   "map.ride.line.calgary-bus.3": "Shut the door, abeg. That cold is not small.",

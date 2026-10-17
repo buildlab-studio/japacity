@@ -3,8 +3,8 @@
 // provider clears it when the game leaves the screen; with no game around it is null, and a
 // stamped month keeps its number. Beside it, where the life on screen is from (prologue.md
 // R-PROLOGUE-002), which fills `{hometown}` in content's lines; and the names a computer person
-// goes by in this life, where the player's own first name is theirs (R-PROLOGUE-009, R-PEOPLE-061, amended 11 Oct
-// 2026; worked out in `authority/others.ts`, so the name pool stays out of the words every screen loads).
+// goes by in this life, where the player's own first name is theirs (R-PROLOGUE-009, R-PEOPLE-061;
+// worked out in `authority/others.ts`, so the name pool stays out of the words every screen loads).
 let current: number | null = null;
 let hometown: string | null = null;
 

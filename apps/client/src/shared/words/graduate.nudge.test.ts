@@ -1,5 +1,5 @@
-// The graduate's first three months, played as a player who follows the nudge (docs/rules/world.md R-WORLD-003; the
-// : each month the nudge's step is planned as the board or the act offers it, a job offer is taken,
+// The graduate's first three months, played as a player who follows the nudge (docs/rules/world.md R-WORLD-003):
+// each month the nudge's step is planned as the board or the act offers it, a job offer is taken,
 // any other ask is left to lapse, and the month is ended. The ready life must not run dry before the job step is met.
 import { content } from "@japacity/content";
 import type { PlayerView, SlotPick } from "@japacity/sim";
@@ -21,7 +21,7 @@ function actFor(view: PlayerView, key: string): SlotPick | null {
   if (step.length < 2 || step[1] !== "nudge") return null;
   const option = (id: string) => view.activities.find((each) => each.id === id && each.allowed);
   if (step[0] === "job") {
-    // The job the sheet opens on (R-WORLD-006, the jobs list; R-ACTIVITY-005 as amended 11 Oct 2026: the life's own trade first).
+    // The job the sheet opens on (R-WORLD-006, the jobs list; R-ACTIVITY-005: the life's own trade first).
     const first = firstJob(view, huntOrder(view, option(HUNT)?.params ?? [])) ?? undefined;
     return first === undefined ? null : { activity: HUNT, param: first };
   }

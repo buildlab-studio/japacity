@@ -1,7 +1,7 @@
-// The player's words never count the engine (the shared rules of the waves; text.md R-TEXT-005, R-TEXT-007; the words
-// pass of 13 Oct 2026): no slots, a turn of the engine, banked months, months as pages, days left, a day count or a
-// percentage; "chapter" never said to the player; no em or en dash. The phone's apps are scanned by the phone and passbook
-// waves' own tests; this walks every words table a player reads, then renders the world's sheets, the results and the map.
+// The player's words never count the engine (text.md R-TEXT-005,
+// R-TEXT-007): no slots, a turn of the engine, banked months, months as pages, days left, a day count or a
+// percentage; "chapter" never said to the player; no em or en dash. The phone's apps are scanned by their own
+// tests; this walks every words table a player reads, then renders the world's sheets, the results and the map.
 import { content, text } from "@japacity/content";
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";

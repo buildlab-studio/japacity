@@ -1,6 +1,5 @@
-// No simulation number on the two screens the ninth review read them on (docs/rules/text.md R-TEXT-005;
-// : the talent file in the Japa app read "Tech skill at 75 or more", and the hub's
-// board "₦90,000 at tech 50". Played on the real content.
+// No simulation number on two screens (docs/rules/text.md R-TEXT-005): the
+// talent file in the Japa app never reads "Tech skill at 75 or more", nor the hub's board "₦90,000 at tech 50". Played on the real content.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent } from "@testing-library/react";

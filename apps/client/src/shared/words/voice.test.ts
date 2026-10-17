@@ -1,5 +1,4 @@
-// The voice, as the maintainer approved it (it is added to docs/rules/text.md): who speaks
-// on each surface, and no machine tells anywhere (the design). Every words table is walked:
+// The voice: who speaks on each surface, and no machine tells anywhere. Every words table is walked:
 // content's and the client's. Until the voice has its own rule id these cite R-TEXT-005, the rule that the screen
 // says what a person would; R-TEXT-002 where bad news is told straight; R-TEXT-004 where officialdom is deadpan.
 import { text, textTables } from "@japacity/content";
