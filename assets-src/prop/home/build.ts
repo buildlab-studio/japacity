@@ -1,4 +1,4 @@
-// The small things of a lived-in home that the kit did not have (the home redesign): the yard's generator and
+// The small things of a lived-in home that the kit does not have: the yard's generator and
 // clothes line, the wardrobe, a rug, a potted plant, slippers by the door, the beer crates, the standing fan, the
 // kitchenette's shelf, a bucket, a mattress on the floor, the hostel's bunk, a small shelf of one's own things, and a
 // louvre window that stands in a cut wall. Each stands on its base at y = 0 and faces +Z (R-ASSET-003); a thing laid on

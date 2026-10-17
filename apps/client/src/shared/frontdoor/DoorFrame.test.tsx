@@ -1,6 +1,5 @@
 // The front door's frame (prologue.md R-PROLOGUE-013): the head row on the sky's own ground over the body, and the foot
-// saying when the body has more below the fold, so a panel cut there reads as a page that scrolls (
-// pictures 006, 011 to 016 and 018).
+// saying when the body has more below the fold, so a panel cut there reads as a page that scrolls.
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

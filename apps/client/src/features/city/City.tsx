@@ -212,7 +212,7 @@ const PARTY_SAID = `${SEND_OFF}.said.party`;
 /** How long the party's line stands over the yard: long enough to read it, then the yard is the player's again. */
 export const PARTY_BEAT_MS = 6000;
 
-/** How long after a person's words what follows is told in the corner, as designed. */
+/** How long after a person's words what follows is told in the corner. */
 const THEN_MS = 1400;
 /** The quiet on arriving in a place before anyone in it speaks (the talk budget). */
 export const ARRIVE_QUIET_MS = 3000;
@@ -242,7 +242,7 @@ export function dressedBy(open: readonly string[], lines: readonly ReportLine[])
   return partyThrown(lines) && !open.includes(PARTY_SET) ? [...open, PARTY_SET] : [...open];
 }
 
-/** How long the band's second row peeks after its words change (from the design's bar). */
+/** How long the band's second row peeks after its words change. */
 const PEEK_MS = 5000;
 
 /** The middle of an area's positioned places, for a built place that content gives no position of its own. */
@@ -324,7 +324,7 @@ function lastPlace(here: ViewPlace, home: string | null, day: number | null): st
   return home !== null && open.some((place) => place.id === home) ? home : openingPlace(here, PLACES);
 }
 
-// the store on a branch keeps `presence` as { place, others: { name, look }[] }; the look is read as a chr_ name and the sample is used only when its place is the one shown.
+// The online store keeps `presence` as { place, others: { name, look }[] }; the look is read as a chr_ name and the sample is used only when its place is the one shown.
 /** The presence sample the online store keeps (R-CITY-015), with those seen today (R-CITY-036) once the store has them; absent offline. */
 interface PresenceSample {
   place: string;
@@ -1938,7 +1938,7 @@ export function City({
           ) : null}
           {nightTeach !== null ? (
             <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+84px)] z-[38] px-3">
-            {/* The first night's card as the after set draws it (world-first-night-card): the moon on a soft tile, a title of a
+            {/* The first night's card: the moon on a soft tile, a title of a
                 few words, the line, Not yet and the yellow Sleep. */}
             <div className="lively-card pop pointer-events-auto mx-auto flex flex-col gap-3 p-3.5" role="note" data-night-teach>
               <div className="flex items-center gap-3">

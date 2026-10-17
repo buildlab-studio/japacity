@@ -183,7 +183,7 @@ describe("a paper that lands or moves", () => {
     // Never an interruption: the phone opens on its home screen.
     expect(document.querySelector("[data-app-screen]")).toBeNull();
     const notice = document.querySelector<HTMLElement>(`[data-paper-notice="issued.${TRANSCRIPT}"]`);
-    // A notice names its app over its words, as the after set's lock screen does.
+    // A notice names its app over its words.
     expect(notice?.querySelector("[data-notice-words]")?.textContent).toBe("Your transcript is ready to collect.");
     expect(notice?.textContent).toBe(`${phoneWords("phone.app.papers")}Your transcript is ready to collect.`);
     expect(document.querySelector('[data-app="papers"] [data-dot]')).not.toBeNull();

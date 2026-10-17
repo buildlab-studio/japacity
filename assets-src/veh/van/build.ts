@@ -1,4 +1,4 @@
-// The white van the gangmaster sends at dawn (docs/rules/world.md R-WORLD-039 as amended, place.md R-PLACE-013;
+// The white van the gangmaster sends at dawn (docs/rules/world.md R-WORLD-039, place.md R-PLACE-013;
 // design page 15 section 6): a plain panel van, dusty along the sills, with no name, mark or livery (R-ASSET-010).
 // The back is built to be ridden in: thin walls with plywood to shoulder height inside, a wooden bench down each
 // side, and a small window cut through the wall over each bench, in the back doors and in the bulkhead, so from a

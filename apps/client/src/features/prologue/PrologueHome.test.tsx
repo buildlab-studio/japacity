@@ -52,7 +52,7 @@ describe("the page's home", () => {
       ],
     };
     await renderWithView(<PageHandover onDone={() => undefined} />, view);
-    // Where the life starts stands beside the cheering figure with the home's picture (the door's second design), the story's own chip.
+    // Where the life starts stands beside the cheering figure with the home's picture, the story's own chip.
     const home = document.querySelector("[data-starts-in] [data-fact='home']");
     expect(document.querySelector("[data-starts-in]")?.getAttribute("data-starts-in")).toBe("compound-room");
     expect(home?.textContent).toBe("You start in your own room, OjuelegbaRent in 12 months");

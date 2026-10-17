@@ -275,8 +275,8 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "place.visa-centre": "prop_waiting-chairs",
   "place.english-test-centre": "prop_test-desk",
   "place.tb-clinic": "prop_xray-stand",
-  // The papers in the phone's Papers app: the counter or clinic that issues one where the
-  // world has it, else a paper standing in.
+  // The papers in the phone's Papers app: the counter or clinic that issues one where the world has it, else a paper
+  // standing in.
   "document.passport": stand("📘"),
   "document.transcript": stand("📄"),
   "document.english-test": "prop_test-desk",

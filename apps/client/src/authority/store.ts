@@ -199,7 +199,7 @@ export interface GameState {
   setReportOpen: (open: boolean) => void;
   closeCard: (key: string) => void;
   chooseLife: (scenario: Id<"scenario">) => Promise<void>;
-  /** Null when this authority cannot start a life over: the server will own that. */
+  /** Null when this authority cannot start a life over from the chooser, as online, where the server holds the life. */
   openLifeChooser: (() => void) | null;
   /**
    * R-ACCOUNT-030: "Start a new life". Ends this life for good through the authority, drops what the device kept of

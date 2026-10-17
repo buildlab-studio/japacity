@@ -281,7 +281,7 @@ function wholeView(view: Pick<PlayerView, "routes" | "japacity">): view is Playe
  * country's money, read live from the checklist's funds item as the route screen reads it. With no
  * funds to show, the japacity figure stands for how far the move is; with neither, nothing.
  */
-// the first plan names "the goal's figure from the view"; goals carry no money figure, so the route's funds stand in.
+// Goals carry no money figure, so the route's funds stand in for the goal's figure.
 export function savings(view: Pick<PlayerView, "routes" | "japacity"> & Partial<Pick<PlayerView, "place">>): { kind: "funds"; shown: number; required: number; currency: Currency } | { kind: "percent"; percent: number } | null {
   // Once flown, the move is made: no target on the results.
   if (view.place?.where === "abroad") return null;

@@ -1,6 +1,6 @@
 // The racks' card (docs/rules/activity.md R-ACTIVITY-017, world.md R-WORLD-006): "Work the racks"
-// opened the hunt's card with the hunt's own words, "You send applications and follow up on every lead", and "Likely"
-// at the bar every hunt stops at. A job named on its card speaks in its own words where content has them (`<job>.card`,
+// never opens with the hunt's own words, "You send applications and follow up on every lead", or "Likely" at the
+// bar every hunt stops at. A job named on its card speaks in its own words where content has them (`<job>.card`,
 // else the job's blurb), and the chance at the bar is said as it is: as good as certain. Real content, the child of the
 // water played from the front door.
 import { content, text } from "@japacity/content";

@@ -1,5 +1,5 @@
-// The mission card and the chapter close (docs/design/13-the-lively-layer.md section 4; the after set's
-// world-chapter-title and world-chapter-close): a brief handed by its person in their voice, the things as
+// The mission card and the chapter close (docs/design/13-the-lively-layer.md section 4): a
+// brief handed by its person in their voice, the things as
 // sticker tiles with the place under each, the reward as picture chips, the next brief faint, one button "Let's go"; and
 // at the close the same card with every tick, the stamp landing with a thud, confetti, and the next briefs as picture cards.
 import { useEffect } from "react";
@@ -78,7 +78,7 @@ function Head({ brief, line }: { brief: Brief; line: string }) {
 }
 
 /**
- * The mission card (R-WORLD-001 as the hand redraws it): handed by its person, their words first, one button. The card's
+ * The mission card (R-WORLD-001): handed by its person, their words first, one button. The card's
  * Let's go carries the opening's mark (`data-opening-go`), so whatever passed the opening card passes this one; the card
  * is marked open as a sheet is, so a staged ask waits for it to close (account.md R-ACCOUNT-023).
  */

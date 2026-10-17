@@ -178,8 +178,8 @@ function Opener({ store, when, place, body = null, part = null }: { store: GameS
 }
 
 /**
- * The band's clock and place (R-WORLD-002, R-PROLOGUE-009): in a game, the name with the place over the age, as the
- * the design's bar has it, the name and the age opening the page; outside one, the age over the place's name.
+ * The band's clock and place (R-WORLD-002, R-PROLOGUE-009): in a game, the name with the place over the age, the
+ * name and the age opening the page; outside one, the age over the place's name.
  */
 export function BandPerson({ when, place, body = null, part = null }: { when: string; place: string; body?: string | null; part?: ReactNode }) {
   const store = useGameStoreIfAny();

@@ -1,4 +1,4 @@
-// A family's own saloon, parked at its spot in the yard (the home redesign): made to read from the raised camera
+// A family's own saloon, parked at its spot in the yard: made to read from the raised camera
 // of a home, where the car is seen from above and close. The body is a slab with its top edges chamfered and its bonnet
 // falling to the nose; the cabin sits narrower on it (the glasshouse leans in), so from above the roof stands apart from
 // the bonnet and the boot; the windscreen and the rear glass lie on their slopes in dark glass, so the roof reads between

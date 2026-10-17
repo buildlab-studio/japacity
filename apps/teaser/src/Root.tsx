@@ -1,5 +1,5 @@
 // The compositions at 30 frames a second: the teaser in its two frames (1920 by 1080, and 1080 by 1920 for a phone's feed),
-// and the earlier cut and direction D of the round of looks beside it.
+// with two other cuts beside it: `Teaser` and `RoundD`, the presentation grammar.
 import { Composition } from "remotion";
 
 import { VIDEO } from "./parts/tokens";

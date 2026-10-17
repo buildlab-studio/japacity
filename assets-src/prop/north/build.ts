@@ -1,5 +1,5 @@
 // The things of Calgary's and Dubai's places (docs/design/15-the-three-countries-on-the-mold.md section 3; docs/rules/
-// world.md R-WORLD-005, R-WORLD-039 as amended): the bare trees of a Calgary winter, the CTrain's shelter, the
+// world.md R-WORLD-005, R-WORLD-039): the bare trees of a Calgary winter, the CTrain's shelter, the
 // library's shelves, tables and course desk, Union station's Nol machine and escalator, and the site's hoarding, crane,
 // guard's post, cleaner's trolley and water cooler. Each is its own model so a label can stand over it, written from
 // the kit's shapes, standing on its base at y = 0 and facing +Z (R-ASSET-003), its low tops clear of the ground's

@@ -1,7 +1,7 @@
 // Calgary's and Dubai's models (docs/design/15-the-three-countries-on-the-mold.md sections 3 and 6): the things of their
 // places, the strip mall, Union station, the site's frame, and the vehicles of their rides, each standing on y = 0 with
 // its footprint and only palette colours, and each ride's vehicle built to be sat in, its seat inside the body on the
-// kerb side, the right of the facing, as Canada and the UAE drive (docs/rules/world.md R-WORLD-039 as amended).
+// kerb side, the right of the facing, as Canada and the UAE drive (docs/rules/world.md R-WORLD-039).
 import { footprintOf, isPaletteName } from "@japacity/assets";
 import { Box3, type Group, type Mesh, Vector3 } from "three";
 import { describe, expect, test } from "vitest";

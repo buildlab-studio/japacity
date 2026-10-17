@@ -25,7 +25,7 @@ export function savingsRoute(view: PlayerView): RouteView | null {
 
 /**
  * What is saved toward fees, in the route's money: every money held that can pay, bank and cash, at the
- * official rate. Locked money only sits to be shown, so it pays no fee. a way with no funds to
+ * official rate. Locked money only sits to be shown, so it pays no fee. A way with no funds to
  * show on its decision day has no rule for funds shown, so its figure is the money there is to pay with.
  */
 export function savedFor(view: Pick<PlayerView, "pockets" | "rates">, currency: Currency): number {

@@ -1,4 +1,4 @@
-// The main cut: the game as it feels in the hand. The world's own recordings carry every shot, and the game's pieces live
+// The lead cut: the game as it feels in the hand. The world's own recordings carry every shot, and the game's pieces live
 // inside them: a word bubble over a head in the place's own voice, the band at the top, the brief's chip landing, the
 // passbook sliding up over the house, the ways out stacking over the parlour, the night falling, the plane leaving, and
 // the seal's two bulbs for the oldest Nigerian joke about leaving. Twenty eight seconds, with sound.

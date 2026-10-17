@@ -25,7 +25,7 @@ const TABLE: readonly { suffix: string; label: string; act: Act }[] = [
   { suffix: "bld_family-house.glb", label: "scene.thing.house", act: { id: "enter", label: "scene.act.enter", kind: "enter" } },
 ];
 
-// a place whose file declares no `stage.things` gets its things from the tables here; this adapter goes once every file declares its own.
+// A place whose file declares no `stage.things` gets its things from the tables here.
 /** The things of a place whose file declares none, from the tables: the first copy of each model the tables name. */
 export function tableThings(stage: Pick<Stage, "models">): Thing[] {
   const found: Thing[] = [];
@@ -45,7 +45,8 @@ function withOwnChoice(act: Act): Act {
   return choice === undefined ? act : { ...act, param: choice };
 }
 
-// the places' files list what each desk's sheet offers; the entries added since (the care, talent, points and Gulf files' steps, R-CHAPTER-009) are listed here until the files carry them.
+// The places' files list what each desk's sheet offers, but not the care, talent, points and Gulf files' steps
+// (R-CHAPTER-009), so those entries are listed here.
 /** More entries a thing's sheet act lists, by `<place>:<thing>:<act>`. */
 const MORE_AT: Record<string, readonly string[]> = {
   "place.yaba:desk:routes": ["activity.find-sponsor", "activity.apply-endorsement", "activity.enter-pool"],

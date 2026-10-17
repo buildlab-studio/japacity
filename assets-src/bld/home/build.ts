@@ -1,4 +1,4 @@
-// The shell of a home seen as one view (the home redesign): the walls of the house or the room and of the yard
+// The shell of a home seen as one view: the walls of the house or the room and of the yard
 // beyond it, cut open toward the camera as the rooms are (docs/rules/world.md R-WORLD-011). The walls the camera looks
 // past are cut low, so the yard and its life show over them; the far side walls stand full height and carry the
 // home's wall things: the calendar, the family photo, the clock, the switch and its wire run on the surface, posters, a

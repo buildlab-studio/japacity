@@ -1,4 +1,4 @@
-// The chosen row's own tokens (world.md R-WORLD-021; the design): a list's pick is a role,
+// The chosen row's own tokens (world.md R-WORLD-021): a list's pick is a role,
 // `--pick`, `--on-pick` and `--pick-mark`, set in both paints, never a colour written in a component.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";

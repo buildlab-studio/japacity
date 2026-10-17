@@ -56,7 +56,7 @@ export const APP_SCREEN: Record<AppId, string> = {
   bills: "obligation",
   news: "news",
   settings: "settings",
-  // The market spends the wallet: its openings count under the wallet's screen until content names a screen of its own.
+  // The market spends the wallet: its openings count under the wallet's screen, as it has no screen of its own.
   market: "wallet",
 };
 

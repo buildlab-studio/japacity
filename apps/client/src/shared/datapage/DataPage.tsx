@@ -1,8 +1,7 @@
-// The travel data page (prologue.md R-PROLOGUE-009): the design's page, line for line. The
-// header with its type line, the photo, the name, the nationality beside the age, the path and what the life was so
-// far, where the life is from and the family beside how ready as the big figure (FROM), and the
-// machine-readable strip at the foot, built from the game's own data. It prints on the door, after Begin and on the
-// band's page. No stamp lands on it until a visa is granted:
+// The travel data page (prologue.md R-PROLOGUE-009). The header with its type line, the photo, the name, the
+// nationality beside the age, the path and what the life was so far, where the life is from and the family beside how
+// ready as the big figure (FROM), and the machine-readable strip at the foot, built from the game's own data. It prints
+// on the door, after Begin and on the band's page. No stamp lands on it until a visa is granted:
 // the visa's is the first, round and red, and the steps after it stamp beneath. Pale green security paper with green
 // ink of its own: like the danfo yellow on things in the world, these colours belong to the page and never change with
 // the theme. Never a real number, a coat of arms or an issuing authority, and the country code is the game's own

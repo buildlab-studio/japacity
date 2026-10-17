@@ -1,5 +1,5 @@
-// The prologue: sixteen to the end of the service year (prologue.md R-PROLOGUE-008), on the door's sky (the door's
-// the compound and the figure on its plinth are gone). A new life never shows a card: its archetype answers every step
+// The prologue: sixteen to the end of the service year (prologue.md R-PROLOGUE-008), on the door's sky, with no
+// compound and no figure on a plinth. A new life never shows a card: its archetype answers every step
 // (R-PROLOGUE-010) while the page over the compound fills as the years go by, and when the last answer is in, the
 // page is the handover (R-PROLOGUE-014): the family the game drew turned over, the years before as fact chips, the
 // money as it stands, and the world opens when Go is tapped. A life with no archetype (the setting
@@ -451,7 +451,7 @@ function StartsIn({ home, chip }: { home: Home | null; chip: YearChip }) {
 }
 
 /**
- * The page after Begin (R-PROLOGUE-014), in the door's dress (the door's second design): "Your page, printed" over the
+ * The page after Begin (R-PROLOGUE-014), in the door's dress: "Your page, printed" over the
  * travel data page with the life's thing slapped on it; you cheering on a sticker beside where you start and when rent
  * is next due; the family the game drew; the years before as chips with the story's own; the money and japacity as they
  * stand; and where this life can lead. While the years go by (`onDone` absent) the family is still face down and the

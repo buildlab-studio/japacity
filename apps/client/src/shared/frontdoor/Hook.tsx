@@ -1,6 +1,6 @@
-// The hook and the three steps (text.md R-TEXT-006, account.md R-ACCOUNT-031), as the design draws them on its start
-// screen: a line with a wink in two rows, picked once per visit, then the whole game in three steps, an icon and a word
-// each with a small arrow between. Online they open the start screen; offline, where the door is the first screen,
+// The hook and the three steps (text.md R-TEXT-006, account.md R-ACCOUNT-031) on the start screen: a line with a wink
+// in two rows, picked once per visit, then the whole game in three steps, an icon and a word each with a small arrow
+// between. Online they open the start screen; offline, where the door is the first screen,
 // they open the door in the same voice, with the one line of the three that needs no lights over it.
 import { Briefcase, ChevronRight, FolderOpen, Plane } from "lucide-react";
 

@@ -59,7 +59,7 @@ export const loadTurnstile: LoadTurnstile = () => {
 };
 
 /**
- * The site key from VITE_TURNSTILE_SITE_KEY. a build that is not
+ * The site key from VITE_TURNSTILE_SITE_KEY. A build that is not
  * production and has none uses Cloudflare's always-pass test key, so local
  * play against the test server needs no setup; production without one shows no widget.
  */

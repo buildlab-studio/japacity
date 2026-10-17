@@ -22,7 +22,7 @@ function settledTraderView() {
       const answer = presetAnswer(trader, prologue) ?? answersInOrder(trader, prologue.step, prologue.answers).find((one) => one.allowed)?.id;
       game.accept({ type: "prologue/choose", step: prologue.step, answer: answer! });
     }
-    // A month of living costs: the sheet in V5 was read with the settlement already under its full sum.
+    // A month of living costs, so the sheet is read with the settlement already under its full sum.
     game.endTurn([{ activity: "activity.ask-around", param: null }]);
     if (sixteenPath(game.view()) === "capital") return game.view();
   }

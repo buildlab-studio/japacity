@@ -68,7 +68,7 @@ function qualityOf(view: PlayerView, id: string): number {
 
 /**
  * A job's chance in a hunt as a band: at the bar every hunt stops at (R-ACTIVITY-005, `tuning.quality.hireMaxBp`) it is
- * as good as certain (the racks, R-ACTIVITY-017), else the three bands.
+ * as good as certain (the racks, R-ACTIVITY-017), never "Likely", else the three bands.
  */
 export function huntBand(bp: number): ChanceBand {
   return bp >= content.tuning.quality.hireMaxBp ? "certain" : chanceBand(bp);
@@ -109,8 +109,8 @@ export function jobCardWords(view: PlayerView, id: string): string {
 
 /**
  * The line of a hunt's card that names one job (R-WORLD-006): the job's own words where content has them, `<job>.card`
- * else its blurb, and only then the hunt's ("You send applications"), then its pay and chance. The racks spoke as a
- * hunt for applications; they speak as the racks.
+ * else its blurb, and only then the hunt's ("You send applications"), then its pay and chance. The racks speak as the
+ * racks, never as a hunt for applications.
  */
 export function jobCardLine(view: PlayerView, hunt: string, job: string): string {
   const own = text[`${job}.card`] ?? text[`${job}.blurb`] ?? text[`${hunt}.blurb`] ?? null;

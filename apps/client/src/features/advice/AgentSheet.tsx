@@ -348,7 +348,7 @@ export function PapersSheet({ offer, onChosen }: { offer: Offer; onChosen: (line
 }
 
 /**
- * The overpromiser's promise (R-ADVICE-005): the card with the month he named. its one
+ * The overpromiser's promise (R-ADVICE-005): the card with the month he named. Its one
  * choice, `wait`, would take the offer and close it, so the month he named would pass with no line
  * saying nothing moved. The card sends nothing; the sheet's close leaves it waiting.
  */

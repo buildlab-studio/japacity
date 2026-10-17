@@ -1,4 +1,4 @@
-// The rise (japacity.md R-JAPACITY-003; the design): every rise of the figure
+// The rise (japacity.md R-JAPACITY-003): every rise of the figure
 // flies up as "+9" in the band's colours toward the band and fades, while the bag by the door grows.
 // One at a time, never a queue: a new rise takes the place of one still flying. A fall shows nothing
 // but the bag shrinking. While a sheet covers the world the figure waits, so the player sees the rise

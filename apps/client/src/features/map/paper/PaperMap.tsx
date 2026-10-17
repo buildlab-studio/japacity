@@ -1,4 +1,4 @@
-// The folding map of Lagos (docs/rules/world.md R-WORLD-015, R-WORLD-017; the second design): one painted map at two
+// The folding map of Lagos (docs/rules/world.md R-WORLD-015, R-WORLD-017): one painted map at two
 // zooms with the strip as the hinge. Folded, the strip sits at the top and the neighbourhood cards swipe sideways
 // beneath it with pager dots; a tap on the strip or a drag down unfolds the whole map (the strip's frame grows to the
 // screen while the card slides down and fades, transform and opacity only, under 300 ms; a fade under reduced motion);

@@ -1,5 +1,5 @@
-// The front door (prologue.md R-PROLOGUE-009, 013), in the lively dress of the door's second design (A's sticker board with B's
-// stacked homes), with everything already chosen so Next, Next, Begin starts a life. You (the name filled from the pool
+// The front door (prologue.md R-PROLOGUE-009, 013), in its lively dress (a sticker board, the homes stacked as
+// postcards), with everything already chosen so Next, Next, Begin starts a life. You (the name filled from the pool
 // for the look's sex, a dice for another, the look strip as round face stickers, your own colours) stands you whole on a
 // photo card; Your life so far is the lives swiped sideways with the age under them; Where you live is the homes as
 // postcards, then Begin. The page prints after Begin (R-PROLOGUE-014). Skip on the first two goes to Where you live;

@@ -539,7 +539,7 @@ export const uiText: Record<string, string> = {
   "ui.door.life": "Your life so far",
   // Each tile says the age its life hands over at, so the sheet names none.
   "ui.door.path.hint": "Pick one and live it from school.",
-  // The door's second design (A's sticker board): the lives swiped sideways, the age card, the homes as postcards, the page after Begin.
+  // The door: the lives swiped sideways, the age card, the homes as postcards, the page after Begin.
   "ui.door.life.line": "Swipe the lives. Pick one and live it from school.",
   "ui.door.lives": "Life {n} of {count}",
   "ui.door.next.home": "Where you live",

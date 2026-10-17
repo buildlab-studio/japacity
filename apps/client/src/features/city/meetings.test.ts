@@ -244,7 +244,7 @@ describe("seeing someone beside someone else", () => {
 });
 
 describe("the answer once courted", () => {
-  // the corner tells the person's own line, then the plain line
+  // The corner tells the person's own line, then the plain line
   // that they live in the game (R-PEOPLE-054).
   test("[R-PEOPLE-013] [R-PEOPLE-054] given a computer partner courted, when the corner is told, then their answer comes first in their own words, as theirs, and the plain line that they live in the game follows", () => {
     for (const { person } of partnerMeetings) {

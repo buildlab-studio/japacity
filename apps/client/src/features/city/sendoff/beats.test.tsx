@@ -80,7 +80,7 @@ describe("the send-off's beats, laid out", () => {
   });
 
   test.each(Object.keys(STOP_PEOPLE))("[R-CHAPTER-012] given the landing in %s, then the character, her bag and the person at the stop stand clear of the lane at the foot, the button stands in it, and the stop's line hangs above her head", (country) => {
-    // The catalog's pictures 158, 161 and 165: Get on the bus stood over the character's feet and her bag.
+    // Get on the bus never stands over the character's feet or her bag.
     for (const person of [LANDING.you, LANDING.stop]) expect(footOf(person)).toBeLessThanOrEqual(LANE_TOP);
     expect(LANDING.bag.top + LANDING.bag.width).toBeLessThanOrEqual(LANE_TOP);
     expect(844 - LANDING.bubbleBottom).toBeLessThanOrEqual(LANDING.you.top);

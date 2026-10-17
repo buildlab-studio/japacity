@@ -1,4 +1,4 @@
-/* The map screen's round white buttons and the ride sheet's picture tiles (the after set), loaded with the map screen
+/* The map screen's round white buttons and the ride sheet's picture tiles, loaded with the map screen
    itself; the painted map's own paint is paper/paper.css, loaded with the painted map. */
 .map-pill { background: #fff; color: #1b2a4a; border-radius: 999px; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }
 .map-round { background: #fff; color: #1b2a4a; border-radius: 50%; box-shadow: 0 0 0 1.5px #1b2a4a, 0 3px 0 #1b2a4a; }

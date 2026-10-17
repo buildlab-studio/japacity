@@ -1,7 +1,7 @@
-// The band after a refusal (docs/rules/world.md R-WORLD-002, R-WORLD-003): the nudge said "Ask for the
-// endorsement again in 6 months" over the coming chip "You can ask for the endorsement again, in 6 months", nearly the
-// same sentence twice. When the chip's "what" is the nudge's own wait, the chip stays folded: the row peeks with the
-// nudge alone, and the handle still opens the chip. Real content, a real refusal played through step.
+// The band after a refusal (docs/rules/world.md R-WORLD-002, R-WORLD-003): the nudge "Ask for the
+// endorsement again in 6 months" over the coming chip "You can ask for the endorsement again, in 6 months"
+// would say nearly the same sentence twice. When the chip's "what" is the nudge's own wait, the chip stays folded: the
+// row peeks with the nudge alone, and the handle still opens the chip. Real content, a real refusal played through step.
 import { content } from "@japacity/content";
 import type { Content, Id, PlayerView } from "@japacity/sim";
 import { fireEvent, screen } from "@testing-library/react";

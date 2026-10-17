@@ -67,7 +67,7 @@ describe("the page from the band", () => {
     const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
     const view = store.getState().view!;
     band(store, clockWords(view.qualities));
-    // The name over the age, as the design's bar has it.
+    // The name over the age.
     const person = document.querySelector<HTMLElement>("[data-band-person]")!;
     expect(person.textContent.indexOf("Morenike")).toBeGreaterThanOrEqual(0);
     expect(person.textContent.indexOf("Morenike")).toBeLessThan(person.textContent.indexOf(clockWords(view.qualities)));

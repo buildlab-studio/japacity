@@ -63,8 +63,7 @@ describe("the luck offers and the offers abroad, from the engine", () => {
     expectClean(card);
   });
 
-  // Review 14: "Pay the deposit: ₦300,000" was the yellow button and "Tell your cousin no" the plain one; four of seven
-  // quick hands paid it.
+  // A yellow main button on a possible scam is the one quick hands press, so such an ask has none.
   test("[R-ADVICE-006] [R-WORLD-006] given an ask that may be a scam (the cousin's pitch, the prize message), then no answer is the main button, and the answer that costs nothing comes first; an honest ask keeps its main button", async () => {
     for (const [entry, no, pay] of [["offer.road-cousin", "ignore", "take"], ["offer.telco-promo", "ignore", "claim"]] as const) {
       const game = newGame();

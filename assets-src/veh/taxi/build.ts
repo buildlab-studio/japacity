@@ -4,7 +4,7 @@
 // face +z. The wheels are round, so they are their own part, shaded smooth (R-ASSET-005).
 // Dubai's taxi is the same saloon in cream with a red roof and no checks: the look of the city's
 // cabs, with no operator's name or mark on it. It is built to be sat in for the ride abroad (world.md
-// R-WORLD-039 as amended 16 Oct 2026): its cabin hollow between the bonnet and the boot, thin walls,
+// R-WORLD-039): its cabin hollow between the bonnet and the boot, thin walls,
 // the glass panes facing out, two seats in front and the bench behind, where the ride sits on the
 // right of the facing by the rear window, the kerb side.
 import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";

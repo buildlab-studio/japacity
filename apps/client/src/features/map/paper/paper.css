@@ -1,4 +1,4 @@
-/* The painted map (docs/rules/world.md R-WORLD-015; the second design). One paper in two paints: the day's pale paper
+/* The painted map (docs/rules/world.md R-WORLD-015). One paper in two paints: the day's pale paper
    and soft lagoon, the night's navy paper with lit windows and glowing stickers. Lines and names keep their size on the
    screen whatever the zoom: each view sets --z, how many screen pixels a paper unit takes, and every width divides by it. */
 .paper {

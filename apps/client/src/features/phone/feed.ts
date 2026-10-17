@@ -2,8 +2,7 @@
 // R-TEXT-003): at most `familyFeed.perMonth` posts a month from `familyPosts`, the posts any month
 // may carry turning by a hash of the life and the month, so a month reads the same twice. A post
 // keyed to a report line waits until the view shows that line has happened.
-// the view has no feed of its own (family.data.ts says the news kind reads it once the
-// lead adds a view field), so what has happened is read from the view as it stands now.
+// The view has no feed of its own, so what has happened is read from the view as it stands now.
 import { familyFeed, familyNames, familyPosts, text, type FamilyPost } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 

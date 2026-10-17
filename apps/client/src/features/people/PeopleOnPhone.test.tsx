@@ -71,8 +71,8 @@ describe("the slots on the People row", () => {
   });
 
   test("[R-PEOPLE-007] given the family played by the game, when the People row opens, then the quiet mark stands in one place on every card, beside who the slot is, and no slot is a numbered placeholder", async () => {
-    // The catalog's picture 116 (1b952f4b): "Not a player" on its own line for a sibling and beside the name for a parent;
-    // "Sibling 2" read as a numbered placeholder.
+    // "Not a player" stands in the same place for a sibling and for a parent, and no slot reads as a numbered
+    // placeholder such as "Sibling 2".
     const game = peopleGame();
     playFirst(game);
     await renderWithGame(offline(<PeopleSlots api={null} />), game);

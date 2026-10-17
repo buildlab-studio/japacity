@@ -1,4 +1,4 @@
-// A neighbourhood's card (docs/rules/world.md R-WORLD-015; the second design): the same painted map zoomed in on one
+// A neighbourhood's card (docs/rules/world.md R-WORLD-015): the same painted map zoomed in on one
 // district inside a white card with a navy edge, its name folded into the card's top edge as a small pill. The stickers
 // are larger here, and still the pins.
 import type { CSSProperties } from "react";

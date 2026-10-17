@@ -23,7 +23,7 @@ function pictureOf(id: string): string {
   return PICTURES[`./looks/${id}.webp`] ?? "";
 }
 
-/** The looks the first plan names come first, so the strip opens on the people the game began with. */
+/** The game's first people come first, so the strip opens on them. */
 const FIRST = ["chr_ada", "chr_tunde", "chr_zainab", "chr_tobi", "chr_ngozi", "chr_femi", "chr_kemi", "chr_bisi"];
 
 /** A shipped person's name from its file: `shared/chr/chr_ada.glb` is `chr_ada`. */

@@ -70,7 +70,7 @@ function KioskLotto() {
   const last = kioskDrawLine(report?.lines ?? []);
   return (
     <div data-phone-app="lotto" data-lotto-kiosk>
-      {/* The kiosk as the after set's phone-lotto draws it: its picture, where it stands, this month's tickets; the last
+      {/* The kiosk: its picture, where it stands, this month's tickets; the last
           draw's result; and the way to the kiosk, since tickets are bought there and never on the phone. */}
       <div className="flex items-center gap-3 px-0.5">
         <PicTile of={KIOSK_ACT} size={64} tint="money" />

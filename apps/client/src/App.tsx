@@ -261,7 +261,7 @@ function Screen() {
       </Splash>
     );
   // Online and signed out: the start screen, the age screen, then the door, whose Begin makes the guest life (R-ACCOUNT-029).
-  // The live city stands behind it, as designed, where WebGL draws; the compound comes back at the door.
+  // The live city stands behind it where WebGL draws; the compound comes back at the door.
   if (signedOut) return <AccountGate door={(guest) => <ScenarioView guest={guest} />} {...(draws() ? { behind: <StartCityBehind /> } : {})} />;
   if (choosingLife) return <ScenarioView />;
   if (view === null) return <Opening />;

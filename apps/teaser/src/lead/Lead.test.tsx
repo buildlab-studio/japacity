@@ -72,7 +72,7 @@ function videosOf(page: HTMLElement): string[] {
   return [...page.querySelectorAll("video")].map((video) => video.getAttribute("src") ?? "");
 }
 
-describe("the decision in its two frames", () => {
+describe("the lead cut in its two frames", () => {
   test("given the landscape and the portrait compositions, when their lengths are read, then they last the same frames from the one list of shots, at their own sizes", () => {
     expect(LEAD_COMPOSITIONS.Lead).toEqual({ ...VIDEO, durationInFrames: LEAD_FRAMES });
     expect(LEAD_COMPOSITIONS.LeadPortrait).toEqual({ width: 1080, height: 1920, fps: 30, durationInFrames: LEAD_FRAMES });

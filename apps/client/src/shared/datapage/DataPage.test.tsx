@@ -1,4 +1,4 @@
-// The travel data page as designed, line for line (prologue.md R-PROLOGUE-009): the
+// The travel data page, line for line (prologue.md R-PROLOGUE-009): the
 // header and its type line, the photo, NAME, NATIONALITY beside AGE, PATH, SO FAR, FAMILY beside READY as the big
 // figure, and the machine-readable strip from the game's own data. The visa's stamp is round and red.
 import { render } from "@testing-library/react";
@@ -16,7 +16,7 @@ const ROUND = ["rounded", "full"].join("-");
 const PAGE = { name: "Ifẹ́", age: "23 yrs", path: "The developer", was: "Science, then computer science", ready: "12%", photo: "", family: "A family that gets by", strip: { district: "Surulere", years: 23, percent: 12 } };
 
 describe("the data page", () => {
-  test("[R-PROLOGUE-009] given a page, then it prints the design's lines in the design's order: the type line, the name, the nationality beside the age, the path, so far, the family beside ready as the big figure, then the strip", () => {
+  test("[R-PROLOGUE-009] given a page, then it prints its lines in order: the type line, the name, the nationality beside the age, the path, so far, the family beside ready as the big figure, then the strip", () => {
     render(<DataPage page={PAGE} />);
     const field = (id: string): string | null => document.querySelector(`[data-page] [data-field='${id}']`)?.textContent ?? null;
     expect(document.querySelector("[data-page-type]")?.textContent).toBe(say("ui.page.type-line"));

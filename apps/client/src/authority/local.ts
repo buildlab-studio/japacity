@@ -1,7 +1,7 @@
-// The local authority: the first milestone's stand-in for the server
+// The local authority: the in-browser stand-in for the server
 // (docs/rules/engine.md section 1). It holds the state and the save, and is
 // the only part of the client that ever sees the seed. Screens talk to it only
-// through the Authority type, so the server can replace it later unchanged.
+// through the Authority type, so the server takes its place unchanged.
 import { content as realContent } from "@japacity/content";
 import type { Authority, Command, Content, Envelope, FlatSave, Id, PlayerView, Reply, Save, Sender, State, World } from "@japacity/sim";
 
@@ -46,7 +46,7 @@ export interface LocalAuthority extends Authority {
   /**
    * Throws the current life away and starts another, on the named seed when one is given. Without one, a life from
    * sixteen through a tile kept beside the save starts on the front door's seed for that tile (R-PROLOGUE-011).
-   * Local only: the server will own this.
+   * Local only: online, the server holds the life.
    */
   newLife(scenario: Id<"scenario">, seed?: string): Promise<PlayerView>;
   /**

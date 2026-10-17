@@ -101,7 +101,7 @@ function lastTick(bond: BondView): number {
  * The bond a slot of time with someone goes to (R-PEOPLE-014): of the bonds at
  * courting or later in the same place (to see) or elsewhere (to call), the one
  * that has waited longest for a moment.
- * the view has no `lastMomentMonth`, so the wait is read from the last
+ * The view has no `lastMomentMonth`, so the wait is read from the last
  * moment's tick; with two bonds waiting since courting, the engine may pick the other.
  */
 export function timeWith(view: PlayerView, activity: Id<"activity">): BondView | null {

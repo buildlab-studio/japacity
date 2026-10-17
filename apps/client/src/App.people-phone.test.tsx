@@ -190,7 +190,7 @@ describe("a bond's thread head", () => {
 });
 
 describe("the words of a bond's head", () => {
-  // the mark's word is "Not a player"; the head's rows say a
+  // The mark's word is "Not a player"; the head's rows say a
   // person's words, never "moments", "Costs standing" or "Ask them".
   test("[R-TEXT-005] [R-TEXT-007] [R-PEOPLE-009] given Tobi just courted, when his thread is opened, then the mark says Not a player, and the head says nothing shared yet, six more times together before you can ask, ask Tobi, and that ending it will be talked about", async () => {
     const game = peopleGame();
@@ -219,7 +219,6 @@ describe("the words of a bond's head", () => {
 });
 
 describe("the answer once courted, in the thread", () => {
-  // the thread opens with the person's answer once courted.
   test("[R-PEOPLE-013] [R-WORLD-020] given Tobi just courted, when his thread is opened, then its first message is his answer, from him, before any time together", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI, 1);
@@ -234,8 +233,6 @@ describe("the answer once courted, in the thread", () => {
 });
 
 describe("a thread that ended", () => {
-  // the thread stays the month the bond ended in, its head saying
-  // so with the reason in the person's words, and goes once that month ends.
   test("[R-PEOPLE-042] [R-WORLD-020] given Tobi courted and no time made together, when his patience runs out, then his thread stays that month with his line and his reason, and is gone the month after", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI);

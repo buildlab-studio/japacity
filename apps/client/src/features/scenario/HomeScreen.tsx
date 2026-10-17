@@ -1,5 +1,5 @@
-// The door's third screen, Where you live (prologue.md R-PROLOGUE-013; the door's second design: B's stacked postcards over A's
-// lower elements, with A's row of homes made small to switch): who you are so far in a strip at the top, its two halves
+// The door's third screen, Where you live (prologue.md R-PROLOGUE-013), as stacked postcards with a row of small homes
+// to switch between: who you are so far in a strip at the top, its two halves
 // the ways back to your look and name and to your life and age; the home picked as the big postcard in front with the
 // J's postage stamp carrying the money to start, the other homes stacked behind it; the homes as small picture tiles to
 // switch, the pick ringed, a home the life cannot pay for locked with what it is short; the picked home's line and its

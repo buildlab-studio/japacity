@@ -1,4 +1,4 @@
-// The ride sheet (docs/rules/world.md R-WORLD-017), dressed as the after set's map-stop-picked-ride-sheet: picking a
+// The ride sheet (docs/rules/world.md R-WORLD-017): picking a
 // stop raises a sheet at the foot of the map with the place's own picture, its name and state, a line about it, the
 // ways to go as picture tiles with the fare and minutes under each, the balance before struck through and after, and
 // one yellow Go that says the ride and its fare. The map stays in view above it.

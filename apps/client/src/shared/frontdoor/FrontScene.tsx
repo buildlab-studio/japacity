@@ -2,7 +2,7 @@
 // the character on a plinth at the gate, seen from the street. One fixed raised camera, low mode, no crowd:
 // the sheet covers the bottom of the screen, so the camera keeps the character in the top part. A look
 // tapped on the sheet is put on the same character at once; the figure turns slowly and a finger drags it
-// round (the design's onboarding). The figure wears the player's own colours (R-PROLOGUE-015), painted once a
+// round. The figure wears the player's own colours (R-PROLOGUE-015), painted once a
 // pick, and tells the first screen what it read of the look. Loaded only where WebGL exists; nothing here sends a command.
 import { content, text } from "@japacity/content";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";

@@ -560,7 +560,7 @@ function Behind({ landing }: { landing: Landing }) {
 }
 
 /**
- * The landing (beat 5), laid out on the hall's lane (R-CHAPTER-012 (k); the catalog's pictures 158, 161 and 165): the
+ * The landing (beat 5), laid out on the hall's lane (R-CHAPTER-012 (k)): the
  * character, the bag at her feet and the person at the stop stand clear of the lane at the foot, so the button stands
  * under them and never over her feet or her bag. A person's picture is twice as tall as it is wide; the bag's is square.
  */
