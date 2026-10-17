@@ -250,6 +250,30 @@ describe("the target headcount", () => {
     }
   });
 
+  test("[R-CITY-032] given the office in London and in Calgary and more players present than its slots, when the crowd stands, then the manager in the glass office and the colleague at the tea point keep their seats and players sit at the desks", () => {
+    for (const name of ["office-uk", "office-ca"]) {
+      const found = shippedStages().find(({ file }) => file.place === `place.${name}`);
+      const entry = content.place[`place.${name}`];
+      if (found === undefined || entry === undefined) throw new Error(`${name} is missing`);
+      const { file, stage } = found;
+      const near = (spot: number, at: readonly number[]): boolean => {
+        const where = stage.people[spot];
+        return where !== undefined && Math.hypot(where[0] - (at[0] ?? 0), where[1] - (at[1] ?? 0)) < 1.6;
+      };
+      const glass = stage.models.find((model) => model.file.endsWith("prop_glass-office.glb"))?.at[0] ?? [];
+      const colleague = stage.things?.find((thing) => thing.id === "colleague")?.acts.find((act) => act.seat !== undefined)?.seat ?? [];
+      const staff = (stage.acts ?? []).filter((act) => act.staff === true).map((act) => act.spot);
+      expect(staff.map((spot) => near(spot, glass) || near(spot, colleague))).toEqual([true, true]);
+      const desks = (stage.acts ?? []).filter((act) => act.pose === "sit" && act.staff !== true).map((act) => act.spot);
+      expect(desks).toHaveLength(3);
+      const many = Array.from({ length: 8 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+      const people = sampleCrowd(entry, poolOf(file.people.sample), THURSDAY, "high", city, many, [], [], { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts }).people;
+      const at = new Map(placeCrowd(people, stage.people, stage.prefer, stage.acts).map(({ index, shown }) => [index, shown.kind]));
+      expect(staff.map((spot) => at.get(spot))).toEqual(["resident", "resident"]);
+      expect(desks.map((spot) => at.get(spot))).toEqual(["player", "player", "player"]);
+    }
+  });
+
   test("[R-CITY-032] given every shipped place and no one online, when its crowd stands with its parts marked, then everyone stands where they stood unmarked", () => {
     for (const { file, stage } of shippedStages()) {
       const kept = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
