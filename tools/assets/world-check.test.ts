@@ -9,7 +9,7 @@ import { checkLimits, checkThings, type LimitedFile, WORLD_LIMITS } from "./worl
 const ROOT = join(import.meta.dirname, "..", "..");
 const planted = JSON.parse(readFileSync(join(ROOT, "tools", "__fixtures__", "stripes", "place.json"), "utf8")) as PlaceFile;
 const SLAB = "places/stripes/prop_slab.glb";
-/** The design's slab: its top 4 mm over the ground, under the planted file's slab copy. */
+/** The slab: its top 4 mm over the ground, under the planted file's slab copy. */
 const slabFloors = new Map([[SLAB, { floors: [{ y: 0.004, corners: [[-2, -1.5], [-2, 1.5], [2, 1.5]] as [number, number][] }] }]]);
 
 const street = (over: Partial<LimitedFile> = {}, stage: Partial<NonNullable<LimitedFile["stage"]>> = {}): LimitedFile => ({

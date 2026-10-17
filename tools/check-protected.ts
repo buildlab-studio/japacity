@@ -1,7 +1,7 @@
 // Fails a pull request that changes tests, goldens, schemas, the lint config,
 // or loosens the pending-rules list, unless it carries the
-// approved-test-change label. Agents edit tests to get a pass; this makes
-// that visible and gated. See docs/design/02-quality-and-testing.md section 5.
+// approved-test-change label. Editing a test is the quickest way to a pass;
+// this makes that visible and gated. See docs/design/02-quality-and-testing.md section 5.
 //
 // Usage: pnpm check:protected -- <base-ref>
 // CI sets APPROVED_TEST_CHANGE=1 when the label is present.

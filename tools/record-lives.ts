@@ -1,4 +1,4 @@
-// Records the first-milestone lives as saves for the goldens, by playing
+// Records the golden lives as saves for the goldens, by playing
 // the simulated players on the real content with the world `golden-world`.
 // Run `pnpm record:lives` after a content change moves the world's schedule,
 // then `pnpm bless`. It writes packages/sim/src/goldens/lives.data.ts.

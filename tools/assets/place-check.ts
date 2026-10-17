@@ -26,7 +26,7 @@ export const FRAMES = 20;
 /** The script is timed in blocks of this many frames' updates, and the fastest block counts, as other work on the machine only ever slows one. */
 export const SCRIPT_FRAMES = 150;
 export const SCRIPT_BLOCKS = 3;
-/** Taps routed on each place for the cost of routing (city.md R-CITY-030), as the walk lab measured it. */
+/** Taps routed on each place for the cost of routing (city.md R-CITY-030). */
 export const ROUTE_TAPS = 300;
 const MODES: readonly Mode[] = ["low", "high"];
 

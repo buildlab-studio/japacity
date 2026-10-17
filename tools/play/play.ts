@@ -17,7 +17,7 @@ import { accessHeaders, withAccess } from "../local/access";
 import { doorButton, livesFrom, localCertificate, parseOptions, type PlayOptions, shotName, USAGE } from "./options";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
-/** A mid-range phone, the size the game is built for (docs/design/03-feasibility-and-plan.md, "Screens") and the browser tests use. */
+/** A mid-range phone, the size the game is built for and the browser tests use. */
 const PHONE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
 /** WebGL on the software renderer, so the place draws on a machine with no graphics card. */
 const CHROMIUM_ARGS = ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"];
@@ -167,7 +167,7 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   log(run, `picked ${button}`);
   if (!options.ready) {
     log(run, `age: ${await words(page.locator("[data-door-age]"))}`);
-    // The life's Next goes on to Where you live, where Begin stands (R-PROLOGUE-013 as the door's second design built it).
+    // The life's Next goes on to Where you live, where Begin stands (R-PROLOGUE-013).
     if (!(await tap(run, page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }), "Next to Where you live"))) return false;
   }
   if (!(await appear(page.getByRole("button", { name: /^Begin/ }), LONG))) {

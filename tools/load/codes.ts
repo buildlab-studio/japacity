@@ -1,5 +1,5 @@
-// The emailed code under load (docs/rules/account.md R-ACCOUNT-014, R-ACCOUNT-028;
-// ). The code is never on the way to play, so it is
+// The emailed code under load (docs/rules/account.md R-ACCOUNT-014, R-ACCOUNT-028).
+// The code is never on the way to play, so it is
 // measured apart from the commands: `POST /api/auth/email-otp/send-verification-otp`
 // at a constant arrival rate, each to a new address from a new connection
 // header, so the per-address and per-email limits are not what is measured.
@@ -19,7 +19,7 @@ import { config } from "./load.config";
 import { ms, percentile } from "./pass";
 import type { Check, Verdict } from "./pass";
 
-// no page gives the codes' target rate; 20 a second is a working value, a twentieth of the peak's commands.
+// No rule page gives the codes' target rate; 20 a second is a working value, a twentieth of the peak's commands.
 export const CODES_PER_SECOND = 20;
 
 export interface CodesResult {

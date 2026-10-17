@@ -58,9 +58,9 @@ export const MIX = [
 ] as const;
 
 /**
- * R-LOAD-005: research file 15's day of one player, 10 commands, 53
- * heartbeats and 20 other reads. the other reads are split evenly
- * between view fetches and world fetches.
+ * R-LOAD-005: one player's day, 10 commands, 53 heartbeats and 20 other
+ * reads. The other reads are split evenly between view fetches and world
+ * fetches.
  */
 export const DAY = { commands: 10, heartbeats: 53, reads: 20 } as const;
 

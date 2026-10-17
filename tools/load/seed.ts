@@ -65,8 +65,8 @@ export const RESULTS = fileURLToPath(new URL("./results/", import.meta.url));
 export const MANIFEST = `${RESULTS}accounts.json`;
 
 /**
- * load.md names no pair route; the people milestone's routes have
- * not landed. Seeding probes this path and makes no pairs while it is missing.
+ * load.md names no route that joins a pair. Seeding probes this path and
+ * makes no pairs while it answers 404.
  */
 const PAIR_ROUTE = "/api/pair";
 

@@ -134,7 +134,7 @@ function readAs(path, signedIn) {
   if (res.status !== 200) readFailures.add(1);
 }
 
-/** R-LOAD-005. a heartbeat is the health route; the socket's pings are answered without reaching the Worker (R-CLOCK-024). */
+/** R-LOAD-005. A heartbeat is the health route, since the socket's pings are answered without reaching the Worker (R-CLOCK-024). */
 export function heartbeat() {
   readAs("/api/health", false);
 }

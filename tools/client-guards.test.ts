@@ -1,6 +1,6 @@
 // Two guards on what the site serves and how a page writes itself. React escapes every string it
-// renders, so the one way a player's words could become markup is code that sets raw HTML; none may (the security
-// review's note "Text on the page"). And the served folder holds only what the page uses.
+// renders, so the one way a player's words could become markup is code that sets raw HTML; none may, so a player's
+// words can never run as script on another player's page. And the served folder holds only what the page uses.
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
