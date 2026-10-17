@@ -2,7 +2,8 @@
 // date and the slot picks each person, so the same place on the same day shows the same people and a
 // screenshot taken twice is the same. Never `Math.random`, never a stream of the simulation.
 import type { PoseName } from "@japacity/assets-src/people/poses";
-import type { HomePlace, PlaceEntry } from "@japacity/sim";
+import { PRIVATE_PLACES } from "@japacity/content/private-places";
+import type { PlaceEntry } from "@japacity/sim";
 
 import type { CityTuning, Mode } from "./mode";
 import type { Act } from "./placeFile";
@@ -43,12 +44,6 @@ export interface Sample {
   band: Band;
   people: Shown[];
 }
-
-/** Every home a life may live in (`home.md`): each is someone's, so no player is shown in it. */
-const LIVED_IN: Record<HomePlace, true> = { "place.family-house": true, "place.makoko": true, "place.compound-room": true, "place.hostel-room": true };
-
-/** The places that are someone's home (R-CITY-015): the homes a life lives in, the room abroad, and their room (a friend's or a partner's). */
-export const HOMES: ReadonlySet<string> = new Set([...Object.keys(LIVED_IN), "place.the-room", "place.their-room"]);
 
 /** FNV-1a over the text, 32 bits, unsigned. */
 export function hash(text: string): number {
@@ -160,7 +155,7 @@ export function residents(place: PlaceFacts, pool: readonly Person[], date: stri
 }
 
 /**
- * The sample: residents from the dress mix, then, when online and away from a home (`HOMES`), other players from the
+ * The sample: residents from the dress mix, then, when online and away from a home (`PRIVATE_PLACES`), other players from the
  * presence sample in every slot no part holds, from the last slot back, each tagged with the name the server sent. Given the
  * place's `parts`, the residents who stand at a part spot (`partSpots`) with no one else online are marked
  * with it and keep it.
@@ -189,7 +184,7 @@ export function sampleCrowd(
   // R-CITY-015, R-CITY-032: players before residents in every slot no part holds; R-CITY-036: those seen today after the live ones.
   // No player is ever shown in someone's home, whatever sample the client holds (R-CITY-015).
   const open = people.filter((shown) => shown.part === undefined).map((shown) => shown.slot).reverse();
-  const players = HOMES.has(place.id) ? [] : [...others, ...today];
+  const players = PRIVATE_PLACES.has(place.id) ? [] : [...others, ...today];
   players.slice(0, open.length).forEach((other, index) => {
     const slot = open[index] ?? 0;
     const person = personOfLook(other.look) ?? resident(place, pool, date, slot, city);
