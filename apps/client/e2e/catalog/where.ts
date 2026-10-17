@@ -1,6 +1,6 @@
-// Where the catalog's pictures go: CATALOG_DIR when it is set, else the build notes beside the main checkout, in a folder
-// named for the commit shot (`../the notes commit>/`). The main checkout is found through git,
-// so a worktree writes to the same notes as the main checkout does. Nothing is written under the repository.
+// Where the catalog's pictures go: CATALOG_DIR when it is set, else `.catalog/<short commit>/` at the root of the main
+// checkout, which git ignores. The main checkout is found through git, so a worktree writes to the same folder as the
+// main checkout does.
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
