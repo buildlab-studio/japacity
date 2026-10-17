@@ -99,7 +99,7 @@ test("[R-CITY-021] the credits are reachable from the phone's Settings and credi
   await startReadyLife(page);
   await placeReady(page);
   await passHomeTeach(page);
-  // The city's own menu went with the old month page; its Credits stand in the phone's Settings (R-WORLD-018).
+  // The city has no menu of its own; its Credits stand in the phone's Settings (R-WORLD-018).
   const settings = await openApp(page, "settings");
   const row = settings.locator("[data-credits-row]");
   await row.scrollIntoViewIfNeeded();

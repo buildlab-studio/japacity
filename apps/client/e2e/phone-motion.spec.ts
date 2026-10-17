@@ -1,6 +1,5 @@
-// The phone's grow, shrink and putting away in a real browser at phone size (docs/rules/world.md R-WORLD-018, R-WORLD-023;
-// the maintainer, 17:27: "it is not smooth and doesnt even feel like an expand"). Each is one move of transform
-// and opacity: the handset is laid out once at its new size and never again in flight, the band and the scene under it
+// The phone's grow, shrink and putting away in a real browser at phone size (docs/rules/world.md R-WORLD-018, R-WORLD-023),
+// so each reads as one smooth expand. Each is one move of transform and opacity: the handset is laid out once at its new size and never again in flight, the band and the scene under it
 // never move, and the frame's middle and size go one way only from start to end, so nothing zig-zags. With PREVIEW_DIR
 // set, each motion is also saved as frames every 40 ms, held still on the motion's own clock, and as one strip of them.
 import { join } from "node:path";
@@ -15,7 +14,7 @@ const FRAMES_MS = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400];
 const AWAY_FRAMES_MS = [0, 40, 80, 120, 160, 200];
 /** The frame's flight on the real clock (Phone.tsx GROW_MS). */
 const GROW_MS = 250;
-/** What a motion may change, by the standard (R-WORLD-023). */
+/** What a motion may change (R-WORLD-023). */
 const COMPOSITOR = ["opacity", "transform"];
 
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });

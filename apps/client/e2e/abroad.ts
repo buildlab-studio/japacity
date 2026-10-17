@@ -1,4 +1,4 @@
-// A life landed abroad in a real browser (docs/rules/world.md R-WORLD-038, R-WORLD-039 as amended): no recorded life flies
+// A life landed abroad in a real browser (docs/rules/world.md R-WORLD-038, R-WORLD-039): no recorded life flies
 // to Dubai or Castel Volturno yet, so the life is played here by the sweep's own simulated player on the real content, to
 // the country and a little past it, and kept as the save the browser opens, as the recorded lives are made
 // (tools/record-lives.ts). Then the map, the ride sheet and the things are used as a player would.
@@ -26,7 +26,7 @@ export interface AbroadLife {
 
 /**
  * The sweep's player on the real content with the goldens' world, stopped once the life is in the country with the money
- * asked for in hand, kept as the save the browser opens. Throws if the seed no longer lands there.
+ * asked for in hand, kept as the save the browser opens. Throws if the seed does not land there.
  */
 export function lifeIn(want: AbroadLife): string {
   const { game } = runLife(want.strategy, want.life, want.seed, content, {

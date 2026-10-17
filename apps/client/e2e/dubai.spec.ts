@@ -1,5 +1,5 @@
-// Dubai on the mold in a real browser at phone size (docs/rules/world.md R-WORLD-038, R-WORLD-039 as amended; place.md
-// R-PLACE-010, R-PLACE-012 as amended, R-PLACE-013; streets.md R-STREET-014): a contract life played by the sweep's own
+// Dubai on the mold in a real browser at phone size (docs/rules/world.md R-WORLD-038, R-WORLD-039; place.md
+// R-PLACE-010, R-PLACE-012, R-PLACE-013; streets.md R-STREET-014): a contract life played by the sweep's own
 // player lands in Dubai holding the guard's job, buys the month's zone pass at Union station's Nol machine, rides the bus
 // to the hypermarket for nothing and does the weekly shop, rides the labour bus to the site, where the guard's post says
 // On shift, and back to the camp, and the shuttle asks nothing either way.
@@ -24,12 +24,12 @@ test("[R-WORLD-039] [R-PLACE-012] [R-PLACE-013] [R-STREET-014] given a contract 
   await placeReady(page);
   await clear(page);
 
-  // R-WORLD-038 as amended: Dubai is a painted map of its own; its stops list stays for a screen reader.
+  // R-WORLD-038: Dubai is a painted map of its own; its stops list stays for a screen reader.
   await pickStop(page, "place.metro-station-uae");
   await expect(page.locator("[data-paper-map]").first()).toBeAttached();
   await rideBy(page, "place.metro-station-uae", "bus");
 
-  // R-PLACE-012 as amended: the Nol machine sells the month's zone pass, AED 140.
+  // R-PLACE-012: the Nol machine sells the month's zone pass, AED 140.
   const before = await money(page);
   await doAct(page, "nol-machine", "transit-pass");
   await expect.poll(() => money(page), { timeout: 20_000 }).toBe(before - 140);

@@ -1,6 +1,6 @@
 // The world as the game, in a real browser at phone size (docs/rules/world.md R-WORLD-001 to 008, 024, 025, 030): the
 // default address opens the world with the band and the two thumb buttons and nothing else, nothing under the band; ?classic
-// opens the old month page; the band carries no Next month, its month opens the phone's Calendar; the month is lived and
+// opens the world as any address does; the band carries no Next month, its month opens the phone's Calendar; the month is lived and
 // the bed's Sleep turns it, the results show over the scene and go back to the place; an ask waiting keeps its line under
 // the band and a tap on it opens what is asked. With PREVIEW_DIR set, each step leaves a picture there.
 import { join } from "node:path";

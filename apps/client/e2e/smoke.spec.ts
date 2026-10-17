@@ -80,7 +80,7 @@ async function fanActDone(page: Page, thing: string, activity: string, button: R
     } else if ((await fan.count()) === 0 && (await card.count()) === 0) {
       if (settled) break;
       // A beat more, in case a card is still on its way: on a loaded machine the scene's second report of the walk's end
-      // can open the act's card seconds after the act was done (open: City.tsx's fan walk, fanGoing).
+      // can open the act's card seconds after the act was done (City.tsx's fan walk, fanGoing).
       settled = true;
       await asked.last().waitFor({ state: "visible", timeout: 8000 }).catch(() => undefined);
       continue;
@@ -171,7 +171,7 @@ test("[R-PROLOGUE-014] a life from sixteen fills its page with no card, waits on
   await expect(page.locator("[data-prologue-card]")).toHaveCount(0);
   await expect(handover.locator("[data-family='turned']")).toBeVisible();
   await expect(handover.locator("[data-years] [data-fact]").first()).toBeVisible();
-  // The page prints the family it drew and takes no stamp: none lands before a visa (R-PROLOGUE-009, 014, amended).
+  // The page prints the family it drew and takes no stamp: none lands before a visa (R-PROLOGUE-009, 014).
   await expect(handover.locator("[data-page] [data-field='family']")).not.toContainText("· · ·");
   await expect(handover.locator("[data-page] [data-stamp]")).toHaveCount(0);
   await expectNothingBroken(page, "on the page");
@@ -325,7 +325,7 @@ test("a life abroad answers the December visit and changes money", async ({ page
 /** The japacity figure in the Japa app: its face and size as the browser draws it. */
 async function japaFigure(page: Page): Promise<{ family: string; size: number }> {
   const japa = await openApp(page, "japa");
-  // How ready you are is a bar, never a figure (R-WORLD-019 as the phone wave amended it); the way's name is the figure said large.
+  // How ready you are is a bar, never a figure (R-WORLD-019); the way's name is the figure said large.
   const figure = japa.locator("[data-japa-plan]");
   await expect(figure).toBeVisible();
   return figure.evaluate((element) => {

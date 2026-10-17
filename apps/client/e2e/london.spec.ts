@@ -93,7 +93,7 @@ test("[R-WORLD-039] [R-PLACE-012] [R-STREET-012] given Ada landed in London, whe
   await expect.poll(() => pounds(page), { timeout: 20_000 }).toBe(beforeBus - 45);
   await clear(page);
 
-  // The train still asks its fare by distance (R-PLACE-010 as amended 16 Oct 2026).
+  // The train asks its fare by distance (R-PLACE-010).
   await pickStop(page, "place.office-uk");
   const train = page.locator('[data-ride-sheet="place.office-uk"] [data-way="train"]');
   await expect(train).toContainText("£");

@@ -81,7 +81,7 @@ async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<vo
   }
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   await waitPlace(page, null);
-  // The first brief's card stands on the drawn place, dimmed, until its Let's go (R-CHAPTER-011 as amended 16 Oct 2026).
+  // The first brief's card stands on the drawn place, dimmed, until its Let's go (R-CHAPTER-011).
   await passCards(page);
   // The home says what it is once, on its first entry in a life (R-HOME-008); dismissed, the place is clear.
   const teach = page.locator("[data-home-teach-ok]");
@@ -269,7 +269,7 @@ test("[R-WORLD-005] [R-WORLD-021] given Bode Thomas, when a thing or its quiet m
   await expect(ride).toHaveCount(1);
 });
 
-// The family house opens whole since the home's wave, so the room behind a door is the hub's at Ojuelegba.
+// The family house opens whole, so the room behind a door is the hub's at Ojuelegba.
 test("[R-WORLD-013] given Ojuelegba, when the hub's Go in is chosen, then the screen is dark for under half a second and the room opens as its own scene with the door to step outside", async ({ page }) => {
   test.setTimeout(300_000);
   await startWorld(page);
@@ -308,7 +308,7 @@ test("[R-WORLD-013] given Ojuelegba, when the hub's Go in is chosen, then the sc
   // 220 ms. A frame gap longer than that (the suite's other workers starving the software renderer; the GPU stalls
   // Chromium logs) can hide the whole of it from a watcher that samples on frames, while the cut's own timers run on
   // time. A dark never seen is accepted only then, and the cut is read by its shade and lift, which the timers set.
-  // 11 Oct 2026: under load the fade's transition itself runs late, so the shade never reaches full dark before the lift
+  // Under load the fade's transition itself runs late, so the shade never reaches full dark before the lift
   // while every frame is sampled (a stall of about 100 ms); the cut is then read by the shade it did reach and its span.
   if (cut.darkFrom < 0) {
     expect(cut.gap > 2 * CUT_MS - FADE_MS || cut.peak >= 0.5).toBe(true);
@@ -324,7 +324,7 @@ test("[R-WORLD-013] given Ojuelegba, when the hub's Go in is chosen, then the sc
   expect(room?.fits).toEqual({ width: true, offScreen: [] });
   await doAct(page, "door", "out");
   // Back outside: the hub stands again, its mark drawn (hidden under the step's marker when the step points at it,
-  // R-WORLD-003 as amended 13 Oct 2026), and the room's door is gone.
+  // R-WORLD-003), and the room's door is gone.
   await expect(page.locator('[data-mark="hub"]')).toBeAttached({ timeout: 60_000 });
   await expect(page.locator('[data-mark="door"]')).toHaveCount(0);
 });
@@ -343,7 +343,7 @@ for (const mode of ["low", "high"] as const) {
       // R-WORLD-012: the shadow carries a bias and a normal bias and reaches over the place's width, not the city's.
       expect(seen?.shadow?.bias ?? 0, id).toBeLessThan(0);
       expect(seen?.shadow?.normalBias ?? 0, id).toBeGreaterThan(0);
-      // A place narrower than 16 m keeps the scene's least reach of 8 m either side (CityScene.tsx, since the raised shot),
+      // A place narrower than 16 m keeps the scene's least reach of 8 m either side (CityScene.tsx),
       // which a wide home seen whole straight down its length is (decision 0040); the city's reach is 24.
       expect(seen?.shadow?.reach ?? Infinity, id).toBeLessThanOrEqual(Math.max(seen?.shot?.width ?? 0, 16) / 2 + 4 + 1e-6);
       expect(seen?.shadow?.reach ?? Infinity, id).toBeLessThan(24);

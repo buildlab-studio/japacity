@@ -185,7 +185,7 @@ test("[R-ACCOUNT-023] a guest secures the life later by a code sent to an email,
   await sheet.getByLabel("The 6-digit code").fill("123456");
   await sheet.getByRole("button", { name: "Keep my life" }).click();
   await expect(page.getByText("Done. This life is yours on any phone now.")).toBeVisible();
-  // kept, the sheet says only that.
+  // Kept, the sheet says only that.
   const kept = page.getByRole("dialog", { name: "Kept" });
   await expect(kept).toBeVisible();
   await expect(kept.getByRole("button", { name: "Not now" })).toHaveCount(0);

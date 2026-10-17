@@ -1,5 +1,5 @@
-// Calgary on the mold in a real browser at phone size (docs/rules/world.md R-WORLD-038, R-WORLD-039 as amended; place.md
-// R-PLACE-010, R-PLACE-012 as amended; streets.md R-STREET-013, R-STREET-014): a points life played by the sweep's own
+// Calgary on the mold in a real browser at phone size (docs/rules/world.md R-WORLD-038, R-WORLD-039; place.md
+// R-PLACE-010, R-PLACE-012; streets.md R-STREET-013, R-STREET-014): a points life played by the sweep's own
 // `canada` player lands in Calgary and takes the warehouse job, buys the month's transit pass at the CTrain station's ticket
 // machine, rides the bus to the superstore for nothing and does the weekly shop, rides the CTrain to the warehouse, where
 // the clock-in says On shift, and rides home, and the pass covers every ride of the month.
@@ -24,12 +24,12 @@ test("[R-WORLD-039] [R-PLACE-012] [R-STREET-013] [R-STREET-014] given a points l
   await placeReady(page);
   await clear(page);
 
-  // R-WORLD-038 as amended: Calgary is a painted map of its own; its stops list stays for a screen reader.
+  // R-WORLD-038: Calgary is a painted map of its own; its stops list stays for a screen reader.
   await pickStop(page, "place.ctrain-station-ca");
   await expect(page.locator("[data-paper-map]").first()).toBeAttached();
   await rideBy(page, "place.ctrain-station-ca", "bus");
 
-  // R-PLACE-012 as amended: the ticket machine sells the month's transit pass, C$118.
+  // R-PLACE-012: the ticket machine sells the month's transit pass, C$118.
   const before = await money(page);
   await doAct(page, "ticket-machine", "transit-pass");
   await expect.poll(() => money(page), { timeout: 20_000 }).toBe(before - 118);

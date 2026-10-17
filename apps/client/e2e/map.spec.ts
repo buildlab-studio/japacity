@@ -58,7 +58,7 @@ async function startLife(page: Page): Promise<void> {
     await page.waitForTimeout(250);
   }
   await page.waitForSelector("[data-band]", { timeout: 30_000 });
-  // The first brief's card stands on the drawn place until its Let's go (R-CHAPTER-011 as amended 16 Oct 2026), so the
+  // The first brief's card stands on the drawn place until its Let's go (R-CHAPTER-011), so the
   // place is waited for and the card passed before any thumb is tapped.
   await page.waitForFunction(() => (window as unknown as { __city?: CityProbe }).__city?.ready === true, null, { timeout: 90_000 });
   await passCards(page);
@@ -102,15 +102,15 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   expect(lit?.route?.[(lit.route.length || 1) - 1]).toEqual(there?.at);
   expect(lit?.channel).toBe(here?.card === there?.card ? "card" : "strip");
   await expect(page.locator(`[data-route-line]`).first()).toBeVisible();
-  // The button says the ride and its fare, the balance before struck through under it with the balance after (decision 0036; "left" is gone).
+  // The button says the ride and its fare, the balance before struck through under it with the balance after (decision 0036), never "left".
   await expect(page.locator("[data-ride-main]")).toContainText("₦");
   await expect(page.locator("[data-ride-main]")).not.toContainText("left");
   await expect(page.locator("[data-balance-before]")).toBeVisible();
   await expect(page.locator("[data-balance-after]")).toBeVisible();
   await shot(page, "05-stop-picked");
 
-  // The ride: a short scene with its band and Skip, then the place opens with its name on the band. The corner no longer
-  // tells it: since the talk budget the corner holds only the player's own act's answer (R-WORLD-026).
+  // The ride: a short scene with its band and Skip, then the place opens with its name on the band. The corner does
+  // not tell it: the corner holds only the player's own act's answer (R-WORLD-026).
   await page.locator('[data-way="danfo"]').click();
   await page.locator("[data-ride-main]").click();
   await expect(page.locator("[data-ride]")).toBeVisible();

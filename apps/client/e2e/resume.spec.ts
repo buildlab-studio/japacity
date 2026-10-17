@@ -181,8 +181,8 @@ test("[R-ENGINE-015] Begin with no answer shows the card over the door, a reload
 
 test("[R-ENGINE-015] a slow start for a player whose life is kept on this device says Still opening, and a view that never comes shows the card with Retry", async ({ page }, info) => {
   const faked = await fakeServer(page);
-  // "Opening your life" and its "Still opening..." are for a player this device keeps a life for (R-ENGINE-015, amended
-  // 11 Oct 2026); a new visitor sees the start screen's frame instead, as the next test proves.
+  // "Opening your life" and its "Still opening..." are for a player this device keeps a life for (R-ENGINE-015);
+  // a new visitor sees the start screen's frame instead, as the next test proves.
   await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
   let slow = true;
   // Each read waits six seconds before it fails, so the second line has its turn before the card.

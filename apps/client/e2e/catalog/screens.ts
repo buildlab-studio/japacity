@@ -125,7 +125,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "london-fan", what: "A London thing's fan: Rye Lane's chicken shop" },
   { key: "london-colleague", what: "A colleague at the care home's tea point says a line" },
   { key: "london-pass", what: "The bus pass bought at the station's ticket machine" },
-  // Dubai on the mold (world.md R-WORLD-039 as amended): a contract life played to Dubai by the sweep's own player.
+  // Dubai on the mold (world.md R-WORLD-039): a contract life played to Dubai by the sweep's own player.
   { key: "place-deira-day", what: "Deira, Dubai's street: the exchange house, the African foods shop, the cafeteria, the typing centre, the barber" },
   { key: "place-deira-night", what: "Deira by night" },
   { key: "place-naif-day", what: "Naif: the souq's stall, the tailor, the laundry" },
@@ -184,7 +184,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "ride-train-above", what: "The train ride: from above" },
   { key: "ride-train-window", what: "The train ride: the carriage window" },
   { key: "ride-train-seat", what: "The train ride: the seat" },
-  // Dubai's map and its rides (R-WORLD-038 and R-WORLD-039 as amended).
+  // Dubai's map and its rides (R-WORLD-038 and R-WORLD-039).
   { key: "map-dubai", what: "Dubai's painted map, folded" },
   { key: "map-dubai-open", what: "The whole map of Dubai open: the creek, the metro, the camp, the site" },
   { key: "map-dubai-ride-sheet", what: "The site picked in Dubai: the bus at AED 0, site bus" },
