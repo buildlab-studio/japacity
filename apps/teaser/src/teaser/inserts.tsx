@@ -79,13 +79,13 @@ function RouteCard({ tile, title, line, tint, top, delay }: { tile: string; titl
   const p = land(frame, fps, delay);
   return (
     <div style={{ position: "absolute", left: 160, top, transform: `translateX(${String((1 - p) * -1400)}px)` }}>
-      <Card style={{ width: 820, padding: 26, display: "flex", alignItems: "center", gap: 30 }}>
-        <div style={{ width: 150, height: 150, borderRadius: 30, background: tint, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Sticker tile={tile} size={130} delay={delay + 4} edge={6} />
+      <Card style={{ width: 820, padding: 22, display: "flex", alignItems: "center", gap: 30 }}>
+        <div style={{ width: 124, height: 124, borderRadius: 28, background: tint, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Sticker tile={tile} size={108} delay={delay + 4} edge={6} />
         </div>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 52 }}>{title}</div>
-          <div style={{ fontWeight: 500, fontSize: 32, color: DAY.ink2, marginTop: 4 }}>{line}</div>
+          <div style={{ fontWeight: 700, fontSize: 48 }}>{title}</div>
+          <div style={{ fontWeight: 500, fontSize: 30, color: DAY.ink2, marginTop: 4 }}>{line}</div>
         </div>
       </Card>
     </div>
@@ -106,9 +106,10 @@ export function WayOut() {
   const { fps } = useVideoConfig();
   return (
     <Sky>
-      <RouteCard tile="prop_travel-bag" title="Care work in the UK" line="Your papers and a sponsor" tint={TINT.people} top={190} delay={2} />
-      <RouteCard tile="prop_laptop-desk" title="A master's" line="A school that says yes" tint={TINT.study} top={430} delay={6} />
-      <RouteCard tile="prop_flight-board" title="The Gulf" line="A job before the flight" tint={TINT.food} top={670} delay={10} />
+      <RouteCard tile="prop_papers-box" title="A master's in the UK" line="A school that says yes" tint={TINT.money} top={130} delay={2} />
+      <RouteCard tile="prop_laptop-desk" title="A tech job abroad" line="A company that sponsors you" tint={TINT.study} top={352} delay={6} />
+      <RouteCard tile="prop_travel-bag" title="Health care in the UK" line="Your registration and a sponsor" tint={TINT.people} top={574} delay={10} />
+      <RouteCard tile="prop_flight-board" title="The Gulf" line="A job before the flight" tint={TINT.food} top={796} delay={14} />
       {CONFETTI.map((bit) => {
         const p = pop(frame, fps, bit.d);
         return <div key={`${String(bit.x)}-${String(bit.y)}`} style={{ position: "absolute", left: bit.x, top: bit.y, width: 46, height: 22, borderRadius: 8, background: bit.c, boxShadow: "0 0 0 5px #fff", transform: `translateY(${String((1 - p) * 180)}px) rotate(${String(bit.r * p)}deg) scale(${String(p)})` }} />;

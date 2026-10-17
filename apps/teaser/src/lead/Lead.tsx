@@ -280,7 +280,7 @@ function BigChip({ children, tint, delay = 0, tilt = -4, style, tall = {} }: { c
 }
 
 interface WorldProps {
-  readonly clip: "wide-ride" | "wide-street" | "wide-day" | "wide-sofa" | "wide-night";
+  readonly clip: "wide-ride" | "wide-street" | "wide-makoko" | "wide-day" | "wide-sofa" | "wide-night";
   readonly from?: number;
   readonly rate?: number;
   readonly push?: number;
@@ -398,29 +398,36 @@ function Passbook({ delay = 0 }: { delay?: number }) {
   return <div style={{ position: "absolute", left: 90, bottom: 60, transform: `translateY(${String((1 - card) * 900)}px) rotate(${String(-3 * card)}deg)` }}>{book}</div>;
 }
 
-/** A way out's card: its height at the landscape's size, and its scale in the tall frame, where the three stack. */
-const ROUTE = { width: 700, height: 166, tall: 0.92 } as const;
+/**
+ * A way out's card at each frame's measures: in the wide frame the four stand down the right; in the tall one they stand
+ * wider and lower, four in the cards' zone, their titles still big enough to read on a phone.
+ */
+const ROUTE = {
+  wide: { width: 640, height: 150, tile: 108, title: 42, line: 27, pad: 18, gap: 22 },
+  tall: { width: 920, height: 120, tile: 96, title: 42, line: 28, pad: 12, gap: 26 },
+} as const;
 
 function RouteCard({ tile, title, line, tint, top, tallTop, delay }: { tile: string; title: string; line: string; tint: string; top: number; tallTop: number; delay: number }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const p = land(frame, fps, delay, 16);
+  const tall = useFrameShape() === "tall";
+  const size = tall ? ROUTE.tall : ROUTE.wide;
   const card = (
-    <Card style={{ boxSizing: "border-box", width: ROUTE.width, height: ROUTE.height, padding: 20, display: "flex", alignItems: "center", gap: 24 }}>
-      <div style={{ width: 120, height: 120, borderRadius: 26, background: tint, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Sticker tile={tile} size={104} delay={delay + 4} edge={5} />
+    <Card style={{ boxSizing: "border-box", width: size.width, height: size.height, padding: size.pad, display: "flex", alignItems: "center", gap: size.gap }}>
+      <div style={{ flex: "none", width: size.tile, height: size.tile, borderRadius: 24, background: tint, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Sticker tile={tile} size={Math.round(size.tile * 0.86)} delay={delay + 4} edge={5} />
       </div>
-      <div style={{ fontFamily: FONT }}>
-        <div style={{ fontWeight: 700, fontSize: 44 }}>{title}</div>
-        <div style={{ fontWeight: 500, fontSize: 28, color: DAY.ink2, marginTop: 2 }}>{line}</div>
+      <div style={{ fontFamily: FONT, lineHeight: 1.15, whiteSpace: "nowrap" }}>
+        <div style={{ fontWeight: 700, fontSize: size.title }}>{title}</div>
+        <div style={{ fontWeight: 500, fontSize: size.line, color: DAY.ink2, marginTop: 2 }}>{line}</div>
       </div>
     </Card>
   );
-  if (useFrameShape() === "tall") {
-    const width = ROUTE.width * ROUTE.tall;
+  if (tall) {
     return (
-      <Piece zone="cards" name={`way out: ${title}`} left={(TALL_W - width) / 2} top={tallTop} width={width} height={ROUTE.height * ROUTE.tall} style={{ transform: `translateX(${String((1 - p) * 1000)}px) rotate(${String((1 - p) * 6)}deg)` }}>
-        <div style={{ transformOrigin: "0 0", transform: `scale(${String(ROUTE.tall)})` }}>{card}</div>
+      <Piece zone="cards" name={`way out: ${title}`} left={(TALL_W - size.width) / 2} top={tallTop} width={size.width} height={size.height} style={{ transform: `translateX(${String((1 - p) * 1000)}px) rotate(${String((1 - p) * 6)}deg)` }}>
+        {card}
       </Piece>
     );
   }
@@ -429,11 +436,11 @@ function RouteCard({ tile, title, line, tint, top, tallTop, delay }: { tile: str
 
 /** The bits that fly when the ways out land: where each stands in the wide frame, and round Ada in the tall one. */
 const CONFETTI = [
-  { x: 1180, y: 160, tx: 600, ty: 600, c: "#f2b705", r: -20, d: 30 },
-  { x: 1500, y: 120, tx: 990, ty: 590, c: "#c2185b", r: 25, d: 32 },
+  { x: 1130, y: 170, tx: 600, ty: 600, c: "#f2b705", r: -20, d: 30 },
+  { x: 980, y: 250, tx: 990, ty: 590, c: "#c2185b", r: 25, d: 32 },
   { x: 1120, y: 420, tx: 580, ty: 900, c: "#2a8656", r: 40, d: 34 },
-  { x: 1820, y: 520, tx: 1000, ty: 880, c: "#2c3f87", r: -35, d: 31 },
-  { x: 1380, y: 60, tx: 830, ty: 540, c: "#d4602e", r: 10, d: 33 },
+  { x: 1150, y: 660, tx: 1000, ty: 880, c: "#2c3f87", r: -35, d: 31 },
+  { x: 840, y: 190, tx: 830, ty: 540, c: "#d4602e", r: 10, d: 33 },
 ];
 
 function Bit({ bit }: { bit: (typeof CONFETTI)[number] }) {
@@ -677,7 +684,7 @@ const HOUSE_UP: Point = [0, -150];
  * how it stands; a bubble's `tall` is its speaker's head in that recording (at frames of the shot where either moves).
  */
 const SHOTS: readonly Shot[] = [
-  { frames: 100, act: "open", node: (
+  { frames: 96, act: "open", node: (
     <>
       <MeetAda />
       <Sfx name="pop.wav" at={6} volume={0.7} />
@@ -687,7 +694,7 @@ const SHOTS: readonly Shot[] = [
       <Sfx name="swish.wav" at={52} volume={0.4} />
     </>
   ) },
-  { frames: 56, act: "city", node: (
+  { frames: 44, act: "city", node: (
     // The danfo alongside, then from above, where the phone's view puts it low: that view drawn larger and higher.
     <World clip="wide-ride" from={30} push={0.08} tall={{ clip: "tall-ride", from: 12, after: { frame: 26, scale: 1.4, at: [-150, -768] } }}>
       <Bubble name="Conductor" x={900} y={720} delay={6} size={44} tall={{ head: [[25, 440, 690], [26, 470, 1350]], width: 840 }}>
@@ -698,7 +705,7 @@ const SHOTS: readonly Shot[] = [
       <Sfx name="pop.wav" at={7} volume={0.8} />
     </World>
   ) },
-  { frames: 46, act: "city", node: (
+  { frames: 40, act: "city", node: (
     <World clip="wide-ride" from={132} rate={0.97} push={0.05} tall={{ clip: "tall-ride", from: 131, rate: 0.96, push: 0.03 }}>
       <Bubble name="Ada" x={1500} y={330} delay={4} size={44} width={720} tall={{ head: [1040, 690], width: 760 }}>
         Who get change for one thousand?
@@ -706,12 +713,24 @@ const SHOTS: readonly Shot[] = [
       <BigChip tint={TINT.food} delay={14} tilt={-5}>
         Danfo ₦300
       </BigChip>
-      <Sfx name="engine.m4a" volume={0.34} from={56} />
+      <Sfx name="engine.m4a" volume={0.34} from={44} />
       <Sfx name="pop.wav" at={5} volume={0.8} />
       <Sfx name="pop.wav" at={15} volume={0.6} />
     </World>
   ) },
-  { frames: 84, act: "city", node: (
+  { frames: 42, act: "city", node: (
+    // Makoko by morning, another life the door can start: the homes on stilts over the lagoon, the plank walk, the canoes;
+    // in the tall frame drawn a little closer round the fish racks, the bridge under the band.
+    <World clip="wide-makoko" from={6} push={0.08} toward={[0.48, 0.52]} tall={{ clip: "tall-makoko", from: 6, scale: 1.12, at: [-60, -118], push: 0.04, toward: [495, 975] }}>
+      <Band name="Bisi" when="Morning" where="Makoko" naira="₦500,000" age="21 yrs 1 mo" delay={0} />
+      <Bubble name="Fish seller" mark="F" x={919} y={556} delay={6} size={42} width={780} tall={{ head: [495, 975], width: 760 }}>
+        Fish don ready! Come buy o.
+      </Bubble>
+      <Sfx name="crowd.m4a" volume={0.4} />
+      <Sfx name="pop.wav" at={7} volume={0.8} />
+    </World>
+  ) },
+  { frames: 78, act: "city", node: (
     <World clip="wide-day" from={40} push={0.05} toward={[0.4, 0.3]} tall={{ clip: "tall-day", from: 40, at: HOUSE_UP, push: 0.03, toward: [540, 700] }}>
       <Bubble name="Mama" x={1440} y={330} delay={10} size={42} width={700} tall={{ head: [[26, 665, 862], [32, 572, 965]], width: 860 }}>
         Your uncle called. When are you going?
@@ -737,7 +756,7 @@ const SHOTS: readonly Shot[] = [
       <Sfx name="pop.wav" at={31} volume={0.8} />
     </World>
   ) },
-  { frames: 72, act: "city", node: (
+  { frames: 68, act: "city", node: (
     // The street seen from above, its people low in the phone's view: drawn larger and higher, its empty road under the bars.
     <World clip="wide-street" from={0} push={0.12} toward={[0.5, 0.7]} tall={{ clip: "tall-street", from: 0, scale: 1.3, at: [-60, -576], push: 0.05, toward: [420, 900] }}>
       <Band name="Ada" when="Morning" where="Ojuelegba" naira="₦498,200" age="23 yrs 2 mo" delay={0} />
@@ -757,7 +776,7 @@ const SHOTS: readonly Shot[] = [
       <Sfx name="pop.wav" at={45} volume={0.6} />
     </World>
   ) },
-  { frames: 80, act: "city", node: (
+  { frames: 76, act: "city", node: (
     <World clip="wide-day" from={110} push={0.05} toward={[0.5, 0.3]} tall={{ clip: "tall-day", from: 110, at: [0, -130], push: 0.03, toward: [540, 700] }}>
       <Band name="Ada" when="Afternoon" where="The family house" naira="₦2,500,000" age="24 yrs 6 mo" delay={0} />
       <Passbook delay={4} />
@@ -778,20 +797,22 @@ const SHOTS: readonly Shot[] = [
   { frames: 76, act: "turn", node: (
     <World clip="wide-day" from={10} push={0.05} toward={[0.3, 0.5]} tall={{ clip: "tall-day", from: 10, at: HOUSE_UP, push: 0.04, toward: [540, 700] }}>
       <Band name="Ada" when="Evening" where="The family house" naira="₦3,120,000" age="25 yrs 1 mo" delay={0} />
-      <RouteCard tile="prop_travel-bag" title="Care work in the UK" line="Your papers and a sponsor" tint={TINT.people} top={170} tallTop={1040} delay={2} />
-      <RouteCard tile="prop_laptop-desk" title="A master's" line="A school that says yes" tint={TINT.study} top={360} tallTop={1203} delay={8} />
-      <RouteCard tile="prop_flight-board" title="The Gulf" line="A job before the flight" tint={TINT.food} top={550} tallTop={1366} delay={14} />
+      <RouteCard tile="prop_papers-box" title="A master's in the UK" line="A school that says yes" tint={TINT.money} top={166} tallTop={1006} delay={2} />
+      <RouteCard tile="prop_laptop-desk" title="A tech job abroad" line="A company that sponsors you" tint={TINT.study} top={332} tallTop={1142} delay={8} />
+      <RouteCard tile="prop_travel-bag" title="Health care in the UK" line="Your registration and a sponsor" tint={TINT.people} top={498} tallTop={1278} delay={14} />
+      <RouteCard tile="prop_flight-board" title="The Gulf" line="A job before the flight" tint={TINT.food} top={664} tallTop={1414} delay={20} />
       {CONFETTI.map((bit) => (
         <Bit key={`${String(bit.x)}-${String(bit.y)}`} bit={bit} />
       ))}
       <Cheer />
-      <BigChip tint={TINT.study} delay={20} style={{ left: 640, bottom: 80 }} tall={{ top: 340, tilt: -3 }}>
+      <BigChip tint={TINT.study} delay={24} style={{ left: 640, bottom: 80 }} tall={{ top: 340, tilt: -3 }}>
         Find your way out.
       </BigChip>
       <Sfx name="swish.wav" at={2} volume={0.4} />
       <Sfx name="swish.wav" at={8} volume={0.4} />
       <Sfx name="swish.wav" at={14} volume={0.4} />
-      <Sfx name="pop.wav" at={21} volume={0.6} />
+      <Sfx name="swish.wav" at={20} volume={0.4} />
+      <Sfx name="pop.wav" at={25} volume={0.6} />
       <Sfx name="chime.wav" at={28} volume={0.9} />
       <Sfx name="pop.wav" at={31} volume={0.5} />
     </World>
@@ -808,12 +829,12 @@ const SHOTS: readonly Shot[] = [
       <Sfx name="pop.wav" at={45} volume={0.7} />
     </AbsoluteFill>
   ) },
-  { frames: 86, act: "hand", node: (
+  { frames: 80, act: "hand", node: (
     <>
       <Leaving />
       <Sfx name="jet.m4a" at={4} volume={0.5} />
       <Sfx name="swish.wav" at={10} volume={0.4} />
-      <Sfx name="pop.wav" at={57} volume={0.7} />
+      <Sfx name="pop.wav" at={51} volume={0.7} />
     </>
   ) },
   { frames: 96, act: "end", node: (

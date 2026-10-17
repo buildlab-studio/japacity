@@ -43,8 +43,16 @@ const CLEAN = [
   "html[data-teaser-clean='fan'] [data-fan], html[data-teaser-clean='fan'] [data-fan] * { visibility: visible !important; }",
 ].join("\n");
 const FFMPEG = process.env.FFMPEG ?? "ffmpeg";
-/** The life's name, typed on the front door, so every shot that shows it says a name. */
-const NAME = "Ada";
+/**
+ * The lives the front door makes, each by its name typed and its tile picked: the nurse every shot of the family house
+ * starts from (the plane's flight in the teaser goes to London), and the child of the water, whose life starts in Makoko
+ * (R-PROLOGUE-012).
+ */
+const LIVES = {
+  nurse: { name: "Ada", tile: "The nurse", kept: "kept.json" },
+  water: { name: "Bisi", tile: "The child of the water", kept: "kept-water.json" },
+} as const;
+type Life = keyof typeof LIVES;
 
 interface Options {
   readonly port: number;
@@ -165,17 +173,16 @@ async function session(browser: Browser, base: string, name: string, kept: Kept 
 type Marks = Partial<Record<ClipName, readonly [number, number]>>;
 
 /** The front door's three sticker screens with the name typed, the page and the world opening. Returns what the device kept. */
-async function door(s: Session): Promise<Kept> {
+async function door(s: Session, life: Life): Promise<Kept> {
   const { page } = s;
   await page.goto("/?sleep=2");
   const next = page.getByRole("button", { name: /^Next/ }).first();
   await next.waitFor({ timeout: 60_000 });
-  await page.getByRole("textbox", { name: "Your name" }).fill(NAME);
+  await page.getByRole("textbox", { name: "Your name" }).fill(LIVES[life].name);
   await next.click();
   const tile = page.locator("[data-gate='life'] [role='radio']");
   await tile.first().waitFor({ timeout: 20_000 });
-  // The nurse, whose way out is care work in the UK: the plane's flight in the teaser goes to London.
-  await page.getByRole("radio", { name: "The nurse", exact: true }).click().catch(() => tile.nth(1).click());
+  await page.getByRole("radio", { name: LIVES[life].tile, exact: true }).click().catch(() => tile.nth(1).click());
   await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
   await page.getByRole("button", { name: /^Begin/ }).click();
   const go = page.locator("[data-page-handover]").getByRole("button", { name: "Go", exact: true });
@@ -256,6 +263,23 @@ async function ride(s: Session, marks: Marks, frame: "wide" | "tall"): Promise<v
   marks[`${frame}-street`] = [streetFrom, s.now()];
 }
 
+/**
+ * Makoko alone by morning, wide or tall: the homes on stilts over the lagoon, the plank walk and the canoes going by. By
+ * day, where the water, the stilts and the canoes stand apart; the night paint draws them as one dark mass.
+ */
+async function makoko(s: Session, marks: Marks, frame: "wide" | "tall"): Promise<void> {
+  const { page } = s;
+  await page.goto("/?clock=morning&paint=day");
+  await placeReady(page, "place.makoko");
+  await passCards(page);
+  await quiet(page);
+  await clean(page, "on");
+  await page.waitForTimeout(800);
+  const from = s.now();
+  await page.waitForTimeout(4500);
+  marks[`${frame}-makoko`] = [from, s.now()];
+}
+
 /** The bed's Sleep on the phone, the night going by and the results morning over the scene. */
 async function morning(s: Session, marks: Marks): Promise<void> {
   const { page } = s;
@@ -306,7 +330,7 @@ async function stills(browser: Browser, base: string, kept: Kept): Promise<void>
   await context.close();
 }
 
-const SESSIONS: Record<Exclude<SessionName, "door">, { shape: Shape; play: (s: Session, marks: Marks) => Promise<void> }> = {
+const SESSIONS: Record<Exclude<SessionName, "door">, { shape: Shape; life?: Life; play: (s: Session, marks: Marks) => Promise<void> }> = {
   "wide-day": { shape: "wide", play: (s, marks) => house(s, marks, "day", "wide") },
   "wide-night": { shape: "wide", play: (s, marks) => house(s, marks, "night", "wide") },
   "wide-sofa": { shape: "wide", play: (s, marks) => sofa(s, marks, "wide") },
@@ -316,6 +340,8 @@ const SESSIONS: Record<Exclude<SessionName, "door">, { shape: Shape; play: (s: S
   "tall-night": { shape: "tall", play: (s, marks) => house(s, marks, "night", "tall") },
   "tall-sofa": { shape: "tall", play: (s, marks) => sofa(s, marks, "tall") },
   "tall-ride": { shape: "tall", play: (s, marks) => ride(s, marks, "tall") },
+  "wide-makoko": { shape: "wide", life: "water", play: (s, marks) => makoko(s, marks, "wide") },
+  "tall-makoko": { shape: "tall", life: "water", play: (s, marks) => makoko(s, marks, "tall") },
 };
 
 async function main(): Promise<void> {
@@ -338,7 +364,6 @@ async function main(): Promise<void> {
     return open.browser;
   };
   mkdirSync(WORK, { recursive: true });
-  const keptPath = join(WORK, "kept.json");
   const marks: Marks = {};
   const cut = async (name: SessionName, s: Session) => {
     const frames = await s.stop();
@@ -354,16 +379,28 @@ async function main(): Promise<void> {
     }
   };
   try {
-    let kept = existsSync(keptPath) ? (JSON.parse(readFileSync(keptPath, "utf8")) as Kept) : null;
-    if (wanted("door") || kept === null) {
-      const s = await session(await browserFor("phone"), base, "door", null, "phone");
-      kept = await door(s);
-      writeFileSync(keptPath, JSON.stringify(kept));
-      await cut("door", s);
-    }
-    if (wanted("stills")) await stills(await browserFor("phone"), base, kept);
-    for (const [name, { shape, play }] of Object.entries(SESSIONS) as [Exclude<SessionName, "door">, (typeof SESSIONS)[keyof typeof SESSIONS]][]) {
+    // Each life's door is played once and kept in the work folder, so a session recorded again starts from the same life.
+    const lives: Partial<Record<Life, Kept>> = {};
+    const keptOf = async (life: Life): Promise<Kept> => {
+      const known = lives[life];
+      if (known !== undefined) return known;
+      const path = join(WORK, LIVES[life].kept);
+      const doorWanted = life === "nurse" && wanted("door");
+      let kept = !doorWanted && existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")) as Kept) : null;
+      if (kept === null) {
+        const s = await session(await browserFor("phone"), base, `door-${life}`, null, "phone");
+        kept = await door(s, life);
+        writeFileSync(path, JSON.stringify(kept));
+        await cut("door", s);
+      }
+      lives[life] = kept;
+      return kept;
+    };
+    if (wanted("door")) await keptOf("nurse");
+    if (wanted("stills")) await stills(await browserFor("phone"), base, await keptOf("nurse"));
+    for (const [name, { shape, life, play }] of Object.entries(SESSIONS) as [Exclude<SessionName, "door">, (typeof SESSIONS)[keyof typeof SESSIONS]][]) {
       if (!wanted(name)) continue;
+      const kept = await keptOf(life ?? "nurse");
       const s = await session(await browserFor(shape), base, name, kept, shape);
       try {
         await play(s, marks);

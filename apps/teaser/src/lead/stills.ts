@@ -15,10 +15,10 @@ export interface Still {
 
 export const STILLS: readonly Still[] = [
   { name: "portrait-open", id: "LeadPortrait", frame: 92, act: "open" },
-  { name: "portrait-street", id: "LeadPortrait", frame: 388, act: "city" },
-  { name: "portrait-turn", id: "LeadPortrait", frame: 552, act: "turn" },
-  { name: "portrait-hand", id: "LeadPortrait", frame: 650, act: "hand" },
+  { name: "portrait-street", id: "LeadPortrait", frame: 400, act: "city" },
+  { name: "portrait-turn", id: "LeadPortrait", frame: 558, act: "turn" },
+  { name: "portrait-hand", id: "LeadPortrait", frame: 656, act: "hand" },
   { name: "portrait-end", id: "LeadPortrait", frame: 830, act: "end" },
-  { name: "portrait-feed", id: "LeadPortrait", frame: 552, act: "turn", feed: true },
+  { name: "portrait-feed", id: "LeadPortrait", frame: 558, act: "turn", feed: true },
   { name: "landscape-end", id: "Lead", frame: 830, act: "end" },
 ];

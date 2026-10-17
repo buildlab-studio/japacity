@@ -83,7 +83,7 @@ describe("the decision in its two frames", () => {
 
   test("given the portrait teaser, when every shot of the city and the turn is mounted at its middle, then the phone's own recording fills the frame and no wide one is drawn", () => {
     const shots = LEAD_SHOTS.filter((shot) => shot.act === "city" || shot.act === "turn");
-    expect(shots.length).toBe(7);
+    expect(shots.length).toBe(8);
     for (const shot of shots) {
       const page = portraitAt(shot.from + Math.floor(shot.frames / 2));
       const picture = page.querySelector<HTMLElement>("[data-picture]");
