@@ -1,4 +1,4 @@
-// The wallet in the Bank (docs/rules/abroad.md R-ABROAD-001, 006, 008; wallet.md R-WALLET-005). The pockets, the two
+// The wallet in the Bank (docs/rules/abroad-money.md R-ABROAD-001, 006, 008; wallet.md R-WALLET-005). The pockets, the two
 // rates, a change, a move, what is on its way, sending money home
 // and the naira the family's requests are paid from are the Bank's, each assertion against the Bank's own element.
 import { content, text } from "@japacity/content";
