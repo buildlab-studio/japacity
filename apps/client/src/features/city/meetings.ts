@@ -78,12 +78,14 @@ export function roomFor(crowd: number, standing: number, cap: number): number {
 
 /**
  * The crowd with `count` people fewer, so those standing at a thing take their places (R-WORLD-011): residents
- * with no part first, then players, the last first each time. A resident at a part is never taken (R-CITY-032).
+ * with no part first, then players, the last first each time. A resident at a part goes only once no one else is
+ * left to go, the highest spot first, so the scope's cap always holds (R-CITY-032).
  */
 export function makeRoom<T extends { kind: "resident" | "player"; part?: number }>(people: readonly T[], count: number): T[] {
   const filler = people.filter((shown) => shown.kind === "resident" && shown.part === undefined);
   const players = people.filter((shown) => shown.kind === "player");
-  const gone = new Set([...filler.reverse(), ...players.reverse()].slice(0, Math.max(0, count)));
+  const parts = people.filter((shown) => shown.kind === "resident" && shown.part !== undefined).sort((one, two) => (two.part ?? 0) - (one.part ?? 0));
+  const gone = new Set([...filler.reverse(), ...players.reverse(), ...parts].slice(0, Math.max(0, count)));
   return people.filter((shown) => !gone.has(shown));
 }
 

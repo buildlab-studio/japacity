@@ -26,7 +26,7 @@ export interface Shown {
   tag: string | null;
   /**
    * The spot a resident stands at in a part of the place (R-CITY-032): the trader at her stall, the clerk at the
-   * counter. Never displaced by a player or by someone standing at a thing.
+   * counter. Never taken by a player; someone standing at a thing takes it only past the scope's cap, once no one else is left.
    */
   part?: number;
 }
