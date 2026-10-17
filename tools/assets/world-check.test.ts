@@ -1,10 +1,10 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
 import { type PlaceFile, worldChecks } from "./check-assets";
-import { checkLimits, checkThings, type LimitedFile, WORLD_LIMITS } from "./world-check";
+import { checkLimits, checkParts, checkThings, type LimitedFile, WORLD_LIMITS } from "./world-check";
 
 const ROOT = join(import.meta.dirname, "..", "..");
 const planted = JSON.parse(readFileSync(join(ROOT, "tools", "__fixtures__", "stripes", "place.json"), "utf8")) as PlaceFile;
@@ -54,6 +54,29 @@ describe("the things of a place", () => {
     expect(checkThings(file([1, 2]))).toEqual([]);
     expect(checkThings(file([1, 3]))).toEqual(["R-WORLD-005: place.street has a thing thing-1 with 3 acts, over 2"]);
     expect(checkThings(file([0]))).toEqual(["R-WORLD-005: place.street has a thing thing-0 with no act"]);
+  });
+});
+
+describe("the parts of a place", () => {
+  const room = (acts: NonNullable<NonNullable<LimitedFile["stage"]>["acts"]>): LimitedFile => street({ place: "place.room", scope: "interior", people: { low: 2, high: 3 } }, { people: [0, 1, 2, 3], acts });
+
+  test("[R-CITY-032] given a room's acts, when the file is checked, then a staff seat the high mode shows and a visitor's seat pass, and a staff mark that is not true, on a crossing, past the high mode or at a spot the room lacks fails", () => {
+    expect(checkParts(room([{ spot: 0, pose: "sit", staff: true }, { spot: 1, pose: "sit" }, { spot: 2, sex: "f", staff: true }, { spot: 3, to: [0, 1] }]))).toEqual([]);
+    expect(checkParts(room([{ spot: 0, pose: "sit", staff: "yes" }]))).toEqual(['R-CITY-032: place.room has an act at spot 0 whose staff is "yes", not true']);
+    expect(checkParts(room([{ spot: 0, pose: "sit", staff: false }]))).toEqual(["R-CITY-032: place.room has an act at spot 0 whose staff is false, not true"]);
+    expect(checkParts(room([{ spot: 1, to: [0, 1], staff: true }]))).toEqual(["R-CITY-032: place.room has an act at spot 1 marked staff that walks away"]);
+    expect(checkParts(room([{ spot: 3, pose: "sit", staff: true }]))).toEqual(["R-CITY-032: place.room has an act at spot 3 marked staff past the 3 people its high mode shows"]);
+    expect(checkParts(room([{ spot: 4, pose: "sit" }]))).toEqual(["R-CITY-032: place.room has an act at spot 4, which is not one of its 4 spots"]);
+  });
+
+  test("[R-CITY-032] given every shipped place file, when its parts are checked, then none fails and some seats are marked staff", () => {
+    const folder = join(ROOT, "apps", "client", "public", "assets", "places");
+    const files = readdirSync(folder).flatMap((name) => {
+      const path = join(folder, name, "place.json");
+      return existsSync(path) ? [JSON.parse(readFileSync(path, "utf8")) as LimitedFile] : [];
+    });
+    expect(files.flatMap(checkParts)).toEqual([]);
+    expect(files.flatMap((file) => file.stage?.acts ?? []).filter((act) => act.staff === true).length).toBeGreaterThan(0);
   });
 });
 

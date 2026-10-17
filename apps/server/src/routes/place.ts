@@ -2,6 +2,7 @@
 // (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session and answer
 // every signed-in account: presence is not contact (region.md R-REGION-002),
 // and the socket carries only nudges, never words between players.
+import { PRIVATE_PLACES } from "@japacity/content";
 import { Hono } from "hono";
 import type { Context } from "hono";
 
@@ -63,6 +64,8 @@ export function placeRoutes(deps: ServerDeps): Hono<SessionEnv> {
     const place = c.req.param("place");
     if (!Object.hasOwn(deps.contents.current.place, place)) return refuse(c, 404, "unknown-id", `no place ${place}`);
     const reply: PresenceReply = { place, others: [], today: [] };
+    // R-CITY-015: a stranger is never shown in someone's home, so a home's sample is never drawn.
+    if ((PRIVATE_PLACES as ReadonlySet<string>).has(place)) return c.json(reply);
     const seed = seedFrom(deps.randomBytes(4));
     const store = deps.stores.presence;
     // R-CITY-032, R-SERVER-030: never more players than the place's target headcount, dial applied.

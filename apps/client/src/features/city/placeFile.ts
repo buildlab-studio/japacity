@@ -60,6 +60,11 @@ export interface Act {
   /** Taken only by someone whose own pose is a plain stand; a hawker keeps her tray, a trader his sale. */
   pose?: PoseName;
   sex?: "f" | "m";
+  /**
+   * Someone who works the place or speaks for it (the officer, the teller, the invigilator, the family at home): a part
+   * of the scene a resident keeps (city.md R-CITY-032). A seat left unmarked is a visitor's, and players take it first.
+   */
+  staff?: true;
   /** x and z in metres. */
   to?: [number, number];
 }

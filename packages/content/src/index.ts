@@ -106,6 +106,7 @@ export { noticeKey, noticesDue, OBLIGATION_TYPES, reminders, remindersDue } from
 export type { Notice, Reminder } from "./story/story.notice.data";
 export { meetingThings, partnerMeetings, placesWanted } from "./person/person.meet.data";
 export { roomName, roomNameKey } from "./place/place.room";
+export { PRIVATE_PLACES } from "./place/place.private";
 export type { PartnerMeeting } from "./person/person.meet.data";
 export { spendingLines, versionedLines } from "./comedy/comedy.data";
 export { versionCount, versionKey } from "./comedy/comedy";

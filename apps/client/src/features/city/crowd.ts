@@ -2,6 +2,7 @@
 // date and the slot picks each person, so the same place on the same day shows the same people and a
 // screenshot taken twice is the same. Never `Math.random`, never a stream of the simulation.
 import type { PoseName } from "@japacity/assets-src/people/poses";
+import { PRIVATE_PLACES } from "@japacity/content/private-places";
 import type { PlaceEntry } from "@japacity/sim";
 
 import type { CityTuning, Mode } from "./mode";
@@ -31,7 +32,7 @@ export interface Shown {
   part?: number;
 }
 
-/** A place's spots and what keeps some of them for a part: `prefer` names spots for a role, an act a spot's pose or sex. */
+/** A place's spots and what keeps some of them for a part: `prefer` names spots for a role, an act a spot's sex or its staff. */
 export interface Parts {
   /** How many spots the place has. */
   spots: number;
@@ -154,8 +155,8 @@ export function residents(place: PlaceFacts, pool: readonly Person[], date: stri
 }
 
 /**
- * The sample: residents from the dress mix, then, when online, other players from the presence sample in
- * every slot no part holds, from the last slot back, each tagged with the name the server sent. Given the
+ * The sample: residents from the dress mix, then, when online and away from a home (`PRIVATE_PLACES`), other players from the
+ * presence sample in every slot no part holds, from the last slot back, each tagged with the name the server sent. Given the
  * place's `parts`, the residents who stand at a part spot (`partSpots`) with no one else online are marked
  * with it and keep it.
  * Players seen today (R-CITY-036) take the slots after the live ones and stand at their spots like them.
@@ -181,8 +182,10 @@ export function sampleCrowd(
     for (const { shown, index } of placeCrowd(people, spots, parts.prefer, parts.acts)) if (kept.has(index)) people[shown.slot] = { ...shown, part: index };
   }
   // R-CITY-015, R-CITY-032: players before residents in every slot no part holds; R-CITY-036: those seen today after the live ones.
+  // No player is ever shown in someone's home, whatever sample the client holds (R-CITY-015).
   const open = people.filter((shown) => shown.part === undefined).map((shown) => shown.slot).reverse();
-  [...others, ...today].slice(0, open.length).forEach((other, index) => {
+  const players = PRIVATE_PLACES.has(place.id) ? [] : [...others, ...today];
+  players.slice(0, open.length).forEach((other, index) => {
     const slot = open[index] ?? 0;
     const person = personOfLook(other.look) ?? resident(place, pool, date, slot, city);
     const tag = other.name.trim() === "" ? null : other.name;
@@ -192,13 +195,14 @@ export function sampleCrowd(
 }
 
 /**
- * The spots kept for a part: each spot `prefer` names for a role (a hawker among the vehicles, a trader at the stall)
- * and each spot an act gives a pose or a sex (the clerk seated at the counter, the rider on his machine). A crossing
- * alone is no part. The place files do not say which seat is staff and which is a visitor's, so every posed spot is kept.
+ * The spots kept for a part: each spot `prefer` names for a role (a hawker among the vehicles, a trader at the stall),
+ * each spot an act keeps for a man or a woman (Mama and Papa at home, the conductor at the danfo's door) and each act
+ * marked `staff` (the clerk seated at the counter, the invigilator at her desk). A seat an act only poses is a
+ * visitor's (a candidate's desk, a waiting chair, a pew), which players take before residents; a crossing is no part.
  */
 export function partSpots(parts: Pick<Parts, "prefer" | "acts">): Set<number> {
   const roles = Object.values(parts.prefer ?? {}).flatMap((indices) => [...(indices ?? [])]);
-  const acts = (parts.acts ?? []).filter((act) => act.pose !== undefined || act.sex !== undefined).map((act) => act.spot);
+  const acts = (parts.acts ?? []).filter((act) => act.sex !== undefined || act.staff === true).map((act) => act.spot);
   return new Set([...roles, ...acts]);
 }
 
@@ -221,23 +225,31 @@ export function walkPose(person: Pick<Person, "pose">): PoseName {
 }
 
 /**
- * Who stands at which of the place's spots. The first `people.length` spots are used, in order. A resident
- * holding a part keeps its spot (`sampleCrowd`); then a spot the place names for a role goes to a resident of
- * that role, and a spot an act keeps for a man or a woman to a resident in a plain stand, the first in slot order
- * each time; everyone else fills the rest in slot order. A player never takes a part.
+ * Who stands at which of the place's spots. The mode's count of spots is used: every part first (`partSpots`), those a
+ * resident already holds before the rest, then the place's other spots in order, so a part past the first few spots
+ * (the invigilator's desk, the ward's second nurse) is drawn in the low mode too, and never more spots than the count
+ * (R-CITY-032). A resident holding a part keeps its spot (`sampleCrowd`); then a spot the place names for a role goes to
+ * a resident of that role, and a spot an act keeps for a man or a woman to a resident in a plain stand, the first in
+ * slot order each time; everyone else fills the rest in spot order. A player never takes a part.
  */
 export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[], prefer: Partial<Record<Role, readonly number[]>> = {}, acts: readonly Act[] = []): { shown: Shown; spot: Spot; index: number }[] {
   const count = Math.min(people.length, spots.length);
+  const parts = partSpots({ prefer, acts });
+  const held = new Set(people.flatMap((shown) => (shown.part === undefined ? [] : [shown.part])));
+  const order = (first: (index: number) => boolean): number[] => spots.flatMap((_, index) => (first(index) ? [index] : []));
+  const ranked = [...order((index) => parts.has(index) && held.has(index)), ...order((index) => parts.has(index) && !held.has(index)), ...order((index) => !parts.has(index))];
+  const used = ranked.slice(0, count).sort((one, two) => one - two);
+  const usable = new Set(used);
   const at = new Map<number, Shown>();
   const placed = new Set<number>();
   for (const shown of people) {
-    if (shown.part === undefined || shown.part >= count || at.has(shown.part)) continue;
+    if (shown.part === undefined || !usable.has(shown.part) || at.has(shown.part)) continue;
     at.set(shown.part, shown);
     placed.add(shown.slot);
   }
   for (const [role, indices] of Object.entries(prefer) as [Role, readonly number[]][]) {
     for (const index of indices) {
-      if (index >= count || at.has(index)) continue;
+      if (!usable.has(index) || at.has(index)) continue;
       const shown = people.find((candidate) => !placed.has(candidate.slot) && candidate.kind === "resident" && candidate.person.role === role);
       if (shown === undefined) break;
       at.set(index, shown);
@@ -245,7 +257,7 @@ export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[
     }
   }
   for (const act of acts) {
-    if (act.sex === undefined || act.spot >= count || at.has(act.spot)) continue;
+    if (act.sex === undefined || !usable.has(act.spot) || at.has(act.spot)) continue;
     const shown = people.find((candidate) => !placed.has(candidate.slot) && candidate.kind === "resident" && candidate.person.sex === act.sex && PLAIN.has(candidate.person.pose));
     if (shown === undefined) continue;
     at.set(act.spot, shown);
@@ -253,7 +265,7 @@ export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[
   }
   const rest = people.filter((shown) => !placed.has(shown.slot));
   const out: { shown: Shown; spot: Spot; index: number }[] = [];
-  for (let index = 0; index < count; index += 1) {
+  for (const index of used) {
     const spot = spots[index];
     const shown = at.get(index) ?? rest.shift();
     if (spot !== undefined && shown !== undefined) out.push({ shown, spot, index });
