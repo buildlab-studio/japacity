@@ -72,11 +72,3 @@ export function useKept(scenario: Id<"scenario">, month: number): Kept[] {
   const kept = useStore(gallery, (state) => state.kept);
   return kept.filter((entry) => entry.scenario === scenario && entry.card.months <= month);
 }
-
-/**
- * The japa type this life was read as at its send-off, kept on this device with the send-off card, or null
- * before the send-off has been closed. The data page reads it here (decision 0018: "kept on the data page").
- */
-export function keptType(kept: readonly Kept[]): JapaType | null {
-  return kept.find((entry) => entry.card.kind === "send-off" && entry.type !== undefined)?.type ?? null;
-}
