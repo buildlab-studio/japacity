@@ -1,10 +1,10 @@
 // pnpm teaser:render [--only Lead|LeadPortrait] [--stills <folder>]
-// Bundles the compositions and renders the teaser in its two frames as H.264 with its sound: the landscape cut (1920 by
-// 1080) to docs/teaser/japacity-teaser.mp4 and the portrait one for a phone's feed (1080 by 1920) to
+// Bundles the compositions and renders the teaser in its two frames as H.264 with its sound: the landscape teaser (1920
+// by 1080) to docs/teaser/japacity-teaser.mp4 and the portrait one for a phone's feed (1080 by 1920) to
 // docs/teaser/japacity-teaser-portrait.mp4, 30 frames a second, then says how long each took and how big it is. It stops
 // with an error when a file is 10 MB or more: GitHub plays a linked mp4 from the repository on its own page, and the free
-// plan's cap is 10 MB. With --stills it renders the portrait cut's four moments (src/a branch.ts) as PNG files into the
-// folder instead. TEASER_BROWSER names a Chromium headless shell to render with in place of the one Remotion downloads,
+// plan's cap is 10 MB. With --stills it renders the cut's named moments (src/a branch.ts) as PNG files into the folder
+// instead. TEASER_BROWSER names a Chromium headless shell to render with in place of the one Remotion downloads,
 // for a machine where that one does not open the bundle (Playwright's own, under ~/Library/Caches/ms-playwright, does).
 import { mkdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, renderStill, selectComposition } from "@remotion/renderer";
 
-import { PORTRAIT_STILLS } from "../src/a branch";
+import { STILLS } from "../src/a branch";
 
 const PACKAGE = fileURLToPath(new URL("..", import.meta.url));
 const ROOT = join(PACKAGE, "..", "..");
@@ -41,11 +41,12 @@ async function main(): Promise<void> {
   // stall the bundle for good.
   const serveUrl = await bundle({ entryPoint: join(PACKAGE, "src", "index.ts"), publicDir: join(PACKAGE, "public"), enableCaching: false });
   if (stills !== undefined) {
-    const composition = await selectComposition({ serveUrl, id: "LeadPortrait", timeoutInMilliseconds: TIMEOUT, browserExecutable: BROWSER });
     mkdirSync(stills, { recursive: true });
-    for (const still of PORTRAIT_STILLS) {
-      const output = join(stills, `portrait-${still.name}.png`);
-      await renderStill({ serveUrl, composition, frame: still.frame, output, imageFormat: "png", timeoutInMilliseconds: TIMEOUT, browserExecutable: BROWSER });
+    for (const still of STILLS) {
+      const inputProps = still.feed === true ? { feed: true } : {};
+      const composition = await selectComposition({ serveUrl, id: still.id, inputProps, timeoutInMilliseconds: TIMEOUT, browserExecutable: BROWSER });
+      const output = join(stills, `${still.name}.png`);
+      await renderStill({ serveUrl, composition, frame: still.frame, output, inputProps, imageFormat: "png", timeoutInMilliseconds: TIMEOUT, browserExecutable: BROWSER });
       console.log(`teaser:render: ${output}`);
     }
     return;

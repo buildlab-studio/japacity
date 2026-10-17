@@ -11,6 +11,7 @@ import { Card, Clip, Phone, Plane, PressButton, Sticker, Title } from "../parts/
 import { useFrameShape } from "../parts/frame";
 import { land, pop, ramp } from "../parts/motion";
 import { CREAM, DAY, FONT, NAVY, NIGHT, type Paint } from "../parts/tokens";
+import { Piece } from "../parts/zones";
 
 /** A title card: big words on the sky, by day or at night. */
 export function TitleCard({ words, paint = DAY, size = 176, kicker }: { words: string; paint?: Paint; size?: number; kicker?: ReactNode }) {
@@ -79,7 +80,7 @@ export function NightFalls({ from = 0, falls = [14, 40] }: { from?: number; fall
 /**
  * The send-off's flight: the plane leaves Lagos from the airport's side of the night map and climbs off toward the route's
  * city, a dashed line behind it, and the city's name lands on a sticker card where it went. In the tall frame the plane
- * climbs from low on the left to the top right, under the city's card.
+ * climbs from low on the left to the top right, under the city's card, which stands clear of the feed's header.
  */
 export function Flight({ city, tile }: { city: string; tile: string }) {
   const frame = useCurrentFrame();
@@ -95,6 +96,12 @@ export function Flight({ city, tile }: { city: string; tile: string }) {
   const angle = (Math.atan2(end.y - start.y - 70, end.x - start.x) * 180) / Math.PI;
   const size = interpolate(eased, [0, 1], [110, 280]);
   const card = land(frame, fps, durationInFrames - 34);
+  const cityCard = (
+    <Card paint={NIGHT} style={{ display: "flex", alignItems: "center", gap: 26, padding: "22px 44px 22px 26px", boxShadow: `0 0 0 8px ${CREAM}, 0 24px 40px rgba(0, 0, 0, 0.35)` }}>
+      <Sticker tile={tile} size={150} delay={durationInFrames - 30} edge={6} />
+      <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 96, color: CREAM }}>{city}</div>
+    </Card>
+  );
   return (
     <AbsoluteFill>
       <MapShot paint="night" zoom={[1.18, 1.0]} toward={tall ? [0.3, 0.6] : [0.35, 0.65]} />
@@ -105,12 +112,14 @@ export function Flight({ city, tile }: { city: string; tile: string }) {
       <div style={{ position: "absolute", left: x - size / 2, top: y - size * 0.3, transform: `rotate(${String(angle)}deg)`, filter: "drop-shadow(0 18px 12px rgba(13, 17, 36, 0.4))" }}>
         <Plane size={size} color={CREAM} />
       </div>
-      <div style={{ position: "absolute", right: tall ? 70 : 120, top: tall ? 210 : 120, transform: `translateY(${String((1 - card) * -260)}px) rotate(${String(interpolate(card, [0, 1], [-14, -4]))}deg)`, opacity: Math.min(1, card * 3) }}>
-        <Card paint={NIGHT} style={{ display: "flex", alignItems: "center", gap: 26, padding: "22px 44px 22px 26px", boxShadow: `0 0 0 8px ${CREAM}, 0 24px 40px rgba(0, 0, 0, 0.35)` }}>
-          <Sticker tile={tile} size={150} delay={durationInFrames - 30} edge={6} />
-          <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 96, color: CREAM }}>{city}</div>
-        </Card>
-      </div>
+      {tall ? (
+        // In the tall frame it comes in from the right under the feed's header, never down through the phone's own bar.
+        <Piece zone="safe" name={`card: ${city}`} left={width - 70 - 560} top={250} width={560} height={200} style={{ display: "flex", justifyContent: "flex-end", transform: `translateX(${String((1 - card) * 700)}px) rotate(${String(interpolate(card, [0, 1], [-14, -4]))}deg)`, opacity: Math.min(1, card * 3) }}>
+          {cityCard}
+        </Piece>
+      ) : (
+        <div style={{ position: "absolute", right: 120, top: 120, transform: `translateY(${String((1 - card) * -260)}px) rotate(${String(interpolate(card, [0, 1], [-14, -4]))}deg)`, opacity: Math.min(1, card * 3) }}>{cityCard}</div>
+      )}
     </AbsoluteFill>
   );
 }
