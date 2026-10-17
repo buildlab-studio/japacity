@@ -4,6 +4,7 @@
 import type { AdminAction, AppealRow, ModerationLogEntry } from "@japacity/store";
 
 import { requestDeletion } from "../account/deletion";
+import { generatedUsername } from "../account/username";
 import { rollbackCheck } from "../admin/rollback";
 import type { ServerDeps } from "../deps";
 import type { ServerCode } from "../types";
@@ -22,6 +23,9 @@ export interface ModerationPorts {
 const ON_REPORT = ["dismiss", "warn", "mute", "suspend", "ban", "reset-name", "refer", "rollback"] as const satisfies readonly AdminAction[];
 
 type ReportAction = (typeof ON_REPORT)[number];
+
+/** A generated name is drawn again while the store finds it taken; past this many the reset fails loudly. */
+const NAME_DRAWS = 8;
 
 /** Actions that need the subject to be an account, not an advert's campaign. */
 const ON_ACCOUNT: readonly ReportAction[] = ["warn", "mute", "suspend", "ban", "reset-name", "rollback"];
@@ -103,6 +107,7 @@ export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admi
     const row = await deps.stores.account.get(account);
     return { ok: true, entry, rollback: row?.character === null || row === null ? { ok: false, code: "missing", detail: `Account ${account} has no character.` } : await rollbackCheck(deps, row.character) };
   }
+  if (act === "reset-name" && account !== null) await resetName(deps, account);
   if ((act === "ban" || act === "suspend") && account !== null && ports.identities !== null) {
     if (act === "ban") {
       await banIdentities(deps, await ports.identities.of(account));
@@ -115,6 +120,15 @@ export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admi
   if (!closed.ok) return refused(409, "ended", closed.detail);
   await ports.reports.lift(report.id);
   return { ok: true, entry, report: closed.value };
+}
+
+/** Draws a generated name until one is free; an account already gone needs none (R-MODERATION-014 `reset-name`). */
+async function resetName(deps: ServerDeps, account: string): Promise<void> {
+  for (let draw = 0; draw < NAME_DRAWS; draw += 1) {
+    const changed = await deps.stores.account.setUsername(account, generatedUsername(deps.randomBytes), deps.now());
+    if (changed.ok || changed.code === "missing") return;
+  }
+  throw new Error(`No free generated name for ${account} after ${String(NAME_DRAWS)} draws.`);
 }
 
 /** R-MODERATION-016: decides an appeal, by an admin other than the one who acted when there is more than one. */

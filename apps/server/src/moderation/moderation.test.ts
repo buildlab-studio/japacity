@@ -258,6 +258,18 @@ describe("closing a report", () => {
     expect(await h.deps.stores.deletion.due(h.deps.now() + h.deps.config.account.deleteWithinDays * time.DAY_MS)).toMatchObject([{ account: "account.reported" }]);
   });
 
+  test("[R-MODERATION-014] given a report on a player's name, when the name is reset, then the account's username is a generated one in place of the reported name", async () => {
+    const h = moderationHarness({ reports: [report("report.1")] });
+    await h.deps.stores.account.create({ id: "account.reported", country: "GB", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: null, notifyBankFull: false, sendUsageCounts: true, state: "secured", username: "rude_name", usernameChangedAt: null, lastPlayedAt: 0 });
+
+    const reply = await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close("reset-name")));
+
+    expect(reply.status).toBe(200);
+    const row = await h.deps.stores.account.get("account.reported");
+    expect(row?.username).toMatch(/^player_[0-9a-z]{11}$/);
+    expect(row?.usernameChangedAt).toBe(h.deps.now());
+  });
+
   test("[R-MODERATION-017] given an underage report, when an admin upholds it with less than a ban, then it is refused; a ban closes the account and bars the same identity from a new date of birth", async () => {
     const h = moderationHarness({ reports: [report("report.1", { reason: "underage" })], identities: { "account.reported": ["email:kid@example.test"] } });
     for (const action of ["warn", "mute", "suspend", "reset-name"]) {
