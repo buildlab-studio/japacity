@@ -11,13 +11,14 @@ export interface Clip {
   readonly file: string;
   readonly session: Session;
   /**
-   * A wide shot of the world alone (1920 by 1080), a phone recording (780 by 1688), or a tall shot of the world alone as
-   * the phone shows it (recorded at 1170 by 2532 and cropped to 1080 by 1920, the portrait cut's frame).
+   * A wide shot of the world alone (1920 by 1080 in true pixels, from a browser started at scale 1.5), a phone recording
+   * (390 by 844, the screencast's size for a browser started at no forced scale), or a tall shot of the world alone as the
+   * phone shows it (recorded at 1170 by 2532 and cropped to 1080 by 1920, the portrait teaser's frame).
    */
   readonly shape: "wide" | "phone" | "tall";
 }
 
-/** The clips of the landscape cut and the earlier thirty second cut. */
+/** The clips of the landscape teaser and the earlier thirty second cut. */
 export const CLIPS: readonly Clip[] = [
   { name: "wide-ride", file: "wide-ride.webm", session: "wide-ride", shape: "wide" },
   { name: "wide-street", file: "wide-street.webm", session: "wide-ride", shape: "wide" },
@@ -27,7 +28,7 @@ export const CLIPS: readonly Clip[] = [
   { name: "wide-night", file: "wide-night.webm", session: "wide-night", shape: "wide" },
 ];
 
-/** The same sessions on the phone, for the portrait cut's hand: the world alone in the phone's own frame. */
+/** The same sessions on the phone, for the portrait teaser: the world alone in the phone's own frame, full frame. */
 export const TALL_CLIPS: readonly Clip[] = [
   { name: "tall-ride", file: "tall-ride.webm", session: "tall-ride", shape: "tall" },
   { name: "tall-street", file: "tall-street.webm", session: "tall-ride", shape: "tall" },
