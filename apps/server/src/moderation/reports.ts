@@ -1,6 +1,6 @@
 // What the admin view reads and writes of the pair side's moderation store
-// (reports, holds, blocks), typed from moderation.md's contract until that
-// store lands, with a memory stand-in for the tests.
+// (reports, holds, blocks), as the queue the admin decides (ports.ts builds it
+// over `stores.moderation`), with a memory stand-in for the tests.
 import type { ConversationRow } from "@japacity/sim";
 import type { StoreResult } from "@japacity/store";
 

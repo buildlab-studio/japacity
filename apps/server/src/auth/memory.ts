@@ -1,6 +1,5 @@
-// The memory adapter's tables, for tests and for the Worker until packages/db
-// lands: the library's four, the passkey plugin's, and the `database`
-// rate-limit store's.
+// The memory adapter's tables, for tests: the library's four, the passkey
+// plugin's, and the `database` rate-limit store's.
 // https://better-auth.com/docs/adapters/memory
 import { memoryAdapter } from "better-auth/adapters/memory";
 
