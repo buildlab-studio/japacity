@@ -1,4 +1,4 @@
-// The start screen online (R-ACCOUNT-029), as designed:
+// The start screen online (R-ACCOUNT-029):
 // over the scene with the lockup at the head of the sheet, no title over the figure, a hook in two rows instead of a sentence (R-TEXT-006; one of three
 // lines, picked once per visit, R-ACCOUNT-031), the whole game in three steps as an icon and a word each, then Play
 // with its small second line, and "I already have a life here" for an account kept before. The two lights hang over the
