@@ -21,7 +21,7 @@ describe("joke versions of report lines", () => {
     expect(missing).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every versioned line, when its count is read, then it has three to five versions, about a dozen lines carry them, and every version key belongs to a listed line", () => {
+  test("[R-ENGINE-014] [R-TEXT-001] given every versioned line, when its count is read, then it has three to five versions, about a dozen lines carry them, and every version key belongs to a listed line", () => {
     const counts = Object.values(versionedLines);
     expect(counts.filter((count) => count < VERSIONS.min || count > VERSIONS.max)).toEqual([]);
     expect(counts.length).toBeGreaterThanOrEqual(10);
@@ -33,7 +33,7 @@ describe("joke versions of report lines", () => {
     expect(stray).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every version, when its braces are read, then it names exactly the figures its plain line names, so a joke never needs a param the line lacks", () => {
+  test("[R-ENGINE-014] [R-TEXT-001] given every version, when its braces are read, then it names exactly the figures its plain line names, so a joke never needs a param the line lacks", () => {
     const wrong = Object.entries(versionedLines).flatMap(([key, count]) =>
       Array.from({ length: count - 1 }, (_, index) => `${key}.v${String(index + 2)}`).filter((version) => braces(text[version] ?? "").join() !== braces(text[key] ?? "").join()),
     );
@@ -67,7 +67,7 @@ describe("joke versions of report lines", () => {
 });
 
 describe("which version is shown", () => {
-  test("[R-ENGINE-014] given a line with four versions, when the draw runs over its edges, then 0 is plain, 1 to 3 are the jokes, 4 comes round to plain, and a negative draw still lands on a version", () => {
+  test("[R-ENGINE-014] [R-TEXT-001] given a line with four versions, when the draw runs over its edges, then 0 is plain, 1 to 3 are the jokes, 4 comes round to plain, and a negative draw still lands on a version", () => {
     const key = "line.wallet.upkeep";
     expect(versionCount(key)).toBe(4);
     expect([0, 1, 2, 3, 4].map((draw) => versionKey(key, draw, plain))).toEqual([key, `${key}.v2`, `${key}.v3`, `${key}.v4`, key]);
@@ -108,7 +108,7 @@ describe("bad news told in the past tense", () => {
 });
 
 describe("officialdom and the cards", () => {
-  test("[R-ENGINE-014] given the refusal letter, the bank queue, the embassy page and the cards, when their closing lines are looked up, then each has words and none jokes with an exclamation", () => {
+  test("[R-ENGINE-014] [R-TEXT-004] given the refusal letter, the bank queue, the embassy page and the cards, when their closing lines are looked up, then each has words and none jokes with an exclamation", () => {
     const keys = ["official.refusal.closer", "official.bank-queue.closer", "official.embassy.closer", "official.refusal.last", "share.chapter.closer", "share.granted.closer"];
     expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
     expect(keys.filter((key) => (text[key] ?? "").includes("!"))).toEqual([]);
