@@ -61,7 +61,7 @@
   // Game state goes through a configuration with caching off; only the world's
   // ticks and the auth library may use the cached one (design 05, section 7).
   // Decision 0004: every request opens one client through GAME_DB and closes it after the reply.
-  // Secrets, set by the maintainer with `wrangler secret put <NAME>` and never written here:
+  // Secrets, set with `wrangler secret put <NAME>` and never written here:
   // WORLD_SEED, BAN_SALT, DRAW_TOKEN_KEY, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
   // TURNSTILE_SECRET_KEY, ADMIN_ACCOUNTS (R-SERVER-012: the admin list, never a var here), and for the bank-full
   // notice VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT.

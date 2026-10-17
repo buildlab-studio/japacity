@@ -73,7 +73,7 @@ describe("the invite link", () => {
     expect(await response.text()).toBe("game /invite/PAIR42");
   });
 
-  test("given the old form of the link, when /?code=<the code> is opened, then it admits nobody", async () => {
+  test("given a link in the ?code= form, when /?code=<the code> is opened, then it admits nobody", async () => {
     expect(await shown(await visit(`/?code=${encodeURIComponent(env.GATE_SECRET)}`))).toEqual(SCREEN);
   });
 

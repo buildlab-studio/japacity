@@ -69,7 +69,7 @@ describe("the game's address", () => {
     expect(staging?.preview_urls).toBe(false);
   });
 
-  test("[R-SERVER-038] [R-CLOCK-012] given both environments, when their crons are read, then production ticks every five minutes with no TICK_CRON since Neon moved to a paid plan, staging on its own TICK_CRON of thirty minutes, both with the daily cron", () => {
+  test("[R-SERVER-038] [R-CLOCK-012] given both environments, when their crons are read, then production ticks every five minutes with no TICK_CRON, staging on its own TICK_CRON of thirty minutes, both with the daily cron", () => {
     // Production's database is on a paid plan that need not sleep, so production sets no TICK_CRON and its first cron is TICKS_CRON.
     expect(server.vars["TICK_CRON"]).toBeUndefined();
     expect(server.triggers?.crons).toEqual([TICKS_CRON, "0 0 * * *"]);
@@ -77,7 +77,7 @@ describe("the game's address", () => {
     expect(staging?.triggers?.crons).toEqual([staging?.vars["TICK_CRON"] ?? TICKS_CRON, "0 0 * * *"]);
   });
 
-  test("[R-ADVERT-014] given both environments' tick crons, when the advert recheck reads their period, then each gives thirty minutes until launch, and the five-minute cron of launch day gives five", () => {
+  test("[R-ADVERT-014] given both environments' tick crons, when the advert recheck reads their period, then staging's gives thirty minutes and production's five-minute cron gives five", () => {
     expect(tickPeriodMs(server.vars["TICK_CRON"] ?? TICKS_CRON)).toBe(5 * 60_000);
     expect(tickPeriodMs(staging?.vars["TICK_CRON"] ?? TICKS_CRON)).toBe(30 * 60_000);
     expect(tickPeriodMs(TICKS_CRON)).toBe(5 * 60_000);
@@ -109,7 +109,7 @@ describe("the game's address", () => {
     expect(staging?.hyperdrive?.map((each) => each.binding)).toEqual(["GAME_DB", "CACHED_DB"]);
   });
 
-  test("given the gate's shipped settings, when they are read, then before launch it owns the root of the game's host and its card picture is on that host", () => {
+  test("given the gate's shipped settings, when they are read, then it owns the root of the game's host and its card picture is on that host", () => {
     const gate = wrangler("../../gate/wrangler.jsonc");
     expect(gate.routes).toEqual([{ pattern: `${new URL(PRODUCTION).host}/*`, zone_name: new URL(PRODUCTION).host }]);
     expect(gate.vars["SITE_URL"]).toBe(PRODUCTION);

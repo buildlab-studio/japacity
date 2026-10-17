@@ -62,7 +62,7 @@ async function months(server: TestServer, account: string, count: number): Promi
 
 const pick = (rows: readonly CounterTotal[], day: string, name: string, key: string) => rows.find((row) => row.day === day && row.name === name && row.key === key)?.count ?? 0;
 
-describe("the nightly job's numbers before launch", () => {
+describe("the nightly job's numbers for the admin", () => {
   test("[R-ANALYTICS-008] [R-ANALYTICS-013] given a day of play with the counts by region, when the job counts it, then the life started, its first month, its session, its economy in its fourth month, the week's, month's and all players are counted from the log by region", async () => {
     const server = testServer();
     const day = utcDay(server.deps.now());

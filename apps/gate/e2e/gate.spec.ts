@@ -45,7 +45,7 @@ test("a phone with no invite can read the terms, the privacy notice, the officia
   expect(await context.cookies()).toEqual([]);
 });
 
-test("a wrong code, or the old ?code= form of the link, shows the same screen and leaves no cookie", async ({ page, context }) => {
+test("a wrong code, or a ?code= form of the link, shows the same screen and leaves no cookie", async ({ page, context }) => {
   await page.goto("/invite/not-the-code");
   await expectScreen(page);
   await page.goto(`/?code=${E2E_SECRET}`);

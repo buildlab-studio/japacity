@@ -23,14 +23,14 @@ describe("the bot check's host", () => {
     }
   });
 
-  test("[R-ACCOUNT-013] given a pass on another host with no testing mark, when SITE_URL is local, then it is refused as before", async () => {
+  test("[R-ACCOUNT-013] given a pass on another host with no testing mark, when SITE_URL is local, then it is refused", async () => {
     for (const metadata of [undefined, { result_with_testing_key: false }, { result_with_testing_key: "true" }]) {
       const answer = { success: true, hostname: "elsewhere.example", ...(metadata === undefined ? {} : { metadata }) };
       expect(await checkTurnstile(keys(answer), TURNSTILE_TEST.dummyToken, null, "localhost")).toEqual({ ok: false, reason: "hostname-mismatch" });
     }
   });
 
-  test("[R-ACCOUNT-013] given a pass on SITE_URL's own host for the guest start's action, when it is checked, then it is accepted as before", async () => {
+  test("[R-ACCOUNT-013] given a pass on SITE_URL's own host for the guest start's action, when it is checked, then it is accepted", async () => {
     // A pass that is not a test key's must also name the action the widget was rendered with.
     expect(await checkTurnstile(keys({ success: true, hostname: "japacity.app", action: "guest" }), TURNSTILE_TEST.dummyToken, null, "japacity.app")).toEqual({ ok: true });
   });

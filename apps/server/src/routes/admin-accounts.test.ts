@@ -49,7 +49,7 @@ describe("the admin accounts from the deployment", () => {
     expect(productionConfig.admin.accounts).toEqual([]);
   });
 
-  test("[R-SERVER-012] [R-MODERATION-012] given ADMIN_ACCOUNTS naming the maintainer, when the admin page is asked, then it answers the maintainer and nobody else; with the variable empty it does not exist for the maintainer either", async () => {
+  test("[R-SERVER-012] [R-MODERATION-012] given ADMIN_ACCOUNTS naming one account, when the admin page is asked, then it answers that account and nobody else; with the variable empty it does not exist for that account either", async () => {
     const named = deployment(` ${OWNER} `);
     const app = makeApp(testDeps({ config: named, session: testSession(named) }));
     expect((await app.request("/api/admin/alarms", as(OWNER))).status).toBe(200);
@@ -72,7 +72,7 @@ describe("the admin accounts from the deployment", () => {
     // Named only in the comment that lists the secrets set with `wrangler secret put`, never as a key or a --var.
     expect(text).not.toMatch(/"ADMIN_ACCOUNTS"\s*:/);
     expect(text).not.toContain("--var");
-    expect(text).toMatch(/\/\/ Secrets, set by the maintainer with `wrangler secret put <NAME>`[^\n]*\n(\s*\/\/[^\n]*\n)*?\s*\/\/[^\n]*\bADMIN_ACCOUNTS\b/);
+    expect(text).toMatch(/\/\/ Secrets, set with `wrangler secret put <NAME>`[^\n]*\n(\s*\/\/[^\n]*\n)*?\s*\/\/[^\n]*\bADMIN_ACCOUNTS\b/);
   });
 
   test("[R-SERVER-012] given the Worker, when its isolate is made, then its config is the deployment's, read from the ADMIN_ACCOUNTS binding, and config.ts names no account", () => {
