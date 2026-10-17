@@ -4,7 +4,7 @@ import { characterRandom, createRandom, drawAt, hashString32, mix32, scaleDraw, 
 
 describe("[R-ENGINE-005] random streams", () => {
   test("[R-ENGINE-005] given fixed inputs, when hashed and mixed, then the outputs match the recorded table", () => {
-    // Recorded from this implementation on 7 Oct 2026. A change here changes every save.
+    // Recorded from this implementation. A change here changes every save.
     expect(hashString32("")).toBe(2166136261);
     expect(hashString32("a")).toBe(3826002220);
     expect(mix32(0)).toBe(0);

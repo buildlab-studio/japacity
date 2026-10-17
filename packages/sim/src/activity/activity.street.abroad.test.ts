@@ -1,8 +1,8 @@
 // The streets abroad with the real content (docs/rules/streets.md R-STREET-005, 006): shopping on
 // the street takes that currency's money and lifts the mood, and something interesting turns up only
 // while the character is in that country, never at home.
-// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
-// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
+// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -101,7 +101,7 @@ describe("shopping on the street abroad", () => {
     expect(options.find((option) => option.id === SHOP_UAE)?.allowed).toBe(true);
     expect(options.find((option) => option.id === SHOP_UK)?.allowed ?? false).toBe(false);
     const result = month(game, [slot(SHOP_UAE)]);
-    // the souq is paid as enjoyment, as London's stalls are.
+    // streets.md R-STREET-014: the souq is paid as enjoyment, as London's stalls are.
     expect(debitsOf(result, "AED").filter((debit) => debit.reason === "enjoyment")).toEqual([
       { type: "wallet/debited", currency: "AED", pocket: "cash", amount: street.shoppingAed, reason: "enjoyment" },
     ]);

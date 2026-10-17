@@ -1,4 +1,4 @@
-// The passbook (the design; docs/design/12-the-lived-month-and-the-files.md section 2, item 4): the
+// The passbook (docs/design/12-the-lived-month-and-the-files.md section 2, item 4): the
 // Bank's first page as the simulation works it. The money held for the road against the plan's whole cost, the stamps on
 // the way, the pace the last three months kept, and the roads that shorten it, each with what it needs and the months it
 // would leave. Every figure is whole kobo at the official rate; the client words them and works none of them out.

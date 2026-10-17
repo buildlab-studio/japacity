@@ -340,7 +340,7 @@ function takeEvents(state: State, content: Content, currency: Currency, from: "a
   const pocket = state.wallet.pockets[currency];
   // The street: cash first at or under the line, the bank first above it (R-WALLET-018, "Pockets" in wallet.md).
   if (from === "any") return takeInOrder(currency, pocketFor(amount, content.tuning.wallet), amount, pocket, reason);
-  // A transfer: the bank first, then cash (decision 0012 as amended).
+  // A transfer: the bank first, then cash (decision 0012).
   if (from === "transfer") return takeInOrder(currency, "bank", amount, pocket, reason);
   if (pocket[from] < amount) return null;
   return [debit(currency, from, amount, reason)];
@@ -586,7 +586,7 @@ function placeCurrency(state: State, content: Content): Currency {
 
 /**
  * Money that is not the month's own on the results sheet (R-WORLD-008): a move between pockets is the
- * same money, a change of money is a move between currencies (decision 0021 as amended: what is done with
+ * same money, a change of money is a move between currencies (decision 0021: what is done with
  * it afterwards is the spending), and held funds only sit locked from the day they land to the day they go back.
  */
 const NOT_THE_MONTHS: ReadonlySet<Reason> = new Set<Reason>(["move", "convert", "held-funds", "held-funds-return"]);

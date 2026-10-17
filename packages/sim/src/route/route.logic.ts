@@ -229,7 +229,7 @@ export function nairaThroughFee(kobo: number, rate: number, chargeBp: number): n
 }
 
 /**
- * R-ROUTE-010 as amended for the study route: only the money that flies. The
+ * R-ROUTE-010, for the study route: only the money that flies. The
  * route's own currency, bank and locked, in full; other foreign bank pockets at
  * the official rate; the naira bank through the fee path (`nairaThroughFee`).
  * Held funds in naira and the family's support stay behind, so they do not count.
@@ -918,7 +918,7 @@ function lookedLine(via: string | undefined): string {
   if (via === undefined) return "looked-into";
   if (via === "activity.ask-someone-who-went") return "looked-into-told";
   if (via === "activity.see-adviser") return "looked-into-advised";
-  // asking around at the park is told as asking around, never as a reading.
+  // Asking around at the park is told as asking around, never as a reading.
   if (via === "activity.ask-around") return "looked-into-asked";
   if (via.startsWith("offer.agent-")) return "looked-into-agent";
   return "looked-into";

@@ -20,7 +20,7 @@ describe("the world's clock", () => {
     expect(worldClockAt(at(1, 9))).toMatchObject({ day: 1, weekday: 6, part: "morning" });
     expect(worldClockAt(at(2, 9))).toMatchObject({ day: 2, weekday: 0 });
     expect(GAME_DAY_MS).toBe(105 * 60 * 1000);
-    // A game minute is a whole number of milliseconds, and a real day is not a whole number of game days (item 41).
+    // A game minute is a whole number of milliseconds, and a real day is not a whole number of game days (R-CLOCK-033).
     expect(GAME_DAY_MS % 1440).toBe(0);
     expect((24 * HOUR_MS) % GAME_DAY_MS).not.toBe(0);
   });

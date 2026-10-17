@@ -64,8 +64,8 @@ function ada(): Game {
 const huntTeacher = { activity: "activity.job-hunt" as const, param: "activity.job-teacher" };
 
 /**
- * the hunt that filled Ada's three slots changed no quality, but it is now an act done at
- * once and fills no slot. A month with no wellbeing activity is now three empty slots, which rest; under this content
+ * R-ACTIVITY-015: the hunt changes no quality and is an act done at once that fills no slot. A month with no
+ * wellbeing activity is three empty slots, which rest; under this content
  * the rest is worth nothing.
  */
 const restless: Content = { ...content, tuning: { ...content.tuning, quality: { ...tuning, wellbeingRest: 0 } } };

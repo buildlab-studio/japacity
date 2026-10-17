@@ -21,7 +21,7 @@ const LEARN: Id<"activity"> = "activity.learn-tech";
 const GULF: Id<"route"> = "route.gulf-contract";
 const PITCH: Id<"offer"> = "offer.road-park";
 
-/** The rule's two lists, as the maintainer sorted them. Every entry not named a now-act is a month-act. */
+/** The rule's two lists. Every entry not named a now-act is a month-act. */
 const NOW_ACTS: readonly string[] = [
   // the room and the family, the study that answers at once (R-ACTIVITY-019)
   "activity.family-time",
@@ -73,7 +73,7 @@ const NOW_ACTS: readonly string[] = [
   "activity.enter-pool",
   "activity.find-sponsor",
   HUNT,
-  // Cooking and the water answer now since 10 Oct 2026 (R-OBLIGATION-014 amended).
+  // Cooking and the water answer now (R-OBLIGATION-014).
   "activity.cook-at-home",
   "activity.fetch-water",
   "activity.fill-drum",

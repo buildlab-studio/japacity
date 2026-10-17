@@ -380,7 +380,7 @@ function ticketsOf(param: string | null, luck: Tuning["luck"]): number {
 function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Price[] {
   const prices: Price[] = entry.cost.map((cost) => ({ currency: cost.currency, amount: resolveAmount(read, cost.amount), reason: cost.reason, cash: false, earned: false }));
   const { luck, car } = read.content.tuning;
-  // R-LUCK-005 as amended for R-WALLET-020: the slip is paid from earned naira only.
+  // R-LUCK-005 with R-WALLET-020: the slip is paid from earned naira only.
   if (entry.id === LOTTO) prices.push({ currency: "NGN", amount: luck.ticket * ticketsOf(param, luck), reason: "social", cash: true, earned: true });
   if (entry.id === BET) prices.push({ currency: "NGN", amount: luck.stake, reason: "social", cash: true, earned: false });
   if (entry.id === PHONE) prices.push({ currency: "NGN", amount: read.content.tuning.street.phonePrice, reason: "phone", cash: true, earned: false });
@@ -396,7 +396,7 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   return prices;
 }
 
-/** Pays each cost under its own reason: naira by transfer, bank first, or cash first for a street price (decision 0012 as amended); a foreign fee by R-WALLET-009 (R-ACTIVITY-004). */
+/** Pays each cost under its own reason: naira by transfer, bank first, or cash first for a street price (decision 0012); a foreign fee by R-WALLET-009 (R-ACTIVITY-004). */
 function payPrices(ctx: Ctx, prices: readonly Price[], cause: Cause): void {
   for (const price of prices) {
     if (price.amount <= 0) continue;
@@ -934,7 +934,7 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (!isPick(pick)) return reject("not-legal", "The act is not an activity and a param.");
   const plain = ctx.content.activity[pick.activity];
   if (plain === undefined) return reject("unknown-id", `${pick.activity} is not an activity in content.`);
-  // : the things that work now change the act's time, price and lift.
+  // The things owned that work change the act's time, price and lift.
   const entry = withThings(ctx, plain);
   if ((entry.slot !== "free" && entry.slot !== "none") || !answersNow(entry)) return reject("not-legal", `${entry.id} fills the month: it is a slot pick, not an act now.`);
   if (doneThisMonth(ctx.state, entry)) return reject("not-legal", `${entry.id} was done this month already. It runs once a month.`);
@@ -1063,12 +1063,13 @@ function nairaDues(read: ReadCtx): number {
 }
 
 /**
- * R-GUIDE-014 as amended: the job a life's first hunt lands, in its first
+ * R-GUIDE-014: the job a life's first hunt lands, in its first
  * three months, when the draw misses. `month` is the month being played. Null
  * when the hunt is not that one: a month past the third, a month before with a hunt in it, or a hunt earlier in
  * this month. The job is the lowest month's pay, valued in naira at the
  * official rate, of the jobs that may be hunted now in the same slot as the
- * one named, among those whose pay covers the naira the life owes a month, else of them all; then by id;
+ * one named, among those whose pay covers the naira the life owes a month (a
+ * smaller job must still pay the month, or it traps the life under its dues), else of them all; then by id;
  * the named job when none reads a pay.
  */
 export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, huntedThisMonth: boolean): ActivityEntry | null {
@@ -1105,7 +1106,7 @@ function huntedThisMonth(state: State): boolean {
  * One month of hunting the job the slot names (R-ACTIVITY-005). A landed hunt opens the job offer with the job in its terms.
  * R-GUIDE-014: a starting life's first hunt in its first three months lands for sure: the draw is made as ever, and when it
  * misses, the sure hunt lands the lowest-paid job the life may hunt in the slot (the named one when none reads a pay).
- * R-ACTIVITY-005 as amended 11 Oct 2026: when that is another job, the named one is told as missed before it.
+ * R-ACTIVITY-005: when that is another job, the named one is told as missed before it.
  */
 function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   if (cause.param === null) throw new Error(`A hunt from ${cause.source} names no job.`);
@@ -1113,7 +1114,7 @@ function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   const read = readOf(ctx);
   const drawn = ctx.random.chance("job", huntChanceBp(read, entry));
   const landed = drawn ? entry : sureHuntJob(read, entry, ctx.state.turn.month + 1, huntedThisMonth(ctx.state));
-  // a sure hunt that lands another job first says the job asked for came to nothing, so the
+  // A sure hunt that lands another job first says the job asked for came to nothing, so the
   // pick is never lost from the month's telling.
   const instead = landed !== null && landed.id !== entry.id ? record(ctx, { type: "activity/hunted", job: entry.id, hired: false }) : [];
   const events = [...instead, ...record(ctx, { type: "activity/hunted", job: landed?.id ?? entry.id, hired: landed !== null })];
@@ -1266,7 +1267,7 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
         done,
         ...(sure ? { sure: true as const } : {}),
         ...(spent ? { spent: true as const } : {}),
-        // : a thing owned changed the act's time.
+        // A thing owned changed the act's time.
         ...(entry.halfDays !== plain.halfDays && entry.halfDays !== undefined ? { halfDays: entry.halfDays } : {}),
       };
     });

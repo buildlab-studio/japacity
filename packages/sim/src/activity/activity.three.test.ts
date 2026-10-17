@@ -1,6 +1,6 @@
 // Calgary, Dubai and Castel Volturno lived by hand with the real content: docs/rules/streets.md R-STREET-013 to
-// R-STREET-015 (design page 15 section 5), abroad-money.md R-ABROAD-003 as amended again, home.md R-HOME-012 and
-// obligation.md R-OBLIGATION-014 as amended 16 Oct 2026. Food is bought and cooked in each country's money as it is
+// R-STREET-015 (design page 15 section 5), abroad-money.md R-ABROAD-003, home.md R-HOME-012 and
+// obligation.md R-OBLIGATION-014. Food is bought and cooked in each country's money as it is
 // eaten, the evenings are paid as they are had, and each upkeep is the prepaid phone alone.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";

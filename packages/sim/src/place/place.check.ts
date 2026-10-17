@@ -34,7 +34,7 @@ function fieldProblems(key: string, place: PlaceEntry): string[] {
     case "institution":
       if (place.realName !== null) problems.push(`${id}: an institution carries the real name ${place.realName}; it is shown by plain description (R-CITY-005).`);
       if (place.area === null) problems.push(`${id}: an institution has no area (R-CITY-005).`);
-      // A made-up spot of its own is allowed (R-CITY-008 as amended 12 Oct 2026); a position from the map would pin a real office.
+      // A made-up spot of its own is allowed (R-CITY-008); a position from the map would pin a real office.
       if (place.position !== null && place.data?.source !== "own") problems.push(`${id}: an institution has a position from the map, which would pin a real office (R-CITY-005).`);
       break;
     case "business":
@@ -59,7 +59,7 @@ function fieldProblems(key: string, place: PlaceEntry): string[] {
   return problems;
 }
 
-/** R-CITY-010 as amended 16 Oct 2026: the rota board's act at every workplace of a country, the one id that may stand at several places. */
+/** R-CITY-010: the rota board's act at every workplace of a country, the one id that may stand at several places. */
 const MANY_PLACES: ReadonlySet<Staged> = new Set<Staged>(["activity.overtime"]);
 
 /** R-CITY-010: every staged id exists, and is staged once for each `where` and country, overtime alone excepted. */
@@ -145,7 +145,7 @@ function wordProblems(places: PlaceEntry[], words: Readonly<Record<string, strin
 }
 
 /**
- * The city's content checks: docs/rules/city.md contract item 4. Pass the words
+ * The city's content checks: docs/rules/city.md. Pass the words
  * to check R-CITY-024 as well.
  * `checkContent` has no words to pass, so R-CITY-024 runs from the tests.
  */

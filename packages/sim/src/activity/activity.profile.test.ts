@@ -171,8 +171,7 @@ describe("the developer's acts", () => {
     const played = game.endTurn([slot(POSTS), ...Array.from({ length: free }, () => slot(REST))]);
     expect(gained(played, NETWORK, POSTS)).toBe(1);
     expect(gained(played, STANDING, POSTS)).toBe(1);
-    // posting is an act done at once and runs once a month, so a second in the month is
-    // refused where it failed as a slot.
+    // R-ACTIVITY-015: posting is an act done at once and runs once a month, so a second in the month is refused.
     const twice = game.accept({ type: "activity/now", activity: POSTS, param: null });
     expect(gained(twice, NETWORK, POSTS)).toBe(1);
     expect(game.expectRejected({ type: "activity/now", activity: POSTS, param: null }, "not-legal").code).toBe("not-legal");

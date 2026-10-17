@@ -60,7 +60,7 @@ describe("side jobs", () => {
     const accepted = game.accept({ type: "offer/choose", offer, choice: "accept" });
     expect(accepted.events).toContainEqual({ type: "activity/side-started", side: NIGHT, previous: null });
     expect(game.state.activity).toMatchObject({ job: null, side: NIGHT });
-    // the view carries each job's month as the wallet will book it.
+    // R-WALLET-016: the view carries each job's month as the wallet will book it.
     expect(game.view().job).toEqual({ id: null, months: 0, side: NIGHT, pay: null, sidePay: { currency: "USD", amount: payOf(NIGHT) } });
     expect(game.view().locks).toEqual([{ slots: 1, untilMonth: game.state.turn.month, why: SIDE_JOB_LOCK }]);
     expect(game.view().freeSlots).toBe(tuning.turn.freeSlotsNoJob - 1);

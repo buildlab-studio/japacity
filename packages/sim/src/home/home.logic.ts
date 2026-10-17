@@ -275,14 +275,14 @@ function moveTo(ctx: Ctx, to: HomePlace, cause: Cause, charge: boolean, putOut =
     effects.push({ type: "obligation/open", obligation: COMPOUND_RENT, amount: tuning.home.compound.rentYear });
     effects.push({ type: "obligation/open", obligation: COMPOUND_UPKEEP, amount: tuning.home.compound.upkeep });
   } else if (to === HOSTEL) {
-    // the plan section 2: the first month's rent on the move, then the month's rent from this month's end, paid ahead.
+    // The first month's rent on the move, then the month's rent from this month's end, paid ahead.
     if (charge && rent > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "any", amount: rent, reason: "rent" });
     effects.push({ type: "obligation/open", obligation: HOSTEL_RENT, amount: tuning.home.hostelRentKobo });
   } else if (to === MAKOKO) {
     if (charge && rent > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "any", amount: rent, reason: "upkeep" });
     effects.push({ type: "obligation/open", obligation: MAKOKO_UPKEEP, amount: rent });
-    // The rent paid on the move is this month's: the room's first charge, at this month's end, is already met (the
-    // The prologue's room pays nothing on the move, so its
+    // The rent paid on the move is this month's: the room's first charge, at this month's end, is already met, so the
+    // move month is not charged twice. The prologue's room pays nothing on the move, so its
     // first month is charged as any other.
     if (rent > 0 && !ctx.state.prologue.open) effects.push({ type: "obligation/relief", obligationType: "upkeep", bp: FULL });
   } else {

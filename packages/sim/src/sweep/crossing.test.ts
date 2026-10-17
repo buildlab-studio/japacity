@@ -235,7 +235,7 @@ describe("rules that cross kinds", () => {
     expect(game.view().job.id).toBeNull();
 
     const pay = content.activity["activity.job-teacher"]!.pay!.amount as number;
-    // the offer and the job held say the month's pay as the wallet will book it.
+    // R-WALLET-016: the offer and the job held say the month's pay as the wallet will book it.
     expect(offer?.pay).toEqual({ currency: "NGN", amount: pay });
     game.accept({ type: "offer/choose", offer: offer!.id, choice: "accept" });
     expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 0, side: null, pay: { currency: "NGN", amount: pay }, sidePay: null });
@@ -441,7 +441,7 @@ describe("whole-life rules that cross kinds", () => {
 
   test("[R-HEALTH-001] [R-HEALTH-002] [R-HEALTH-005] [R-TURN-009] [R-ENGINE-016] given Ada run down two months in a row, when the warning is given, the illness opens the month after and she goes to hospital, then a slot is locked for the next month, the turn refuses a slot past the ones left free, and the lock lifts the month after", () => {
     const health = content.tuning.health;
-    // the hunt that filled every slot and moved no quality is an act done at once now, so
+    // R-ACTIVITY-015: the hunt moves no quality and is an act done at once, so
     // the month's slots rest, at nothing under this content, and the lock is counted with a month-act.
     const quiet = applyOverlay(content, { version: "crossing-quiet", tuning: { offer: { maxNewPerMonth: 0 }, quality: { wellbeingRest: 0 } } });
     const hunt = slot("activity.learn-tech");

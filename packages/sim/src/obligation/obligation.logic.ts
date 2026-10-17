@@ -183,7 +183,7 @@ export function livingCharge(read: Pick<ReadCtx, "world" | "content">, obligatio
   const entry = read.content.obligation[obligation];
   const rise = entry?.currency === "NGN" ? bp(amount, worldVarOr(read.world, INFLATION)) : 0;
   // R-HOME-012 (decision 0035): at home the living is lived by hand, as meals, water, fares and data; that share is never charged.
-  // Makoko's figure goes the same way (P26: the child of the water keeps equal or better odds); the room's first month is paid on the move.
+  // Makoko's figure goes the same way (the child of the water keeps equal or better odds); the room's first month is paid on the move.
   const byHand = entry?.currency === "NGN" && entry.type === "upkeep" ? bp(amount + rise, read.content.tuning.home.livingByHandBp) : 0;
   return Math.max(0, amount + rise - byHand);
 }

@@ -1,5 +1,5 @@
-// Layer 3 of docs/design/02-quality-and-testing.md for the fifth life (the
-// owner's decision P10): long random lives from Aniekan, every always-true rule
+// Layer 3 of docs/design/02-quality-and-testing.md for the fifth life: long
+// random lives from Aniekan, every always-true rule
 // checked after every command, in a file of its own to stay inside R-ENGINE-016's minute.
 import { content } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";

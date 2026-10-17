@@ -1,7 +1,7 @@
 // Layer 5 of docs/design/02-quality-and-testing.md, small enough for every
 // run: the simulated players from each life to the flight, asserting only
 // what the design promises. The whole life and its endings are in
-// endings.test.ts; the full 300-seed run is a playtest.
+// endings.test.ts; the full 300-seed run is a playtest outside the suite.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -12,7 +12,7 @@ import { runLife } from "./players";
 import { cleanFile } from "./report";
 
 const FIXED: Id<"scenario">[] = ["scenario.ada", "scenario.tunde", "scenario.zainab", "scenario.ngozi"];
-// Thirty-two careful seeds: since decision 0012 the risky players can pay for an agent's papers from the bank, so their files are no longer clean, and the clean study decisions come from the careful seeds alone.
+// Thirty-two careful seeds: under decision 0012 the risky players can pay for an agent's papers from the bank, so their files are not clean, and the clean study decisions come from the careful seeds alone.
 const CAREFUL_SEEDS = 32;
 const OTHER_SEEDS = 8;
 const MONTHS = 60;

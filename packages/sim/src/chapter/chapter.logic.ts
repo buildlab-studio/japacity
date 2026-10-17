@@ -53,7 +53,7 @@ function leanCandidates(content: Content): Id<"route">[] {
  * file and a life that looked into the master's first keeps the master's file. The master's when the life
  * has heard of none of them. A way the player made the plan (`chosen`, the `chapter/lean` command) comes
  * before all of these while it is heard of or further on. A route granted or flown comes before everything
- * (11 Oct 2026, `grantedRoute`).
+ * (`grantedRoute`).
  */
 export function leanRoute(routes: RouteSlice, content: Content, chosen: Id<"route"> | null = null): Id<"route"> {
   return planOf(routes, content, chosen) ?? BASE_ROUTE;
@@ -68,7 +68,7 @@ function flightRoutes(content: Content): RouteEntry[] {
 }
 
 /**
- * R-CHAPTER-009, 11 Oct 2026: the grant decides the plan. The route flown, else the one granted, in
+ * R-CHAPTER-009: the grant decides the plan. The route flown, else the one granted, in
  * content's order; null while none is. The chapters follow it before the chosen way and the time order.
  */
 export function grantedRoute(routes: RouteSlice, content: Content): Id<"route"> | null {
@@ -167,7 +167,7 @@ function nextAfter(content: Content, entry: ChapterEntry, routes: RouteSlice, ch
 }
 
 /**
- * R-CHAPTER-009, 11 Oct 2026: the chapter the current one is judged as. Once an own route is granted or
+ * R-CHAPTER-009: the chapter the current one is judged as. Once an own route is granted or
  * flown, the variant standing in for its base under that route, whichever variant happened to be current.
  */
 function judgedEntry(content: Content, current: Id<"chapter">, routes: RouteSlice): ChapterEntry {
@@ -178,7 +178,7 @@ function judgedEntry(content: Content, current: Id<"chapter">, routes: RouteSlic
 
 /**
  * R-CHAPTER-002: why the chapter is finished, or null while it is not. `items`: every item met, or the one
- * item the entry names in `closesOn`. From 11 Oct 2026, `grant`: a chapter whose base comes at or before
+ * item the entry names in `closesOn`. `grant`: a chapter whose base comes at or before
  * decision day once a route is granted or flown, its items unmet: a route with no variant of its own (the
  * skilled worker's) could never meet the master's items the base names. The items are read first, so a
  * close the items earn never rests on the grant (R-CHAPTER-003).
@@ -197,7 +197,7 @@ function finished(content: Content, entry: ChapterEntry, routes: RouteSlice, met
 }
 
 /**
- * R-CHAPTER-003, 11 Oct 2026: a grant withdrawn before the flight (R-PEOPLE-036) reopens the chapters closed on
+ * R-CHAPTER-003: a grant withdrawn before the flight (R-PEOPLE-036) reopens the chapters closed on
  * it. Read from the state: closes on a grant are kept, the character is at home, and no route is granted or
  * flown any more, which only a withdrawal brings about (a grant otherwise only goes on to the flight). The first
  * of them by order is current again as it stands in under the lean now (R-CHAPTER-009); the rest come by order.
@@ -214,7 +214,7 @@ function reopenWithdrawn(ctx: Ctx): BaseEvent[] {
   return emit(ctx, "chapter", [reopened]);
 }
 
-/** R-CHAPTER-003, 11 Oct 2026: once a route is flown, the closes on the grant are final. */
+/** R-CHAPTER-003: once a route is flown, the closes on the grant are final. */
 function sealFlown(ctx: Ctx): BaseEvent[] {
   const byGrant = ctx.state.chapter.byGrant ?? [];
   if (byGrant.length === 0 || !flown(ctx.state.route, ctx.content)) return [];
@@ -245,7 +245,7 @@ function closeFinished(ctx: Ctx): BaseEvent[] {
     if (by === null) break;
     const next = nextAfter(ctx.content, entry, ctx.state.route, ctx.state.chapter);
     const grant = by === "grant" ? grantedRoute(ctx.state.route, ctx.content) : null;
-    // R-CHAPTER-003, 11 Oct 2026: a close the grant made remembers the route it rested on.
+    // R-CHAPTER-003: a close the grant made remembers the route it rested on.
     const closed: ChapterEvent = grant === null ? { type: "chapter/closed", chapter: entry.id, next } : { type: "chapter/closed", chapter: entry.id, next, onGrant: grant };
     // Applied first, so the report reads the close before the refill it pays for.
     emit(ctx, "chapter", [closed]);
@@ -397,7 +397,7 @@ export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {
     if (new Set(done).size !== done.length) problems.push(`A chapter is done more than once: ${done.join(", ")}.`);
     const { chosen } = state.chapter;
     if (chosen !== undefined && content.route[chosen] === undefined) problems.push(`The chosen plan ${chosen} is not a route in content.`);
-    // R-CHAPTER-003, 11 Oct 2026: the closes kept on a grant are done chapters, on a route in content.
+    // R-CHAPTER-003: the closes kept on a grant are done chapters, on a route in content.
     for (const kept of state.chapter.byGrant ?? []) {
       if (!done.includes(kept.chapter)) problems.push(`The chapter ${kept.chapter} closed on a grant is not done.`);
       if (content.route[kept.route] === undefined) problems.push(`The grant ${kept.route} a chapter closed on is not a route in content.`);
@@ -408,7 +408,7 @@ export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {
   // closes at this month's end as the phase would judge it, and the chapter that follows it with the lean as it stands.
   view: (read) => {
     const { current, done } = read.state.chapter;
-    // R-CHAPTER-009, 11 Oct 2026: the items are the variant's the phase judges, the grant's once there is one.
+    // R-CHAPTER-009: the items are the variant's the phase judges, the grant's once there is one.
     const entry = current === null ? undefined : judgedEntry(read.content, current, read.state.route);
     const items = entry === undefined ? [] : entry.items.map((item) => ({ id: item.id, met: check(read, item.requirement).met }));
     const closes = entry !== undefined && finished(read.content, entry, read.state.route, (requirement) => check(read, requirement).met);

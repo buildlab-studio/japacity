@@ -14,7 +14,7 @@ import type { WalletEvent } from "./wallet.events";
 
 type Closed = Extract<WalletEvent, { type: "wallet/month-closed" }>;
 /** A meal bought and eaten at once (R-HOME-012, decision 0035). */
-// A meal of your own since the home's wave: the family house's pot is free.
+// A meal bought is a meal of your own: the family house's pot is free.
 const MEAL: Id<"activity"> = "activity.cook-own";
 
 const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };
@@ -56,7 +56,7 @@ function upToMonth(name: string, month: number): number {
   return at + 1;
 }
 
-/** What a month's net leaves out: moves between pockets, a change's two sides (decision 0021 as amended) and held funds. */
+/** What a month's net leaves out: moves between pockets, a change's two sides (decision 0021) and held funds. */
 const NOT_COUNTED: readonly string[] = ["move", "convert", "held-funds", "held-funds-return"];
 
 /** The net of a step's own money in one currency, moves between pockets, a change's two sides and held funds aside. */

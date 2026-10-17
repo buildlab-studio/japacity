@@ -115,7 +115,7 @@ describe("the send-off card", () => {
   });
 
   test("[R-CHAPTER-006] [R-SHARE-001] given a chapter other than the send-off closing, when the view is read, then there is no send-off card but the chapter card for it, gone once the next month ends", () => {
-    // Since the lives were re-recorded for decision 0035, Ada's careful life meets Landing's last item on her first pay
+    // With the lives recorded under decision 0035, Ada's careful life meets Landing's last item on her first pay
     // abroad, whose own card stands before a chapter's; Tunde's recorded life abroad closes Landing in a month of its own.
     const { game, to } = replay("tunde-abroad");
     to((now) => now.state.place.where === "abroad");
@@ -151,7 +151,7 @@ describe("landing", () => {
   test("[R-CHAPTER-007] given Landing closing, when the month ends, then the bank is refilled as every chapter's close refills it", () => {
     const game = atSecure();
     expect(game.state.turn.banked).toBe(cap);
-    // the last chapter is followed by none.
+    // R-CHAPTER-010: the last chapter is followed by none.
     expect(game.view().chapter).toEqual({ current: SECURE, items: [{ id: "secure", met: false }], done: expect.arrayContaining([SEND_OFF, LANDING]) as unknown, closes: false, next: null });
   });
 });

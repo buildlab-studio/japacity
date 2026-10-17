@@ -41,7 +41,7 @@ export function freeHalfDays(state: State, content: Content): number {
   return state.activity.job === null ? halfDays.noJob : halfDays.withJob;
 }
 
-/** Validates `turn/end` before any phase runs (R-SETPIECE-002, R-TURN-006). The bank no longer gates it (R-TURN-003 as amended by decision 0034). */
+/** Validates `turn/end` before any phase runs (R-SETPIECE-002, R-TURN-006). The bank does not gate it (R-TURN-003, decision 0034). */
 function validateEnd(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "turn/end") throw new Error(`The turn kind cannot validate ${command.type}.`);
   const { state, content } = ctx;

@@ -1,5 +1,5 @@
 // The plan: the way out the chapters follow, named in the view, and the player's own choice of it
-// (docs/rules/chapter.md R-CHAPTER-009; the design's switch).
+// (docs/rules/chapter.md R-CHAPTER-009).
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

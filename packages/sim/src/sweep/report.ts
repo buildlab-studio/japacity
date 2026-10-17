@@ -61,7 +61,7 @@ function lawfulAt(record: RunRecord, mark: "12" | "36" | "60"): boolean {
   return held !== null && !OVERSTAYERS.includes(held);
 }
 
-/** The stages of a whole life, in order: brief m1-sweep, item 2. */
+/** The stages of a whole life, in order. */
 export const STAGES = ["granted", "departed", "lawful-12", "lawful-36", "lawful-60", "settled"] as const;
 export type Stage = (typeof STAGES)[number];
 

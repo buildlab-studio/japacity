@@ -301,9 +301,9 @@ export function checkLotteryContent(content: Content): string[] {
 // ---------------------------------------------------------------------------
 // The raffle: switched off by decision 0010
 // ---------------------------------------------------------------------------
-// The draw was a raffle among the sold tickets, with a pot the house made up,
-// until decision 0010 replaced it with fixed odds. The code and its tests stay,
-// unused, as the maintainer's switch-off rule asks.
+// A raffle among the sold tickets, with a pot the house made up. Decision 0010
+// draws by fixed odds instead. The code and its tests stay, unused: a feature
+// switched off keeps its code.
 
 /** One tier of the raffle: how many tickets it pays, in the order the tiers are filled. */
 export interface TierSpec {
@@ -385,8 +385,8 @@ export function drawWinners(seed: Uint8Array, count: number, tiers: TierSpec[]):
 /**
  * The raffle (R-LOTTERY-012 before decision 0010): one jackpot, `midCount` mid prizes, and one small prize in every `smallEvery` tickets sold.
  * the page says at least one small place; with few tickets sold, and above all with the house top-up
- * filling the pot, one in fifty sold made a small prize pay more than a mid one (₦41,250 against ₦16,500 in the
- * review of 8 Oct 2026). never fewer small places than keep a small share under a mid share.
+ * filling the pot, one in fifty sold made a small prize pay more than a mid one (₦41,250 against ₦16,500 in a
+ * review). never fewer small places than keep a small share under a mid share.
  */
 export function tiersFor(count: number, tuning: RaffleSettings): TierSpec[] {
   return [

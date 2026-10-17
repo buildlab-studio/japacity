@@ -1,5 +1,5 @@
-// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
-// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
+// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity/now, and an application checked as applying is read in the month it is sent.
 import { fc, test } from "@fast-check/vitest";
 import { content } from "@japacity/content";
 import { describe, expect } from "vitest";
@@ -84,9 +84,8 @@ function toKnown(game: Game): void {
 }
 
 /**
- * From a known route, the pool entered and the month ended. Returns the route lines of both. Restated for
- * R-ACTIVITY-015: entering the pool is an act done at once, so the profile is recorded in the month it is sent, and
- * the turn sent with it in the slots is now sent as `activity/now`.
+ * From a known route, the pool entered and the month ended. Returns the route lines of both. R-ACTIVITY-015: entering
+ * the pool is an act done at once, sent as `activity/now`, so the profile is recorded in the month it is sent.
  */
 function enterPool(game: Game): string[] {
   return routeKeys(game.endTurn([slot(ENTER_POOL)]).lines);

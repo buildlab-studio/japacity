@@ -37,7 +37,7 @@ function pastChapterOne(seed: string, cash?: number): Game {
   return game;
 }
 
-/** going to the stop is an act done at once, so the agent is at the table in the month it is sent. */
+/** R-ACTIVITY-015: going to the stop is an act done at once, so the agent is at the table in the month it is sent. */
 function openAt(game: Game): OfferState {
   game.accept({ type: "activity/now", activity: TO_STOP, param: GULF });
   const item = Object.values(game.state.offer.items).find((candidate) => candidate.entry === STOP);
@@ -241,7 +241,7 @@ describe("the police certificate", () => {
       const game = readyLife(content, { quiet: true, seed: `police-${String(n)}` });
       const paid = () => game.state.wallet.totals.out["fee-document"]?.NGN ?? 0;
       const before = paid();
-      // the request is made at once, in the month in hand, and its wait runs from that month.
+      // R-ACTIVITY-015: the request is made at once, in the month in hand, and its wait runs from that month.
       game.accept({ type: "activity/now", activity: GET_POLICE, param: null });
       const month = game.state.turn.month;
       const doc = game.state.document[POLICE]!;

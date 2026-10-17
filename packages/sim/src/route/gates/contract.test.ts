@@ -1,5 +1,5 @@
-// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
-// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
+// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity/now, and an application checked as applying is read in the month it is sent.
 import { fc, test } from "@fast-check/vitest";
 import { content, text } from "@japacity/content";
 import { describe, expect } from "vitest";
@@ -208,7 +208,7 @@ describe("R-CONTRACT-003: applying and the decision", () => {
     const game = ready();
     const visaFees = game.state.wallet.totals.out["fee-visa"];
     const foreign = { GBP: game.state.wallet.pockets.GBP, AED: game.state.wallet.pockets.AED };
-    // the papers are sent at once, so the route is applying in the month they are sent.
+    // R-ACTIVITY-015: the papers are sent at once, so the route is applying in the month they are sent.
     game.accept({ type: "activity/now", activity: APPLY, param: null });
     expect(routeOf(game).state).toBe("applying");
     expect(game.state.wallet.totals.out["fee-visa"]).toEqual(visaFees);

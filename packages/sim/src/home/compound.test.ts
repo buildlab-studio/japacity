@@ -121,7 +121,7 @@ describe("the numbers", () => {
     expect(home.compound.feesBp).toBe(2000);
     expect(compoundMoveIn(home)).toBe(MOVE_IN);
     expect(MOVE_IN).toBe(420_000_00);
-    // Its made-up spot in Ojuelegba (R-CITY-008 as amended 12 Oct 2026) is its own, so the map and the fares read one position for it.
+    // Its made-up spot in Ojuelegba (R-CITY-008) is its own, so the map and the fares read one position for it.
     expect(content.place[COMPOUND]).toMatchObject({ where: "home", city: "lagos", nameKind: "stylised", position: { latE3: 6513, lonE3: 3360 }, data: { source: "own" }, scope: "interior" });
   });
 });
@@ -400,7 +400,7 @@ describe("a start in the room (R-PROLOGUE-013)", () => {
 
   test("[R-PROLOGUE-013] given the home card, then it offers the family house, the room in a compound and Makoko, in that order, and the room's answer takes the year and the fees, opens the room's rent and upkeep and moves the life there", () => {
     const card = content.prologue["home"];
-    // The hostel room joined the card as the fourth home (the home's wave; hostel.test.ts).
+    // The hostel room is the card's fourth home (hostel.test.ts).
     expect(card?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "hostel-room", "makoko"]);
     const room = card?.answers.find((answer) => answer.id === "compound-room");
     expect(room?.requires).toEqual([{ type: "money/can-pay", currency: "NGN", amount: MOVE_IN + home.compound.upkeep }]);

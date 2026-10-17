@@ -421,7 +421,7 @@ describe("choosing", () => {
     const item = subject.open("offer.nepa-bill")!;
     const bank = subject.game.state.wallet.pockets.NGN.bank;
     const result = subject.accept({ type: "offer/choose", offer: item.id, choice: "pay" });
-    // A bill is paid by transfer, the bank first (decision 0012 as amended).
+    // A bill is paid by transfer, the bank first (decision 0012).
     expect(result.events).toContainEqual({ type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 2500000, reason: "family" });
     expect(subject.game.state.wallet.pockets.NGN.bank).toBe(bank - 2500000);
     expect(qualityChanges(result, "offer.nepa-bill.pay")).toEqual([[STANDING, 3]]);
@@ -706,7 +706,7 @@ describe("opened by an effect", () => {
     const hunt = { activity: "activity.job-hunt" as const, param: "activity.job-customer-service" };
     let item: OfferState | undefined;
     for (let month = 0; month < 20 && item === undefined; month += 1) {
-      // the hunt is applied for at once and the employer answers as the month ends.
+      // R-ACTIVITY-015: the hunt is applied for at once and the employer answers as the month ends.
       subject.accept({ type: "activity/now", ...hunt });
       item = opened(subject.accept({ type: "turn/end", slots: [] }))[0];
     }
@@ -725,7 +725,7 @@ describe("a hunt that lands while a job offer waits", () => {
       tuning: { ...content.tuning, quality: { ...content.tuning.quality, hireMaxBp: 10000 } },
     };
     const subject = lab({ content: certain });
-    // each hunt is applied for at once and answered as its month ends.
+    // R-ACTIVITY-015: each hunt is applied for at once and answered as its month ends.
     subject.accept({ type: "activity/now", activity: "activity.job-hunt", param: "activity.job-teacher" });
     const first = opened(subject.accept({ type: "turn/end", slots: [] }))[0]!;
     expect(first.terms).toEqual({ job: "activity.job-teacher" });

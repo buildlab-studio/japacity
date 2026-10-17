@@ -28,8 +28,8 @@ const CHANCE = 10000;
 
 /**
  * The real content with no ordinary offer rolled, so nothing but the health roll opens one, and an empty slot's rest
- * worth nothing. the hunt that filled every slot and moved no quality is now an act done at
- * once, so the month's slots are left empty and rest; with the rest at nothing they still move no quality.
+ * worth nothing. R-ACTIVITY-015: the hunt moves no quality and is an act done at once, so the month's slots are
+ * left empty and rest; with the rest at nothing they still move no quality.
  */
 const quiet: Content = applyOverlay(content, { version: "health-quiet", tuning: { offer: { maxNewPerMonth: 0 }, quality: { wellbeingRest: 0 } } });
 

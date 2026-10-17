@@ -47,7 +47,7 @@ const routeIs = (route: Id<"route">, state: string) => (game: Game) => game.stat
 
 describe("a grant on a route with no file of its own", () => {
   test("[R-CHAPTER-002] [R-CHAPTER-009] given Tunde's abroad life leaning to the master's at decision day, when the skilled worker's visa is granted, then decision day closes on the grant's turn, the bank is refilled and the lean is now the skilled route", () => {
-    // Since the lives were re-recorded for decision 0035, Tunde's abroad life is the one granted at decision day (month 19);
+    // With the lives recorded under decision 0035, Tunde's abroad life is the one granted at decision day (month 19);
     // Ada's is granted while still building the file and flies with decision day open, read below.
     // A first pass finds the command whose turn brings the grant; the second stops just before it.
     const granting = playTo(recorded("tunde-abroad").game, recorded("tunde-abroad").commands, 0, routeIs(SKILLED, "granted")).next - 1;
@@ -58,7 +58,7 @@ describe("a grant on a route with no file of its own", () => {
     expect(leanRoute(game.state.route, content, game.state.chapter.chosen)).toBe(UK);
     expect(game.state.chapter.current).toBe(DECISION);
     const { result } = playTo(game, commands, granting, routeIs(SKILLED, "granted"));
-    // a close the grant made carries the route it rested on.
+    // R-CHAPTER-003: a close the grant made carries the route it rested on.
     expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: DECISION, next: SEND_OFF, onGrant: SKILLED }]);
     expect(game.state.turn.banked).toBe(cap);
     expect(leanRoute(game.state.route, content, game.state.chapter.chosen)).toBe(SKILLED);
@@ -92,7 +92,7 @@ describe("a grant on a route with no file of its own", () => {
     expect(game.view().card).toMatchObject({ kind: "send-off", route: SKILLED, chapter: SEND_OFF });
     const month = game.state.turn.month;
     const { result } = playTo(game, commands, flight.next, (now) => now.state.turn.month > month);
-    // decision day closed on the flight's grant says so; the send-off's own item closed it.
+    // R-CHAPTER-003: decision day closed on the flight's grant says so; the send-off's own item closed it.
     expect(closed(result)).toEqual([
       { type: "chapter/closed", chapter: DECISION, next: SEND_OFF, onGrant: SKILLED },
       { type: "chapter/closed", chapter: SEND_OFF, next: LANDING },
@@ -168,7 +168,7 @@ describe("a grant on a route with a file of its own", () => {
     expect(game.state.chapter.current).toBe(FILE);
     grantCare(game);
     const result = game.endTurn();
-    // the grant closed the file, and the close says so.
+    // R-CHAPTER-003: the grant closed the file, and the close says so.
     expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: "chapter.build-the-file-care", next: "chapter.decision-day-care", onGrant: CARE }]);
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(["tb", "police", "applied", "granted"]);
   });
@@ -197,7 +197,7 @@ describe("a partner's route", () => {
     expect(game.state.chapter.current).toBe(FILE);
     // A partner's grant takes a bond and a decision; the route's state is written as the decision would leave it.
     game.state = { ...game.state, route: { ...game.state.route, [PARTNER]: { ...game.state.route[PARTNER]!, state: "granted" } } };
-    // the closes the grant made carry the route they rested on.
+    // R-CHAPTER-003: the closes the grant made carry the route they rested on.
     expect(closed(game.endTurn())).toEqual([{ type: "chapter/closed", chapter: FILE, next: DECISION, onGrant: PARTNER }]);
     expect(leanRoute(game.state.route, content)).toBe(PARTNER);
     expect(game.view().plan.route).toBe(PARTNER);

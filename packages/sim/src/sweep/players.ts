@@ -284,7 +284,8 @@ function takesMonth(view: PlayerView, id: string): boolean {
 
 /**
  * The room this player gives the month's picks: its free slots, less the now-acts already done this month. A now-act
- * fills no slot (R-ACTIVITY-015), but this player still spends the month's time on as many things as before.
+ * fills no slot (R-ACTIVITY-015), but this player counts it against the slots, so a month holds as many things as
+ * there are slots.
  */
 function monthRoom(view: PlayerView): number {
   return Math.max(0, view.freeSlots - view.activities.filter((item) => item.when === "now" && item.done).length);
@@ -1086,7 +1087,7 @@ export interface Decision {
   chanceBp: number;
 }
 
-/** How a run ends, read from the last state: brief m1-sweep, item 2. */
+/** How a run ends, read from the last state. */
 export type Ending = "settled" | "citizen" | "returned-by-choice" | "returned-broke" | "assisted-return" | "removed" | "road-lost" | "still-playing";
 
 export const ENDINGS: Ending[] = ["settled", "citizen", "returned-by-choice", "returned-broke", "assisted-return", "removed", "road-lost", "still-playing"];

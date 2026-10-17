@@ -245,8 +245,8 @@ describe("R-UNDERTAKING-010: social assistance", () => {
       expect(offered).toBeDefined();
       game.accept({ type: "offer/choose", offer: offered!.id, choice: "take" });
     };
-    // Calgary's street find (16 Oct 2026, design page 15) rolls before the abroad group and may take the month's rolls;
-    // it is kept from rolling here so each month's roll is the assistance's, as it was before the find existed.
+    // Calgary's street find (design page 15) rolls before the abroad group and may take the month's rolls;
+    // it is kept from rolling here so each month's roll is the assistance's.
     const noFind: LifeOptions = { change: (base) => ({ ...base, offer: { ...base.offer, "offer.street-find-ca": { ...base.offer["offer.street-find-ca"]!, chanceBp: 0 } } }) };
     const arrived = sponsor({ bank: under - 1, cash: 0 }, noFind);
     setPeople(arrived, (slice) => ({ ...slice, arrived: { route: CA_SPOUSE, month: arrived.state.turn.month } }));

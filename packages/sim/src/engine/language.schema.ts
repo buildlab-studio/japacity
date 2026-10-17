@@ -397,13 +397,13 @@ export type TermSpecMatches = Proof<Same<z.infer<typeof TermSpecSchema>, TermSpe
 // Tuning
 // ---------------------------------------------------------------------------
 
-// The ways of a country abroad (R-PLACE-010 as amended 16 Oct 2026, decision 0042), in that country's smallest unit.
+// The ways of a country abroad (R-PLACE-010, decision 0042), in that country's smallest unit.
 const RideFiguresSchema = z.strictObject({ fare: CountSchema, farePerKm: CountSchema, metresPerMinute: z.int().positive() });
 const CountryRidesSchema = z.strictObject({
   ways: z.strictObject({ bus: RideFiguresSchema.exactOptional(), train: RideFiguresSchema.exactOptional(), taxi: RideFiguresSchema.exactOptional() }),
   step: z.int().positive(),
   pass: CountSchema.nullable(),
-  // R-PLACE-012 as amended 16 Oct 2026 (decision 0043): the ways the pass covers.
+  // R-PLACE-012 (decision 0043): the ways the pass covers.
   passWays: z.array(z.enum(["bus", "train", "taxi"])),
   lonMetresPerE3: z.int().positive(),
   walkMetresPerMinute: z.int().positive(),

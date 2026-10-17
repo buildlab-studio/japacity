@@ -1,5 +1,5 @@
 // London lived by hand with the real content: docs/rules/streets.md R-STREET-012 (design page 14 section 6) and
-// abroad-money.md R-ABROAD-003 as amended 16 Oct 2026. Food is bought and cooked in pounds as it is eaten, the evenings
+// abroad-money.md R-ABROAD-003. Food is bought and cooked in pounds as it is eaten, the evenings
 // are paid as they are had, and the UK's upkeep is the phone alone.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -139,7 +139,7 @@ describe("the UK's upkeep", () => {
     expect(text["obligation.upkeep-uk.name"]).toBe("Your phone, pay as you go, in the UK");
     const game = flown(content);
     expect(Object.values(game.state.obligation.items).find((item) => item.entry === "obligation.upkeep-uk")).toMatchObject({ amount: 1500, state: "active" });
-    // Amended again 16 Oct 2026 (the three countries' wave): Canada, the UAE and Italy's upkeep is the prepaid phone too (activity.three.test.ts).
+    // Canada, the UAE and Italy's upkeep is the prepaid phone too (activity.three.test.ts).
     expect([content.obligation["obligation.upkeep-ca"]?.amount, content.obligation["obligation.upkeep-uae"]?.amount, content.obligation["obligation.upkeep-it"]?.amount]).toEqual([3000, 5000, 1000]);
   });
 });

@@ -1,5 +1,5 @@
-// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
-// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
+// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -48,7 +48,7 @@ function joined(lead: Id<"route">, dependant: Id<"route">, leadFacts: PersonFact
   return game;
 }
 
-/** the application is sent at once and the month is left open, as the slot's month was before it ended. */
+/** R-ACTIVITY-015: the application is sent at once and the month is left open. */
 function sent(leadState: RouteStateName = "applying", options: LifeOptions = {}): Game {
   const game = joined(SKILLED, UK_DEPENDANT, leadOn(SKILLED, leadState), options);
   game.accept({ type: "activity/now", activity: APPLY_UK, param: null });

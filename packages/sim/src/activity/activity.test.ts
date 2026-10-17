@@ -650,7 +650,7 @@ describe("hunting for a job", () => {
       for (let month = 0; month < 3; month += 1) ada.end([]);
       const chance = hireChanceBp(teacher, ada.game.state.quality["quality.network"]!, hireTuning);
       const expected = characterRandom(seed, {}).chance("job", chance);
-      // the hunt is applied for at once and the employer answers as the month ends.
+      // R-ACTIVITY-015: the hunt is applied for at once and the employer answers as the month ends.
       const applied = ada.send({ type: "activity/now", activity: "activity.job-hunt", param: "activity.job-teacher" });
       expect(applied.ok).toBe(true);
       const result = ada.end([]);
@@ -667,7 +667,7 @@ describe("starting and leaving a job", () => {
     expect(own(result, "activity/job-started")).toEqual([{ type: "activity/job-started", job: "activity.job-teacher", previous: "activity.job-bank-officer" }]);
     expect(tunde.game.state.activity.job).toBe("activity.job-teacher");
     expect(tunde.game.state.activity.tenure["activity.job-bank-officer"]).toBe(48);
-    // the view carries the job's month as the wallet will book it; a job at home is paid after tax.
+    // R-WALLET-016: the view carries the job's month as the wallet will book it; a job at home is paid after tax.
     expect(tunde.game.view().job).toEqual({ id: "activity.job-teacher", months: 0, side: null, pay: content.activity["activity.job-teacher"]!.pay, sidePay: null });
   });
 
@@ -823,7 +823,7 @@ describe("side gigs", () => {
     const tech = zainab.game.state.quality["quality.tech"]!;
     const gig = content.activity["activity.side-gig"]!.effects[0]!;
     if (gig.type !== "activity/gig") throw new Error("The side gig's first effect is the gig.");
-    // the cash gig is an act done at once, paid on the spot.
+    // R-ACTIVITY-015: the cash gig is an act done at once, paid on the spot.
     const result = zainab.send({ type: "activity/now", activity: "activity.side-gig", param: null });
     if (!result.ok) throw new Error(`The side gig was refused with ${result.code}.`);
     const paid = ledger(result).filter((line) => line.reason === "gig");
@@ -949,7 +949,7 @@ describe("invariants and random play", () => {
   test("[R-ACTIVITY-002] given a life with jobs to hunt, when the legal list is read, then it offers a hunt for each of them", () => {
     const game = start({ content, scenario: "scenario.ada" });
     const view = game.view();
-    // the hunt is an act done at once, so the list offers it as `activity/now`.
+    // R-ACTIVITY-015: the hunt is an act done at once, so the list offers it as `activity/now`.
     const hunts = legalCommands(view)
       .flatMap((command) => (command.type === "activity/now" && command.activity === "activity.job-hunt" ? [command.param] : []));
     const jobs = view.activities.find((option) => option.id === "activity.job-hunt")!.params!;

@@ -96,7 +96,7 @@ const AUTHORITY_SAMPLES: Record<AuthorityCommand, Loose[]> = {
         { tier: "mid", amount: 4000000 },
       ],
     },
-    // Decision 0010: a prize that still carries a part from the retired house top-up is refused.
+    // Decision 0010: a prize that carries a house top-up part is refused.
     { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "mid", amount: 4000000, topUp: 1500000 } as { tier: "mid"; amount: number }] },
   ],
   // R-WALLET-020: naira bought with real money, and two amounts the wallet refuses.
@@ -176,7 +176,7 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
       { type: "home/move", to: "place.makoko" },
       { type: "home/move", to: "place.family-house" },
     ],
-    // : a thing bought, one the family house has no place for, and a thing sold that is not owned.
+    // The market: a thing bought, one the family house has no place for, and a thing sold that is not owned.
     "thing/buy": [
       { type: "thing/buy", thing: "thing.fan" },
       { type: "thing/buy", thing: "thing.tv" },

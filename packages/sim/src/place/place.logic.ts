@@ -176,9 +176,9 @@ function fromStartingLife(read: ReadCtx, types: readonly ObligationType[], share
 function arrive(ctx: Ctx, country: Id<"country">, cause: Cause): BaseEvent[] {
   const entry = countryEntry(ctx.content, country);
   const month = ctx.state.turn.month;
-  // From Lagos or the road, a room's rent at home is let go too; between two countries only the home's charges close, as before.
+  // From Lagos or the road, a room's rent at home is let go too; between two countries only the home's charges close.
   const left = ctx.state.place.where === "abroad" ? HOME_TYPES : LEFT_TYPES;
-  //  with R-PLACE-002: leaving Lagos, what is owned is sold as the room is let go.
+  // R-PLACE-002: leaving Lagos, what is owned is sold as the room is let go.
   if (ctx.state.place.where === "home") ctx.apply([{ type: "things/sell-off" }], cause);
   const events = record(ctx, [{ type: "place/moved", to: "abroad", country, month }]);
   const token = ctx.state.place.heldAbroad;
@@ -309,7 +309,7 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 
 /**
  * Metres on the ground for one thousandth of a degree of latitude, everywhere; longitude's figure is the country's
- * (R-PLACE-010 as amended 16 Oct 2026), since a degree of longitude shrinks toward the poles. Near Lagos the two agree.
+ * (R-PLACE-010), since a degree of longitude shrinks toward the poles. Near Lagos the two agree.
  */
 const METRES_PER_E3 = 111;
 
@@ -399,9 +399,8 @@ function priced(figures: RideFare, from: { latE3: number; lonE3: number } | null
 }
 
 /**
- * R-PLACE-010 as amended 12 Oct 2026 and 16 Oct 2026 (decision 0042): a
- * way's fare is its flag-down figure plus its figure a kilometre times the straight-line distance between the two
- * places, rounded up to the step (fifty naira at home, the country's step abroad), then the month's factor. A place
+ * R-PLACE-010 (decision 0042): a farther place costs more. A way's fare is its flag-down figure plus its figure a
+ * kilometre times the straight-line distance between the two places, rounded up to the step (fifty naira at home, the country's step abroad), then the month's factor. A place
  * with no position stands at its flag-down figure. On foot nothing. Given the figures and the step, it prices any
  * country's way, as the view's `place.ways` carries them; given content and a way, it prices a way of Lagos.
  */
@@ -422,11 +421,11 @@ export function rideFare(
   return priced({ ...figures, step: FARE_STEP_KOBO, lonMetresPerE3: first.tuning.city.ride.lonMetresPerE3 }, from, to, fifth);
 }
 
-/** The room abroad: the home there, so a walk to it is always accepted (R-PLACE-010 as amended 16 Oct 2026). */
+/** The room abroad: the home there, so a walk to it is always accepted (R-PLACE-010). */
 const ROOM: Id<"place"> = "place.the-room";
 
 /**
- * R-PLACE-012 as amended 16 Oct 2026 (decision 0043): the act that buys a country's pass, the country's own now-act at its
+ * R-PLACE-012 (decision 0043): the act that buys a country's pass, the country's own now-act at its
  * station's machine. Only a country whose rides carry a `pass` figure has one; Italy has none.
  */
 const PASS_ACT: Readonly<Partial<Record<Id<"country">, Id<"activity">>>> = {
@@ -435,7 +434,7 @@ const PASS_ACT: Readonly<Partial<Record<Id<"country">, Id<"activity">>>> = {
   "country.uae": "activity.transit-pass-uae",
 };
 
-/** A country's rides, or null when it lists no way (Canada, the UAE and Italy until their waves): a ride there is refused. */
+/** A country's rides, or null when it lists no way: a ride there is refused. */
 function countryRides(content: Pick<Content, "tuning">, country: Id<"country">): CountryRides | null {
   const rides = content.tuning.city.ride.abroad[country];
   if (rides === undefined) return null;
@@ -452,7 +451,7 @@ export function passHeld(read: ReadCtx): boolean {
   return check(read, { type: "activity/played", activity: act }).met;
 }
 
-/** R-PLACE-012 as amended 16 Oct 2026 (decision 0043): a way the country's pass covers, in a month it is bought. */
+/** R-PLACE-012 (decision 0043): a way the country's pass covers, in a month it is bought. */
 function passCovers(read: ReadCtx, rides: CountryRides, way: RideWay): boolean {
   return (rides.passWays as readonly RideWay[]).includes(way) && passHeld(read);
 }
@@ -522,7 +521,7 @@ function payRide(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>, fa
 }
 
 /**
- * R-PLACE-010 as amended 16 Oct 2026 (decision 0042), R-PLACE-012 and R-PLACE-013 (decision 0043): a ride abroad,
+ * R-PLACE-010 (decision 0042), R-PLACE-012 and R-PLACE-013 (decision 0043): a ride abroad,
  * between two places of the character's country, on the country's ways or on foot. The scarcity factor is Lagos's and
  * is not applied; a way the pass covers asks nothing in a month it is bought, and the bus to or from a shuttle's stop
  * asks nothing in any month.
@@ -550,7 +549,7 @@ function rideAbroad(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>,
 }
 
 /**
- * R-PLACE-010 (decision 0011, amended 10 Oct and 16 Oct 2026): a ride between two places of the city, at home or in the
+ * R-PLACE-010 (decision 0011): a ride between two places of the city, at home or in the
  * country the character is in. On foot there is no fare, so a character with nothing can always move. The simulation
  * keeps no place of the city, so nothing here moves; the client moves once the ride is accepted.
  */
@@ -567,7 +566,7 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (where === "abroad") return country === null ? reject("not-legal", "Abroad with no country.") : rideAbroad(ctx, command, country);
   if (start.where !== "home" || end.where !== "home") return reject("not-legal", "A ride inside the city stays in the city.");
   if (homeFigures(ctx.content, way) === null) return reject("not-legal", `There is no ${way} in Lagos.`);
-  // : Drive is a way only while the life's car stands at home.
+  // Drive is a way only while the life's car stands at home.
   if (way === "drive" && !drives(ctx)) return reject("not-legal", "No car stands at home to drive.");
   // On foot only within walking distance: past it a fare is the only way, so a fare is a real cost.
   // A life may always walk home, however far: the long walk is its cost.
@@ -634,7 +633,7 @@ function tokenLapse(ctx: Ctx): BaseEvent[] {
 /**
  * R-RETURN-005. in a tick the director makes December, a character
  * abroad gets the December set piece, opened with no route so that nothing is
- * scored (R-SETPIECE-006). at most once in twelve months of
+ * scored (R-SETPIECE-006). At most once in twelve months of
  * the character's own time, read from `decemberMonth` (R-PLACE-009), so a
  * December that spans many ticks online opens it once.
  */
@@ -776,7 +775,7 @@ const FUEL_SCARCITY = "offer.fuel-scarcity" as const;
  * its fare; any other month, and abroad, the fare as it stands.
  */
 export function fareBpOf(read: Pick<ReadCtx, "state" | "content">): number {
-  // The scarcity is Lagos's (R-PLACE-010 as amended 16 Oct 2026): abroad, even in the month a flight follows it, fares stand.
+  // The scarcity is Lagos's (R-PLACE-010): abroad, even in the month a flight follows it, fares stand.
   if (read.state.place.where !== "home") return BP_WHOLE;
   return read.state.offer.lastOpened[FUEL_SCARCITY] === read.state.turn.month ? read.content.tuning.city.ride.scarcityBp : BP_WHOLE;
 }

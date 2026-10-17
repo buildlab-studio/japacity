@@ -1,5 +1,5 @@
-// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
-// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
+// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity/now, and an application checked as applying is read in the month it is sent.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -201,7 +201,7 @@ describe("hearing of a route and looking into it", () => {
   test("[R-ROUTE-002] given a meetup whose chance to hear is certain, when it is played, then the route is heard of via the meetup, after one draw on the offer stream", () => {
     const watch: Watch = { calls: 0, draws: {} };
     const game = life({ quiet: true, change: meetupChance(10000), kinds: watchHear(watch) });
-    // the meetup is an act done at once, so the route is heard of in the month it is sent.
+    // R-ACTIVITY-015: the meetup is an act done at once, so the route is heard of in the month it is sent.
     const result = game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
     expect(uk(game).state).toBe("heard");
     expect(uk(game).heardMonth).toBe(0);
@@ -261,7 +261,7 @@ describe("hearing of a route and looking into it", () => {
     const game = life({ quiet: true });
     for (let month = 0; month < 3; month += 1) game.endTurn();
     expect(game.view().routes[0]?.checklist).toEqual([]);
-    // reading the official page is an act done at once, so the route is known in the month it is read.
+    // R-ACTIVITY-015: reading the official page is an act done at once, so the route is known in the month it is read.
     const result = game.accept({ type: "activity/now", activity: "activity.look-into-route", param: UK });
     expect(uk(game)).toMatchObject({ state: "known", knownMonth: 3 });
     expect(routeLines(result.lines)).toEqual([{ key: "line.route.looked-into", params: { route: UK }, tone: "good", attention: false, counts: [] }]);
@@ -353,7 +353,7 @@ describe("the window", () => {
 
 describe("schools", () => {
   test("[R-ROUTE-006] given a known route, when two schools are applied to in one month, then each answer is due after a wait drawn on the school stream between its two figures", () => {
-    // an application is sent at once and runs once a month, so the two schools are
+    // R-ACTIVITY-015: an application is sent at once and runs once a month, so the two schools are
     // applied to in two lives on the same seed, each in the month it is sent, before the month ends.
     const seed = "seed-3";
     const [low, high] = school(ASHBY).answerMonths;
@@ -374,7 +374,7 @@ describe("schools", () => {
   test("[R-ROUTE-006] given a band exactly at a school's minimum, when it is applied to, then it is accepted; a step under, the turn is refused", () => {
     const at = life({ documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value: school(ASHBY).minBand } : paper)) });
     toKnown(at);
-    // the application is sent at once, and is pending in the month it is sent.
+    // R-ACTIVITY-015: the application is sent at once, and is pending in the month it is sent.
     at.accept({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY });
     expect(uk(at).schools[ASHBY]?.state).toBe("pending");
     const under = life({ documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value: school(ASHBY).minBand - 5 } : paper)) });
@@ -387,7 +387,7 @@ describe("schools", () => {
   test("[R-ROUTE-006] given a grade under a school's minimum, when it is applied to, then the turn is refused; at the minimum, it is accepted", () => {
     const game = life({ qualities: { [GRADE]: school(ASHBY).minGrade - 1 } });
     toKnown(game);
-    // the application is sent at once, and is pending in the month it is sent.
+    // R-ACTIVITY-015: the application is sent at once, and is pending in the month it is sent.
     game.expectRejected({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY }, "not-legal");
     game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE });
     expect(school(NORTHGATE).minGrade).toBe(school(ASHBY).minGrade - 1);
@@ -397,7 +397,7 @@ describe("schools", () => {
   test("[R-ROUTE-006] given an application pending or an offer held, when the same school is applied to again, then the turn is refused", () => {
     const game = life();
     toKnown(game);
-    // the application is sent at once and answered as the month ends; the school is not a
+    // R-ACTIVITY-015: the application is sent at once and answered as the month ends; the school is not a
     // param to pick while it is pending or holds an offer, the month after included, when the once-a-month cap is gone.
     const params = () => game.view().activities.find((candidate) => candidate.id === "activity.apply-to-school")?.params ?? [];
     game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE });
@@ -427,7 +427,7 @@ describe("schools", () => {
     }
     expect(waited).toBe(numbers.reapplyMonths);
     expect(option()).toMatchObject({ allowed: true, params: [NORTHGATE], missing: [] });
-    // the new application is sent at once, so it is pending from the month it is sent.
+    // R-ACTIVITY-015: the new application is sent at once, so it is pending from the month it is sent.
     const month = game.state.turn.month;
     game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE });
     expect(uk(game).schools[NORTHGATE]).toEqual({ state: "pending", readyMonth: month + 1, discount: 0 });
@@ -448,7 +448,7 @@ describe("schools", () => {
     const seed = seedWhere((candidate) => draw(candidate, "school", 0, 2) === 1);
     const game = life({ seed });
     toKnown(game);
-    // the application is sent at once; its wait runs from the month it is sent.
+    // R-ACTIVITY-015: the application is sent at once; its wait runs from the month it is sent.
     game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY });
     const due = uk(game).schools[ASHBY]!.readyMonth;
     expect(due).toBe(game.state.turn.month + 2);
@@ -1188,7 +1188,7 @@ describe("the first meetup", () => {
     expect(care).toBeGreaterThanOrEqual(30);
     for (let n = 0; n < 12; n += 1) {
       const game = firstMeetup("scenario.ngozi", `care-${String(n)}`);
-      // the meetup is an act done at once, so the route is heard of in the month it is sent.
+      // R-ACTIVITY-015: the meetup is an act done at once, so the route is heard of in the month it is sent.
       expect(game.state.route["route.uk-care"]).toMatchObject({ state: "heard", heardMonth: 0 });
     }
   });

@@ -265,7 +265,7 @@ function partnerStillSponsors(read: ReadCtx, status: Id<"status">): boolean {
  */
 function renewRefusal(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, entry: StatusEntry): string | null {
   if (entry.renewMonths <= 0 || held.expiresMonth === null) return `${held.entry} does not renew.`;
-  // R-STATUS-006 as amended: a status the employer renews (`renewBp`, no fee var) is never renewed at the player's asking.
+  // R-STATUS-006: a status the employer renews (`renewBp`, no fee var) is never renewed at the player's asking.
   if (entry.renewFeeVar === null) return `${held.entry} renews only by the employer's choice.`;
   const job = read.state.activity.job;
   if (entry.work === "one-employer" && (job === null || (held.job !== null && held.job !== job))) return `${held.entry} renews only while the job is held.`;
@@ -369,9 +369,9 @@ function settle(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-STATUS-006 as amended: in the contract's last month the employer renews a
- * status whose entry has `renewBp`, on the `status` stream, for no fee. A lost
- * draw leaves it to lapse the month after, as before.
+ * R-STATUS-006: in the contract's last month the employer renews a status
+ * whose entry has `renewBp`, on the `status` stream, for no fee. A lost draw
+ * leaves it to lapse the month after.
  */
 function employerRenew(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);

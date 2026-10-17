@@ -26,8 +26,8 @@ const MONTHS = 40;
 const MOST_COMMANDS = 600;
 
 /**
- * The param names the client used to guess money from, before lines were
- * typed. Each must now carry `{ currency, amount }` wherever it appears.
+ * Param names that hold money. Each must carry `{ currency, amount }`
+ * wherever it appears, so the client never guesses money from a bare number.
  */
 const OLD_MONEY_NAMES = [
   "amount",

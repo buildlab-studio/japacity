@@ -86,7 +86,7 @@ describe("a home of your own's corner", () => {
   test("[R-HOME-012] given the four cooking acts, when their entries are read, then the pot and the big pot are the family house's, at home only, and a meal of your own in naira is had at home only, the room abroad cooking in pounds; each lifts the belly as before", () => {
     expect(content.activity[POT]?.where).toBe("home");
     expect(content.activity[BIG_POT]?.where).toBe("home");
-    // no naira is charged abroad; in the UK the room's meal is activity.cook-own-uk.
+    // No naira is charged abroad; in the UK the room's meal is activity.cook-own-uk.
     expect(content.activity[OWN]?.where).toBe("home");
     expect(content.activity["activity.cook-own-uk"]).toMatchObject({ where: "abroad", country: "country.uk", cost: [{ currency: "GBP", reason: "food" }] });
     expect(content.activity[OWN_POT]?.where).toBe("home");

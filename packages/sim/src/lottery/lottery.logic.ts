@@ -66,7 +66,7 @@ function pay(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   for (const prize of prizes) {
     if (!(TIERS as readonly string[]).includes(prize.tier)) return reject("not-legal", `There is no tier ${String(prize.tier)}.`);
     if (!Number.isSafeInteger(prize.amount) || prize.amount < 1) return reject("bad-amount", "A prize is a whole number of kobo from 1.");
-    // Decision 0010: `pot-top-up` is retired, so a payout that still carries a house part is refused whole.
+    // Decision 0010: the house tops up nothing, so a payout that carries a house part is refused whole.
     const { topUp } = prize as { topUp?: unknown };
     if (topUp !== undefined && topUp !== 0) return reject("not-legal", "The house tops up nothing: pot-top-up is retired (decision 0010).");
   }

@@ -39,7 +39,7 @@ function aboutToLookIntoUk(): Game {
   return game;
 }
 
-/** Tunde leaning to the master's, in the master's file, as the m69 tests leave him. */
+/** Tunde leaning to the master's, in the master's file. */
 function inTheFile(): Game {
   const game = aboutToLookIntoUk();
   game.endTurn([slot("activity.look-into-route", UK)]);

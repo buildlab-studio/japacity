@@ -333,7 +333,7 @@ describe("the pitch", () => {
 
   test("[R-ROAD-002] given a curious character at home, when the free slot asks around at the motor park, then the park's pitch is open that same month", () => {
     const game = life();
-    // asking around is an act done at once, so the pitch opens now, in the month in hand.
+    // R-ACTIVITY-015: asking around is an act done at once, so the pitch opens now, in the month in hand.
     const result = game.accept({ type: "activity/now", activity: ASK_AROUND, param: null });
     expect(offerOf(game, PARK)).toBeDefined();
     expect(result.lines.some((line) => line.key === "line.offer.opened" && line.params.offer === PARK)).toBe(true);
@@ -581,7 +581,7 @@ describe("the chain under the page's numbers", () => {
   });
 
   test("[R-ROAD-006] given seed-51, when the chain is played, then the compound takes 0 months and is passed by", () => {
-    // The seed moved when the man at the park began to need asking around first.
+    // The man at the park needs asking around first, which this seed's chain follows.
     const { seen } = setOut("seed-51");
     expect(path(seen)).toEqual(["desert", "coast", "sea", "arrived"]);
   });
@@ -1046,7 +1046,7 @@ describe("on the road", () => {
 });
 
 // ---------------------------------------------------------------------------
-// A formal flight and the road (the sweep's finding 2)
+// A formal flight and the road
 // ---------------------------------------------------------------------------
 
 describe("a formal flight and the road", () => {

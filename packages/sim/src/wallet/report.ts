@@ -100,7 +100,7 @@ function working(main: number, state: State, content: Content): number {
  * main job's month, plus overtime in every free slot, plus the best side job paid
  * to the bank. Cash work: the best cash job the same way. Gig: a side gig in every
  * free slot and the best side job paid in cash, plus what the prologue pays.
- * Opening: the richest starting life. Pot-top-up: nothing, retired by decision 0010.
+ * Opening: the richest starting life. Pot-top-up: nothing (decision 0010).
  * A reason with no ceiling here raises no alarm.
  */
 const CEILINGS: Partial<Record<Reason, Ceiling>> = {

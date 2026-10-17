@@ -71,7 +71,7 @@ function twoSegments() {
 describe("the flat save of the first milestone", () => {
   test("[R-SERVER-020] [R-ENGINE-010] given every committed golden and recorded life, when loaded, then each is one segment starting from its scenario and replays to its blessed months and final hash", () => {
     const flat = Object.entries(lifeSaves);
-    // Three flights and three lives abroad (the sweep's recordings).
+    // Three flights and three recorded lives abroad.
     expect(flat.length).toBe(6);
     for (const [, save] of flat) {
       expect(isFlatSave(save)).toBe(true);

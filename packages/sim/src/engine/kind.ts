@@ -120,8 +120,8 @@ export interface TurnInProgress {
 }
 
 /**
- * The Ctx the engine really hands to kinds. The two extra fields are the ones
- * the maintainer may fold into the contract. Kinds read them through the helpers
+ * The Ctx the engine really hands to kinds. The two extra fields are not in
+ * the contract's Ctx. Kinds read them through the helpers
  * below, so they never need a cast.
  */
 export interface EngineCtx extends Ctx {

@@ -112,7 +112,7 @@ describe("Computer Village: a phone", () => {
     ]);
     setNaira(game, street.phonePrice - 1, 0);
     expect(option(game, PHONE)).toMatchObject({ allowed: true, affordable: false });
-    // the phone is bought at once, so with the naira short it is refused with cannot-afford
+    // R-ACTIVITY-015: the phone is bought at once, so with the naira short it is refused with cannot-afford
     // and nothing changes (the handle checks the state is untouched), where the slot failed for its cost.
     expect(game.expectRejected({ type: "activity/now", activity: PHONE, param: null }, "cannot-afford").code).toBe("cannot-afford");
   });
@@ -204,7 +204,7 @@ describe("the bridge: sleeping rough", () => {
   test("[R-STREET-004] given a night under the bridge, when the month resolves, then it costs nothing and gives the rest an empty slot gives", () => {
     const slots = ada().view().freeSlots;
     // The naira held kept in the bank, so the theft the night may draw (its own price, tested in offer.street.test.ts)
-    // finds no cash on either side: the living costs no longer empty the cash first (R-WALLET-018).
+    // finds no cash on either side: the living costs do not empty the cash first (R-WALLET-018).
     const inBank = (game: Game): void => {
       const { bank, cash } = game.state.wallet.pockets.NGN;
       setNaira(game, 0, bank + cash);

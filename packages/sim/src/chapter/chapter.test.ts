@@ -170,9 +170,8 @@ describe("a chapter that one item closes", () => {
     expect(state.chapter.current).toBe("chapter.send-off");
   });
 
-  // a grant finishes the chapters up to decision day
-  // whatever their items say, so with no closesOn the grant still closes it. It stayed open before. The closesOn
-  // item alone is tested below on chapters no grant reaches.
+  // R-CHAPTER-002: a grant finishes the chapters up to decision day whatever their items say, so with no closesOn the
+  // grant still closes it. The closesOn item alone is tested below on chapters no grant reaches.
   test("[R-CHAPTER-002] given the same file with no closesOn on decision day, when the grant comes, then the grant closes it all the same, though not every item holds", () => {
     const open: ChapterEntry = { ...content.chapter[DECISION]! };
     delete open.closesOn;
@@ -180,7 +179,7 @@ describe("a chapter that one item closes", () => {
     const { result, state, world } = grantWithHeldLapsed(without);
     expect(state.route[UK]?.state).toBe("granted");
     expect(check({ state, world, content: without }, HELD).met).toBe(false);
-    // the grant clause closed it, so the close carries the route.
+    // R-CHAPTER-003: the grant clause closed it, so the close carries the route.
     expect(result.events).toContainEqual({ type: "chapter/closed", chapter: DECISION, next: "chapter.send-off", onGrant: UK });
     expect(state.chapter.current).toBe("chapter.send-off");
   });
@@ -241,7 +240,7 @@ describe("the last chapter", () => {
     const last = game.endTurn();
     expect(chapterLines(last.lines)).toEqual([{ key: "line.chapter.closed", params: { chapter: TWO }, tone: "good", attention: true, counts: [] }]);
     expect(game.state.chapter).toEqual({ current: null, done: [ONE, TWO] });
-    // with no chapter left, nothing closes and nothing follows.
+    // R-CHAPTER-010: with no chapter left, nothing closes and nothing follows.
     expect(game.view().chapter).toEqual({ current: null, items: [], done: [ONE, TWO], closes: false, next: null });
     const after = game.endTurn();
     expect(after.events.filter((event) => event.type.startsWith("chapter/"))).toEqual([]);
@@ -269,7 +268,7 @@ describe("the chapter in the view", () => {
         { id: "known", met: false },
       ],
       done: [],
-      // the chapter does not close with two items open, and the master's file follows.
+      // R-CHAPTER-010: the chapter does not close with two items open, and the master's file follows.
       closes: false,
       next: FILE,
     });

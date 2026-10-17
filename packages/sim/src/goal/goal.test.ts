@@ -73,8 +73,8 @@ function untilOpen(game: Game, goal: Id<"goal">, most = 24): Accepted {
 }
 
 /**
- * Applies the effects and plays the month; the goal phase runs at its end. the hunt is
- * now an act done at once and fills no slot, so the months before rest more and the re-recorded life lands higher;
+ * Applies the effects and plays the month; the goal phase runs at its end. R-ACTIVITY-015: the hunt is
+ * an act done at once and fills no slot, so the months before rest and the recorded life lands high;
  * standing and wellbeing are brought down from the top again first, so a reward still shows in full.
  */
 function thenMonth(game: Game, effects: Effect[]): Accepted {

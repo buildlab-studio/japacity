@@ -1,7 +1,7 @@
 // Working life abroad: docs/rules/ladders.md, abroad-money.md R-ABROAD-002, car.md,
 // health.md R-HEALTH-004. Lives reach abroad through the real route kind (`flown`).
-// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
-// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
+// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

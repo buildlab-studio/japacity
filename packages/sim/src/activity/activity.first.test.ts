@@ -1,4 +1,4 @@
-// The first session: docs/rules/guides.md R-GUIDE-014, as amended on 8 Oct 2026.
+// The first session: docs/rules/guides.md R-GUIDE-014.
 // Every starting life sees an early win by its third month; the life's first
 // hunt in those months is sure, at the lowest wage on offer.
 import { content } from "@japacity/content";
@@ -133,10 +133,9 @@ describe("the sure first hunt", () => {
   });
 });
 
-// the developer applied for the junior developer's job with the month full (the
-// portfolio and open source at the desk, the meetup), and the month answered with an offer for customer service and not
-// one word of the job asked for. The plan never touched the pick: the draw missed and the sure hunt landed its own job.
-// The month now says the job asked for came to nothing before the offer for the one landed.
+// The developer applies for the junior developer's job with the month full (the portfolio and open source at the desk,
+// the meetup); the draw misses and the sure hunt lands another job. The month says the job asked for came to nothing
+// before the offer for the one landed.
 describe("the sure hunt that lands another job", () => {
   const FULL: { activity: Id<"activity">; param: null }[] = [
     { activity: "activity.learn-tech", param: null },

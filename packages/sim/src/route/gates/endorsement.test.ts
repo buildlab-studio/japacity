@@ -1,5 +1,5 @@
-// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
-// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
+// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -44,7 +44,7 @@ function withCooldownStep(used: Content): Content {
 /**
  * Ada, who holds no job, so her tech and network stay where they are set. The talent route's window is held open
  * unless a test sets it: the world's own pool may close it in any world (`news.uk-talent-body-closes`, R-DIRECTOR-003),
- * and since the one-chance story joined the pool (wallet.md R-WALLET-019) it does so in the test world's first months.
+ * and with the one-chance story in the pool (wallet.md R-WALLET-019) it does so in the test world's first months.
  */
 function talentLife(options: LifeOptions = {}): Game {
   const vars = (tick: number) => ({ [entry.window!]: 2, ...options.vars?.(tick) });
@@ -79,8 +79,7 @@ function toKnown(game: Game): void {
 }
 
 /**
- * Asks for the endorsement and plays to the month before it is issued. Returns that month. Restated for
- * R-ACTIVITY-015: the request is sent at once and the month left open, so the letter is never issued in the month it
+ * Asks for the endorsement and plays to the month before it is issued. Returns that month. R-ACTIVITY-015: the request is sent at once and the month left open, so the letter is never issued in the month it
  * is asked for before the test can read it.
  */
 function toRequested(game: Game): number {
@@ -234,7 +233,7 @@ describe("the endorsement gate", () => {
       const game = talentLife({ change: ALWAYS_ENDORSED });
       toIssued(game);
       const before = game.state.wallet.pockets.GBP.bank;
-      // the application is sent at once, so the route is applying in the month it is sent.
+      // R-ACTIVITY-015: the application is sent at once, so the route is applying in the month it is sent.
       game.accept({ type: "activity/now", activity: APPLY_VISA, param: null });
       expect(talent(game).state).toBe("applying");
       const surcharge = startVar("var.uk-surcharge-year");

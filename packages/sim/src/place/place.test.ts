@@ -16,7 +16,7 @@ import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnSh
 const UK: Id<"country"> = "country.uk";
 const CANADA: Id<"country"> = "country.canada";
 
-/** The four ways of Lagos as the view lists them with no car at home (R-PLACE-010 as amended 16 Oct 2026). */
+/** The four ways of Lagos as the view lists them with no car at home (R-PLACE-010). */
 function lagosWays(): unknown[] {
   const { fareKobo, farePerKmKobo, metresPerMinute } = content.tuning.city.ride;
   return (["danfo", "keke", "okada", "walk"] as const).map((way) => ({ way, currency: "NGN", fare: fareKobo[way], farePerKm: farePerKmKobo[way], step: 5000, lonMetresPerE3: 111, metresPerMinute: metresPerMinute[way], passed: false }));

@@ -1,7 +1,7 @@
 // The agents: docs/rules/advice.md R-ADVICE-005 to 012, played through the
 // harness with the real content.
-// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
-// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
+// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity/now, and an application checked as applying is read in the month it is sent.
 import { content, text } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
@@ -56,7 +56,7 @@ function pastChapterOne(seed: string, network = advice.networkToAsk, siblings?: 
 }
 
 /**
- * going to the stop or up to the office is an act done at once, so the agent is at the
+ * R-ACTIVITY-015: going to the stop or up to the office is an act done at once, so the agent is at the
  * table now, in the month it is sent; it was a slot whose agent opened as the month ended.
  */
 function openAt(game: Game, activity: Id<"activity"> = TO_STOP): OfferState {

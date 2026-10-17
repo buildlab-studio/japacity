@@ -516,7 +516,7 @@ function parcelShipped(ctx: Ctx): BaseEvent[] {
   return openOffer(ctx, entry, {});
 }
 
-/** The offers opened by roll this month so far, at the day's arrivals and the close together (R-OFFER-001 as amended, R-OFFER-008). */
+/** The offers opened by roll this month so far, at the day's arrivals and the close together (R-OFFER-001, R-OFFER-008). */
 function rolledThisMonth(state: State): number {
   return state.offer.rolledMonth === state.turn.month ? state.offer.rolled : 0;
 }
@@ -605,7 +605,7 @@ function evolve(slice: OfferSlice, event: OfferEvent): OfferSlice {
   switch (event.type) {
     case "offer/opened": {
       const { item } = event;
-      // R-OFFER-001 as amended: the month's rolled count, kept across the day's arrivals and the close.
+      // R-OFFER-001: the month's rolled count, kept across the day's arrivals and the close.
       const sameMonth = slice.rolledMonth === item.openedMonth;
       const rolled = event.rolled === true ? (sameMonth ? slice.rolled + 1 : 1) : sameMonth ? slice.rolled : 0;
       return {

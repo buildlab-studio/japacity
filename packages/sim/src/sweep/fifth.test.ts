@@ -1,4 +1,4 @@
-// The fifth starting life (the decision P10) through the engine: the
+// The fifth starting life through the engine: the
 // scenario rules every fixed life keeps, and a prologue closed from the start.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";

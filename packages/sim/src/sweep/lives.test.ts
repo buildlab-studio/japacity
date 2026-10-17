@@ -33,7 +33,7 @@ describe("the three real lives as golden scripts", () => {
       expect(second).toEqual(first);
 
       const { state } = replay(script.save, content, worldAt);
-      // R-GATE-003: the flight no longer ends the life.
+      // R-GATE-003: the flight does not end the life.
       expect(state.turn.ended).toBe(false);
       expect(state.place).toMatchObject({ where: "abroad", country: "country.uk" });
       expect(state.route["route.uk-masters"]?.state).toBe("departed");

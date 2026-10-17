@@ -59,7 +59,7 @@ describe("names", () => {
     expect(problemsWith({ ...place(VISA_CENTRE), realName: "A Real Visa Office" })).toMatch(/institution carries the real name/);
     const mapped = { source: "osm" as const, licence: "ODbL-1.0" as const, checked: "2026-10-08" };
     expect(problemsWith({ ...place(VISA_CENTRE), position: { latE3: 6430, lonE3: 3426 }, data: mapped })).toMatch(/would pin a real office/);
-    // Its own made-up spot is allowed (R-CITY-008 as amended 12 Oct 2026): content gives the visa centre one.
+    // Its own made-up spot is allowed (R-CITY-008): content gives the visa centre one.
     expect(place(VISA_CENTRE).data?.source).toBe("own");
     expect(placeChecks(withPlace(place(VISA_CENTRE)))).toEqual([]);
     expect(problemsWith({ ...place(VISA_CENTRE), area: null })).toMatch(/institution has no area/);
@@ -106,8 +106,8 @@ describe("what happens where", () => {
   });
 
   test("[R-CITY-010] given an id staged by a place of one country and by a place that serves every country, when checked, then both are allowed", () => {
-    // The country-less test centre is gone (city.md, design page 15), so the room, which serves every country, stands in for
-    // a country-less place staging the UK test centre's nurse's tests.
+    // There is no country-less test centre (city.md, design page 15), so the room, which serves every country, stands in
+    // for a country-less place staging the UK test centre's nurse's tests.
     expect(place("place.test-centre-uk").stages).toContain("activity.nmc-tests");
     const room = place("place.the-room");
     expect(placeChecks(withPlace({ ...room, stages: [...room.stages, "activity.nmc-tests"] }))).toEqual([]);
@@ -115,7 +115,7 @@ describe("what happens where", () => {
   });
 
   test("[R-CITY-010] given overtime staged at four workplaces of the UK, when checked, then it is allowed as the rota board's act at each; any other id at two places of one country is still refused", () => {
-    // overtime alone may stand at several places of one country.
+    // Overtime alone may stand at several places of one country.
     const atOvertime = Object.values(content.place).filter((one) => one.country === "country.uk" && (one.stages as readonly string[]).includes("activity.overtime")).map((one) => one.id);
     expect(atOvertime.sort()).toEqual(["place.big-shop-uk", "place.care-home-uk", "place.ward-uk", "place.warehouse-uk"]);
     expect(placeChecks(content)).toEqual([]);

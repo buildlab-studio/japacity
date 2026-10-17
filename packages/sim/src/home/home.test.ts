@@ -147,7 +147,7 @@ describe("the numbers", () => {
       returnStanding: -5,
       compound: { rentYear: 350_000_00, feesBp: 2000, upkeep: 50_000_00 },
       selfContainRentYear: 700_000_00,
-      // the plan section 2: a hostel room's month, about half the room in a compound's month of rent.
+      // A hostel room's month, about half the room in a compound's month of rent.
       hostelRentKobo: 15_000_00,
       // R-HOME-012 (decision 0035): the whole of living at home is lived by hand.
       livingByHandBp: 10000,
@@ -161,7 +161,7 @@ describe("the slice", () => {
   test("[R-HOME-001] given a new life, when it starts, then the character lives at the family house with no guest and no move made", () => {
     const game = ada();
     expect(game.state.home).toEqual({ place: FAMILY, since: 0, guest: null, moved: null, evicted: null, hosting: null });
-    // the view carries the card's moves too.
+    // R-HOME-008: the view carries the card's moves too.
     expect(game.view().home).toEqual({
       place: FAMILY,
       since: 0,
@@ -178,7 +178,7 @@ describe("the slice", () => {
         // The hostel's month is its rent, which is never lived by hand.
         { to: HOSTEL, monthly: { currency: "NGN", amount: home.hostelRentKobo }, now: home.hostelRentKobo, shut: null },
       ],
-      // no yearly rent is open at the family house.
+      // R-HOME-010: no yearly rent is open at the family house.
       roomRent: null,
     });
   });
@@ -338,7 +338,7 @@ describe("the home point", () => {
   test("[R-HOME-006] given Ada in Makoko, when she cooks and fetches water in a month, then the reliefs come off Makoko's upkeep, the one open", () => {
     const there = inMakoko(CHARGED_NEVER);
     const twin = inMakoko(CHARGED_NEVER);
-    // the move month's rent was paid on the move, so the reliefs are read in the month after.
+    // The move month's rent was paid on the move, so the reliefs are read in the month after.
     month(there);
     month(twin);
     const played = there.endTurn([

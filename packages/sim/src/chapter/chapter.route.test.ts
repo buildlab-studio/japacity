@@ -102,7 +102,7 @@ describe("the file follows the lean", () => {
     const game = life("scenario.ngozi");
     untilHeard(game, CARE);
     untilHeard(game, UK);
-    // reading the official page runs once a month now, so the two routes are looked into in
+    // R-ACTIVITY-015: reading the official page runs once a month, so the two routes are looked into in
     // one month by the adviser, who looks into every route only heard of in one visit (R-ADVICE-004).
     const result = game.endTurn([slot("activity.see-adviser")]);
     expect(game.state.route[UK]?.knownMonth).toBe(game.state.route[CARE]?.knownMonth);

@@ -16,8 +16,8 @@ const content: Content = { ...realContent, tuning: { ...realContent.tuning, home
 import { start } from "../testing/play";
 import { abroad, eventsOf, owedOf, setPounds, UPKEEP } from "./obligation.journey";
 
-// The meal bought and cooked, at home or abroad: a meal of your own since the home's wave, the old
-// cooking act's entry as it was; the family house's pot is free and tested in home/pot.test.ts.
+// The meal bought and cooked, at home or abroad: a meal of your own; the family house's pot is free and tested in
+// home/pot.test.ts.
 const COOK: Id<"activity"> = "activity.cook-own";
 const COOK_UK: Id<"activity"> = "activity.cook-own-uk";
 const WATER: Id<"activity"> = "activity.fetch-water";
@@ -68,7 +68,7 @@ function wellbeingFrom(result: Accepted, source: string): number[] {
 describe("the two activities", () => {
   test("[R-OBLIGATION-014] given the content, when cooking and water are read, then both fill no slot, both apply at home only, and each relieves the upkeep by its tuning share", () => {
     // Decision 0035: a meal is bought and eaten now, and repeats; it still relieves a charged upkeep by its share.
-    // the naira meal is cooked at home only; the room abroad cooks in the country's money.
+    // The naira meal is cooked at home only; the room abroad cooks in the country's money.
     expect(entry(COOK)).toMatchObject({ slot: "none", where: "home", when: "now", repeat: true, requires: [] });
     expect(entry(COOK).cost).toEqual([{ currency: "NGN", amount: 150000, reason: "food" }]);
     expect(entry(COOK).effects).toEqual([
@@ -76,7 +76,7 @@ describe("the two activities", () => {
       { type: "quality/add", quality: "quality.belly", amount: 25 },
       { type: "quality/add", quality: WELLBEING, amount: 2 },
     ]);
-    // water is bought where it is sold, so the seller's act needs a home with no yard tap; the compound fills its drum free.
+    // Water is bought where it is sold, so the seller's act needs a home with no yard tap; the compound fills its drum free.
     // The hostel's drum is filled free from its tap too: either room's charge open.
     const compound = {
       type: "any",
@@ -91,7 +91,7 @@ describe("the two activities", () => {
       { type: "quality/add", quality: "quality.energy", amount: -8 },
     ]);
     expect(entry(DRUM)).toMatchObject({ slot: "none", where: "home", cost: [], requires: [compound], effects: [] });
-    // the starting figures.
+    // The starting figures.
     expect([room.cookedBp, room.waterBp]).toEqual([1500, 400]);
   });
 
@@ -199,12 +199,12 @@ describe("abroad", () => {
     expect(ids).not.toContain(COOK);
     expect(ids).not.toContain(WATER);
     game.expectRejected({ type: "turn/end", slots: [slot(WATER)] }, "not-legal");
-    // the naira meal is home's alone.
+    // The naira meal is home's alone.
     game.expectRejected({ type: "activity/now", activity: COOK, param: null }, "not-legal");
   });
 
   test("[R-OBLIGATION-014] given the meal in pounds cooked in the room in the UK, when the month ends, then nothing is relieved: the upkeep is charged whole and no relief is recorded or told", () => {
-    // abroad the country's own meal relieves nothing, since the UK's upkeep is the phone alone.
+    // Abroad the country's own meal relieves nothing, since the UK's upkeep is the phone alone.
     const game = abroad(content);
     const twin = abroad(content);
     for (const life of [game, twin]) setPounds(life, 1_000_000);
