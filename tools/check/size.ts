@@ -1,9 +1,9 @@
-// pnpm check:size (docs/rules/engine.md R-ENGINE-020): what a first visit downloads stays inside its budget.
+// pnpm check:size (engine:first-download-has-budget): what a first visit downloads stays inside its budget.
 // Builds the client in production mode into a folder of its own, with placeholder settings in the shape of a
 // deploy's, takes the chunks the page loads before anything else (the entry and everything it imports
 // statically, which the page's modulepreload links name), and compares each one's gzipped size with
 // tools/check/size-budget.json. A chunk over its budget fails with its name and both numbers. Also fails when any of
-// the admin page's code is in those chunks (moderation.md R-MODERATION-012). Runs locally and in the check
+// the admin page's code is in those chunks (moderation:admin-view-for-admin-list). Runs locally and in the check
 // workflow; it reads and writes only local files and sends nothing anywhere.
 //
 // Usage: pnpm check:size
@@ -92,7 +92,7 @@ export function measure(chunks: readonly ReportChunk[], gzipped: (file: string) 
   return sizes;
 }
 
-/** R-MODERATION-012: a line for every admin module in a first-visit chunk. */
+/** moderation:admin-view-for-admin-list: a line for every admin module in a first-visit chunk. */
 export function adminInFirstVisit(chunks: readonly ReportChunk[]): string[] {
   return chunks.flatMap((chunk) =>
     chunk.modules.filter((id) => ADMIN.test(id) && !ADMIN_ADDRESS.test(id)).map((id) => `${chunk.file} holds ${id.slice(id.indexOf("apps/client/"))}: the admin page loads only at /admin.`),

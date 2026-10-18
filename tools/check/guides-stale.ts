@@ -1,5 +1,5 @@
 // tsx tools/check/guides-stale.ts --today YYYY-MM-DD: lists the guides not checked for
-// tuning.guide.staleMonths months (R-GUIDE-004). The date is an argument so the
+// tuning.guide.staleMonths months (guide:guides-show-checked-date). The date is an argument so the
 // content check itself never reads a clock.
 import type { Content } from "@japacity/sim";
 

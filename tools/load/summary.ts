@@ -1,4 +1,4 @@
-// The run's summary (docs/rules/load.md R-LOAD-011): the thresholds, the
+// The run's summary (load:run-summary-recorded): the thresholds, the
 // measured values, the machine, the tool and runtime versions, the stores'
 // size before and after, bytes written per command, and the seed. It is
 // written to results/ and pasted into the change that adds or alters the test.
@@ -32,7 +32,7 @@ export interface Summary {
   stores: { kind: string; before: Counts; after: Counts; bytesPerCommand: number };
 }
 
-/** R-LOAD-011: everything the summary holds. Bytes per command are the stores' growth over the commands accepted. */
+/** load:run-summary-recorded: everything the summary holds. Bytes per command are the stores' growth over the commands accepted. */
 export function summaryOf(input: Omit<Summary, "checks" | "verdict" | "stores"> & { stores: { kind: string; before: Counts; after: Counts } }): Summary {
   const { verdict, checks } = passRule(input.result, input.plan);
   const grown = input.stores.after.rowBytes + input.stores.after.snapshotBytes - input.stores.before.rowBytes - input.stores.before.snapshotBytes;
@@ -45,7 +45,7 @@ const MEGABYTE = 1024 * 1024;
 const megabytes = (bytes: number) => `${String(int.divFloor(bytes, MEGABYTE))} MB`;
 const size = (counts: Counts) => `${megabytes(counts.rowBytes + counts.snapshotBytes)} (${String(counts.rows)} log rows, ${String(counts.snapshots)} snapshots, ${String(counts.characters)} characters)`;
 
-/** R-LOAD-011: the summary as Markdown. */
+/** load:run-summary-recorded: the summary as Markdown. */
 export function summaryMarkdown(summary: Summary): string {
   const { result, plan } = summary;
   const lines = [
@@ -57,7 +57,7 @@ export function summaryMarkdown(summary: Summary): string {
     `- Machine: ${summary.machine.cpu}, ${String(summary.machine.cores)} cores, ${megabytes(summary.machine.memoryBytes)}, ${summary.machine.os}`,
     `- Versions: ${Object.entries(summary.versions).map(([name, version]) => `${name} ${version}`).join(", ")}`,
     "",
-    "## R-LOAD-009",
+    "## load:main-scenario-pass-thresholds",
     "",
     "| Check | Threshold | Measured | |",
     "|---|---|---|---|",
@@ -67,9 +67,9 @@ export function summaryMarkdown(summary: Summary): string {
     `Accepted ${String(result.accepted)}; expected stale ${String(result.staleExpected)}; sent as another kind because the view offered none of the kind asked for: ${String(result.fallbacks)}; lives ended: ${String(result.ended)}; load route failures: ${String(result.viewFailures)}.`,
     `Asked for: ${Object.entries(result.wanted).map(([kind, count]) => `${kind} ${String(count)}`).join(", ")}.`,
     `Sent: ${Object.entries(result.sentKinds).map(([kind, count]) => `${kind} ${String(count)}`).join(", ")}.`,
-    ...(result.reads === null ? [] : ["", `R-LOAD-005 (reported, not a gate): ${String(result.reads.count)} reads, 95th percentile ${ms(result.reads.p95Us)}, ${String(result.reads.failures)} not 200.`]),
+    ...(result.reads === null ? [] : ["", `load:peak-reads-reported-only (reported, not a gate): ${String(result.reads.count)} reads, 95th percentile ${ms(result.reads.p95Us)}, ${String(result.reads.failures)} not 200.`]),
     "",
-    "## R-LOAD-010",
+    "## load:correctness-checked-after-run",
     "",
     ...(summary.verification === null ? ["Not run."] : verificationLines(summary.verification).map((line) => (line.startsWith("  ") ? `    ${line.trim()}` : `- ${line}`))),
     "",

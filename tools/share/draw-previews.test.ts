@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import { previewFace } from "./draw-previews";
 
 describe("the kept script that draws the link previews", () => {
-  test("[R-SHARE-010] given every kind, when the script builds the words its preview carries, then they are content's own, with the game's address and nothing about a player", () => {
+  test("[share:card-link-has-fixed-preview] given every kind, when the script builds the words its preview carries, then they are content's own, with the game's address and nothing about a player", () => {
     for (const kind of shareKinds) {
       const face = previewFace(kind);
       expect(face).toEqual({

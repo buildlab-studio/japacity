@@ -1,4 +1,4 @@
-// The correctness check after a run (docs/rules/load.md R-LOAD-010): every
+// The correctness check after a run (load:correctness-checked-after-run): every
 // character replays from its seed and command log to the hashes the server
 // stored, its ledger balances, no version was accepted twice, its latest
 // snapshot is where server.md puts it, and across the run about one command
@@ -33,7 +33,7 @@ export interface CharacterRows {
 export interface CharacterCheck {
   id: string;
   problems: string[];
-  /** R-WALLET-013: named as suspect by the ledger report. Reported, not a failure. */
+  /** wallet:ledger-report-raises-alarms: named as suspect by the ledger report. Reported, not a failure. */
   suspect: boolean;
 }
 
@@ -41,7 +41,7 @@ const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR
 
 const sumFor = (totals: State["wallet"]["totals"]["in"], currency: Currency) => Object.values(totals).reduce((sum, byCurrency) => sum + (byCurrency?.[currency] ?? 0), 0);
 
-/** R-LOAD-010, R-WALLET-002: in each currency, what the pockets hold equals the ledger's money in less its money out. */
+/** load:correctness-checked-after-run, wallet:ledger-balances-each-currency: in each currency, what the pockets hold equals the ledger's money in less its money out. */
 export function ledgerProblems(state: State): string[] {
   const problems: string[] = [];
   for (const currency of CURRENCIES) {
@@ -53,7 +53,7 @@ export function ledgerProblems(state: State): string[] {
   return problems;
 }
 
-/** R-LOAD-010: every accepted version once, from 1 up with no gap. */
+/** load:correctness-checked-after-run: every accepted version once, from 1 up with no gap. */
 export function versionProblems(versions: readonly number[]): string[] {
   const problems: string[] = [];
   const seen = new Set<number>();
@@ -65,12 +65,12 @@ export function versionProblems(versions: readonly number[]): string[] {
   return problems;
 }
 
-/** R-SERVER-004: the version of the latest snapshot: the segment's start, or the last multiple of `every` after it. */
+/** server:snapshots-bound-replay: the version of the latest snapshot: the segment's start, or the last multiple of `every` after it. */
 export function latestSnapshotV(v: number, fromV: number, every: number): number {
   return Math.max(fromV, v - (v % every));
 }
 
-/** R-LOAD-010: one character replayed from its seed against the stored worlds. */
+/** load:correctness-checked-after-run: one character replayed from its seed against the stored worlds. */
 export function verifyCharacter(rows: CharacterRows, content: Content, worlds: ReadonlyMap<number, World>, snapshotEvery: number): CharacterCheck {
   const id = rows.character.id;
   const problems = versionProblems(rows.log.map((row) => row.v));
@@ -123,7 +123,7 @@ export interface Counts {
   characters: number;
 }
 
-/** R-LOAD-010: snapshots written during the run against rows appended, within one point of 1 in `every`. */
+/** load:correctness-checked-after-run: snapshots written during the run against rows appended, within one point of 1 in `every`. */
 export function snapshotShare(before: Counts, after: Counts, every: number): { ok: boolean; measuredBp: number; targetBp: number } {
   const rows = after.rows - before.rows;
   const snapshots = after.snapshots - before.snapshots;
@@ -140,7 +140,7 @@ export interface Verification {
   failed: CharacterCheck[];
   suspect: number;
   snapshots: { ok: boolean; measuredBp: number; targetBp: number } | null;
-  /** R-LOAD-010: pairs touched, or why none were checked. */
+  /** load:correctness-checked-after-run: pairs touched, or why none were checked. */
   pairs: string;
   ok: boolean;
 }

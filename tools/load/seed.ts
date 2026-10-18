@@ -1,4 +1,4 @@
-// The seeding before a run (docs/rules/load.md R-LOAD-002): test accounts
+// The seeding before a run (load:seeded-test-accounts): test accounts
 // through the test sign-in, a character each through the character route,
 // played forward a seeded number of months between 0 and `warmTurns` by the
 // load route, and the manifest the run and the verifier read. Pairs wait for
@@ -20,11 +20,11 @@ import { isMain } from "../repo";
 export interface SeedAccount {
   account: string;
   scenario: string;
-  /** R-LOAD-002: months to play before the run, 0 to `warmTurns`. */
+  /** load:seeded-test-accounts: months to play before the run, 0 to `warmTurns`. */
   warm: number;
 }
 
-/** R-LOAD-002, R-LOAD-006: every account, its scenario and its months, fixed by the seed. */
+/** load:seeded-test-accounts, load:fixed-seed-repeatable-run: every account, its scenario and its months, fixed by the seed. */
 export function seedPlan(load: LoadConfig, scenarios: readonly string[]): SeedAccount[] {
   if (scenarios.length === 0) throw new Error("No scenario to start a character in.");
   const width = String(load.accounts).length;
@@ -35,7 +35,7 @@ export function seedPlan(load: LoadConfig, scenarios: readonly string[]): SeedAc
   }));
 }
 
-/** R-LOAD-002: `pairShareBp` of the accounts, two by two in plan order; an odd one left over stays single. */
+/** load:seeded-test-accounts: `pairShareBp` of the accounts, two by two in plan order; an odd one left over stays single. */
 export function pairPlan(accounts: readonly string[], pairShareBp: number): [string, string][] {
   const paired = int.divFloor(accounts.length * pairShareBp, 10000);
   const pairs: [string, string][] = [];
@@ -81,7 +81,7 @@ async function makeAccount(target: Target, planned: SeedAccount): Promise<Seeded
   return { ...planned, character, played: 0, v: 0 };
 }
 
-/** R-LOAD-002: the character played forward its planned months by the load route. */
+/** load:seeded-test-accounts: the character played forward its planned months by the load route. */
 async function warmUp(target: Target, seed: number, index: number, seeded: Seeded): Promise<void> {
   const warmed = await patient<{ ok: boolean; played: number; v: number }>(target, "POST", `/api/load/warm/${seeded.character}`, null, {
     months: seeded.warm,

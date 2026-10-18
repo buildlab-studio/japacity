@@ -5,26 +5,26 @@
 import { int } from "@japacity/sim";
 
 export interface LoadConfig {
-  /** R-LOAD-002: test accounts made before the run. */
+  /** load:seeded-test-accounts: test accounts made before the run. */
   accounts: number;
-  /** R-LOAD-002: the most turns a character is played before the run. */
+  /** load:seeded-test-accounts: the most turns a character is played before the run. */
   warmTurns: number;
-  /** R-LOAD-002: accounts joined in pairs, basis points. */
+  /** load:seeded-test-accounts: accounts joined in pairs, basis points. */
   pairShareBp: number;
-  /** R-LOAD-004: commands sent with an old `basedOn`, basis points. */
+  /** load:some-commands-sent-stale: commands sent with an old `basedOn`, basis points. */
   staleShareBp: number;
-  /** R-LOAD-003: the main scenario's arrival rate. */
+  /** load:constant-rate-command-mix: the main scenario's arrival rate. */
   commandsPerSecond: number;
-  /** R-LOAD-005: every request of the peak, commands included. */
+  /** load:peak-reads-reported-only: every request of the peak, commands included. */
   requestsPerSecond: number;
-  /** R-LOAD-003: the main scenario's length after the ramp. */
+  /** load:constant-rate-command-mix: the main scenario's length after the ramp. */
   minutes: number;
-  /** R-LOAD-009. */
+  /** load:main-scenario-pass-thresholds. */
   p95Ms: number;
   p99Ms: number;
-  /** R-LOAD-009: unexpected rejections must stay under this, basis points. */
+  /** load:main-scenario-pass-thresholds: unexpected rejections must stay under this, basis points. */
   unexpectedBp: number;
-  /** R-LOAD-006: the account picks and the command mix. */
+  /** load:fixed-seed-repeatable-run: the account picks and the command mix. */
   seed: number;
 }
 
@@ -44,10 +44,10 @@ export const config: { load: LoadConfig } = {
   },
 };
 
-/** R-LOAD-003: the one-minute ramp before the measured run. */
+/** load:constant-rate-command-mix: the one-minute ramp before the measured run. */
 export const RAMP_SECONDS = 60;
 
-/** R-LOAD-003: the mix of the main scenario, in basis points. Working values. */
+/** load:constant-rate-command-mix: the mix of the main scenario, in basis points. Working values. */
 export const MIX = [
   { kind: "turn/end", bp: 5000 },
   { kind: "offer/choose", bp: 1500 },
@@ -58,7 +58,7 @@ export const MIX = [
 ] as const;
 
 /**
- * R-LOAD-005: one player's day, 10 commands, 53 heartbeats and 20 other
+ * load:peak-reads-reported-only: one player's day, 10 commands, 53 heartbeats and 20 other
  * reads. The other reads are split evenly between view fetches and world
  * fetches.
  */
@@ -75,7 +75,7 @@ export function scaled(load: LoadConfig, divisor: number): LoadConfig {
   };
 }
 
-/** R-LOAD-005: the reads a second added to the commands to reach `requestsPerSecond`. */
+/** load:peak-reads-reported-only: the reads a second added to the commands to reach `requestsPerSecond`. */
 export function readRates(load: LoadConfig): { heartbeats: number; views: number; worlds: number } {
   const rest = Math.max(0, load.requestsPerSecond - load.commandsPerSecond);
   const heartbeats = int.mulDiv(rest, DAY.heartbeats, DAY.heartbeats + DAY.reads);
@@ -96,7 +96,7 @@ export interface LoadPlan {
   mix: { kind: string; bp: number }[];
   /** Iterations the ramp is expected to send, so the measured run's picks follow on from them. */
   rampIterations: number;
-  /** R-LOAD-009: the measured run's commands, and the most it may drop. */
+  /** load:main-scenario-pass-thresholds: the measured run's commands, and the most it may drop. */
   target: number;
   droppedMax: number;
   p95Ms: number;
@@ -127,7 +127,7 @@ export function planFor(load: LoadConfig, scale: number): LoadPlan {
     mix: MIX.map((entry) => ({ kind: entry.kind, bp: entry.bp })),
     rampIterations: int.divFloor(load.commandsPerSecond * RAMP_SECONDS, 2),
     target,
-    // R-LOAD-009: fewer than 1% of the target dropped.
+    // load:main-scenario-pass-thresholds: fewer than 1% of the target dropped.
     droppedMax: int.divCeil(target, 100) - 1,
     p95Ms: load.p95Ms,
     p99Ms: load.p99Ms,

@@ -1,4 +1,4 @@
-// One run of the load test (docs/rules/load.md R-LOAD-003 to R-LOAD-011):
+// One run of the load test (docs/rules/load.md):
 // the plan, the stores' counts before, the scenario through k6 (or the Node
 // driver before k6 is installed), the counts after, the verification and the
 // summary in results/. run.sh raises the file limit and calls this.
@@ -26,7 +26,7 @@ import { isMain, readJson } from "../repo";
 
 const HERE = fileURLToPath(new URL("./", import.meta.url));
 
-/** R-LOAD-007: k6's version, or null when it is not installed. */
+/** load:arrival-rate-generator: k6's version, or null when it is not installed. */
 export function k6Version(): string | null {
   const found = spawnSync("k6", ["version"], { encoding: "utf8" });
   if (found.error !== undefined || found.status !== 0) return null;
@@ -68,7 +68,7 @@ async function main(args: readonly string[]): Promise<void> {
 
   const k6 = k6Version();
   if (tool === "k6" && k6 === null) {
-    console.error("k6 is not installed. It is a standalone tool, never a dependency of this repository (R-LOAD-007): brew install k6");
+    console.error("k6 is not installed. It is a standalone tool, never a dependency of this repository (load:arrival-rate-generator): brew install k6");
     console.error("Until then a smaller run can use the Node driver: --tool node.");
     process.exit(1);
   }
@@ -83,7 +83,7 @@ async function main(args: readonly string[]): Promise<void> {
 
   let verification: Verification | null = null;
   if (!args.includes("--no-verify")) {
-    console.log("Verifying (R-LOAD-010).");
+    console.log("Verifying (load:correctness-checked-after-run).");
     verification = await verifyAll(target, manifest, content, 32, { before: before.counts, after: after.counts, snapshotEvery: after.snapshotEvery });
   }
 
@@ -104,7 +104,7 @@ async function main(args: readonly string[]): Promise<void> {
   writeFileSync(`${RESULTS}summary-${scenario}-${stamp}.md`, text);
   writeFileSync(`${RESULTS}summary-${scenario}-${stamp}.json`, `${JSON.stringify(summary, null, 1)}\n`);
   console.log(`\n${text}`);
-  // R-LOAD-005: the reads scenario is reported, never a gate.
+  // load:peak-reads-reported-only: the reads scenario is reported, never a gate.
   if (scenario === "commands" && passRule(result, plan).verdict !== "pass") process.exit(1);
   if (scenario === "commands" && summary.verdict !== "pass") process.exit(1);
 }

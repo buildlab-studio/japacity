@@ -1,4 +1,4 @@
-// pnpm check:version and pnpm content:seal (docs/rules/server.md R-SERVER-048): the content version moves whenever
+// pnpm check:version and pnpm content:seal (server:content-version-sealed): the content version moves whenever
 // what a replay depends on moves. The seal beside the version (packages/content/src/seal.json) holds the version and a
 // fingerprint of the content's data and the simulation's code. The check fails when the fingerprint moved and the
 // version did not; the seal command writes the seal, and refuses to reseal a changed fingerprint under the same version.
@@ -23,7 +23,7 @@ const NOT_PLAYED = new Set(["sweep", "testing", "goldens"]);
 const VERSION = /^[1-9]\d*$/;
 
 const ABOUT =
-  "R-SERVER-048: the content version and the fingerprint of what a replay depends on (the content's data and the simulation's code, comments and layout aside). Written by pnpm content:seal; read by pnpm check:version.";
+  "server:content-version-sealed: the content version and the fingerprint of what a replay depends on (the content's data and the simulation's code, comments and layout aside). Written by pnpm content:seal; read by pnpm check:version.";
 
 export interface Seal {
   about: string;
@@ -107,9 +107,9 @@ export function fingerprint(data: object, sources: readonly SourceFile[]): strin
 }
 
 const bumpWords = (version: string): string =>
-  `The content or the simulation changed and the content version did not: it is still "${version}". Raise \`version\` in packages/content/src/index.ts by one; if lives exist under "${version}", add that content, as it shipped, to \`olderContents\` beside it (docs/rules/server.md R-SERVER-023). Then run pnpm content:seal.`;
+  `The content or the simulation changed and the content version did not: it is still "${version}". Raise \`version\` in packages/content/src/index.ts by one; if lives exist under "${version}", add that content, as it shipped, to \`olderContents\` beside it (server:older-contents-bundled). Then run pnpm content:seal.`;
 
-/** R-SERVER-048: what is wrong with the seal against the version and fingerprint now; empty when it holds. */
+/** server:content-version-sealed: what is wrong with the seal against the version and fingerprint now; empty when it holds. */
 export function checkSeal(now: Sealed, seal: Sealed): string[] {
   if (!VERSION.test(now.version)) return [`The content version "${now.version}" is not a whole number from 1.`];
   if (now.version === seal.version) return now.fingerprint === seal.fingerprint ? [] : [bumpWords(now.version)];
@@ -117,7 +117,7 @@ export function checkSeal(now: Sealed, seal: Sealed): string[] {
   return [`The content version is "${now.version}" and the seal names "${seal.version}". Run pnpm content:seal to seal "${now.version}".`];
 }
 
-/** R-SERVER-048: the seal to write now, or why it is refused: a changed fingerprint is never sealed under the same version. */
+/** server:content-version-sealed: the seal to write now, or why it is refused: a changed fingerprint is never sealed under the same version. */
 export function resealed(now: Sealed, seal: Sealed | null): { ok: true; seal: Seal } | { ok: false; problem: string } {
   if (!VERSION.test(now.version)) return { ok: false, problem: `The content version "${now.version}" is not a whole number from 1.` };
   if (seal !== null && now.version === seal.version && now.fingerprint !== seal.fingerprint) return { ok: false, problem: bumpWords(now.version) };

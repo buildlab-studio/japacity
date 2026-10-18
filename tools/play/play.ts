@@ -24,7 +24,7 @@ const SHORT = 5_000;
 const LONG = 30_000;
 
 interface Run {
-  /** True once staging's bot check refused the browser at Begin: the run ends there by design (R-SERVER-038). */
+  /** True once staging's bot check refused the browser at Begin: the run ends there by design (server:production-and-staging). */
   stoppedAtTheCheck: boolean;
   readonly page: Page;
   readonly options: PlayOptions;
@@ -74,7 +74,7 @@ async function appear(locator: Locator, timeout: number): Promise<boolean> {
 async function shot(run: Run, label: string): Promise<void> {
   run.shots += 1;
   const name = shotName(run.shots, label);
-  // Every motion of the interface is under half a second (R-WORLD-023); a picture waits that out.
+  // Every motion of the interface is under half a second (world:motions-under-half-second); a picture waits that out.
   await run.page.waitForTimeout(500);
   await run.page
     .screenshot({ path: join(run.options.out, name), timeout: LONG })
@@ -104,8 +104,8 @@ async function placeDrawn(run: Run): Promise<void> {
 // The front door ---------------------------------------------------------------------------------
 
 /**
- * Online, a signed-out visitor first sees the start screen (account.md R-ACCOUNT-029): Play, then the age screen
- * (R-ACCOUNT-012), answered with a grown-up's birthday, then the door as offline. Offline the door is first. True
+ * Online, a signed-out visitor first sees the start screen (account:start-screen-over-live-city): Play, then the age screen
+ * (account:age-screen-refuses-minors), answered with a grown-up's birthday, then the door as offline. Offline the door is first. True
  * once the door's first button shows.
  */
 async function onlineDoor(run: Run, next: Locator): Promise<boolean> {
@@ -141,9 +141,9 @@ async function onlineDoor(run: Run, next: Locator): Promise<boolean> {
 async function frontDoor(run: Run, button: string): Promise<boolean> {
   const { page, options } = run;
   if (options.played) await page.addInitScript({ content: 'localStorage.setItem("japacity.walkthrough", "1");' });
-  // The bed's sleep is shortened to a few seconds on the development server the driver runs (R-WORLD-025, `?sleep=`).
+  // The bed's sleep is shortened to a few seconds on the development server the driver runs (world:sleep-ends-the-month, `?sleep=`).
   await page.goto(`/?sleep=${String(SLEEP_SECONDS)}`);
-  // The ready lives are behind Settings (prologue.md R-PROLOGUE-013): the driver asks for them as Settings does, then opens the door again.
+  // The ready lives are behind Settings (prologue:front-door-three-screens): the driver asks for them as Settings does, then opens the door again.
   if (options.ready) {
     await page.evaluate(() => localStorage.setItem("japacity.door.ready", "1"));
     await page.reload();
@@ -166,7 +166,7 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   log(run, `picked ${button}`);
   if (!options.ready) {
     log(run, `age: ${await words(page.locator("[data-door-age]"))}`);
-    // The life's Next goes on to Where you live, where Begin stands (R-PROLOGUE-013).
+    // The life's Next goes on to Where you live, where Begin stands (prologue:front-door-three-screens).
     if (!(await tap(run, page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }), "Next to Where you live"))) return false;
   }
   if (!(await appear(page.getByRole("button", { name: /^Begin/ }), LONG))) {
@@ -176,7 +176,7 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   await shot(run, options.ready ? "your page" : "where you live");
   if (!(await tap(run, page.getByRole("button", { name: /^Begin/ }), "Begin"))) return false;
   const gate = page.locator("[data-gate='page'], [data-gate='begun']").first();
-  // Staging's managed bot check refuses an automated browser (R-SERVER-038, R-ACCOUNT-013): the game says so on the
+  // Staging's managed bot check refuses an automated browser (server:production-and-staging, account:bot-check-on-guest-creation): the game says so on the
   // page, and the run stops there by design. The whole life is played on the local stack, where the test key passes.
   const refused = page.getByRole("alert").filter({ hasText: "The quick check did not go through." });
   const until = Date.now() + LONG;
@@ -192,7 +192,7 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
 }
 
 /**
- * The years before: the page fills as the presets run, with no card (prologue.md R-PROLOGUE-010, 014), then waits
+ * The years before: the page fills as the presets run, with no card (prologue:archetype-presets-answers, prologue:printed-page-hands-over), then waits
  * for Go. A card is a problem now; it is answered with its first answer so the run goes on.
  */
 async function yearsBefore(run: Run): Promise<void> {
@@ -207,7 +207,7 @@ async function yearsBefore(run: Run): Promise<void> {
       log(run, `page: ${await words(handover, 400)}`);
       await page.waitForTimeout(1_200);
       await shot(run, "your page filled");
-      // The page waits for the player (R-PROLOGUE-014): Go opens the world.
+      // The page waits for the player (prologue:printed-page-hands-over): Go opens the world.
       await tap(run, page.getByRole("button", { name: "Go", exact: true }), "Go on the page");
       return;
     }
@@ -227,7 +227,7 @@ async function ride(run: Run): Promise<void> {
   const sheet = page.locator("[data-ride-sheet]");
   log(run, `ride: ${await words(sheet)}`);
   await shot(run, "map with a stop picked");
-  // A fare the naira cannot pay shuts the main button (R-WORLD-017): the sheet is closed and the month goes on.
+  // A fare the naira cannot pay shuts the main button (world:ride-sheet-shows-fares): the sheet is closed and the month goes on.
   const main = sheet.locator("[data-ride-main]");
   if ((await shown(main)) && !(await main.isEnabled())) {
     log(run, "the ride's main button is shut (no fare): closing the sheet");
@@ -296,7 +296,7 @@ async function settle(run: Run, when: string): Promise<void> {
       await page.waitForTimeout(400);
       continue;
     }
-    // A home's teach card, once a life (R-HOME-008), is read and put away by its own cross.
+    // A home's teach card, once a life (home:moves-carry-cost-and-reason), is read and put away by its own cross.
     const teach = page.locator("[data-home-teach-ok]");
     if (await shown(teach)) {
       log(run, `home's card ${when}: ${await words(page.locator("[data-home-teach]"))}`);
@@ -433,7 +433,7 @@ async function followNudge(run: Run, month: number): Promise<void> {
       await ride(run);
       continue;
     }
-    // The phone's Japa app, opened by a step that reads the official page there (R-ADVICE-002): its card is read, then the phone is put away.
+    // The phone's Japa app, opened by a step that reads the official page there (advice:official-page-shows-checklist): its card is read, then the phone is put away.
     const official = page.locator("[data-official-page]");
     if (await shown(official)) {
       log(run, `the official page in Japa: ${(await official.first().getAttribute("data-official-page")) ?? ""}`);
@@ -446,7 +446,7 @@ async function followNudge(run: Run, month: number): Promise<void> {
       await page.waitForTimeout(600);
       break;
     }
-    // A paper asked for by a call or a message opens the phone's Papers on its card (R-WORLD-019): the card's act is
+    // A paper asked for by a call or a message opens the phone's Papers on its card (world:phone-holds-what-phones-hold): the card's act is
     // taken, the corner's answer read, and the phone put away; with no card open, the papers are read as they stand.
     const papers = page.locator("[data-app-screen='papers']");
     if (await shown(papers)) {
@@ -464,7 +464,7 @@ async function followNudge(run: Run, month: number): Promise<void> {
       await page.waitForTimeout(600);
       break;
     }
-    // The step that is the month's end opens the phone's Calendar (R-WORLD-003): its month is read, and the phone put away.
+    // The step that is the month's end opens the phone's Calendar (world:nudge-says-one-thing): its month is read, and the phone put away.
     const calendar = page.locator("[data-app-screen='calendar']");
     if (await shown(calendar)) {
       log(run, `the nudge opened the Calendar: ${await words(calendar, 240)}`);
@@ -509,7 +509,7 @@ async function followNudge(run: Run, month: number): Promise<void> {
       if ((await shown(page.locator(OPEN_SHEET))) && (await words(page.locator(OPEN_SHEET), 400)) === before) break;
       continue;
     }
-    // A thing shows a quiet mark and no fan until it is tapped (R-WORLD-034): the marker the step stands on is tapped first.
+    // A thing shows a quiet mark and no fan until it is tapped (world:fan-of-sticker-buttons): the marker the step stands on is tapped first.
     const fan = "[data-fan] [data-fan-act] button, [data-fan-sheet] [data-fan-act] button";
     if (!(await shown(page.locator(fan))) && (await shown(marker))) {
       log(run, `tapping the marker: ${(await marker.first().getAttribute("data-marker-tap")) ?? ""}`);
@@ -518,7 +518,7 @@ async function followNudge(run: Run, month: number): Promise<void> {
     }
     // The fan's buttons stay round the thing while its sheet is open, so they come after the sheet.
     const act = page.locator(fan);
-    // An act that carries on in the plan is a shut Ongoing button (R-WORLD-007): only an open act can be tapped.
+    // An act that carries on in the plan is a shut Ongoing button (world:month-acts-carry-on): only an open act can be tapped.
     const open = page.locator(`${fan.replaceAll(" button", " button:enabled")}`);
     if ((await shown(act)) && !(await shown(open))) {
       log(run, `the fan's acts: ${(await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ")}; all shut, nothing to tap`);
@@ -532,7 +532,7 @@ async function followNudge(run: Run, month: number): Promise<void> {
       const chosen = named !== null && (await shown(named)) ? named : open;
       log(run, `the fan's acts: ${names}; the nudge opens ${opens ?? "nothing named"}; tapping ${chosen === open ? "the first" : "the step's own"}`);
       await tap(run, chosen, "the act");
-      // The character walks to the thing before its sheet opens (R-WORLD-005).
+      // The character walks to the thing before its sheet opens (world:things-are-tappable-models).
       await appear(page.locator(OPEN_SHEET), SHORT);
       continue;
     }
@@ -581,11 +581,11 @@ async function onTheRoad(run: Run, month: number): Promise<boolean> {
   return true;
 }
 
-/** The homes' beds, by the thing's id in each room file, with the act that ends the month (R-WORLD-025). */
+/** The homes' beds, by the thing's id in each room file, with the act that ends the month (world:sleep-ends-the-month). */
 const BEDS = ["mattress", "bed", "bunk", "room"] as const;
-/** The bed's Sleep on the fan that opens out of it, or on the small sheet of the same buttons (R-WORLD-034). */
+/** The bed's Sleep on the fan that opens out of it, or on the small sheet of the same buttons (world:fan-of-sticker-buttons). */
 const BED_END = '[data-fan] [data-fan-act="end-month"] button, [data-fan-sheet] [data-fan-act="end-month"] button';
-/** The bed's sleep on the driver's server, in seconds: the month turns once it runs out (R-WORLD-025). */
+/** The bed's sleep on the driver's server, in seconds: the month turns once it runs out (world:sleep-ends-the-month). */
 const SLEEP_SECONDS = 3;
 
 /**
@@ -658,7 +658,7 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
   const { page } = run;
   // The city's own question may have put the life on the road this month (the night meeting, then the truth).
   if (await shown(page.locator("[data-road]"))) return onTheRoad(run, month);
-  // The month's name and phase stand on the band where Next month was; a tap opens the Calendar, read and put away (R-WORLD-002).
+  // The month's name and phase stand on the band where Next month was; a tap opens the Calendar, read and put away (world:top-band-is-lively-pill).
   const calendar = page.locator("[data-app-screen='calendar']");
   log(run, `month ${String(month)} on the band: ${(await page.locator("[data-band] [data-band-month]").first().getAttribute("aria-label").catch(() => null)) ?? "no month shown"}`);
   if (await tap(run, page.locator("[data-band] [data-band-month]"), "the band's month")) {
@@ -669,7 +669,7 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
       await page.waitForTimeout(600);
     } else problem(run, `month ${String(month)}: the band's month did not open the Calendar`);
   }
-  // The month ends from the bed at home (R-WORLD-025; decision 0011): the band has no Next month. An answer may open a new
+  // The month ends from the bed at home (world:sleep-ends-the-month; decision 0011): the band has no Next month. An answer may open a new
   // question that holds the month (the road's deposit opens the night meeting): the nudge is followed again, twice at most.
   // The automatic turn when the month is lived comes with the next step of the lived month; until then the driver walks
   // in from the yard when it stands there, and a life away from home ends the run with the reason.
@@ -711,7 +711,7 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
 }
 
 /**
- * A screenshot moment (moment.md R-MOMENT-006): one card over the scene for a big outcome, over the results sheet or
+ * A screenshot moment (moment:card-shows-when-outcome-lands): one card over the scene for a big outcome, over the results sheet or
  * the world. It is read and pictured, then put away with its Close, as a player would with one tap; the sheet under it
  * stays. Nothing happens when no card is up.
  */

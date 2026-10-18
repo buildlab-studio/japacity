@@ -8,7 +8,7 @@ import { pairPlan, seedPlan } from "./seed";
 const scenarios = Object.keys(content.scenario);
 
 describe("the seeding and the arrivals", () => {
-  test("[R-LOAD-002] [R-LOAD-006] given the tenth plan, when it is made twice, then it is the same, every scenario is used, and the months run from 0 to warmTurns with both edges met", () => {
+  test("[load:seeded-test-accounts] [load:fixed-seed-repeatable-run] given the tenth plan, when it is made twice, then it is the same, every scenario is used, and the months run from 0 to warmTurns with both edges met", () => {
     const load = scaled(config.load, 10);
     const plan = seedPlan(load, scenarios);
     expect(seedPlan(load, scenarios)).toEqual(plan);
@@ -22,7 +22,7 @@ describe("the seeding and the arrivals", () => {
     expect(() => seedPlan(load, [])).toThrow();
   });
 
-  test("[R-LOAD-002] given a pair share of 10%, when the pairs are planned, then a tenth of the accounts are joined two by two and none twice", () => {
+  test("[load:seeded-test-accounts] given a pair share of 10%, when the pairs are planned, then a tenth of the accounts are joined two by two and none twice", () => {
     const accounts = Array.from({ length: 1000 }, (_, at) => `load-${String(at)}`);
     const pairs = pairPlan(accounts, config.load.pairShareBp);
     expect(pairs).toHaveLength(50);
@@ -32,7 +32,7 @@ describe("the seeding and the arrivals", () => {
     expect(pairPlan(accounts, 0)).toEqual([]);
   });
 
-  test("[R-LOAD-003] given the ramp, when its arrivals are laid out, then they rise in order to the rate within the minute, and the steady part sends the rate each second", () => {
+  test("[load:constant-rate-command-mix] given the ramp, when its arrivals are laid out, then they rise in order to the rate within the minute, and the steady part sends the rate each second", () => {
     const plan = planFor(scaled(config.load, 10), 10);
     const ramp = rampArrivals(plan.commandsPerSecond, plan.rampSeconds, plan.rampIterations);
     expect(ramp).toHaveLength(42 * 30);

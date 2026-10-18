@@ -1,9 +1,9 @@
-// Where the real browser tests and the play driver point (server.md R-SERVER-038): the local stack, or
+// Where the real browser tests and the play driver point (server:production-and-staging): the local stack, or
 // staging behind Cloudflare Access. Staging is reached with an Access service token, whose two
 // values are read only from the environment (CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET), set from a
 // keychain or secret store for one command. They are never read from a file, printed or written here.
 
-/** Staging's address (R-SERVER-038). */
+/** Staging's address (server:production-and-staging). */
 export const STAGING_URL = "https://staging.japacity.app";
 
 const LOCAL_HOSTS: ReadonlySet<string> = new Set(["localhost", "127.0.0.1", "[::1]"]);

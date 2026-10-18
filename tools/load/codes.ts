@@ -1,9 +1,9 @@
-// The emailed code under load (docs/rules/account.md R-ACCOUNT-014, R-ACCOUNT-028).
+// The emailed code under load (account:sign-in-routes-rate-limited, account:play-starts-without-email).
 // The code is never on the way to play, so it is
 // measured apart from the commands: `POST /api/auth/email-otp/send-verification-otp`
 // at a constant arrival rate, each to a new address from a new connection
 // header, so the per-address and per-email limits are not what is measured.
-// The send is handed to the background and never awaited (R-ACCOUNT-002), so
+// The send is handed to the background and never awaited (account:email-code-is-short-lived), so
 // the reply's time is the server's and not the email provider's.
 //
 //   pnpm tsx tools/load/codes.ts --target http://127.0.0.1:8787 --rate 20 --seconds 60
@@ -34,7 +34,7 @@ export interface CodesResult {
   p99Us: number;
 }
 
-/** The pass rule, as R-LOAD-009 holds the commands to it: the rate kept, the times, no server error; a limit or a lost connection means the run is repeated. */
+/** The pass rule, as load:main-scenario-pass-thresholds holds the commands to it: the rate kept, the times, no server error; a limit or a lost connection means the run is repeated. */
 export function codesPassRule(result: CodesResult, thresholds: { p95Ms: number; p99Ms: number } = config.load): { verdict: Verdict; checks: Check[] } {
   const checks: Check[] = [
     { name: "Codes sent against the target", threshold: `at least 99% of ${String(result.target)}`, measured: String(result.sent), ok: result.sent * 100 >= result.target * 99 },

@@ -46,18 +46,18 @@ function played(commands: number): { rows: CharacterRows; worlds: Map<number, Wo
 const life = played(45);
 
 describe("the verifier", () => {
-  test("[R-LOAD-010] given a life's rows as the server stored them, when it is replayed from its seed, then it reaches every stored hash and nothing is wrong", () => {
+  test("[load:correctness-checked-after-run] given a life's rows as the server stored them, when it is replayed from its seed, then it reaches every stored hash and nothing is wrong", () => {
     expect(life.rows.log.length).toBeGreaterThanOrEqual(45);
     expect(verifyCharacter(life.rows, content, life.worlds, EVERY).problems).toEqual([]);
   });
 
-  test("[R-LOAD-010] given one stored hash changed, when it is replayed, then that version is named", () => {
+  test("[load:correctness-checked-after-run] given one stored hash changed, when it is replayed, then that version is named", () => {
     const log = life.rows.log.map((row) => (row.v === 17 ? { ...row, hash: "0".repeat(row.hash.length) } : row));
     const problems = verifyCharacter({ ...life.rows, log }, content, life.worlds, EVERY).problems;
     expect(problems).toContain("Version 17 replays to another hash than the one stored.");
   });
 
-  test("[R-LOAD-010] given a command logged twice at one version, when it is checked, then it is named as accepted twice", () => {
+  test("[load:correctness-checked-after-run] given a command logged twice at one version, when it is checked, then it is named as accepted twice", () => {
     const [first, second] = life.rows.log;
     if (first === undefined || second === undefined) throw new Error("No rows.");
     expect(versionProblems([1, 2, 2, 3])).toEqual(["Two commands were accepted at version 2.", "Version 3 is stored where 4 belongs."]);
@@ -67,19 +67,19 @@ describe("the verifier", () => {
     expect(doubled.problems).toContain("Two commands were accepted at version 1.");
   });
 
-  test("[R-LOAD-010] given a log row the replay rejects, when it is replayed, then the version and the code are named", () => {
+  test("[load:correctness-checked-after-run] given a log row the replay rejects, when it is replayed, then the version and the code are named", () => {
     const zero: Command = { type: "wallet/convert", from: "NGN", to: "GBP", amount: 0, via: "bank", basedOn: 4 };
     const log = life.rows.log.map((row) => (row.v === 5 ? { ...row, command: zero } : row));
     const problems = verifyCharacter({ ...life.rows, log }, content, life.worlds, EVERY).problems;
     expect(problems.some((problem) => problem.startsWith("Version 5 (wallet/convert) is rejected on replay"))).toBe(true);
   });
 
-  test("[R-LOAD-010] given the row's version ahead of the log, when it is checked, then the gap is named", () => {
+  test("[load:correctness-checked-after-run] given the row's version ahead of the log, when it is checked, then the gap is named", () => {
     const problems = verifyCharacter({ ...life.rows, character: { ...life.rows.character, v: life.rows.character.v + 1 } }, content, life.worlds, EVERY).problems;
     expect(problems).toContain(`The log ends at version ${String(life.rows.character.v)}, the row says ${String(life.rows.character.v + 1)}.`);
   });
 
-  test("[R-LOAD-010] given the latest snapshot at the wrong version or with another state, when it is checked, then it is named", () => {
+  test("[load:correctness-checked-after-run] given the latest snapshot at the wrong version or with another state, when it is checked, then it is named", () => {
     const { snapshot } = life.rows;
     expect(verifyCharacter({ ...life.rows, snapshot: { ...snapshot, v: snapshot.v - 1 } }, content, life.worlds, EVERY).problems).toContain(
       `The latest snapshot is at version ${String(snapshot.v - 1)}, not ${String(snapshot.v)}.`,
@@ -91,12 +91,12 @@ describe("the verifier", () => {
     expect(latestSnapshotV(45, 43, 20)).toBe(43);
   });
 
-  test("[R-LOAD-010] given a segment under content this server does not bundle, when it is replayed, then it is named", () => {
+  test("[load:correctness-checked-after-run] given a segment under content this server does not bundle, when it is replayed, then it is named", () => {
     const segments = life.rows.segments.map((segment) => ({ ...segment, content: "m-old" }));
     expect(verifyCharacter({ ...life.rows, segments }, content, life.worlds, EVERY).problems).toEqual([`Segment 0 ran under content m-old, not ${content.version}.`]);
   });
 
-  test("[R-LOAD-010] given pockets that hold more than the ledger booked, when the ledger is checked, then that currency is named; a played life balances", () => {
+  test("[load:correctness-checked-after-run] given pockets that hold more than the ledger booked, when the ledger is checked, then that currency is named; a played life balances", () => {
     const game = start({ content, scenario: SCENARIO, seed: "ledger" });
     game.endTurn();
     expect(ledgerProblems(game.state)).toEqual([]);
@@ -105,7 +105,7 @@ describe("the verifier", () => {
     expect(ledgerProblems(off)).toEqual([`GBP: the pockets hold ${String(pockets.GBP.bank + pockets.GBP.cash + pockets.GBP.locked + 1)}, the ledger says ${String(pockets.GBP.bank + pockets.GBP.cash + pockets.GBP.locked)}.`]);
   });
 
-  test("[R-LOAD-010] given the rows and snapshots written during a run, when the share is judged, then within one point of 1 in 20 passes and past it fails", () => {
+  test("[load:correctness-checked-after-run] given the rows and snapshots written during a run, when the share is judged, then within one point of 1 in 20 passes and past it fails", () => {
     const counts = (rows: number, snapshots: number): Counts => ({ rows, snapshots, rowBytes: 0, snapshotBytes: 0, characters: 0 });
     const before = counts(1000, 100);
     expect(snapshotShare(before, counts(3000, 200), EVERY)).toEqual({ ok: true, measuredBp: 500, targetBp: 500 });

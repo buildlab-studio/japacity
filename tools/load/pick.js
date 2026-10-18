@@ -1,5 +1,5 @@
-// The load test's picks (docs/rules/load.md R-LOAD-003, R-LOAD-004,
-// R-LOAD-006, R-LOAD-008, R-LOAD-009): which account, which kind of command,
+// The load test's picks (load:constant-rate-command-mix, load:some-commands-sent-stale,
+// load:fixed-seed-repeatable-run, load:connection-errors-counted-apart, load:main-scenario-pass-thresholds): which account, which kind of command,
 // whether it is sent stale, which legal command is sent, and what the reply
 // counts as. Plain JavaScript with no imports, so k6 and Node run the same
 // file. Every pick is a pure function of the seed and the iteration's index,
@@ -33,7 +33,7 @@ function gcd(a, b) {
 }
 
 /**
- * R-LOAD-003, R-LOAD-006: the account of iteration `index`, a seeded walk
+ * load:constant-rate-command-mix, load:fixed-seed-repeatable-run: the account of iteration `index`, a seeded walk
  * that visits every account once before any comes round again, so two
  * commands in flight never share an account and race each other to `stale`.
  */
@@ -45,7 +45,7 @@ export function accountAt(seed, index, count) {
   return (((index % count) * step) % count + offset) % count;
 }
 
-/** R-LOAD-003: the kind of command iteration `index` asks for, by the mix's basis points. */
+/** load:constant-rate-command-mix: the kind of command iteration `index` asks for, by the mix's basis points. */
 export function kindAt(seed, index, mix) {
   let left = roll(seed, index, STREAM.kind, 10000);
   for (const entry of mix) {
@@ -55,7 +55,7 @@ export function kindAt(seed, index, mix) {
   return mix[0].kind;
 }
 
-/** R-LOAD-004: whether iteration `index` is sent with an old `basedOn`. */
+/** load:some-commands-sent-stale: whether iteration `index` is sent with an old `basedOn`. */
 export function staleAt(seed, index, staleShareBp) {
   return roll(seed, index, STREAM.stale, 10000) < staleShareBp;
 }
@@ -66,7 +66,7 @@ const ANSWERS = ["prologue/choose", "setpiece/answer", "interview/answer"];
 const isKind = (command, kind) => (kind === "pair" ? command.type.startsWith("pair/") : command.type === kind);
 
 /**
- * R-LOAD-003: one command of the kind asked for, from the legal list the
+ * load:constant-rate-command-mix: one command of the kind asked for, from the legal list the
  * load route built from the view. When the view offers none of that kind,
  * a `turn/end`, then an answer the turn waits on, then any legal command.
  * Null when nothing is legal (a life that has ended).
@@ -81,14 +81,14 @@ export function chooseCommand(legal, kind, choiceRoll) {
   return { command: legal[choiceRoll % legal.length], wanted: kind, fallback: true };
 }
 
-/** R-SERVER-001: the request body; R-LOAD-004: a stale one is based on the version before. */
+/** server:commands-only-through-route: the request body; load:some-commands-sent-stale: a stale one is based on the version before. */
 export function commandBody(command, basedOn, stale) {
   const based = stale ? basedOn - 1 : basedOn;
   return { command: { ...command, basedOn: based }, basedOn: based };
 }
 
 /**
- * R-LOAD-008, R-LOAD-009: what a reply counts as. Status 0 is a connection
+ * load:connection-errors-counted-apart, load:main-scenario-pass-thresholds: what a reply counts as. Status 0 is a connection
  * that failed on this machine, never the server's fault. A `stale` answer to
  * a command sent stale on purpose is expected; every other refusal is not.
  */

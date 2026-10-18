@@ -1,4 +1,4 @@
-// The local stack's steps, shared by `pnpm dev:full` and `pnpm db:migrate:local` (server.md R-SERVER-038).
+// The local stack's steps, shared by `pnpm dev:full` and `pnpm db:migrate:local` (server:production-and-staging).
 import { spawnSync } from "node:child_process";
 
 import type { LocalStack } from "./env";

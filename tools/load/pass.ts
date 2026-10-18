@@ -1,7 +1,7 @@
-// The pass rule of the main scenario (docs/rules/load.md R-LOAD-009),
+// The pass rule of the main scenario (load:main-scenario-pass-thresholds),
 // measured at the load generator. Times are whole microseconds so nothing
 // here divides. A run with any connection error on this machine is repeated
-// before it counts (R-LOAD-008).
+// before it counts (load:connection-errors-counted-apart).
 import { int } from "@japacity/sim";
 
 import type { LoadPlan } from "./load.config";
@@ -13,7 +13,7 @@ export interface RunResult {
   /** Real time the measured part began and ended, milliseconds since 1970. */
   startedAt: number;
   endedAt: number;
-  /** R-LOAD-009: the commands the measured part should send, those it sent and those the generator dropped. */
+  /** load:main-scenario-pass-thresholds: the commands the measured part should send, those it sent and those the generator dropped. */
   target: number;
   sent: number;
   dropped: number;
@@ -28,7 +28,7 @@ export interface RunResult {
   unexpected: number;
   serverErrors: number;
   connectionErrors: number;
-  /** R-LOAD-003: a command of another kind sent because the view offered none of the kind asked for. */
+  /** load:constant-rate-command-mix: a command of another kind sent because the view offered none of the kind asked for. */
   fallbacks: number;
   ended: number;
   viewFailures: number;
@@ -36,7 +36,7 @@ export interface RunResult {
   viewP95Us: number;
   wanted: Record<string, number>;
   sentKinds: Record<string, number>;
-  /** R-LOAD-005: the added reads, reported and never gated. */
+  /** load:peak-reads-reported-only: the added reads, reported and never gated. */
   reads: { count: number; p95Us: number; failures: number } | null;
 }
 
@@ -62,7 +62,7 @@ export function percentile(sorted: readonly number[], bp: number): number {
   return sorted[rank - 1] ?? 0;
 }
 
-/** R-LOAD-009: every check of the table, and the verdict. */
+/** load:main-scenario-pass-thresholds: every check of the table, and the verdict. */
 export function passRule(result: RunResult, plan: Pick<LoadPlan, "p95Ms" | "p99Ms" | "unexpectedBp">): { verdict: Verdict; checks: Check[] } {
   const refused = result.unexpected + result.rateLimited;
   const checks: Check[] = [
@@ -95,7 +95,7 @@ interface K6Metric {
 /** Milliseconds as k6 reports them, to whole microseconds. */
 const micros = (value: number | undefined) => Math.round((value ?? 0) * 1000);
 
-/** R-LOAD-009: k6's summary of the measured scenario as a run result. */
+/** load:main-scenario-pass-thresholds: k6's summary of the measured scenario as a run result. */
 export function fromK6(data: { metrics: Record<string, K6Metric | undefined>; state?: { testRunDurationMs?: number } }, plan: LoadPlan, tool: string, endedAt: number, scenario: "commands" | "reads"): RunResult {
   const metric = (name: string) => data.metrics[`${name}{scenario:commands}`]?.values ?? {};
   const count = (name: string) => metric(name).count ?? 0;

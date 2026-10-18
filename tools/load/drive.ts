@@ -1,5 +1,5 @@
 // A stand-in load generator in Node for the smaller runs made before k6 is
-// installed (docs/rules/load.md R-LOAD-007 names k6 for the gate). It sends
+// installed (load:arrival-rate-generator names k6 for the gate). It sends
 // what commands.k6.js sends, from the same picks in pick.js, on the same
 // arrival schedule: a linear ramp, then a constant rate that never waits for
 // the server, with an iteration dropped when every user is busy.
@@ -16,12 +16,12 @@ import type { LooseCommand, Outcome } from "./pick.js";
 
 const SECOND_MS = 1000;
 
-/** R-LOAD-003: the ramp's arrival times in milliseconds from the start, rising linearly to the rate. */
+/** load:constant-rate-command-mix: the ramp's arrival times in milliseconds from the start, rising linearly to the rate. */
 export function rampArrivals(rate: number, seconds: number, count: number): number[] {
   return Array.from({ length: count }, (_, at) => Math.floor(Math.sqrt(int.divFloor(2 * seconds * SECOND_MS * SECOND_MS * (at + 1), rate))));
 }
 
-/** R-LOAD-003: a constant rate's arrival times from `startMs` for `count` arrivals. */
+/** load:constant-rate-command-mix: a constant rate's arrival times from `startMs` for `count` arrivals. */
 export function steadyArrivals(rate: number, startMs: number, count: number): number[] {
   return Array.from({ length: count }, (_, at) => startMs + int.divFloor(at * SECOND_MS, rate));
 }
@@ -93,7 +93,7 @@ async function command(target: Target, plan: LoadPlan, accounts: readonly [strin
   tally.outcomes[classify(reply.status, reply.body, stale)] += 1;
 }
 
-/** R-LOAD-005: one read of the second scenario. */
+/** load:peak-reads-reported-only: one read of the second scenario. */
 async function read(target: Target, plan: LoadPlan, accounts: readonly [string, string][], path: string, index: number, reads: { durations: number[]; failures: number }): Promise<void> {
   const [account] = accounts[accountAt(plan.seed ^ STREAM.reads, index, accounts.length)] ?? [""];
   const reply = await request(target, "GET", path, path === "/api/health" ? null : account);

@@ -28,7 +28,7 @@ function manifests(): string[] {
 }
 
 describe("the load test's scripts", () => {
-  test("[R-LOAD-001] given the load Worker's config, when it is read, then it runs the server package's app on this machine with the server's limits and nothing deployable", () => {
+  test("[load:runs-against-local-stack] given the load Worker's config, when it is read, then it runs the server package's app on this machine with the server's limits and nothing deployable", () => {
     const worker = read("../../apps/server/wrangler.load.jsonc");
     expect(worker).toContain('"main": "src/load.worker.ts"');
     expect(worker).toContain('"workers_dev": false');
@@ -38,20 +38,20 @@ describe("the load test's scripts", () => {
     expect(worker.match(/"simple"/g)).toHaveLength(5);
   });
 
-  test("[R-LOAD-007] given the repository, when every package manifest is read, then none depends on k6, and the scenario uses k6's constant-arrival-rate executor", () => {
+  test("[load:arrival-rate-generator] given the repository, when every package manifest is read, then none depends on k6, and the scenario uses k6's constant-arrival-rate executor", () => {
     for (const file of manifests()) expect(readFileSync(file, "utf8")).not.toMatch(/"k6"|"xk6|"@types\/k6"/);
     const script = read("./commands.k6.js");
     expect(script).toContain('executor: "constant-arrival-rate"');
     expect(script).toContain('from "k6/http"');
   });
 
-  test("[R-LOAD-007] given k6 missing, when the run starts, then it says how to install it and stops", () => {
+  test("[load:arrival-rate-generator] given k6 missing, when the run starts, then it says how to install it and stops", () => {
     const run = read("./run.ts");
     expect(run).toContain("brew install k6");
     expect(run).toMatch(/tool === "k6" && k6 === null\) \{[^}]*process\.exit\(1\)/s);
   });
 
-  test("[R-LOAD-008] given the run's entry, when it starts, then it raises the open file limit for its own shell before anything runs, and k6 keeps its connections alive", () => {
+  test("[load:connection-errors-counted-apart] given the run's entry, when it starts, then it raises the open file limit for its own shell before anything runs, and k6 keeps its connections alive", () => {
     const shell = read("./run.sh").split("\n");
     const limit = shell.findIndex((line) => line.startsWith("ulimit -n"));
     const runs = shell.findIndex((line) => line.startsWith("exec "));
@@ -63,7 +63,7 @@ describe("the load test's scripts", () => {
     expect(script).toContain('[shown("connection_errors")]');
   });
 
-  test("[R-LOAD-005] [R-LOAD-009] given the second scenario, when the script is read, then it adds heartbeats, view fetches and world fetches, and the gate's thresholds name only the measured commands", () => {
+  test("[load:peak-reads-reported-only] [load:main-scenario-pass-thresholds] given the second scenario, when the script is read, then it adds heartbeats, view fetches and world fetches, and the gate's thresholds name only the measured commands", () => {
     const script = read("./commands.k6.js");
     for (const name of ['exec: "heartbeat"', '"/api/health"', '"/api/view"', '"/api/world"']) expect(script.includes(name) || script.includes(name.replace('exec: "heartbeat"', '"heartbeat"'))).toBe(true);
     const thresholds = script.slice(script.indexOf("thresholds: {"), script.indexOf("};", script.indexOf("thresholds: {")));

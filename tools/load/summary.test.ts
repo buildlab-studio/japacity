@@ -59,7 +59,7 @@ function summary(verification: Verification | null) {
 }
 
 describe("the run's summary", () => {
-  test("[R-LOAD-011] given a run, when its summary is written, then it holds the thresholds, the measured values, the machine, the versions, the stores before and after, bytes per command and the seed", () => {
+  test("[load:run-summary-recorded] given a run, when its summary is written, then it holds the thresholds, the measured values, the machine, the versions, the stores before and after, bytes per command and the seed", () => {
     const made = summary(verified);
     expect(made.verdict).toBe("pass");
     expect(made.stores.bytesPerCommand).toBe(686);
@@ -80,13 +80,13 @@ describe("the run's summary", () => {
     }
   });
 
-  test("[R-LOAD-010] [R-LOAD-011] given a run that meets every threshold but fails verification, when it is summarised, then it fails", () => {
+  test("[load:correctness-checked-after-run] [load:run-summary-recorded] given a run that meets every threshold but fails verification, when it is summarised, then it fails", () => {
     expect(summary({ ...verified, ok: false, failed: [{ id: "character-1", problems: ["Version 3 replays to another hash than the one stored."], suspect: false }] }).verdict).toBe("fail");
     expect(summary(null).verdict).toBe("pass");
   });
 
-  test("[R-LOAD-011] given the results folder, when git reads its ignore file, then only the README and the ignore file are kept", () => {
+  test("[load:run-summary-recorded] given the results folder, when git reads its ignore file, then only the README and the ignore file are kept", () => {
     expect(read("./results/.gitignore").split("\n").filter((line) => line !== "" && !line.startsWith("#"))).toEqual(["*", "!.gitignore", "!README.md"]);
-    expect(read("./results/README.md")).toContain("R-LOAD-011");
+    expect(read("./results/README.md")).toContain("load:run-summary-recorded");
   });
 });

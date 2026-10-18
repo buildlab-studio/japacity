@@ -1,4 +1,4 @@
-// Draws the fixed link previews (share.md R-SHARE-010), by hand:
+// Draws the fixed link previews (share:card-link-has-fixed-preview), by hand:
 // `pnpm exec tsx tools/share/draw-previews.ts` from the repository root. The nine previews come from
 // the client's own card code (`previewSteps` through `renderPreview`) in Chromium, served by the
 // client's dev server, at `tuning.share.previewWidth` by `previewHeight` and under `previewMaxBytes`;

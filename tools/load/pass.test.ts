@@ -41,37 +41,37 @@ function edgeRun(over: Partial<RunResult> = {}): RunResult {
 const failing = (result: RunResult) => passRule(result, plan).checks.filter((check) => !check.ok).map((check) => check.name);
 
 describe("the pass rule", () => {
-  test("[R-LOAD-009] given a run at every threshold's edge, when it is judged, then it passes", () => {
+  test("[load:main-scenario-pass-thresholds] given a run at every threshold's edge, when it is judged, then it passes", () => {
     expect(passRule(edgeRun(), plan).verdict).toBe("pass");
   });
 
-  test("[R-LOAD-009] given one command fewer than 99% of the target, when it is judged, then it fails on commands sent", () => {
+  test("[load:main-scenario-pass-thresholds] given one command fewer than 99% of the target, when it is judged, then it fails on commands sent", () => {
     expect(failing(edgeRun({ sent: 9899, dropped: 101 }))).toEqual(["Commands sent against the target"]);
   });
 
-  test("[R-LOAD-009] given the 95th or 99th percentile one microsecond over, when it is judged, then it fails on that check alone", () => {
+  test("[load:main-scenario-pass-thresholds] given the 95th or 99th percentile one microsecond over, when it is judged, then it fails on that check alone", () => {
     expect(failing(edgeRun({ p95Us: plan.p95Ms * 1000 + 1 }))).toEqual(["Time per command, 95th percentile"]);
     expect(failing(edgeRun({ p99Us: plan.p99Ms * 1000 + 1 }))).toEqual(["Time per command, 99th percentile"]);
   });
 
-  test("[R-LOAD-009] given one server error, when it is judged, then it fails", () => {
+  test("[load:main-scenario-pass-thresholds] given one server error, when it is judged, then it fails", () => {
     expect(passRule(edgeRun({ serverErrors: 1 }), plan).verdict).toBe("fail");
   });
 
-  test("[R-LOAD-009] given unexpected rejections at the limit, rate limits among them, when it is judged, then it fails; expected stale answers never count", () => {
+  test("[load:main-scenario-pass-thresholds] given unexpected rejections at the limit, rate limits among them, when it is judged, then it fails; expected stale answers never count", () => {
     expect(failing(edgeRun({ unexpected: 10 }))).toEqual(["Unexpected rejections"]);
     expect(failing(edgeRun({ unexpected: 5, rateLimited: 5 }))).toEqual(["Unexpected rejections"]);
     expect(failing(edgeRun({ staleExpected: 5000 }))).toEqual([]);
   });
 
-  test("[R-LOAD-008] given a connection error on this machine, when it is judged, then the run is to be repeated, never read as the server's failure", () => {
+  test("[load:connection-errors-counted-apart] given a connection error on this machine, when it is judged, then the run is to be repeated, never read as the server's failure", () => {
     const judged = passRule(edgeRun({ connectionErrors: 1 }), plan);
     expect(judged.verdict).toBe("repeat");
     expect(judged.checks.filter((check) => !check.ok).map((check) => check.name)).toEqual(["Connection errors on this machine"]);
     expect(passRule(edgeRun({ connectionErrors: 1, serverErrors: 1 }), plan).verdict).toBe("repeat");
   });
 
-  test("[R-LOAD-009] given sorted times, when a percentile is read, then it is the nearest rank", () => {
+  test("[load:main-scenario-pass-thresholds] given sorted times, when a percentile is read, then it is the nearest rank", () => {
     const hundred = Array.from({ length: 100 }, (_, at) => at + 1);
     expect(percentile(hundred, 9500)).toBe(95);
     expect(percentile(hundred, 9900)).toBe(99);
@@ -82,7 +82,7 @@ describe("the pass rule", () => {
     expect(ms(5)).toBe("0.005 ms");
   });
 
-  test("[R-LOAD-009] given k6's summary, when it is read, then the measured scenario's submetrics fill the result", () => {
+  test("[load:main-scenario-pass-thresholds] given k6's summary, when it is read, then the measured scenario's submetrics fill the result", () => {
     const at = (values: Record<string, number>) => ({ values });
     const data = {
       metrics: {

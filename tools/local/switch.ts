@@ -1,5 +1,5 @@
 // tsx tools/local/switch.ts <signups|lottery|adverts|partnerPlay> <on|off>: sets one switch on the local
-// stack's database (server.md R-SERVER-031), logged as the store logs any change, with "local" as the admin.
+// stack's database (server:four-off-switches), logged as the store logs any change, with "local" as the admin.
 // The Worker reads the row again within `switches.cacheMs`. It refuses a database not on this machine.
 import { connect, pgSwitchStore } from "../../packages/db/src/index";
 import { readLocalStack } from "./env";

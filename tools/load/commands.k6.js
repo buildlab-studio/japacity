@@ -1,8 +1,7 @@
-// The load test's two scenarios for k6 (docs/rules/load.md R-LOAD-003 to
-// R-LOAD-009). Run by run.sh from this folder, which writes results/plan.json
+// The load test's two scenarios for k6 (load:constant-rate-command-mix, load:some-commands-sent-stale, load:peak-reads-reported-only, load:fixed-seed-repeatable-run, load:arrival-rate-generator, load:connection-errors-counted-apart and load:main-scenario-pass-thresholds). Run by run.sh from this folder, which writes results/plan.json
 // first; seed.ts writes results/accounts.json. LOAD_SCENARIO=commands is the
 // main scenario and the gate; LOAD_SCENARIO=reads adds the peak's reads and is
-// reported only (R-LOAD-005).
+// reported only (load:peak-reads-reported-only).
 /* global __ENV, open */
 import exec from "k6/execution";
 import http from "k6/http";
@@ -61,11 +60,11 @@ const shown = (metric) => `${metric}{scenario:commands}`;
 
 export const options = {
   scenarios,
-  // R-LOAD-008: keep-alive connections, never a new one per request.
+  // load:connection-errors-counted-apart: keep-alive connections, never a new one per request.
   noConnectionReuse: false,
   noVUConnectionReuse: false,
   summaryTrendStats: ["min", "med", "avg", "p(90)", "p(95)", "p(99)", "max", "count"],
-  // R-LOAD-009: the gate, on the measured scenario alone. The submetrics with `count>=0` are there to be reported.
+  // load:main-scenario-pass-thresholds: the gate, on the measured scenario alone. The submetrics with `count>=0` are there to be reported.
   thresholds: {
     [shown("command_ms")]: [`p(95)<=${String(PLAN.p95Ms)}`, `p(99)<=${String(PLAN.p99Ms)}`],
     [shown("dropped_iterations")]: [`count<=${String(PLAN.droppedMax)}`],
@@ -93,7 +92,7 @@ function bodyOf(res) {
   }
 }
 
-/** R-LOAD-003, R-LOAD-004, R-LOAD-006: one legal command for the iteration's account, sent stale when the seed says so. */
+/** load:constant-rate-command-mix, load:some-commands-sent-stale, load:fixed-seed-repeatable-run: one legal command for the iteration's account, sent stale when the seed says so. */
 export function command() {
   const index = (exec.scenario.name === "commands" ? PLAN.rampIterations : 0) + exec.scenario.iterationInTest;
   const [account, character] = ACCOUNTS[accountAt(PLAN.seed, index, ACCOUNTS.length)];
@@ -134,7 +133,7 @@ function readAs(path, signedIn) {
   if (res.status !== 200) readFailures.add(1);
 }
 
-/** R-LOAD-005. A heartbeat is the health route, since the socket's pings are answered without reaching the Worker (R-CLOCK-024). */
+/** load:peak-reads-reported-only. A heartbeat is the health route, since the socket's pings are answered without reaching the Worker (clock:client-sends-only-pings). */
 export function heartbeat() {
   readAs("/api/health", false);
 }

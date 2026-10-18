@@ -21,13 +21,13 @@ function now(data: { version: string }, sources: readonly SourceFile[]): { versi
 const sealed = now(DATA, [STEP, KIND]);
 
 describe("the content version's seal", () => {
-  test("[R-SERVER-048] given the committed seal, when it is read, then it names the content's version and a sha-256 fingerprint", () => {
+  test("[server:content-version-sealed] given the committed seal, when it is read, then it names the content's version and a sha-256 fingerprint", () => {
     const seal = readJson<Seal>(join(REPO_ROOT, SEAL_FILE));
     expect(seal.version).toBe(content.version);
     expect(seal.fingerprint).toMatch(/^[0-9a-f]{64}$/);
   });
 
-  test("[R-SERVER-048] given a comment added, reworded or removed in the simulation, and the layout changed, when fingerprinted, then the check passes", () => {
+  test("[server:content-version-sealed] given a comment added, reworded or removed in the simulation, and the layout changed, when fingerprinted, then the check passes", () => {
     const commented: SourceFile = {
       ...STEP,
       text: ["// Steps one command, and only one.", "/** The sum. */", "export function step(state: number, by: number): number {", "", "    return state + by; // added", "}", ""].join("\n"),
@@ -41,7 +41,7 @@ describe("the content version's seal", () => {
     expect(printed(spread)).toBe(printed(oneLine));
   });
 
-  test("[R-SERVER-048] given a test, a test helper or a tool's folder in the simulation's source, when the played files are listed, then none of them is read, and every kind's logic is", () => {
+  test("[server:content-version-sealed] given a test, a test helper or a tool's folder in the simulation's source, when the played files are listed, then none of them is read, and every kind's logic is", () => {
     expect(["engine/step.test.ts", "japacity/japacity.fixtures.ts", "sweep/players.ts", "testing/play.ts", "goldens/index.ts", "goldens/ada-careful.json", "engine/types.d.ts"].filter(played)).toEqual([]);
     expect(["engine/step.ts", "turn/turn.logic.ts", "world/standIn.ts", "index.ts"].every(played)).toBe(true);
     const paths = simSources().map((file) => file.path);
@@ -51,14 +51,14 @@ describe("the content version's seal", () => {
     expect(paths).toEqual([...paths].sort());
   });
 
-  test("[R-SERVER-048] given the same content with its keys in another order, or with only its version changed, when fingerprinted, then the fingerprint is the same", () => {
+  test("[server:content-version-sealed] given the same content with its keys in another order, or with only its version changed, when fingerprinted, then the fingerprint is the same", () => {
     const reordered = { route: { "route.a": { fee: 100 } }, tuning: { turn: { refill: 2, cap: 3 } }, version: "1" };
     expect(stableJson(reordered)).toBe(stableJson(DATA));
     expect(fingerprint(reordered, [STEP, KIND])).toBe(sealed.fingerprint);
     expect(fingerprint({ ...DATA, version: "2" }, [STEP, KIND])).toBe(sealed.fingerprint);
   });
 
-  test("[R-SERVER-048] given a tuning number changed in the content and the version not, when checked, then it fails and says to raise the version, add the old content to the older bundles if lives exist under it, and seal", () => {
+  test("[server:content-version-sealed] given a tuning number changed in the content and the version not, when checked, then it fails and says to raise the version, add the old content to the older bundles if lives exist under it, and seal", () => {
     const tuned = { ...DATA, tuning: { turn: { cap: 4, refill: 2 } } };
     const problems = checkSeal(now(tuned, [STEP, KIND]), sealed);
     expect(problems).toHaveLength(1);
@@ -68,7 +68,7 @@ describe("the content version's seal", () => {
     expect(problems[0]).toContain("pnpm content:seal");
   });
 
-  test("[R-SERVER-048] given the simulation's logic or a number in its code changed and the version not, when checked, then it fails", () => {
+  test("[server:content-version-sealed] given the simulation's logic or a number in its code changed and the version not, when checked, then it fails", () => {
     const logic: SourceFile = { ...STEP, text: STEP.text.replace("state + by", "state - by") };
     const number: SourceFile = { ...KIND, text: "export const CAP = 4;\n" };
     const added: SourceFile = { path: "turn/turn.extra.ts", text: "export const EXTRA = 1;\n" };
@@ -78,7 +78,7 @@ describe("the content version's seal", () => {
     expect(checkSeal(now(DATA, [STEP]), sealed)).toHaveLength(1);
   });
 
-  test("[R-SERVER-048] given a changed content and the same version, when sealed, then the seal is refused; after the version is raised by one and sealed, then the check passes", () => {
+  test("[server:content-version-sealed] given a changed content and the same version, when sealed, then the seal is refused; after the version is raised by one and sealed, then the check passes", () => {
     const tuned = { ...DATA, version: "1", tuning: { turn: { cap: 4, refill: 2 } } };
     const refused = resealed(now(tuned, [STEP, KIND]), { ...sealed });
     expect(refused).toMatchObject({ ok: false });
@@ -90,7 +90,7 @@ describe("the content version's seal", () => {
     expect(checkSeal(bumped, result.seal)).toEqual([]);
   });
 
-  test("[R-SERVER-048] given an unchanged content and simulation, when sealed again under the same version, then the seal is the same; a version that is not a whole number from 1, or below the seal's, is refused", () => {
+  test("[server:content-version-sealed] given an unchanged content and simulation, when sealed again under the same version, then the seal is the same; a version that is not a whole number from 1, or below the seal's, is refused", () => {
     const again = resealed(sealed, sealed);
     if (!again.ok) throw new Error(again.problem);
     expect(again.seal).toMatchObject(sealed);
@@ -102,7 +102,7 @@ describe("the content version's seal", () => {
     expect(checkSeal(sealed, two)).toEqual(['The content version "1" is not above the sealed "2".']);
   });
 
-  test("[R-SERVER-048] given a value that is not plain data in the content, when serialized, then it throws", () => {
+  test("[server:content-version-sealed] given a value that is not plain data in the content, when serialized, then it throws", () => {
     expect(() => stableJson({ a: () => 1 })).toThrow(/not plain data/);
     expect(() => stableJson({ a: new Map() })).toThrow(/not plain data/);
     expect(() => stableJson({ a: Number.NaN })).toThrow(/JSON cannot keep/);

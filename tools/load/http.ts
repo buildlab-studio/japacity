@@ -1,5 +1,5 @@
 // Requests to the load Worker from Node, for the seeder, the driver and the
-// verifier. Node's fetch keeps connections alive by default (R-LOAD-008).
+// verifier. Node's fetch keeps connections alive by default (load:connection-errors-counted-apart).
 import { setTimeout as sleep } from "node:timers/promises";
 
 export interface Reply<B> {
@@ -16,7 +16,7 @@ export interface Target {
 
 const SECOND_MS = 1000;
 
-/** One request; a failed connection is status 0, never thrown (R-LOAD-008). */
+/** One request; a failed connection is status 0, never thrown (load:connection-errors-counted-apart). */
 export async function request<B>(target: Target, method: "GET" | "POST", path: string, account: string | null, body?: unknown): Promise<Reply<B>> {
   const headers: Record<string, string> = {};
   if (account !== null) headers["x-test-account"] = account;
@@ -38,7 +38,7 @@ export async function request<B>(target: Target, method: "GET" | "POST", path: s
   }
 }
 
-/** A request that waits out R-SERVER-025's `retryAfter` and tries again, for the seeder and the verifier only. */
+/** A request that waits out server:per-account-rate-limits's `retryAfter` and tries again, for the seeder and the verifier only. */
 export async function patient<B>(target: Target, method: "GET" | "POST", path: string, account: string | null, body?: unknown, tries = 20): Promise<Reply<B>> {
   for (let attempt = 1; ; attempt += 1) {
     const reply = await request<B>(target, method, path, account, body);

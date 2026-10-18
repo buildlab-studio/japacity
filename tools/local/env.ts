@@ -1,4 +1,4 @@
-// The local stack's settings (server.md R-SERVER-038): the names in .env.example, each overridden
+// The local stack's settings (server:production-and-staging): the names in .env.example, each overridden
 // by the same name in .env.local. Nothing else in .env.local is read, so a Neon link's strings there
 // are never used, and every address is checked to be on this machine before anything starts.
 import { existsSync, readFileSync } from "node:fs";
@@ -18,7 +18,7 @@ export const WORKER_KEYS = [
   "GOOGLE_CLIENT_SECRET",
 ] as const;
 
-/** What the Worker is given only when it has a value: the admin accounts (R-SERVER-012), empty in .env.example. */
+/** What the Worker is given only when it has a value: the admin accounts (server:ledger-alarm-lists-suspects), empty in .env.example. */
 const OPTIONAL_WORKER_KEYS = ["ADMIN_ACCOUNTS"] as const;
 
 /** The Worker's name in wrangler.jsonc, which wrangler's local explorer dispatches a cron to. */
@@ -78,7 +78,7 @@ export function localStack(example: Record<string, string>, local: Record<string
   };
 
   const siteUrl = need("SITE_URL");
-  // account.md R-ACCOUNT-003: the auth library and the passkeys take only a bare https origin.
+  // account:passkey-needs-signed-in-session: the auth library and the passkeys take only a bare https origin.
   const site = localAddress("SITE_URL", siteUrl, ["https:"]);
   if (site.origin !== siteUrl) throw new Error(`SITE_URL must be a bare origin, with no path or trailing slash: ${siteUrl}`);
   if (site.port === "") throw new Error(`SITE_URL must name its port, the one wrangler listens on: ${siteUrl}`);
@@ -89,7 +89,7 @@ export function localStack(example: Record<string, string>, local: Record<string
 
   const worker: Record<string, string> = {};
   for (const name of WORKER_KEYS) worker[name] = need(name);
-  // server.md R-SERVER-012: the admin accounts reach the Worker only when .env.local names some; empty, nobody is an admin.
+  // server:ledger-alarm-lists-suspects: the admin accounts reach the Worker only when .env.local names some; empty, nobody is an admin.
   for (const name of OPTIONAL_WORKER_KEYS) {
     const value = values[name];
     if (value !== undefined && value !== "") worker[name] = value;

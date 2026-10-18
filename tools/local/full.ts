@@ -1,5 +1,5 @@
 // pnpm dev:full [--no-compose]: the whole online game on this machine, with no paid service
-// (server.md R-SERVER-038). Postgres and Mailpit in Docker Compose, the migrations, the client
+// (server:production-and-staging). Postgres and Mailpit in Docker Compose, the migrations, the client
 // built by Vite (watching) for the local Worker, and `wrangler dev` serving that build and /api
 // on SITE_URL, as one Worker serves a deployment. Ctrl+C stops Vite and wrangler; the Compose
 // services keep running until `docker compose stop`. `pnpm dev` stays the offline game.
@@ -12,7 +12,7 @@ import { cronUrl, hyperdriveEnv, LOCAL_DIST, type LocalStack, readLocalStack, wo
 import { composeUp, migrate } from "./stack";
 import { REPO_ROOT } from "../repo";
 
-/** R-CLOCK-012: the deployments tick every five minutes; wrangler dev runs no cron by itself. */
+/** clock:cron-stores-missing-ticks: the deployments tick every five minutes; wrangler dev runs no cron by itself. */
 const TICK_CRON = "*/5 * * * *";
 const TICK_MS = 5 * 60 * 1000;
 const WAIT_MS = 120_000;

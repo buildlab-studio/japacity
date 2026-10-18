@@ -22,7 +22,7 @@ export interface PlayOptions {
   readonly out: string;
   readonly url: string | null;
   readonly port: number;
-  /** The device marked as played: no first-use label shows (world.md R-WORLD-033). */
+  /** The device marked as played: no first-use label shows (world:no-walkthrough-before-play). */
   readonly played: boolean;
   readonly headed: boolean;
 }
@@ -97,7 +97,7 @@ export function parseOptions(argv: readonly string[], cwd: string, repoRoot: str
 
 /**
  * True for an https address on this machine: the local stack's, which wrangler serves with its own
- * self-signed certificate (server.md R-SERVER-038). Only there are certificate errors ignored.
+ * self-signed certificate (server:production-and-staging). Only there are certificate errors ignored.
  */
 export function localCertificate(url: string): boolean {
   if (!URL.canParse(url)) return false;

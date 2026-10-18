@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { bpFraction, config, DAY, MIX, planFor, RAMP_SECONDS, readRates, scaled } from "./load.config";
 
 describe("the load test's numbers", () => {
-  test("[R-LOAD-002] [R-LOAD-003] [R-LOAD-004] [R-LOAD-009] given the page's Numbers table, when the config is read, then every value matches it", () => {
+  test("[load:seeded-test-accounts] [load:constant-rate-command-mix] [load:some-commands-sent-stale] [load:main-scenario-pass-thresholds] given the page's Numbers table, when the config is read, then every value matches it", () => {
     expect(config.load).toEqual({
       accounts: 100_000,
       warmTurns: 60,
@@ -20,7 +20,7 @@ describe("the load test's numbers", () => {
     expect(Number.isSafeInteger(config.load.seed)).toBe(true);
   });
 
-  test("[R-LOAD-003] given the mix, when its shares are added, then they make the whole in the page's order, with a one-minute ramp", () => {
+  test("[load:constant-rate-command-mix] given the mix, when its shares are added, then they make the whole in the page's order, with a one-minute ramp", () => {
     expect(MIX.map((entry) => [entry.kind, entry.bp])).toEqual([
       ["turn/end", 5000],
       ["offer/choose", 1500],
@@ -33,7 +33,7 @@ describe("the load test's numbers", () => {
     expect(RAMP_SECONDS).toBe(60);
   });
 
-  test("[R-LOAD-005] given the peak, when the reads are worked out, then commands and reads make requestsPerSecond, heartbeats in the research file's proportion", () => {
+  test("[load:peak-reads-reported-only] given the peak, when the reads are worked out, then commands and reads make requestsPerSecond, heartbeats in the research file's proportion", () => {
     for (const load of [config.load, scaled(config.load, 10), scaled(config.load, 1000)]) {
       const reads = readRates(load);
       expect(load.commandsPerSecond + reads.heartbeats + reads.views + reads.worlds).toBe(load.requestsPerSecond);
@@ -43,7 +43,7 @@ describe("the load test's numbers", () => {
     expect(readRates(config.load)).toEqual({ heartbeats: 2236, views: 422, worlds: 422 });
   });
 
-  test("[R-LOAD-009] given a tenth of the target, when it is scaled, then counts and rates shrink and every threshold and the seed stay", () => {
+  test("[load:main-scenario-pass-thresholds] given a tenth of the target, when it is scaled, then counts and rates shrink and every threshold and the seed stay", () => {
     const tenth = scaled(config.load, 10);
     expect(tenth).toEqual({ ...config.load, accounts: 10_000, commandsPerSecond: 42, requestsPerSecond: 350 });
     expect(scaled(config.load, 1)).toEqual(config.load);
@@ -51,7 +51,7 @@ describe("the load test's numbers", () => {
     expect(() => scaled(config.load, 0)).toThrow();
   });
 
-  test("[R-LOAD-009] given the full plan, when its target is worked out, then it is the rate times the duration and fewer than 1% may drop", () => {
+  test("[load:main-scenario-pass-thresholds] given the full plan, when its target is worked out, then it is the rate times the duration and fewer than 1% may drop", () => {
     const plan = planFor(config.load, 1);
     expect(plan.target).toBe(420 * 600);
     expect(plan.droppedMax).toBe(2519);
@@ -61,7 +61,7 @@ describe("the load test's numbers", () => {
     expect(plan.unexpectedFraction).toBe("0.0010");
   });
 
-  test("[R-LOAD-009] given basis points, when they are written as a fraction for k6, then each edge reads right", () => {
+  test("[load:main-scenario-pass-thresholds] given basis points, when they are written as a fraction for k6, then each edge reads right", () => {
     expect(bpFraction(0)).toBe("0.0000");
     expect(bpFraction(1)).toBe("0.0001");
     expect(bpFraction(10)).toBe("0.0010");

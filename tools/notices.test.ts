@@ -7,7 +7,7 @@ import { CLIENT_ROOT, NOTICES_PATH, noticesFile, shippedPackages } from "./notic
 import { REPO_ROOT } from "./repo";
 
 describe("the repository's account of the makers and the shipped code", () => {
-  test("[R-GUIDE-008] given the client's dependencies, when NOTICES.md is read, then it is what pnpm notices writes from them, so it is never stale", () => {
+  test("[guide:credits-screen-in-game] given the client's dependencies, when NOTICES.md is read, then it is what pnpm notices writes from them, so it is never stale", () => {
     const packages = shippedPackages(CLIENT_ROOT);
     expect(readFileSync(NOTICES_PATH, "utf8")).toBe(noticesFile(packages));
     const names = packages.map((shipped) => shipped.name);
@@ -19,7 +19,7 @@ describe("the repository's account of the makers and the shipped code", () => {
     expect(noticesFile(packages.slice(1))).not.toBe(noticesFile(packages));
   });
 
-  test("[R-GUIDE-008] given the repository, when its licence files are read, then LICENSE names the makers and LICENSES.md points to the notices", () => {
+  test("[guide:credits-screen-in-game] given the repository, when its licence files are read, then LICENSE names the makers and LICENSES.md points to the notices", () => {
     const holders = /^Copyright \(c\) \d{4} (.+)$/m.exec(readFileSync(join(REPO_ROOT, "LICENSE"), "utf8"))?.[1];
     expect(holders).toMatch(/\S and Japacity contributors$/);
     expect(readFileSync(join(REPO_ROOT, "LICENSES.md"), "utf8")).toContain("[NOTICES.md](NOTICES.md)");
