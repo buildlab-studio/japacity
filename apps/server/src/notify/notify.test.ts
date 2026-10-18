@@ -1,3 +1,4 @@
+import type { NotifyReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import { newState, time } from "@japacity/sim";
 import type { PushSubscriptionJson } from "@japacity/store";
@@ -12,7 +13,6 @@ import { turnClock } from "../clock/view";
 import { runDeletions } from "../jobs/deletion";
 import { notifyJob } from "../jobs/notify";
 import { TICKS_CRON } from "../jobs/ticks";
-import type { NotifyReply } from "../routes/notify";
 import { readEndpoint } from "./device";
 import { fullAtOf } from "./fill";
 import { noticePayload } from "./notice";

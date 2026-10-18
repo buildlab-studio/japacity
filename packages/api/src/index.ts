@@ -9,6 +9,7 @@ export type * from "./pair";
 export type * from "./lottery";
 export type * from "./advert";
 export type * from "./lights";
+export type * from "./notify";
 export type * from "./analytics";
 export type * from "./boards";
 export type * from "./admin";

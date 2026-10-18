@@ -2,7 +2,7 @@
 // setting, and the devices that agreed. `GET /api/notify/key` gives the
 // deployment's public key and is mounted with the keys in index.ts.
 // https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe
-import type { ServerRejection } from "@japacity/api";
+import type { NotifyKeyReply, NotifyReply, ServerRejection } from "@japacity/api";
 import { Hono } from "hono";
 
 import type { ServerDeps } from "../deps";
@@ -11,11 +11,6 @@ import { limit, sessionOf } from "../limits/limit";
 import { readDevice, readEndpoint } from "../notify/device";
 import { stopNotices } from "../notify/notice";
 import type { PushKeys } from "../notify/webpush";
-
-/** `GET /api/notify` and every change: the setting, and the days before a dismissed ask comes again. */
-export type NotifyReply = { ok: true; on: boolean; reaskDays: number } | ServerRejection;
-
-type KeyReply = { ok: true; key: string | null };
 
 const signedOut: ServerRejection = { ok: false, code: "signed-out", detail: "Sign in first." };
 
@@ -83,6 +78,6 @@ export function notifyRoutes(deps: ServerDeps): Hono<SessionEnv> {
 /** R-CLOCK-031: the public key a browser subscribes with, or null while the deployment has none. Needs no session. */
 export function notifyKeyRoute(keys: PushKeys | null): Hono {
   const route = new Hono();
-  route.get("/api/notify/key", (c) => c.json<KeyReply>({ ok: true, key: keys?.publicKey ?? null }));
+  route.get("/api/notify/key", (c) => c.json<NotifyKeyReply>({ ok: true, key: keys?.publicKey ?? null }));
   return route;
 }

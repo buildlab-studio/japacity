@@ -1,34 +1,10 @@
 // The moderation calls: block, unblock and report (the pair side's routes),
 // the player's standing and appeal, and feedback. Null when the game runs
 // without a server, where there is no one to block and no team to tell.
-import type { BlockReply, BlockRequest, CiteReportRequest, PairReportRequest, ReportReply, ServerRejection } from "@japacity/api";
+import type { AppealRequest, BlockReply, BlockRequest, CiteReportRequest, FeedbackRequest, PairReportRequest, ReportReply, ServerRejection, StandingReply } from "@japacity/api";
 
 import { authorityMode } from "../net/authorityMode";
 import { api, type Api } from "../net/http";
-
-/** Read from apps/server/src/moderation/standing.ts (R-MODERATION-007, R-MODERATION-016): `GET /api/moderation/standing`. */
-export interface Standing {
-  actions: {
-    entry: string;
-    action: "warn" | "mute" | "suspend" | "ban";
-    reason: string;
-    at: number;
-    until: number | null;
-    appeal: { status: "open" | "decided"; outcome?: "upheld" | "overturned" } | null;
-  }[];
-  mutedUntil: number | null;
-  suspendedUntil: number | null;
-  banned: boolean;
-  reports: { id: string; at: number; status: "open" | "decided"; outcome?: "acted" | "no-action" }[];
-}
-
-/** Read from apps/server/src/routes/feedback.ts: `POST /api/feedback` (R-MODERATION-020). */
-interface FeedbackRequest {
-  text: string;
-  build: string;
-  screen: string;
-  mode: "low" | "high";
-}
 
 export type ReportRequest = PairReportRequest | CiteReportRequest;
 
@@ -38,7 +14,7 @@ export interface ModerationApi {
   block: (target: BlockRequest) => Promise<BlockReply>;
   unblock: (target: BlockRequest) => Promise<BlockReply>;
   report: (report: ReportRequest) => Promise<ReportReply>;
-  standing: () => Promise<{ ok: true; standing: Standing } | ServerRejection>;
+  standing: () => Promise<StandingReply>;
   appeal: (entry: string) => Promise<Done>;
   feedback: (feedback: FeedbackRequest) => Promise<Done>;
 }
@@ -58,7 +34,7 @@ export function moderationApi(server: Api): ModerationApi {
     unblock: (target) => settle(server.post("/api/moderation/unblock", target)),
     report: (report) => settle(server.post("/api/moderation/report", report)),
     standing: () => settle(server.get("/api/moderation/standing")),
-    appeal: (entry) => settle(server.post("/api/moderation/appeal", { action: entry })),
+    appeal: (entry) => settle(server.post("/api/moderation/appeal", { action: entry } satisfies AppealRequest)),
     feedback: (feedback) => settle(server.post("/api/feedback", feedback)),
   };
 }

@@ -4,6 +4,8 @@
 // answer for the server and the browser.
 // https://developer.mozilla.org/en-US/docs/Web/API/Notification/requestPermission_static
 // https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe
+import type { NotifyKeyReply, NotifyReply, NotifySettingRequest, PushSubscriptionJson, SubscribeRequest } from "@japacity/api";
+
 import { authorityMode } from "../../shared/net/authorityMode";
 import { api, type Fetch } from "../../shared/net/http";
 import { pageWall, type WallGuard } from "../../shared/net/wall";
@@ -15,17 +17,11 @@ export interface NotifyStatus {
   key: string | null;
 }
 
-/** As `PushSubscription.toJSON()` gives it. */
-export interface DeviceSubscription {
-  endpoint: string;
-  keys: { p256dh: string; auth: string };
-}
-
 export interface NotifyApi {
   /** Null when the server cannot be reached or no one is signed in. */
   status: () => Promise<NotifyStatus | null>;
   /** Keeps the device on the server and turns the setting on. False when refused. */
-  subscribe: (subscription: DeviceSubscription) => Promise<boolean>;
+  subscribe: (subscription: PushSubscriptionJson) => Promise<boolean>;
   /** The setting off: the server forgets every device. */
   turnOff: () => Promise<boolean>;
 }
@@ -38,7 +34,7 @@ export interface NotifyDevice {
   /** Asks the browser; resolves to its answer. */
   requestPermission: () => Promise<Permission>;
   /** Subscribes this browser with the server's key, or null when it cannot. */
-  subscribe: (key: string) => Promise<DeviceSubscription | null>;
+  subscribe: (key: string) => Promise<PushSubscriptionJson | null>;
   /** Ends this browser's subscription, if it has one. */
   unsubscribe: () => Promise<void>;
   /** When this device last turned the ask down, in ms since 1970, or null. */
@@ -54,10 +50,10 @@ const KEY = "/api/notify/key";
 /** Every call through the one request function (R-ENGINE-015): its clock, same origin, a wall or no answer sorted by kind. */
 export function httpNotifyApi(baseUrl: string, fetch: Fetch = (input, init) => globalThis.fetch(input, init), wall: WallGuard = pageWall): NotifyApi {
   const http = api({ baseUrl, fetch, wall });
-  async function call(path: string, method: "GET" | "POST" | "PUT", body?: unknown): Promise<Record<string, unknown> | null> {
+  async function call<T extends { ok: true }>(path: string, method: "GET" | "POST" | "PUT", body?: NotifySettingRequest | SubscribeRequest): Promise<T | null> {
     try {
       const read: unknown = method === "GET" ? await http.get(path) : method === "POST" ? await http.post(path, body) : await http.put(path, body);
-      return typeof read === "object" && read !== null && (read as { ok?: unknown }).ok === true ? (read as Record<string, unknown>) : null;
+      return typeof read === "object" && read !== null && (read as { ok?: unknown }).ok === true ? (read as T) : null;
     } catch {
       // No answer of any kind (a wall has already reloaded the page): the setting says it could not be changed.
       return null;
@@ -65,7 +61,7 @@ export function httpNotifyApi(baseUrl: string, fetch: Fetch = (input, init) => g
   }
   return {
     async status() {
-      const [setting, key] = await Promise.all([call(NOTIFY, "GET"), call(KEY, "GET")]);
+      const [setting, key] = await Promise.all([call<Extract<NotifyReply, { ok: true }>>(NOTIFY, "GET"), call<NotifyKeyReply>(KEY, "GET")]);
       if (setting === null || key === null) return null;
       return { on: setting.on === true, reaskDays: Number(setting.reaskDays), key: typeof key.key === "string" ? key.key : null };
     },

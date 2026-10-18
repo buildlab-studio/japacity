@@ -13,12 +13,13 @@
 // Cheap on a phone: one SVG for the strings, the canoes, the bulbs and the dots; glow layers only for the owner's light,
 // the account's own and the named ones, each breathing by opacity alone and still under reduced motion (world.md
 // R-WORLD-023); the dots are plain circles with no glow and no filter. Never counted, never sent but the light itself.
+import type { MyLight, SharedLight } from "@japacity/api";
 import { checkLight, DEDICATION_NICKNAME, DEDICATION_SHORT, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, type LightAsked, type LightProblem, lightWords, lightYears } from "@japacity/content";
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 
-import { lightOne, type MyLight, putOutMine, readLights, type SharedLight, useWater } from "../../shared/dedication/lights";
+import { lightOne, putOutMine, readLights, useWater } from "../../shared/dedication/lights";
 import { say, sayCount } from "../../shared/words/text";
 import { Bulb, capTop, Glow } from "./bulb";
 

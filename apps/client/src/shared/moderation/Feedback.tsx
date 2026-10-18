@@ -2,7 +2,7 @@
 // this account or decided one of its reports, the notice with its one appeal per action (R-MODERATION-007,
 // R-MODERATION-016). In the world they are two rows in the phone's Settings, the game's menu now; the broken screen's
 // Tell us opens the same box (analytics.md R-ANALYTICS-002).
-import { FEEDBACK_MAX_CHARS } from "@japacity/api";
+import { FEEDBACK_MAX_CHARS, type Standing } from "@japacity/api";
 import { BellDot, MessageSquareText } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -10,7 +10,7 @@ import { useGame } from "../../authority/GameProvider";
 import { Button } from "../ui/Button";
 import { Sheet } from "../ui/Sheet";
 import { graphicsMode } from "../graphics/mode";
-import { buildNumber, type ModerationApi, type Standing } from "./api";
+import { buildNumber, type ModerationApi } from "./api";
 import { useModeration } from "./ModerationProvider";
 import { anyReasonWords, words } from "./moderation.words";
 

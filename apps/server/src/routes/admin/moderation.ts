@@ -3,7 +3,7 @@
 // anyone off `config.admin.accounts` (R-SERVER-012), and the player's own two:
 // their standing and an appeal. The log has no route that changes or removes
 // an entry (R-MODERATION-015).
-import type { ServerCode, ServerRejection } from "@japacity/api";
+import type { ServerCode, ServerRejection, StandingReply } from "@japacity/api";
 import { Hono } from "hono";
 import type { Context } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
@@ -62,7 +62,7 @@ export function adminModerationRoutes(deps: ServerDeps, ports: ModerationPorts):
   routes.get("/api/moderation/standing", limit(deps, "reads"), async (c) => {
     const session = c.get("session");
     if (session === null) return refuse(c, 401, "signed-out", "Sign in first.");
-    return c.json({ ok: true, standing: await standingOf(deps, ports.reports, session.account) });
+    return c.json<StandingReply>({ ok: true, standing: await standingOf(deps, ports.reports, session.account) });
   });
 
   routes.post("/api/moderation/appeal", limit(deps, "commands"), async (c) => {

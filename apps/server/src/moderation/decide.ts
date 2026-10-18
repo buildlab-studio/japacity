@@ -1,7 +1,7 @@
 // R-MODERATION-008, R-MODERATION-014 to 019: an admin closes a report or
 // decides an appeal; every action is logged first, a close lifts the hold,
 // and a ban bars the sign-in identities and ends every session.
-import { ACTION_MAX_DAYS, REPORT_ACTIONS, REPORT_REASONS, type ReportAction, type ReportReason, type ServerCode } from "@japacity/api";
+import { ACTION_MAX_DAYS, REPORT_ACTIONS, TOLD_ACTIONS, REPORT_REASONS, type ReportAction, type ReportReason, type ServerCode } from "@japacity/api";
 import type { AppealRow, ModerationLogEntry } from "@japacity/store";
 
 import { requestDeletion } from "../account/deletion";
@@ -10,7 +10,6 @@ import { rollbackCheck } from "../ops/rollback";
 import type { ServerDeps } from "../deps";
 import { banIdentities, type Identities } from "./identities";
 import type { Report, ReportQueueStore } from "./reports";
-import { TOLD } from "./standing";
 
 /** What the admin view is given beside the deps: the pair side's report store and the auth library's identities. */
 export interface ModerationPorts {
@@ -153,7 +152,7 @@ export async function fileAppeal(deps: ServerDeps, account: string, body: unknow
   const action = asObject(body).action;
   if (typeof action !== "string") return { ok: false, status: 400, code: "not-legal", detail: "action names the action appealed." };
   const entry = await deps.stores.moderationLog.get(action);
-  const mine = entry !== null && entry.params.account === account && (TOLD as readonly string[]).includes(entry.action);
+  const mine = entry !== null && entry.params.account === account && (TOLD_ACTIONS as readonly string[]).includes(entry.action);
   if (!mine) return { ok: false, status: 404, code: "unknown-id", detail: `No action ${action} on this account.` };
   const filed = await deps.stores.appeals.file({ id: newId(deps, "appeal"), account, entry: action, at: deps.now() });
   if (!filed.ok) return { ok: false, status: 409, code: "not-legal", detail: "This action has been appealed already." };

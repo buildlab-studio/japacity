@@ -1,4 +1,4 @@
-import { type QueueView, REPORT_REASONS } from "@japacity/api";
+import { type QueueView, REPORT_REASONS, type Standing } from "@japacity/api";
 import { text } from "@japacity/content";
 import { time } from "@japacity/sim";
 import type { ModerationLogEntry } from "@japacity/store";
@@ -11,7 +11,6 @@ import { testSession } from "../deps";
 import { renameFrom } from "../account/username";
 import { identityHash, isBanned } from "./identities";
 import { readReport } from "./reports";
-import type { Standing } from "./standing";
 import { ADMIN, as, DAY, HOUR, message, moderationHarness, post, report, SECOND_ADMIN } from "./moderation.testing";
 
 type Body = Record<string, unknown>;
