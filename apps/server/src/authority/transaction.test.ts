@@ -13,7 +13,7 @@ import { memoryStores } from "../deps";
 import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
 import type { TestServer } from "./authority.testing";
-import { held, newLife, restMonth, send, testServer } from "./authority.testing";
+import { accepted, held, newLife, restMonth, send, testServer } from "./authority.testing";
 
 const { epoch, worldTickMs } = productionConfig.clock;
 /** Long enough for any command on PGlite, short of the test's own timeout, so a hang fails by name. */
@@ -39,11 +39,6 @@ function settles<T>(what: string, work: Promise<T>): Promise<T> {
     timer = setTimeout(() => reject(new Error(`${what} did not settle in ${String(HANG_MS)} ms`)), HANG_MS);
   });
   return Promise.race([work, hung]).finally(() => clearTimeout(timer));
-}
-
-function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
-  if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);
-  return reply;
 }
 
 describe("the command transaction on Postgres", () => {

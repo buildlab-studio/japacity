@@ -95,6 +95,12 @@ export async function newLife(server: TestServer, account: string, scenario: Id<
   return row.character;
 }
 
+/** The reply of an accepted command; a rejection fails the test with its code and detail. */
+export function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
+  if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);
+  return reply;
+}
+
 /** Sends a command based on `basedOn`. */
 export function send(server: TestServer, account: string, command: Command, basedOn = command.basedOn): Promise<Sent<ServerReply>> {
   return call<ServerReply>(server, "POST", "/api/command", account, { command, basedOn });

@@ -6,12 +6,7 @@ import type { ServerReply } from "@japacity/api";
 import type { Command } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { call, held, newLife, restMonth, testServer } from "../authority/authority.testing";
-
-function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
-  if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);
-  return reply;
-}
+import { accepted, call, held, newLife, restMonth, testServer } from "../authority/authority.testing";
 
 /** What a forged client might add, inside the command and beside it. */
 const FORGED = {

@@ -1,4 +1,3 @@
-import type { ServerReply } from "@japacity/api";
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -6,12 +5,7 @@ import { activeOn } from "../ops/active";
 import { listAlarms } from "../ops/alarm";
 import { utcDay } from "../ops/day";
 import { moneyJob } from "../jobs/money";
-import { held, newLife, restMonth, send, testServer, view } from "./authority.testing";
-
-function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
-  if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);
-  return reply;
-}
+import { accepted, held, newLife, restMonth, send, testServer, view } from "./authority.testing";
 
 describe("what follows a commit", () => {
   test("[R-SERVER-011] [R-SERVER-002] given a character that plays a month on one day and another on the next, when each commits, then the mark sits on the commit's day and the first day's month is closed into the first day's totals by the second day's first commit, the second day's own month waiting for its close", async () => {

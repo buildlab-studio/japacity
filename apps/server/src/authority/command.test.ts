@@ -8,15 +8,10 @@ import { describe, expect, test } from "vitest";
 import { productionConfig, testConfig } from "../config";
 import { readRequest, sendAuthority } from "./command";
 import { DIVERGED_NOTE } from "./commit";
-import { call, held, newLife, restMonth, send, testServer, view } from "./authority.testing";
+import { accepted, call, held, newLife, restMonth, send, testServer, view } from "./authority.testing";
 import { transact } from "./transaction";
 
 const { epoch, worldTickMs } = productionConfig.clock;
-
-function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
-  if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);
-  return reply;
-}
 
 /** A command whose JSON is exactly `bytes` long, padded in a field the simulation ignores. */
 function commandOf(bytes: number): Command {
