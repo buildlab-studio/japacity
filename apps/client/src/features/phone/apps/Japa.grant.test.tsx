@@ -7,10 +7,9 @@ import { fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
 import { recordedGame, recordedSave } from "../../../shared/testing/fixtures";
-import { renderWithView } from "../../../shared/testing/render";
 import { hasWords, nameOf, runningName } from "../../../shared/words/text";
-import { PhoneApps } from "../PhoneApps";
 import { reloadSeen } from "../seen";
+import { openJapa } from "../phone.testing";
 
 const SKILLED = "route.uk-skilled";
 /** A words key left on screen: a dotted id with no words behind it. */
@@ -28,12 +27,6 @@ function grantedSkilled(): PlayerView {
   const view = recordedGame("ada-abroad", commands.length - flight).view();
   if (view.place.where !== "home" || view.routes.find((route) => route.id === SKILLED)?.state !== "granted") throw new Error("Ada is not granted the skilled visa at home.");
   return view;
-}
-
-async function openJapa(view: PlayerView) {
-  const rendered = await renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} />, view);
-  fireEvent.click(document.querySelector<HTMLElement>('[data-app="japa"]')!);
-  return rendered;
 }
 
 describe("the plan once a route with no file is granted", () => {

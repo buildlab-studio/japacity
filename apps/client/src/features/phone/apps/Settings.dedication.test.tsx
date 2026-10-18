@@ -6,11 +6,10 @@
 // handed the same way; the page itself is proven in features/account/Dedication.test.tsx.
 import { DEDICATION, text } from "@japacity/content";
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { GameProvider, useGame } from "../../../authority/GameProvider";
+import { GameProvider } from "../../../authority/GameProvider";
 import { localAuthority } from "../../../authority/local";
 import { keepPerson } from "../../../shared/frontdoor/person";
 import { createGameStore, type GameStore } from "../../../authority/store";
@@ -19,6 +18,7 @@ import { STAMP_META } from "../../../shared/stamp/stamp";
 import { PhoneApps } from "../PhoneApps";
 import { phoneWords } from "../phone.words";
 import { type DedicationScreen, DEDICATION_TAPS, DEDICATION_WINDOW_MS, versionOf } from "./Settings";
+import { WhilePlaying } from "../phone.testing";
 
 const OWNERS_LINE = "Dedicated to my best friend, Osoko Emmanuel (July 1998 to June 2026). From Al-Ameen.";
 
@@ -35,10 +35,6 @@ async function localLife(): Promise<GameStore> {
   keepPerson({ look: "chr_ada", name: "Bisi", archetype: null });
   await store.getState().chooseLife("scenario.ada");
   return store;
-}
-
-function WhilePlaying({ children }: { children: ReactNode }) {
-  return useGame((state) => state.view) === null ? null : children;
 }
 
 function openApp(id: string): void {

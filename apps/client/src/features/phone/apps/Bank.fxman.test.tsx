@@ -13,13 +13,7 @@ import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import { phoneWords } from "../phone.words";
 import { Bank } from "./Bank";
-
-function card(): HTMLElement {
-  const main = document.querySelector<HTMLElement>("[data-ask-main]");
-  const dialog = main?.closest<HTMLElement>("[role='dialog']") ?? main?.parentElement?.parentElement ?? null;
-  if (dialog === null) throw new Error("No card is open.");
-  return dialog;
-}
+import { askCard as card } from "../phone.testing";
 
 /** Tunde at home with naira in the bank and in cash, and a few pounds in hand. */
 function heldAtHome(): PlayerView {

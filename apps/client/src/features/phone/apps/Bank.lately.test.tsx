@@ -11,10 +11,7 @@ import "../../../shared/testing/render";
 import { tidyLines } from "../../../shared/words/lines";
 import { words } from "../../../shared/words/text";
 import { PhoneApps } from "../PhoneApps";
-
-function lately(): string[] {
-  return [...document.querySelectorAll("[data-money-lines] li")].map((row) => row.textContent ?? "");
-}
+import { lately } from "../phone.testing";
 
 describe("Bank, Lately", () => {
   test("[R-WORLD-019] given a month that paid the living costs and then a danfo fare, when Bank opens, then the living costs show once and the fare shows", async () => {

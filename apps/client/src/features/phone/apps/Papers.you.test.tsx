@@ -2,20 +2,12 @@
 // from content and the hidden ones are not, a level content names reads as its name, and at home the qualities that
 // count abroad wait folded while they sit at nothing.
 import { content, text } from "@japacity/content";
-import type { PlayerView } from "@japacity/sim";
-import { fireEvent, within } from "@testing-library/react";
+import { within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../../shared/testing/fixtures";
-import { renderWithView } from "../../../shared/testing/render";
 import { say } from "../../../shared/words/text";
-import { PhoneApps } from "../PhoneApps";
-
-async function openPapers(view: PlayerView) {
-  const rendered = await renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" now={() => new Date(2026, 9, 11, 12, 0)} talk={null} />, view);
-  fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
-  return rendered;
-}
+import { openPapers } from "../phone.testing";
 
 function you(): HTMLElement {
   const section = document.querySelector<HTMLElement>("[data-papers-you]");

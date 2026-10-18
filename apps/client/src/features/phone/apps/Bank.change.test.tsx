@@ -3,7 +3,7 @@
 // the limit's remainder first, the limit is said before the button, and any refusal shows beside the button, never
 // "That amount will not work" at the top of the phone, scrolled away. Played on the real engine.
 import { content, text } from "@japacity/content";
-import { int, type Command, type PlayerView } from "@japacity/sim";
+import { int, type PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -16,20 +16,13 @@ import { say } from "../../../shared/words/text";
 import { phoneWords } from "../phone.words";
 import { PhoneApps } from "../PhoneApps";
 import { Bank, bankLimit, latelyMoney } from "./Bank";
+import { sent } from "../phone.testing";
 
 /** Tunde at home with ₦2,110,450 in the bank. */
 function heldAtHome() {
   const game = newGame("scenario.tunde");
   setPockets(game, { NGN: 211_045_000 });
   return game;
-}
-
-function sent(authority: { sent: Command[] }): unknown[] {
-  return authority.sent.map((command) => {
-    const rest: Partial<Command> = { ...command };
-    delete rest.basedOn;
-    return rest;
-  });
 }
 
 function chips(): string[] {

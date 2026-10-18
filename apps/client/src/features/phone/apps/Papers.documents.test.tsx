@@ -3,21 +3,13 @@
 // runs out, none while a new copy is on its way, and when a copy comes said as months away, never a month number.
 import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
-import { fireEvent } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView, richView } from "../../../shared/testing/fixtures";
-import { renderWithView } from "../../../shared/testing/render";
 import { inMonths, say, sayCount } from "../../../shared/words/text";
-import { PhoneApps } from "../PhoneApps";
 import { papersOf } from "../papers";
 import { phoneWords } from "../phone.words";
-
-async function openPapers(view: PlayerView) {
-  const rendered = await renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" now={() => new Date(2026, 9, 11, 12, 0)} talk={null} />, view);
-  fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
-  return rendered;
-}
+import { openPapers } from "../phone.testing";
 
 function paper(id: string): HTMLElement {
   const card = document.querySelector<HTMLElement>(`[data-paper="${id}"]`);

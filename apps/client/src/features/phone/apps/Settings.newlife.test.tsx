@@ -3,11 +3,10 @@
 // when held. A local end clears the save and the kept person, and the front door opens.
 import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import type { ReactNode } from "react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "../../../app/App";
-import { GameProvider, useGame } from "../../../authority/GameProvider";
+import { GameProvider } from "../../../authority/GameProvider";
 import { localAuthority, SAVE_KEY } from "../../../authority/local";
 import { keepPerson, PERSON_KEY } from "../../../shared/frontdoor/person";
 import { createGameStore, type GameStore } from "../../../authority/store";
@@ -17,6 +16,7 @@ import { clockWords } from "../../../shared/words/quality";
 import { say } from "../../../shared/words/text";
 import { PhoneApps } from "../PhoneApps";
 import { HOLD_MS } from "./Settings";
+import { WhilePlaying } from "../phone.testing";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -34,11 +34,6 @@ async function localLife(): Promise<{ store: GameStore; afresh: () => number }> 
   keepPerson({ look: "chr_ada", name: "Bisi", archetype: null });
   await store.getState().chooseLife("scenario.ada");
   return { store, afresh: () => afresh };
-}
-
-/** The phone as the shell holds it: only while a life is playing, as WorldPlaying does. */
-function WhilePlaying({ children }: { children: ReactNode }) {
-  return useGame((state) => state.view) === null ? null : children;
 }
 
 function openSettings(store: GameStore): void {

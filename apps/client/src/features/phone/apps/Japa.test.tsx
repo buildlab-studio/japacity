@@ -7,14 +7,13 @@ import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
 import { abroadView, newGame, recordedGame, richView, viewAfter } from "../../../shared/testing/fixtures";
-import { renderWithView } from "../../../shared/testing/render";
 import { nowSaid } from "../../../shared/words/acts";
 import { blurbOf, forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { comingOf } from "../../../shared/words/coming";
 import { remindersOf } from "./Japa";
-import { PhoneApps } from "../PhoneApps";
 import { phoneWords } from "../phone.words";
 import { reloadSeen } from "../seen";
+import { openJapa } from "../phone.testing";
 
 const OFFICIAL = "activity.look-into-route";
 const UK = "route.uk-masters";
@@ -23,12 +22,6 @@ beforeEach(() => {
   localStorage.clear();
   reloadSeen();
 });
-
-async function openJapa(view: PlayerView) {
-  const rendered = await renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} />, view);
-  fireEvent.click(document.querySelector<HTMLElement>('[data-app="japa"]')!);
-  return rendered;
-}
 
 /** Ada at the start, with the UK master's only heard of: no plan yet, and the official page open to her. */
 function adaHeard(): PlayerView {
