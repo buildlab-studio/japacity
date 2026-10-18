@@ -1,14 +1,13 @@
 // The share card's common fields (docs/rules/share.md R-SHARE-001, 002, 004).
 // Each kind says when its own card is due; this file fills the rest the same
 // way for all of them. A card is read from the state and never stored.
+import { QUALITY } from "../engine/ids";
 import { divFloor } from "../engine/int";
 import type { Content, Id, PlayerView, ReadCtx, ReportLine, State } from "../engine/types";
 import { japacity, routePercent } from "../japacity/japacity.logic";
 
 export type Card = NonNullable<PlayerView["card"]>;
 export type CardKind = Card["kind"];
-
-const STANDING: Id<"quality"> = "quality.standing";
 
 /**
  * The activities played in the most months (R-ACTIVITY-012), most first, then by id. An act that repeats counts each
@@ -59,7 +58,7 @@ export function cardOf(read: ReadCtx, kind: CardKind, moment: { route?: Id<"rout
     route,
     percent: route === null ? null : routePercent(read, route),
     months: read.state.turn.month,
-    standing: read.state.quality[STANDING] ?? 0,
+    standing: read.state.quality[QUALITY.standing] ?? 0,
     topActivities: topActivities(read.state, read.content),
     name: null,
   };

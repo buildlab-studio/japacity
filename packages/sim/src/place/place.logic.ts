@@ -1,6 +1,7 @@
 // Place: docs/rules/place.md, R-PLACE-001 to 012, and the mechanics of coming
 // home in return.md. A character is at home, abroad in one country, or on the road.
 import { check, worldVarOr } from "../engine/check";
+import { QUALITY, SETPIECE, STATUS, VAR } from "../engine/ids";
 import { bp, BP_WHOLE, convertMinor, divFloor, isqrt, mulDiv, roundUpTo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -42,15 +43,10 @@ import { feeInNaira, walletAfter } from "../wallet/wallet.logic";
 import type { Payment } from "../wallet/wallet.logic";
 import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
-const STANDING: Id<"quality"> = "quality.standing";
-const SEASON_DECEMBER: Id<"var"> = "var.season-december";
 /** R-RETURN-005: the least gap between two December visits, in the character's months. */
 const MONTHS_A_YEAR = 12;
-const DECEMBER: Id<"setpiece"> = "setpiece.december";
 /** R-RETURN-004 names one token that lapses with time away. */
 const RESIDENT: Id<"status"> = "status.ca-resident";
-/** R-ROAD-009: the status the road's far shore gives. */
-const IRREGULAR: Id<"status"> = "status.eu-irregular";
 /** R-PLACE-007: what the family house charges for again when you come back. */
 const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
 /** R-PLACE-002: what closes on a flight: the family house's charges, and a room's rent at home, let go (R-HOME-010). */
@@ -87,14 +83,12 @@ export function appliesHere(entry: Placed, state: State): boolean {
 // Reading
 // ---------------------------------------------------------------------------
 
-
-
 /** R-PLACE-006: the fare home from the country the character is in, or null when not abroad. */
 export function fareHome(read: ReadCtx): MoneyParam | null {
   const { where, country } = read.state.place;
   if (where !== "abroad" || country === null) return null;
   const entry = countryEntry(read.content, country);
-  const december = worldVarOr(read.world, SEASON_DECEMBER) === 1;
+  const december = worldVarOr(read.world, VAR.seasonDecember) === 1;
   return { currency: entry.currency, amount: december ? bp(entry.fare, entry.decemberFactorBp) : entry.fare };
 }
 
@@ -221,8 +215,8 @@ function comeHome(ctx: Ctx, shape: ReturnShape, cause: Cause): BaseEvent[] {
   const standing = ctx.content.tuning.return.standing[shape];
   const bonus = capitalBonus(ctx);
   const gains: Effect[] = [];
-  if (standing !== 0) gains.push({ type: "quality/add", quality: STANDING, amount: standing });
-  if (bonus !== 0) gains.push({ type: "quality/add", quality: STANDING, amount: bonus });
+  if (standing !== 0) gains.push({ type: "quality/add", quality: QUALITY.standing, amount: standing });
+  if (bonus !== 0) gains.push({ type: "quality/add", quality: QUALITY.standing, amount: bonus });
   ctx.apply(gains, cause);
   return events;
 }
@@ -262,7 +256,7 @@ function farePayment(read: ReadCtx, fare: MoneyParam): Payment | null {
 
 /** R-ROAD-009: from the far shore the only way home is the assisted scheme, with no fare. */
 function fromFarShore(read: ReadCtx): boolean {
-  return read.state.status.current?.entry === IRREGULAR;
+  return read.state.status.current?.entry === STATUS.euIrregular;
 }
 
 /**
@@ -607,8 +601,8 @@ function returnEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
       const standing = ctx.content.tuning.return.standing[effect.shape];
       const bonus = capitalBonus(ctx);
       const gains: Effect[] = [];
-      if (standing !== 0) gains.push({ type: "quality/add", quality: STANDING, amount: standing });
-      if (bonus !== 0) gains.push({ type: "quality/add", quality: STANDING, amount: bonus });
+      if (standing !== 0) gains.push({ type: "quality/add", quality: QUALITY.standing, amount: standing });
+      if (bonus !== 0) gains.push({ type: "quality/add", quality: QUALITY.standing, amount: bonus });
       ctx.apply(gains, cause);
       return events;
     }
@@ -642,18 +636,18 @@ function tokenLapse(ctx: Ctx): BaseEvent[] {
  * December that spans many ticks online opens it once.
  */
 function december(ctx: Ctx): BaseEvent[] {
-  if (ctx.state.place.where !== "abroad" || worldVarOr(ctx.world, SEASON_DECEMBER) !== 1) return [];
-  if (ctx.content.setpiece[DECEMBER] === undefined || ctx.state.setpiece.open !== null) return [];
+  if (ctx.state.place.where !== "abroad" || worldVarOr(ctx.world, VAR.seasonDecember) !== 1) return [];
+  if (ctx.content.setpiece[SETPIECE.december] === undefined || ctx.state.setpiece.open !== null) return [];
   const last = ctx.state.place.decemberMonth;
   if (last !== null && ctx.state.turn.month - last < MONTHS_A_YEAR) return [];
-  ctx.apply([{ type: "setpiece/open", setpiece: DECEMBER, route: null }], { source: DECEMBER, param: null, terms: {} });
+  ctx.apply([{ type: "setpiece/open", setpiece: SETPIECE.december, route: null }], { source: SETPIECE.december, param: null, terms: {} });
   if (!decemberOpen(ctx.state)) return [];
   return record(ctx, [{ type: "place/december-opened", month: ctx.state.turn.month }]);
 }
 
 /** The visit may find nothing to ask and stay shut (R-SETPIECE-001). */
 function decemberOpen(state: State): boolean {
-  return state.setpiece.open?.entry === DECEMBER;
+  return state.setpiece.open?.entry === SETPIECE.december;
 }
 
 function month(ctx: Ctx): BaseEvent[] {

@@ -4,6 +4,7 @@
 // the engine's counter (R-SCENARIO-002).
 import { rateFor } from "../credit/credit.logic";
 import { worldVarOr } from "../engine/check";
+import { QUALITY } from "../engine/ids";
 import { bp, convertMinor, divCeil, divFloor, isWhole, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, oldestFirst, ownOf } from "../engine/kind";
@@ -39,8 +40,6 @@ import type { ClosedWhy, ObligationEvent } from "./obligation.events";
 import { isSponsorUndertaking, openUndertaking, payUndertaking, undertakingDue, undertakingMonthsLeft } from "./obligation.undertaking";
 import { officialRates, spendable } from "../wallet/wallet.rates";
 
-const STANDING: Id<"quality"> = "quality.standing";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const INFLATION: Id<"var"> = "var.inflation";
 /** R-RETURN-006: the car's shortfall once it has followed you home, in naira. */
 const HOME_SHORTFALL: Id<"obligation"> = "obligation.car-shortfall-home";
@@ -69,7 +68,6 @@ function entryOf(content: Content, id: Id<"obligation">): ObligationEntry {
 function openItems(state: State): ObligationState[] {
   return Object.values(state.obligation.items).sort(oldestFirst);
 }
-
 
 /** The car's numbers, in its currency (docs/rules/car.md "Entries"). */
 export type { CarTerms, CarView } from "../engine/types";
@@ -449,8 +447,8 @@ function groupMissEffects(ctx: Ctx, entry: ObligationEntry, missed: number): Eff
   if (missed === 2) {
     const { standing, wellbeing } = ctx.content.tuning.groupLoan.visit;
     return [
-      { type: "quality/add", quality: STANDING, amount: standing },
-      { type: "quality/add", quality: WELLBEING, amount: wellbeing },
+      { type: "quality/add", quality: QUALITY.standing, amount: standing },
+      { type: "quality/add", quality: QUALITY.wellbeing, amount: wellbeing },
     ];
   }
   return [];

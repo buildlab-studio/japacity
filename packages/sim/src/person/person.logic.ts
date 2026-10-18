@@ -4,6 +4,7 @@
 // the stand-in. Another life reaches this one only by authority commands
 // (decision 0020), so each life replays alone.
 import { check, worldVar } from "../engine/check";
+import { QUALITY, VAR } from "../engine/ids";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, ownOf, readOf } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -35,16 +36,13 @@ import type {
 import { undertakingOpening } from "../obligation/obligation.undertaking";
 import { pointsScoreAlone, pointsScoreWith } from "../route/gates/points";
 import { sponsorBarUntil, sponsorCheck } from "./person.sponsorChecks";
-import { AGE, computerFacts, jointRouteOf } from "./person.facts";
+import { computerFacts, jointRouteOf } from "./person.facts";
 import type { PeopleEvent } from "./person.events";
 
 export { factsOf } from "./person.facts";
 
-const STANDING: Id<"quality"> = "quality.standing";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const RECOVERY: Id<"offer"> = "offer.people-recovery";
 const PAPERS_OFFER: Id<"offer"> = "offer.papers-marriage";
-const DECEMBER: Id<"var"> = "var.season-december";
 /** R-PEOPLE-017: where a wedding is held, drawn on `people`. */
 export const WEDDING_SPOTS: readonly string[] = ["family-compound", "church", "mosque", "registry", "event-hall"];
 /** R-PAIR-007: what an invite card may say it is looking for. */
@@ -223,7 +221,7 @@ function drawByWeight(ctx: Ctx, entries: readonly PersonEntry[]): PersonEntry | 
 /** An age for a computer character: the character's own plus a gap drawn from its entry. */
 function drawAge(ctx: Ctx, entry: PersonEntry): number {
   const [low, high] = entry.profile.ageGapMonths;
-  return Math.max(0, (ctx.state.quality[AGE] ?? 0) + ctx.random.between("people", low, high));
+  return Math.max(0, (ctx.state.quality[QUALITY.age] ?? 0) + ctx.random.between("people", low, high));
 }
 
 /**
@@ -410,7 +408,7 @@ function computerWilling(ctx: Ctx, bond: Bond, entry: PersonEntry, step: Proposa
 
 /** A computer's wedding waits for December when its entry says so (R-PEOPLE-049). */
 function waitsForDecember(ctx: Ctx, entry: PersonEntry, step: Proposal["step"]): boolean {
-  return step === "marry" && entry.behaviour.marryInDecember && worldVar(ctx, DECEMBER) !== 1;
+  return step === "marry" && entry.behaviour.marryInDecember && worldVar(ctx, VAR.seasonDecember) !== 1;
 }
 
 /**
@@ -435,7 +433,7 @@ function agree(ctx: Ctx, id: string, proposal: Proposal): BaseEvent[] | Rejectio
       if (!canPayShare(ctx)) return reject("cannot-afford", "The wedding share cannot be paid.");
       const events = record(ctx, [agreed]);
       const share = ctx.content.tuning.people.weddingShare;
-      events.push(...ctx.apply([{ type: "money/take", currency: "NGN", pocket: "transfer", amount: share, reason: "wedding" }, { type: "quality/add", quality: STANDING, amount: ctx.content.tuning.people.weddingStanding }], cause));
+      events.push(...ctx.apply([{ type: "money/take", currency: "NGN", pocket: "transfer", amount: share, reason: "wedding" }, { type: "quality/add", quality: QUALITY.standing, amount: ctx.content.tuning.people.weddingStanding }], cause));
       const moment: Moment = { n: bond.moments.length + 1, by: "me", kind: "wedding", spot: drawFrom(ctx, WEDDING_SPOTS), what: WEDDING_WHAT, tick: ctx.world.tick };
       events.push(...record(ctx, [{ type: "people/moment-added", bond: id, moment }]));
       return events;
@@ -595,10 +593,10 @@ function endBond(ctx: Ctx, id: string, by: NonNullable<Bond["ended"]>["by"], pay
   const numbers = ctx.content.tuning.people;
   const effects: Effect[] = [];
   if (payer === "me") {
-    if (standing !== 0) effects.push({ type: "quality/add", quality: STANDING, amount: standing });
-    effects.push({ type: "quality/add", quality: WELLBEING, amount: numbers.endWellbeing });
+    if (standing !== 0) effects.push({ type: "quality/add", quality: QUALITY.standing, amount: standing });
+    effects.push({ type: "quality/add", quality: QUALITY.wellbeing, amount: numbers.endWellbeing });
   }
-  if (payer === "left") effects.push({ type: "quality/add", quality: WELLBEING, amount: numbers.leftWellbeing }, { type: "offer/open", offer: RECOVERY });
+  if (payer === "left") effects.push({ type: "quality/add", quality: QUALITY.wellbeing, amount: numbers.leftWellbeing }, { type: "offer/open", offer: RECOVERY });
   events.push(...ctx.apply(effects, cause));
   return events;
 }
@@ -656,7 +654,7 @@ function familyHandled(ctx: Ctx, command: FamilyRequest): BaseEvent[] | Rejectio
   const open = Object.values(ctx.state.offer.items).some((item) => item.entry === command.offer);
   if (!open) return reject("not-legal", `No copy of ${command.offer} is open here.`);
   const events = record(ctx, [{ type: "people/request-handled", offer: command.offer }]);
-  return [...events, ...ctx.apply([{ type: "offer/close", offer: command.offer }, { type: "quality/add", quality: STANDING, amount: HANDLED_STANDING }], { source: command.offer, param: null, terms: command.terms })];
+  return [...events, ...ctx.apply([{ type: "offer/close", offer: command.offer }, { type: "quality/add", quality: QUALITY.standing, amount: HANDLED_STANDING }], { source: command.offer, param: null, terms: command.terms })];
 }
 
 function isFromAuthority(command: Command): command is FromAuthority {
@@ -820,7 +818,7 @@ function refreshFacts(ctx: Ctx): BaseEvent[] {
 /** R-PEOPLE-049: a December wedding a computer agreed to is held once December comes. */
 function decemberWeddings(ctx: Ctx): BaseEvent[] {
   const waiting = Object.entries(ctx.state.people.bonds).filter(([, bond]) => live(bond) && bond.pending.mine?.step === "marry" && computerOf(ctx.content, bond) !== null);
-  if (waiting.length === 0 || worldVar(ctx, DECEMBER) !== 1) return [];
+  if (waiting.length === 0 || worldVar(ctx, VAR.seasonDecember) !== 1) return [];
   const events: BaseEvent[] = [];
   for (const [id, bond] of waiting) {
     if (bond.pending.mine === null || !canPayShare(ctx)) continue;
@@ -843,7 +841,7 @@ function gossip(ctx: Ctx): BaseEvent[] {
     if (together === null) break;
     if (!ctx.random.chance("people", ctx.content.tuning.people.gossipBp)) continue;
     const [partnerId, partner] = together;
-    events.push(...ctx.apply([{ type: "quality/add", quality: STANDING, amount: ctx.content.tuning.people.gossipStanding }], { source: about, param: about, terms: {} }));
+    events.push(...ctx.apply([{ type: "quality/add", quality: QUALITY.standing, amount: ctx.content.tuning.people.gossipStanding }], { source: about, param: about, terms: {} }));
     const entry = computerOf(ctx.content, partner);
     if (entry === null) {
       events.push(...record(ctx, [{ type: "people/gossip-spread", bond: partnerId, about }]));

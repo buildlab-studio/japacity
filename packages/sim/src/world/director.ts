@@ -29,6 +29,7 @@
 // - `scale` (R-CLOCK-015) multiplies an era's drawn length, a story's rumour lead, force lag, end and
 //   cooldown, the closed ticks and the shock gap. The fixed schedule of news.md is not the director's and
 //   keeps its own ticks.
+import { VAR } from "../engine/ids";
 import { BP_WHOLE } from "../engine/int";
 import { createRandom, drawAt, scaleDraw } from "../engine/random";
 import type { Content, EraEntry, Id, NewsEntry, Requirement, World, WorldNews } from "../engine/types";
@@ -40,7 +41,6 @@ import { DRAWS_PER_STORY, newsSchedule, stageAt } from "./schedule";
 
 const OPENING_ERA: Id<"era"> = "era.calm";
 const SHOCK: WorldStream = "shock";
-const DECEMBER: Id<"var"> = "var.season-december";
 const WINDOW_OPEN = 2;
 const WINDOW_NARROWING = 1;
 const SCALE_MAX = 100;
@@ -544,7 +544,7 @@ function stepWorldTick(book: DirectorBook | null, worldSeed: string, content: Co
     startEraStory(next, content, next.era, scale);
   }
   if (tick > 0) turnCycle(next, content, reading);
-  if (content.var[DECEMBER] !== undefined) next.values[DECEMBER] = calendar.december ? 1 : 0;
+  if (content.var[VAR.seasonDecember] !== undefined) next.values[VAR.seasonDecember] = calendar.december ? 1 : 0;
   const turned = turnStories(next, reading, tick);
   markClosed(next, reading, tick);
   if (tick > 0) rollStories(next, worldSeed, content, reading, tick, scale);

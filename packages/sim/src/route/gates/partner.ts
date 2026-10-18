@@ -5,6 +5,7 @@
 // The people kind holds the bonds and the joint; this module only reads them.
 import { heldBand } from "../../activity/activity.logic";
 import { worldVar } from "../../engine/check";
+import { VAR } from "../../engine/ids";
 import { emit } from "../../engine/kind";
 import type { Bond, BondStage, Cause, Ctx, Id, PersonFacts, ReadCtx, RouteEntry, RouteState } from "../../engine/types";
 import { bannedNow } from "../../place/place.logic";
@@ -13,7 +14,6 @@ import type { Decision, DecisionTerms, Gate } from "./gate";
 
 type PartnerBlock = NonNullable<RouteEntry["partner"]>;
 
-const SURCHARGE_YEAR: Id<"var"> = "var.uk-surcharge-year";
 /** The stages at which a bond carries a joint application (R-PEOPLE-021). */
 const JOINED: readonly BondStage[] = ["partner", "married"];
 /** R-PEOPLE-027, R-PEOPLE-023: the route's base and 800 for each earlier refusal, and nothing else. */
@@ -152,7 +152,7 @@ export const partnerGate: Gate = {
   // R-ROUTE-014 for this gate: no strictness, the surcharge for the route's years, the route's own months to decide.
   application: (read, entry) => {
     const block = blockOf(entry);
-    return { strictness: 0, surchargePaid: block.surchargeYears === 0 ? 0 : block.surchargeYears * worldVar(read, SURCHARGE_YEAR), decisionMonths: block.decisionMonths };
+    return { strictness: 0, surchargePaid: block.surchargeYears === 0 ? 0 : block.surchargeYears * worldVar(read, VAR.ukSurchargeYear), decisionMonths: block.decisionMonths };
   },
   // The floor is the sponsor's, judged in the sponsor's life; the applicant shows no funds.
   funds: () => null,

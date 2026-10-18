@@ -7,6 +7,7 @@
 // What the illness leaves behind is kept in the hidden `quality.illness-course`,
 // which the choices' own effects move: the chemist and ignoring each mark a
 // relapse to draw, and either answer to the worse turn marks it answered.
+import { QUALITY } from "../engine/ids";
 import { readOf } from "../engine/kind";
 import type { BaseEvent, Ctx, Effect, Id, OfferEntry, ReadCtx, State, Terms } from "../engine/types";
 import { FORCED_WAIT, runDownSinceWarning } from "../quality/quality.logic";
@@ -14,7 +15,6 @@ import { FORCED_WAIT, runDownSinceWarning } from "../quality/quality.logic";
 const ILLNESS: Id<"offer"> = "offer.illness";
 const ILLNESS_WORSE: Id<"offer"> = "offer.illness-worse";
 export const COURSE: Id<"quality"> = "quality.illness-course";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 
 /** Where the last illness stands, as `quality.illness-course` holds it. */
 export const COURSE_STEP = { none: 0, chemist: 1, ignored: 2, worse: 3, answered: 4 } as const;
@@ -53,7 +53,6 @@ function illnessTerms(read: ReadCtx): Terms {
 function worseTerms(read: ReadCtx): Terms {
   return { hospital: read.content.tuning.health.hospitalWorse };
 }
-
 
 function addQuality(ctx: Ctx, quality: Id<"quality">, amount: number): BaseEvent[] {
   if (amount === 0) return [];
@@ -121,7 +120,7 @@ function recover(ctx: Ctx, worse: OfferEntry, answered: boolean): BaseEvent[] {
     events.push(...ctx.apply(lapse.effects, { source: `${worse.id}.${lapse.id}`, param: null, terms: worseTerms(readOf(ctx)) }));
   }
   const mark = worse.terms.wellbeing;
-  if (typeof mark === "number") events.push(...addQuality(ctx, WELLBEING, mark - (ctx.state.quality[WELLBEING] ?? 0)));
+  if (typeof mark === "number") events.push(...addQuality(ctx, QUALITY.wellbeing, mark - (ctx.state.quality[QUALITY.wellbeing] ?? 0)));
   return [...events, ...setCourse(ctx, "none")];
 }
 

@@ -4,6 +4,7 @@
 // December visit.
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import { check } from "../engine/check";
+import { SETPIECE } from "../engine/ids";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -27,7 +28,6 @@ import type { SetpieceEvent } from "./setpiece.events";
 import type { Judge } from "../japacity/japacity.logic";
 
 const PREP: Id<"quality"> = "quality.interview-prep";
-const DECEMBER: Id<"setpiece"> = "setpiece.december";
 const GO = "go";
 
 type Open = NonNullable<SetpieceSlice["open"]>;
@@ -203,8 +203,8 @@ function lines(event: SetpieceEvent, state: State): ReportLine[] {
       return [{ key: "line.setpiece.opened", params: { setpiece: event.entry, questions: event.questions.length }, tone: "plain", attention: true, counts: [] }];
     case "setpiece/answered":
       // R-LUCK-008: going home for December is staged. The set piece is still open when its answer is told.
-      if (state.setpiece.open?.entry === DECEMBER && event.answer === GO) {
-        return [{ key: "line.setpiece.december-go", params: { setpiece: DECEMBER }, tone: "good", attention: true, big: true, counts: [] }];
+      if (state.setpiece.open?.entry === SETPIECE.december && event.answer === GO) {
+        return [{ key: "line.setpiece.december-go", params: { setpiece: SETPIECE.december }, tone: "good", attention: true, big: true, counts: [] }];
       }
       return [];
     case "setpiece/followed-up":
@@ -226,11 +226,11 @@ function lines(event: SetpieceEvent, state: State): ReportLine[] {
  * The going question is the one this scene asks where the character is now.
  */
 export function decemberCard(read: ReadCtx): PlayerView["card"] {
-  if (!cardsAllowed(read) || read.state.setpiece.open?.entry === DECEMBER) return null;
-  const opened = reportLines(read, "line.setpiece.opened").some((line) => line.params.setpiece === DECEMBER);
-  const entry = read.content.setpiece[DECEMBER];
+  if (!cardsAllowed(read) || read.state.setpiece.open?.entry === SETPIECE.december) return null;
+  const opened = reportLines(read, "line.setpiece.opened").some((line) => line.params.setpiece === SETPIECE.december);
+  const entry = read.content.setpiece[SETPIECE.december];
   if (!opened || entry === undefined) return null;
-  const given = read.state.setpiece.given[DECEMBER] ?? {};
+  const given = read.state.setpiece.given[SETPIECE.december] ?? {};
   const asked = entry.questions.filter((question) => question.when.every((requirement) => check(read, requirement).met));
   return asked.some((question) => given[question.id] === GO) ? cardOf(read, "december") : null;
 }

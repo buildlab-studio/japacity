@@ -4,6 +4,7 @@
 // upfront the Lagos way (R-HOME-010), or a hostel room rented by the month. Nothing here moves
 // money between lives (R-PEOPLE-004).
 import { check, resolveAmount } from "../engine/check";
+import { QUALITY } from "../engine/ids";
 import { bp, divCeil, divFloor } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, readOf } from "../engine/kind";
@@ -55,7 +56,6 @@ const ROOM_UPKEEP: Readonly<Partial<Record<HomePlace, Id<"obligation">>>> = { [M
 const ROOM_UPKEEPS: readonly Id<"obligation">[] = [MAKOKO_UPKEEP, COMPOUND_UPKEEP];
 const TAKEN_IN: Id<"offer"> = "offer.taken-in";
 const WHERE_NEXT: Id<"offer"> = "offer.where-next";
-const STANDING: Id<"quality"> = "quality.standing";
 /** The cause of a move made by the command, and of the first month's rent it paid. */
 const MOVE_SOURCE = "home.move";
 /** The whole of a charge, in basis points. */
@@ -282,7 +282,7 @@ function moveTo(ctx: Ctx, to: HomePlace, cause: Cause, charge: boolean, putOut =
     if (rent > 0 && !ctx.state.prologue.open) effects.push({ type: "obligation/relief", obligationType: "upkeep", bp: FULL });
   } else {
     effects.push(...familyUpkeep(read));
-    if (tuning.home.returnStanding !== 0) effects.push({ type: "quality/add", quality: STANDING, amount: tuning.home.returnStanding });
+    if (tuning.home.returnStanding !== 0) effects.push({ type: "quality/add", quality: QUALITY.standing, amount: tuning.home.returnStanding });
   }
   for (const offer of [TAKEN_IN, WHERE_NEXT]) {
     if (!cause.source.startsWith(`${offer}.`)) effects.push({ type: "offer/close", offer });

@@ -3,6 +3,7 @@
 // answers, effects and draws are content; this kind walks them, and keeps the
 // age picked on the age card (R-PROLOGUE-004, decision 0023).
 import { allMet } from "../engine/check";
+import { QUALITY } from "../engine/ids";
 import { BP_WHOLE, clamp, divFloor } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -41,11 +42,6 @@ const GRADUATION = "graduation";
 /** The flag `expo` sets: the grade can fall by one (R-PROLOGUE-003, step 8). */
 const CUT_CORNER = "cut-corner";
 
-const AGE: Id<"quality"> = "quality.age-months";
-const FAMILY_MEANS: Id<"quality"> = "quality.family-means";
-const NETWORK: Id<"quality"> = "quality.network";
-const STANDING: Id<"quality"> = "quality.standing";
-const EDU_GRADE: Id<"quality"> = "quality.edu-grade";
 const YEAR = 12;
 
 /**
@@ -179,7 +175,7 @@ export function pathMonths(steps: Readonly<Record<string, PrologueStep>>, from: 
 function spared(ctx: Ctx, step: PrologueStep, answer: Answer): Outcome | null {
   const year = startYear(ctx.state.prologue.choices);
   if (year === null || answer.draw === null) return null;
-  const after = (ctx.state.quality[AGE] ?? 0) + step.months;
+  const after = (ctx.state.quality[QUALITY.age] ?? 0) + step.months;
   const short = answer.draw.some((outcome) => isSetback(step, answer, outcome) && divFloor(after + pathMonths(ctx.content.prologue, leadsTo(step, answer, outcome)), YEAR) >= year);
   if (!short) return null;
   return answer.draw.find((outcome) => !isSetback(step, answer, outcome)) ?? null;
@@ -192,12 +188,12 @@ function spared(ctx: Ctx, step: PrologueStep, answer: Answer): Outcome | null {
  */
 function work(ctx: Ctx, entry: PrologueStep): string | null {
   const year = startYear(ctx.state.prologue.choices);
-  const reached = divFloor(ctx.state.quality[AGE] ?? 0, YEAR);
+  const reached = divFloor(ctx.state.quality[QUALITY.age] ?? 0, YEAR);
   const years = year === null ? 0 : Math.max(0, year - reached);
   for (let at = 0; at < years; at += 1) {
     const answer = entry.answers[Math.min(at, entry.answers.length - 1)];
     if (answer === undefined) throw new Error("The work card has no answer.");
-    ctx.apply([...answer.effects, add(AGE, entry.months)], cause());
+    ctx.apply([...answer.effects, add(QUALITY.age, entry.months)], cause());
   }
   return entry.next;
 }
@@ -238,7 +234,7 @@ function draw(ctx: Ctx): BaseEvent[] {
   const network = (town === "city" ? numbers.network.city : numbers.network.town) + (parentsEducated ? numbers.network.educated : 0);
   const at = (quality: Id<"quality">) => ctx.state.quality[quality] ?? 0;
   ctx.apply(
-    [add(FAMILY_MEANS, means - at(FAMILY_MEANS)), add(NETWORK, network - at(NETWORK)), add(STANDING, numbers.standing - at(STANDING))],
+    [add(QUALITY.familyMeans, means - at(QUALITY.familyMeans)), add(QUALITY.network, network - at(QUALITY.network)), add(QUALITY.standing, numbers.standing - at(QUALITY.standing))],
     cause(),
   );
   return events;
@@ -263,7 +259,7 @@ function drawOutcome(ctx: Ctx, outcomes: readonly Outcome[]): Outcome {
 /** R-PROLOGUE-003, step 2: the school certificate fee strains a family under 30. */
 function waec(ctx: Ctx): void {
   const { waecStrain } = ctx.content.tuning.prologue;
-  if ((ctx.state.quality[FAMILY_MEANS] ?? 0) < waecStrain.under) ctx.apply([add(STANDING, waecStrain.standing)], cause());
+  if ((ctx.state.quality[QUALITY.familyMeans] ?? 0) < waecStrain.under) ctx.apply([add(QUALITY.standing, waecStrain.standing)], cause());
 }
 
 /** R-PROLOGUE-003, step 8: the grade draw, set on `quality.edu-grade`. */
@@ -273,7 +269,7 @@ function graduate(ctx: Ctx): BaseEvent[] {
   const up = ctx.random.chance("prologue", numbers.grade.upBp);
   const down = slice.flags.includes(CUT_CORNER) && ctx.random.chance("prologue", numbers.grade.downBp);
   const grade = gradeOf(slice.gradeBase, up, down, numbers);
-  ctx.apply([add(EDU_GRADE, grade - (ctx.state.quality[EDU_GRADE] ?? 0))], cause());
+  ctx.apply([add(QUALITY.eduGrade, grade - (ctx.state.quality[QUALITY.eduGrade] ?? 0))], cause());
   const graded: PrologueEvent = { type: "prologue/graded", grade };
   return emit(ctx, "prologue", [graded]);
 }
@@ -313,7 +309,7 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   ctx.apply(answer.effects, cause());
   const outcome = answer.draw === null ? null : (spared(ctx, step, answer) ?? drawOutcome(ctx, answer.draw));
   if (outcome !== null) ctx.apply(outcome.effects, cause());
-  if (step.months > 0) ctx.apply([add(AGE, step.months)], cause());
+  if (step.months > 0) ctx.apply([add(QUALITY.age, step.months)], cause());
   if (step.id === GRADUATION) events.push(...graduate(ctx));
   events.push(...headline(ctx, step.id));
 

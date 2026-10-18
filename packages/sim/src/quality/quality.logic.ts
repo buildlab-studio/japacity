@@ -1,5 +1,6 @@
 // Qualities: docs/rules/quality.md. Every change, from any kind and from the
 // month itself, goes through `change`, so every event has the same shape.
+import { QUALITY } from "../engine/ids";
 import type { RegisteredKind } from "../engine/kind";
 import { readOf } from "../engine/kind";
 import { sideJobHeld } from "../activity/activity.logic";
@@ -19,8 +20,6 @@ import type {
 } from "../engine/types";
 import type { QualityEvent } from "./quality.events";
 
-const AGE: Id<"quality"> = "quality.age-months";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 /** Months in a row under the run-down line at the `month` phase (R-HEALTH-001). Hidden. */
 const RUN_DOWN: Id<"quality"> = "quality.run-down-months";
 /** Months before another forced month may come (R-HEALTH-005). Hidden. */
@@ -92,7 +91,7 @@ function runDownWarned(read: ReadCtx): boolean {
 export function runDownSinceWarning(read: ReadCtx): boolean {
   const marks = runDownMarks(read.content);
   if (marks === null) return false;
-  const wellbeing = read.state.quality[WELLBEING] ?? 0;
+  const wellbeing = read.state.quality[QUALITY.wellbeing] ?? 0;
   return valueOf(read.state, RUN_DOWN) >= marks.after && wellbeing < read.content.tuning.health.runDownBelow;
 }
 
@@ -119,19 +118,19 @@ function forcedWait(ctx: Ctx): QualityEvent[] {
 /** Age goes up a month (R-QUALITY-003), wellbeing drifts toward its resting point (R-QUALITY-004), and the health counters move (R-HEALTH-001, R-HEALTH-005). */
 function month(ctx: Ctx): QualityEvent[] {
   const events: QualityEvent[] = [];
-  if (ctx.content.quality[AGE] !== undefined) events.push(...change(ctx, AGE, 1, MONTH_SOURCE));
-  if (ctx.content.quality[WELLBEING] !== undefined) {
+  if (ctx.content.quality[QUALITY.age] !== undefined) events.push(...change(ctx, QUALITY.age, 1, MONTH_SOURCE));
+  if (ctx.content.quality[QUALITY.wellbeing] !== undefined) {
     const { wellbeingDrift, wellbeingDriftTo } = ctx.content.tuning.quality;
-    const gap = wellbeingDriftTo - valueOf(ctx.state, WELLBEING);
+    const gap = wellbeingDriftTo - valueOf(ctx.state, QUALITY.wellbeing);
     // Never a full step past the target: it stops there.
     const toward = gap > 0 ? Math.min(wellbeingDrift, gap) : -Math.min(wellbeingDrift, -gap);
-    const drift = change(ctx, WELLBEING, toward, MONTH_SOURCE);
+    const drift = change(ctx, QUALITY.wellbeing, toward, MONTH_SOURCE);
     events.push(...drift);
     // The returned events are applied after the phase, so the drift is added here, and the body's hits land on it.
-    const afterDrift = valueOf(ctx.state, WELLBEING) + drift.reduce((sum, event) => sum + event.amount, 0);
+    const afterDrift = valueOf(ctx.state, QUALITY.wellbeing) + drift.reduce((sum, event) => sum + event.amount, 0);
     const hits = body(ctx, afterDrift);
     events.push(...hits);
-    const after = afterDrift + hits.filter((event) => event.quality === WELLBEING).reduce((sum, event) => sum + event.amount, 0);
+    const after = afterDrift + hits.filter((event) => event.quality === QUALITY.wellbeing).reduce((sum, event) => sum + event.amount, 0);
     events.push(...runDown(ctx, after));
   } else events.push(...body(ctx, null));
   events.push(...forcedWait(ctx));
@@ -154,9 +153,9 @@ function body(ctx: Ctx, wellbeing: number | null): QualityEvent[] {
     if (ctx.content.quality[quality] === undefined) continue;
     const have = valueOf(ctx.state, quality);
     if (have < rule.lowBelow && running !== null) {
-      const hit = Math.min(cost, Math.max(0, running - entryOf(ctx.content, WELLBEING).min));
+      const hit = Math.min(cost, Math.max(0, running - entryOf(ctx.content, QUALITY.wellbeing).min));
       if (hit > 0) {
-        events.push({ type: "quality/changed", quality: WELLBEING, amount: -hit, source: MONTH_SOURCE });
+        events.push({ type: "quality/changed", quality: QUALITY.wellbeing, amount: -hit, source: MONTH_SOURCE });
         running -= hit;
       }
     }
@@ -194,7 +193,7 @@ function runDownLine(event: QualityEvent, state: ReadCtx["state"], content: Read
   return [
     {
       key: "line.quality.run-down",
-      params: { quality: WELLBEING, value: valueOf(state, WELLBEING), below: content.tuning.health.runDownBelow },
+      params: { quality: QUALITY.wellbeing, value: valueOf(state, QUALITY.wellbeing), below: content.tuning.health.runDownBelow },
       tone: "bad",
       attention: true,
       counts: [],
@@ -208,7 +207,7 @@ function lines(event: QualityEvent, state: ReadCtx["state"], content: ReadCtx["c
       if (event.quality === RUN_DOWN) return runDownLine(event, state, content);
       const entry = content.quality[event.quality];
       // Age moves every month and says nothing new. A hidden quality must not show itself through the report.
-      if (entry === undefined || !entry.shown || event.quality === AGE) return [];
+      if (entry === undefined || !entry.shown || event.quality === QUALITY.age) return [];
       const { key, tone } = lineKey(event, content);
       return [
         {
@@ -252,7 +251,7 @@ export const qualityKind: RegisteredKind<QualitySlice, QualityEvent> = {
     "quality/add": (ctx, effect, cause) => {
       if (effect.type !== "quality/add") throw new Error(`The quality kind cannot carry out ${effect.type}.`);
       // R-QUALITY-003: only the month moves age, except the prologue's steps (R-PROLOGUE-004).
-      if (effect.quality === AGE && cause.source !== PROLOGUE_SOURCE) return [];
+      if (effect.quality === QUALITY.age && cause.source !== PROLOGUE_SOURCE) return [];
       return change(ctx, effect.quality, effect.amount, cause.source);
     },
   },

@@ -1,12 +1,11 @@
 // The contract gate: docs/rules/route-gates.md R-CONTRACT-001 to 004. Hearing
 // (R-CONTRACT-001) and the agent's fee (R-CONTRACT-002) are content's.
+import { QUALITY } from "../../engine/ids";
 import { emit } from "../../engine/kind";
 import type { BaseEvent, Cause, Ctx, Effect, Id, RouteEntry, RouteState, Terms } from "../../engine/types";
 import type { RouteKindEvent } from "../route.events";
 import type { Gate } from "./gate";
 import { NO_TERM } from "./gate";
-
-const AGE: Id<"quality"> = "quality.age-months";
 
 type RecordSponsor = Extract<Effect, { type: "route/record-sponsor" }>;
 type Agent = { employer: string; salary: number; role: string };
@@ -83,7 +82,7 @@ export const contractGate: Gate = {
   mayApply: (ctx, entry, held) => {
     const { medical, maxAgeMonths } = settings(entry);
     if (agentOf(held) === null || !ctx.check({ type: "document/held", document: medical }).met) return false;
-    return (ctx.state.quality[AGE] ?? 0) < maxAgeMonths;
+    return (ctx.state.quality[QUALITY.age] ?? 0) < maxAgeMonths;
   },
   // R-CONTRACT-003: the base alone, and a fraud agent refused whatever the draw. Nothing was forged in
   // the character's name, so the refusal bans nothing (R-GATE-005).

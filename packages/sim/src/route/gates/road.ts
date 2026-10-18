@@ -5,6 +5,7 @@
 // starts, the money the men will ask for. Its notes name lines `line.route.<note>`.
 // Nothing here names a place, a price or a method beyond the page's stylised
 // steps.
+import { QUALITY, STATUS } from "../../engine/ids";
 import { divFloor } from "../../engine/int";
 import { emit } from "../../engine/kind";
 import type { BaseEvent, Cause, Content, Ctx, Effect, Id, PlayerView, ReadCtx, RouteEntry, RouteGateState, RouteState } from "../../engine/types";
@@ -22,11 +23,8 @@ const RANSOM: Id<"offer"> = "offer.road-ransom-call";
 /** R-ROAD-007: the way out, open every month on the road. */
 const EXIT_OFFER: Id<"offer"> = "offer.road-exit";
 const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
-const FAMILY_MEANS: Id<"quality"> = "quality.family-means";
-const STANDING: Id<"quality"> = "quality.standing";
 /** R-ROAD-009: where the sea step ends, and the status it ends in. The route entry has no country or status (R-ROAD-001). */
 const FAR_SHORE: Id<"country"> = "country.italy";
-const IRREGULAR: Id<"status"> = "status.eu-irregular";
 /** R-ROAD-006: the step whose `held` opens the agent's debt. */
 const COMPOUND = "compound";
 
@@ -152,7 +150,7 @@ function arrive(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   ctx.apply(
     [
       { type: "place/move", to: "abroad", country: FAR_SHORE },
-      { type: "status/grant", status: IRREGULAR },
+      { type: "status/grant", status: STATUS.euIrregular },
     ],
     causeOf(entry),
   );
@@ -329,7 +327,7 @@ function setOff(ctx: Ctx, entry: RouteEntry, gate: RoadState, how: "pay" | "call
   } else {
     // R-ROAD-005: family means fall one point for each `meansStep` the family pays.
     const fall = divFloor(more, ctx.content.tuning.road.meansStep);
-    if (fall > 0) effects.push({ type: "quality/add", quality: FAMILY_MEANS, amount: -fall });
+    if (fall > 0) effects.push({ type: "quality/add", quality: QUALITY.familyMeans, amount: -fall });
   }
   effects.push(
     { type: "place/move", to: "road", country: null },
@@ -425,7 +423,7 @@ export function roadCard(read: ReadCtx): PlayerView["card"] {
       route: entry.id,
       percent: null,
       months: gate.monthsHere,
-      standing: read.state.quality[STANDING] ?? 0,
+      standing: read.state.quality[QUALITY.standing] ?? 0,
       topActivities: [],
       chapter: read.state.chapter.current,
       // R-SHARE-002: the road's cards carry no name.

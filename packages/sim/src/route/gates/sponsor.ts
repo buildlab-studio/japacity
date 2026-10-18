@@ -4,6 +4,7 @@
 // run time: both import the gate table, and the table imports this file.
 import { heldBand } from "../../activity/activity.logic";
 import { worldVar } from "../../engine/check";
+import { QUALITY, VAR } from "../../engine/ids";
 import { emit, turnSlots } from "../../engine/kind";
 import type { BaseEvent, Cause, Content, Ctx, Effect, Id, OfferEntry, ReadCtx, RouteEntry, RouteState, Tuning } from "../../engine/types";
 import type { RouteKindEvent } from "../route.events";
@@ -11,8 +12,6 @@ import { recordAgent, recordedSalary } from "./contract";
 import type { DecisionTerms, Gate } from "./gate";
 
 const FIND: Id<"activity"> = "activity.find-sponsor";
-const NETWORK: Id<"quality"> = "quality.network";
-const SURCHARGE_YEAR: Id<"var"> = "var.uk-surcharge-year";
 
 type RecordSponsor = Extract<Effect, { type: "route/record-sponsor" }>;
 type Sponsor = { employer: string; salary: number };
@@ -85,7 +84,7 @@ export function findSponsor(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   if (entry?.gate !== "sponsor" || routeOf(ctx, route).state !== "known" || !windowOpen(ctx, entry)) return [];
   // A search that finds nobody says so on the month's results, as a job hunt's "not this time" does.
   const missed: RouteKindEvent = { type: "route/sponsor-missed", route };
-  if (!ctx.random.chance("job", findChanceBp(entry, ctx.state.quality[NETWORK] ?? 0, ctx.content.tuning.quality))) return emit(ctx, "route", [missed]);
+  if (!ctx.random.chance("job", findChanceBp(entry, ctx.state.quality[QUALITY.network] ?? 0, ctx.content.tuning.quality))) return emit(ctx, "route", [missed]);
   const offers = sponsorOffers(ctx.content, route).filter((offer) => offer.when.every((requirement) => ctx.check(requirement).met));
   const picked = offers.length > 1 ? offers[ctx.random.int("job", offers.length)] : offers[0];
   if (picked === undefined) return emit(ctx, "route", [missed]);
@@ -210,7 +209,7 @@ export const sponsorGate: Gate = {
   // R-ROUTE-014 for this gate: the route's own strictness and the surcharge its status needs.
   application: (read, entry) => ({
     strictness: worldVar(read, settings(entry).strictnessVar),
-    surchargePaid: settings(entry).surchargeYears * worldVar(read, SURCHARGE_YEAR),
+    surchargePaid: settings(entry).surchargeYears * worldVar(read, VAR.ukSurchargeYear),
     decisionMonths: read.content.tuning.route.decisionMonths,
   }),
   // The maintenance line is the funds this route shows; the care route shows none (R-SPONSOR-003).

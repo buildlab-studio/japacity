@@ -3,6 +3,7 @@
 // arrange things. Whether an offer is a fraud is fixed when it opens and kept
 // in `secret`, which the view never carries (R-OFFER-006, R-ENGINE-007).
 import { check, checkWith, resolveAmount, worldVar } from "../engine/check";
+import { QUALITY } from "../engine/ids";
 import { BP_WHOLE, bp, clamp, divFloor, valueInKobo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, oldestFirst, readOf } from "../engine/kind";
@@ -56,10 +57,8 @@ const ROLL_ORDER: readonly OfferEntry["group"][] = ["money", "life", "family", "
 /** Offers whose chance a month adds a world variable the director moves (director.md, the sponsor story). */
 const CHANCE_VARS: Partial<Record<Id<"offer">, Id<"var">>> = { "offer.sponsor-licence-lost": "var.uk-care-sponsor-risk" };
 
-
 /** Judges one requirement with the terms in hand. Inside a step it is `ctx.check`; outside, the engine's `check`. */
 type Judge = (requirement: Requirement, terms: Terms) => RequirementResult;
-
 
 function entryOf(content: Content, id: Id<"offer">): OfferEntry {
   const entry = content.offer[id];
@@ -430,9 +429,9 @@ export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requi
   const { state, content } = read;
   const refusals = Object.values(state.route).reduce((sum, held) => sum + held.refusals, 0);
   const defaulted = Object.values(state.obligation.items).some((item) => item.state === "defaulted");
-  const standing = state.quality["quality.standing"] ?? 0;
+  const standing = state.quality[QUALITY.standing] ?? 0;
   const lines = content.tuning.road;
-  const yearsOver = Math.max(0, divFloor(state.quality["quality.age-months"] ?? 0, MONTHS_A_YEAR) - lines.pressureAgeOver);
+  const yearsOver = Math.max(0, divFloor(state.quality[QUALITY.age] ?? 0, MONTHS_A_YEAR) - lines.pressureAgeOver);
   const strong = Object.values(content.route).some((route) => route.gate !== "road" && (routePercent(read, route.id, judge) ?? 0) >= lines.pressureStrongRoute);
   const chance =
     entry.chanceBp +

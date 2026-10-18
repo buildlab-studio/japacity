@@ -2,12 +2,11 @@
 // here reads qualities, months and the place, never how little money the
 // character holds, except the whip-round, whose page says so in the open.
 import { requirementsIn } from "../engine/check";
+import { QUALITY } from "../engine/ids";
 import { BP_WHOLE, clamp, divFloor } from "../engine/int";
 import type { Id, ObligationType, OfferEntry, ReadCtx, Requirement, Terms } from "../engine/types";
 import { wealthInNaira } from "../place/place.logic";
 
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const STANDING: Id<"quality"> = "quality.standing";
 /** R-LUCK-002: the one rescue a life. */
 export const WHIP_ROUND: Id<"offer"> = "offer.whip-round";
 /** R-LUCK-007: the promo that pays when it is honest. */
@@ -32,7 +31,7 @@ export function luckReadsMoney(entry: OfferEntry): boolean {
 export function isDown(read: ReadCtx): boolean {
   const { quality } = read.state;
   const { downUnder } = read.content.tuning.luck;
-  return (quality[WELLBEING] ?? 0) < downUnder || (quality[STANDING] ?? 0) < downUnder;
+  return (quality[QUALITY.wellbeing] ?? 0) < downUnder || (quality[QUALITY.standing] ?? 0) < downUnder;
 }
 
 /** Months since a luck offer last opened, counted from the start of the life when none ever has. */

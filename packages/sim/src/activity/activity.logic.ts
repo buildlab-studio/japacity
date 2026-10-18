@@ -4,6 +4,7 @@
 // checked (R-ACTIVITY-002), and again when each slot resolves (R-ACTIVITY-003),
 // because an earlier slot can change the state.
 import { check, resolveAmount, worldVarOr } from "../engine/check";
+import { DOCUMENT, QUALITY } from "../engine/ids";
 import { bp, valueInKobo } from "../engine/int";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
@@ -60,13 +61,8 @@ import type { Judge } from "../japacity/japacity.logic";
 
 export { cashWorkedThisMonth, localTenure, sideJobHeld } from "./activity.pay";
 
-const NETWORK: Id<"quality"> = "quality.network";
 const TECH: Id<"quality"> = "quality.tech";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const GRADE: Id<"quality"> = "quality.edu-grade";
 const DRIVING: Id<"quality"> = "quality.driving";
-const HOME_LICENCE: Id<"document"> = "document.home-licence";
-const UK_LICENCE: Id<"document"> = "document.uk-licence";
 /** The offer a landed hunt opens. It learns the job from the terms (R-OFFER-007). */
 const JOB_OFFER = "offer.job" as const;
 const HUNT_ACTIVITY: Id<"activity"> = "activity.job-hunt";
@@ -87,7 +83,6 @@ const PHONE: Id<"activity"> = "activity.buy-phone";
 const NOTICED: Id<"activity"> = "activity.be-noticed";
 /** R-ACTIVITY-013: open source tells its month even when no piece comes of it. */
 const OPEN_SOURCE: Id<"activity"> = "activity.open-source";
-const PORTFOLIO: Id<"quality"> = "quality.portfolio";
 /** R-ACTIVITY-011: a slot of either keeps the bus home safe that month. */
 const COUNTER_MOVES: readonly Id<"activity">[] = ["activity.safe-ride", "activity.sleep-at-office"];
 /** R-ACTIVITY-015: the now-acts whose draw lands with the month: the kiosk's draw and the match. */
@@ -105,7 +100,6 @@ const FIRST_PAY_ABROAD = "line.activity.salary-first-abroad";
 /** The kiosk draws each ticket out of a million (R-LUCK-005). */
 export const PER_MILLION = 1000000;
 const BP_IN_MILLION = 100;
-
 
 /** Applies this kind's events at once, so the rest of the handler sees them. */
 function record(ctx: Ctx, ...events: ActivityEvent[]): BaseEvent[] {
@@ -259,7 +253,7 @@ export function takesApplication(application: SchoolApplication | undefined, mon
 function reachableSchools(read: ReadCtx): { id: Id<"school">; application: SchoolApplication | undefined }[] {
   const band = heldBand(read);
   if (band === null) return [];
-  const grade = read.state.quality[GRADE] ?? 0;
+  const grade = read.state.quality[QUALITY.eduGrade] ?? 0;
   const schools: { id: Id<"school">; application: SchoolApplication | undefined }[] = [];
   for (const route of Object.values(read.content.route)) {
     const held = read.state.route[route.id];
@@ -421,7 +415,7 @@ const REMOTE_BONUS: Id<"var"> = "var.remote-hire-bonus";
 /** R-ACTIVITY-005: a hunt's chance now, the world's bonus for the remote job included. */
 export function huntChanceBp(read: ReadCtx, entry: ActivityEntry): number {
   const tuning = read.content.tuning.quality;
-  const network = read.state.quality[NETWORK] ?? 0;
+  const network = read.state.quality[QUALITY.network] ?? 0;
   const bonus = entry.id === REMOTE_JOB ? worldVarOr(read.world, REMOTE_BONUS) : 0;
   return Math.min(tuning.hireMaxBp, hireChanceBp(entry, network, tuning) + bonus);
 }
@@ -524,8 +518,8 @@ function startJobEffect(ctx: Ctx, effect: { job: Id<"activity"> | { term: string
 function licenceOnArrival(ctx: Ctx): void {
   const { place, turn, quality } = ctx.state;
   if (place.where !== "abroad" || place.movedMonth !== turn.month - 1 || (quality[DRIVING] ?? 0) < 1) return;
-  if (ctx.content.document[HOME_LICENCE] === undefined) return;
-  ctx.apply([{ type: "document/grant", document: HOME_LICENCE }], { source: DRIVING, param: null, terms: {} });
+  if (ctx.content.document[DOCUMENT.homeLicence] === undefined) return;
+  ctx.apply([{ type: "document/grant", document: DOCUMENT.homeLicence }], { source: DRIVING, param: null, terms: {} });
 }
 
 /** R-LADDER-005: the job a one-employer status names is the job held, until it is lost and the clock runs. */
@@ -631,7 +625,7 @@ function oneChance(ctx: Ctx, side: Id<"activity">): BaseEvent[] {
     ],
     cause,
   );
-  if (ctx.content.quality[WELLBEING] !== undefined) ctx.apply([{ type: "quality/add", quality: WELLBEING, amount: ctx.content.tuning.ladder.robberyWellbeing }], cause);
+  if (ctx.content.quality[QUALITY.wellbeing] !== undefined) ctx.apply([{ type: "quality/add", quality: QUALITY.wellbeing, amount: ctx.content.tuning.ladder.robberyWellbeing }], cause);
   return events;
 }
 
@@ -748,7 +742,7 @@ function drivingTest(ctx: Ctx, cause: Cause): BaseEvent[] {
   const earlier = drivingAttempts(ctx.state);
   const passed = ctx.random.chance("status", passChanceBp(earlier, ctx.content.tuning.car));
   const events = record(ctx, { type: "activity/driving-test", attempt: earlier + 1, passed });
-  if (passed) ctx.apply([{ type: "document/grant", document: UK_LICENCE }], cause);
+  if (passed) ctx.apply([{ type: "document/grant", document: DOCUMENT.ukLicence }], cause);
   return events;
 }
 
@@ -777,7 +771,7 @@ function betSlip(ctx: Ctx, cause: Cause): BaseEvent[] {
   const won = win ? bp(stake, betOddsBp) : 0;
   const events = record(ctx, { type: "activity/bet-placed", stake: { currency: "NGN", amount: stake }, won: { currency: "NGN", amount: won } });
   if (won > 0) ctx.apply([{ type: "money/add", currency: "NGN", pocket: pocketFor(won, ctx.content.tuning.wallet), amount: won, reason: "win" }], cause);
-  if (ctx.content.quality[WELLBEING] !== undefined) ctx.apply([{ type: "quality/add", quality: WELLBEING, amount: win ? betWellbeing : -betWellbeing }], cause);
+  if (ctx.content.quality[QUALITY.wellbeing] !== undefined) ctx.apply([{ type: "quality/add", quality: QUALITY.wellbeing, amount: win ? betWellbeing : -betWellbeing }], cause);
   return events;
 }
 
@@ -996,7 +990,7 @@ function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
   }
   const events = record(ctx, { type: "activity/slot-played", slot, activity: entry.id, param: pick.param });
   const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
-  const pieces = ctx.state.quality[PORTFOLIO] ?? 0;
+  const pieces = ctx.state.quality[QUALITY.portfolio] ?? 0;
   // R-ACTIVITY-019: an act that repeats, kept as a commitment in a slot, is a month's worth of it: `repeatPerSlot` times,
   // each paid, stopping when one can no longer be paid.
   const times = entry.repeat === true ? ctx.content.tuning.turn.repeatPerSlot : 1;
@@ -1016,7 +1010,7 @@ function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
  * merge or a quiet month of fixes. A piece added is told by the portfolio's own line.
  */
 function outcome(ctx: Ctx, entry: ActivityEntry, before: number): BaseEvent[] {
-  if (entry.id !== OPEN_SOURCE || (ctx.state.quality[PORTFOLIO] ?? 0) > before) return [];
+  if (entry.id !== OPEN_SOURCE || (ctx.state.quality[QUALITY.portfolio] ?? 0) > before) return [];
   return record(ctx, { type: "activity/contributed", first: (ctx.state.activity.played[OPEN_SOURCE] ?? 0) === 0 });
 }
 
@@ -1036,9 +1030,9 @@ function slots(ctx: Ctx): BaseEvent[] {
   const empty = Math.max(0, allowed - counted);
   if (empty > 0) {
     events.push(...record(ctx, { type: "activity/rested", slots: empty }));
-    if (ctx.content.quality[WELLBEING] !== undefined) {
+    if (ctx.content.quality[QUALITY.wellbeing] !== undefined) {
       const amount = empty * ctx.content.tuning.quality.wellbeingRest;
-      ctx.apply([{ type: "quality/add", quality: WELLBEING, amount }], { source: REST_SOURCE, param: null, terms: {} });
+      ctx.apply([{ type: "quality/add", quality: QUALITY.wellbeing, amount }], { source: REST_SOURCE, param: null, terms: {} });
     }
   }
   events.push(...record(ctx, { type: "activity/slots-recorded", slots: picks.map((pick) => ({ ...pick })) }));
