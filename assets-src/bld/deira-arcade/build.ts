@@ -1,8 +1,8 @@
 // A block of old Deira (city.md place.deira): rendered concrete over an arcade, the shops set back
 // behind square columns so the pavement runs in the shade. Each bay has its glass shopfront under
 // the arcade (gold shops show their gold in the window) and its board on the arcade's beam, words
-// by text key (R-ASSET-012). Above, aluminium windows with air conditioners in them, a parapet,
-// water tanks and dishes on the roof, all facing the one satellite (R-ASSET-019). The data below
+// by text key (assets:sign-text-drawn-in-code). Above, aluminium windows with air conditioners in them, a parapet,
+// water tanks and dishes on the roof, all facing the one satellite (assets:dishes-face-one-satellite). The data below
 // makes the variants; a far bank variant carries no boards.
 import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
 import { box, dish, onWall, quad, seeded, signboard, stain } from "@japacity/assets/kit";

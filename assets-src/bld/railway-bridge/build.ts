@@ -2,7 +2,7 @@
 // arches are let as shops, stores and the station's way in, and a plate girder span over the street
 // itself. Left to right as the street sees it: a market arch, the station's mouth with its canopy
 // and board, the girder over the road, a lock-up arch behind its shutter and a second market arch.
-// Boards are anchors with text keys (R-ASSET-012); the brick is a palette colour (R-ASSET-001).
+// Boards are anchors with text keys (assets:sign-text-drawn-in-code); the brick is a palette colour (assets:colours-from-named-palette).
 import { setFootprint, type SignStyle } from "@japacity/assets";
 import { beam, box, extrude, onWall, quad, seeded, signboard, stain } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";

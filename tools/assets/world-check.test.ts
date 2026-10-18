@@ -21,13 +21,13 @@ const street = (over: Partial<LimitedFile> = {}, stage: Partial<NonNullable<Limi
 });
 
 describe("the limits of a place", () => {
-  test("[R-WORLD-011] given a street at the rule's crowd, one moving sheet and a 24 metre frontage, when checked, then it passes; one more person in either mode fails", () => {
+  test("[world:place-is-one-screen] given a street at the rule's crowd, one moving sheet and a 24 metre frontage, when checked, then it passes; one more person in either mode fails", () => {
     expect(checkLimits(street())).toEqual([]);
-    expect(checkLimits(street({ people: { low: 7, high: 10 } }))).toEqual(["R-WORLD-011: place.street shows 7 people in low mode, over 6 for an exterior place"]);
-    expect(checkLimits(street({ people: { low: 6, high: 11 } }))).toEqual(["R-WORLD-011: place.street shows 11 people in high mode, over 10 for an exterior place"]);
+    expect(checkLimits(street({ people: { low: 7, high: 10 } }))).toEqual(["world:place-is-one-screen: place.street shows 7 people in low mode, over 6 for an exterior place"]);
+    expect(checkLimits(street({ people: { low: 6, high: 11 } }))).toEqual(["world:place-is-one-screen: place.street shows 11 people in high mode, over 10 for an exterior place"]);
   });
 
-  test("[R-WORLD-011] given a room, when checked, then 4 and 6 people pass and 5 in low fails, and a room far bigger than 12 by 10 metres fails", () => {
+  test("[world:place-is-one-screen] given a room, when checked, then 4 and 6 people pass and 5 in low fails, and a room far bigger than 12 by 10 metres fails", () => {
     const room = street({ place: "place.room", scope: "interior", people: { low: 4, high: 6 } }, { walkable: [[[-6, -5], [6, -5], [6, 5], [-6, 5]]] });
     expect(checkLimits(room)).toEqual([]);
     expect(checkLimits({ ...room, people: { low: 5, high: 6 } })[0]).toMatch(/shows 5 people in low mode, over 4 for an interior place/);
@@ -35,12 +35,12 @@ describe("the limits of a place", () => {
     expect(checkLimits(hall)[0]).toMatch(/is a room of 20.0 by 20.0 m/);
   });
 
-  test("[R-WORLD-011] given two moving sheets, or a frontage of 40 metres, when checked, then each fails", () => {
-    expect(checkLimits(street({}, { motion: [{ kind: "flag" }, { kind: "frond" }] }))).toEqual(["R-WORLD-011: place.street has 2 moving sheets, over 1"]);
+  test("[world:place-is-one-screen] given two moving sheets, or a frontage of 40 metres, when checked, then each fails", () => {
+    expect(checkLimits(street({}, { motion: [{ kind: "flag" }, { kind: "frond" }] }))).toEqual(["world:place-is-one-screen: place.street has 2 moving sheets, over 1"]);
     expect(checkLimits(street({}, { shot: { width: 40 } }))[0]).toMatch(/is a frontage 40.0 m wide, over about 24 m/);
   });
 
-  test("[R-WORLD-011] given the send-off party dressed with seven guests and three dancers, when checked, then it keeps its ten; an eleventh fails", () => {
+  test("[world:place-is-one-screen] given the send-off party dressed with seven guests and three dancers, when checked, then it keeps its ten; an eleventh fails", () => {
     const party = (high: number): LimitedFile =>
       street({ scope: "interior", people: { low: 4, high: 6 } }, { motion: [], walkable: [[[-6, -5], [6, -5], [6, 5], [-6, 5]]], dressings: [{ offer: "offer.send-off-party", motion: [{ kind: "smoke" }], dancers: [1, 2, 3], crowd: { low: 5, high } }] });
     expect(checkLimits(party(7))).toEqual([]);
@@ -49,27 +49,27 @@ describe("the limits of a place", () => {
 });
 
 describe("the things of a place", () => {
-  test("[R-WORLD-005] given things with one, two, three and no acts, when the file is checked, then one and two pass, three fails, and a thing with nothing to do fails", () => {
+  test("[world:things-are-tappable-models] given things with one, two, three and no acts, when the file is checked, then one and two pass, three fails, and a thing with nothing to do fails", () => {
     const file = (counts: number[]): LimitedFile => street({}, { things: counts.map((count, index) => ({ id: `thing-${String(index)}`, acts: Array.from({ length: count }, (_, act) => act) })) });
     expect(checkThings(file([1, 2]))).toEqual([]);
-    expect(checkThings(file([1, 3]))).toEqual(["R-WORLD-005: place.street has a thing thing-1 with 3 acts, over 2"]);
-    expect(checkThings(file([0]))).toEqual(["R-WORLD-005: place.street has a thing thing-0 with no act"]);
+    expect(checkThings(file([1, 3]))).toEqual(["world:things-are-tappable-models: place.street has a thing thing-1 with 3 acts, over 2"]);
+    expect(checkThings(file([0]))).toEqual(["world:things-are-tappable-models: place.street has a thing thing-0 with no act"]);
   });
 });
 
 describe("the parts of a place", () => {
   const room = (acts: NonNullable<NonNullable<LimitedFile["stage"]>["acts"]>): LimitedFile => street({ place: "place.room", scope: "interior", people: { low: 2, high: 3 } }, { people: [0, 1, 2, 3], acts });
 
-  test("[R-CITY-032] given a room's acts, when the file is checked, then a staff seat the high mode shows and a visitor's seat pass, and a staff mark that is not true, on a crossing, past the high mode or at a spot the room lacks fails", () => {
+  test("[city:residents-fill-to-target] given a room's acts, when the file is checked, then a staff seat the high mode shows and a visitor's seat pass, and a staff mark that is not true, on a crossing, past the high mode or at a spot the room lacks fails", () => {
     expect(checkParts(room([{ spot: 0, pose: "sit", staff: true }, { spot: 1, pose: "sit" }, { spot: 2, sex: "f", staff: true }, { spot: 3, to: [0, 1] }]))).toEqual([]);
-    expect(checkParts(room([{ spot: 0, pose: "sit", staff: "yes" }]))).toEqual(['R-CITY-032: place.room has an act at spot 0 whose staff is "yes", not true']);
-    expect(checkParts(room([{ spot: 0, pose: "sit", staff: false }]))).toEqual(["R-CITY-032: place.room has an act at spot 0 whose staff is false, not true"]);
-    expect(checkParts(room([{ spot: 1, to: [0, 1], staff: true }]))).toEqual(["R-CITY-032: place.room has an act at spot 1 marked staff that walks away"]);
-    expect(checkParts(room([{ spot: 3, pose: "sit", staff: true }]))).toEqual(["R-CITY-032: place.room has an act at spot 3 marked staff past the 3 people its high mode shows"]);
-    expect(checkParts(room([{ spot: 4, pose: "sit" }]))).toEqual(["R-CITY-032: place.room has an act at spot 4, which is not one of its 4 spots"]);
+    expect(checkParts(room([{ spot: 0, pose: "sit", staff: "yes" }]))).toEqual(['city:residents-fill-to-target: place.room has an act at spot 0 whose staff is "yes", not true']);
+    expect(checkParts(room([{ spot: 0, pose: "sit", staff: false }]))).toEqual(["city:residents-fill-to-target: place.room has an act at spot 0 whose staff is false, not true"]);
+    expect(checkParts(room([{ spot: 1, to: [0, 1], staff: true }]))).toEqual(["city:residents-fill-to-target: place.room has an act at spot 1 marked staff that walks away"]);
+    expect(checkParts(room([{ spot: 3, pose: "sit", staff: true }]))).toEqual(["city:residents-fill-to-target: place.room has an act at spot 3 marked staff past the 3 people its high mode shows"]);
+    expect(checkParts(room([{ spot: 4, pose: "sit" }]))).toEqual(["city:residents-fill-to-target: place.room has an act at spot 4, which is not one of its 4 spots"]);
   });
 
-  test("[R-CITY-032] given every shipped place file, when its parts are checked, then none fails and some seats are marked staff", () => {
+  test("[city:residents-fill-to-target] given every shipped place file, when its parts are checked, then none fails and some seats are marked staff", () => {
     const folder = join(REPO_ROOT, "apps", "client", "public", "assets", "places");
     const files = readdirSync(folder).flatMap((name) => {
       const path = join(folder, name, "place.json");
@@ -81,14 +81,14 @@ describe("the parts of a place", () => {
 });
 
 describe("the world-first checks in the build check", () => {
-  test("[R-WORLD-012] given the planted file, which declares its shot, when the build check runs its world checks, then the slab on the ground fails it", () => {
+  test("[world:faces-never-share-height] given the planted file, which declares its shot, when the build check runs its world checks, then the slab on the ground fails it", () => {
     const notes: string[] = [];
     const problems = worldChecks(planted, slabFloors, notes);
-    expect(problems).toEqual(["R-WORLD-012: place.stripes: the ground at 0.000 m and places/stripes/prop_slab.glb copy 0 at 0.004 m overlap 4.0 mm apart"]);
+    expect(problems).toEqual(["world:faces-never-share-height: place.stripes: the ground at 0.000 m and places/stripes/prop_slab.glb copy 0 at 0.004 m overlap 4.0 mm apart"]);
     expect(notes).toEqual([]);
   });
 
-  test("[R-WORLD-011] given a file from before the world-first design, with no shot, when the same checks find a problem, then it is a note and not a failure", () => {
+  test("[world:place-is-one-screen] given a file from before the world-first design, with no shot, when the same checks find a problem, then it is a note and not a failure", () => {
     const stage = planted.stage;
     if (stage === undefined) throw new Error("The planted file has no stage");
     const older = { ...stage };
@@ -96,6 +96,6 @@ describe("the world-first checks in the build check", () => {
     const notes: string[] = [];
     expect(worldChecks({ ...planted, stage: older }, slabFloors, notes)).toEqual([]);
     expect(notes).toHaveLength(1);
-    expect(notes[0]).toMatch(/place\.stripes has no stage\.shot yet.*R-WORLD-012/);
+    expect(notes[0]).toMatch(/place\.stripes has no stage\.shot yet.*world:faces-never-share-height/);
   });
 });

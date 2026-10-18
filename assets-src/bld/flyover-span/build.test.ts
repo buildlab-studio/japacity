@@ -10,7 +10,7 @@ const xs = plan.polygon.map(([x]) => x ?? 0);
 const zs = plan.polygon.map(([, z]) => z ?? 0);
 
 describe("the Ojuelegba flyover's span", () => {
-  test("[R-ASSET-024] given the plan outline from OpenStreetMap, when the span is built, then its length is the outline's and its deck the outline's width, and the outline names the map data it came from", () => {
+  test("[assets:plan-outline-from-map-data] given the plan outline from OpenStreetMap, when the span is built, then its length is the outline's and its deck the outline's width, and the outline names the map data it came from", () => {
     const box = new Box3().setFromObject(buildFlyoverSpan());
     // Paint on a face sits a few millimetres proud of it, so sizes are read to the nearest 5 cm.
     expect(box.max.x - box.min.x).toBeCloseTo(Math.max(...xs) - Math.min(...xs), 1);
@@ -20,7 +20,7 @@ describe("the Ojuelegba flyover's span", () => {
     expect(plan.source).toContain(`${String(FLYOVER.rowGap)} m over the junction`);
   });
 
-  test("[R-ASSET-003] given the span, when it is built, then it stands on y = 0, its deck about 5 m clear over the street, and it is no taller than a building may be", () => {
+  test("[assets:metre-units-and-origin] given the span, when it is built, then it stands on y = 0, its deck about 5 m clear over the street, and it is no taller than a building may be", () => {
     const box = new Box3().setFromObject(buildFlyoverSpan());
     expect(Math.abs(box.min.y)).toBeLessThanOrEqual(0.01);
     expect(box.max.y).toBeLessThanOrEqual(13);

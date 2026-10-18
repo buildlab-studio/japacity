@@ -1,6 +1,6 @@
 # The page's own headers, against injected scripts, framing, content sniffing and referrer leaks. The content security
 # policy is report-only: it reports what it would block and blocks nothing; without the Report-Only suffix, it enforces.
-# Reports go to the server's /api/csp-report (docs/rules/server.md R-SERVER-041): report-to names the Reporting API's
+# Reports go to the server's /api/csp-report (server:csp-reports-to-own-origin): report-to names the Reporting API's
 # endpoint, which Reporting-Endpoints defines on this origin, and report-uri is the older form for browsers without it.
 # Both are paths on the page's own origin, so the same file serves every deployment.
 # wasm-unsafe-eval: the models' mesh decoder. challenges.cloudflare.com: the bot check.
@@ -9,7 +9,7 @@
 # If the server is ever on another address than the page, connect-src names it, with its wss: form.
 # static.cloudflareinsights.com and cloudflareinsights.com: Cloudflare Web Analytics' beacon and its reports,
 # in the page only when the build has VITE_ANALYTICS_TOKEN (vite/beacon.plugin.ts).
-# Caching (docs/rules/server.md R-SERVER-038): every file is asked about again before use (no-cache: kept, but
+# Caching (server:production-and-staging): every file is asked about again before use (no-cache: kept, but
 # revalidated), so a new build reaches the next load; the page itself above all. Only the files under /assets/ whose
 # names carry the hash of their contents (the build's code, the models) are kept for a year untouched. The models'
 # manifest has a fixed name, so it is asked about every time like the page. A later rule's "! Cache-Control" drops

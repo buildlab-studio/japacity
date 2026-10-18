@@ -29,9 +29,9 @@ export interface PersonMesh {
   joints: number[];
   /** Four weights a vertex, summing to 1. */
   weights: number[];
-  /** Triangle indices: [0] the flat palette colours, [1] the one fabric pattern (R-ASSET-005 allows two materials). */
+  /** Triangle indices: [0] the flat palette colours, [1] the one fabric pattern (assets:flat-and-smooth-shading allows two materials). */
   groups: [number[], number[]];
-  /** The round parts shown smooth, for the node extras the loader reads (R-ASSET-005). */
+  /** The round parts shown smooth, for the node extras the loader reads (assets:flat-and-smooth-shading). */
   smooth: string[];
   pattern: PatternSpec | null;
   bones: PersonBone[];

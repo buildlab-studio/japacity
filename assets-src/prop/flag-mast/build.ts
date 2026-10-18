@@ -1,5 +1,5 @@
 // A flag mast on a stepped concrete base, 7 m to its finial, with the halyard cleat at hand height.
-// The flag itself is the place's motion (city.md R-CITY-026), pinned at the mast's top.
+// The flag itself is the place's motion (city:motion-in-vertex-shader), pinned at the mast's top.
 import { lowBox, setFootprint } from "@japacity/assets";
 import { box, cylinder } from "@japacity/assets/kit";
 import { Group } from "three";

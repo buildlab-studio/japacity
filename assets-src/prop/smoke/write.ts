@@ -11,7 +11,7 @@ export function puffSource(): string {
   const { positions, index } = puffArrays();
   return [
     "// The smoke puff's finished triangles, written by assets-src/prop/smoke/write.ts from puff.ts. Never edited by hand:",
-    "// the blend and the thinning run when the game is built (assets.md R-ASSET-026), never on the phone.",
+    "// the blend and the thinning run when the game is built (assets:organic-shapes-baked-at-build), never on the phone.",
     `export const PUFF_POSITIONS: readonly number[] = ${JSON.stringify(positions)};`,
     `export const PUFF_INDEX: readonly number[] = ${JSON.stringify(index)};`,
     "",

@@ -1,7 +1,7 @@
 // A labour bus of the kind that carries workers between the camps and the sites (city.md
-// place.deira; design page 15: the employer's shuttle to the site, R-PLACE-013): a long white coach
+// place.deira; design page 15: the employer's shuttle to the site, place:employer-shuttle-rides-free): a long white coach
 // body with a row of small windows, a roof hatch, the door at the front kerb side, a plain blue band;
-// no operator's name or colours (R-ASSET-010). Built to be sat in for the ride (world.md R-WORLD-039),
+// no operator's name or colours (assets:no-real-brands-on-assets). Built to be sat in for the ride (world:ride-abroad-and-workplace),
 // as London's bus is: the walls, the floor and the roof are thin slabs, each
 // small window a pane of glass facing out, so from outside the row is dark glass in a white body and
 // from a seat the road shows through it. Rows of two and two face ahead; the ride sits by a window on
@@ -98,7 +98,7 @@ export function buildLabourBus(): Group {
   seat(-hl + 0.45, 0, width - 0.2);
   for (const side of [1, -1]) cbox(g, L - 2, 0.035, 0.035, -0.6, roof - 0.32, side * 0.32, "hub");
 
-  // The wheels are round parts, shown smooth (R-ASSET-005).
+  // The wheels are round parts, shown smooth (assets:flat-and-smooth-shading).
   const wheels = part(g, "wheels");
   wheels.userData.smooth = true;
   for (const x of [2.35, -2.2]) for (const side of [1, -1]) wheel(wheels, 0.42, 0.28, x, 0.42, side * 0.98);

@@ -1,6 +1,6 @@
 // London's models (docs/design/14-london-on-the-lagos-mold.md section 4): the things of its places, the pub, the bus
 // and the train, each standing on y = 0 with its footprint and only palette colours, and the two vehicles built to be
-// sat in, with the ride's seat inside the body (docs/rules/world.md R-WORLD-039).
+// sat in, with the ride's seat inside the body (world:ride-abroad-and-workplace).
 import { footprintOf, isPaletteName } from "@japacity/assets";
 import { Box3, type Group, type Mesh, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
@@ -45,7 +45,7 @@ function bounds(model: Group): Box3 {
 }
 
 describe("London's models", () => {
-  test.each(MODELS)("[R-ASSET-003] [R-ASSET-030] given %s, when it is built, then it stands on y = 0 and records the ground it blocks", (name, build) => {
+  test.each(MODELS)("[assets:metre-units-and-origin] [assets:models-record-their-footprint] given %s, when it is built, then it stands on y = 0 and records the ground it blocks", (name, build) => {
     const model = build();
     expect(model.name).toBe(name);
     expect(Math.abs(bounds(model).min.y)).toBeLessThanOrEqual(0.01);
@@ -53,7 +53,7 @@ describe("London's models", () => {
     expect(Array.isArray(footprint) && footprint.length > 0).toBe(true);
   });
 
-  test.each(MODELS)("[R-ASSET-001] given %s, when it is built, then every part names a palette colour", (_, build) => {
+  test.each(MODELS)("[assets:colours-from-named-palette] given %s, when it is built, then every part names a palette colour", (_, build) => {
     build().traverse((object) => {
       const mesh = object as Mesh;
       if (!mesh.isMesh) return;
@@ -62,7 +62,7 @@ describe("London's models", () => {
     });
   });
 
-  test("[R-ASSET-003] given the bus and the carriage, when they are built, then each faces +Z, its length along z and its footprint centred", () => {
+  test("[assets:metre-units-and-origin] given the bus and the carriage, when they are built, then each faces +Z, its length along z and its footprint centred", () => {
     for (const build of [buildLondonBus, buildTrainCarriage]) {
       const box = bounds(build());
       const size = box.getSize(new Vector3());
@@ -72,7 +72,7 @@ describe("London's models", () => {
     }
   });
 
-  test("[R-WORLD-039] given the bus's top deck and the carriage's window seat, when the ride's seat is read, then the eye stands inside the body, over the floor and under the roof, so the camera rides inside", () => {
+  test("[world:ride-abroad-and-workplace] given the bus's top deck and the carriage's window seat, when the ride's seat is read, then the eye stands inside the body, over the floor and under the roof, so the camera rides inside", () => {
     const bus = bounds(buildLondonBus());
     const [bx, by, bz] = BUS_TOP_SEAT.eye;
     expect(bus.containsPoint(new Vector3(bx, by, bz))).toBe(true);

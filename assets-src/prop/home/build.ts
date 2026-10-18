@@ -1,8 +1,8 @@
 // The small things of a lived-in home that the kit does not have: the yard's generator and
 // clothes line, the wardrobe, a rug, a potted plant, slippers by the door, the beer crates, the standing fan, the
 // kitchenette's shelf, a bucket, a mattress on the floor, the hostel's bunk, a small shelf of one's own things, and a
-// louvre window that stands in a cut wall. Each stands on its base at y = 0 and faces +Z (R-ASSET-003); a thing laid on
-// the floor keeps its top faces two centimetres apart from each other and the floor (R-WORLD-012). Palette only.
+// louvre window that stands in a cut wall. Each stands on its base at y = 0 and faces +Z (assets:metre-units-and-origin); a thing laid on
+// the floor keeps its top faces two centimetres apart from each other and the floor (world:faces-never-share-height). Palette only.
 import { type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, box, clutter, cylinder, generator, quad } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
@@ -145,7 +145,7 @@ export function buildPottedPlant(): Group {
 
 /** One slipper's sole and strap, in its own frame, pointing +Z. */
 function slipper(g: Object3D, x: number, z: number, ry: number, sole: PaletteName, strap: PaletteName): void {
-  // On the mat, its sole clear of the mat's top (R-WORLD-012).
+  // On the mat, its sole clear of the mat's top (world:faces-never-share-height).
   const s = at(g, x, z, ry, 0.02);
   box(s, 0.1, 0.025, 0.26, 0, 0, 0, sole);
   box(s, 0.11, 0.035, 0.05, 0, 0.025, 0.04, strap);

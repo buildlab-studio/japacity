@@ -1,4 +1,4 @@
-// The street's things of decision 0012 (docs/rules/streets.md R-STREET-011): the suya grill, the barber's kiosk,
+// The street's things of decision 0012 (streets:lagos-street-spending): the suya grill, the barber's kiosk,
 // the viewing centre and the joint's chairs, each a model the player taps, built in Node and measured as the
 // export measures it, inside its prefix's budget, palette only, standing on y = 0 with its footprint.
 import budgets from "../../assets-src/budgets.json";
@@ -22,7 +22,7 @@ function entry(name: string) {
 }
 
 describe("the street's things", () => {
-  test.each(STREET_THINGS)("[R-ASSET-007] [R-ASSET-001] [R-ASSET-003] given $name, when it is built, baked and compressed, then it is inside its prefix's budget, palette only, on y = 0 and inside its height", async ({ name, file, place }) => {
+  test.each(STREET_THINGS)("[assets:assets-and-places-within-budget] [assets:colours-from-named-palette] [assets:metre-units-and-origin] given $name, when it is built, baked and compressed, then it is inside its prefix's budget, palette only, on y = 0 and inside its height", async ({ name, file, place }) => {
     const found = entry(name);
     expect({ file: found.file, place: found.place }).toEqual({ file, place });
     const bytes = await writeGlb(toDocument(found.build()));
@@ -41,7 +41,7 @@ describe("the street's things", () => {
     expect(figures.maxY).toBeLessThanOrEqual(high);
   });
 
-  test.each(STREET_THINGS)("[R-ASSET-030] [R-ASSET-012] given $name, when it is built, then it records the ground it blocks and carries its lettered boards as anchors with text keys, never as words", ({ name, signs }) => {
+  test.each(STREET_THINGS)("[assets:models-record-their-footprint] [assets:sign-text-drawn-in-code] given $name, when it is built, then it records the ground it blocks and carries its lettered boards as anchors with text keys, never as words", ({ name, signs }) => {
     const model = entry(name).build();
     const footprint = model.extras.footprint;
     expect(Array.isArray(footprint)).toBe(true);
@@ -51,7 +51,7 @@ describe("the street's things", () => {
     for (const anchor of anchors) expect(anchor.key).toMatch(/^place\.bode-thomas\.sign\.[0-9]+$/);
   });
 
-  test("[R-ASSET-003] given the barber's kiosk and the viewing centre, when they are built, then the kiosk is about three metres tall and the shed about three point two", async () => {
+  test("[assets:metre-units-and-origin] given the barber's kiosk and the viewing centre, when they are built, then the kiosk is about three metres tall and the shed about three point two", async () => {
     for (const [name, height] of [["shop_barber-kiosk", 3.0], ["shop_viewing-centre", 3.2]] as const) {
       const bytes = await writeGlb(toDocument(entry(name).build()));
       const figures = measure(await readGlb(bytes), bytes.byteLength);

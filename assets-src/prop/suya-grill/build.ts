@@ -1,7 +1,7 @@
-// The suya spot on the pavement (streets.md R-STREET-011): a long low grill box on four legs with
+// The suya spot on the pavement (streets:lagos-street-spending): a long low grill box on four legs with
 // its coals glowing in a strip, skewers of beef laid across, a tall umbrella over it with a bulb hung
 // from the pole, a cooler of drinks beside it and old newspaper for the wrap. Built facing +Z
-// (R-ASSET-003), the side the customer stands; the seller works from behind.
+// (assets:metre-units-and-origin), the side the customer stands; the seller works from behind.
 import { setFootprint } from "@japacity/assets";
 import { beam, box, clutter, cylinder } from "@japacity/assets/kit";
 import { Group } from "three";

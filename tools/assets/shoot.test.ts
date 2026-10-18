@@ -16,35 +16,35 @@ const config = readJson<{ phoneShot: Record<string, number>; criteria: { key: st
 const stage = readFileSync(join(SOURCE, "stage", "stage.ts"), "utf8");
 
 describe("the fixed views", () => {
-  test("[R-ASSET-020] given every asset, when its views are listed, then it gets the four elevations, the three-quarter view and the phone shot, and buildings and landmarks the plan", () => {
+  test("[assets:contributor-renders-fixed-views] given every asset, when its views are listed, then it gets the four elevations, the three-quarter view and the phone shot, and buildings and landmarks the plan", () => {
     for (const entry of CATALOG) expect(entry.views).toEqual(expect.arrayContaining(["front", "back", "left", "right", "threeQuarter", "phone"]));
     const planned = CATALOG.filter((entry) => /^(bld|lm|shop)_/.test(entry.name));
     expect(planned.filter((entry) => !entry.views.includes("plan")).map((entry) => entry.name)).toEqual([]);
   });
 
-  test("[R-ASSET-020] given the phone shot, when its numbers are read, then it is 360 by 640 CSS pixels at device scale 2 and 12 m, as the review sheet's numbers say", () => {
+  test("[assets:contributor-renders-fixed-views] given the phone shot, when its numbers are read, then it is 360 by 640 CSS pixels at device scale 2 and 12 m, as the review sheet's numbers say", () => {
     expect(PHONE_SHOT).toEqual({ width: 360, height: 640, deviceScaleFactor: 2, distance: 12 });
     expect(config.phoneShot).toMatchObject({ width: 360, height: 640, deviceScaleFactor: 2, distanceMetres: 12, lensDegrees: 32 });
     expect(stage).toMatch(/camera\.position\.set\(centreX, 1\.6, front \+ 12\)/);
   });
 
-  test("[R-ASSET-020] given the shooter, when it launches a browser, then it uses Playwright's own Chromium with no hard-coded path, on the software renderer", () => {
+  test("[assets:contributor-renders-fixed-views] given the shooter, when it launches a browser, then it uses Playwright's own Chromium with no hard-coded path, on the software renderer", () => {
     const sources = readdirSync(join(REPO_ROOT, "tools", "assets")).filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts")).map((f) => readFileSync(join(REPO_ROOT, "tools", "assets", f), "utf8"));
     expect(sources.join("\n")).not.toMatch(/executablePath\s*:/);
     expect(sources.join("\n")).toMatch(/--use-angle=swiftshader/);
   });
 
-  test("[R-ASSET-006] given the stage, when its lights are counted, then there is one sun and one sky and nothing else", () => {
+  test("[assets:lighting-set-by-place] given the stage, when its lights are counted, then there is one sun and one sky and nothing else", () => {
     expect(stage.match(/new DirectionalLight\(/g)).toHaveLength(1);
     expect(stage.match(/new HemisphereLight\(/g)).toHaveLength(1);
     expect(stage).not.toMatch(/new (AmbientLight|PointLight|SpotLight|RectAreaLight)\(/);
   });
 
-  test("[R-ASSET-021] given the review sheet, when its criteria are read, then they are the Review shape's seven scores, budget scored by the check", () => {
+  test("[assets:blind-reviewer-scores-views] given the review sheet, when its criteria are read, then they are the Review shape's seven scores, budget scored by the check", () => {
     expect(config.criteria.map((c) => c.key)).toEqual(["phone", "silhouette", "proportion", "palette", "wear", "variety", "budget"]);
   });
 
-  test("[R-ASSET-021] given the examples sheet, when it is read, then it names the six examples the catalog ships, with their round-two totals and the bars 21, 21 and 20 of 35", () => {
+  test("[assets:blind-reviewer-scores-views] given the examples sheet, when it is read, then it names the six examples the catalog ships, with their round-two totals and the bars 21, 21 and 20 of 35", () => {
     const examples = readJson<{ bar: Record<string, number>; examples: { name: string; file: string; roundTwo: Record<string, number>; roundTwoTotal: number }[] }>(join(SOURCE, "examples.json"));
     expect(examples.examples.map((e) => e.name).sort()).toEqual(CATALOG.filter((e) => e.example === true).map((e) => e.name).sort());
     for (const e of examples.examples) {
@@ -54,7 +54,7 @@ describe("the fixed views", () => {
     expect([examples.bar.building, examples.bar.shopfront, examples.bar.landmark, examples.bar.outOf]).toEqual([21, 21, 20, 35]);
   });
 
-  test("[R-ASSET-012] given every sign anchor in a shipped model, when the stage letters it, then its words are the content's text table's and signs.json keeps none", async () => {
+  test("[assets:sign-text-drawn-in-code] given every sign anchor in a shipped model, when the stage letters it, then its words are the content's text table's and signs.json keeps none", async () => {
     const words = signText();
     const keys: string[] = [];
     for (const file of sourceFiles(filesUnder(PUBLIC)).filter((path) => path.endsWith(".glb"))) {
@@ -73,7 +73,7 @@ describe("the tile view", () => {
   const tiled = CATALOG.filter((entry) => isTiled(entry.name));
   const untiled = CATALOG.filter((entry) => !isTiled(entry.name));
 
-  test("[R-ASSET-020] given the shells, sheets and grids no player is shown as a thing, when their views are listed, then none gets the tile, none is shot and none keeps a tile render", () => {
+  test("[assets:contributor-renders-fixed-views] given the shells, sheets and grids no player is shown as a thing, when their views are listed, then none gets the tile, none is shot and none keeps a tile render", () => {
     const shown = ["bld_room_parlour", "bld_room_compound", "prop_sheet-flag_coarse", "prop_sheet-pennant_fine", "prop_water_coarse", "prop_water_fine", "prop_pole", "prop_drum-water", "prop_plank-walkway", "chr_tunde"];
     for (const name of shown) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: false });
     expect(CATALOG.filter((entry) => entry.name.startsWith("bld_room_") || entry.name.startsWith("prop_sheet-") || entry.name.startsWith("prop_water_")).filter((entry) => entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
@@ -81,23 +81,23 @@ describe("the tile view", () => {
     for (const name of ["prop_cooking-corner", "prop_bed", "veh_danfo", "lm_national-stadium", "bld_family-house", "shop_provisions"]) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: true });
   });
 
-  test("[R-ASSET-020] given every model a player can be shown as a thing, when its views are listed, then it gets the tile, and no person does", () => {
+  test("[assets:contributor-renders-fixed-views] given every model a player can be shown as a thing, when its views are listed, then it gets the tile, and no person does", () => {
     expect(tiled.length).toBeGreaterThan(70);
     expect(tiled.filter((entry) => !entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
     expect(CATALOG.filter((entry) => entry.name.startsWith("chr_") && entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
     expect(CATALOG.filter((entry) => entry.views.includes("tile")).every((entry) => /^(prop|shop|veh|lm|bld)_/.test(entry.name))).toBe(true);
   });
 
-  test("[R-ASSET-020] given every asset, when its renders folder is named, then no two assets share one, so no render is written over another's", () => {
+  test("[assets:contributor-renders-fixed-views] given every asset, when its renders folder is named, then no two assets share one, so no render is written over another's", () => {
     const sources = CATALOG.map((entry) => entry.source);
     expect(sources.filter((source, at) => sources.indexOf(source) !== at)).toEqual([]);
   });
 
-  test("[R-ASSET-020] given the tile shot, when its numbers are read, then it is a square of 256 CSS pixels at device scale 2", () => {
+  test("[assets:contributor-renders-fixed-views] given the tile shot, when its numbers are read, then it is a square of 256 CSS pixels at device scale 2", () => {
     expect(TILE_SHOT).toEqual({ width: 256, height: 256, deviceScaleFactor: 2 });
   });
 
-  test("[R-ASSET-006] given the stage, when it shows the tile, then the sky and the ground are left out on a clear page under the same one sun and one sky", () => {
+  test("[assets:lighting-set-by-place] given the stage, when it shows the tile, then the sky and the ground are left out on a clear page under the same one sun and one sky", () => {
     expect(stage).toMatch(/case "tile":/);
     expect(stage).toMatch(/alpha: true/);
     expect(stage).toMatch(/scene\.background = tile \? null : colour\("sky"\)/);
@@ -115,7 +115,7 @@ describe("the tile view", () => {
     expect(merged.map((r) => [r.view, r.sha256])).toEqual([["front", "f"], ["phone", "p"], ["tile", "new"]]);
   });
 
-  test.each(tiled.map((entry) => ({ name: entry.name, source: entry.source })))("[R-ASSET-011] given $name's tile, when it is read, then it is 512 pixels square, clear at its corners and the asset fills it", ({ source }) => {
+  test.each(tiled.map((entry) => ({ name: entry.name, source: entry.source })))("[assets:no-reference-photos-kept] given $name's tile, when it is read, then it is 512 pixels square, clear at its corners and the asset fills it", ({ source }) => {
     const image = decodePng(readFileSync(join(REPO_ROOT, source, "renders", "tile.png")));
     expect([image.width, image.height]).toEqual([512, 512]);
     const alphaAt = (x: number, y: number): number => image.pixels[(y * image.width + x) * 4 + 3] ?? 255;
@@ -143,7 +143,7 @@ describe("the door's portraits", () => {
   const portrayed = CATALOG.filter((entry) => PORTRAITS.some((view) => entry.views.includes(view)));
   const read = (source: string, view: string) => decodePng(readFileSync(join(REPO_ROOT, source, "renders", `${view}.png`)));
 
-  test("[R-ASSET-020] [R-PROLOGUE-009] given the people, when their views are listed, then each look the door offers, and only those, gets its face, its whole figure and its cheer, and none of them the tile", () => {
+  test("[assets:contributor-renders-fixed-views] [prologue:front-door-builds-a-person] given the people, when their views are listed, then each look the door offers, and only those, gets its face, its whole figure and its cheer, and none of them the tile", () => {
     expect(portrayed.map((entry) => entry.name).sort()).toEqual(CATALOG.filter((entry) => isPortrayed(entry.name)).map((entry) => entry.name).sort());
     expect(portrayed.length).toBe(16);
     for (const entry of portrayed) expect({ name: entry.name, views: entry.views.filter((view) => PORTRAITS.includes(view)), tile: entry.views.includes("tile") }).toEqual({ name: entry.name, views: [...PORTRAITS], tile: false });
@@ -151,7 +151,7 @@ describe("the door's portraits", () => {
     for (const name of ["chr_hawker_a", "chr_hawker_b"]) expect(isPortrayed(name)).toBe(false);
   });
 
-  test("[R-ASSET-020] given the portraits' shots, when their numbers and poses are read, then the face is 128 CSS pixels square and the figure 200 by 400, both at device scale 2, in the game's stand, hip and cheer poses, on the stage's clear ground", () => {
+  test("[assets:contributor-renders-fixed-views] given the portraits' shots, when their numbers and poses are read, then the face is 128 CSS pixels square and the figure 200 by 400, both at device scale 2, in the game's stand, hip and cheer poses, on the stage's clear ground", () => {
     expect(FACE_SHOT).toEqual({ width: 128, height: 128, deviceScaleFactor: 2 });
     expect(FIGURE_SHOT).toEqual({ width: 200, height: 400, deviceScaleFactor: 2 });
     expect(PORTRAIT_POSES).toEqual({ face: "stand", figure: "hip", cheer: "cheer" });
@@ -159,7 +159,7 @@ describe("the door's portraits", () => {
     expect(stage).toMatch(/const CLEAR_VIEWS: readonly ViewName\[\] = \["tile", "face", "figure", "cheer"\]/);
   });
 
-  test.each(portrayed.map((entry) => ({ name: entry.name, source: entry.source })))("[R-ASSET-011] given $name's portraits, when they are read, then the face is 256 pixels square and the figures 400 by 800, each clear at its corners with the person filling it", ({ source }) => {
+  test.each(portrayed.map((entry) => ({ name: entry.name, source: entry.source })))("[assets:no-reference-photos-kept] given $name's portraits, when they are read, then the face is 256 pixels square and the figures 400 by 800, each clear at its corners with the person filling it", ({ source }) => {
     for (const [view, width, height] of [["face", 256, 256], ["figure", 400, 800], ["cheer", 400, 800]] as const) {
       const image = read(source, view);
       expect({ view, size: [image.width, image.height] }).toEqual({ view, size: [width, height] });

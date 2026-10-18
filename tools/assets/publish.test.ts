@@ -11,7 +11,7 @@ import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPubl
 import { filesUnder, readJson, REPO_ROOT } from "../repo";
 
 describe("published names", () => {
-  test("[R-CITY-018] given a shipped path and its hash, when it is named for publishing, then the hash sits before the extension and can be read back", () => {
+  test("[city:places-load-on-entry] given a shipped path and its hash, when it is named for publishing, then the hash sits before the extension and can be read back", () => {
     const hash = "0123456789abcdef0123";
     const name = hashedName("places/ojuelegba/bld_plaza.glb", hash);
     expect(name).toBe("places/ojuelegba/bld_plaza.0123456789ab.glb");
@@ -19,7 +19,7 @@ describe("published names", () => {
     expect(hashInName("places/ojuelegba/bld_plaza.glb")).toBeNull();
   });
 
-  test("[R-CITY-018] given two files, when one changes, then only its published name changes, the old copy is removed and the sources stay", () => {
+  test("[city:places-load-on-entry] given two files, when one changes, then only its published name changes, the old copy is removed and the sources stay", () => {
     const work = mkdtempSync(join(tmpdir(), "publish-"));
     try {
       const folder = join(work, "assets");
@@ -42,7 +42,7 @@ describe("published names", () => {
 });
 
 describe("the tiles", () => {
-  test("[R-CITY-018] given assets with a tile render, when the tiles are copied, then each lands under tiles by the asset's name, a tile no asset names is removed, and the image manifest learns each copy's hash", () => {
+  test("[city:places-load-on-entry] given assets with a tile render, when the tiles are copied, then each lands under tiles by the asset's name, a tile no asset names is removed, and the image manifest learns each copy's hash", () => {
     const work = mkdtempSync(join(tmpdir(), "tiles-"));
     try {
       const folder = join(work, "public");
@@ -64,7 +64,7 @@ describe("the tiles", () => {
 });
 
 describe("the door's portraits", () => {
-  test("[R-CITY-018] [R-ASSET-011] given a look with its face, figure and cheer renders, when the tiles are copied, then each lands under tiles as the look's name and the view's, beside the things' tiles", () => {
+  test("[city:places-load-on-entry] [assets:no-reference-photos-kept] given a look with its face, figure and cheer renders, when the tiles are copied, then each lands under tiles as the look's name and the view's, beside the things' tiles", () => {
     const work = mkdtempSync(join(tmpdir(), "portraits-"));
     try {
       const folder = join(work, "public");
@@ -94,7 +94,7 @@ describe("the committed publish", () => {
   const folder = defaultPaths(REPO_ROOT).public;
   const manifest = readJson<PublishManifest>(join(folder, MANIFEST_FILE));
 
-  test("[R-CITY-018] given the manifest the loader reads, when each name is checked, then it carries the hash of that file's contents", () => {
+  test("[city:places-load-on-entry] given the manifest the loader reads, when each name is checked, then it carries the hash of that file's contents", () => {
     const wrong = Object.entries(manifest.files).filter(([, published]) => {
       const bytes = readFileSync(join(folder, published));
       return hashInName(published) !== sha256(bytes).slice(0, HASH_DIGITS);
@@ -102,7 +102,7 @@ describe("the committed publish", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-CITY-018] given every shipped file, when the manifest is compared with public/assets, then it names each one with its current contents, beside it, and no stale copy is left", () => {
+  test("[city:places-load-on-entry] given every shipped file, when the manifest is compared with public/assets, then it names each one with its current contents, beside it, and no stale copy is left", () => {
     expect(manifest.files).toEqual(planPublish(folder).files);
     for (const [path, published] of Object.entries(manifest.files)) expect(published.slice(0, published.lastIndexOf("/") + 1)).toBe(path.slice(0, path.lastIndexOf("/") + 1));
     const named = new Set([MANIFEST_FILE, ...Object.keys(manifest.files), ...Object.values(manifest.files)]);
@@ -110,7 +110,7 @@ describe("the committed publish", () => {
     expect(sourcesOf(folder)).toEqual(Object.keys(manifest.files));
   });
 
-  test("[R-CITY-018] [R-ASSET-011] given every model with a tile, when the publish is read, then its tile is published by its name with the render's bytes, and the image manifest knows the copy", () => {
+  test("[city:places-load-on-entry] [assets:no-reference-photos-kept] given every model with a tile, when the publish is read, then its tile is published by its name with the render's bytes, and the image manifest knows the copy", () => {
     const images = readManifest().renders;
     const tiled = CATALOG.filter((entry) => isTiled(entry.name));
     const wrong = tiled.filter((entry) => {

@@ -1,6 +1,6 @@
-// The moving sheets and the water grid as data (assets.md R-ASSET-028, R-ASSET-029): each piece ships
+// The moving sheets and the water grid as data (assets:one-shared-motion-material, assets:sheets-ship-two-mesh-levels): each piece ships
 // at two mesh levels, `coarse` for the low mode and `fine` for the high, as the file variants
-// shared/prop/prop_<piece>_<level>.glb. The client reads the variant its mode picks (city.md R-CITY-028).
+// shared/prop/prop_<piece>_<level>.glb. The client reads the variant its mode picks (city:motion-never-turned-off).
 // No three.js here, so the client can read the table without the builder.
 
 export type MeshLevel = "coarse" | "fine";

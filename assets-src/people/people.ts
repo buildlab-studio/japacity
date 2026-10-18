@@ -1,6 +1,6 @@
 // People written as code, ported from the asset experiments. One skeleton for everyone: the
 // same bone names and order, so one set of poses drives every body. A person is plain data
-// (body numbers, skin, hair, clothes, pattern seed) given to this one builder (R-ASSET-014).
+// (body numbers, skin, hair, clothes, pattern seed) given to this one builder (assets:variants-are-numbers-not-code).
 // The output is a skinned mesh as plain arrays (person.types.ts): group 0 is flat palette
 // colour, group 1 the one fabric pattern.
 import type { PaletteName } from "@japacity/assets";
@@ -238,7 +238,7 @@ interface Buf {
   si: number[];
   sw: number[];
   idx: [number[], number[], number[]];
-  /** The round part each vertex belongs to, shown smooth (R-ASSET-005), or null for a hard-edged one. */
+  /** The round part each vertex belongs to, shown smooth (assets:flat-and-smooth-shading), or null for a hard-edged one. */
   part: (SmoothPart | null)[];
   current: SmoothPart | null;
 }
@@ -1411,7 +1411,7 @@ interface Shaded {
 }
 
 /**
- * Normals for one welded mesh that is partly smooth and partly flat (R-ASSET-005): a round part keeps
+ * Normals for one welded mesh that is partly smooth and partly flat (assets:flat-and-smooth-shading): a round part keeps
  * its shared vertices, each with the mean of the faces around it, joined across seams where two
  * vertices of the part sit at one point; every other triangle gets three vertices of its own, each
  * with the face's normal, so it shades flat with no help from the loader.
@@ -1503,7 +1503,7 @@ export function buildPerson(spec: PersonSpec, face: FaceStyle = FACE_STYLE): Per
   const { hair, head } = s;
   if (hair !== undefined) smoothPart(b, "hair", () => HAIR[hair](b, s));
   if (head !== undefined) smoothPart(b, "headwear", () => HEADWEAR[head](b, s));
-  if (b.idx[2].length > 0) throw new Error(`${s.name}: a second pattern; a person ships one (R-ASSET-005)`);
+  if (b.idx[2].length > 0) throw new Error(`${s.name}: a second pattern; a person ships one (assets:flat-and-smooth-shading)`);
   const patterns = s.patterns ?? [];
   if (b.idx[1].length > 0 && patterns[0] === undefined) throw new Error(`${s.name}: patterned cloth with no pattern`);
 
@@ -1521,7 +1521,7 @@ export function buildPerson(spec: PersonSpec, face: FaceStyle = FACE_STYLE): Per
     }
     for (let a = 0; a < 3; a++) b.pos[i * 3 + a] = (b.pos[i * 3 + a] ?? 0) * kH;
   }
-  // Feet on the ground (R-ASSET-003): the soles sit a few millimetres up in the source numbers.
+  // Feet on the ground (assets:metre-units-and-origin): the soles sit a few millimetres up in the source numbers.
   let minY = Infinity;
   for (let i = 1; i < b.pos.length; i += 3) minY = Math.min(minY, b.pos[i] ?? 0);
   for (let i = 1; i < b.pos.length; i += 3) b.pos[i] = (b.pos[i] ?? 0) - minY;

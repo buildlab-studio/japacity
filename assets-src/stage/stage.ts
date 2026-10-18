@@ -1,4 +1,4 @@
-// The stage every asset is shot on (R-ASSET-020): one sun and one sky (R-ASSET-006), the
+// The stage every asset is shot on (assets:contributor-renders-fixed-views): one sun and one sky (assets:lighting-set-by-place), the
 // palette's sand ground, a standard street for the phone shot, and a clear ground for the tile
 // the interface cuts as a sticker (design page 13) and for a look's face and whole figure, which
 // the front door cuts the same way. The shooter drives it
@@ -397,7 +397,7 @@ const stage = {
     return [...box.min.toArray(), ...box.max.toArray()];
   },
 
-  /** A flat black silhouette on white for the outline score (R-ASSET-023), one byte a pixel, 1 where the model is. */
+  /** A flat black silhouette on white for the outline score (assets:landmarks-match-reference-outlines), one byte a pixel, 1 where the model is. */
   mask(request: MaskRequest): { pixels: string; bounds: number[] } {
     if (model === null) throw new Error("stage: nothing loaded");
     const root = model;

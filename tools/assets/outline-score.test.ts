@@ -11,14 +11,14 @@ function modelOf(polygon: [number, number][], w: number, h: number, dx = 0, dy =
 }
 
 describe("the outline score", () => {
-  test("[R-ASSET-023] given a reference, when the frame is made, then its longer side is 512 px with a 5% margin on every side", () => {
+  test("[assets:landmarks-match-reference-outlines] given a reference, when the frame is made, then its longer side is 512 px with a 5% margin on every side", () => {
     const frame = frameFor([[200, 50]], settings);
     expect(frame.width).toBe(512);
     expect(frame.pxPerMetre * 200).toBeCloseTo(512 * 0.9, 6);
     expect(frame.height).toBe(Math.round(50 * frame.pxPerMetre + 512 * 0.1));
   });
 
-  test("[R-ASSET-023] given a model the same as its reference, when it is scored, then it scores 100 and passes", () => {
+  test("[assets:landmarks-match-reference-outlines] given a model the same as its reference, when it is scored, then it scores 100 and passes", () => {
     const polygon = rect(100, 40);
     const { mask, frame } = modelOf(polygon, 100, 40);
     const score = scoreView(mask, polygon, frame, settings, { width: 100, height: 40 });
@@ -26,13 +26,13 @@ describe("the outline score", () => {
     expect(score.passes).toBe(true);
   });
 
-  test("[R-ASSET-023] given a model moved 15 px, inside the 3% search, when it is scored, then the best shift finds it; it is centred by its box first, so a far move does not count against it", () => {
+  test("[assets:landmarks-match-reference-outlines] given a model moved 15 px, inside the 3% search, when it is scored, then the best shift finds it; it is centred by its box first, so a far move does not count against it", () => {
     const polygon: [number, number][] = [[-50, 0], [50, 0], [50, 20], [0, 40], [-50, 20]];
     const { mask, frame } = modelOf(polygon, 100, 40, 15, -10);
     expect(scoreView(mask, polygon, frame, settings, { width: 100, height: 40 }).score).toBe(100);
   });
 
-  test("[R-ASSET-023] given a model with a different shape, when it is scored, then the score is 100 times overlap over union, rounded down, with no scaling", () => {
+  test("[assets:landmarks-match-reference-outlines] given a model with a different shape, when it is scored, then the score is 100 times overlap over union, rounded down, with no scaling", () => {
     const reference = rect(100, 40);
     const half = rect(100, 20);
     const { mask, frame } = modelOf(half, 100, 40);
@@ -43,7 +43,7 @@ describe("the outline score", () => {
     expect(score.passes).toBe(false);
   });
 
-  test("[R-ASSET-023] given a reference filling under 10% of its box, when it is scored, then both masks grow by 2% of the frame; at 10% or more they do not", () => {
+  test("[assets:landmarks-match-reference-outlines] given a reference filling under 10% of its box, when it is scored, then both masks grow by 2% of the frame; at 10% or more they do not", () => {
     const thin: [number, number][] = [[-100, 0], [100, 0], [100, 2], [0.5, 2], [0.5, 40], [-0.5, 40], [-0.5, 2], [-100, 2]];
     expect((polygonArea(thin) / (200 * 40)) * 100).toBeLessThan(10);
     const { mask, frame } = modelOf(thin, 200, 40);
@@ -55,7 +55,7 @@ describe("the outline score", () => {
     expect(scoreView(s2.mask, solid, s2.frame, settings, { width: 200, height: 40 }).thin).toBe(false);
   });
 
-  test("[R-ASSET-023] given a model 5% wider than its reference and one 6% wider, when the size is checked, then 5% passes and 6% fails", () => {
+  test("[assets:landmarks-match-reference-outlines] given a model 5% wider than its reference and one 6% wider, when the size is checked, then 5% passes and 6% fails", () => {
     const polygon = rect(100, 40);
     const { mask, frame } = modelOf(polygon, 100, 40);
     expect(scoreView(mask, polygon, frame, settings, { width: 105, height: 40 }).passes).toBe(true);

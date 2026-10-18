@@ -1,7 +1,7 @@
 // The things the market sells for the home: each stands in the room as the very model the phone's
 // market shows on its sticker tile. Small things stand on a stool so they read from the raised camera. Each stands on
-// its base at y = 0 and faces +Z (R-ASSET-003); a thing laid on the floor keeps its top faces two centimetres apart
-// from each other and the floor (R-WORLD-012). Palette only.
+// its base at y = 0 and faces +Z (assets:metre-units-and-origin); a thing laid on the floor keeps its top faces two centimetres apart
+// from each other and the floor (world:faces-never-share-height). Palette only.
 import { type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, floorQuad, quad, type Vec3 } from "@japacity/assets/kit";
 import { Group, type Object3D, Quaternion, Vector3 } from "three";

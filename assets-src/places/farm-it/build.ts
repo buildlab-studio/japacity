@@ -2,8 +2,8 @@
 // place.farm-it): where the farm's cash job is done, reached by the gangmaster's van. Rows of low tomato plants on
 // the brown earth, the gangmaster's table under a blue tarpaulin with the clipboard the day is signed on, crates of
 // the morning's picking stacked on a pallet, a water tap on its pipe and a tree to stand under. Each piece stands on
-// its base at y = 0 facing +Z (R-ASSET-003), records the ground it blocks (R-ASSET-030) and shows no real farm's or
-// company's name or mark (R-ASSET-010).
+// its base at y = 0 facing +Z (assets:metre-units-and-origin), records the ground it blocks (assets:models-record-their-footprint) and shows no real farm's or
+// company's name or mark (assets:no-real-brands-on-assets).
 import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
 import { beam, box, cylinder, floorQuad, quad, seeded, signboard, solid } from "@japacity/assets/kit";
 import { Group } from "three";
@@ -33,7 +33,7 @@ export function buildCropRow(): Group {
 
 /**
  * The gangmaster's table: a folding table under a tarpaulin on four poles, the clipboard and a cash tin on it, his chair,
- * and a square of cardboard tied to the front pole with a few words in marker (its words a text key, R-ASSET-012).
+ * and a square of cardboard tied to the front pole with a few words in marker (its words a text key, assets:sign-text-drawn-in-code).
  */
 export function buildTarpTable(signKey: string, style: SignStyle): Group {
   const g = new Group();

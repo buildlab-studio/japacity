@@ -1,5 +1,5 @@
 // The design's vehicles, ported to the kit's shapes. Built along +x as drawn,
-// then turned to face +z (R-ASSET-003). Plain colours from the palette; no real company's livery.
+// then turned to face +z (assets:metre-units-and-origin). Plain colours from the palette; no real company's livery.
 import { lowBox, setFootprint } from "@japacity/assets";
 import { Group } from "three";
 

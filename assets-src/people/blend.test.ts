@@ -20,7 +20,7 @@ function closed(s: Surface): boolean {
 }
 
 describe("soft shapes", () => {
-  test("[R-ASSET-005] given nine blended balls, when turned into triangles, then the surface is closed, faces outward, lies within a cell of the blend and projects onto it", () => {
+  test("[assets:flat-and-smooth-shading] given nine blended balls, when turned into triangles, then the surface is closed, faces outward, lies within a cell of the blend and projects onto it", () => {
     const blend = { shapes, k: 0.02 };
     const raw = surface(blend, 0.004);
     expect(closed(raw)).toBe(true);
@@ -29,7 +29,7 @@ describe("soft shapes", () => {
     expect(Math.max(...project(blend, raw, 0.004).positions.map((p) => Math.abs(field(blend, p))))).toBeLessThanOrEqual(0.0005);
   });
 
-  test("[R-ASSET-005] given the blended balls, when thinned to 600 triangles, then at most 600 remain, the surface stays closed and keeps its volume within 3%", () => {
+  test("[assets:flat-and-smooth-shading] given the blended balls, when thinned to 600 triangles, then at most 600 remain, the surface stays closed and keeps its volume within 3%", () => {
     const raw = surface({ shapes, k: 0.02 }, 0.004);
     expect(raw.triangles.length).toBeGreaterThan(600);
     const thinned = thin(raw, 600);
@@ -39,13 +39,13 @@ describe("soft shapes", () => {
     expect(Math.abs(signedVolume(thinned) / signedVolume(raw) - 1)).toBeLessThanOrEqual(0.03);
   });
 
-  test("[R-ASSET-005] given the same blend twice, when built and thinned, then the triangles are the same", () => {
+  test("[assets:flat-and-smooth-shading] given the same blend twice, when built and thinned, then the triangles are the same", () => {
     const once = thin(surface({ shapes, k: 0.02 }, 0.005), 400);
     const again = thin(surface({ shapes, k: 0.02 }, 0.005), 400);
     expect(again).toEqual(once);
   });
 
-  test("[R-ASSET-005] given a blend with a ball cut from it and the edge melted, when turned into triangles, then no vertex lies inside the cut", () => {
+  test("[assets:flat-and-smooth-shading] given a blend with a ball cut from it and the edge melted, when turned into triangles, then no vertex lies inside the cut", () => {
     const cut: Shape = { kind: "ball", c: [0, 0, 0.13], r: 0.05 };
     const blend = { shapes, k: 0.02, cut: [cut], cutK: 0.01 };
     const raw = surface(blend, 0.004);

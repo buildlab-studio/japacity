@@ -1,9 +1,9 @@
 // A terrace on Rye Lane, Peckham (city.md place.peckham): Victorian brick over shopfronts, one
 // unit to each 5 m of frontage. Each shop has a glazed front over a low stall riser, its door to
-// one side, a fascia board over the glass with a text key (R-ASSET-012) and a roller shutter box;
+// one side, a fascia board over the glass with a text key (assets:sign-text-drawn-in-code) and a roller shutter box;
 // above it the brick rises two or three storeys with sash windows under stone lintels to a cornice
 // and parapet, the slate roof behind it, chimney stacks on the party walls, a soil pipe, a dish on
-// the back (R-ASSET-019) and soot where the rain runs. The data below makes the two variants.
+// the back (assets:dishes-face-one-satellite) and soot where the rain runs. The data below makes the two variants.
 import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
 import { box, dish, extrude, onWall, quad, seeded, signboard, stain } from "@japacity/assets/kit";
 import { Group } from "three";

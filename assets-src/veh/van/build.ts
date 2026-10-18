@@ -1,9 +1,9 @@
-// The white van the gangmaster sends at dawn (docs/rules/world.md R-WORLD-039, place.md R-PLACE-013;
-// design page 15 section 6): a plain panel van, dusty along the sills, with no name, mark or livery (R-ASSET-010).
+// The white van the gangmaster sends at dawn (world:ride-abroad-and-workplace, place:employer-shuttle-rides-free;
+// design page 15 section 6): a plain panel van, dusty along the sills, with no name, mark or livery (assets:no-real-brands-on-assets).
 // The back is built to be ridden in: thin walls with plywood to shoulder height inside, a wooden bench down each
 // side, and a small window cut through the wall over each bench, in the back doors and in the bulkhead, so from a
 // bench the camera sits low and the road shows only in those few panes. Its side door is on the right of its
-// facing, the kerb side in Italy. Built along +x as the design's vehicles are, then turned to face +z (R-ASSET-003).
+// facing, the kerb side in Italy. Built along +x as the design's vehicles are, then turned to face +z (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { quad, solid } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";

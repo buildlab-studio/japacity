@@ -1,7 +1,7 @@
-// The furniture of the interior places (docs/rules/world.md R-WORLD-005, R-WORLD-011): every piece
+// The furniture of the interior places (world:things-are-tappable-models, world:place-is-one-screen): every piece
 // a thing the player taps or a piece that dresses a room, each its own model so a label can stand
-// over it. Every piece stands on its base at y = 0, faces +Z (R-ASSET-003), and its tops keep clear
-// of each other by more than a centimetre where they overlap (R-WORLD-012). Laid flat on the floor,
+// over it. Every piece stands on its base at y = 0, faces +Z (assets:metre-units-and-origin), and its tops keep clear
+// of each other by more than a centimetre where they overlap (world:faces-never-share-height). Laid flat on the floor,
 // a mat or a rug sits two centimetres up or more.
 import { type FootprintBox, type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, quad } from "@japacity/assets/kit";
@@ -125,7 +125,7 @@ export function buildBed(): Group {
   // A wrapper thrown over the foot of the bed.
   box(g, w + 0.02, 0.04, 0.8, 0, 0.6, 0.45, "indigo");
   quad(at(g, w / 2 + 0.012, 0.45, Math.PI / 2), 0.8, 0.3, 0, 0.34, 0, "indigo");
-  // The papers box is its own thing at the bed's foot (R-WORLD-019), so the bed carries no tin.
+  // The papers box is its own thing at the bed's foot (world:phone-holds-what-phones-hold), so the bed carries no tin.
   return setFootprint(g, [{ x: 0, z: 0, width: w, depth: l }]);
 }
 
@@ -134,7 +134,7 @@ export function buildBed(): Group {
 // ---------------------------------------------------------------------------
 
 /**
- * The tin box the family keeps its papers in (R-WORLD-019): blue, the lid a shade lighter, the paint
+ * The tin box the family keeps its papers in (world:phone-holds-what-phones-hold): blue, the lid a shade lighter, the paint
  * worn to the metal along the lid's front edge, a padlock on its hasp and the edge of a sheet caught
  * under the lid. Its front faces +Z, the way it is pulled out from under the bed. Every face that looks
  * up stands over FLOOR_MAX, so it never shares a height with the floor or a rug.

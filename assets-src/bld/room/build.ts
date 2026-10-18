@@ -1,8 +1,8 @@
-// The room of an interior place (docs/rules/world.md R-WORLD-011): its two far walls and no roof, so
+// The room of an interior place (world:place-is-one-screen): its two far walls and no roof, so
 // the raised camera looks into it from the open sides. The floor is the place's own ground; the room
 // is the back wall along -Z and one side wall, painted in two tones with a dark skirting, with the
 // windows, the clock, the notices and the air conditioner a Lagos office or home has on its walls.
-// Every room is a set of numbers in ROOMS given to this one builder (R-ASSET-014). The things the
+// Every room is a set of numbers in ROOMS given to this one builder (assets:variants-are-numbers-not-code). The things the
 // player taps (the door, the window of the room abroad) are props of their own placed against a wall.
 import { type PaletteName, setFootprint } from "@japacity/assets";
 import { acUnit, box, cylinder, louvreWindow, onWall, posters, quad, seeded } from "@japacity/assets/kit";

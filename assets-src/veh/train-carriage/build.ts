@@ -1,9 +1,9 @@
-// A suburban train's carriage for the ride abroad (docs/rules/world.md R-WORLD-039): white with a blue band
+// A suburban train's carriage for the ride abroad (world:ride-abroad-and-workplace): white with a blue band
 // under the windows, grey doors in two pairs a side, a yellow end as every train in the UK has, and no
-// operator's colours, mark or words (R-ASSET-010). Built to be sat in: the walls, floor and roof are thin slabs
+// operator's colours, mark or words (assets:no-real-brands-on-assets). Built to be sat in: the walls, floor and roof are thin slabs
 // with an inner face, the seats face each other in bays by the windows with yellow poles at the doors, and the
 // glass is a pane that faces out, so from outside the windows are dark and from a seat the line runs past them.
-// Built along +x as the design's vehicles are, then turned to face +z (R-ASSET-003).
+// Built along +x as the design's vehicles are, then turned to face +z (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { quad } from "@japacity/assets/kit";
 import { Group } from "three";

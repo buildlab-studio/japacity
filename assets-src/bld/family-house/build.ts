@@ -1,4 +1,4 @@
-// The family house (city.md place.family-house, R-CITY-037): a bungalow on its own plot behind a
+// The family house (city.md place.family-house, city:party-room-sets-the-bar): a bungalow on its own plot behind a
 // fence wall, the kind the starting lives grew up in. The front of the house is a deep veranda under
 // the roof, open to the yard between its pillars, where visitors sit and a send-off party dances;
 // the rooms are behind its back wall. The yard holds the gate and its notice, the small generator
@@ -65,7 +65,7 @@ export function buildFamilyHouse(notice: string, style: SignStyle, dishYaw: numb
   stain(rear, 0, 0, w, 0.6, "wallPeachWorn");
 
   // The veranda: a tiled floor, its two end walls, the ceiling and the lintel on four pillars. The grout
-  // lines stand a clear centimetre over the tiles so the two never fight (docs/rules/world.md R-WORLD-012).
+  // lines stand a clear centimetre over the tiles so the two never fight (world:faces-never-share-height).
   const deep = front - veranda;
   floorQuad(g, w, deep, 0, 0.012, (front + veranda) / 2, "wallCream");
   for (let x = -half + 0.6; x < half; x += 0.6) floorQuad(g, 0.025, deep, x, 0.024, (front + veranda) / 2, "wallCreamWorn");

@@ -1,5 +1,5 @@
-// The moving sheets and the water tile, built flat at both mesh levels (assets.md R-ASSET-029). A
-// sheet stands in its own x-y plane facing +Z with its lowest point on y = 0 (R-ASSET-003): a flag and
+// The moving sheets and the water tile, built flat at both mesh levels (assets:sheets-ship-two-mesh-levels). A
+// sheet stands in its own x-y plane facing +Z with its lowest point on y = 0 (assets:metre-units-and-origin): a flag and
 // a frond 1 by 1 with the pinned edge at x = 0, a hang 1 by 1 centred on x with the pinned edge along
 // the top, a pennant a triangle 1 wide and 1 deep pinned along its top. The water tile lies on y = 0,
 // WATER_TILE metres a side. The client scales a sheet to its size and bends it in the vertex shader;

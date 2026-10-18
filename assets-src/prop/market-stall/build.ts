@@ -1,7 +1,7 @@
 // A lock-up stall of the market's rows (city.md place.tejuosho-market): four timber posts under a
 // zinc lean-to falling to the back, a plank back wall with a shelf, a counter piled with folded
 // cloth and shoes in pairs, a stool for the seller. The cloth awning in front of the roof edge is
-// not in the model: it is a sheet on the place's wind (city.md R-CITY-026), placed by the stage.
+// not in the model: it is a sheet on the place's wind (city:motion-in-vertex-shader), placed by the stage.
 import { boxesIn, type PaletteName, setFootprint } from "@japacity/assets";
 import { box, floorQuad, quad, seeded } from "@japacity/assets/kit";
 import { Group } from "three";

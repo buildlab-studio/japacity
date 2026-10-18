@@ -3,7 +3,7 @@
 // full with the home's wall things, and the builder makes every side twice, full and knee-high, so whichever quarter the
 // view looks from, the far pair stands full and the near pair is cut to the knee. The partitions, and the wall between
 // the house and its yard, stay at the knee with a door frame standing where a door is. Each home is a set of numbers for
-// the one home builder (R-ASSET-014), centred on its own floor; at rest the camera stands at +z (the back and the left
+// the one home builder (assets:variants-are-numbers-not-code), centred on its own floor; at rest the camera stands at +z (the back and the left
 // full).
 import type { HomeSpec, WallSpec } from "./build";
 

@@ -20,7 +20,7 @@ export interface Stage {
   close: () => Promise<void>;
 }
 
-/** Every sign's words from the content's text table (city.md R-CITY-024), so a render shows what the game shows. */
+/** Every sign's words from the content's text table (city:place-words-are-text-keys), so a render shows what the game shows. */
 export function signText(): Record<string, string> {
   return Object.fromEntries(Object.entries(text).filter(([key]) => SIGN_KEY.test(key)));
 }

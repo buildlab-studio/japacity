@@ -1,4 +1,4 @@
-// Faces at one height (docs/rules/world.md R-WORLD-012). Two horizontal faces that overlap within a
+// Faces at one height (world:faces-never-share-height). Two horizontal faces that overlap within a
 // centimetre of the same height fight for the same pixels and show as flickering stripes (a slab laid
 // on the ground shows them). A place's floor is its ground at 0, its strips of road
 // and pavement laid over it, and the floors of its models: every face of a model that looks up and
@@ -6,7 +6,7 @@
 // the check reads the same heights, so what is checked is what is drawn. Pure: no file, no browser.
 import type { Document as GltfDocument } from "@gltf-transform/core";
 
-/** Two overlapping faces closer in height than this fight (R-WORLD-012). */
+/** Two overlapping faces closer in height than this fight (world:faces-never-share-height). */
 export const FACE_GAP = 0.01;
 /** How far each layer of strips stands over the one under it: clear of FACE_GAP with room to spare. */
 export const STRIP_STEP = 0.012;
@@ -177,15 +177,15 @@ function fightingFaces(faces: readonly PlaceFace[]): string[] {
   return [...found.values()];
 }
 
-/** R-WORLD-012: a place whose floor faces fight, in its plain stage or in any dressing, fails. */
+/** world:faces-never-share-height: a place whose floor faces fight, in its plain stage or in any dressing, fails. */
 export function checkFaces(place: string, stage: FacedStage | undefined, facesOf: (file: string) => readonly ModelFace[]): string[] {
   if (stage === undefined) return [];
-  const problems = fightingFaces(stageFaces(stage, stage.models, facesOf)).map((line) => `R-WORLD-012: ${place}: ${line}`);
+  const problems = fightingFaces(stageFaces(stage, stage.models, facesOf)).map((line) => `world:faces-never-share-height: ${place}: ${line}`);
   for (const dressing of stage.dressings ?? []) {
     const hidden = new Set(dressing.hide ?? []);
     const models = [...stage.models.filter((model) => !hidden.has(model.file)), ...dressing.models];
     for (const line of fightingFaces(stageFaces(stage, models, facesOf))) {
-      const said = `R-WORLD-012: ${place} dressed for ${dressing.offer ?? dressing.person ?? ""}: ${line}`;
+      const said = `world:faces-never-share-height: ${place} dressed for ${dressing.offer ?? dressing.person ?? ""}: ${line}`;
       if (!problems.some((problem) => problem.endsWith(line))) problems.push(said);
     }
   }

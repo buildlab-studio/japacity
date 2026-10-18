@@ -1,4 +1,4 @@
-// The service worker of the bank-full notice (docs/rules/clock.md R-CLOCK-031):
+// The service worker of the bank-full notice (clock:full-bank-push-notification):
 // shows what the server pushed, one notice at a time under its tag, and opens
 // the game when it is tapped. Nothing else: no cache, no fetch handler.
 // https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/push_event

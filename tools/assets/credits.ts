@@ -1,4 +1,4 @@
-// pnpm assets:credits: writes public/assets/credits.json for the credits screen (city.md R-CITY-021)
+// pnpm assets:credits: writes public/assets/credits.json for the credits screen (city:credits-screen-attributions)
 // from the register and the map data, so the check can prove the two agree.
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";

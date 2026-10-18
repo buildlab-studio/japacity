@@ -1,4 +1,4 @@
-// A small PNG writer and reader for the pipeline's own images: patterns (R-ASSET-013) are
+// A small PNG writer and reader for the pipeline's own images: patterns (assets:fabric-pattern-from-seed) are
 // written as palette-indexed PNGs, and the palette check reads every pixel back. Only
 // 8-bit, non-interlaced images of colour types 2, 3 and 6 are read, which is all the tools write
 // and all Chromium's screenshots use.

@@ -1,4 +1,4 @@
-// The outline score of R-ASSET-023, as pure functions over masks, so it is tested without a browser.
+// The outline score of assets:landmarks-match-reference-outlines, as pure functions over masks, so it is tested without a browser.
 // A mask is one byte a pixel, 1 inside, rows top to bottom.
 
 export interface Mask {
@@ -165,7 +165,7 @@ export interface ViewScore {
 }
 
 /**
- * Scores a model's mask against a reference polygon (R-ASSET-023): both centred on their bounding
+ * Scores a model's mask against a reference polygon (assets:landmarks-match-reference-outlines): both centred on their bounding
  * boxes, both grown by `thinGrowPct` of the frame when the reference fills less than `thinFillPct`
  * of its box, the model moved by up to `outlineShiftPct` of the frame to the best overlap, no
  * rotation and no scaling; the score is 100 times overlap over union, rounded down. It passes

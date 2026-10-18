@@ -56,7 +56,7 @@ function bounds(model: Group): Box3 {
 }
 
 describe("Castel Volturno's models", () => {
-  test.each(MODELS)("[R-ASSET-003] [R-ASSET-030] given %s, when it is built, then it stands on y = 0 and records the ground it blocks", (name, _, build) => {
+  test.each(MODELS)("[assets:metre-units-and-origin] [assets:models-record-their-footprint] given %s, when it is built, then it stands on y = 0 and records the ground it blocks", (name, _, build) => {
     const model = build();
     expect(model.name).toBe(name);
     expect(Math.abs(bounds(model).min.y)).toBeLessThanOrEqual(0.01);
@@ -64,7 +64,7 @@ describe("Castel Volturno's models", () => {
     expect(Array.isArray(footprint) && footprint.length > 0).toBe(true);
   });
 
-  test.each(MODELS)("[R-ASSET-001] given %s, when it is built, then every part names a palette colour", (_, __, build) => {
+  test.each(MODELS)("[assets:colours-from-named-palette] given %s, when it is built, then every part names a palette colour", (_, __, build) => {
     build().traverse((object) => {
       const mesh = object as Mesh;
       if (!mesh.isMesh) return;
@@ -73,19 +73,19 @@ describe("Castel Volturno's models", () => {
     });
   });
 
-  test.each(ROWS)("[R-ASSET-012] given %s's numbers, when the row is built, then it leaves one board for each bar, shop and barber, keyed in unit order", (_, data) => {
+  test.each(ROWS)("[assets:sign-text-drawn-in-code] given %s's numbers, when the row is built, then it leaves one board for each bar, shop and barber, keyed in unit order", (_, data) => {
     const boards = signAnchorsOf(castel.buildPlasterRow(data, 2.1)).map((anchor) => anchor.key);
     expect(boards).toEqual(data.signs);
     expect(boards).toHaveLength(data.units.filter((unit) => castel.hasBoard(unit.kind)).length);
   });
 
-  test("[R-ASSET-019] given the roundabout's two rows and the Domitiana's block, when they are built with the place's yaw, then every dish faces the same way", () => {
+  test("[assets:dishes-face-one-satellite] given the roundabout's two rows and the Domitiana's block, when they are built with the place's yaw, then every dish faces the same way", () => {
     const dishes = ROWS.flatMap(([, data]) => (castel.buildPlasterRow(data, 2.1).userData.dishes ?? []) as [number, number, number][]);
     expect(dishes.length).toBe(ROWS.length);
     for (const dish of dishes) for (const [axis, value] of dish.entries()) expect(value).toBeCloseTo(dishes[0]?.[axis] ?? 0, 5);
   });
 
-  test("[R-ASSET-003] given the bus and the van, when they are built, then each faces +Z, its length along z and its footprint centred", () => {
+  test("[assets:metre-units-and-origin] given the bus and the van, when they are built, then each faces +Z, its length along z and its footprint centred", () => {
     for (const build of [buildItalyBus, buildVan]) {
       const box = bounds(build());
       const size = box.getSize(new Vector3());
@@ -95,7 +95,7 @@ describe("Castel Volturno's models", () => {
     }
   });
 
-  test("[R-WORLD-039] given the bus's window seat and the van's bench, when the ride's seat is read, then the eye stands inside the body, over the floor and under the roof, and the window it looks out of is on the kerb side, -x, as Italy drives on the right", () => {
+  test("[world:ride-abroad-and-workplace] given the bus's window seat and the van's bench, when the ride's seat is read, then the eye stands inside the body, over the floor and under the roof, and the window it looks out of is on the kerb side, -x, as Italy drives on the right", () => {
     const bus = bounds(buildItalyBus());
     const [bx, by, bz] = ITALY_BUS_SEAT.eye;
     expect(bus.containsPoint(new Vector3(bx, by, bz))).toBe(true);
@@ -140,18 +140,18 @@ const FILES: [string, ParkedFile][] = ["castel-volturno", "via-domitiana", "farm
 const builders = new Map<string, () => Group>([...MODELS.map(([, file, build]): [string, () => Group] => [file, build]), ...BORROWED]);
 
 describe("Castel Volturno's stage files", () => {
-  test.each(FILES)("[R-WORLD-011] [R-WORLD-005] given %s's file, when its limits and things are read, then it is one frontage of about 24 metres inside the crowd's caps, and every thing has one or two acts", (_, file) => {
+  test.each(FILES)("[world:place-is-one-screen] [world:things-are-tappable-models] given %s's file, when its limits and things are read, then it is one frontage of about 24 metres inside the crowd's caps, and every thing has one or two acts", (_, file) => {
     expect(file.scope).toBe("exterior");
     expect(checkLimits(file)).toEqual([]);
     expect(checkThings(file)).toEqual([]);
   });
 
-  test.each(FILES)("[R-ASSET-007] given %s's file, when its instances are read, then they are the copies its models stand, each a model of the three places or one borrowed from London's", (_, file) => {
+  test.each(FILES)("[assets:assets-and-places-within-budget] given %s's file, when its instances are read, then they are the copies its models stand, each a model of the three places or one borrowed from London's", (_, file) => {
     expect(file.instances).toEqual(file.stage.models.map((model) => ({ file: model.file, count: model.at.length })));
     for (const model of file.stage.models) expect(builders.has(model.file)).toBe(true);
   });
 
-  test.each(FILES)("[R-CITY-024] given %s's lettered models, when their boards are read, then every copy has a key of the place's own for each board, and no key shows twice", (_, file) => {
+  test.each(FILES)("[city:place-words-are-text-keys] given %s's lettered models, when their boards are read, then every copy has a key of the place's own for each board, and no key shows twice", (_, file) => {
     const keys: string[] = [];
     for (const model of file.stage.models.filter((candidate) => candidate.signs !== undefined)) {
       const boards = signAnchorsOf(builders.get(model.file)?.() ?? ({} as Group)).length;
@@ -166,7 +166,7 @@ describe("Castel Volturno's stage files", () => {
     expect(keys.filter((key) => !key.startsWith(`${file.place}.sign.`))).toEqual([]);
   });
 
-  test.each(FILES)("[R-WORLD-005] [R-ASSET-030] given %s's things and spots, when they are placed, then each thing stands at a copy of a staged model, and the start, every spot and every thing's walk-to stand on walkable ground clear of every footprint", (_, file) => {
+  test.each(FILES)("[world:things-are-tappable-models] [assets:models-record-their-footprint] given %s's things and spots, when they are placed, then each thing stands at a copy of a staged model, and the start, every spot and every thing's walk-to stand on walkable ground clear of every footprint", (_, file) => {
     const footprints = new Map<string, Footprint>();
     for (const model of file.stage.models) {
       const footprint = footprintOf(builders.get(model.file)?.() ?? ({} as Group));

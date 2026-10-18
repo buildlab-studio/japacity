@@ -1,10 +1,10 @@
-// The place check (city.md R-CITY-027, R-CITY-038): every staged place rendered by the client's own
-// world code on the cheap phone profile (R-CITY-037: 360 by 640 CSS pixels, device scale 2, the
+// The place check (city:no-script-loop-per-sheet, city:places-meet-party-room-bar): every staged place rendered by the client's own
+// world code on the cheap phone profile (city:party-room-sets-the-bar: 360 by 640 CSS pixels, device scale 2, the
 // processor slowed 6 times), in each mode, once still and once moving, seen from the start's street
 // camera. Motion may add at most `budgets.motion` over the place held still; the moving place stays
-// inside its row of the per-place budget (assets.md R-ASSET-007), the hub's low mode inside the first
-// load's. Frame times are recorded and never gate (R-CITY-038). On the same profile each place's route
-// map is built and 300 taps routed on it, and what that costs is printed (R-CITY-030); it gates nothing.
+// inside its row of the per-place budget (assets:assets-and-places-within-budget), the hub's low mode inside the first
+// load's. Frame times are recorded and never gate (city:places-meet-party-room-bar). On the same profile each place's route
+// map is built and 300 taps routed on it, and what that costs is printed (city:tap-to-walk); it gates nothing.
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -27,7 +27,7 @@ const FRAMES = 20;
 /** The script is timed in blocks of this many frames' updates, and the fastest block counts, as other work on the machine only ever slows one. */
 const SCRIPT_FRAMES = 150;
 const SCRIPT_BLOCKS = 3;
-/** Taps routed on each place for the cost of routing (city.md R-CITY-030). */
+/** Taps routed on each place for the cost of routing (city:tap-to-walk). */
 export const ROUTE_TAPS = 300;
 const MODES: readonly Mode[] = ["low", "high"];
 
@@ -101,22 +101,22 @@ export function summarise(records: readonly FrameRecord[], scriptBlocks: readonl
   };
 }
 
-/** R-CITY-027: what motion adds to the place held still, in draw calls and in script a frame. */
+/** city:no-script-loop-per-sheet: what motion adds to the place held still, in draw calls and in script a frame. */
 export function checkMotion(measure: PlaceMeasure, budgets: Pick<Budgets, "motion">): string[] {
   const problems: string[] = [];
   const calls = measure.moving.drawCalls - measure.still.drawCalls;
   const script = measure.moving.scriptUs - measure.still.scriptUs;
-  if (calls > budgets.motion.extraDrawCalls) problems.push(`R-CITY-027: ${measure.place} in ${measure.mode} mode: motion adds ${String(calls)} draw calls, over ${String(budgets.motion.extraDrawCalls)}`);
-  if (script > budgets.motion.scriptUs) problems.push(`R-CITY-027: ${measure.place} in ${measure.mode} mode: motion adds ${script.toFixed(0)} microseconds of script a frame, over ${String(budgets.motion.scriptUs)}`);
+  if (calls > budgets.motion.extraDrawCalls) problems.push(`city:no-script-loop-per-sheet: ${measure.place} in ${measure.mode} mode: motion adds ${String(calls)} draw calls, over ${String(budgets.motion.extraDrawCalls)}`);
+  if (script > budgets.motion.scriptUs) problems.push(`city:no-script-loop-per-sheet: ${measure.place} in ${measure.mode} mode: motion adds ${script.toFixed(0)} microseconds of script a frame, over ${String(budgets.motion.scriptUs)}`);
   return problems;
 }
 
-/** R-CITY-038: the moving place, as drawn, inside its row of the per-place budget in the mode. */
+/** city:places-meet-party-room-bar: the moving place, as drawn, inside its row of the per-place budget in the mode. */
 export function checkDrawn(measure: PlaceMeasure, place: Pick<StagedFile, "hub" | "scope">, budgets: Budgets): string[] {
   const row = rowFor(place, measure.mode, budgets);
   const problems: string[] = [];
-  if (measure.moving.drawCalls > row.drawCalls) problems.push(`R-CITY-038: ${measure.place} draws ${String(measure.moving.drawCalls)} draw calls in ${measure.mode} mode on the cheap phone profile, over ${String(row.drawCalls)}`);
-  if (measure.moving.triangles > row.triangles) problems.push(`R-CITY-038: ${measure.place} draws ${String(measure.moving.triangles)} triangles in ${measure.mode} mode on the cheap phone profile, over ${String(row.triangles)}`);
+  if (measure.moving.drawCalls > row.drawCalls) problems.push(`city:places-meet-party-room-bar: ${measure.place} draws ${String(measure.moving.drawCalls)} draw calls in ${measure.mode} mode on the cheap phone profile, over ${String(row.drawCalls)}`);
+  if (measure.moving.triangles > row.triangles) problems.push(`city:places-meet-party-room-bar: ${measure.place} draws ${String(measure.moving.triangles)} triangles in ${measure.mode} mode on the cheap phone profile, over ${String(row.triangles)}`);
   return problems;
 }
 
@@ -196,7 +196,7 @@ export function describeMeasure(measure: PlaceMeasure): string {
   return `${line}\n${describeRoutes(measure.place, routes)}`;
 }
 
-/** The routing line of the summary (city.md R-CITY-030): the map once, then the taps' middle, average and worst. */
+/** The routing line of the summary (city:tap-to-walk): the map once, then the taps' middle, average and worst. */
 function describeRoutes(place: string, routes: RouteCost): string {
   return `${place} routes: map of ${String(routes.cells)} cells built in ${routes.mapMs.toFixed(2)} ms; ${String(routes.taps)} taps middle ${routes.middleMs.toFixed(2)} ms, average ${routes.averageMs.toFixed(2)} ms, worst ${routes.worstMs.toFixed(2)} ms`;
 }

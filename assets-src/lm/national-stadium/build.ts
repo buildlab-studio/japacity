@@ -1,5 +1,5 @@
 // The National Stadium, Surulere (city.md place.national-stadium), built only to its outline and
-// the review sheet (city.md R-CITY-020): the footprint is the OpenStreetMap way, the heights are
+// the review sheet (city:landmarks-built-to-outline): the footprint is the OpenStreetMap way, the heights are
 // the review's measurements. An oval bowl of two continuous raked tiers in maroon seats,
 // one long side's upper tier blue, an open concrete frame on columns, the main stand's light
 // roof on the west long side, four floodlight masts outside the bowl, eight radial ramps down
@@ -126,7 +126,7 @@ export function buildStadium(footprint: readonly (readonly [number, number])[]):
   floorQuad(g, 68, 105, 0, 0.68, 0, "green");
   for (let k = 0; k < 5; k++) floorQuad(g, 6 + random() * 10, 6 + random() * 12, (random() - 0.5) * 50, 0.7, (random() - 0.5) * 80, "pepper");
 
-  // The ground the bowl blocks (R-ASSET-030): its closed wall and open frame as a ring of turned boxes, then the ramps and masts below.
+  // The ground the bowl blocks (assets:models-record-their-footprint): its closed wall and open frame as a ring of turned boxes, then the ramps and masts below.
   const blocks: FootprintBox[] = angles.map((_, i) => {
     const [ax, , az] = at(i, 0.982, 0);
     const [bx, , bz] = at((i + 1) % n, 0.982, 0);

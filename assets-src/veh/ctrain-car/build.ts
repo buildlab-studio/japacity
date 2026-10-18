@@ -1,10 +1,10 @@
-// A CTrain car for the ride abroad in Calgary (docs/rules/world.md R-WORLD-039; design page 15
+// A CTrain car for the ride abroad in Calgary (world:ride-abroad-and-workplace; design page 15
 // section 6): a light rail car of two sections on three bogies with the bellows between them, white over red, a cab at
 // each end with its deep windscreen, the pantograph on the roof; no operator's mark, line number or words
-// (R-ASSET-010). Built to be sat in as London's carriage is: walls, floor and roof thin slabs, the glass a pane facing
+// (assets:no-real-brands-on-assets). Built to be sat in as London's carriage is: walls, floor and roof thin slabs, the glass a pane facing
 // out, seats in bays of two facing two by the windows, yellow poles at the doors. The ride's seat is on the right of
 // the facing, the outer side where the line runs past. Built along +x as the design's vehicles are, then turned to face
-// +z (R-ASSET-003).
+// +z (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { beam, quad } from "@japacity/assets/kit";
 import { Group } from "three";

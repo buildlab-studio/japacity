@@ -1,7 +1,7 @@
-// A football viewing centre (streets.md R-STREET-011): a shed of planks under a zinc lean-to, open to the
+// A football viewing centre (streets:lagos-street-spending): a shed of planks under a zinc lean-to, open to the
 // street at the front, a wide dark screen on the back wall with the decoder under it, three rows of benches
 // facing it, a hand-painted board over the opening with a ball and the flag's green and white, a dish on the
-// roof and the generator at the side for when the light goes at half time. Built facing +Z (R-ASSET-003).
+// roof and the generator at the side for when the light goes at half time. Built facing +Z (assets:metre-units-and-origin).
 import { setFootprint } from "@japacity/assets";
 import { box, cylinder, dish, extrude, floorQuad, generator, onWall, posters, quad, seeded, stain } from "@japacity/assets/kit";
 import { Group, type Mesh } from "three";

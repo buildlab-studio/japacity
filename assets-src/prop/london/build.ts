@@ -1,9 +1,9 @@
 // The things of London's places (docs/design/14-london-on-the-lagos-mold.md section 4; docs/rules/world.md
-// R-WORLD-005, R-WORLD-039): what stands on Rye Lane and at the station, and what furnishes the big shop, the
+// world:things-are-tappable-models, world:ride-abroad-and-workplace): what stands on Rye Lane and at the station, and what furnishes the big shop, the
 // care home, the ward, the office, the warehouse and the church. Each is its own model so a label can stand
-// over it, written from the kit's shapes, standing on its base at y = 0 and facing +Z (R-ASSET-003), its tops
-// clear of each other by more than a centimetre where they overlap (R-WORLD-012), with the ground it blocks as
-// its footprint (R-ASSET-030). No real shop's, operator's or company's colours, marks or words (R-ASSET-010).
+// over it, written from the kit's shapes, standing on its base at y = 0 and facing +Z (assets:metre-units-and-origin), its tops
+// clear of each other by more than a centimetre where they overlap (world:faces-never-share-height), with the ground it blocks as
+// its footprint (assets:models-record-their-footprint). No real shop's, operator's or company's colours, marks or words (assets:no-real-brands-on-assets).
 import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
 import { beam, box, cylinder, onWall, quad, signboard, solid } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
@@ -210,7 +210,7 @@ export function buildShopAisle(): Group {
   box(g, L, 1.75, 0.08, 0, 0, 0, "white");
   box(g, L, 0.1, d, 0, 0, 0, "charcoal");
   for (const end of [-1, 1]) box(g, 0.06, 1.8, d, end * (L / 2 - 0.03), 0, 0, "white");
-  // Three shelves, not four: the aisle stays under a prop's 800 triangles (R-ASSET-007) with its goods out on both sides.
+  // Three shelves, not four: the aisle stays under a prop's 800 triangles (assets:assets-and-places-within-budget) with its goods out on both sides.
   const shelves = [0.15, 0.72, 1.3];
   shelves.forEach((y, i) => {
     for (const s of [-1, 1]) {

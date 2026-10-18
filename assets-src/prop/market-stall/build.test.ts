@@ -29,14 +29,14 @@ function smooth(object: Object3D, root: Object3D): boolean {
 }
 
 describe("the staged places' new pieces", () => {
-  test.each(MODELS)("[R-ASSET-003] given %s, when it is built, then its lowest point is on y = 0 and its origin is the centre of its footprint", (_, build) => {
+  test.each(MODELS)("[assets:metre-units-and-origin] given %s, when it is built, then its lowest point is on y = 0 and its origin is the centre of its footprint", (_, build) => {
     const box = new Box3().setFromObject(build());
     expect(Math.abs(box.min.y)).toBeLessThanOrEqual(0.01);
     expect(Math.abs(box.min.x + box.max.x)).toBeLessThanOrEqual(0.02);
     expect(Math.abs(box.min.z + box.max.z)).toBeLessThanOrEqual(0.02);
   });
 
-  test("[R-ASSET-005] given the basins and the taxi, when they are built, then the round basins ship smooth whole and the taxi's wheels are their own smooth part while its body stays flat", () => {
+  test("[assets:flat-and-smooth-shading] given the basins and the taxi, when they are built, then the round basins ship smooth whole and the taxi's wheels are their own smooth part while its body stays flat", () => {
     const basins = buildBasins();
     const meshes: Object3D[] = [];
     basins.traverse((object) => {
@@ -52,7 +52,7 @@ describe("the staged places' new pieces", () => {
     expect(parts.some((part) => !part)).toBe(true);
   });
 
-  test("[R-ASSET-003] given the stall, the canoe and the mast, when they are built, then each is its stated size and faces +Z", () => {
+  test("[assets:metre-units-and-origin] given the stall, the canoe and the mast, when they are built, then each is its stated size and faces +Z", () => {
     const stall = new Box3().setFromObject(buildMarketStall());
     expect(stall.max.x - stall.min.x).toBeGreaterThanOrEqual(MARKET_STALL.width);
     expect(stall.max.y).toBeGreaterThan(MARKET_STALL.front);

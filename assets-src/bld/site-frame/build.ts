@@ -1,8 +1,8 @@
 // The towers' base at the site in Dubai (design page 15 section 3: the site across the creek): the concrete frame of a
 // tower going up, its columns and slabs four floors high with block infill on the lowest, formwork and rebar on the
 // top, the safety net hung on its edge. Only the base shows over the hoarding; the tower's floors above are out of
-// the place's view. Plain concrete, no contractor's name or mark (R-ASSET-010). Wear where the rain of dust runs
-// (R-ASSET-017).
+// the place's view. Plain concrete, no contractor's name or mark (assets:no-real-brands-on-assets). Wear where the rain of dust runs
+// (assets:buildings-carry-wear-and-clutter).
 import { setFootprint } from "@japacity/assets";
 import { beam, box, onWall, quad, stain } from "@japacity/assets/kit";
 import { Group } from "three";

@@ -1,8 +1,8 @@
-// A barber's container kiosk on the pavement (streets.md R-STREET-011): a short steel container on
+// A barber's container kiosk on the pavement (streets:lagos-street-spending): a short steel container on
 // sleepers with its door swung open, the mirror and the shelf of clippers inside, a striped pole by
 // the door, the swivel chair out front under a zinc awning, a small painted board on the roof and the
 // generator that keeps the clippers going when the light goes. The board's words are an anchor with a
-// text key, drawn at run time (R-ASSET-012).
+// text key, drawn at run time (assets:sign-text-drawn-in-code).
 import { setFootprint, type SignStyle } from "@japacity/assets";
 import { awning, box, container, cylinder, generator, onWall, posters, quad, seeded, signboard, stain } from "@japacity/assets/kit";
 import { Group } from "three";

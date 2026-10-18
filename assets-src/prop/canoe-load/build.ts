@@ -3,7 +3,7 @@
 // fish and pepper, a sack, a jerrycan of kerosene); one carries children in their school shirts,
 // bags on their backs, to the classroom on stilts. Everyone in it sits below the gunwale to the
 // waist, so only a body, a head and the paddle show over the side. Built in the hull's frame, the
-// bow toward +z; the stage sends these along their lanes on the shared clock (R-CITY-027).
+// bow toward +z; the stage sends these along their lanes on the shared clock (city:no-script-loop-per-sheet).
 import { type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";

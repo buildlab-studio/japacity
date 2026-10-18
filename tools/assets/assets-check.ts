@@ -17,7 +17,7 @@ import type { Register } from "./register";
 import { checkLimits, checkParts, checkThings, isWorldFile, type LimitedFile } from "./world-check";
 import { filesUnder, isMain, readJson, REPO_ROOT } from "../repo";
 
-/** R-ASSET-008, as the page writes it. */
+/** assets:shipped-file-naming, as the page writes it. */
 export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
 /** Files decision 0009 places under public/assets beside the models, and the publish step's manifest. */
 export const DATA_FILES = new Set(["place.json", "credits.json", "manifest.json"]);
@@ -35,9 +35,9 @@ export interface AssetBudget {
 
 export interface Budgets {
   asset: Record<string, AssetBudget>;
-  /** A moving sheet's or the water tile's triangles at each mesh level (R-ASSET-029). */
+  /** A moving sheet's or the water tile's triangles at each mesh level (assets:sheets-ship-two-mesh-levels). */
   levels: Record<"coarse" | "fine", { triangles: number }>;
-  /** What motion may add to a place held still, per frame on the cheap phone profile (city.md R-CITY-027). */
+  /** What motion may add to a place held still, per frame on the cheap phone profile (city:no-script-loop-per-sheet). */
   motion: { extraDrawCalls: number; scriptUs: number };
   place: Record<"firstLoad" | "interior" | "exterior", { drawCalls: number; triangles: number; bytes: number }> & { game: { bytes: number } };
 }
@@ -77,7 +77,7 @@ export interface Measured {
   size: [number, number, number];
   /** The root node's extras: a moving sheet's `motion`, `pinned` and `level` among them. */
   extras: Record<string, unknown>;
-  /** The faces that look up and lie on the ground, for the faces check (world.md R-WORLD-012). */
+  /** The faces that look up and lie on the ground, for the faces check (world:faces-never-share-height). */
   floors?: ModelFace[];
 }
 
@@ -102,12 +102,12 @@ export function isTile(file: string): boolean {
   return file.startsWith(`${TILES}/`);
 }
 
-/** A copy pnpm assets:publish wrote beside its source, named by its hash (city.md R-CITY-018): not a shipped name of its own. */
+/** A copy pnpm assets:publish wrote beside its source, named by its hash (city:places-load-on-entry): not a shipped name of its own. */
 export function isPublishedCopy(file: string): boolean {
   return hashInName(file.split("/").pop() ?? "") !== null;
 }
 
-/** The files under public/assets the checks hold to R-ASSET-008 and the register: everything but the hashed copies. */
+/** The files under public/assets the checks hold to assets:shipped-file-naming and the register: everything but the hashed copies. */
 export function sourceFiles(files: readonly string[]): string[] {
   return files.filter((file) => !isPublishedCopy(file));
 }
@@ -121,36 +121,36 @@ export function prefixOf(file: string): string {
   return (file.split("/").pop() ?? "").split("_")[0] ?? "";
 }
 
-/** 1. Every name under public/assets fits R-ASSET-008. */
+/** 1. Every name under public/assets fits assets:shipped-file-naming. */
 export function checkNames(files: readonly string[]): string[] {
   return files
     .filter((file) => !DATA_FILES.has(file.split("/").pop() ?? ""))
     .filter((file) => !FILE_NAME.test(file.split("/").pop() ?? ""))
-    .map((file) => `R-ASSET-008: ${file} is not named <prefix>_<name>[_<variant>].<glb|png|ktx2>`);
+    .map((file) => `assets:shipped-file-naming: ${file} is not named <prefix>_<name>[_<variant>].<glb|png|ktx2>`);
 }
 
-/** 2. One row per shipped file and one file per row, with the row's figures equal to the file's (R-ASSET-009). */
+/** 2. One row per shipped file and one file per row, with the row's figures equal to the file's (assets:register-matches-every-file). */
 export function checkRegister(rows: readonly RegisterRow[], shipped: readonly Measured[]): string[] {
   const problems: string[] = [];
   const byFile = new Map(rows.map((row) => [row.file, row]));
   const seen = new Set<string>();
   for (const row of rows) {
-    if (seen.has(row.file)) problems.push(`R-ASSET-009: ${row.file} has more than one register row`);
+    if (seen.has(row.file)) problems.push(`assets:register-matches-every-file: ${row.file} has more than one register row`);
     seen.add(row.file);
   }
   for (const file of shipped) {
     const row = byFile.get(file.file);
     if (row === undefined) {
-      problems.push(`R-ASSET-009: ${file.file} has no register row`);
+      problems.push(`assets:register-matches-every-file: ${file.file} has no register row`);
       continue;
     }
     for (const key of ["triangles", "drawCalls", "materials", "bytes"] as const) {
-      if (row[key] !== file[key]) problems.push(`R-ASSET-009: ${file.file} register says ${key} ${String(row[key])}, the file has ${String(file[key])}`);
+      if (row[key] !== file[key]) problems.push(`assets:register-matches-every-file: ${file.file} register says ${key} ${String(row[key])}, the file has ${String(file[key])}`);
     }
-    if (row.paletteCheck?.passed !== true) problems.push(`R-ASSET-009: ${file.file} has no passed palette check in its register row`);
+    if (row.paletteCheck?.passed !== true) problems.push(`assets:register-matches-every-file: ${file.file} has no passed palette check in its register row`);
   }
   const files = new Set(shipped.map((file) => file.file));
-  for (const row of rows) if (!isMediaRow(row) && !files.has(row.file)) problems.push(`R-ASSET-009: register row ${row.file} names no shipped file`);
+  for (const row of rows) if (!isMediaRow(row) && !files.has(row.file)) problems.push(`assets:register-matches-every-file: register row ${row.file} names no shipped file`);
   return problems;
 }
 
@@ -164,18 +164,18 @@ export function checkMediaRows(rows: readonly RegisterRow[], read: (path: string
     const [path = "", piece] = row.file.split("#");
     const bytes = read(path);
     if (bytes === null) {
-      problems.push(`R-ASSET-009: register row ${row.file} names no file`);
+      problems.push(`assets:register-matches-every-file: register row ${row.file} names no file`);
       continue;
     }
-    if (piece !== undefined && !Buffer.from(bytes).toString("utf8").includes(JSON.stringify(piece))) problems.push(`R-ASSET-009: register row ${row.file} names ${piece}, which ${path} does not hold`);
-    if (piece === undefined && IMAGE.test(path) && row.bytes !== bytes.byteLength) problems.push(`R-ASSET-009: ${row.file} register says bytes ${String(row.bytes)}, the file has ${String(bytes.byteLength)}`);
+    if (piece !== undefined && !Buffer.from(bytes).toString("utf8").includes(JSON.stringify(piece))) problems.push(`assets:register-matches-every-file: register row ${row.file} names ${piece}, which ${path} does not hold`);
+    if (piece === undefined && IMAGE.test(path) && row.bytes !== bytes.byteLength) problems.push(`assets:register-matches-every-file: ${row.file} register says bytes ${String(row.bytes)}, the file has ${String(bytes.byteLength)}`);
   }
   return problems;
 }
 
 /**
  * 2c. Every row says whether it was generated, with which tool, and who approved it (guide.md
- * R-GUIDE-013); an AI-made row names its tool, and is accepted only once it names an approver (R-ASSET-015).
+ * guide:register-records-generated-assets); an AI-made row names its tool, and is accepted only once it names an approver (assets:ai-media-recorded-and-credited).
  */
 export function checkMadeWith(rows: readonly RegisterRow[]): string[] {
   const problems: string[] = [];
@@ -183,37 +183,37 @@ export function checkMadeWith(rows: readonly RegisterRow[]): string[] {
     const columns = row as unknown as Record<string, unknown>;
     const missing = [typeof columns.generated === "boolean" ? null : "generated", "tool" in columns && (row.tool === null || typeof row.tool === "string") ? null : "tool", "approvedBy" in columns && (row.approvedBy === null || typeof row.approvedBy === "string") ? null : "approvedBy"].filter((name) => name !== null);
     if (missing.length > 0) {
-      problems.push(`R-GUIDE-013: register row ${row.file} has no ${missing.join(", ")}`);
+      problems.push(`guide:register-records-generated-assets: register row ${row.file} has no ${missing.join(", ")}`);
       continue;
     }
-    if (row.source === "ai-tool" && !row.generated) problems.push(`R-ASSET-015: ${row.file} comes from an AI tool and its row says it was not generated`);
-    if (row.generated && (row.tool === null || row.tool.trim() === "")) problems.push(`R-ASSET-015: ${row.file} was made with an AI tool and its row names none`);
-    if (row.generated && row.status === "accepted" && (row.approvedBy === null || row.approvedBy.trim() === "")) problems.push(`R-ASSET-015: ${row.file} was made with an AI tool and is accepted with no one named as approving it`);
+    if (row.source === "ai-tool" && !row.generated) problems.push(`assets:ai-media-recorded-and-credited: ${row.file} comes from an AI tool and its row says it was not generated`);
+    if (row.generated && (row.tool === null || row.tool.trim() === "")) problems.push(`assets:ai-media-recorded-and-credited: ${row.file} was made with an AI tool and its row names none`);
+    if (row.generated && row.status === "accepted" && (row.approvedBy === null || row.approvedBy.trim() === "")) problems.push(`assets:ai-media-recorded-and-credited: ${row.file} was made with an AI tool and is accepted with no one named as approving it`);
   }
   return problems;
 }
 
-/** 3 and 5. Each file inside its prefix's budget (R-ASSET-007), standing on y = 0 at a height inside its range (R-ASSET-003). */
+/** 3 and 5. Each file inside its prefix's budget (assets:assets-and-places-within-budget), standing on y = 0 at a height inside its range (assets:metre-units-and-origin). */
 export function checkBudgets(shipped: readonly Measured[], budgets: Budgets): string[] {
   const problems: string[] = [];
   for (const file of shipped) {
     const prefix = prefixOf(file.file);
     const budget = budgets.asset[prefix];
     if (budget === undefined) {
-      problems.push(`R-ASSET-007: ${file.file} has no budget for prefix ${prefix}`);
+      problems.push(`assets:assets-and-places-within-budget: ${file.file} has no budget for prefix ${prefix}`);
       continue;
     }
     for (const key of ["triangles", "drawCalls", "materials", "bytes"] as const) {
       // A home's shell shows one wall of each outer side's pair at a time: each pair is one draw call more than the body's;
       // its triangles and bytes count both walls of every pair.
       const limit = key === "drawCalls" && budget[key] !== undefined ? budget[key] + (file.pairs ?? 0) : budget[key];
-      if (limit !== undefined && file[key] > limit) problems.push(`R-ASSET-007: ${file.file} has ${String(file[key])} ${key}, over its budget of ${String(limit)}`);
+      if (limit !== undefined && file[key] > limit) problems.push(`assets:assets-and-places-within-budget: ${file.file} has ${String(file[key])} ${key}, over its budget of ${String(limit)}`);
     }
     if (!file.file.endsWith(".glb")) continue;
-    if (Math.abs(file.minY) > 0.01) problems.push(`R-ASSET-003: ${file.file} has its lowest point at ${file.minY.toFixed(3)} m, not 0 within 0.01 m`);
+    if (Math.abs(file.minY) > 0.01) problems.push(`assets:metre-units-and-origin: ${file.file} has its lowest point at ${file.minY.toFixed(3)} m, not 0 within 0.01 m`);
     const height = file.maxY - file.minY;
-    if (budget.heightMin !== undefined && height < budget.heightMin - 1e-6) problems.push(`R-ASSET-007: ${file.file} is ${height.toFixed(2)} m high, under ${String(budget.heightMin)}`);
-    if (budget.heightMax !== undefined && height > budget.heightMax + 1e-6) problems.push(`R-ASSET-007: ${file.file} is ${height.toFixed(2)} m high, over ${String(budget.heightMax)}`);
+    if (budget.heightMin !== undefined && height < budget.heightMin - 1e-6) problems.push(`assets:assets-and-places-within-budget: ${file.file} is ${height.toFixed(2)} m high, under ${String(budget.heightMin)}`);
+    if (budget.heightMax !== undefined && height > budget.heightMax + 1e-6) problems.push(`assets:assets-and-places-within-budget: ${file.file} is ${height.toFixed(2)} m high, over ${String(budget.heightMax)}`);
   }
   return problems;
 }
@@ -222,9 +222,9 @@ const LEVEL = /_(coarse|fine)\.glb$/;
 const SHEETS = new Set(["flag", "hang", "frond"]);
 
 /**
- * 3b. A moving sheet names its pinned edge (R-ASSET-028). A sheet or the water tile ships at both
+ * 3b. A moving sheet names its pinned edge (assets:one-shared-motion-material). A sheet or the water tile ships at both
  * mesh levels, the pair alike in pinned edge and size, the coarse one lighter and each inside its
- * level's triangles (R-ASSET-029).
+ * level's triangles (assets:sheets-ship-two-mesh-levels).
  */
 export function checkLevels(shipped: readonly Measured[], budgets: Budgets): string[] {
   const problems: string[] = [];
@@ -233,51 +233,51 @@ export function checkLevels(shipped: readonly Measured[], budgets: Budgets): str
     const motion = file.extras.motion;
     const level = file.extras.level;
     const named = LEVEL.exec(file.file)?.[1];
-    if (typeof motion === "string" && SHEETS.has(motion) && typeof file.extras.pinned !== "string") problems.push(`R-ASSET-028: ${file.file} is a moving sheet with no pinned edge in its extras`);
+    if (typeof motion === "string" && SHEETS.has(motion) && typeof file.extras.pinned !== "string") problems.push(`assets:one-shared-motion-material: ${file.file} is a moving sheet with no pinned edge in its extras`);
     if (named === undefined && level === undefined) continue;
     if (level !== named) {
-      problems.push(`R-ASSET-029: ${file.file} is named for the ${String(named)} level and its extras say ${String(level)}`);
+      problems.push(`assets:sheets-ship-two-mesh-levels: ${file.file} is named for the ${String(named)} level and its extras say ${String(level)}`);
       continue;
     }
     if (named !== "coarse" && named !== "fine") continue;
-    if (file.triangles > budgets.levels[named].triangles) problems.push(`R-ASSET-029: ${file.file} has ${String(file.triangles)} triangles, over the ${named} level's ${String(budgets.levels[named].triangles)}`);
+    if (file.triangles > budgets.levels[named].triangles) problems.push(`assets:sheets-ship-two-mesh-levels: ${file.file} has ${String(file.triangles)} triangles, over the ${named} level's ${String(budgets.levels[named].triangles)}`);
     if (named === "fine") {
-      if (!byFile.has(file.file.replace(LEVEL, "_coarse.glb"))) problems.push(`R-ASSET-029: ${file.file} has no coarse partner`);
+      if (!byFile.has(file.file.replace(LEVEL, "_coarse.glb"))) problems.push(`assets:sheets-ship-two-mesh-levels: ${file.file} has no coarse partner`);
       continue;
     }
     const fine = byFile.get(file.file.replace(LEVEL, "_fine.glb"));
     if (fine === undefined) {
-      problems.push(`R-ASSET-029: ${file.file} has no fine partner`);
+      problems.push(`assets:sheets-ship-two-mesh-levels: ${file.file} has no fine partner`);
       continue;
     }
-    if (file.extras.pinned !== fine.extras.pinned) problems.push(`R-ASSET-029: ${file.file} is pinned ${String(file.extras.pinned)} and its fine partner ${String(fine.extras.pinned)}`);
-    if (file.extras.motion !== fine.extras.motion) problems.push(`R-ASSET-029: ${file.file} moves as ${String(file.extras.motion)} and its fine partner as ${String(fine.extras.motion)}`);
-    if (file.size.some((side, axis) => Math.abs(side - (fine.size[axis] ?? 0)) > 0.01 + 1e-9)) problems.push(`R-ASSET-029: ${file.file} is ${file.size.map((side) => side.toFixed(2)).join(" by ")} m and its fine partner ${fine.size.map((side) => side.toFixed(2)).join(" by ")} m`);
-    if (file.triangles >= fine.triangles) problems.push(`R-ASSET-029: ${file.file} has ${String(file.triangles)} triangles, not fewer than its fine partner's ${String(fine.triangles)}`);
+    if (file.extras.pinned !== fine.extras.pinned) problems.push(`assets:sheets-ship-two-mesh-levels: ${file.file} is pinned ${String(file.extras.pinned)} and its fine partner ${String(fine.extras.pinned)}`);
+    if (file.extras.motion !== fine.extras.motion) problems.push(`assets:sheets-ship-two-mesh-levels: ${file.file} moves as ${String(file.extras.motion)} and its fine partner as ${String(fine.extras.motion)}`);
+    if (file.size.some((side, axis) => Math.abs(side - (fine.size[axis] ?? 0)) > 0.01 + 1e-9)) problems.push(`assets:sheets-ship-two-mesh-levels: ${file.file} is ${file.size.map((side) => side.toFixed(2)).join(" by ")} m and its fine partner ${fine.size.map((side) => side.toFixed(2)).join(" by ")} m`);
+    if (file.triangles >= fine.triangles) problems.push(`assets:sheets-ship-two-mesh-levels: ${file.file} has ${String(file.triangles)} triangles, not fewer than its fine partner's ${String(fine.triangles)}`);
   }
   return problems;
 }
 
-/** 4. Every vertex colour and pixel is a palette entry (R-ASSET-001, R-ASSET-013). */
+/** 4. Every vertex colour and pixel is a palette entry (assets:colours-from-named-palette, assets:fabric-pattern-from-seed). */
 export function checkPaletteResults(shipped: readonly Measured[]): string[] {
-  return shipped.flatMap((file) => file.palette.slice(0, 3).map((problem) => `R-ASSET-001: ${file.file}: ${problem}`));
+  return shipped.flatMap((file) => file.palette.slice(0, 3).map((problem) => `assets:colours-from-named-palette: ${file.file}: ${problem}`));
 }
 
-/** 6. No image under assets-src or public/assets that the shooter or the pattern builder did not write (R-ASSET-011). */
+/** 6. No image under assets-src or public/assets that the shooter or the pattern builder did not write (assets:no-reference-photos-kept). */
 export function checkImages(images: readonly { path: string; bytes: Uint8Array }[], manifest: Manifest): string[] {
   const problems: string[] = [];
   const known = { ...manifest.renders, ...manifest.patterns };
   for (const image of images) {
     const hash = known[image.path];
-    if (hash === undefined) problems.push(`R-ASSET-011: ${image.path} is an image no tool wrote; reference photos never enter the repository`);
-    else if (hash !== sha256(image.bytes)) problems.push(`R-ASSET-011: ${image.path} differs from the hash in assets-src/manifest.json`);
+    if (hash === undefined) problems.push(`assets:no-reference-photos-kept: ${image.path} is an image no tool wrote; reference photos never enter the repository`);
+    else if (hash !== sha256(image.bytes)) problems.push(`assets:no-reference-photos-kept: ${image.path} differs from the hash in assets-src/manifest.json`);
   }
   const present = new Set(images.map((image) => image.path));
-  for (const path of Object.keys(known)) if (!present.has(path)) problems.push(`R-ASSET-011: assets-src/manifest.json lists ${path}, which is not there`);
+  for (const path of Object.keys(known)) if (!present.has(path)) problems.push(`assets:no-reference-photos-kept: assets-src/manifest.json lists ${path}, which is not there`);
   return problems;
 }
 
-/** 6b. Every picture under tiles is a model's tile render, byte for byte, by the model's name, and every model's tile render is published (R-ASSET-011). */
+/** 6b. Every picture under tiles is a model's tile render, byte for byte, by the model's name, and every model's tile render is published (assets:no-reference-photos-kept). */
 export function checkTiles(tiles: readonly { path: string; bytes: Uint8Array }[], renders: ReadonlyMap<string, Uint8Array>): string[] {
   const problems: string[] = [];
   const published = new Set<string>();
@@ -285,13 +285,13 @@ export function checkTiles(tiles: readonly { path: string; bytes: Uint8Array }[]
     const name = /^tiles\/(.+)\.png$/.exec(tile.path)?.[1] ?? "";
     const render = renders.get(name);
     if (render === undefined) {
-      problems.push(`R-ASSET-011: ${tile.path} is no model's tile render`);
+      problems.push(`assets:no-reference-photos-kept: ${tile.path} is no model's tile render`);
       continue;
     }
     published.add(name);
-    if (sha256(render) !== sha256(tile.bytes)) problems.push(`R-ASSET-011: ${tile.path} differs from ${name}'s tile render; run pnpm assets:publish`);
+    if (sha256(render) !== sha256(tile.bytes)) problems.push(`assets:no-reference-photos-kept: ${tile.path} differs from ${name}'s tile render; run pnpm assets:publish`);
   }
-  for (const name of renders.keys()) if (!published.has(name)) problems.push(`R-ASSET-011: ${name}'s tile render is not published under tiles; run pnpm assets:publish`);
+  for (const name of renders.keys()) if (!published.has(name)) problems.push(`assets:no-reference-photos-kept: ${name}'s tile render is not published under tiles; run pnpm assets:publish`);
   return problems;
 }
 
@@ -301,27 +301,27 @@ export function lastRound(sheet: ReviewSheet): Review | null {
   return "scores" in sheet ? sheet : null;
 }
 
-/** 7. An accepted row has a passing review (R-ASSET-022) and, for a landmark, passing outline scores (R-ASSET-023). */
+/** 7. An accepted row has a passing review (assets:acceptance-score-thresholds) and, for a landmark, passing outline scores (assets:landmarks-match-reference-outlines). */
 export function checkAccepted(rows: readonly RegisterRow[], reviews: ReadonlyMap<string, Review | null>, outlines: ReadonlyMap<string, Record<string, { passes: boolean }> | null>, config: ReviewConfig): string[] {
   const problems: string[] = [];
   for (const row of rows) {
     if (row.status !== "accepted") continue;
     const review = reviews.get(row.file) ?? null;
     if (review === null) {
-      problems.push(`R-ASSET-022: ${row.file} is accepted with no review.json`);
+      problems.push(`assets:acceptance-score-thresholds: ${row.file} is accepted with no review.json`);
       continue;
     }
     const scores = Object.entries(review.scores).filter((entry): entry is [string, number] => typeof entry[1] === "number");
     const low = scores.filter(([key, value]) => key !== "budget" && value < config.minEach);
-    if (low.length > 0) problems.push(`R-ASSET-022: ${row.file} is accepted with ${low.map(([key]) => key).join(", ")} under ${String(config.minEach)}`);
-    if ((review.scores.phone ?? 0) < config.minPhone) problems.push(`R-ASSET-022: ${row.file} is accepted with phone under ${String(config.minPhone)}`);
+    if (low.length > 0) problems.push(`assets:acceptance-score-thresholds: ${row.file} is accepted with ${low.map(([key]) => key).join(", ")} under ${String(config.minEach)}`);
+    if ((review.scores.phone ?? 0) < config.minPhone) problems.push(`assets:acceptance-score-thresholds: ${row.file} is accepted with phone under ${String(config.minPhone)}`);
     const mean = scores.reduce((sum, [, value]) => sum + value, 0) / scores.length;
-    if (mean < config.minMean) problems.push(`R-ASSET-022: ${row.file} is accepted with a mean of ${mean.toFixed(2)}, under ${String(config.minMean)}`);
-    if (review.scores.budget === 0) problems.push(`R-ASSET-022: ${row.file} is accepted over budget`);
+    if (mean < config.minMean) problems.push(`assets:acceptance-score-thresholds: ${row.file} is accepted with a mean of ${mean.toFixed(2)}, under ${String(config.minMean)}`);
+    if (review.scores.budget === 0) problems.push(`assets:acceptance-score-thresholds: ${row.file} is accepted over budget`);
     if (prefixOf(row.file) === "lm") {
       const outline = outlines.get(row.file) ?? null;
       if (outline === null || Object.values(outline).some((view) => !view.passes) || Object.keys(outline).length < 2) {
-        problems.push(`R-ASSET-023: ${row.file} is accepted without passing outline scores in at least two views`);
+        problems.push(`assets:landmarks-match-reference-outlines: ${row.file} is accepted without passing outline scores in at least two views`);
       }
     }
   }
@@ -391,21 +391,21 @@ export function rowFor(place: Pick<PlaceFile, "hub" | "scope">, mode: "low" | "h
 
 export function checkPlace(place: PlaceFile, measured: ReadonlyMap<string, Measured>, budgets: Budgets): string[] {
   const { totals, missing } = placeTotals(place, measured);
-  const problems = missing.map((file) => `R-ASSET-007: ${place.place} lists ${file}, which is not shipped`);
+  const problems = missing.map((file) => `assets:assets-and-places-within-budget: ${place.place} lists ${file}, which is not shipped`);
   for (const mode of ["low", "high"] as const) {
     const scope = rowFor(place, mode, budgets);
-    if (totals[mode].drawCalls > scope.drawCalls) problems.push(`R-ASSET-007: ${place.place} has ${String(totals[mode].drawCalls)} draw calls in ${mode} mode, over ${String(scope.drawCalls)}`);
-    if (totals[mode].triangles > scope.triangles) problems.push(`R-ASSET-007: ${place.place} has ${String(totals[mode].triangles)} triangles in ${mode} mode, over ${String(scope.triangles)}`);
+    if (totals[mode].drawCalls > scope.drawCalls) problems.push(`assets:assets-and-places-within-budget: ${place.place} has ${String(totals[mode].drawCalls)} draw calls in ${mode} mode, over ${String(scope.drawCalls)}`);
+    if (totals[mode].triangles > scope.triangles) problems.push(`assets:assets-and-places-within-budget: ${place.place} has ${String(totals[mode].triangles)} triangles in ${mode} mode, over ${String(scope.triangles)}`);
   }
   const scope = budgets.place[place.scope];
-  if (!place.hub && totals.bytes > scope.bytes) problems.push(`R-ASSET-007: ${place.place} downloads ${String(totals.bytes)} bytes, over ${String(scope.bytes)}`);
+  if (!place.hub && totals.bytes > scope.bytes) problems.push(`assets:assets-and-places-within-budget: ${place.place} downloads ${String(totals.bytes)} bytes, over ${String(scope.bytes)}`);
   return problems;
 }
 
 /**
- * 14. A world-first place (one that declares its camera, world.md R-WORLD-009) keeps its floors a
- * centimetre apart (R-WORLD-012), its crowd, moving sheets and size inside R-WORLD-011, and one or
- * two acts on each thing (R-WORLD-005). A file
+ * 14. A world-first place (one that declares its camera, world:camera-always-raised) keeps its floors a
+ * centimetre apart (world:faces-never-share-height), its crowd, moving sheets and size inside world:place-is-one-screen, and one or
+ * two acts on each thing (world:things-are-tappable-models). A file
  * from before the world-first design is drawn by the earlier rules until the places are rebuilt, so
  * what these checks find in it is a note, not a failure.
  */
@@ -417,15 +417,15 @@ export function worldChecks(place: PlaceFile, measured: ReadonlyMap<string, Pick
   return [];
 }
 
-/** 9. The first download (code, the hub's folder, one character) and the whole game fit (R-CITY-018). */
+/** 9. The first download (code, the hub's folder, one character) and the whole game fit (city:places-load-on-entry). */
 export function checkDownloads(measured: readonly Measured[], hubFolder: string | null, codeBytes: number, budgets: Budgets): string[] {
   const problems: string[] = [];
   const characters = measured.filter((file) => prefixOf(file.file) === "chr").map((file) => file.bytes);
   const hub = hubFolder === null ? 0 : measured.filter((file) => file.file.startsWith(`${hubFolder}/`)).reduce((sum, file) => sum + file.bytes, 0);
   const first = codeBytes + hub + Math.max(0, ...characters);
-  if (first > budgets.place.firstLoad.bytes) problems.push(`R-CITY-018: the first download is ${String(first)} bytes, over ${String(budgets.place.firstLoad.bytes)}`);
+  if (first > budgets.place.firstLoad.bytes) problems.push(`city:places-load-on-entry: the first download is ${String(first)} bytes, over ${String(budgets.place.firstLoad.bytes)}`);
   const all = codeBytes + measured.reduce((sum, file) => sum + file.bytes, 0);
-  if (all > budgets.place.game.bytes) problems.push(`R-CITY-018: the game is ${String(all)} bytes, over ${String(budgets.place.game.bytes)}`);
+  if (all > budgets.place.game.bytes) problems.push(`city:places-load-on-entry: the game is ${String(all)} bytes, over ${String(budgets.place.game.bytes)}`);
   return problems;
 }
 
@@ -441,7 +441,7 @@ export const OSM_CREDIT = "Map data from OpenStreetMap, available under the Open
 export const GENERATED =
   "The city's models and people, their faces, the painted map, the picture tiles, the game's mark and the share previews are drawn as code by the game's makers. The one generated voice is the visa officer's. No photograph or music in the game is generated.";
 
-/** What credits.json must hold (R-CITY-021): the map data credit with every source, each register attribution, the fonts, and where generated media is used. */
+/** What credits.json must hold (city:credits-screen-attributions): the map data credit with every source, each register attribution, the fonts, and where generated media is used. */
 export function expectedCredits(register: Register, mapSources: readonly string[]): Credits {
   const osm = [...new Set(mapSources.filter((source) => source.includes("openstreetmap.org")))].sort();
   return {
@@ -454,8 +454,8 @@ export function expectedCredits(register: Register, mapSources: readonly string[
 
 /** 10. credits.json is what the register and the map data say it must be. */
 export function checkCredits(actual: Credits | null, expected: Credits): string[] {
-  if (actual === null) return ["R-CITY-021: public/assets/credits.json is missing"];
-  return JSON.stringify(actual) === JSON.stringify(expected) ? [] : ["R-CITY-021: public/assets/credits.json does not match the register and the map data; run pnpm assets:credits"];
+  if (actual === null) return ["city:credits-screen-attributions: public/assets/credits.json is missing"];
+  return JSON.stringify(actual) === JSON.stringify(expected) ? [] : ["city:credits-screen-attributions: public/assets/credits.json does not match the register and the map data; run pnpm assets:credits"];
 }
 
 /** The map data the game uses: every outline source and every place entry's data source. */
@@ -565,7 +565,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
 async function main(): Promise<void> {
   const paths = defaultPaths(REPO_ROOT);
   const { problems, notes } = await runChecks(paths, placeMapData());
-  // 11. Every staged place drawn still and moving on the cheap phone profile (city.md R-CITY-027, R-CITY-038).
+  // 11. Every staged place drawn still and moving on the cheap phone profile (city:no-script-loop-per-sheet, city:places-meet-party-room-bar).
   const rendered = await renderPlaces(paths, readJson<Budgets>(join(paths.source, "budgets.json")));
   problems.push(...rendered.problems);
   for (const measure of rendered.measures) notes.push(describeMeasure(measure));

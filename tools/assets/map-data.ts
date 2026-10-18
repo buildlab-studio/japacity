@@ -1,4 +1,4 @@
-// The map data the place entries use (city.md R-CITY-008), for the credits screen (R-CITY-021).
+// The map data the place entries use (city:positions-rough-on-purpose), for the credits screen (city:credits-screen-attributions).
 import { content } from "@japacity/content";
 
 export function placeMapData(): string[] {

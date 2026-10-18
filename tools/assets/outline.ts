@@ -1,5 +1,5 @@
 // pnpm assets:outline <name...> | all
-// Scores each landmark against its reference outlines (R-ASSET-023): renders the shipped model as a
+// Scores each landmark against its reference outlines (assets:landmarks-match-reference-outlines): renders the shipped model as a
 // flat black silhouette in each view on the stage, at the frame and scale the rule gives, and
 // compares it with the traced polygon in outline.json. Writes outline-score.json beside the
 // outline, an overlay picture per view into renders/, and the scores into the register row.

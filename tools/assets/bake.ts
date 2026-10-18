@@ -1,7 +1,7 @@
 // Baking (decision 0009 section 3): every part of a builder's group merged into one mesh
 // per material, with the palette colour on the vertices. Signs leave the body: a building
 // keeps only their anchors, a shopfront ships their faces as a second primitive whose
-// texture the client draws at run time (R-ASSET-012).
+// texture the client draws at run time (assets:sign-text-drawn-in-code).
 import { packSigns, palette, SIGN_ATLAS, signAnchorsOf, srgbToLinear, isPaletteName, type SignAnchor } from "@japacity/assets";
 import { type BufferGeometry, Matrix4, type Mesh, type Object3D, Vector3 } from "three";
 
@@ -12,7 +12,7 @@ export type MaterialRole = "body" | "sign" | "pattern";
 interface BakedPrimitive {
   material: MaterialRole;
   positions: number[];
-  /** Unit normals, three a vertex: only where a model has round parts drawn smooth (R-ASSET-005). */
+  /** Unit normals, three a vertex: only where a model has round parts drawn smooth (assets:flat-and-smooth-shading). */
   normals?: number[];
   /** Linear RGB, three a vertex, as glTF stores vertex colours. */
   colours?: number[];
@@ -26,7 +26,7 @@ interface BakedPart {
   node: string;
   primitives: BakedPrimitive[];
   /**
-   * The node's extras. `smooth` names the round parts the loader leaves smooth (R-ASSET-005): a list
+   * The node's extras. `smooth` names the round parts the loader leaves smooth (assets:flat-and-smooth-shading): a list
    * of part names where the primitives carry normals, or true for a whole node shaded smooth.
    */
   extras?: { smooth?: string[] | true };
@@ -54,7 +54,7 @@ export function linearColour(name: string): [number, number, number] {
   return [srgbToLinear(((value >> 16) & 0xff) / 255), srgbToLinear(((value >> 8) & 0xff) / 255), srgbToLinear((value & 0xff) / 255)];
 }
 
-/** A builder marks a round node with `userData.smooth = true`; it ships smooth (R-ASSET-005). */
+/** A builder marks a round node with `userData.smooth = true`; it ships smooth (assets:flat-and-smooth-shading). */
 function isSmooth(object: Object3D, root: Object3D): boolean {
   let at: Object3D | null = object;
   while (at !== null && at !== root) {
@@ -119,7 +119,7 @@ export function bakeGroup(root: Object3D, name: string, options: { shipSigns: bo
     const material = mesh.material;
     if (Array.isArray(material)) throw new Error(`${name}: a part has more than one material`);
     const colour = (material.userData as { palette?: unknown }).palette;
-    if (typeof colour !== "string") throw new Error(`${name}: a part's material names no palette colour (R-ASSET-001)`);
+    if (typeof colour !== "string") throw new Error(`${name}: a part's material names no palette colour (assets:colours-from-named-palette)`);
     const matrix = new Matrix4().multiplyMatrices(toRoot, mesh.matrixWorld);
     const mirrored = matrix.determinant() < 0;
     const node = partOf(mesh, root);

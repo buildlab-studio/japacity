@@ -1,5 +1,5 @@
 // Every review sheet under assets-src, imported so the compiler holds each to its type in
-// packages/assets (R-ASSET-021, R-ASSET-027): one asset's sheet, its rounds, or a place's sheet.
+// packages/assets (assets:blind-reviewer-scores-views, assets:rework-never-scores-lower): one asset's sheet, its rounds, or a place's sheet.
 // A new sheet is added here; the test below fails while one on disk is missing.
 import { join } from "node:path";
 
@@ -183,7 +183,7 @@ const SHEETS: Record<string, ReviewSheet> = {
 const SOURCE = join(REPO_ROOT, "assets-src");
 
 describe("review sheets", () => {
-  test("[R-ASSET-021] given every review sheet under assets-src, when the sheets are listed, then each is imported here and so checked against its type", () => {
+  test("[assets:blind-reviewer-scores-views] given every review sheet under assets-src, when the sheets are listed, then each is imported here and so checked against its type", () => {
     const onDisk = filesUnder(SOURCE).filter((path) => /(^|\/)review(-[a-z0-9-]+)?\.json$/.test(path));
     expect(onDisk.length).toBeGreaterThan(40);
     expect(Object.keys(SHEETS).sort()).toEqual(onDisk);

@@ -1,5 +1,5 @@
 // A section of the Third Mainland Bridge (city.md place.third-mainland-bridge), built as a
-// repeating segment (R-ASSET-025): 45 m bays of a haunched girder, deep over the piers and
+// repeating segment (assets:long-landmark-repeats-segment): 45 m bays of a haunched girder, deep over the piers and
 // shallow at mid-span, so a side view is a line of flat arches; a 33 m deck flat at 8 m over
 // the water, eight lanes with a median, two slender shafts and a crosshead at every pier, and
 // one lamp post a span. Built to the review's measurements, never to a photograph.

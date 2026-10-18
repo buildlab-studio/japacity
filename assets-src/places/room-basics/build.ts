@@ -1,7 +1,7 @@
-// The basics a room holds (docs/rules/world.md R-WORLD-029): the cooking corner, the water drum with
+// The basics a room holds (world:room-seen-down-its-length): the cooking corner, the water drum with
 // the water that rises in it once fetched, the bag by the door and the lantern on the table. Each
-// stands on its base at y = 0 and faces +Z (R-ASSET-003); every face that looks up stands well over
-// the floor, so none shares a height with the ground (R-WORLD-012). The state is drawn, not counted:
+// stands on its base at y = 0 and faces +Z (assets:metre-units-and-origin); every face that looks up stands well over
+// the floor, so none shares a height with the ground (world:faces-never-share-height). The state is drawn, not counted:
 // the pot's steam is the room's smoke motion, the fetched water a model of its own over the drum.
 import { setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, quad } from "@japacity/assets/kit";
@@ -76,7 +76,7 @@ export function buildWaterDrum(): Group {
 }
 
 /**
- * The water fetched (R-OBLIGATION-014): the drum filled to the brim, seen over its dark inside, and the
+ * The water fetched (obligation:cooking-and-fetching-water): the drum filled to the brim, seen over its dark inside, and the
  * two yellow jerrycans it came in, set down beside it. Placed on the drum's own spot.
  */
 export function buildDrumWater(): Group {

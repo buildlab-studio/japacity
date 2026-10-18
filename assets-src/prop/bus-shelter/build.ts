@@ -1,6 +1,6 @@
 // A bus shelter as a city abroad has them: a steel frame, a flat roof that overhangs the kerb, a
 // back wall and one end of dark glass, a perch bench, a blank advert case at the other end and a
-// stop flag on its own post at the kerb. No operator's mark, roundel or colours (R-ASSET-010):
+// stop flag on its own post at the kerb. No operator's mark, roundel or colours (assets:no-real-brands-on-assets):
 // the flag plate is a plain red board, and the advert case is a block of colour.
 import { setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, quad } from "@japacity/assets/kit";

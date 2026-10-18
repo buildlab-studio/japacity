@@ -14,19 +14,19 @@ const MODELS: [string, () => Group][] = [
 ];
 
 describe("the design's vehicles and stall", () => {
-  test.each(MODELS)("[R-ASSET-003] given %s, when it is built, then its lowest point is on y = 0 and its origin is the centre of its footprint", (_, build) => {
+  test.each(MODELS)("[assets:metre-units-and-origin] given %s, when it is built, then its lowest point is on y = 0 and its origin is the centre of its footprint", (_, build) => {
     const box = new Box3().setFromObject(build());
     expect(Math.abs(box.min.y)).toBeLessThanOrEqual(0.01);
     expect(Math.abs(box.min.x + box.max.x)).toBeLessThanOrEqual(0.02);
     expect(Math.abs(box.min.z + box.max.z)).toBeLessThanOrEqual(0.02);
   });
 
-  test.each(MODELS.slice(0, 3))("[R-ASSET-003] given %s, when it is built, then it faces +Z, its length along z", (_, build) => {
+  test.each(MODELS.slice(0, 3))("[assets:metre-units-and-origin] given %s, when it is built, then it faces +Z, its length along z", (_, build) => {
     const size = new Box3().setFromObject(build()).getSize(new Box3().min);
     expect(size.z).toBeGreaterThan(size.x);
   });
 
-  test("[R-ASSET-003] given the danfo, when it is built, then its windscreen is at the +Z end", () => {
+  test("[assets:metre-units-and-origin] given the danfo, when it is built, then its windscreen is at the +Z end", () => {
     const danfo = buildDanfo();
     danfo.updateMatrixWorld(true);
     const glassZ: number[] = [];
@@ -41,7 +41,7 @@ describe("the design's vehicles and stall", () => {
     for (const z of glassZ) expect(z).toBeGreaterThan(2);
   });
 
-  test.each(MODELS)("[R-ASSET-001] given %s, when it is built, then every part names a palette colour", (_, build) => {
+  test.each(MODELS)("[assets:colours-from-named-palette] given %s, when it is built, then every part names a palette colour", (_, build) => {
     build().traverse((o) => {
       const mesh = o as Mesh;
       if (!mesh.isMesh) return;
@@ -50,7 +50,7 @@ describe("the design's vehicles and stall", () => {
     });
   });
 
-  test.each(MODELS)("[R-ASSET-008] given %s, when it is built, then its name fits the shipped file pattern", (name, build) => {
+  test.each(MODELS)("[assets:shipped-file-naming] given %s, when it is built, then its name fits the shipped file pattern", (name, build) => {
     expect(build().name).toBe(name);
     expect(`${name}.glb`).toMatch(/^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/);
   });

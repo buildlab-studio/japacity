@@ -1,7 +1,7 @@
 // Writing and reading the shipped files (decision 0009 sections 3 and 5). A model is written with
 // gltf-transform's NodeIO, compressed with meshopt, and read back the same way by the check, so the
 // register's figures are always what is in the file. Normals are left out of hard-edged models: glTF
-// asks a loader for flat normals when none are given, which is the look R-ASSET-005 wants for them.
+// asks a loader for flat normals when none are given, which is the look assets:flat-and-smooth-shading wants for them.
 // A model with round parts carries normals and names those parts in its node's extras.
 import { type Document as GltfDocument, Document, type Node as GltfNode, NodeIO, type Primitive } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
@@ -95,7 +95,7 @@ export function toDocument(model: BakedModel): GltfDocument {
 /**
  * Compresses with meshopt at the medium level and returns the file's bytes. Colours keep 16 bits so
  * dark palette entries survive the round trip within 1, and positions 16 bits so a 600 m bridge
- * still stands on y = 0 within 0.01 m (R-ASSET-003).
+ * still stands on y = 0 within 0.01 m (assets:metre-units-and-origin).
  */
 export async function writeGlb(doc: GltfDocument): Promise<Uint8Array> {
   const reader = await io();
@@ -109,7 +109,7 @@ export async function readGlb(bytes: Uint8Array): Promise<GltfDocument> {
 
 export interface Measured {
   triangles: number;
-  /** Draw calls with the model shown: a wall pair's two parts show one at a time, so the pair costs one (assets.md R-ASSET-007). */
+  /** Draw calls with the model shown: a wall pair's two parts show one at a time, so the pair costs one (assets:assets-and-places-within-budget). */
   drawCalls: number;
   /** The sides a home's shell builds twice, full and knee-high; 0 for any other model. */
   pairs: number;
@@ -165,7 +165,7 @@ function skinnedBounds(node: GltfNode, min: number[], max: number[]): void {
   }
 }
 
-/** Triangles, draw calls, materials and bytes, as the register records them (R-ASSET-009), and the bounds in metres. */
+/** Triangles, draw calls, materials and bytes, as the register records them (assets:register-matches-every-file), and the bounds in metres. */
 export function measure(doc: GltfDocument, bytes: number): Measured {
   let triangles = 0;
   let drawCalls = 0;

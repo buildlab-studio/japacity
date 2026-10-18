@@ -24,14 +24,14 @@ async function slab(top: number): Promise<ModelFace[]> {
 }
 
 describe("faces at one height", () => {
-  test("[R-WORLD-012] given the planted file with a slab 4 mm over the ground, when the place check reads it, then it fails naming the slab and the ground", async () => {
+  test("[world:faces-never-share-height] given the planted file with a slab 4 mm over the ground, when the place check reads it, then it fails naming the slab and the ground", async () => {
     const faces = await slab(0.004);
     const problems = checkFaces(planted.place, planted.stage, (file) => (file === SLAB ? faces : []));
     expect(problems).toHaveLength(1);
-    expect(problems[0]).toMatch(/^R-WORLD-012: place\.stripes: the ground at 0\.000 m and places\/stripes\/prop_slab\.glb copy 0 at 0\.004 m overlap 4\.0 mm apart$/);
+    expect(problems[0]).toMatch(/^world:faces-never-share-height: place\.stripes: the ground at 0\.000 m and places\/stripes\/prop_slab\.glb copy 0 at 0\.004 m overlap 4\.0 mm apart$/);
   });
 
-  test("[R-WORLD-012] given the same slab 2 cm thick, or moved off the strip it would share a height with, when checked, then it passes", async () => {
+  test("[world:faces-never-share-height] given the same slab 2 cm thick, or moved off the strip it would share a height with, when checked, then it passes", async () => {
     expect(checkFaces(planted.place, planted.stage, () => [])).toEqual([]);
     const thick = await slab(0.02);
     expect(checkFaces(planted.place, planted.stage, (file) => (file === SLAB ? thick : []))).toEqual([]);
@@ -40,7 +40,7 @@ describe("faces at one height", () => {
     expect(checkFaces(planted.place, under, (file) => (file === SLAB ? thick : []))[0]).toMatch(/strip 0 at 0\.012 m and places\/stripes\/prop_slab\.glb copy 0 at 0\.020 m overlap 8\.0 mm apart/);
   });
 
-  test("[R-WORLD-012] given a model's underside on the ground and faces over a tenth of a metre, when its floors are read, then only the faces that look up and lie low count", async () => {
+  test("[world:faces-never-share-height] given a model's underside on the ground and faces over a tenth of a metre, when its floors are read, then only the faces that look up and lie low count", async () => {
     const faces = await slab(0.3);
     expect(faces).toEqual([]);
     const low = await slab(0.05);
@@ -48,7 +48,7 @@ describe("faces at one height", () => {
     for (const face of low) expect(face.y).toBeCloseTo(0.05, 3);
   });
 
-  test("[R-WORLD-012] given strips that overlap and strips that do not, when they are laid, then each overlapping strip stands a step over the one under it and apart strips share the first step", () => {
+  test("[world:faces-never-share-height] given strips that overlap and strips that do not, when they are laid, then each overlapping strip stands a step over the one under it and apart strips share the first step", () => {
     const tops = stripTops([
       { at: [0, 0, 0], size: [10, 2] },
       { at: [0, 0, 0], size: [2, 6] },
@@ -61,7 +61,7 @@ describe("faces at one height", () => {
     expect(stripTops([{ at: [0, 0, 0], size: [2, 2] }, { at: [2, 0, 0], size: [2, 2] }])).toEqual([STRIP_STEP, STRIP_STEP]);
   });
 
-  test("[R-WORLD-012] given a kerb whose raise brings its top within a centimetre of a strip laid over it, when checked, then it fails; without the overlap it passes", () => {
+  test("[world:faces-never-share-height] given a kerb whose raise brings its top within a centimetre of a strip laid over it, when checked, then it fails; without the overlap it passes", () => {
     const stage = (second: number): FacedStage => ({
       ground: { size: [40, 40] },
       roads: [
@@ -71,7 +71,7 @@ describe("faces at one height", () => {
       models: [],
     });
     // 0.012 + 0.03 against 0.024 + 0.01: 8 mm apart.
-    expect(checkFaces("place.kerb", stage(0), () => [])[0]).toMatch(/^R-WORLD-012: place\.kerb: strip 0 at 0\.042 m and strip 1 at 0\.034 m overlap 8\.0 mm apart$/);
+    expect(checkFaces("place.kerb", stage(0), () => [])[0]).toMatch(/^world:faces-never-share-height: place\.kerb: strip 0 at 0\.042 m and strip 1 at 0\.034 m overlap 8\.0 mm apart$/);
     expect(checkFaces("place.kerb", stage(20), () => [])).toEqual([]);
   });
 });

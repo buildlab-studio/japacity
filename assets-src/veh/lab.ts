@@ -47,7 +47,7 @@ export function lump(g: Object3D, r: number, x: number, y: number, z: number, co
 }
 
 /**
- * Wraps a model so it faces +z (R-ASSET-003), centred on its footprint with its lowest point on y = 0.
+ * Wraps a model so it faces +z (assets:metre-units-and-origin), centred on its footprint with its lowest point on y = 0.
  * `fromX` turns a model the design built facing +x.
  */
 export function facePlusZ(inner: Group, name: string, fromX = true): Group {

@@ -20,7 +20,7 @@ const roundTrip = async (name: string) => readGlb(await writeGlb(toDocument(entr
 const FABRIC_BAKE_MS = 30000;
 
 describe("baking and compressing", () => {
-  test("[R-ASSET-005] given an ordinary building, when it is baked and compressed, then it is one opaque vertex-coloured material in one draw call, with no normals in the file", async () => {
+  test("[assets:flat-and-smooth-shading] given an ordinary building, when it is baked and compressed, then it is one opaque vertex-coloured material in one draw call, with no normals in the file", async () => {
     const doc = await roundTrip("bld_plaza");
     const figures = measure(doc, 0);
     expect([figures.materials, figures.drawCalls]).toEqual([1, 1]);
@@ -30,14 +30,14 @@ describe("baking and compressing", () => {
     expect(doc.getRoot().listMaterials()[0]?.getAlphaMode()).toBe("OPAQUE");
   });
 
-  test("[R-ASSET-005] given a person with a fabric pattern, when they are baked, then the file has two materials and the pattern's every pixel is a palette colour", async () => {
+  test("[assets:flat-and-smooth-shading] given a person with a fabric pattern, when they are baked, then the file has two materials and the pattern's every pixel is a palette colour", async () => {
     const doc = await roundTrip("chr_amaka");
     expect(doc.getRoot().listMaterials()).toHaveLength(2);
     expect(doc.getRoot().listTextures()).toHaveLength(1);
     expect(checkPalette(doc)).toEqual([]);
   }, FABRIC_BAKE_MS);
 
-  test("[R-ASSET-012] given a building with shops, when it is baked, then its file carries the sign anchors as text keys and no sign face, texture or word", () => {
+  test("[assets:sign-text-drawn-in-code] given a building with shops, when it is baked, then its file carries the sign anchors as text keys and no sign face, texture or word", () => {
     const built = entry("bld_shop-row").build();
     expect(built.parts.flatMap((part) => part.primitives.map((p) => p.material))).toEqual(["body"]);
     const signs = built.extras.signs as { key: string }[];
@@ -46,7 +46,7 @@ describe("baking and compressing", () => {
     expect(bytes.includes(Buffer.from("PROVISIONS"))).toBe(false);
   });
 
-  test("[R-ASSET-012] given a shopfront, when it is baked, then its sign faces are a second material with no image, mapped into one atlas of 512 by 128", async () => {
+  test("[assets:sign-text-drawn-in-code] given a shopfront, when it is baked, then its sign faces are a second material with no image, mapped into one atlas of 512 by 128", async () => {
     const doc = await roundTrip("shop_provisions");
     const materials = doc.getRoot().listMaterials();
     expect(materials.map((m) => m.getName())).toEqual(["body", "sign"]);
@@ -54,7 +54,7 @@ describe("baking and compressing", () => {
     expect(doc.getRoot().listTextures()).toHaveLength(0);
   });
 
-  test("[R-ASSET-006] given any shipped model, when it is read, then it carries no light and no camera: the place sets the one sun and one sky", async () => {
+  test("[assets:lighting-set-by-place] given any shipped model, when it is read, then it carries no light and no camera: the place sets the one sun and one sky", async () => {
     for (const name of ["bld_plaza", "lm_national-stadium", "veh_danfo"]) {
       const doc = await roundTrip(name);
       expect(doc.getRoot().listCameras()).toHaveLength(0);
@@ -62,23 +62,23 @@ describe("baking and compressing", () => {
     }
   });
 
-  test("[R-ASSET-003] given every shipped model, when it is baked, then its lowest point is y = 0 within 0.01 m", async () => {
+  test("[assets:metre-units-and-origin] given every shipped model, when it is baked, then its lowest point is y = 0 within 0.01 m", async () => {
     for (const e of CATALOG.filter((c) => !c.name.startsWith("chr_"))) {
       const doc = await readGlb(readFileSync(join(PUBLIC, e.file)));
       expect(Math.abs(measure(doc, 0).minY)).toBeLessThanOrEqual(0.01);
     }
   });
 
-  test("[R-ASSET-001] given a part whose material names no palette colour, when it is baked, then the bake refuses it", async () => {
+  test("[assets:colours-from-named-palette] given a part whose material names no palette colour, when it is baked, then the bake refuses it", async () => {
     const { Group, Mesh, BoxGeometry, MeshStandardMaterial } = await import("three");
     const g = new Group();
     g.add(new Mesh(new BoxGeometry(), new MeshStandardMaterial({ color: 0x123456 })));
-    expect(() => bakeGroup(g, "prop_x", { shipSigns: false })).toThrow(/R-ASSET-001/);
+    expect(() => bakeGroup(g, "prop_x", { shipSigns: false })).toThrow(/assets:colours-from-named-palette/);
   });
 });
 
 describe("the long landmark", () => {
-  test("[R-ASSET-025] given the bridge, when it is built, then it is about 600 m of 45 m bays of one repeating segment, flat for most of the span and deep over the piers", () => {
+  test("[assets:long-landmark-repeats-segment] given the bridge, when it is built, then it is about 600 m of 45 m bays of one repeating segment, flat for most of the span and deep over the piers", () => {
     expect(BRIDGE.bays * BRIDGE.bay).toBe(585);
     expect(girderDepth(0)).toBeCloseTo(3.5, 6);
     expect(girderDepth(1)).toBeCloseTo(6.5, 6);

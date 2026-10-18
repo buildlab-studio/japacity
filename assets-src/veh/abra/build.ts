@@ -1,7 +1,7 @@
 // An abra, the wooden water taxi of the Dubai creek (city.md place.deira): a long open hull with a
 // raised bow, a white gunwale, one long bench down the middle where the passengers sit back to back
 // facing the water, a flat canopy on posts, the engine box amidships with its exhaust, and old tyres
-// hung over the sides as fenders. Built along +Z, bow forward (R-ASSET-003). It rides the water in
+// hung over the sides as fenders. Built along +Z, bow forward (assets:metre-units-and-origin). It rides the water in
 // the place's shader (`bob` in the stage), not in a loop of its own.
 import { lowBox, setFootprint } from "@japacity/assets";
 import { beam, box, part, solid, type Vec3 } from "@japacity/assets/kit";
@@ -52,7 +52,7 @@ export function buildAbra(): Group {
   box(g, width + 0.24, 0.12, 0.08, 0, ABRA.canopy - 0.06, bowStart + 0.14, "teal");
   box(g, width + 0.24, 0.12, 0.08, 0, ABRA.canopy - 0.06, stern - 0.06, "teal");
   // Tyres over the sides as fenders.
-  // The tyres are round parts, shown smooth (R-ASSET-005).
+  // The tyres are round parts, shown smooth (assets:flat-and-smooth-shading).
   const tyres = part(g, "tyres");
   tyres.userData.smooth = true;
   for (const z of [-2.4, 0.2, 2.2]) for (const side of [-1, 1]) ccyl(tyres, 0.24, 0.12, side * (half + 0.07), freeboard - 0.38, z, "tyre", "x", 10);

@@ -1,10 +1,10 @@
-// Calgary's city bus for the ride abroad (docs/rules/world.md R-WORLD-039; design page 15
+// Calgary's city bus for the ride abroad (world:ride-abroad-and-workplace; design page 15
 // section 6): a low-floor single-decker, white with a red skirt and a red nose, its window band one sweep of dark
-// glass, a grey pod on the roof; no operator's mark, route number or words (R-ASSET-010). Built to be sat in as
+// glass, a grey pod on the roof; no operator's mark, route number or words (assets:no-real-brands-on-assets). Built to be sat in as
 // London's bus is: the walls, the floor and the roof are thin slabs, the glass a pane facing out, so from outside the
 // band is dark and from a seat the street runs past it. Canada drives on the right: the doors and the ride's seat are
 // on the right of its facing, the kerb side. Built along +x as the design's vehicles are, then turned to face +z
-// (R-ASSET-003).
+// (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { quad } from "@japacity/assets/kit";
 import { Group } from "three";

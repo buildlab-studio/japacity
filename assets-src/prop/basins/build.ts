@@ -1,6 +1,6 @@
 // The market's enamel basins (city.md place.tejuosho-market): a seller's stock stacked in towers
 // of three colours, and two on the ground heaped with tomatoes and peppers, the way produce is
-// sold by the basin. Every part is round, so the whole model is shaded smooth (R-ASSET-005).
+// sold by the basin. Every part is round, so the whole model is shaded smooth (assets:flat-and-smooth-shading).
 import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
 import { cylinder, seeded } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";

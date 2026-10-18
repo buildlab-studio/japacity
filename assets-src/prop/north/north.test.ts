@@ -1,7 +1,7 @@
 // Calgary's and Dubai's models (docs/design/15-the-three-countries-on-the-mold.md sections 3 and 6): the things of their
 // places, the strip mall, Union station, the site's frame, and the vehicles of their rides, each standing on y = 0 with
 // its footprint and only palette colours, and each ride's vehicle built to be sat in, its seat inside the body on the
-// kerb side, the right of the facing, as Canada and the UAE drive (docs/rules/world.md R-WORLD-039).
+// kerb side, the right of the facing, as Canada and the UAE drive (world:ride-abroad-and-workplace).
 import { footprintOf, isPaletteName } from "@japacity/assets";
 import { Box3, type Group, type Mesh, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
@@ -60,7 +60,7 @@ function bounds(model: Group): Box3 {
 }
 
 describe("Calgary's and Dubai's models", () => {
-  test.each(MODELS)("[R-ASSET-003] [R-ASSET-030] given %s, when it is built, then it stands on y = 0 and records the ground it blocks", (name, build) => {
+  test.each(MODELS)("[assets:metre-units-and-origin] [assets:models-record-their-footprint] given %s, when it is built, then it stands on y = 0 and records the ground it blocks", (name, build) => {
     const model = build();
     expect(model.name).toBe(name);
     expect(Math.abs(bounds(model).min.y)).toBeLessThanOrEqual(0.01);
@@ -68,7 +68,7 @@ describe("Calgary's and Dubai's models", () => {
     expect(Array.isArray(footprint) && footprint.length > 0).toBe(true);
   });
 
-  test.each(MODELS)("[R-ASSET-001] given %s, when it is built, then every part names a palette colour", (_, build) => {
+  test.each(MODELS)("[assets:colours-from-named-palette] given %s, when it is built, then every part names a palette colour", (_, build) => {
     build().traverse((object) => {
       const mesh = object as Mesh;
       if (!mesh.isMesh) return;
@@ -77,7 +77,7 @@ describe("Calgary's and Dubai's models", () => {
     });
   });
 
-  test.each(RIDES)("[R-ASSET-003] given %s, when it is built, then it faces +Z, its length along z and its footprint centred", (_, build) => {
+  test.each(RIDES)("[assets:metre-units-and-origin] given %s, when it is built, then it faces +Z, its length along z and its footprint centred", (_, build) => {
     const box = bounds(build());
     const size = box.getSize(new Vector3());
     expect(size.z).toBeGreaterThan(size.x * 2);
@@ -85,7 +85,7 @@ describe("Calgary's and Dubai's models", () => {
     expect(Math.abs(box.min.z + box.max.z)).toBeLessThanOrEqual(0.05);
   });
 
-  test.each(RIDES)("[R-WORLD-039] given %s, when the ride's seat is read, then the seat it exports is its built seat turned, and the eye stands inside the body on the kerb side, the right of the facing", (_, build, built, seat) => {
+  test.each(RIDES)("[world:ride-abroad-and-workplace] given %s, when the ride's seat is read, then the seat it exports is its built seat turned, and the eye stands inside the body on the kerb side, the right of the facing", (_, build, built, seat) => {
     const model = build();
     expect(turnedSeat(model, built)).toEqual(seat);
     const [x, y, z] = seat.eye;

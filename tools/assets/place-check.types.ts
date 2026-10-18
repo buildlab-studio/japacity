@@ -1,4 +1,4 @@
-// What the place check hands its page and reads back (city.md R-CITY-027, R-CITY-038). The page
+// What the place check hands its page and reads back (city:no-script-loop-per-sheet, city:places-meet-party-room-bar). The page
 // lives with the city's code, which only the client imports, so the check hands it plain data: the
 // place's file and entry, the city's tuning, and the day, figure, mode and device to draw them for.
 // The page names the client's types for the first three.

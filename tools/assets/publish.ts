@@ -1,6 +1,6 @@
 // pnpm assets:publish: copies every shipped file under public/assets to a name that carries the hash
 // of its contents, beside its source, and writes the manifest the city's loader reads (city.md
-// R-CITY-018). A file whose contents change gets a new name, so the browser may keep every published
+// city:places-load-on-entry). A file whose contents change gets a new name, so the browser may keep every published
 // file for good. The build check skips the hashed copies and the manifest (assets-check.ts).
 // First it copies each model's tile render to tiles/<name>.png, and each look's portraits to
 // tiles/<name>-face.png, -figure.png and -cheer.png, so the interface's pictures are published as
@@ -34,7 +34,7 @@ export function planPublish(folder: string): PublishManifest {
   const files: Record<string, string> = {};
   for (const path of sourcesOf(folder)) files[path] = hashedName(path, sha256(readFileSync(join(folder, path))));
   return {
-    note: "Written by tools/assets/publish.ts (pnpm assets:publish). Every file under public/assets, published beside it under a name carrying the hash of its contents (city.md R-CITY-018). Never edit by hand.",
+    note: "Written by tools/assets/publish.ts (pnpm assets:publish). Every file under public/assets, published beside it under a name carrying the hash of its contents (city:places-load-on-entry). Never edit by hand.",
     files,
   };
 }
@@ -75,7 +75,7 @@ export function tilePictures(entries: readonly Pick<CatalogEntry, "name" | "sour
 /**
  * Copies each asset's renders/<view>.png (the tile's by default) to tiles/<name>.png under the folder
  * and removes any tile no asset names, its hashed copies with it. Returns each copy's hash by its path
- * from the root, for the image manifest (R-ASSET-011): a tile is a render the shooter wrote, only published.
+ * from the root, for the image manifest (assets:no-reference-photos-kept): a tile is a render the shooter wrote, only published.
  */
 export function copyTiles(entries: readonly TilePicture[], root: string, folder: string, from = relative(root, folder)): Record<string, string> {
   const into = join(folder, TILES);

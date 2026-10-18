@@ -1,7 +1,7 @@
-// The joint's corner of the pavement (streets.md R-STREET-011): four white plastic chairs round a low
+// The joint's corner of the pavement (streets:lagos-street-spending): four white plastic chairs round a low
 // table with its bottles, a cooler, a crate of empties and a pole with one bulb hung over it all. One
 // material (the prop's budget), so the chairs are the palette's white plastic, as the party's are.
-// Built facing +Z (R-ASSET-003); the chairs are where people sit, so the footprint leaves them out.
+// Built facing +Z (assets:metre-units-and-origin); the chairs are where people sit, so the footprint leaves them out.
 import { setFootprint } from "@japacity/assets";
 import { beam, box, clutter, cylinder, type Vec3 } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";

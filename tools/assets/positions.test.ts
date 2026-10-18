@@ -1,4 +1,4 @@
-// Positions and geometry (city.md R-CITY-009): a place's position lays out the map and is checked, and no model is built from
+// Positions and geometry (city:positions-not-for-geometry): a place's position lays out the map and is checked, and no model is built from
 // it; only a landmark's traced outline comes from open map data, and then the credits carry it.
 import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -21,13 +21,13 @@ function sourcesUnder(dir: string): string[] {
 const POSITION = /\b(latE3|lonE3)\b/;
 
 describe("positions are not geometry", () => {
-  test("[R-CITY-009] given every builder of the kit and the asset tools, when their code is read, then none reads a place's latitude or longitude", () => {
+  test("[city:positions-not-for-geometry] given every builder of the kit and the asset tools, when their code is read, then none reads a place's latitude or longitude", () => {
     const builders = [...sourcesUnder(join(REPO_ROOT, "assets-src")), ...sourcesUnder(join(REPO_ROOT, "packages", "assets", "src")), ...sourcesUnder(join(REPO_ROOT, "tools", "assets"))];
     expect(builders.length).toBeGreaterThan(20);
     expect(builders.filter((file) => POSITION.test(readFileSync(file, "utf8"))).map((file) => relative(REPO_ROOT, file))).toEqual([]);
   });
 
-  test("[R-CITY-009] given every outline taken from OpenStreetMap, when the shipped credits are read, then each outline's map source is credited there", () => {
+  test("[city:positions-not-for-geometry] given every outline taken from OpenStreetMap, when the shipped credits are read, then each outline's map source is credited there", () => {
     const outlines = mapSources(paths, []);
     expect(outlines.length).toBeGreaterThan(0);
     const credits = readJson<{ mapData: { sources: string[] }[] }>(join(paths.public, "credits.json"));

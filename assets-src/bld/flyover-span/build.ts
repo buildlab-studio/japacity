@@ -1,6 +1,6 @@
-// One span of the Ojuelegba flyover (city.md place.ojuelegba, R-CITY-013): a piece of one
+// One span of the Ojuelegba flyover (city.md place.ojuelegba, city:ojuelegba-is-the-hub): a piece of one
 // carriageway, pier to pier, instanced along its length and in two rows for the twin carriageways.
-// The plan comes from OpenStreetMap (R-ASSET-024, outline.json): two one-way carriageways of two
+// The plan comes from OpenStreetMap (assets:plan-outline-from-map-data, outline.json): two one-way carriageways of two
 // lanes each, their centrelines 13 to 15 m apart over the junction. The street sees it from below,
 // so the underside carries the detail: four girders, a hammerhead cap on one square column, the
 // bearings, the cross diaphragms, posters pasted on the column, a painted plinth, a drain pipe and the drip stains.

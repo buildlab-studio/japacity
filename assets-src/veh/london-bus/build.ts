@@ -1,9 +1,9 @@
-// London's red bus for the ride abroad (docs/rules/world.md R-WORLD-039): a two-deck city bus, plain red as
-// every London bus is, with no operator's mark, roundel, route number or words (R-ASSET-010). The top deck is
+// London's red bus for the ride abroad (world:ride-abroad-and-workplace): a two-deck city bus, plain red as
+// every London bus is, with no operator's mark, roundel, route number or words (assets:no-real-brands-on-assets). The top deck is
 // built to be sat in: its walls, floor and roof are thin slabs with an inner face, its seats stand in pairs down
 // both sides, and the glass is a pane that faces out, so from outside the band of windows is dark glass and from
 // a seat inside the street shows through it. The doors are on the left of its facing, the kerb side in the UK.
-// Built along +x as the design's vehicles are, then turned to face +z (R-ASSET-003).
+// Built along +x as the design's vehicles are, then turned to face +z (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { quad } from "@japacity/assets/kit";
 import { Group } from "three";

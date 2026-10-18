@@ -1,8 +1,8 @@
 // The small things of a lived-in street and office that the kit did not have as models:
 // a board of posters, a drinks seller's cooler on its bench, a woven mat with a seller's few goods, and an office's
 // filing cabinet with the calendar pinned on the board above it. Each stands on its base at y = 0 and faces +Z
-// (R-ASSET-003); a thing laid on the ground keeps its top faces two centimetres clear of the ground and of each other
-// (R-WORLD-012). Palette only, from the kit's parts.
+// (assets:metre-units-and-origin); a thing laid on the ground keeps its top faces two centimetres clear of the ground and of each other
+// (world:faces-never-share-height). Palette only, from the kit's parts.
 import { type PaletteName, setFootprint } from "@japacity/assets";
 import { box, clutter, cylinder, posters, seeded } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
@@ -47,7 +47,7 @@ export function buildCoolerStand(): Group {
   return setFootprint(g, [{ x: 0.3, z: 0.1, width: 1.9, depth: 0.8 }]);
 }
 
-/** How thick the mat lies: its top a centimetre and a half over a forecourt's floor at two (R-WORLD-012). */
+/** How thick the mat lies: its top a centimetre and a half over a forecourt's floor at two (world:faces-never-share-height). */
 const MAT_TOP = 0.035;
 
 /** One basin of goods on the mat, its heap in its own colour. */

@@ -83,12 +83,12 @@ import { readJson, REPO_ROOT } from "../repo";
 export const SOURCE = join(REPO_ROOT, "assets-src");
 export const PUBLIC = join(REPO_ROOT, "apps", "client", "public", "assets");
 
-/** The way every dish in the hub faces, in the frame of its unturned buildings (R-ASSET-019). */
+/** The way every dish in the hub faces, in the frame of its unturned buildings (assets:dishes-face-one-satellite). */
 const HUB_DISH_YAW = DEFAULT_DISH_YAW;
 
 export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile" | "face" | "figure" | "cheer";
 
-/** A look's portraits for the front door (prologue.md R-PROLOGUE-009, 013): the face for the look strip and the life cards, the whole figure with a hand on the hip, and the figure cheering on the page after Begin. */
+/** A look's portraits for the front door (prologue:front-door-builds-a-person, prologue:front-door-three-screens): the face for the look strip and the life cards, the whole figure with a hand on the hip, and the figure cheering on the page after Begin. */
 export const PORTRAITS: readonly ViewName[] = ["face", "figure", "cheer"];
 /**
  * The people the front door offers as a look: the city's passers-by, the client's `LOOKS` from its roster. Named here,
@@ -119,7 +119,7 @@ export interface CatalogEntry {
   place: string;
   /** The source folder under assets-src: specs, outlines, renders, the review. */
   source: string;
-  /** Who made it, for the register (R-ASSET-015). */
+  /** Who made it, for the register (assets:ai-media-recorded-and-credited). */
   author: string;
   build: () => BakedModel;
   views: ViewName[];
@@ -138,7 +138,7 @@ const LAB_MAKERS = "The makers, written as code from the design's models";
 const STREET_DRESSING = "The makers, written as code from the kit (the streets' and offices' dressing)";
 const ELEVATIONS: ViewName[] = ["front", "back", "left", "right", "threeQuarter"];
 const KIT = "The makers, written as code from the kit";
-/** Every dish in Peckham faces one way (R-ASSET-019); the terraces stand turned a quarter either way, so the yaw is given per side. */
+/** Every dish in Peckham faces one way (assets:dishes-face-one-satellite); the terraces stand turned a quarter either way, so the yaw is given per side. */
 const PECKHAM_DISH_YAW = 2.4;
 /** Deira's blocks also stand turned a quarter either way; one yaw for the place's dishes. */
 const DEIRA_DISH_YAW = 1.9;
@@ -154,7 +154,7 @@ function personModel(mesh: PersonMesh): BakedModel {
   const shared = { positions: mesh.positions, normals: mesh.normals, colours, joints: mesh.joints, weights: mesh.weights };
   const primitives: BakedModel["parts"][number]["primitives"] = [{ material: "body", ...shared, indices: flat }];
   if (patterned.length > 0) primitives.push({ material: "pattern", ...shared, uvs: mesh.uvs, indices: patterned });
-  // A person blocks no ground of the route map: the crowd moves, and keeps apart by its spots (city.md R-CITY-036).
+  // A person blocks no ground of the route map: the crowd moves, and keeps apart by its spots (city:players-shown-present-not-tracked).
   const model: BakedModel = { name: mesh.name, parts: [{ node: "body", primitives, extras: { smooth: mesh.smooth } }], extras: { footprint: "none" }, bones: mesh.bones };
   if (mesh.pattern !== null && patterned.length > 0) model.pattern = drawPattern(mesh.pattern);
   return model;
@@ -185,7 +185,7 @@ function placePiece(name: string, place: string, build: () => Group, views: View
   return { name, file: `places/${place}/${name}.glb`, place: `place.${place}`, source: `assets-src/${prefix}/${slug}`, author: KIT, views, build: () => staticModel(name, build()) };
 }
 
-/** A building a staged place needed, as kit data in its spec.json (R-ASSET-014). */
+/** A building a staged place needed, as kit data in its spec.json (assets:variants-are-numbers-not-code). */
 function placeBuilding(slug: string, place: string): CatalogEntry {
   const build = (): Group => {
     const { spec, options } = readJson<{ spec: BuildingSpec; options: BuildingOptions }>(join(SOURCE, "bld", slug, "spec.json"));
@@ -210,7 +210,7 @@ const SIGN = {
 
 const TOOLS = "The makers, written as code";
 
-/** A moving sheet or the water tile at one mesh level, its motion, pinned edge and level in its extras (R-ASSET-028, R-ASSET-029). */
+/** A moving sheet or the water tile at one mesh level, its motion, pinned edge and level in its extras (assets:one-shared-motion-material, assets:sheets-ship-two-mesh-levels). */
 function gridEntry(piece: GridPiece, level: MeshLevel): CatalogEntry {
   const name = `prop_${piece}_${level}`;
   const { motion, pinned } = GRIDS[piece];
@@ -233,7 +233,7 @@ const ROOM_MAKERS = "The makers, written as code from the kit for the rooms";
 /** The street's things of decision 0012. */
 const STREET = "The makers, written as code from the kit";
 
-/** Each interior's room, its folder under places/ by the room's name (R-WORLD-011). */
+/** Each interior's room, its folder under places/ by the room's name (world:place-is-one-screen). */
 const ROOM_FOLDERS: Record<RoomName, string> = {
   parlour: "family-house-parlour",
   visa: "visa-centre",
@@ -289,7 +289,7 @@ function roomEntry(room: RoomName): CatalogEntry {
 }
 
 /** A piece of furniture: shared when more than one room uses it, else in its room's folder. */
-/** The room's basics (world.md R-WORLD-029), written as code from the kit beside the rooms they furnish. */
+/** The room's basics (world:room-seen-down-its-length), written as code from the kit beside the rooms they furnish. */
 function basicsPiece(name: string, folder: string, place: string, build: () => Group): CatalogEntry {
   // Each piece its own folder under places/room-basics, so each has renders of its own.
   return { ...furniturePiece(name, folder, place, build), source: `assets-src/places/room-basics/${name.slice("prop_".length)}`, author: KIT };
@@ -392,7 +392,7 @@ const ENTRIES: CatalogEntry[] = [
   placePiece("veh_taxi", "airport-lagos", buildTaxi),
   placePiece("bld_stilt-house", "third-mainland-bridge", buildStiltHouse, [...ELEVATIONS, "plan", "phone"]),
   placePiece("prop_canoe", "third-mainland-bridge", buildCanoe),
-  // Makoko on the lagoon (home.md R-HOME-006): its houses, the classroom, the walk, the racks and the canoes that travel the channel.
+  // Makoko on the lagoon (home:home-is-the-home-point): its houses, the classroom, the walk, the racks and the canoes that travel the channel.
   ...([
     ["bld_makoko-house_a", "a", () => buildRoomHouse()],
     ["bld_makoko-house_b", "b", () => buildTallHouse("place.makoko.sign.2", { board: "white", ink: "blue", painted: true })],
@@ -494,7 +494,7 @@ const ENTRIES: CatalogEntry[] = [
   ),
   { name: "veh_abra", file: "places/deira/veh_abra.glb", place: "place.deira", source: "assets-src/veh/abra", author: KIT, views: [...ELEVATIONS, "phone"], ground: "lagoon", build: () => staticModel("veh_abra", buildAbra()) },
   { name: "veh_labour-bus", file: "places/deira/veh_labour-bus.glb", place: "place.deira", source: "assets-src/veh/labour-bus", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_labour-bus", buildLabourBus()) },
-  // The pieces the three places rebuilt as frontages need (docs/rules/world.md R-WORLD-011).
+  // The pieces the three places rebuilt as frontages need (world:place-is-one-screen).
   { name: "veh_taxi-dubai", file: "places/deira/veh_taxi-dubai.glb", place: "place.deira", source: "assets-src/veh/taxi/dubai", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_taxi-dubai", buildTaxi(DUBAI_TAXI)) },
   placePiece("prop_street-bench", "peckham", buildStreetBench),
   { name: "prop_flag-mast", file: "shared/prop/prop_flag-mast.glb", place: "shared", source: "assets-src/prop/flag-mast", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_flag-mast", buildFlagMast()) },
@@ -555,7 +555,7 @@ const ENTRIES: CatalogEntry[] = [
   basicsPiece("prop_lantern", "shared", "shared", basics.buildLantern),
   basicsPiece("prop_water-drum", "family-house-parlour", "place.family-house", basics.buildWaterDrum),
   basicsPiece("prop_drum-water", "family-house-parlour", "place.family-house", basics.buildDrumWater),
-  // The street's things of decision 0012 (streets.md R-STREET-011): the suya spot staged on Ojuelegba, the joint's chairs, the barber's kiosk and the viewing centre on Bode Thomas.
+  // The street's things of decision 0012 (streets:lagos-street-spending): the suya spot staged on Ojuelegba, the joint's chairs, the barber's kiosk and the viewing centre on Bode Thomas.
   { name: "prop_suya-grill", file: "shared/prop/prop_suya-grill.glb", place: "shared", source: "assets-src/prop/suya-grill", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_suya-grill", buildSuyaGrill()) },
   { name: "prop_joint-set", file: "shared/prop/prop_joint-set.glb", place: "shared", source: "assets-src/prop/joint-set", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_joint-set", buildJointSet()) },
   { name: "shop_barber-kiosk", file: "places/bode-thomas/shop_barber-kiosk.glb", place: "place.bode-thomas", source: "assets-src/shop/barber-kiosk", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_barber-kiosk", buildBarberKiosk("place.bode-thomas.sign.9", { board: "white", ink: "red", painted: true }), true) },
@@ -573,7 +573,7 @@ function homePiece(name: string, folder: string, build: () => Group): CatalogEnt
     place: shared ? "shared" : `place.${folder}`,
     source: prefix === "prop" ? `assets-src/prop/home/${slug}` : `assets-src/${prefix}/${slug}`,
     author: HOME_MAKERS,
-    // A building's plan as every building's (R-ASSET-020).
+    // A building's plan as every building's (assets:contributor-renders-fixed-views).
     views: prefix === "bld" ? [...ELEVATIONS, "plan", "phone"] : [...ELEVATIONS, "phone"],
     build: () => staticModel(name, build()),
   };
@@ -620,7 +620,7 @@ const LONDON = "The makers, written as code from the kit";
 ENTRIES.push(
   { name: "veh_london-bus", file: "shared/veh/veh_london-bus.glb", place: "shared", source: "assets-src/veh/london-bus", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_london-bus", buildLondonBus()) },
   { name: "veh_train-carriage", file: "shared/veh/veh_train-carriage.glb", place: "shared", source: "assets-src/veh/train-carriage", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_train-carriage", buildTrainCarriage()) },
-  // Rye Lane redrawn (R-WORLD-011): two more terraces as data, the pub on the corner, the produce, the stalls and the kitchen's door.
+  // Rye Lane redrawn (world:place-is-one-screen): two more terraces as data, the pub on the corner, the produce, the stalls and the kitchen's door.
   ...(["c", "d"] as const).map(
     (variant): CatalogEntry => ({
       name: `bld_rye-lane-terrace_${variant}`,
@@ -665,7 +665,7 @@ ENTRIES.push(
 
 /** Castel Volturno on the mold (design page 15): the coast road's bus and the gangmaster's van for the ride, the roundabout, the Domitiana and the fields. */
 const ITALY = "The makers, written as code from the kit";
-/** Every dish at the roundabout and on the Domitiana faces one way (R-ASSET-019); their blocks all stand square to the road. */
+/** Every dish at the roundabout and on the Domitiana faces one way (assets:dishes-face-one-satellite); their blocks all stand square to the road. */
 const CASTEL_DISH_YAW = 2.1;
 
 /** A piece of one of Castel Volturno's places, its renders beside its build code under the place's folder. */
@@ -673,7 +673,7 @@ function italyPiece(name: string, folder: string, source: string, build: () => G
   return { name, file: `places/${folder}/${name}.glb`, place: `place.${folder}`, source: `assets-src/places/${folder}/${source}`, author: ITALY, views, build: () => staticModel(name, build()) };
 }
 
-/** A plaster row from its numbers in spec.json (R-ASSET-014). */
+/** A plaster row from its numbers in spec.json (assets:variants-are-numbers-not-code). */
 function plasterRow(name: string, folder: string, source: string): CatalogEntry {
   const build = (): Group => castel.buildPlasterRow(readJson<castel.PlasterRowSpec>(join(SOURCE, "places", folder, source, "spec.json")), CASTEL_DISH_YAW);
   return italyPiece(name, folder, source, build, [...ELEVATIONS, "plan", "phone"]);
@@ -682,7 +682,7 @@ function plasterRow(name: string, folder: string, source: string): CatalogEntry 
 ENTRIES.push(
   { name: "veh_italy-bus", file: "shared/veh/veh_italy-bus.glb", place: "shared", source: "assets-src/veh/italy-bus", author: ITALY, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_italy-bus", buildItalyBus()) },
   { name: "veh_van", file: "shared/veh/veh_van.glb", place: "shared", source: "assets-src/veh/van", author: ITALY, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_van", buildVan()) },
-  // The roundabout (R-WORLD-011): two plaster rows with the bar, the African shop and the call shop, the island and its sign, the bar's counter, the palms and the stop's pole.
+  // The roundabout (world:place-is-one-screen): two plaster rows with the bar, the African shop and the call shop, the island and its sign, the bar's counter, the palms and the stop's pole.
   plasterRow("bld_castel-row_a", "castel-volturno", "row-a"),
   plasterRow("bld_castel-row_b", "castel-volturno", "row-b"),
   italyPiece("prop_roundabout", "castel-volturno", "roundabout", () => castel.buildRoundabout("place.castel-volturno.sign.roundabout", { board: "blue", ink: "white", border: "white" }), [...ELEVATIONS, "plan", "phone"]),
@@ -706,7 +706,7 @@ ENTRIES.push(
   { name: "veh_calgary-bus", file: "shared/veh/veh_calgary-bus.glb", place: "shared", source: "assets-src/veh/calgary-bus", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_calgary-bus", buildCalgaryBus()) },
   { name: "veh_ctrain-car", file: "shared/veh/veh_ctrain-car.glb", place: "shared", source: "assets-src/veh/ctrain-car", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_ctrain-car", buildCtrainCar()) },
   { name: "veh_dubai-metro", file: "shared/veh/veh_dubai-metro.glb", place: "shared", source: "assets-src/veh/dubai-metro", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_dubai-metro", buildDubaiMetro()) },
-  // The strip mall in north-east Calgary (R-WORLD-011), its row as data, and the bare trees of its winter.
+  // The strip mall in north-east Calgary (world:place-is-one-screen), its row as data, and the bare trees of its winter.
   placePiece(
     "bld_strip-mall",
     "calgary-north-east",

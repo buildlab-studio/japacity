@@ -1,6 +1,6 @@
-// The rooms of the interior places, each a set of numbers for the one room builder (R-ASSET-014).
+// The rooms of the interior places, each a set of numbers for the one room builder (assets:variants-are-numbers-not-code).
 // The parlour and the room abroad are about 16 by 9 metres inside, seen down their length so they fill a phone held
-// upright (docs/rules/world.md R-WORLD-011, R-WORLD-029); the room in a compound is the size such a room is; the
+// upright (world:place-is-one-screen, world:room-seen-down-its-length); the room in a compound is the size such a room is; the
 // offices stay about 12 by 10. The arrivals hall is the tallest.
 import type { RoomSpec } from "./build";
 
@@ -140,7 +140,7 @@ export const ROOMS = {
     ],
     seed: 8118,
   },
-  // home.md R-HOME-010: one rented room in a compound in Ojuelegba, about 4 by 3.5 metres as such a room is, so its
+  // home:compound-room-is-a-home: one rented room in a compound in Ojuelegba, about 4 by 3.5 metres as such a room is, so its
   // five things stand close around the character. Painted walls gone tired at the bottom, louvre windows on the yard
   // and a calendar picture over the mattress; the door is in the side wall, as the room abroad's.
   compound: {
@@ -177,7 +177,7 @@ export const ROOMS = {
     seed: 9229,
   },
   // London on the Lagos mold (design page 14 section 4): the big shop and the workplaces, each about 16 by 9 metres
-  // seen down its length (R-WORLD-011, R-WORLD-029), the side wall on the right as the room abroad's, so one camera
+  // seen down its length (world:place-is-one-screen, world:room-seen-down-its-length), the side wall on the right as the room abroad's, so one camera
   // recipe serves them all; the church's on the left, where its banner hangs behind the front. Plain London walls,
   // a pane window where the room has one.
   bigshop: {

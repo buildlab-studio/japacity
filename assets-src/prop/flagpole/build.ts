@@ -1,6 +1,6 @@
 // The flag mast on the forecourt of the departures building (city.md place.airport-lagos): a
 // tapering steel mast on a stepped plinth with its halyard cleat and the ball at the top. The flag
-// is not in the model: it is a sheet on the place's wind, pinned at the mast (city.md R-CITY-026).
+// is not in the model: it is a sheet on the place's wind, pinned at the mast (city:motion-in-vertex-shader).
 import { boxesIn, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder } from "@japacity/assets/kit";
 import { Group } from "three";

@@ -1,11 +1,11 @@
-// The design's 34 people as data (R-ASSET-014): each a set of numbers given to the one builder.
-// Names follow R-ASSET-008. The design's `var_` body tests ship as `chr_body_<variant>`, and keep
+// The design's 34 people as data (assets:variants-are-numbers-not-code): each a set of numbers given to the one builder.
+// Names follow assets:shipped-file-naming. The design's `var_` body tests ship as `chr_body_<variant>`, and keep
 // their old name as `face`, so each face is the one the design drew.
 import type { Garment, PersonSpec } from "./people";
 
 // ---------- eight people, the first experiment ----------
 export const PEOPLE: PersonSpec[] = [
-  // A person ships one pattern (two materials, R-ASSET-005), so the gele is cut from the outfit's own ankara, as a matching set.
+  // A person ships one pattern (two materials, assets:flat-and-smooth-shading), so the gele is cut from the outfit's own ankara, as a matching set.
   { name: "chr_amaka", body: "f", skin: "skin3", head: "gele", headFab: 1, shoes: "gold",
     patterns: [{ kind: "ankara", seed: 4, cols: ["indigo", "gold", "orange", "cream"] }],
     top: { type: "buba", sleeve: "wide", hem: 0.86, flare: 0.03, fab: 1 }, bottom: { type: "iro", hem: 0.1, fab: 1, stride: 0.45 } },
@@ -65,7 +65,7 @@ export const MEN: PersonSpec[] = [
   { name: "chr_nonso", body: "mx", mass: 0.35, height: 0.95, skin: "skin7", hair: "lowcut", shoes: "darkWood",
     patterns: [{ kind: "ankara", seed: 5, cols: ["danfoYellow", "cream", "orange", "white"] }],
     top: { type: "shirt", sleeve: "half", hem: 0.9, ease: 0.016, fab: 1 }, bottom: { type: "trousers", ease: 0.012, wide: 0.02, fab: 1 } },
-  // R-ASSET-004: the three short bodies stand at least 1.59 m bare.
+  // assets:people-and-door-sizes: the three short bodies stand at least 1.59 m bare.
   { name: "chr_bayo", body: "mx", height: 0.94, skin: "skin4", hair: "lowcut", shoes: "black", bag: "darkWood",
     top: { type: "shirt", sleeve: "long", fab: "basin", placket: "white" }, bottom: { type: "trousers", rise: 1.03, fab: "charcoal" } },
 ];
@@ -94,7 +94,7 @@ export const VARIETY: PersonSpec[] = [
 
 // ---------- people of the street ----------
 export const STREET: PersonSpec[] = [
-  // One pattern a person (R-ASSET-005), so the head scarf matches the wrapper, as a market set often does.
+  // One pattern a person (assets:flat-and-smooth-shading), so the head scarf matches the wrapper, as a market set often does.
   { name: "chr_iya", body: "fx", size: 0.75, shape: 0.4, bust: 0.7, skin: "skin3", head: "scarf", headFab: 1, shoes: "darkWood",
     patterns: [{ kind: "ankara", seed: 1, cols: ["green", "cream", "red", "danfoYellow"] }],
     top: { type: "blouse", sleeve: "half", hem: 0.96, ease: 0.016, fab: 1 }, bottom: { type: "iro", rise: 1.05, hem: 0.12, flare: -0.02, fab: 1, stride: 0.45 } },

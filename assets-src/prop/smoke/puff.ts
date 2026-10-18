@@ -1,4 +1,4 @@
-// The smoke puff (assets.md R-ASSET-005, R-ASSET-026; city.md R-CITY-026): five balls blended into one
+// The smoke puff (assets:flat-and-smooth-shading, assets:organic-shapes-baked-at-build; city:motion-in-vertex-shader): five balls blended into one
 // soft cloud, turned into triangles and thinned when the game is built, and shown smooth. The client
 // draws only the finished triangles, instanced, and its shader shrinks each copy to nothing.
 // `pnpm exec tsx assets-src/prop/smoke/write.ts` writes them to apps/client/src/shared/three/puff.data.ts.

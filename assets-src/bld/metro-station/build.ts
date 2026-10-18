@@ -1,8 +1,8 @@
 // Union station in Deira (design page 15 section 3: the Nol machine, the platform): the metro's way in at street level,
-// a glass hall under a sweeping silver shell with the station's name board under its lip (R-ASSET-012), and the
+// a glass hall under a sweeping silver shell with the station's name board under its lip (assets:sign-text-drawn-in-code), and the
 // viaduct the line runs on, its piers and deck over the street with a metro car standing on it as decor, since a
 // place's models stand on the ground and the car must be up on its deck. A public station's plain description, no
-// operator's mark or line colours (R-ASSET-010). Each is one building of the kit's shapes, inside a building's budget.
+// operator's mark or line colours (assets:no-real-brands-on-assets). Each is one building of the kit's shapes, inside a building's budget.
 import { setFootprint, type SignStyle } from "@japacity/assets";
 import { box, extrude, onWall, quad, signboard, solid, stain } from "@japacity/assets/kit";
 import { Group } from "three";

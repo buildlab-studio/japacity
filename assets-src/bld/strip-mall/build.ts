@@ -1,9 +1,9 @@
 // The strip mall in north-east Calgary (design page 15 sections 2 and 3: the hub, the jobs notice, the coffee shop, the
 // African store, the barber): one flat-roofed row of shop units behind a parking lot, as the newcomers' suburbs have
 // them. Each unit has its plate glass and glass door under a deep canopy on slim posts, a fascia sign over the canopy
-// with a text key (R-ASSET-012), and posters in the window; the roof carries its grey heating units behind a parapet.
-// Stains where the meltwater runs and a pasted notice on a pier (R-ASSET-017). No real business's name, colours or
-// mark (R-ASSET-010): the signs say what the place file's keys say. The data below makes the row.
+// with a text key (assets:sign-text-drawn-in-code), and posters in the window; the roof carries its grey heating units behind a parapet.
+// Stains where the meltwater runs and a pasted notice on a pier (assets:buildings-carry-wear-and-clutter). No real business's name, colours or
+// mark (assets:no-real-brands-on-assets): the signs say what the place file's keys say. The data below makes the row.
 import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
 import { box, meterAndCable, onWall, posters, quad, seeded, signboard, stain } from "@japacity/assets/kit";
 import { Group } from "three";

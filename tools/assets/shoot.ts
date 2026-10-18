@@ -1,5 +1,5 @@
 // pnpm assets:shoot [--view <view>]... <name...> | examples | all
-// Renders the fixed views of R-ASSET-020 from the shipped file: front, back, left and right in
+// Renders the fixed views of assets:contributor-renders-fixed-views from the shipped file: front, back, left and right in
 // orthographic projection, the three-quarter view from 30 degrees up with a 32 degree lens, the
 // plan for buildings and landmarks, and the phone shot at 360 by 640 CSS pixels, device scale 2,
 // 12 m from the asset in the standard street. Every model but a person also gets the tile: the

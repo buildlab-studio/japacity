@@ -10,14 +10,14 @@ const STYLE = { board: "white", ink: "green" } as const;
 const terminal = (): ReturnType<typeof buildTerminalFront> => buildTerminalFront({ fascia: "a", canopy: "b", left: "c", right: "d" }, { fascia: STYLE, canopy: STYLE, hanging: STYLE });
 
 describe("the departures front", () => {
-  test("[R-ASSET-003] given the front, when it is built, then it stands on y = 0, is centred on its footprint and stays inside a building's height", () => {
+  test("[assets:metre-units-and-origin] given the front, when it is built, then it stands on y = 0, is centred on its footprint and stays inside a building's height", () => {
     const box = new Box3().setFromObject(terminal());
     expect(Math.abs(box.min.y)).toBeLessThanOrEqual(0.01);
     expect(Math.abs(box.min.z + box.max.z)).toBeLessThanOrEqual(0.05);
     expect(box.max.y).toBeLessThanOrEqual(13);
   });
 
-  test("[R-ASSET-012] given the front, when it is built, then it carries its four boards as anchors facing the kerb, the canopy's board over the canopy's edge and the hanging boards under the canopy", () => {
+  test("[assets:sign-text-drawn-in-code] given the front, when it is built, then it carries its four boards as anchors facing the kerb, the canopy's board over the canopy's edge and the hanging boards under the canopy", () => {
     const anchors = signAnchorsOf(terminal());
     expect(anchors.map((anchor) => anchor.key)).toEqual(["a", "b", "c", "d"]);
     for (const anchor of anchors) expect(Math.cos(anchor.ry)).toBeCloseTo(1, 6);
@@ -29,7 +29,7 @@ describe("the departures front", () => {
 });
 
 describe("the house on stilts", () => {
-  test("[R-ASSET-003] given the house, when it is built, then its stilts stand on y = 0, its floor is above the water and it is at least a storey high", () => {
+  test("[assets:metre-units-and-origin] given the house, when it is built, then its stilts stand on y = 0, its floor is above the water and it is at least a storey high", () => {
     const box = new Box3().setFromObject(buildStiltHouse());
     expect(Math.abs(box.min.y)).toBeLessThanOrEqual(0.01);
     expect(STILT_HOUSE.floor).toBeGreaterThan(1);

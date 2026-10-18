@@ -1,9 +1,9 @@
 // The shell of a home seen as one view: the walls of the house or the room and of the yard
-// beyond it, cut open toward the camera as the rooms are (docs/rules/world.md R-WORLD-011). The walls the camera looks
+// beyond it, cut open toward the camera as the rooms are (world:place-is-one-screen). The walls the camera looks
 // past are cut low, so the yard and its life show over them; the far side walls stand full height and carry the
 // home's wall things: the calendar, the family photo, the clock, the switch and its wire run on the surface, posters, a
 // shelf. Openings are real: a door frame with its leaf swung open, an arch, a window with louvres, a gateway with its
-// gate. Every home is a set of numbers in HOMES given to this one builder (R-ASSET-014). One material; the body is one
+// gate. Every home is a set of numbers in HOMES given to this one builder (assets:variants-are-numbers-not-code). One material; the body is one
 // draw call, and each outer side's pair (full and knee-high) one more, as one of the two shows.
 import { type FootprintBox, type PaletteName, setFootprint, WALL_SIDES, wallNode, type WallSide } from "@japacity/assets";
 import { beam, box, cylinder, extrude, part, quad } from "@japacity/assets/kit";

@@ -1,8 +1,8 @@
 // The pub on the corner of Rye Lane (docs/design/14-london-on-the-lagos-mold.md section 4): a two-storey
 // Victorian corner house, its ground floor faced in dark tiles with tall many-paned windows, a door cut across
 // the corner, lanterns either side, a plain fascia with no words and a hanging board painted with a pint, never
-// a real house's name or sign (R-ASSET-010). Brick above with sash windows under a cornice and parapet, chimneys,
-// a dish facing the place's satellite (R-ASSET-019) and soot where the rain runs (R-ASSET-017). The corner is
+// a real house's name or sign (assets:no-real-brands-on-assets). Brick above with sash windows under a cornice and parapet, chimneys,
+// a dish facing the place's satellite (assets:dishes-face-one-satellite) and soot where the rain runs (assets:buildings-carry-wear-and-clutter). The corner is
 // at its +x end, so its side shows windows too.
 import { setFootprint } from "@japacity/assets";
 import { box, cylinder, dish, onWall, quad, solid, stain } from "@japacity/assets/kit";

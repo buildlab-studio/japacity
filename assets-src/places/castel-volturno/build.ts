@@ -1,10 +1,10 @@
 // The roundabout at Castel Volturno (docs/design/15-the-three-countries-on-the-mold.md section 3; city.md
 // place.castel-volturno): the town's hub, where the vans come at dawn. Low blocks of pastel plaster over shops, the
 // bar with its awning and its coffee counter at the door, the African shop and the call shop with their boards
-// (R-ASSET-012), the roundabout's island at the road's end with its direction sign, the bus stop's pole and low
-// palms. Each piece stands on its base at y = 0 facing +Z (R-ASSET-003), records the ground it blocks
-// (R-ASSET-030) and shows no real shop's name, mark or colours (R-ASSET-010). The plaster row is also the
-// Domitiana's low block, as data (R-ASSET-014).
+// (assets:sign-text-drawn-in-code), the roundabout's island at the road's end with its direction sign, the bus stop's pole and low
+// palms. Each piece stands on its base at y = 0 facing +Z (assets:metre-units-and-origin), records the ground it blocks
+// (assets:models-record-their-footprint) and shows no real shop's name, mark or colours (assets:no-real-brands-on-assets). The plaster row is also the
+// Domitiana's low block, as data (assets:variants-are-numbers-not-code).
 import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
 import { acUnit, awning, balcony, beam, box, cylinder, dish, door, floorQuad, meterAndCable, onWall, parapet, posters, quad, seeded, shopOpening, signboard, solid, stain, tank, wornShade } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
@@ -30,7 +30,7 @@ export interface PlasterRowSpec {
   name: string;
   storeys: 1 | 2;
   depth: number;
-  /** The plaster's pastel; its worn shade is the wall's wear (R-ASSET-017). */
+  /** The plaster's pastel; its worn shade is the wall's wear (assets:buildings-carry-wear-and-clutter). */
   wall: PaletteName;
   /** The window surrounds, the cornice and the parapet's coping. */
   trim: PaletteName;

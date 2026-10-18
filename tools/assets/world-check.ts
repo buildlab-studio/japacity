@@ -1,8 +1,8 @@
-// The limits of a place in the world-first design (docs/rules/world.md R-WORLD-011): a place is one
+// The limits of a place in the world-first design (world:place-is-one-screen): a place is one
 // screen, its crowd small and its moving sheets few. The client applies the same numbers when it
 // builds a place (shared/scene/limits.ts), so a file that passes here draws as checked. Pure.
 
-/** R-WORLD-011's numbers. */
+/** world:place-is-one-screen's numbers. */
 export const WORLD_LIMITS = {
   /** People shown, by scope and mode. */
   people: { exterior: { low: 6, high: 10 }, interior: { low: 4, high: 6 } },
@@ -18,7 +18,7 @@ export const WORLD_LIMITS = {
   slack: 1.25,
 } as const;
 
-/** The motion kinds that are moving sheets (assets.md R-ASSET-028). */
+/** The motion kinds that are moving sheets (assets:one-shared-motion-material). */
 export const SHEET_KINDS: ReadonlySet<string> = new Set(["flag", "hang", "frond"]);
 
 /** The parts of a world-first place file the check reads. */
@@ -44,19 +44,19 @@ export interface StagedAct {
   spot: number;
   pose?: string;
   sex?: string;
-  /** `true` on a seat someone works or speaks for the place from (city.md R-CITY-032); any other value is refused. */
+  /** `true` on a seat someone works or speaks for the place from (city:residents-fill-to-target); any other value is refused. */
   staff?: unknown;
   to?: unknown;
 }
 
 /**
- * 15. R-CITY-032 for one file: every act names one of the crowd's spots, `staff` is `true` where it is set, and a staff
+ * 15. city:residents-fill-to-target for one file: every act names one of the crowd's spots, `staff` is `true` where it is set, and a staff
  * seat is one the high mode shows and someone stays at, never a crossing.
  */
 export function checkParts(file: Pick<LimitedFile, "place" | "people" | "stage">): string[] {
   const spots = file.stage?.people?.length ?? 0;
   return (file.stage?.acts ?? []).flatMap((act) => {
-    const at = `R-CITY-032: ${file.place} has an act at spot ${String(act.spot)}`;
+    const at = `city:residents-fill-to-target: ${file.place} has an act at spot ${String(act.spot)}`;
     if (!Number.isInteger(act.spot) || act.spot < 0 || act.spot >= spots) return [`${at}, which is not one of its ${String(spots)} spots`];
     if (act.staff === undefined) return [];
     if (act.staff !== true) return [`${at} whose staff is ${JSON.stringify(act.staff)}, not true`];
@@ -66,13 +66,13 @@ export function checkParts(file: Pick<LimitedFile, "place" | "people" | "stage">
   });
 }
 
-/** No thing offers more than two acts (R-WORLD-005); a third goes on a sheet. */
+/** No thing offers more than two acts (world:things-are-tappable-models); a third goes on a sheet. */
 export const MAX_ACTS = 2;
 
-/** R-WORLD-005 for one file: every thing has at least one act and at most two. */
+/** world:things-are-tappable-models for one file: every thing has at least one act and at most two. */
 export function checkThings(file: Pick<LimitedFile, "place" | "stage">): string[] {
   return (file.stage?.things ?? []).flatMap((thing) =>
-    thing.acts.length === 0 ? [`R-WORLD-005: ${file.place} has a thing ${thing.id} with no act`] : thing.acts.length > MAX_ACTS ? [`R-WORLD-005: ${file.place} has a thing ${thing.id} with ${String(thing.acts.length)} acts, over ${String(MAX_ACTS)}`] : [],
+    thing.acts.length === 0 ? [`world:things-are-tappable-models: ${file.place} has a thing ${thing.id} with no act`] : thing.acts.length > MAX_ACTS ? [`world:things-are-tappable-models: ${file.place} has a thing ${thing.id} with ${String(thing.acts.length)} acts, over ${String(MAX_ACTS)}`] : [],
   );
 }
 
@@ -90,12 +90,12 @@ export function walkableSize(stage: NonNullable<LimitedFile["stage"]>): [number,
   return [Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs)];
 }
 
-/** R-WORLD-011 for one file: its crowd, its moving sheets, its size, and each dressing's. */
+/** world:place-is-one-screen for one file: its crowd, its moving sheets, its size, and each dressing's. */
 export function checkLimits(file: LimitedFile): string[] {
   const stage = file.stage;
   if (stage === undefined) return [];
   const problems: string[] = [];
-  const say = (line: string): number => problems.push(`R-WORLD-011: ${file.place} ${line}`);
+  const say = (line: string): number => problems.push(`world:place-is-one-screen: ${file.place} ${line}`);
   const people = WORLD_LIMITS.people[file.scope];
   if (file.people.low > people.low) say(`shows ${String(file.people.low)} people in low mode, over ${String(people.low)} for an ${file.scope} place`);
   if (file.people.high > people.high) say(`shows ${String(file.people.high)} people in high mode, over ${String(people.high)} for an ${file.scope} place`);
