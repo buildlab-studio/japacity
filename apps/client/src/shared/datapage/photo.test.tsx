@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
-import { keepPerson, readPerson } from "../../authority/person";
+import { keepPerson, readPerson } from "../frontdoor/person";
 import { createGameStore } from "../../authority/store";
 import { lookOf } from "../frontdoor/looks";
 import { DataPage } from "./DataPage";

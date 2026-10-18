@@ -3,7 +3,7 @@
 // without a server, where there is no one to block and no team to tell.
 import type { BlockReply, BlockRequest, CiteReportRequest, PairReportRequest, ReportReply, ServerRejection } from "@japacity/api";
 
-import { authorityMode } from "../../authority/mode";
+import { authorityMode } from "../net/authorityMode";
 import { api, type Api } from "../net/http";
 
 /** Read from apps/server/src/moderation/standing.ts (R-MODERATION-007, R-MODERATION-016): `GET /api/moderation/standing`. */

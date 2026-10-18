@@ -9,7 +9,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { App } from "../../../app/App";
 import { GameProvider, useGame } from "../../../authority/GameProvider";
 import { localAuthority, SAVE_KEY } from "../../../authority/local";
-import { keepPerson, PERSON_KEY } from "../../../authority/person";
+import { keepPerson, PERSON_KEY } from "../../../shared/frontdoor/person";
 import { createGameStore, type GameStore } from "../../../authority/store";
 import { engineView, fakeAuthority } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";

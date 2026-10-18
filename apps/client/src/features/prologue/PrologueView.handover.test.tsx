@@ -3,7 +3,7 @@
 import { act, fireEvent, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { keepPerson } from "../../authority/person";
+import { keepPerson } from "../../shared/frontdoor/person";
 import { engineView, newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { opensChips } from "../../shared/frontdoor/archetypes";

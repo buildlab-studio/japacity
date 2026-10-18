@@ -6,7 +6,7 @@ import type { ClockView, DrawReply, ServerRejection } from "@japacity/api";
 import type { LotteryOdds, LotteryResult, PlayerView, Tier } from "@japacity/sim";
 import { drawResults, drawSeed, fingerprintOf, listHashOf, PER_MILLION, ticketResult, time, toHex } from "@japacity/sim";
 
-import { authorityMode } from "../../authority/mode";
+import { authorityMode } from "../../shared/net/authorityMode";
 import { api, type Fetch } from "../../shared/net/http";
 
 export type Lottery = NonNullable<PlayerView["lottery"]>;

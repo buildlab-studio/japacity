@@ -12,7 +12,7 @@ import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useS
 import type { WorldClock } from "@japacity/sim";
 import { Box3, type Camera, Color, type DirectionalLight, Fog, type HemisphereLight, type Mesh, type Object3D, PerspectiveCamera, PointLight, Vector3 } from "three";
 
-import { keptStyleOf } from "../../authority/person";
+import { keptStyleOf } from "../../shared/frontdoor/person";
 import { wear } from "../../shared/frontdoor/colours";
 import type { Act, Shot, Thing } from "../../shared/world/contract";
 import { useMotionReduced } from "../../shared/ui/motion";

@@ -15,9 +15,9 @@ import { type Id } from "@japacity/sim";
 import { type ReactNode, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
-import { useScreenCount } from "../../useScreenCount";
-import { authorityMode } from "../../authority/mode";
-import { keepPerson } from "../../authority/person";
+import { useScreenCount } from "../../shared/analytics/useScreenCount";
+import { authorityMode } from "../../shared/net/authorityMode";
+import { keepPerson } from "../../shared/frontdoor/person";
 import { blurbOf, say } from "../../shared/words/text";
 import { ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf } from "../../shared/frontdoor/archetypes";
 import { DoorAction, DoorFrame } from "../../shared/frontdoor/DoorFrame";

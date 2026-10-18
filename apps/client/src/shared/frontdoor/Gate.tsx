@@ -6,7 +6,7 @@
 // colours and the look's own picture stand in.
 import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef, useState } from "react";
 
-import { readPerson } from "../../authority/person";
+import { readPerson } from "./person";
 import { LOOKS, lookOf } from "./looks";
 import { DRAG_TURN, type Spin } from "./spin";
 import type { LookStyle } from "./style";

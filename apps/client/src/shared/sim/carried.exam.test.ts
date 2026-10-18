@@ -5,8 +5,8 @@ import { content } from "@japacity/content";
 import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { readyNurse } from "../../shared/testing/nurse";
-import { plannable } from "../../shared/words/acts";
+import { readyNurse } from "../testing/nurse";
+import { plannable } from "../words/acts";
 import { carriedPlan } from "./carried";
 
 const CERTIFY = "activity.nurse-certification" as Id<"activity">;

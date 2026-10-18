@@ -8,10 +8,10 @@
 import { content, text } from "@japacity/content";
 import { INVITE_FILLS } from "@japacity/sim";
 import { Link2, Send } from "lucide-react";
-import { useId, useState, type ReactNode } from "react";
+import { useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { readPerson } from "../../authority/person";
+import { readPerson } from "../../shared/frontdoor/person";
 import { rejectionWords } from "../../authority/store";
 import { FaceSticker } from "../../shared/frontdoor/LookPicture";
 import { lookForName, lookOf } from "../../shared/frontdoor/looks";
@@ -19,6 +19,7 @@ import { slotKind } from "../../shared/sim/people";
 import { GhostButton } from "../../shared/ui/lively/GhostButton";
 import { PressButton } from "../../shared/ui/lively/PressButton";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
+import { AfterEarlyWin } from "../../shared/ui/stage";
 import { nameOf, runningName, say, words } from "../../shared/words/text";
 import type { PairApi } from "./pairApi";
 import { troubleWords } from "../../shared/words/trouble";
@@ -102,15 +103,6 @@ function Link({ api, slot }: { api: PairApi; slot: string }) {
       )}
     </div>
   );
-}
-
-/**
- * An invite is an ask, so it shows only after the early win (R-GUIDE-015). It
- * reads the store's flag as features/notify/HeldShareCard.tsx does; a feature may not
- * import another feature, so the two lines live here until that moves to shared/.
- */
-export function AfterEarlyWin({ children }: { children: ReactNode }) {
-  return useGame((state) => state.earlyWin) ? children : null;
 }
 
 /** The card out on a slot: its face, its link online, and taking it back. */

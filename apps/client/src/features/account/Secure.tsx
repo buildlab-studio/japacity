@@ -18,6 +18,7 @@ import { onGuestOnly } from "../../shared/net/guest";
 import { Button } from "../../shared/ui/Button";
 import { GoogleButton } from "../../shared/ui/GoogleButton";
 import { Sheet } from "../../shared/ui/Sheet";
+import { useEarlyWin } from "../../shared/ui/stage";
 import { Wordmark } from "../../shared/ui/Wordmark";
 import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
@@ -76,7 +77,7 @@ export interface SecureSheetProps {
  * ways to keep and no Not now.
  */
 export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, kept: back = null, agent }: SecureSheetProps) {
-  const earlyWin = useGame((state) => state.earlyWin);
+  const earlyWin = useEarlyWin();
   const [problem, setProblem] = useState<string | null>(given);
   // Which way the life was kept, once it is: the sheet's kept state, and the line the world says as it closes.
   const [keptWith, setKeptWith] = useState<"google" | "email" | null>(back);
@@ -204,7 +205,7 @@ function markAsked(key: string): void {
 export function SecureAsk() {
   const account = useGame((state) => state.account);
   const view = useGame((state) => state.view);
-  const earlyWin = useGame((state) => state.earlyWin);
+  const earlyWin = useEarlyWin();
   const quiet = useGame((state) => state.moments.length === 0 && !state.reportOpen);
   const me = useAccountView();
   const [open, setOpen] = useState(false);

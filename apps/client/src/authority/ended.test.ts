@@ -8,10 +8,10 @@ import { afterEach, describe, expect, test } from "vitest";
 import { DAYS_KEY } from "../shared/days/days.store";
 import { engineView } from "../shared/testing/fixtures";
 import { BASE, fakeServer } from "../shared/testing/server";
-import { TRAIL_KEY } from "../features/prologue/years";
+import { TRAIL_KEY } from "../shared/datapage/family";
 import { forgetLife, LIFE_KEYS } from "./ended";
 import { localAuthority, SAVE_KEY } from "./local";
-import { keepPerson, PERSON_KEY, readPerson } from "./person";
+import { keepPerson, PERSON_KEY, readPerson } from "../shared/frontdoor/person";
 import { remoteAuthority } from "./remote";
 import { createGameStore, MONTH_KEY } from "./store";
 

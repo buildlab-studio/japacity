@@ -4,7 +4,7 @@ import { lastSegment, lifeStart, savedCommands, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { localAuthority, SAVE_KEY } from "./local";
-import { PERSON_KEY } from "./person";
+import { PERSON_KEY } from "../shared/frontdoor/person";
 
 function memoryStorage() {
   const items = new Map<string, string>();

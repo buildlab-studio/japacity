@@ -7,7 +7,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority, SAVE_KEY } from "../../authority/local";
-import { readPerson } from "../../authority/person";
+import { readPerson } from "./person";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { DOOR_KEY, readDoor } from "../datapage/door";
 import { say } from "../words/text";

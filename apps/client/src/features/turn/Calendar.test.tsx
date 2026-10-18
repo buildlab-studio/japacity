@@ -18,7 +18,7 @@ import { formatMoney } from "../../shared/words/format";
 import { nameOf, say, words } from "../../shared/words/text";
 import { Calendar, calendarOpening, choresWords, passWords } from "./Calendar";
 import { turnWords } from "./turn.words";
-import { carriedPlan } from "./carried";
+import { carriedPlan } from "../../shared/sim/carried";
 
 const LEARN = "activity.learn-tech" as Id<"activity">;
 // Decision 0012 (R-ACTIVITY-019): the coding course and the portfolio now answer at once and repeat, so they are never

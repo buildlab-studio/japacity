@@ -4,7 +4,7 @@
 import { render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { keepPerson, readPerson } from "../../authority/person";
+import { keepPerson, readPerson } from "../frontdoor/person";
 import { DataPage } from "./DataPage";
 import { photoHeight } from "./photo.size";
 // Registers Testing Library's cleanup for this file.

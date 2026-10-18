@@ -4,7 +4,7 @@
 // answer for the server and the browser.
 // https://developer.mozilla.org/en-US/docs/Web/API/Notification/requestPermission_static
 // https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe
-import { authorityMode } from "../../authority/mode";
+import { authorityMode } from "../../shared/net/authorityMode";
 import { api, type Fetch } from "../../shared/net/http";
 import { pageWall, type WallGuard } from "../../shared/net/wall";
 

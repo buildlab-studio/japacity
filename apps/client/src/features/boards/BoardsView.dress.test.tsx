@@ -6,7 +6,7 @@ import type { BoardRow } from "@japacity/api";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { PERSON_KEY } from "../../authority/person";
+import { PERSON_KEY } from "../../shared/frontdoor/person";
 import "../../shared/testing/render";
 import { LOOKS } from "../../shared/frontdoor/looks";
 import { BASE, fakeServer } from "../../shared/testing/server";

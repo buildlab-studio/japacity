@@ -4,12 +4,7 @@
 import { useEffect, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { cardKey } from "../../shared/ui/stage";
-
-/** True once the early win has been shown in this tab. */
-function useEarlyWin(): boolean {
-  return useGame((state) => state.earlyWin);
-}
+import { cardKey, useEarlyWin } from "../../shared/ui/stage";
 
 /**
  * The share card and its button, held back until the early win. A card due

@@ -8,7 +8,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import { App } from "../../app/App";
 import { bootGame } from "../../authority/boot";
 import { SAVE_KEY } from "../../authority/local";
-import { readPerson } from "../../authority/person";
+import { readPerson } from "../../shared/frontdoor/person";
 import { ARCHETYPES, archetypeOf } from "../../shared/frontdoor/archetypes";
 import { startIn } from "./ScenarioView";
 import { startArchetype, toTheArchetypes } from "../../shared/frontdoor/frontDoor.testing";

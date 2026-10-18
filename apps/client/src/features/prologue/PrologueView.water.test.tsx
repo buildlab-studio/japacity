@@ -5,7 +5,7 @@ import { render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "../../app/App";
-import { keepPerson } from "../../authority/person";
+import { keepPerson } from "../../shared/frontdoor/person";
 import { createGameStore } from "../../authority/store";
 import { archetypeOf, doorAnswer } from "../../shared/frontdoor/archetypes";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";

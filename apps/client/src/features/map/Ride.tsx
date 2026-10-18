@@ -2,7 +2,7 @@
 // the rider's, driver's or conductor's line shows as a chip.
 import { useEffect, useRef, useState } from "react";
 
-import { keptLookFile, keptStyleOf } from "../../authority/person";
+import { keptLookFile, keptStyleOf } from "../../shared/frontdoor/person";
 import { graphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest, type PublishManifest } from "../../shared/three/manifest";

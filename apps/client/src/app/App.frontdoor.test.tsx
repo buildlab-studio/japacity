@@ -12,7 +12,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { App } from "./App";
 import { bootGame } from "../authority/boot";
 import { SAVE_KEY } from "../authority/local";
-import { PERSON_KEY, readPerson } from "../authority/person";
+import { PERSON_KEY, readPerson } from "../shared/frontdoor/person";
 import type { GameStore } from "../authority/store";
 import { countInto } from "../shared/analytics/start";
 import { makeCounters } from "../shared/analytics/counters";

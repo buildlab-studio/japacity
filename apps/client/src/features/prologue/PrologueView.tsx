@@ -10,7 +10,7 @@ import { ArrowRight, Dices } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { readPerson } from "../../authority/person";
+import { readPerson } from "../../shared/frontdoor/person";
 import { FactChip } from "../../shared/ui/FactChip";
 import { Waiting } from "../../shared/ui/Loader";
 import { Rejection } from "../../shared/ui/Rejection";
@@ -31,10 +31,11 @@ import { homePicture, LIFE_THINGS } from "../../shared/frontdoor/lives";
 import { plannedYears } from "../../shared/frontdoor/planned";
 import { FigurePicture, ModelPicture } from "../../shared/frontdoor/LookPicture";
 import { readDoor } from "../../shared/datapage/door";
+import { familyCard } from "../../shared/datapage/family";
 import { WayChips } from "../../shared/frontdoor/WayChips";
 import { pageOf } from "../../shared/datapage/PageSheet";
 import { readyPercent, readyWords } from "../../shared/words/ready";
-import { familyCard, noteAnswer, noteCard, noteSteps, readTrail, startTrail, storyChips, type Trail, trailShown, type YearChip, yearChips } from "./years";
+import { noteAnswer, noteCard, noteSteps, readTrail, startTrail, storyChips, type Trail, trailShown, type YearChip, yearChips } from "./years";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 type Draw = NonNullable<Prologue["draw"]>;

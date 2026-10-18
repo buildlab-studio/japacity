@@ -6,9 +6,9 @@ import { content, text } from "@japacity/content";
 import type { Command, Envelope, Id, PlayerView, Reply, ReportLine, SlotPick, World } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
-import { earlyWinIn } from "../features/guides/earlyWin";
+import { earlyWinIn } from "../shared/sim/earlyWin";
 import { momentLine } from "../shared/moment/moment";
-import { carriedPlan } from "../features/turn/carried";
+import { carriedPlan } from "../shared/sim/carried";
 import type { AccountApi } from "../shared/net/auth";
 import { failureOf, type FailureKind, isReloading, isReported } from "../shared/net/http";
 import { plannable } from "../shared/words/acts";
@@ -21,7 +21,7 @@ import { forgetArranged } from "../shared/world/arranged";
 import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";
 import { swapsFor } from "./others";
-import { playerName } from "./person";
+import { playerName } from "../shared/frontdoor/person";
 import type { AuthorityEvent } from "./remote";
 
 /** A number of the world at this tick as the store holds it: the fetched world's online, the local authority's offline; 0 before either is known. */

@@ -4,7 +4,7 @@ import { act } from "@testing-library/react";
 import { content } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { keepPerson } from "../../authority/person";
+import { keepPerson } from "../../shared/frontdoor/person";
 import { TRAIL_KEY } from "../../shared/datapage/family";
 import { archetypeOf, doorAnswer } from "../../shared/frontdoor/archetypes";
 import { newGame } from "../../shared/testing/fixtures";

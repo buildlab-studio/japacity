@@ -6,7 +6,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
-import { keepPerson } from "../../authority/person";
+import { keepPerson } from "../frontdoor/person";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { lookOf } from "../frontdoor/looks";
 import { AGE, clockWords, yearsOf } from "../words/quality";

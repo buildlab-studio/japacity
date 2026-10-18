@@ -32,7 +32,7 @@ function nameOf(row: BoardRow): string {
  */
 export const BOARD_FACES: readonly string[] = ["chr_ada", "chr_tunde", "chr_zainab", "chr_tobi", "chr_ngozi", "chr_femi", "chr_kemi", "chr_bisi", "chr_amaka", "chr_bayo", "chr_dayo", "chr_emeka", "chr_kunle", "chr_sade", "chr_segun", "chr_tolani"];
 
-/** Where the door keeps the person built there (authority/person.ts PERSON_KEY), read here alone for its look. */
+/** Where the door keeps the person built there (shared/frontdoor/person.ts PERSON_KEY), read here alone for its look. */
 export const KEPT_PERSON = "japacity.person";
 
 /**

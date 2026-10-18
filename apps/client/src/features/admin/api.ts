@@ -29,7 +29,7 @@ import type {
   SwitchName,
 } from "@japacity/api";
 
-import { authorityMode } from "../../authority/mode";
+import { authorityMode } from "../../shared/net/authorityMode";
 import { api, type Api } from "../../shared/net/http";
 
 export type Outcome = "approve" | "refuse";

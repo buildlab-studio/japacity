@@ -11,7 +11,7 @@ import type { Id } from "@japacity/sim";
 import { createContext, createElement, use, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
-import { authorityMode } from "../../authority/mode";
+import { authorityMode } from "../../shared/net/authorityMode";
 import { rejectionWords } from "../../authority/store";
 import { FROM_SIXTEEN } from "../../shared/frontdoor/archetypes";
 import { BlockReport } from "../../shared/moderation/BlockReport";

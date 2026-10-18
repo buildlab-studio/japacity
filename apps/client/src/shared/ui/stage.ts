@@ -2,6 +2,8 @@
 // then the month's report with its moment card over it (docs/rules/moments.md), then the share card, then a scene such as the
 // December visit. Each waits for the one before it, so two never cover each
 // other and a click always lands on the one in front.
+import type { ReactNode } from "react";
+
 import { useGame, useView } from "../../authority/GameProvider";
 import { cardKey } from "./cardKey";
 
@@ -21,4 +23,14 @@ export function useScenesTurn(): boolean {
   const cardClosed = useGame((state) => state.cardClosed);
   const key = cardKey(useView().card);
   return cardsTurn && (key === null || cardClosed === key);
+}
+
+/** True once the early win has been shown in this tab: what asks something of the player waits for it (R-GUIDE-015). */
+export function useEarlyWin(): boolean {
+  return useGame((state) => state.earlyWin);
+}
+
+/** An ask, shown only after the early win (R-GUIDE-015). */
+export function AfterEarlyWin({ children }: { children: ReactNode }): ReactNode {
+  return useEarlyWin() ? children : null;
 }

@@ -7,7 +7,7 @@ import type { AdvertSlotEntry } from "@japacity/sim";
 import { createContext, createElement, use, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { useView } from "../../authority/GameProvider";
-import { authorityMode } from "../../authority/mode";
+import { authorityMode } from "../../shared/net/authorityMode";
 import { counting } from "../../shared/analytics/start";
 import { regionOf } from "../../shared/net/account";
 import { api, type Api } from "../../shared/net/http";

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { authorityMode } from "./mode";
+import { authorityMode } from "./authorityMode";
 
 afterEach(() => {
   vi.unstubAllEnvs();

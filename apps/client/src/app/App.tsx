@@ -13,7 +13,7 @@ import { Splash } from "../shared/ui/Splash";
 import { Waiting } from "../shared/ui/Loader";
 import { GameProvider, useGame, useView } from "../authority/GameProvider";
 import type { GameStore } from "../authority/store";
-import { readPerson } from "../authority/person";
+import { readPerson } from "../shared/frontdoor/person";
 import { AccountGate } from "../features/account/AccountGate";
 import { DedicationLater } from "../features/account/DedicationLater";
 import { glowFill } from "../features/account/TwoLights";
@@ -60,7 +60,7 @@ import { BriefLog } from "../features/city/brief/BriefLog";
 import { Results } from "../features/turn/Results";
 import { say } from "../shared/words/text";
 import { usePaint } from "../shared/world/paint";
-import { useScreenCount } from "../useScreenCount";
+import { useScreenCount } from "../shared/analytics/useScreenCount";
 
 const StartCity = lazy(() => import("../features/map/StartCity"));
 /** The send-off's plane cut over the painted map (world.md R-WORLD-037), fetched with the scene that shows it. */

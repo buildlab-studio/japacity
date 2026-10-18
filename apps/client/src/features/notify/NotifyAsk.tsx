@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGame } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
+import { useEarlyWin } from "../../shared/ui/stage";
 import { say } from "../../shared/words/text";
 import type { CountAsk } from "./ask";
 import { countAsk, isGoodMoment, mayAsk } from "./ask";
@@ -24,7 +25,7 @@ export interface NotifyAskProps {
 
 export function NotifyAsk({ api, device, earlyWin: given, count = countAsk }: NotifyAskProps) {
   const [seams] = useState(() => ({ api: api === undefined ? defaultNotifyApi() : api, device: device ?? browserDevice() }));
-  const won = useGame((state) => state.earlyWin);
+  const won = useEarlyWin();
   const earlyWin = useMemo(() => given ?? (() => won), [given, won]);
   const lines = useGame((state) => state.lines);
   const moments = useGame((state) => state.moments.length);

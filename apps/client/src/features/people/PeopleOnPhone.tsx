@@ -13,11 +13,12 @@ import { BlockReport } from "../../shared/moderation/BlockReport";
 import { bondName, endCost, endedHow, interviewName, personOf, slotKind, slotOrder, stepsFor, TOGETHER, type BondView, type SlotView } from "../../shared/sim/people";
 import { GhostButton } from "../../shared/ui/lively/GhostButton";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
+import { AfterEarlyWin } from "../../shared/ui/stage";
 import { countWords } from "../../shared/words/count";
 import { countryWords } from "../../shared/words/people";
 import { blurbOf, forMonths, hasWords, lowerFirst, monthsAgo, nameOf, runningName, say, sayCount } from "../../shared/words/text";
 import { Answered, BondFace, End, Facts, Held, Joint, Mark, momentsLeft, Pending, Proposals, Warnings } from "./BondCard";
-import { AfterEarlyWin, InviteMaker, InviteOut } from "./InviteCard";
+import { InviteMaker, InviteOut } from "./InviteCard";
 import type { PairApi } from "./pairApi";
 
 /**

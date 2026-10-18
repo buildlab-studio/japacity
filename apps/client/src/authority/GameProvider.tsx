@@ -5,7 +5,7 @@ import { useStore } from "zustand";
 
 import { setNow } from "../shared/words/now";
 import { swapsFor } from "./others";
-import { playerName } from "./person";
+import { playerName } from "../shared/frontdoor/person";
 import type { GameState, GameStore } from "./store";
 
 const GameContext = createContext<GameStore | null>(null);

@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { chapterNextStep, FIRST_SESSION_TURNS, playFirstSession, startingLives, type FirstSession } from "../../shared/testing/firstSession";
 import { words } from "../../shared/words/text";
-import { earlyWinIn, isEarlyWin } from "./earlyWin";
+import { earlyWinIn, isEarlyWin } from "../../shared/sim/earlyWin";
 
 const line = (key: string, tone: ReportLine["tone"] = "good"): ReportLine => ({ key, params: {}, tone, attention: false, counts: [] });
 

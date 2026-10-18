@@ -4,7 +4,7 @@
 import { content } from "@japacity/content";
 import type { PlayerView, SlotPick } from "@japacity/sim";
 
-import { plannable } from "../../shared/words/acts";
+import { plannable } from "../words/acts";
 
 const HUNT = "activity.job-hunt";
 

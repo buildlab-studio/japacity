@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "../../app/App";
 import { bootGame } from "../../authority/boot";
-import { readPerson } from "../../authority/person";
+import { readPerson } from "../../shared/frontdoor/person";
 import { readDoor } from "../../shared/datapage/door";
 import { LOOKS } from "../../shared/frontdoor/looks";
 import { say } from "../../shared/words/text";

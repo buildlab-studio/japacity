@@ -6,7 +6,7 @@
 import type { LightProblem } from "@japacity/content";
 import { useEffect, useSyncExternalStore } from "react";
 
-import { authorityMode } from "../../authority/mode";
+import { authorityMode } from "../net/authorityMode";
 import { api, type Api } from "../net/http";
 import type { WallGuard } from "../net/wall";
 

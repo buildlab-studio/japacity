@@ -6,7 +6,7 @@
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { keepPerson } from "../../authority/person";
+import { keepPerson } from "../../shared/frontdoor/person";
 import { LOOKS, lookForName } from "../../shared/frontdoor/looks";
 import { peopleGame, renderWithGame } from "../../shared/testing/people";
 import { nameOf, say } from "../../shared/words/text";

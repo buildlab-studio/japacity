@@ -5,7 +5,7 @@
 import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
-import { readStyle, type LookStyle } from "../shared/frontdoor/style";
+import { readStyle, type LookStyle } from "./style";
 
 /** The one localStorage key the person is kept under, beside `japacity.save`. */
 export const PERSON_KEY = "japacity.person";

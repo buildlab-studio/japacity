@@ -7,7 +7,7 @@ import type { ConversationReply, InviteReply, PairReply, SayReply } from "@japac
 import type { Id } from "@japacity/sim";
 import { createContext, createElement, use, useMemo, type ReactNode } from "react";
 
-import { authorityMode } from "../../authority/mode";
+import { authorityMode } from "../../shared/net/authorityMode";
 import { api, type Api, type Fetch } from "../../shared/net/http";
 
 export interface PairApi {

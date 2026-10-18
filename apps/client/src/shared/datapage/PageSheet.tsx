@@ -8,7 +8,7 @@ import { createPortal } from "react-dom";
 import { useStore } from "zustand";
 
 import { useGameStoreIfAny } from "../../authority/GameProvider";
-import { type KeptPerson, readPerson } from "../../authority/person";
+import { type KeptPerson, readPerson } from "../frontdoor/person";
 import type { GameStore } from "../../authority/store";
 import { keptTypeOf } from "../card/kept";
 import { type Archetype, archetypeOf, throughUniversity } from "../frontdoor/archetypes";

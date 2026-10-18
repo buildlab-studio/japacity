@@ -7,7 +7,7 @@ import { DOOR_KEY } from "../shared/datapage/door";
 import { CITY_LAST_KEY } from "../shared/days/standing";
 import { SEEN_KEY } from "../shared/phone/newsSeen";
 import { TAUGHT_KEY } from "../shared/world/taught";
-import { PERSON_KEY } from "./person";
+import { PERSON_KEY } from "../shared/frontdoor/person";
 
 /**
  * The keys the life is kept under beside the save. The days (`shared/days/days.store.ts`), the years' trail

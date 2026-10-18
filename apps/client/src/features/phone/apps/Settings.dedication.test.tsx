@@ -12,7 +12,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider, useGame } from "../../../authority/GameProvider";
 import { localAuthority } from "../../../authority/local";
-import { keepPerson } from "../../../authority/person";
+import { keepPerson } from "../../../shared/frontdoor/person";
 import { createGameStore, type GameStore } from "../../../authority/store";
 import "../../../shared/testing/render";
 import { STAMP_META } from "../../../shared/stamp/stamp";

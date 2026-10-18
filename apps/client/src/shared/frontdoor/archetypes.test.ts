@@ -6,7 +6,7 @@ import { allMet } from "@japacity/sim";
 import { start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import type { KeptPerson } from "../../authority/person";
+import type { KeptPerson } from "./person";
 import { pageOf } from "../datapage/PageSheet";
 import { chargedLivingContent, newGame } from "../testing/fixtures";
 import { say } from "../words/text";

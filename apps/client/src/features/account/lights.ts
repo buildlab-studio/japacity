@@ -6,7 +6,7 @@ import type { LightsReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import { useEffect, useState } from "react";
 
-import { authorityMode } from "../../authority/mode";
+import { authorityMode } from "../../shared/net/authorityMode";
 import { api } from "../../shared/net/http";
 import type { WallGuard } from "../../shared/net/wall";
 

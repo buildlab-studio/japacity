@@ -4,7 +4,7 @@
 import type { BoardName, BoardReply, ServerRejection } from "@japacity/api";
 import { createContext, createElement, use, useMemo, type ReactNode } from "react";
 
-import { authorityMode } from "../../authority/mode";
+import { authorityMode } from "../../shared/net/authorityMode";
 import { api, type Api, type Fetch } from "../../shared/net/http";
 
 export type BoardAnswer = BoardReply | ServerRejection;

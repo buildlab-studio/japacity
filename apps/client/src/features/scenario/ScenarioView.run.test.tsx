@@ -8,7 +8,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
-import { readPerson } from "../../authority/person";
+import { readPerson } from "../../shared/frontdoor/person";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { ageStepWords, startYearFor, stepsOpen, yearsWorked } from "../../shared/datapage/age";
 import { DOOR_KEY } from "../../shared/datapage/door";
