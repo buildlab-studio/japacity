@@ -7,7 +7,7 @@ import type { CounterDef } from "@japacity/sim";
 /** R-ROUTE-019: a refusal's reasons, its first one counted. */
 const REFUSAL_REASONS = ["funds", "interview", "history", "credibility", "sponsor", "agent", "endorsement", "relationship", "sham", "lead"];
 
-/** The simulation's rejection codes and the server's own (apps/server/src/types.ts `ServerCode`). */
+/** The simulation's rejection codes and the server's own (`ServerCode` of packages/api/src/reply.ts). */
 const REJECTION_CODES = [
   "stale",
   "clock-went-back",
