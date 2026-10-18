@@ -4,6 +4,7 @@
 import { Hono } from "hono";
 
 import type { Accounts } from "./auth/auth";
+import { sessionCookies } from "./auth/session";
 import type { ServerDeps } from "./deps";
 import { accountRoutes } from "./routes/account";
 import { ageRoutes } from "./routes/age";
@@ -48,6 +49,9 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   // A write from another site, or a body too large, is refused before anything reads or counts it.
   if (accounts !== undefined) app.use(sameOriginWrites(accounts.keys.siteUrl));
   app.use(bodyLimits(deps.config.limits));
+  // account:dead-cookie-expired-on-first-read, account:session-renewal-reaches-browser: inside the body limit, whose
+  // request is the one every gate and route below reads the session from.
+  if (accounts !== undefined) app.use(sessionCookies());
   // server:rejections-write-nothing, analytics:nightly-game-counters: around the gates and the limits, so a refusal from either is counted too.
   for (const path of COUNTED_PATHS) app.use(path, countRefusals(deps));
   // server:four-off-switches: first, so its gates run before every route they close.
