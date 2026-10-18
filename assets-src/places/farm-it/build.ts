@@ -8,8 +8,8 @@ import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets
 import { beam, box, cylinder, floorQuad, quad, seeded, signboard, solid } from "@japacity/assets/kit";
 import { Group } from "three";
 
+import { at } from "../../prop/parts";
 import { lump } from "../../veh/lab";
-import { at } from "../castel-volturno/build";
 
 /** A row of the field: low tomato plants along +z, the drip line at their foot, a few fruit showing red. */
 export const CROP_ROW = { length: 9.0, spacing: 0.6 } as const;

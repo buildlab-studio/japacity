@@ -9,21 +9,7 @@ import { type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, quad } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
-/** A group at (x, y, z) turned ry, to draw a part in its own frame. */
-function at(g: Object3D, x: number, z: number, ry = 0, y = 0): Group {
-  const frame = new Group();
-  frame.position.set(x, y, z);
-  frame.rotation.y = ry;
-  g.add(frame);
-  return frame;
-}
-
-/** Four square legs under a top of w by d at height h. */
-function legs(g: Object3D, w: number, d: number, h: number, colour: PaletteName, thick = 0.05): void {
-  const ix = w / 2 - thick;
-  const iz = d / 2 - thick;
-  for (const [x, z] of [[-ix, -iz], [ix, -iz], [-ix, iz], [ix, iz]] as const) box(g, thick, h, thick, x, 0, z, colour);
-}
+import { at, legs } from "../parts";
 
 /** A plain chair facing +Z in its frame: seat at 0.45, a back. */
 function chair(g: Object3D, colour: PaletteName, frame: PaletteName = "charcoal"): void {

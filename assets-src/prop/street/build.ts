@@ -7,14 +7,7 @@ import { type PaletteName, setFootprint } from "@japacity/assets";
 import { box, clutter, cylinder, posters, seeded } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
-/** A group at (x, y, z) turned ry, to draw a part in its own frame. */
-function at(g: Object3D, x: number, z: number, ry = 0, y = 0): Group {
-  const frame = new Group();
-  frame.position.set(x, y, z);
-  frame.rotation.y = ry;
-  g.add(frame);
-  return frame;
-}
+import { at } from "../parts";
 
 /**
  * A plywood board on two posts at the roadside, pasted over with posters (a crusade, a party's face, a lesson

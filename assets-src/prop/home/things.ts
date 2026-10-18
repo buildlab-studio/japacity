@@ -6,14 +6,7 @@ import { type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, floorQuad, quad, type Vec3 } from "@japacity/assets/kit";
 import { Group, type Object3D, Quaternion, Vector3 } from "three";
 
-/** A group at (x, y, z) turned ry, to draw a part in its own frame. */
-function at(g: Object3D, x: number, z: number, ry = 0, y = 0): Group {
-  const frame = new Group();
-  frame.position.set(x, y, z);
-  frame.rotation.y = ry;
-  g.add(frame);
-  return frame;
-}
+import { at } from "../parts";
 
 /** A group at (x, y, z) tipped rx about x: a lid leaning back, a panel tilted to the sun. */
 function tilt(g: Object3D, x: number, y: number, z: number, rx: number): Group {
