@@ -53,7 +53,7 @@ const RESIDENT: Id<"status"> = "status.ca-resident";
 const IRREGULAR: Id<"status"> = "status.eu-irregular";
 /** R-PLACE-007: what the family house charges for again when you come back. */
 const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
-/** R-PLACE-002: what closes on a flight: the family house's charges, and a room's rent at home, let go (R-HOME-010). */
+/** R-PLACE-002: what closes on a flight: the family house's charges, and a room's rent, let go (R-HOME-010, R-ABROAD-003). */
 const LEFT_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent"];
 /**
  * R-RETURN-006: what closes on the way home. The car is handed back by the
@@ -182,8 +182,9 @@ function fromStartingLife(read: ReadCtx, types: readonly ObligationType[], share
 function arrive(ctx: Ctx, country: Id<"country">, cause: Cause): BaseEvent[] {
   const entry = countryEntry(ctx.content, country);
   const month = ctx.state.turn.month;
-  // From Lagos or the road, a room's rent at home is let go too; between two countries only the home's charges close.
-  const left = ctx.state.place.where === "abroad" ? HOME_TYPES : LEFT_TYPES;
+  // From Lagos or the road, a room's rent at home is let go too. Between two countries the first country's room or
+  // flat is let go the same way, and a flat's deposit comes back on leaving it (abroad-money.md R-ABROAD-003).
+  const left = LEFT_TYPES;
   // R-PLACE-002: leaving Lagos, what is owned is sold as the room is let go.
   if (ctx.state.place.where === "home") ctx.apply([{ type: "things/sell-off" }], cause);
   const events = record(ctx, [{ type: "place/moved", to: "abroad", country, month }]);
