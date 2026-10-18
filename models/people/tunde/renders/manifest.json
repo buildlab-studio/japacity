@@ -1,6 +1,6 @@
 {
-  "asset": "chr_tunde",
-  "file": "public/assets/shared/chr/chr_tunde.glb",
+  "asset": "person_tunde",
+  "file": "public/assets/shared/person/person_tunde.glb",
   "fileSha256": "e3b6f0b110640c951242122b0ae0f33af0a077564c1ff6c179663921f43378f8",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

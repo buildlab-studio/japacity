@@ -50,7 +50,7 @@ describe("the hub's budget", () => {
 
 describe("the junction", () => {
   test("[city:ojuelegba-is-the-hub] given the hub's stage, when it is read, then the flyover runs across it in two rows of spans the map data's gap apart, pier to pier, with danfos and a keke at the kerb under it and a stall beneath it", () => {
-    const spans = at("bld_flyover-span.glb");
+    const spans = at("building_flyover-span.glb");
     const rows = [...new Set(spans.map(([, z]) => z))].sort((one, two) => one - two);
     expect(rows).toHaveLength(2);
     expect((rows[1] ?? 0) - (rows[0] ?? 0)).toBeCloseTo(FLYOVER.rowGap, 6);
@@ -65,15 +65,15 @@ describe("the junction", () => {
     if (kerb === undefined) throw new Error("The hub has no painted kerb");
     expect(kerb.dash?.colour).not.toBe(kerb.colour);
     const atKerb = ([, z]: [number, number, number]): boolean => z < kerb.at[1] && z > kerb.at[1] - 3;
-    expect(at("veh_danfo.glb").filter(atKerb).length).toBeGreaterThanOrEqual(2);
-    expect(at("veh_keke.glb").filter(atKerb).length).toBeGreaterThanOrEqual(1);
+    expect(at("vehicle_danfo.glb").filter(atKerb).length).toBeGreaterThanOrEqual(2);
+    expect(at("vehicle_keke.glb").filter(atKerb).length).toBeGreaterThanOrEqual(1);
     expect(at("prop_stall.glb").some(([, z]) => z < (underside[0] ?? 0) && z > (underside[1] ?? 0))).toBe(true);
-    expect(at("bld_plaza.glb")).toHaveLength(1);
+    expect(at("building_plaza.glb")).toHaveLength(1);
     expect(stage.roads.some((road) => road.colour === "drain")).toBe(true);
   });
 
   test("[city:place-words-are-text-keys] given the shop row standing twice, when its copies are lettered, then each copy has its own sign keys and no key shows on two copies", () => {
-    const row = stage.models.find((model) => model.file.endsWith("bld_shop-row.glb"));
+    const row = stage.models.find((model) => model.file.endsWith("building_shop-row.glb"));
     expect(row?.signs).toHaveLength(row?.at.length ?? 0);
     const keys = (row?.signs ?? []).flat();
     expect(new Set(keys).size).toBe(keys.length);
@@ -101,11 +101,11 @@ describe("the junction", () => {
     expect(conductor?.sex).toBe("m");
     expect(conductor?.spot).toBeLessThan(low);
     const door = stage.people[conductor?.spot ?? -1];
-    expect(at("veh_danfo.glb").some(([x, z]) => door !== undefined && Math.abs(door[0] - x) < 2.5 && door[1] > z && door[1] - z < 1.5)).toBe(true);
+    expect(at("vehicle_danfo.glb").some(([x, z]) => door !== undefined && Math.abs(door[0] - x) < 2.5 && door[1] > z && door[1] - z < 1.5)).toBe(true);
     const rider = acts.find((act) => act.pose === "ride");
     const seat = stage.people[rider?.spot ?? -1];
     expect(rider?.spot).toBeLessThan(low);
-    expect(at("veh_okada.glb").some(([x, z]) => seat !== undefined && Math.hypot(seat[0] - x, seat[1] - z) < 0.5)).toBe(true);
+    expect(at("vehicle_okada.glb").some(([x, z]) => seat !== undefined && Math.hypot(seat[0] - x, seat[1] - z) < 0.5)).toBe(true);
     const crossers = acts.filter((act) => act.to !== undefined);
     expect(crossers.length).toBeGreaterThanOrEqual(2);
     expect(crossers.length).toBeLessThanOrEqual(3);
@@ -118,7 +118,7 @@ describe("the junction", () => {
   });
 
   test("[city:dress-mix-by-place] given the hub's sample, when its outfits are read, then no one at the bus stop wears a crop top and denim shorts", () => {
-    expect(file.people.sample).not.toContain("shared/chr/chr_tolani.glb");
+    expect(file.people.sample).not.toContain("shared/person/person_tolani.glb");
     expect(file.people.sample.every((path) => personOf(path) !== null)).toBe(true);
   });
 
@@ -127,7 +127,7 @@ describe("the junction", () => {
     const { position } = cameraAim({ x, z }, heading, 0, 412 / 915);
     const indicator = [x, 1.98, z] as const;
     // The rack and its load run from 1.9 m behind a danfo's middle to 1.1 m ahead of it, from 1.95 m to 2.45 m up.
-    for (const [danfoX, danfoZ, turn] of at("veh_danfo.glb")) {
+    for (const [danfoX, danfoZ, turn] of at("vehicle_danfo.glb")) {
       expect(turn).toBeCloseTo(Math.PI / 2, 3);
       for (const side of [danfoZ - 0.875, danfoZ + 0.875]) {
         const share = (side - position[2]) / (indicator[2] - position[2]);
@@ -142,7 +142,7 @@ describe("the junction", () => {
   test("[city:ojuelegba-is-the-hub] given the phone's first view, when the near pavement is read, then a parked okada stands between the camera and the player inside the frame, so the lower frame is not bare", () => {
     const [x, z, heading] = stage.start;
     const { position } = cameraAim({ x, z }, heading, 0, 412 / 915);
-    const near = at("veh_okada.glb").filter(([okadaX, okadaZ]) => {
+    const near = at("vehicle_okada.glb").filter(([okadaX, okadaZ]) => {
       const depth = position[2] - okadaZ;
       const halfWidth = depth * Math.tan((16 * Math.PI) / 180) * (412 / 915);
       return okadaZ > z && okadaZ < position[2] && Math.abs(okadaX - position[0]) < halfWidth;

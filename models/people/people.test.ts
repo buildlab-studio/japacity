@@ -6,7 +6,7 @@ import { BONE_NAMES, buildPerson as build, type PersonSpec } from "./people";
 import { ALL_PEOPLE } from "./people.data";
 import { poseRotations } from "./poses";
 
-const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
+const FILE_NAME = /^(person|vehicle|building|shopfront|landmark|prop)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
 const cases = ALL_PEOPLE.map((spec) => [spec.name, spec] as const);
 
 // Blending soft shapes takes a moment, so each person is built once, dressed and bare.
@@ -50,7 +50,7 @@ describe("the people", () => {
 
   test.each(cases)("[assets:shipped-file-naming] given %s, when it is named, then the name fits the shipped file pattern", (name) => {
     expect(`${name}.glb`).toMatch(FILE_NAME);
-    expect(name.startsWith("chr_")).toBe(true);
+    expect(name.startsWith("person_")).toBe(true);
   });
 
   test.each(cases)("[assets:metre-units-and-origin] given %s, when built, then every position is finite and the feet are on y = 0", (_, spec) => {

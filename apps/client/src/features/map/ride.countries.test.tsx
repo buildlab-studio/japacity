@@ -127,11 +127,11 @@ describe("the country's own vehicle", () => {
     expect(vehicleFor("country.uk", "bus", false)).toBeNull();
     expect(vehicleFor(null, "danfo", false)).toBeNull();
     expect(vehicleFor("country.canada", "walk", false)).toBeNull();
-    expect(wayModelFor("country.uae", "train", false)).toBe("veh_dubai-metro");
-    expect(wayModelFor("country.italy", "bus", true)).toBe("veh_van");
-    expect(vehicleFile("bus", "labour-bus")).toBe("places/deira/veh_labour-bus.glb");
-    expect(vehicleFile("train", "ctrain")).toBe("shared/veh/veh_ctrain-car.glb");
-    expect(vehicleFile("bus")).toBe("shared/veh/veh_london-bus.glb");
+    expect(wayModelFor("country.uae", "train", false)).toBe("vehicle_dubai-metro");
+    expect(wayModelFor("country.italy", "bus", true)).toBe("vehicle_van");
+    expect(vehicleFile("bus", "labour-bus")).toBe("places/deira/vehicle_labour-bus.glb");
+    expect(vehicleFile("train", "ctrain")).toBe("shared/vehicle/vehicle_ctrain-car.glb");
+    expect(vehicleFile("bus")).toBe("shared/vehicle/vehicle_london-bus.glb");
   });
 
   test("[world:ride-abroad-and-workplace] given the seats exported with the models, when the ride's copies are read, then each is the same eye, window and ahead", () => {

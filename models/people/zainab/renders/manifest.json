@@ -1,6 +1,6 @@
 {
-  "asset": "chr_zainab",
-  "file": "public/assets/shared/chr/chr_zainab.glb",
+  "asset": "person_zainab",
+  "file": "public/assets/shared/person/person_zainab.glb",
   "fileSha256": "ebed695fd569650d2b2d526c7c4316595cc98d190b5fcb61f56aa337150595f1",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

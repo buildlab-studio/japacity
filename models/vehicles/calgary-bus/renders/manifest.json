@@ -1,6 +1,6 @@
 {
-  "asset": "veh_calgary-bus",
-  "file": "public/assets/shared/veh/veh_calgary-bus.glb",
+  "asset": "vehicle_calgary-bus",
+  "file": "public/assets/shared/vehicle/vehicle_calgary-bus.glb",
   "fileSha256": "7af7cd23089b2d7359624f405bb1d8d16bd0bbeff983f9ff960357e12ab7d037",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

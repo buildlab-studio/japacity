@@ -1,6 +1,6 @@
 {
-  "asset": "bld_phone-plaza",
-  "file": "public/assets/places/computer-village/bld_phone-plaza.glb",
+  "asset": "building_phone-plaza",
+  "file": "public/assets/places/computer-village/building_phone-plaza.glb",
   "fileSha256": "7969dd6963c39c215896f7cdadedf47263287da8bdc5e8b55b71466e3ec04aef",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

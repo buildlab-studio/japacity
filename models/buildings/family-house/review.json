@@ -1,5 +1,5 @@
 {
-  "piece": "places/family-house/bld_family-house.glb",
+  "piece": "places/family-house/building_family-house.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/buildings/family-house/renders/right.png",
     "models/buildings/family-house/renders/threeQuarter.png",
     "models/buildings/family-house/renders/manifest.json",
-    "models/register.json, the row for places/family-house/bld_family-house.glb"
+    "models/register.json, the row for places/family-house/building_family-house.glb"
   ],
   "scores": {
     "phone": 3,

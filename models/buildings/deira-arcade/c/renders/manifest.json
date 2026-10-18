@@ -1,6 +1,6 @@
 {
-  "asset": "bld_deira-arcade_c",
-  "file": "public/assets/places/deira/bld_deira-arcade_c.glb",
+  "asset": "building_deira-arcade_c",
+  "file": "public/assets/places/deira/building_deira-arcade_c.glb",
   "fileSha256": "3283e7cf054a0749ab1eb862c3d4cb5b1bebcbba1c698bb64894e81c7774b083",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

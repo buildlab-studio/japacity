@@ -1,6 +1,6 @@
 {
-  "asset": "veh_taxi",
-  "file": "public/assets/places/airport-lagos/veh_taxi.glb",
+  "asset": "vehicle_taxi",
+  "file": "public/assets/places/airport-lagos/vehicle_taxi.glb",
   "fileSha256": "e30f2a8c3fd15400143f055fcbd2a8022e8cbc4e5737928cf6f905edb4b3cc3f",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

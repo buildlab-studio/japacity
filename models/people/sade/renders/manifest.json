@@ -1,6 +1,6 @@
 {
-  "asset": "chr_sade",
-  "file": "public/assets/shared/chr/chr_sade.glb",
+  "asset": "person_sade",
+  "file": "public/assets/shared/person/person_sade.glb",
   "fileSha256": "68da56ef0f95966c4944ea32ecc2ebe89384f14e6a5995eb0b6023bf3ba9a4e1",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

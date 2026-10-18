@@ -1,6 +1,6 @@
 {
-  "asset": "chr_hawker_b",
-  "file": "public/assets/shared/chr/chr_hawker_b.glb",
+  "asset": "person_hawker_b",
+  "file": "public/assets/shared/person/person_hawker_b.glb",
   "fileSha256": "e342d1a6287a828381f7abc969cf39250074cb4759f054049f87ce55f6db212a",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

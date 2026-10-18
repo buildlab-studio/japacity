@@ -31,7 +31,7 @@ function nameOf(row: BoardRow): string {
  * The looks the door offers, each with its face tile published: named here so the boards' chunk carries none of the
  * city's roster (BoardsView.dress.test proves the list is the door's `LOOKS`).
  */
-export const BOARD_FACES: readonly string[] = ["chr_ada", "chr_tunde", "chr_zainab", "chr_tobi", "chr_ngozi", "chr_femi", "chr_kemi", "chr_bisi", "chr_amaka", "chr_bayo", "chr_dayo", "chr_emeka", "chr_kunle", "chr_sade", "chr_segun", "chr_tolani"];
+export const BOARD_FACES: readonly string[] = ["person_ada", "person_tunde", "person_zainab", "person_tobi", "person_ngozi", "person_femi", "person_kemi", "person_bisi", "person_amaka", "person_bayo", "person_dayo", "person_emeka", "person_kunle", "person_sade", "person_segun", "person_tolani"];
 
 /**
  * The look kept from the door, or null. Read straight from the device so the boards' chunk shares no module with the

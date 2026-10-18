@@ -5,7 +5,7 @@
   "note": "The arrivals hall (world:place-is-one-screen). Counts are the most in view from the whole view; the crowd is the rule's indoor figures, four low and six high.",
   "instances": [
     {
-      "file": "places/arrivals-hall/bld_room_arrivals.glb",
+      "file": "places/arrivals-hall/building_room_arrivals.glb",
       "count": 1
     },
     {
@@ -33,20 +33,20 @@
     "low": 4,
     "high": 6,
     "sample": [
-      "shared/chr/chr_tunde.glb",
-      "shared/chr/chr_zainab.glb",
-      "shared/chr/chr_emeka.glb",
-      "shared/chr/chr_ngozi.glb",
-      "shared/chr/chr_amaka.glb",
-      "shared/chr/chr_chief.glb",
-      "shared/chr/chr_kemi.glb",
-      "shared/chr/chr_ada.glb",
-      "shared/chr/chr_femi.glb",
-      "shared/chr/chr_obi.glb",
-      "shared/chr/chr_kunle.glb",
-      "shared/chr/chr_segun.glb",
-      "shared/chr/chr_iya.glb",
-      "shared/chr/chr_bayo.glb"
+      "shared/person/person_tunde.glb",
+      "shared/person/person_zainab.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_amaka.glb",
+      "shared/person/person_chief.glb",
+      "shared/person/person_kemi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_obi.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_iya.glb",
+      "shared/person/person_bayo.glb"
     ]
   },
   "groundRoadSky": {
@@ -99,7 +99,7 @@
     ],
     "models": [
       {
-        "file": "places/arrivals-hall/bld_room_arrivals.glb",
+        "file": "places/arrivals-hall/building_room_arrivals.glb",
         "at": [
           [
             0,

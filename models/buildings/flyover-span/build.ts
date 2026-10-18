@@ -29,7 +29,7 @@ const LAMP = 5.4;
 
 export function buildFlyoverSpan(): Group {
   const g = new Group();
-  g.name = "bld_flyover-span";
+  g.name = "building_flyover-span";
   const random = seeded(1976);
   const { span, deckWidth, top, soffit } = FLYOVER;
   const half = deckWidth / 2;

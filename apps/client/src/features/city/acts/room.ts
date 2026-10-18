@@ -7,7 +7,7 @@ import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { depthDistance } from "../scene/shot";
 
 /** The model whose building the player steps into when the place names no room of its own. */
-export const HOUSE = "bld_family-house.glb";
+export const HOUSE = "building_family-house.glb";
 /** Half the room cut from a place, in metres: about 18 by 16, the building's footprint and its yard. */
 const HALF: [number, number] = [9, 8];
 
@@ -40,7 +40,7 @@ export function roomOf(file: PlaceFile, building: string): PlaceFile {
     roads: [],
     start: [door[0], door[1], Math.PI] as typeof stage.start,
     walkable: [[[x - HALF[0], z - HALF[1]], [x + HALF[0], z - HALF[1]], [x + HALF[0], z + HALF[1]], [x - HALF[0], z + HALF[1]]]] as NonNullable<typeof stage.walkable>,
-    models: stage.models.filter((model) => !/\/bld_[^/]*\.glb$/.test(model.file)).map((model) => ({ ...model, at: model.at.filter(within) })).filter((model) => model.at.length > 0),
+    models: stage.models.filter((model) => !/\/building_[^/]*\.glb$/.test(model.file)).map((model) => ({ ...model, at: model.at.filter(within) })).filter((model) => model.at.length > 0),
     people: people.length > 0 ? people : stage.people.slice(0, 2),
     // The room is seen whole from the door, a room's width across.
     shot: { centre: [x, 0, z] as [number, number, number], far: depthDistance(HALF[1] * 2 + 2, 58), near: 8, farPitch: 58, nearPitch: 42, turn: 20, yaw: 180, width: HALF[0] * 2 },

@@ -1,6 +1,6 @@
 {
-  "asset": "shop_provisions",
-  "file": "public/assets/places/ojuelegba/shop_provisions.glb",
+  "asset": "shopfront_provisions",
+  "file": "public/assets/places/ojuelegba/shopfront_provisions.glb",
   "fileSha256": "b97f7834f769035352b2ad049f22e4898aded671a689050087b6691a75a76e7d",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

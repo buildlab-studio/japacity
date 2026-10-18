@@ -1,6 +1,6 @@
 {
-  "asset": "bld_metro-viaduct",
-  "file": "public/assets/places/metro-station-uae/bld_metro-viaduct.glb",
+  "asset": "building_metro-viaduct",
+  "file": "public/assets/places/metro-station-uae/building_metro-viaduct.glb",
   "fileSha256": "4f984821ac49789c442f3c98f7a60a7f6f07a8f5b0e772945c4eef6b741f34bc",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

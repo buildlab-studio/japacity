@@ -1,6 +1,6 @@
 {
-  "asset": "shop_lotto-kiosk",
-  "file": "public/assets/places/bode-thomas/shop_lotto-kiosk.glb",
+  "asset": "shopfront_lotto-kiosk",
+  "file": "public/assets/places/bode-thomas/shopfront_lotto-kiosk.glb",
   "fileSha256": "8564bc4b07231337b43778b3c5ff6b7269ed2ee83829b9755eacfc341b907c60",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

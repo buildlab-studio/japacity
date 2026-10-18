@@ -1,6 +1,6 @@
 {
-  "asset": "bld_home-room-house",
-  "file": "public/assets/places/home-room-house/bld_home-room-house.glb",
+  "asset": "building_home-room-house",
+  "file": "public/assets/places/home-room-house/building_home-room-house.glb",
   "fileSha256": "cca12ae71acf0582c5a8eec15eddbc20f438d5d9a9c27b2f603981489a4671b3",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

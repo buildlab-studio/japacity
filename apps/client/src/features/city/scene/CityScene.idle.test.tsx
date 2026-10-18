@@ -27,7 +27,7 @@ function scene(looking: boolean): SceneProps {
     place: ROOM.place,
     file: ROOM,
     people: [],
-    own: "shared/chr/chr_kunle.glb",
+    own: "shared/person/person_kunle.glb",
     settings: modeSettings("low", { finePointer: false, width: 390, pixelRatio: 2 }, content.tuning.city),
     looking,
     text: () => undefined,

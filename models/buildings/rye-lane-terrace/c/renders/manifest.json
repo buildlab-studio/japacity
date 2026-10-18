@@ -1,6 +1,6 @@
 {
-  "asset": "bld_rye-lane-terrace_c",
-  "file": "public/assets/places/rye-lane/bld_rye-lane-terrace_c.glb",
+  "asset": "building_rye-lane-terrace_c",
+  "file": "public/assets/places/rye-lane/building_rye-lane-terrace_c.glb",
   "fileSha256": "e7d717806c2f8770af8a4a3eea806729923f678953d42a10fc25dcc9f6c72e4b",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

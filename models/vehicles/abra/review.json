@@ -1,5 +1,5 @@
 {
-  "piece": "places/deira/veh_abra.glb",
+  "piece": "places/deira/vehicle_abra.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -11,7 +11,7 @@
     "models/vehicles/abra/renders/right.png",
     "models/vehicles/abra/renders/threeQuarter.png",
     "models/vehicles/abra/renders/manifest.json",
-    "models/register.json, the row for places/deira/veh_abra.glb"
+    "models/register.json, the row for places/deira/vehicle_abra.glb"
   ],
   "scores": {
     "phone": 3,

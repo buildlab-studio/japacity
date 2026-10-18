@@ -1,6 +1,6 @@
 {
-  "asset": "bld_room_office",
-  "file": "public/assets/places/office-uk/bld_room_office.glb",
+  "asset": "building_room_office",
+  "file": "public/assets/places/office-uk/building_room_office.glb",
   "fileSha256": "24ef0a7e981d3df402ad7de4c5004d376d350e9b21fa728ffa54f61541fdac8b",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

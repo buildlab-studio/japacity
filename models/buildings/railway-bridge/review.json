@@ -1,5 +1,5 @@
 {
-  "piece": "places/peckham/bld_railway-bridge.glb",
+  "piece": "places/peckham/building_railway-bridge.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/buildings/railway-bridge/renders/right.png",
     "models/buildings/railway-bridge/renders/threeQuarter.png",
     "models/buildings/railway-bridge/renders/manifest.json",
-    "models/register.json, the row for places/peckham/bld_railway-bridge.glb"
+    "models/register.json, the row for places/peckham/building_railway-bridge.glb"
   ],
   "scores": {
     "phone": 4,

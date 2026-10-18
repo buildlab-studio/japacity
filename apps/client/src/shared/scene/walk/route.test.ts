@@ -28,7 +28,7 @@ async function footprintsOf(stage: Stage): Promise<Map<string, Footprint>> {
 
 const hubFootprints = await footprintsOf(hub);
 const hubMap = routeMap(hub, (file) => hubFootprints.get(file) ?? null);
-const danfos = (hub.models.find((model) => model.file === "shared/veh/veh_danfo.glb")?.at ?? []).flatMap((at) => placeFootprint(hubFootprints.get("shared/veh/veh_danfo.glb") ?? "none", at));
+const danfos = (hub.models.find((model) => model.file === "shared/vehicle/vehicle_danfo.glb")?.at ?? []).flatMap((at) => placeFootprint(hubFootprints.get("shared/vehicle/vehicle_danfo.glb") ?? "none", at));
 
 /** A small yard: 20 m square, a 4 m wall across its middle from the left, a stall's 2 m box on the right. */
 const yard: Stage = {

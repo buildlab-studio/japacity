@@ -105,6 +105,6 @@ export function buildDubaiMetro(): Group {
   for (const x of doors) for (const dz of [-0.45, 0.45]) cbox(g, 0.045, roof - floor, 0.045, x, (floor + roof) / 2, dz, "hub");
   for (const s of [-1, 1]) cbox(g, L - 4, 0.035, 0.035, -0.6, roof - 0.45, s * 0.5, "hub");
 
-  const root = facePlusZ(g, "veh_dubai-metro");
+  const root = facePlusZ(g, "vehicle_dubai-metro");
   return setFootprint(root, [lowBox(root)]);
 }

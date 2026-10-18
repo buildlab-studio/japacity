@@ -1,6 +1,6 @@
 {
-  "asset": "bld_terminal-front",
-  "file": "public/assets/places/airport-lagos/bld_terminal-front.glb",
+  "asset": "building_terminal-front",
+  "file": "public/assets/places/airport-lagos/building_terminal-front.glb",
   "fileSha256": "44b09a84f4a0dff004bfba1bad964df28c42f9961d189d3688f943867eb45a8d",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

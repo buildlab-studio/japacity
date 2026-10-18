@@ -2,4 +2,4 @@
 // own among them. Its own small module, so the map's shell reads it without loading the painted map.
 import { createContext } from "react";
 
-export const RouteVehicle = createContext("veh_danfo");
+export const RouteVehicle = createContext("vehicle_danfo");

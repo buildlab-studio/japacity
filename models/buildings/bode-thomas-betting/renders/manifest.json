@@ -1,6 +1,6 @@
 {
-  "asset": "bld_bode-thomas-betting",
-  "file": "public/assets/places/bode-thomas/bld_bode-thomas-betting.glb",
+  "asset": "building_bode-thomas-betting",
+  "file": "public/assets/places/bode-thomas/building_bode-thomas-betting.glb",
   "fileSha256": "0c57d5bfc5e4dcca64f4ddfa1cb877a92d083e28abb43b317b3c3a85699ed76e",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

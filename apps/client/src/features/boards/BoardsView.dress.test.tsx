@@ -72,15 +72,15 @@ describe("the boards in the lively dress", () => {
     expect([...BOARD_FACES].sort()).toEqual(LOOKS.map((look) => look.id).sort());
     expect(boardFace("zainab_b", false)).toBe(boardFace("zainab_b", false));
     expect(LOOKS.map((look) => look.id)).toContain(boardFace("zainab_b", false));
-    expect(boardFace("ada_lagos", true, "chr_kemi")).toBe("chr_kemi");
+    expect(boardFace("ada_lagos", true, "person_kemi")).toBe("person_kemi");
     // A kept look the door does not offer falls back to the name's face.
-    expect(boardFace("ada_lagos", true, "chr_nobody")).toBe(boardFace("ada_lagos", false));
+    expect(boardFace("ada_lagos", true, "person_nobody")).toBe(boardFace("ada_lagos", false));
 
     expect(keptLook()).toBeNull();
-    window.localStorage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_kemi", name: "Kemi", archetype: "developer" }));
+    window.localStorage.setItem(PERSON_KEY, JSON.stringify({ look: "person_kemi", name: "Kemi", archetype: "developer" }));
     show([row(1, "zainab_b", 12), row(2, "ada_lagos", 5, true)]);
     await waitFor(() => expect(lineCards()).toHaveLength(2));
-    expect(lineCards()[1]?.querySelector("[data-face-sticker]")?.getAttribute("data-face-sticker")).toBe("chr_kemi");
+    expect(lineCards()[1]?.querySelector("[data-face-sticker]")?.getAttribute("data-face-sticker")).toBe("person_kemi");
     expect(lineCards()[0]?.querySelector("[data-face-sticker]")?.getAttribute("data-face-sticker")).toBe(boardFace("zainab_b", false));
   });
 });

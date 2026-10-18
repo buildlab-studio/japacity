@@ -1,6 +1,6 @@
 {
-  "asset": "chr_body_plus-short-busty",
-  "file": "public/assets/shared/chr/chr_body_plus-short-busty.glb",
+  "asset": "person_body_plus-short-busty",
+  "file": "public/assets/shared/person/person_body_plus-short-busty.glb",
   "fileSha256": "0b39ff033efc65e0fd62ade218d839350cf0f7464b1d46d19427151a8d280fdb",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

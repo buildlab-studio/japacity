@@ -51,50 +51,50 @@ const review = (scores: Partial<Review["scores"]>): Review => ({
 
 describe("names", () => {
   test("[assets:shipped-file-naming] given shipped names, when they are checked, then the page's pattern passes and anything else fails, with place.json and credits.json allowed", () => {
-    const good = ["places/ojuelegba/bld_shop-row.glb", "shared/chr/chr_body_plus-set.glb", "shared/chr/chr_hawker_a.glb", "shared/tex/tex_ankara_4.png", "places/x/place.json", "credits.json"];
+    const good = ["places/ojuelegba/building_shop-row.glb", "shared/person/person_body_plus-set.glb", "shared/person/person_hawker_a.glb", "tiles/prop_market-stall.png", "places/x/place.json", "credits.json"];
     expect(checkNames(good)).toEqual([]);
-    const bad = ["shared/chr/var_plus_short_busty.glb", "shared/chr/chr_Amaka.glb", "shared/chr/chr_a_b_c.glb", "places/x/bld_plaza.gltf", "places/x/photo.jpg", "places/x/lm_national_stadium_a.glb"];
+    const bad = ["shared/person/var_plus_short_busty.glb", "shared/person/person_Amaka.glb", "shared/person/person_a_b_c.glb", "places/x/building_plaza.gltf", "places/x/photo.jpg", "places/x/landmark_national_stadium_a.glb"];
     expect(checkNames(bad)).toHaveLength(bad.length);
   });
 
   test("[city:places-load-on-entry] given the publish step's manifest and hashed copies beside their sources, when names are checked, then the copies are skipped and the manifest allowed, and a name that only looks hashed is not", () => {
-    const files = ["manifest.json", "places/x/bld_plaza.glb", "places/x/bld_plaza.0123456789ab.glb", "places/x/place.0123456789ab.json", "credits.0123456789ab.json"];
-    expect(sourceFiles(files)).toEqual(["manifest.json", "places/x/bld_plaza.glb"]);
+    const files = ["manifest.json", "places/x/building_plaza.glb", "places/x/building_plaza.0123456789ab.glb", "places/x/place.0123456789ab.json", "credits.0123456789ab.json"];
+    expect(sourceFiles(files)).toEqual(["manifest.json", "places/x/building_plaza.glb"]);
     expect(checkNames(sourceFiles(files))).toEqual([]);
-    expect(sourceFiles(["places/x/bld_plaza.0123456789.glb"])).toHaveLength(1);
+    expect(sourceFiles(["places/x/building_plaza.0123456789.glb"])).toHaveLength(1);
   });
 });
 
 describe("the register", () => {
   test("[assets:register-matches-every-file] given files and rows, when they are compared, then a file with no row, a row with no file and a figure that differs each fail", () => {
-    expect(checkRegister([row("a/bld_a.glb")], [measured("a/bld_a.glb")])).toEqual([]);
-    expect(checkRegister([], [measured("a/bld_a.glb")])).toEqual(["assets:register-matches-every-file: a/bld_a.glb has no register row"]);
-    expect(checkRegister([row("a/bld_a.glb")], [])).toEqual(["assets:register-matches-every-file: register row a/bld_a.glb names no shipped file"]);
-    expect(checkRegister([row("a/bld_a.glb", { bytes: 999 })], [measured("a/bld_a.glb")])[0]).toMatch(/bytes 999, the file has 1000/);
+    expect(checkRegister([row("a/building_a.glb")], [measured("a/building_a.glb")])).toEqual([]);
+    expect(checkRegister([], [measured("a/building_a.glb")])).toEqual(["assets:register-matches-every-file: a/building_a.glb has no register row"]);
+    expect(checkRegister([row("a/building_a.glb")], [])).toEqual(["assets:register-matches-every-file: register row a/building_a.glb names no shipped file"]);
+    expect(checkRegister([row("a/building_a.glb", { bytes: 999 })], [measured("a/building_a.glb")])[0]).toMatch(/bytes 999, the file has 1000/);
   });
 
   test("[assets:ai-media-recorded-and-credited] given a row made with an AI tool, when it names no tool, then it fails at any status, and a row from an AI tool must say it was generated", () => {
-    expect(checkMadeWith([row("a/bld_a.glb", { tool: null })])[0]).toMatch(/assets:ai-media-recorded-and-credited: a\/bld_a.glb was made with an AI tool and its row names none/);
-    expect(checkMadeWith([row("a/bld_a.glb", { tool: " " })])).toHaveLength(1);
-    expect(checkMadeWith([row("a/bld_a.glb", { tool: "a tool, a plan" })])).toEqual([]);
-    expect(checkMadeWith([row("a/bld_a.glb", { source: "ai-tool", generated: false, tool: null })])[0]).toMatch(/says it was not generated/);
-    expect(checkMadeWith([row("a/bld_a.glb", { source: "artist", generated: false, tool: null })])).toEqual([]);
+    expect(checkMadeWith([row("a/building_a.glb", { tool: null })])[0]).toMatch(/assets:ai-media-recorded-and-credited: a\/building_a.glb was made with an AI tool and its row names none/);
+    expect(checkMadeWith([row("a/building_a.glb", { tool: " " })])).toHaveLength(1);
+    expect(checkMadeWith([row("a/building_a.glb", { tool: "a tool, a plan" })])).toEqual([]);
+    expect(checkMadeWith([row("a/building_a.glb", { source: "ai-tool", generated: false, tool: null })])[0]).toMatch(/says it was not generated/);
+    expect(checkMadeWith([row("a/building_a.glb", { source: "artist", generated: false, tool: null })])).toEqual([]);
   });
 
   test("[assets:ai-media-recorded-and-credited] given an AI-made row, when it is accepted with no approver, then it fails, and with an approver or still a draft it passes", () => {
-    expect(checkMadeWith([row("a/bld_a.glb", { status: "accepted", approvedBy: null })])[0]).toMatch(/is accepted with no one named as approving it/);
-    expect(checkMadeWith([row("a/bld_a.glb", { status: "accepted", approvedBy: "" })])).toHaveLength(1);
-    expect(checkMadeWith([row("a/bld_a.glb", { status: "accepted", approvedBy: "the makers" })])).toEqual([]);
-    expect(checkMadeWith([row("a/bld_a.glb", { status: "draft", approvedBy: null }), row("a/bld_b.glb", { status: "rejected", approvedBy: null })])).toEqual([]);
-    expect(checkMadeWith([row("a/bld_a.glb", { generated: false, tool: null, status: "accepted", approvedBy: null })])).toEqual([]);
+    expect(checkMadeWith([row("a/building_a.glb", { status: "accepted", approvedBy: null })])[0]).toMatch(/is accepted with no one named as approving it/);
+    expect(checkMadeWith([row("a/building_a.glb", { status: "accepted", approvedBy: "" })])).toHaveLength(1);
+    expect(checkMadeWith([row("a/building_a.glb", { status: "accepted", approvedBy: "the makers" })])).toEqual([]);
+    expect(checkMadeWith([row("a/building_a.glb", { status: "draft", approvedBy: null }), row("a/building_b.glb", { status: "rejected", approvedBy: null })])).toEqual([]);
+    expect(checkMadeWith([row("a/building_a.glb", { generated: false, tool: null, status: "accepted", approvedBy: null })])).toEqual([]);
   });
 
   test("[guide:register-records-generated-assets] given a register row, when it lacks whether it was generated, its tool or its approver, then the check names each missing column", () => {
-    const bare = row("a/bld_a.glb") as unknown as Record<string, unknown>;
+    const bare = row("a/building_a.glb") as unknown as Record<string, unknown>;
     delete bare.generated;
     delete bare.approvedBy;
-    expect(checkMadeWith([bare as unknown as RegisterRow])).toEqual(["guide:register-records-generated-assets: register row a/bld_a.glb has no generated, approvedBy"]);
-    expect(checkMadeWith([row("a/bld_a.glb", { tool: 3 as unknown as string })])).toEqual(["guide:register-records-generated-assets: register row a/bld_a.glb has no tool"]);
+    expect(checkMadeWith([bare as unknown as RegisterRow])).toEqual(["guide:register-records-generated-assets: register row a/building_a.glb has no generated, approvedBy"]);
+    expect(checkMadeWith([row("a/building_a.glb", { tool: 3 as unknown as string })])).toEqual(["guide:register-records-generated-assets: register row a/building_a.glb has no tool"]);
   });
 
   test("[guide:register-records-generated-assets] given rows for media made outside public/assets, when they are checked, then each names a file that is there and a piece written in it, a picture's bytes are the file's, and no shipped file is asked for", () => {
@@ -117,24 +117,24 @@ describe("the register", () => {
 
 describe("budgets for one asset", () => {
   test("[assets:assets-and-places-within-budget] given a building at its budget and one over, when they are checked, then the first passes and every figure over fails", () => {
-    const at = measured("p/bld_a.glb", { triangles: 1500, drawCalls: 1, materials: 1, bytes: 40000, maxY: 13 });
+    const at = measured("p/building_a.glb", { triangles: 1500, drawCalls: 1, materials: 1, bytes: 40000, maxY: 13 });
     expect(checkBudgets([at], budgets)).toEqual([]);
-    const over = measured("p/bld_a.glb", { triangles: 1501, drawCalls: 2, materials: 2, bytes: 40001, maxY: 13.01 });
+    const over = measured("p/building_a.glb", { triangles: 1501, drawCalls: 2, materials: 2, bytes: 40001, maxY: 13.01 });
     expect(checkBudgets([over], budgets)).toHaveLength(5);
   });
 
   test("[assets:assets-and-places-within-budget] given a home's shell with its four wall pairs, when its draw calls are checked, then the body and one wall of each pair fit, a draw call more fails, and a building with no pairs is held to its one", () => {
-    const shell = measured("p/bld_home-a.glb", { triangles: 1500, drawCalls: 5, pairs: 4, materials: 1, bytes: 40000, maxY: 3 });
+    const shell = measured("p/building_home-a.glb", { triangles: 1500, drawCalls: 5, pairs: 4, materials: 1, bytes: 40000, maxY: 3 });
     expect(checkBudgets([shell], budgets)).toEqual([]);
-    expect(checkBudgets([{ ...shell, drawCalls: 6 }], budgets)).toEqual(["assets:assets-and-places-within-budget: p/bld_home-a.glb has 6 drawCalls, over its budget of 5"]);
+    expect(checkBudgets([{ ...shell, drawCalls: 6 }], budgets)).toEqual(["assets:assets-and-places-within-budget: p/building_home-a.glb has 6 drawCalls, over its budget of 5"]);
     expect(checkBudgets([{ ...shell, triangles: 1501 }], budgets)).toHaveLength(1);
-    expect(checkBudgets([measured("p/bld_b.glb", { drawCalls: 2, maxY: 3 })], budgets)).toEqual(["assets:assets-and-places-within-budget: p/bld_b.glb has 2 drawCalls, over its budget of 1"]);
+    expect(checkBudgets([measured("p/building_b.glb", { drawCalls: 2, maxY: 3 })], budgets)).toEqual(["assets:assets-and-places-within-budget: p/building_b.glb has 2 drawCalls, over its budget of 1"]);
   });
 
   test("[assets:assets-and-places-within-budget] [assets:register-matches-every-file] given a shell written with its pairs as named parts, when it is read back and measured, then both walls of each pair count their triangles and the pair one draw call", async () => {
     const tri = (x: number) => [{ material: "body" as const, positions: [x, 0, 0, x + 1, 0, 0, x, 1, 0], colours: [1, 1, 1, 1, 1, 1, 1, 1, 1], indices: [0, 1, 2] }];
     const model: BakedModel = {
-      name: "bld_home-a",
+      name: "building_home-a",
       parts: [
         { node: "body", primitives: tri(0) },
         { node: "wall_back_full", primitives: tri(1) },
@@ -148,8 +148,8 @@ describe("budgets for one asset", () => {
   });
 
   test("[assets:assets-and-places-within-budget] given a shopfront 3 to 4 m high and one 2.9 m, when heights are checked, then the range holds at its edges", () => {
-    expect(checkBudgets([measured("p/shop_a.glb", { maxY: 3 }), measured("p/shop_b.glb", { maxY: 4 })], budgets)).toEqual([]);
-    expect(checkBudgets([measured("p/shop_a.glb", { maxY: 2.9 })], budgets)).toHaveLength(1);
+    expect(checkBudgets([measured("p/shopfront_a.glb", { maxY: 3 }), measured("p/shopfront_b.glb", { maxY: 4 })], budgets)).toEqual([]);
+    expect(checkBudgets([measured("p/shopfront_a.glb", { maxY: 2.9 })], budgets)).toHaveLength(1);
   });
 
   test("[assets:metre-units-and-origin] given a model 0.01 m off the ground and one 0.011 m, when it is checked, then the first stands on y = 0 and the second fails", () => {
@@ -218,19 +218,19 @@ describe("pictures", () => {
 describe("tiles", () => {
   test("[assets:no-reference-photos-kept] given a picture under tiles, when it is checked, then it passes only as a model's tile render published by the model's name, and a tile render left unpublished fails", () => {
     const tile = Uint8Array.from([1, 2, 3]);
-    const renders = new Map([["prop_a", tile], ["veh_b", Uint8Array.from([4])]]);
-    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }, { path: "tiles/veh_b.png", bytes: Uint8Array.from([4]) }], renders)).toEqual([]);
-    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: Uint8Array.from([9]) }, { path: "tiles/veh_b.png", bytes: Uint8Array.from([4]) }], renders)).toEqual([expect.stringMatching(/tiles\/prop_a\.png differs from prop_a's tile render/)]);
-    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }, { path: "tiles/veh_b.png", bytes: Uint8Array.from([4]) }, { path: "tiles/prop_c.png", bytes: tile }], renders)).toEqual([expect.stringMatching(/tiles\/prop_c\.png is no model's tile/)]);
-    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }], renders)).toEqual([expect.stringMatching(/veh_b's tile render is not published/)]);
+    const renders = new Map([["prop_a", tile], ["vehicle_b", Uint8Array.from([4])]]);
+    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }, { path: "tiles/vehicle_b.png", bytes: Uint8Array.from([4]) }], renders)).toEqual([]);
+    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: Uint8Array.from([9]) }, { path: "tiles/vehicle_b.png", bytes: Uint8Array.from([4]) }], renders)).toEqual([expect.stringMatching(/tiles\/prop_a\.png differs from prop_a's tile render/)]);
+    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }, { path: "tiles/vehicle_b.png", bytes: Uint8Array.from([4]) }, { path: "tiles/prop_c.png", bytes: tile }], renders)).toEqual([expect.stringMatching(/tiles\/prop_c\.png is no model's tile/)]);
+    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }], renders)).toEqual([expect.stringMatching(/vehicle_b's tile render is not published/)]);
   });
 
   test("[assets:no-reference-photos-kept] given a look's portraits under tiles, when they are checked, then each passes as its render by the look's name and the view's, and an unpublished portrait fails", () => {
     const face = Uint8Array.from([5]);
-    const renders = new Map([["chr_ada-face", face]]);
+    const renders = new Map([["person_ada-face", face]]);
     expect(PORTRAIT_VIEWS).toEqual(["face", "figure", "cheer"]);
-    expect(checkTiles([{ path: "tiles/chr_ada-face.png", bytes: face }], renders)).toEqual([]);
-    expect(checkTiles([], renders)).toEqual([expect.stringMatching(/chr_ada-face's tile render is not published/)]);
+    expect(checkTiles([{ path: "tiles/person_ada-face.png", bytes: face }], renders)).toEqual([]);
+    expect(checkTiles([], renders)).toEqual([expect.stringMatching(/person_ada-face's tile render is not published/)]);
   });
 
   test("[assets:register-matches-every-file] given the files under public/assets, when they are sorted, then a tile is a picture of a model and not a model of its own, so it needs no register row or budget", () => {
@@ -252,9 +252,9 @@ describe("acceptance", () => {
     expect(lastRound({ piece: "the hub", reviewer: "r", date: "2026-10-08", low: modes, high: modes, notes: "" })).toBeNull();
   });
 
-  const rows = [row("p/bld_a.glb", { status: "accepted" })];
+  const rows = [row("p/building_a.glb", { status: "accepted" })];
   const none = new Map<string, null>();
-  const check = (scores: Partial<Review["scores"]>): string[] => checkAccepted(rows, new Map([["p/bld_a.glb", review(scores)]]), none, config);
+  const check = (scores: Partial<Review["scores"]>): string[] => checkAccepted(rows, new Map([["p/building_a.glb", review(scores)]]), none, config);
 
   test("[assets:acceptance-score-thresholds] given reviews at the edges, when acceptance is checked, then phone 4, no criterion under 3 and a mean of at least 3.5 pass, and a mean just under fails", () => {
     // Seven whole scores summing to 25 make a mean of 3.57, the lowest at or above 3.5; 24 make 3.43.
@@ -266,26 +266,26 @@ describe("acceptance", () => {
     expect(check({ phone: 3 })).toHaveLength(1);
     expect(check({ wear: 2 })).toHaveLength(1);
     expect(check({ phone: 4, silhouette: 3, proportion: 3, palette: 3, wear: 3, variety: 3, budget: 4 })[0]).toMatch(/mean/);
-    expect(check({ budget: 0 })).toContain("assets:acceptance-score-thresholds: p/bld_a.glb is accepted over budget");
-    expect(checkAccepted(rows, new Map([["p/bld_a.glb", null]]), none, config)[0]).toMatch(/no review.json/);
+    expect(check({ budget: 0 })).toContain("assets:acceptance-score-thresholds: p/building_a.glb is accepted over budget");
+    expect(checkAccepted(rows, new Map([["p/building_a.glb", null]]), none, config)[0]).toMatch(/no review.json/);
   });
 
   test("[assets:landmarks-match-reference-outlines] given an accepted landmark, when its outline scores are missing or one view fails, then acceptance fails", () => {
-    const lm = [row("p/lm_a.glb", { status: "accepted" })];
-    const reviews = new Map([["p/lm_a.glb", review({})]]);
-    expect(checkAccepted(lm, reviews, new Map([["p/lm_a.glb", { side: { passes: true }, plan: { passes: true } }]]), config)).toEqual([]);
-    expect(checkAccepted(lm, reviews, new Map([["p/lm_a.glb", { side: { passes: true }, plan: { passes: false } }]]), config)).toHaveLength(1);
-    expect(checkAccepted(lm, reviews, new Map([["p/lm_a.glb", null]]), config)).toHaveLength(1);
+    const lm = [row("p/landmark_a.glb", { status: "accepted" })];
+    const reviews = new Map([["p/landmark_a.glb", review({})]]);
+    expect(checkAccepted(lm, reviews, new Map([["p/landmark_a.glb", { side: { passes: true }, plan: { passes: true } }]]), config)).toEqual([]);
+    expect(checkAccepted(lm, reviews, new Map([["p/landmark_a.glb", { side: { passes: true }, plan: { passes: false } }]]), config)).toHaveLength(1);
+    expect(checkAccepted(lm, reviews, new Map([["p/landmark_a.glb", null]]), config)).toHaveLength(1);
   });
 });
 
 describe("budgets for one place", () => {
   const files = new Map([
-    ["p/bld_a.glb", measured("p/bld_a.glb", { triangles: 1000, signs: 2 })],
-    ["s/chr_a.glb", measured("s/chr_a.glb", { triangles: 1500, drawCalls: 3 })],
+    ["p/building_a.glb", measured("p/building_a.glb", { triangles: 1000, signs: 2 })],
+    ["s/person_a.glb", measured("s/person_a.glb", { triangles: 1500, drawCalls: 3 })],
   ]);
   const place = (low: number, high: number, buildings: number): PlaceFile => ({
-    place: "place.x", scope: "exterior", hub: true, instances: [{ file: "p/bld_a.glb", count: buildings }], people: { low, high, sample: ["s/chr_a.glb"] }, groundRoadSky: { drawCalls: 4, triangles: 1000 },
+    place: "place.x", scope: "exterior", hub: true, instances: [{ file: "p/building_a.glb", count: buildings }], people: { low, high, sample: ["s/person_a.glb"] }, groundRoadSky: { drawCalls: 4, triangles: 1000 },
   });
 
   test("[assets:assets-and-places-within-budget] given a hub, when it is counted in both modes, then instanced buildings cost one draw call, their signs one each, and people the heaviest of the sample times the crowd", () => {
@@ -307,7 +307,7 @@ describe("budgets for one place", () => {
 
 describe("downloads", () => {
   test("[city:places-load-on-entry] given the hub's folder, one character and the code, when the first download is counted, then 5 MB passes and a byte more fails", () => {
-    const files = [measured("places/hub/bld_a.glb", { bytes: 1_000_000 }), measured("shared/chr/chr_a.glb", { bytes: 100_000 })];
+    const files = [measured("places/hub/building_a.glb", { bytes: 1_000_000 }), measured("shared/person/person_a.glb", { bytes: 100_000 })];
     expect(checkDownloads(files, "places/hub", 3_900_000, budgets)).toEqual([]);
     expect(checkDownloads(files, "places/hub", 3_900_001, budgets)).toHaveLength(1);
   });

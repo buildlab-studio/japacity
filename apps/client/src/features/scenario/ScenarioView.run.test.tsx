@@ -158,12 +158,12 @@ describe("the run through the front door", () => {
 
   test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given a reload at any screen, then the door comes back to that screen with what was answered", () => {
     door();
-    fireEvent.click(lookButton("chr_femi"));
+    fireEvent.click(lookButton("person_femi"));
     fireEvent.change(nameBox(), { target: { value: "Emeka" } });
     cleanup();
     door();
     expect(stage()).toBe("you");
-    expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe("chr_femi");
+    expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe("person_femi");
     expect(nameBox().value).toBe("Emeka");
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.trader.name") }));

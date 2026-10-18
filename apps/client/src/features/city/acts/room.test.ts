@@ -11,7 +11,7 @@ describe("the cut into a room", () => {
   test("[world:entering-is-a-cut] given the compound, which names no room of its own, when the house is entered, then the room is a small scene of its own: no building over it, the door as the start and its one thing, and a shot of its own", () => {
     expect(insideOf(house)).toBeNull();
     const room = stageOf(roomOf(house, HOUSE));
-    expect(room.models.some((model) => /\/bld_/.test(model.file))).toBe(false);
+    expect(room.models.some((model) => /\/building_/.test(model.file))).toBe(false);
     expect(room.roads).toEqual([]);
     expect(room.shot).toBeDefined();
     const things = thingsOf(room);

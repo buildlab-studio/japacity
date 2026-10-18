@@ -1,6 +1,6 @@
 {
-  "asset": "veh_dubai-metro",
-  "file": "public/assets/shared/veh/veh_dubai-metro.glb",
+  "asset": "vehicle_dubai-metro",
+  "file": "public/assets/shared/vehicle/vehicle_dubai-metro.glb",
   "fileSha256": "5bde1a789fe1af8951f0647a320aeefe1953b7a0ef1dd70a99bc306a2c58fbbc",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

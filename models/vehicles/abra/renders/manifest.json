@@ -1,6 +1,6 @@
 {
-  "asset": "veh_abra",
-  "file": "public/assets/places/deira/veh_abra.glb",
+  "asset": "vehicle_abra",
+  "file": "public/assets/places/deira/vehicle_abra.glb",
   "fileSha256": "e18af8608008f57c0b9278af76417386e79a67394ddc1a0d6ff1f1cb0d5d497d",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

@@ -1,6 +1,6 @@
 {
-  "asset": "chr_body_slim-short",
-  "file": "public/assets/shared/chr/chr_body_slim-short.glb",
+  "asset": "person_body_slim-short",
+  "file": "public/assets/shared/person/person_body_slim-short.glb",
   "fileSha256": "25b6e8516a5a357b477bc911b9927fc29cfd60a229df9f072cb178874a8d1e13",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

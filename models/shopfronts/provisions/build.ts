@@ -24,7 +24,7 @@ export const PROVISIONS = { width: 4.0, depth: 3.5, plinth: 0.15, wall: 3.375 } 
 
 export function buildProvisions(signs: { board: string; notice: string }, styles: { board: SignStyle; notice: SignStyle }): Group {
   const g = new Group();
-  g.name = "shop_provisions";
+  g.name = "shopfront_provisions";
   const random = seeded(24);
   const { width: w, depth: d, plinth, wall } = PROVISIONS;
   box(g, w + 0.4, plinth, d + 1.1, 0, 0, 0.35, "concrete");

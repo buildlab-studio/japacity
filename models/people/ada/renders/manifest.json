@@ -1,6 +1,6 @@
 {
-  "asset": "chr_ada",
-  "file": "public/assets/shared/chr/chr_ada.glb",
+  "asset": "person_ada",
+  "file": "public/assets/shared/person/person_ada.glb",
   "fileSha256": "f979ac982e7320b305921909d2288b5e2fe89ceefc0d6dec350aeec006ca0ee4",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

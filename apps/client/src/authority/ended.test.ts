@@ -35,7 +35,7 @@ describe("ending a life on this device", () => {
     const storage = removableStorage();
     const makeSeed = seeds();
     const authority = localAuthority({ fastClock: true, storage, makeSeed, now: () => 0 });
-    keepPerson({ look: "chr_ada", name: "Bisi", archetype: null }, storage);
+    keepPerson({ look: "person_ada", name: "Bisi", archetype: null }, storage);
     await authority.newLife("scenario.ada");
     const old = seedOf(storage);
     expect(old).not.toBeNull();
@@ -70,7 +70,7 @@ describe("ending a life on this device", () => {
     const authority = localAuthority({ fastClock: true, makeSeed: seeds(), now: () => 0 });
     let afresh = 0;
     const store = createGameStore(authority, { life: authority, afterLifeEnded: () => (afresh += 1) });
-    keepPerson({ look: "chr_ada", name: "Bisi", archetype: null });
+    keepPerson({ look: "person_ada", name: "Bisi", archetype: null });
     await store.getState().chooseLife("scenario.ada");
     localStorage.setItem(MONTH_KEY, "{}");
     expect(localStorage.getItem(SAVE_KEY)).not.toBeNull();

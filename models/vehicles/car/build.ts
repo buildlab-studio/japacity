@@ -21,7 +21,7 @@ export interface CarSpec {
   trim: PaletteName;
 }
 
-export const FAMILY_CAR: CarSpec = { name: "veh_car", body: "blue", trim: "charcoal" };
+export const FAMILY_CAR: CarSpec = { name: "vehicle_car", body: "blue", trim: "charcoal" };
 
 /** A convex solid through the points given, in one colour. */
 function hull(g: Object3D, points: readonly P[], colour: PaletteName): void {

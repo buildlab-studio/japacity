@@ -1,6 +1,6 @@
 {
-  "asset": "bld_corner-pub",
-  "file": "public/assets/places/rye-lane/bld_corner-pub.glb",
+  "asset": "building_corner-pub",
+  "file": "public/assets/places/rye-lane/building_corner-pub.glb",
   "fileSha256": "d119ddfdf60a785a928573f1929104fcb284b364c87980af05cc59f0d57a2703",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

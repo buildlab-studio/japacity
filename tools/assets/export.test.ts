@@ -21,7 +21,7 @@ const FABRIC_BAKE_MS = 30000;
 
 describe("baking and compressing", () => {
   test("[assets:flat-and-smooth-shading] given an ordinary building, when it is baked and compressed, then it is one opaque vertex-coloured material in one draw call, with no normals in the file", async () => {
-    const doc = await roundTrip("bld_plaza");
+    const doc = await roundTrip("building_plaza");
     const figures = measure(doc, 0);
     expect([figures.materials, figures.drawCalls]).toEqual([1, 1]);
     const prim = doc.getRoot().listMeshes()[0]?.listPrimitives()[0];
@@ -31,23 +31,23 @@ describe("baking and compressing", () => {
   });
 
   test("[assets:flat-and-smooth-shading] given a person with a fabric pattern, when they are baked, then the file has two materials and the pattern's every pixel is a palette colour", async () => {
-    const doc = await roundTrip("chr_amaka");
+    const doc = await roundTrip("person_amaka");
     expect(doc.getRoot().listMaterials()).toHaveLength(2);
     expect(doc.getRoot().listTextures()).toHaveLength(1);
     expect(checkPalette(doc)).toEqual([]);
   }, FABRIC_BAKE_MS);
 
   test("[assets:sign-text-drawn-in-code] given a building with shops, when it is baked, then its file carries the sign anchors as text keys and no sign face, texture or word", () => {
-    const built = entry("bld_shop-row").build();
+    const built = entry("building_shop-row").build();
     expect(built.parts.flatMap((part) => part.primitives.map((p) => p.material))).toEqual(["body"]);
     const signs = built.extras.signs as { key: string }[];
     expect(signs.map((s) => s.key)).toEqual(["place.ojuelegba.sign.1", "place.ojuelegba.sign.2", "place.ojuelegba.sign.3", "place.ojuelegba.sign.4"]);
-    const bytes = readFileSync(join(PUBLIC, entry("bld_shop-row").file));
+    const bytes = readFileSync(join(PUBLIC, entry("building_shop-row").file));
     expect(bytes.includes(Buffer.from("PROVISIONS"))).toBe(false);
   });
 
   test("[assets:sign-text-drawn-in-code] given a shopfront, when it is baked, then its sign faces are a second material with no image, mapped into one atlas of 512 by 128", async () => {
-    const doc = await roundTrip("shop_provisions");
+    const doc = await roundTrip("shopfront_provisions");
     const materials = doc.getRoot().listMaterials();
     expect(materials.map((m) => m.getName())).toEqual(["body", "sign"]);
     expect(materials[1]?.getBaseColorTexture()).toBeNull();
@@ -55,7 +55,7 @@ describe("baking and compressing", () => {
   });
 
   test("[assets:lighting-set-by-place] given any shipped model, when it is read, then it carries no light and no camera: the place sets the one sun and one sky", async () => {
-    for (const name of ["bld_plaza", "lm_national-stadium", "veh_danfo"]) {
+    for (const name of ["building_plaza", "landmark_national-stadium", "vehicle_danfo"]) {
       const doc = await roundTrip(name);
       expect(doc.getRoot().listCameras()).toHaveLength(0);
       expect(doc.getRoot().listExtensionsUsed().map((e) => e.extensionName)).not.toContain("KHR_lights_punctual");
@@ -63,7 +63,7 @@ describe("baking and compressing", () => {
   });
 
   test("[assets:metre-units-and-origin] given every shipped model, when it is baked, then its lowest point is y = 0 within 0.01 m", async () => {
-    for (const e of CATALOG.filter((c) => !c.name.startsWith("chr_"))) {
+    for (const e of CATALOG.filter((c) => !c.name.startsWith("person_"))) {
       const doc = await readGlb(readFileSync(join(PUBLIC, e.file)));
       expect(Math.abs(measure(doc, 0).minY)).toBeLessThanOrEqual(0.01);
     }

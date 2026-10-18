@@ -1,6 +1,6 @@
 {
-  "asset": "bld_rye-lane-terrace_b",
-  "file": "public/assets/places/peckham/bld_rye-lane-terrace_b.glb",
+  "asset": "building_rye-lane-terrace_b",
+  "file": "public/assets/places/peckham/building_rye-lane-terrace_b.glb",
   "fileSha256": "9ee9df32a5e013bc8408b56dc602b1a127ebaf9f355120b8898eec837b408076",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

@@ -1,17 +1,12 @@
 {
   "note": "The budgets of docs/rules/assets.md (Budgets for one asset, Budgets for one place), measured on the compressed file. A KB is 1,000 bytes and an MB 1,000,000, the stricter reading. Heights in metres.",
   "asset": {
-    "chr": { "triangles": 3000, "drawCalls": 3, "materials": 2, "bytes": 150000, "heightMin": 1.55, "heightMax": 2.3 },
-    "veh": { "triangles": 3000, "drawCalls": 2, "materials": 2, "bytes": 100000 },
-    "bld": { "triangles": 1500, "drawCalls": 1, "materials": 1, "bytes": 40000, "heightMin": 3, "heightMax": 13 },
-    "shop": { "triangles": 1200, "drawCalls": 2, "materials": 2, "bytes": 30000, "heightMin": 3, "heightMax": 4 },
-    "sign": { "triangles": 100, "drawCalls": 1, "materials": 1, "bytes": 4000, "heightMin": 1.5, "heightMax": 4 },
-    "lm": { "triangles": 8000, "drawCalls": 2, "materials": 2, "bytes": 250000 },
-    "prop": { "triangles": 800, "drawCalls": 1, "materials": 1, "bytes": 25000 },
-    "cloth": { "triangles": 3000, "bytes": 150000 },
-    "hair": { "triangles": 3000, "bytes": 150000 },
-    "anim": { "bytes": 60000 },
-    "tex": { "bytes": 16000, "sidePx": 256 }
+    "person": { "triangles": 3000, "drawCalls": 3, "materials": 2, "bytes": 150000, "heightMin": 1.55, "heightMax": 2.3 },
+    "vehicle": { "triangles": 3000, "drawCalls": 2, "materials": 2, "bytes": 100000 },
+    "building": { "triangles": 1500, "drawCalls": 1, "materials": 1, "bytes": 40000, "heightMin": 3, "heightMax": 13 },
+    "shopfront": { "triangles": 1200, "drawCalls": 2, "materials": 2, "bytes": 30000, "heightMin": 3, "heightMax": 4 },
+    "landmark": { "triangles": 8000, "drawCalls": 2, "materials": 2, "bytes": 250000 },
+    "prop": { "triangles": 800, "drawCalls": 1, "materials": 1, "bytes": 25000 }
   },
   "levels": {
     "note": "A moving sheet's or the water tile's triangles at each mesh level (assets:sheets-ship-two-mesh-levels): coarse for the low mode, fine for the high.",

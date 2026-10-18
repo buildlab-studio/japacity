@@ -105,6 +105,6 @@ export function buildCtrainCar(): Group {
   // Yellow poles at each door.
   for (const x of doors) for (const dz of [-0.4, 0.4]) cbox(g, 0.045, roof - floor, 0.045, x, (floor + roof) / 2, dz, "danfoYellow");
 
-  const root = facePlusZ(g, "veh_ctrain-car");
+  const root = facePlusZ(g, "vehicle_ctrain-car");
   return setFootprint(root, [lowBox(root)]);
 }

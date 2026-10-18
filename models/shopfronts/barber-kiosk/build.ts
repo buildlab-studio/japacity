@@ -11,7 +11,7 @@ export const BARBER_KIOSK = { width: 2.4, height: 2.45, depth: 2.0, raised: 0.15
 
 export function buildBarberKiosk(sign: string, style: SignStyle): Group {
   const g = new Group();
-  g.name = "shop_barber-kiosk";
+  g.name = "shopfront_barber-kiosk";
   const random = seeded(73);
   const { width: w, height: h, depth: d, raised: y } = BARBER_KIOSK;
   container(g, w, h, d, 0, y, 0, "roofBlue", -0.95, 1.2);

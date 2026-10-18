@@ -1,5 +1,5 @@
 {
-  "piece": "places/airport-lagos/veh_taxi.glb",
+  "piece": "places/airport-lagos/vehicle_taxi.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -11,7 +11,7 @@
     "models/vehicles/taxi/renders/right.png",
     "models/vehicles/taxi/renders/threeQuarter.png",
     "models/vehicles/taxi/renders/manifest.json",
-    "models/register.json, the row for places/airport-lagos/veh_taxi.glb"
+    "models/register.json, the row for places/airport-lagos/vehicle_taxi.glb"
   ],
   "scores": {
     "phone": 4,

@@ -11,31 +11,31 @@ const PHOTO = "data:image/webp;base64,UklGRg==";
 describe("the person's own colours, kept", () => {
   test("[prologue:player-colours-on-looks] given a person kept with a style and a photo, when it is read back, then the style and the photo come back with the look and the name", () => {
     const storage = memoryStorage();
-    keepPerson({ look: "chr_tunde", name: "Kola", archetype: "developer", style: { skin: "skin2", top: "wine", fabric: "plain" }, photo: PHOTO }, storage);
-    expect(readPerson(storage)).toEqual({ look: "chr_tunde", name: "Kola", archetype: "developer", style: { skin: "skin2", top: "wine", fabric: "plain" }, photo: PHOTO });
-    expect(keptStyleOf("shared/chr/chr_tunde.glb", storage)).toEqual({ skin: "skin2", top: "wine", fabric: "plain" });
+    keepPerson({ look: "person_tunde", name: "Kola", archetype: "developer", style: { skin: "skin2", top: "wine", fabric: "plain" }, photo: PHOTO }, storage);
+    expect(readPerson(storage)).toEqual({ look: "person_tunde", name: "Kola", archetype: "developer", style: { skin: "skin2", top: "wine", fabric: "plain" }, photo: PHOTO });
+    expect(keptStyleOf("shared/person/person_tunde.glb", storage)).toEqual({ skin: "skin2", top: "wine", fabric: "plain" });
     // Another look's file wears nothing of it.
-    expect(keptStyleOf("shared/chr/chr_ada.glb", storage)).toBeUndefined();
+    expect(keptStyleOf("shared/person/person_ada.glb", storage)).toBeUndefined();
   });
 
   test("[prologue:player-colours-on-looks] given a person kept as made, or kept with no colours at all, then it reads back with no style and no photo", () => {
     const storage = memoryStorage();
-    storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Ada", archetype: null }));
-    expect(readPerson(storage)).toEqual({ look: "chr_ada", name: "Ada", archetype: null });
-    expect(keptStyleOf("shared/chr/chr_ada.glb", storage)).toBeUndefined();
+    storage.setItem(PERSON_KEY, JSON.stringify({ look: "person_ada", name: "Ada", archetype: null }));
+    expect(readPerson(storage)).toEqual({ look: "person_ada", name: "Ada", archetype: null });
+    expect(keptStyleOf("shared/person/person_ada.glb", storage)).toBeUndefined();
   });
 
   test("[prologue:player-colours-on-looks] given a person kept as made with the photo drawn as made, when it is read back, then the photo and its width come back with no style", () => {
     const storage = memoryStorage();
-    keepPerson({ look: "chr_ada", name: "Ada", archetype: null, photo: PHOTO, photoPx: 258 }, storage);
-    expect(readPerson(storage)).toEqual({ look: "chr_ada", name: "Ada", archetype: null, photo: PHOTO, photoPx: 258 });
+    keepPerson({ look: "person_ada", name: "Ada", archetype: null, photo: PHOTO, photoPx: 258 }, storage);
+    expect(readPerson(storage)).toEqual({ look: "person_ada", name: "Ada", archetype: null, photo: PHOTO, photoPx: 258 });
   });
 
   test("[prologue:player-colours-on-looks] given a style that is not the palette's, or a photo that is not an image of its own, when it is read back, then those are dropped and the person stands", () => {
     const storage = memoryStorage();
-    storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Ada", archetype: null, style: { skin: "#ff00ff", hair: "gold", fabric: "silk", strength: 9 }, photo: "https://example.com/face.png" }));
-    expect(readPerson(storage)).toEqual({ look: "chr_ada", name: "Ada", archetype: null, style: { hair: "gold" } });
-    storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Ada", archetype: null, style: { skin: "nothing" }, photo: PHOTO }));
-    expect(readPerson(storage)).toEqual({ look: "chr_ada", name: "Ada", archetype: null });
+    storage.setItem(PERSON_KEY, JSON.stringify({ look: "person_ada", name: "Ada", archetype: null, style: { skin: "#ff00ff", hair: "gold", fabric: "silk", strength: 9 }, photo: "https://example.com/face.png" }));
+    expect(readPerson(storage)).toEqual({ look: "person_ada", name: "Ada", archetype: null, style: { hair: "gold" } });
+    storage.setItem(PERSON_KEY, JSON.stringify({ look: "person_ada", name: "Ada", archetype: null, style: { skin: "nothing" }, photo: PHOTO }));
+    expect(readPerson(storage)).toEqual({ look: "person_ada", name: "Ada", archetype: null });
   });
 });

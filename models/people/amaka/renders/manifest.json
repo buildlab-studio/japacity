@@ -1,6 +1,6 @@
 {
-  "asset": "chr_amaka",
-  "file": "public/assets/shared/chr/chr_amaka.glb",
+  "asset": "person_amaka",
+  "file": "public/assets/shared/person/person_amaka.glb",
   "fileSha256": "54d8ae6ed06c37becea8776174f79d8864fb61582a01d8579aee7ca4d582221c",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

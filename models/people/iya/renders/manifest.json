@@ -1,6 +1,6 @@
 {
-  "asset": "chr_iya",
-  "file": "public/assets/shared/chr/chr_iya.glb",
+  "asset": "person_iya",
+  "file": "public/assets/shared/person/person_iya.glb",
   "fileSha256": "1b9707a45c15d1c4a2f3f7b4ee1c4842eaddcb066bd7e40738ab484cae9dd914",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

@@ -21,9 +21,9 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 ## Rules: budgets
 
-**assets:assets-and-places-within-budget** A shipped asset stays inside its budget in the per-asset table below, measured on the compressed file: triangles, draw calls after baking, materials and bytes. A place stays inside its budget in the per-place table, measured on everything in view from the place's three fixed camera positions with the high mode's sample of people. The build check fails on any figure over budget. A home shell may ship each outer side as a pair, `wall_<side>_full` and `wall_<side>_low`, of which the scene shows one (world:room-seen-down-its-length); a pair counts one draw call and the hidden wall none, each pair adds one draw call to the bld allowance, and triangles and bytes count both walls.
+**assets:assets-and-places-within-budget** A shipped asset stays inside its budget in the per-asset table below, measured on the compressed file: triangles, draw calls after baking, materials and bytes. A place stays inside its budget in the per-place table, measured on everything in view from the place's three fixed camera positions with the high mode's sample of people. The build check fails on any figure over budget. A home shell may ship each outer side as a pair, `wall_<side>_full` and `wall_<side>_low`, of which the scene shows one (world:room-seen-down-its-length); a pair counts one draw call and the hidden wall none, each pair adds one draw call to the building allowance, and triangles and bytes count both walls.
 
-**assets:shipped-file-naming** A shipped file's name is `<prefix>_<name>.<ext>` or `<prefix>_<name>_<variant>.<ext>`: the prefix from the table below, the name in lower case with words joined by hyphens, the variant a letter or a word where there is more than one, and the extension `glb`, `png` or `ktx2`. As a pattern: `^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$`. The build check fails on any other name under `public/assets/`.
+**assets:shipped-file-naming** A shipped file's name is `<prefix>_<name>.<ext>` or `<prefix>_<name>_<variant>.<ext>`: the prefix from the table below, the name in lower case with words joined by hyphens, the variant a letter or a word where there is more than one, and the extension `glb`, `png` or `ktx2`. As a pattern: `^(person|vehicle|building|shopfront|landmark|prop)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$`. The build check fails on any other name under `public/assets/`.
 
 ## Rules: where things come from
 
@@ -120,16 +120,12 @@ Additions, accepted under assets:colours-from-named-palette. Painted block walls
 
 | Prefix | What | Triangles | Draw calls | Materials | Compressed size | Height | Source |
 |---|---|---|---|---|---|---|---|
-| `chr_` | A person with clothes and hair | 3,000 | 3 | 2 | 150 KB | 1.55 m to 2.3 m with headwear | `../design/06` section 6 |
-| `veh_` | A vehicle | 3,000 | 2 | 2 | 100 KB | | `../design/06` section 6 |
-| `bld_` | An ordinary building from the kit | 1,500 | 1 | 1 | 40 KB | 3 m to 13 m (one to four storeys) | Working value: the experiments' market stall (664 triangles, 14.2 KB) is a third of it; a wide home's shell has one draw call more per wall pair (assets:assets-and-places-within-budget) |
-| `shop_` | A shopfront bay with its awning | 1,200 | 2 (body, sign) | 2 | 30 KB | 3 m to 4 m | Working value |
-| `sign_` | A free-standing signboard | 100 | 1 | 1 (its canvas) | 4 KB | 1.5 m to 4 m | Working value |
-| `lm_` | A landmark | 8,000 | 2 | 2 | 250 KB | | Working value: a tenth of an exterior's triangles |
+| `person_` | A person with clothes and hair | 3,000 | 3 | 2 | 150 KB | 1.55 m to 2.3 m with headwear | `../design/06` section 6 |
+| `vehicle_` | A vehicle | 3,000 | 2 | 2 | 100 KB | | `../design/06` section 6 |
+| `building_` | An ordinary building from the kit | 1,500 | 1 | 1 | 40 KB | 3 m to 13 m (one to four storeys) | Working value: the experiments' market stall (664 triangles, 14.2 KB) is a third of it; a wide home's shell has one draw call more per wall pair (assets:assets-and-places-within-budget) |
+| `shopfront_` | A shopfront bay with its awning | 1,200 | 2 (body, sign) | 2 | 30 KB | 3 m to 4 m | Working value |
+| `landmark_` | A landmark | 8,000 | 2 | 2 | 250 KB | | Working value: a tenth of an exterior's triangles |
 | `prop_` | A prop: stall, tank, generator, pole, crate | 800 | 1 | 1 | 25 KB | | Working value, the experiments' market stall fits |
-| `cloth_`, `hair_` | A garment or hairstyle shipped apart from a person | inside the person's 3,000 | | | inside the person's 150 KB | | `../design/06` section 4 |
-| `anim_` | An animation set for the one skeleton | | | | 60 KB | | Working value |
-| `tex_` | A pattern | | | | 16 KB, at most 256 px a side | | The experiments' largest pattern was 15.7 KB |
 
 ## Budgets for one place
 
@@ -159,16 +155,13 @@ How an exterior's 80 draw calls and 80,000 triangles are shared. Working values,
 
 | Prefix | Holds | Lives in |
 |---|---|---|
-| `chr_` | People | `public/assets/shared/chr/` |
-| `veh_` | Vehicles | `public/assets/shared/veh/` |
-| `cloth_`, `hair_` | Garments and hair shipped apart | `public/assets/shared/cloth/`, `.../hair/` |
-| `anim_` | Animations | `public/assets/shared/anim/` |
-| `tex_` | Patterns | `public/assets/shared/tex/` |
+| `person_` | People | `public/assets/shared/person/` |
+| `vehicle_` | Vehicles | `public/assets/shared/vehicle/` |
 | `prop_` | Props used in several places | `public/assets/shared/prop/` |
-| `bld_`, `shop_`, `sign_` | Buildings, shopfronts, signboards of one place | `public/assets/places/<place>/` |
-| `lm_` | A landmark | `public/assets/places/<place>/` |
+| `building_`, `shopfront_` | Buildings and shopfronts of one place | `public/assets/places/<place>/` |
+| `landmark_` | A landmark | `public/assets/places/<place>/` |
 
-A shipped body is a `chr_`, and a name has at most one variant part (assets:shipped-file-naming).
+A shipped body is a `person_`, and a name has at most one variant part (assets:shipped-file-naming).
 
 ## The register
 

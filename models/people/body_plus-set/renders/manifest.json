@@ -1,6 +1,6 @@
 {
-  "asset": "chr_body_plus-set",
-  "file": "public/assets/shared/chr/chr_body_plus-set.glb",
+  "asset": "person_body_plus-set",
+  "file": "public/assets/shared/person/person_body_plus-set.glb",
   "fileSha256": "d396f6134f2da5afa447381595d41ab6a9eed36ee3a87d362e9048e0edc72cd0",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

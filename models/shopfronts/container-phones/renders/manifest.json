@@ -1,6 +1,6 @@
 {
-  "asset": "shop_container-phones",
-  "file": "public/assets/places/ojuelegba/shop_container-phones.glb",
+  "asset": "shopfront_container-phones",
+  "file": "public/assets/places/ojuelegba/shopfront_container-phones.glb",
   "fileSha256": "2611f38965a463e55c45ee07d0d090ded6cb360655f8d312fb0f6a4e81529c13",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

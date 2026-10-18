@@ -98,7 +98,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean; fare?: string; vehicle: AbroadVehicle | null; label?: string } | null>(null);
   // The way picked on the ride sheet: its vehicle rides the route on the map, the danfo when none or on foot.
   const [wayShown, setWayShown] = useState<RideChoice["id"]>("danfo");
-  const routeVehicle = wayModelFor(placeCountry, wayShown, false) ?? WAY_MODEL[wayShown] ?? "veh_danfo";
+  const routeVehicle = wayModelFor(placeCountry, wayShown, false) ?? WAY_MODEL[wayShown] ?? "vehicle_danfo";
 
   const here = stable.find((pin) => pin.state === "here") ?? null;
   const pin = stable.find((candidate) => candidate.id === picked) ?? null;

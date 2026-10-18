@@ -36,7 +36,7 @@ export const FAMILY_HOUSE = {
 
 export function buildFamilyHouse(notice: string, style: SignStyle, dishYaw: number): Group {
   const g = new Group();
-  g.name = "bld_family-house";
+  g.name = "building_family-house";
   const random = seeded(1962);
   const [plotW, plotD] = FAMILY_HOUSE.plot;
   const { width: w, back, front, walls } = FAMILY_HOUSE.house;

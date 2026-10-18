@@ -42,7 +42,7 @@ async function signedOut(page: Page): Promise<void> {
  * 503 or behind a wall; every other /api route not found.
  */
 async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void> {
-  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
+  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "person_ada", name: "Bayo", archetype: "developer" })));
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
     (route) => {
@@ -62,7 +62,7 @@ async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void
 async function pageWaiting(page: Page): Promise<void> {
   const game = start({ scenario: "scenario.prologue", content });
   const view = viewReply(game);
-  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
+  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "person_ada", name: "Bayo", archetype: "developer" })));
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
     (route) => {

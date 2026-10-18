@@ -1,6 +1,6 @@
 {
-  "asset": "chr_obi",
-  "file": "public/assets/shared/chr/chr_obi.glb",
+  "asset": "person_obi",
+  "file": "public/assets/shared/person/person_obi.glb",
   "fileSha256": "11fe36546ef22e7f016e6c24559c4c9114994f3c227f565e83e8797a7cccd913",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

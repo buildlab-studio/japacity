@@ -1,6 +1,6 @@
 {
-  "asset": "bld_castel-row_b",
-  "file": "public/assets/places/castel-volturno/bld_castel-row_b.glb",
+  "asset": "building_castel-row_b",
+  "file": "public/assets/places/castel-volturno/building_castel-row_b.glb",
   "fileSha256": "113cec625897d3c11414304cd695c0d852976be5dde36d26759a0ae1b05f9164",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

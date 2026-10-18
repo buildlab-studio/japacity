@@ -19,7 +19,7 @@ vi.mock("../../../shared/three/manifest", async (original) => ({
   loadManifest: () => Promise.resolve({ files: new Proxy({}, { get: (_, key) => String(key) }) }),
 }));
 
-const dress: Dress = { name: "Adaeze", first: "Ada", age: "25 yrs 6 mo", look: "chr_ada", figure: <img alt="" data-figure />, cast: castFor("chr_ada"), money: "₦12,000,741" };
+const dress: Dress = { name: "Adaeze", first: "Ada", age: "25 yrs 6 mo", look: "person_ada", figure: <img alt="" data-figure />, cast: castFor("person_ada"), money: "₦12,000,741" };
 const none = () => undefined;
 
 afterEach(() => {
@@ -85,7 +85,7 @@ describe("the send-off's beats, laid out", () => {
     expect(LANDING.bag.top + LANDING.bag.width).toBeLessThanOrEqual(LANE_TOP);
     expect(844 - LANDING.bubbleBottom).toBeLessThanOrEqual(LANDING.you.top);
     const landing = landingOf(country as `country.${string}`)!;
-    render(<LandingBeat dress={dress} landing={landing} place="Peckham, London" weather="4 degrees" marker="Peckham Rye" heard={{ name: "Aunty", words: "You just land?", look: "chr_amaka" }} go="Get on the bus" blind="12 · PECKHAM" onGo={none} />);
+    render(<LandingBeat dress={dress} landing={landing} place="Peckham, London" weather="4 degrees" marker="Peckham Rye" heard={{ name: "Aunty", words: "You just land?", look: "person_amaka" }} go="Get on the bus" blind="12 · PECKHAM" onGo={none} />);
     expect(document.querySelector<HTMLElement>("[data-so-beat='landing'] .so-lane")?.style.top).toBe(`${String(LANE_TOP)}px`);
   });
 
@@ -151,7 +151,7 @@ describe("the send-off's beats, laid out", () => {
     const named = /^(Aunty|Sister|Woman)\b/.test(label) ? "f" : /^(Man|Brother|Uncle)\b/.test(label) ? "m" : people.sex;
     expect([label, people.sex]).toEqual([label, named]);
     for (const look of people.looks) {
-      expect([look, ROSTER.find((person) => person.file === `shared/chr/${look}.glb`)?.sex]).toEqual([look, people.sex]);
+      expect([look, ROSTER.find((person) => person.file === `shared/person/${look}.glb`)?.sex]).toEqual([look, people.sex]);
       expect(content.place[landing.hub]).toBeDefined();
     }
     // Each city its own, never one person for all.

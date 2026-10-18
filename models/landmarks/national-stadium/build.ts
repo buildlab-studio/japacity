@@ -93,7 +93,7 @@ function flat(g: Object3D, points: readonly (readonly [number, number])[], y: nu
  */
 export function buildStadium(footprint: readonly (readonly [number, number])[]): Group {
   const g = new Group();
-  g.name = "lm_national-stadium";
+  g.name = "landmark_national-stadium";
   const random = seeded(1973);
   const n = STADIUM.segments;
   const angles = Array.from({ length: n }, (_, i) => (i / n) * Math.PI * 2);

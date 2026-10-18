@@ -131,6 +131,6 @@ export function buildCalgaryBus(): Group {
   for (const x of [2.4, -2.2]) cbox(g, 0.04, roof - floor, 0.04, x, (roof + floor) / 2, -0.2, "danfoYellow");
   for (const s of [-1, 1]) cbox(g, L - 2.5, 0.035, 0.035, -0.5, roof - 0.35, s * 0.42, "hub");
 
-  const root = facePlusZ(g, "veh_calgary-bus");
+  const root = facePlusZ(g, "vehicle_calgary-bus");
   return setFootprint(root, [lowBox(root)]);
 }

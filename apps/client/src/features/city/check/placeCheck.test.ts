@@ -11,7 +11,7 @@ import { CHECK_CLOCK, type CheckInput, runOf, startClock, tapsOf } from "./place
 const hub = content.place["place.ojuelegba"];
 if (hub === undefined) throw new Error("The hub is missing from content");
 const city = content.tuning.city;
-const OWN = "shared/chr/chr_tunde.glb";
+const OWN = "shared/person/person_tunde.glb";
 const input = (mode: "low" | "high", moving: boolean): CheckInput => ({
   file: hubFile as unknown as PlaceFile,
   entry: hub,

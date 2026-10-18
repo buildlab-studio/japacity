@@ -38,27 +38,27 @@ const shown = (): string | null => document.querySelector("[data-photo] img[data
 
 describe("the page's photo where WebGL draws", () => {
   test("[prologue:player-colours-on-looks] given the look as made on a Pixel 7, when the page prints, then the figure is drawn as made at the box's 98 px times 2.625, 258 by 337, never the look's small picture, and kept with the person with its width", async () => {
-    keepPerson({ look: "chr_tunde", name: "Kola", archetype: null });
-    render(<DataPage page={{ ...fields, wear: { look: "chr_tunde" } }} />);
+    keepPerson({ look: "person_tunde", name: "Kola", archetype: null });
+    render(<DataPage page={{ ...fields, wear: { look: "person_tunde" } }} />);
     await waitFor(() => expect(shown()).toBe("data:image/webp;base64,258x337"));
-    expect(asked).toEqual([{ file: "shared/chr/chr_tunde.glb", style: undefined, width: 258 }]);
+    expect(asked).toEqual([{ file: "shared/person/person_tunde.glb", style: undefined, width: 258 }]);
     expect(document.querySelector("[data-photo] img:not([data-photo-made])")).toBeNull();
     expect(readPerson()).toMatchObject({ photo: "data:image/webp;base64,258x337", photoPx: 258 });
   });
 
   test("[prologue:player-colours-on-looks] given a style on a screen of ratio 3 and one of ratio 1, then the photo is drawn 294 by 384 and 196 by 256: the ratio held to 2 to 3", async () => {
     Object.defineProperty(window, "devicePixelRatio", { configurable: true, value: 3 });
-    const { unmount } = render(<DataPage page={{ ...fields, wear: { look: "chr_ada", style: { top: "wine" } } }} />);
+    const { unmount } = render(<DataPage page={{ ...fields, wear: { look: "person_ada", style: { top: "wine" } } }} />);
     await waitFor(() => expect(shown()).toBe("data:image/webp;base64,294x384"));
     unmount();
     Object.defineProperty(window, "devicePixelRatio", { configurable: true, value: 1 });
-    render(<DataPage page={{ ...fields, wear: { look: "chr_ada", style: { top: "teal" } } }} />);
+    render(<DataPage page={{ ...fields, wear: { look: "person_ada", style: { top: "teal" } } }} />);
     await waitFor(() => expect(shown()).toBe("data:image/webp;base64,196x256"));
     expect(asked.map((one) => one.width)).toEqual([294, 196]);
   });
 
   test("[prologue:player-colours-on-looks] given a photo kept as wide as the screen wants, then it is shown and nothing is drawn again", async () => {
-    render(<DataPage page={{ ...fields, wear: { look: "chr_bisi", photo: "data:image/webp;base64,kept", photoPx: 258 } }} />);
+    render(<DataPage page={{ ...fields, wear: { look: "person_bisi", photo: "data:image/webp;base64,kept", photoPx: 258 } }} />);
     await waitFor(() => expect(shown()).toBe("data:image/webp;base64,kept"));
     expect(asked).toEqual([]);
   });

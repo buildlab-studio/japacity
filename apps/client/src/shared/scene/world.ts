@@ -60,7 +60,7 @@ export interface World {
 /** Which prefixes cast a shadow in the high mode: characters and vehicles only (assets:lighting-set-by-place). */
 function castsShadow(file: string): boolean {
   const name = file.split("/").pop() ?? "";
-  return name.startsWith("chr_") || name.startsWith("veh_");
+  return name.startsWith("person_") || name.startsWith("vehicle_");
 }
 
 function flat(colour: string): MeshLambertMaterial {

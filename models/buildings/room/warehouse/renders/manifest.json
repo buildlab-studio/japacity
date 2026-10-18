@@ -1,6 +1,6 @@
 {
-  "asset": "bld_room_warehouse",
-  "file": "public/assets/places/warehouse-uk/bld_room_warehouse.glb",
+  "asset": "building_room_warehouse",
+  "file": "public/assets/places/warehouse-uk/building_room_warehouse.glb",
   "fileSha256": "1878b98a652827f6b022049657edbc6f6c5180a60f8b282c184e04b0c47a7128",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

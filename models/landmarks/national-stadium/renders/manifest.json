@@ -1,6 +1,6 @@
 {
-  "asset": "lm_national-stadium",
-  "file": "public/assets/places/national-stadium/lm_national-stadium.glb",
+  "asset": "landmark_national-stadium",
+  "file": "public/assets/places/national-stadium/landmark_national-stadium.glb",
   "fileSha256": "9f1b426b6c850d4387575e9aad5cf65cafd0808692d778031cb3327fe5871b7b",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

@@ -162,7 +162,7 @@ describe("the folding map", () => {
 
   test("[world:map-is-painted-lagos] given the passport office and Ojuelegba, when their stickers stand on the map, then each has a picture of its own: a counter with the flag flying behind it, and the flyover", async () => {
     expect(tileOf("place.passport-office")).toEqual({ model: "prop_bank-counter" });
-    expect(tileOf("place.ojuelegba")).toEqual({ model: "bld_flyover-span" });
+    expect(tileOf("place.ojuelegba")).toEqual({ model: "building_flyover-span" });
     await open({ step: "place.passport-office" });
     expect(document.querySelector('[data-card="island"] [data-pin="place.passport-office"] [data-picture]')?.getAttribute("data-picture")).toBe("prop_bank-counter+flag");
   });

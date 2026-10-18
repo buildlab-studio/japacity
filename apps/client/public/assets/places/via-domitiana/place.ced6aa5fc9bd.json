@@ -1,0 +1,508 @@
+{
+  "place": "place.via-domitiana",
+  "scope": "exterior",
+  "hub": false,
+  "note": "The Domitiana drawn as one frontage (world:place-is-one-screen; design page 11 section 3). Counts are the most in view from the whole view; the crowd is the entry's figures under the world's outdoor caps.",
+  "instances": [
+    {
+      "file": "places/via-domitiana/building_domitiana-block.glb",
+      "count": 1
+    },
+    {
+      "file": "places/via-domitiana/prop_pine.glb",
+      "count": 6
+    },
+    {
+      "file": "places/castel-volturno/prop_bus-pole.glb",
+      "count": 1
+    },
+    {
+      "file": "places/peckham/prop_street-bench.glb",
+      "count": 1
+    },
+    {
+      "file": "places/rye-lane/prop_gazebo-stall.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/vehicle/vehicle_van.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 3,
+    "high": 6,
+    "sample": [
+      "shared/person/person_tunde.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_kemi.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_bisi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_tobi.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_nonso.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_zainab.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_obi.glb",
+      "shared/person/person_iya.glb",
+      "shared/person/person_rider.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 110
+  },
+  "stage": {
+    "note": "The Domitiana as one frontage of about 24 metres (world:place-is-one-screen): the coast road across the place, its long axis; on the far side the pickup point's lay-by where a few men wait by the gangmaster's white van, the low block of the Nigerian shop under its green awning and the barber's door with its pole, a unit shut beside them, stone pines on the sandy verge and the beach and the sea's blue at the far edge; on the near pavement the bus stop's pole, a bench and a market stall of clothes, pines at either end. No moving sheet.",
+    "ground": {
+      "size": [
+        40,
+        44
+      ],
+      "colour": "sand"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          40,
+          7.5
+        ],
+        "colour": "asphalt",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          39,
+          0.15
+        ],
+        "colour": "marking",
+        "raise": 0.02,
+        "dash": {
+          "colour": "asphalt",
+          "every": 4
+        }
+      },
+      {
+        "at": [
+          0,
+          -3.45,
+          0
+        ],
+        "size": [
+          40,
+          0.12
+        ],
+        "colour": "marking",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          0,
+          3.45,
+          0
+        ],
+        "size": [
+          40,
+          0.12
+        ],
+        "colour": "marking",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          -6.6,
+          -5.1,
+          0
+        ],
+        "size": [
+          9,
+          2.7
+        ],
+        "colour": "concreteWorn",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          3.85,
+          0
+        ],
+        "size": [
+          40,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          5.5,
+          0
+        ],
+        "size": [
+          40,
+          3.1
+        ],
+        "colour": "concrete",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          -17.6,
+          0
+        ],
+        "size": [
+          40,
+          2.8
+        ],
+        "colour": "wallCream",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          -20.5,
+          0
+        ],
+        "size": [
+          40,
+          3.0
+        ],
+        "colour": "basin",
+        "raise": 0.01
+      }
+    ],
+    "light": {
+      "sun": [
+        -14,
+        55,
+        20
+      ],
+      "sky": "wallSky",
+      "ground": "sand"
+    },
+    "start": [
+      -0.4,
+      11,
+      3.1416
+    ],
+    "walkable": [
+      [
+        [
+          -17.5,
+          -15.5
+        ],
+        [
+          17.5,
+          -15.5
+        ],
+        [
+          17.5,
+          15.5
+        ],
+        [
+          -17.5,
+          15.5
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/via-domitiana/building_domitiana-block.glb",
+        "at": [
+          [
+            6.0,
+            -10.5,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.via-domitiana.sign.nigerian-shop",
+            "place.via-domitiana.sign.barber"
+          ]
+        ]
+      },
+      {
+        "file": "places/via-domitiana/prop_pine.glb",
+        "at": [
+          [
+            -12.8,
+            -9.5,
+            0.3
+          ],
+          [
+            -7.5,
+            -12.5,
+            2.1
+          ],
+          [
+            -2.0,
+            -10.0,
+            4.0
+          ],
+          [
+            12.5,
+            -15.5,
+            1.0
+          ],
+          [
+            -13.5,
+            8.5,
+            5.2
+          ],
+          [
+            13.0,
+            8.0,
+            0.9
+          ]
+        ]
+      },
+      {
+        "file": "places/castel-volturno/prop_bus-pole.glb",
+        "at": [
+          [
+            -1.2,
+            4.5,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.via-domitiana.sign.stop"
+          ]
+        ]
+      },
+      {
+        "file": "places/peckham/prop_street-bench.glb",
+        "at": [
+          [
+            1.6,
+            6.0,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "places/rye-lane/prop_gazebo-stall.glb",
+        "at": [
+          [
+            -7.4,
+            6.4,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/vehicle/vehicle_van.glb",
+        "at": [
+          [
+            -6.6,
+            -5.1,
+            -1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -2.6,
+        -5.4,
+        2.4
+      ],
+      [
+        -2.0,
+        -6.4,
+        3.0
+      ],
+      [
+        -3.2,
+        -6.9,
+        2.0
+      ],
+      [
+        -10.6,
+        -5.2,
+        1.4
+      ],
+      [
+        2.0,
+        -5.6,
+        0.3
+      ],
+      [
+        -0.4,
+        4.9,
+        3.1416
+      ],
+      [
+        -7.2,
+        8.4,
+        3.1416
+      ],
+      [
+        7.0,
+        -5.4,
+        -0.5
+      ],
+      [
+        5.6,
+        4.8,
+        -1.2
+      ],
+      [
+        10.2,
+        -5.0,
+        -1.4
+      ]
+    ],
+    "acts": [],
+    "motion": [],
+    "shot": {
+      "centre": [
+        0.0,
+        0.5,
+        -1.5
+      ],
+      "far": 40,
+      "near": 10,
+      "farPitch": 48,
+      "nearPitch": 34,
+      "turn": 30,
+      "yaw": 180,
+      "width": 24
+    },
+    "things": [
+      {
+        "id": "stop",
+        "file": "places/castel-volturno/prop_bus-pole.glb",
+        "copy": 0,
+        "label": "city.thing.stop",
+        "at": [
+          -1.2,
+          5.3
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          }
+        ]
+      },
+      {
+        "id": "pickup",
+        "file": "shared/vehicle/vehicle_van.glb",
+        "copy": 0,
+        "label": "city.thing.pickup",
+        "at": [
+          -3.2,
+          -5.0
+        ],
+        "acts": [
+          {
+            "id": "overtime",
+            "label": "city.act.overtime",
+            "kind": "sheet",
+            "stages": "activity.overtime"
+          }
+        ]
+      },
+      {
+        "id": "nigerian-shop",
+        "file": "places/via-domitiana/building_domitiana-block.glb",
+        "copy": 0,
+        "label": "city.thing.nigerian-shop",
+        "at": [
+          2.5,
+          -6.4
+        ],
+        "acts": [
+          {
+            "id": "evening",
+            "label": "city.act.shop",
+            "kind": "sheet",
+            "stages": "activity.street-shopping-it"
+          }
+        ]
+      },
+      {
+        "id": "barber",
+        "file": "places/via-domitiana/building_domitiana-block.glb",
+        "copy": 0,
+        "label": "city.thing.barber",
+        "at": [
+          7.4,
+          -6.4
+        ],
+        "acts": [
+          {
+            "id": "barber",
+            "label": "city.act.barber",
+            "kind": "sheet",
+            "stages": "activity.barber-it"
+          }
+        ]
+      },
+      {
+        "id": "stall",
+        "file": "places/rye-lane/prop_gazebo-stall.glb",
+        "copy": 0,
+        "label": "city.thing.clothes-stall",
+        "at": [
+          -7.4,
+          8.2
+        ],
+        "acts": [
+          {
+            "id": "clothes",
+            "label": "city.act.clothes",
+            "kind": "sheet",
+            "stages": "activity.buy-clothes-it"
+          }
+        ]
+      },
+      {
+        "id": "bench",
+        "file": "places/peckham/prop_street-bench.glb",
+        "copy": 0,
+        "label": "city.thing.bench",
+        "at": [
+          1.6,
+          5.2
+        ],
+        "acts": [
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              1.6,
+              6.0,
+              3.1416
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

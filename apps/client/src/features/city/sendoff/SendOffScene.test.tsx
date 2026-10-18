@@ -39,7 +39,7 @@ function Harness() {
   const send = useGame((state) => state.send);
   return (
     <SendOffScene
-      you={{ name: text[`${view.scenario}.name`] ?? "Ada", first: "Ada", look: "chr_ada", figure: <img alt="" data-figure="chr_ada" /> }}
+      you={{ name: text[`${view.scenario}.name`] ?? "Ada", first: "Ada", look: "person_ada", figure: <img alt="" data-figure="person_ada" /> }}
       game={{ view, busy, send: (command) => send(command).then((reply) => reply?.ok === true), rejection: <Rejection /> }}
       planeCut={(slot) => <div data-cut={slot.city} data-cut-ms={slot.ms} data-cut-country={slot.country} />}
     />

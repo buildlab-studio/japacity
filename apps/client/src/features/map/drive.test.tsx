@@ -40,7 +40,7 @@ describe("Drive on the ride sheet (world:ride-sheet-shows-fares)", () => {
     const heard: string[] = [];
     const chosen: string[] = [];
     render(<RideSheet pin={pin} home={false} ways={ways} have={100_000_00} formatMoney={(amount) => formatMoney(amount, "NGN")} onChoose={(way) => chosen.push(way.id)} onClose={() => undefined} onWay={(way) => heard.push(way)} />);
-    expect(WAY_MODEL.drive).toBe("veh_car");
+    expect(WAY_MODEL.drive).toBe("vehicle_car");
     expect(document.querySelector('[data-way="drive"]')?.getAttribute("aria-checked")).toBe("true");
     const main = document.querySelector<HTMLButtonElement>("[data-ride-main]")!;
     expect(main.textContent).toContain(mapWords("map.drive"));
@@ -55,9 +55,9 @@ describe("Drive on the ride sheet (world:ride-sheet-shows-fares)", () => {
   });
 
   test("[world:ride-cuts-between-angles] given a drive, when the ride is built, then it is the car, you alone at the wheel, seen at the kerb then from above, and the boy who parks you out has his own lines", () => {
-    expect(vehicleFile("drive")).toBe("shared/veh/veh_car.glb");
-    expect(vehicleFile("danfo")).toBe("shared/veh/veh_danfo.glb");
-    expect(peopleOf("drive", "shared/chr/chr_ada.glb")).toEqual({ own: "shared/chr/chr_ada.glb" });
+    expect(vehicleFile("drive")).toBe("shared/vehicle/vehicle_car.glb");
+    expect(vehicleFile("danfo")).toBe("shared/vehicle/vehicle_danfo.glb");
+    expect(peopleOf("drive", "shared/person/person_ada.glb")).toEqual({ own: "shared/person/person_ada.glb" });
     expect(anglesOf("drive")).toEqual([
       { angle: "outside", from: 0 },
       { angle: "above", from: PRE_MS },

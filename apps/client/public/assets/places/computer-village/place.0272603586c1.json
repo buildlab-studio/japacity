@@ -1,0 +1,570 @@
+{
+  "place": "place.computer-village",
+  "scope": "exterior",
+  "hub": false,
+  "note": "Computer Village's frontage (world:place-is-one-screen). Counts are the most in view from the whole view; the crowd is the rule's outdoor figures, six low and ten high.",
+  "instances": [
+    {
+      "file": "places/computer-village/building_phone-plaza.glb",
+      "count": 1
+    },
+    {
+      "file": "places/computer-village/building_laptop-house.glb",
+      "count": 1
+    },
+    {
+      "file": "places/computer-village/prop_repair-table.glb",
+      "count": 3
+    },
+    {
+      "file": "places/ojuelegba/shopfront_container-phones.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_stall.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_pole.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/vehicle/vehicle_danfo.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/vehicle/vehicle_okada.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_poster-board.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_cooler-stand.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 6,
+    "high": 10,
+    "sample": [
+      "shared/person/person_nonso.glb",
+      "shared/person/person_obi.glb",
+      "shared/person/person_hawker_a.glb",
+      "shared/person/person_hawker_b.glb",
+      "shared/person/person_hawker_c.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_tobi.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_kemi.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_bisi.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_zainab.glb",
+      "shared/person/person_iya.glb",
+      "shared/person/person_corper.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 248
+  },
+  "stage": {
+    "note": "Computer Village as one frontage of about 24 metres (world:place-is-one-screen): the phone plaza and the laptop house across the road with repair tables under their boards, and on the near pavement the repair bench, a container shop of phones and an accessories stall, a danfo and an okada at the kerb. One moving sheet: phone covers hung at the container's front.",
+    "ground": {
+      "size": [
+        36,
+        32
+      ],
+      "colour": "concreteWorn"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          36,
+          7
+        ],
+        "colour": "asphalt",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          36,
+          0.15
+        ],
+        "colour": "marking",
+        "raise": 0.02,
+        "dash": {
+          "colour": "asphalt",
+          "every": 3
+        }
+      },
+      {
+        "at": [
+          0,
+          -3.6,
+          0
+        ],
+        "size": [
+          36,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          3.6,
+          0
+        ],
+        "size": [
+          36,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          4.1,
+          0
+        ],
+        "size": [
+          36,
+          0.6
+        ],
+        "colour": "drain",
+        "raise": 0.01,
+        "dash": {
+          "colour": "concreteWorn",
+          "every": 1.4
+        }
+      }
+    ],
+    "light": {
+      "sun": [
+        18,
+        34,
+        22
+      ],
+      "sky": "sky",
+      "ground": "sand",
+      "lamps": [
+        {
+          "at": [
+            -1.8,
+            2.4,
+            6.4
+          ],
+          "size": 1.6,
+          "bulb": true,
+          "light": {
+            "strength": 4,
+            "reach": 6
+          }
+        },
+        {
+          "at": [
+            7.2,
+            2.8,
+            7.8
+          ],
+          "size": 1.4,
+          "bulb": true,
+          "light": {
+            "strength": 3,
+            "reach": 5
+          }
+        }
+      ]
+    },
+    "start": [
+      -0.4,
+      11,
+      3.1416
+    ],
+    "walkable": [
+      [
+        [
+          -17.5,
+          -15.5
+        ],
+        [
+          17.5,
+          -15.5
+        ],
+        [
+          17.5,
+          15.5
+        ],
+        [
+          -17.5,
+          15.5
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/computer-village/building_phone-plaza.glb",
+        "at": [
+          [
+            -4,
+            -11.2,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.computer-village.sign.1",
+            "place.computer-village.sign.2",
+            "place.computer-village.sign.3",
+            "place.computer-village.sign.4"
+          ]
+        ]
+      },
+      {
+        "file": "places/computer-village/building_laptop-house.glb",
+        "at": [
+          [
+            11.5,
+            -10.8,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.computer-village.sign.9",
+            "place.computer-village.sign.10",
+            "place.computer-village.sign.11"
+          ]
+        ]
+      },
+      {
+        "file": "places/computer-village/prop_repair-table.glb",
+        "at": [
+          [
+            -1.8,
+            6.4,
+            0
+          ],
+          [
+            -7,
+            -5,
+            0
+          ],
+          [
+            0.6,
+            -5,
+            0.05
+          ]
+        ]
+      },
+      {
+        "file": "places/ojuelegba/shopfront_container-phones.glb",
+        "at": [
+          [
+            7.2,
+            7.8,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.computer-village.sign.5",
+            "place.computer-village.sign.14"
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_stall.glb",
+        "at": [
+          [
+            -7.2,
+            6.4,
+            0.2
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_pole.glb",
+        "at": [
+          [
+            -11,
+            4.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/vehicle/vehicle_danfo.glb",
+        "at": [
+          [
+            -7,
+            -1.7,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/vehicle/vehicle_okada.glb",
+        "at": [
+          [
+            1.6,
+            2.6,
+            1.25
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_poster-board.glb",
+        "at": [
+          [
+            6.5,
+            -6.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_cooler-stand.glb",
+        "at": [
+          [
+            -4.4,
+            9.4,
+            3.1416
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -1.4,
+        5.5,
+        0
+      ],
+      [
+        -1.6,
+        7.6,
+        3.1416
+      ],
+      [
+        -0.4,
+        8.1,
+        2.8
+      ],
+      [
+        4.9,
+        9.9,
+        0.3
+      ],
+      [
+        1,
+        -1.2,
+        1.2
+      ],
+      [
+        -6.6,
+        -3.9,
+        3.1416
+      ],
+      [
+        3.4,
+        -5.4,
+        0.3
+      ],
+      [
+        -7.4,
+        7.9,
+        3.1416
+      ],
+      [
+        10.2,
+        5,
+        -1.5
+      ],
+      [
+        -10.2,
+        5.4,
+        1.2
+      ]
+    ],
+    "prefer": {
+      "trader": [
+        0,
+        7,
+        3
+      ],
+      "hawker": [
+        4
+      ]
+    },
+    "motion": [
+      {
+        "kind": "hang",
+        "at": [
+          5.6,
+          2.6,
+          9.4
+        ],
+        "to": [
+          8.4,
+          2.6,
+          9.4
+        ],
+        "count": 6,
+        "size": [
+          0.24,
+          0.62
+        ],
+        "colours": [
+          "black",
+          "red",
+          "blue",
+          "white",
+          "gold",
+          "charcoal"
+        ]
+      }
+    ],
+    "shot": {
+      "centre": [
+        0,
+        0.5,
+        -1
+      ],
+      "far": 40,
+      "near": 10,
+      "farPitch": 48,
+      "nearPitch": 34,
+      "turn": 30,
+      "yaw": 180,
+      "width": 22
+    },
+    "things": [
+      {
+        "id": "repair-bench",
+        "file": "places/computer-village/prop_repair-table.glb",
+        "copy": 0,
+        "label": "city.thing.repair-bench",
+        "at": [
+          -0.2,
+          7.8
+        ],
+        "acts": [
+          {
+            "id": "laptop-fault",
+            "label": "city.act.laptop-fault",
+            "kind": "sheet",
+            "stages": "offer.laptop-fault"
+          },
+          {
+            "id": "side-gig",
+            "label": "city.act.side-gig",
+            "kind": "sheet",
+            "stages": "activity.side-gig"
+          }
+        ]
+      },
+      {
+        "id": "phone-stall",
+        "file": "places/ojuelegba/shopfront_container-phones.glb",
+        "copy": 0,
+        "label": "city.thing.phone-stall",
+        "at": [
+          5.6,
+          10.2
+        ],
+        "acts": [
+          {
+            "id": "buy",
+            "label": "city.act.buy-phone",
+            "kind": "sheet",
+            "stages": "activity.buy-phone"
+          },
+          {
+            "id": "look",
+            "label": "city.act.look-phones",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "accessories",
+        "file": "shared/prop/prop_stall.glb",
+        "copy": 0,
+        "label": "city.thing.accessories",
+        "at": [
+          -6,
+          8.4
+        ],
+        "acts": [
+          {
+            "id": "apprentice",
+            "label": "city.act.apprentice",
+            "kind": "sheet",
+            "stages": "activity.apprentice-repair"
+          },
+          {
+            "id": "sales",
+            "label": "city.act.phone-sales",
+            "kind": "sheet",
+            "stages": "activity.job-phone-sales"
+          }
+        ]
+      },
+      {
+        "id": "danfo",
+        "file": "shared/vehicle/vehicle_danfo.glb",
+        "copy": 0,
+        "label": "city.thing.danfo",
+        "at": [
+          -7,
+          -4.6
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          }
+        ]
+      },
+      {
+        "id": "okada",
+        "file": "shared/vehicle/vehicle_okada.glb",
+        "copy": 0,
+        "label": "city.thing.okada",
+        "at": [
+          0.8,
+          4.4
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          }
+        ]
+      }
+    ]
+  }
+}

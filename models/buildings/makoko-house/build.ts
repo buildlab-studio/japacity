@@ -81,7 +81,7 @@ export function roomBunk(): [number, number, number] {
 
 export function buildRoomHouse(): Group {
   const root = new Group();
-  root.name = "bld_makoko-house_a";
+  root.name = "building_makoko-house_a";
   const random = seeded(2310);
   const { width: w, depth: d, floor, walls, porch } = ROOM_HOUSE;
   const hw = w / 2;
@@ -149,7 +149,7 @@ export const TALL_HOUSE = { width: 5.0, depth: 3.6, floor: 1.5, walls: 2.3, vera
 
 export function buildTallHouse(board: string, style: SignStyle): Group {
   const root = new Group();
-  root.name = "bld_makoko-house_b";
+  root.name = "building_makoko-house_b";
   const random = seeded(1885);
   const { width: w, depth: d, floor, walls, veranda } = TALL_HOUSE;
   const hw = w / 2;
@@ -194,7 +194,7 @@ export const SCHOOL = { width: 8.4, depth: 4.0, floor: 1.3, walls: 2.3, veranda:
 
 export function buildSchool(board: string, style: SignStyle): Group {
   const root = new Group();
-  root.name = "bld_makoko-school";
+  root.name = "building_makoko-school";
   const random = seeded(1914);
   const { width: w, depth: d, floor, walls, veranda } = SCHOOL;
   const hw = w / 2;

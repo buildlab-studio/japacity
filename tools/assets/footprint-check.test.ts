@@ -4,12 +4,12 @@ import { describe, expect, test } from "vitest";
 import { CATALOG } from "./catalog";
 import { checkFootprints, checkWalkable, type StagedGround } from "./footprint-check";
 
-const DANFO = "shared/veh/veh_danfo.glb";
+const DANFO = "shared/vehicle/vehicle_danfo.glb";
 const CHAIR = "shared/prop/prop_plastic-chair.glb";
 const footprints = new Map<string, Footprint>([
   [DANFO, [{ x: 0, z: 0, width: 2, depth: 5 }]],
   [CHAIR, [{ x: 0, z: 0, width: 0.5, depth: 0.5 }]],
-  ["shared/chr/chr_ada.glb", "none"],
+  ["shared/person/person_ada.glb", "none"],
 ]);
 const square: [number, number][] = [[-10, -10], [10, -10], [10, 10], [-10, 10]];
 const stage = (over: Partial<StagedGround> = {}): StagedGround => ({
@@ -23,8 +23,8 @@ const stage = (over: Partial<StagedGround> = {}): StagedGround => ({
 describe("footprints", () => {
   test("[assets:models-record-their-footprint] given shipped models, when their extras are checked, then boxes and none pass, a model with neither fails, and a picture is not a model", () => {
     const shipped = [
-      { file: "shared/veh/veh_danfo.glb", extras: { footprint: [{ x: 0, z: 0, width: 2, depth: 5 }] } },
-      { file: "shared/chr/chr_ada.glb", extras: { footprint: "none" } },
+      { file: "shared/vehicle/vehicle_danfo.glb", extras: { footprint: [{ x: 0, z: 0, width: 2, depth: 5 }] } },
+      { file: "shared/person/person_ada.glb", extras: { footprint: "none" } },
       { file: "shared/prop/prop_stall.glb", extras: {} },
       { file: "shared/prop/prop_pole.glb", extras: { footprint: [] } },
       { file: "shared/tex/tex_ankara_4.png", extras: {} },
@@ -36,7 +36,7 @@ describe("footprints", () => {
   });
 
   test("[assets:models-record-their-footprint] given every model the export builds, when it is baked, then its root's extras carry a footprint", () => {
-    const missing = CATALOG.filter((entry) => !entry.name.startsWith("chr_") || entry.name === "chr_ada").filter((entry) => !isFootprint(entry.build().extras.footprint));
+    const missing = CATALOG.filter((entry) => !entry.name.startsWith("person_") || entry.name === "person_ada").filter((entry) => !isFootprint(entry.build().extras.footprint));
     expect(missing.map((entry) => entry.name)).toEqual([]);
   }, 60_000);
 });

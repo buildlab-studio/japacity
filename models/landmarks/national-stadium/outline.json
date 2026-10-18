@@ -1,5 +1,5 @@
 {
- "asset": "lm_national-stadium",
+ "asset": "landmark_national-stadium",
  "note": "Polygons in metres. A view's picture coordinates: front [x, y] seen from +z; side [-z, y] seen from +x; plan [x, -z] seen from above. No photograph is kept (assets:no-reference-photos-kept).",
  "views": [
   {

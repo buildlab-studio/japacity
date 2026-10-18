@@ -13,7 +13,7 @@ export const VIADUCT = { length: 28.0, deck: 7.2, width: 7.0, span: 8.0 } as con
 /** The hall at street level: glass on three sides under the shell, the doors in its front, the name board under the lip. */
 export function buildMetroStation(key: string, style: SignStyle): Group {
   const g = new Group();
-  g.name = "bld_metro-station";
+  g.name = "building_metro-station";
   const { width: w, depth: d, hall } = STATION;
   const front = d / 2;
   box(g, w + 0.4, 0.15, d + 0.6, 0, 0, 0.2, "concrete");
@@ -47,7 +47,7 @@ export function buildMetroStation(key: string, style: SignStyle): Group {
 /** The viaduct over the street: hammerhead piers every span, the deck with its parapets, and a metro car on it. */
 export function buildMetroViaduct(): Group {
   const g = new Group();
-  g.name = "bld_metro-viaduct";
+  g.name = "building_metro-viaduct";
   const { length: L, deck, width: d, span } = VIADUCT;
   const piers = [-1.5, -0.5, 0.5, 1.5].map((k) => k * span);
   for (const x of piers) {

@@ -1,5 +1,5 @@
 {
-  "piece": "places/third-mainland-bridge/bld_stilt-house.glb",
+  "piece": "places/third-mainland-bridge/building_stilt-house.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/buildings/stilt-house/renders/right.png",
     "models/buildings/stilt-house/renders/threeQuarter.png",
     "models/buildings/stilt-house/renders/manifest.json",
-    "models/register.json, the row for places/third-mainland-bridge/bld_stilt-house.glb"
+    "models/register.json, the row for places/third-mainland-bridge/building_stilt-house.glb"
   ],
   "scores": {
     "phone": 4,

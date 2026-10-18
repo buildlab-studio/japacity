@@ -12,7 +12,7 @@ export interface PersonBone {
 }
 
 export interface PersonMesh {
-  /** The shipped name without extension, for example `chr_amaka` or `chr_body_plus-set`. */
+  /** The shipped name without extension, for example `person_amaka` or `person_body_plus-set`. */
   name: string;
   /** Three numbers a vertex, metres, facing +z, feet on y = 0. */
   positions: number[];

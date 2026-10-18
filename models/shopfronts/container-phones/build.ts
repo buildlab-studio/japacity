@@ -10,7 +10,7 @@ export const CONTAINER_SHOP = { width: 6.0, height: 2.6, depth: 2.4, raised: 0.3
 
 export function buildContainerPhones(signs: { board: string; card: string }, styles: { board: SignStyle; card: SignStyle }, dishYaw: number): Group {
   const g = new Group();
-  g.name = "shop_container-phones";
+  g.name = "shopfront_container-phones";
   const random = seeded(31);
   const { width: w, height: h, depth: d, raised: y } = CONTAINER_SHOP;
   container(g, w, h, d, 0, y, 0, "blue", -2.7, 2.7);

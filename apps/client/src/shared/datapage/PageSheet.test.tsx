@@ -50,7 +50,7 @@ const opener = () => screen.getByRole("button", { name: say("prologue.page.open"
 
 describe("the page from the band", () => {
   test("[prologue:front-door-builds-a-person] given a send-off card kept with its japa type, when the page opens, then the type stands on it by its name; before the send-off there is no such row (decision 0024)", async () => {
-    const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
+    const store = await life("scenario.ada", { look: "person_kemi", name: "Morenike", archetype: null });
     const view = store.getState().view!;
     band(store, clockWords(view.qualities));
     fireEvent.click(opener());
@@ -66,7 +66,7 @@ describe("the page from the band", () => {
 
 
   test("[prologue:front-door-builds-a-person] given a life with its person kept, then the band shows the name over the age, and a tap opens the page with the name, the photo, the age now, what the life was and how ready", async () => {
-    const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
+    const store = await life("scenario.ada", { look: "person_kemi", name: "Morenike", archetype: null });
     const view = store.getState().view!;
     band(store, clockWords(view.qualities));
     // The name over the age.
@@ -86,7 +86,7 @@ describe("the page from the band", () => {
     expect(page.querySelector("[data-field='path']")?.textContent).toContain(say("scenario.ada.kind"));
     expect(page.querySelector("[data-field='ready']")?.textContent).toContain(readyWords(view.japacity.percent ?? 0));
     expect(page.querySelector("[data-field='ready']")?.textContent).not.toContain("%");
-    expect(page.querySelector<HTMLImageElement>("[data-photo] img")?.getAttribute("src")).toBe(lookOf("chr_kemi")!.picture);
+    expect(page.querySelector<HTMLImageElement>("[data-photo] img")?.getAttribute("src")).toBe(lookOf("person_kemi")!.picture);
     // No visa yet: no stamp, and the page says the visa's is the first.
     expect(page.querySelector("[data-stamp]")).toBeNull();
     expect(sheet.textContent).toContain(say("ui.page.stamps.none"));
@@ -95,7 +95,7 @@ describe("the page from the band", () => {
   });
 
   test("[prologue:front-door-builds-a-person] given the view moving on, then the open page keeps the age current, takes no stamp for the passport, and the visa's round stamp once it is granted", async () => {
-    const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
+    const store = await life("scenario.ada", { look: "person_kemi", name: "Morenike", archetype: null });
     band(store);
     fireEvent.click(opener());
     const view = store.getState().view!;
@@ -120,7 +120,7 @@ describe("the page from the band", () => {
   });
 
   test("[prologue:front-door-builds-a-person] given a life from a tile, then the page says the tile's name as the path and its one line as what the life was so far", async () => {
-    const store = await life("scenario.prologue", { look: "chr_tobi", name: "Dayo", archetype: "trader" });
+    const store = await life("scenario.prologue", { look: "person_tobi", name: "Dayo", archetype: "trader" });
     band(store);
     fireEvent.click(opener());
     expect(screen.getByRole("dialog").querySelector("[data-field='path']")?.textContent).toContain(say("prologue.archetype.trader.name"));
@@ -129,7 +129,7 @@ describe("the page from the band", () => {
 
   test("[prologue:front-door-builds-a-person] given the family the prologue drew kept on the device, then the band's page prints its means on the FAMILY line and the strip carries the name, the home's district, the age and how ready", async () => {
     localStorage.setItem(TRAIL_KEY, JSON.stringify({ draw: { familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, steps: [] }));
-    const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
+    const store = await life("scenario.ada", { look: "person_kemi", name: "Morenike", archetype: null });
     band(store);
     fireEvent.click(opener());
     const view = store.getState().view!;
@@ -144,7 +144,7 @@ describe("the page from the band", () => {
   });
 
   test("[prologue:front-door-builds-a-person] [prologue:family-draw-on-first-answer] given a ready life from Enugu, when its page opens from the band, then FROM prints Enugu before FAMILY, as a passport names a place of birth", async () => {
-    const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
+    const store = await life("scenario.ada", { look: "person_kemi", name: "Morenike", archetype: null });
     expect(store.getState().view?.hometown).toBe("hometown.enugu");
     band(store);
     fireEvent.click(opener());

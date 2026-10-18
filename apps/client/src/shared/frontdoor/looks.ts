@@ -8,7 +8,7 @@ import { drawName } from "@japacity/sim";
 import { ROSTER } from "../scene/roster";
 
 export interface Look {
-  /** The shipped person's name, `chr_ada`: what is kept beside the save. */
+  /** The shipped person's name, `person_ada`: what is kept beside the save. */
   id: string;
   /** Its file under the published assets. */
   file: string;
@@ -24,10 +24,10 @@ function pictureOf(id: string): string {
 }
 
 /** The game's first people come first, so the strip opens on them. */
-const FIRST = ["chr_ada", "chr_tunde", "chr_zainab", "chr_tobi", "chr_ngozi", "chr_femi", "chr_kemi", "chr_bisi"];
+const FIRST = ["person_ada", "person_tunde", "person_zainab", "person_tobi", "person_ngozi", "person_femi", "person_kemi", "person_bisi"];
 
-/** A shipped person's name from its file: `shared/chr/chr_ada.glb` is `chr_ada`. */
-export const idOf = (file: string): string => file.slice("shared/chr/".length, -".glb".length);
+/** A shipped person's name from its file: `shared/person/person_ada.glb` is `person_ada`. */
+export const idOf = (file: string): string => file.slice("shared/person/".length, -".glb".length);
 
 export const LOOKS: readonly Look[] = ROSTER.filter((person) => person.role === "passer-by")
   .map((person) => ({ id: idOf(person.file), file: person.file, sex: person.sex, picture: pictureOf(idOf(person.file)) }))
@@ -77,6 +77,6 @@ export function lookForName(name: string): string {
   const sex = sexOfName(name);
   const looks = sex === null ? LOOKS : LOOKS.filter((look) => look.sex === sex);
   const sum = [...name].reduce((total, letter) => total + (letter.codePointAt(0) ?? 0), 0);
-  return (looks[sum % Math.max(1, looks.length)] ?? LOOKS[0])?.id ?? "chr_ada";
+  return (looks[sum % Math.max(1, looks.length)] ?? LOOKS[0])?.id ?? "person_ada";
 }
 

@@ -1,6 +1,6 @@
 {
-  "asset": "chr_bisi",
-  "file": "public/assets/shared/chr/chr_bisi.glb",
+  "asset": "person_bisi",
+  "file": "public/assets/shared/person/person_bisi.glb",
   "fileSha256": "3ccc4705d9ee1e8d3d150bf80ef6544a9e2b2cf42050417c5864e223f4596dec",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

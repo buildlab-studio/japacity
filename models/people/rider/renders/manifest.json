@@ -1,6 +1,6 @@
 {
-  "asset": "chr_rider",
-  "file": "public/assets/shared/chr/chr_rider.glb",
+  "asset": "person_rider",
+  "file": "public/assets/shared/person/person_rider.glb",
   "fileSha256": "339aa1d0df7d79d8fbfcae7752ab98eb794cb811d500c91482791e7e0615518c",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

@@ -1,6 +1,6 @@
 {
-  "asset": "bld_room_care",
-  "file": "public/assets/places/care-home-uk/bld_room_care.glb",
+  "asset": "building_room_care",
+  "file": "public/assets/places/care-home-uk/building_room_care.glb",
   "fileSha256": "b3b59fc5b5f530c4b0692c5d1173d53ee19951e0acf59fbb330e41ad8a4cc5a3",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

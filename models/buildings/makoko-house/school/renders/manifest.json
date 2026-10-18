@@ -1,6 +1,6 @@
 {
-  "asset": "bld_makoko-school",
-  "file": "public/assets/places/makoko/bld_makoko-school.glb",
+  "asset": "building_makoko-school",
+  "file": "public/assets/places/makoko/building_makoko-school.glb",
   "fileSha256": "fc1eb36eb86015f677415403063ff91a3e3b44d8d4878f90f2d78694170113a5",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

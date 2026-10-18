@@ -42,8 +42,8 @@ const STREETS: { raw: unknown; id: Id<"place">; things: Expected[] }[] = [
     raw: bodeRaw,
     id: "place.bode-thomas",
     things: [
-      { thing: "barber", model: "places/bode-thomas/shop_barber-kiosk.glb", name: "Barber", act: { id: "cut", label: "city.act.barber", kind: "sheet", stages: "activity.barber" } },
-      { thing: "viewing", model: "places/bode-thomas/shop_viewing-centre.glb", name: "Viewing centre", act: { id: "match", label: "city.act.match", kind: "sheet", stages: "activity.viewing-centre", parts: ["evening", "night"], pose: "sit" } },
+      { thing: "barber", model: "places/bode-thomas/shopfront_barber-kiosk.glb", name: "Barber", act: { id: "cut", label: "city.act.barber", kind: "sheet", stages: "activity.barber" } },
+      { thing: "viewing", model: "places/bode-thomas/shopfront_viewing-centre.glb", name: "Viewing centre", act: { id: "match", label: "city.act.match", kind: "sheet", stages: "activity.viewing-centre", parts: ["evening", "night"], pose: "sit" } },
       { thing: "joint", model: "shared/prop/prop_joint-set.glb", name: "The joint", act: { id: "drink", label: "city.act.joint", kind: "sheet", stages: "activity.beer-joint", more: ["activity.night-out"], parts: ["evening", "night"], pose: "sit" } },
     ],
   },

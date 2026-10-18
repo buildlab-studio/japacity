@@ -1,6 +1,6 @@
 {
-  "asset": "veh_labour-bus",
-  "file": "public/assets/places/deira/veh_labour-bus.glb",
+  "asset": "vehicle_labour-bus",
+  "file": "public/assets/places/deira/vehicle_labour-bus.glb",
   "fileSha256": "e116f2bf4e36ab5d763a9b136d75faa2be6c9ed906ac004ca9d66993b416892d",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

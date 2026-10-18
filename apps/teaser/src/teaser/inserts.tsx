@@ -116,7 +116,7 @@ export function WayOut() {
         return <div key={`${String(bit.x)}-${String(bit.y)}`} style={{ position: "absolute", left: bit.x, top: bit.y, ...confetti(bit.c, bit.r, p, { width: 46, height: 22, rise: 180 }) }} />;
       })}
       <div style={{ position: "absolute", left: 1150, top: 200 }}>
-        <Sticker tile="chr_ada-cheer" size={680} tilt={4} delay={14} />
+        <Sticker tile="person_ada-cheer" size={680} tilt={4} delay={14} />
       </div>
     </Sky>
   );

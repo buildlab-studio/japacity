@@ -22,7 +22,7 @@ export const TERMINAL = {
 
 export function buildTerminalFront(signs: { fascia: string; canopy: string; left: string; right: string }, styles: { fascia: SignStyle; canopy: SignStyle; hanging: SignStyle }): Group {
   const root = new Group();
-  root.name = "bld_terminal-front";
+  root.name = "building_terminal-front";
   const random = seeded(1979);
   const { width: w, face, back, canopyEdge, glassTop, top, canopy } = TERMINAL;
   const half = w / 2;

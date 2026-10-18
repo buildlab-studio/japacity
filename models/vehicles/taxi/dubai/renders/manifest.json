@@ -1,6 +1,6 @@
 {
-  "asset": "veh_taxi-dubai",
-  "file": "public/assets/places/deira/veh_taxi-dubai.glb",
+  "asset": "vehicle_taxi-dubai",
+  "file": "public/assets/places/deira/vehicle_taxi-dubai.glb",
   "fileSha256": "84b5da652b1c3460c9b063b7822253da2f67be880236a9af741abd783baed68d",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

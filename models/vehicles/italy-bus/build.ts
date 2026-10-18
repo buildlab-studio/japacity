@@ -138,6 +138,6 @@ export function buildItalyBus(): Group {
   cbox(g, L - 2.5, 0.04, 0.04, -0.8, head + 0.1, 0.35, "hub");
   cbox(g, L - 2.5, 0.04, 0.04, -0.8, head + 0.1, -0.35, "hub");
 
-  const root = facePlusZ(g, "veh_italy-bus");
+  const root = facePlusZ(g, "vehicle_italy-bus");
   return setFootprint(root, [lowBox(root)]);
 }

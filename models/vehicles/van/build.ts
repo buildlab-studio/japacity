@@ -119,6 +119,6 @@ export function buildVan(): Group {
   cbox(g, 0.5, 0.3, 0.36, box0 + 0.45, floor + 0.15, 0, "basin");
   cbox(g, 0.2, 0.4, 0.3, box0 + 0.95, floor + 0.2, 0.2, "red");
 
-  const root = facePlusZ(g, "veh_van");
+  const root = facePlusZ(g, "vehicle_van");
   return setFootprint(root, [lowBox(root)]);
 }

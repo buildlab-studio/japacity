@@ -85,7 +85,7 @@ These are first drafts judged from two renders. They show the route works for ve
 - Clothing is part of the body's mesh and moves with the same bones. Robes and wrappers follow the legs, so they survive sitting.
 - A long wrapper shortens the stride. Stride is a number on the outfit.
 - Patterns are small tiling textures drawn from a seed: ankara, adire, aso oke.
-- **People ship as model files** (`apps/client/public/assets/shared/chr`), not built on the device from their data.
+- **People ship as model files** (`apps/client/public/assets/shared/person`), not built on the device from their data.
 - **Animations are written in code**, as the four poses were, with no animation library.
 
 **Who wears what.**
@@ -156,7 +156,7 @@ The palette grows only by a named colour with a reason (assets:colours-from-name
 models/<category>/<name>/        the code and the sheets that make a model. Never shipped
 public/assets/shared/<category>/     characters, props, vehicles
 public/assets/places/<place>/        one place: its buildings and its place.json
-chr_ada.glb, veh_danfo.glb, prop_bed.glb
+person_ada.glb, vehicle_danfo.glb, prop_bed.glb
 ```
 
 **The register** (`models/register.json`) has one row per file: file, place, source, author, licence, attribution text, whether generated and with which tool, who approved it, date, whether modified, triangles, draw calls, materials, bytes, the review and the status (assets:register-matches-every-file).

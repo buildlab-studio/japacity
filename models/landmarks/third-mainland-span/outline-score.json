@@ -1,5 +1,5 @@
 {
-  "asset": "lm_third-mainland-span",
+  "asset": "landmark_third-mainland-span",
   "settings": {
     "note": "The review sheet's numbers (docs/rules/assets.md, The review sheet and Numbers). A reviewer who did not build the piece scores it on these criteria and writes review.json beside it (assets:blind-reviewer-scores-views); acceptance is assets:acceptance-score-thresholds; a landmark also passes assets:landmarks-match-reference-outlines.",
     "outlineMin": 85,

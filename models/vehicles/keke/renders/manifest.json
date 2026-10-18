@@ -1,6 +1,6 @@
 {
-  "asset": "veh_keke",
-  "file": "public/assets/shared/veh/veh_keke.glb",
+  "asset": "vehicle_keke",
+  "file": "public/assets/shared/vehicle/vehicle_keke.glb",
   "fileSha256": "a9424a0d78647ba4363098d4379d857c36899f0946d65424492dfb357fa07978",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

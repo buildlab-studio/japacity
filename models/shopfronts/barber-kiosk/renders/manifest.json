@@ -1,6 +1,6 @@
 {
-  "asset": "shop_barber-kiosk",
-  "file": "public/assets/places/bode-thomas/shop_barber-kiosk.glb",
+  "asset": "shopfront_barber-kiosk",
+  "file": "public/assets/places/bode-thomas/shopfront_barber-kiosk.glb",
   "fileSha256": "c3090559e8fa17840137a969bdb2ef04fa1becd233c9d928eb1e0e30dc406b56",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

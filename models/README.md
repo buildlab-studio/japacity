@@ -8,12 +8,12 @@ A shipped asset `<prefix>_<slug>` has its source in `<folder>/<slug>/`: a `build
 
 | Folder | Id prefix | Holds |
 |---|---|---|
-| `buildings/` | `bld_` | Buildings from the kit. A building with variants keeps one folder per variant (`a/`, `b/`) under its own, shipped as `bld_<slug>_a` and so on |
-| `landmarks/` | `lm_` | Landmarks, each with its outline and outline score |
-| `people/` | `chr_` | People. The body, clothes, hair and poses are code at the folder's top (`people.ts`, `people.data.ts`, `poses.ts`, the blend and the thinning); each person's folder holds only its renders and review |
+| `buildings/` | `building_` | Buildings from the kit. A building with variants keeps one folder per variant (`a/`, `b/`) under its own, shipped as `building_<slug>_a` and so on |
+| `landmarks/` | `landmark_` | Landmarks, each with its outline and outline score |
+| `people/` | `person_` | People. The body, clothes, hair and poses are code at the folder's top (`people.ts`, `people.data.ts`, `poses.ts`, the blend and the thinning); each person's folder holds only its renders and review |
 | `props/` | `prop_` | Props, shared or of one place |
-| `shopfronts/` | `shop_` | Shopfront bays with their awnings |
-| `vehicles/` | `veh_` | Vehicles |
+| `shopfronts/` | `shopfront_` | Shopfront bays with their awnings |
+| `vehicles/` | `vehicle_` | Vehicles |
 | `places/` | the piece's own | One folder per place: the place's `review.json` as a whole, and, for a place whose pieces are built together, its `build.ts` and a folder per piece (`places/farm-it/crop-row/`) |
 | `share/` | none | The review of the share cards' art and the link previews |
 | `stage/` | none | The page every asset is shot on (assets:contributor-renders-fixed-views) |

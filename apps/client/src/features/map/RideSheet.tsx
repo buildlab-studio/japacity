@@ -37,7 +37,7 @@ export interface RideSheetProps {
 }
 
 /** Each way's picture: the vehicle's own tile; on foot, the footprints. */
-export const WAY_MODEL: Readonly<Record<RideChoice["id"], string | null>> = { danfo: "veh_danfo", keke: "veh_keke", okada: "veh_okada", walk: null, drive: "veh_car", bus: "veh_london-bus", train: "veh_train-carriage", taxi: "veh_taxi-dubai" };
+export const WAY_MODEL: Readonly<Record<RideChoice["id"], string | null>> = { danfo: "vehicle_danfo", keke: "vehicle_keke", okada: "vehicle_okada", walk: null, drive: "vehicle_car", bus: "vehicle_london-bus", train: "vehicle_train-carriage", taxi: "vehicle_taxi-dubai" };
 
 /** The first sentence of a place's blurb: a line about it. */
 function firstSentence(blurb: string): string {

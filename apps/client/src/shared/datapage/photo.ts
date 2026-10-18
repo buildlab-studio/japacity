@@ -41,7 +41,7 @@ function draw(look: string, style: LookStyle | undefined): Promise<Drawn | null>
   // Drawn at the screen's own pixels, so the photo is sharp in its box, never drawn small and stretched.
   const px = photoWidth(ratio());
   const started = import("./photoRender")
-    .then(({ renderPhoto }) => renderPhoto(`shared/chr/${look}.glb`, style, px))
+    .then(({ renderPhoto }) => renderPhoto(`shared/person/${look}.glb`, style, px))
     .catch(() => null)
     .then((photo) => {
       if (photo === null) return null;

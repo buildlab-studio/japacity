@@ -1,5 +1,5 @@
 {
-  "piece": "places/tejuosho-market/bld_market-block.glb",
+  "piece": "places/tejuosho-market/building_market-block.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/buildings/market-block/renders/right.png",
     "models/buildings/market-block/renders/threeQuarter.png",
     "models/buildings/market-block/renders/manifest.json",
-    "models/register.json, the row for places/tejuosho-market/bld_market-block.glb"
+    "models/register.json, the row for places/tejuosho-market/building_market-block.glb"
   ],
   "scores": {
     "phone": 3,
@@ -35,7 +35,7 @@
     "proportion": "Storeys about 3 m, windows, balcony rail, the door and the person agree with the kit; nothing visibly off.",
     "palette": "Palette only; the peach wall reads against the sand, the worn band sits low, the four boards carry colour.",
     "wear": "Tank and its stand on the roof, AC units, a generator by the stair, wires, downpipes, goods and crates at the shop doors: assets:buildings-carry-wear-and-clutter is met. No stains under the parapet.",
-    "variety": "Plainly the kit family, but near a copy of bld_phone-plaza: the same three storeys, four bays, side stair, AC units, tank pair and generator; only the wall colour and the boards differ.",
+    "variety": "Plainly the kit family, but near a copy of building_phone-plaza: the same three storeys, four bays, side stair, AC units, tank pair and generator; only the wall colour and the boards differ.",
     "budget": "Read from the register row: triangles 1,140 of 1,500 (76%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 12,516 of 40,000 (31%). Inside every figure, over 80% on at least one."
   },
   "notes": "The sign words come from place.tejuosho-market.sign.1 to 4 but none is drawn in these renders, so the boards read blank at phone size. A kit piece: no outline is scored."

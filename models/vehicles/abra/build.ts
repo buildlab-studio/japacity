@@ -13,7 +13,7 @@ export const ABRA = { length: 9.0, beam: 2.4, freeboard: 0.75, canopy: 2.3 } as 
 
 export function buildAbra(): Group {
   const g = new Group();
-  g.name = "veh_abra";
+  g.name = "vehicle_abra";
   const { length, beam: width, freeboard } = ABRA;
   const half = width / 2;
   const stern = -length / 2;

@@ -11,7 +11,7 @@ export const SITE_FRAME = { width: 12.0, depth: 8.0, storey: 3.0, floors: 4 } as
 
 export function buildSiteFrame(): Group {
   const g = new Group();
-  g.name = "bld_site-frame";
+  g.name = "building_site-frame";
   const { width: w, depth: d, storey, floors } = SITE_FRAME;
   const top = storey * floors;
   const xs = [-w / 2 + 0.25, -w / 6, w / 6, w / 2 - 0.25];

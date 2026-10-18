@@ -19,7 +19,7 @@ const MODELS: [string, () => Group][] = [
   ["prop_trolley", buildTrolley],
   ["prop_flagpole", buildFlagpole],
   ["prop_canoe", buildCanoe],
-  ["veh_taxi", buildTaxi],
+  ["vehicle_taxi", buildTaxi],
 ];
 
 /** Whether a node or one of its parents up to the model is marked to ship smooth. */

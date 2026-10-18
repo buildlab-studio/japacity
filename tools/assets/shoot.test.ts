@@ -18,7 +18,7 @@ const stage = readFileSync(join(SOURCE, "stage", "stage.ts"), "utf8");
 describe("the fixed views", () => {
   test("[assets:contributor-renders-fixed-views] given every asset, when its views are listed, then it gets the four elevations, the three-quarter view and the phone shot, and buildings and landmarks the plan", () => {
     for (const entry of CATALOG) expect(entry.views).toEqual(expect.arrayContaining(["front", "back", "left", "right", "threeQuarter", "phone"]));
-    const planned = CATALOG.filter((entry) => /^(bld|lm|shop)_/.test(entry.name));
+    const planned = CATALOG.filter((entry) => /^(building|landmark|shopfront)_/.test(entry.name));
     expect(planned.filter((entry) => !entry.views.includes("plan")).map((entry) => entry.name)).toEqual([]);
   });
 
@@ -74,18 +74,18 @@ describe("the tile view", () => {
   const untiled = CATALOG.filter((entry) => !isTiled(entry.name));
 
   test("[assets:contributor-renders-fixed-views] given the shells, sheets and grids no player is shown as a thing, when their views are listed, then none gets the tile, none is shot and none keeps a tile render", () => {
-    const shown = ["bld_room_parlour", "bld_room_compound", "prop_sheet-flag_coarse", "prop_sheet-pennant_fine", "prop_water_coarse", "prop_water_fine", "prop_pole", "prop_drum-water", "prop_plank-walkway", "chr_tunde"];
+    const shown = ["building_room_parlour", "building_room_compound", "prop_sheet-flag_coarse", "prop_sheet-pennant_fine", "prop_water_coarse", "prop_water_fine", "prop_pole", "prop_drum-water", "prop_plank-walkway", "person_tunde"];
     for (const name of shown) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: false });
-    expect(CATALOG.filter((entry) => entry.name.startsWith("bld_room_") || entry.name.startsWith("prop_sheet-") || entry.name.startsWith("prop_water_")).filter((entry) => entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
+    expect(CATALOG.filter((entry) => entry.name.startsWith("building_room_") || entry.name.startsWith("prop_sheet-") || entry.name.startsWith("prop_water_")).filter((entry) => entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
     expect(untiled.filter((entry) => entry.views.includes("tile") || existsSync(join(REPO_ROOT, entry.source, "renders", "tile.png"))).map((entry) => entry.name)).toEqual([]);
-    for (const name of ["prop_cooking-corner", "prop_bed", "veh_danfo", "lm_national-stadium", "bld_family-house", "shop_provisions"]) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: true });
+    for (const name of ["prop_cooking-corner", "prop_bed", "vehicle_danfo", "landmark_national-stadium", "building_family-house", "shopfront_provisions"]) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: true });
   });
 
   test("[assets:contributor-renders-fixed-views] given every model a player can be shown as a thing, when its views are listed, then it gets the tile, and no person does", () => {
     expect(tiled.length).toBeGreaterThan(70);
     expect(tiled.filter((entry) => !entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
-    expect(CATALOG.filter((entry) => entry.name.startsWith("chr_") && entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
-    expect(CATALOG.filter((entry) => entry.views.includes("tile")).every((entry) => /^(prop|shop|veh|lm|bld)_/.test(entry.name))).toBe(true);
+    expect(CATALOG.filter((entry) => entry.name.startsWith("person_") && entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
+    expect(CATALOG.filter((entry) => entry.views.includes("tile")).every((entry) => /^(prop|shopfront|vehicle|landmark|building)_/.test(entry.name))).toBe(true);
   });
 
   test("[assets:contributor-renders-fixed-views] given every asset, when its renders folder is named, then no two assets share one, so no render is written over another's", () => {
@@ -147,8 +147,8 @@ describe("the door's portraits", () => {
     expect(portrayed.map((entry) => entry.name).sort()).toEqual(CATALOG.filter((entry) => isPortrayed(entry.name)).map((entry) => entry.name).sort());
     expect(portrayed.length).toBe(16);
     for (const entry of portrayed) expect({ name: entry.name, views: entry.views.filter((view) => PORTRAITS.includes(view)), tile: entry.views.includes("tile") }).toEqual({ name: entry.name, views: [...PORTRAITS], tile: false });
-    expect(portrayed.every((entry) => entry.name.startsWith("chr_"))).toBe(true);
-    for (const name of ["chr_hawker_a", "chr_hawker_b"]) expect(isPortrayed(name)).toBe(false);
+    expect(portrayed.every((entry) => entry.name.startsWith("person_"))).toBe(true);
+    for (const name of ["person_hawker_a", "person_hawker_b"]) expect(isPortrayed(name)).toBe(false);
   });
 
   test("[assets:contributor-renders-fixed-views] given the portraits' shots, when their numbers and poses are read, then the face is 128 CSS pixels square and the figure 200 by 400, both at device scale 2, in the game's stand, hip and cheer poses, on the stage's clear ground", () => {

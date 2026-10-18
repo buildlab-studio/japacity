@@ -20,7 +20,7 @@
     "palette": "Palette only. Concrete in a lit and a shaded tone, asphalt and markings on the deck, a darker worn band at the pier's foot, the kerb paint in black and white. Reads against the sand and the sky. The deck's underside has no stain or damp shade.",
     "wear": "The right clutter where it would be: posters on the pier, a drain pipe down it, the black and white paint at its foot, lane lines and edge lines. No stains under the deck or round the drain's outlet; the pipe runs over the face of one poster in the right view.",
     "variety": "Same family as the Third Mainland span and the kit, plainly its own: a T pier and girders where the long bridge has haunched arches.",
-    "budget": "Read from the register row: triangles 322 of 1,500, drawCalls 1 of 1, materials 1 of 1, bytes 4,000 of 40,000; inside every figure, over 80% on draw calls and materials, as for every bld piece."
+    "budget": "Read from the register row: triangles 322 of 1,500, drawCalls 1 of 1, materials 1 of 1, bytes 4,000 of 40,000; inside every figure, over 80% on draw calls and materials, as for every building piece."
   },
-  "notes": "Scored as a kit piece (bld_), not a landmark: its outline.json is a plan reference from OpenStreetMap and is not scored (assets:landmarks-match-reference-outlines is for lm_ pieces). The span repeats along the hub, so the empty ends of the deck are where the next span joins."
+  "notes": "Scored as a kit piece (building_), not a landmark: its outline.json is a plan reference from OpenStreetMap and is not scored (assets:landmarks-match-reference-outlines is for landmark_ pieces). The span repeats along the hub, so the empty ends of the deck are where the next span joins."
 }

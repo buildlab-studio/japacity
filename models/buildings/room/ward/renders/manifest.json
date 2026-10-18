@@ -1,6 +1,6 @@
 {
-  "asset": "bld_room_ward",
-  "file": "public/assets/places/ward-uk/bld_room_ward.glb",
+  "asset": "building_room_ward",
+  "file": "public/assets/places/ward-uk/building_room_ward.glb",
   "fileSha256": "4dc61bf0cf52f85cfc56640075ffad8d0a0110712cb115ac3cab7010746b9b36",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

@@ -126,7 +126,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
   test(`[world:place-is-one-screen] [world:room-seen-down-its-length] given every piece in ${home.id}, when its footprint is placed, then it stands on the floor inside the house's outer walls`, async () => {
     const walls = outer(home);
     const footprints = await footprintsOf([...new Set(stage.models.map((model) => model.file))]);
-    for (const model of stage.models.filter((one) => !one.file.includes("/bld_home-"))) {
+    for (const model of stage.models.filter((one) => !one.file.includes("/building_home-"))) {
       const footprint = footprints.get(model.file);
       if (footprint === undefined) throw new Error(`${model.file} has no footprint`);
       for (const at of model.at) {
@@ -164,11 +164,11 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
   });
 
   test(`[assets:assets-and-places-within-budget] [assets:register-matches-every-file] given ${home.id}'s shell as shipped, when it is measured as the build check measures it, then it carries the four pairs, its draw calls the body and one wall of each pair, inside a building's budget with one draw call more a pair, and its triangles, both walls of every pair counted, inside a building's`, async () => {
-    const shell = await measured(`places/${home.folder}/bld_${home.folder}.glb`);
+    const shell = await measured(`places/${home.folder}/building_${home.folder}.glb`);
     expect(shell.pairs).toBe(4);
     expect(shell.drawCalls).toBe(1 + 4);
-    expect(shell.drawCalls).toBeLessThanOrEqual(budgets.asset.bld.drawCalls + (shell.pairs ?? 0));
-    expect(shell.triangles).toBeLessThanOrEqual(budgets.asset.bld.triangles);
+    expect(shell.drawCalls).toBeLessThanOrEqual(budgets.asset.building.drawCalls + (shell.pairs ?? 0));
+    expect(shell.triangles).toBeLessThanOrEqual(budgets.asset.building.triangles);
   });
 
   test(`[world:room-seen-down-its-length] [world:camera-always-raised] given ${home.id} on a phone held upright, when it opens whole and unturned, then the camera looks straight down its length on a long lens from a raised view, the view free to turn the full circle in quarters, and every corner of the floor and the tops of the back wall stand on screen, the house spanning most of the screen's width`, () => {

@@ -1,6 +1,6 @@
 {
-  "asset": "bld_flyover-span",
-  "file": "public/assets/places/ojuelegba/bld_flyover-span.glb",
+  "asset": "building_flyover-span",
+  "file": "public/assets/places/ojuelegba/building_flyover-span.glb",
   "fileSha256": "567500239bce86dc0ea2bc8f04b0be8e12d10358c9f9633798d7bd37e91f7152",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

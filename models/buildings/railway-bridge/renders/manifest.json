@@ -1,6 +1,6 @@
 {
-  "asset": "bld_railway-bridge",
-  "file": "public/assets/places/peckham/bld_railway-bridge.glb",
+  "asset": "building_railway-bridge",
+  "file": "public/assets/places/peckham/building_railway-bridge.glb",
   "fileSha256": "64a78f463c6b2173fac0c0797490aa74d7f8c0ca8a6cb97b53b6b97782f3846d",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

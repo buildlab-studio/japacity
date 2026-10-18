@@ -1,6 +1,6 @@
 {
-  "asset": "bld_room_bigshop",
-  "file": "public/assets/places/big-shop-uk/bld_room_bigshop.glb",
+  "asset": "building_room_bigshop",
+  "file": "public/assets/places/big-shop-uk/building_room_bigshop.glb",
   "fileSha256": "883183e3479e1dcaaae26d2f399b163a3ae35f52237a12089874ea7829e9fa43",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

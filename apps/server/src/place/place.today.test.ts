@@ -54,9 +54,9 @@ describe("the day's seen list", () => {
   });
 
   test("[city:players-shown-present-not-tracked] given a member with an account id, a place and a time, when they are recorded, then the list keeps only the name and the look", () => {
-    const member = { account: "account-1", name: "Ada", look: "chr_ada", place: "place.agege", joinedAt: 5, at: [1, 2] };
+    const member = { account: "account-1", name: "Ada", look: "person_ada", place: "place.agege", joinedAt: 5, at: [1, 2] };
 
-    expect(recordSeen(undefined, 0, member, MAX)).toEqual({ day: 0, seen: [{ name: "Ada", look: "chr_ada" }] });
+    expect(recordSeen(undefined, 0, member, MAX)).toEqual({ day: 0, seen: [{ name: "Ada", look: "person_ada" }] });
   });
 
   test("[city:players-shown-present-not-tracked] given what storage gave back, when it is read, then only a well-formed list is taken", () => {

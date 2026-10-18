@@ -1,6 +1,6 @@
 {
-  "asset": "chr_musa",
-  "file": "public/assets/shared/chr/chr_musa.glb",
+  "asset": "person_musa",
+  "file": "public/assets/shared/person/person_musa.glb",
   "fileSha256": "022c3cb81090ce58c4d649b1a821dacbd3abc5a56f0e3faecf0634248f2fdaf8",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

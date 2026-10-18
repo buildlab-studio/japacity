@@ -1,6 +1,6 @@
 {
-  "asset": "bld_site-frame",
-  "file": "public/assets/places/site-uae/bld_site-frame.glb",
+  "asset": "building_site-frame",
+  "file": "public/assets/places/site-uae/building_site-frame.glb",
   "fileSha256": "7568cc1d38e03bc68df242ad418a1d1e9cfb8af78206a5631320c112f3153a4f",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

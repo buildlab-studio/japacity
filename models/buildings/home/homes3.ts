@@ -25,7 +25,7 @@ export const HOMES3 = {
   // The family house: the parlour at the back left, the bathroom and the kitchen at the back right, your corner and the
   // dining part at the front, the yard down the right side with its carport by the gate.
   family: {
-    name: "bld_home-family-house",
+    name: "building_home-family-house",
     cap: "wallPeachWorn",
     walls: [
       // The house's wall to the yard, with its side door.
@@ -94,7 +94,7 @@ export const HOMES3 = {
   // The self-contain: your room, its bathroom and its kitchenette nook, the compound's yard with your spot and a
   // neighbour's wing across it.
   room: {
-    name: "bld_home-room-house",
+    name: "building_home-room-house",
     cap: "charcoal",
     walls: [
       // Your room's wall to the yard, with its door.
@@ -169,7 +169,7 @@ export const HOMES3 = {
   // The hostel: the corridor down the left with two other rooms' doors and its line of buckets, the shared cooking nook
   // at its end, and your room.
   hostel: {
-    name: "bld_home-hostel-house",
+    name: "building_home-hostel-house",
     cap: "concreteWorn",
     walls: [low([-0.9, 2.5], [-0.9, -1.1], "wallMint", "wallMintWorn", [{ ...DOOR, at: 0 }]), low([-0.9, -1.1], [2.5, -1.1], "wallMint", "wallMintWorn")],
     sides: {

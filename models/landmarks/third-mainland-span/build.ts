@@ -26,7 +26,7 @@ export function girderDepth(t: number): number {
 
 export function buildBridgeSpan(): Group {
   const g = new Group();
-  g.name = "lm_third-mainland-span";
+  g.name = "landmark_third-mainland-span";
   const random = seeded(1990);
   const { bays, bay, deckWidth, top, piecesPerBay } = BRIDGE;
   const length = bays * bay;

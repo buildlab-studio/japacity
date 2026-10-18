@@ -169,11 +169,11 @@ export const LONDON_SEAT: Readonly<Record<"bus" | "train", { eye: [number, numbe
   train: { eye: [0.55, 2.28, -1.2], window: [8, 1.9, -0.9], ahead: [0, 2.0, 9] },
 };
 
-const RIDER = "shared/chr/chr_rider.glb";
+const RIDER = "shared/person/person_rider.glb";
 /** The keke's and the danfo's drivers, the second where the character is the first. */
 const DRIVERS: Record<"keke" | "danfo", readonly [string, string]> = {
-  keke: ["shared/chr/chr_kunle.glb", "shared/chr/chr_segun.glb"],
-  danfo: ["shared/chr/chr_segun.glb", "shared/chr/chr_kunle.glb"],
+  keke: ["shared/person/person_kunle.glb", "shared/person/person_segun.glb"],
+  danfo: ["shared/person/person_segun.glb", "shared/person/person_kunle.glb"],
 };
 
 /**

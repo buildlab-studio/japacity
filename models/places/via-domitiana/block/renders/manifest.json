@@ -1,6 +1,6 @@
 {
-  "asset": "bld_domitiana-block",
-  "file": "public/assets/places/via-domitiana/bld_domitiana-block.glb",
+  "asset": "building_domitiana-block",
+  "file": "public/assets/places/via-domitiana/building_domitiana-block.glb",
   "fileSha256": "481d564d4d8553e3703a5c60c2c23da747aaf29dcf8dfd2bd03e91e63cd8fdd4",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

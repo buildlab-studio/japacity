@@ -1,6 +1,6 @@
 {
-  "asset": "shop_viewing-centre",
-  "file": "public/assets/places/bode-thomas/shop_viewing-centre.glb",
+  "asset": "shopfront_viewing-centre",
+  "file": "public/assets/places/bode-thomas/shopfront_viewing-centre.glb",
   "fileSha256": "0f0c8f26bb9e8dd5468a1c568d988c94f330a46b87af6c31635aeba0451e5531",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

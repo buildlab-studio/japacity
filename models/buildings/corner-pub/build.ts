@@ -31,7 +31,7 @@ function sashes(w: Object3D, xs: readonly number[], y: number): void {
 
 export function buildCornerPub(dishYaw: number): Group {
   const g = new Group();
-  g.name = "bld_corner-pub";
+  g.name = "building_corner-pub";
   const { width: w, depth: d, ground, upper, parapet } = PUB;
   const top = ground + upper;
   const cut = 1.4;

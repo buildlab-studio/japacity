@@ -1,5 +1,5 @@
 {
-  "piece": "places/bode-thomas/bld_bode-thomas-betting.glb",
+  "piece": "places/bode-thomas/building_bode-thomas-betting.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/buildings/bode-thomas-betting/renders/right.png",
     "models/buildings/bode-thomas-betting/renders/threeQuarter.png",
     "models/buildings/bode-thomas-betting/renders/manifest.json",
-    "models/register.json, the row for places/bode-thomas/bld_bode-thomas-betting.glb"
+    "models/register.json, the row for places/bode-thomas/building_bode-thomas-betting.glb"
   ],
   "scores": {
     "phone": 4,
@@ -31,9 +31,9 @@
     "phone": "PHARMACY OPEN TILL LATE is legible over a dark shop, the balcony door above: a shop building in one look.",
     "silhouette": "The front says shops under a flat; the back is a plain wall with barred windows, one side the stair, the other blank: two of four.",
     "proportion": "Storeys, shops, balcony and the person agree.",
-    "palette": "The same flat grey-mint as bld_phone-plaza; the back is a darker flat grey-green.",
+    "palette": "The same flat grey-mint as building_phone-plaza; the back is a darker flat grey-green.",
     "wear": "Two tanks, an AC unit, wires, a generator, goods and sacks at the doors, three lettered boards.",
-    "variety": "Near a copy of bld_phone-plaza: the same wall colour, tank pair, side stair and AC unit, one storey lower.",
+    "variety": "Near a copy of building_phone-plaza: the same wall colour, tank pair, side stair and AC unit, one storey lower.",
     "budget": "Read from the register row: triangles 996 of 1,500 (66%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 10,564 of 40,000 (26%). Inside every figure, over 80% on at least one."
   },
   "notes": "The boards are lettered here (LATE EQUALISER SPORTS BETTING, PHARMACY OPEN TILL LATE, PHOTOCOPY LAMINATION); the made-up name goes to a person's last check (assets:acceptance-score-thresholds). A kit piece: no outline is scored."

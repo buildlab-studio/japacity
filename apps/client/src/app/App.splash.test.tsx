@@ -70,7 +70,7 @@ describe("the opening's bar (engine:browser-authority-for-dev-only)", () => {
 
 describe("the fault card (engine:browser-authority-for-dev-only)", () => {
   test("[engine:browser-authority-for-dev-only] given a kept life and a view the server never answers, then the card stands on the splash under the mark in the game's card dress: the line, a plain detail, Retry as the yellow pressed button, and no red text", async () => {
-    keepPerson({ look: "chr_ada", name: "Bayo", archetype: "developer" });
+    keepPerson({ look: "person_ada", name: "Bayo", archetype: "developer" });
     const store = createGameStore({ view: () => Promise.reject(requestFailure("network", "no answer in 8000 ms")), send: unused }, { ...noPause, account: {} as AccountApi });
     render(<App store={store} />);
     const card = await screen.findByRole("alertdialog", { name: say("ui.trouble.network") });

@@ -102,6 +102,6 @@ export function buildLabourBus(): Group {
   const wheels = part(g, "wheels");
   wheels.userData.smooth = true;
   for (const x of [2.35, -2.2]) for (const side of [1, -1]) wheel(wheels, 0.42, 0.28, x, 0.42, side * 0.98);
-  const root = facePlusZ(g, "veh_labour-bus");
+  const root = facePlusZ(g, "vehicle_labour-bus");
   return setFootprint(root, [lowBox(root)]);
 }

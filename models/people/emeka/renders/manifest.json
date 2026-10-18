@@ -1,6 +1,6 @@
 {
-  "asset": "chr_emeka",
-  "file": "public/assets/shared/chr/chr_emeka.glb",
+  "asset": "person_emeka",
+  "file": "public/assets/shared/person/person_emeka.glb",
   "fileSha256": "e4f5801399fa3f481a6990ff1e624e46ade83b1a08e24aaf888b3a702de276a2",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

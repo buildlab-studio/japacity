@@ -56,7 +56,7 @@ export type ClutterItem = "tank" | "dish" | "generator" | "bars" | "stains" | "n
 
 /** The step a building stands on. A four-storey building stands on the ground, so its parapet stays inside 13 m. */
 const STEP = 0.3;
-/** The tallest an ordinary building may be (assets.md, the bld_ budget). */
+/** The tallest an ordinary building may be (assets.md, the building_ budget). */
 export const BUILDING_HEIGHT_MAX = 13;
 const PAVEMENT = 1.2;
 const SIGN_STYLES: SignStyle[] = [

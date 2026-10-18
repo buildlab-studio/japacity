@@ -19,9 +19,9 @@
   },
   "examples": [
     {
-      "name": "bld_shop-row",
+      "name": "building_shop-row",
       "kind": "building",
-      "file": "places/ojuelegba/bld_shop-row.glb",
+      "file": "places/ojuelegba/building_shop-row.glb",
       "source": "models/buildings/shop-row",
       "renders": "models/buildings/shop-row/renders",
       "roundTwo": {
@@ -41,9 +41,9 @@
       ]
     },
     {
-      "name": "bld_plaza",
+      "name": "building_plaza",
       "kind": "building",
-      "file": "places/ojuelegba/bld_plaza.glb",
+      "file": "places/ojuelegba/building_plaza.glb",
       "source": "models/buildings/plaza",
       "renders": "models/buildings/plaza/renders",
       "roundTwo": {
@@ -62,9 +62,9 @@
       ]
     },
     {
-      "name": "shop_provisions",
+      "name": "shopfront_provisions",
       "kind": "shopfront",
-      "file": "places/ojuelegba/shop_provisions.glb",
+      "file": "places/ojuelegba/shopfront_provisions.glb",
       "source": "models/shopfronts/provisions",
       "renders": "models/shopfronts/provisions/renders",
       "roundTwo": {
@@ -83,9 +83,9 @@
       ]
     },
     {
-      "name": "shop_container-phones",
+      "name": "shopfront_container-phones",
       "kind": "shopfront",
-      "file": "places/ojuelegba/shop_container-phones.glb",
+      "file": "places/ojuelegba/shopfront_container-phones.glb",
       "source": "models/shopfronts/container-phones",
       "renders": "models/shopfronts/container-phones/renders",
       "roundTwo": {
@@ -104,9 +104,9 @@
       ]
     },
     {
-      "name": "lm_national-stadium",
+      "name": "landmark_national-stadium",
       "kind": "landmark",
-      "file": "places/national-stadium/lm_national-stadium.glb",
+      "file": "places/national-stadium/landmark_national-stadium.glb",
       "source": "models/landmarks/national-stadium",
       "renders": "models/landmarks/national-stadium/renders",
       "roundTwo": {
@@ -128,9 +128,9 @@
       ]
     },
     {
-      "name": "lm_third-mainland-span",
+      "name": "landmark_third-mainland-span",
       "kind": "landmark",
-      "file": "places/third-mainland-bridge/lm_third-mainland-span.glb",
+      "file": "places/third-mainland-bridge/landmark_third-mainland-span.glb",
       "source": "models/landmarks/third-mainland-span",
       "renders": "models/landmarks/third-mainland-span/renders",
       "roundTwo": {

@@ -53,7 +53,7 @@ describe("loading a model", () => {
   });
 
   test("[assets:flat-and-smooth-shading] given a baked person, when the loader prepares it, then the head is smooth and the torso flat", async () => {
-    const root = await loadShipped("shared/chr/chr_tunde.glb");
+    const root = await loadShipped("shared/person/person_tunde.glb");
     prepareModel(root);
     const meshes: Mesh[] = [];
     root.traverse((object) => {

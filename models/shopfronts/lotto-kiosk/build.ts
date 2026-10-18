@@ -10,7 +10,7 @@ export const KIOSK = { width: 2.4, depth: 1.7, height: 2.35, step: 0.15 } as con
 
 export function buildLottoKiosk(signs: { board: string; games: string }, styles: { board: SignStyle; games: SignStyle }): Group {
   const g = new Group();
-  g.name = "shop_lotto-kiosk";
+  g.name = "shopfront_lotto-kiosk";
   const random = seeded(55);
   const { width: w, depth: d, height: h, step } = KIOSK;
   box(g, w + 0.5, step, d + 0.9, 0, 0, 0.25, "concrete");

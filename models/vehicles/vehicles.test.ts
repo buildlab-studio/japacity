@@ -7,9 +7,9 @@ import { buildStall } from "../props/stall";
 import { buildDanfo, buildKeke, buildOkada } from "./vehicles";
 
 const MODELS: [string, () => Group][] = [
-  ["veh_danfo", buildDanfo],
-  ["veh_keke", buildKeke],
-  ["veh_okada", buildOkada],
+  ["vehicle_danfo", buildDanfo],
+  ["vehicle_keke", buildKeke],
+  ["vehicle_okada", buildOkada],
   ["prop_stall", buildStall],
 ];
 
@@ -52,6 +52,6 @@ describe("the danfo, the keke, the okada and the stall", () => {
 
   test.each(MODELS)("[assets:shipped-file-naming] given %s, when it is built, then its name fits the shipped file pattern", (name, build) => {
     expect(build().name).toBe(name);
-    expect(`${name}.glb`).toMatch(/^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/);
+    expect(`${name}.glb`).toMatch(/^(person|vehicle|building|shopfront|landmark|prop)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/);
   });
 });

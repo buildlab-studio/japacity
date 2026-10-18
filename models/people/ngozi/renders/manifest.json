@@ -1,6 +1,6 @@
 {
-  "asset": "chr_ngozi",
-  "file": "public/assets/shared/chr/chr_ngozi.glb",
+  "asset": "person_ngozi",
+  "file": "public/assets/shared/person/person_ngozi.glb",
   "fileSha256": "fa7e33782149e40d9deb695895394da04f0fbca393489d23e461f2f271a63719",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

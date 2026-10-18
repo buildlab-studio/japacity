@@ -1,5 +1,5 @@
 {
-  "piece": "places/deira/veh_labour-bus.glb",
+  "piece": "places/deira/vehicle_labour-bus.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -11,7 +11,7 @@
     "models/vehicles/labour-bus/renders/right.png",
     "models/vehicles/labour-bus/renders/threeQuarter.png",
     "models/vehicles/labour-bus/renders/manifest.json",
-    "models/register.json, the row for places/deira/veh_labour-bus.glb"
+    "models/register.json, the row for places/deira/vehicle_labour-bus.glb"
   ],
   "scores": {
     "phone": 4,

@@ -1,0 +1,694 @@
+{
+  "place": "place.tejuosho-market",
+  "scope": "exterior",
+  "hub": false,
+  "note": "Which assets the place shows and how many, for the per-place budget (docs/rules/assets.md, assets:assets-and-places-within-budget). The city shell lays them out; counts are the most in view from the place's fixed cameras.",
+  "instances": [
+    {
+      "file": "places/tejuosho-market/building_market-block.glb",
+      "count": 3
+    },
+    {
+      "file": "places/tejuosho-market/prop_market-stall.glb",
+      "count": 16
+    },
+    {
+      "file": "places/tejuosho-market/prop_basins.glb",
+      "count": 5
+    },
+    {
+      "file": "places/tejuosho-market/prop_bales.glb",
+      "count": 4
+    },
+    {
+      "file": "shared/prop/prop_stall.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/prop/prop_pole.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/vehicle/vehicle_okada.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/vehicle/vehicle_keke.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 8,
+    "high": 12,
+    "sample": [
+      "shared/person/person_iya.glb",
+      "shared/person/person_hawker_a.glb",
+      "shared/person/person_hawker_b.glb",
+      "shared/person/person_hawker_c.glb",
+      "shared/person/person_obi.glb",
+      "shared/person/person_nonso.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_zainab.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_kemi.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_bisi.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_bayo.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 158
+  },
+  "stage": {
+    "note": "Where the city shell puts things (apps/client/src/shared/scene/placeFile.ts). Metres; a spot is x, z and the turn about +Y in radians; models face +Z. An aisle of lock-up stalls runs north from the street, eight a side, their cloth awnings and the bunting over the aisle on the wind; the market's blocks stand behind the rows and across the end. The player starts at the aisle's mouth, looking up it.",
+    "ground": {
+      "size": [
+        90,
+        90
+      ],
+      "colour": "laterite"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          -6,
+          1.5708
+        ],
+        "size": [
+          40,
+          4.6
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -3.4,
+          -1,
+          1.5708
+        ],
+        "size": [
+          25,
+          2.6
+        ],
+        "colour": "concrete"
+      },
+      {
+        "at": [
+          3.4,
+          -1,
+          1.5708
+        ],
+        "size": [
+          25,
+          2.6
+        ],
+        "colour": "concrete"
+      },
+      {
+        "at": [
+          -2.0,
+          -1,
+          1.5708
+        ],
+        "size": [
+          25,
+          0.35
+        ],
+        "colour": "drain",
+        "dash": {
+          "colour": "concreteWorn",
+          "every": 1.4
+        }
+      },
+      {
+        "at": [
+          2.0,
+          -1,
+          1.5708
+        ],
+        "size": [
+          25,
+          0.35
+        ],
+        "colour": "drain",
+        "dash": {
+          "colour": "concreteWorn",
+          "every": 1.4
+        }
+      },
+      {
+        "at": [
+          0,
+          -15.5,
+          0
+        ],
+        "size": [
+          30,
+          7
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          0,
+          13.6,
+          0
+        ],
+        "size": [
+          90,
+          0.3
+        ],
+        "colour": "concreteWorn",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          17.2,
+          0
+        ],
+        "size": [
+          90,
+          7
+        ],
+        "colour": "asphalt"
+      },
+      {
+        "at": [
+          0,
+          17.2,
+          0
+        ],
+        "size": [
+          90,
+          0.15
+        ],
+        "colour": "marking",
+        "dash": {
+          "colour": "asphalt",
+          "every": 3
+        }
+      },
+      {
+        "at": [
+          0,
+          20.8,
+          0
+        ],
+        "size": [
+          90,
+          0.3
+        ],
+        "colour": "concreteWorn",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          1.2,
+          4.5,
+          0.3
+        ],
+        "size": [
+          2.2,
+          1.4
+        ],
+        "colour": "drain"
+      }
+    ],
+    "light": {
+      "sun": [
+        30,
+        48,
+        24
+      ],
+      "sky": "sky",
+      "ground": "sand"
+    },
+    "start": [
+      0.5,
+      11.2,
+      3.141592653589793
+    ],
+    "walkable": [
+      [[-4.6, -16], [4.6, -16], [4.6, 10], [14, 10], [14, 14.4], [-14, 14.4], [-14, 10], [-4.6, 10]]
+    ],
+    "models": [
+      {
+        "file": "places/tejuosho-market/building_market-block.glb",
+        "at": [
+          [
+            -11.2,
+            -1.5,
+            1.5708
+          ],
+          [
+            11.2,
+            -8.5,
+            -1.5708
+          ],
+          [
+            0,
+            -23,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.tejuosho-market.sign.1",
+            "place.tejuosho-market.sign.2",
+            "place.tejuosho-market.sign.3",
+            "place.tejuosho-market.sign.4"
+          ],
+          [
+            "place.tejuosho-market.sign.5",
+            "place.tejuosho-market.sign.6",
+            "place.tejuosho-market.sign.7",
+            "place.tejuosho-market.sign.8"
+          ],
+          [
+            "place.tejuosho-market.sign.9",
+            "place.tejuosho-market.sign.10",
+            "place.tejuosho-market.sign.11",
+            "place.tejuosho-market.sign.12"
+          ]
+        ]
+      },
+      {
+        "file": "places/tejuosho-market/prop_market-stall.glb",
+        "at": [
+          [
+            -3.3,
+            9.0,
+            1.5708
+          ],
+          [
+            -3.3,
+            6.2,
+            1.5708
+          ],
+          [
+            -3.3,
+            3.4,
+            1.5708
+          ],
+          [
+            -3.3,
+            0.6,
+            1.5708
+          ],
+          [
+            -3.3,
+            -2.2,
+            1.5708
+          ],
+          [
+            -3.3,
+            -5.0,
+            1.5708
+          ],
+          [
+            -3.3,
+            -7.8,
+            1.5708
+          ],
+          [
+            -3.3,
+            -10.6,
+            1.5708
+          ],
+          [
+            3.3,
+            9.0,
+            -1.5708
+          ],
+          [
+            3.3,
+            6.2,
+            -1.5708
+          ],
+          [
+            3.3,
+            3.4,
+            -1.5708
+          ],
+          [
+            3.3,
+            0.6,
+            -1.5708
+          ],
+          [
+            3.3,
+            -2.2,
+            -1.5708
+          ],
+          [
+            3.3,
+            -5.0,
+            -1.5708
+          ],
+          [
+            3.3,
+            -7.8,
+            -1.5708
+          ],
+          [
+            3.3,
+            -10.6,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "places/tejuosho-market/prop_basins.glb",
+        "at": [
+          [
+            -1.55,
+            3.4,
+            1.5708
+          ],
+          [
+            1.55,
+            -2.2,
+            -1.5708
+          ],
+          [
+            -1.55,
+            -7.8,
+            1.5708
+          ],
+          [
+            1.55,
+            6.2,
+            -1.5708
+          ],
+          [
+            -4.6,
+            12.0,
+            0.3
+          ]
+        ]
+      },
+      {
+        "file": "places/tejuosho-market/prop_bales.glb",
+        "at": [
+          [
+            5.6,
+            11.6,
+            -0.2
+          ],
+          [
+            -3.2,
+            -13.2,
+            0.2
+          ],
+          [
+            3.4,
+            -13.4,
+            -0.3
+          ],
+          [
+            -6.4,
+            9.0,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_stall.glb",
+        "at": [
+          [
+            -7.0,
+            12.3,
+            0.2
+          ],
+          [
+            7.4,
+            12.6,
+            -0.1
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_pole.glb",
+        "at": [
+          [
+            -24,
+            14.2,
+            0
+          ],
+          [
+            11,
+            14.2,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/vehicle/vehicle_okada.glb",
+        "at": [
+          [
+            9.5,
+            15.8,
+            1.3
+          ]
+        ]
+      },
+      {
+        "file": "shared/vehicle/vehicle_keke.glb",
+        "at": [
+          [
+            -10.5,
+            16.0,
+            1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -3.5,
+        5.6,
+        1.5708
+      ],
+      [
+        -1.4,
+        6.0,
+        -1.5708
+      ],
+      [
+        0.4,
+        3.0,
+        2.8416
+      ],
+      [
+        3.5,
+        1.2,
+        -1.5708
+      ],
+      [
+        1.3,
+        0.8,
+        1.5708
+      ],
+      [
+        -0.6,
+        8.6,
+        2.8
+      ],
+      [
+        -3.6,
+        11.0,
+        0.6
+      ],
+      [
+        0.9,
+        -4.0,
+        3.3
+      ],
+      [
+        -0.8,
+        -1.5,
+        0.4
+      ],
+      [
+        -3.5,
+        -5.6,
+        1.5708
+      ],
+      [
+        1.2,
+        10.4,
+        -2.6
+      ],
+      [
+        -0.5,
+        -8.5,
+        0.2
+      ],
+      [
+        3.5,
+        -7.2,
+        -1.5708
+      ],
+      [
+        -2.4,
+        11.6,
+        1.2
+      ]
+    ],
+    "prefer": {
+      "trader": [
+        0,
+        3,
+        6,
+        9
+      ],
+      "hawker": [
+        2,
+        8
+      ]
+    },
+    "motion": [
+      {
+        "kind": "hang",
+        "at": [
+          -2.05,
+          2.5,
+          9
+        ],
+        "to": [
+          -2.05,
+          2.5,
+          -10.6
+        ],
+        "count": 8,
+        "size": [
+          2.6,
+          0.6
+        ],
+        "colours": [
+          "red",
+          "danfoYellow",
+          "teal",
+          "wine",
+          "orange",
+          "blue",
+          "green",
+          "purple"
+        ]
+      },
+      {
+        "kind": "hang",
+        "at": [
+          2.05,
+          2.5,
+          9
+        ],
+        "to": [
+          2.05,
+          2.5,
+          -10.6
+        ],
+        "count": 8,
+        "size": [
+          2.6,
+          0.6
+        ],
+        "colours": [
+          "gold",
+          "indigo",
+          "red",
+          "green",
+          "orange",
+          "teal",
+          "wine",
+          "blue"
+        ]
+      },
+      {
+        "kind": "bunting",
+        "at": [
+          -2.1,
+          3.5,
+          10.5
+        ],
+        "to": [
+          2.1,
+          3.4,
+          -11.5
+        ],
+        "count": 30,
+        "colours": [
+          "green",
+          "white",
+          "danfoYellow",
+          "red",
+          "blue"
+        ]
+      },
+      {
+        "kind": "hang",
+        "at": [
+          -5.6,
+          2.3,
+          12.9
+        ],
+        "to": [
+          -3.0,
+          2.3,
+          12.9
+        ],
+        "count": 4,
+        "size": [
+          0.6,
+          1.1
+        ],
+        "colours": [
+          "indigo",
+          "orange",
+          "wine",
+          "teal"
+        ]
+      },
+      {
+        "kind": "smoke",
+        "at": [
+          4.4,
+          0.9,
+          12.6
+        ],
+        "count": 22,
+        "colours": [
+          "concrete",
+          "white",
+          "hub",
+          "concrete"
+        ]
+      },
+      {
+        "kind": "leaves",
+        "at": [
+          0,
+          0,
+          17
+        ],
+        "size": [
+          30,
+          5
+        ],
+        "count": 22,
+        "colours": [
+          "white"
+        ]
+      }
+    ]
+  }
+}

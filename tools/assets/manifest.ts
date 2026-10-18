@@ -23,7 +23,7 @@ export function sha256(bytes: Uint8Array): string {
 /** How many hex digits of the SHA-256 a published name keeps: 48 bits, ample for a few hundred files. */
 export const HASH_DIGITS = 12;
 
-/** `places/ojuelegba/bld_plaza.glb` with hash `ab12...` is published as `places/ojuelegba/bld_plaza.ab12....glb` (city:places-load-on-entry). */
+/** `places/ojuelegba/building_plaza.glb` with hash `ab12...` is published as `places/ojuelegba/building_plaza.ab12....glb` (city:places-load-on-entry). */
 export function hashedName(path: string, hash: string): string {
   const short = hash.slice(0, HASH_DIGITS);
   const slash = path.lastIndexOf("/");

@@ -34,7 +34,7 @@ const VIEWS: readonly ViewName[] = ["front", "back", "left", "right", "threeQuar
 export const PORTRAIT_POSES = { face: "stand", figure: "hip", cheer: "cheer" } as const;
 type Portrait = keyof typeof PORTRAIT_POSES;
 const isPortrait = (view: ViewName): view is Portrait => view in PORTRAIT_POSES;
-const SCALE_FIGURE = "shared/chr/chr_tunde.glb";
+const SCALE_FIGURE = "shared/person/person_tunde.glb";
 
 interface StagePose {
   rotations: Record<string, [number, number, number]>;
@@ -54,7 +54,7 @@ async function load(page: Page, entry: CatalogEntry, withFigure: boolean, pose?:
     url: `/apps/client/public/assets/${entry.file}`,
     text: signText(),
     pose: poseFor(entry, pose ?? entry.pose),
-    scaleFigure: withFigure && !entry.name.startsWith("chr_") ? { url: `/apps/client/public/assets/${SCALE_FIGURE}`, pose: poseFor({ ...entry, pose: "stand" }) } : undefined,
+    scaleFigure: withFigure && !entry.name.startsWith("person_") ? { url: `/apps/client/public/assets/${SCALE_FIGURE}`, pose: poseFor({ ...entry, pose: "stand" }) } : undefined,
     ground: entry.ground,
     farView: entry.farView,
   };

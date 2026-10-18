@@ -109,6 +109,6 @@ export function buildLondonBus(): Group {
   cbox(g, 0.05, 0.95, 0.05, hl - 2.95, deck + 0.48, -0.15, "danfoYellow");
   cbox(g, 1.5, 0.02, 0.9, hl - 3.7, deck + 0.04, -0.65, "black");
 
-  const root = facePlusZ(g, "veh_london-bus");
+  const root = facePlusZ(g, "vehicle_london-bus");
   return setFootprint(root, [lowBox(root)]);
 }

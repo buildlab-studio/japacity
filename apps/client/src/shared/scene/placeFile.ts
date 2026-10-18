@@ -306,7 +306,7 @@ export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<
 }
 
 /** The car a home shows at its car spot. */
-export const CAR_FILE = "shared/veh/veh_car.glb";
+export const CAR_FILE = "shared/vehicle/vehicle_car.glb";
 
 /**
  * A home as the life's car leaves it: while the life has a car it stands at the home's car spot, the

@@ -22,9 +22,9 @@ import * as castel from "./build";
 const HERE = import.meta.dirname;
 const spec = (folder: string, name: string): castel.PlasterRowSpec => JSON.parse(readFileSync(join(HERE, "..", folder, name, "spec.json"), "utf8")) as castel.PlasterRowSpec;
 const ROWS: [string, castel.PlasterRowSpec][] = [
-  ["bld_castel-row_a", spec("castel-volturno", "row-a")],
-  ["bld_castel-row_b", spec("castel-volturno", "row-b")],
-  ["bld_domitiana-block", spec("via-domitiana", "block")],
+  ["building_castel-row_a", spec("castel-volturno", "row-a")],
+  ["building_castel-row_b", spec("castel-volturno", "row-b")],
+  ["building_domitiana-block", spec("via-domitiana", "block")],
 ];
 const STOP = { board: "white", ink: "blue" } as const;
 
@@ -41,8 +41,8 @@ const MODELS: [string, string, () => Group][] = [
   ["prop_field-crates", "places/farm-it/prop_field-crates.glb", farm.buildFieldCrates],
   ["prop_water-tap", "places/farm-it/prop_water-tap.glb", farm.buildWaterTap],
   ["prop_shade-tree", "places/farm-it/prop_shade-tree.glb", farm.buildShadeTree],
-  ["veh_italy-bus", "shared/veh/veh_italy-bus.glb", buildItalyBus],
-  ["veh_van", "shared/veh/veh_van.glb", buildVan],
+  ["vehicle_italy-bus", "shared/vehicle/vehicle_italy-bus.glb", buildItalyBus],
+  ["vehicle_van", "shared/vehicle/vehicle_van.glb", buildVan],
 ];
 /** The pieces of London's places the Domitiana and the roundabout stand again, as they are. */
 const BORROWED: [string, () => Group][] = [

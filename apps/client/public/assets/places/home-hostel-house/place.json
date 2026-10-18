@@ -5,7 +5,7 @@
   "note": "The hostel room. Counts are the most in view from the whole view, the water fetched included; two neighbours in the corridor and the nook.",
   "instances": [
     {
-      "file": "places/home-hostel-house/bld_home-hostel-house.glb",
+      "file": "places/home-hostel-house/building_home-hostel-house.glb",
       "count": 1
     },
     {
@@ -93,10 +93,10 @@
     "low": 2,
     "high": 2,
     "sample": [
-      "shared/chr/chr_kunle.glb",
-      "shared/chr/chr_ngozi.glb",
-      "shared/chr/chr_corper.glb",
-      "shared/chr/chr_bisi.glb"
+      "shared/person/person_kunle.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_corper.glb",
+      "shared/person/person_bisi.glb"
     ]
   },
   "groundRoadSky": {
@@ -191,7 +191,7 @@
     ],
     "models": [
       {
-        "file": "places/home-hostel-house/bld_home-hostel-house.glb",
+        "file": "places/home-hostel-house/building_home-hostel-house.glb",
         "at": [
           [
             0,

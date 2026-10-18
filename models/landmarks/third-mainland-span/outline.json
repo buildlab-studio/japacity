@@ -1,5 +1,5 @@
 {
- "asset": "lm_third-mainland-span",
+ "asset": "landmark_third-mainland-span",
  "note": "Polygons in metres. A view's picture coordinates: front [x, y] seen from +z; side [-z, y] seen from +x; plan [x, -z] seen from above. No photograph is kept (assets:no-reference-photos-kept). The elevation covers three spans of the repeating segment, pier to pier, as assets:long-landmark-repeats-segment asks.",
  "views": [
   {

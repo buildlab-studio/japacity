@@ -1,6 +1,6 @@
 {
-  "asset": "bld_shop-row",
-  "file": "public/assets/places/ojuelegba/bld_shop-row.glb",
+  "asset": "building_shop-row",
+  "file": "public/assets/places/ojuelegba/building_shop-row.glb",
   "fileSha256": "b2d2a1f0eb1b2203b955315b3db6353aa0dfb5106ec3396fab0385d4f354087e",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

@@ -1,6 +1,6 @@
 {
-  "asset": "lm_third-mainland-span",
-  "file": "public/assets/places/third-mainland-bridge/lm_third-mainland-span.glb",
+  "asset": "landmark_third-mainland-span",
+  "file": "public/assets/places/third-mainland-bridge/landmark_third-mainland-span.glb",
   "fileSha256": "c8fb17e12fe90ffe1ba6f9244f8a162c026a44000205736213dbd628a5fe2579",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

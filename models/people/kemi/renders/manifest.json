@@ -1,6 +1,6 @@
 {
-  "asset": "chr_kemi",
-  "file": "public/assets/shared/chr/chr_kemi.glb",
+  "asset": "person_kemi",
+  "file": "public/assets/shared/person/person_kemi.glb",
   "fileSha256": "e83a8ec649c034405c06a031144dc3689ca9e96cc88d0b8847fd9f693c1c8148",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

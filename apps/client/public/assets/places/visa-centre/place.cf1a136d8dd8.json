@@ -1,0 +1,404 @@
+{
+  "place": "place.visa-centre",
+  "scope": "interior",
+  "hub": false,
+  "note": "The visa centre (world:place-is-one-screen). Counts are the most in view from the whole view; the crowd is the rule's indoor figures, four low and six high.",
+  "instances": [
+    {
+      "file": "places/visa-centre/building_room_visa.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_office-desk.glb",
+      "count": 3
+    },
+    {
+      "file": "shared/prop/prop_waiting-chairs.glb",
+      "count": 4
+    },
+    {
+      "file": "shared/prop/prop_room-door.glb",
+      "count": 1
+    },
+    {
+      "file": "places/yaba-hub/prop_jobs-board.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_office-cabinet.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_potted-plant.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 4,
+    "high": 6,
+    "sample": [
+      "shared/person/person_tunde.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_zainab.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 2
+  },
+  "stage": {
+    "note": "The visa centre's hall (world:place-is-one-screen): three desks along the back with their officers, the waiting chairs in rows before them, the door on the right. The desk in the middle is the one the player is called to. Once the interview is over the desk is still there to ask: its ask stands only while neither the application nor the interview can open. The notice on the back wall, left of the desks, stands for the police station's desk, since the game has no police station (document:police-certificate-for-routes): the police certificate is asked there.",
+    "ground": {
+      "size": [
+        12.6,
+        10.6
+      ],
+      "colour": "wallCreamWorn"
+    },
+    "roads": [],
+    "light": {
+      "sun": [
+        6,
+        16,
+        12
+      ],
+      "sky": "sky",
+      "ground": "concrete",
+      "lamps": [
+        {
+          "at": [
+            0,
+            2.9,
+            -2.6
+          ],
+          "size": 2,
+          "bulb": true,
+          "light": {
+            "strength": 5,
+            "reach": 8
+          }
+        },
+        {
+          "at": [
+            0,
+            2.9,
+            2.2
+          ],
+          "size": 1.8,
+          "bulb": true,
+          "light": {
+            "strength": 4,
+            "reach": 7
+          }
+        }
+      ]
+    },
+    "start": [
+      4.94,
+      3.4,
+      -1.5708
+    ],
+    "walkable": [
+      [
+        [
+          -5.7,
+          -4.7
+        ],
+        [
+          5.7,
+          -4.7
+        ],
+        [
+          5.7,
+          4.7
+        ],
+        [
+          -5.7,
+          4.7
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/visa-centre/building_room_visa.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_office-desk.glb",
+        "at": [
+          [
+            -3.6,
+            -2.6,
+            0
+          ],
+          [
+            0,
+            -2.6,
+            0
+          ],
+          [
+            3.6,
+            -2.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_waiting-chairs.glb",
+        "at": [
+          [
+            -2.4,
+            1.4,
+            3.1416
+          ],
+          [
+            2.4,
+            1.4,
+            3.1416
+          ],
+          [
+            -2.4,
+            2.9,
+            3.1416
+          ],
+          [
+            2.4,
+            2.9,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_room-door.glb",
+        "at": [
+          [
+            5.94,
+            3.4,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "places/yaba-hub/prop_jobs-board.glb",
+        "at": [
+          [
+            -5.3,
+            -4.2,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_office-cabinet.glb",
+        "at": [
+          [
+            4.9,
+            -4.8,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_potted-plant.glb",
+        "at": [
+          [
+            -5.4,
+            4.2,
+            0
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        0,
+        -3.45,
+        0
+      ],
+      [
+        -3.6,
+        -3.45,
+        0
+      ],
+      [
+        0,
+        -1.75,
+        3.1416
+      ],
+      [
+        -2.68,
+        1.4,
+        3.1416
+      ],
+      [
+        2.68,
+        1.4,
+        3.1416
+      ],
+      [
+        4.7,
+        2,
+        -1.5708
+      ]
+    ],
+    "acts": [
+      {
+        "spot": 0,
+        "pose": "sit",
+        "staff": true
+      },
+      {
+        "spot": 1,
+        "pose": "sit",
+        "staff": true
+      },
+      {
+        "spot": 2,
+        "pose": "sit"
+      },
+      {
+        "spot": 3,
+        "pose": "sit"
+      },
+      {
+        "spot": 4,
+        "pose": "sit"
+      }
+    ],
+    "motion": [],
+    "shot": {
+      "centre": [
+        0,
+        0.6,
+        -0.6
+      ],
+      "far": 30,
+      "near": 9,
+      "farPitch": 68,
+      "nearPitch": 36,
+      "turn": 30,
+      "yaw": 180,
+      "width": 14.5
+    },
+    "things": [
+      {
+        "id": "desk",
+        "file": "shared/prop/prop_office-desk.glb",
+        "copy": 1,
+        "label": "city.thing.visa-desk",
+        "at": [
+          1.1,
+          -1.5
+        ],
+        "acts": [
+          {
+            "id": "apply",
+            "label": "city.act.apply-visa",
+            "kind": "sheet",
+            "stages": "activity.apply-for-visa"
+          },
+          {
+            "id": "interview",
+            "label": "city.act.interview",
+            "kind": "sheet",
+            "stages": "setpiece.credibility-interview"
+          }
+        ]
+      },
+      {
+        "id": "officer",
+        "file": "shared/prop/prop_office-desk.glb",
+        "copy": 1,
+        "label": "city.thing.visa-desk",
+        "at": [
+          1.1,
+          -1.5
+        ],
+        "acts": [
+          {
+            "id": "ask",
+            "label": "city.act.ask-visa-desk",
+            "kind": "plain",
+            "unless": [
+              "activity.apply-for-visa",
+              "setpiece.credibility-interview"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "police-notice",
+        "file": "places/yaba-hub/prop_jobs-board.glb",
+        "copy": 0,
+        "label": "city.thing.notices",
+        "at": [
+          -5,
+          -3.3
+        ],
+        "acts": [
+          {
+            "id": "police",
+            "label": "activity.get-police-certificate.name",
+            "kind": "sheet",
+            "stages": "activity.get-police-certificate"
+          }
+        ]
+      },
+      {
+        "id": "chairs",
+        "file": "shared/prop/prop_waiting-chairs.glb",
+        "copy": 0,
+        "label": "city.thing.chairs",
+        "at": [
+          -2.4,
+          0.5
+        ],
+        "acts": [
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              -2.4,
+              1.4,
+              3.1416
+            ]
+          }
+        ]
+      },
+      {
+        "id": "door",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 0,
+        "label": "city.thing.door",
+        "at": [
+          5.2,
+          3.4
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.inside.out",
+            "kind": "out"
+          }
+        ]
+      }
+    ]
+  }
+}

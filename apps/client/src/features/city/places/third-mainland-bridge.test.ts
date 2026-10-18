@@ -40,7 +40,7 @@ describe("the Third Mainland Bridge", () => {
     expect(pallets.length).toBeGreaterThanOrEqual(3);
     const onPallet = pallets.some((road) => Math.abs(seat[0] - road.at[0]) <= road.size[0] / 2 && Math.abs(seat[1] - road.at[1]) <= road.size[1] / 2);
     expect(onPallet).toBe(true);
-    const [span] = copiesOf(stage, "lm_third-mainland-span.glb");
+    const [span] = copiesOf(stage, "landmark_third-mainland-span.glb");
     if (span === undefined) throw new Error("No span");
     // Under the deck's near edge, and the girder there clears a standing person.
     expect(Math.abs(seat[1] - span[1])).toBeLessThan(BRIDGE.deckWidth / 2 - 1.5);

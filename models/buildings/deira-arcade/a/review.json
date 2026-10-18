@@ -1,5 +1,5 @@
 {
-  "piece": "places/deira/bld_deira-arcade_a.glb",
+  "piece": "places/deira/building_deira-arcade_a.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/buildings/deira-arcade/a/renders/right.png",
     "models/buildings/deira-arcade/a/renders/threeQuarter.png",
     "models/buildings/deira-arcade/a/renders/manifest.json",
-    "models/register.json, the row for places/deira/bld_deira-arcade_a.glb"
+    "models/register.json, the row for places/deira/building_deira-arcade_a.glb"
   ],
   "scores": {
     "phone": 4,

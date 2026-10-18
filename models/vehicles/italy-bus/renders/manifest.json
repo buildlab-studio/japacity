@@ -1,6 +1,6 @@
 {
-  "asset": "veh_italy-bus",
-  "file": "public/assets/shared/veh/veh_italy-bus.glb",
+  "asset": "vehicle_italy-bus",
+  "file": "public/assets/shared/vehicle/vehicle_italy-bus.glb",
   "fileSha256": "15a66e5c03a5bf8fa0a7491037733b70528933255fc43392a5fce577b8a42552",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

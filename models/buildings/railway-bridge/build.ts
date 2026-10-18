@@ -39,7 +39,7 @@ function archBay(g: Object3D, x: number, z: number, span: number, height: number
 
 export function buildRailwayBridge(signs: { mouth: string; girder: string; market: string; lockup: string; second: string }, styles: { mouth: SignStyle; girder: SignStyle; market: SignStyle }): Group {
   const g = new Group();
-  g.name = "bld_railway-bridge";
+  g.name = "building_railway-bridge";
   const random = seeded(1865);
   const { arch, pier, road, deck, depth, springing } = BRIDGE;
   const bay = arch + pier;

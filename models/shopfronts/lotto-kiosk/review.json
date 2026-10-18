@@ -1,5 +1,5 @@
 {
-  "piece": "places/bode-thomas/shop_lotto-kiosk.glb",
+  "piece": "places/bode-thomas/shopfront_lotto-kiosk.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/shopfronts/lotto-kiosk/renders/right.png",
     "models/shopfronts/lotto-kiosk/renders/threeQuarter.png",
     "models/shopfronts/lotto-kiosk/renders/manifest.json",
-    "models/register.json, the row for places/bode-thomas/shop_lotto-kiosk.glb"
+    "models/register.json, the row for places/bode-thomas/shopfront_lotto-kiosk.glb"
   ],
   "scores": {
     "phone": 5,

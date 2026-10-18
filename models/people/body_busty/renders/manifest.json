@@ -1,6 +1,6 @@
 {
-  "asset": "chr_body_busty",
-  "file": "public/assets/shared/chr/chr_body_busty.glb",
+  "asset": "person_body_busty",
+  "file": "public/assets/shared/person/person_body_busty.glb",
   "fileSha256": "f2605fd21340325528e3a31bc87958c18245417962e6e8f3b4e5147ba68cbbd1",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

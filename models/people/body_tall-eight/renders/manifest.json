@@ -1,6 +1,6 @@
 {
-  "asset": "chr_body_tall-eight",
-  "file": "public/assets/shared/chr/chr_body_tall-eight.glb",
+  "asset": "person_body_tall-eight",
+  "file": "public/assets/shared/person/person_body_tall-eight.glb",
   "fileSha256": "0a3f2bfac6be94f0f843ba562565e7a50b6c284ca370853beae79da1dc784a1a",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

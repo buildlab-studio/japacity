@@ -1,6 +1,6 @@
 {
-  "asset": "bld_plaza",
-  "file": "public/assets/places/ojuelegba/bld_plaza.glb",
+  "asset": "building_plaza",
+  "file": "public/assets/places/ojuelegba/building_plaza.glb",
   "fileSha256": "cc787481be10a461fd2a7ff21b0139846959bb54c8a7555949b1e743963e6d94",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

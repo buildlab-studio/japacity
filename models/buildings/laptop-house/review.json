@@ -1,5 +1,5 @@
 {
-  "piece": "places/computer-village/bld_laptop-house.glb",
+  "piece": "places/computer-village/building_laptop-house.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/buildings/laptop-house/renders/right.png",
     "models/buildings/laptop-house/renders/threeQuarter.png",
     "models/buildings/laptop-house/renders/manifest.json",
-    "models/register.json, the row for places/computer-village/bld_laptop-house.glb"
+    "models/register.json, the row for places/computer-village/building_laptop-house.glb"
   ],
   "scores": {
     "phone": 3,

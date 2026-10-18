@@ -1,6 +1,6 @@
 {
-  "asset": "bld_room_church",
-  "file": "public/assets/places/church-uk/bld_room_church.glb",
+  "asset": "building_room_church",
+  "file": "public/assets/places/church-uk/building_room_church.glb",
   "fileSha256": "0d6cc25f41b1859645967aa893cb0978a1ca6b32c415e4032b1984353646234f",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

@@ -32,8 +32,8 @@ afterEach(() => {
 
 /** The door as Begin left it: the developer, a year older than his own, in the hostel room. */
 function begun(age = 1, home = "hostel-room"): void {
-  keepPerson({ look: "chr_ada", name: "Ada", archetype: "developer" });
-  localStorage.setItem(DOOR_KEY, JSON.stringify({ stage: "begun", look: "chr_ada", archetype: "developer", ready: null, name: "Ada", roll: 0, age, home }));
+  keepPerson({ look: "person_ada", name: "Ada", archetype: "developer" });
+  localStorage.setItem(DOOR_KEY, JSON.stringify({ stage: "begun", look: "person_ada", archetype: "developer", ready: null, name: "Ada", roll: 0, age, home }));
 }
 
 /** A server whose account holds a new life from sixteen on `seed`, playing the preset route as the server does unless `played` is false. */
@@ -170,7 +170,7 @@ describe("the page while the server plays the years", () => {
 
 describe("the page filled from the reply", () => {
   test("[prologue:archetype-presets-answers] [prologue:printed-page-hands-over] given the trail the server played in one request, when the handover opens, then its years come on a chip after another over about two seconds, and the family turns over only after the last", async () => {
-    keepPerson({ look: "chr_ada", name: "Ada", archetype: "developer" });
+    keepPerson({ look: "person_ada", name: "Ada", archetype: "developer" });
     const game = newGame(PROLOGUE, "preset-reveal");
     const reply = playPresetOn(game, { archetype: "developer", age: 0, home: "family-house", basedOn: 0 }, CLOCK);
     if (!reply.ok) throw new Error("The preset was refused.");
@@ -201,7 +201,7 @@ describe("the page filled from the reply", () => {
   });
 
   test("[prologue:printed-page-hands-over] given a trail with nothing fresh (offline, or the page shown before), when the handover opens, then every chip is there at once and the family turns", async () => {
-    keepPerson({ look: "chr_ada", name: "Ada", archetype: "developer" });
+    keepPerson({ look: "person_ada", name: "Ada", archetype: "developer" });
     const game = newGame(PROLOGUE, "preset-plain");
     const reply = playPresetOn(game, { archetype: "developer", age: 0, home: "family-house", basedOn: 0 }, CLOCK);
     if (!reply.ok) throw new Error("The preset was refused.");

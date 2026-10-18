@@ -17,12 +17,12 @@ export const STOP_SHORT = 1.8;
  * and what its one act does. Read only for a place whose file has no `stage.things`.
  */
 const TABLE: readonly { suffix: string; label: string; act: Act }[] = [
-  { suffix: "shop_lotto-kiosk.glb", label: "city.thing.lotto", act: { id: "play-lotto", label: "scene.act.play-lotto", kind: "sheet", stages: "activity.play-lotto" } },
-  { suffix: "bld_bode-thomas-betting.glb", label: "city.thing.bets", act: { id: "bet-slip", label: "scene.act.bet-slip", kind: "sheet", stages: "activity.bet-slip" } },
-  { suffix: "veh_danfo.glb", label: "city.thing.danfo", act: { id: "ride", label: "city.ride.danfo", kind: "ride" } },
-  { suffix: "veh_keke.glb", label: "city.thing.keke", act: { id: "ride", label: "city.ride.keke", kind: "ride" } },
-  { suffix: "veh_okada.glb", label: "city.thing.okada", act: { id: "ride", label: "city.ride.okada", kind: "ride" } },
-  { suffix: "bld_family-house.glb", label: "scene.thing.house", act: { id: "enter", label: "scene.act.enter", kind: "enter" } },
+  { suffix: "shopfront_lotto-kiosk.glb", label: "city.thing.lotto", act: { id: "play-lotto", label: "scene.act.play-lotto", kind: "sheet", stages: "activity.play-lotto" } },
+  { suffix: "building_bode-thomas-betting.glb", label: "city.thing.bets", act: { id: "bet-slip", label: "scene.act.bet-slip", kind: "sheet", stages: "activity.bet-slip" } },
+  { suffix: "vehicle_danfo.glb", label: "city.thing.danfo", act: { id: "ride", label: "city.ride.danfo", kind: "ride" } },
+  { suffix: "vehicle_keke.glb", label: "city.thing.keke", act: { id: "ride", label: "city.ride.keke", kind: "ride" } },
+  { suffix: "vehicle_okada.glb", label: "city.thing.okada", act: { id: "ride", label: "city.ride.okada", kind: "ride" } },
+  { suffix: "building_family-house.glb", label: "scene.thing.house", act: { id: "enter", label: "scene.act.enter", kind: "enter" } },
 ];
 
 // A place whose file declares no `stage.things` gets its things from the tables here.
@@ -230,5 +230,5 @@ export function thingsNow(things: readonly Thing[], offered: (stages: string) =>
 
 /** The vehicle a ride act takes, from its thing's model: the danfo, the keke or the okada. */
 export function vehicleOf(thing: Pick<Thing, "file">): string | null {
-  return /veh_(danfo|keke|okada)/.exec(thing.file)?.[1] ?? null;
+  return /vehicle_(danfo|keke|okada)/.exec(thing.file)?.[1] ?? null;
 }

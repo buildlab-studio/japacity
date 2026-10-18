@@ -1,6 +1,6 @@
 {
-  "asset": "bld_laptop-house",
-  "file": "public/assets/places/computer-village/bld_laptop-house.glb",
+  "asset": "building_laptop-house",
+  "file": "public/assets/places/computer-village/building_laptop-house.glb",
   "fileSha256": "cae1e1b23f94be4690b3eb9d36b67a1610cdaa2e90f457e8361ed4ecb533205a",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

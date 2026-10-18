@@ -11,7 +11,7 @@ import { buyModeAt, liftable, ownedThingId, showOwned } from "./owned";
 import type { PlaceFile, Stage } from "../../../shared/scene/placeFile";
 import { ARRANGED_KEY } from "../../../shared/kept/storage";
 
-const SHELL = "places/x/bld_x.glb";
+const SHELL = "places/x/building_x.glb";
 const BED = "shared/prop/prop_bed.glb";
 const NEW_BED = "shared/prop/prop_foam-mattress.glb";
 const FAN = "shared/prop/prop_fan.glb";

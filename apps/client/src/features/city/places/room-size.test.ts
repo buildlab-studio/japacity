@@ -20,7 +20,7 @@ const ROOMS_HERE = [{ name: "the room abroad", file: room, shell: ROOMS.abroad, 
 /** Each copy of each model but the room's own shell, with its footprint boxes' extents in the place's frame. */
 async function extents(file: PlaceFile): Promise<{ file: string; x0: number; x1: number; z0: number; z1: number }[]> {
   const stage = stageOf(file);
-  const pieces = stage.models.filter((model) => !model.file.includes("/bld_room_"));
+  const pieces = stage.models.filter((model) => !model.file.includes("/building_room_"));
   const shows = (stage.shows ?? []).flatMap((show) => show.models);
   const out: { file: string; x0: number; x1: number; z0: number; z1: number }[] = [];
   for (const model of [...pieces, ...shows]) {

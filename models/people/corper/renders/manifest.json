@@ -1,6 +1,6 @@
 {
-  "asset": "chr_corper",
-  "file": "public/assets/shared/chr/chr_corper.glb",
+  "asset": "person_corper",
+  "file": "public/assets/shared/person/person_corper.glb",
   "fileSha256": "ff58a240add2339d3cee3abf8009d4d00c644c7a6f4b69b48484c5f3d6359d97",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

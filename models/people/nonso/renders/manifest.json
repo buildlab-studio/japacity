@@ -1,6 +1,6 @@
 {
-  "asset": "chr_nonso",
-  "file": "public/assets/shared/chr/chr_nonso.glb",
+  "asset": "person_nonso",
+  "file": "public/assets/shared/person/person_nonso.glb",
   "fileSha256": "026f04d03ebd925565d0300d4ba7ad5b5c22ee98dbb234acf919e2edae855103",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

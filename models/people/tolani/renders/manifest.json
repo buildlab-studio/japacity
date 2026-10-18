@@ -1,6 +1,6 @@
 {
-  "asset": "chr_tolani",
-  "file": "public/assets/shared/chr/chr_tolani.glb",
+  "asset": "person_tolani",
+  "file": "public/assets/shared/person/person_tolani.glb",
   "fileSha256": "2b8d694b6bc5165afda86b7ae900b5044a4a89f80b3cd440b2f6bbba3dce35b1",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

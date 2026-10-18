@@ -1,6 +1,6 @@
 {
-  "asset": "bld_metro-station",
-  "file": "public/assets/places/metro-station-uae/bld_metro-station.glb",
+  "asset": "building_metro-station",
+  "file": "public/assets/places/metro-station-uae/building_metro-station.glb",
   "fileSha256": "9e31ab9565d93116f44878e07efc15350694e1323171957155b4cf33d6d3f525",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

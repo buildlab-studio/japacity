@@ -1,6 +1,6 @@
 {
-  "asset": "veh_london-bus",
-  "file": "public/assets/shared/veh/veh_london-bus.glb",
+  "asset": "vehicle_london-bus",
+  "file": "public/assets/shared/vehicle/vehicle_london-bus.glb",
   "fileSha256": "71b2642db552b001f3d91c3c54dc317fdba250f08417cb056d42f9ebbcfea9cd",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

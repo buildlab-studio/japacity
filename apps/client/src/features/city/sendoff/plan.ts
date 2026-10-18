@@ -152,15 +152,15 @@ export function firstPings(scenario: Id<"scenario">, staple: Staple = "double-de
  * at Castel Volturno. The second look stands in when the first is the character's own.
  */
 export const STOP_PEOPLE: Readonly<Record<string, { sex: "f" | "m"; looks: readonly [string, string] }>> = {
-  "country.uk": { sex: "f", looks: ["chr_amaka", "chr_zainab"] },
-  "country.canada": { sex: "m", looks: ["chr_dayo", "chr_tunde"] },
-  "country.uae": { sex: "m", looks: ["chr_emeka", "chr_femi"] },
-  "country.italy": { sex: "m", looks: ["chr_bayo", "chr_segun"] },
+  "country.uk": { sex: "f", looks: ["person_amaka", "person_zainab"] },
+  "country.canada": { sex: "m", looks: ["person_dayo", "person_tunde"] },
+  "country.uae": { sex: "m", looks: ["person_emeka", "person_femi"] },
+  "country.italy": { sex: "m", looks: ["person_bayo", "person_segun"] },
 };
 
 /** The look of the person at the stop in a country, never the character's own. */
 export function stopLookFor(country: Id<"country">, own: string): string {
-  const [first, second] = STOP_PEOPLE[country]?.looks ?? ["chr_ngozi", "chr_kemi"];
+  const [first, second] = STOP_PEOPLE[country]?.looks ?? ["person_ngozi", "person_kemi"];
   return first === own ? second : first;
 }
 
@@ -169,7 +169,7 @@ export function stopLookFor(country: Id<"country">, own: string): string {
  * clerk at counter 4 (the counter's officer), and the clerks at counters 3 and 5. One more than the hall needs, so the
  * character's own look is left out and every person of the hall still wears a look of their own.
  */
-const HALL_LOOKS = ["chr_bisi", "chr_kunle", "chr_tobi", "chr_ngozi", "chr_segun", "chr_femi", "chr_kemi", "chr_dayo", "chr_emeka"] as const;
+const HALL_LOOKS = ["person_bisi", "person_kunle", "person_tobi", "person_ngozi", "person_segun", "person_femi", "person_kemi", "person_dayo", "person_emeka"] as const;
 
 export interface Cast {
   mum: string;
@@ -184,6 +184,6 @@ export interface Cast {
 /** The people of the hall, none wearing the character's own look, no two the same. */
 export function castFor(own: string): Cast {
   const looks = HALL_LOOKS.filter((look) => look !== own);
-  const [mum = "chr_bisi", dad = "chr_kunle", cousin = "chr_tobi", first = "chr_ngozi", second = "chr_segun", clerk = "chr_femi", left = "chr_kemi", right = "chr_dayo"] = looks;
+  const [mum = "person_bisi", dad = "person_kunle", cousin = "person_tobi", first = "person_ngozi", second = "person_segun", clerk = "person_femi", left = "person_kemi", right = "person_dayo"] = looks;
   return { mum, dad, cousin, ahead: [first, second], clerk, desks: [left, right] };
 }

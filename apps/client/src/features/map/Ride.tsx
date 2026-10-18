@@ -17,11 +17,11 @@ export { LONG_WALK_MS, PRE_MS, RIDE_MS } from "./rideScene";
 const RIDE_SLACK_MS = 3500;
 
 /** The look the city falls back to when the life's own person is not shipped (City.tsx). */
-const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
+const FALLBACK_OWN = "shared/person/person_tunde.glb";
 
 /** The life's own person file as the city names it (City.tsx): the look built at the front door (prologue:front-door-builds-a-person), else the life's person, shipped or not; `shownOwn` settles it. */
 export function ownLook(scenario: string, kept: string | null = keptLookFile()): string {
-  return kept ?? `shared/chr/chr_${scenario.slice("scenario.".length)}.glb`;
+  return kept ?? `shared/person/person_${scenario.slice("scenario.".length)}.glb`;
 }
 
 /** The character the ride shows: the life's own person where it is shipped, else the city's fallback. */
@@ -136,7 +136,7 @@ const VEHICLE_FILE: Readonly<Partial<Record<Way, string>>> = { drive: "car", bus
 /** The vehicle a way rides in: the danfo, keke or okada of the street, the life's own car, or London's bus or train (world:ride-abroad-and-workplace). */
 export function vehicleFile(way: Exclude<Way, "walk">, vehicle: AbroadVehicle | null = null): string {
   if (vehicle !== null) return VEHICLES[vehicle].file;
-  return `shared/veh/veh_${VEHICLE_FILE[way] ?? way}.glb`;
+  return `shared/vehicle/vehicle_${VEHICLE_FILE[way] ?? way}.glb`;
 }
 
 /** The ways whose shaders the ride's renderer has compiled this session, by the character shown. */
@@ -157,7 +157,7 @@ export function preloadRide(own: string): void {
         warmed.add(key);
         try {
           const people = Object.entries(peopleOf(way, shown)) as [Role, string][];
-          const [vehicle, ...persons] = await Promise.all([loadModel(manifest, `shared/veh/veh_${way}.glb`, () => undefined), ...people.map(([, file]) => loadModel(manifest, file, () => undefined))]);
+          const [vehicle, ...persons] = await Promise.all([loadModel(manifest, `shared/vehicle/vehicle_${way}.glb`, () => undefined), ...people.map(([, file]) => loadModel(manifest, file, () => undefined))]);
           const ride = buildRide(way);
           ride.setVehicle(vehicle.clone());
           people.forEach(([role], index) => {

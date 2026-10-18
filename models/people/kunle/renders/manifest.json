@@ -1,6 +1,6 @@
 {
-  "asset": "chr_kunle",
-  "file": "public/assets/shared/chr/chr_kunle.glb",
+  "asset": "person_kunle",
+  "file": "public/assets/shared/person/person_kunle.glb",
   "fileSha256": "6b44d2c6805a2ea2c1b7a67335c826264fdc049cb10d41d2267bd9bce589f114",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

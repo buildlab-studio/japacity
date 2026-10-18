@@ -1,6 +1,6 @@
 {
-  "asset": "veh_car",
-  "file": "public/assets/shared/veh/veh_car.glb",
+  "asset": "vehicle_car",
+  "file": "public/assets/shared/vehicle/vehicle_car.glb",
   "fileSha256": "23bb62ff4f00616450dc2142b886330b3a1e25aade5d2093a5726b9aef36d193",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

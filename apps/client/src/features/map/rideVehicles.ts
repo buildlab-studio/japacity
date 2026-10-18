@@ -43,22 +43,22 @@ const VAN_SEAT: RideSeat = { eye: [0.72, 1.5, -0.98], window: [-6, 1.75, -0.4], 
 
 export const SEATS = { CALGARY_BUS_SEAT, CTRAIN_SEAT, METRO_SEAT, LABOUR_BUS_SEAT, TAXI_SEAT, ITALY_BUS_SEAT, VAN_SEAT } as const;
 
-const CALGARY_BUS = "shared/veh/veh_calgary-bus.glb";
-const DUBAI_TAXI = "places/deira/veh_taxi-dubai.glb";
+const CALGARY_BUS = "shared/vehicle/vehicle_calgary-bus.glb";
+const DUBAI_TAXI = "places/deira/vehicle_taxi-dubai.glb";
 
 export const VEHICLES: Readonly<Record<AbroadVehicle, VehicleSpec>> = {
-  "calgary-bus": { file: CALGARY_BUS, model: "veh_calgary-bus", seat: CALGARY_BUS_SEAT, rail: false, size: [3.2, 3.3, 12.4], land: "cold" },
-  ctrain: { file: "shared/veh/veh_ctrain-car.glb", model: "veh_ctrain-car", seat: CTRAIN_SEAT, rail: true, size: [2.7, 4.9, 24.7], land: "cold" },
+  "calgary-bus": { file: CALGARY_BUS, model: "vehicle_calgary-bus", seat: CALGARY_BUS_SEAT, rail: false, size: [3.2, 3.3, 12.4], land: "cold" },
+  ctrain: { file: "shared/vehicle/vehicle_ctrain-car.glb", model: "vehicle_ctrain-car", seat: CTRAIN_SEAT, rail: true, size: [2.7, 4.9, 24.7], land: "cold" },
   // Calgary's taxi rides in the one taxi with a seat drawn inside, the Dubai taxi's body: the ride is seen from its back bench.
-  "canada-taxi": { file: DUBAI_TAXI, model: "veh_taxi-dubai", seat: TAXI_SEAT, rail: false, size: [2.0, 1.6, 4.7], land: "cold" },
+  "canada-taxi": { file: DUBAI_TAXI, model: "vehicle_taxi-dubai", seat: TAXI_SEAT, rail: false, size: [2.0, 1.6, 4.7], land: "cold" },
   // Dubai's city bus is a white and red single-decker, as Calgary's is: the same model.
-  "dubai-bus": { file: CALGARY_BUS, model: "veh_calgary-bus", seat: CALGARY_BUS_SEAT, rail: false, size: [3.2, 3.3, 12.4], land: "heat" },
+  "dubai-bus": { file: CALGARY_BUS, model: "vehicle_calgary-bus", seat: CALGARY_BUS_SEAT, rail: false, size: [3.2, 3.3, 12.4], land: "heat" },
   // The metro car on the viaduct is decor: the ride plays inside this one.
-  "dubai-metro": { file: "shared/veh/veh_dubai-metro.glb", model: "veh_dubai-metro", seat: METRO_SEAT, rail: true, size: [2.9, 3.6, 17.3], land: "heat" },
-  "labour-bus": { file: "places/deira/veh_labour-bus.glb", model: "veh_labour-bus", seat: LABOUR_BUS_SEAT, rail: false, size: [2.8, 3.0, 7.5], land: "heat" },
-  "dubai-taxi": { file: DUBAI_TAXI, model: "veh_taxi-dubai", seat: TAXI_SEAT, rail: false, size: [2.0, 1.6, 4.7], land: "heat" },
-  "italy-bus": { file: "shared/veh/veh_italy-bus.glb", model: "veh_italy-bus", seat: ITALY_BUS_SEAT, rail: false, size: [3.3, 3.3, 12.2], land: "coast" },
-  van: { file: "shared/veh/veh_van.glb", model: "veh_van", seat: VAN_SEAT, rail: false, size: [2.6, 2.45, 5.7], land: "coast" },
+  "dubai-metro": { file: "shared/vehicle/vehicle_dubai-metro.glb", model: "vehicle_dubai-metro", seat: METRO_SEAT, rail: true, size: [2.9, 3.6, 17.3], land: "heat" },
+  "labour-bus": { file: "places/deira/vehicle_labour-bus.glb", model: "vehicle_labour-bus", seat: LABOUR_BUS_SEAT, rail: false, size: [2.8, 3.0, 7.5], land: "heat" },
+  "dubai-taxi": { file: DUBAI_TAXI, model: "vehicle_taxi-dubai", seat: TAXI_SEAT, rail: false, size: [2.0, 1.6, 4.7], land: "heat" },
+  "italy-bus": { file: "shared/vehicle/vehicle_italy-bus.glb", model: "vehicle_italy-bus", seat: ITALY_BUS_SEAT, rail: false, size: [3.3, 3.3, 12.2], land: "coast" },
+  van: { file: "shared/vehicle/vehicle_van.glb", model: "vehicle_van", seat: VAN_SEAT, rail: false, size: [2.6, 2.45, 5.7], land: "coast" },
 };
 
 /**

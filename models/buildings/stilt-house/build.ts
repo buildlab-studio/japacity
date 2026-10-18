@@ -12,7 +12,7 @@ const PLANKS: PaletteName[] = ["wood", "darkWood", "khaki", "wood", "tan"];
 
 export function buildStiltHouse(): Group {
   const root = new Group();
-  root.name = "bld_stilt-house";
+  root.name = "building_stilt-house";
   const random = seeded(1990);
   const { floor, width: w, depth: d, walls, veranda } = STILT_HOUSE;
   const hw = w / 2;

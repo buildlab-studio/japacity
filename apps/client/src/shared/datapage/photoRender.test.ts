@@ -71,8 +71,8 @@ afterEach(() => {
 describe("the stills of the figure", () => {
   test("[prologue:player-colours-on-looks] given the figure drawn in two colours and the page's photo, then each figure is an object address encoded as webp off the main thread, the photo a data address, all on one renderer made once", async () => {
     const before = made.renderers;
-    const first = renderFigure("shared/chr/chr_ada.glb", { skin: "skin2" }, "figure");
-    const second = renderFigure("shared/chr/chr_ada.glb", { skin: "skin3" }, "cheer");
+    const first = renderFigure("shared/person/person_ada.glb", { skin: "skin2" }, "figure");
+    const second = renderFigure("shared/person/person_ada.glb", { skin: "skin3" }, "cheer");
     expect(await first).toBe("blob:still-1");
     expect(await second).toBe("blob:still-2");
     expect(toBlob).toHaveBeenCalledTimes(2);
@@ -80,7 +80,7 @@ describe("the stills of the figure", () => {
       ["image/webp", 0.85],
       ["image/webp", 0.85],
     ]);
-    expect(await renderPhoto("shared/chr/chr_ada.glb", { skin: "skin2" }, 258)).toBe("data:image/webp;base64,UklGRg");
+    expect(await renderPhoto("shared/person/person_ada.glb", { skin: "skin2" }, 258)).toBe("data:image/webp;base64,UklGRg");
     expect(toDataURL).toHaveBeenCalledTimes(1);
     expect(made.renders).toBe(3);
     // Sized for each still: the figure's 400 by 800, then the photo's own box.
@@ -90,10 +90,10 @@ describe("the stills of the figure", () => {
   });
 
   test("[prologue:player-colours-on-looks] given the renderer's context taken back by the phone, when the next still is drawn, then a new renderer draws it", async () => {
-    await renderFigure("shared/chr/chr_ada.glb", { skin: "skin4" }, "figure");
+    await renderFigure("shared/person/person_ada.glb", { skin: "skin4" }, "figure");
     const before = made.renderers;
     made.lost = true;
-    expect(await renderFigure("shared/chr/chr_ada.glb", { skin: "skin5" }, "figure")).toMatch(/^blob:still-/);
+    expect(await renderFigure("shared/person/person_ada.glb", { skin: "skin5" }, "figure")).toMatch(/^blob:still-/);
     expect(made.renderers - before).toBe(1);
   });
 });

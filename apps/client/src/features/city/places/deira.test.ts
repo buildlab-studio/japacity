@@ -47,7 +47,7 @@ describe("Deira", () => {
       ["sheet", "See what's on"],
     ]);
     expect(thing("taxi").acts.map((act) => act.kind)).toEqual(["ride"]);
-    expect(thing("taxi").file).toBe("places/deira/veh_taxi-dubai.glb");
+    expect(thing("taxi").file).toBe("places/deira/vehicle_taxi-dubai.glb");
   });
 
   // The souq stands at Naif (streets:street-shopping-abroad, streets:dubai-life-by-hand), so the stall here does not open the street shopping, which
@@ -74,8 +74,8 @@ describe("Deira", () => {
   test("[city:place-words-are-text-keys] given the arcades across the road, when their boards are read, then the gold shops stand under at least two gold boards and the cafe under the cafeteria's", () => {
     const words = stage.models.flatMap((model) => (model.signs ?? []).flat()).map(wordsOf);
     expect(words.filter((said) => said.includes("GOLD")).length).toBeGreaterThanOrEqual(2);
-    const lettered = stage.models.find((model) => model.file.endsWith("bld_deira-arcade_b.glb"));
-    const [arcade] = copiesOf(stage, "bld_deira-arcade_b.glb");
+    const lettered = stage.models.find((model) => model.file.endsWith("building_deira-arcade_b.glb"));
+    const [arcade] = copiesOf(stage, "building_deira-arcade_b.glb");
     const [table] = copiesOf(stage, "prop_dining-table.glb");
     if (lettered === undefined || arcade === undefined || table === undefined) throw new Error("No cafe");
     // The cafeteria's board is the arcade's first, four metres left of its middle (buildings/deira-arcade/b).
@@ -103,8 +103,8 @@ describe("Deira's jobs", () => {
       ["plain", null],
     ]);
     expect(thing("site-bus").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([["plain", null]]);
-    expect(thing("agency").file).toBe("places/deira/bld_deira-arcade_b.glb");
-    expect(thing("site-bus").file).toBe("places/deira/veh_labour-bus.glb");
+    expect(thing("agency").file).toBe("places/deira/building_deira-arcade_b.glb");
+    expect(thing("site-bus").file).toBe("places/deira/vehicle_labour-bus.glb");
     expect(atSite("guard-post").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
       ["sheet", "activity.job-gulf-guard"],
       ["plain", null],
@@ -115,7 +115,7 @@ describe("Deira's jobs", () => {
     ]);
     for (const job of ["activity.job-gulf-guard", "activity.job-gulf-cleaner"]) expect(stagedAt(job, UAE, Object.values(content.place))).toBe("place.site-uae");
     expect(stagedAt("activity.job-hunt", UAE, Object.values(content.place))).toBe(ID);
-    const [, typing] = stage.models.find((model) => model.file.endsWith("bld_deira-arcade_b.glb"))?.signs?.[0] ?? [];
+    const [, typing] = stage.models.find((model) => model.file.endsWith("building_deira-arcade_b.glb"))?.signs?.[0] ?? [];
     expect(wordsOf(typing ?? "")).toContain("TYPING CENTRE");
   });
 

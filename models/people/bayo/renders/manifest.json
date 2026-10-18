@@ -1,6 +1,6 @@
 {
-  "asset": "chr_bayo",
-  "file": "public/assets/shared/chr/chr_bayo.glb",
+  "asset": "person_bayo",
+  "file": "public/assets/shared/person/person_bayo.glb",
   "fileSha256": "9a7d19ec9b41c6916e4f5a755637201fb4f4c0b85c11a2c21bf6fef81f43b078",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

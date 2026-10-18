@@ -1,6 +1,6 @@
 {
-  "asset": "veh_danfo",
-  "file": "public/assets/shared/veh/veh_danfo.glb",
+  "asset": "vehicle_danfo",
+  "file": "public/assets/shared/vehicle/vehicle_danfo.glb",
   "fileSha256": "a70b72398445fc25603ce81cbdd710a970ccce21b9cc4b28c9de88198ffcf1b6",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

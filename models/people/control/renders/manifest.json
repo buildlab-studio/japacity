@@ -1,6 +1,6 @@
 {
-  "asset": "chr_control",
-  "file": "public/assets/shared/chr/chr_control.glb",
+  "asset": "person_control",
+  "file": "public/assets/shared/person/person_control.glb",
   "fileSha256": "94f3ff653ae944e55b0c9482b443de16b8bd655008b24e00728ad623b7c02d06",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

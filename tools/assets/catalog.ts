@@ -84,9 +84,9 @@ export const SOURCE = join(REPO_ROOT, "models");
 export const PUBLIC = join(REPO_ROOT, "apps", "client", "public", "assets");
 
 /** The folder under models/ that holds a kind's sources, by the kind's shipped prefix. */
-const KIND_FOLDERS: Readonly<Record<string, string>> = { bld: "buildings", lm: "landmarks", veh: "vehicles", prop: "props", shop: "shopfronts", chr: "people" };
+const KIND_FOLDERS: Readonly<Record<string, string>> = { building: "buildings", landmark: "landmarks", vehicle: "vehicles", prop: "props", shopfront: "shopfronts", person: "people" };
 
-/** The folder of a prefix's sources, `buildings` for `bld`. */
+/** The folder of a prefix's sources, `buildings` for `building`. */
 export function kindFolder(prefix: string): string {
   const folder = KIND_FOLDERS[prefix];
   if (folder === undefined) throw new Error(`No model folder for the prefix ${prefix}`);
@@ -104,7 +104,7 @@ export const PORTRAITS: readonly ViewName[] = ["face", "figure", "cheer"];
  * The people the front door offers as a look: the city's passers-by, the client's `LOOKS` from its roster. Named here,
  * since the tools never import the client; the client's test of the door's pictures proves each look has its portraits.
  */
-const DOOR_LOOKS: ReadonlySet<string> = new Set(["chr_ada", "chr_amaka", "chr_bayo", "chr_bisi", "chr_dayo", "chr_emeka", "chr_femi", "chr_kemi", "chr_kunle", "chr_ngozi", "chr_sade", "chr_segun", "chr_tobi", "chr_tolani", "chr_tunde", "chr_zainab"]);
+const DOOR_LOOKS: ReadonlySet<string> = new Set(["person_ada", "person_amaka", "person_bayo", "person_bisi", "person_dayo", "person_emeka", "person_femi", "person_kemi", "person_kunle", "person_ngozi", "person_sade", "person_segun", "person_tobi", "person_tolani", "person_tunde", "person_zainab"]);
 
 /** Whether a model gets the portraits: a person the door offers as a look. */
 export function isPortrayed(name: string): boolean {
@@ -112,9 +112,9 @@ export function isPortrayed(name: string): boolean {
 }
 
 /** The kinds of model a picture tile is cut from (design page 09, the pictures): never a person, whose tile is a name pill. */
-const TILED_KINDS = /^(prop|shop|veh|lm|bld)_/;
+const TILED_KINDS = /^(prop|shopfront|vehicle|landmark|building)_/;
 /** Models no player is shown as a thing: the rooms' and the homes' shells, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
-const UNTILED = /^(bld_room_|bld_home-|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
+const UNTILED = /^(building_room_|building_home-|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
 
 /** Whether a model gets the tile view: a thing a player could be shown on a choice. */
 export function isTiled(name: string): boolean {
@@ -122,7 +122,7 @@ export function isTiled(name: string): boolean {
 }
 
 export interface CatalogEntry {
-  /** The shipped name without extension: `bld_plaza`. */
+  /** The shipped name without extension: `building_plaza`. */
   name: string;
   /** The shipped path under public/assets. */
   file: string;
@@ -173,8 +173,8 @@ function personModel(mesh: PersonMesh): BakedModel {
 function buildingEntry(slug: string, place: string, author = EXAMPLE_MAKERS): CatalogEntry {
   const source = join("models", "buildings", slug);
   return {
-    name: `bld_${slug}`,
-    file: `places/${place}/bld_${slug}.glb`,
+    name: `building_${slug}`,
+    file: `places/${place}/building_${slug}.glb`,
     place: `place.${place}`,
     source,
     author,
@@ -182,7 +182,7 @@ function buildingEntry(slug: string, place: string, author = EXAMPLE_MAKERS): Ca
     views: [...ELEVATIONS, "plan", "phone"],
     build: () => {
       const { spec, options } = readJson<{ spec: BuildingSpec; options: BuildingOptions }>(join(REPO_ROOT, source, "spec.json"));
-      return staticModel(`bld_${slug}`, buildBuilding(spec, { ...options, dishYaw: HUB_DISH_YAW }));
+      return staticModel(`building_${slug}`, buildBuilding(spec, { ...options, dishYaw: HUB_DISH_YAW }));
     },
   };
 }
@@ -201,7 +201,7 @@ function placeBuilding(slug: string, place: string): CatalogEntry {
     const { spec, options } = readJson<{ spec: BuildingSpec; options: BuildingOptions }>(join(SOURCE, "buildings", slug, "spec.json"));
     return buildBuilding(spec, { ...options, dishYaw: HUB_DISH_YAW });
   };
-  return placePiece(`bld_${slug}`, place, build, [...ELEVATIONS, "plan", "phone"]);
+  return placePiece(`building_${slug}`, place, build, [...ELEVATIONS, "plan", "phone"]);
 }
 
 interface OutlineFile {
@@ -322,17 +322,17 @@ const ENTRIES: CatalogEntry[] = [
   buildingEntry("shop-row", "ojuelegba"),
   buildingEntry("plaza", "ojuelegba"),
   {
-    name: "bld_flyover-span",
-    file: "places/ojuelegba/bld_flyover-span.glb",
+    name: "building_flyover-span",
+    file: "places/ojuelegba/building_flyover-span.glb",
     place: "place.ojuelegba",
     source: "models/buildings/flyover-span",
     author: "The makers, written as code from the kit; the plan from OpenStreetMap",
     views: [...ELEVATIONS, "plan", "phone"],
-    build: () => staticModel("bld_flyover-span", buildFlyoverSpan()),
+    build: () => staticModel("building_flyover-span", buildFlyoverSpan()),
   },
   {
-    name: "shop_provisions",
-    file: "places/ojuelegba/shop_provisions.glb",
+    name: "shopfront_provisions",
+    file: "places/ojuelegba/shopfront_provisions.glb",
     place: "place.ojuelegba",
     source: "models/shopfronts/provisions",
     author: EXAMPLE_MAKERS,
@@ -340,14 +340,14 @@ const ENTRIES: CatalogEntry[] = [
     views: [...ELEVATIONS, "plan", "phone"],
     build: () =>
       staticModel(
-        "shop_provisions",
+        "shopfront_provisions",
         buildProvisions({ board: "place.ojuelegba.sign.9", notice: "place.ojuelegba.sign.10" }, { board: SIGN.painted, notice: SIGN.notice }),
         true,
       ),
   },
   {
-    name: "shop_container-phones",
-    file: "places/ojuelegba/shop_container-phones.glb",
+    name: "shopfront_container-phones",
+    file: "places/ojuelegba/shopfront_container-phones.glb",
     place: "place.ojuelegba",
     source: "models/shopfronts/container-phones",
     author: EXAMPLE_MAKERS,
@@ -355,14 +355,14 @@ const ENTRIES: CatalogEntry[] = [
     views: [...ELEVATIONS, "plan", "phone"],
     build: () =>
       staticModel(
-        "shop_container-phones",
+        "shopfront_container-phones",
         buildContainerPhones({ board: "place.ojuelegba.sign.11", card: "place.ojuelegba.sign.12" }, { board: SIGN.printed, card: SIGN.cards }, HUB_DISH_YAW),
         true,
       ),
   },
   {
-    name: "lm_national-stadium",
-    file: "places/national-stadium/lm_national-stadium.glb",
+    name: "landmark_national-stadium",
+    file: "places/national-stadium/landmark_national-stadium.glb",
     place: "place.national-stadium",
     source: "models/landmarks/national-stadium",
     author: EXAMPLE_MAKERS,
@@ -371,14 +371,14 @@ const ENTRIES: CatalogEntry[] = [
     build: () => {
       const outline = readJson<OutlineFile>(join(SOURCE, "landmarks", "national-stadium", "outline.json"));
       const plan = outline.views.find((view) => view.view === "plan");
-      if (plan === undefined) throw new Error("lm_national-stadium: no plan outline");
+      if (plan === undefined) throw new Error("landmark_national-stadium: no plan outline");
       // The plan outline's picture coordinates are [x, -z].
-      return staticModel("lm_national-stadium", buildStadium(plan.polygon.map(([u, v]) => [u, -v] as const)));
+      return staticModel("landmark_national-stadium", buildStadium(plan.polygon.map(([u, v]) => [u, -v] as const)));
     },
   },
   {
-    name: "lm_third-mainland-span",
-    file: "places/third-mainland-bridge/lm_third-mainland-span.glb",
+    name: "landmark_third-mainland-span",
+    file: "places/third-mainland-bridge/landmark_third-mainland-span.glb",
     place: "place.third-mainland-bridge",
     source: "models/landmarks/third-mainland-span",
     author: EXAMPLE_MAKERS,
@@ -387,7 +387,7 @@ const ENTRIES: CatalogEntry[] = [
     // On the lagoon, seen from a canoe as the photographs are, so the arches show.
     ground: "lagoon",
     farView: { position: [40, 2, 260], target: [-90, 6, 0] },
-    build: () => staticModel("lm_third-mainland-span", buildBridgeSpan()),
+    build: () => staticModel("landmark_third-mainland-span", buildBridgeSpan()),
   },
   placeBuilding("market-block", "tejuosho-market"),
   placePiece("prop_market-stall", "tejuosho-market", buildMarketStall),
@@ -396,17 +396,17 @@ const ENTRIES: CatalogEntry[] = [
   placeBuilding("phone-plaza", "computer-village"),
   placeBuilding("laptop-house", "computer-village"),
   placePiece("prop_repair-table", "computer-village", buildRepairTable),
-  placePiece("bld_terminal-front", "airport-lagos", () => buildTerminalFront({ fascia: "place.airport-lagos.sign.1", canopy: "place.airport-lagos.sign.2", left: "place.airport-lagos.sign.3", right: "place.airport-lagos.sign.4" }, { fascia: SIGN.terminal, canopy: SIGN.canopy, hanging: SIGN.hanging }), [...ELEVATIONS, "plan", "phone"]),
+  placePiece("building_terminal-front", "airport-lagos", () => buildTerminalFront({ fascia: "place.airport-lagos.sign.1", canopy: "place.airport-lagos.sign.2", left: "place.airport-lagos.sign.3", right: "place.airport-lagos.sign.4" }, { fascia: SIGN.terminal, canopy: SIGN.canopy, hanging: SIGN.hanging }), [...ELEVATIONS, "plan", "phone"]),
   placePiece("prop_trolley", "airport-lagos", buildTrolley),
   placePiece("prop_flagpole", "airport-lagos", buildFlagpole),
-  placePiece("veh_taxi", "airport-lagos", buildTaxi),
-  placePiece("bld_stilt-house", "third-mainland-bridge", buildStiltHouse, [...ELEVATIONS, "plan", "phone"]),
+  placePiece("vehicle_taxi", "airport-lagos", buildTaxi),
+  placePiece("building_stilt-house", "third-mainland-bridge", buildStiltHouse, [...ELEVATIONS, "plan", "phone"]),
   placePiece("prop_canoe", "third-mainland-bridge", buildCanoe),
   // Makoko on the lagoon (home:home-is-the-home-point): its houses, the classroom, the walk, the racks and the canoes that travel the channel.
   ...([
-    ["bld_makoko-house_a", "a", () => buildRoomHouse()],
-    ["bld_makoko-house_b", "b", () => buildTallHouse("place.makoko.sign.2", { board: "white", ink: "blue", painted: true })],
-    ["bld_makoko-school", "school", () => buildSchool("place.makoko.sign.1", { board: "blue", ink: "white", painted: true })],
+    ["building_makoko-house_a", "a", () => buildRoomHouse()],
+    ["building_makoko-house_b", "b", () => buildTallHouse("place.makoko.sign.2", { board: "white", ink: "blue", painted: true })],
+    ["building_makoko-school", "school", () => buildSchool("place.makoko.sign.1", { board: "blue", ink: "white", painted: true })],
   ] as const).map(([name, folder, build]): CatalogEntry => ({ ...placePiece(name, "makoko", build, [...ELEVATIONS, "plan", "phone"]), source: `models/buildings/makoko-house/${folder}`, author: MAKOKO, ground: "lagoon" })),
   { ...placePiece("prop_plank-walkway", "makoko", buildPlankWalkway), author: MAKOKO, ground: "lagoon" },
   { ...placePiece("prop_fish-racks", "makoko", () => buildFishRacks("place.makoko.sign.3", { board: "danfoYellow", ink: "red", painted: true })), author: MAKOKO, ground: "lagoon" },
@@ -452,16 +452,16 @@ const ENTRIES: CatalogEntry[] = [
     build: () => staticModel("prop_stall", buildStall()),
   },
   buildingEntry("bode-thomas-betting", "bode-thomas", KIT),
-  { name: "shop_lotto-kiosk", file: "places/bode-thomas/shop_lotto-kiosk.glb", place: "place.bode-thomas", source: "models/shopfronts/lotto-kiosk", author: KIT, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_lotto-kiosk", buildLottoKiosk({ board: "place.bode-thomas.sign.1", games: "place.bode-thomas.sign.5" }, { board: { board: "danfoYellow", ink: "green", painted: true }, games: { board: "black", ink: "white", painted: true } }), true) },
-  { name: "bld_family-house", file: "places/family-house/bld_family-house.glb", place: "place.family-house", source: "models/buildings/family-house", author: KIT, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("bld_family-house", buildFamilyHouse("place.family-house.sign.2", { board: "white", ink: "red", painted: true }, HUB_DISH_YAW)) },
+  { name: "shopfront_lotto-kiosk", file: "places/bode-thomas/shopfront_lotto-kiosk.glb", place: "place.bode-thomas", source: "models/shopfronts/lotto-kiosk", author: KIT, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shopfront_lotto-kiosk", buildLottoKiosk({ board: "place.bode-thomas.sign.1", games: "place.bode-thomas.sign.5" }, { board: { board: "danfoYellow", ink: "green", painted: true }, games: { board: "black", ink: "white", painted: true } }), true) },
+  { name: "building_family-house", file: "places/family-house/building_family-house.glb", place: "place.family-house", source: "models/buildings/family-house", author: KIT, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("building_family-house", buildFamilyHouse("place.family-house.sign.2", { board: "white", ink: "red", painted: true }, HUB_DISH_YAW)) },
   { name: "prop_party-set", file: "places/family-house/prop_party-set.glb", place: "place.family-house", source: "models/props/party-set", author: KIT, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_party-set", buildPartySet("place.family-house.sign.1", { board: "cream", ink: "wine" })) },
   { name: "prop_parlour-set", file: "places/family-house/prop_parlour-set.glb", place: "place.family-house", source: "models/props/parlour-set", author: KIT, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_parlour-set", buildParlourSet()) },
   { name: "prop_cooking-fire", file: "places/family-house/prop_cooking-fire.glb", place: "place.family-house", source: "models/props/cooking-fire", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_cooking-fire", buildCookingFire()) },
   { name: "prop_plastic-chair", file: "shared/prop/prop_plastic-chair.glb", place: "shared", source: "models/props/plastic-chair", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_plastic-chair", buildPlasticChair()) },
   ...(["a", "b"] as const).map(
     (variant): CatalogEntry => ({
-      name: `bld_rye-lane-terrace_${variant}`,
-      file: `places/peckham/bld_rye-lane-terrace_${variant}.glb`,
+      name: `building_rye-lane-terrace_${variant}`,
+      file: `places/peckham/building_rye-lane-terrace_${variant}.glb`,
       place: "place.peckham",
       source: `models/buildings/rye-lane-terrace/${variant}`,
       author: KIT,
@@ -473,15 +473,15 @@ const ENTRIES: CatalogEntry[] = [
     }),
   ),
   {
-    name: "bld_railway-bridge",
-    file: "places/peckham/bld_railway-bridge.glb",
+    name: "building_railway-bridge",
+    file: "places/peckham/building_railway-bridge.glb",
     place: "place.peckham",
     source: "models/buildings/railway-bridge",
     author: KIT,
     views: [...ELEVATIONS, "plan", "phone"],
     build: () =>
       staticModel(
-        "bld_railway-bridge",
+        "building_railway-bridge",
         buildRailwayBridge(
           { mouth: "place.peckham.sign.30", girder: "place.peckham.sign.31", market: "place.peckham.sign.32", lockup: "place.peckham.sign.33", second: "place.peckham.sign.34" },
           { mouth: { board: "white", ink: "blue", border: "blue" }, girder: { board: "white", ink: "black" }, market: { board: "danfoYellow", ink: "black", painted: true } },
@@ -490,8 +490,8 @@ const ENTRIES: CatalogEntry[] = [
   },
   ...(["a", "b", "c"] as const).map(
     (variant): CatalogEntry => ({
-      name: `bld_deira-arcade_${variant}`,
-      file: `places/deira/bld_deira-arcade_${variant}.glb`,
+      name: `building_deira-arcade_${variant}`,
+      file: `places/deira/building_deira-arcade_${variant}.glb`,
       place: "place.deira",
       source: `models/buildings/deira-arcade/${variant}`,
       author: KIT,
@@ -502,23 +502,23 @@ const ENTRIES: CatalogEntry[] = [
       },
     }),
   ),
-  { name: "veh_abra", file: "places/deira/veh_abra.glb", place: "place.deira", source: "models/vehicles/abra", author: KIT, views: [...ELEVATIONS, "phone"], ground: "lagoon", build: () => staticModel("veh_abra", buildAbra()) },
-  { name: "veh_labour-bus", file: "places/deira/veh_labour-bus.glb", place: "place.deira", source: "models/vehicles/labour-bus", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_labour-bus", buildLabourBus()) },
+  { name: "vehicle_abra", file: "places/deira/vehicle_abra.glb", place: "place.deira", source: "models/vehicles/abra", author: KIT, views: [...ELEVATIONS, "phone"], ground: "lagoon", build: () => staticModel("vehicle_abra", buildAbra()) },
+  { name: "vehicle_labour-bus", file: "places/deira/vehicle_labour-bus.glb", place: "place.deira", source: "models/vehicles/labour-bus", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_labour-bus", buildLabourBus()) },
   // The pieces the places staged as frontages need (world:place-is-one-screen).
-  { name: "veh_taxi-dubai", file: "places/deira/veh_taxi-dubai.glb", place: "place.deira", source: "models/vehicles/taxi/dubai", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_taxi-dubai", buildTaxi(DUBAI_TAXI)) },
+  { name: "vehicle_taxi-dubai", file: "places/deira/vehicle_taxi-dubai.glb", place: "place.deira", source: "models/vehicles/taxi/dubai", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_taxi-dubai", buildTaxi(DUBAI_TAXI)) },
   placePiece("prop_street-bench", "peckham", buildStreetBench),
   { name: "prop_flag-mast", file: "shared/prop/prop_flag-mast.glb", place: "shared", source: "models/props/flag-mast", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_flag-mast", buildFlagMast()) },
   { name: "prop_bus-shelter", file: "shared/prop/prop_bus-shelter.glb", place: "shared", source: "models/props/bus-shelter", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_bus-shelter", buildBusShelter()) },
   ...([
-    ["veh_danfo", buildDanfo],
-    ["veh_keke", buildKeke],
-    ["veh_okada", buildOkada],
+    ["vehicle_danfo", buildDanfo],
+    ["vehicle_keke", buildKeke],
+    ["vehicle_okada", buildOkada],
   ] as const).map(
     ([name, build]): CatalogEntry => ({
       name,
-      file: `shared/veh/${name}.glb`,
+      file: `shared/vehicle/${name}.glb`,
       place: "shared",
-      source: `models/vehicles/${name.slice(4)}`,
+      source: `models/vehicles/${name.slice("vehicle_".length)}`,
       author: MAKERS,
       views: [...ELEVATIONS, "phone"],
       build: () => staticModel(name, build()),
@@ -527,9 +527,9 @@ const ENTRIES: CatalogEntry[] = [
   ...ALL_PEOPLE.map(
     (spec): CatalogEntry => ({
       name: spec.name,
-      file: `shared/chr/${spec.name}.glb`,
+      file: `shared/person/${spec.name}.glb`,
       place: "shared",
-      source: `models/people/${spec.name.slice(4)}`,
+      source: `models/people/${spec.name.slice("person_".length)}`,
       author: MAKERS,
       views: isPortrayed(spec.name) ? [...ELEVATIONS, "phone", ...PORTRAITS] : [...ELEVATIONS, "phone"],
       pose: spec.carry === undefined ? "stand" : "tray",
@@ -568,8 +568,8 @@ const ENTRIES: CatalogEntry[] = [
   // The street's things of decision 0012 (streets:lagos-street-spending): the suya spot staged on Ojuelegba, the joint's chairs, the barber's kiosk and the viewing centre on Bode Thomas.
   { name: "prop_suya-grill", file: "shared/prop/prop_suya-grill.glb", place: "shared", source: "models/props/suya-grill", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_suya-grill", buildSuyaGrill()) },
   { name: "prop_joint-set", file: "shared/prop/prop_joint-set.glb", place: "shared", source: "models/props/joint-set", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_joint-set", buildJointSet()) },
-  { name: "shop_barber-kiosk", file: "places/bode-thomas/shop_barber-kiosk.glb", place: "place.bode-thomas", source: "models/shopfronts/barber-kiosk", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_barber-kiosk", buildBarberKiosk("place.bode-thomas.sign.9", { board: "white", ink: "red", painted: true }), true) },
-  { name: "shop_viewing-centre", file: "places/bode-thomas/shop_viewing-centre.glb", place: "place.bode-thomas", source: "models/shopfronts/viewing-centre", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_viewing-centre", buildViewingCentre(HUB_DISH_YAW)) },
+  { name: "shopfront_barber-kiosk", file: "places/bode-thomas/shopfront_barber-kiosk.glb", place: "place.bode-thomas", source: "models/shopfronts/barber-kiosk", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shopfront_barber-kiosk", buildBarberKiosk("place.bode-thomas.sign.9", { board: "white", ink: "red", painted: true }), true) },
+  { name: "shopfront_viewing-centre", file: "places/bode-thomas/shopfront_viewing-centre.glb", place: "place.bode-thomas", source: "models/shopfronts/viewing-centre", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shopfront_viewing-centre", buildViewingCentre(HUB_DISH_YAW)) },
 ];
 
 /** The homes as one wide floor each, the car, and the small things the kit lacked. */
@@ -584,16 +584,16 @@ function homePiece(name: string, folder: string, build: () => Group): CatalogEnt
     source: prefix === "prop" ? `models/props/home/${slug}` : `models/${kindFolder(prefix)}/${slug}`,
     author: HOME_MAKERS,
     // A building's plan as every building's (assets:contributor-renders-fixed-views).
-    views: prefix === "bld" ? [...ELEVATIONS, "plan", "phone"] : [...ELEVATIONS, "phone"],
+    views: prefix === "building" ? [...ELEVATIONS, "plan", "phone"] : [...ELEVATIONS, "phone"],
     build: () => staticModel(name, build()),
   };
 }
 ENTRIES.push(
-  homePiece("veh_car", "shared", () => buildCar()),
+  homePiece("vehicle_car", "shared", () => buildCar()),
   homePiece("prop_bath-corner", "shared", home.buildBathCorner),
-  homePiece("bld_home-family-house", "home-family-house", () => buildHome(HOMES3.family)),
-  homePiece("bld_home-room-house", "home-room-house", () => buildHome(HOMES3.room)),
-  homePiece("bld_home-hostel-house", "home-hostel-house", () => buildHome(HOMES3.hostel)),
+  homePiece("building_home-family-house", "home-family-house", () => buildHome(HOMES3.family)),
+  homePiece("building_home-room-house", "home-room-house", () => buildHome(HOMES3.room)),
+  homePiece("building_home-hostel-house", "home-hostel-house", () => buildHome(HOMES3.hostel)),
   homePiece("prop_carport", "shared", home.buildCarport),
   homePiece("prop_generator", "shared", home.buildGenerator),
   homePiece("prop_clothes-line", "shared", home.buildClothesLine),
@@ -628,13 +628,13 @@ ENTRIES.push(
 /** London on the Lagos mold (design page 10): the bus and the train for the ride abroad, the frontages and the rooms of its places. */
 const LONDON = "The makers, written as code from the kit";
 ENTRIES.push(
-  { name: "veh_london-bus", file: "shared/veh/veh_london-bus.glb", place: "shared", source: "models/vehicles/london-bus", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_london-bus", buildLondonBus()) },
-  { name: "veh_train-carriage", file: "shared/veh/veh_train-carriage.glb", place: "shared", source: "models/vehicles/train-carriage", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_train-carriage", buildTrainCarriage()) },
+  { name: "vehicle_london-bus", file: "shared/vehicle/vehicle_london-bus.glb", place: "shared", source: "models/vehicles/london-bus", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_london-bus", buildLondonBus()) },
+  { name: "vehicle_train-carriage", file: "shared/vehicle/vehicle_train-carriage.glb", place: "shared", source: "models/vehicles/train-carriage", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_train-carriage", buildTrainCarriage()) },
   // Rye Lane (world:place-is-one-screen): two more terraces as data, the pub on the corner, the produce, the stalls and the kitchen's door.
   ...(["c", "d"] as const).map(
     (variant): CatalogEntry => ({
-      name: `bld_rye-lane-terrace_${variant}`,
-      file: `places/rye-lane/bld_rye-lane-terrace_${variant}.glb`,
+      name: `building_rye-lane-terrace_${variant}`,
+      file: `places/rye-lane/building_rye-lane-terrace_${variant}.glb`,
       place: "place.rye-lane",
       source: `models/buildings/rye-lane-terrace/${variant}`,
       author: LONDON,
@@ -645,7 +645,7 @@ ENTRIES.push(
       },
     }),
   ),
-  placePiece("bld_corner-pub", "rye-lane", () => buildCornerPub(PECKHAM_DISH_YAW), [...ELEVATIONS, "plan", "phone"]),
+  placePiece("building_corner-pub", "rye-lane", () => buildCornerPub(PECKHAM_DISH_YAW), [...ELEVATIONS, "plan", "phone"]),
   placePiece("prop_produce-stand", "rye-lane", london.buildProduceStand),
   placePiece("prop_gazebo-stall", "rye-lane", london.buildGazeboStall),
   placePiece("prop_side-door", "rye-lane", london.buildSideDoor),
@@ -690,17 +690,17 @@ function plasterRow(name: string, folder: string, source: string): CatalogEntry 
 }
 
 ENTRIES.push(
-  { name: "veh_italy-bus", file: "shared/veh/veh_italy-bus.glb", place: "shared", source: "models/vehicles/italy-bus", author: ITALY, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_italy-bus", buildItalyBus()) },
-  { name: "veh_van", file: "shared/veh/veh_van.glb", place: "shared", source: "models/vehicles/van", author: ITALY, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_van", buildVan()) },
+  { name: "vehicle_italy-bus", file: "shared/vehicle/vehicle_italy-bus.glb", place: "shared", source: "models/vehicles/italy-bus", author: ITALY, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_italy-bus", buildItalyBus()) },
+  { name: "vehicle_van", file: "shared/vehicle/vehicle_van.glb", place: "shared", source: "models/vehicles/van", author: ITALY, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_van", buildVan()) },
   // The roundabout (world:place-is-one-screen): two plaster rows with the bar, the African shop and the call shop, the island and its sign, the bar's counter, the palms and the stop's pole.
-  plasterRow("bld_castel-row_a", "castel-volturno", "row-a"),
-  plasterRow("bld_castel-row_b", "castel-volturno", "row-b"),
+  plasterRow("building_castel-row_a", "castel-volturno", "row-a"),
+  plasterRow("building_castel-row_b", "castel-volturno", "row-b"),
   italyPiece("prop_roundabout", "castel-volturno", "roundabout", () => castel.buildRoundabout("place.castel-volturno.sign.roundabout", { board: "blue", ink: "white", border: "white" }), [...ELEVATIONS, "plan", "phone"]),
   italyPiece("prop_bar-counter", "castel-volturno", "bar-counter", castel.buildBarCounter),
   italyPiece("prop_palm", "castel-volturno", "palm", castel.buildPalm),
   italyPiece("prop_bus-pole", "castel-volturno", "bus-pole", () => castel.buildBusPole("place.castel-volturno.sign.stop", { board: "white", ink: "blue", border: "blue" })),
   // The Domitiana: the low block of the Nigerian shop and the barber, and the stone pines of the coast.
-  plasterRow("bld_domitiana-block", "via-domitiana", "block"),
+  plasterRow("building_domitiana-block", "via-domitiana", "block"),
   italyPiece("prop_pine", "via-domitiana", "pine", buildPine),
   // The fields: the rows, the gangmaster's table, the crates, the tap and the tree.
   italyPiece("prop_crop-row", "farm-it", "crop-row", farm.buildCropRow, [...ELEVATIONS, "plan", "phone"]),
@@ -713,12 +713,12 @@ ENTRIES.push(
 /** Calgary and Dubai on the mold (design page 11): the vehicles for their rides, the frontages and the library. */
 const NORTH = "The makers, written as code from the kit";
 ENTRIES.push(
-  { name: "veh_calgary-bus", file: "shared/veh/veh_calgary-bus.glb", place: "shared", source: "models/vehicles/calgary-bus", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_calgary-bus", buildCalgaryBus()) },
-  { name: "veh_ctrain-car", file: "shared/veh/veh_ctrain-car.glb", place: "shared", source: "models/vehicles/ctrain-car", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_ctrain-car", buildCtrainCar()) },
-  { name: "veh_dubai-metro", file: "shared/veh/veh_dubai-metro.glb", place: "shared", source: "models/vehicles/dubai-metro", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_dubai-metro", buildDubaiMetro()) },
+  { name: "vehicle_calgary-bus", file: "shared/vehicle/vehicle_calgary-bus.glb", place: "shared", source: "models/vehicles/calgary-bus", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_calgary-bus", buildCalgaryBus()) },
+  { name: "vehicle_ctrain-car", file: "shared/vehicle/vehicle_ctrain-car.glb", place: "shared", source: "models/vehicles/ctrain-car", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_ctrain-car", buildCtrainCar()) },
+  { name: "vehicle_dubai-metro", file: "shared/vehicle/vehicle_dubai-metro.glb", place: "shared", source: "models/vehicles/dubai-metro", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_dubai-metro", buildDubaiMetro()) },
   // The strip mall in north-east Calgary (world:place-is-one-screen), its row as data, and the bare trees of its winter.
   placePiece(
-    "bld_strip-mall",
+    "building_strip-mall",
     "calgary-north-east",
     () => buildStripMall(readJson<StripMallSpec>(join(SOURCE, "buildings", "strip-mall", "spec.json"))),
     [...ELEVATIONS, "plan", "phone"],
@@ -731,12 +731,12 @@ ENTRIES.push(
   placePiece("prop_library-table", "library-ca", north.buildLibraryTable),
   placePiece("prop_course-desk", "library-ca", north.buildCourseDesk),
   // Union station: the hall under its shell, the viaduct with the car on it, the Nol machine and the escalator's foot.
-  placePiece("bld_metro-station", "metro-station-uae", () => buildMetroStation("place.metro-station-uae.sign.name", { board: "white", ink: "red", border: "red" }), [...ELEVATIONS, "plan", "phone"]),
-  placePiece("bld_metro-viaduct", "metro-station-uae", buildMetroViaduct, [...ELEVATIONS, "plan", "phone"]),
+  placePiece("building_metro-station", "metro-station-uae", () => buildMetroStation("place.metro-station-uae.sign.name", { board: "white", ink: "red", border: "red" }), [...ELEVATIONS, "plan", "phone"]),
+  placePiece("building_metro-viaduct", "metro-station-uae", buildMetroViaduct, [...ELEVATIONS, "plan", "phone"]),
   placePiece("prop_nol-machine", "metro-station-uae", north.buildNolMachine),
   placePiece("prop_escalator", "metro-station-uae", north.buildEscalator),
   // The site: the towers' base over the hoarding, the crane's foot, the gate's post, the cleaner's trolley and the cooler.
-  placePiece("bld_site-frame", "site-uae", buildSiteFrame, [...ELEVATIONS, "plan", "phone"]),
+  placePiece("building_site-frame", "site-uae", buildSiteFrame, [...ELEVATIONS, "plan", "phone"]),
   placePiece("prop_hoarding", "site-uae", north.buildHoarding),
   placePiece("prop_crane-foot", "site-uae", north.buildCraneFoot),
   placePiece("prop_guard-post", "site-uae", north.buildGuardPost),
@@ -760,7 +760,7 @@ export function findEntries(names: readonly string[]): CatalogEntry[] {
       continue;
     }
     if (name === "people" || name === "vehicles") {
-      for (const entry of CATALOG) if (entry.name.startsWith(name === "people" ? "chr_" : "veh_")) found.add(entry);
+      for (const entry of CATALOG) if (entry.name.startsWith(name === "people" ? "person_" : "vehicle_")) found.add(entry);
       continue;
     }
     const entry = CATALOG.find((candidate) => candidate.name === name);

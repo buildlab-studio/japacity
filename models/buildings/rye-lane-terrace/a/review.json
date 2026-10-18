@@ -1,5 +1,5 @@
 {
-  "piece": "places/peckham/bld_rye-lane-terrace_a.glb",
+  "piece": "places/peckham/building_rye-lane-terrace_a.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/buildings/rye-lane-terrace/a/renders/right.png",
     "models/buildings/rye-lane-terrace/a/renders/threeQuarter.png",
     "models/buildings/rye-lane-terrace/a/renders/manifest.json",
-    "models/register.json, the row for places/peckham/bld_rye-lane-terrace_a.glb"
+    "models/register.json, the row for places/peckham/building_rye-lane-terrace_a.glb"
   ],
   "scores": {
     "phone": 4,

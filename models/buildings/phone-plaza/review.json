@@ -1,5 +1,5 @@
 {
-  "piece": "places/computer-village/bld_phone-plaza.glb",
+  "piece": "places/computer-village/building_phone-plaza.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/buildings/phone-plaza/renders/right.png",
     "models/buildings/phone-plaza/renders/threeQuarter.png",
     "models/buildings/phone-plaza/renders/manifest.json",
-    "models/register.json, the row for places/computer-village/bld_phone-plaza.glb"
+    "models/register.json, the row for places/computer-village/building_phone-plaza.glb"
   ],
   "scores": {
     "phone": 3,
@@ -36,7 +36,7 @@
     "proportion": "Storeys, balconies, the side stair and the person agree.",
     "palette": "Palette only, but the grey-mint wall and the brown balcony slabs are close in value and the back and sides are a flat dark grey-green: flat against the street.",
     "wear": "Tanks, AC units, a generator, wires, crates and goods at the doors, burglar bars at the back.",
-    "variety": "Near a copy of bld_market-block (same layout, stair, tanks and generator) and the same wall colour as bld_bode-thomas-betting.",
+    "variety": "Near a copy of building_market-block (same layout, stair, tanks and generator) and the same wall colour as building_bode-thomas-betting.",
     "budget": "Read from the register row: triangles 1,244 of 1,500 (82%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 13,432 of 40,000 (33%). Inside every figure, over 80% on at least one."
   },
   "notes": "Boards blank in the renders; the place shots show words on the Computer Village boards, which the piece's own renders should too. A kit piece: no outline is scored."

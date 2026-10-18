@@ -11,8 +11,8 @@ import { checkPalette } from "./palette-check";
 const STREET_THINGS = [
   { name: "prop_suya-grill", file: "shared/prop/prop_suya-grill.glb", place: "shared", signs: 0 },
   { name: "prop_joint-set", file: "shared/prop/prop_joint-set.glb", place: "shared", signs: 0 },
-  { name: "shop_barber-kiosk", file: "places/bode-thomas/shop_barber-kiosk.glb", place: "place.bode-thomas", signs: 1 },
-  { name: "shop_viewing-centre", file: "places/bode-thomas/shop_viewing-centre.glb", place: "place.bode-thomas", signs: 0 },
+  { name: "shopfront_barber-kiosk", file: "places/bode-thomas/shopfront_barber-kiosk.glb", place: "place.bode-thomas", signs: 1 },
+  { name: "shopfront_viewing-centre", file: "places/bode-thomas/shopfront_viewing-centre.glb", place: "place.bode-thomas", signs: 0 },
 ] as const;
 
 function entry(name: string) {
@@ -28,7 +28,7 @@ describe("the street's things", () => {
     const bytes = await writeGlb(toDocument(found.build()));
     const doc = await readGlb(bytes);
     const figures = measure(doc, bytes.byteLength);
-    const prefix = name.split("_")[0] as "prop" | "shop";
+    const prefix = name.split("_")[0] as "prop" | "shopfront";
     const budget = budgets.asset[prefix];
     expect(figures.triangles).toBeLessThanOrEqual(budget.triangles);
     expect(figures.drawCalls).toBeLessThanOrEqual(budget.drawCalls);
@@ -36,7 +36,7 @@ describe("the street's things", () => {
     expect(figures.bytes).toBeLessThanOrEqual(budget.bytes);
     expect(checkPalette(doc)).toEqual([]);
     expect(Math.abs(figures.minY)).toBeLessThanOrEqual(0.01);
-    const [low, high] = prefix === "shop" ? [budgets.asset.shop.heightMin, budgets.asset.shop.heightMax] : [0, Infinity];
+    const [low, high] = prefix === "shopfront" ? [budgets.asset.shopfront.heightMin, budgets.asset.shopfront.heightMax] : [0, Infinity];
     expect(figures.maxY).toBeGreaterThanOrEqual(low);
     expect(figures.maxY).toBeLessThanOrEqual(high);
   });
@@ -52,7 +52,7 @@ describe("the street's things", () => {
   });
 
   test("[assets:metre-units-and-origin] given the barber's kiosk and the viewing centre, when they are built, then the kiosk is about three metres tall and the shed about three point two", async () => {
-    for (const [name, height] of [["shop_barber-kiosk", 3.0], ["shop_viewing-centre", 3.2]] as const) {
+    for (const [name, height] of [["shopfront_barber-kiosk", 3.0], ["shopfront_viewing-centre", 3.2]] as const) {
       const bytes = await writeGlb(toDocument(entry(name).build()));
       const figures = measure(await readGlb(bytes), bytes.byteLength);
       expect({ name, near: Math.abs(figures.maxY - height) <= 0.5 }).toEqual({ name, near: true });

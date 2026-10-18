@@ -1,6 +1,6 @@
 {
-  "asset": "bld_stilt-house",
-  "file": "public/assets/places/third-mainland-bridge/bld_stilt-house.glb",
+  "asset": "building_stilt-house",
+  "file": "public/assets/places/third-mainland-bridge/building_stilt-house.glb",
   "fileSha256": "28f97d5b4cbbaea112561c79e189d250d1d3d1b14b685e1e1cc83ca88ffc8123",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

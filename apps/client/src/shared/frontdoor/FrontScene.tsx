@@ -30,7 +30,7 @@ const PLINTH_RADIUS = 0.62;
 const PLINTH_HIGH = 0.14;
 
 export interface FrontSceneProps {
-  /** The look's file, `shared/chr/chr_ada.glb`. */
+  /** The look's file, `shared/person/person_ada.glb`. */
   look: string;
   /** The finger's pull on the figure, from the gate. */
   spin: Spin;

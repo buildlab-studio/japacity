@@ -21,7 +21,7 @@ function disc(g: Group, r: number, x: number, y: number, z: number, colour: "whi
 
 export function buildViewingCentre(dishYaw: number): Group {
   const g = new Group();
-  g.name = "shop_viewing-centre";
+  g.name = "shopfront_viewing-centre";
   const random = seeded(90);
   const { width: w, depth: d, front, back, slab, seat } = VIEWING_CENTRE;
   const hw = w / 2;

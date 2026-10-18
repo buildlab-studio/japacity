@@ -296,7 +296,7 @@ export function Deck() {
       {frame < T.nightPaint ? (
         <>
           <BackCard dx={-58} dy={-14} rot={-8} tile="prop_laptop-desk" tint={TINT.study} at={2} />
-          <BackCard dx={58} dy={-22} rot={6} tile="shop_provisions" tint={TINT.food} at={6} />
+          <BackCard dx={58} dy={-22} rot={6} tile="shopfront_provisions" tint={TINT.food} at={6} />
         </>
       ) : null}
 
@@ -345,7 +345,7 @@ export function Deck() {
       ) : null}
       {frame < T.livesOut + 16 ? (
         <div style={{ position: "absolute", left: livesPose.x + 190, top: livesPose.y - 400 }}>
-          <Sticker tile="chr_ada-face" size={230} tilt={8} delay={28} />
+          <Sticker tile="person_ada-face" size={230} tilt={8} delay={28} />
         </div>
       ) : null}
 

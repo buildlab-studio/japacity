@@ -18,7 +18,7 @@ import { checkLimits, checkParts, checkThings, isWorldFile, type LimitedFile } f
 import { filesUnder, isMain, readJson, REPO_ROOT } from "../repo";
 
 /** assets:shipped-file-naming, as the page writes it. */
-export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
+export const FILE_NAME = /^(person|vehicle|building|shopfront|landmark|prop)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
 /** Files decision 0009 places under public/assets beside the models, and the publish step's manifest. */
 export const DATA_FILES = new Set(["place.json", "credits.json", "manifest.json"]);
 const IMAGE = /\.(png|jpe?g|webp|gif|avif|bmp|tiff?|heic|ktx2)$/i;
@@ -30,7 +30,6 @@ export interface AssetBudget {
   bytes?: number;
   heightMin?: number;
   heightMax?: number;
-  sidePx?: number;
 }
 
 export interface Budgets {
@@ -318,7 +317,7 @@ export function checkAccepted(rows: readonly RegisterRow[], reviews: ReadonlyMap
     const mean = scores.reduce((sum, [, value]) => sum + value, 0) / scores.length;
     if (mean < config.minMean) problems.push(`assets:acceptance-score-thresholds: ${row.file} is accepted with a mean of ${mean.toFixed(2)}, under ${String(config.minMean)}`);
     if (review.scores.budget === 0) problems.push(`assets:acceptance-score-thresholds: ${row.file} is accepted over budget`);
-    if (prefixOf(row.file) === "lm") {
+    if (prefixOf(row.file) === "landmark") {
       const outline = outlines.get(row.file) ?? null;
       if (outline === null || Object.values(outline).some((view) => !view.passes) || Object.keys(outline).length < 2) {
         problems.push(`assets:landmarks-match-reference-outlines: ${row.file} is accepted without passing outline scores in at least two views`);
@@ -352,9 +351,9 @@ export function placeTotals(place: PlaceFile, measured: ReadonlyMap<string, Meas
     }
     files.add(instance.file);
     const prefix = prefixOf(instance.file);
-    const instanced = prefix === "bld" || prefix === "prop";
+    const instanced = prefix === "building" || prefix === "prop";
     drawCalls += instanced ? file.drawCalls : file.drawCalls * instance.count;
-    if ((prefix === "bld" || prefix === "prop") && file.signs > 0) drawCalls += instance.count;
+    if ((prefix === "building" || prefix === "prop") && file.signs > 0) drawCalls += instance.count;
     triangles += file.triangles * instance.count;
   }
   let worstCalls = 0;
@@ -418,7 +417,7 @@ export function worldChecks(place: PlaceFile, measured: ReadonlyMap<string, Pick
 /** 9. The first download (code, the hub's folder, one character) and the whole game fit (city:places-load-on-entry). */
 export function checkDownloads(measured: readonly Measured[], hubFolder: string | null, codeBytes: number, budgets: Budgets): string[] {
   const problems: string[] = [];
-  const characters = measured.filter((file) => prefixOf(file.file) === "chr").map((file) => file.bytes);
+  const characters = measured.filter((file) => prefixOf(file.file) === "person").map((file) => file.bytes);
   const hub = hubFolder === null ? 0 : measured.filter((file) => file.file.startsWith(`${hubFolder}/`)).reduce((sum, file) => sum + file.bytes, 0);
   const first = codeBytes + hub + Math.max(0, ...characters);
   if (first > budgets.place.firstLoad.bytes) problems.push(`city:places-load-on-entry: the first download is ${String(first)} bytes, over ${String(budgets.place.firstLoad.bytes)}`);

@@ -28,8 +28,8 @@ export interface TaxiLivery {
   cabin?: boolean;
 }
 
-export const LAGOS_TAXI: TaxiLivery = { name: "veh_taxi", body: "danfoYellow", roof: null, checks: true };
-export const DUBAI_TAXI: TaxiLivery = { name: "veh_taxi-dubai", body: "wallCream", roof: "red", checks: false, cabin: true };
+export const LAGOS_TAXI: TaxiLivery = { name: "vehicle_taxi", body: "danfoYellow", roof: null, checks: true };
+export const DUBAI_TAXI: TaxiLivery = { name: "vehicle_taxi-dubai", body: "wallCream", roof: "red", checks: false, cabin: true };
 
 /** The ride's seat in the built frame (length along x, the kerb side at +z): the back bench on the kerb side. */
 export const TAXI_SEAT_BUILT: RideSeat = { eye: [-0.78, 1.16, 0.42], window: [0.4, 0.95, 6], ahead: [8, 1.0, 0.0] };
@@ -37,7 +37,7 @@ export const TAXI_SEAT_BUILT: RideSeat = { eye: [-0.78, 1.16, 0.42], window: [0.
 /** The same seat in the turned model's own frame (facing +z, the kerb side at -x), as the ride reads it. */
 export const TAXI_SEAT: RideSeat = { eye: [-0.42, 1.16, -0.78], window: [-6, 0.95, 0.4], ahead: [0, 1, 8] };
 /** The same saloon as a family's own car, parked in the yard by the gate: plain blue, no checks, no roof light. */
-export const OWN_CAR: TaxiLivery = { name: "veh_car", body: "blue", roof: null, checks: false, roofLight: false };
+export const OWN_CAR: TaxiLivery = { name: "vehicle_car", body: "blue", roof: null, checks: false, roofLight: false };
 
 export function buildTaxi(livery: TaxiLivery = LAGOS_TAXI): Group {
   const g = new Group();

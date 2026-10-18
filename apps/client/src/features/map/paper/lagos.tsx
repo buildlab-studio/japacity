@@ -56,7 +56,7 @@ export const LAGOS: PaperCity = {
     bottom: at([6407, 3290])[1],
     // The few pictures that stay standing on the folded paper: Makoko's huts and two canoes.
     minis: [
-      ...DECOR.filter((item) => item.model.startsWith("bld_makoko") || item.model === "bld_stilt-house")
+      ...DECOR.filter((item) => item.model.startsWith("building_makoko") || item.model === "building_stilt-house")
         .slice(0, 3)
         .map((item) => ({ model: item.model, at: item.at, size: 13 })),
       ...DECOR.filter((item) => item.kind === "boat")

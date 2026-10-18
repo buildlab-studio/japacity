@@ -306,11 +306,11 @@ export interface Decor {
 const decor = (model: string, where: LatLon, size: number, tilt: number, kind: Decor["kind"] = "ground"): Decor => ({ model, at: at(where), size, tilt, kind });
 
 export const DECOR: readonly Decor[] = [
-  decor("bld_makoko-house_a", [6498, 3388], 15, -6),
-  decor("bld_stilt-house", [6492, 3388], 14, 3),
-  decor("bld_makoko-house_b", [6493, 3393], 16, 5),
-  decor("bld_stilt-house", [6498, 3394], 13, 8),
-  decor("bld_makoko-house_a", [6490, 3391], 13, -4),
+  decor("building_makoko-house_a", [6498, 3388], 15, -6),
+  decor("building_stilt-house", [6492, 3388], 14, 3),
+  decor("building_makoko-house_b", [6493, 3393], 16, 5),
+  decor("building_stilt-house", [6498, 3394], 13, 8),
+  decor("building_makoko-house_a", [6490, 3391], 13, -4),
   decor("prop_fish-racks", [6501, 3389], 12, 4),
   decor("prop_canoe", [6488, 3395], 13, -12, "boat"),
   decor("prop_canoe", [6530, 3420], 18, 18, "boat"),
@@ -320,14 +320,14 @@ export const DECOR: readonly Decor[] = [
   decor("prop_canoe", [6565, 3428], 15, 10, "boat"),
   decor("prop_canoe", [6452, 3372], 14, -8, "boat"),
   decor("prop_canoe", [6580, 3445], 14, 22, "boat"),
-  decor("veh_danfo", [6532, 3367], 14, 6, "car"),
-  decor("veh_danfo", [6509, 3368], 13, -14, "car"),
-  decor("veh_danfo", [6520, 3405], 13, 84, "car"),
-  decor("veh_danfo", [6492, 3367], 12, 70, "car"),
-  decor("veh_keke", [6451, 3418], 11, 4, "car"),
-  decor("veh_danfo", [6432, 3436], 13, -4, "car"),
-  decor("veh_okada", [6514, 3359], 9, -10, "car"),
-  decor("veh_danfo", [6585, 3350], 12, 80, "car"),
+  decor("vehicle_danfo", [6532, 3367], 14, 6, "car"),
+  decor("vehicle_danfo", [6509, 3368], 13, -14, "car"),
+  decor("vehicle_danfo", [6520, 3405], 13, 84, "car"),
+  decor("vehicle_danfo", [6492, 3367], 12, 70, "car"),
+  decor("vehicle_keke", [6451, 3418], 11, 4, "car"),
+  decor("vehicle_danfo", [6432, 3436], 13, -4, "car"),
+  decor("vehicle_okada", [6514, 3359], 9, -10, "car"),
+  decor("vehicle_danfo", [6585, 3350], 12, 80, "car"),
 ];
 
 /**

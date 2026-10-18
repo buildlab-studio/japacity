@@ -6,7 +6,7 @@ import type { RoomSpec } from "./build";
 
 export const ROOMS = {
   parlour: {
-    name: "bld_room_parlour",
+    name: "building_room_parlour",
     size: [16, 9],
     height: 3.0,
     side: "left",
@@ -24,7 +24,7 @@ export const ROOMS = {
     seed: 1971,
   },
   visa: {
-    name: "bld_room_visa",
+    name: "building_room_visa",
     size: [12, 10],
     height: 3.2,
     side: "right",
@@ -41,7 +41,7 @@ export const ROOMS = {
     seed: 2024,
   },
   agent: {
-    name: "bld_room_agent",
+    name: "building_room_agent",
     size: [12, 10],
     height: 3.0,
     side: "left",
@@ -58,7 +58,7 @@ export const ROOMS = {
     seed: 3301,
   },
   test: {
-    name: "bld_room_test",
+    name: "building_room_test",
     size: [12, 10],
     height: 3.2,
     side: "right",
@@ -75,7 +75,7 @@ export const ROOMS = {
     seed: 4410,
   },
   clinic: {
-    name: "bld_room_clinic",
+    name: "building_room_clinic",
     size: [12, 10],
     height: 3.0,
     side: "left",
@@ -92,7 +92,7 @@ export const ROOMS = {
     seed: 5150,
   },
   bank: {
-    name: "bld_room_bank",
+    name: "building_room_bank",
     size: [12, 10],
     height: 3.4,
     side: "right",
@@ -109,7 +109,7 @@ export const ROOMS = {
     seed: 6006,
   },
   hub: {
-    name: "bld_room_hub",
+    name: "building_room_hub",
     size: [12, 10],
     height: 3.2,
     side: "left",
@@ -126,7 +126,7 @@ export const ROOMS = {
     seed: 7007,
   },
   abroad: {
-    name: "bld_room_abroad",
+    name: "building_room_abroad",
     size: [16, 9],
     height: 3.0,
     side: "right",
@@ -144,7 +144,7 @@ export const ROOMS = {
   // five things stand close around the character. Painted walls gone tired at the bottom, louvre windows on the yard
   // and a calendar picture over the mattress; the door is in the side wall, as the room abroad's.
   compound: {
-    name: "bld_room_compound",
+    name: "building_room_compound",
     size: [4, 3.5],
     height: 3.0,
     side: "right",
@@ -160,7 +160,7 @@ export const ROOMS = {
     seed: 1010,
   },
   arrivals: {
-    name: "bld_room_arrivals",
+    name: "building_room_arrivals",
     size: [12, 10],
     height: 4.2,
     side: "left",
@@ -181,7 +181,7 @@ export const ROOMS = {
   // recipe serves them all; the church's on the left, where its banner hangs behind the front. Plain London walls,
   // a pane window where the room has one.
   bigshop: {
-    name: "bld_room_bigshop",
+    name: "building_room_bigshop",
     size: [16, 9],
     height: 3.4,
     side: "right",
@@ -197,7 +197,7 @@ export const ROOMS = {
     seed: 9401,
   },
   care: {
-    name: "bld_room_care",
+    name: "building_room_care",
     size: [16, 9],
     height: 3.0,
     side: "right",
@@ -215,7 +215,7 @@ export const ROOMS = {
     seed: 9402,
   },
   ward: {
-    name: "bld_room_ward",
+    name: "building_room_ward",
     size: [16, 9],
     height: 3.0,
     side: "right",
@@ -232,7 +232,7 @@ export const ROOMS = {
     seed: 9403,
   },
   office: {
-    name: "bld_room_office",
+    name: "building_room_office",
     size: [16, 9],
     height: 3.0,
     side: "right",
@@ -251,7 +251,7 @@ export const ROOMS = {
     seed: 9404,
   },
   warehouse: {
-    name: "bld_room_warehouse",
+    name: "building_room_warehouse",
     size: [16, 9],
     height: 6.0,
     side: "right",
@@ -267,7 +267,7 @@ export const ROOMS = {
     seed: 9405,
   },
   church: {
-    name: "bld_room_church",
+    name: "building_room_church",
     size: [16, 9],
     height: 4.0,
     side: "left",
@@ -288,7 +288,7 @@ export const ROOMS = {
   // side wall on the right as the London rooms', pale walls over a wood dado, tall pane windows on the back wall and a
   // notice board by the door.
   library: {
-    name: "bld_room_library",
+    name: "building_room_library",
     size: [16, 9],
     height: 3.6,
     side: "right",

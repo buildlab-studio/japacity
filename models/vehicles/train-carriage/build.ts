@@ -104,6 +104,6 @@ export function buildTrainCarriage(): Group {
   for (const x of doors) for (const dz of [-0.35, 0.35]) cbox(g, 0.05, roof - 0.28 - floor, 0.05, x, (floor + roof - 0.28) / 2, dz, "danfoYellow");
   for (const s of [-1, 1]) cbox(g, L - 2, 0.04, 0.04, 0, roof - 0.5, s * 0.45, "hub");
 
-  const root = facePlusZ(g, "veh_train-carriage");
+  const root = facePlusZ(g, "vehicle_train-carriage");
   return setFootprint(root, [lowBox(root)]);
 }

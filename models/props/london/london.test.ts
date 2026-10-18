@@ -34,9 +34,9 @@ const MODELS: [string, () => Group][] = [
   ["prop_smoking-shelter", london.buildSmokingShelter],
   ["prop_pew", london.buildPew],
   ["prop_altar", london.buildAltar],
-  ["bld_corner-pub", () => buildCornerPub(2.4)],
-  ["veh_london-bus", buildLondonBus],
-  ["veh_train-carriage", buildTrainCarriage],
+  ["building_corner-pub", () => buildCornerPub(2.4)],
+  ["vehicle_london-bus", buildLondonBus],
+  ["vehicle_train-carriage", buildTrainCarriage],
 ];
 
 function bounds(model: Group): Box3 {

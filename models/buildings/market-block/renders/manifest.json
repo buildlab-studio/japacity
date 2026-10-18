@@ -1,6 +1,6 @@
 {
-  "asset": "bld_market-block",
-  "file": "public/assets/places/tejuosho-market/bld_market-block.glb",
+  "asset": "building_market-block",
+  "file": "public/assets/places/tejuosho-market/building_market-block.glb",
   "fileSha256": "f94d98ab23283c1ab148e967746f04061184c2bfa8e5b3f5e11c5eb9130d6029",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",

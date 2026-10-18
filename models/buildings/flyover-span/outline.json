@@ -1,6 +1,6 @@
 {
- "asset": "bld_flyover-span",
- "note": "Polygons in metres, in the piece's own frame. A view's picture coordinates: plan [x, -z] seen from above. No photograph is kept (assets:no-reference-photos-kept). The flyover is a kit piece, not a landmark, so the outline is a reference for its plan and is not scored (assets:landmarks-match-reference-outlines applies to lm_ only).",
+ "asset": "building_flyover-span",
+ "note": "Polygons in metres, in the piece's own frame. A view's picture coordinates: plan [x, -z] seen from above. No photograph is kept (assets:no-reference-photos-kept). The flyover is a kit piece, not a landmark, so the outline is a reference for its plan and is not scored (assets:landmarks-match-reference-outlines applies to landmark_ only).",
  "views": [
   {
    "view": "plan",

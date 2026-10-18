@@ -1,5 +1,5 @@
 {
-  "piece": "places/airport-lagos/bld_terminal-front.glb",
+  "piece": "places/airport-lagos/building_terminal-front.glb",
   "reviewer": "A reviewer who has not seen the code",
   "date": "2026-10-08",
   "against": null,
@@ -12,7 +12,7 @@
     "models/buildings/terminal-front/renders/right.png",
     "models/buildings/terminal-front/renders/threeQuarter.png",
     "models/buildings/terminal-front/renders/manifest.json",
-    "models/register.json, the row for places/airport-lagos/bld_terminal-front.glb"
+    "models/register.json, the row for places/airport-lagos/building_terminal-front.glb"
   ],
   "scores": {
     "phone": 2,

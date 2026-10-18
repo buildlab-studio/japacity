@@ -1540,7 +1540,7 @@
       "status": "draft"
     },
     {
-      "file": "places/agent-office/bld_room_agent.glb",
+      "file": "places/agent-office/building_room_agent.glb",
       "place": "place.agent-office",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -1554,10 +1554,10 @@
       "triangles": 114,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3000,
+      "bytes": 3012,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -1566,7 +1566,7 @@
       "status": "draft"
     },
     {
-      "file": "places/airport-lagos/bld_terminal-front.glb",
+      "file": "places/airport-lagos/building_terminal-front.glb",
       "place": "place.airport-lagos",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -1577,10 +1577,10 @@
       "triangles": 954,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 8204,
+      "bytes": 8212,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -1686,7 +1686,7 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/airport-lagos/veh_taxi.glb",
+      "file": "places/airport-lagos/vehicle_taxi.glb",
       "place": "place.airport-lagos",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -1697,10 +1697,10 @@
       "triangles": 1344,
       "drawCalls": 2,
       "materials": 1,
-      "bytes": 8448,
+      "bytes": 8456,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -1726,7 +1726,7 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/arrivals-hall/bld_room_arrivals.glb",
+      "file": "places/arrivals-hall/building_room_arrivals.glb",
       "place": "place.airport-lagos",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -1740,10 +1740,10 @@
       "triangles": 184,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3220,
+      "bytes": 3228,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -1804,7 +1804,7 @@
       "status": "draft"
     },
     {
-      "file": "places/bank-counter/bld_room_bank.glb",
+      "file": "places/bank-counter/building_room_bank.glb",
       "place": "place.olokun-office",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -1818,10 +1818,10 @@
       "triangles": 194,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3184,
+      "bytes": 3192,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -1856,7 +1856,7 @@
       "status": "draft"
     },
     {
-      "file": "places/big-shop-uk/bld_room_bigshop.glb",
+      "file": "places/big-shop-uk/building_room_bigshop.glb",
       "place": "place.big-shop-uk",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -1870,10 +1870,10 @@
       "triangles": 176,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3108,
+      "bytes": 3116,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -1960,7 +1960,7 @@
       "status": "draft"
     },
     {
-      "file": "places/bode-thomas/bld_bode-thomas-betting.glb",
+      "file": "places/bode-thomas/building_bode-thomas-betting.glb",
       "place": "place.bode-thomas",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -1971,10 +1971,10 @@
       "triangles": 996,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 10788,
+      "bytes": 10796,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2000,7 +2000,7 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/bode-thomas/shop_barber-kiosk.glb",
+      "file": "places/bode-thomas/shopfront_barber-kiosk.glb",
       "place": "place.bode-thomas",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2014,10 +2014,10 @@
       "triangles": 472,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 6268,
+      "bytes": 6280,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2026,7 +2026,7 @@
       "status": "draft"
     },
     {
-      "file": "places/bode-thomas/shop_lotto-kiosk.glb",
+      "file": "places/bode-thomas/shopfront_lotto-kiosk.glb",
       "place": "place.bode-thomas",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2037,10 +2037,10 @@
       "triangles": 272,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 5276,
+      "bytes": 5284,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2066,7 +2066,7 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/bode-thomas/shop_viewing-centre.glb",
+      "file": "places/bode-thomas/shopfront_viewing-centre.glb",
       "place": "place.bode-thomas",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2080,10 +2080,10 @@
       "triangles": 512,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 5380,
+      "bytes": 5388,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2092,7 +2092,59 @@
       "status": "draft"
     },
     {
-      "file": "places/care-home-uk/bld_room_care.glb",
+      "file": "places/calgary-north-east/building_strip-mall.glb",
+      "place": "place.calgary-north-east",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 310,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 5616,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/calgary-north-east/prop_bare-tree.glb",
+      "place": "place.calgary-north-east",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 248,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 3256,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/care-home-uk/building_room_care.glb",
       "place": "place.care-home-uk",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -2106,10 +2158,10 @@
       "triangles": 182,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3156,
+      "bytes": 3168,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2144,7 +2196,7 @@
       "status": "draft"
     },
     {
-      "file": "places/castel-volturno/bld_castel-row_a.glb",
+      "file": "places/castel-volturno/building_castel-row_a.glb",
       "place": "place.castel-volturno",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2158,10 +2210,10 @@
       "triangles": 546,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 7004,
+      "bytes": 7012,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2170,7 +2222,7 @@
       "status": "draft"
     },
     {
-      "file": "places/castel-volturno/bld_castel-row_b.glb",
+      "file": "places/castel-volturno/building_castel-row_b.glb",
       "place": "place.castel-volturno",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2184,10 +2236,10 @@
       "triangles": 438,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 5580,
+      "bytes": 5588,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2300,7 +2352,7 @@
       "status": "draft"
     },
     {
-      "file": "places/church-uk/bld_room_church.glb",
+      "file": "places/church-uk/building_room_church.glb",
       "place": "place.church-uk",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -2314,10 +2366,10 @@
       "triangles": 190,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3256,
+      "bytes": 3264,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2378,7 +2430,7 @@
       "status": "draft"
     },
     {
-      "file": "places/compound-room/bld_room_compound.glb",
+      "file": "places/compound-room/building_room_compound.glb",
       "place": "place.compound-room",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -2392,10 +2444,10 @@
       "triangles": 100,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3024,
+      "bytes": 3032,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-10"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2404,7 +2456,7 @@
       "status": "draft"
     },
     {
-      "file": "places/computer-village/bld_laptop-house.glb",
+      "file": "places/computer-village/building_laptop-house.glb",
       "place": "place.computer-village",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2415,10 +2467,10 @@
       "triangles": 928,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 10252,
+      "bytes": 10260,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2444,7 +2496,7 @@
       "approvedBy": null
     },
     {
-      "file": "places/computer-village/bld_phone-plaza.glb",
+      "file": "places/computer-village/building_phone-plaza.glb",
       "place": "place.computer-village",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2455,10 +2507,10 @@
       "triangles": 1244,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 13652,
+      "bytes": 13664,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2524,7 +2576,33 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/deira/bld_deira-arcade_a.glb",
+      "file": "places/ctrain-station-ca/prop_platform-shelter.glb",
+      "place": "place.ctrain-station-ca",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 244,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 3276,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/deira/building_deira-arcade_a.glb",
       "place": "place.deira",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2535,10 +2613,10 @@
       "triangles": 696,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 8356,
+      "bytes": 8364,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2564,7 +2642,7 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/deira/bld_deira-arcade_b.glb",
+      "file": "places/deira/building_deira-arcade_b.glb",
       "place": "place.deira",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2575,10 +2653,10 @@
       "triangles": 506,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 6608,
+      "bytes": 6620,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2604,7 +2682,7 @@
       "approvedBy": null
     },
     {
-      "file": "places/deira/bld_deira-arcade_c.glb",
+      "file": "places/deira/building_deira-arcade_c.glb",
       "place": "place.deira",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2615,10 +2693,10 @@
       "triangles": 476,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 6020,
+      "bytes": 6032,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2644,7 +2722,7 @@
       "approvedBy": null
     },
     {
-      "file": "places/deira/veh_abra.glb",
+      "file": "places/deira/vehicle_abra.glb",
       "place": "place.deira",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2655,10 +2733,10 @@
       "triangles": 484,
       "drawCalls": 2,
       "materials": 1,
-      "bytes": 5284,
+      "bytes": 5292,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2684,7 +2762,7 @@
       "approvedBy": null
     },
     {
-      "file": "places/deira/veh_labour-bus.glb",
+      "file": "places/deira/vehicle_labour-bus.glb",
       "place": "place.deira",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2695,10 +2773,10 @@
       "triangles": 1332,
       "drawCalls": 2,
       "materials": 1,
-      "bytes": 10208,
+      "bytes": 10216,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2724,7 +2802,7 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/deira/veh_taxi-dubai.glb",
+      "file": "places/deira/vehicle_taxi-dubai.glb",
       "place": "place.deira",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -2738,10 +2816,10 @@
       "triangles": 860,
       "drawCalls": 2,
       "materials": 1,
-      "bytes": 7232,
+      "bytes": 7240,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2750,7 +2828,7 @@
       "status": "draft"
     },
     {
-      "file": "places/english-test-centre/bld_room_test.glb",
+      "file": "places/english-test-centre/building_room_test.glb",
       "place": "place.english-test-centre",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -2764,10 +2842,10 @@
       "triangles": 220,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3512,
+      "bytes": 3520,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -2802,7 +2880,7 @@
       "status": "draft"
     },
     {
-      "file": "places/family-house-parlour/bld_room_parlour.glb",
+      "file": "places/family-house-parlour/building_room_parlour.glb",
       "place": "place.family-house",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -2816,10 +2894,10 @@
       "triangles": 202,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3472,
+      "bytes": 3480,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-10"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3010,7 +3088,7 @@
       "status": "draft"
     },
     {
-      "file": "places/family-house/bld_family-house.glb",
+      "file": "places/family-house/building_family-house.glb",
       "place": "place.family-house",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -3021,10 +3099,10 @@
       "triangles": 1020,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 10344,
+      "bytes": 10352,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-09"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3300,7 +3378,7 @@
       "status": "draft"
     },
     {
-      "file": "places/home-family-house/bld_home-family-house.glb",
+      "file": "places/home-family-house/building_home-family-house.glb",
       "place": "place.family-house",
       "source": "code",
       "author": "The makers, written as code from the kit for the homes",
@@ -3314,10 +3392,10 @@
       "triangles": 1448,
       "drawCalls": 5,
       "materials": 1,
-      "bytes": 20152,
+      "bytes": 20164,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-13"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3326,7 +3404,7 @@
       "status": "draft"
     },
     {
-      "file": "places/home-hostel-house/bld_home-hostel-house.glb",
+      "file": "places/home-hostel-house/building_home-hostel-house.glb",
       "place": "place.hostel-room",
       "source": "code",
       "author": "The makers, written as code from the kit for the homes",
@@ -3340,10 +3418,10 @@
       "triangles": 1118,
       "drawCalls": 5,
       "materials": 1,
-      "bytes": 17620,
+      "bytes": 17632,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-13"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3352,7 +3430,7 @@
       "status": "draft"
     },
     {
-      "file": "places/home-room-house/bld_home-room-house.glb",
+      "file": "places/home-room-house/building_home-room-house.glb",
       "place": "place.compound-room",
       "source": "code",
       "author": "The makers, written as code from the kit for the homes",
@@ -3366,10 +3444,10 @@
       "triangles": 1378,
       "drawCalls": 5,
       "materials": 1,
-      "bytes": 19212,
+      "bytes": 19224,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-13"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3378,7 +3456,111 @@
       "status": "draft"
     },
     {
-      "file": "places/makoko/bld_makoko-house_a.glb",
+      "file": "places/library-ca/building_room_library.glb",
+      "place": "place.library-ca",
+      "source": "code",
+      "author": "The makers, written as code from the kit for the rooms",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 182,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 3192,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/library-ca/prop_bookshelf.glb",
+      "place": "place.library-ca",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 732,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 6104,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/library-ca/prop_course-desk.glb",
+      "place": "place.library-ca",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 322,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 3684,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/library-ca/prop_library-table.glb",
+      "place": "place.library-ca",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 600,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 4632,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/makoko/building_makoko-house_a.glb",
       "place": "place.makoko",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -3392,10 +3574,10 @@
       "triangles": 492,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 5420,
+      "bytes": 5428,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-09"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3404,7 +3586,7 @@
       "status": "draft"
     },
     {
-      "file": "places/makoko/bld_makoko-house_b.glb",
+      "file": "places/makoko/building_makoko-house_b.glb",
       "place": "place.makoko",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -3418,10 +3600,10 @@
       "triangles": 752,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 6988,
+      "bytes": 7000,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-09"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3430,7 +3612,7 @@
       "status": "draft"
     },
     {
-      "file": "places/makoko/bld_makoko-school.glb",
+      "file": "places/makoko/building_makoko-school.glb",
       "place": "place.makoko",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -3444,10 +3626,10 @@
       "triangles": 692,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 6332,
+      "bytes": 6340,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-09"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3560,7 +3742,111 @@
       "status": "draft"
     },
     {
-      "file": "places/national-stadium/lm_national-stadium.glb",
+      "file": "places/metro-station-uae/building_metro-station.glb",
+      "place": "place.metro-station-uae",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 210,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 3260,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/metro-station-uae/building_metro-viaduct.glb",
+      "place": "place.metro-station-uae",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 174,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 3200,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/metro-station-uae/prop_escalator.glb",
+      "place": "place.metro-station-uae",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 264,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 3488,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/metro-station-uae/prop_nol-machine.glb",
+      "place": "place.metro-station-uae",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 78,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 2468,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/national-stadium/landmark_national-stadium.glb",
       "place": "place.national-stadium",
       "source": "code",
       "author": "The makers, written as code; one of the examples (models/examples.json)",
@@ -3574,10 +3860,10 @@
       "triangles": 3145,
       "drawCalls": 2,
       "materials": 1,
-      "bytes": 26392,
+      "bytes": 26404,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": {
@@ -3606,7 +3892,7 @@
       "status": "draft"
     },
     {
-      "file": "places/office-uk/bld_room_office.glb",
+      "file": "places/office-uk/building_room_office.glb",
       "place": "place.office-uk",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -3620,10 +3906,10 @@
       "triangles": 102,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3048,
+      "bytes": 3056,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3684,7 +3970,7 @@
       "status": "draft"
     },
     {
-      "file": "places/ojuelegba/bld_flyover-span.glb",
+      "file": "places/ojuelegba/building_flyover-span.glb",
       "place": "place.ojuelegba",
       "source": "code",
       "author": "The makers, written as code from the kit; the plan from OpenStreetMap",
@@ -3698,10 +3984,10 @@
       "triangles": 322,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 4060,
+      "bytes": 4072,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [
         {
@@ -3730,13 +4016,13 @@
           "budget": 4
         },
         "mean": 4,
-        "notes": "Scored as a kit piece (bld_), not a landmark: its outline.json is a plan reference from OpenStreetMap and is not scored (assets:landmarks-match-reference-outlines is for lm_ pieces). The span repeats along the hub, so the empty ends of the deck are where the next span joins."
+        "notes": "Scored as a kit piece (building_), not a landmark: its outline.json is a plan reference from OpenStreetMap and is not scored (assets:landmarks-match-reference-outlines is for landmark_ pieces). The span repeats along the hub, so the empty ends of the deck are where the next span joins."
       },
       "nameCheck": null,
       "status": "accepted"
     },
     {
-      "file": "places/ojuelegba/bld_plaza.glb",
+      "file": "places/ojuelegba/building_plaza.glb",
       "place": "place.ojuelegba",
       "source": "code",
       "author": "The makers, written as code; one of the examples (models/examples.json)",
@@ -3750,10 +4036,10 @@
       "triangles": 1436,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 14692,
+      "bytes": 14704,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3776,7 +4062,7 @@
       "status": "accepted"
     },
     {
-      "file": "places/ojuelegba/bld_shop-row.glb",
+      "file": "places/ojuelegba/building_shop-row.glb",
       "place": "place.ojuelegba",
       "source": "code",
       "author": "The makers, written as code; one of the examples (models/examples.json)",
@@ -3790,10 +4076,10 @@
       "triangles": 656,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 7692,
+      "bytes": 7700,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3816,7 +4102,7 @@
       "status": "accepted"
     },
     {
-      "file": "places/ojuelegba/shop_container-phones.glb",
+      "file": "places/ojuelegba/shopfront_container-phones.glb",
       "place": "place.ojuelegba",
       "source": "code",
       "author": "The makers, written as code; one of the examples (models/examples.json)",
@@ -3830,10 +4116,10 @@
       "triangles": 344,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 5928,
+      "bytes": 5940,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3856,7 +4142,7 @@
       "status": "accepted"
     },
     {
-      "file": "places/ojuelegba/shop_provisions.glb",
+      "file": "places/ojuelegba/shopfront_provisions.glb",
       "place": "place.ojuelegba",
       "source": "code",
       "author": "The makers, written as code; one of the examples (models/examples.json)",
@@ -3870,10 +4156,10 @@
       "triangles": 316,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 5832,
+      "bytes": 5840,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4000,7 +4286,7 @@
       "status": "draft"
     },
     {
-      "file": "places/peckham/bld_railway-bridge.glb",
+      "file": "places/peckham/building_railway-bridge.glb",
       "place": "place.peckham",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -4011,10 +4297,10 @@
       "triangles": 990,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 7968,
+      "bytes": 7976,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4040,7 +4326,7 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/peckham/bld_rye-lane-terrace_a.glb",
+      "file": "places/peckham/building_rye-lane-terrace_a.glb",
       "place": "place.peckham",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -4051,10 +4337,10 @@
       "triangles": 446,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 6996,
+      "bytes": 7004,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4080,7 +4366,7 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/peckham/bld_rye-lane-terrace_b.glb",
+      "file": "places/peckham/building_rye-lane-terrace_b.glb",
       "place": "place.peckham",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -4091,10 +4377,10 @@
       "triangles": 314,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 5168,
+      "bytes": 5176,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4146,7 +4432,7 @@
       "status": "draft"
     },
     {
-      "file": "places/rye-lane/bld_corner-pub.glb",
+      "file": "places/rye-lane/building_corner-pub.glb",
       "place": "place.rye-lane",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -4160,10 +4446,10 @@
       "triangles": 446,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 5832,
+      "bytes": 5840,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4172,7 +4458,7 @@
       "status": "draft"
     },
     {
-      "file": "places/rye-lane/bld_rye-lane-terrace_c.glb",
+      "file": "places/rye-lane/building_rye-lane-terrace_c.glb",
       "place": "place.rye-lane",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -4186,10 +4472,10 @@
       "triangles": 448,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 7036,
+      "bytes": 7048,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4198,7 +4484,7 @@
       "status": "draft"
     },
     {
-      "file": "places/rye-lane/bld_rye-lane-terrace_d.glb",
+      "file": "places/rye-lane/building_rye-lane-terrace_d.glb",
       "place": "place.rye-lane",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -4212,10 +4498,10 @@
       "triangles": 364,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 5800,
+      "bytes": 5812,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4302,7 +4588,163 @@
       "status": "draft"
     },
     {
-      "file": "places/tb-clinic/bld_room_clinic.glb",
+      "file": "places/site-uae/building_site-frame.glb",
+      "place": "place.site-uae",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 474,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 4140,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/site-uae/prop_cleaner-trolley.glb",
+      "place": "place.site-uae",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 276,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 3332,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/site-uae/prop_crane-foot.glb",
+      "place": "place.site-uae",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 696,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 4992,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/site-uae/prop_guard-post.glb",
+      "place": "place.site-uae",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 176,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 3068,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/site-uae/prop_hoarding.glb",
+      "place": "place.site-uae",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 198,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 3108,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/site-uae/prop_water-cooler.glb",
+      "place": "place.site-uae",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 176,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 2848,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-16"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "places/tb-clinic/building_room_clinic.glb",
       "place": "place.tb-clinic",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -4316,10 +4758,10 @@
       "triangles": 214,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3432,
+      "bytes": 3440,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4354,7 +4796,7 @@
       "status": "draft"
     },
     {
-      "file": "places/tejuosho-market/bld_market-block.glb",
+      "file": "places/tejuosho-market/building_market-block.glb",
       "place": "place.tejuosho-market",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -4365,10 +4807,10 @@
       "triangles": 1140,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 12736,
+      "bytes": 12744,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4514,7 +4956,7 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/the-room/bld_room_abroad.glb",
+      "file": "places/the-room/building_room_abroad.glb",
       "place": "place.the-room",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -4528,10 +4970,10 @@
       "triangles": 70,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 2596,
+      "bytes": 2604,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-10"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4618,7 +5060,7 @@
       "status": "draft"
     },
     {
-      "file": "places/third-mainland-bridge/bld_stilt-house.glb",
+      "file": "places/third-mainland-bridge/building_stilt-house.glb",
       "place": "place.third-mainland-bridge",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -4629,10 +5071,10 @@
       "triangles": 742,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 6880,
+      "bytes": 6892,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4658,7 +5100,7 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/third-mainland-bridge/lm_third-mainland-span.glb",
+      "file": "places/third-mainland-bridge/landmark_third-mainland-span.glb",
       "place": "place.third-mainland-bridge",
       "source": "code",
       "author": "The makers, written as code; one of the examples (models/examples.json)",
@@ -4672,10 +5114,10 @@
       "triangles": 3196,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 15600,
+      "bytes": 15612,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": {
@@ -4744,7 +5186,7 @@
       "approvedBy": null
     },
     {
-      "file": "places/via-domitiana/bld_domitiana-block.glb",
+      "file": "places/via-domitiana/building_domitiana-block.glb",
       "place": "place.via-domitiana",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -4758,10 +5200,10 @@
       "triangles": 466,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 5364,
+      "bytes": 5372,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4796,7 +5238,7 @@
       "status": "draft"
     },
     {
-      "file": "places/visa-centre/bld_room_visa.glb",
+      "file": "places/visa-centre/building_room_visa.glb",
       "place": "place.visa-centre",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -4810,10 +5252,10 @@
       "triangles": 222,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3380,
+      "bytes": 3388,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4822,7 +5264,7 @@
       "status": "draft"
     },
     {
-      "file": "places/ward-uk/bld_room_ward.glb",
+      "file": "places/ward-uk/building_room_ward.glb",
       "place": "place.ward-uk",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -4836,10 +5278,10 @@
       "triangles": 180,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3124,
+      "bytes": 3136,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -4900,7 +5342,7 @@
       "status": "draft"
     },
     {
-      "file": "places/warehouse-uk/bld_room_warehouse.glb",
+      "file": "places/warehouse-uk/building_room_warehouse.glb",
       "place": "place.warehouse-uk",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -4914,10 +5356,10 @@
       "triangles": 176,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3112,
+      "bytes": 3124,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5030,7 +5472,7 @@
       "status": "draft"
     },
     {
-      "file": "places/yaba-hub/bld_room_hub.glb",
+      "file": "places/yaba-hub/building_room_hub.glb",
       "place": "place.yaba",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
@@ -5044,10 +5486,10 @@
       "triangles": 128,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 3192,
+      "bytes": 3204,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-08"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5134,7 +5576,7 @@
       "status": "draft"
     },
     {
-      "file": "shared/chr/chr_ada.glb",
+      "file": "shared/person/person_ada.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5148,10 +5590,10 @@
       "triangles": 1318,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 39648,
+      "bytes": 39676,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5160,7 +5602,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_amaka.glb",
+      "file": "shared/person/person_amaka.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5174,10 +5616,10 @@
       "triangles": 2184,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 42360,
+      "bytes": 42376,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5186,7 +5628,7 @@
       "status": "rejected"
     },
     {
-      "file": "shared/chr/chr_bayo.glb",
+      "file": "shared/person/person_bayo.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5200,10 +5642,10 @@
       "triangles": 1182,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 26592,
+      "bytes": 26612,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5212,7 +5654,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_bisi.glb",
+      "file": "shared/person/person_bisi.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5226,10 +5668,10 @@
       "triangles": 1670,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 35352,
+      "bytes": 35348,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5238,7 +5680,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_body_busty.glb",
+      "file": "shared/person/person_body_busty.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5252,10 +5694,10 @@
       "triangles": 1694,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 35964,
+      "bytes": 35972,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5264,7 +5706,7 @@
       "status": "rejected"
     },
     {
-      "file": "shared/chr/chr_body_plus-set.glb",
+      "file": "shared/person/person_body_plus-set.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5278,10 +5720,10 @@
       "triangles": 1294,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 38920,
+      "bytes": 38928,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5290,7 +5732,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_body_plus-short-busty.glb",
+      "file": "shared/person/person_body_plus-short-busty.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5304,10 +5746,10 @@
       "triangles": 1502,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 34028,
+      "bytes": 34036,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5316,7 +5758,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_body_plus.glb",
+      "file": "shared/person/person_body_plus.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5330,10 +5772,10 @@
       "triangles": 1906,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 41792,
+      "bytes": 41800,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5342,7 +5784,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_body_regular.glb",
+      "file": "shared/person/person_body_regular.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5356,10 +5798,10 @@
       "triangles": 1478,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 41648,
+      "bytes": 41656,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5368,7 +5810,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_body_slim-short.glb",
+      "file": "shared/person/person_body_slim-short.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5382,10 +5824,10 @@
       "triangles": 1442,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 38812,
+      "bytes": 38820,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5394,7 +5836,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_body_tall-eight.glb",
+      "file": "shared/person/person_body_tall-eight.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5408,10 +5850,10 @@
       "triangles": 1502,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 33768,
+      "bytes": 33776,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5420,7 +5862,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_chief.glb",
+      "file": "shared/person/person_chief.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5434,10 +5876,10 @@
       "triangles": 1358,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 30340,
+      "bytes": 30344,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5446,7 +5888,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_control.glb",
+      "file": "shared/person/person_control.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5460,10 +5902,10 @@
       "triangles": 1490,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 33540,
+      "bytes": 33556,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5472,7 +5914,7 @@
       "status": "rejected"
     },
     {
-      "file": "shared/chr/chr_corper.glb",
+      "file": "shared/person/person_corper.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5486,10 +5928,10 @@
       "triangles": 1044,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 23168,
+      "bytes": 23160,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5498,7 +5940,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_dayo.glb",
+      "file": "shared/person/person_dayo.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5512,10 +5954,10 @@
       "triangles": 1178,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 31976,
+      "bytes": 32004,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5524,7 +5966,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_emeka.glb",
+      "file": "shared/person/person_emeka.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5541,7 +5983,7 @@
       "bytes": 37676,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5550,7 +5992,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_femi.glb",
+      "file": "shared/person/person_femi.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5564,10 +6006,10 @@
       "triangles": 1490,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 30816,
+      "bytes": 30840,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5576,7 +6018,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_hawker_a.glb",
+      "file": "shared/person/person_hawker_a.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5593,7 +6035,7 @@
       "bytes": 33852,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5602,7 +6044,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_hawker_b.glb",
+      "file": "shared/person/person_hawker_b.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5616,10 +6058,10 @@
       "triangles": 1634,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 34632,
+      "bytes": 34636,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5628,7 +6070,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_hawker_c.glb",
+      "file": "shared/person/person_hawker_c.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5645,7 +6087,7 @@
       "bytes": 45916,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5654,7 +6096,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_iya.glb",
+      "file": "shared/person/person_iya.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5668,10 +6110,10 @@
       "triangles": 1350,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 42084,
+      "bytes": 42088,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5680,7 +6122,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_kemi.glb",
+      "file": "shared/person/person_kemi.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5694,10 +6136,10 @@
       "triangles": 1836,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 32900,
+      "bytes": 32908,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5706,7 +6148,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_kunle.glb",
+      "file": "shared/person/person_kunle.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5720,10 +6162,10 @@
       "triangles": 1178,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 26864,
+      "bytes": 26868,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5732,7 +6174,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_musa.glb",
+      "file": "shared/person/person_musa.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5746,10 +6188,10 @@
       "triangles": 1430,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 30976,
+      "bytes": 30984,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5758,7 +6200,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_ngozi.glb",
+      "file": "shared/person/person_ngozi.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5772,10 +6214,10 @@
       "triangles": 1680,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 28116,
+      "bytes": 28120,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5784,7 +6226,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_nonso.glb",
+      "file": "shared/person/person_nonso.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5798,10 +6240,10 @@
       "triangles": 1194,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 37464,
+      "bytes": 37480,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5810,7 +6252,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_obi.glb",
+      "file": "shared/person/person_obi.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5824,10 +6266,10 @@
       "triangles": 1410,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 30788,
+      "bytes": 30780,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5836,7 +6278,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_rider.glb",
+      "file": "shared/person/person_rider.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5850,10 +6292,10 @@
       "triangles": 1414,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 28888,
+      "bytes": 28880,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5862,7 +6304,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_sade.glb",
+      "file": "shared/person/person_sade.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5876,10 +6318,10 @@
       "triangles": 1246,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 34692,
+      "bytes": 34696,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5888,7 +6330,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_segun.glb",
+      "file": "shared/person/person_segun.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5902,10 +6344,10 @@
       "triangles": 1982,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 37900,
+      "bytes": 37904,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5914,7 +6356,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_tobi.glb",
+      "file": "shared/person/person_tobi.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5928,10 +6370,10 @@
       "triangles": 2394,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 35368,
+      "bytes": 35372,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5940,7 +6382,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_tolani.glb",
+      "file": "shared/person/person_tolani.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5954,10 +6396,10 @@
       "triangles": 1538,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 34640,
+      "bytes": 34652,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5966,7 +6408,7 @@
       "status": "accepted"
     },
     {
-      "file": "shared/chr/chr_tunde.glb",
+      "file": "shared/person/person_tunde.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -5980,10 +6422,10 @@
       "triangles": 1060,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 23628,
+      "bytes": 23660,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -5992,7 +6434,7 @@
       "status": "rejected"
     },
     {
-      "file": "shared/chr/chr_zainab.glb",
+      "file": "shared/person/person_zainab.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code",
@@ -6006,10 +6448,10 @@
       "triangles": 1384,
       "drawCalls": 2,
       "materials": 2,
-      "bytes": 33272,
+      "bytes": 33292,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-12"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -7646,657 +8088,7 @@
       "status": "draft"
     },
     {
-      "file": "shared/veh/veh_car.glb",
-      "place": "shared",
-      "source": "code",
-      "author": "The makers, written as code from the kit for the homes",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-12",
-      "modified": false,
-      "triangles": 776,
-      "drawCalls": 2,
-      "materials": 1,
-      "bytes": 6736,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-12"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "shared/veh/veh_danfo.glb",
-      "place": "shared",
-      "source": "code",
-      "author": "The makers, written as code",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-08",
-      "modified": false,
-      "triangles": 816,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 5920,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-08"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "shared/veh/veh_italy-bus.glb",
-      "place": "shared",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 1666,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 11304,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "shared/veh/veh_keke.glb",
-      "place": "shared",
-      "source": "code",
-      "author": "The makers, written as code",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-08",
-      "modified": false,
-      "triangles": 668,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 5352,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-08"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "shared/veh/veh_london-bus.glb",
-      "place": "shared",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 1372,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 9556,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "shared/veh/veh_okada.glb",
-      "place": "shared",
-      "source": "code",
-      "author": "The makers, written as code",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-08",
-      "modified": false,
-      "triangles": 556,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 4760,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-08"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "shared/veh/veh_train-carriage.glb",
-      "place": "shared",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 2176,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 13732,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "shared/veh/veh_van.glb",
-      "place": "shared",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 912,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 6648,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/calgary-north-east/bld_strip-mall.glb",
-      "place": "place.calgary-north-east",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 310,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 5604,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/calgary-north-east/prop_bare-tree.glb",
-      "place": "place.calgary-north-east",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 248,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 3256,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/ctrain-station-ca/prop_platform-shelter.glb",
-      "place": "place.ctrain-station-ca",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 244,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 3276,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/library-ca/bld_room_library.glb",
-      "place": "place.library-ca",
-      "source": "code",
-      "author": "The makers, written as code from the kit for the rooms",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 182,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 3184,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/library-ca/prop_bookshelf.glb",
-      "place": "place.library-ca",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 732,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 6104,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/library-ca/prop_course-desk.glb",
-      "place": "place.library-ca",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 322,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 3684,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/library-ca/prop_library-table.glb",
-      "place": "place.library-ca",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 600,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 4632,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/metro-station-uae/bld_metro-station.glb",
-      "place": "place.metro-station-uae",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 210,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 3248,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/metro-station-uae/bld_metro-viaduct.glb",
-      "place": "place.metro-station-uae",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 174,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 3188,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/metro-station-uae/prop_escalator.glb",
-      "place": "place.metro-station-uae",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 264,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 3488,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/metro-station-uae/prop_nol-machine.glb",
-      "place": "place.metro-station-uae",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 78,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 2468,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/site-uae/bld_site-frame.glb",
-      "place": "place.site-uae",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 474,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 4132,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/site-uae/prop_cleaner-trolley.glb",
-      "place": "place.site-uae",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 276,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 3332,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/site-uae/prop_crane-foot.glb",
-      "place": "place.site-uae",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 696,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 4992,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/site-uae/prop_guard-post.glb",
-      "place": "place.site-uae",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 176,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 3068,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/site-uae/prop_hoarding.glb",
-      "place": "place.site-uae",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 198,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 3108,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "places/site-uae/prop_water-cooler.glb",
-      "place": "place.site-uae",
-      "source": "code",
-      "author": "The makers, written as code from the kit",
-      "licence": "CC BY-SA 4.0",
-      "attribution": null,
-      "generated": false,
-      "tool": null,
-      "approvedBy": null,
-      "date": "2026-10-16",
-      "modified": false,
-      "triangles": 176,
-      "drawCalls": 1,
-      "materials": 1,
-      "bytes": 2848,
-      "paletteCheck": {
-        "passed": true,
-        "date": "2026-10-16"
-      },
-      "reference": [],
-      "outline": null,
-      "review": null,
-      "nameCheck": null,
-      "status": "draft"
-    },
-    {
-      "file": "shared/veh/veh_calgary-bus.glb",
+      "file": "shared/vehicle/vehicle_calgary-bus.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -8310,10 +8102,10 @@
       "triangles": 1580,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 10216,
+      "bytes": 10224,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -8322,7 +8114,33 @@
       "status": "draft"
     },
     {
-      "file": "shared/veh/veh_ctrain-car.glb",
+      "file": "shared/vehicle/vehicle_car.glb",
+      "place": "shared",
+      "source": "code",
+      "author": "The makers, written as code from the kit for the homes",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-12",
+      "modified": false,
+      "triangles": 776,
+      "drawCalls": 2,
+      "materials": 1,
+      "bytes": 6744,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "shared/vehicle/vehicle_ctrain-car.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -8336,10 +8154,10 @@
       "triangles": 2432,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 13388,
+      "bytes": 13396,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -8348,7 +8166,33 @@
       "status": "draft"
     },
     {
-      "file": "shared/veh/veh_dubai-metro.glb",
+      "file": "shared/vehicle/vehicle_danfo.glb",
+      "place": "shared",
+      "source": "code",
+      "author": "The makers, written as code",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-08",
+      "modified": false,
+      "triangles": 816,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 5928,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "shared/vehicle/vehicle_dubai-metro.glb",
       "place": "shared",
       "source": "code",
       "author": "The makers, written as code from the kit",
@@ -8362,10 +8206,166 @@
       "triangles": 1576,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 9876,
+      "bytes": 9884,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "shared/vehicle/vehicle_italy-bus.glb",
+      "place": "shared",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 1666,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 11312,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "shared/vehicle/vehicle_keke.glb",
+      "place": "shared",
+      "source": "code",
+      "author": "The makers, written as code",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-08",
+      "modified": false,
+      "triangles": 668,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 5360,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "shared/vehicle/vehicle_london-bus.glb",
+      "place": "shared",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 1372,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 9564,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "shared/vehicle/vehicle_okada.glb",
+      "place": "shared",
+      "source": "code",
+      "author": "The makers, written as code",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-08",
+      "modified": false,
+      "triangles": 556,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 4768,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "shared/vehicle/vehicle_train-carriage.glb",
+      "place": "shared",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 2176,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 13740,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
+      },
+      "reference": [],
+      "outline": null,
+      "review": null,
+      "nameCheck": null,
+      "status": "draft"
+    },
+    {
+      "file": "shared/vehicle/vehicle_van.glb",
+      "place": "shared",
+      "source": "code",
+      "author": "The makers, written as code from the kit",
+      "licence": "CC BY-SA 4.0",
+      "attribution": null,
+      "generated": false,
+      "tool": null,
+      "approvedBy": null,
+      "date": "2026-10-16",
+      "modified": false,
+      "triangles": 912,
+      "drawCalls": 1,
+      "materials": 1,
+      "bytes": 6656,
+      "paletteCheck": {
+        "passed": true,
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,

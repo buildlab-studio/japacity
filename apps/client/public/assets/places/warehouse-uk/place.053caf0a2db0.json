@@ -1,0 +1,361 @@
+{
+  "place": "place.warehouse-uk",
+  "scope": "interior",
+  "hub": false,
+  "note": "The warehouse on the Old Kent Road (design page 10 section 4), a room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length), six metres high. Counts are the most in view from the whole view; three low and six high.",
+  "instances": [
+    {
+      "file": "places/warehouse-uk/building_room_warehouse.glb",
+      "count": 1
+    },
+    {
+      "file": "places/warehouse-uk/prop_racking.glb",
+      "count": 3
+    },
+    {
+      "file": "places/warehouse-uk/prop_cage-trolley.glb",
+      "count": 2
+    },
+    {
+      "file": "places/warehouse-uk/prop_clock-in.glb",
+      "count": 1
+    },
+    {
+      "file": "places/warehouse-uk/prop_smoking-shelter.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_rota-board.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_room-door.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 3,
+    "high": 6,
+    "sample": [
+      "shared/person/person_tunde.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_zainab.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 2
+  },
+  "stage": {
+    "note": "The warehouse (world:things-are-tappable-models, world:ride-abroad-and-workplace): the clock-in by the door, where the warehouse job is got and held; the rota board beside it for overtime; three runs of racking and two cages of boxes for the next van; the smoking shelter by the door, where a colleague sits and says a line; the door.",
+    "ground": {
+      "size": [
+        16.6,
+        9.6
+      ],
+      "colour": "concreteWorn"
+    },
+    "roads": [],
+    "light": {
+      "sun": [
+        6,
+        16,
+        12
+      ],
+      "sky": "sky",
+      "ground": "concrete",
+      "lamps": [
+        {
+          "at": [
+            -3.5,
+            5.4,
+            0
+          ],
+          "size": 3.0,
+          "bulb": true
+        },
+        {
+          "at": [
+            3.0,
+            5.4,
+            0
+          ],
+          "size": 3.0,
+          "bulb": true
+        }
+      ]
+    },
+    "start": [
+      6.94,
+      2.8,
+      -1.5708
+    ],
+    "walkable": [
+      [
+        [
+          -7.7,
+          -4.2
+        ],
+        [
+          7.7,
+          -4.2
+        ],
+        [
+          7.7,
+          4.2
+        ],
+        [
+          -7.7,
+          4.2
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/warehouse-uk/building_room_warehouse.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/warehouse-uk/prop_racking.glb",
+        "at": [
+          [
+            -3.4,
+            -3.85,
+            0
+          ],
+          [
+            -3.4,
+            -1.2,
+            0
+          ],
+          [
+            -3.4,
+            1.5,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/warehouse-uk/prop_cage-trolley.glb",
+        "at": [
+          [
+            1.0,
+            -0.4,
+            0.3
+          ],
+          [
+            1.9,
+            0.2,
+            -0.2
+          ]
+        ]
+      },
+      {
+        "file": "places/warehouse-uk/prop_clock-in.glb",
+        "at": [
+          [
+            4.0,
+            -4.3,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/warehouse-uk/prop_smoking-shelter.glb",
+        "at": [
+          [
+            6.9,
+            -3.0,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_rota-board.glb",
+        "at": [
+          [
+            1.8,
+            -4.1,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_room-door.glb",
+        "at": [
+          [
+            7.94,
+            2.8,
+            -1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        7.3,
+        -3.4,
+        -1.5708
+      ],
+      [
+        -2.6,
+        -2.5,
+        3.1416
+      ],
+      [
+        4.0,
+        -3.2,
+        3.1416
+      ],
+      [
+        0.3,
+        0.6,
+        1.2
+      ],
+      [
+        -1.8,
+        0.15,
+        1.5708
+      ],
+      [
+        2.8,
+        2.4,
+        -1.0
+      ],
+      [
+        5.4,
+        1.8,
+        -1.5708
+      ]
+    ],
+    "acts": [
+      {
+        "spot": 0,
+        "pose": "sit",
+        "staff": true
+      }
+    ],
+    "motion": [],
+    "shot": {
+      "centre": [
+        0.0,
+        0.6,
+        0.0
+      ],
+      "far": 22,
+      "near": 9,
+      "farPitch": 72,
+      "nearPitch": 36,
+      "turn": 30,
+      "yaw": 90,
+      "width": 11.6
+    },
+    "things": [
+      {
+        "id": "clock-in",
+        "file": "places/warehouse-uk/prop_clock-in.glb",
+        "copy": 0,
+        "label": "city.thing.clock-in",
+        "at": [
+          4.0,
+          -3.4
+        ],
+        "acts": [
+          {
+            "id": "warehouse-work",
+            "label": "city.act.job-warehouse",
+            "kind": "sheet",
+            "stages": "activity.job-uk-warehouse"
+          }
+        ]
+      },
+      {
+        "id": "rota",
+        "file": "shared/prop/prop_rota-board.glb",
+        "copy": 0,
+        "label": "city.thing.rota",
+        "at": [
+          1.8,
+          -3.3
+        ],
+        "acts": [
+          {
+            "id": "overtime",
+            "label": "city.act.overtime",
+            "kind": "sheet",
+            "stages": "activity.overtime"
+          },
+          {
+            "id": "read",
+            "label": "city.act.read-rota",
+            "kind": "plain",
+            "unless": [
+              "activity.overtime"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "colleague",
+        "file": "places/warehouse-uk/prop_smoking-shelter.glb",
+        "copy": 0,
+        "label": "city.thing.colleague",
+        "at": [
+          5.9,
+          -3.0
+        ],
+        "acts": [
+          {
+            "id": "talk",
+            "label": "city.act.talk-to",
+            "kind": "plain",
+            "tells": "city.line.colleague.warehouse-uk.1"
+          },
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              7.3,
+              -2.6,
+              -1.5708
+            ]
+          }
+        ]
+      },
+      {
+        "id": "door",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 0,
+        "label": "city.thing.door",
+        "at": [
+          7.2,
+          2.8
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.inside.out",
+            "kind": "out"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -76,7 +76,7 @@ describe("the sample's size and band", () => {
 
 describe("players in the sample", () => {
   const size = crowdSize(hub, "high", city);
-  const others = Array.from({ length: size + 2 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+  const others = Array.from({ length: size + 2 }, (_, index) => ({ look: "person_tunde", name: `player${String(index)}` }));
 
   test("[city:players-fill-the-crowd] [city:residents-fill-to-target] given more players present than the sample has slots and no part to keep, when the sample is drawn, then every slot is a player and its size stays the place's", () => {
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, others);
@@ -121,8 +121,8 @@ describe("players in the sample", () => {
 
 describe("players seen today", () => {
   const size = crowdSize(hub, "high", city);
-  const live = [{ look: "chr_tunde", name: "here1" }];
-  const today = Array.from({ length: size + 1 }, (_, index) => ({ look: "chr_tunde", name: `today${String(index)}` }));
+  const live = [{ look: "person_tunde", name: "here1" }];
+  const today = Array.from({ length: size + 1 }, (_, index) => ({ look: "person_tunde", name: `today${String(index)}` }));
 
   test("[city:players-shown-present-not-tracked] given a player here now and players seen today, when the sample is drawn, then those seen today stand in the slots after the live one, tagged with the server's names", () => {
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, live, today);
@@ -133,7 +133,7 @@ describe("players seen today", () => {
   });
 
   test("[city:players-shown-present-not-tracked] [city:players-fill-the-crowd] given live players filling every slot, when the sample is drawn, then no one seen today is shown", () => {
-    const full = Array.from({ length: size }, (_, index) => ({ look: "chr_tunde", name: `here${String(index)}` }));
+    const full = Array.from({ length: size }, (_, index) => ({ look: "person_tunde", name: `here${String(index)}` }));
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, full, today);
 
     expect(sample.people.filter((shown) => shown.tag?.startsWith("today") === true)).toEqual([]);
@@ -203,7 +203,7 @@ describe("the same people on the same day", () => {
 describe("the roster", () => {
   test("[city:dress-mix-by-place] given every person the crowd may show, when the roster is read against the people's data, then each is shipped and a man or a woman as built", async () => {
     const { ALL_PEOPLE } = await import("@japacity/models/people/people.data");
-    const wrong = ROSTER.filter((person) => !ALL_PEOPLE.some((built) => `shared/chr/${built.name}.glb` === person.file && built.body.startsWith(person.sex)));
+    const wrong = ROSTER.filter((person) => !ALL_PEOPLE.some((built) => `shared/person/${built.name}.glb` === person.file && built.body.startsWith(person.sex)));
     expect(wrong.map((person) => person.file)).toEqual([]);
     expect(pool.length).toBe(hubFile.people.sample.length);
   });
@@ -231,7 +231,7 @@ describe("the target headcount", () => {
       const figure = Math.min(stage.people.length, city.crowdHigh);
       const place = { ...hub, id: file.place as PlaceEntry["id"], crowd: { low: figure, high: figure, target: figure } };
       const local = poolOf(file.people.sample);
-      const many = Array.from({ length: figure + 3 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+      const many = Array.from({ length: figure + 3 }, (_, index) => ({ look: "person_tunde", name: `player${String(index)}` }));
       const spots = partSpots(stage);
       for (const date of [THURSDAY, FRIDAY, SATURDAY]) {
         const alone = sampleCrowd(place, local, date, "high", city, [], [], [], kept).people;
@@ -265,7 +265,7 @@ describe("the target headcount", () => {
     const candidates = (stage.acts ?? []).filter((act) => act.pose === "sit" && act.staff !== true).map((act) => act.spot);
     expect(invigilator).toHaveLength(1);
     expect(candidates).toHaveLength(5);
-    const many = Array.from({ length: 8 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+    const many = Array.from({ length: 8 }, (_, index) => ({ look: "person_tunde", name: `player${String(index)}` }));
     for (const date of [THURSDAY, FRIDAY, SATURDAY]) {
       const people = sampleCrowd(entry, poolOf(testCentreFile.people.sample), date, "high", city, many, [], [], kept).people;
       const at = new Map(placeCrowd(people, stage.people, stage.prefer, stage.acts).map(({ index, shown }) => [index, shown.kind]));
@@ -276,7 +276,7 @@ describe("the target headcount", () => {
   });
 
   test("[city:residents-fill-to-target] given every shipped place in each mode, alone and with more players present than its slots, when its crowd stands, then every staff seat, every spot kept for a man or a woman and every role's spot is drawn with a resident, and never more spots than the mode's count", () => {
-    const many = Array.from({ length: city.crowdHigh }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+    const many = Array.from({ length: city.crowdHigh }, (_, index) => ({ look: "person_tunde", name: `player${String(index)}` }));
     let drawnParts = 0;
     for (const { file, stage } of shippedStages()) {
       const entry = content.place[file.place as PlaceEntry["id"]];
@@ -333,7 +333,7 @@ describe("the target headcount", () => {
       expect(staff.map((spot) => near(spot, glass) || near(spot, colleague))).toEqual([true, true]);
       const desks = (stage.acts ?? []).filter((act) => act.pose === "sit" && act.staff !== true).map((act) => act.spot);
       expect(desks).toHaveLength(3);
-      const many = Array.from({ length: 8 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+      const many = Array.from({ length: 8 }, (_, index) => ({ look: "person_tunde", name: `player${String(index)}` }));
       const people = sampleCrowd(entry, poolOf(file.people.sample), THURSDAY, "high", city, many, [], [], { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts }).people;
       const at = new Map(placeCrowd(people, stage.people, stage.prefer, stage.acts).map(({ index, shown }) => [index, shown.kind]));
       expect(staff.map((spot) => at.get(spot))).toEqual(["resident", "resident"]);
@@ -360,7 +360,7 @@ describe("the target headcount", () => {
   });
 
   test("[city:crowd-sample-capped] given players taking slots of the sample, when the band is read, then it follows the sample's whole count against the target, players included", () => {
-    const others = Array.from({ length: 4 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+    const others = Array.from({ length: 4 }, (_, index) => ({ look: "person_tunde", name: `player${String(index)}` }));
     expect(sampleCrowd(hub, pool, THURSDAY, "high", city, others).band).toBe(bandOf(crowdSize(hub, "high", city), hub.crowd.target));
     expect(sampleCrowd(hub, pool, THURSDAY, "low", city, others).band).toBe(bandOf(crowdSize(hub, "low", city), hub.crowd.target));
   });
@@ -400,7 +400,7 @@ describe("one sample, many outfits", () => {
   test("[city:dress-mix-by-place] given every person the crowd may show, when their clothes are read from the people's data, then no two wear the same outfit", async () => {
     const { ALL_PEOPLE } = await import("@japacity/models/people/people.data");
     const outfit = (file: string): string => {
-      const built = ALL_PEOPLE.find((spec) => `shared/chr/${spec.name}.glb` === file);
+      const built = ALL_PEOPLE.find((spec) => `shared/person/${spec.name}.glb` === file);
       return JSON.stringify([built?.top, built?.bottom, built?.over, built?.patterns, built?.head, built?.headFab]);
     };
     const outfits = ROSTER.map((person) => outfit(person.file));
@@ -417,71 +417,71 @@ describe("one sample, many outfits", () => {
 describe("where the crowd stands", () => {
   const shown = (files: readonly string[]): Shown[] =>
     files.map((file, slot) => {
-      const person = ROSTER.find((row) => row.file === `shared/chr/${file}.glb`) as Person;
+      const person = ROSTER.find((row) => row.file === `shared/person/${file}.glb`) as Person;
       return { slot, person, kind: "resident", tag: null };
     });
 
   test("[city:crowd-sample-capped] given spots kept for a hawker and a trader, when the sample stands, then the hawker and the trader take them and everyone else fills the first spots in slot order", () => {
-    const people = shown(["chr_tunde", "chr_hawker_a", "chr_ada", "chr_iya"]);
+    const people = shown(["person_tunde", "person_hawker_a", "person_ada", "person_iya"]);
     const spots = ["a", "b", "c", "d", "e"];
     const placed = placeCrowd(people, spots, { hawker: [3], trader: [0] });
     expect(placed.map(({ shown: one, spot }) => [spot, one.person.file])).toEqual([
-      ["a", "shared/chr/chr_iya.glb"],
-      ["b", "shared/chr/chr_tunde.glb"],
-      ["c", "shared/chr/chr_ada.glb"],
-      ["d", "shared/chr/chr_hawker_a.glb"],
+      ["a", "shared/person/person_iya.glb"],
+      ["b", "shared/person/person_tunde.glb"],
+      ["c", "shared/person/person_ada.glb"],
+      ["d", "shared/person/person_hawker_a.glb"],
     ]);
   });
 
   test("[city:crowd-sample-capped] [city:residents-fill-to-target] given a kept spot past the sample's size with no one of its role, when the sample stands, then it is still drawn ahead of a plain spot, and no more spots than the sample are used", () => {
-    const people = shown(["chr_tunde", "chr_ada"]);
+    const people = shown(["person_tunde", "person_ada"]);
     expect(placeCrowd(people, ["a", "b", "c"], { hawker: [0], trader: [2] }).map(({ spot }) => spot)).toEqual(["a", "c"]);
     expect(placeCrowd(people, ["a"], {}).map(({ shown: one }) => one.slot)).toEqual([0]);
   });
 
   test("[city:crowd-sample-capped] given a spot an act keeps for a man, when the sample stands, then the first man in a plain stand takes it and everyone else fills the rest in slot order", () => {
-    const people = shown(["chr_ada", "chr_hawker_b", "chr_tunde", "chr_ngozi"]);
+    const people = shown(["person_ada", "person_hawker_b", "person_tunde", "person_ngozi"]);
     const placed = placeCrowd(people, ["a", "b", "c", "d"], {}, [{ spot: 0, sex: "m", pose: "cheer" }]);
     expect(placed.map(({ shown: one, spot, index }) => [index, spot, one.person.file])).toEqual([
-      [0, "a", "shared/chr/chr_tunde.glb"],
-      [1, "b", "shared/chr/chr_ada.glb"],
-      [2, "c", "shared/chr/chr_hawker_b.glb"],
-      [3, "d", "shared/chr/chr_ngozi.glb"],
+      [0, "a", "shared/person/person_tunde.glb"],
+      [1, "b", "shared/person/person_ada.glb"],
+      [2, "c", "shared/person/person_hawker_b.glb"],
+      [3, "d", "shared/person/person_ngozi.glb"],
     ]);
   });
 
   test("[city:crowd-sample-capped] [city:residents-fill-to-target] given a spot kept for a role and an act on it, when the sample stands, then the role keeps it; an act with no one of its sex is filled by whoever is left, and an act past the sample's size is still drawn", () => {
-    const people = shown(["chr_ada", "chr_rider", "chr_ngozi"]);
+    const people = shown(["person_ada", "person_rider", "person_ngozi"]);
     const kept = placeCrowd(people, ["a", "b", "c"], { rider: [2] }, [{ spot: 2, sex: "m", pose: "ride" }]);
-    expect(kept.find(({ index }) => index === 2)?.shown.person.file).toBe("shared/chr/chr_rider.glb");
-    const women = shown(["chr_ada", "chr_ngozi"]);
+    expect(kept.find(({ index }) => index === 2)?.shown.person.file).toBe("shared/person/person_rider.glb");
+    const women = shown(["person_ada", "person_ngozi"]);
     expect(placeCrowd(women, ["a", "b"], {}, [{ spot: 1, sex: "m" }]).map(({ shown: one }) => one.slot)).toEqual([0, 1]);
     expect(placeCrowd(women, ["a", "b", "c"], {}, [{ spot: 2, sex: "f" }]).map(({ index }) => index)).toEqual([0, 2]);
   });
 
   test("[city:crowd-sample-capped] given another player in the sample, when an act keeps a spot for their sex, then a resident takes it and the player is never given a part", () => {
-    const people = shown(["chr_tunde", "chr_kunle"]).map((one, slot): Shown => (slot === 0 ? { ...one, kind: "player", tag: "Femi" } : one));
+    const people = shown(["person_tunde", "person_kunle"]).map((one, slot): Shown => (slot === 0 ? { ...one, kind: "player", tag: "Femi" } : one));
     const placed = placeCrowd(people, ["a", "b"], {}, [{ spot: 0, sex: "m", pose: "cheer" }]);
     expect(placed[0]?.shown.kind).toBe("resident");
     expect(placed[1]?.shown.kind).toBe("player");
   });
 
   test("[city:residents-fill-to-target] given another player whose look is a hawker, when a spot is kept for a hawker, then a resident hawker takes it and the player never does", () => {
-    const people = shown(["chr_hawker_a", "chr_tunde", "chr_hawker_b"]).map((one, slot): Shown => (slot === 0 ? { ...one, kind: "player", tag: "Femi" } : one));
+    const people = shown(["person_hawker_a", "person_tunde", "person_hawker_b"]).map((one, slot): Shown => (slot === 0 ? { ...one, kind: "player", tag: "Femi" } : one));
     const placed = placeCrowd(people, ["a", "b", "c"], { hawker: [1] });
-    expect(placed.find(({ index }) => index === 1)?.shown.person.file).toBe("shared/chr/chr_hawker_b.glb");
+    expect(placed.find(({ index }) => index === 1)?.shown.person.file).toBe("shared/person/person_hawker_b.glb");
     expect(placed.find(({ index }) => index === 1)?.shown.kind).toBe("resident");
   });
 
   test("[city:places-meet-party-room-bar] given an act's pose, when a person idles at its spot, then one in a plain stand takes it and a hawker keeps her tray, a trader his sale", () => {
-    const of = (file: string): Person => ROSTER.find((row) => row.file === `shared/chr/${file}.glb`) as Person;
-    expect(actPose(of("chr_tunde"), { pose: "cheer" })).toBe("cheer");
-    expect(actPose(of("chr_zainab"), { pose: "cheer" })).toBe("cheer");
-    expect(actPose(of("chr_kemi"), { pose: "ride" })).toBe("ride");
-    expect(actPose(of("chr_hawker_a"), { pose: "cheer" })).toBe("tray");
-    expect(actPose(of("chr_iya"), { pose: "cheer" })).toBe("sell");
-    expect(actPose(of("chr_tunde"), {})).toBe("stand");
-    expect(actPose(of("chr_tobi"), undefined)).toBe("hip");
+    const of = (file: string): Person => ROSTER.find((row) => row.file === `shared/person/${file}.glb`) as Person;
+    expect(actPose(of("person_tunde"), { pose: "cheer" })).toBe("cheer");
+    expect(actPose(of("person_zainab"), { pose: "cheer" })).toBe("cheer");
+    expect(actPose(of("person_kemi"), { pose: "ride" })).toBe("ride");
+    expect(actPose(of("person_hawker_a"), { pose: "cheer" })).toBe("tray");
+    expect(actPose(of("person_iya"), { pose: "cheer" })).toBe("sell");
+    expect(actPose(of("person_tunde"), {})).toBe("stand");
+    expect(actPose(of("person_tobi"), undefined)).toBe("hip");
   });
 
   test("[city:places-meet-party-room-bar] given someone crossing, when they walk, then a hawker walks steadying her tray and everyone else swings both arms", () => {
