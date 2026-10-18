@@ -8,11 +8,12 @@ import { lifeSaves } from "@japacity/sim/testing";
 import { devices, expect, test, type Page } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
+import { SOFTWARE_WEBGL } from "./support/browser";
 import { closeGranted, doAct, LIVED, passCards, placeNow, placeReady, rideTo, seedSave } from "./support/live";
 
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 const { viewport, userAgent, deviceScaleFactor, isMobile, hasTouch } = devices["Pixel 7"];
-test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch, launchOptions: SOFTWARE_WEBGL });
 
 /** Ada's recorded life up to the month before she flies. */
 function adaBeforeFlight(): string {

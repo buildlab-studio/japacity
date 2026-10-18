@@ -5,10 +5,11 @@
 import { lifeSaves } from "@japacity/sim/testing";
 import { expect, type Page, test } from "@playwright/test";
 
+import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";
 import { doAct, LIVED, passCards, placeReady, seedSave } from "./support/live";
 
-test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
 /** Ada's second life a few months into London on a sponsored job (she lands at command 420), as the catalog opens it. */
 const ADA_IN_LONDON = 440;

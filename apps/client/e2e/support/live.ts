@@ -12,7 +12,7 @@ import { text } from "../../../../packages/content/src/index";
 export const LIVED = "?sleep=2&morning=now";
 
 /** The probe the scene sets on the window; only its place and readiness are read here. */
-type CityProbe = { ready?: boolean; place?: string } | undefined;
+export type CityProbe = { ready?: boolean; place?: string } | undefined;
 
 /** Waits for the place to be drawn, so its things can be tapped. */
 export async function placeReady(page: Page, timeout = 90_000): Promise<void> {

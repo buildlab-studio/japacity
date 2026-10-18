@@ -7,12 +7,13 @@ import { expect, test, type Page } from "@playwright/test";
 // against a server, every /api route faked here in the shapes
 // apps/client/src/features/boards/boards.ts copies from the server.
 import { content } from "../../../packages/content/src/index";
+import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";
 import { openApp, passCards, passHomeTeach, placeReady } from "./support/live";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
-test.use({ baseURL: ONLINE, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ baseURL: ONLINE, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
 const PREVIEW = process.env.PREVIEW_DIR;
 const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };

@@ -1,7 +1,6 @@
 import type { Command, Id, PlayerView, ReportLine } from "@japacity/sim";
 import { worldClockAt } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
-import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -14,19 +13,12 @@ import type { PresetRequest } from "../src/shared/net/contract";
 import { playPresetOn } from "../src/shared/net/preset.testing";
 import { passOpeningWords, startArchetype } from "./support/door";
 import { passCards } from "./support/live";
+import { shootPhone } from "./support/preview";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
 
-const PREVIEW = process.env.PREVIEW_DIR;
-
 /** The pictures are phone pictures at 390 by 844. */
-async function shoot(page: Page, name: string, project: string): Promise<void> {
-  if (PREVIEW === undefined || PREVIEW === "" || !project.startsWith("Pixel")) return;
-  await page.waitForTimeout(300);
-  await page.screenshot({ path: join(PREVIEW, `${name}.png`), fullPage: false });
-}
-
 const GUEST = { id: "account-guest", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1", sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0 };
 const STANDING = { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } };
 
@@ -99,7 +91,7 @@ test("[R-ACCOUNT-030] a guest ends the life from Settings by a hold, the door op
   await page.locator('[data-app="settings"]').click();
   const entry = page.locator("[data-life-end]");
   await entry.scrollIntoViewIfNeeded();
-  await shoot(page, "newlife-01-settings", info.project.name);
+  await shootPhone(page, "newlife-01-settings", info.project.name);
   await entry.click();
 
   const sheet = page.getByRole("dialog", { name: "Start a new life" });
@@ -107,7 +99,7 @@ test("[R-ACCOUNT-030] a guest ends the life from Settings by a hold, the door op
   await expect(sheet.locator("[data-life-end-who]")).toContainText("yrs");
   await expect(sheet.getByText("This life ends here, and it cannot be brought back.")).toBeVisible();
   await expect(sheet.getByRole("textbox")).toHaveCount(0);
-  await shoot(page, "newlife-02-sheet", info.project.name);
+  await shootPhone(page, "newlife-02-sheet", info.project.name);
 
   // A tap is not a hold.
   const ending = sheet.getByRole("button", { name: "Hold to end this life" });
@@ -120,7 +112,7 @@ test("[R-ACCOUNT-030] a guest ends the life from Settings by a hold, the door op
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
   await page.waitForTimeout(700);
-  await shoot(page, "newlife-03-holding", info.project.name);
+  await shootPhone(page, "newlife-03-holding", info.project.name);
   await page.waitForTimeout(1_100);
   await page.mouse.up();
   await expect.poll(() => faked.sent.includes("POST /api/character/end")).toBe(true);
@@ -128,12 +120,12 @@ test("[R-ACCOUNT-030] a guest ends the life from Settings by a hold, the door op
   // The front door, filled in as onboarding is.
   await expect(page.getByRole("heading", { name: "Who are you?" })).toBeVisible({ timeout: 30_000 });
   await expect(page.locator("#door-name")).not.toHaveValue("");
-  await shoot(page, "newlife-04-door", info.project.name);
+  await shootPhone(page, "newlife-04-door", info.project.name);
 
   await startArchetype(page, "The developer");
   await expect(page.locator('[data-thumb="phone"]')).toBeVisible({ timeout: 30_000 });
   await passOpeningWords(page, 20_000);
-  await shoot(page, "newlife-05-world", info.project.name);
+  await shootPhone(page, "newlife-05-world", info.project.name);
 
   expect(faked.scenarios).toHaveLength(1);
   expect(faked.sent).not.toContain("POST /api/guest");

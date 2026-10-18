@@ -5,6 +5,7 @@
 import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
+import { SOFTWARE_WEBGL } from "./support/browser";
 import { startReadyLife } from "./support/door";
 import { passCards } from "./support/live";
 
@@ -17,7 +18,7 @@ const GROW_MS = 250;
 /** What a motion may change (R-WORLD-023). */
 const COMPOSITOR = ["opacity", "transform"];
 
-test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ launchOptions: SOFTWARE_WEBGL });
 
 interface Box {
   x: number;

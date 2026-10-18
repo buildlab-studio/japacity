@@ -1,7 +1,6 @@
 import type { Command, Id, PlayerView, ReportLine } from "@japacity/sim";
 import { worldClockAt } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
-import { join } from "node:path";
 
 import { expect, test, type Page, type Route } from "@playwright/test";
 
@@ -13,18 +12,11 @@ import { content } from "../../../packages/content/src/index";
 import type { PresetRequest } from "../src/shared/net/contract";
 import { playPresetOn } from "../src/shared/net/preset.testing";
 import { passOpeningWords } from "./support/door";
+import { shootPhone } from "./support/preview";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
 test.setTimeout(120_000);
-
-const PREVIEW = process.env.PREVIEW_DIR;
-
-async function shoot(page: Page, name: string, project: string): Promise<void> {
-  if (PREVIEW === undefined || PREVIEW === "" || !project.startsWith("Pixel")) return;
-  await page.waitForTimeout(300);
-  await page.screenshot({ path: join(PREVIEW, `${name}.png`), fullPage: false });
-}
 
 const ACCOUNT = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "secured", username: "ada_lagos", renameFrom: 0 };
 const STANDING = { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } };
@@ -111,30 +103,30 @@ test("[R-ENGINE-015] a reload at each step of the door comes back to that step f
   await name.fill("Adaeze", { timeout: 30_000 });
   await page.reload();
   await expect(page.locator("#door-name")).toHaveValue("Adaeze", { timeout: 30_000 });
-  await shoot(page, "resume-01-you-after-reload", info.project.name);
+  await shootPhone(page, "resume-01-you-after-reload", info.project.name);
 
   await page.getByRole("button", { name: /^Next/ }).first().click();
   await page.getByRole("radio", { name: "The developer", exact: true }).click();
   await page.reload();
   await expect(page.getByRole("radio", { name: "The developer", exact: true })).toBeChecked({ timeout: 30_000 });
-  await shoot(page, "resume-02-life-after-reload", info.project.name);
+  await shootPhone(page, "resume-02-life-after-reload", info.project.name);
 
   await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
   await expect(page.locator("[data-gate='page']")).toBeVisible();
   await page.reload();
   await expect(page.locator("[data-gate='page']")).toBeVisible({ timeout: 30_000 });
   await expect(page.locator("[data-gate='page']")).toContainText("Adaeze");
-  await shoot(page, "resume-03-page-after-reload", info.project.name);
+  await shootPhone(page, "resume-03-page-after-reload", info.project.name);
   expect(faked.sent).not.toContain("POST /api/character");
 
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect(page.locator("[data-gate='years']")).toBeVisible({ timeout: 30_000 });
   // The years are in (the preset played by the server in one request, R-SERVER-046): the server holds the life, and the page is reloaded while its chips still come in.
   await expect.poll(() => faked.sent.filter((asked) => asked === "POST /api/prologue/preset").length, { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
-  await shoot(page, "resume-04-years-before-reload", info.project.name);
+  await shootPhone(page, "resume-04-years-before-reload", info.project.name);
   await page.reload();
   await expect(page.locator("[data-gate='years'], [data-gate='handover'], [data-thumb='phone']").first()).toBeVisible({ timeout: 30_000 });
-  await shoot(page, "resume-05-years-after-reload", info.project.name);
+  await shootPhone(page, "resume-05-years-after-reload", info.project.name);
   await expect(page.getByRole("heading", { name: "Who are you?" })).toHaveCount(0);
 
   const go = page.locator("[data-page-handover]").getByRole("button", { name: "Go", exact: true });
@@ -142,7 +134,7 @@ test("[R-ENGINE-015] a reload at each step of the door comes back to that step f
   if (await go.isVisible()) await go.click();
   await expect(page.locator("[data-thumb='phone']")).toBeVisible({ timeout: 30_000 });
   await passOpeningWords(page, 20_000);
-  await shoot(page, "resume-06-world", info.project.name);
+  await shootPhone(page, "resume-06-world", info.project.name);
   expect(faked.scenarios).toHaveLength(1);
   expect(faked.game()?.view().prologue).toBeNull();
   await noBrowserWords(page);
@@ -167,7 +159,7 @@ test("[R-ENGINE-015] Begin with no answer shows the card over the door, a reload
   await expect(card).toBeVisible({ timeout: 30_000 });
   await expect(card.getByRole("button", { name: "Reload" })).toHaveCount(0);
   await noBrowserWords(page);
-  await shoot(page, "resume-07-begin-no-answer", info.project.name);
+  await shootPhone(page, "resume-07-begin-no-answer", info.project.name);
 
   await page.reload();
   await expect(page.locator("[data-gate='page']")).toContainText("Tobi", { timeout: 30_000 });
@@ -194,11 +186,11 @@ test("[R-ENGINE-015] a slow start for a player whose life is kept on this device
   });
   await page.goto("/");
   await expect(page.getByText("Still opening...")).toBeVisible({ timeout: 15_000 });
-  await shoot(page, "resume-08-still-opening", info.project.name);
+  await shootPhone(page, "resume-08-still-opening", info.project.name);
   const card = page.getByRole("alertdialog", { name: "The server did not answer." });
   await expect(card).toBeVisible({ timeout: 40_000 });
   await noBrowserWords(page);
-  await shoot(page, "resume-09-view-no-answer", info.project.name);
+  await shootPhone(page, "resume-09-view-no-answer", info.project.name);
   slow = false;
   await card.getByRole("button", { name: "Retry" }).click();
   await expect(page.locator("#door-name")).toBeVisible({ timeout: 30_000 });
@@ -249,7 +241,7 @@ test("[R-ACCOUNT-006] a login wall in front of /api reloads the page once; a sec
   await expect(card.getByRole("button", { name: "Reload" })).toBeVisible();
   await expect(card.getByRole("button", { name: "Retry" })).toBeVisible();
   await noBrowserWords(page);
-  await shoot(page, "resume-10-wall-card", info.project.name);
+  await shootPhone(page, "resume-10-wall-card", info.project.name);
   await page.waitForTimeout(1_000);
   expect(navigations).toBe(2);
 });

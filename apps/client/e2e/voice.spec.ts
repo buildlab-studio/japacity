@@ -1,5 +1,4 @@
 import { lifeSaves } from "@japacity/sim/testing";
-import { join } from "node:path";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
@@ -7,15 +6,15 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 // most players arrive through one. Ada's recorded life is loaded just as her application went in; the interview waits in
 // the world as an ask, opened from the line under the band.
 import { setpieceVoice, text } from "../../../packages/content/src/index";
+import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";
 import { LIVED, passCards, passHomeTeach, placeReady } from "./support/live";
+import { shootAtSize } from "./support/preview";
 
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
-test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ launchOptions: SOFTWARE_WEBGL });
 
 const VOICED = "setpiece.credibility-interview";
-const PREVIEW = process.env.PREVIEW_DIR;
-
 /** Instagram's browser inside its Android app, and Facebook's inside its iPhone app. */
 const IN_APP = {
   instagram:
@@ -70,12 +69,6 @@ async function openTheAsk(page: Page): Promise<void> {
   await expect(room(page)).toBeVisible();
 }
 
-async function shoot(page: Page, name: string, project: string): Promise<void> {
-  if (PREVIEW === undefined || PREVIEW === "") return;
-  const size = project.startsWith("Pixel") ? "phone" : "desktop";
-  await page.screenshot({ path: join(PREVIEW, `${name}-${size}.png`), fullPage: false });
-}
-
 function room(page: Page): Locator {
   return page.locator(`[data-scene='${VOICED}']`);
 }
@@ -118,16 +111,16 @@ for (const [app, userAgent] of Object.entries(IN_APP)) {
       const lobby = room(page);
       await expect(lobby.getByRole("button", { name: "Enter the interview room" })).toBeVisible();
       await lobby.scrollIntoViewIfNeeded();
-      await shoot(page, `interview-lobby-${app}`, info.project.name);
+      await shootAtSize(page, `interview-lobby-${app}`, info.project.name);
       await lobby.getByRole("button", { name: "Enter the interview room" }).click();
       await expect(room(page).getByText(text[`${VOICED}.officer.greet`]!)).toBeVisible();
       // Sound plays, or the browser held it back and says so: either way the text is the scene.
       await expect(page.locator("[data-sound-notice][data-notice-here]")).toHaveAttribute("data-sound-notice", /^(on|blocked)$/);
       await expectNoticeClear(page);
-      await shoot(page, `interview-room-${app}`, info.project.name);
+      await shootAtSize(page, `interview-room-${app}`, info.project.name);
       await answerThrough(page);
       await expect(page.locator("[data-room='closing']")).toContainText(text[`${VOICED}.officer.close`]!);
-      await shoot(page, `interview-closing-${app}`, info.project.name);
+      await shootAtSize(page, `interview-closing-${app}`, info.project.name);
       await page.getByRole("button", { name: "Leave the room" }).click();
       await expect(room(page)).toHaveCount(0);
       // Only this interview's clips, in one format.
@@ -149,7 +142,7 @@ test.describe("saving data", () => {
     await expect(page.locator("[data-sound-notice][data-notice-here]")).toHaveAttribute("data-sound-notice", "saver");
     await expect(room(page).locator("[data-answers='open']")).toBeVisible();
     await expectNoticeClear(page);
-    await shoot(page, "interview-saver", info.project.name);
+    await shootAtSize(page, "interview-saver", info.project.name);
     await answerThrough(page);
     await expect(page.locator("[data-room='closing']")).toBeVisible();
     expect(voice).toEqual([]);

@@ -8,6 +8,7 @@ import { expect, type Page, test } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
 import budgets from "../../../assets-src/budgets.json" with { type: "json" };
+import { SOFTWARE_WEBGL } from "./support/browser";
 import { startReadyLife } from "./support/door";
 import { doAct, passCards } from "./support/live";
 
@@ -15,7 +16,7 @@ import { doAct, passCards } from "./support/live";
 const CUT_MS = 260;
 const FADE_MS = 300;
 
-test.use({ viewport: { width: 390, height: 844 }, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ viewport: { width: 390, height: 844 }, launchOptions: SOFTWARE_WEBGL });
 
 interface Probe {
   place: string;
