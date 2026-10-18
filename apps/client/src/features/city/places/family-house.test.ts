@@ -4,7 +4,7 @@
 // the pledge and home's own send-off (R-CHAPTER-008), answered round the parlour's centre table; and the street front
 // behind the door, which keeps the house's notice on the gate.
 import { content } from "@japacity/content";
-import type { PlayerView } from "@japacity/sim";
+import { type PlayerView, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import type { WallSpec } from "../../../../../../assets-src/bld/home/build";
@@ -119,7 +119,7 @@ describe("the send-off party", () => {
     const dancing = party.dancers.map((dancer) => dancer.file);
     const start = Date.UTC(2026, 0, 3);
     for (let day = 0; day < 100; day += 1) {
-      const date = new Date(start + day * 86_400_000).toISOString().slice(0, 10);
+      const date = new Date(start + day * time.DAY_MS).toISOString().slice(0, 10);
       for (const mode of ["low", "high"] as const) {
         const guests = sampleCrowd({ ...entry, crowd }, poolOf(dressed.people.sample), date, mode, city, [], [], dancing).people.map((shown) => shown.person.file);
         expect(guests.filter((guest) => dancing.includes(guest))).toEqual([]);
