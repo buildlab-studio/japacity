@@ -6,7 +6,7 @@ import type { AccountView } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Authority, Command, Content, Currency, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave } from "@japacity/sim";
 import { newState, standInWorld, viewFor } from "@japacity/sim";
-import { flownAda, lifeSaves, applyEffects, start, type Game } from "@japacity/sim/testing";
+import { applyEffects, flownAda, type Game, lifeSaves, setPockets, start } from "@japacity/sim/testing";
 
 const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
 
@@ -178,19 +178,6 @@ export function recordedSave(name: string): FlatSave {
  * dollars in the bank, no pounds, and naira enough at home for the fare.
  */
 export const ABROAD_POCKETS = { GBP: 0, USD: 800_000, NGN: 500_000_000 } as const satisfies Partial<Record<Currency, number>>;
-
-/** Sets each named currency's bank pocket to the amount given and its cash to nothing, through the wallet's own effects. */
-export function setPockets(game: Game, pockets: Partial<Record<Currency, number>>): void {
-  const effects: Effect[] = [];
-  for (const currency of Object.keys(pockets) as Currency[]) {
-    const want = pockets[currency] ?? 0;
-    const held = game.state.wallet.pockets[currency];
-    if (held.cash > 0) effects.push({ type: "money/take", currency, pocket: "cash", amount: held.cash, reason: "social" });
-    if (held.bank > want) effects.push({ type: "money/take", currency, pocket: "bank", amount: held.bank - want, reason: "social" });
-    if (held.bank < want) effects.push({ type: "money/add", currency, pocket: "bank", amount: want - held.bank, reason: "gift" });
-  }
-  if (effects.length > 0) applyEffects(game, effects);
-}
 
 /** Ada's careful life replayed up to and including the flight, with the pockets of `ABROAD_POCKETS`. */
 export function abroadGame(): Game {

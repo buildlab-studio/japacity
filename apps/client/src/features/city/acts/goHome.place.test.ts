@@ -2,9 +2,10 @@
 // assisted ticket, and no way home with a status held and nothing to pay. The card and its one button are drawn and
 // sent in goHome.test.tsx; the fare and the times home are read in Papers (features/phone/apps/Papers.place.test.tsx).
 import { content } from "@japacity/content";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test, vi } from "vitest";
 
-import { abroadGame, setPockets, viewAfter } from "../../../shared/testing/fixtures";
+import { abroadGame, viewAfter } from "../../../shared/testing/fixtures";
 import { nairaForFee } from "../../../shared/words/cost";
 import { say } from "../../../shared/words/text";
 import { goHomeAsk } from "./goHome";

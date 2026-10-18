@@ -1,7 +1,8 @@
 // The month's dues abroad against what is held (docs/rules/world.md R-WORLD-003, 019).
 import { describe, expect, test } from "vitest";
+import { setPockets } from "@japacity/sim/testing";
 
-import { abroadGame, setPockets, viewAfter } from "../testing/fixtures";
+import { abroadGame, viewAfter } from "../testing/fixtures";
 import { duesGap } from "./dues";
 
 describe("the dues gap and the month's pay", () => {

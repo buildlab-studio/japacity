@@ -1,9 +1,10 @@
 // What is coming with a month to it (docs/rules/world.md R-WORLD-002): the whole list soonest first, each
 // as months away, and only dates the player can act on or waits on.
 import { content } from "@japacity/content";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { engineView, newGame, richView, setPockets, viewAfter } from "../testing/fixtures";
+import { engineView, newGame, richView, viewAfter } from "../testing/fixtures";
 import { formatMoney } from "./format";
 import { nameOf, say } from "./text";
 import { AGE_LIMIT_NEAR, ageMonthsOf, comingOf, RENT_NEAR, soonest } from "./coming";

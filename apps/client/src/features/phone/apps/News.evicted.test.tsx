@@ -2,11 +2,11 @@
 // leads the month's lines as money unpaid does, and the story of the clearing is carried with it.
 import { content } from "@japacity/content";
 import { applyOverlay } from "@japacity/sim";
-import { start } from "@japacity/sim/testing";
+import { setPockets, start } from "@japacity/sim/testing";
 import { fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { newGame, setPockets } from "../../../shared/testing/fixtures";
+import { newGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { words } from "../../../shared/words/text";
 import { PhoneApps } from "../PhoneApps";

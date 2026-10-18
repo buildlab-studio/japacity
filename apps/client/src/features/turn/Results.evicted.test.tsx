@@ -4,11 +4,10 @@ import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { applyOverlay } from "@japacity/sim";
 import type { Game } from "@japacity/sim/testing";
-import { start } from "@japacity/sim/testing";
+import { setPockets, start } from "@japacity/sim/testing";
 import { act } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { setPockets } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { storyLines } from "./month.results";

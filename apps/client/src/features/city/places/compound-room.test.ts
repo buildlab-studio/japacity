@@ -5,10 +5,11 @@
 // family house's acts on its things.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/home-room-house/place.json";
-import { engineView, newGame, setPockets } from "../../../shared/testing/fixtures";
+import { engineView, newGame } from "../../../shared/testing/fixtures";
 import { cameraAt, projected, SCREENS } from "../scene/scene.testing";
 import { aimRoom, shotOf } from "../scene/shot";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";

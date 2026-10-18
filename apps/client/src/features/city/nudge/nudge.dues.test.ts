@@ -2,9 +2,10 @@
 // news is in abroad and the month's dues pass the country's money held, the nudge's report line says
 // the gap, and a tap on it opens the Bank, where the way to close it waits.
 import type { Game } from "@japacity/sim/testing";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { recordedGame, setPockets } from "../../../shared/testing/fixtures";
+import { recordedGame } from "../../../shared/testing/fixtures";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import { nudgeOf } from "./nudge";

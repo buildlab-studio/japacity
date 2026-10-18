@@ -5,9 +5,10 @@
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { within } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { abroadGame, abroadView, decemberAbroadGame, engineView, setPockets } from "../../../shared/testing/fixtures";
+import { abroadGame, abroadView, decemberAbroadGame, engineView } from "../../../shared/testing/fixtures";
 import { nairaForFee } from "../../../shared/words/cost";
 import { formatMoney } from "../../../shared/words/format";
 import { monthsAgo, nameOf, say, sayCount } from "../../../shared/words/text";

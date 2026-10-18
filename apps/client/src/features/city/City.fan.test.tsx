@@ -5,10 +5,11 @@
 // gone. The place file is the one the game ships; the scene is a stand-in that hands the city the taps, says where the
 // fanned thing stands, and walks at once.
 import { act, fireEvent, waitFor } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { newGame, openOffer, setPockets } from "../../shared/testing/fixtures";
+import { newGame, openOffer } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/person";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";

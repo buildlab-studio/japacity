@@ -4,10 +4,11 @@
 // job, a job on a board within reach, and at home the month's end.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { answersInOrder, archetypeOf, presetAnswer } from "../../../shared/frontdoor/archetypes";
-import { newGame, openOffer, setPockets } from "../../../shared/testing/fixtures";
+import { newGame, openOffer } from "../../../shared/testing/fixtures";
 import { say } from "../../../shared/words/text";
 import { BOARD_WAY, freeStep, nudgeOf, type Reach } from "./nudge";
 

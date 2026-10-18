@@ -4,9 +4,10 @@
 // content, a real life at home.
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { newGame, setPockets } from "../../../shared/testing/fixtures";
+import { newGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { changeQuote } from "../../../shared/words/cost";
 import { formatMoney } from "../../../shared/words/format";

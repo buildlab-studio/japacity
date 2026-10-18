@@ -4,10 +4,11 @@
 // scene is a stand-in that hands the city the taps a player makes; the place file is the one the game ships.
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import type { PlayerView } from "@japacity/sim";
+import { setPockets } from "@japacity/sim/testing";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import raw from "../../../../public/assets/places/the-room/place.json";
-import { abroadGame, setPockets } from "../../../shared/testing/fixtures";
+import { abroadGame } from "../../../shared/testing/fixtures";
 import { renderWithGame } from "../../../shared/testing/person";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
@@ -17,7 +18,6 @@ import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { pressFanAct } from "../fan/fan.testing";
 import { stubWebGL, unstubWebGL } from "../../../shared/testing/webgl";
 import { found } from "../../../shared/testing/render";
-
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
 vi.mock("../scene/CityScene", async () => ({ default: (await import("../fan/fan.testing")).StandInScene }));

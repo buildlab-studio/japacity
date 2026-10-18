@@ -4,9 +4,10 @@
 // then the naira and the dollars each with Change money. Once flown, there is no move to save toward.
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, waitFor, within } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { recordedGame, setPockets, viewAfter } from "../../../shared/testing/fixtures";
+import { recordedGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { bandMoney } from "../../../shared/world/Band";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";

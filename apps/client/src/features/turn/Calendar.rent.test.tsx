@@ -1,9 +1,10 @@
 // The Calendar says in one line when the room's year of rent is taken at this month's end and the money held is
 // short of it (docs/rules/home.md R-HOME-010).
 import { content } from "@japacity/content";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { newGame, setPockets } from "../../shared/testing/fixtures";
+import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { Calendar } from "./Calendar";

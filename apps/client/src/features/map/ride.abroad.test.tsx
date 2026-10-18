@@ -4,12 +4,12 @@
 import { content } from "@japacity/content";
 import { uiLondonText } from "@japacity/content/ui/london";
 import { type Id, type PlayerView, rideFare } from "@japacity/sim";
-import { positionOf } from "@japacity/sim/testing";
+import { positionOf, setPockets } from "@japacity/sim/testing";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 
-import { abroadGame, engineView, setPockets } from "../../shared/testing/fixtures";
+import { abroadGame, engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf } from "../../shared/words/text";

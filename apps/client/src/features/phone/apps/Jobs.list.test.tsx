@@ -4,9 +4,10 @@
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { fireEvent } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { abroadGame, setPockets } from "../../../shared/testing/fixtures";
+import { abroadGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { nameOf } from "../../../shared/words/text";
 import { phoneWords } from "../phone.words";

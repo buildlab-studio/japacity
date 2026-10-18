@@ -4,12 +4,13 @@
 // no "100% Ready to go", and speaks of the landing instead.
 import type { PlayerView } from "@japacity/sim";
 import { render } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { cardFace, cardWords } from "../../shared/share/face";
 import { cardSteps } from "../../shared/share/layout";
 import { measure } from "../../shared/share/share.testing";
-import { recordedGame, setPockets } from "../../shared/testing/fixtures";
+import { recordedGame } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { ShareCardFace } from "./ShareCard";

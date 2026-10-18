@@ -13,24 +13,21 @@ export interface Held {
 export interface SetOptions {
   /** Carries the effects; route.journey's applyEffects unless the test steps through its own registry. */
   apply?: (effects: Effect[]) => void;
-  /** The reason the excess is taken under. */
-  takenAs?: "mishap" | "social";
 }
 
 /**
  * Sets each named currency's pockets to exactly the amounts given; a number is all of it in the
- * bank with the cash emptied. What is over is taken, what is short is given as a gift, and a pocket
- * already right is left alone.
+ * bank with the cash emptied. What is over is taken as a mishap, what is short is given as a gift,
+ * and a pocket already right is left alone.
  */
 export function setPockets(game: Game, pockets: Partial<Record<Currency, number | Held>>, options: SetOptions = {}): void {
-  const reason = options.takenAs ?? "mishap";
   const effects: Effect[] = [];
   for (const currency of Object.keys(pockets) as Currency[]) {
     const wanted = pockets[currency] ?? 0;
     const want: Held = typeof wanted === "number" ? { cash: 0, bank: wanted } : wanted;
     const held = game.state.wallet.pockets[currency];
     for (const pocket of ["cash", "bank"] as const) {
-      if (held[pocket] > want[pocket]) effects.push({ type: "money/take", currency, pocket, amount: held[pocket] - want[pocket], reason });
+      if (held[pocket] > want[pocket]) effects.push({ type: "money/take", currency, pocket, amount: held[pocket] - want[pocket], reason: "mishap" });
       if (held[pocket] < want[pocket]) effects.push({ type: "money/add", currency, pocket, amount: want[pocket] - held[pocket], reason: "gift" });
     }
   }
