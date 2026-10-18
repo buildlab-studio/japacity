@@ -7,7 +7,7 @@ import { content } from "@japacity/content";
 import type { Id, ReportLine } from "@japacity/sim";
 import { int } from "@japacity/sim";
 import type { Game } from "@japacity/sim/testing";
-import { draw, slot } from "@japacity/sim/testing";
+import { raiseSeed, slot } from "@japacity/sim/testing";
 import { act, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -74,16 +74,6 @@ function results(store: GameStore): string[] {
   const rows = [...document.querySelectorAll("[data-results-story] li")].map((row) => row.textContent ?? "");
   unmount();
   return rows;
-}
-
-/** A seed whose first draw on the job stream lands under the raise's chance (or over it, with `hit` false). */
-function seedFor(hit: boolean): string {
-  const chance = content.tuning.activity.raiseChanceBp;
-  for (let n = 0; n < 200; n += 1) {
-    const seed = `notice-${String(n)}`;
-    if (draw(seed, "job", 0, 10000) < chance === hit) return seed;
-  }
-  throw new Error("No seed found.");
 }
 
 describe("the certification exam on the results", () => {
@@ -165,7 +155,7 @@ describe("the developer's months on the results", () => {
 
 describe("being noticed at work on the results", () => {
   test("[R-WORLD-008] [R-ACTIVITY-013] given the raise lands, when the month's results open, then they say the manager noticed and what it adds a month", async () => {
-    const game = newGame("scenario.tunde", seedFor(true));
+    const game = newGame("scenario.tunde", raiseSeed(content, true));
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;
     if (typeof pay.amount !== "number") throw new Error("A fixed pay was expected.");
@@ -178,7 +168,7 @@ describe("being noticed at work on the results", () => {
   });
 
   test("[R-WORLD-008] [R-ACTIVITY-013] given a month at work tried without the raise, when the month's results open, then they say nobody has said anything yet", async () => {
-    const game = newGame("scenario.tunde", seedFor(false));
+    const game = newGame("scenario.tunde", raiseSeed(content, false));
     const job = game.state.activity.job!;
     const store = await storeOf(game);
     await month(store, game, [NOTICED]);

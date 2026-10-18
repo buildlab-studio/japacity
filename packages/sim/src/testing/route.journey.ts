@@ -188,6 +188,23 @@ export function seedWhere(ok: (seed: string) => boolean): string {
   throw new Error("No seed passes.");
 }
 
+/** Whether a seed's first school draw is an offer from Northgate for a grade of 4 (R-ROUTE-007). */
+export function northgateOffers(content: Content, seed: string): boolean {
+  const entry = content.school[NORTHGATE];
+  if (entry === undefined) throw new Error(`The content has no ${NORTHGATE}.`);
+  return draw(seed, "school", 1, 10000) < offerChanceBp(entry, 4, content.tuning.route);
+}
+
+/** The first `notice-n` seed whose job draw lands under the raise chance when `hit`, or over it when not. */
+export function raiseSeed(content: Content, hit: boolean): string {
+  const chance = content.tuning.activity.raiseChanceBp;
+  for (let n = 0; n < 200; n += 1) {
+    const seed = `notice-${String(n)}`;
+    if (draw(seed, "job", 0, 10000) < chance === hit) return seed;
+  }
+  throw new Error("No seed found.");
+}
+
 /** The questions a set piece asks, drawn on `visa` from position `from` out of `pool`, as R-SETPIECE-001 draws them. */
 export function drawnQuestions(seed: string, pool: readonly string[], ask: number, from = 0): string[] {
   const left = [...pool];

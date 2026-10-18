@@ -1,7 +1,6 @@
 import { content, OFFICER_REACTIONS, setpieceVoice, text, uiRoomText, uiSoundText } from "@japacity/content";
-import { offerChanceBp } from "@japacity/sim";
 import type { Game } from "@japacity/sim/testing";
-import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } from "@japacity/sim/testing";
+import { drawnQuestions, northgateOffers, readyLife, seedWhere, toApplied, uk } from "@japacity/sim/testing";
 import { act, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -14,13 +13,12 @@ import { SetpieceView } from "./SetpieceView";
 
 const entry = content.setpiece[VOICED]!;
 const CLEAN = entry.questions.map((question) => question.id).filter((id) => id !== "deposit");
-const northgateOffers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(content.school[NORTHGATE]!, 4, content.tuning.route);
 /** The longest line, so waiting this long lets any line's answers show. */
 const LONGEST = Math.max(...Object.values(setpieceVoice).map((voice) => voice.ms));
 
 /** A life whose visa interview has just opened, asking who pays first. */
 function interviewGame(): Game {
-  const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, CLEAN, entry.ask)[0] === "who-pays");
+  const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, CLEAN, entry.ask)[0] === "who-pays");
   const game = readyLife(content, { seed });
   toApplied(game);
   return game;

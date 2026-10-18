@@ -12,6 +12,8 @@ export {
   draw,
   drawnQuestions,
   NORTHGATE,
+  northgateOffers,
+  raiseSeed,
   readyLife,
   seedWhere,
   slot,
@@ -21,7 +23,8 @@ export {
   withEffects,
 } from "./route.journey";
 export { flownAda } from "./goal.journey";
-export { ALWAYS_GRANTED, offeredSeed } from "./place.journey";
+export { ALWAYS_GRANTED, offeredSeed, positionOf } from "./place.journey";
+export { bondWith } from "./read";
 export { measure } from "../engine/golden";
 export type { Golden } from "../engine/golden";
 export { goldenScripts } from "../goldens/scripts";

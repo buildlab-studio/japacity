@@ -9,7 +9,7 @@ import type { Currency, Effect, Id } from "../engine/types";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { flown } from "../testing/place.journey";
+import { flown, positionOf } from "../testing/place.journey";
 import { debits, rode } from "../testing/read";
 import { metresApart, rideFare, withinMetres } from "./place.logic";
 
@@ -24,12 +24,6 @@ const bus = rides.ways.bus!;
 const train = rides.ways.train!;
 /** The UK's metres for a thousandth of a degree of longitude (R-PLACE-010). */
 const LON = rides.lonMetresPerE3;
-
-function positionOf(id: Id<"place">): { latE3: number; lonE3: number } {
-  const position = content.place[id]?.position;
-  if (position === null || position === undefined) throw new Error(`${id} has no position.`);
-  return position;
-}
 
 /** Empties every pocket, then leaves the pounds in cash and the bank as given. */
 function pounds(game: Game, cash: number, bank = 0): void {
@@ -55,9 +49,9 @@ describe("the fare abroad", () => {
   });
 
   test("[R-PLACE-010] given two places in London, when a way's fare is read with the country's figures, then the bus is one fare whatever the distance, the train grows with it rounded up to five pence, a place with no position stands at the flag-down figure, and the month's factor is the caller's", () => {
-    const peckham = positionOf(PECKHAM);
-    const rye = positionOf(RYE_LANE);
-    const heathrow = positionOf(HEATHROW);
+    const peckham = positionOf(content, PECKHAM);
+    const rye = positionOf(content, RYE_LANE);
+    const heathrow = positionOf(content, HEATHROW);
     const busFare = { ...bus, step: rides.step, lonMetresPerE3: LON };
     const trainFare = { ...train, step: rides.step, lonMetresPerE3: LON };
     expect(rideFare(busFare, peckham, rye)).toBe(175);
@@ -75,8 +69,8 @@ describe("the fare abroad", () => {
     expect(rideFare({ fare: 0, farePerKm: 0, step: 5, lonMetresPerE3: LON }, peckham, heathrow)).toBe(0);
     expect(rideFare(busFare, peckham, rye, 20000)).toBe(350);
     // Lagos's ways price from content and the way.
-    expect(rideFare(content, positionOf("place.ojuelegba"), positionOf("place.bode-thomas"), "danfo")).toBe(
-      rideFare({ fare: content.tuning.city.ride.fareKobo.danfo, farePerKm: content.tuning.city.ride.farePerKmKobo.danfo, step: 5000, lonMetresPerE3: content.tuning.city.ride.lonMetresPerE3 }, positionOf("place.ojuelegba"), positionOf("place.bode-thomas"), BP_WHOLE),
+    expect(rideFare(content, positionOf(content, "place.ojuelegba"), positionOf(content, "place.bode-thomas"), "danfo")).toBe(
+      rideFare({ fare: content.tuning.city.ride.fareKobo.danfo, farePerKm: content.tuning.city.ride.farePerKmKobo.danfo, step: 5000, lonMetresPerE3: content.tuning.city.ride.lonMetresPerE3 }, positionOf(content, "place.ojuelegba"), positionOf(content, "place.bode-thomas"), BP_WHOLE),
     );
   });
 });
@@ -92,10 +86,10 @@ describe("the metres of a degree of longitude", () => {
   });
 
   test("[R-PLACE-010] given London at the UK's 69 metres, when the train to Heathrow and a walk to the ward are read, then the train from Peckham prices £5.50, and the ward is within a walk of Peckham at 69 and would not be at 111", () => {
-    expect(rideFare({ ...train, step: rides.step, lonMetresPerE3: LON }, positionOf(PECKHAM), positionOf(HEATHROW))).toBe(550);
+    expect(rideFare({ ...train, step: rides.step, lonMetresPerE3: LON }, positionOf(content, PECKHAM), positionOf(content, HEATHROW))).toBe(550);
     const limit = content.tuning.city.ride.walkMetres;
-    expect(withinMetres(positionOf(PECKHAM), positionOf("place.ward-uk"), limit, LON)).toBe(true);
-    expect(withinMetres(positionOf(PECKHAM), positionOf("place.ward-uk"), limit, 111)).toBe(false);
+    expect(withinMetres(positionOf(content, PECKHAM), positionOf(content, "place.ward-uk"), limit, LON)).toBe(true);
+    expect(withinMetres(positionOf(content, PECKHAM), positionOf(content, "place.ward-uk"), limit, 111)).toBe(false);
     const game = flown(content);
     pounds(game, 0);
     expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: "place.ward-uk", way: "walk" }))).toMatchObject({ way: "walk", fare: 0 });
@@ -104,8 +98,8 @@ describe("the metres of a degree of longitude", () => {
   });
 
   test("[R-PLACE-010] given Lagos at 111, when a fare is read from content, then it is the same fare, the figure passed or not", () => {
-    const from = positionOf("place.ojuelegba");
-    const to = positionOf("place.computer-village");
+    const from = positionOf(content, "place.ojuelegba");
+    const to = positionOf(content, "place.computer-village");
     const { fareKobo, farePerKmKobo } = content.tuning.city.ride;
     const metres = metresApart(from, to, 111);
     expect(metresApart(from, to)).toBe(metres);
@@ -120,7 +114,7 @@ describe("a ride abroad", () => {
     const byBus = game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "bus" });
     expect(debits(byBus)).toMatchObject([{ currency: "GBP", pocket: "cash", amount: 175, reason: "fare" }]);
     expect(rode(byBus)).toEqual({ type: "place/rode", from: PECKHAM, to: RYE_LANE, way: "bus", fare: 175, currency: "GBP" });
-    const fare = rideFare({ ...train, step: rides.step, lonMetresPerE3: LON }, positionOf(PECKHAM), positionOf(HEATHROW));
+    const fare = rideFare({ ...train, step: rides.step, lonMetresPerE3: LON }, positionOf(content, PECKHAM), positionOf(content, HEATHROW));
     const byTrain = game.accept({ type: "place/ride", from: PECKHAM, to: HEATHROW, way: "train" });
     expect(debits(byTrain)).toMatchObject([{ currency: "GBP", pocket: "cash", amount: fare, reason: "fare" }]);
     expect(rode(byTrain)).toEqual({ type: "place/rode", from: PECKHAM, to: HEATHROW, way: "train", fare, currency: "GBP" });
@@ -173,8 +167,8 @@ describe("a ride abroad", () => {
     const game = flown(content);
     pounds(game, 0);
     const limit = content.tuning.city.ride.walkMetres;
-    expect(withinMetres(positionOf(PECKHAM), positionOf(HEATHROW), limit, LON)).toBe(false);
-    expect(withinMetres(positionOf(PECKHAM), positionOf(RYE_LANE), limit, LON)).toBe(true);
+    expect(withinMetres(positionOf(content, PECKHAM), positionOf(content, HEATHROW), limit, LON)).toBe(false);
+    expect(withinMetres(positionOf(content, PECKHAM), positionOf(content, RYE_LANE), limit, LON)).toBe(true);
     const home = game.accept({ type: "place/ride", from: HEATHROW, to: ROOM, way: "walk" });
     expect(debits(home)).toEqual([]);
     expect(rode(home)).toMatchObject({ way: "walk", fare: 0, currency: "GBP" });
@@ -234,7 +228,7 @@ describe("the ways in the view", () => {
     pounds(game, 5000);
     const way = game.view().place.ways?.find((one) => one.way === "train");
     if (way === undefined) throw new Error("No train in the view.");
-    const priced = rideFare(way, positionOf(PECKHAM), positionOf(HEATHROW), game.view().place.fareBp);
+    const priced = rideFare(way, positionOf(content, PECKHAM), positionOf(content, HEATHROW), game.view().place.fareBp);
     expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: HEATHROW, way: "train" }))).toMatchObject({ fare: priced });
   });
 });
@@ -262,7 +256,7 @@ describe("the bus pass", () => {
     const byBus = game.accept({ type: "place/ride", from: PECKHAM, to: HEATHROW, way: "bus" });
     expect(debits(byBus)).toEqual([]);
     expect(rode(byBus)).toEqual({ type: "place/rode", from: PECKHAM, to: HEATHROW, way: "bus", fare: 0, currency: "GBP" });
-    const fare = rideFare({ ...train, step: rides.step, lonMetresPerE3: LON }, positionOf(PECKHAM), positionOf(RYE_LANE));
+    const fare = rideFare({ ...train, step: rides.step, lonMetresPerE3: LON }, positionOf(content, PECKHAM), positionOf(content, RYE_LANE));
     expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "train" }))).toMatchObject({ way: "train", fare });
     expect(game.state.wallet.pockets.GBP.cash + game.state.wallet.pockets.GBP.bank).toBe(20000 - 9500 - fare);
     // Once a month: a second pass the same month is refused.

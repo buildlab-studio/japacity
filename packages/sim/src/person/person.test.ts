@@ -11,6 +11,7 @@ import { applyEffects } from "../testing/route.journey";
 import { legalCommands } from "../testing/legal";
 import type { Game, Loose, StartOptions } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
+import { bondWith } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { computerFacts } from "./person.facts";
 import { factsOf, WEDDING_SPOTS } from "./person.logic";
@@ -56,12 +57,6 @@ function life(options: StartOptions = {}): Game {
 function turn(game: Game, slots: SlotPick[] = []) {
   if (game.state.turn.banked === 0) game.grant(1);
   return game.endTurn(slots);
-}
-
-function bondWith(game: Game, person: Id<"person">): string {
-  const found = Object.entries(game.state.people.bonds).find(([, bond]) => bond.with.kind === "computer" && bond.with.entry === person && bond.stage !== "ended");
-  if (found === undefined) throw new Error(`No open bond with ${person}.`);
-  return found[0];
 }
 
 function court(game: Game, person: Id<"person">): string {

@@ -10,7 +10,7 @@ import type { Accepted, CountryRides, Currency, Effect, Id, RideWay } from "../e
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { flown } from "../testing/place.journey";
+import { flown, positionOf } from "../testing/place.journey";
 import { debits, rode } from "../testing/read";
 import { metresApart, rideFare, shuttleRide, withinMetres } from "./place.logic";
 
@@ -26,12 +26,6 @@ function ridesOf(country: Id<"country">): CountryRides {
   const rides = abroad[country];
   if (rides === undefined) throw new Error(`${country} has no rides.`);
   return rides;
-}
-
-function positionOf(id: Id<"place">): { latE3: number; lonE3: number } {
-  const position = content.place[id]?.position;
-  if (position === null || position === undefined) throw new Error(`${id} has no position.`);
-  return position;
 }
 
 /** A life landed in the country, every pocket emptied and the country's money left in cash as given. */
@@ -116,7 +110,7 @@ describe("the three countries' ways", () => {
     expect(debits(byBus)).toMatchObject([{ currency: "CAD", pocket: "cash", amount: 380, reason: "fare" }]);
     expect(rode(byBus)).toEqual({ type: "place/rode", from: "place.calgary-north-east", to: "place.office-ca", way: "bus", fare: 380, currency: "CAD" });
     expect(rode(ride(game, "place.office-ca", "place.ctrain-station-ca", "train"))).toMatchObject({ fare: 380, currency: "CAD" });
-    const metres = metresApart(positionOf("place.calgary-north-east"), positionOf("place.calgary-airport"), 71);
+    const metres = metresApart(positionOf(content, "place.calgary-north-east"), positionOf(content, "place.calgary-airport"), 71);
     const taxi = divCeil(380 + mulDiv(200, metres, 1000), 5) * 5;
     expect(fareOf(CANADA, "taxi", "place.calgary-north-east", "place.calgary-airport")).toBe(taxi);
     expect(rode(ride(game, "place.calgary-north-east", "place.calgary-airport", "taxi"))).toMatchObject({ way: "taxi", fare: taxi, currency: "CAD" });
@@ -125,7 +119,7 @@ describe("the three countries' ways", () => {
 
   test("[R-PLACE-010] given a life in Dubai, when the bus and the metro are taken, then each is the zone fare read as distance, rounded up to twenty-five fils", () => {
     const game = landed(UAE, 20000);
-    const metres = metresApart(positionOf("place.deira"), positionOf("place.dubai-airport"), 100);
+    const metres = metresApart(positionOf(content, "place.deira"), positionOf(content, "place.dubai-airport"), 100);
     const bus = divCeil(400 + mulDiv(50, metres, 1000), 25) * 25;
     expect(bus % 25).toBe(0);
     expect(bus).toBeGreaterThan(400);
@@ -211,7 +205,7 @@ describe("the pass covers the country's ways", () => {
     expect(game.view().place.ways?.filter((way) => way.passed).map((way) => way.way)).toEqual(["bus"]);
     const rides = ridesOf("country.uk");
     const train = rides.ways.train!;
-    const fare = rideFare({ ...train, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3 }, positionOf("place.peckham"), positionOf("place.heathrow"));
+    const fare = rideFare({ ...train, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3 }, positionOf(content, "place.peckham"), positionOf(content, "place.heathrow"));
     expect(rode(ride(game, "place.peckham", "place.heathrow", "train"))).toMatchObject({ way: "train", fare });
     expect(fare).toBeGreaterThan(0);
   });
@@ -272,7 +266,7 @@ describe("the employer's shuttle", () => {
     const game = landed(ITALY, 0);
     expect(rode(ride(game, "place.castel-volturno", FIELDS, "bus"))).toMatchObject({ way: "bus", fare: 0, currency: "EUR" });
     expect(rode(ride(game, FIELDS, "place.via-domitiana", "bus"))).toMatchObject({ way: "bus", fare: 0 });
-    expect(withinMetres(positionOf("place.castel-volturno"), positionOf(FIELDS), content.tuning.city.ride.walkMetres, 84)).toBe(false);
+    expect(withinMetres(positionOf(content, "place.castel-volturno"), positionOf(content, FIELDS), content.tuning.city.ride.walkMetres, 84)).toBe(false);
     game.expectRejected({ type: "place/ride", from: "place.castel-volturno", to: FIELDS, way: "walk" }, "not-legal");
     // The next month asks nothing either.
     if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);

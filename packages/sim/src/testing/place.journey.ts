@@ -2,7 +2,7 @@
 // through the real route kind, months played abroad, and a registry that
 // records the obligation closes asked for. Nothing in the simulation imports this file.
 import type { Registry } from "../engine/kind";
-import type { BaseEvent, Content, Ctx, Effect, ObligationType } from "../engine/types";
+import type { BaseEvent, Content, Ctx, Effect, Id, ObligationType } from "../engine/types";
 import { registry } from "../kinds";
 import { answerFirst, draw, NORTHGATE, readyLife, seedWhere, toDecision, UK } from "./route.journey";
 import type { LifeOptions } from "./route.journey";
@@ -55,4 +55,11 @@ export function playMonths(game: Game, count: number): void {
     if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
     game.endTurn();
   }
+}
+
+/** A place's position in the content, which must have one. */
+export function positionOf(content: Content, id: string): { latE3: number; lonE3: number } {
+  const position = content.place[id as Id<"place">]?.position;
+  if (position === null || position === undefined) throw new Error(`${id} has no position.`);
+  return position;
 }

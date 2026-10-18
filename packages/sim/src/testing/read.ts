@@ -100,3 +100,10 @@ export function salaries(result: Accepted): number[] {
     .filter((event) => event.currency === "NGN")
     .map((event) => event.amount);
 }
+
+/** The id of the open bond with a computer person. */
+export function bondWith(game: Game, person: Id<"person">): string {
+  const found = Object.entries(game.state.people.bonds).find(([, bond]) => bond.with.kind === "computer" && bond.with.entry === person && bond.stage !== "ended");
+  if (found === undefined) throw new Error(`No open bond with ${person}.`);
+  return found[0];
+}

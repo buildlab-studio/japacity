@@ -6,9 +6,9 @@ import { step } from "../engine/step";
 import type { Currency, Effect, Id, SetpieceAnswer, SetpieceEntry } from "../engine/types";
 import type { Game } from "../testing/play";
 import { legalCommands } from "../testing/legal";
-import { NORTHGATE, UK, UNIT, applyEffects, answerFirst, draw, drawnQuestions, readyLife, seedWhere, toApplied, toHeld, uk } from "../testing/route.journey";
+import { UK, UNIT, applyEffects, answerFirst, drawnQuestions, northgateOffers, readyLife, seedWhere, toApplied, toHeld, uk } from "../testing/route.journey";
 import type { LifeOptions } from "../testing/route.journey";
-import { fundsRequired, offerChanceBp, unexplainedBp } from "../route/route.logic";
+import { fundsRequired, unexplainedBp } from "../route/route.logic";
 import { mulDivCeil } from "../engine/int";
 import { answerScore } from "./setpiece.logic";
 import { flown } from "../testing/place.journey";
@@ -24,10 +24,8 @@ const CLEAN = ALL.filter((id) => id !== "deposit" && id !== "papers");
 /** The pool with the deposit question in it, as a file with unexplained money has it; the papers one still needs a fake. */
 const WITH_DEPOSIT = ALL.filter((id) => id !== "papers");
 
-const northgateOffers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(content.school[NORTHGATE]!, 4, content.tuning.route);
-
 function life(options: LifeOptions = {}): Game {
-  return readyLife(content, { seed: seedWhere(northgateOffers), ...options });
+  return readyLife(content, { seed: seedWhere((seed) => northgateOffers(content, seed)), ...options });
 }
 
 /** The score of an answer as the page's table gives it, for interview prep and the unexplained share. */
@@ -74,7 +72,7 @@ function answerWith(game: Game, pick: (question: string, answers: string[]) => s
 describe("opening the interview", () => {
   test("[R-SETPIECE-001] given a clean file, when the application goes in, then as many questions as the entry asks are drawn on visa, without repeats, in the order drawn", () => {
     for (const index of [0, 1, 2, 3]) {
-      const seed = seedWhere((candidate) => northgateOffers(candidate) && Number(candidate.slice(5)) >= index * 7);
+      const seed = seedWhere((candidate) => northgateOffers(content, candidate) && Number(candidate.slice(5)) >= index * 7);
       const game = life({ seed });
       toApplied(game);
       const open = game.state.setpiece.open!;
@@ -87,7 +85,7 @@ describe("opening the interview", () => {
   });
 
   test("[R-SETPIECE-001] given a share of unexplained money above 30%, when the application goes in, then the deposit question may be drawn too", () => {
-    const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, WITH_DEPOSIT, entry.ask).includes("deposit"));
+    const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, WITH_DEPOSIT, entry.ask).includes("deposit"));
     const game = life({ seed, pockets: { NGN: { bank: 1000000 * UNIT, cash: 40000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } } });
     toHeld(game);
     // Upkeep is taken from cash first each month, so what is banked is the cash that is left.
@@ -100,7 +98,7 @@ describe("opening the interview", () => {
 
   test("[R-SETPIECE-001] given a clean file, when many applications go in, then the deposit question is never asked", () => {
     for (let i = 0; i < 12; i += 1) {
-      const seed = seedWhere((candidate) => northgateOffers(candidate) && Number(candidate.slice(5)) >= i);
+      const seed = seedWhere((candidate) => northgateOffers(content, candidate) && Number(candidate.slice(5)) >= i);
       const game = life({ seed });
       toApplied(game);
       expect(game.state.setpiece.open?.questions).not.toContain("deposit");
@@ -180,7 +178,7 @@ describe("scoring", () => {
   });
 
   test("[R-SETPIECE-004] given money from flagged sources over 20% of what is needed, when the student says they pay from savings, then that answer scores against them", () => {
-    const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
+    const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
     const game = life({ seed, pockets: { NGN: { bank: 1000000 * UNIT, cash: 30000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } } });
     toHeld(game);
     game.accept({ type: "wallet/move", currency: "NGN", amount: 11000000 * UNIT, to: "bank" });
@@ -220,7 +218,7 @@ describe("scoring", () => {
 
   test("[R-SETPIECE-004] given a clean file, when a cash lot is made between two answers, then each answer keeps the score it was judged at when given, and the running sum is what is recorded", () => {
     const seed = seedWhere((candidate) => {
-      if (!northgateOffers(candidate)) return false;
+      if (!northgateOffers(content, candidate)) return false;
       const asked = drawnQuestions(candidate, CLEAN, entry.ask);
       return asked.includes("who-pays") && asked.indexOf("who-pays") < entry.ask - 1;
     });
@@ -238,7 +236,7 @@ describe("scoring", () => {
   });
 
   test("[R-SETPIECE-004] given an unexplained share of 2000 and of 2001 basis points when who-pays is answered, when the student says own, then it scores +2 at 2000 and -2 at 2001", () => {
-    const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
+    const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
     for (const [share, own] of [
       [2000, 2],
       [2001, -2],
@@ -316,7 +314,7 @@ describe("answers with effects, and set pieces with no route", () => {
         },
       },
     };
-    const game = readyLife(changed, { seed: seedWhere(northgateOffers) });
+    const game = readyLife(changed, { seed: seedWhere((seed) => northgateOffers(content, seed)) });
     toApplied(game);
     const before = game.state.quality[WELLBEING] ?? 0;
     expect(game.state.setpiece.answered[INTERVIEW] ?? 0).toBe(0);
@@ -399,7 +397,7 @@ function holdOnly(game: Game, currency: Currency, bank: number, naira: number): 
 
 /** The interview with its questions and order changed. */
 function interviewAs(changed: SetpieceEntry, options: LifeOptions = {}): Game {
-  return readyLife({ ...content, setpiece: { ...content.setpiece, [INTERVIEW]: changed } }, { seed: seedWhere(northgateOffers), ...options });
+  return readyLife({ ...content, setpiece: { ...content.setpiece, [INTERVIEW]: changed } }, { seed: seedWhere((seed) => northgateOffers(content, seed)), ...options });
 }
 
 describe("a set piece asked in a fixed order", () => {
@@ -546,7 +544,7 @@ describe("the interview, unchanged", () => {
   test("[R-SETPIECE-001] [R-SETPIECE-004] given the interview, which has no fixed order and no closing answer, when it opens and is answered, then its order is drawn on visa and it stays open until the last answer", () => {
     expect(entry.order).toBeUndefined();
     expect(entry.questions.flatMap((question) => question.answers).filter((answer) => answer.closes === true || answer.requires !== undefined)).toEqual([]);
-    const seed = seedWhere(northgateOffers);
+    const seed = seedWhere((seed) => northgateOffers(content, seed));
     const game = life({ seed });
     toApplied(game);
     const asked = game.state.setpiece.open!.questions;

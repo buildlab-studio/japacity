@@ -8,7 +8,7 @@ import { bp } from "../engine/int";
 import type { Accepted, ActivityEntry, BaseEvent, Id, Money, SlotPick } from "../engine/types";
 import { pointsScore } from "../route/gates/points";
 import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
-import { applyEffects, draw, readyLife, slot, toDecision, UK } from "../testing/route.journey";
+import { applyEffects, raiseSeed, readyLife, slot, toDecision, UK } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
@@ -92,16 +92,6 @@ function holding(scenario: Id<"scenario">, side: Id<"activity">): Game {
   const game = start({ content, scenario });
   applyEffects(game, [{ type: "activity/start-job", job: side }]);
   return game;
-}
-
-/** A seed whose first draw on the job stream lands under the chance (or over it, with `hit` false). */
-function seedFor(hit: boolean): string {
-  const chance = content.tuning.activity.raiseChanceBp;
-  for (let n = 0; n < 200; n += 1) {
-    const seed = `notice-${String(n)}`;
-    if (draw(seed, "job", 0, 10000) < chance === hit) return seed;
-  }
-  throw new Error("No seed found.");
 }
 
 describe("side jobs by level", () => {
@@ -211,7 +201,7 @@ describe("the developer's acts", () => {
   });
 
   test("[R-ACTIVITY-013] given a job held six months or more, when the draw lands, then the job's pay rises by the tuning's raise from the next month, standing rises, and the raise never comes twice", () => {
-    const game = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     const job = game.state.activity.job!;
     const base = figure(entryOf(job).pay!);
     const noticed = month(game, [slot(NOTICED)]);
@@ -225,7 +215,7 @@ describe("the developer's acts", () => {
   });
 
   test("[R-ACTIVITY-013] given a job held six months or more, when the draw misses, then the pay stays and the month says nobody has said anything yet", () => {
-    const game = start({ content, scenario: "scenario.tunde", seed: seedFor(false) });
+    const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, false) });
     const job = game.state.activity.job!;
     const missed = month(game, [slot(NOTICED)]);
     expect(missed.events).toContainEqual(expect.objectContaining({ type: "activity/noticed", job, raised: false }));
@@ -268,7 +258,7 @@ describe("each act's outcome told the month it happens", () => {
   });
 
   test("[R-ACTIVITY-013] given the raise lands, when the month is told, then its line carries what the pay goes up by a month and the pay after it", () => {
-    const game = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     const job = game.state.activity.job!;
     const base = figure(entryOf(job).pay!);
     const currency = entryOf(job).pay!.currency;
@@ -281,7 +271,7 @@ describe("each act's outcome told the month it happens", () => {
 
 describe("the raise in the view", () => {
   test("[R-ACTIVITY-013] given the raise lands, when the view is read, then the job carries its pay with the raise and the month it landed, the month of the report that told it", () => {
-    const game = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     const job = game.state.activity.job!;
     const base = figure(entryOf(job).pay!);
     expect(game.view().job.raise).toBeUndefined();
@@ -295,10 +285,10 @@ describe("the raise in the view", () => {
   });
 
   test("[R-ACTIVITY-013] given the draw misses, or the raised job is left, when the view is read, then the job carries no raise", () => {
-    const missed = start({ content, scenario: "scenario.tunde", seed: seedFor(false) });
+    const missed = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, false) });
     month(missed, [slot(NOTICED)]);
     expect(missed.view().job.raise).toBeUndefined();
-    const raised = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    const raised = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     month(raised, [slot(NOTICED)]);
     expect(raised.view().job.raise).toBeDefined();
     raised.accept({ type: "activity/quit" });
