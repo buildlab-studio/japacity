@@ -98,7 +98,7 @@ describe("where the numbers come from", () => {
       const document = at(pages, numbersPath(rule.name));
       expect(document.querySelectorAll("tbody tr")).toHaveLength(rule.numbers!.rows.length);
     }
-    const guides = at(pages, numbersPath("guides"));
+    const guides = at(pages, numbersPath("guide"));
     const stale = [...guides.querySelectorAll("tbody tr")].find((row) => row.textContent.includes("tuning.guide.staleMonths"));
     expect(stale?.hasAttribute("data-working")).toBe(true);
     expect(stale?.lastElementChild?.textContent).toBe(text["guide.page.numbers.working"]);
@@ -133,7 +133,7 @@ describe("the words a player reads", () => {
       const document = new DOMParser().parseFromString(page.html, "text/html");
       expect(`${page.path}: ${document.body.textContent}`).not.toMatch(/working value/i);
     }
-    const guides = at(pages, numbersPath("guides"));
+    const guides = at(pages, numbersPath("guide"));
     const stale = [...guides.querySelectorAll("tbody tr")].find((row) => row.textContent.includes("tuning.guide.staleMonths"));
     expect(stale?.textContent.toLowerCase()).toContain(text["guide.page.numbers.estimate"]);
   });
