@@ -3,14 +3,12 @@
 // list and holding no blocked word, in any of their spellings. One free change,
 // then a wait of `account.renameDays` between changes. A handle only: never the
 // character's name and never a way in.
-import type { NameProblem } from "@japacity/api";
+import { USERNAME, type NameProblem } from "@japacity/api";
 import { blockedWords, reservedNames } from "@japacity/content";
 import { time } from "@japacity/sim";
 import type { AccountRow } from "@japacity/store";
 
 import type { ServerConfig } from "../config";
-
-const USERNAME = /^[A-Za-z0-9_]{3,20}$/;
 
 /** Digits that stand in for letters in a spelling meant to slip past the lists. */
 const STAND_INS: Record<string, string> = { "0": "o", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g" };

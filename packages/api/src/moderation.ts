@@ -7,6 +7,9 @@ import type { ServerRejection } from "./reply";
 
 export type { ReportCite, ReportReason };
 
+/** R-MODERATION-020: the longest feedback, in characters (code points). */
+export const FEEDBACK_MAX_CHARS = 500;
+
 /** R-MODERATION-004: the reasons in the order the report sheet lists them. */
 export const REPORT_REASONS = ["scam", "harassment", "impersonation", "underage", "sexual", "hate", "self-harm", "illegal", "cheating", "advert", "other"] as const satisfies readonly ReportReason[];
 

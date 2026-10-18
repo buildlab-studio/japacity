@@ -4,7 +4,7 @@
 // side's use of the wire fails the type check.
 export type * from "./reply";
 export type * from "./game";
-export type * from "./account";
+export * from "./account";
 export type * from "./pair";
 export type * from "./lottery";
 export type * from "./advert";

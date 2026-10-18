@@ -3,9 +3,10 @@
 // and said in the console with the error's name, message and component stack and the build it ran on, so a broken
 // screen says why to whoever looks. Nothing of the error is counted or sent; Tell us opens the feedback box with the
 // error's name and the build written in, never the message or the stack, and the player sends it or not.
+import { FEEDBACK_MAX_CHARS } from "@japacity/api";
 import { Component, useState, type ErrorInfo, type ReactNode } from "react";
 
-import { FEEDBACK_MAX_CHARS, FeedbackForm } from "../moderation/Feedback";
+import { FeedbackForm } from "../moderation/Feedback";
 import { useModeration } from "../moderation/ModerationProvider";
 import { words } from "../moderation/moderation.words";
 import { buildOf } from "../stamp/stamp";

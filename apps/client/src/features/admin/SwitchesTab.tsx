@@ -1,6 +1,6 @@
 // The four off switches and the dials of the private settings (R-SERVER-030,
 // R-SERVER-031): each change carries a reason and is logged with who made it.
-import { type DialChange, type Dials, type SettingChange, SWITCH_NAMES, type SwitchName } from "@japacity/api";
+import { type DialChange, type Dials, MAX_DIAL, type SettingChange, SWITCH_NAMES, type SwitchName } from "@japacity/api";
 import { content } from "@japacity/content";
 import { useState } from "react";
 
@@ -11,7 +11,6 @@ import type { AdminApi } from "./api";
 import { Choice, Confirm, Field, Loaded, ReloadButton, Section, Table, useLoad } from "./admin.ui";
 
 const WHOLE = /^\d{1,10}$/;
-const MAX_DIAL = 2_147_483_647;
 
 type DialName = DialChange["dial"];
 

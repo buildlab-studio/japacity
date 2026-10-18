@@ -4,6 +4,7 @@
 // the dedication lights awaiting a look with Approve and Refuse (R-MODERATION-021)
 // and the log, read by item or account (R-MODERATION-015), which has no edit.
 import {
+  ACTION_MAX_DAYS,
   type AccountSummary,
   type DecidedReply,
   type ModerationLogEntry,
@@ -25,7 +26,6 @@ import type { AdminApi } from "./api";
 import { Choice, Confirm, Field, Loaded, ReloadButton, Section, Table, useLoad } from "./admin.ui";
 import { RollbackAnswer } from "./ServerTabs";
 
-const MAX_DAYS = 3650;
 const WHOLE = /^\d{1,4}$/;
 
 const REASON_OPTIONS = REPORT_REASONS.map((reason) => ({ value: reason, label: reason }));
@@ -114,7 +114,7 @@ function CloseReport({ api, item, onDone }: { api: AdminApi; item: string; onDon
   const [body, setBody] = useState("");
   const [note, setNote] = useState("");
   const needsDays = action === "mute" || action === "suspend";
-  const daysOk = WHOLE.test(days) && Number(days) >= 1 && Number(days) <= MAX_DAYS;
+  const daysOk = WHOLE.test(days) && Number(days) >= 1 && Number(days) <= ACTION_MAX_DAYS;
   const blocked = needsDays && !daysOk ? words("admin.close.days") : action === "refer" && body.trim() === "" ? words("admin.close.body") : null;
   return (
     <div className="flex flex-col gap-3 border-t border-sheet-line pt-3">

@@ -2,6 +2,7 @@
 // this account or decided one of its reports, the notice with its one appeal per action (R-MODERATION-007,
 // R-MODERATION-016). In the world they are two rows in the phone's Settings, the game's menu now; the broken screen's
 // Tell us opens the same box (analytics.md R-ANALYTICS-002).
+import { FEEDBACK_MAX_CHARS } from "@japacity/api";
 import { BellDot, MessageSquareText } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -71,9 +72,6 @@ export function FeedbackForm({ moderation, screen, max, initial = "" }: { modera
     </form>
   );
 }
-
-/** `config.feedback.maxChars` lives on the server, which does not send it, so the box mirrors its 500. */
-export const FEEDBACK_MAX_CHARS = 500;
 
 const DAY_FORMAT = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
 
