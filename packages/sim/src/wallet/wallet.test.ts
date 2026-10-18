@@ -12,6 +12,7 @@ import { registry } from "../kinds";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { setPockets } from "../testing/wallet";
 import { standInWorld } from "../world/standIn";
 import type { WalletEvent } from "./wallet.events";
 import { pocketFor, REASON_LINE } from "./wallet.logic";
@@ -142,15 +143,9 @@ describe("pockets and debits", () => {
   });
 });
 
-/** Sets the naira pockets to these figures through the engine, as gifts and mishaps. */
+/** Sets the naira pockets to these figures through the engine, and checks they hold them. */
 function setNaira(game: Game, pockets: { cash: number; bank: number }): void {
-  const held = game.state.wallet.pockets.NGN;
-  const effects: Effect[] = [];
-  if (held.cash > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "cash", amount: held.cash, reason: "mishap" });
-  if (held.bank > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "bank", amount: held.bank, reason: "mishap" });
-  if (pockets.cash > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "cash", amount: pockets.cash, reason: "gift" });
-  if (pockets.bank > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "bank", amount: pockets.bank, reason: "gift" });
-  apply(game, effects);
+  setPockets(game, { NGN: pockets });
   expect(game.state.wallet.pockets.NGN).toMatchObject(pockets);
 }
 

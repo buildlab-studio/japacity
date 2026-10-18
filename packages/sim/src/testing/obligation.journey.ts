@@ -33,16 +33,6 @@ export function settledAbroad(content: Content, options: LifeOptions = {}): Game
   return game;
 }
 
-/** Leaves exactly `bank` pence in the GBP bank pocket and none in cash. */
-export function setPounds(game: Game, bank: number): void {
-  const pocket = game.state.wallet.pockets.GBP;
-  const effects: Effect[] = [];
-  if (pocket.cash > 0) effects.push({ type: "money/take", currency: "GBP", pocket: "cash", amount: pocket.cash, reason: "mishap" });
-  if (pocket.bank > bank) effects.push({ type: "money/take", currency: "GBP", pocket: "bank", amount: pocket.bank - bank, reason: "mishap" });
-  if (pocket.bank < bank) effects.push({ type: "money/add", currency: "GBP", pocket: "bank", amount: bank - pocket.bank, reason: "gift" });
-  if (effects.length > 0) applyEffects(game, effects);
-}
-
 /** Opens an obligation by effect, as an activity or an offer would, and returns the one new instance. */
 export function openOwed(game: Game, obligation: Id<"obligation">, principal?: number, terms: Terms = {}): ObligationState {
   const before = new Set(Object.keys(game.state.obligation.items));

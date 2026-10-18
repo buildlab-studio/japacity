@@ -24,12 +24,12 @@ import {
   PHONE,
   RENT_FLAT,
   RENT_ROOM,
-  setPounds,
   settledAbroad,
   SHORTFALL,
   TUITION,
   UPKEEP,
 } from "../testing/obligation.journey";
+import { setPockets } from "../testing/wallet";
 
 const CREDIT = content.tuning.credit;
 const STANDING: Id<"quality"> = "quality.standing";
@@ -69,7 +69,7 @@ describe("rent", () => {
     closeTypes(game, "rent", "upkeep");
     markBy(game, 60);
     const flat = openOwed(game, RENT_FLAT);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     const misses = entryOf(RENT_FLAT).onMiss;
     expect(misses).toEqual([
       { type: "quality/add", quality: STANDING, amount: -3 },
@@ -114,7 +114,7 @@ describe("rent", () => {
     const game = settledAbroad(content);
     closeTypes(game, "upkeep");
     markBy(game, 60);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 2);
     expect(owedOf(game, RENT_ROOM)).toMatchObject({ missed: 2, state: "grace" });
     const third = nextMonth(game);
@@ -126,12 +126,12 @@ describe("rent", () => {
   test("[R-ABROAD-003] given rent missed twice, when the next month is paid, then the misses start over and no eviction follows", () => {
     const game = settledAbroad(content);
     closeTypes(game, "upkeep");
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 2);
-    setPounds(game, entryOf(RENT_ROOM).amount);
+    setPockets(game, { GBP: entryOf(RENT_ROOM).amount });
     playMonths(game, 1);
     expect(owedOf(game, RENT_ROOM)).toMatchObject({ missed: 0, state: "active" });
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 2);
     expect(owedOf(game, RENT_ROOM)).toMatchObject({ missed: 2, state: "grace" });
   });
@@ -143,7 +143,7 @@ describe("rent", () => {
   test("[R-ABROAD-003] given a flat taken with one month's rent as its deposit, when the character goes home, then the deposit comes back to the pound bank as deposit-return", () => {
     const game = settledAbroad(content);
     markBy(game, 60);
-    setPounds(game, 1000000);
+    setPockets(game, { GBP: 1000000 });
     game.endTurn([{ activity: FLAT_UK, param: null }]);
     expect(isOpen(game, RENT_FLAT)).toBe(true);
     const home = game.accept({ type: "return/home" });
@@ -160,10 +160,10 @@ describe("rent", () => {
   test("[R-ABROAD-003] given a flat taken with its deposit, when it is lost to the third missed rent, then the eviction returns no deposit", () => {
     const game = settledAbroad(content);
     markBy(game, 60);
-    setPounds(game, 1000000);
+    setPockets(game, { GBP: 1000000 });
     game.endTurn([{ activity: FLAT_UK, param: null }]);
     closeTypes(game, "upkeep");
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     const months = [nextMonth(game), nextMonth(game), nextMonth(game)];
     expect(isOpen(game, RENT_FLAT)).toBe(false);
     expect(isOpen(game, RENT_ROOM)).toBe(true);
@@ -202,7 +202,7 @@ describe("the phone", () => {
     closeTypes(game, "rent", "upkeep");
     markBy(game, 60);
     openOwed(game, PHONE);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 2);
     expect(owedOf(game, PHONE).missed).toBe(2);
     const third = nextMonth(game);
@@ -244,10 +244,10 @@ describe("tuition", () => {
   test("[R-ABROAD-005] given an instalment missed, when the next month pays it, then the student stays and the next instalment falls three months after the first", () => {
     const { game, tuition } = student();
     const pounds = game.state.wallet.pockets.GBP.bank;
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     nextMonth(game);
     expect(owedOf(game, TUITION)).toMatchObject({ missed: 1, state: "grace" });
-    setPounds(game, pounds);
+    setPockets(game, { GBP: pounds });
     const paid = nextMonth(game);
     expect(eventsOf(paid, "obligation/charged").filter((event) => event.id === tuition.id)).toHaveLength(1);
     expect(game.state.status.current?.entry).toBe(STUDENT);
@@ -259,7 +259,7 @@ describe("tuition", () => {
 
   test("[R-ABROAD-005] given an instalment missed twice, when the grace of one month is passed, then the tuition defaults and the student is withdrawn: the status lapses at once", () => {
     const { game } = student();
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     nextMonth(game);
     expect(game.state.status.current?.entry).toBe(STUDENT);
     const second = nextMonth(game);
@@ -267,7 +267,7 @@ describe("tuition", () => {
     expect(game.state.status.current?.entry).not.toBe(STUDENT);
     expect(second.lines.find((line) => line.key === "line.obligation.withdrawn")).toMatchObject({ tone: "bad", attention: true });
     // Withdrawn, the tuition is on record and collected no further.
-    setPounds(game, PRINCIPAL);
+    setPockets(game, { GBP: PRINCIPAL });
     const after = nextMonth(game);
     expect(eventsOf(after, "wallet/debited").filter((event) => event.reason === "fee-school")).toEqual([]);
     expect(checkInvariants(game.state, content)).toEqual([]);
@@ -290,7 +290,7 @@ function carAfter(payments: number, mark = 30): { game: Game; car: ObligationSta
   const game = settledAbroad(content);
   closeTypes(game, "rent", "upkeep");
   markBy(game, mark);
-  setPounds(game, 5000000);
+  setPockets(game, { GBP: 5000000 });
   openOwed(game, CAR, CAR_PRINCIPAL);
   playMonths(game, payments);
   return { game, car: owedOf(game, CAR) };
@@ -315,7 +315,7 @@ describe("the car", () => {
   test("[R-CAR-002] given a car on finance, when it is open, then obligation/has car holds; it goes when the car is taken", () => {
     const { game } = carAfter(2);
     expect(hasCar(game)).toBe(true);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 3);
     expect(isOpen(game, CAR)).toBe(false);
     expect(hasCar(game)).toBe(false);
@@ -325,7 +325,7 @@ describe("the car", () => {
     const { game, car } = carAfter(13);
     expect(carPaid(CAR_ENTRY, car)).toBeLessThan(TERMS.third);
     const outstanding = car.outstanding;
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     const first = nextMonth(game);
     expect(keysOf(first.lines, "line.obligation.")).toEqual(["line.obligation.missed"]);
     const second = nextMonth(game);
@@ -345,7 +345,7 @@ describe("the car", () => {
   test("[R-CAR-003] given 14 payments made, a third of the price, when the third miss in a row comes, then the lender goes to court and the car is taken three months later", () => {
     const { game, car } = carAfter(14);
     expect(carPaid(CAR_ENTRY, car)).toBeGreaterThanOrEqual(TERMS.third);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 2);
     const month = game.state.turn.month + 1;
     const third = nextMonth(game);
@@ -362,12 +362,12 @@ describe("the car", () => {
 
   test("[R-CAR-003] given a car in court, when the arrears are paid whole with obligation/pay, then the car stays and payments run again; any other amount is a bad amount", () => {
     const { game } = carAfter(14);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 3);
     const car = owedOf(game, CAR);
     const arrears = game.view().obligations.find((owed) => owed.id === car.id)?.due ?? 0;
     expect(arrears).toBe(3 * (MONTHLY + car.amount));
-    setPounds(game, arrears + 5000000);
+    setPockets(game, { GBP: arrears + 5000000 });
     game.expectRejected({ type: "obligation/pay", obligation: car.id, amount: arrears - 1 }, "bad-amount");
     game.expectRejected({ type: "obligation/pay", obligation: car.id, amount: arrears + 1 }, "bad-amount");
     game.accept({ type: "obligation/pay", obligation: car.id, amount: arrears });
@@ -380,7 +380,7 @@ describe("the car", () => {
   test("[R-CAR-003] given a car with nothing missed, when its arrears are paid, then it is not legal; with too little money it cannot be afforded", () => {
     const { game, car } = carAfter(1);
     expect(game.expectRejected({ type: "obligation/pay", obligation: car.id, amount: MONTHLY }, "not-legal").code).toBe("not-legal");
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 1);
     const arrears = game.view().obligations.find((owed) => owed.id === car.id)?.due ?? 0;
     expect(arrears).toBe(MONTHLY + car.amount);
@@ -428,7 +428,7 @@ describe("the car", () => {
 
   test("[R-CAR-005] given every monthly payment made, when the final payment is missed, then the car goes back with nothing owed", () => {
     const { game } = carAfter(36);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     const missed = nextMonth(game);
     expect(isOpen(game, CAR)).toBe(false);
     expect(isOpen(game, SHORTFALL)).toBe(false);

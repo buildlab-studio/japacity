@@ -11,6 +11,7 @@ import type { Accepted, Content, Id, OfferState, State } from "../engine/types";
 import { applyEffects, slot, toKnown } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { setPockets } from "../testing/wallet";
 import { cash } from "../testing/read";
 import { PARCEL, parcelSender } from "./offer.parcel";
 
@@ -67,19 +68,6 @@ function bank(game: Game): number {
 
 /** Enough in the bank for any month's bills, so a charge is never part-paid. */
 const PLENTY = 50_000_000;
-
-/** Naira cash and bank set through the wallet's own effects. */
-function setNaira(game: Game, inCash: number, inBank: number): void {
-  const pocket = game.state.wallet.pockets.NGN;
-  applyEffects(game, [
-    { type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "mishap" },
-    { type: "money/take", currency: "NGN", pocket: "bank", amount: pocket.bank, reason: "mishap" },
-  ]);
-  applyEffects(game, [
-    ...(inCash > 0 ? [{ type: "money/add", currency: "NGN", pocket: "cash", amount: inCash, reason: "gift" } as const] : []),
-    ...(inBank > 0 ? [{ type: "money/add", currency: "NGN", pocket: "bank", amount: inBank, reason: "gift" } as const] : []),
-  ]);
-}
 
 describe("the parcel: when it is shipped", () => {
   test("[R-STREET-010] [R-OFFER-002] given Ada with a sibling settled in the UK, when her months are played to her birthday, then the parcel opens in the birthday month and in no month before it, from that sibling", () => {
@@ -155,7 +143,7 @@ describe("the parcel: collecting it", () => {
   test("[R-OFFER-003] given a parcel and cash enough, when it is collected, then the handling charge leaves the cash and not the bank, and the parcel is gone", () => {
     const game = life(SIBLING_ABROAD);
     game.endTurn();
-    setNaira(game, parcel.handling * 4, parcel.handling * 10);
+    setPockets(game, { NGN: { cash: parcel.handling * 4, bank: parcel.handling * 10 } });
     const item = withParcel(game, "sibling-clothes");
     expect(item.terms["handling"]).toBe(parcel.handling);
     game.accept({ type: "offer/choose", offer: item.id, choice: "sibling-clothes" });
@@ -167,7 +155,7 @@ describe("the parcel: collecting it", () => {
   test("[R-OFFER-003] given cash under the charge, when the parcel is collected, then the cash goes first and the bank pays the rest", () => {
     const game = life(SIBLING_ABROAD);
     game.endTurn();
-    setNaira(game, parcel.handling - 100, parcel.handling);
+    setPockets(game, { NGN: { cash: parcel.handling - 100, bank: parcel.handling } });
     const item = withParcel(game, "sibling-phone");
     game.accept({ type: "offer/choose", offer: item.id, choice: "sibling-phone" });
     expect(cash(game) + bank(game)).toBe(parcel.handling - 100);
@@ -176,7 +164,7 @@ describe("the parcel: collecting it", () => {
   test("[R-OFFER-003] given less naira than the charge in cash and bank together, when the parcel is collected, then it is refused as cannot-afford and nothing changes", () => {
     const game = life(SIBLING_ABROAD);
     game.endTurn();
-    setNaira(game, parcel.handling - 1, 0);
+    setPockets(game, { NGN: { cash: parcel.handling - 1, bank: 0 } });
     const item = withParcel(game, "sibling-food");
     expect(game.view().offers.find((offer) => offer.entry === PARCEL)?.choices[0]?.allowed).toBe(false);
     game.expectRejected({ type: "offer/choose", offer: item.id, choice: "sibling-food" }, "cannot-afford");
@@ -185,7 +173,7 @@ describe("the parcel: collecting it", () => {
   test("[R-PEOPLE-004] given a parcel from a sibling abroad, when it is collected, then the only money that moves is the charge out of the player's own naira: nothing is credited from anyone", () => {
     const game = life(SIBLING_ABROAD);
     game.endTurn();
-    setNaira(game, parcel.handling * 2, 0);
+    setPockets(game, { NGN: { cash: parcel.handling * 2, bank: 0 } });
     const item = withParcel(game, "sibling-laptop");
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "sibling-laptop" });
     const money = result.events.filter((event) => event.type.startsWith("wallet/"));
@@ -198,7 +186,7 @@ describe("the parcel: what each thing gives", () => {
   function collect(holds: string, base: Content = content): { game: Game; before: State; result: Accepted } {
     const game = life(SIBLING_ABROAD, ADA, base);
     game.endTurn();
-    setNaira(game, parcel.handling * 10, PLENTY);
+    setPockets(game, { NGN: { cash: parcel.handling * 10, bank: PLENTY } });
     // Room under the top of every quality, so each gift shows whole.
     applyEffects(game, [{ type: "quality/add", quality: "quality.wellbeing", amount: -40 }]);
     const item = withParcel(game, holds);
@@ -234,7 +222,7 @@ describe("the parcel: what each thing gives", () => {
     const twinOf = (): Game => {
       const twin = life(SIBLING_ABROAD, ADA, CHARGED);
       twin.endTurn();
-      setNaira(twin, parcel.handling * 10, PLENTY);
+      setPockets(twin, { NGN: { cash: parcel.handling * 10, bank: PLENTY } });
       return twin;
     };
     const twin = twinOf();

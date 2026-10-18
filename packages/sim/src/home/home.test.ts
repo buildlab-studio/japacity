@@ -7,11 +7,12 @@ import { describe, expect, test } from "vitest";
 import { bp, divFloor } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import { applyOverlay } from "../engine/overlay";
-import type { Accepted, BaseEvent, Content, Effect, Id, PersonFacts, Tuning, World } from "../engine/types";
+import type { Accepted, BaseEvent, Content, Id, PersonFacts, Tuning, World } from "../engine/types";
 import { homeCharges } from "./home.logic";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { setPockets } from "../testing/wallet";
 import { eventsOf, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 
@@ -50,17 +51,6 @@ function ada(base: Content = content, seed = "seed-1"): Game {
   return start({ content: base, scenario: "scenario.ada", seed });
 }
 
-/** Leaves exactly this much naira in cash and in the bank. */
-function setNaira(game: Game, cash: number, bank: number): void {
-  const pocket = game.state.wallet.pockets.NGN;
-  const effects: Effect[] = [];
-  if (pocket.cash > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "mishap" });
-  if (pocket.bank > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "bank", amount: pocket.bank, reason: "mishap" });
-  if (cash > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "cash", amount: cash, reason: "gift" });
-  if (bank > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "bank", amount: bank, reason: "gift" });
-  applyEffects(game, effects);
-}
-
 /** What went out under the upkeep's reason this step. */
 function upkeepPaid(result: { events: BaseEvent[] }): number {
   return eventsOf(result, "wallet/debited")
@@ -87,7 +77,7 @@ function choose(game: Game, entry: Id<"offer">, choice: string): Accepted {
 /** Ada in Makoko with plenty of naira, on content whose eviction chance is `base`'s. */
 function inMakoko(base: Content, seed = "seed-1"): Game {
   const game = ada(base, seed);
-  setNaira(game, 0, 5_000_000_00);
+  setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
   game.accept({ type: "home/move", to: MAKOKO });
   return game;
 }
@@ -95,7 +85,7 @@ function inMakoko(base: Content, seed = "seed-1"): Game {
 /** Ada evicted in her first month in Makoko, holding `cash` in cash and plenty in the bank. */
 function evicted(cash = 50_000_00): { game: Game; result: Accepted } {
   const game = inMakoko(ALWAYS);
-  setNaira(game, cash, 5_000_000_00);
+  setPockets(game, { NGN: { cash, bank: 5_000_000_00 } });
   return { game, result: restMonth(game) };
 }
 
@@ -210,7 +200,7 @@ describe("moving", () => {
     const game = ada(CHARGED);
     const bank = 10_000_00;
     expect(home.makokoUpkeep).toBeGreaterThan(content.tuning.wallet.cashUpTo);
-    setNaira(game, 1_000_000_00, bank);
+    setPockets(game, { NGN: { cash: 1_000_000_00, bank } });
     const result = game.accept({ type: "home/move", to: MAKOKO });
     const debits = eventsOf(result, "wallet/debited").map((event) => [event["pocket"], event["amount"], event["reason"]]);
     expect(debits).toEqual([
@@ -227,10 +217,10 @@ describe("moving", () => {
 
   test("[R-HOME-002] given Ada one naira short of the rent, when she moves to Makoko, then it is refused with cannot-afford; with the rent exactly held it is accepted", () => {
     const short = ada();
-    setNaira(short, home.makokoUpkeep - 100, 0);
+    setPockets(short, { NGN: { cash: home.makokoUpkeep - 100, bank: 0 } });
     short.expectRejected({ type: "home/move", to: MAKOKO }, "cannot-afford");
     const exact = ada();
-    setNaira(exact, home.makokoUpkeep - 100, 100);
+    setPockets(exact, { NGN: { cash: home.makokoUpkeep - 100, bank: 100 } });
     exact.accept({ type: "home/move", to: MAKOKO });
     expect(exact.state.wallet.pockets.NGN).toMatchObject({ cash: 0, bank: 0 });
   });
@@ -252,7 +242,7 @@ describe("moving", () => {
 
   test("[R-HOME-002] given Ada abroad, when she asks to move to Makoko, then it is refused: the home is Lagos", () => {
     const game = ada();
-    setNaira(game, 0, 1_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 1_000_000_00 } });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     expect(game.expectRejected({ type: "home/move", to: MAKOKO }, "not-legal").code).toBe("not-legal");
   });
@@ -272,7 +262,7 @@ describe("moving", () => {
   test("[R-HOME-002] given two lives on one seed, one moved to Makoko, when each plays four months, then each month the one in Makoko pays Makoko's charge where the other pays the family's, and keeps the difference", () => {
     const there = inMakoko(CHARGED_NEVER);
     const twin = ada(CHARGED_NEVER);
-    setNaira(twin, 0, 5_000_000_00);
+    setPockets(twin, { NGN: { cash: 0, bank: 5_000_000_00 } });
     const rent = home.makokoUpkeep;
     let saved = 0;
     for (let i = 0; i < 4; i += 1) {
@@ -298,7 +288,7 @@ describe("moving", () => {
 describe("the first month's rent", () => {
   test("[R-HOME-002] given Ada moved to Makoko this month, paying the first month's rent on the move, when the month ends, then the room is not charged again that month; the next month charges Makoko's rent once", () => {
     const game = ada(CHARGED_NEVER);
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     const moved = game.accept({ type: "home/move", to: MAKOKO });
     expect(upkeepPaid(moved)).toBe(home.makokoUpkeep);
     const first = restMonth(game);
@@ -315,7 +305,7 @@ describe("the first month's rent", () => {
 
   test("[R-HOME-002] [R-HOME-004] given a guest whose stay ends, when where-next is answered makoko and the month ends, then the rent the answer paid is the month's: it is not charged again that month", () => {
     const game = ada(CHARGED_NEVER);
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     applyEffects(game, [{ type: "offer/open", offer: WHERE_NEXT }]);
     const answered = choose(game, WHERE_NEXT, "makoko");
     expect(upkeepPaid(answered)).toBe(home.makokoUpkeep);
@@ -368,7 +358,7 @@ describe("eviction", () => {
       const game = inMakoko(ALWAYS);
       // The month's rent is taken before the clearing, cash first (R-OBLIGATION-002), so the cash is set above it.
       const charge = bp(home.makokoUpkeep, 20000);
-      setNaira(game, charge + home.evictionLossNaira + over, 5_000_000_00);
+      setPockets(game, { NGN: { cash: charge + home.evictionLossNaira + over, bank: 5_000_000_00 } });
       const result = restMonth(game);
       const rentFromCash = eventsOf(result, "wallet/debited").filter((event) => event["reason"] === "upkeep" && event["pocket"] === "cash").reduce((sum, event) => sum + (event["amount"] as number), 0);
       const held = charge + home.evictionLossNaira + over - rentFromCash;
@@ -455,7 +445,7 @@ describe("taken in", () => {
     const { game } = evicted();
     choose(game, TAKEN_IN, "someone");
     for (let i = 0; i < home.guestMonths; i += 1) restMonth(game);
-    setNaira(game, home.makokoUpkeep - 100, 0);
+    setPockets(game, { NGN: { cash: home.makokoUpkeep - 100, bank: 0 } });
     expect(offerOf(game, WHERE_NEXT)?.choices.map((choice) => [choice.id, choice.allowed])).toEqual([
       ["makoko", false],
       ["family", true],
@@ -491,11 +481,11 @@ describe("hosting", () => {
 
   test("[R-HOME-005] given the authority says a joined player stays with Ada until month 2, when the months pass, then her upkeep rises by the tuning's share for those months and falls back after, with no money credited to anyone", () => {
     const game = ada();
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     joined(game);
     game.accept({ type: "home/host", pair: "pair-1", until: 2 }, "authority");
     const twin = ada();
-    setNaira(twin, 0, 5_000_000_00);
+    setPockets(twin, { NGN: { cash: 0, bank: 5_000_000_00 } });
     joined(twin);
     const rise = bp(ADA_UPKEEP, home.hostBp);
     const extras: number[] = [];
@@ -572,7 +562,7 @@ describe("a life from sixteen", () => {
 describe("the starting life's charges at home", () => {
   test("[R-HOME-009] [R-PLACE-007] given a life from sixteen at the family house, when it flies abroad and comes home, then the family house's upkeep the home card names is open again and the next month charges it", () => {
     const game = fromSixteen("family-house", CHARGED_NEVER);
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     expect(openEntries(game)).not.toContain(FAMILY_UPKEEP);
@@ -602,7 +592,7 @@ describe("the starting life's charges at home", () => {
 describe("the home card's moves", () => {
   test("[R-HOME-008] [R-HOME-010] given Ada at the family house with the rent held, when the view is read, then the moves are to Makoko, with its rent a month and the first month's rent taken on the move, and to the room in a compound, with its upkeep a month and the year's rent and fees taken on the move, both open", () => {
     const game = ada(CHARGED_NEVER);
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     expect(game.view().home.moves).toEqual([
       { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null },
       { to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: null },
@@ -612,11 +602,11 @@ describe("the home card's moves", () => {
 
   test("[R-HOME-008] given Ada short of the first month's rent, when the view is read, then the move is shut as short and the command refuses it the same way; once moved, the move back is shut as moved and refused", () => {
     const game = ada(CHARGED_NEVER);
-    setNaira(game, 0, home.makokoUpkeep - 1);
+    setPockets(game, { NGN: { cash: 0, bank: home.makokoUpkeep - 1 } });
     // The hostel's first month is less than Makoko's, so it alone stays open.
     expect(game.view().home.moves.map((move) => move.shut)).toEqual(["short", "short", null]);
     game.expectRejected({ type: "home/move", to: MAKOKO }, "cannot-afford");
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     game.accept({ type: "home/move", to: MAKOKO });
     expect(game.view().home.moves).toEqual([
       { to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" },
@@ -639,7 +629,7 @@ describe("the home card's moves", () => {
       return { ...world, vars: { ...world.vars, "var.inflation": inflation } };
     };
     const game = start({ content: CHARGED_NEVER, scenario: "scenario.ada", seed: "seed-1", worldAt });
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     const bill = game.view().obligations.find((owed) => owed.entry === FAMILY_UPKEEP)?.due;
     expect(bill).toBe(ADA_UPKEEP + bp(ADA_UPKEEP, inflation));
     expect(game.view().home.rent).toEqual({ currency: "NGN", amount: bill });

@@ -25,6 +25,8 @@ export {
 export { flownAda } from "./goal.journey";
 export { ALWAYS_GRANTED, offeredSeed, positionOf } from "./place.journey";
 export { bondWith } from "./read";
+export { setPockets } from "./wallet";
+export type { Held, SetOptions } from "./wallet";
 export { measure } from "../engine/golden";
 export type { Golden } from "../engine/golden";
 export { goldenScripts } from "../goldens/scripts";

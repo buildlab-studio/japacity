@@ -7,12 +7,13 @@ import { describe, expect, test } from "vitest";
 
 import { bp } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
-import type { Accepted, BaseEvent, Effect, Id } from "../engine/types";
+import type { Accepted, BaseEvent, Id } from "../engine/types";
 import { rideFare } from "../place/place.logic";
 import { stepWith } from "../engine/step";
 import { applyEffects, withEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { setPockets } from "../testing/wallet";
 import type { WalletEvent } from "../wallet/wallet.events";
 import { compoundMoveIn } from "../home/home.logic";
 import { eventsOf, naira, quality, restMonth } from "../testing/read";
@@ -53,16 +54,6 @@ function ada(): Game {
   return start({ content, scenario: "scenario.ada", seed: "seed-1" });
 }
 
-/** Leaves exactly this much naira, all in the bank. */
-function setNaira(game: Game, bank: number): void {
-  const pocket = game.state.wallet.pockets.NGN;
-  const effects: Effect[] = [];
-  if (pocket.cash > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "mishap" });
-  if (pocket.bank > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "bank", amount: pocket.bank, reason: "mishap" });
-  if (bank > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "bank", amount: bank, reason: "gift" });
-  applyEffects(game, effects);
-}
-
 function setQuality(game: Game, id: Id<"quality">, value: number): void {
   applyEffects(game, [{ type: "quality/add", quality: id, amount: value - quality(game, id) }]);
 }
@@ -87,7 +78,7 @@ function moved(result: { events: BaseEvent[] }): { type: string; reason: string;
 /** Ada moved into the room in a compound with `spare` naira left. */
 function inTheRoom(spare: number): Game {
   const game = ada();
-  setNaira(game, compoundMoveIn(content.tuning.home) + spare);
+  setPockets(game, { NGN: compoundMoveIn(content.tuning.home) + spare });
   game.accept({ type: "home/move", to: COMPOUND });
   expect(naira(game)).toBe(spare);
   return game;
@@ -157,7 +148,7 @@ describe("buying and selling", () => {
 
   test("[R-HOME-013] [R-HOME-006] given Ada at the family house, when she tries a TV, a fridge or a generator, then each is refused: the parlour is Mama's and Papa's, and the market says why", () => {
     const game = ada();
-    setNaira(game, 5_000_000_00);
+    setPockets(game, { NGN: 5_000_000_00 });
     for (const thing of ["thing.tv", "thing.fridge", "thing.generator", "thing.solar"] as const) {
       game.expectRejected({ type: "thing/buy", thing }, "not-legal");
       expect(game.view().things.market.find((one) => one.thing === thing)?.shut).toBe("home");
@@ -169,10 +160,10 @@ describe("buying and selling", () => {
     const game = inTheRoom(price("thing.decoder"));
     game.expectRejected({ type: "thing/buy", thing: "thing.decoder" }, "not-legal");
     expect(game.view().things.market.find((one) => one.thing === "thing.decoder")?.shut).toBe("needs");
-    setNaira(game, price("thing.tv") - 1);
+    setPockets(game, { NGN: price("thing.tv") - 1 });
     game.expectRejected({ type: "thing/buy", thing: "thing.tv" }, "cannot-afford");
     expect(game.view().things.market.find((one) => one.thing === "thing.tv")?.shut).toBe("short");
-    setNaira(game, price("thing.tv") + price("thing.decoder"));
+    setPockets(game, { NGN: price("thing.tv") + price("thing.decoder") });
     buy(game, "thing.tv");
     buy(game, "thing.decoder");
     expect(naira(game)).toBe(0);
@@ -195,7 +186,7 @@ describe("buying and selling", () => {
 
   test("[R-HOME-013] [R-HOME-006] given a mirror and a car bought, when they land, then each lifts standing once, as its entry says", () => {
     const game = ada();
-    setNaira(game, price("thing.car") + price("thing.mirror"));
+    setPockets(game, { NGN: price("thing.car") + price("thing.mirror") });
     setQuality(game, STANDING, 40);
     buy(game, "thing.mirror");
     expect(quality(game, STANDING)).toBe(41);
@@ -251,7 +242,7 @@ describe("what a thing does in life", () => {
 
   test("[R-HOME-013] [R-HOME-012] given a data router, then a phone too, when the month closes, then the plan's month is taken under running, halved with the phone, and a course online costs less", () => {
     const game = ada();
-    setNaira(game, price("thing.data") + price("thing.phone") + 100_000_00);
+    setPockets(game, { NGN: price("thing.data") + price("thing.phone") + 100_000_00 });
     buy(game, "thing.data");
     const course = content.activity["activity.learn-tech"]!.cost[0]!.amount as number;
     expect(game.view().activities.find((one) => one.id === "activity.learn-tech")?.cost).toEqual([{ currency: "NGN", amount: bp(course, 6000) }]);
@@ -272,7 +263,7 @@ describe("what a thing does in life", () => {
     let result = restMonth(game);
     expect(eventsOf(result, "things/stood")).toEqual([{ type: "things/stood", thing: "thing.generator", amount: fuel }]);
     expect(moved(result).filter((one) => one.reason === "running")).toEqual([]);
-    setNaira(game, fuel);
+    setPockets(game, { NGN: fuel });
     result = restMonth(game);
     expect(eventsOf(result, "things/ran")).toEqual([{ type: "things/ran", thing: "thing.generator", amount: fuel }]);
     expect(result.events.some((event) => event.type === "quality/changed" && (event as unknown as { quality: string }).quality === WELLBEING)).toBe(true);
@@ -290,7 +281,7 @@ describe("what a thing does in life", () => {
       ["thing.laptop", false],
     ]);
     setQuality(game, TECH, 50);
-    setNaira(game, 50_000_00);
+    setPockets(game, { NGN: 50_000_00 });
     game.accept({ type: "activity/now", activity: "activity.learn-tech", param: null });
     expect(quality(game, TECH)).toBe(53);
   });
@@ -326,7 +317,7 @@ describe("the car on the map (R-PLACE-010 and R-WORLD-017)", () => {
     const game = inTheRoom(price("thing.car") + content.tuning.home.hostelRentKobo);
     buy(game, "thing.car");
     restMonth(game);
-    setNaira(game, content.tuning.home.hostelRentKobo + 10_000_00);
+    setPockets(game, { NGN: content.tuning.home.hostelRentKobo + 10_000_00 });
     game.accept({ type: "home/move", to: HOSTEL });
     expect(game.view().things.drive).toBe(false);
     expect(game.view().things.owned).toMatchObject([{ thing: "thing.car", stored: true }]);

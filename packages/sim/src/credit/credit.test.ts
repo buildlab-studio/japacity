@@ -4,7 +4,8 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import { checkInvariants } from "../engine/invariants";
 import type { Id, ObligationEntry } from "../engine/types";
-import { abroad, closeTypes, markBy, markOf, openOwed, PHONE, setPounds, settledAbroad, UK } from "../testing/obligation.journey";
+import { abroad, closeTypes, markBy, markOf, openOwed, PHONE, settledAbroad, UK } from "../testing/obligation.journey";
+import { setPockets } from "../testing/wallet";
 import { playMonths } from "../testing/place.journey";
 import { answerFirst, applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
@@ -98,7 +99,7 @@ describe("payments", () => {
     const game = carer();
     playMonths(game, 4);
     expect(markOf(game)).toBe(8 * CREDIT.onTime);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 1);
     expect(markOf(game)).toBe(8 * CREDIT.onTime - 2 * CREDIT.onMiss);
     expect(markOf(game)).toBe(0);
@@ -109,7 +110,7 @@ describe("payments", () => {
     const game = carer();
     playMonths(game, 4);
     // Upkeep is charged first and the phone last: enough for both, not for the rent between them.
-    setPounds(game, entryOf("obligation.upkeep-uk").amount + entryOf(PHONE).amount);
+    setPockets(game, { GBP: entryOf("obligation.upkeep-uk").amount + entryOf(PHONE).amount });
     // December may have opened its scene; the month is what is under test.
     if (game.state.setpiece.open !== null) answerFirst(game);
     const result = game.endTurn();
@@ -119,12 +120,12 @@ describe("payments", () => {
 
   test("[R-CREDIT-002] given a file at 0 or at 100, when a payment is missed or made, then the mark stays within 0 to 100 and the payment is still counted", () => {
     const game = carer();
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 1);
     expect(game.view().credit).toMatchObject({ mark: 0, missed: 2 });
     markBy(game, 100);
     expect(markOf(game)).toBe(100);
-    setPounds(game, 2 * MONTH_ABROAD);
+    setPockets(game, { GBP: 2 * MONTH_ABROAD });
     playMonths(game, 1);
     expect(game.view().credit).toMatchObject({ mark: 100, onTime: 3 });
     expect(checkInvariants(game.state, content)).toEqual([]);
@@ -258,7 +259,7 @@ describe("the view", () => {
   test("[R-CREDIT-007] given a file abroad, when the view is read, then it shows the mark, the counts, the judgment and what each entry needing credit asks, lowest first", () => {
     const game = carer();
     playMonths(game, 1);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 1);
     applyEffects(game, [{ type: "credit/judgment" }]);
     expect(game.view().credit).toEqual({

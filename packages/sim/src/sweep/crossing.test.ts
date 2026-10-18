@@ -10,7 +10,8 @@ import { applyOverlay } from "../engine/overlay";
 import { bp, convertMinor, mulDiv } from "../engine/int";
 import type { Accepted, Content, Currency, ForeignCurrency, Id, PlayerView, State } from "../engine/types";
 import { flownAda } from "../testing/goal.journey";
-import { abroad, closeTypes, markBy, setPounds, settledAbroad } from "../testing/obligation.journey";
+import { abroad, closeTypes, markBy, settledAbroad } from "../testing/obligation.journey";
+import { setPockets } from "../testing/wallet";
 import { applyEffects, draw, NORTHGATE, offeredWith, READY_PAPERS, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toHeld, toOffer, uk, UK, UNIT } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
@@ -305,10 +306,10 @@ describe("whole-life rules that cross kinds", () => {
     markBy(game, 30);
     const deposit = game.view().activities.find((option) => option.id === "activity.buy-car-finance")?.cost[0]?.amount ?? 0;
     expect(deposit).toBeGreaterThan(0);
-    setPounds(game, deposit);
+    setPockets(game, { GBP: deposit });
     month(game, [slot("activity.buy-car-finance")]);
     expect(owing(game, CAR)).toBeDefined();
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     const grace = content.obligation[CAR]?.grace ?? 0;
     let taken: Accepted | null = null;
     for (let missed = 0; missed <= grace && taken === null; missed += 1) {
@@ -334,7 +335,7 @@ describe("whole-life rules that cross kinds", () => {
     const sum = 10000;
     const game = settledAbroad(content);
     closeTypes(game, "rent", "upkeep", "phone");
-    setPounds(game, sum * 3);
+    setPockets(game, { GBP: sum * 3 });
     const rates = game.world().rates.GBP;
     const before = game.state.wallet.pockets.NGN;
     game.accept({ type: "wallet/remit", currency: "GBP", amount: sum, channel: "app" });
@@ -355,7 +356,7 @@ describe("whole-life rules that cross kinds", () => {
     const game = flownAda(content);
     const country = content.country["country.uk"]!;
     expect(game.view().place.fareHome).toEqual({ currency: "GBP", amount: bp(country.fare, country.decemberFactorBp) });
-    setPounds(game, 1000000);
+    setPockets(game, { GBP: 1000000 });
     if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
     game.endTurn();
     expect(game.state.setpiece.open?.entry).toBe("setpiece.december");
@@ -390,7 +391,7 @@ describe("whole-life rules that cross kinds", () => {
       const game = abroad(content);
       // A different month abroad before the return gives each life its own draws.
       for (let played = 0; played < months; played += 1) month(game);
-      setPounds(game, 600000);
+      setPockets(game, { GBP: 600000 });
       game.accept({ type: "return/home" });
       expect(game.state.place.returns.map((entry) => entry.shape)).toEqual(["by-choice"]);
       const back = game.state.turn.month;

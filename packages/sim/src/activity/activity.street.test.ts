@@ -7,6 +7,7 @@ import type { Accepted, BaseEvent, Id, Reason } from "../engine/types";
 import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { setPockets } from "../testing/wallet";
 import type { QualityEvent } from "../quality/quality.events";
 import { debits } from "../testing/read";
 import type { ActivityEvent } from "./activity.events";
@@ -54,20 +55,6 @@ function setQuality(game: Game, quality: Id<"quality">, value: number): void {
   applyEffects(game, [{ type: "quality/add", quality, amount: value - (game.state.quality[quality] ?? 0) }]);
 }
 
-/** Sets naira cash and bank to these amounts, through the wallet's own effects. */
-function setNaira(game: Game, cash: number, bank: number): void {
-  const pocket = game.state.wallet.pockets.NGN;
-  applyEffects(game, [
-    { type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "mishap" },
-    { type: "money/take", currency: "NGN", pocket: "bank", amount: pocket.bank, reason: "mishap" },
-  ]);
-  const effects = [
-    ...(cash > 0 ? [{ type: "money/add", currency: "NGN", pocket: "cash", amount: cash, reason: "gift" } as const] : []),
-    ...(bank > 0 ? [{ type: "money/add", currency: "NGN", pocket: "bank", amount: bank, reason: "gift" } as const] : []),
-  ];
-  applyEffects(game, effects);
-}
-
 /** A month with this slot beside the same month left to rest, in two copies of one life: what the slot alone moved shows as the difference. */
 function againstRest(prepare: (game: Game) => void, pick: Id<"activity">): { played: Accepted; rested: Accepted } {
   const played = ada();
@@ -85,7 +72,7 @@ describe("Computer Village: a phone", () => {
   test("[R-STREET-001] given a phone bought, when the month resolves, then it rides with the month in no slot, takes the tuning's price from cash under phone, and lifts wellbeing and network by the tuning's figures", () => {
     const game = ada();
     expect(content.activity[PHONE]?.slot).toBe("none");
-    setNaira(game, street.phonePrice, 0);
+    setPockets(game, { NGN: { cash: street.phonePrice, bank: 0 } });
     expect(option(game, PHONE)).toMatchObject({ allowed: true, cost: [{ currency: "NGN", amount: street.phonePrice }], affordable: true });
     const slots = game.view().freeSlots;
     // Every free slot rests and the phone still goes: it fills none.
@@ -99,14 +86,14 @@ describe("Computer Village: a phone", () => {
   test("[R-STREET-001] [R-WALLET-018] given the bank one kobo short of the price and the rest in cash, when the phone is bought, then, the price being over the line for cash, the bank goes first and cash pays the kobo; with the naira short in both, the slot fails for its cost and nothing is paid", () => {
     const game = ada();
     expect(street.phonePrice).toBeGreaterThan(content.tuning.wallet.cashUpTo);
-    setNaira(game, street.phonePrice * 2, street.phonePrice - 1);
+    setPockets(game, { NGN: { cash: street.phonePrice * 2, bank: street.phonePrice - 1 } });
     expect(option(game, PHONE)).toMatchObject({ allowed: true, affordable: true });
     const bought = game.endTurn([slot(PHONE)]);
     expect(moved(bought, "phone")).toEqual([
       { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: street.phonePrice - 1, reason: "phone" },
       { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 1, reason: "phone" },
     ]);
-    setNaira(game, street.phonePrice - 1, 0);
+    setPockets(game, { NGN: { cash: street.phonePrice - 1, bank: 0 } });
     expect(option(game, PHONE)).toMatchObject({ allowed: true, affordable: false });
     // R-ACTIVITY-015: the phone is bought at once, so with the naira short it is refused with cannot-afford
     // and nothing changes (the handle checks the state is untouched), where the slot failed for its cost.
@@ -116,7 +103,7 @@ describe("Computer Village: a phone", () => {
   test("[R-STREET-001] given a phone bought, when another is bought the next month, then it is a new phone: paid and lifted again", () => {
     const game = ada();
     for (let month = 0; month < 2; month += 1) {
-      setNaira(game, street.phonePrice, 0);
+      setPockets(game, { NGN: { cash: street.phonePrice, bank: 0 } });
       const result = game.endTurn([slot(PHONE)]);
       expect(moved(result, "phone")).toHaveLength(1);
       expect(changed(result, NETWORK, PHONE)).toEqual([street.phoneNetwork]);
@@ -183,16 +170,16 @@ describe("Computer Village: the apprentice", () => {
 describe("the bridge: sleeping rough", () => {
   test("[R-STREET-004] given naira cash and bank together one kobo under the broke line, when sleeping rough is sent, then it is allowed; at the line it is rejected with not-legal", () => {
     const game = ada();
-    setNaira(game, 1, brokeLine - 2);
+    setPockets(game, { NGN: { cash: 1, bank: brokeLine - 2 } });
     expect(option(game, ROUGH)).toMatchObject({ allowed: true, cost: [] });
-    setNaira(game, 1, brokeLine - 1);
+    setPockets(game, { NGN: { cash: 1, bank: brokeLine - 1 } });
     expect(option(game, ROUGH)?.allowed).toBe(false);
     game.expectRejected({ type: "turn/end", slots: [slot(ROUGH)] }, "not-legal");
   });
 
   test("[R-STREET-004] given money locked as shown funds, when the broke line is read, then the locked money does not count", () => {
     const game = ada();
-    setNaira(game, 0, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: brokeLine * 2, reason: "gift", locked: true }]);
     expect(option(game, ROUGH)?.allowed).toBe(true);
   });
@@ -203,7 +190,7 @@ describe("the bridge: sleeping rough", () => {
     // finds no cash on either side: the living costs do not empty the cash first (R-WALLET-018).
     const inBank = (game: Game): void => {
       const { bank, cash } = game.state.wallet.pockets.NGN;
-      setNaira(game, 0, bank + cash);
+      setPockets(game, { NGN: { cash: 0, bank: bank + cash } });
     };
     const { played, rested } = againstRest((game) => {
       setQuality(game, WELLBEING, 40);
