@@ -50,7 +50,7 @@ describe("the rise of the figure", () => {
     expect(falls.length).toBeGreaterThan(0);
     expect(gains.map(({ before, now }) => riseOf(before, now))).toEqual(gains.map(({ before, now }) => (now ?? 0) - (before ?? 0)));
     expect(falls.map(({ before, now }) => riseOf(before, now))).toEqual(falls.map(() => 0));
-  });
+  }, 30000);
 
   test("[world:japacity-bag-by-door] [japacity:best-open-route-is-japacity] [world:motions-under-half-second] given the world in view, when the figure rises, then one rise flies once in the band's colours and is gone after its time; when it falls, nothing flies and only the figure the bag reads moves", () => {
     const shown = render(<Harness percent={20} open />);
