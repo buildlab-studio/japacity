@@ -1,4 +1,4 @@
-// The people of this life as the phone shows them (docs/rules/people.md; world.md R-WORLD-020): the slots on Chats'
+// The people of this life as the phone shows them (docs/rules/person.md; world.md R-WORLD-020): the slots on Chats'
 // People row, with the invite card behind a tap, and a bond's thread head with its rows, each assertion
 // against the element the phone shows.
 import { content, text } from "@japacity/content";

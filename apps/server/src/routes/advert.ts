@@ -1,4 +1,4 @@
-// `GET /api/adverts?region=` (docs/rules/adverts.md R-ADVERT-008): the hour's
+// `GET /api/adverts?region=` (docs/rules/advert.md R-ADVERT-008): the hour's
 // campaign per slot for a region, the same for everyone there, kept in the
 // server's cache (the Cache API beside the Worker) by the region and the hour
 // for at most five minutes, and

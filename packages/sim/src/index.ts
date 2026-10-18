@@ -64,7 +64,7 @@ export type { SayPolicy, PlacePolicy, SayResult, SayRefusal } from "./phrase/phr
 export { phraseChecks } from "./phrase/phrase.check";
 export { inviteCard, inviteExpires, mayOpenInvite, useInvite, rewardFor, mayPair, INVITE_FILLS } from "./pair/pair.invite";
 export type { InviteCard, InviteSlot, LinkResult, Milestone, InviteProgress, InviteReward } from "./pair/pair.invite";
-// What one life knows of another (docs/rules/people.md R-PEOPLE-003, 005): the server sends it as `people/facts`.
+// What one life knows of another (docs/rules/person.md R-PEOPLE-003, 005): the server sends it as `people/facts`.
 export { factsOf } from "./person/person.facts";
 // The generated names drawn from content's pool by its mix (R-PEOPLE-053, R-CITY-033).
 export { drawName, drawPeople, MIX_TOTAL } from "./person/person.names";

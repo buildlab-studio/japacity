@@ -309,7 +309,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "route/hear", route: UK, chanceBp: pct(40), via: "meetup" },
       // route-gates.md: the talent route is heard of at a meetup, 20%.
       { type: "route/hear", route: TALENT, chanceBp: pct(20), via: "meetup" },
-      // guides.md R-GUIDE-016: a life with care 30 (the care route's own bar to hear) hears of care work at the meetup.
+      // guide.md R-GUIDE-016: a life with care 30 (the care route's own bar to hear) hears of care work at the meetup.
       // No chance is given for it, so none is drawn and the offer stream keeps its walk.
       { type: "route/hear", route: CARE, via: "meetup" },
     ],
@@ -596,7 +596,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...abroadActivityTable,
   // The wallet keeps Canadian dollar and dirham pockets (R-ABROAD-001).
   ...foreignPocketActivityTable,
-  // people.md: time with someone (R-PEOPLE-014).
+  // person.md: time with someone (R-PEOPLE-014).
   ...peopleActivityTable,
   // streets.md: Computer Village, the bridge and the stadium (R-STREET-001 to 004, 008).
   ...streetActivityTable,
@@ -616,7 +616,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...shopActivityTable,
   // The fish racks at Makoko (R-ACTIVITY-017).
   ...waterActivityTable,
-  // people.md: applying on the partner and dependant gates (R-PEOPLE-022, 026).
+  // person.md: applying on the partner and dependant gates (R-PEOPLE-022, 026).
   ...peopleApplyActivities,
   // route-gates.md: the sponsor gate.
 

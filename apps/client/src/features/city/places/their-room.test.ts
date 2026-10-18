@@ -1,4 +1,4 @@
-// Their room (place.their-room; docs/rules/world.md R-WORLD-020, people.md R-PEOPLE-014): one shared room, on the map
+// Their room (place.their-room; docs/rules/world.md R-WORLD-020, person.md R-PEOPLE-014): one shared room, on the map
 // once a bond is courting, where time together is a visit on its chair and nobody is met. Built
 // from the room in a compound's shell, the size such a room is. The checks the other rooms pass, read against the
 // interior row; for the two rooms a person is met in, the hub and the family house's parlour, everyone standing at a

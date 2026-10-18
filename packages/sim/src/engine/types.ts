@@ -36,7 +36,7 @@ export type KindName =
   | "prologue"
   // Online: docs/rules/lottery.md.
   | "lottery"
-  // People: docs/rules/people.md, pair.md, interview.md.
+  // People: docs/rules/person.md, pair.md, interview.md.
   | "people"
   | "person"
   | "interview"
@@ -119,7 +119,7 @@ export type Reason =
   | "goods"
   /** What a thing owned costs to run a month: the generator's fuel, the data plan, the decoder's bouquet, the AC's light, a sink. */
   | "running"
-  /** A wedding's share paid (docs/rules/people.md), a sink. */
+  /** A wedding's share paid (docs/rules/person.md), a sink. */
   | "wedding"
   /** An undertaking charge paid by a sponsor (docs/rules/undertaking.md), a sink. */
   | "undertaking"
@@ -147,7 +147,7 @@ export type Stream =
   | "road"
   | "lotto"
   | "health"
-  /** The people kind's draws: courting, a computer's answers, gossip (docs/rules/people.md). */
+  /** The people kind's draws: courting, a computer's answers, gossip (docs/rules/person.md). */
   | "people"
   /** The settlement cleared (docs/rules/home.md R-HOME-003), on its own stream so living in Makoko moves no other draw. */
   | "home";
@@ -283,7 +283,7 @@ export type Requirement =
   | { type: "setpiece/answered-with"; setpiece: Id<"setpiece">; question: string; answer: string }
   /** The world runs the Friday draw (`online` true) or not (docs/rules/lottery.md). */
   | { type: "world/lottery"; online: boolean }
-  /** A bond of this role at one of these stages, and where the other is (docs/rules/people.md R-PEOPLE-046). */
+  /** A bond of this role at one of these stages, and where the other is (docs/rules/person.md R-PEOPLE-046). */
   | { type: "people/bond"; role: "partner" | "sibling"; stages: BondStage[]; where?: Where; country?: Id<"country">; statuses?: Id<"status">[] }
   /** A sibling in this country with one of these statuses, old enough (R-PEOPLE-031). */
   | { type: "people/sibling-abroad"; country: Id<"country">; statuses: Id<"status">[]; minAgeMonths: number }
@@ -357,7 +357,7 @@ export type Effect =
   | { type: "setpiece/open"; setpiece: Id<"setpiece">; route: Id<"route"> | null }
   /** Closes the open scene unscored (a flight during a road scene, R-ROAD-004). */
   | { type: "setpiece/close"; setpiece: Id<"setpiece"> }
-  /** A moment with the bond the slot's param names (docs/rules/people.md R-PEOPLE-015). */
+  /** A moment with the bond the slot's param names (docs/rules/person.md R-PEOPLE-015). */
   | { type: "people/moment"; kind: Moment["kind"] }
   /** Withdraws an application in progress (R-PEOPLE-038). */
   | { type: "route/withdraw"; route: Id<"route"> }
@@ -580,7 +580,7 @@ export interface RouteEntry {
   endorsement?: { document: Id<"document">; baseBp: number; perPortfolioBp: number; perNetworkBp: number; capBp: number; cooldown: number; feeVar: Id<"var">; surchargeYears: number };
   /** Contract gate. */
   contract?: { medical: Id<"document">; maxAgeMonths: number };
-  /** The route a partner may follow as a dependant, or null when this route brings none (docs/rules/people.md R-PEOPLE-024). */
+  /** The route a partner may follow as a dependant, or null when this route brings none (docs/rules/person.md R-PEOPLE-024). */
   dependants: Id<"route"> | null;
   /** The partner gate (R-PEOPLE-026 to 028). */
   partner?: { sponsorStatuses: Id<"status">[]; bandMin: number | null; feeVar: Id<"var">; surchargeYears: number; decisionMonths: number; livingTogetherMonths: number | null; floorVar: Id<"var"> | null };
@@ -767,7 +767,7 @@ export interface ChapterEntry {
   variantOf?: Id<"chapter">;
 }
 
-/** docs/rules/adverts.md: a slot an advert may fill. The simulation never reads it. */
+/** docs/rules/advert.md: a slot an advert may fill. The simulation never reads it. */
 export interface AdvertSlotEntry {
   id: Id<"advert">;
   surface: "billboard" | "poster" | "phone-tile" | "shopfront";
@@ -777,7 +777,7 @@ export interface AdvertSlotEntry {
   maxBytes: number;
 }
 
-/** docs/rules/guides.md: a guide, with its sources and sections as text keys. The simulation never reads it. */
+/** docs/rules/guide.md: a guide, with its sources and sections as text keys. The simulation never reads it. */
 export interface GuideEntry {
   id: Id<"guide">;
   routes: Id<"route">[];
@@ -946,13 +946,13 @@ export interface PlaceEntry {
 }
 
 // ---------------------------------------------------------------------------
-// People, pairs and the interview: docs/rules/people.md, pair.md, interview.md
+// People, pairs and the interview: docs/rules/person.md, pair.md, interview.md
 // ---------------------------------------------------------------------------
 
 export type BondStage = "connected" | "courting" | "partner" | "married" | "ended";
 export type PersonLabel = "player" | "computer" | "stand-in";
 
-/** A computer character who can fill a slot: docs/rules/people.md "Entries". */
+/** A computer character who can fill a slot: docs/rules/person.md "Entries". */
 export interface PersonEntry {
   id: Id<"person">;
   role: "partner" | "sibling";
@@ -1350,17 +1350,17 @@ export interface Tuning {
   room: { cookedBp: number; waterBp: number };
   /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, and the odds a draw takes when it opens (R-LOTTERY-021). */
   lottery: { ticket: number; maxTickets: number; odds: LotteryOdds };
-  /** docs/rules/adverts.md Numbers. */
+  /** docs/rules/advert.md Numbers. */
   advert: { maxSlotsPerPlace: number; maxPhoneTiles: number; impressionMs: number };
   /** docs/rules/share.md Numbers. */
   share: { width: number; height: number; maxBytes: number; previewWidth: number; previewHeight: number; previewMaxBytes: number };
-  /** docs/rules/guides.md Numbers. */
+  /** docs/rules/guide.md Numbers. */
   guide: { staleMonths: number };
   /** docs/rules/analytics.md Numbers. */
   analytics: { batchSeconds: number; maxBatchBytes: number; maxCount: number; batchesPerHour: number; minShown: number; refD1Bp: number; refD7Bp: number };
   /** The city's crowd bands, the graphics modes' switches and the screen split (docs/rules/city.md). The simulation never reads it. */
   city: { crowdLow: number; crowdHigh: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; walkMmPerS: number; stopShortMm: number; roam: boolean; flyover: boolean; ride: { fareKobo: { danfo: number; keke: number; okada: number; walk: number }; farePerKmKobo: { danfo: number; keke: number; okada: number; walk: number }; metresPerMinute: { danfo: number; keke: number; okada: number; walk: number }; waitMinutes: number; scarcityBp: number; walkMetres: number; lonMetresPerE3: number; abroad: Record<Id<"country">, CountryRides> } };
-  /** The people around the character (docs/rules/people.md Numbers). */
+  /** The people around the character (docs/rules/person.md Numbers). */
   people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; weddingStanding: number; gossipStanding: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number; computerAfterMonths: number };
   /** Invites and phrases (docs/rules/pair.md Numbers). */
   pair: { inviteDays: number; maxOpenInvites: number; rewardFriends: number; phrasesPerHour: number; placePhrasesPerMinute: number };
@@ -1510,9 +1510,9 @@ export interface Content {
   interview: Record<Id<"interview">, InterviewEntry>;
   /** The market's things for the home: price, resale, running cost, where each may stand and what it does in life. */
   thing: Record<Id<"thing">, ThingEntry>;
-  /** The spots people meet at, named by key (docs/rules/people.md R-PEOPLE-014). */
+  /** The spots people meet at, named by key (docs/rules/person.md R-PEOPLE-014). */
   people: { spots: string[] };
-  /** The advert slots, the guides and the counters (adverts.md, guides.md, analytics.md). The simulation never reads them; the content checks and the client and server do. */
+  /** The advert slots, the guides and the counters (advert.md, guide.md, analytics.md). The simulation never reads them; the content checks and the client and server do. */
   advert: Record<Id<"advert">, AdvertSlotEntry>;
   guide: Record<Id<"guide">, GuideEntry>;
   analytics: { counters: CounterDef[] };
@@ -2061,7 +2061,7 @@ export type Command = { basedOn: number } & (
   | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number }[] }
   /** Sent by the authority alone (R-WALLET-020, R-SERVER-013): naira bought with real money, marked. No server route sends it. */
   | { type: "wallet/top-up"; amount: number }
-  // people (docs/rules/people.md R-PEOPLE-012 to 020, 034 to 040)
+  // people (docs/rules/person.md R-PEOPLE-012 to 020, 034 to 040)
   | { type: "people/invite"; slot: string; looking?: string; fill?: string }
   /** `with` names a computer character (`person.*`) or a slot holding an invited player (R-PEOPLE-014). */
   | { type: "people/court"; with: string }
@@ -2441,7 +2441,7 @@ export interface PlayerView {
     /** The name the player chose, never the account's (R-SHARE-007). */
     name: string | null;
   } | null;
-  /** The people around the character (docs/rules/people.md R-PEOPLE-051). */
+  /** The people around the character (docs/rules/person.md R-PEOPLE-051). */
   people: {
     slots: Record<string, { state: PeopleSlice["slots"][string]["state"]; label: PersonLabel | null; bond: string | null; invite: { looking: string; fill: string | null } | null }>;
     bonds: { id: string; role: "partner" | "sibling"; stage: BondStage; label: PersonLabel; person: Id<"person"> | null; pair: string | null; lastMomentMonth: number | null; cooldownUntil: number | null; partnerMonth: number | null; consent: { countFunds: boolean; standInMay: boolean } | null; moments: Moment[] | null; pending: { mine: Proposal | null; theirs: Proposal | null }; standIn: "warned" | "on" | null; facts: PersonFacts | null }[];

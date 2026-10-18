@@ -1,7 +1,7 @@
 // The people of this life on the phone (docs/rules/world.md R-WORLD-020, R-WORLD-018, R-WORLD-006): once courting, a
 // bond lives in its Chats thread, whose head carries the bond's stage and its choices, one row each, the details folded
 // behind the row; and Chats' People row opens the slots, the one place they are seen in the world, with the invite card
-// on an empty partner slot or a computer sibling (people.md R-PEOPLE-010). These are the people tab's own pieces
+// on an empty partner slot or a computer sibling (person.md R-PEOPLE-010). These are the people tab's own pieces
 // (BondCard's parts, the slot card, InviteCard), handed to the phone by the shell, so the phone never imports this
 // feature. A pair's conversation is Chats' own thread.
 import { content } from "@japacity/content";

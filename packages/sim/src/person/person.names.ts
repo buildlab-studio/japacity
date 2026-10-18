@@ -1,4 +1,4 @@
-// The generated names (docs/rules/people.md R-PEOPLE-053, city.md R-CITY-033):
+// The generated names (docs/rules/person.md R-PEOPLE-053, city.md R-CITY-033):
 // a name drawn from content's pool by its mix.
 // Pure: one whole number in, one name out, so a resident keeps the same name
 // for as long as the caller keeps the number. The role is never an input, so a

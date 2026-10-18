@@ -1,5 +1,5 @@
 // pnpm notices: writes NOTICES.md at the repository's root, the open source packages the game's
-// client ships with their versions and licences (docs/rules/guides.md R-GUIDE-008). Read from the
+// client ships with their versions and licences (docs/rules/guide.md R-GUIDE-008). Read from the
 // client's dependencies and each package's own package.json; a test fails when the file and the
 // dependencies disagree, so the file is never stale.
 import { readFileSync, writeFileSync } from "node:fs";

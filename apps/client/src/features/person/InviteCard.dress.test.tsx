@@ -1,4 +1,4 @@
-// The invite card in the lively dress (docs/rules/pair.md R-PAIR-007, people.md R-PEOPLE-010; design page 13 section 2):
+// The invite card in the lively dress (docs/rules/pair.md R-PAIR-007, person.md R-PEOPLE-010; design page 13 section 2):
 // a white card with the looking line as a sticker chip, the character's face sticker beside the maker's heading (never on
 // the card, which carries no look to the friend), the pressed yellow button for the one action and a ghost button to take
 // the card back. What it shows and what it sends are its own tests'

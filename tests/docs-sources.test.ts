@@ -1,4 +1,4 @@
-// The documentation site's sources page (docs/rules/guides.md R-GUIDE-007): the list its data loader
+// The documentation site's sources page (docs/rules/guide.md R-GUIDE-007): the list its data loader
 // builds at every build of the site, read here exactly as the page reads it.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";

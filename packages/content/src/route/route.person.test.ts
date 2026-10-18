@@ -6,7 +6,7 @@ const used = content;
 const PEOPLE_ROUTES = ["route.uk-partner", "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"] as const;
 
 describe("the people routes", () => {
-  test("[R-ENGINE-014] given the partner and dependant routes joined, when figures from people.md are read back, then each matches the page", () => {
+  test("[R-ENGINE-014] given the partner and dependant routes joined, when figures from person.md are read back, then each matches the page", () => {
     expect(used.route["route.uk-partner"]).toMatchObject({
       gate: "partner",
       country: "country.uk",
@@ -80,7 +80,7 @@ describe("the undertaking, the assistance and the points with a spouse", () => {
     expect(content.country["country.uk"]?.partnerBarMonths).toBe(0);
   });
 
-  test("[R-ENGINE-014] given the points table with a spouse, when figures from people.md are read back, then each matches the page", () => {
+  test("[R-ENGINE-014] given the points table with a spouse, when figures from person.md are read back, then each matches the page", () => {
     const table = content.points["points.canada-spouse"]!;
     expect(table.age.map((row) => row.points)).toEqual([90, 95, 100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 35, 25, 15, 5, 0]);
     expect(table.education.map((row) => row.points)).toEqual([28, 91, 112, 126, 140]);

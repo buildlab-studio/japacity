@@ -1,5 +1,5 @@
 // The order full-screen things take after a month ends: the staged wins first,
-// then the month's report with its moment card over it (docs/rules/moments.md), then the share card, then a scene such as the
+// then the month's report with its moment card over it (docs/rules/moment.md), then the share card, then a scene such as the
 // December visit. Each waits for the one before it, so two never cover each
 // other and a click always lands on the one in front.
 import { useGame, useView } from "../../authority/GameProvider";

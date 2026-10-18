@@ -1,4 +1,4 @@
-// The computer partners met in a place (docs/rules/world.md R-WORLD-020; people.md R-PEOPLE-009, R-PEOPLE-013,
+// The computer partners met in a place (docs/rules/world.md R-WORLD-020; person.md R-PEOPLE-009, R-PEOPLE-013,
 // R-PEOPLE-014): each stands as a thing only in the place content meets them in,
 // only while the view lists them, one met only in December only in December; the thing's one act opens a card whose
 // button sends `people/court`. Where each is met: the meetup's two at the hub's meetup, after the service

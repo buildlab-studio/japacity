@@ -1,4 +1,4 @@
-// A computer character is never shown as a player on a card or in a news line (docs/rules/people.md R-PEOPLE-059).
+// A computer character is never shown as a player on a card or in a news line (docs/rules/person.md R-PEOPLE-059).
 // The card is read from a recorded life whose family are computer characters, the news from the real content.
 import { content, shareKinds, text, type ShareKind } from "@japacity/content";
 import { describe, expect, test } from "vitest";

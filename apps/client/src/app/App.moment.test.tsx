@@ -1,4 +1,4 @@
-// The moment card over the month's results (docs/rules/moments.md R-MOMENT-006): the sheet and the card are two
+// The moment card over the month's results (docs/rules/moment.md R-MOMENT-006): the sheet and the card are two
 // features, put together by the shell as App.tsx does, so the test that sees both lives beside the shell.
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";

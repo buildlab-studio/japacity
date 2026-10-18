@@ -1,4 +1,4 @@
-// The people of this life on the phone (docs/rules/world.md R-WORLD-020, R-WORLD-006, R-WORLD-018; people.md R-PEOPLE-010,
+// The people of this life on the phone (docs/rules/world.md R-WORLD-020, R-WORLD-006, R-WORLD-018; person.md R-PEOPLE-010,
 // R-PEOPLE-014, R-PEOPLE-016): once courting, a bond's Chats thread carries a head with its stage and its choices, one row
 // each, and its rows send the bond's commands; Chats' People row opens the slots with the invite card. Chats as the
 // shell hands it the people feature's screens, over a real life played through the engine. Here beside the shell, since

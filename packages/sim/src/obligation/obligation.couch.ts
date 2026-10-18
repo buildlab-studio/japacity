@@ -1,4 +1,4 @@
-// The couch: docs/rules/people.md R-PEOPLE-032. Arriving in a country where a
+// The couch: docs/rules/person.md R-PEOPLE-032. Arriving in a country where a
 // sibling lives, the shared room of R-ABROAD-003 opens `tuning.people.couchMonths`
 // months later instead of at once. Upkeep is charged as usual. The obligation
 // kind asks these two questions; the sibling is read from the bonds' facts.

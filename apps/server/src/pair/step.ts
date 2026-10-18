@@ -1,4 +1,4 @@
-// The pair transaction (people.md R-PEOPLE-002, R-PEOPLE-003, pair.md
+// The pair transaction (person.md R-PEOPLE-002, R-PEOPLE-003, pair.md
 // R-PAIR-004, R-PAIR-005): both characters locked in sorted id order, fresh
 // facts sent to each life first when the step reads both, the step's
 // authority commands, and the record written with the version it was read at.

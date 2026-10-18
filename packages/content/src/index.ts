@@ -148,7 +148,7 @@ export const content: Content = {
   // The market's things for the home.
   thing: thingTable,
   people: { spots: peopleSpots },
-  // The tables of the adverts, guides and analytics pages (adverts.md, guides.md, analytics.md).
+  // The tables of the adverts, guides and analytics pages (advert.md, guide.md, analytics.md).
   advert: advertTable,
   guide: guideTable,
   analytics: { counters: counterTable },

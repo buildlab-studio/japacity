@@ -1,4 +1,4 @@
-// From docs/rules/adverts.md, "Entries: slots". A slot is where an
+// From docs/rules/advert.md, "Entries: slots". A slot is where an
 // advert may show; which campaign fills it is the server's (R-ADVERT-008).
 import type { AdvertSlotEntry, Id } from "@japacity/sim";
 

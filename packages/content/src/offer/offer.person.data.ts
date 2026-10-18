@@ -1,4 +1,4 @@
-// From docs/rules/people.md "Entries: activities and offers" (R-PEOPLE-038, R-PEOPLE-050).
+// From docs/rules/person.md "Entries: activities and offers" (R-PEOPLE-038, R-PEOPLE-050).
 // Joined into the offer table in offer.data.ts.
 //
 // Taking the papers offer carries a `people/moment` of kind

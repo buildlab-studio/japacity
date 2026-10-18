@@ -90,7 +90,7 @@ export function namedThings(things: readonly Pick<Thing, "id" | "label" | "acts"
 
 /**
  * The small `computer` tag beside a person's name, in the words the people's cards use: quiet, in the case a person
- * writes it, never shouted in capitals (text.md R-TEXT-005, people.md R-PEOPLE-009).
+ * writes it, never shouted in capitals (text.md R-TEXT-005, person.md R-PEOPLE-009).
  */
 export function markTag(mark: NonNullable<Thing["mark"]>): HTMLSpanElement {
   const tag = document.createElement("span");

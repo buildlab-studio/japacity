@@ -89,7 +89,7 @@ export function keptStyleOf(file: string, storage: Read | null = browserStorage(
 
 /**
  * The player's first name for the life on screen (R-PROLOGUE-009): the one given at the door, kept beside the save, else
- * a ready life's own. No computer person carries it (people.md R-PEOPLE-061).
+ * a ready life's own. No computer person carries it (person.md R-PEOPLE-061).
  */
 export function playerName(view: Pick<PlayerView, "scenario"> | null, storage: Read | null = browserStorage()): string | null {
   if (view === null) return null;

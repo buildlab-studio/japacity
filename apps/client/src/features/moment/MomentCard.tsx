@@ -1,4 +1,4 @@
-// The screenshot moment (docs/rules/moments.md): one clean card over the scene for a big outcome, the kind of screen
+// The screenshot moment (docs/rules/moment.md): one clean card over the scene for a big outcome, the kind of screen
 // a player posts. A panel: a band head with the icon tile, the kicker and the title; one line large
 // enough to read in a cropped screenshot; the figure that makes it land; and the game's small mark with its address
 // in the corner, so every screenshot carries the game's name. A win is drawn light, a loss dark. One tap anywhere, or

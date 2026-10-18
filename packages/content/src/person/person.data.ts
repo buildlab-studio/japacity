@@ -1,4 +1,4 @@
-// Computer characters who can fill a slot: docs/rules/people.md "Entries:
+// Computer characters who can fill a slot: docs/rules/person.md "Entries:
 // computer partners" and "Entries: computer siblings". All invented.
 //
 // The page gives no age gap for a partner, so each is drawn from two

@@ -26,7 +26,7 @@ export function birthdayMonth(state: State): boolean {
  * Who ships the parcel, or null while no relative abroad is in the story (the entry's `when`): the
  * first computer sibling whose facts put them abroad, by bond id, else the aunty abroad, who is in
  * the story once she has heard the character is travelling. A real player's sibling never sends
- * one, since the game never speaks for another life and nothing passes between lives (people.md
+ * one, since the game never speaks for another life and nothing passes between lives (person.md
  * R-PEOPLE-004, R-PEOPLE-058): with only a real sibling abroad, the aunty sends it.
  */
 export function parcelSender(read: ReadCtx): { sender: "sibling" | "aunty"; from: string } | null {

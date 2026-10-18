@@ -1,4 +1,4 @@
-// A computer person never carries the player's name (prologue.md R-PROLOGUE-009, people.md R-PEOPLE-061),
+// A computer person never carries the player's name (prologue.md R-PROLOGUE-009, person.md R-PEOPLE-061),
 // so "Hauwa, Not a player" never stands beside the player Hauwa in the family house.
 import { lifePeople, namedPeople, namePool, text } from "@japacity/content";
 import { afterEach, describe, expect, test } from "vitest";

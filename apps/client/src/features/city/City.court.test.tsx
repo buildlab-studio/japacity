@@ -1,4 +1,4 @@
-// The answer once courted, in the world (docs/rules/people.md R-PEOPLE-013, R-PEOPLE-054; world.md R-WORLD-020): once
+// The answer once courted, in the world (docs/rules/person.md R-PEOPLE-013, R-PEOPLE-054; world.md R-WORLD-020): once
 // "Start seeing Tobi" closes the sheet and Tobi leaves the parlour, the corner tells the person's own line, and it waits
 // for the corner to show, so the home's card never hides it. The place files are the ones the game ships; the scene is
 // a stand-in that hands the city a tap on a thing's act.

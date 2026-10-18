@@ -1,4 +1,4 @@
-// What one life knows of another person: docs/rules/people.md R-PEOPLE-001,
+// What one life knows of another person: docs/rules/person.md R-PEOPLE-001,
 // R-PEOPLE-005 and R-PEOPLE-046 to 048. Pure: the server, the kind and the
 // tests all read the same facts, and none of it reads the seed or a secret.
 import { resolveAmount } from "../engine/check";

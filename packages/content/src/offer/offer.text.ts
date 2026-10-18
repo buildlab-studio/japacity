@@ -390,7 +390,7 @@ export const offerText: Record<string, string> = {
   "offer.scholarship-round.body": "“A late scholarship round picked your file: £3,000 off what you need to show.”",
   "offer.scholarship-round.choice.accept": "Accept the scholarship",
 
-  // people.md (R-PEOPLE-038, R-PEOPLE-050).
+  // person.md (R-PEOPLE-038, R-PEOPLE-050).
   "offer.people-recovery.name": "Sunday rice",
   "offer.people-recovery.title": "Come for rice",
   "offer.people-recovery.body": "“Come for Sunday rice, you don't have to talk about it.”",

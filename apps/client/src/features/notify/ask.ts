@@ -1,5 +1,5 @@
 // When the bank-full notice may be asked for (docs/rules/clock.md R-CLOCK-031,
-// guides.md R-GUIDE-015): after a good moment, never on load, never before the
+// guide.md R-GUIDE-015): after a good moment, never on load, never before the
 // early win, not again for `reaskDays` after a dismissal, never after the
 // browser's own refusal.
 import type { ReportLine } from "@japacity/sim";

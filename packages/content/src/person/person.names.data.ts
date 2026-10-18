@@ -1,4 +1,4 @@
-// The name pool (names rules 1, 2, 4 and 5; docs/rules/people.md
+// The name pool (names rules 1, 2, 4 and 5; docs/rules/person.md
 // R-PEOPLE-053): one pool grouped by people, the mix it is drawn with, and every
 // named person the game's own words carry, so a check can hold the mix.
 // The given names are text keys `person.name.<n>` in person.names.text.ts.

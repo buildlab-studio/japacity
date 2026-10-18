@@ -1,7 +1,7 @@
 // A board as a player reads it (city.md R-CITY-039, R-CITY-040): the top
 // `board.size` lines and the player's own line, each naming the account's
 // username and nothing else about the player, on every board, friends too.
-// Computer characters have no row, so they are on no board (people.md
+// Computer characters have no row, so they are on no board (person.md
 // R-PEOPLE-056).
 import type { BoardName, BoardReply, BoardRow } from "@japacity/api";
 import type { BoardQuery, BoardWhen, BoardWho, RankedRow, SwitchName } from "@japacity/store";

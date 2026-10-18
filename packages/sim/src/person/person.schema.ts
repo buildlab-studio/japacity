@@ -3,7 +3,7 @@ import { z } from "zod";
 import { BpSchema, CountSchema, idOf, IntSchema, MoneySchema, type Proof, RequirementSchema, type Same } from "../engine/language.schema";
 import type { PersonEntry } from "../engine/types";
 
-/** A computer character who can fill a slot: docs/rules/people.md "Entries". */
+/** A computer character who can fill a slot: docs/rules/person.md "Entries". */
 export const PersonEntrySchema = z.strictObject({
   id: idOf("person"),
   role: z.enum(["partner", "sibling"]),

@@ -1,4 +1,4 @@
-// People: invite links, pairs and conversations (pair.md; people.md). Every
+// People: invite links, pairs and conversations (pair.md; person.md). Every
 // refusal is a ServerRejection: the pair routes' codes are all in ServerCode.
 import type { ConversationRow, Id, InviteCard, PairView } from "@japacity/sim";
 

@@ -57,7 +57,7 @@ const KIOSK_DRAW: ReadonlySet<string> = new Set(["line.activity.lotto-won", "lin
 const CASH_WARNING = "line.wallet.cash-warning";
 
 /**
- * A bond that ended this month (people.md R-PEOPLE-035 to 042): told on the results, never left for News alone, so a
+ * A bond that ended this month (person.md R-PEOPLE-035 to 042): told on the results, never left for News alone, so a
  * partner who stopped waiting or left is said the month it happens.
  */
 export const BOND_ENDED: ReadonlySet<string> = new Set(["line.people.drifted", "line.people.left", "line.people.ended", "line.people.ended-absence", "line.people.ended-restart", "line.people.ended-block"]);

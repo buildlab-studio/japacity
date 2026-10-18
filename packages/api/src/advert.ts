@@ -1,4 +1,4 @@
-// The adverts a player sees (adverts.md R-ADVERT-004, 005, 008).
+// The adverts a player sees (advert.md R-ADVERT-004, 005, 008).
 import type { Id } from "@japacity/sim";
 
 /** What the client needs to draw one slot and its card (R-ADVERT-004, R-ADVERT-005). */

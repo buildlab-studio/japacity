@@ -1,4 +1,4 @@
-// An account leaving (people.md R-PEOPLE-040; account.md R-ACCOUNT-016,
+// An account leaving (person.md R-PEOPLE-040; account.md R-ACCOUNT-016,
 // R-ACCOUNT-017; moderation.md R-MODERATION-008): every bond with it ends in
 // the other life as an absence end, the record keeps the moments with the
 // leaving side's name taken out, and at removal its rows go but what a hold keeps.

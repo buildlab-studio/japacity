@@ -318,7 +318,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
   },
 };
 
-// docs/rules/people.md "Entries: routes and statuses", R-PEOPLE-019, 022 to 028,
+// docs/rules/person.md "Entries: routes and statuses", R-PEOPLE-019, 022 to 028,
 // and undertaking.md for the floor.
 
 const UK_PARTNER: Id<"route"> = "route.uk-partner";

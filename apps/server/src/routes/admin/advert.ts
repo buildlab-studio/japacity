@@ -1,5 +1,5 @@
 // The admin view's advert routes (moderation.md R-MODERATION-012, 014;
-// adverts.md R-ADVERT-010 to 017, 020, 021). A submission reaches the game only
+// advert.md R-ADVERT-010 to 017, 020, 021). A submission reaches the game only
 // here, entered by an admin from the form or email it arrived by, and waits in
 // review; nothing in it is served until a named person approves it. Only an
 // account in `config.admin.accounts` may reach these routes; to anyone else

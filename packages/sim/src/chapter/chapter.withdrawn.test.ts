@@ -1,5 +1,5 @@
 // A grant withdrawn before the flight reopens the chapters it closed: docs/rules/chapter.md R-CHAPTER-003 and R-CHAPTER-002,
-// docs/rules/people.md R-PEOPLE-036. A dependant's grant not yet used is voided
+// docs/rules/person.md R-PEOPLE-036. A dependant's grant not yet used is voided
 // when the joint collapses; the chapters that grant closed come back, and a flight makes such closes final.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";

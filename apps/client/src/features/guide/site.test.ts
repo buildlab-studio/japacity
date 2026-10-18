@@ -93,7 +93,7 @@ describe("the guide pages", () => {
 describe("where the numbers come from", () => {
   test("[R-GUIDE-006] given every rule page with a Numbers table, when the site is built, then each has a page listing every row, and a working value says so", () => {
     const numbered = files.rulePages.map((page) => readRulePage(page.name, page.markdown)).filter((page) => page.numbers !== null);
-    expect(numbered.map((page) => page.name)).toEqual(expect.arrayContaining(["guides", "route", "route-gates", "wallet"]));
+    expect(numbered.map((page) => page.name)).toEqual(expect.arrayContaining(["guide", "route", "route-gates", "wallet"]));
     for (const rule of numbered) {
       const document = at(pages, numbersPath(rule.name));
       expect(document.querySelectorAll("tbody tr")).toHaveLength(rule.numbers!.rows.length);

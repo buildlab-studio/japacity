@@ -1,4 +1,4 @@
-// Where the game's code and its full account of licences live (docs/rules/guides.md R-GUIDE-008,
+// Where the game's code and its full account of licences live (docs/rules/guide.md R-GUIDE-008,
 // R-GUIDE-010). The one place the repository's address is written out for the game: the Credits
 // screen and the terms take it from here.
 

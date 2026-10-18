@@ -2,7 +2,7 @@
 // keep working underneath: the meeting is what `people/court` needs in place of a row in `candidates`.
 // The words are `<person id>.met` (the line when you meet) and `<person id>.home` (their home's name)
 // in person.text.ts.
-// The view's `candidates` is only what the world reads to know who stands where (people.md R-PEOPLE-009 and
+// The view's `candidates` is only what the world reads to know who stands where (person.md R-PEOPLE-009 and
 // R-PEOPLE-013): the city stands each row's person at its thing while the list holds them, a `decemberOnly` one only while `var.season-december` is 1, and the thing's
 // sheet sends `people/court` (apps/client/src/features/city/meetings.ts).
 // The church is not a built place, so the people met after the service are met at

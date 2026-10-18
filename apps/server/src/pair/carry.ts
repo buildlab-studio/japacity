@@ -1,5 +1,5 @@
 // Carrying one life's accepted command into the record and the other life
-// (people.md R-PEOPLE-002, R-PEOPLE-003, R-PEOPLE-014, R-PEOPLE-016,
+// (person.md R-PEOPLE-002, R-PEOPLE-003, R-PEOPLE-014, R-PEOPLE-016,
 // R-PEOPLE-043; pair.md R-PAIR-004, R-PAIR-005; interview.md R-INTERVIEW-001,
 // 004, 006), in the same transaction. Only a player's or a stand-in's
 // command is carried; the authority's own commands are the carrying.

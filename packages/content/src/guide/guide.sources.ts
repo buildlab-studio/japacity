@@ -1,4 +1,4 @@
-// Every source the game cites, as one list (docs/rules/guides.md R-GUIDE-007): each guide's
+// Every source the game cites, as one list (docs/rules/guide.md R-GUIDE-007): each guide's
 // sources, each rule page's sources and the journalism the road's real-story cards draw on
 // (road.md R-ROAD-011), each credit with its link and nothing from it reproduced. The documentation
 // site builds its sources page from this at every build, so the list never goes stale.

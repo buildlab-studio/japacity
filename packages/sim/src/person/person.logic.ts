@@ -1,4 +1,4 @@
-// The people around the character: docs/rules/people.md. Slots for a partner,
+// The people around the character: docs/rules/person.md. Slots for a partner,
 // siblings and parents; bonds with computer characters and with players, known
 // only through facts; courting, proposals, the joint, letting people down and
 // the stand-in. Another life reaches this one only by authority commands

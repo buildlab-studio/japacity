@@ -17,7 +17,7 @@ const MINUTE = 60_000;
 const NOW = 100 * HOUR;
 const pair = content.tuning.pair;
 
-/** The shared spots of people.md R-PEOPLE-014. */
+/** The shared spots of person.md R-PEOPLE-014. */
 const SHARED_SPOTS = ["beach", "suya-spot", "church", "cinema", "mall", "friends-wedding", "campus", "bus-stop"];
 const withSpots: Content = { ...content, people: { spots: SHARED_SPOTS } };
 /** Words that pass every check, for planting one bad line among. The real words are checked in content's phrase test. */

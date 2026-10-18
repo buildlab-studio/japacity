@@ -1,4 +1,4 @@
-// The computer partners met in a place (docs/rules/world.md R-WORLD-020; people.md R-PEOPLE-009, R-PEOPLE-013): nobody
+// The computer partners met in a place (docs/rules/world.md R-WORLD-020; person.md R-PEOPLE-009, R-PEOPLE-013): nobody
 // is picked from a list. Each row of content's meetings (`person.meet.data.ts`) is a person standing at a thing of the
 // place it names, while the view's `candidates` lists them and, for one met only in December, while
 // `var.season-december` is 1. The thing's one act talks to them; its sheet sends `people/court` (R-CITY-001: the sheet

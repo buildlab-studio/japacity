@@ -1,4 +1,4 @@
-// What a computer character may never do (docs/rules/people.md R-PEOPLE-057, R-PEOPLE-058): hold, take or give
+// What a computer character may never do (docs/rules/person.md R-PEOPLE-057, R-PEOPLE-058): hold, take or give
 // money, or say anything that is not a line or a word from content. Played on Tunde's real life and the real content.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";

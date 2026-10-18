@@ -60,7 +60,7 @@ export const pointsTable: Record<Id<"points">, PointsEntry> = {
     careMin: 60,
   },
 
-  // docs/rules/people.md, "Entry: points.canada-spouse": the lead's columns with
+  // docs/rules/person.md, "Entry: points.canada-spouse": the lead's columns with
   // a spouse, then the spouse's own factors, capped at 40 (R-PEOPLE-030). The
   // transferability part, the sibling bonus and the care figure are unchanged.
   "points.canada-spouse": {

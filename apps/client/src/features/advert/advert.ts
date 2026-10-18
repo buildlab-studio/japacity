@@ -1,4 +1,4 @@
-// The client's side of adverts (docs/rules/adverts.md): the hour's slots from
+// The client's side of adverts (docs/rules/advert.md): the hour's slots from
 // the server, whether a slot may show at all, and the impression and tap
 // counts, sent with the interface counters and never tied to the player.
 import type { AdvertsReply } from "@japacity/api";

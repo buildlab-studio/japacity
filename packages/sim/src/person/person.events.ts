@@ -1,6 +1,6 @@
 import type { Id, Moment, PersonFacts, Proposal } from "../engine/types";
 
-/** What the people kind records: docs/rules/people.md. */
+/** What the people kind records: docs/rules/person.md. */
 export type PeopleEvent =
   | { type: "people/invited"; slot: string; looking: string; fill: string | null }
   | { type: "people/linked"; slot: string; bond: string; pair: string; facts: PersonFacts }

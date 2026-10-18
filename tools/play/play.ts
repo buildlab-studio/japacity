@@ -712,7 +712,7 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
 }
 
 /**
- * A screenshot moment (moments.md R-MOMENT-006): one card over the scene for a big outcome, over the results sheet or
+ * A screenshot moment (moment.md R-MOMENT-006): one card over the scene for a big outcome, over the results sheet or
  * the world. It is read and pictured, then put away with its Close, as a player would with one tap; the sheet under it
  * stays. Nothing happens when no card is up.
  */

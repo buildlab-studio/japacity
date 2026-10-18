@@ -82,7 +82,7 @@ function proposals(view: PlayerView): Loose[] {
 }
 
 /**
- * docs/rules/people.md: courting a candidate while nothing else is courting,
+ * docs/rules/person.md: courting a candidate while nothing else is courting,
  * a card out on an open slot or taken back, partners asked for, a proposal
  * taken back, an answer of no, consent on a joint agreed or asked for, and an
  * end to any bond still open.

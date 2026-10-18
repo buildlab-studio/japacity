@@ -1,6 +1,6 @@
 // The files the guide pages are built from, read in Node at build time: the rule pages and
 // credits.json. The makers and the shipped packages' licences are the repository's own account
-// (LICENSE, LICENSES.md, NOTICES.md), not a page of the site (guides.md R-GUIDE-008).
+// (LICENSE, LICENSES.md, NOTICES.md), not a page of the site (guide.md R-GUIDE-008).
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 

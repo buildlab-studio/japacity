@@ -21,7 +21,7 @@ export interface FanProps {
   thing: string;
   /** The thing's name: the pill over it and the group's label. */
   title: string;
-  /** The quiet mark of a person the game plays, beside the name as on every screen (people.md R-PEOPLE-009, R-PEOPLE-054). */
+  /** The quiet mark of a person the game plays, beside the name as on every screen (person.md R-PEOPLE-009, R-PEOPLE-054). */
   mark?: Thing["mark"];
   entries: readonly FanEntry[];
   /** A button tapped that can be had: the caller walks to the thing and sends its act. */

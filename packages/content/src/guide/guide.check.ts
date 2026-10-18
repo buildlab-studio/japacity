@@ -1,4 +1,4 @@
-// The guides' content checks (docs/rules/guides.md, Contract) and the staleness rule
+// The guides' content checks (docs/rules/guide.md, Contract) and the staleness rule
 // (R-GUIDE-004). Today's date is always passed in: nothing here reads a clock.
 import type { Content, KindName } from "@japacity/sim";
 import type { Proof, Same } from "@japacity/sim/schemas";

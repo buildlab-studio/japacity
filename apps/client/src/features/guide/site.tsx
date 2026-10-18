@@ -1,4 +1,4 @@
-// The guide pages (docs/rules/guides.md): plain pages built at build time that load without the
+// The guide pages (docs/rules/guide.md): plain pages built at build time that load without the
 // game, need no sign-in and link into it (R-GUIDE-005). Every word comes from the content's text
 // table passed in, so a page is the content's words, never a copy of them.
 import { inline, readRulePage, type RulePage } from "@japacity/content";

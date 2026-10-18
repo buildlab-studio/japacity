@@ -979,7 +979,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   ...abroadOfferTable,
   ...healthOfferTable,
   ...luckOfferTable,
-  // people.md: the recovery after being left, and the papers marriage.
+  // person.md: the recovery after being left, and the papers marriage.
   ...peopleOfferTable,
   // streets.md: the price of sleeping under the bridge (R-STREET-004).
   ...streetOfferTable,

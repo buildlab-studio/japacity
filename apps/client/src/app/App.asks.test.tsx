@@ -1,4 +1,4 @@
-// Nothing is asked of the player before the early win (docs/rules/guides.md
+// Nothing is asked of the player before the early win (docs/rules/guide.md
 // R-GUIDE-015): the share card and its button wait in the world's shell until
 // the store's flag is up, and then show as they always did. The card's tile
 // has no place in the world (App.tsx keeps it hidden), so the tile's own test

@@ -1,4 +1,4 @@
-// A bond that ended, on the results (docs/rules/people.md R-PEOPLE-042, R-PEOPLE-035; world.md R-WORLD-008): a thread
+// A bond that ended, on the results (docs/rules/person.md R-PEOPLE-042, R-PEOPLE-035; world.md R-WORLD-008): a thread
 // that ends, as Tobi's when nobody makes time, is told on the results and not left to News alone. Real content, a real
 // life played through the engine.
 import { content } from "@japacity/content";

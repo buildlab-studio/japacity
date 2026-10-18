@@ -1,4 +1,4 @@
-// The words of the people around the character: docs/rules/people.md and text.md.
+// The words of the people around the character: docs/rules/person.md and text.md.
 // A computer character's name is drawn
 // from the name pool (person.names.data.ts); the ids keep their working names.
 export const personText: Record<string, string> = {
@@ -111,7 +111,7 @@ export const personText: Record<string, string> = {
   "person.chidi-dubai.met": "At the house in December, a friend of the family back from Dubai with gifts for everybody. \"Take. It is perfume. Everybody gets perfume.\"",
   "person.chidi-dubai.home": "His uncle's house in Lagos, for December",
 
-  // Once courted (people.md R-PEOPLE-013): their answer, in the voice of their
+  // Once courted (person.md R-PEOPLE-013): their answer, in the voice of their
   // meeting line, told in the corner and the first message of their thread in Chats. Once the bond ends without the
   // player ending it (R-PEOPLE-042 drift, R-PEOPLE-041 a partner who heard), the reason in their own words, told in the
   // head of the thread for the month it stays.

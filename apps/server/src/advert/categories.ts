@@ -1,5 +1,5 @@
 // R-ADVERT-015, R-ADVERT-016: the banned and restricted categories, row for row
-// from docs/rules/adverts.md. The words screen a submission's text and link: a
+// from docs/rules/advert.md. The words screen a submission's text and link: a
 // hit refuses it before a reviewer sees it. The reviewer still checks the rest.
 
 /** Recorded on every review, so a decision can be read against the list it was made under (R-ADVERT-010). */

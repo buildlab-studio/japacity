@@ -1,5 +1,5 @@
 // Conversations in preset phrases (pair.md R-PAIR-010, R-PAIR-011, R-PAIR-013;
-// people.md R-PEOPLE-015; moderation.md R-MODERATION-009): the checks in the
+// person.md R-PEOPLE-015; moderation.md R-MODERATION-009): the checks in the
 // page's order, the row stored, a `said` moment in the record and in both
 // lives, and the other side nudged to fetch.
 import type { ConversationRead, PairRead, Said } from "@japacity/api";

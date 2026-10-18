@@ -117,7 +117,7 @@ export interface GameState {
    */
   moments: ReportLine[];
   /**
-   * The screenshot moments still to show (docs/rules/moments.md R-MOMENT-001, 006): at most one card for each batch of
+   * The screenshot moments still to show (docs/rules/moment.md R-MOMENT-001, 006): at most one card for each batch of
    * lines, each with the view it came with, so its figure is read from the life as it stood.
    */
   momentCards: MomentShot[];

@@ -39,7 +39,7 @@ const RETURNED: Partial<Record<number, string>> = { 1: "d1", 3: "d3", 7: "d7", 1
 /**
  * R-GUIDE-014: a line of tone `good` that follows from the player's own
  * choice: pay from a job or a gig, a chapter item or a goal met, a route heard.
- * guides.md names these in words, not keys; these are the keys the kinds give
+ * guide.md names these in words, not keys; these are the keys the kinds give
  * them.
  */
 const EARLY_WIN_KEYS = new Set([

@@ -189,7 +189,7 @@ export function checkMediaRows(rows: readonly RegisterRow[], read: (path: string
 }
 
 /**
- * 2c. Every row says whether it was generated, with which tool, and who approved it (guides.md
+ * 2c. Every row says whether it was generated, with which tool, and who approved it (guide.md
  * R-GUIDE-013); an AI-made row names its tool, and is accepted only once it names an approver (R-ASSET-015).
  */
 export function checkMadeWith(rows: readonly RegisterRow[]): string[] {
