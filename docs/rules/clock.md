@@ -51,7 +51,7 @@ Two clocks run online. A character's life moves when the player plays, one banke
 
 ## Rules: the nudge socket
 
-**clock:socket-only-nudges** A socket only says that something changed. The server sends `{ nudge: kind, v? }` with `kind` one of `view` (this character's state moved without the player sending a command: a grant, a lottery payment, a pair change), `messages` and `presence`; `v` is the new state version when the kind is `view`. Game state never travels over the socket (`../design/04-where-things-live.md` section 2).
+**clock:socket-only-nudges** A socket only says that something changed. The server sends `{ nudge: kind, v? }` with `kind` one of `view` (this character's state moved without the player sending a command: a grant, a lottery payment, a pair change), `messages` and `presence`; `v` is the new state version when the kind is `view`. Game state never travels over the socket (`../design/04-where-things-live.md` section 2). The server reads a nudge exactly with `readNudge` (`packages/api/src/socket.ts`), a nudge with any other key refused; the client reads it with `readKnownNudge`, passing over a key it does not know, so a field a newer server adds never stops an older client fetching.
 
 **clock:nudge-triggers-ordinary-fetch** On a nudge the client fetches what changed through an ordinary request. A nudge whose `v` is not above the version the client holds is ignored.
 

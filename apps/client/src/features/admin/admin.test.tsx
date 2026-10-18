@@ -212,16 +212,22 @@ describe("the money tab", () => {
     expectOnlyAdminRoutes(server.calls);
   });
 
-  test("[server:daily-money-report] given a UTC day typed, when it is shown, then the report for that day is asked by its day number; a date that is not one cannot be sent", async () => {
+  test("[server:daily-money-report] given a UTC day typed, when it is shown, then the report for that day is asked by its day number; a date that is not one, or a day past its month's end, cannot be sent", async () => {
     const server = page("money");
     await screen.findByRole("table", { name: words("admin.money.created") });
     const day = screen.getByLabelText(words("admin.money.day"));
     fireEvent.change(day, { target: { value: "2026-10-7" } });
     expect(screen.getByRole("button", { name: words("admin.money.show") })).toHaveProperty("disabled", true);
+    // A day past its month's end is no date: it is refused, never run on into the next month.
+    for (const impossible of ["2026-02-30", "2026-04-31"]) {
+      fireEvent.change(day, { target: { value: impossible } });
+      expect(screen.getByRole("button", { name: words("admin.money.show") })).toHaveProperty("disabled", true);
+    }
     fireEvent.change(day, { target: { value: "2026-10-07" } });
     fireEvent.click(screen.getByRole("button", { name: words("admin.money.show") }));
     await waitFor(() => expect(server.calls.filter((call) => call.path === "/api/admin/report").map((call) => call.query)).toEqual(["", `?day=${String(YESTERDAY)}`]));
   });
+
 
   test("[server:ledger-alarm-lists-suspects] given alarms raised, when the tab opens, then each is listed with its figures, and a character's alarm opens the rollback check on that character", async () => {
     page("money");

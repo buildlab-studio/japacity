@@ -1,7 +1,7 @@
 // The nudge socket (clock:socket-only-nudges, clock:nudge-triggers-ordinary-fetch, clock:nudges-are-best-effort, clock:sockets-reconnect-with-backoff and clock:client-sends-only-pings). It only hears that something changed
 // and asks for it through an ordinary request; game state never comes this
 // way. It sends nothing but a ping. `open` is the seam tests fake.
-import { type Nudge, PING, readNudge } from "@japacity/api";
+import { type Nudge, PING, readKnownNudge } from "@japacity/api";
 
 import type { RandomBelow } from "./random";
 
@@ -102,7 +102,7 @@ export function nudgeSocket(options: NudgeSocketOptions): NudgeSocket {
       }, SOCKET_NUMBERS.pingMs);
     };
     opened.onmessage = (event) => {
-      const nudge = readNudge(event.data);
+      const nudge = readKnownNudge(event.data);
       if (nudge !== null) heard(nudge);
     };
     opened.onerror = () => {

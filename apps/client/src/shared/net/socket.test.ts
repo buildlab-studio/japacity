@@ -102,6 +102,15 @@ describe("the nudge socket", () => {
     expect(counts).toEqual({ view: 0, presence: 1 });
   });
 
+  test("[clock:socket-only-nudges] [clock:nudge-triggers-ordinary-fetch] given a nudge carrying a key this client does not know, when it is heard, then it is still the nudge, so a newer server's field never stops an older client fetching", () => {
+    const { opened, counts } = setUp(5);
+    const socket = opened[0]!;
+    socket.accept();
+    socket.push({ nudge: "view", v: 6, x: 1 });
+    socket.push({ nudge: "presence", at: 2 });
+    expect(counts).toEqual({ view: 2, presence: 1 });
+  });
+
   test("[clock:socket-only-nudges] given a message that is not a nudge, then nothing happens", () => {
     const { opened, counts } = setUp();
     opened[0]?.push("pong");
