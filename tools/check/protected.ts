@@ -35,7 +35,8 @@ const PROTECTED: ReadonlyArray<{ readonly reason: string; readonly matches: (pat
   {
     reason: "check tooling",
     matches: (path) =>
-      /^tsconfig[^/]*\.json$/.test(path) || path === "vitest.config.ts" || /^tools\/check\/[^/]*\.ts$/.test(path),
+      // tools/repo.ts holds `isMain`, which decides whether each check runs at all.
+      /^tsconfig[^/]*\.json$/.test(path) || path === "vitest.config.ts" || path === "tools/repo.ts" || /^tools\/check\/[^/]*\.ts$/.test(path),
   },
   { reason: "pending rules list", matches: (path) => path === PENDING_FILE },
 ];

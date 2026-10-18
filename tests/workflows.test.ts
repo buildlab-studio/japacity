@@ -136,7 +136,7 @@ describe("the workflows", () => {
     expect(readFileSync(join(REPO_ROOT, "packages", "db", "drizzle.migrate.config.ts"), "utf8")).toContain('dbCredentials: { url: process.env["DATABASE_URL_UNPOOLED"] ?? "" }');
   });
 
-  test("given CODEOWNERS, when it is read, then the lint config, tests/, the scrub check, every Worker config, the workflows and the legal constants are the maintainer's", () => {
+  test("given CODEOWNERS, when it is read, then the lint config, tests/, the scrub check, the checks' run guard, every Worker config, the workflows and the legal constants are the maintainer's", () => {
     const owners = readFileSync(join(REPO_ROOT, ".github", "CODEOWNERS"), "utf8")
       .split("\n")
       .filter((line) => line.trim() !== "" && !line.startsWith("#"));
@@ -144,6 +144,7 @@ describe("the workflows", () => {
       "/eslint.config.js @Alameen688",
       "/tests/ @Alameen688",
       "/tools/check/scrub.ts @Alameen688",
+      "/tools/repo.ts @Alameen688",
       "wrangler.jsonc @Alameen688",
       "wrangler.load.jsonc @Alameen688",
       "/.github/ @Alameen688",

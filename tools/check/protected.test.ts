@@ -35,6 +35,7 @@ describe("protected paths", () => {
     ["tsconfig.base.json", "check tooling"],
     ["vitest.config.ts", "check tooling"],
     ["tools/check/rules.ts", "check tooling"],
+    ["tools/repo.ts", "check tooling"],
   ])("%s is protected as a %s", (path, reason) => {
     expect(protectedReason(path)).toBe(reason);
   });

@@ -97,7 +97,7 @@ The maintainer applies these rules in GitHub's settings; the repository holds th
 - `main` takes changes only through a pull request. Nobody pushes to it directly, the maintainer included.
 - The check workflow must pass before a pull request merges.
 - History stays linear (squash merges), force pushes are blocked, and `main` cannot be deleted.
-- A change to a file in `.github/CODEOWNERS` (the lint config, `tests/`, the scrub check, the Worker configs, the workflows, `packages/content/src/legal/`) needs the maintainer's review, and a new commit dismisses an earlier approval.
+- A change to a file in `.github/CODEOWNERS` (the lint config, `tests/`, the scrub check, `tools/repo.ts` with the checks' run guard, the Worker configs, the workflows, `packages/content/src/legal/`) needs the maintainer's review, and a new commit dismisses an earlier approval.
 - An outside contribution certifies the DCO in its description (above), and a change to a protected test, golden or schema needs the `approved-test-change` label.
 - A merge to `main` deploys staging (`.github/workflows/deploy-staging.yml`). Production deploys only from a release tag `v*`, or when the maintainer starts it by hand from `main`, and only after the maintainer approves the run (`.github/workflows/deploy-production.yml`).
 - A fork cannot deploy this project. The deploy jobs run only in `buildlab-studio/japacity`, their Cloudflare secrets live in this repository's `staging` and `production` environments, and a pull request from a fork runs the check with no secrets at all.

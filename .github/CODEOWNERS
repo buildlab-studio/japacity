@@ -10,6 +10,9 @@
 # The scrub check: the legal planning and the deployment values that never enter the repository.
 /tools/check/scrub.ts @Alameen688
 
+# Whether each check runs at all when started as a script (`isMain`).
+/tools/repo.ts @Alameen688
+
 # Every Worker's config: routes, bindings, the deployment's ids.
 wrangler.jsonc @Alameen688
 wrangler.load.jsonc @Alameen688
