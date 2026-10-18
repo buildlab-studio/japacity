@@ -33,7 +33,7 @@ export { ledgerReport } from "./wallet/wallet.report";
 export { pocketFor } from "./wallet/wallet.logic";
 export { CURRENCIES, isCurrency, placeCurrency, spendable } from "./wallet/wallet.rates";
 export { qualityIn } from "./quality/quality.logic";
-export { rideFare, metresApart } from "./place/place.logic";
+export { rideFare, metresApart, PASS_ACT } from "./place/place.logic";
 export type { RideFare } from "./place/place.logic";
 export * as time from "./engine/time";
 // The Friday draw's public method: the server draws with it and the client's draw page checks with it (docs/rules/lottery.md R-LOTTERY-015).

@@ -432,7 +432,7 @@ const ROOM: Id<"place"> = "place.the-room";
  * R-PLACE-012 (decision 0017): the act that buys a country's pass, the country's own now-act at its
  * station's machine. Only a country whose rides carry a `pass` figure has one; Italy has none.
  */
-const PASS_ACT: Readonly<Partial<Record<Id<"country">, Id<"activity">>>> = {
+export const PASS_ACT: Readonly<Partial<Record<Id<"country">, Id<"activity">>>> = {
   "country.uk": "activity.bus-pass-uk",
   "country.canada": "activity.transit-pass-ca",
   "country.uae": "activity.transit-pass-uae",

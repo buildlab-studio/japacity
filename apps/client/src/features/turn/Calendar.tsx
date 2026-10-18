@@ -5,7 +5,7 @@
 // shell, so the phone knows nothing of the month.
 import { content } from "@japacity/content";
 import type { PlayerView, SlotLock, SlotPick } from "@japacity/sim";
-import { int } from "@japacity/sim";
+import { int, PASS_ACT } from "@japacity/sim";
 import { Briefcase, Lock, X } from "lucide-react";
 import { type ReactNode, use, useEffect, useRef } from "react";
 
@@ -80,13 +80,13 @@ export function choresWords(view: Pick<PlayerView, "obligations" | "activities">
 }
 
 /**
- * The month's pass in the country the life is in (place.md R-PLACE-012): the act that buys it and the line
- * that says what it covers, by country: London's bus pass, Calgary's transit pass, Dubai's zone pass. Italy has none.
+ * The line that says what the month's pass covers, by country (place.md R-PLACE-012): London's bus pass, Calgary's
+ * transit pass, Dubai's zone pass. The act that buys each is the simulation's `PASS_ACT`; Italy has none.
  */
-const PASSES: Readonly<Record<string, { act: string; line: string }>> = {
-  "country.uk": { act: "activity.bus-pass-uk", line: "turn.calendar.pass" },
-  "country.canada": { act: "activity.transit-pass-ca", line: "turn.calendar.pass.country.canada" },
-  "country.uae": { act: "activity.transit-pass-uae", line: "turn.calendar.pass.country.uae" },
+const PASS_LINES: Readonly<Record<string, string>> = {
+  "country.uk": "turn.calendar.pass",
+  "country.canada": "turn.calendar.pass.country.canada",
+  "country.uae": "turn.calendar.pass.country.uae",
 };
 
 /**
@@ -94,9 +94,11 @@ const PASSES: Readonly<Record<string, { act: string; line: string }>> = {
  * free until the month ends, and the next month asks again. Null where no pass was bought this month.
  */
 export function passWords(view: Pick<PlayerView, "activities" | "place">): string | null {
-  const pass = view.place.country === null ? undefined : PASSES[view.place.country];
-  if (view.place.where !== "abroad" || pass === undefined) return null;
-  return view.activities.some((option) => option.id === pass.act && option.done === true) ? turnWords(pass.line) : null;
+  const country = view.place.country;
+  const act = country === null ? undefined : PASS_ACT[country];
+  const line = country === null ? undefined : PASS_LINES[country];
+  if (view.place.where !== "abroad" || act === undefined || line === undefined) return null;
+  return view.activities.some((option) => option.id === act && option.done === true) ? turnWords(line) : null;
 }
 
 /** A held slot as a row of the month: "At the burial", or the lock's sentence where content has no row words. */
