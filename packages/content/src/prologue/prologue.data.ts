@@ -339,7 +339,7 @@ const steps: Record<string, PrologueStep> = {
         ],
         { requires: [{ type: "money/can-pay", currency: "NGN", amount: COMPOUND_MOVE_IN + tuning.home.compound.upkeep }] },
       ),
-      // A hostel room of your own (decision 0040): the rent by the month opened and the move. As the room on the
+      // A hostel room of your own (decision 0018): the rent by the month opened and the move. As the room on the
       // water's, the prologue's room takes nothing on the move: its first month is charged at the month's end, no year's lump.
       answer("hostel-room", [
         { type: "obligation/open", obligation: "obligation.upkeep-hostel", amount: tuning.home.hostelRentKobo },

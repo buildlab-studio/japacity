@@ -1,4 +1,4 @@
-// Counter-based random streams: docs/decisions/0001-random-streams.md.
+// Counter-based random streams: docs/decisions/0003-random-draws-by-position.md.
 // The nth draw of a stream depends only on the seed, the stream's name and n
 // (R-ENGINE-005), so streams never disturb each other and a save stores only
 // how many draws each stream has made. Only Math.imul, shifts and xor are used,

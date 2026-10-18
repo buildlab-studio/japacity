@@ -518,7 +518,7 @@ describe("the view and the record", () => {
       fareBp: 10000,
       wayHome: null,
       ways: lagosWays(),
-      // R-PLACE-013 (decision 0043): no shuttle's stop at home.
+      // R-PLACE-013 (decision 0017): no shuttle's stop at home.
       shuttles: [],
     });
   });

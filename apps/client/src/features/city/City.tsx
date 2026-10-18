@@ -803,7 +803,7 @@ export function City({
   // R-WORLD-029: a choice for the month is seen on its thing: what carries on in the plan, and what was done this month,
   // the pot steaming once cooked and the drum full once fetched (R-OBLIGATION-014).
   const plannedKey = plan.flatMap((pick) => (pick === null ? [] : [pick.activity])).join("|");
-  // An act that repeats is never done for the month (R-ACTIVITY-019, decision 0035), so the month's own answers say it was done.
+  // An act that repeats is never done for the month (R-ACTIVITY-019, decision 0012), so the month's own answers say it was done.
   const doneKey = [...new Set([...view.activities.flatMap((option) => (option.done ? [option.id] : [])), ...nowActsIn(monthLines)])].join("|");
   // R-WORLD-020, R-PEOPLE-009, R-PEOPLE-013: a computer partner the view lists stands at their thing in the place content
   // meets them in, one met only in December only while it is December; nobody else stands there.

@@ -1,5 +1,5 @@
 // What is owed, in Bills (docs/rules/world.md R-WORLD-019): the upkeep's name and this month's charge, and a loan's
-// still owed with its misses counted. No amount is typed (decision 0038: the phone shows no form); the slip paying
+// still owed with its misses counted. No amount is typed (decision 0025: the phone shows no form); the slip paying
 // this month's part in kobo is phone.test.tsx's "given Bills with a loan due".
 import { text } from "@japacity/content";
 import { screen, within } from "@testing-library/react";
@@ -12,7 +12,7 @@ import { say, sayCount } from "../../../shared/words/text";
 import { Bills } from "./Bills";
 
 describe("what is owed, in Bills", () => {
-  // The naira upkeep at home is lived by hand and has no bill (R-HOME-012, decision 0035), so the upkeep abroad stands in.
+  // The naira upkeep at home is lived by hand and has no bill (R-HOME-012, decision 0013), so the upkeep abroad stands in.
   test("given upkeep, then its name and this month's charge are shown", async () => {
     const view = abroadView();
     const upkeep = view.obligations.find((owed) => owed.entry === "obligation.upkeep-uk")!;

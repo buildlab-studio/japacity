@@ -32,7 +32,7 @@ function naira(view: PlayerView): number {
 
 /** A paid activity the view prices, for the plan to hold. */
 function paidOption(view: PlayerView): { id: PlayerView["activities"][number]["id"]; amount: number } {
-  // Decision 0035 (R-ACTIVITY-019): the study and the meals answer at once and are never planned, so the paid thing
+  // Decision 0012 (R-ACTIVITY-019): the study and the meals answer at once and are never planned, so the paid thing
   // the plan holds is a month-act.
   const option = view.activities.find((candidate) => candidate.cost.length === 1 && candidate.cost[0]?.currency === "NGN" && candidate.params === null && plannable(candidate.id));
   if (option === undefined) throw new Error("The view prices no paid activity.");

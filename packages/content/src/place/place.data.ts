@@ -322,7 +322,7 @@ const entries: PlaceEntry[] = [
   // home.md R-HOME-006: the settlement on the lagoon the character may live in.
   lagos("place.makoko", "Makoko", "makoko", 6495, 3390, { scope: "exterior", crowd: BUSY, traditionalBp: OFFICE, stages: ["activity.job-fish-racks"] }),
   // On a made-up street in Surulere near the hub: the spot the map and the fares read (R-CITY-008). The house
-  // is one wide floor seen whole, its yard and carport inside its walls (decision 0040), so it stays an exterior.
+  // is one wide floor seen whole, its yard and carport inside its walls (decision 0018), so it stays an exterior.
   unnamed("place.family-house", "stylised", "home", "lagos", null, {
     spot: [6507, 3359],
     scope: "exterior",
@@ -359,7 +359,7 @@ const entries: PlaceEntry[] = [
     crowd: NEIGHBOURS,
     traditionalBp: STREET,
   }),
-  // A hostel room of your own (decision 0040): one small room off a shared corridor, rented by the month, the cheap
+  // A hostel room of your own (decision 0018): one small room off a shared corridor, rented by the month, the cheap
   // way out of the family house. Like the room in a compound it stages nothing of its own; its made-up spot is in Yaba,
   // where the hostels by the colleges are, and the map shows it only as home.
   unnamed("place.hostel-room", "stylised", "home", "lagos", null, {

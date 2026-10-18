@@ -38,7 +38,7 @@ function tuned(change: Partial<Tuning["home"]>, more: Record<string, unknown> = 
 
 const NEVER = tuned({ evictionBp: 0 });
 const ALWAYS = tuned({ evictionBp: 10000 });
-/** Decision 0035 lives the living by hand at home; the tests that read the charge itself charge it whole. */
+/** Decision 0013 lives the living by hand at home; the tests that read the charge itself charge it whole. */
 function chargedWhole(base: Content): Content {
   return { ...base, tuning: { ...base.tuning, home: { ...base.tuning.home, livingByHandBp: 0 } } };
 }
@@ -149,7 +149,7 @@ describe("the numbers", () => {
       selfContainRentYear: 700_000_00,
       // A hostel room's month, about half the room in a compound's month of rent.
       hostelRentKobo: 15_000_00,
-      // R-HOME-012 (decision 0035): the whole of living at home is lived by hand.
+      // R-HOME-012 (decision 0013): the whole of living at home is lived by hand.
       livingByHandBp: 10000,
     });
     expect(content.obligation[MAKOKO_UPKEEP]).toMatchObject({ type: "upkeep", currency: "NGN", amount: home.makokoUpkeep, sink: "upkeep" });
@@ -166,13 +166,13 @@ describe("the slice", () => {
       place: FAMILY,
       since: 0,
       guest: null,
-      // Decision 0035 (R-HOME-012): living at home is lived by hand, so no home charges anything a month; what a move takes
+      // Decision 0013 (R-HOME-012): living at home is lived by hand, so no home charges anything a month; what a move takes
       // at once is unchanged. The charges themselves are read on a copy that charges them whole, below.
       rent: { currency: "NGN", amount: 0 },
       evictionBp: home.evictionBp,
       moved: null,
       moves: [
-        // Decision 0035: both homes' living is by hand; what a move takes at once is unchanged.
+        // Decision 0013: both homes' living is by hand; what a move takes at once is unchanged.
         { to: MAKOKO, monthly: { currency: "NGN", amount: 0 }, now: home.makokoUpkeep, shut: null },
         { to: COMPOUND, monthly: { currency: "NGN", amount: 0 }, now: MOVE_IN, shut: "short" },
         // The hostel's month is its rent, which is never lived by hand.

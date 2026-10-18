@@ -103,7 +103,7 @@ describe("sending money home", () => {
     const game = adaAbroad();
     const rate = game.world().rates.USD.official;
     const before = game.state.wallet.pockets.NGN.bank;
-    // Since decision 0035's re-recording Ada lands with a lot of her own (her held funds' naira, month 26); the remit adds none.
+    // Since decision 0013's re-recording Ada lands with a lot of her own (her held funds' naira, month 26); the remit adds none.
     const lots = game.state.wallet.lots;
     const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "app" });
     const fee = bp(HUNDRED_DOLLARS, remit.appFeeBp);
@@ -331,7 +331,7 @@ describe("the bank abroad", () => {
 
   test("[R-WALLET-006] given a bank queue in the world, when Ada changes dollars to pounds at the bank abroad, then the pounds arrive at once: the queue is the Lagos bank's", () => {
     const game = adaAbroad();
-    // Since decision 0035's re-recording Ada lands with fewer dollars than this; the change needs them held, as above.
+    // Since decision 0013's re-recording Ada lands with fewer dollars than this; the change needs them held, as above.
     const { USD } = game.state.wallet.pockets;
     if (USD.bank < DOLLARS) applyEffects(game, [{ type: "money/add", currency: "USD", pocket: "bank", amount: DOLLARS - USD.bank, reason: "gift" }]);
     const landed = game.world();

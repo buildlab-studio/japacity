@@ -1,4 +1,4 @@
-// The world's own clock (docs/rules/clock.md R-CLOCK-033; decision 0036): one game day runs on real time, faster
+// The world's own clock (docs/rules/clock.md R-CLOCK-033; decision 0011): one game day runs on real time, faster
 // than life, the same moment for everyone, so a sitting sees the sun move; events hang on it and the city opens
 // and shuts by it. Each life's months turn only when that life sleeps. Pure: `now` is given, never read, and the
 // simulation never sees this (R-ENGINE-012); the authority carries it in the clock view.

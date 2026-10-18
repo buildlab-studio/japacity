@@ -25,7 +25,7 @@ function idSource(start: number): IdSource & { peek(): number } {
   };
 }
 
-/** What a new life may begin with besides its scenario: the inviter's family for a sibling made from an invite (R-PEOPLE-011, decision 0009). */
+/** What a new life may begin with besides its scenario: the inviter's family for a sibling made from an invite (R-PEOPLE-011, decision 0020). */
 export interface NewStateOptions {
   family?: Save["family"];
 }
@@ -107,7 +107,7 @@ function renamed(value: unknown, renames: Readonly<Record<string, string>>): unk
 }
 
 /**
- * The slices whose shape grew inside them at schema 4 (decisions 0034, 0035): `turn.spent`, `offer.rolled` and
+ * The slices whose shape grew inside them at schema 4 (decisions 0011 and 0012): `turn.spent`, `offer.rolled` and
  * `offer.rolledMonth`, and the body's qualities (`quality.belly`, `quality.energy`). A state of an older shape takes each
  * missing field from its kind's `initial` (nothing spent this month, nothing rolled, the body where a new life starts);
  * a field it holds is kept. None of these kinds hands out an instance id in `initial`, so a scratch source is used and
@@ -127,9 +127,9 @@ function grownTo4(kinds: Registry, state: State, scenario: Content["scenario"][I
 }
 
 /**
- * A state carried from one content to the next (R-SERVER-022, decision 0006):
+ * A state carried from one content to the next (R-SERVER-022, decision 0004):
  * ids renamed through the newer content's table, any slice the state lacks
- * built by its kind's `initial` (decision 0003), a slice that grew inside
+ * built by its kind's `initial` (decision 0001), a slice that grew inside
  * filled where the state's schema is older (`grownTo4`), the schema raised to
  * the current shape and the newer content's version recorded. Pure. Between two
  * loads of the same version (a new overlay, R-SERVER-024) nothing is renamed.

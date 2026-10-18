@@ -74,7 +74,7 @@ describe("the world fills the screen", () => {
     expect(band()).toBeTruthy();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
     // The nudge is a button when it opens the way to what it names (R-WORLD-003); the band's handle shows only while something is coming (R-WORLD-002).
-    // The month's name and phase are part of the band, a chip that opens the Calendar (R-WORLD-002, decision 0034).
+    // The month's name and phase are part of the band, a chip that opens the Calendar (R-WORLD-002, decision 0011).
     // The name over the age opens the data page (R-PROLOGUE-009). With the brief carried, the home's
     // small card says what the home is, once (R-HOME-008).
     expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt, worldClockAt(Date.now())) }), say("chapter.find-your-feet.brief.title"), say("ui.world.map"), say("ui.world.phone"), cityWords("city.home.teach.close")]);
@@ -134,7 +134,7 @@ describe("the band and the thumb buttons", () => {
     const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
     expect(within(band()).getByText(clock)).toBeTruthy();
     expect(band().textContent).not.toContain(say("ui.world.month-of", { month: view.month + 1 }));
-    // The month in words: its name from when the life began, the part of the day from the world's clock (decision 0036).
+    // The month in words: its name from when the life began, the part of the day from the world's clock (decision 0011).
     const month = bandMonth(view, store.getState().beganAt, worldClockAt(Date.now()));
     expect(monthChip().textContent).toBe(`${month.name}${month.part}`);
     expect(monthChip().textContent).not.toMatch(/\d/);
@@ -637,7 +637,7 @@ describe("once per life", () => {
     const card = document.querySelector("[data-home-teach]");
     expect(card?.getAttribute("data-home-teach")).toBe("place.family-house");
     expect(card?.textContent).toContain(words("place.family-house.blurb"));
-    // On a laptop the card stands in the centred column with the world around it (decision 0038).
+    // On a laptop the card stands in the centred column with the world around it (decision 0025).
     expect(card?.closest("[data-centred-column]")).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.home.teach.close") }));
     expect(document.querySelector("[data-home-teach]")).toBeNull();

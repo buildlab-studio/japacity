@@ -136,7 +136,7 @@ const BELLY: Id<"quality"> = "quality.belly";
 const ENERGY: Id<"quality"> = "quality.energy";
 
 /**
- * R-QUALITY-007 (decision 0035): the body at the month's turn. A month that ends hungry or spent takes it out of
+ * R-QUALITY-007 (decision 0011): the body at the month's turn. A month that ends hungry or spent takes it out of
  * wellbeing; then the night's rest and the family's pot bring the belly and the energy back toward their resting point.
  */
 function body(ctx: Ctx, wellbeing: number | null): QualityEvent[] {

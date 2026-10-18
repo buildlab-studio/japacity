@@ -1,4 +1,4 @@
-// The sleep from the bed (docs/rules/world.md R-WORLD-025, R-WORLD-005; decision 0036): one fixed length, a development
+// The sleep from the bed (docs/rules/world.md R-WORLD-025, R-WORLD-005; decision 0011): one fixed length, a development
 // switch that shortens it for testing, the lying pose the bed's own acts already carry, and the corner's words on waking.
 import { Object3D } from "three";
 import { describe, expect, test } from "vitest";

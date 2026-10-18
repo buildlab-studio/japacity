@@ -87,7 +87,7 @@ export function homeStagesAt(place: string, home: string | null, where: ViewPlac
 }
 
 /**
- * The acts lived by hand at home (activity.md R-ACTIVITY-019, decision 0035): every act that repeats is staged at the
+ * The acts lived by hand at home (activity.md R-ACTIVITY-019, decision 0012): every act that repeats is staged at the
  * family house and in the character's own home while they are at home, so the parlour's table can offer the study a hub
  * or a centre also stages, and the bed its nap. Content stages an id at one place only (R-CITY-010), so the home's
  * share is read here; a thing still shows only the acts its file declares.

@@ -1,5 +1,5 @@
 // The month's free time each now-act spends, in half-days (docs/rules/activity.md R-ACTIVITY-018; decision
-// 0034), said on the screen in a person's words: 1 a morning, 2 a day, 4 a weekend, 10 a week. A purchase
+// 0011), said on the screen in a person's words: 1 a morning, 2 a day, 4 a weekend, 10 a week. A purchase
 // spends none; a month-act fills the month as a commitment and spends none here.
 export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.cook-at-home": 1,

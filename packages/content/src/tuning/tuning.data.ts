@@ -14,13 +14,13 @@ export const tuning: Tuning = {
     freeSlotsNoJob: 3,
     // R-TURN-009
     maxLocked: 2,
-    // R-TURN-010 (decision 0034): a life with no job lives the whole month by hand; a job takes its days and leaves ten.
+    // R-TURN-010 (decision 0011): a life with no job lives the whole month by hand; a job takes its days and leaves ten.
     halfDays: { noJob: 60, withJob: 20 },
     // R-OFFER-008: an ask may land as the day is lived, at a third and two thirds of the month's free time.
     arrivalsBp: [3333, 6667],
     // R-ACTIVITY-019: a weekly thing kept as a commitment is three of it a month.
     repeatPerSlot: 3,
-    // R-QUALITY-007 (decision 0035): each half-day lived takes a little off the belly and the energy; the month's rest brings
+    // R-QUALITY-007 (decision 0011): each half-day lived takes a little off the belly and the energy; the month's rest brings
     // each back toward 60; a month that ends hungry or spent takes it out of wellbeing.
     // R-ACTIVITY-020: under `spentBelow` energy, an act that takes effort waits for sleep.
     body: { bellyPerHalfDay: 2, energyPerHalfDay: 1, restTo: 60, restBy: 25, lowBelow: 30, hungryWellbeing: 6, spentWellbeing: 4, spentBelow: 10 },
@@ -52,7 +52,7 @@ export const tuning: Tuning = {
     streetShortLossBp: [pct(3), pct(8)],
     lotMonths: 3,
     flagDepositAbove: naira(500000),
-    // Decision 0022: a day's small work is paid in hand; past a few thousand naira people ask for a transfer.
+    // Decision 0014: a day's small work is paid in hand; past a few thousand naira people ask for a transfer.
     cashUpTo: naira(10000),
     // R-WALLET-019: cash on you past this is cash a one-chance bus can take.
     cashWarnAt: naira(100000),
@@ -262,9 +262,9 @@ export const tuning: Tuning = {
       // R-PLACE-010: the metres a thousandth of a degree of longitude is worth, 111 times the cosine
       // of the latitude, rounded: Lagos 111 here, and each country's below; latitude is 111 everywhere.
       lonMetresPerE3: 111,
-      // place.md R-PLACE-010 and R-PLACE-012 (decision 0042, design page 14 section 5): each
+      // place.md R-PLACE-010 and R-PLACE-012 (decision 0017, design page 14 section 5): each
       // country's ways in its smallest unit, the step a fare is rounded up to, the month's pass and the ways it covers
-      // (R-PLACE-012, decision 0043), and the pace on foot. London's are 2025 fares, rounded: the hopper bus
+      // (R-PLACE-012, decision 0017), and the pace on foot. London's are 2025 fares, rounded: the hopper bus
       // fare, an off-peak train single by distance, a monthly bus and tram pass. Calgary, Dubai and Castel Volturno's are
       // design page 15 section 4's 2025 figures, rounded: Calgary's one flat fare on the bus and the CTrain and the month's
       // transit pass on both; Dubai's zone fare read as distance on the bus and the metro, the Nol zone pass on both, and a
@@ -307,10 +307,10 @@ export const tuning: Tuning = {
     returnStanding: -5,
     compound: { rentYear: naira(350000), feesBp: pct(20), upkeep: naira(50000) },
     selfContainRentYear: naira(700000),
-    // A hostel room of your own, rented by the month (decision 0040): about half the room in a compound's month of
+    // A hostel room of your own, rented by the month (decision 0018): about half the room in a compound's month of
     // rent (350,000 naira a year, about 29,200 a month); a working figure.
     hostelRentKobo: naira(15000),
-    // R-HOME-012 (decision 0035): at home the whole of living is lived by hand, meals, water, fares and data as acts; nothing of it is charged as the month turns.
+    // R-HOME-012 (decision 0013): at home the whole of living is lived by hand, meals, water, fares and data as acts; nothing of it is charged as the month turns.
     livingByHandBp: pct(100),
   },
   // The market: the car's fuel as its fare, by distance as the rides are (R-PLACE-010): 300 naira to

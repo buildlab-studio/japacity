@@ -135,7 +135,7 @@ interface Played {
 }
 
 /**
- * R-SERVER-046 (decision 0044): the prologue's preset in one transaction as R-SERVER-002 runs a command. `stale` unless
+ * R-SERVER-046 (decision 0008): the prologue's preset in one transaction as R-SERVER-002 runs a command. `stale` unless
  * `basedOn` is the stored version; then `prologue/choose` for each step in turn with content's `presetAnswer` at the card
  * the view shows, each logged as the player's, until the prologue closes, a step has no open answer (its card shows),
  * an answer is refused, or `limits.presetSteps` are played. A refusal after some steps keeps them and comes back in the

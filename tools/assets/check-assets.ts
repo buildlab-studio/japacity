@@ -1,4 +1,4 @@
-// pnpm check:assets: the build check of decision 0005 section 5. Every check but the last reads files
+// pnpm check:assets: the build check of decision 0009 section 5. Every check but the last reads files
 // only; the last draws each staged place in Playwright's own Chromium (place-check.ts). Every check
 // returns its problems; any problem fails.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -18,7 +18,7 @@ import { checkLimits, checkParts, checkThings, isWorldFile, type LimitedFile } f
 
 /** R-ASSET-008, as the page writes it. */
 export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
-/** Files decision 0005 places under public/assets beside the models, and the publish step's manifest. */
+/** Files decision 0009 places under public/assets beside the models, and the publish step's manifest. */
 export const DATA_FILES = new Set(["place.json", "credits.json", "manifest.json"]);
 const IMAGE = /\.(png|jpe?g|webp|gif|avif|bmp|tiff?|heic|ktx2)$/i;
 

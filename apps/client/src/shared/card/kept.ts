@@ -1,4 +1,4 @@
-// The japa type kept on this device with the send-off card (decision 0018: "kept on the data page"), read from
+// The japa type kept on this device with the send-off card (decision 0024: "kept on the data page"), read from
 // the gallery's own storage so the data page, which is shared code, needs nothing from the card feature. The
 // gallery writes the entries; this reads only the one field the page shows, and never trusts the shape.
 import { type JapaType, japaTypes } from "@japacity/content";

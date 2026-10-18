@@ -372,7 +372,7 @@ async function closeSheets(run: Run): Promise<void> {
 }
 
 /**
- * The step's place from the map (decision 0039): the Map thumb opens on the step's neighbourhood with its pin ringed; the
+ * The step's place from the map (decision 0026): the Map thumb opens on the step's neighbourhood with its pin ringed; the
  * pin is picked (by the stop's own button, as the browser tests do) and its ride taken. True once the ride is done.
  */
 async function stepByMap(run: Run, month: number): Promise<boolean> {
@@ -408,7 +408,7 @@ async function followNudge(run: Run, month: number): Promise<void> {
   // takes the step's act in one go. The nudge's chip shows only in the moment.
   const marker = page.locator("[data-marker-tap]");
   if (!(await shown(nudge))) {
-    // Away from the step's place, the map carries it (decision 0039): the step's pin is ringed, and its ride is taken.
+    // Away from the step's place, the map carries it (decision 0026): the step's pin is ringed, and its ride is taken.
     if (!(await shown(marker)) && (await stepByMap(run, month))) await page.waitForTimeout(800);
     if (!(await shown(marker))) {
       log(run, `month ${String(month)}: no nudge and no marker showing`);
@@ -597,7 +597,7 @@ const SLEEP_SECONDS = 3;
 async function bedEnd(run: Run, month: number): Promise<boolean> {
   const { page } = run;
   const ended = async (): Promise<boolean> => (await shown(page.locator("[data-world-sheet='results'], [data-moment]"))) || (await page.locator("[data-band]").first().getAttribute("aria-hidden").catch(() => null)) === "true";
-  // Away from home, the map's home stop takes the ride back first (decision 0039): the month ends in a bed.
+  // Away from home, the map's home stop takes the ride back first (decision 0026): the month ends in a bed.
   const beds = page.locator(BEDS.map((bed) => `[data-mark="${bed}"]`).join(", "));
   if ((await beds.count()) === 0 && !(await shown(page.locator(BED_END)))) await rideHome(run, month);
   const house = page.locator('[data-mark="house"]');
@@ -606,7 +606,7 @@ async function bedEnd(run: Run, month: number): Promise<boolean> {
     await page.waitForTimeout(600);
     if (await tap(run, page.locator('[data-fan-act="enter"] button'), "Go in")) await page.waitForTimeout(1_500);
   }
-  // A wide home eased in on one room hides the other rooms' marks (decision 0040): the whole house first, as a player would.
+  // A wide home eased in on one room hides the other rooms' marks (decision 0018): the whole house first, as a player would.
   const whole = page.getByRole("button", { name: "See the whole place" });
   if (!(await shown(page.locator(BED_END))) && (await shown(whole))) {
     await tap(run, whole, "See the whole place");
@@ -670,7 +670,7 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
       await page.waitForTimeout(600);
     } else problem(run, `month ${String(month)}: the band's month did not open the Calendar`);
   }
-  // The month ends from the bed at home (R-WORLD-025; decision 0034): the band has no Next month. An answer may open a new
+  // The month ends from the bed at home (R-WORLD-025; decision 0011): the band has no Next month. An answer may open a new
   // question that holds the month (the road's deposit opens the night meeting): the nudge is followed again, twice at most.
   // The automatic turn when the month is lived comes with the next step of the lived month; until then the driver walks
   // in from the yard when it stands there, and a life away from home ends the run with the reason.

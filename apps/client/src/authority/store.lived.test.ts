@@ -1,4 +1,4 @@
-// The month turns only when the life sleeps (docs/rules/world.md R-WORLD-025; activity.md R-ACTIVITY-020; decision 0036):
+// The month turns only when the life sleeps (docs/rules/world.md R-WORLD-025; activity.md R-ACTIVITY-020; decision 0011):
 // an act that spends the month's last free time turns nothing; the night falls, and the bed's Sleep is the way on.
 import type { Command, PlayerView, Reply } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

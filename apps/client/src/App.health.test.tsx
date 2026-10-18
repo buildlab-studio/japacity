@@ -17,7 +17,7 @@ const health = content.tuning.health;
 /**
  * Ada with wellbeing pushed under the run-down line, played until the warning stands. Resting lifts her over the
  * line until her four months of living run out and the unpaid upkeep pulls her under. Decision
- * 0035 (R-HOME-012): at home the living is not charged as the month turns, so her months are played with it
+ * 0013 (R-HOME-012): at home the living is not charged as the month turns, so her months are played with it
  * charged whole, as the simulation's relief tests charge it, for the unpaid months to pull her under.
  */
 function runDownView(): PlayerView {

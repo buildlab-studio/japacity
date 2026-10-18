@@ -1,4 +1,4 @@
-// The street's enjoyment and spending: docs/rules/streets.md R-STREET-011 (decision 0037). Each is a priced now-act
+// The street's enjoyment and spending: docs/rules/streets.md R-STREET-011 (decision 0012). Each is a priced now-act
 // paid from the naira as it is done, under the money reason `enjoyment`; a repeat runs as often as the month's time
 // allows (R-ACTIVITY-019), the barber and the clothes once a month. Joined into the activity table in
 // activity.data.ts; place.data.ts stages each at its street.

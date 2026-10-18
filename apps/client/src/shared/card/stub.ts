@@ -1,5 +1,5 @@
 // The send-off's ticket stub (docs/rules/share.md R-SHARE-001, R-SHARE-004 to R-SHARE-006, R-SHARE-009;
-// decision 0018): a drawn paper stub over the departure art, with FROM, TO, MONTHS and JAPACITY, the
+// decision 0024): a drawn paper stub over the departure art, with FROM, TO, MONTHS and JAPACITY, the
 // type badge and the first name. Place names and words only: no airline, no barcode, no seat number, no
 // booking, no airport code and no crest, so it never reads as a real ticket. Landscape: the card's own
 // size turned on its side. The seat the send-off's counter gave (share.md R-SHARE-015) is carried in words

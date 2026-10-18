@@ -155,10 +155,10 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
     }
     case "people/answered":
       scope.book.write(pair, mine, { type: "pair/answered", step: event.step, yes: event.yes });
-      // R-PEOPLE-034, decision 0009: a no reaches the proposer's life as people/declined.
+      // R-PEOPLE-034, decision 0020: a no reaches the proposer's life as people/declined.
       return event.yes ? agreeBoth(scope, pair) : send({ type: "people/declined", pair, step: event.step });
     case "people/withdrawn": {
-      // R-PEOPLE-034, decision 0009: the other life's waiting proposal is withdrawn too.
+      // R-PEOPLE-034, decision 0020: the other life's waiting proposal is withdrawn too.
       const step = record.pending[mine]?.step ?? null;
       scope.book.write(pair, mine, { type: "pair/withdrawn" });
       return step === null ? null : send({ type: "people/withdrawn", pair, step });
@@ -200,7 +200,7 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
 const INVITER_SLOT = "sibling-1";
 
 /**
- * R-PEOPLE-011, decision 0009: a life made with the inviter's family waits
+ * R-PEOPLE-011, decision 0020: a life made with the inviter's family waits
  * with its first sibling slot as an invited card. The simulation refuses
  * `people/link` while the prologue is open, so the link is sent the moment
  * the prologue closes, with the inviter's facts.

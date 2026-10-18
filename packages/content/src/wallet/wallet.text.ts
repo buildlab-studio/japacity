@@ -75,7 +75,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.remit-lost": "You handed {sent} to the man who sends money home. It never arrived, and his number is off.",
 
   // R-WORLD-008: each change of money in the month, said under Kept
-  // with both sides as they were, since a change counts for nothing in the kept figure (decision 0021).
+  // with both sides as they were, since a change counts for nothing in the kept figure (decision 0024).
   "ui.results.changed-into": "Changed {paid} into {got}",
 
   // The Bank's savings line before a plan is made: one line, no figure.

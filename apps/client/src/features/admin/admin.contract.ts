@@ -1,5 +1,5 @@
 // The admin routes' replies, copied from the server, because the client
-// imports nothing from the server's side (decision 0004). Each block names its
+// imports nothing from the server's side (decision 0006). Each block names its
 // source; keep each copy the same as it.
 import type { Currency, Reason } from "@japacity/sim";
 

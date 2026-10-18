@@ -1,7 +1,7 @@
 // A change of money on the results (docs/rules/world.md R-WORLD-008, wallet.md R-WALLET-004): in Ada's second month
 // abroad the dollars she changes into pounds are on the results, and the pounds that come in never read as money kept.
 // The change is one line with both sides in its words. A change counts for nothing in what was kept, either way
-// (decision 0021): changing money is a move, not spending, and only the bank's charge stays money out, as the wallet
+// (decision 0024): changing money is a move, not spending, and only the bank's charge stays money out, as the wallet
 // counts the month (R-WALLET-015). The charge is told once, on its own line, and the change's paid side is what went at the rate, so Kept plus the change
 // is the band's move.
 import { content } from "@japacity/content";

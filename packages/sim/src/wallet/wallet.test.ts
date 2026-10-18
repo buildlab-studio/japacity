@@ -154,7 +154,7 @@ function setNaira(game: Game, pockets: { cash: number; bank: number }): void {
   expect(game.state.wallet.pockets.NGN).toMatchObject(pockets);
 }
 
-describe("money lands where it would (decision 0022)", () => {
+describe("money lands where it would (decision 0014)", () => {
   test("[R-WALLET-018] given the line for cash, when a sum at it and one kobo over are read, then the first changes hands as cash and the second goes by the bank", () => {
     expect(tuning.cashUpTo).toBe(1_000_000);
     expect(pocketFor(tuning.cashUpTo, tuning)).toBe("cash");

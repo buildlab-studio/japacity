@@ -1,4 +1,4 @@
-// The kept type's reader never trusts the gallery's storage (decision 0018).
+// The kept type's reader never trusts the gallery's storage (decision 0024).
 import { describe, expect, test } from "vitest";
 
 import { KEPT_CARDS, keptTypeOf } from "./kept";

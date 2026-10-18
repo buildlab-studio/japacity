@@ -21,7 +21,7 @@ const PASSPORT = "activity.get-passport" as Id<"activity">;
 const MEETUP = "activity.meetup" as Id<"activity">;
 const HUNT = "activity.job-hunt" as Id<"activity">;
 const LEARN = "activity.learn-tech" as Id<"activity">;
-// Decision 0035 (R-ACTIVITY-019): the coding course now answers at once and repeats; the course that fills a slot of the
+// Decision 0012 (R-ACTIVITY-019): the coding course now answers at once and repeats; the course that fills a slot of the
 // month is a master's at home.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 
@@ -102,7 +102,7 @@ describe("a card's button", () => {
     expect(await actOnCard({ activity: COURSE, param: null }, store.getState())).toBe("planned");
     expect(sent.length).toBe(before);
     expect(store.getState().plan).toContainEqual({ activity: COURSE, param: null });
-    // Decision 0035: the coding course is sent at once, as often as wanted, and never fills a slot.
+    // Decision 0012: the coding course is sent at once, as often as wanted, and never fills a slot.
     for (let time = 0; time < 2; time += 1) {
       await act(async () => {
         expect(await actOnCard({ activity: LEARN, param: null }, store.getState())).toBe("answered");
@@ -134,7 +134,7 @@ describe("the thing's chip", () => {
       await actOnCard({ activity: HUNT, param: job }, store.getState());
       await actOnCard({ activity: LOTTO, param: "1" }, store.getState());
     });
-    // Decision 0035 (R-ACTIVITY-019): an act that repeats is never done for the month, so it stays offered, as a purchase does.
+    // Decision 0012 (R-ACTIVITY-019): an act that repeats is never done for the month, so it stays offered, as a purchase does.
     await act(async () => {
       await actOnCard({ activity: LEARN, param: null }, store.getState());
     });

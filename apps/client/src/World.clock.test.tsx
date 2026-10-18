@@ -1,5 +1,5 @@
 // The client shows neither the months held nor a countdown to the next (docs/rules/clock.md R-CLOCK-007): the month
-// turns when it is lived (decision 0034). The server's clock runs; nothing a player reads counts the months held or the
+// turns when it is lived (decision 0011). The server's clock runs; nothing a player reads counts the months held or the
 // time to the next, online or off.
 import { worldClockAt } from "@japacity/sim";
 import { act, fireEvent, render } from "@testing-library/react";

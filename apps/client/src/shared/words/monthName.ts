@@ -1,5 +1,5 @@
-// The month's name as the band says it (docs/rules/world.md R-WORLD-002; decision 0034), and the world's part of the day
-// beside it (clock.md R-CLOCK-033; decision 0036). Month 0 of a life is the month of the year the life began in, read on
+// The month's name as the band says it (docs/rules/world.md R-WORLD-002; decision 0011), and the world's part of the day
+// beside it (clock.md R-CLOCK-033; decision 0011). Month 0 of a life is the month of the year the life began in, read on
 // Lagos's clock, so a life begun in March is in April at month 1. The month's phase by its free time spent stays for
 // what reads it; the band does not say it.
 import type { DayPart, PlayerView } from "@japacity/sim";

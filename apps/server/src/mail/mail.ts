@@ -3,7 +3,7 @@
 // sets MAIL_TRANSPORT=mailpit: each mail is then posted to Mailpit's HTTP send API, since a Worker
 // cannot open SMTP, and the inbox is read at Mailpit's page; Mailpit's address must be on this machine,
 // so a stray setting on a deployment still sends nothing anywhere. Otherwise a deployment with the MAIL
-// binding sends through Cloudflare Email Service (decision 0031), from the game's one sender only. With
+// binding sends through Cloudflare Email Service (decision 0007), from the game's one sender only. With
 // neither, every send is refused.
 // https://mailpit.axllent.org/docs/api-v1/view.html#post-/api/v1/send
 // https://developers.cloudflare.com/email-service/api/send-emails/workers-api/
@@ -15,7 +15,7 @@ export const NOT_LOCAL = "Mailpit is for the local stack only: MAILPIT_URL must 
 export const REFUSED = "Email Service refused the mail";
 
 /**
- * The game's one sender (decision 0031). The MAIL
+ * The game's one sender (decision 0007). The MAIL
  * binding in wrangler.jsonc allows this address alone (`allowed_sender_addresses`), and a test holds the two equal.
  */
 export const SENDER = { email: "game@mail.japacity.app", name: "Japacity" } as const;
@@ -41,7 +41,7 @@ export interface MailBinding {
 export interface MailSettings {
   MAIL_TRANSPORT?: string;
   MAILPIT_URL?: string;
-  /** Decision 0031: Cloudflare Email Service's `send_email` binding, on the deployments. */
+  /** Decision 0007: Cloudflare Email Service's `send_email` binding, on the deployments. */
   MAIL?: MailBinding;
 }
 

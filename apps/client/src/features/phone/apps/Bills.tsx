@@ -78,7 +78,7 @@ function haveFor(pocket: PlayerView["pockets"][Currency], pay: NonNullable<Retur
 }
 
 /**
- * R-HOME-012 (decision 0035): the naira living at home is bought as you go and charged nothing as the month turns, so
+ * R-HOME-012 (decision 0013): the naira living at home is bought as you go and charged nothing as the month turns, so
  * its notice would say a bill is taken at the month's end when none is. The home card above says how it is lived.
  */
 function livedByHand(owed: Owed): boolean {

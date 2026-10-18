@@ -51,7 +51,7 @@ test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and come
   await page.locator('[data-thumb="phone"]').click();
   await expect(page.locator("[data-phone]")).toBeVisible();
   // The Calendar sits first among the apps since the month lives on the phone (R-WORLD-018), and the Market stands with
-  // them for the things a life owns (decision 0041), so eleven.
+  // them for the things a life owns (decision 0019), so eleven.
   await expect(page.locator("[data-app]")).toHaveCount(11);
   await expect(page.locator('[data-app="market"]')).toHaveCount(1);
   await expect(page.locator("[data-app]").first()).toHaveAttribute("data-app", "calendar");

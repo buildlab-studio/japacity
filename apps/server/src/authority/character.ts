@@ -27,7 +27,7 @@ function newSeed(deps: Pick<ServerDeps, "config" | "randomBytes">): string {
 
 /**
  * R-SERVER-016, R-ACCOUNT-015: makes the account's one character in `scenario`.
- * R-PEOPLE-011, decision 0009: a sibling made from an invite starts from the
+ * R-PEOPLE-011, decision 0020: a sibling made from an invite starts from the
  * inviter's family draw; its first segment starts from that state, so every
  * replay begins where the life did.
  */

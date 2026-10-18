@@ -101,7 +101,7 @@ function toSubsidyGone(on: typeof content): { risen: ReportLine[] | null; before
 
 describe("living costs that rise", () => {
   test("[R-WORLD-008] given the fuel subsidy in force, when the month's living costs are charged at the new figure, then the results say living costs are up to it a month, and why", () => {
-    // Decision 0035 (R-HOME-012): at home nothing of the living is charged as the month turns, so the month the subsidy
+    // Decision 0013 (R-HOME-012): at home nothing of the living is charged as the month turns, so the month the subsidy
     // goes tells no living costs at all, neither the rise nor the charge.
     const lived = toSubsidyGone(content);
     if (lived.risen === null) throw new Error("The fuel subsidy never came into force.");

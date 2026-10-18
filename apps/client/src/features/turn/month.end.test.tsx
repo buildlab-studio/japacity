@@ -12,7 +12,7 @@ import { Calendar } from "./Calendar";
 import { Results } from "./Results";
 
 describe("the month's end in the world", () => {
-  // The months held are not shown (decision 0034; World.clock.test.tsx).
+  // The months held are not shown (decision 0011; World.clock.test.tsx).
   test("given an empty plan, when the month ends, then turn/end is sent with no slots on the view's version", async () => {
     const view = engineView();
     const { authority, store } = await renderWithView(<Calendar />, view);
@@ -24,7 +24,7 @@ describe("the month's end in the world", () => {
     const view = engineView();
     const { authority, store } = await renderWithView(<Calendar />, view);
     expect(screen.queryByRole("button", { name: "Same again" })).toBeNull();
-    // Decision 0035 (R-ACTIVITY-019): the coding course now answers at once and is never planned; the course that carries
+    // Decision 0012 (R-ACTIVITY-019): the coding course now answers at once and is never planned; the course that carries
     // on is a master's at home.
     act(() => {
       store.getState().addToPlan({ activity: "activity.masters-at-home", param: null });

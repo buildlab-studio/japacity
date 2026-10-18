@@ -161,7 +161,7 @@ function Lines({ lines, mark }: { lines: readonly ReportLine[]; mark: string }) 
 /** The one main button, with what is left after; then the way to say no (R-WORLD-006). */
 function Choices({ offer, main, onChosen }: { offer: Offer; main: Offer["choices"]; onChosen: (lines: ReportLine[]) => void }) {
   const { choose, idle } = useChoose();
-  // The fee leaves cash first and the bank for the rest (decision 0012): what is left after counts both pockets and the month's plan, and a short fee says the gap (R-WORLD-006).
+  // The fee leaves cash first and the bank for the rest (decision 0014): what is left after counts both pockets and the month's plan, and a short fee says the gap (R-WORLD-006).
   const view = useView();
   const plan = useGame((state) => state.plan);
   const fee = feeOf(offer) ?? 0;

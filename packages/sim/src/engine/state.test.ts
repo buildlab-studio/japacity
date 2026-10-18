@@ -1,4 +1,4 @@
-// Carrying a state to newer content: docs/rules/server.md R-SERVER-021 and 022, decision 0006.
+// Carrying a state to newer content: docs/rules/server.md R-SERVER-021 and 022, decision 0004.
 import { content as realContent } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

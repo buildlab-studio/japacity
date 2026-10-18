@@ -81,7 +81,7 @@ describe("the ledger report", () => {
     expect(ledgerReport(doctored(state, "opening", "NGN", richest + 1), content).alarms).toEqual([{ reason: "opening", currency: "NGN", total: richest + 1, ceiling: richest }]);
   });
 
-  test("[R-WALLET-013] given decision 0010, under which pot-top-up is never credited, when the report is made, then its ceiling is 0: none credited is clean and one kobo names the account", () => {
+  test("[R-WALLET-013] given decision 0016, under which pot-top-up is never credited, when the report is made, then its ceiling is 0: none credited is clean and one kobo names the account", () => {
     const state = tunde();
     expect(ceilingOf(state, "pot-top-up", "NGN")).toBe(0);
     expect(ledgerReport(doctored(state, "pot-top-up", "NGN", 0), content).alarms).toEqual([]);

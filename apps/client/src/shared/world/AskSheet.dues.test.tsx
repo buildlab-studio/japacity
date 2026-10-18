@@ -45,7 +45,7 @@ function main(): HTMLButtonElement {
 
 describe("the month's dues on the card", () => {
   test("[R-WORLD-006] given Ada with ₦99,700 and ₦95,000 of living costs due, when the coding course's card opens, then it says what is left and what falls due, in warning tone, and the button stays open", async () => {
-    // Decision 0035 (R-HOME-012): at home nothing of the living falls due at the month's end, so the card says only what
+    // Decision 0013 (R-HOME-012): at home nothing of the living falls due at the month's end, so the card says only what
     // is left, with no warning.
     const lived = adaHolding(9_970_000);
     expect(lived.obligations.find((owed) => owed.entry === "obligation.upkeep")?.due).toBe(0);

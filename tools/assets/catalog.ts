@@ -1,4 +1,4 @@
-// Every shipped asset, where its source is and how it is built (decision 0005 section 4).
+// Every shipped asset, where its source is and how it is built (decision 0009 section 4).
 // The export, the shooter, the outline scorer and the check all start here.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -236,7 +236,7 @@ function gridEntry(piece: GridPiece, level: MeshLevel): CatalogEntry {
 }
 
 const PLACES_M6 = "The makers, written as code from the kit for the world-first places";
-/** The street's things of decision 0037. */
+/** The street's things of decision 0012. */
 const STREET = "The makers, written as code from the kit";
 
 /** Each interior's room, its folder under places/ by the room's name (R-WORLD-011). */
@@ -561,7 +561,7 @@ const ENTRIES: CatalogEntry[] = [
   basicsPiece("prop_lantern", "shared", "shared", basics.buildLantern),
   basicsPiece("prop_water-drum", "family-house-parlour", "place.family-house", basics.buildWaterDrum),
   basicsPiece("prop_drum-water", "family-house-parlour", "place.family-house", basics.buildDrumWater),
-  // The street's things of decision 0037 (streets.md R-STREET-011): the suya spot staged on Ojuelegba, the joint's chairs, the barber's kiosk and the viewing centre on Bode Thomas.
+  // The street's things of decision 0012 (streets.md R-STREET-011): the suya spot staged on Ojuelegba, the joint's chairs, the barber's kiosk and the viewing centre on Bode Thomas.
   { name: "prop_suya-grill", file: "shared/prop/prop_suya-grill.glb", place: "shared", source: "assets-src/prop/suya-grill", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_suya-grill", buildSuyaGrill()) },
   { name: "prop_joint-set", file: "shared/prop/prop_joint-set.glb", place: "shared", source: "assets-src/prop/joint-set", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_joint-set", buildJointSet()) },
   { name: "shop_barber-kiosk", file: "places/bode-thomas/shop_barber-kiosk.glb", place: "place.bode-thomas", source: "assets-src/shop/barber-kiosk", author: STREET, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_barber-kiosk", buildBarberKiosk("place.bode-thomas.sign.9", { board: "white", ink: "red", painted: true }), true) },

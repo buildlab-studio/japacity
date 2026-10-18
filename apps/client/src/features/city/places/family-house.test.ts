@@ -188,7 +188,7 @@ describe("the family's asks round the centre table", () => {
 
   test("[R-WORLD-005] given every entry the house stages, when its things' acts are read, then each opens from an act of a thing there", () => {
     const opened = new Set(actEntries(placeFile, "place.family-house"));
-    // The rest is lived by hand (decision 0035): the bed's rest and the night's support are the table's and the bed's own acts.
+    // The rest is lived by hand (decision 0013): the bed's rest and the night's support are the table's and the bed's own acts.
     expect(entry.stages.filter((one) => !opened.has(one) && one !== "activity.rest" && one !== "activity.fill-drum")).toEqual([]);
   });
 });

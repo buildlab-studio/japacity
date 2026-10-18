@@ -13,7 +13,7 @@ export type Alarm =
   | { kind: "suspect"; day: number; character: string; reason: Reason; currency: Currency; total: number; ceiling: number }
   /**
    * R-LOTTERY-014: `win` paid for the draw other than its result gives (`win`),
-   * any `pot-top-up` paid for it (`top-up`, which decision 0010 does not pay), or
+   * any `pot-top-up` paid for it (`top-up`, which decision 0016 does not pay), or
    * `ticket` taken for it other than its sales (`ticket`); `limit` is the
    * figure it should have been.
    */

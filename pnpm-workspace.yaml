@@ -2,7 +2,7 @@ packages:
   - packages/*
   - apps/*
   - tools
-  # The city's model sources: builders, specs, outlines and the stage (decision 0005)
+  # The city's model sources: builders, specs, outlines and the stage (decision 0009)
   - assets-src
 allowBuilds:
   esbuild: false

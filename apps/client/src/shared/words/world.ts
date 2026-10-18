@@ -118,7 +118,7 @@ export const worldText: Record<string, string> = {
   // A set piece staged elsewhere waits there; the player goes to it (R-WORLD-006).
   "ui.nudge.setpiece-away": "{what} is at {place}.",
   "ui.nudge.end": "Live the month, or sleep",
-  // The world's night (clock.md R-CLOCK-033; decision 0036): the bed's Sleep turns the month.
+  // The world's night (clock.md R-CLOCK-033; decision 0011): the bed's Sleep turns the month.
   "ui.nudge.night": "Night. Go to bed",
   // R-ACTIVITY-020: where an act's button was, once the body is spent.
   "ui.act.spent": "You are spent. Sleep.",

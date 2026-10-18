@@ -1,4 +1,4 @@
-// Baking (decision 0005 section 3): every part of a builder's group merged into one mesh
+// Baking (decision 0009 section 3): every part of a builder's group merged into one mesh
 // per material, with the palette colour on the vertices. Signs leave the body: a building
 // keeps only their anchors, a shopfront ships their faces as a second primitive whose
 // texture the client draws at run time (R-ASSET-012).

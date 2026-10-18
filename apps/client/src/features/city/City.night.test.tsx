@@ -1,5 +1,5 @@
 // The night and sleep (docs/rules/world.md R-WORLD-025; activity.md R-ACTIVITY-020; clock.md R-CLOCK-033; decision
-// 0036): the month turns only from the bed, at any hour of the world's day, once the bed's timed sleep runs out
+// 0011): the month turns only from the bed, at any hour of the world's day, once the bed's timed sleep runs out
 // (City.sleep.test.tsx tells the sleep itself); a life's first night is told once on a small card before it; at night the nudge sends the player to bed unless someone waits; and a spent body says so on
 // the act's fan button. The place file is the one the game ships; the scene is a stand-in that hands the city the taps,
 // says where a tapped thing stands so its fan opens, and walks at once (R-WORLD-034).
@@ -103,7 +103,7 @@ describe("sleep, the way the month turns", () => {
     const card = found("[data-night-teach]");
     expect(card.textContent).toContain("Each night you sleep is a month of your life.");
     expect(card.textContent).toContain(say("ui.night.first"));
-    // On a laptop the card stands in the centred column with the world around it (decision 0038).
+    // On a laptop the card stands in the centred column with the world around it (decision 0025).
     expect(card.closest("[data-centred-column]")).not.toBeNull();
     expect(turns(authority.sent)).toBe(0);
     fireEvent.click(found("[data-night-teach-ok]"));

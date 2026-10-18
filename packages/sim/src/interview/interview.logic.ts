@@ -382,7 +382,7 @@ function openCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // Answering
 // ---------------------------------------------------------------------------
 
-/** Whether the command came from the stand-in (decision 0007 point 3). */
+/** Whether the command came from the stand-in (decision 0005). */
 function byStandIn(ctx: Ctx): boolean {
   return ctx.sender === "stand-in";
 }

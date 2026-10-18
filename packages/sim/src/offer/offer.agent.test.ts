@@ -251,7 +251,7 @@ describe("paying the agent", () => {
   test("[R-ADVICE-008] given cash one naira short of the fee plus the floor, and then exactly that, when the agent is paid, then the first is refused and lapses into a decline, and the second is taken", () => {
     const { game, item } = agentOfKind("fixer");
     const fee = item.terms["fee"] as number;
-    // The floor is kept in cash and bank together (decision 0012): empty the bank so cash is the only naira.
+    // The floor is kept in cash and bank together (decision 0014): empty the bank so cash is the only naira.
     applyEffects(game, [{ type: "money/take", currency: "NGN", pocket: "bank", amount: game.view().pockets.NGN.bank, reason: "social" }]);
     const set = (amount: number) => applyEffects(game, [{ type: "money/take", currency: "NGN", pocket: "cash", amount: cash(game) - amount, reason: "social" }]);
     set(fee + advice.floorNaira - 100);

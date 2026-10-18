@@ -16,7 +16,7 @@ import { renderWithView } from "./shared/testing/render";
 import { cardKey } from "./shared/ui/stage";
 import { say } from "./shared/words/text";
 
-// Decision 0035: the lives were re-recorded; Ada's month that closes her chapter on building the file is now her 228th command.
+// Decision 0013: the lives were re-recorded; Ada's month that closes her chapter on building the file is now her 228th command.
 const CLOSE = 227;
 
 const REFUSED: ReportLine = { key: "line.route.refused", params: { route: "route.uk-masters", reason: "interview" }, tone: "bad", attention: true, counts: [] };

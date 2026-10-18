@@ -2,7 +2,7 @@
 // siblings and parents; bonds with computer characters and with players, known
 // only through facts; courting, proposals, the joint, letting people down and
 // the stand-in. Another life reaches this one only by authority commands
-// (decision 0007), so each life replays alone.
+// (decision 0020), so each life replays alone.
 import { check, worldVar } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, ownOf } from "../engine/kind";
@@ -951,7 +951,7 @@ function evolveEnded(slice: PeopleSlice, event: Extract<PeopleEvent, { type: "pe
   if (next.joint?.bond === event.bond) next = { ...next, joint: null };
   if (next.sponsoring?.bond === event.bond) next = { ...next, sponsoring: null };
   if (next.slots[PARTNER_SLOT]?.bond === event.bond) next = withSlot(next, PARTNER_SLOT, emptySlot("empty"));
-  // R-PEOPLE-040 (decision 0027): a sibling slot whose player started a new life goes back to a computer sibling, drawn
+  // R-PEOPLE-040 (decision 0020): a sibling slot whose player started a new life goes back to a computer sibling, drawn
   // again at the next month's start as an undrawn slot is (R-PEOPLE-047).
   if (event.by === "restart") {
     for (const [slot, held] of Object.entries(next.slots)) {
@@ -1264,7 +1264,7 @@ function view(read: ReadCtx): Pick<PlayerView, "people"> {
         moments: interviewOpen ? null : bond.moments,
         pending: bond.pending,
         standIn: bond.standIn,
-        // Decision 0009: the screens need who the bond is with and its timing.
+        // Decision 0002: the screens need who the bond is with and its timing.
         person: bond.with.kind === "computer" ? bond.with.entry : null,
         pair: bond.with.kind === "player" ? bond.with.pair : null,
         lastMomentMonth: bond.lastMomentMonth,

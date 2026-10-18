@@ -1,4 +1,4 @@
-// The bed's sleep (docs/rules/world.md R-WORLD-025, R-WORLD-005; decision 0036): a timed act on the bed, at any hour of the world's day. The month turns only
+// The bed's sleep (docs/rules/world.md R-WORLD-025, R-WORLD-005; decision 0011): a timed act on the bed, at any hour of the world's day. The month turns only
 // when the sleep runs out; waking first makes it a nap, and the night goes on.
 import type { DayPart, Id } from "@japacity/sim";
 

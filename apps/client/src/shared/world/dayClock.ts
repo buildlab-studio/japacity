@@ -1,4 +1,4 @@
-// The world's own clock on the device (docs/rules/clock.md R-CLOCK-033; decision 0036): the game's day, the same moment
+// The world's own clock on the device (docs/rules/clock.md R-CLOCK-033; decision 0011): the game's day, the same moment
 // for everyone, read from the authority's last reply and between replies from the device's time with the same pure
 // function. The band says its part of the day in words and the night asks for bed; never a time with digits.
 import { type DayPart, type WorldClock, worldClockAt } from "@japacity/sim";

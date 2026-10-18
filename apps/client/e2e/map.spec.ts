@@ -102,7 +102,7 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   expect(lit?.route?.[(lit.route.length || 1) - 1]).toEqual(there?.at);
   expect(lit?.channel).toBe(here?.card === there?.card ? "card" : "strip");
   await expect(page.locator(`[data-route-line]`).first()).toBeVisible();
-  // The button says the ride and its fare, the balance before struck through under it with the balance after (decision 0036), never "left".
+  // The button says the ride and its fare, the balance before struck through under it with the balance after (decision 0011), never "left".
   await expect(page.locator("[data-ride-main]")).toContainText("₦");
   await expect(page.locator("[data-ride-main]")).not.toContainText("left");
   await expect(page.locator("[data-balance-before]")).toBeVisible();

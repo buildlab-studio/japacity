@@ -50,7 +50,7 @@ export const READY_PAPERS: ScenarioEntry["documents"] = [
 
 /**
  * Ada, with her papers in hand and £40,000 and ₦2,000,000 in the bank, so a
- * test reaches the visa in a few turns, and ₦1,500,000 in cash, which with decision 0022
+ * test reaches the visa in a few turns, and ₦1,500,000 in cash, which with decision 0014
  * is a float above the line: her upkeep is taken from the bank first on the way. The content
  * is the one given, with this life added.
  */

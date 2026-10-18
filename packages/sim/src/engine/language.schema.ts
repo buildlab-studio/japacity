@@ -315,7 +315,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
     chanceBp: BpSchema.exactOptional(),
     via: z.string().min(1),
   }),
-  // Decision 0025: an effect may name the route it looks into.
+  // Decision 0001: an effect may name the route it looks into.
   z.strictObject({ type: z.literal("route/look-into"), route: idOf("route").exactOptional() }),
   z.strictObject({ type: z.literal("route/apply-school") }),
   z.strictObject({ type: z.literal("route/apply"), route: idOf("route") }),
@@ -397,13 +397,13 @@ export type TermSpecMatches = Proof<Same<z.infer<typeof TermSpecSchema>, TermSpe
 // Tuning
 // ---------------------------------------------------------------------------
 
-// The ways of a country abroad (R-PLACE-010, decision 0042), in that country's smallest unit.
+// The ways of a country abroad (R-PLACE-010, decision 0017), in that country's smallest unit.
 const RideFiguresSchema = z.strictObject({ fare: CountSchema, farePerKm: CountSchema, metresPerMinute: z.int().positive() });
 const CountryRidesSchema = z.strictObject({
   ways: z.strictObject({ bus: RideFiguresSchema.exactOptional(), train: RideFiguresSchema.exactOptional(), taxi: RideFiguresSchema.exactOptional() }),
   step: z.int().positive(),
   pass: CountSchema.nullable(),
-  // R-PLACE-012 (decision 0043): the ways the pass covers.
+  // R-PLACE-012 (decision 0017): the ways the pass covers.
   passWays: z.array(z.enum(["bus", "train", "taxi"])),
   lonMetresPerE3: z.int().positive(),
   walkMetresPerMinute: z.int().positive(),

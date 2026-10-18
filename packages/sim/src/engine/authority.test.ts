@@ -1,4 +1,4 @@
-// The authority creates no money: docs/rules/server.md R-SERVER-013, decision 0006 point 2.
+// The authority creates no money: docs/rules/server.md R-SERVER-013, decision 0005.
 // Every command, the authority's and the player's, is sent through `step` on each real
 // life, and the ledger is read before and after.
 import { content } from "@japacity/content";
@@ -96,7 +96,7 @@ const AUTHORITY_SAMPLES: Record<AuthorityCommand, Loose[]> = {
         { tier: "mid", amount: 4000000 },
       ],
     },
-    // Decision 0010: a prize that carries a house top-up part is refused.
+    // Decision 0016: a prize that carries a house top-up part is refused.
     { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "mid", amount: 4000000, topUp: 1500000 } as { tier: "mid"; amount: number }] },
   ],
   // R-WALLET-020: naira bought with real money, and two amounts the wallet refuses.
@@ -215,7 +215,7 @@ function send(state: State, loose: Loose, sender: Sender) {
 const LIVES = lives();
 
 describe("the authority's reach", () => {
-  test("[R-SERVER-013] given the simulation, when its authority commands are listed, then they are the closed list: the turn grant, the draw's payout, and the people messages from another life (decision 0007)", () => {
+  test("[R-SERVER-013] given the simulation, when its authority commands are listed, then they are the closed list: the turn grant, the draw's payout, and the people messages from another life (decision 0005)", () => {
     expect([...AUTHORITY_COMMANDS].sort()).toEqual(
       [
         "turns/grant",

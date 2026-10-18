@@ -1,4 +1,4 @@
-// A spent body on a sheet of several (docs/rules/activity.md R-ACTIVITY-020; decision 0036): an act that takes effort
+// A spent body on a sheet of several (docs/rules/activity.md R-ACTIVITY-020; decision 0011): an act that takes effort
 // waits for sleep once the energy is under the line, and its card says so where its button was.
 import { describe, expect, test } from "vitest";
 

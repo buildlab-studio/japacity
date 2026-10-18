@@ -11,7 +11,7 @@ import { chatProblems, nudgeProblems, signalProblems, stepProblems, wordCount } 
 import { NUDGE_WORDS, storyStep, storySteps, storyThings } from "./story.data";
 import { noticeKey, noticesDue, OBLIGATION_TYPES, reminders, remindersDue } from "./story.notice.data";
 
-/** Decision 0035 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
+/** Decision 0013 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
 const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
 
 const ADA: Id<"scenario"> = "scenario.ada";

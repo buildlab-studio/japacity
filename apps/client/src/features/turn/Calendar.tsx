@@ -1,4 +1,4 @@
-// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018; decision 0034): the month on the phone, in order. The job held; what carries on, each thing started carrying on until it is
+// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018; decision 0011): the month on the phone, in order. The job held; what carries on, each thing started carrying on until it is
 // stopped (R-WORLD-007), a held month's reason among them; the chores done this month and what they saved; what is coming
 // with its months away and where, each row opening where it is dealt with (a paper in Papers, R-WORLD-019). The month
 // turns when it is lived (R-TURN-010), so there is no plan to fill and nothing here ends it. Handed to the phone by the
@@ -60,7 +60,7 @@ function rentShortWords(view: Pick<PlayerView, "home" | "pockets">): string | nu
  * The chores done this month and what they saved (R-OBLIGATION-014): cooking and the water answer now,
  * and their share is held on the upkeep for its next charge, so the line reads the relief the view carries. The drum
  * filled from the yard's tap saves nothing and says so plainly. Null when nothing was done, and no saving is said where
- * nothing of the living is charged (R-HOME-012, decision 0035): the relief takes nothing off nothing.
+ * nothing of the living is charged (R-HOME-012, decision 0013): the relief takes nothing off nothing.
  */
 export function choresWords(view: Pick<PlayerView, "obligations" | "activities">): string | null {
   const done = (id: string): boolean => view.activities.some((option) => option.id === id && option.done === true);

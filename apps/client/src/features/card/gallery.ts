@@ -14,7 +14,7 @@ export interface Kept {
   key: string;
   scenario: Id<"scenario">;
   card: ShareCard;
-  /** The japa type read when the send-off was due, kept with that card (decision 0018); absent on every other card. */
+  /** The japa type read when the send-off was due, kept with that card (decision 0024); absent on every other card. */
   type?: JapaType;
   /** The seat the counter gave at the send-off (share.md R-SHARE-015), kept with that card for its stub; absent on every other card. */
   seat?: Seat;

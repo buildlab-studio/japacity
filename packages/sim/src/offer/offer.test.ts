@@ -421,7 +421,7 @@ describe("choosing", () => {
     const item = subject.open("offer.nepa-bill")!;
     const bank = subject.game.state.wallet.pockets.NGN.bank;
     const result = subject.accept({ type: "offer/choose", offer: item.id, choice: "pay" });
-    // A bill is paid by transfer, the bank first (decision 0012).
+    // A bill is paid by transfer, the bank first (decision 0014).
     expect(result.events).toContainEqual({ type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 2500000, reason: "family" });
     expect(subject.game.state.wallet.pockets.NGN.bank).toBe(bank - 2500000);
     expect(qualityChanges(result, "offer.nepa-bill.pay")).toEqual([[STANDING, 3]]);

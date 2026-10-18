@@ -77,7 +77,7 @@ const NOW_ACTS: readonly string[] = [
   "activity.cook-at-home",
   "activity.fetch-water",
   "activity.fill-drum",
-  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0037).
+  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0012).
   "activity.buy-suya",
   "activity.mallam-tea",
   "activity.pure-water",

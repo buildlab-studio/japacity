@@ -1,4 +1,4 @@
-// The lively layer's tokens (docs/design/13-the-lively-layer.md, section 2; decision 0038; world.md R-WORLD-021): the day
+// The lively layer's tokens (docs/design/13-the-lively-layer.md, section 2; decision 0025; world.md R-WORLD-021): the day
 // paint on :root, the night paint under data-paint="night", one type face in three sizes, and the circle pattern kept
 // off every everyday surface.
 import { readFileSync } from "node:fs";

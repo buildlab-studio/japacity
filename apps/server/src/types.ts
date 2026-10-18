@@ -53,7 +53,7 @@ export interface ClockView {
   nextTickAt: number;
   /** Null while the bank is full. */
   nextTurnAt: number | null;
-  /** R-CLOCK-032: when the next sealed result opens: the world's next morning (decision 0036). */
+  /** R-CLOCK-032: when the next sealed result opens: the world's next morning (decision 0011). */
   morningAt: number;
   /** R-CLOCK-033: the world's own clock, the same for everyone. */
   world: WorldClock;

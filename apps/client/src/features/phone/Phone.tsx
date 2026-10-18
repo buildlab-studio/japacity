@@ -196,7 +196,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
         {/* The handset is laid out at rest or grown, centred at the foot, and never moves by layout: the grow and the
             shrink are one transform from the box it left (useGrow), and putting it away is a transform too, so the
             frames between are the compositor's (R-WORLD-023). On a laptop it is laid out in
-            the centred column, so grown it is a phone's width, not the screen's (decision 0038). */}
+            the centred column, so grown it is a phone's width, not the screen's (decision 0025). */}
         <CentredColumn className="pointer-events-none absolute inset-0">
         <div
           ref={handset}

@@ -1,7 +1,7 @@
 // pnpm assets:export <name...> | examples | all
 // Builds each model from its builder in Node, bakes it, compresses it, writes it under
 // apps/client/public/assets, reads it back, checks its palette and fills its register row's
-// measured columns (decision 0005 section 3). Nothing here opens a browser.
+// measured columns (decision 0009 section 3). Nothing here opens a browser.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 

@@ -1,4 +1,4 @@
-// Opens the stage in Playwright's own Chromium on the software renderer (decision 0005 section 3,
+// Opens the stage in Playwright's own Chromium on the software renderer (decision 0009 section 3,
 // point 4): no executablePath, so Playwright finds the build it installed, and SwiftShader, so a
 // model gives the same pixels on every run.
 import { text } from "@japacity/content";

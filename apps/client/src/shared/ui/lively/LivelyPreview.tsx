@@ -1,4 +1,4 @@
-// The lively layer's preview (development only, `?lively` at the boot; decision 0038): every primitive in both paints,
+// The lively layer's preview (development only, `?lively` at the boot; decision 0025): every primitive in both paints,
 // side by side on a laptop and one after the other on a phone, with sample words in the game's voice. Each paint is a
 // panel carrying data-paint, so the night's tokens hold inside it whatever the clock says. A tap on the motion and sound
 // chips plays each answer. Nothing here is shown to a player.

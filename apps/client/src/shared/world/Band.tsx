@@ -1,6 +1,6 @@
 // The top band (docs/rules/world.md R-WORLD-002): the age and the place's name, the month's name with the world's part of
 // the day (clock.md R-CLOCK-033), and the money as a counter. Nothing else. It hides while riding and while the results
-// show. The month turns when the life sleeps (decision 0036), so the band carries no Next month and no count of anything.
+// show. The month turns when the life sleeps (decision 0011), so the band carries no Next month and no count of anything.
 import { text } from "@japacity/content";
 import type { DayPart, PlayerView } from "@japacity/sim";
 import { ChevronDown } from "lucide-react";
@@ -144,7 +144,7 @@ const SKY_PICTURES: Readonly<Record<DayPart, string>> = { morning: "🌤️", af
 /**
  * The band (R-WORLD-002) as the lively layer draws it: a white pill by day and a navy one at night, the sky's picture,
  * the name with the part of the day beside it and the age and the place small under it, the body's word as a chip when
- * it complains, and the money in green. No pattern on it (decision 0038). A handle under it opens the second row;
+ * it complains, and the money in green. No pattern on it (decision 0025). A handle under it opens the second row;
  * closed, that row peeks for a few seconds whenever its words change. On a laptop it stands in the centred column.
  * While a fan's button is pressed the counter shows what would be left, and settles back when it is let go.
  */

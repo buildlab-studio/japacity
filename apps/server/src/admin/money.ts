@@ -141,7 +141,7 @@ function contentAt(deps: Pick<ServerDeps, "contents">, segments: readonly Segmen
   return (segment === undefined ? null : contentNamed(deps, segment.content, segment.overlay)) ?? deps.contents.current;
 }
 
-/** A house part a payout logged before decision 0010 may still carry; nothing logs one now. */
+/** A house part a payout logged before decision 0016 may still carry; nothing logs one now. */
 function housePart(prize: object): number {
   const { topUp } = prize as { topUp?: unknown };
   return typeof topUp === "number" ? topUp : 0;
@@ -153,7 +153,7 @@ function housePart(prize: object): number {
  * the draw on sale at the tick its `lottery/buy` was stepped at. All are read
  * from the logs of the characters on the draw's ticket list. The `win` paid
  * must be what R-LOTTERY-011 gives the result, `pot-top-up` must be 0
- * (decision 0010), and the tickets taken must be the sales: the tickets sold
+ * (decision 0016), and the tickets taken must be the sales: the tickets sold
  * at the current price.
  */
 export async function drawAlarms(deps: MoneyDeps, day: number): Promise<Alarm[]> {

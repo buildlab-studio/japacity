@@ -1,4 +1,4 @@
-// Rides abroad: docs/rules/place.md R-PLACE-010 (decision 0042, design page 14 section 5). A ride
+// Rides abroad: docs/rules/place.md R-PLACE-010 (decision 0017, design page 14 section 5). A ride
 // is accepted in the country the character is in, between two places of that country, on the ways it lists or on foot,
 // the fare taken from the country's money; the scarcity factor is Lagos's only.
 import { content } from "@japacity/content";
@@ -54,7 +54,7 @@ function debits(result: Accepted): BaseEvent[] {
 
 describe("the fare abroad", () => {
   test("[R-PLACE-010] given the UK's ways, when their figures are read, then the bus is £1.75 flat at 250 m a minute, the train £2.80 and 10p a kilometre at 600 m a minute, fares in fives of pence, and the pass £95", () => {
-    // Decision 0043: the pass covers the bus alone, and on foot is 80 m a minute.
+    // Decision 0017: the pass covers the bus alone, and on foot is 80 m a minute.
     expect(rides).toEqual({ ways: { bus: { fare: 175, farePerKm: 0, metresPerMinute: 250 }, train: { fare: 280, farePerKm: 10, metresPerMinute: 600 } }, step: 5, pass: 9500, passWays: ["bus"], lonMetresPerE3: 69, walkMetresPerMinute: 80 });
     // Canada, the UAE and Italy list their ways too (design page 15 section 4; place.ride.three.test.ts).
     for (const country of ["country.canada", "country.uae", "country.italy"] as const) expect(Object.keys(content.tuning.city.ride.abroad[country]?.ways ?? {}).length).toBeGreaterThan(0);

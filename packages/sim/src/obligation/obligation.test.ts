@@ -13,7 +13,7 @@ import { start } from "../testing/play";
 import { draw, seedWhere } from "../testing/route.journey";
 import type { ObligationEvent } from "./obligation.events";
 
-/** Decision 0035 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
+/** Decision 0013 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
 const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
 
 const ADA: Id<"scenario"> = "scenario.ada";
@@ -168,7 +168,7 @@ describe("paid in full or missed", () => {
     expect(ofType(exact.endTurn(), "obligation/charged")).toHaveLength(1);
     expect(exact.state.wallet.pockets.NGN.bank).toBe(0);
 
-    // One kobo less: the upkeep takes what is held and the shortfall is the miss (decision 0015).
+    // One kobo less: the upkeep takes what is held and the shortfall is the miss (decision 0013).
     const short = start({ scenario: ADA, content });
     setNaira(short, ADA_UPKEEP - 1);
     const result = short.endTurn();
@@ -313,7 +313,7 @@ describe("default", () => {
     expect(item(game, loan.id)?.state).toBe("defaulted");
     expect(game.view().obligations.find((owed) => owed.id === loan.id)?.due).toBe(principal);
 
-    // Too little for the upkeep: it is charged first (R-OBLIGATION-001) and takes every naira held (decision 0015), so
+    // Too little for the upkeep: it is charged first (R-OBLIGATION-001) and takes every naira held (decision 0013), so
     // the lender finds nothing this month and what is owed stands.
     setNaira(game, 3000000, 5000000);
     const partly = game.endTurn();
@@ -395,7 +395,7 @@ describe("held funds", () => {
     expect(ofType(result, "obligation/taken-back")).toEqual([{ type: "obligation/taken-back", id: held.id, entry: HELD, amount: principal }]);
     expect(debits(result)).toContainEqual({ type: "wallet/debited", currency: "NGN", pocket: "locked", amount: principal, reason: "held-funds-return" });
     expect(qualityChanges(result, HELD).map((event) => [event.quality, event.amount])).toEqual([[STANDING, -5]]);
-    // The upkeep, short, took the bank's naira first (decision 0015).
+    // The upkeep, short, took the bank's naira first (decision 0013).
     expect(game.state.wallet.pockets.NGN).toMatchObject({ locked: 0, bank: 0 });
     expect(item(game, held.id)).toBeUndefined();
     const line = result.lines.find((entry) => entry.key === "line.obligation.taken-back");

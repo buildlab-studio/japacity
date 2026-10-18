@@ -182,7 +182,7 @@ function chargeOf(read: ReadCtx, item: ObligationState, entry: ObligationEntry):
 export function livingCharge(read: Pick<ReadCtx, "world" | "content">, obligation: Id<"obligation">, amount: number): number {
   const entry = read.content.obligation[obligation];
   const rise = entry?.currency === "NGN" ? bp(amount, worldVarOr(read.world, INFLATION)) : 0;
-  // R-HOME-012 (decision 0035): at home the living is lived by hand, as meals, water, fares and data; that share is never charged.
+  // R-HOME-012 (decision 0013): at home the living is lived by hand, as meals, water, fares and data; that share is never charged.
   // Makoko's figure goes the same way (the child of the water keeps equal or better odds); the room's first month is paid on the move.
   const byHand = entry?.currency === "NGN" && entry.type === "upkeep" ? bp(amount + rise, read.content.tuning.home.livingByHandBp) : 0;
   return Math.max(0, amount + rise - byHand);
@@ -474,7 +474,7 @@ function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: C
     ctx.apply(entry.onMiss, cause);
     return events;
   }
-  // R-OBLIGATION-002 (decision 0015): the upkeep takes what the naira holds and the shortfall is the miss, so a bill
+  // R-OBLIGATION-002 (decision 0013): the upkeep takes what the naira holds and the shortfall is the miss, so a bill
   // short by a little never leaves the whole month's money untouched and the results saying nothing moved.
   const paid = entry.type === "upkeep" && entry.currency === "NGN" ? Math.min(totalOf(charge), ctx.state.wallet.pockets.NGN.cash + ctx.state.wallet.pockets.NGN.bank) : 0;
   if (paid > 0) take(ctx, cause, entry.currency, "any", paid, "upkeep");

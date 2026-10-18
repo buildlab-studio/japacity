@@ -52,7 +52,7 @@ describe("the room in a compound", () => {
     // Your room ends at its door's wall (x 0.475); everyone else stands in the yard beyond it.
     expect(stage.people.filter(([x]) => x < 0.475)).toEqual([]);
     const acts = (id: string) => thingOf(id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null]);
-    // The mattress naps on its sheet and sleeps (decision 0035, R-ACTIVITY-019); while no nap can be had its act is Lie
+    // The mattress naps on its sheet and sleeps (decision 0012, R-ACTIVITY-019); while no nap can be had its act is Lie
     // down, done at once with the lying pose; an empty slot rests (R-TURN-006).
     expect(acts("bed")).toEqual([
       ["sheet", "activity.nap"],

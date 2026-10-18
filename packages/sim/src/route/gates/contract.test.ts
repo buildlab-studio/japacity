@@ -46,7 +46,7 @@ function judge(game: Game, requirement: Requirement): boolean {
 
 /** The motor park makes the route heard (R-CONTRACT-001); looking into it needs the UK master's heard, by month 3. */
 function toKnown(game: Game): void {
-  // A second ask at the park looks the Gulf into once it is heard (decision 0025), so the hub's look-into is needed only while it is still heard.
+  // A second ask at the park looks the Gulf into once it is heard (decision 0001), so the hub's look-into is needed only while it is still heard.
   if (routeOf(game).state === "unknown") game.endTurn([slot("activity.ask-around")]);
   for (let month = 0; month < 5 && routeOf(game, UK).state !== "heard"; month += 1) game.endTurn();
   if (routeOf(game).state === "heard") game.endTurn([slot("activity.look-into-route", GULF)]);

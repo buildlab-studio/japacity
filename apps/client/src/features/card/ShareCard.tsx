@@ -363,7 +363,7 @@ export function CardView() {
   const [reopened, setReopened] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const others = kept.filter((entry) => entry.key !== key);
-  // Read when the send-off is due, kept with its card when it closes (decision 0018).
+  // Read when the send-off is due, kept with its card when it closes (decision 0024).
   const type = japaTypeOf(view);
   const seat = useSeat();
   const scene = useSendOffShowing();

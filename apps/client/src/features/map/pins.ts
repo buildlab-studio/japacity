@@ -71,7 +71,7 @@ function metresBetween(from: Position, to: Position): number {
  */
 export function rideChoices(from: Position, to: Position, country: string | null = null, fareBp = 10000, home = false, ids: { from: string; to: string } | null = null, drive = false): RideChoice[] {
   const { metresPerMinute, waitMinutes, walkMetres } = content.tuning.city.ride;
-  // Abroad there is one way, named for the country, at no fare until the tuning carries fares in that country's money (decision 0011).
+  // Abroad there is one way, named for the country, at no fare until the tuning carries fares in that country's money (decision 0017).
   if (country !== null) return [{ id: "danfo", label: mapWords(`map.way.abroad.${country}`), fare: 0, minutes: waitMinutes + ABROAD_MINUTES }];
   const metres = metresBetween(from, to);
   // The month's fares (the fuel scarcity doubles them, R-PLACE-010): the same figure the simulation takes. On foot only within walking distance; past it the walk is shut, so a fare is a real cost.

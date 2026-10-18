@@ -130,7 +130,7 @@ function nowThisMonth(state: State): SlotPick[] {
 }
 
 /**
- * R-ACTIVITY-020 (decision 0036): the body is spent for an act that takes effort (any time at all) when energy is under
+ * R-ACTIVITY-020 (decision 0011): the body is spent for an act that takes effort (any time at all) when energy is under
  * `tuning.turn.body.spentBelow`; a purchase, and an act that takes no time, never waits.
  */
 function bodySpent(state: State, content: Content, entry: Pick<ActivityEntry, "purchase" | "halfDays">): boolean {
@@ -355,7 +355,7 @@ export function canPayAll(
 
 /**
  * Every price is judged as `canPayAll` does: a naira price from cash and bank together, cash first
- * (decision 0012: a street price is cash first, never cash alone; only the street takes cash by itself).
+ * (decision 0014: a street price is cash first, never cash alone; only the street takes cash by itself).
  */
 function canPayPrices(prices: readonly Price[], judge: Judge, wallet: State["wallet"]): boolean {
   return canPayAll(prices, judge) && earnedCovers(prices, wallet);
@@ -384,7 +384,7 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   if (entry.id === LOTTO) prices.push({ currency: "NGN", amount: luck.ticket * ticketsOf(param, luck), reason: "social", cash: true, earned: true });
   if (entry.id === BET) prices.push({ currency: "NGN", amount: luck.stake, reason: "social", cash: true, earned: false });
   if (entry.id === PHONE) prices.push({ currency: "NGN", amount: read.content.tuning.street.phonePrice, reason: "phone", cash: true, earned: false });
-  // R-ADVICE-004: the adviser's fee under its own reason (decision 0011).
+  // R-ADVICE-004: the adviser's fee under its own reason, `fee-advice`.
   // The licensed adviser is paid by transfer like any office; the street prices above are cash first.
   if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-advice", cash: false, earned: false });
   if (entry.id === DRIVING_TEST) {
@@ -396,7 +396,7 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   return prices;
 }
 
-/** Pays each cost under its own reason: naira by transfer, bank first, or cash first for a street price (decision 0012); a foreign fee by R-WALLET-009 (R-ACTIVITY-004). */
+/** Pays each cost under its own reason: naira by transfer, bank first, or cash first for a street price (decision 0014); a foreign fee by R-WALLET-009 (R-ACTIVITY-004). */
 function payPrices(ctx: Ctx, prices: readonly Price[], cause: Cause): void {
   for (const price of prices) {
     if (price.amount <= 0) continue;
@@ -938,7 +938,7 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const entry = withThings(ctx, plain);
   if ((entry.slot !== "free" && entry.slot !== "none") || !answersNow(entry)) return reject("not-legal", `${entry.id} fills the month: it is a slot pick, not an act now.`);
   if (doneThisMonth(ctx.state, entry)) return reject("not-legal", `${entry.id} was done this month already. It runs once a month.`);
-  // R-ACTIVITY-020 (decision 0036): an act that takes effort waits for sleep once the body is spent; what takes none is always open.
+  // R-ACTIVITY-020 (decision 0011): an act that takes effort waits for sleep once the body is spent; what takes none is always open.
   if (bodySpent(ctx.state, ctx.content, entry)) return reject("not-legal", `${entry.id} takes effort, and you are spent. Sleep.`);
   // R-LUCK-005: the kiosk sells at most `maxTickets` a month across visits; a ticket past it
   // is refused, and the kiosk says so in its own voice on the screen.
@@ -954,7 +954,7 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const events = record(ctx, { type: "activity/now-played", activity: entry.id, param: pick.param, ...(entry.repeat === true ? { counted: true as const } : {}) });
   const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
   payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
-  // R-ACTIVITY-018 (decision 0034): the act spends its time of the month, a morning without a figure; a purchase spends none.
+  // R-ACTIVITY-018 (decision 0011): the act spends its time of the month, a morning without a figure; a purchase spends none.
   if (entry.purchase !== true) ctx.apply([{ type: "turn/spend-days", halfDays: entry.halfDays ?? 1 }], cause);
   if (!DRAWN_LATER.includes(entry.id)) events.push(...runById(ctx, entry, pick, cause));
   ctx.apply(

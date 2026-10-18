@@ -1,4 +1,4 @@
-// The Worker's request and job plumbing (decision 0004), kept apart from
+// The Worker's request and job plumbing (decision 0006), kept apart from
 // `index.ts` so the tests run it on Node. One request or one job has one `pg`
 // client through the Hyperdrive configuration with caching off, opened when a
 // store or the auth library first asks for it (R-SERVER-002) and closed once
@@ -49,7 +49,7 @@ export function isolateOf(env: Env): Isolate {
 }
 
 /**
- * The mail transport (account.md R-ACCOUNT-014, decision 0031): the MAIL binding on a deployment, Mailpit on the
+ * The mail transport (account.md R-ACCOUNT-014, decision 0007): the MAIL binding on a deployment, Mailpit on the
  * local stack (mail.ts). R-ACCOUNT-003: the notices go by the same way as the codes.
  */
 function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): AuthKeys {

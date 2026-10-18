@@ -1,4 +1,4 @@
-// The price and the balance on a priced act (docs/rules/world.md R-WORLD-006; decision 0035): the button says the act and
+// The price and the balance on a priced act (docs/rules/world.md R-WORLD-006; decision 0013): the button says the act and
 // its price, and under it the balance before stands struck through beside the balance after, as a price tag shows a
 // discount. Nothing moves until the tap. When the money is short, the button says how much instead, the one exception.
 import type { CSSProperties } from "react";

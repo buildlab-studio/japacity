@@ -1,4 +1,4 @@
-// The sky and the sun by the world's clock (docs/rules/clock.md R-CLOCK-033, decision 0036): the place's one sun and one
+// The sky and the sun by the world's clock (docs/rules/clock.md R-CLOCK-033, decision 0011): the place's one sun and one
 // sky light turned and tinted by the part of the world's day and the minute within it; the development switch that pins it.
 import { time, worldClockAt } from "@japacity/sim";
 import { Color } from "three";

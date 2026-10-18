@@ -344,7 +344,7 @@ for (const mode of ["low", "high"] as const) {
       expect(seen?.shadow?.bias ?? 0, id).toBeLessThan(0);
       expect(seen?.shadow?.normalBias ?? 0, id).toBeGreaterThan(0);
       // A place narrower than 16 m keeps the scene's least reach of 8 m either side (CityScene.tsx),
-      // which a wide home seen whole straight down its length is (decision 0040); the city's reach is 24.
+      // which a wide home seen whole straight down its length is (decision 0018); the city's reach is 24.
       expect(seen?.shadow?.reach ?? Infinity, id).toBeLessThanOrEqual(Math.max(seen?.shot?.width ?? 0, 16) / 2 + 4 + 1e-6);
       expect(seen?.shadow?.reach ?? Infinity, id).toBeLessThan(24);
     }

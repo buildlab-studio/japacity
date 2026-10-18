@@ -1,4 +1,4 @@
-// Sleep is a timed act from the bed (docs/rules/world.md R-WORLD-025, R-WORLD-005; decision 0036): sleep
+// Sleep is a timed act from the bed (docs/rules/world.md R-WORLD-025, R-WORLD-005; decision 0011): sleep
 // takes a fixed time and the player can wake out of it. The bed's Sleep lays the figure down under a soft dark wash, with
 // a chip under the band and a Wake up button; the month turns only when the sleep runs out, and waking first makes it a
 // nap. The place file is the one the game ships; the scene is a stand-in that hands the city the taps a player makes.

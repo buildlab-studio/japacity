@@ -12,7 +12,7 @@ import { placeNudgeBus, readNudge } from "./place.nudge";
 
 const PLACE = "place.market";
 
-// decision 0004 section 5: the store's contract suites, run against the place objects.
+// decision 0006 section 5: the store's contract suites, run against the place objects.
 suiteForPresenceStore(() => Promise.resolve(placePresenceStore(freshRooms())));
 suiteForNudgeBus(() => Promise.resolve(placeNudgeBus(freshRooms(), () => Promise.resolve(PLACE))));
 

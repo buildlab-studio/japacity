@@ -19,7 +19,7 @@ export interface GoldenExpected {
 
 export interface Golden extends GoldenExpected {
   name: string;
-  /** A golden blessed before decision 0006 holds the flat save; `loadSave` reads either. */
+  /** A golden blessed before decision 0004 holds the flat save; `loadSave` reads either. */
   save: Save | FlatSave;
 }
 

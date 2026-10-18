@@ -227,7 +227,7 @@ export function Corner({ hidden = false, told = false }: { hidden?: boolean; tol
   const line = lines[0];
   if (hidden || line === undefined) return null;
   return (
-    // On a laptop the corner is the centred column's (decision 0038). It keeps out of the thumbs' columns, so the round turn
+    // On a laptop the corner is the centred column's (decision 0025). It keeps out of the thumbs' columns, so the round turn
     // button over Phone never stands on its end.
     <CentredColumn className={`pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+84px)] flex justify-center px-[72px] ${told ? "z-[45]" : "z-[36]"}`}>
       <p key={line.id} className="talk-corner rise max-w-full px-4 py-1.5 text-center text-[14px] leading-snug font-bold" role="status" data-corner data-told>

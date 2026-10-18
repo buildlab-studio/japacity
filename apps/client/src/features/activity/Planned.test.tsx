@@ -13,7 +13,7 @@ import { formatMoney } from "../../shared/words/format";
 import { nameOf, say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
-// Decision 0035 (R-ACTIVITY-019): the coding course now answers at once and repeats; the course that carries on as a
+// Decision 0012 (R-ACTIVITY-019): the coding course now answers at once and repeats; the course that carries on as a
 // commitment is a master's at home.
 const LEARN = "activity.masters-at-home";
 const CLASS = "activity.learn-tech";

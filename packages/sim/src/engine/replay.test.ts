@@ -1,4 +1,4 @@
-// Saves in segments: docs/rules/server.md R-SERVER-020 to 024 and decision 0006.
+// Saves in segments: docs/rules/server.md R-SERVER-020 to 024 and decision 0004.
 import { content as realContent } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

@@ -53,7 +53,7 @@ export {
   PER_MILLION,
   TIERS,
 } from "./lottery/lottery.draw";
-// The raffle and its house top-up, switched off by decision 0010 and kept with their tests.
+// The raffle and its house top-up, switched off by decision 0016 and kept with their tests.
 export { drawWinners, tiersFor, prizesFor, topUpFor, topUpPart, RAFFLE_AT_SWITCH_OFF } from "./lottery/lottery.draw";
 export type { Tier, TierSpec, RaffleSettings } from "./lottery/lottery.draw";
 // The pair module: pure functions over the record two lives share (docs/rules/pair.md). The server and both clients use them.

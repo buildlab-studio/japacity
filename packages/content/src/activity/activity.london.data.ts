@@ -1,5 +1,5 @@
 // London lived by hand: docs/rules/place.md R-PLACE-012 (the bus pass) and streets.md R-STREET-012 (design page 14
-// section 6, decision 0042). Each is a priced now-act in pounds, paid as it is done; when each answers and the time it
+// section 6, decision 0017). Each is a priced now-act in pounds, paid as it is done; when each answers and the time it
 // spends are in activity.when.data.ts and activity.days.data.ts. Joined into the activity table in activity.data.ts;
 // place.data.ts stages each at its London place.
 import type { ActivityEntry, Effect, Id, Reason, Requirement } from "@japacity/sim";

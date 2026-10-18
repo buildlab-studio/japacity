@@ -108,7 +108,7 @@ describe("the bridge's price: when it opens", () => {
 
 describe("the bridge's price: what each does", () => {
   /** A life that rests one month and so tells how much cash it holds when the offers come up the month after. */
-  // The bank covers the month's upkeep, which is taken bank first (decision 0012) and would otherwise take the cash too (decision 0015).
+  // The bank covers the month's upkeep, which is taken bank first (decision 0014) and would otherwise take the cash too (decision 0013).
   const BANK = content.scenario["scenario.ada"]!.obligations[0]!.amount + street.theftNaira * 4;
   function cashAtComeUp(seed: string, cash: number): number {
     const twin = life(alone(BRIDGE_THEFT), seed);

@@ -67,7 +67,7 @@ export interface SnapshotRow {
   state: State;
 }
 
-/** R-SERVER-020: how a segment starts, as decision 0006 gives `SaveSegment.start`. */
+/** R-SERVER-020: how a segment starts, as decision 0004 gives `SaveSegment.start`. */
 export type SegmentStart = { scenario: Id<"scenario">; seed: string; worldSeed: string } | { base: State };
 
 /** R-SERVER-020, R-SERVER-021: a segment begins after version `fromV` and holds the log rows up to the next segment's `fromV`. */
@@ -446,7 +446,7 @@ export interface LedgerRows {
 export interface LedgerStore extends LedgerRows {
   /**
    * R-SERVER-011: one transaction. The work is handed the ledger bound to the transaction (as
-   * decision 0030 hands a player transaction its stores) and reads and writes only through it: what it wrote is
+   * decision 0006 hands a player transaction its stores) and reads and writes only through it: what it wrote is
    * kept when it resolves, and none of it when it throws, so a day's totals and the mark that closes them move together.
    */
   transaction: <T>(work: (ledger: LedgerRows) => Promise<T>) => Promise<T>;

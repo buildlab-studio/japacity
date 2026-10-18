@@ -1,7 +1,7 @@
 // A thing's fan with its act carrying on in the plan (docs/rules/world.md R-WORLD-005, R-WORLD-007, R-WORLD-034): a
 // month-act started at a thing carries on each month until it is stopped, so its fan button
 // says Ongoing, shut, with a stop beside it that takes it out of the plan. Time with Mama is an
-// act done at once (decision 0035, R-ACTIVITY-019), on one sheet with her shop, so the fan is read on a month-act that
+// act done at once (decision 0012, R-ACTIVITY-019), on one sheet with her shop, so the fan is read on a month-act that
 // carries on: the apprenticeship at the accessories stall in Computer Village. Every thing has a fan.
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";

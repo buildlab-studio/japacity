@@ -1,6 +1,6 @@
 // The band's money by where the character is (docs/rules/world.md R-WORLD-002): the naira at home,
 // and abroad the country's own money, bank and cash together, from content's country table. And the month's name with
-// the world's part of the day where the pages were (decision 0036; clock.md R-CLOCK-033): no Next month, no count of
+// the world's part of the day where the pages were (decision 0011; clock.md R-CLOCK-033): no Next month, no count of
 // anything, never a clock time.
 import { content, text } from "@japacity/content";
 import { type Currency, type PlayerView, time, worldClockAt } from "@japacity/sim";

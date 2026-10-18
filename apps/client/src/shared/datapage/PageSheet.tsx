@@ -53,7 +53,7 @@ function districtOf(view: Pick<PlayerView, "home">): string {
 export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson()): PageFields {
   const archetype = archetypeOf(person?.archetype);
   const kind = `${view.scenario}.kind`;
-  // The japa type kept with the send-off card stays on the page from then on (decision 0018).
+  // The japa type kept with the send-off card stays on the page from then on (decision 0024).
   const type = keptTypeOf(view.scenario);
   const lived = archetype === null ? null : livedOtherwise(archetype, view);
   const draw = keptDraw();
